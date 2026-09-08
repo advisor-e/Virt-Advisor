@@ -23,6 +23,7 @@
  */
 
 const mo = require('../../server/utils/meetingObservations')
+const tierChain = require('../../server/utils/tierChain')
 const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
 
 const FIRM = 'firm-test-1'
@@ -329,6 +330,79 @@ describe('resolving through the tier chain', () => {
     const firm = await mo.loadResolvedObservations(FIRM, read)
     const trees = require('../../data/logic_trees.json').trees
     expect(firm[EOY].name).toBe(trees.filter(t => t.id === EOY)[0].name)
+  })
+})
+
+describe('🔴 which tier last changed a point survives the cascade — item 4.76', () => {
+  // Every level restamps `source` relative to the viewer (item 4.59), so by the time a point
+  // reaches a firm the fact that a MIDDLE tier reworded it has been erased. The advisor is
+  // then told Advisor-e wrote words a group manager wrote, and sent to the wrong people when
+  // they ask why it is on their list. `changedAtTier` is what survives that restamping.
+  const BRAND = 'Advisor-e'
+  const COUNTRY = 'Germany'
+  const GLOBAL = tierChain.globalScopeId(BRAND)
+  const GROUP = tierChain.groupScopeId(BRAND, COUNTRY)
+
+  beforeEach(() => {
+    tierChain.setFirmMembership({ [FIRM]: { globalGroup: BRAND, country: COUNTRY } })
+  })
+  afterEach(() => { tierChain.setFirmMembership({}) })
+
+  const markOn = (resolved, id) => resolved[EOY].points.filter(p => p.id === id)[0].changedAtTier
+
+  test('a GROUP manager rewording a platform point is remembered at the firm', async () => {
+    const read = readerFor({
+      [GROUP]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-1': { text: 'Germany says it this way.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    const point = firm[EOY].points.filter(p => p.id === 'mo-eoy-1')[0]
+    // The two older signals both still say Advisor-e: the id is the platform's, because
+    // identity is never editable, and the badge is `inherited` by the time it arrives.
+    expect(point.id).toBe('mo-eoy-1')
+    expect(point.source).toBe(mo.OBSERVATION_SOURCE_LABELS.inherited)
+    expect(point.text).toBe('Germany says it this way.')
+    expect(point.changedAtTier).toBe('group_manager')
+  })
+
+  test('a GLOBAL manager rewording a platform point is remembered at the firm', async () => {
+    const read = readerFor({
+      [GLOBAL]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-2': { text: 'The brand says it this way.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    expect(markOn(firm, 'mo-eoy-2')).toBe('global_group_manager')
+  })
+
+  test('the LAST tier to change a point wins, not the first', async () => {
+    const read = readerFor({
+      [PLATFORM_SCOPE]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-1': { text: 'Mentor wording.' } } } },
+      [GROUP]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-1': { text: 'Germany wording.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    expect(firm[EOY].points.filter(p => p.id === 'mo-eoy-1')[0].text).toBe('Germany wording.')
+    expect(markOn(firm, 'mo-eoy-1')).toBe('group_manager')
+  })
+
+  test('a point nobody has changed carries no mark at all', async () => {
+    // Absent rather than guessed: `sourceTierOf` falls through to the id prefix, which is
+    // the right answer for a shipped point and the honest one for anything unrecognised.
+    const firm = await mo.loadResolvedObservations(FIRM, NOTHING)
+    expect(markOn(firm, 'mo-eoy-1')).toBeUndefined()
+  })
+
+  test("the mentor's own edit is marked as the mentor's", async () => {
+    const read = readerFor({
+      [PLATFORM_SCOPE]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-3': { text: 'Mentor reworded this.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    expect(markOn(firm, 'mo-eoy-3')).toBe('mentor')
+  })
+
+  test("a firm's own edit is marked as the firm's", async () => {
+    const read = readerFor({
+      [FIRM]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-4': { text: 'Our wording.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    expect(markOn(firm, 'mo-eoy-4')).toBe('firm_manager')
   })
 })
 

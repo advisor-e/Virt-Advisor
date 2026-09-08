@@ -39,12 +39,12 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.58** Meeting Review — the advisor's side is complete; §4 remains ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **4.72** A removed observation point's id is handed to the next one added ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 5 | **4.76** A middle tier's rewording is badged as Advisor-e's ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 5 | **4.76** A middle tier's rewording is badged as Advisor-e's ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 6 | **4.77** First-year depreciation cannot differ from later years, or between two vehicles ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 7 | **4.78** Tax rules per country - a firm manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 8 | **4.79** Only the first report in a workbook is read, so a real export is refused ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**Eight live items. Seven need Mike.** If this list passes about twenty, something is wrong.
+**Eight live items. Eight need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

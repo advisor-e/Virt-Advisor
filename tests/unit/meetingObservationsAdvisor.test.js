@@ -75,6 +75,36 @@ describe('which tier an advisor is told a point came from', () => {
     expect(sourceTierOf({ id: 'xm-2', firmSource: OBSERVATION_SOURCE_LABELS.inherited })).toBe('firm')
   })
 
+  it('🔴 says FIRM for a MIDDLE TIER\'S REWORDING of a platform point — item 4.76', () => {
+    // The case neither older signal can see. A global or group manager editing a platform
+    // point keeps the `mo-` id (identity is never editable) AND reaches the firm marked
+    // `inherited` (every level restamps relative to the viewer — item 4.59). Both older
+    // signals therefore say "From Advisor-e" about words a group manager wrote, sending the
+    // advisor to the one group of people who cannot answer for them.
+    expect(sourceTierOf({
+      id: 'mo-eoy-1', firmSource: OBSERVATION_SOURCE_LABELS.inherited, changedAtTier: 'group_manager'
+    })).toBe('firm')
+    expect(sourceTierOf({
+      id: 'mo-eoy-1', firmSource: OBSERVATION_SOURCE_LABELS.inherited, changedAtTier: 'global_group_manager'
+    })).toBe('firm')
+  })
+
+  it('says PLATFORM when the mentor is the last tier to have changed it', () => {
+    expect(sourceTierOf({
+      id: 'mo-eoy-1', firmSource: OBSERVATION_SOURCE_LABELS.inherited, changedAtTier: 'mentor'
+    })).toBe('platform')
+  })
+
+  it('the mark outranks the prefix, because it is the more recent fact', () => {
+    // A point the MENTOR added and a GROUP manager later reworded still carries `mm-`. The
+    // prefix says who wrote it first; the mark says who wrote the words on screen now.
+    expect(sourceTierOf({ id: 'mm-4', changedAtTier: 'group_manager' })).toBe('firm')
+  })
+
+  it('an unrecognised mark falls to FIRM, never to platform', () => {
+    expect(sourceTierOf({ id: 'mo-eoy-1', changedAtTier: 'something_new' })).toBe('firm')
+  })
+
   it('says ADVISOR for a point this advisor added', () => {
     expect(sourceTierOf({ id: 'ao-1', source: ADVISOR_SOURCE_LABELS.own })).toBe('advisor')
   })

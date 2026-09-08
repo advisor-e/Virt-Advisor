@@ -42,6 +42,7 @@
  */
 
 const { resolveInheritedRows } = require('./resolveInheritedRows')
+const { TIERS } = require('./tierChain')
 const {
   PLATFORM_POINT_PREFIX,
   POINT_PREFIX_BY_TIER,
@@ -178,6 +179,13 @@ const SOURCE_TIER_LABELS = {
   firm: 'From your firm',
   advisor: 'Added by you'
 }
+
+/**
+ * The one tier an advisor is told is Advisor-e. Taken from `tierChain.TIERS` rather than
+ * written out, so it cannot drift from the vocabulary `tierOfScope` actually returns —
+ * `TIERS` is ordered mentor first and `parentScopeOf` already depends on that order.
+ */
+const MENTOR_TIER = TIERS[0]
 
 /** Most own points one advisor may hold in one meeting type. */
 const MAX_OWN_POINTS_PER_SCENARIO = 20
@@ -387,23 +395,40 @@ function readAdvisorOwn (stored) {
 /**
  * The tier an advisor should be told a point came from: `platform`, `firm` or `advisor`.
  *
- * 🔴 IT READS TWO THINGS, AND NEEDS BOTH. The point's id prefix says who CREATED it; the
- * source the firm's own resolution stamped says whether the firm changed it since. A firm
- * that edits a platform point keeps the platform id — identity is never editable — so the
- * prefix alone would tell an advisor "From Advisor-e" about words their own firm wrote.
- * `firmSource` catches exactly that case, and a point a MIDDLE tier added (which reaches the
- * firm marked `inherited`) is caught by its own prefix instead. Neither signal covers both.
+ * 🔴 IT READS THREE THINGS, IN THIS ORDER, AND EACH COVERS WHAT THE NEXT CANNOT.
  *
- * ⚠ THE FALLBACK IS `firm`, NOT `platform`. An id whose prefix nobody recognises is far more
- * likely to be something written inside the firm's chain than something Advisor-e shipped,
- * and being wrong towards "your firm" sends an advisor to a person who can actually answer.
+ *   1. `changedAtTier` — the tier that LAST changed the point, carried down the manager
+ *      cascade by `meetingObservations.stampChangedAtTier`. This is the only signal that
+ *      catches a GLOBAL or GROUP manager REWORDING a platform point: the id stays `mo-`
+ *      because identity is never editable, and the restamping at each level (item 4.59)
+ *      means it reaches the firm marked `inherited`. Both of the older signals below say
+ *      "Advisor-e" about words a group manager wrote. That was item 4.76.
+ *   2. `firmSource` — the badge the firm's own resolution stamped, which catches the FIRM
+ *      editing a platform point. Retained because it is what a caller that has not been
+ *      through the cascade still has.
+ *   3. the id prefix — who CREATED the point, which catches a middle tier's OWN addition
+ *      (`xm-`, `gm-`) arriving marked inherited.
  *
- * @param {object} point - a resolved point, carrying `id` and `firmSource`
+ * ⚠ ANY TIER BELOW THE MENTOR READS AS `firm`. Mike's ruling, 2026-09-08 (question 3): an
+ * advisor has no relationship with a brand or a country tier and would read "From the UK
+ * group" as a question rather than an answer. The collapse is deliberate, not a shortcut.
+ *
+ * ⚠ THE FALLBACK IS `firm`, NOT `platform`. An id whose prefix nobody recognises — or a mark
+ * whose value nobody recognises — is far more likely to be something written inside the
+ * firm's chain than something Advisor-e shipped, and being wrong towards "your firm" sends
+ * an advisor to a person who can actually answer.
+ *
+ * @param {object} point - a resolved point, carrying `id`, `firmSource` and `changedAtTier`
  * @returns {'platform'|'firm'|'advisor'}
  */
 function sourceTierOf (point) {
   if (!point) { return 'firm' }
   if (point.source === ADVISOR_SOURCE_LABELS.own) { return 'advisor' }
+
+  // The mentor IS Advisor-e to an advisor; every tier below it is their firm's chain.
+  const changedAt = point.changedAtTier
+  if (changedAt === MENTOR_TIER) { return 'platform' }
+  if (changedAt) { return 'firm' }
 
   const firmSource = point.firmSource
   if (firmSource === OBSERVATION_SOURCE_LABELS.own ||

@@ -429,6 +429,36 @@ function hasAnyDecision (state) {
 // ── Resolution ───────────────────────────────────────────────────────────────────────
 
 /**
+ * Mark the rows THIS level changed with the tier that changed them.
+ *
+ * 🔴 WHY THIS EXISTS, and why it is here rather than in `resolveInheritedRows` (item 4.76).
+ * Every level restamps `source` relative to whoever is looking — itself the fix for item
+ * 4.59 — so by the time a point reaches a firm, the fact that a GLOBAL or GROUP manager
+ * reworded it has been erased by design: it arrives carrying the platform's `mo-` id and the
+ * badge `inherited`, and the advisor is told Advisor-e wrote words a group manager wrote.
+ *
+ * ⚠ THE FIX DOES NOT NEED THE SHARED MECHANISM. The item predicted a change to
+ * `resolveInheritedRows`, which domain support, quizzes, the staircase and the distinctions
+ * all resolve through. It is not required: the information is lost in the RECURSION, which
+ * lives here, so keeping it here leaves every other block untouched.
+ *
+ * A row this level merely inherited keeps whatever mark came from above — the shallow copies
+ * `resolveInheritedRows` returns carry it through — so the mark always names the LAST tier to
+ * change a point, not the first.
+ *
+ * @param {Array<object>} rows - one level's resolved rows
+ * @param {string} tier - the tier that just resolved them
+ * @returns {Array<object>}
+ */
+function stampChangedAtTier (rows, tier) {
+  return rows.map((p) => {
+    const changedHere = p.source === OBSERVATION_SOURCE_LABELS.override ||
+      p.source === OBSERVATION_SOURCE_LABELS.own
+    return changedHere ? { ...p, changedAtTier: tier } : p
+  })
+}
+
+/**
  * The observation points in force at a scope, per scenario.
  *
  * Recurses up the tier chain exactly as `staircaseConfig.loadBlendedStaircase` does: the
@@ -509,14 +539,19 @@ async function loadResolvedObservations (scopeId, loadFirmConfig) {
       name: s.name,
       // Carried through, never read here — the optional coaching link.
       treeId: s.treeId || null,
-      points: resolveInheritedRows(
-        inherited,
-        {
-          declinedIds: state.declines[s.id] || [],
-          overrides: state.overrides[s.id] || {},
-          ownRows: state.own[s.id] || []
-        },
-        { sourceLabels: OBSERVATION_SOURCE_LABELS }
+      // Stamped with the tier that changed each row, so a middle tier's rewording is not
+      // erased by the restamping above it — see `stampChangedAtTier`.
+      points: stampChangedAtTier(
+        resolveInheritedRows(
+          inherited,
+          {
+            declinedIds: state.declines[s.id] || [],
+            overrides: state.overrides[s.id] || {},
+            ownRows: state.own[s.id] || []
+          },
+          { sourceLabels: OBSERVATION_SOURCE_LABELS }
+        ),
+        tierOfScope(scopeId)
       )
     }
   })
@@ -627,6 +662,7 @@ module.exports = {
   meetingScenarios,
   registeredScenarioIds,
   basePointsFor,
+  stampChangedAtTier,
   validatePointFields,
   readDecisionMap,
   readNextSeqMap,

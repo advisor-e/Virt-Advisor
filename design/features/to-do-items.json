@@ -151,7 +151,7 @@
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "When a global or group manager rewords a platform point, the advisor is told it came from Advisor-e, because the point keeps the platform id and reaches the firm marked inherited.",
       "risk": "Small and cosmetic today, but the badge exists to send an advisor to whoever can answer for the wording, and this sends them to the wrong place. sourceTierOf's own JSDoc claims to prevent exactly this; it catches the firm's own override and not a middle tier's.",
       "askedBy": {
@@ -159,9 +159,9 @@
         "ours": true,
         "detail": "Found 2026-09-08 by /code-review over this branch. Filed on Mike's instruction the same day: \"save them, make them tasks\"."
       },
-      "touches": "server/utils/meetingObservationsAdvisor.js (sourceTierOf), and - this is the cost - server/utils/resolveInheritedRows.js and server/utils/meetingObservations.js, because the tier that last changed a point is not carried through the cascade at all. meetingTypes.js resolves through the same helper.",
-      "note": "⚠ NOT THE SMALL FIX IT LOOKS. Each tier deliberately RESTAMPS source relative to whoever is looking - itself the fix for item 4.59 on 2026-09-04 - so by the time a point reaches the firm, the fact that a middle tier rewrote it has been erased by design. Getting it right means carrying the last-changing tier through resolveInheritedRows, which the meeting-types cascade shares. The fallback is already the safe direction: an unrecognised id says firm, never platform.",
-      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day."
+      "touches": "BUILT: server/utils/meetingObservations.js (stampChangedAtTier, inside the recursion) and server/utils/meetingObservationsAdvisor.js (sourceTierOf reads it first), plus two test files. resolveInheritedRows.js was NOT touched, so no other block moved.",
+      "note": "FIXED 2026-09-08, AND IT DID NOT COST WHAT THIS ITEM PREDICTED. The forecast was a change to resolveInheritedRows - the mechanism domain support, quizzes, the staircase and the distinctions all share. Not needed: the last-changing tier is lost in the RECURSION, which lives in loadResolvedObservations, so it is carried there and every other block is untouched. sourceTierOf now reads three signals in order - the mark, then the firm's badge, then the id prefix - and each catches what the next cannot. Any tier below the mentor reads as 'From your firm', per Mike's ruling of 2026-09-08. Mutation-verified on both halves. NOT YET WATCHED IN A BROWSER.",
+      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day. Fixed the same day on his instruction. The item's own cost estimate was wrong in the cheap direction: reading the code showed the shared mechanism never had to move. 9 new tests, suite 8,415 green."
     },
     {
       "ref": "4.77",
