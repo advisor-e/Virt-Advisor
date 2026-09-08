@@ -9,27 +9,34 @@
 
 ---
 
-## 2026-09-08 (seventh session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-09 (eighth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,398 green**, lint 0, audit pass. **Six commits, all pushed.** 55 ahead, 0 behind.
-Clean. **Docs only — no code changed.**
+Suite **8,503 green** (430 suites), lint 0 errors, audit pass. **Ten commits, all pushed.**
+10 ahead, 0 behind — `origin/master` was merged in first (PR #69, no content).
 
-**Closed 4.79** — proved on Mike's real MYOB and QuickBooks exports before closing; the
-browser check is UAT's, his ruling. **Live list is 6.**
+**4.78 RENAMED TO DEPRECIATION RATES** on Mike's ruling — IR265 is a depreciation schedule
+published *by* the tax office, not tax rules. 11 files moved with `git mv`; the separate
+**Property Tax Rules** feature is untouched and must stay that way.
 
-**4.77** — the two IRD guides are at `C:\Documents\Visual Code Projects\Perf Report\tax
-rules nz`. IR260 is **April 2024**; neither mentions Investment Boost, which is the only
-thing still missing.
+**Slices 1 and 2 built** (`d8621e9`, `af54bcb`): the store with the four-tier cascade and a
+per-rate origin, six routes, and the **Depreciation Rates** tab at all four manager tiers.
+**Nothing has ever read a document.**
 
-**4.78 designed, nothing built, `activeOn` laptop.**
-[`mockups/depreciation-rates-upload.html`](mockups/depreciation-rates-upload.html) and
-[`depreciation-rates-advisor.html`](mockups/depreciation-rates-advisor.html) — nine rulings, no open
-questions. Ready to build.
+**The feature has no open questions.** Every ruling is in
+[`features/depreciation-rates-history.md`](features/depreciation-rates-history.md); five
+drawings, all approved. **Next is slice 3** — upload, the AI reading the PDF (ruled: sent to
+the model, never extracted locally), and the proposed-rates table.
 
-**If the push gate fails on missing coverage data with every test green:** `rm -rf
-coverage` and push again. It would not reproduce; cause unproven.
+**Open for Mike:** 4.15, 4.58, 4.66 · and **whether 4.77 closes into 4.78** — its asset model
+is now 4.78's dated purchase list. Not ours to decide; it is on 4.77's note.
 
-**Open for Mike:** 4.15, 4.58, 4.66, 4.77. 4.80 is ours, parked today.
+⚠ **A real gap is recorded and deliberately NOT filed:** the forecast hardcodes New Zealand's
+28% tax rate and its GST rate, with no way to set either per country. History §3b. Mike has
+not asked for it, so it is not work.
 
-⚠ **Desktop note still dated 2026-09-04** while `feat/firm-quiz-builder-ui` committed
-2026-09-08, 39 ahead of `master`.
+⚠ **Known deviation:** the new tab's strings are hardcoded English, like four of its five
+siblings, against the i18n standard. Named in the component header.
+
+**DESKTOP:** you were active today — `feat/firm-quiz-builder-ui`, 43 ahead. Nothing of yours
+was touched. We share one Handbook link and each overwrite the other; ours was published last
+tonight.
