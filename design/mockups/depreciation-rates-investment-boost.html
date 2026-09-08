@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investment Boost — a first-year rule on the country's table</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.78 / 4.77 — INVESTMENT BOOST. Screen mockup for approval, drawn 2026-09-09.
+
+   WHY ONE FILE FOR TWO SCREENS. Every other drawing in this feature is one screen
+   per file. This one is deliberately both halves, because the whole point of the
+   design is that they are one rule in two places: the rule arrives and is approved
+   on the MANAGER's table, and the field it switches on appears on the ADVISOR's
+   forecast. Seeing them apart would hide the only thing that needs checking.
+
+   WHAT CREATED IT. Mike, 2026-09-09: "i want the investment boost field included -
+   i have advisors applying this to clients already so i know it has a practical
+   user case." He had already raised the underlying problem on 2026-09-08 while
+   ruling on the asset schedule, and costed it on his own example.
+
+   🔴 A CORRECTION THIS DRAWING EXISTS TO CARRY. A session earlier the same day told
+   Mike that Investment Boost CONTRADICTED his ruling that the forecast holds one
+   depreciation rate. It does not. That ruling is precisely what makes it simple:
+   because the accounts follow the tax rates, Investment Boost is exactly what
+   Inland Revenue describes and nothing more - 20% expensed, 80% capitalised and
+   depreciated as normal. One rate throughout, no second schedule, no deferred tax.
+
+   FIGURES ARE MIKE'S OWN, from item 4.77 as he costed it on 2026-09-08, and they
+   are internally consistent with this model - which is itself evidence the model is
+   the right one: 800,000 -> 160,000 expensed + 640,000 on the register; year-one
+   deduction 276,895 against 146,118 today; 130,777 more deduction; 36,617 less tax.
+
+   THE RULE IS SOURCED, not remembered: ird.govt.nz, "New assets - Investment Boost".
+   Colours and type READ OFF the shipped screens (owner ruling 2026-07-23). No dark
+   mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.q{background:#fff;border:1px solid #ffd666;border-left:3px solid var(--rs-warn);
+  border-radius:0 10px 10px 0;padding:12px 14px;margin:10px 0;font-size:13px;color:var(--rs-ink)}
+.q b.qh{display:block;color:#8a5a00;margin-bottom:4px}
+
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;text-align:right}
+th.num{text-align:right}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+
+.ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;
+  padding:5px 10px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-muted);min-width:96px;text-align:right}
+.inp{background:#fff;border:1px solid var(--rs-accent);border-radius:7px;
+  padding:5px 10px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-ink);min-width:96px;text-align:right}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--rs-accent-soft);color:#0058a0;white-space:nowrap}
+.badge.def{background:#f1f4f7;color:#7a8ba0}
+.badge.ok{background:var(--rs-good-soft);color:#2f7d32}
+.badge.wait{background:var(--rs-warn-soft);color:#8a5a00}
+.badge.none{background:var(--rs-crit-soft);color:#b01212}
+
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+
+.btn{display:inline-block;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:5px 11px;font-size:12.5px}
+
+.gaps{margin:0;padding-left:18px;font-size:13.5px}
+.gaps li{margin:8px 0}
+
+.work{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:14px 16px;font-size:13px}
+.work table{font-size:13px}
+.work td{border-bottom:1px dotted var(--rs-line);padding:7px 12px 7px 0}
+.work tr:last-child td{border-bottom:0;font-weight:600;color:var(--rs-ink)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Investment Boost — drawn for approval 2026-09-09. Nothing is built.</b>
+  <b>Mike, 2026-09-09:</b> <i>"i want the investment boost field included - i have advisors
+  applying this to clients already so i know it has a practical user case."</i></p>
+  <p>🔴 <b>A CORRECTION THIS DRAWING CARRIES.</b> Earlier the same day he was told Investment
+  Boost <b>contradicted</b> his ruling that the forecast holds one depreciation rate. <b>It does
+  not.</b> That ruling is exactly what makes it simple: because the accounts follow the tax rates,
+  Investment Boost is what Inland Revenue describes and nothing more — <b>20% expensed, 80%
+  capitalised and depreciated as normal.</b> One rate throughout. No second schedule, no deferred
+  tax, and the asset schedule's arithmetic is untouched — only the figure entering it changes.</p>
+  <p><b>Both halves are in this one file on purpose</b>, because they are one rule in two places:
+  it is approved on the manager's table, and it switches on a field in the advisor's forecast.
+  Apart, the only thing worth checking would be invisible.</p>
+  <p>🔴 <b>THREE QUESTIONS ARE OPEN — §4.</b> They are marked where they arise.</p>
+</div>
+
+<div class="stepmark">1 · The rule arrives on the country's table, like every other figure</div>
+
+<div class="mock">
+  <p>It is read from the tax authority's own material, it shows its source, and <b>nothing uses it
+  until the firm manager approves it</b> — the same gate as the rates themselves. A country whose
+  documents contain no such scheme simply has no rule, and the advisor's field never appears.</p>
+</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Firm Manager Hub</div>
+  <h1 class="hub-h1">Depreciation Rates</h1>
+  <div class="hub-sub">Apex Auto &amp; Engineering Ltd · New Zealand</div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Coaching Reference</div>
+  <div class="tab">AI Prompts</div>
+  <div class="tab on">Depreciation Rates</div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>First-year rule — New Zealand</h2>
+    <div>
+      <button class="btn ghost small">Reject</button>
+      <button class="btn small">Approve this rule</button>
+    </div>
+  </div>
+  <div class="card-b">
+    <table>
+      <tbody>
+        <tr>
+          <td style="width:34%">Rule</td>
+          <td><b>Investment Boost</b>
+            <div class="src">Inland Revenue — "New assets: Investment Boost", ird.govt.nz</div></td>
+          <td style="width:16%"><span class="badge wait">Needs your approval</span></td>
+        </tr>
+        <tr>
+          <td>Deducted in the year of purchase</td>
+          <td><b>20%</b> of the asset's cost, as an expense</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>The rest</td>
+          <td><b>80%</b> goes on the asset register and depreciates at the ordinary rate</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Applies from</td>
+          <td><b>22 May 2025</b></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Qualifies</td>
+          <td>New assets; new commercial and industrial buildings; capital improvements;
+            second-hand assets new to New Zealand</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Does not qualify</td>
+          <td>Land, residential buildings, trading stock, fixed-life intangible property</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="notice info">
+  <b>This does not change the total you may claim — it brings it forward</b>
+  Shown on the screen in these words, because a manager approving a 20% write-off should not
+  believe the business is getting more deduction than it is.
+</div>
+
+<div class="q">
+  <b class="qh">QUESTION 1 — is this on the same Approve button as the rates, or its own?</b>
+  Drawn with <b>its own Approve</b>, and that is a <span class="rec">recommendation</span>: a
+  first-year rule changes a client's tax in a single year by a large amount, and a manager
+  approving 41 depreciation rates should not sweep it along in the same click. The cost is one
+  extra action per country.
+</div>
+
+<div class="stepmark">2 · A country with no such rule</div>
+
+<div class="mock">
+  <p>Australia has no equivalent of Investment Boost in the loaded document, so <b>the panel says
+  so rather than being absent</b> — the same reasoning as the "what the AI could not find" panel.
+  An absent panel reads as "not checked"; this reads as "checked, and there is none".</p>
+</div>
+
+<div class="card">
+  <div class="card-b">
+    <table>
+      <tbody>
+        <tr>
+          <td style="width:34%">First-year rule — Australia</td>
+          <td>No first-year or accelerated-deduction rule was found in any document loaded for
+            Australia. The newest is dated <b>July 2025</b>.
+            <div class="src">If a scheme was introduced after that date, nothing loaded would mention it</div></td>
+          <td style="width:16%"><span class="badge none">None found</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">3 · The advisor's field — only where a rule is approved</div>
+
+<div class="mock">
+  <p>On <b>step 2 of the Three-Way Forecast</b>, in the Assets card, as one more row beneath the
+  monthly asset purchases. <b>It cannot be a tick per category</b>: a category holds both a new
+  tractor and a second-hand one bought the same month, and only one of them qualifies. So the
+  advisor states the amount.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Assets and depreciation · Plant and equipment</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">New Zealand · Investment Boost approved
+      by S. Mannering, 9 Sep 2026</span>
+  </div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:46%">&nbsp;</th>
+          <th class="num">This month</th>
+          <th>Where it comes from</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Asset purchases</td>
+          <td class="num"><span class="inp">800,000</span></td>
+          <td><span class="badge def">entered</span></td>
+        </tr>
+        <tr>
+          <td><b>Qualifying for Investment Boost</b>
+            <div class="src">How much of the above is a new asset. Leave at zero if none of it is.</div></td>
+          <td class="num"><span class="inp">800,000</span></td>
+          <td><span class="badge def">entered</span></td>
+        </tr>
+        <tr>
+          <td>Deducted now, as an expense <span class="badge ok">20%</span></td>
+          <td class="num"><span class="ro">160,000</span></td>
+          <td><span class="badge">worked out</span></td>
+        </tr>
+        <tr>
+          <td>Added to the asset register</td>
+          <td class="num"><span class="ro">640,000</span></td>
+          <td><span class="badge">worked out</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="q">
+  <b class="qh">QUESTION 2 — where does the 160,000 appear in the printed report?</b>
+  Drawn as <b>its own line beneath depreciation</b>, named <i>Investment Boost</i>, rather than
+  added into the depreciation figure. <span class="rec">Recommended</span> because a lender
+  reading a one-off 160,000 buried inside depreciation would take it for a recurring charge and
+  read the following years as a collapse in costs. The wording of that line is yours to settle.
+</div>
+
+<div class="mock">
+  <p><b>What it is worth, in Mike's own figures</b> — his costing of 2026-09-08, which is itself
+  evidence this is the right model: the numbers only reconcile under "20% expensed, depreciate the
+  80%".</p>
+</div>
+
+<div class="work">
+  <table>
+    <tbody>
+      <tr><td style="width:60%">Year-one deduction as the engine models it today</td><td class="num">146,118</td></tr>
+      <tr><td>20% of cost, deducted now</td><td class="num">160,000</td></tr>
+      <tr><td>Ordinary depreciation, on 640,000 rather than 800,000</td><td class="num">116,895</td></tr>
+      <tr><td>Year-one deduction with Investment Boost</td><td class="num">276,895</td></tr>
+      <tr><td>Additional deduction in year one</td><td class="num">130,777</td></tr>
+      <tr><td>Tax deferred out of year one, at 28%</td><td class="num">36,617</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="stepmark">4 · The third question, and what this deliberately does not do</div>
+
+<div class="q">
+  <b class="qh">QUESTION 3 — a purchase dated before the rule starts.</b>
+  A forecast can begin before 22 May 2025. Drawn so the qualifying field <b>accepts nothing in a
+  month before the rule's start date</b> and says why on the row.
+  <span class="rec">Recommended</span> over letting the figure through: a boost claimed on a
+  purchase that predates the scheme is a wrong tax figure in a document a lender reads, and the
+  advisor cannot see the start date from the forecast screen.
+</div>
+
+<div class="card">
+  <div class="card-b">
+    <ul class="gaps">
+      <li><b>It never touches the opening asset values.</b> Investment Boost is for assets
+        <i>bought</i>, so it acts only on purchases made during the forecast — never on what the
+        business already owned.</li>
+      <li><b>It does not decide what qualifies.</b> The advisor states the amount. The screen shows
+        the rule's own words for what does and does not qualify, and stops there — judging whether
+        a particular tractor is "new to New Zealand" is the accountant's job, not the app's.</li>
+      <li><b>It introduces no second depreciation rate and no deferred tax.</b> Mike's ruling of
+        2026-09-09 stands untouched: one rate, charged as an expense, tax computed on the profit
+        after it.</li>
+      <li><b>It does not appear at all for a country with no approved rule.</b> Not greyed out —
+        absent, so an Australian client is never offered a New Zealand scheme.</li>
+      <li><b>It is not switched on by the app.</b> Like every rate here, the rule reaches a
+        forecast only after a firm manager has approved it.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
