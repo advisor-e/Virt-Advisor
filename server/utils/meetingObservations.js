@@ -59,20 +59,30 @@ const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
  *   - meeting-observation-declines  -> { scenarioId: [pointId] }        inherited points off
  *   - meeting-observation-overrides -> { scenarioId: { pointId: {…} } } edited fields
  *   - meeting-observation-own       -> { scenarioId: [ {id, text} ] }   points added here
+ *   - meeting-observation-next-seq  -> { scenarioId: n }                ids already minted
+ *
+ * 🔴 `nextSeq` IS A COUNTER, NOT A DECISION, and the distinction is load-bearing twice over.
+ * It is deliberately absent from `loadScopeObservationState`, so `hasAnyDecision` cannot
+ * count it — a scope that added a point and removed it again has decided nothing, and must
+ * still see the layer above by identity. And it is absent from the history endpoint, because
+ * restoring an earlier `own` version must NOT wind the counter back: the ids in the restored
+ * version were already issued once. See `nextOwnPointId`.
  *
  * @type {Object.<string, string>}
  */
 const CONFIG_KEYS = {
   declines: 'meeting-observation-declines',
   overrides: 'meeting-observation-overrides',
-  own: 'meeting-observation-own'
+  own: 'meeting-observation-own',
+  nextSeq: 'meeting-observation-next-seq'
 }
 
 /** Dev-only stand-ins, used when there is no MySQL. See `_load` for why they are dev-only. */
 const DEV_FILES = {
   declines: 'data/dev-meeting-observation-declines.json',
   overrides: 'data/dev-meeting-observation-overrides.json',
-  own: 'data/dev-meeting-observation-own.json'
+  own: 'data/dev-meeting-observation-own.json',
+  nextSeq: 'data/dev-meeting-observation-next-seq.json'
 }
 
 /**
@@ -419,6 +429,36 @@ function hasAnyDecision (state) {
 // ── Resolution ───────────────────────────────────────────────────────────────────────
 
 /**
+ * Mark the rows THIS level changed with the tier that changed them.
+ *
+ * 🔴 WHY THIS EXISTS, and why it is here rather than in `resolveInheritedRows` (item 4.76).
+ * Every level restamps `source` relative to whoever is looking — itself the fix for item
+ * 4.59 — so by the time a point reaches a firm, the fact that a GLOBAL or GROUP manager
+ * reworded it has been erased by design: it arrives carrying the platform's `mo-` id and the
+ * badge `inherited`, and the advisor is told Advisor-e wrote words a group manager wrote.
+ *
+ * ⚠ THE FIX DOES NOT NEED THE SHARED MECHANISM. The item predicted a change to
+ * `resolveInheritedRows`, which domain support, quizzes, the staircase and the distinctions
+ * all resolve through. It is not required: the information is lost in the RECURSION, which
+ * lives here, so keeping it here leaves every other block untouched.
+ *
+ * A row this level merely inherited keeps whatever mark came from above — the shallow copies
+ * `resolveInheritedRows` returns carry it through — so the mark always names the LAST tier to
+ * change a point, not the first.
+ *
+ * @param {Array<object>} rows - one level's resolved rows
+ * @param {string} tier - the tier that just resolved them
+ * @returns {Array<object>}
+ */
+function stampChangedAtTier (rows, tier) {
+  return rows.map((p) => {
+    const changedHere = p.source === OBSERVATION_SOURCE_LABELS.override ||
+      p.source === OBSERVATION_SOURCE_LABELS.own
+    return changedHere ? { ...p, changedAtTier: tier } : p
+  })
+}
+
+/**
  * The observation points in force at a scope, per scenario.
  *
  * Recurses up the tier chain exactly as `staircaseConfig.loadBlendedStaircase` does: the
@@ -499,14 +539,19 @@ async function loadResolvedObservations (scopeId, loadFirmConfig) {
       name: s.name,
       // Carried through, never read here — the optional coaching link.
       treeId: s.treeId || null,
-      points: resolveInheritedRows(
-        inherited,
-        {
-          declinedIds: state.declines[s.id] || [],
-          overrides: state.overrides[s.id] || {},
-          ownRows: state.own[s.id] || []
-        },
-        { sourceLabels: OBSERVATION_SOURCE_LABELS }
+      // Stamped with the tier that changed each row, so a middle tier's rewording is not
+      // erased by the restamping above it — see `stampChangedAtTier`.
+      points: stampChangedAtTier(
+        resolveInheritedRows(
+          inherited,
+          {
+            declinedIds: state.declines[s.id] || [],
+            overrides: state.overrides[s.id] || {},
+            ownRows: state.own[s.id] || []
+          },
+          { sourceLabels: OBSERVATION_SOURCE_LABELS }
+        ),
+        tierOfScope(scopeId)
       )
     }
   })
@@ -536,30 +581,71 @@ function asAdvisorPreset (scenario) {
     // the model entirely and asks the advisor instead, so it has to know which those are
     // before it builds a prompt.
     cannotHear: Boolean(p.cannotHear),
-    hintWords: Array.isArray(p.hintWords) ? p.hintWords : []
+    hintWords: Array.isArray(p.hintWords) ? p.hintWords : [],
+    // Carried through for the advisor's own level (2026-09-08): which tier the advisor is
+    // told a point came from, and the approved words for it. Absent until
+    // `meetingObservationsAdvisor.applyAdvisorLayer` has stamped them, which is why these
+    // are conditional rather than defaulted — a screen that has not been through that layer
+    // must show no source line at all, never an empty or guessed one.
+    ...(p.sourceTier ? { sourceTier: p.sourceTier } : {}),
+    ...(p.sourceLabel ? { sourceLabel: p.sourceLabel } : {})
   }))
+}
+
+/**
+ * The stored high-water marks, keyed by scenario. Anything that is not a whole number above
+ * zero is dropped rather than trusted — a corrupt mark must degrade to the live rows, never
+ * mint a negative or fractional id.
+ *
+ * @param {*} stored - whatever came back from the overlay
+ * @returns {Object.<string, number>}
+ */
+function readNextSeqMap (stored) {
+  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) { return {} }
+  const out = {}
+  Object.keys(stored).forEach((scenarioId) => {
+    const n = stored[scenarioId]
+    if (Number.isInteger(n) && n > 0) { out[scenarioId] = n }
+  })
+  return out
 }
 
 /**
  * Mint the next own-point id for a scope within one scenario.
  *
- * Counts from the ids ALREADY HELD at this scope for this scenario rather than from the
- * list length, so deleting a point never hands its id to the next one added — a reused id
- * would inherit the deleted point's declines and overrides.
+ * 🔴 IT TAKES A STORED HIGH-WATER MARK AS WELL AS THE LIVE ROWS, AND IT NEEDS BOTH. Counting
+ * from the ids currently held is not enough: remove the HIGHEST one and the next point added
+ * takes its id straight back. A reused id would match the removed point in any coaching
+ * report already stored against it — a report about a point the firm no longer checks,
+ * reading as one about the point just written — and would deliver a brand-new point to every
+ * advisor who had set the removed one aside, already set aside. Nothing on any screen would
+ * look wrong.
+ *
+ * ⚠ THE JSDOC HERE USED TO CLAIM THIS AND THE CODE DID NOT DO IT (item 4.72, fixed
+ * 2026-09-08). The test that guarded it deleted a MIDDLE id, which the old version handled
+ * correctly; only deleting the highest exposed the fault. The fix is the one
+ * `meetingObservationsAdvisor.nextAdvisorPointId` was given a day earlier, ported up.
+ *
+ * The mark only ever goes up, and the live rows are still read — so a mark lost to a
+ * hand-edited dev file, or absent from data written before the mark existed, degrades to the
+ * old behaviour rather than colliding with a point that is right there.
  *
  * @param {string} scopeId
  * @param {Array<object>} existingOwnRows - this scope's own rows for the scenario
- * @returns {string}
+ * @param {number} [lastSeq] - the stored high-water mark for this scenario, if any
+ * @returns {{id: string, seq: number}}
  */
-function nextOwnPointId (scopeId, existingOwnRows) {
+function nextOwnPointId (scopeId, existingOwnRows, lastSeq) {
   const prefix = ownPointPrefix(scopeId)
   const used = (Array.isArray(existingOwnRows) ? existingOwnRows : [])
     .map(r => (r && typeof r.id === 'string' && r.id.indexOf(prefix) === 0)
       ? parseInt(r.id.slice(prefix.length), 10)
       : NaN)
     .filter(n => Number.isInteger(n) && n > 0)
-  const highest = used.length ? Math.max(...used) : 0
-  return prefix + (highest + 1)
+  const highestHeld = used.length ? Math.max(...used) : 0
+  const mark = (Number.isInteger(lastSeq) && lastSeq > 0) ? lastSeq : 0
+  const seq = Math.max(highestHeld, mark) + 1
+  return { id: prefix + seq, seq }
 }
 
 module.exports = {
@@ -576,8 +662,10 @@ module.exports = {
   meetingScenarios,
   registeredScenarioIds,
   basePointsFor,
+  stampChangedAtTier,
   validatePointFields,
   readDecisionMap,
+  readNextSeqMap,
   loadScopeObservationState,
   loadResolvedObservations,
   asAdvisorPreset,

@@ -14,20 +14,29 @@
  * 🔴 `confidence` IS THE HONEST PART AND MUST NOT BE INFLATED.
  *
  *   'verified' — the reader has been run against REAL exports from this package,
- *                supplied by the firm. Xero alone holds this today: real exports were
- *                supplied 2026-07-13 and 2026-07-15, and reading them overturned three
- *                assumptions (see REPORT-DATA-MODEL.md §3.9).
+ *                supplied by the firm. Xero: exports supplied 2026-07-13 and 2026-07-15,
+ *                which overturned three assumptions (REPORT-DATA-MODEL.md §3.9).
+ *                QuickBooks Online and MYOB: exports supplied by Mike 2026-09-07.
  *
  *   'expected' — the reader handles the package's published report layout, checked
- *                against a RECONSTRUCTION of it, and the checks are in
- *                `tests/unit/accountingPackages.test.js`. NO REAL EXPORT HAS BEEN READ.
- *                A reconstruction proves the reader copes with the shape as documented;
+ *                against a RECONSTRUCTION of it. NO REAL EXPORT HAS BEEN READ. A
+ *                reconstruction proves the reader copes with the shape as documented;
  *                it cannot prove the shape is right, because a real chart of accounts
- *                is the thing that surprises you.
+ *                is the thing that surprises you. **No package holds this today.**
  *
  * Moving a package from 'expected' to 'verified' takes one thing and nothing else: a
  * real Balance Sheet and Profit and Loss export from it. Do not promote on the strength
  * of more reconstructions.
+ *
+ * ⚠ THE 2026-09-07 FILES WERE MISREAD AS RECONSTRUCTIONS FOR A DAY, and the record said
+ * so in four places until Mike corrected it on 2026-09-08. The reasoning was that both
+ * workbooks describe the same fictional company with the same figures — which is what
+ * testing two packages honestly looks like, the same business entered in both, and says
+ * nothing about whether the software produced the file. **The layout is what a parser
+ * reads, and figures cannot tell you anything about it.** The proof was already in hand
+ * and was being reported as a doubt: the MYOB file broke this reader four separate ways
+ * (see its evidence line). A reconstruction reflects what its author expected and
+ * therefore never surprises you.
  */
 
 /**
@@ -42,15 +51,15 @@ const PACKAGES = Object.freeze([
   }),
   Object.freeze({
     name: 'QuickBooks Online',
-    confidence: 'expected',
-    since: '2026-09-02',
-    evidence: 'Checked against a reconstruction of the published layout: "As of" date line, company name above the title, ASSETS / LIABILITIES AND EQUITY headings, "Accounts Receivable (A/R)", "Cost of Goods Sold", "Common Stock". Four fixes were needed and are in place. No real export has been read.'
+    confidence: 'verified',
+    since: '2026-09-07',
+    evidence: 'Real export supplied by Mike on 2026-09-07 and read directly: QuickBooks_Online_Financial_Exports.xlsx, three reports — Profit and Loss, Balance Sheet, Fixed Asset Listing — for Apex Auto & Engineering Ltd. The reader needed no change to read it. Its layout carries QuickBooks\' own signatures: leading-space indentation as hierarchy, a bare TOTAL column header, account numbers inside the label ("1000 Operating Account"), and "As of December 31, 2025".'
   }),
   Object.freeze({
     name: 'MYOB',
-    confidence: 'expected',
-    since: '2026-09-02',
-    evidence: 'Checked against a reconstruction of the published layout: "Trade Debtors" / "Trade Creditors", bank accounts listed with no "Bank" heading, "Profit & Loss Statement" title, a date-range period line. ⚠ 2026-09-07: run against a fuller reference workbook carrying MYOB\'s "Account No." column, this reader extracted NOTHING — every label arrived as an account code and the balance sheet parsed to no figures at all, with no error saying so. Fixed (rowShape). Two more faults came out of the same workbook and are also fixed: cash counted the cheque account but not the "Online Saver" one, reading 64,500 of a real 89,500 — a wrong figure, not a missing one — and the "Month YYYY through Month YYYY" period line gave the P&L no date and no year. The position, the P&L lines, the income total, cash and the year now all read. A fourth fault came out of the same workbook and is also fixed: MYOB heads its fixed assets "Property, Plant & Equipment" — the accounting standard\'s own wording, saying neither "fixed" nor "non-current" — so no asset row passed the section test. The categories came back empty and the net 145,300 was swept into other current assets; the balance sheet still tied, which is why nothing complained, but the forecast then opened every asset at zero and charged no depreciation for the year. No real export has been read.'
+    confidence: 'verified',
+    since: '2026-09-07',
+    evidence: 'Real export supplied by Mike on 2026-09-07 and read directly: MYOB_Financial_Exports.xlsx, three reports — Profit & Loss (With Year to Date), Balance Sheet Summary, Asset Register — for Apex Auto & Engineering Ltd. 🔴 IT BROKE THE READER FOUR TIMES, which is what a reconstruction never does and why this file settles the question. (1) Its "Account No." column made every label arrive as an account code, so the balance sheet parsed to NO figures at all with no error saying so (fixed: rowShape). (2) Cash counted the cheque account but not the "Online Saver" one, reading 64,500 of a real 89,500 — a wrong figure, not a missing one. (3) The "January 2025 through December 2025" period line gave the P&L no date and no year. (4) MYOB heads its fixed assets "Property, Plant & Equipment" — the accounting standard\'s own wording, saying neither "fixed" nor "non-current" — so no asset row passed the section test: the categories came back empty and the net 145,300 was swept into other current assets. The balance sheet still tied, which is why nothing complained, but the forecast then opened every asset at zero and charged no depreciation for the year. All four are fixed and pinned in tests/unit/accountingPackages.test.js.'
   })
 ])
 
@@ -89,9 +98,25 @@ function supportedList () {
  * @returns {string}
  */
 function supportedSentence () {
-  const verified = verifiedNames()
-  const expected = expectedNames()
-  let s = 'Reports exported from ' + supportedList() + ' can be read.'
+  return sentenceFor(PACKAGES)
+}
+
+/**
+ * The same sentence, for any package list.
+ *
+ * ⚠ IT TAKES THE LIST SO THE UNCONFIRMED CASE CAN STILL BE TESTED. Since 2026-09-07 every
+ * package is `verified`, which makes the caveat branch unreachable from the live list — and an
+ * unreachable branch nobody can exercise is one a later session deletes as dead code. The next
+ * package added would then ship with no "check the figures" line at all, which is the whole
+ * safety margin for a package read only from its published layout.
+ *
+ * @param {ReadonlyArray<{name: string, confidence: string}>} packages
+ * @returns {string}
+ */
+function sentenceFor (packages) {
+  const verified = packages.filter(p => p.confidence === 'verified').map(p => p.name)
+  const expected = packages.filter(p => p.confidence === 'expected').map(p => p.name)
+  let s = 'Reports exported from ' + listNames(packages.map(p => p.name)) + ' can be read.'
   if (verified.length && expected.length) {
     s += ' ' + listNames(verified) + ' ' + (verified.length === 1 ? 'is' : 'are') +
       ' confirmed against real exports; ' + listNames(expected) + ' ' +
@@ -99,8 +124,15 @@ function supportedSentence () {
       (expected.length === 1 ? 'its' : 'their') + ' published layout, so check the figures on the next step.'
   } else if (expected.length) {
     s += ' None has yet been confirmed against a real export, so check the figures on the next step.'
+  } else if (verified.length > 1) {
+    // Every package confirmed — true since 2026-09-07. The caveat is dropped rather than
+    // softened: there is nothing left to warn about, and a warning that survives the thing
+    // it warned about teaches an advisor to stop reading it.
+    s += ' All ' + (verified.length === 2 ? 'two' : 'three') + ' are confirmed against real exports.'
   }
   return s
 }
 
-module.exports = { PACKAGES, supportedList, supportedSentence, verifiedNames, expectedNames, listNames }
+module.exports = {
+  PACKAGES, supportedList, supportedSentence, sentenceFor, verifiedNames, expectedNames, listNames
+}

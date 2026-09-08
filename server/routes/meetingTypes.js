@@ -256,6 +256,12 @@ async function declineType (req, res) {
  * an inherited type and silently replace it, and every decline, override, order entry and
  * recorded meeting is keyed to an id.
  *
+ * 🔴 THE HIGH-WATER MARK IS SAVED BEFORE THE TYPE, AND THAT ORDER IS THE GUARANTEE (item
+ * 4.72). Two keys cannot be written atomically, so the order decides what a half-completed
+ * write leaves behind. Mark first: if it fails, nothing is added at all; if the type then
+ * fails, the mark is merely ahead of reality and the next id skips a number. Written the
+ * other way round, a crash between the two would reissue the id just used.
+ *
  * @route POST /api/firm-manager/meeting-types
  * @param {object} req.body - `{ name: string, treeId?: string|null }`
  * @returns {{typeId: string}}
@@ -266,10 +272,14 @@ async function addType (req, res) {
 
   try {
     const own = await readPart(req.firmId, 'own')
-    const typeId = nextOwnTypeId(req.firmId, own)
-    const next = [...own, { id: typeId, ...checked.value }]
+    const lastSeq = await readPart(req.firmId, 'nextSeq')
+    const minted = nextOwnTypeId(req.firmId, own, lastSeq)
+
+    await writeScopeConfig(req.firmId, 'nextSeq', minted.seq, req.userEmail || 'unknown')
+
+    const next = [...own, { id: minted.id, ...checked.value }]
     await writeScopeConfig(req.firmId, 'own', next, req.userEmail || 'unknown')
-    res.send(201, { typeId })
+    res.send(201, { typeId: minted.id })
   } catch (err) {
     return serverError(res, err, 'add that meeting type')
   }
@@ -308,9 +318,11 @@ async function editOwnType (req, res) {
  * Remove a type this scope ADDED. Only an own row can go outright — an inherited one is
  * switched off instead (D4), because this scope does not own it.
  *
- * ⚠ THE ID IS NOT FREED. `nextOwnTypeId` counts from the ids already held, so a removed
- * type's id is never handed to the next one added: a reused id would inherit the removed
- * type's decisions at every level below, and its recorded meetings.
+ * ⚠ THE ID IS NOT FREED. `nextOwnTypeId` reads a stored high-water mark as well as the ids
+ * still held, so a removed type's id is never handed to the next one added — including when
+ * the one removed was the highest, which counting the live rows alone got wrong until item
+ * 4.72. A reused id would inherit the removed type's decisions at every level below, and its
+ * recorded meetings. The mark is deliberately NOT wound back here.
  *
  * @route DELETE /api/firm-manager/meeting-types/own/:typeId
  * @returns {{removed: true}}

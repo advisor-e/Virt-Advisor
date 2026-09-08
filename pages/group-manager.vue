@@ -29,7 +29,7 @@
 /**
  * /group-manager page — the GROUP MANAGER HUB.
  *
- * The country tier: a group manager runs the firms of one brand in one country.
+ * A group manager runs the firms of one global group in one country.
  * Built from design/mockups/tier-hub-pages.html (approved by Mike 2026-08-10);
  * the title and address are his own words.
  *

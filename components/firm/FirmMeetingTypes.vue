@@ -1,5 +1,10 @@
 <template lang="pug">
-.mtypes(v-if="visible")
+//- 🔴 `visible || loadError`, NOT `visible`. A failed read leaves `tier` empty, so gating
+//- the section on `visible` alone hid the section AND the message explaining why — a
+//- manager saw blank space where the editor should be, with nothing to act on. That is the
+//- "a failed call must never produce a silently empty page" rule in CLAUDE.md. Fixed
+//- 2026-09-08 on Mike's instruction, the same day slice 3 spread it to three more tiers.
+.mtypes(v-if="visible || loadError")
   .box.mb-4
     h4.title.is-6.mb-1 The kinds of meeting
     p.is-size-7.has-text-grey.mb-4
@@ -8,7 +13,11 @@
     b-message(v-if="loadError" type="is-danger" size="is-small") {{ loadError }}
     b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
 
-    p.is-size-7.has-text-grey.py-4(v-if="!loading && !types.length")
+    //- ⚠ `!loadError` on this line and on the add block below. Without it a failed read
+    //- renders "No kinds of meeting yet. Add the first one below." beside the error — the
+    //- list is empty because nothing could be READ, and saying it is empty because none
+    //- exist invites a manager to re-create meetings the firm already has.
+    p.is-size-7.has-text-grey.py-4(v-if="!loading && !loadError && !types.length")
       | No kinds of meeting yet. Add the first one below.
 
     table.table.is-fullwidth.is-narrow.mtypes-table(v-if="types.length")
@@ -47,7 +56,7 @@
         span.is-size-7 {{ nameFor(d) }}
         b-button(size="is-small" type="is-text" :loading="saving" @click="declineById(d, false)") Use it again
 
-    .mtypes-add.mt-5
+    .mtypes-add.mt-5(v-if="!loadError")
       template(v-if="adding")
         b-field(label="What this meeting is called" label-position="on-border")
           b-input(v-model="newName" :maxlength="maxNameLength" placeholder="Bad news conversation")
@@ -72,11 +81,15 @@
  * past 200; the types are a different list with different verbs from the points inside
  * them, so they get their own file rather than a sixth concern in that one.
  *
- * ⚠ MENTOR ONLY IN SLICE 2, AND THAT IS THE APPROVED SEQUENCE, NOT A PERMISSION RULE. The
- * resolver and every route already handle all four manager tiers; slice 3 opens the
- * controls to the other three, which is a change to `visible` below and nothing else.
- * Mike's P14 — "NOBODY can edit a level ABOVE their own" — is enforced on the backend,
- * where every route is scoped to the caller's own verified identity.
+ * ✅ ALL FOUR MANAGER TIERS SINCE SLICE 3 (2026-09-08). Slice 2 shipped this mentor-only as
+ * the approved sequence, never as a permission rule; the resolver and every route had
+ * handled all four tiers from the start, so opening it was the one line in `visible` below
+ * and nothing else. Mike's P14 — "NOBODY can edit a level ABOVE their own" — is enforced on
+ * the backend, where every route is scoped to the caller's own verified identity.
+ *
+ * The two levels BELOW the firm — advisor and business entity — are slice 4 and are still
+ * unbuilt. That is unfinished work, not a decision about who may edit (P14, and the
+ * correction recorded in `MEETING-TYPES-CASCADE.md` §2).
  *
  * ⚠ SWITCHING OFF IS NOT DELETING (D4, ruled 2026-09-02). "Not used here" removes a type
  * from the picker at this level and below; a meeting already recorded against it stays
@@ -120,11 +133,28 @@ export default {
 
   computed: {
     /**
-     * Slice 2 shows this at the mentor only. Everything below it is built and waiting.
+     * Shown once the backend has said which tier is asking — which is every manager tier
+     * (slice 3, 2026-09-08).
+     *
+     * 🔴 THIS IS NO LONGER A PERMISSION CHECK, AND MUST NOT BE MADE ONE AGAIN.
+     * `tierOfScope` returns exactly four values, so naming all four would be a condition
+     * that is always true — a guard that reads as protection and provides none. What stops
+     * a tier reaching another's types is that EVERY route is scoped to `req.firmId`, the
+     * caller's verified identity, and none reads a scope from a body or a query
+     * (`server/routes/meetingTypes.js`). That is where Mike's P14 — "NOBODY can edit a
+     * level ABOVE their own" — is enforced, and where every other tab on this hub rests.
+     *
+     * What it still does is hold the screen back until `load()` has answered, so a manager
+     * never sees an empty list and an "add" button before the real one arrives.
+     *
+     * ⚠ IT IS NOT THE WHOLE CONDITION ON THE SECTION, and must not be made one. A failed
+     * read leaves `tier` empty, so `v-if="visible"` alone hid the error message along with
+     * the editor. The template gates on `visible || loadError`; see the note there.
+     *
      * @returns {boolean}
      */
     visible () {
-      return this.tier === 'mentor'
+      return Boolean(this.tier)
     },
 
     /** Ids switched off here, so they can be listed and switched back on. */

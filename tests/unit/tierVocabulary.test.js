@@ -147,7 +147,32 @@ describe('🔴 no superseded spelling survives anywhere in the source', () => {
     // The words themselves are fine. "the brand a manager runs", "grouped by country" —
     // untouched. Only the two-word title is refused.
     { pattern: /\bbrand manager\b/i, why: 'a coined job title — the role is "global group manager"' },
-    { pattern: /\bcountry manager\b/i, why: 'a coined job title — the role is "group manager"' }
+    { pattern: /\bcountry manager\b/i, why: 'a coined job title — the role is "group manager"' },
+
+    // 🔴 WIDENED 2026-09-08, ON MIKE'S TENTH DEMAND, BECAUSE THE TWO PATTERNS ABOVE WERE
+    // PASSING WHILE THE THING THEY EXIST TO STOP WAS IN THE REPOSITORY. `\bcountry manager\b`
+    // does not match "country GROUP manager" — one word in the middle and the guard is blind.
+    // That near-miss was sitting in an approved mockup and in a unit test's own comment, and
+    // it is the same invented role wearing one extra word.
+    //
+    // The second pattern bans naming a TIER after a brand or a country. There are four tiers
+    // and they have names; "a brand or a country tier" is a fifth vocabulary nobody agreed,
+    // and it is how the coined job titles get back in — a tier called "the country tier"
+    // acquires a "country manager" within a session or two.
+    //
+    // ⚠ STILL DELIBERATELY NOT BANNED, per Mike's own ruling of 2026-09-02 recorded above:
+    // the plain words. "grouped by country", "the brand a manager runs", and the cross-org
+    // posture levels whose STORED KEYS are literally `country` and `global`. Those are data,
+    // not roles. Only the welding of brand/country onto a person or a tier is refused.
+    { pattern: /\b(?:brand|country)\s+group\s+managers?\b/i, why: 'a coined job title — the roles are "global group manager" and "group manager"' },
+    { pattern: /\b(?:brand|country)\s+tiers?\b/i, why: 'a tier named after a brand or a country — the four tiers have names' },
+
+    // The drift path itself, closed on the same demand. "a country group" is how the coined
+    // title is built: name the scope after a country, and a "country group manager" follows
+    // within a session or two — which is exactly what happened, in an approved mockup. The
+    // scope a group manager works at is "a group", or "one global group in one country" when
+    // the detail matters. `global group` is the canonical name and is untouched by this.
+    { pattern: /\b(?:brand|country)\s+groups?\b/i, why: 'a scope named after a brand or a country — say "group", or "one global group in one country"' }
   ]
 
   test('the pattern does not match the NEW name — otherwise this whole file is noise', () => {

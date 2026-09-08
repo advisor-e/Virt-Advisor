@@ -17,8 +17,8 @@
   //- pointed at is the rest of this same tab. Recorded in that component's head.
   firm-meeting-patterns(:api-token="apiToken")
 
-  //- The KINDS of meeting, above the points inside them (MEETING-TYPES-CASCADE.md slice 2).
-  //- It renders itself only at the mentor tier for now and decides that from its own
+  //- The KINDS of meeting, above the points inside them (MEETING-TYPES-CASCADE.md slices
+  //- 2-3). It renders at every manager tier since slice 3 and decides that from its own
   //- backend read, so nothing here has to know which tier it is on. When a type is added,
   //- renamed or switched off, the list below has to be re-read — hence the event.
   firm-meeting-types(:api-token="apiToken" @types-changed="load")
@@ -146,6 +146,51 @@
         b-button(type="is-light" @click="startAdd") Add a point
         b-button(type="is-text" @click="toggleHistory") {{ showHistory ? 'Hide change history' : 'Change history' }}
 
+    //- ── Set aside by advisors ─────────────────────────────────────────
+    //- 🔴 ORDERED BY MIKE, 2026-09-08, in the same breath as permitting the thing it shows:
+    //- "yes but fix the issue - build it so the manager can see". Question 1 of the drawing
+    //- asked whether an advisor may set aside a point their firm set; the recommendation was
+    //- yes, with one cost recorded — that no manager could see it happen. He took the
+    //- permission and refused the cost, so this ships in the same slice.
+    //-
+    //- ⚠ FIRM TIER ONLY, and the route answers 403 above it. Not a permission decision: an
+    //- advisor's choices are stored on their own firm's row, so a scope above the firm has no
+    //- advisors beneath it and would see this empty every time.
+    //-
+    //- ⚠ A MIRROR, NOT A CONTROL. There is deliberately no button here that puts a point back
+    //- on an advisor's list. P14 runs downward only, and a manager reaching into an advisor's
+    //- own level would be the first thing in this app to cross it. If a firm wants a point
+    //- back, that is a conversation — and this screen is what makes the conversation possible.
+    .box(v-if="showsSetAside")
+      h4.title.is-6.mb-1 Set aside by advisors
+      p.is-size-7.has-text-grey.mb-1
+        | Your advisors may take a point off their own list. This is where that shows. Nothing
+        |  here changes what you have set — your list is unchanged.
+      //- 🔴 MIKE'S OWN INSTRUCTION, 2026-09-08: "explain this is a review of 'active' advisors
+      //- so managers know its not their total team as a %". Wording approved by him the same
+      //- day. It exists because there is NO DENOMINATOR — this app holds no advisors table
+      //- (config/db-schema.sql, four times), so a firm's headcount is unknowable here and
+      //- "4 of 12" cannot be built. Without this line a manager reads "4" as a share of their
+      //- whole team.
+      p.is-size-7.has-text-grey.mb-4
+        | #[b A count of the advisors who have changed their own list] — not your whole team,
+        |  and never a percentage of it.
+
+      b-message(v-if="setAsideError" type="is-danger" size="is-small") {{ setAsideError }}
+
+      .mobs-aside(v-for="p in setAsideForCurrent" :key="p.id" :class="{ 'is-hot': p.count > 0 }")
+        .mobs-aside-count(:class="{ 'is-none': !p.count }") {{ p.count }}
+        .mobs-aside-body
+          span {{ p.text }}
+          //- Every point is listed, including the ones nobody has touched: a screen showing
+          //- only the exceptions cannot be read as reassurance, because an empty screen and a
+          //- broken screen look identical.
+          p.is-size-7.has-text-grey.mt-1(v-if="!p.count") Nobody has set this aside.
+          p.is-size-7.mt-1(v-else)
+            | Set aside by
+            template(v-for="(w, i) in p.setAsideBy")
+              |  #[b {{ w.name || 'an advisor whose name we do not hold' }}]{{ i < p.setAsideBy.length - 1 ? ',' : '' }}
+
     //- ── The retention dial (slice 2) ──────────────────────────────────
     //- ⚠ THE FIGURE HERE IS SPOKEN ALOUD TO A CLIENT. The consent wording is fixed and a
     //- firm may not edit it, but it quotes this number back — so a change here alters a
@@ -268,6 +313,14 @@ export default {
       inherited: {},
       scenarioId: '',
       maxPointLength: 300,
+      /**
+       * What this firm's advisors have set aside, per scenario — Mike's order of 2026-09-08.
+       * Empty above the firm tier, where the route answers 403 and `showsSetAside` is false.
+       */
+      setAside: [],
+      setAsideError: '',
+      /** The caller's tier, from the backend. Never inferred from the token here. */
+      tier: '',
       /** The point being edited, or '' when none is. */
       editingId: '',
       adding: false,
@@ -305,6 +358,33 @@ export default {
     /** The scenario on screen. */
     current () {
       return this.scenarios.filter(s => s.id === this.scenarioId)[0] || null
+    },
+
+    /**
+     * Whether to draw the "Set aside by advisors" panel.
+     *
+     * ⚠ FIRM TIER ONLY, and it is a judgement stated rather than assumed (the hub-page rule).
+     * Advisors' decisions live on their own firm's row, so a scope above the firm has none
+     * beneath it to show and would see this empty every time — and an always-empty panel is
+     * indistinguishable from a broken one, which is the argument the panel itself makes for
+     * listing points nobody has touched.
+     *
+     * @returns {boolean}
+     */
+    showsSetAside () {
+      return this.tier === 'firm_manager'
+    },
+
+    /**
+     * The set-aside rows for the meeting type on screen.
+     *
+     * Returns [] rather than null for an unknown scenario: the template iterates it, and a
+     * null would take the whole tab down over a panel that is the least important thing on it.
+     * @returns {object[]}
+     */
+    setAsideForCurrent () {
+      const found = this.setAside.filter(s => s.id === this.scenarioId)[0]
+      return (found && Array.isArray(found.points)) ? found.points : []
     },
 
     /** Has this level decided anything, on any scenario? Drives the badge at the top. */
@@ -409,6 +489,7 @@ export default {
       this.loadError = ''
       try {
         const data = await this.api('GET', '/api/firm-manager/meeting-observations')
+        this.tier = data.tier || ''
         this.scenarios = data.scenarios || []
         this.own = data.own || { declines: {}, overrides: {}, own: {} }
         this.inherited = data.inherited || {}
@@ -418,6 +499,30 @@ export default {
         this.loadError = err.message
       } finally {
         this.loading = false
+      }
+      // After the tier is known, and never before: the route answers 403 above the firm.
+      if (this.showsSetAside) { await this.loadSetAside() }
+    },
+
+    /**
+     * What this firm's advisors have set aside — Mike's order of 2026-09-08.
+     *
+     * ⚠ ITS FAILURE IS REPORTED SEPARATELY AND NEVER AS AN EMPTY PANEL. A manager reading
+     * "Nobody has set this aside" off a failed read would take a fault as reassurance, which
+     * is the one wrong answer this panel must never give. It is also kept out of `loadError`
+     * on purpose: this panel failing must not blank the editor above it, which is the part of
+     * the tab a manager came for.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadSetAside () {
+      this.setAsideError = ''
+      try {
+        const data = await this.api('GET', '/api/firm-manager/meeting-observations/set-aside')
+        this.setAside = data.scenarios || []
+      } catch (err) {
+        this.setAside = []
+        this.setAsideError = 'What your advisors have set aside could not be loaded: ' + err.message
       }
     },
 
@@ -660,4 +765,32 @@ export default {
   padding-top: 0.75rem;
   border-top: 1px solid #e6ebf2;
 }
+
+/* Set aside by advisors (2026-09-08). The count leads, because a manager scans for a number
+   before reading a word. */
+.mobs-aside {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #e6edf4;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+.mobs-aside.is-hot {
+  background: #fff8e8;
+  border-color: #f3d9a4;
+}
+.mobs-aside-count {
+  flex: 0 0 auto;
+  min-width: 2rem;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #8a6508;
+  line-height: 1.2;
+}
+.mobs-aside-count.is-none { color: #9aa7b6; }
+.mobs-aside-body { flex: 1; min-width: 0; }
 </style>

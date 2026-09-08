@@ -191,17 +191,6 @@ function assembleForecastIntake (parsed, monthlySales) {
   if (!Array.isArray(parsed) || parsed.length === 0) {
     return { files, proposal, provenance, candidates, trendInputs: null, blocked: 'No file was read.', warnings }
   }
-  if (parsed.length > MAX_FILES) {
-    return {
-      files,
-      proposal,
-      provenance,
-      candidates,
-      blocked: 'Please drop at most ' + MAX_FILES + ' files together: a Balance Sheet, a Profit and Loss, up to two by-month Profit and Loss reports, and last year\'s Balance Sheet and Profit and Loss.',
-      warnings
-    }
-  }
-
   const balanceSheets = parsed.filter(p => p && p.kind === 'forecastBalanceSheet')
   const profitLosses = parsed.filter(p => p && p.kind === 'profitLoss')
 
@@ -227,6 +216,14 @@ function assembleForecastIntake (parsed, monthlySales) {
   if (profitLosses.length > 2) {
     return { files, proposal, provenance, candidates, trendInputs: null, blocked: 'More than two Profit and Loss reports were dropped together. Please drop this year\'s, and last year\'s if you want the trend read.', warnings }
   }
+  // 🔴 NO FILE-COUNT GUARD HERE, AND THAT IS DELIBERATE (item 4.79, 2026-09-08). One used to
+  // run at the top of this function, when one file meant one report. A MYOB or QuickBooks
+  // workbook now yields both its Profit and Loss and its Balance Sheet, so this function
+  // counts REPORTS and the route counts FILES — and the two are no longer the same number.
+  // The count that protects the advisor is the route's own, which refuses more than
+  // MAX_FILES files before a single one is parsed (server/routes/report.js). Behind the two
+  // guards above a report count can never exceed four, so a copy here could only ever fire
+  // on a malformed direct call, with a message about files that would not describe it.
 
   // 🔴 WHICH OF TWO IS THIS YEAR IS DECIDED BY THE REPORTS' OWN DATE LINES, AND A PAIR
   // THAT CANNOT BE DATED IS REFUSED RATHER THAN ORDERED BY UPLOAD SEQUENCE. Getting this

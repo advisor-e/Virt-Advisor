@@ -125,7 +125,7 @@ function globalScopeId (globalGroup) {
 }
 
 /**
- * The scope id for a country group within a brand.
+ * The scope id a GROUP MANAGER works at: one global group in one country.
  * @param {string} globalGroup
  * @param {string} country
  * @returns {string}

@@ -20,9 +20,9 @@ Two rulings from Mike, 2026-08-11:
 > manager above report"**
 
 So a case study shared upward is shared **once**, and every managing level above that firm
-receives it — but strictly along its own branch. A firm's material rises to its country
-group, to its global group (brand), and to the mentor. It never crosses to another brand or
-another country.
+receives it — but strictly along its own branch. A firm's material rises to its group
+manager, to its global group manager, and to the mentor. It never crosses to another global
+group or another country.
 
 **The screens do not say this.** They name one destination, nine times, and one of those
 nine is the sentence a firm manager reads immediately before clicking approve:

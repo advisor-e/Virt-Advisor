@@ -52,6 +52,48 @@ function fakeFile (name, sizeBytes) {
   return file
 }
 
+describe('QuickPositionIntake — one workbook fills both zones (item 4.79)', () => {
+  afterEach(() => { delete global.fetch })
+
+  /** Point fetch at a canned intake response. @param {Array<object>} reports */
+  function intakeReturns (reports) {
+    global.fetch = jest.fn().mockResolvedValue({
+      json: () => Promise.resolve({ success: true, data: { reports } })
+    })
+  }
+
+  it('🔴 applies BOTH reports from a single upload, whichever zone was dropped on', async () => {
+    // THE SEAM THIS PINS: the route returns `data.reports` and the screen reads it. Nothing
+    // else guards that shape from either side, and if the two drift the screen silently does
+    // nothing with a file it accepted. Before item 4.79 the route returned only the first
+    // report, so a combined MYOB or QuickBooks export ticked the P&L zone, left the Balance
+    // Sheet unread, and Continue stayed disabled with no message.
+    intakeReturns([
+      { kind: 'profitLoss', expenseLines: [{ label: 'Rent', value: 24000 }], incomeTotal: 500000, warnings: [] },
+      { kind: 'balanceSheet', proposals: { cash: { value: 120000, source: 'file' } }, warnings: [] }
+    ])
+    const wrapper = mountWithBuefy(QuickPositionIntake, { propsData: { step: 1 } })
+
+    await wrapper.vm.upload('bs', fakeFile('accounts.xlsx', 2048))
+
+    expect(wrapper.vm.bsResult).not.toBeNull()
+    expect(wrapper.vm.plResult).not.toBeNull()
+    // The Balance Sheet figure actually reached the confirm table, tagged as file-sourced.
+    expect(wrapper.vm.figures.cash.value).toBe(120000)
+    expect(wrapper.vm.figures.cash.source).toBe('file')
+  })
+
+  it('reports a file it recognised nothing in, rather than accepting it in silence', async () => {
+    intakeReturns([])
+    const wrapper = mountWithBuefy(QuickPositionIntake, { propsData: { step: 1 } })
+
+    await wrapper.vm.upload('bs', fakeFile('accounts.xlsx', 2048))
+
+    expect(wrapper.vm.errors.bs).toBeTruthy()
+    expect(wrapper.vm.bsResult).toBeNull()
+  })
+})
+
 describe('QuickPositionIntake — provenance badges (R1)', () => {
   it('keeps the "from file" badge on a figure the export supplied', () => {
     const wrapper = mountConfirm()

@@ -28,7 +28,7 @@ const os = require('os')
 const path = require('path')
 const { formidable } = require('formidable')
 const { threeWayForecastIntake } = require('../../server/routes/report')
-const { makeXlsx } = require('./xlsxFixture')
+const { makeXlsx, makeMultiSheetXlsx } = require('./xlsxFixture')
 
 /** Minimal res double capturing the (status, body) send. */
 function makeRes () {
@@ -353,5 +353,145 @@ describe('the route still keeps its promises', () => {
     expect(res.body.success).toBe(false)
     // The path of the file must never travel back to the browser.
     expect(JSON.stringify(res.body)).not.toContain(os.tmpdir())
+  })
+})
+
+/* ── the Fixed Asset Schedule, item 4.65 slice 1 ────────────────────────────────────── */
+
+/**
+ * A Fixed Asset Schedule as MYOB writes one, cut to four assets. Real column headings and
+ * real values from MYOB_Financial_Exports.xlsx (Mike, 2026-09-07); the full eleven-asset
+ * file is exercised in assetScheduleParser.test.js.
+ */
+const SCHEDULE_GRID = [
+  ['Kinetic Test Ltd'],
+  ['Asset Register Report'],
+  ['Financial Year Ending 31 March 2026'],
+  [],
+  ['Asset Code', 'Asset Description', 'Asset Group', 'Purchase Date', 'Cost ($)', "Dep'n Rate", "Dep'n Method", 'Opening Accum Dep', "YTD Dep'n", 'Closing Carrying Value'],
+  ['FA-008', '2021 Toyota HiAce Service Van', 'Motor Vehicles', '10/04/2021', 48000, '10.00%', 'Straight Line', 19200, 4800, 24000],
+  ['FA-009', '2018 Ford Ranger Utility', 'Motor Vehicles', '18/09/2022', 37000, '10.00%', 'Diminishing Value', 2000, 3500, 31500],
+  ['FA-010', 'High-Spec Dev Workstation', 'Office Equipment', '15/01/2023', 6500, '20.00%', 'Straight Line', 2166.67, 1300, 3033.33],
+  ['FA-011', 'Reception Furniture & Displays', 'Office Equipment', '01/11/2021', 8000, '10.00%', 'Straight Line', 2450, 800, 4750],
+  [null, 'TOTALS', null, null, 99500, null, null, 23816.67, 10400, 63283.33]
+]
+
+describe('the Fixed Asset Schedule reaches the forecast', () => {
+  test('🔴 a schedule inside a multi-sheet workbook is found, though the sheet is third', async () => {
+    // THE CASE THAT MATTERS, and the shape of both real exports: one workbook holding a
+    // Profit and Loss, a Balance Sheet and a schedule. The annual reader stops at the first
+    // sheet it recognises — the P&L — so without a scan that keeps going the schedule is
+    // never seen and the advisor gets an empty chooser with nothing on screen to say why.
+    const book = tempFile(makeMultiSheetXlsx([
+      { name: 'Profit and Loss', grid: PL_GRID },
+      { name: 'Balance Sheet', grid: BS_GRID },
+      { name: 'Asset Register', grid: SCHEDULE_GRID }
+    ]), '.xlsx')
+
+    const res = await run([book])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.assetSchedule).not.toBeNull()
+    expect(res.body.data.assetSchedule.assets).toHaveLength(4)
+    expect(res.body.data.assetSchedule.totalBookValue).toBe(63283.33)
+  })
+
+  test('🔴 the Balance Sheet in that same workbook IS read, though the P&L comes first', async () => {
+    // ITEM 4.79, FIXED 2026-09-08. This test asserted the opposite until that day — a
+    // deliberate pin, so that fixing the defect broke it rather than passing unnoticed.
+    //
+    // The readers returned the FIRST recognised report across a workbook's sheets. Both of
+    // Mike's real exports put the Profit and Loss first, so the Balance Sheet on the next
+    // sheet was ignored — and the Balance Sheet is the one REQUIRED file. The advisor was
+    // told to drop a Balance Sheet while looking at the file that contained one.
+    //
+    // One workbook, three sheets, and all three must land: the P&L, the Balance Sheet it
+    // opens from, and the asset register.
+    const book = tempFile(makeMultiSheetXlsx([
+      { name: 'Profit and Loss', grid: PL_GRID },
+      { name: 'Balance Sheet', grid: BS_GRID },
+      { name: 'Asset Register', grid: SCHEDULE_GRID }
+    ]), '.xlsx')
+
+    const res = await run([book])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.blocked).toBeNull()
+    // The opening position came from the Balance Sheet sheet, not from anywhere else.
+    expect(res.body.data.proposal.openingBalanceSheet.cashAtBank).toBe(71000)
+    // One file, two reports — the P&L is still read, and still first.
+    expect(res.body.data.files.map(f => f.kind)).toEqual(['profitLoss', 'forecastBalanceSheet'])
+    // And the schedule scan is unaffected: the same file still contributes it.
+    expect(res.body.data.assetSchedule.assets).toHaveLength(4)
+  })
+
+  test('a schedule dropped as a file of its own is read, not refused', async () => {
+    // The seventh slot is exactly this. Before item 4.65 the annual reader threw
+    // UNRECOGNISED_REPORT on any file it could not place, so a lone schedule was an error.
+    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const sched = tempFile(makeXlsx(SCHEDULE_GRID, 'Asset Register'), '.xlsx')
+
+    const res = await run([bs, sched])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.assetSchedule.assets.map(a => a.name)).toContain('2018 Ford Ranger Utility')
+    expect(res.body.data.proposal.openingBalanceSheet.cashAtBank).toBe(71000)
+  })
+
+  test('🔴 the schedule seeds NOTHING — the six categories still come from the Balance Sheet', async () => {
+    // The drawing's §4, and the reason this feature is shaped as it is: neither real schedule
+    // ties to its own balance sheet. A schedule allowed to seed the categories would have
+    // understated fixed assets, charged too little depreciation all year, and balanced.
+    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const sched = tempFile(makeXlsx(SCHEDULE_GRID, 'Asset Register'), '.xlsx')
+
+    const withSchedule = await run([bs, sched])
+    const without = await run([tempFile(makeXlsx(BS_GRID), '.xlsx')])
+
+    expect(withSchedule.body.data.proposal.assets).toEqual(without.body.data.proposal.assets)
+  })
+
+  test('🔴 the tie-back is reported and never blocks', async () => {
+    // Mike's ruling, question 3, 2026-09-08. This BS_GRID carries no fixed assets at all, so
+    // the schedule's 63,283.33 cannot tie — and the upload still succeeds, which is the point.
+    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const sched = tempFile(makeXlsx(SCHEDULE_GRID, 'Asset Register'), '.xlsx')
+
+    const res = await run([bs, sched])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.assetSchedule.tie.available).toBe(true)
+    expect(res.body.data.assetSchedule.tie.ties).toBe(false)
+    expect(res.body.data.assetSchedule.tie.scheduleTotal).toBe(63283.33)
+    expect(res.body.data.assetSchedule.tie.difference).toBe(-63283.33)
+  })
+
+  test('no schedule dropped leaves the field null, not an empty list', async () => {
+    // Null and [] are different facts: "you dropped no schedule" versus "your schedule is
+    // empty". The screen has to be able to tell them apart.
+    const res = await run([tempFile(makeXlsx(BS_GRID), '.xlsx')])
+    expect(res.body.data.assetSchedule).toBeNull()
+  })
+
+  test('two schedules: the first is used and the advisor is told', async () => {
+    const a = tempFile(makeXlsx(SCHEDULE_GRID, 'Asset Register'), '.xlsx')
+    const b = tempFile(makeXlsx(SCHEDULE_GRID, 'Asset Register'), '.xlsx')
+
+    const res = await run([tempFile(makeXlsx(BS_GRID), '.xlsx'), a, b])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.assetSchedule.assets).toHaveLength(4)
+    expect(res.body.data.warnings.join(' ')).toMatch(/more than one fixed asset schedule/i)
+  })
+
+  test('a file that is neither a report nor a schedule still fails loudly', async () => {
+    // The tolerance added for a schedule-only workbook must not swallow a genuine bad file.
+    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const junk = tempFile('not,a,report\n1,2,3\n')
+
+    const res = await run([bs, junk])
+
+    expect(res.status).toBeGreaterThanOrEqual(400)
+    expect(res.body.success).toBe(false)
   })
 })

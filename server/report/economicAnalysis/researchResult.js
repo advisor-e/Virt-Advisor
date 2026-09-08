@@ -288,14 +288,41 @@ function reject (code, message, detail) {
 }
 
 /**
+ * Is this citation host one the firm has banned?
+ *
+ * 🔴 SUBDOMAINS ARE THE WHOLE POINT. `hostOf` strips `www.` and nothing else, so a plain
+ * equality test would ban `reddit.com` and wave `old.reddit.com` straight through — a ban
+ * that reads as a ban and is none. Matching "equals, or ends with a dot plus the entry"
+ * catches every subdomain while leaving `notreddit.com` alone, which a bare `endsWith`
+ * would not.
+ *
+ * @param {string} host - already through `hostOf`
+ * @param {string[]} banned - hosts from the prompt's `bannedSourceHosts`
+ * @returns {boolean}
+ */
+function isBannedHost (host, banned) {
+  const h = String(host || '').toLowerCase()
+  return (banned || []).some((entry) => {
+    const b = String(entry || '').toLowerCase().replace(/^www\./, '')
+    if (!b) { return false }
+    return h === b || h.endsWith('.' + b)
+  })
+}
+
+/**
  * Validates one research run and returns it in the shape a screen and a pack can use.
  *
  * @param {object} response - a parsed /v1/responses response
+ * @param {object} [opts]
+ * @param {string[]} [opts.bannedHosts] - `bannedSourceHosts` from the prompt. Passed in
+ *   rather than read here, so this stays a pure validator and the list keeps ONE home in
+ *   `data/ai-prompts.json`, where a hub page can edit it.
  * @returns {{ok: boolean, error: (object|null), data: (object|null)}} On success `data` is
  *   `{ text, wordCount, sections: [{n, body, wordCount, citations}], sources: [{url, host, title}],
  *     citationCount }`.
  */
-function validateResearch (response) {
+function validateResearch (response, opts) {
+  const bannedHosts = (opts && Array.isArray(opts.bannedHosts)) ? opts.bannedHosts : []
   const { text, citations } = extractText(response)
 
   if (!text.trim()) {
@@ -361,6 +388,19 @@ function validateResearch (response) {
     return out
   }, [])
 
+  // 🔴 A BAN, NOT A PREFERENCE. §3 asks the model not to cite these; this is what makes it
+  // true. The same morning proved the difference — `tool_choice: 'required'` guaranteed one
+  // search and produced exactly one — and §3 already said "prefer primary and official
+  // sources" while the model cited reddit.com anyway. Checked BEFORE TOO_FEW_SOURCES so the
+  // more specific reason is the one recorded.
+  const bannedFound = uniqueHosts.filter(h => isBannedHost(h, bannedHosts))
+  if (bannedFound.length) {
+    return reject('SOURCE_NOT_PERMITTED',
+      'The research cited a source that is not permitted in a report a lender will read, so ' +
+      'it has been refused rather than shown. Run it again.',
+      { hosts: bannedFound })
+  }
+
   if (uniqueHosts.length < MIN_UNIQUE_SOURCES) {
     return reject('TOO_FEW_SOURCES',
       'The research rested on too few sources to stand as an outlook.',
@@ -387,6 +427,7 @@ function validateResearch (response) {
 
 module.exports = {
   validateResearch,
+  isBannedHost,
   extractText,
   findSections,
   figuresIn,

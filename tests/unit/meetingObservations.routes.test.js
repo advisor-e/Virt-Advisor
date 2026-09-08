@@ -15,11 +15,12 @@
  *      reads a scope from a body or a query, so one tier cannot touch another's points
  *      even if it asks to. `tier-cascade.md` P6.
  *
- *   3. THE ADVISOR ROUTE IS READ-ONLY TODAY, because the levels below the firm are not
- *      built yet — not because an advisor may not edit. 🔴 Mike's rule, 2026-09-02:
- *      "NOBODY can edit a level ABOVE their own." An advisor writing at their own level or
- *      the business entity's is below them and breaks nothing; what theme 2 protects is the
- *      upward direction, which is the rule that actually exists.
+ *   3. THE ADVISOR'S OWN LEVEL IS NOW BUILT (2026-09-08) and is covered by
+ *      `tests/unit/meetingPresetAdvisor.routes.test.js`, not here. This file stays the
+ *      MANAGER tiers' cover. 🔴 Mike's rule, 2026-09-02: "NOBODY can edit a level ABOVE
+ *      their own." An advisor writing at their own level is below them and breaks nothing;
+ *      what theme 2 protects is the upward direction, which is the rule that actually
+ *      exists. The BUSINESS-ENTITY level is still unbuilt.
  *
  * The fourth theme is the storage discipline the house already has: a live MySQL REFUSAL
  * must surface as a 500 and never fall through to the dev JSON, or an outage gets signed
@@ -39,7 +40,20 @@ const routes = require('../../server/routes/meetingObservations')
 const { CONFIG_KEYS } = require('../../server/utils/meetingObservations')
 
 const EOY = 'eoy_meeting'
+const OTHER = 'conflict_meeting'
 const FIRM = 'firm-test-123'
+
+/**
+ * The value written under one config key, whichever call carried it.
+ *
+ * Reading `mock.calls[0]` by position breaks the moment a handler writes a second key —
+ * which `addOwnPoint` now does, mark first — and breaks by asserting the wrong key rather
+ * than by reporting a missing write.
+ */
+function savedUnder (key) {
+  const call = overlay.saveFirmConfig.mock.calls.filter(c => c[1] === key)[0]
+  return call ? call[2] : undefined
+}
 
 function makeMockRes () {
   return {
@@ -278,9 +292,61 @@ describe('adding a point of this tier\'s own', () => {
     }), res)
     expect(res._status).toBe(201)
     expect(res._body.pointId).toBe('fm-1')
-    const [, key, value] = overlay.saveFirmConfig.mock.calls[0]
-    expect(key).toBe(CONFIG_KEYS.own)
-    expect(value[EOY]).toEqual([{ id: 'fm-1', text: 'We raised succession.' }])
+    expect(savedUnder(CONFIG_KEYS.own)[EOY]).toEqual([{ id: 'fm-1', text: 'We raised succession.' }])
+  })
+
+  test('🔴 the high-water mark is saved BEFORE the point, never after', async () => {
+    // The order is the guarantee, not a detail. Two keys cannot be written atomically, so
+    // the order decides what a crash between them leaves behind: mark-first can only ever
+    // skip an id, point-first would reissue the one just used.
+    storeNothing()
+    await routes.addOwnPoint(makeReq({
+      params: { scenarioId: EOY }, body: { text: 'We raised succession.' }
+    }), makeMockRes())
+    const keys = overlay.saveFirmConfig.mock.calls.map(c => c[1])
+    expect(keys).toEqual([CONFIG_KEYS.nextSeq, CONFIG_KEYS.own])
+    expect(savedUnder(CONFIG_KEYS.nextSeq)).toEqual({ [EOY]: 1 })
+  })
+
+  test('🔴 removing the HIGHEST point does not hand its id back — the 4.72 fault', async () => {
+    // The test below deletes a MIDDLE id, which the old code handled correctly; that is why
+    // it was green while the fault was live. Deleting the highest is what exposes it.
+    storeForFirm({ [CONFIG_KEYS.own]: { [EOY]: [{ id: 'fm-1', text: 'a' }, { id: 'fm-2', text: 'b' }] } })
+    await routes.addOwnPoint(makeReq({ params: { scenarioId: EOY }, body: { text: 'c' } }), makeMockRes())
+    const mark = savedUnder(CONFIG_KEYS.nextSeq)
+    expect(mark).toEqual({ [EOY]: 3 })
+
+    // fm-3 is then removed, so the live rows fall back to fm-1 and fm-2. Only the mark
+    // remembers that fm-3 was ever issued.
+    jest.clearAllMocks()
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    storeForFirm({
+      [CONFIG_KEYS.own]: { [EOY]: [{ id: 'fm-1', text: 'a' }, { id: 'fm-2', text: 'b' }] },
+      [CONFIG_KEYS.nextSeq]: mark
+    })
+    const res = makeMockRes()
+    await routes.addOwnPoint(makeReq({ params: { scenarioId: EOY }, body: { text: 'd' } }), res)
+    expect(res._body.pointId).toBe('fm-4')
+  })
+
+  test('a mark for one meeting type never mints ids for another', async () => {
+    // The mark is per scenario. A firm busy on one list must not push another list's ids up.
+    storeForFirm({ [CONFIG_KEYS.nextSeq]: { [EOY]: 7 } })
+    const res = makeMockRes()
+    await routes.addOwnPoint(makeReq({ params: { scenarioId: OTHER }, body: { text: 'x' } }), res)
+    expect(res._body.pointId).toBe('fm-1')
+    expect(savedUnder(CONFIG_KEYS.nextSeq)).toEqual({ [EOY]: 7, [OTHER]: 1 })
+  })
+
+  test('nothing at all is stored when the mark cannot be saved', async () => {
+    // Mark-first means a failed mark stops the point too — the advisor's list is unchanged
+    // rather than holding a point whose id was never recorded as issued.
+    storeNothing()
+    overlay.saveFirmConfig.mockRejectedValue(refusal('write refused'))
+    const res = makeMockRes()
+    await routes.addOwnPoint(makeReq({ params: { scenarioId: EOY }, body: { text: 'x' } }), res)
+    expect(res._status).toBe(500)
+    expect(overlay.saveFirmConfig.mock.calls.map(c => c[1])).toEqual([CONFIG_KEYS.nextSeq])
   })
 
   test('a point with no words is refused', async () => {

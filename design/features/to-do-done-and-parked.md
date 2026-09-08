@@ -185,6 +185,327 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.79 — only the first report in a workbook was read, so a real export was refused.**
+✅ Closed 2026-09-08, the day it was found, built and proved on Mike's own exports.
+
+- **Why it mattered:** the readers returned the first recognised report in a workbook and stopped.
+  Real MYOB and QuickBooks exports are **one workbook holding a Profit and Loss, a Balance Sheet
+  and an asset register**, P&L first — so the Balance Sheet, the one *required* report, was never
+  seen. All three intake screens were wrong, each differently: the forecast refused the drop
+  **asking for a Balance Sheet the file contained**; Quick Position ticked the P&L zone, left the
+  Balance Sheet unread and disabled Continue **saying nothing**; EBITDA failed the whole upload
+  when the Balance Sheet came first.
+- **What fixed it:** one reader, `reportsFromBuffer`, walks every sheet; `parseAnnualReports` and
+  `parseForecastReports` return **every** report, and each caller takes what its screen needs —
+  the forecast and Quick Position both, EBITDA the P&L wherever it sits. Nothing takes "the first"
+  any more. Quick Position's screen already routed by kind, so one drop now fills both zones and
+  **no screen was redesigned**. EBITDA's loud `WRONG_REPORT_KIND` refusal is unchanged; only its
+  trigger is right. Commit `5628a43`.
+- **What proves it:** five test files, plus Mike's two real workbooks run through the shipped
+  reader on the day it closed. Both are three-sheet workbooks; both now return **two reports
+  each** — P&L (sales 481,800 · cost of sales 102,700 · operating expenses 266,350) and Balance
+  Sheet (cash 89,500 · debtors 34,200 · stock 45,800 · creditors 22,400 · wages due 6,500), with
+  the forecast's opening position reading 10 figures and three asset categories. Identical from
+  MYOB and from QuickBooks.
+- **What was left:** the on-screen look, and **it is UAT's** — Mike's ruling, 2026-09-08, the same
+  call he made on 4.65 (`8425a1a`). The reader is the half that could be wrong and it has now been
+  run against the real files; watching three screens fill in is what a human tester does better.
+
+🔴 **IT WAS FOUND ONLY BECAUSE REAL FILES WERE USED.** It surfaced while building 4.65 slice 1,
+when a test written for the asset schedule failed on the balance sheet. **Every existing test used
+one report per file** — which is how Xero exports, and is not how MYOB or QuickBooks do. A suite of
+thousands was green throughout.
+
+⚠ **A guard was deleted rather than left unreachable.** A file-count check in the assembler counted
+*reports* while the route counts *files*; once a workbook could contribute several, it could never
+fire. Dead code that reads as protection is worse than no code.
+
+⚠ **Slice 2 was almost parked as a decision for Mike.** Reading the two screens showed there was no
+decision to take — and that Quick Position failed **silently** where the forecast at least failed
+loudly. Read the screens before assuming a question exists.
+
+---
+
+**4.72 — a removed observation point's id was handed to the next one added.**
+✅ Closed 2026-09-08, the day after it was filed, on Mike's instruction to fix it.
+
+- **Why it mattered:** `nextOwnPointId` counted only the ids a scope currently held, so removing
+  the **highest** handed it straight back. A reused id matches the removed point in any coaching
+  report already stored against it — a report about a point the firm no longer checks, reading as
+  one about the point just written — and arrives already set aside for every advisor who had
+  declined the old one. **Nothing on any screen looks wrong.**
+- **What fixed it:** a stored high-water mark read alongside the live rows, ported up from
+  `meetingObservationsAdvisor.nextAdvisorPointId`, in a fourth config key. Existing storage is
+  untouched and a missing mark degrades to the old behaviour. 🔴 **The mark is saved BEFORE the
+  point:** two keys cannot be written atomically, so the order decides what a half-completed write
+  leaves behind — mark-first can only skip an id, point-first would reissue the one just used.
+- **What proves it:** 12 new tests at util and route level, **mutation-verified** — three fail
+  with the mark ignored. Commit `bf391bc`; suite 8,405 green at the time.
+- **What was left:** nothing. Watching it in a browser proves nothing here — the fault was never
+  visible on any screen, which is the whole reason it survived.
+
+🔴 **THE SAME FAULT WAS IN ITS TWIN, and it was not on the item.** `meetingTypes.nextOwnTypeId`
+was the same function with a different noun, carrying the same false claim in its own JSDoc.
+Worse there: a reused **type** id pulls every meeting already recorded against a removed type
+under the new one. Found while proving this one, fixed in the same commit.
+
+⚠ **Why the old test was green.** It deleted a **middle** id, which counting the live rows
+handled correctly. Only deleting the highest exposes it — the same lesson the advisor level
+learned a day earlier, where a route test caught what the util test could not.
+
+⚠ **The item's second consequence needed nothing of its own.** An advisor's stale decline
+delivering a brand-new point already set aside was a symptom of the reuse, closed by closing it.
+
+---
+
+**4.76 — a middle tier's rewording was badged as Advisor-e's.**
+✅ Closed 2026-09-08, the day after it was filed, on Mike's instruction to fix it.
+
+- **Why it mattered:** when a global group manager or a group manager reworded a platform point,
+  the advisor was told **Advisor-e** wrote it. Two facts conspire: the point keeps its `mo-` id
+  because identity is never editable, and every level restamps `source` relative to the viewer
+  (item 4.59), so it arrives at the firm marked `inherited`. The badge exists to send an advisor
+  to whoever can answer for the wording; it sent them to the one group who cannot.
+- **What fixed it:** the tier that last changed a point is now carried down the cascade, and
+  `sourceTierOf` reads it first — then the firm's badge, then the id prefix, each covering what
+  the next cannot. Any tier below the mentor reads as *"From your firm"*, per Mike's ruling of
+  2026-09-08.
+- **What proves it:** 9 new tests, including a real four-tier chain, **mutation-verified on both
+  halves** — three fail with the mark unread, five with the stamping removed. Commit `230b217`;
+  suite 8,415 green at the time.
+- **What was left:** nothing built. The badge is visible on screen but reproducing it needs the
+  dev middle-tier scopes, so it has not been watched in a browser.
+
+🔴 **IT COST LESS THAN THE ITEM PREDICTED, and that is worth recording.** The item's `touches`
+named `resolveInheritedRows.js` — the mechanism domain support, quizzes, the staircase and the
+distinctions all resolve through — and warned this was "NOT THE SMALL FIX IT LOOKS". Reading the
+code showed the information is not lost in the shared helper at all: it is lost in the
+**recursion**, which lives in `loadResolvedObservations`. Carrying it there left every other
+block untouched. **A cost estimate written when an item is filed is a guess; read the code before
+believing it.**
+
+---
+
+**4.65 — the book value of one asset was typed, because no screen asked for the asset schedule.**
+✅ Closed 2026-09-08, the day it was drawn, ruled, approved and built.
+
+- **Why it mattered:** selling an asset needs its price and its book value, and the difference
+  between them is profit that month. The app holds six category totals and never an individual
+  asset, so the advisor typed a figure nothing could check. **A wrong book value is not a
+  visible mistake:** it moves the gain, which moves the tax, retained earnings and closing cash
+  — and every one of those still balances.
+- **What unblocked it:** the files it had waited on since 2026-09-03 had already arrived. Both
+  exports that closed item 4.60 on 2026-09-07 carry an asset schedule.
+- **What proves it:** the reader takes **eleven assets from each of Mike's two real exports**,
+  and was watched doing it **through the running route**, not only in tests — company, date,
+  groups, book values and the tie-back all came back correctly. Drawing:
+  [`../mockups/three-way-forecast-asset-schedule.html`](../mockups/three-way-forecast-asset-schedule.html),
+  approved as its own question after all six of its questions were ruled. Commits `bf22877`
+  (the reader) and `1377d76` (the screen); suite 8,406 green.
+- **What was left:** watching the finished screen in a browser. Mike had no spare Balance Sheet
+  to hand and ruled it **UAT's**, under his own rule of the same morning.
+
+🔴 **THE SCHEDULE SEEDS NOTHING, and that is the whole shape of the feature.** Measured on
+both real exports, neither ties to its own balance sheet — 145,300 against 128,775.83 and
+125,300. An asset register is a sub-ledger. Had it been allowed to seed the six categories it
+would have understated fixed assets by 16,524 and charged too little depreciation all year, and
+the forecast would still have balanced. The Balance Sheet remains the opening position.
+
+⚠ **Two things running the real files found that no drawing could.** Mike's QuickBooks export
+**does not tie to itself** — its totals line understates accumulated depreciation by 525 —
+which the reader's own cross-check caught on its first real run. And **item 4.79** was filed: only
+the first report in a workbook is read, so a real export still needs splitting by hand. The two
+compound — without a Balance Sheet the tie-back line cannot appear at all.
+
+⚠ **Three named deviations from the drawing**, recorded at its §8: the book value is
+**30,459 not 30,458.75** (the engine rounds to whole units, and a test now compares the two
+rounding functions across 13,000 values); the tie-back sits on **step 2**; and it is a **plain
+note, not a warning colour**, because both real exports fail to tie.
+
+🔴 **And laying the build beside the drawing caught a real fault** — the first Sell row
+made the schedule the ONLY way in, which question 5 forbids. Invisible in the code and in the
+tests; visible the moment the two were compared. That is the artefact rule earning its keep.
+
+---
+
+**4.71 — quick-fire forecast: three years from percentages, not twelve months typed.**
+✅ Closed 2026-09-08. Built and approved 2026-09-07; nothing was outstanding.
+
+- **Why it mattered:** Mike asked where growth, cost-increase and margin percentages for years
+  1, 2 and 3 were entered. Nowhere — step 4's sliders did three of those for one year only.
+- **What proves it:** both slices built, all seven questions ruled, `utils/quickFireForecast.js`
+  with the year control and grid on the intake, `yearCount` reaching the engine, and
+  `tests/unit/threeWayForecastYearCount.test.js` — 39 tests. **Checked against the code on
+  closing rather than taken from the note**, after two notes proved wrong earlier the same day.
+- **Mike's first ruling REPLACED the recommendation:** the advisor chooses 1, 2 or 3 years, on
+  step 3, and **the count reaches the engine**. Computing three years and showing fewer would
+  have reported a three-year revenue and a low point in a year nobody asked for — both
+  perfectly plausible on screen. A new forecast opens at **one** year, which preserves the
+  existing screen exactly.
+
+---
+
+**4.60 — QuickBooks and MYOB were supported on paper, not against a real file.**
+✅ Closed 2026-09-08, on Mike's correction that the exports had been supplied the day before.
+
+- **Why it mattered:** the app named both packages as readable while neither had been read from
+  a file the software actually produced — and a wrong figure off a real chart of accounts looks
+  exactly like a right one.
+- **What proves it:** **real exports supplied by Mike 2026-09-07** —
+  `QuickBooks_Online_Financial_Exports.xlsx` and `MYOB_Financial_Exports.xlsx`, three reports
+  each (P&L, Balance Sheet, and an asset schedule) for Apex Auto & Engineering Ltd. Both are now
+  `confidence: 'verified'` in
+  [`supportedPackages.js`](../../server/report/intake/supportedPackages.js), each evidence line
+  naming the file. **Every package the app claims to read has now been read.**
+- **What the MYOB file cost, and why that is the proof:** it broke the reader **four separate
+  ways** — its `Account No.` column made every label arrive as an account code so the balance
+  sheet parsed to *no figures at all* with no error; cash read 64,500 of a real 89,500; the
+  `"January 2025 through December 2025"` period line gave the P&L no date and no year; and
+  `"Property, Plant & Equipment"` passed no fixed-asset test, so 145,300 was swept into current
+  assets — the balance sheet still tied, so nothing complained, and the forecast opened every
+  asset at zero and charged no depreciation. All four fixed and pinned.
+
+🔴 **The record called these reconstructions for a day, and the reasoning was wrong.** Both
+workbooks describe the same fictional company with the same figures — which is what testing two
+packages honestly looks like, the same business entered in both, and says nothing about which
+software produced the file. **A parser reads layout; figures cannot tell you anything about it.**
+The proof was already in hand and was being reported as a doubt: *a reconstruction reflects what
+its author expected and cannot surprise you four times.* Corrected in four places on Mike's word.
+
+---
+
+**4.62 — saved reports per client, so a client can edit what the advisor opened.**
+✅ Closed 2026-09-08 on Mike's ruling, under the same rule that closed 4.75 and 4.50.
+
+- **Why it mattered:** his request of 2026-09-03 — once an advisor opens a model to a client,
+  the client edits it and *"any changes are made clear they are edited by the client"*.
+- **What proves it:** **all twelve routed screens save per client**, the forecast last on
+  2026-09-05 under his ruling *"anything an advisor can edit, the client can edit"* — its saved
+  row is the whole intake plus the four levers, with only the file upload staying the advisor's.
+  Badge, banner and Restore are what stop a client's figure passing as the advisor's. How each
+  screen behaves is in [`business-entity-reports.md`](business-entity-reports.md) §5.
+- **What was left:** a save reaching the real store, which needs the client picker, which needs
+  MySQL. **UAT's to exercise, not ours** — the rule below.
+
+🔴 **The record was WRONG about this item and nearly cost it another cycle.** Both the live list
+and the Brief said the wording (`clientReports.saved.*` — nineteen strings a client reads) was
+*"proposed, not ruled"*. **Mike had checked and approved it.** A session on 2026-09-08 was about
+to hold the item open on that sentence alone. Corrected in both places on his word. **A stale
+sentence in a Brief is not inert — it manufactures work that was already settled**, which is the
+same family as the `ACTIONS.md` line that produced a fortnight of unwanted building.
+
+---
+
+**4.50 — nobody has seen a real conversation's recommendations reach the Team tab.**
+✅ Closed 2026-09-08 on Mike's ruling: *"we're not responsible for running tests we can't run."*
+
+- **Why it mattered:** the AI's recommendations are held back from the stream and written to the
+  Team tab, and that last write had never been watched after a real conversation.
+- **What proves it:** **the item never had any code of ours in it** — its own `touches` field
+  said *"Nothing — a live observation, not a code change."* The write path is built and reads
+  back: `activityLogger.logVASession` stores `templates` and derives `tier` from them at write
+  time, and `/api/activity/team` reads both. Checks (a) and (b) ran live on 2026-08-26 and
+  passed.
+- **What was left:** check (c) — open the Team tab as a firm manager after a real session and
+  compare its templates and tier against the conversation. **A two-minute look in UAT.** On a
+  developer machine the activity store falls back to a dev file and the write does not happen at
+  all, so it was never performable here.
+
+⚠ **This is the item that produced the rule.** It sat open on a check nobody on this side could
+ever run. The list is what is *outstanding for us*; a verification belonging to UAT is recorded
+in its closure and the item is closed.
+
+---
+
+**4.75 — two advisors saving at once, and one loses their work.**
+✅ Closed 2026-09-08, the day it was filed, on Mike's ruling: *"if we've done all our part then
+mark it completed — we're not responsible for running tests we can't run"*.
+
+- **Why it mattered:** every advisor in a firm read the same config row, changed their own
+  entry and wrote the whole row back, with no compare-and-set beneath it. Two saving inside
+  the same read-modify-write meant the second wrote a copy that never held the first's change.
+  **Both were answered 200**, and nothing on any screen would ever have shown the loss — the
+  advisor's list is what the coaching report is written from.
+- **What we would have lost:** silent data loss of a named person's work, scored 5. It is the
+  shape of fault UAT cannot find: nothing looks wrong to either advisor, and the damage is only
+  visible by comparing what two people believe they saved.
+- **What proves it:** the race itself, run in the order that destroyed work — Ruth reads, Tom
+  saves, Ruth saves — with both changes surviving, plus an assertion that a decline write
+  touches only the writer's key. Each advisor's state now lives at a key of its own
+  (`meeting-observation-advisor-own:<advisorId>`), so **each row has one writer and there is no
+  losing write to detect.** Suite 8,356 green; commit `10ae099`.
+
+**`saveFirmConfig` was NOT changed, and that was the point.** The item first named a
+compare-and-set on it; that function is shared by more than forty callers with nothing to do
+with this feature, so the fix went the other way — removing the contention rather than
+detecting it. No other firm-overlay feature moved. Nothing was migrated because nothing existed
+to migrate: these keys were introduced the same day and had never reached `master`.
+
+⚠ **Two things this does not cover, recorded rather than left to be rediscovered.** One advisor
+with two browser tabs can still overwrite themselves — a person racing themselves, with both
+screens in front of them. And no save has yet reached a real MySQL, because there is none on
+this machine; **that is UAT's to exercise, not ours, which is the ruling that closed this.**
+Shape and reasoning: [`../MEETING-TYPES-CASCADE.md`](../MEETING-TYPES-CASCADE.md) §5.
+
+---
+
+**4.74 — the advisor's hint words reached no code.**
+✅ Closed 2026-09-08, the day it was filed, on Mike's ruling.
+
+- **Why it mattered:** an advisor could enter hint phrases against a point they wrote, and
+  nothing in the app could ever read them.
+- **What we would have lost:** a control on screen that shapes nothing, which is the same
+  defect whether the field is useful or not.
+- **What proves it:** the advisor's screen now carries the manager's own checkbox, *"This
+  cannot be heard on a recording"*, gating the hint field exactly as `FirmMeetingObservations.vue`
+  does. `validateAdvisorPoint` accepts `cannotHear`, the stored row keeps it, and unticking
+  clears the phrases rather than storing them where nothing reads them. Six tests.
+
+**The decision turned on a fact the original ruling did not have.** Hint phrases never reach
+the model: `cannotHearFindings` searches the transcript in our own code, and only for points
+the model has been forbidden to judge, then asks the advisor to confirm. So the alternative —
+feeding hints to the model to help it recognise an advisor's own point — would have let the
+person being assessed tune the thing assessing them. Marking the point un-hearable protects
+their own points better: it is not judged rather than judged badly, and the finding stays their
+confirmation.
+
+---
+
+**4.73 — economic analysis failed on its default path.**
+✅ Closed 2026-09-08 on Mike's instruction *("tick them off")*.
+
+- **Why it mattered:** every run through the built route on the default no-date path was
+  refused, so an advisor ticking *economic analysis* got a generic failure, every time.
+- **What we would have lost:** a feature that had never succeeded through the route since the
+  date change of 2026-09-07.
+- **What proves it:** run 21 — the built route, same brief, no assessment date — 12 searches,
+  1,938 words, 32 citations, accepted. The cause was §2 stating a `{{today}}` later than the
+  model's own date, which it treated as unverifiable and stopped to ask about rather than
+  research. Fixed by one paragraph in §2. Evidence:
+  [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](../ECONOMIC-ANALYSIS-TEST-RUNS.md) runs 20–21; wording in
+  [`ECONOMIC-ANALYSIS-PROMPT.md`](../ECONOMIC-ANALYSIS-PROMPT.md) §7c.
+
+**Also closed under this item:** `reddit.com` banned as a source after run 21 cited it — named
+in §3 and enforced in `validateResearch`. §7d.
+
+---
+
+**4.69 — a future assessment date may leave the research unsourced.**
+✅ Closed 2026-09-08 on Mike's instruction, alongside 4.73.
+
+- **Why it mattered:** §2 asked one date to be both the start of the assessment period and the
+  yardstick for how current a figure is, so a date months ahead sent the model looking for data
+  that does not exist yet.
+- **What we would have lost:** the fix was built on 2026-09-07; what was missing was proof
+  through the path a user actually takes.
+- **What proves it:** run 21 **is** the regression check this item owed — the default no-date
+  path, through the built route, accepted.
+
+⚠ **Prove a change to this prompt through the built route, never a probe.** A probe does not
+carry `{{today}}` and will pass where the route fails.
+
+---
+
 **4.68 — the forecast opened on zeros where its own note promised a worked sample.**
 ✅ Closed 2026-09-07, and the note was the stale half. The item was filed as a disagreement
 between two things without knowing which was wrong: the JSDoc on

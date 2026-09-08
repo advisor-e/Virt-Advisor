@@ -122,12 +122,12 @@
       "capped": "{scope} is set to Open, but {above} is currently Closed — cross-organisation contact stays off until that level opens.",
       "scopeName": {
         "firm": "Your firm",
-        "country": "Your country",
-        "global": "Your brand"
+        "country": "Your group",
+        "global": "Your global group"
       },
       "aboveName": {
-        "country": "the country level above it",
-        "global": "the brand level above it"
+        "country": "the group above it",
+        "global": "the global group above it"
       }
     }
   },
