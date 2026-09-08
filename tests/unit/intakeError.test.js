@@ -26,7 +26,8 @@ describe('intakeErrorResponse — authored refusals pass through', () => {
     const authored = [
       'NOT_XLSX', 'CORRUPT_FILE', 'FILE_TOO_LARGE', 'TOO_MANY_PARTS',
       'PDF_REJECTED', 'UNRECOGNISED_FILE', 'UNRECOGNISED_REPORT',
-      'MULTI_PERIOD_COLUMNS', 'TOO_MANY_FILES', 'WRONG_REPORT_KIND'
+      'MULTI_PERIOD_COLUMNS', 'TOO_MANY_FILES', 'WRONG_REPORT_KIND',
+      'UNRECOGNISED_INVENTORY', 'INVENTORY_CURRENCY_MISMATCH'
     ]
     for (const code of authored) { expect(typeof INTAKE_STATUS[code]).toBe('number') }
   })

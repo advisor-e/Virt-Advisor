@@ -64,19 +64,32 @@ function devWrite (firmId, code) {
  *   platform default when unset. Never fails a report render — degrades to default.
  */
 async function get (req, res) {
+  const r = await readFirmCurrency(req.firmId)
+  res.send(200, r)
+}
+
+/**
+ * The firm's currency, for any backend caller that must know it — the inventory intake
+ * checks an Unleashed file's currency code against it (item 4.70, stage 4). ONE
+ * definition of "what currency does this firm report in", shared with `get` above, so the
+ * check and the screen can never disagree. Never throws: on any failure it degrades to the
+ * platform default, exactly as the read route does.
+ * @param {string} firmId
+ * @returns {Promise<{currency:string, isDefault:boolean}>}
+ */
+async function readFirmCurrency (firmId) {
   try {
-    const stored = await overlay.loadFirmConfig(req.firmId, CONFIG_KEY)
+    const stored = await overlay.loadFirmConfig(firmId, CONFIG_KEY)
     const code = stored && isSupported(stored.code) ? stored.code : null
-    res.send(200, { currency: code || DEFAULT_CURRENCY, isDefault: !code })
+    return { currency: code || DEFAULT_CURRENCY, isDefault: !code }
   } catch (err) {
     if (devFallbackOk(err)) {
-      const code = devRead(req.firmId)
-      res.send(200, { currency: code || DEFAULT_CURRENCY, isDefault: !code })
-      return
+      const code = devRead(firmId)
+      return { currency: code || DEFAULT_CURRENCY, isDefault: !code }
     }
     // A display setting must never break the report — log server-side, serve default.
     console.error('[currency] read failed:', err.message)
-    res.send(200, { currency: DEFAULT_CURRENCY, isDefault: true })
+    return { currency: DEFAULT_CURRENCY, isDefault: true }
   }
 }
 
@@ -105,4 +118,4 @@ async function set (req, res) {
   }
 }
 
-module.exports = { get, set }
+module.exports = { get, set, readFirmCurrency }

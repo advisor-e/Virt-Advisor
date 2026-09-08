@@ -30,6 +30,7 @@ const { computeReportPages, plainLinesOf } = require('../report/dashboardReportP
 const { compareToIndustry } = require('../report/benchmarks/statsNzBenchmarker')
 const { loadBenchmarker } = require('../utils/benchmarkerStore')
 const { assembleDashboardIntake, MAX_FILES: MAX_DASHBOARD_FILES } = require('../report/intake/dashboardReportsAssembler')
+const { readInventoryUpload, summariseInventory } = require('../report/intake/inventoryReader')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
@@ -37,6 +38,7 @@ const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAss
 const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
 const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
+const { readFirmCurrency } = require('./currency')
 // The overlay reader with its dev-JSON fallback, taken from the thresholds route rather
 // than rebuilt — one definition of "how a scope's stored config is read", so the trend
 // block on step 3 and the manager screen that edits it can never disagree about it.
@@ -284,6 +286,64 @@ async function dashboardReportsIntake (req, res) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
     console.error('[report] dashboard-reports intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
     const safe = intakeErrorResponse(err, 'A file could not be read as an accounting export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/dashboard-reports/inventory  (firmAuth — uploads are never anonymous)
+ *
+ * One stock-on-hand export — Cin7 Core or Unleashed — in a `file` field, read by
+ * `readInventoryUpload` and reduced to the stock page's totals by `summariseInventory`
+ * against the firm's own currency (item 4.70, stage 4). Parse-and-discard: no file is
+ * kept, and NO PRODUCT LINE is sent back — only value by category and location, the unit
+ * counts and the file total. Stock ageing is not here: the export carries no date.
+ *
+ * @route POST /api/report/dashboard-reports/inventory
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data, timestamp } — data per `summariseInventory`
+ */
+async function dashboardReportsInventory (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a stock-on-hand export should be well under 1 MB. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the stock export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > 1) {
+      const e = new Error('This step reads one stock-on-hand export — ' + uploaded.length + ' files were sent. Please drop the one export.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const parsed = readInventoryUpload(fs.readFileSync(uploaded[0].filepath))
+    const { currency } = await readFirmCurrency(req.firmId)
+    const data = summariseInventory(parsed, currency)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, product names or content
+    console.error('[report] dashboard-reports inventory rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a stock-on-hand export.')
     res.send(safe.status, safe.body)
   } finally {
     for (const f of uploaded) {
@@ -1133,4 +1193,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, dashboardReportPages, dashboardReportsIntake, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
