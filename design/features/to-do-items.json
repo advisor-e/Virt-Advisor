@@ -122,48 +122,6 @@
       "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it. RENUMBERED 4.62 → 4.66 on 2026-09-04, both machines having filed a 4.62 that day; 4.62 is not reused. 2026-09-06 — privacy ruled; prompt drafted and revised; screens drawn; all three slices built in one day, and run 5 proved it live. 2026-09-07 — watched in a browser for the first time; the guard was refusing half of all runs, and Mike ruled the assessment date onto a field of its own. Nine live faults have now come out of running it, and the green tests had caught none of them."
     },
     {
-      "ref": "4.65",
-      "name": "The book value of one asset is typed, because no screen asks for the asset schedule",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Selling an asset needs its price and its book value; the gain between them is profit that month. The app holds six category totals, never individual assets, and no screen asks for the schedule.",
-      "risk": "Nothing is broken while it is undone: the advisor reads the number off the same schedule the app would parse. The risk is in the doing — a Fixed Asset Schedule varies far more between packages than a Balance Sheet, and a schedule read wrongly gives a plausible book value, which moves the gain, the tax and retained earnings together.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — he challenged the typed field directly (\"if i have a vehicle it must be listed in the asset schedule and balance sheet - which is paired to the depreciation rates - cant see why you cant pull the book value from that?\"), was shown that the figure lives on a report the app never asks for, and chose: \"typing it for now\"."
-      },
-      "touches": "BUILT: server/report/intake/assetScheduleParser.js (new), utils/assetBookValue.js (new), server/routes/report.js (the schedule scan and the tie-back), components/ThreeWayForecastIntake.vue (the seventh slot, the tie-back line, the Sell row chooser), locales/en.json, and three test files.",
-      "note": "BUILT IN TWO SLICES 2026-09-08 from the approved drawing, all six questions ruled. The reader is proven on Mike real MYOB and QuickBooks exports - eleven assets each. THE SCHEDULE SEEDS NOTHING: neither real file ties to its own balance sheet (16,524 and 20,000 apart), so the Balance Sheet stays the opening position and the schedule only looks up one asset book value on a Sell row. THREE NAMED DEVIATIONS at section 8 of the drawing, the largest being 30,459 rather than 30,458.75 because the engine rounds to whole units. What remains: nobody has watched it in a browser, and item 4.79 means a real workbook still needs splitting by hand before the Balance Sheet is read.",
-      "comment": "2026-09-03 - filed at the moment Mike ruled \"typing it for now\". 2026-09-08 - the files it waited for had already arrived; drawn, all six questions ruled, the drawing approved as its own question, and both slices built and pushed the same day. Laying the build beside the drawing caught a real fault: the chooser had become the only way in, which question 5 forbids."
-    },
-    {
-      "ref": "4.71",
-      "name": "Quick-fire forecast — three years from percentages, not twelve months typed",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike asked where growth, cost-increase and margin percentages for years 1, 2 and 3 are entered. Nowhere: step 4's sliders do three of those for one year only.",
-      "risk": "Slice 1 alone would collect three years of percentages and display one — which is why the three-year view is in the same job, and it is the larger half. The engine and route exist and are tested; no screen has ever called them. Quick-fire replaces three fields only, so an error is visible against last year's actuals on the same screen.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-07 — \"draw it up please and make it a 'quick-fire option'. tick a box, it opens so i can put the data in and it just adds or subtracts from previous known data. untick it and the status quo continues\". Approved and all five questions ruled the same day."
-      },
-      "touches": "BUILT, both slices: utils/quickFireForecast.js, the year control and grid on components/ThreeWayForecastIntake.vue, yearCount in server/report/threeWayForecastModel.js, components/ThreeWayForecastReport.vue (summary, cash line, year tabs, print), locales/en.json, and four test files including tests/unit/threeWayForecastYearCount.test.js.",
-      "note": "BOTH SLICES BUILT. Slice 2 drawn and approved 2026-09-07, all seven questions ruled. Mike's first ruling REPLACED the recommendation: the advisor chooses 1, 2 or 3 years, on step 3. The count reaches the ENGINE — computing three and showing fewer would have reported a three-year revenue and a low point in a year nobody asked for, both plausible on screen. Step 4 gained a year summary, a cash line across every month, year tabs, and a print that carries every year. A new forecast opens at ONE year — ruled by Mike 2026-09-07, and it preserves today's screen exactly.",
-      "comment": "2026-09-07 — filed the day Mike asked for it, after being told the percentages could be entered nowhere. Numbered 4.71 because the desktop filed 4.70 on its own branch the same day: the third numbering collision in a week. Same day: drawn, approved, all five questions ruled, slice 1 built and merged; then slice 2 drawn, six more questions ruled one at a time, and built — 39 new tests, suite 8,147 green."
-    },
-    {
       "ref": "4.72",
       "name": "A removed observation point's id is handed to the next one added",
       "rankedByMike": false,

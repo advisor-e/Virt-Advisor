@@ -185,6 +185,65 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.65 — the book value of one asset was typed, because no screen asked for the asset schedule.**
+✅ Closed 2026-09-08, the day it was drawn, ruled, approved and built.
+
+- **Why it mattered:** selling an asset needs its price and its book value, and the difference
+  between them is profit that month. The app holds six category totals and never an individual
+  asset, so the advisor typed a figure nothing could check. **A wrong book value is not a
+  visible mistake:** it moves the gain, which moves the tax, retained earnings and closing cash
+  — and every one of those still balances.
+- **What unblocked it:** the files it had waited on since 2026-09-03 had already arrived. Both
+  exports that closed item 4.60 on 2026-09-07 carry an asset schedule.
+- **What proves it:** the reader takes **eleven assets from each of Mike's two real exports**,
+  and was watched doing it **through the running route**, not only in tests — company, date,
+  groups, book values and the tie-back all came back correctly. Drawing:
+  [`../mockups/three-way-forecast-asset-schedule.html`](../mockups/three-way-forecast-asset-schedule.html),
+  approved as its own question after all six of its questions were ruled. Commits `bf22877`
+  (the reader) and `1377d76` (the screen); suite 8,406 green.
+- **What was left:** watching the finished screen in a browser. Mike had no spare Balance Sheet
+  to hand and ruled it **UAT's**, under his own rule of the same morning.
+
+🔴 **THE SCHEDULE SEEDS NOTHING, and that is the whole shape of the feature.** Measured on
+both real exports, neither ties to its own balance sheet — 145,300 against 128,775.83 and
+125,300. An asset register is a sub-ledger. Had it been allowed to seed the six categories it
+would have understated fixed assets by 16,524 and charged too little depreciation all year, and
+the forecast would still have balanced. The Balance Sheet remains the opening position.
+
+⚠ **Two things running the real files found that no drawing could.** Mike's QuickBooks export
+**does not tie to itself** — its totals line understates accumulated depreciation by 525 —
+which the reader's own cross-check caught on its first real run. And **item 4.79** was filed: only
+the first report in a workbook is read, so a real export still needs splitting by hand. The two
+compound — without a Balance Sheet the tie-back line cannot appear at all.
+
+⚠ **Three named deviations from the drawing**, recorded at its §8: the book value is
+**30,459 not 30,458.75** (the engine rounds to whole units, and a test now compares the two
+rounding functions across 13,000 values); the tie-back sits on **step 2**; and it is a **plain
+note, not a warning colour**, because both real exports fail to tie.
+
+🔴 **And laying the build beside the drawing caught a real fault** — the first Sell row
+made the schedule the ONLY way in, which question 5 forbids. Invisible in the code and in the
+tests; visible the moment the two were compared. That is the artefact rule earning its keep.
+
+---
+
+**4.71 — quick-fire forecast: three years from percentages, not twelve months typed.**
+✅ Closed 2026-09-08. Built and approved 2026-09-07; nothing was outstanding.
+
+- **Why it mattered:** Mike asked where growth, cost-increase and margin percentages for years
+  1, 2 and 3 were entered. Nowhere — step 4's sliders did three of those for one year only.
+- **What proves it:** both slices built, all seven questions ruled, `utils/quickFireForecast.js`
+  with the year control and grid on the intake, `yearCount` reaching the engine, and
+  `tests/unit/threeWayForecastYearCount.test.js` — 39 tests. **Checked against the code on
+  closing rather than taken from the note**, after two notes proved wrong earlier the same day.
+- **Mike's first ruling REPLACED the recommendation:** the advisor chooses 1, 2 or 3 years, on
+  step 3, and **the count reaches the engine**. Computing three years and showing fewer would
+  have reported a three-year revenue and a low point in a year nobody asked for — both
+  perfectly plausible on screen. A new forecast opens at **one** year, which preserves the
+  existing screen exactly.
+
+---
+
 **4.60 — QuickBooks and MYOB were supported on paper, not against a real file.**
 ✅ Closed 2026-09-08, on Mike's correction that the exports had been supplied the day before.
 
