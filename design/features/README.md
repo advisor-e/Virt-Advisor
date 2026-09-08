@@ -92,7 +92,7 @@ Templates & Videos is dormant — templates are Advisor-e's.*
 |---|---|
 | [Firm Manager Hub](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
 | [The Tier Cascade](tier-cascade.md) — what flows down, what reports up | [history](tier-cascade-history.md) |
-| [Search-Content Cascade Plan](../SEARCH-CONTENT-CASCADE-PLAN.md) — the master template library moves into the cascading database. **Plan for approval — nothing built.** | — |
+| [Search-Content Cascade Plan](../SEARCH-CONTENT-CASCADE-PLAN.md) — the master template library moves into the cascading database. **All four phases built on our side (2026-09-09); Advisor-e's call into the push endpoint is the master team's.** | — |
 
 ## The adviser network
 

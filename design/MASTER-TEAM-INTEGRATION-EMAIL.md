@@ -56,6 +56,20 @@ any given firm, which brand and country it sits under. **Any of these works, whi
 work for you:** a column on the firms table, a small read-only endpoint, or a lookup we query
 once and cache. Until it exists, our reports fall back to a flat structure — they do not guess.
 
+**6 · Pushing the search-content export to us when I publish.** Today I download the
+`search_content_*.json` export from Advisor-e and upload it into the module by hand. The module
+now has an endpoint that accepts that same file directly, so the step can go. When I publish,
+please `POST` the export file's JSON array, as the request body with
+`Content-Type: application/json`, to:
+
+`POST {module base URL}/api/integration/templates`
+
+with a header `x-advisor-e-push-secret` carrying a shared secret. Send me the secret you would
+like to use, or I will send you one; we set it as an environment variable on the module's
+backend. A `201` means it is stored and live within a minute. Until the secret is set on our
+side the endpoint answers `404`, so nothing can arrive before we both hold it. The file is
+capped at 10 MB and validated exactly as the manual upload is.
+
 **And the database.** MySQL host, port, database name, user and password. Also: do you want to
 run our schema yourself, or should we hand you the SQL? Our tables are additive and do not touch
 anything of yours.
@@ -80,6 +94,7 @@ working value.
 | Role values (3) | to-do §3.2 — the two middle hubs | `globalManagerRole`, `groupManagerRole` |
 | The two claims (4) | a manager resolving their own scope | `globalGroupClaim`, `countryClaim` |
 | Firm → group (5) | to-do §3.3 — roll-ups above a firm | `parentScopeOf()` stops returning the platform scope |
+| The push secret (6) | Cascade Phase 4 — the download step disappears | set `ADVISOR_E_PUSH_SECRET` on the backend; nothing else changes |
 | DB credentials | to-do §3.1 — every write in the app | the `DB` block |
 
 **The fail-closed design is worth defending if they ask why the roles are blank.** An empty role

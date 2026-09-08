@@ -168,7 +168,9 @@ const JSON_BODY_LIMIT = 1024 * 1024
 const _jsonParsers = restify.plugins.jsonBodyParser({ mapParams: false, maxBodySize: JSON_BODY_LIMIT })
 server.use((req, res, next) => {
   const p = (req.url || '').split('?')[0]
-  if (p === '/api/advisor/query' || p === '/api/course') { return next() }
+  // The template push reads its own body under the 10 MB upload cap (Cascade Phase 4);
+  // a 337 KB export fits the 1 MB parser today, but the cap is the upload's, not this one's.
+  if (p === '/api/advisor/query' || p === '/api/course' || p === '/api/integration/templates') { return next() }
   let i = 0
   ;(function runNext (err) {
     if (err || i >= _jsonParsers.length) { return next(err) }
@@ -668,6 +670,14 @@ server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMen
 server.get('/api/mentor/templates', ...mentorGuard, mentorRoute.getPlatformTemplates)
 server.post('/api/mentor/templates/import', ...mentorGuard, mentorRoute.importPlatformTemplates)
 server.post('/api/mentor/templates/restore', ...mentorGuard, mentorRoute.restorePlatformTemplates)
+
+// ── Master template library — the PUSH doorway (Cascade Phase 4, our half) ──
+// Advisor-e posts the export here when Mike publishes. Not behind a user token:
+// a shared secret (config/integration.js PUSH) guards it, and the route answers
+// 404 while that secret is unset. Same validator, same platform scope, same
+// history and cache clear as the mentor's upload above — one store, two doors.
+const integrationTemplates = require('./routes/integrationTemplates')
+server.post('/api/integration/templates', integrationTemplates.requirePushSecret, integrationTemplates.pushPlatformTemplates)
 
 // ── Template Check (MENTOR ONLY — and it stays that way) ──
 // Every tool a logic table names, checked against the templates the app can open.

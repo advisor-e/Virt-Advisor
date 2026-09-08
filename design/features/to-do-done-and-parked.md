@@ -185,6 +185,32 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.81 — the Search-Content Cascade Plan's last phase: Advisor-e pushes the export itself.**
+✅ Closed 2026-09-09, filed and built the same day on Mike's instruction — *"lets finish the
+search content cascade plan"*.
+
+- **Why it mattered:** Phases 1 to 3 of [`SEARCH-CONTENT-CASCADE-PLAN.md`](../SEARCH-CONTENT-CASCADE-PLAN.md)
+  were built and live, but Phase 4 — Advisor-e posting the export straight to this app when
+  Mike publishes — had no receiving end here and no line in the master-team email, so the
+  download-and-upload step could never go away. Three records also still described the plan
+  as unbuilt.
+- **What was built:** `POST /api/integration/templates`
+  (`server/routes/integrationTemplates.js`), the second doorway into the same validated
+  store: same validator, same `__platform__` scope, same history, same cache clear. **It
+  fails closed** — a shared secret in the backend's environment (`ADVISOR_E_PUSH_SECRET`)
+  guards it, the route answers 404 while that is unset, the compare is constant-time, the
+  body is read under the 10 MB upload cap and refused mid-stream, and nothing in the payload
+  is logged. Platform tier only, by stated judgement (plan §9). Question 6 added to
+  `MASTER-TEAM-INTEGRATION-EMAIL.md`; the cascade handover's §D and the features index
+  corrected.
+- **What proves it:** `tests/unit/integrationTemplates.routes.test.js` — the guard in all
+  three states, the compare never throwing on a length mismatch, the cap mid-stream, every
+  rejection leaving the store untouched, the platform-scope write attributed to Advisor-e,
+  the dev-fallback rule on a live MySQL refusal, and a source tripwire on the mount and the
+  parser skip. Route file at 100% lines and functions.
+- **Left to the master team, and named:** holding the same secret and making the call on
+  publish. Nothing here waits on it; the mentor's upload tab remains the way in until then.
+
 **4.79 — only the first report in a workbook was read, so a real export was refused.**
 ✅ Closed 2026-09-08, the day it was found, built and proved on Mike's own exports.
 
