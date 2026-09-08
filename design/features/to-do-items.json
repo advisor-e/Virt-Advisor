@@ -164,27 +164,6 @@
       "comment": "2026-09-08 - raised by Mike and filed on his instruction the same day. The recommendation was AGAINST it and he overturned it: the uploader is a firm manager who knows the topic and should be encouraged to check their sources. The concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers."
     },
     {
-      "ref": "4.79",
-      "name": "Only the first report in a workbook is read, so a real export is refused",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The readers returned the first recognised report in a workbook. Both real MYOB and QuickBooks exports are ONE workbook holding a Profit and Loss and a Balance Sheet, with the P&L first, so the Balance Sheet was ignored.",
-      "risk": "All three intake screens were wrong, each differently: the forecast refused the drop asking for a Balance Sheet the file contained; Quick Position ticked the P&L zone, left the Balance Sheet unread and disabled Continue saying nothing; EBITDA failed the whole upload when the Balance Sheet came first. NOT YET WATCHED IN A BROWSER.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-08 while building item 4.65 slice 1, by running Mike's own exports through the route - a test written for the asset schedule failed on the balance sheet. Filed on his instruction the same day."
-      },
-      "touches": "server/report/intake/xeroReportParser.js (reportsFromBuffer, parseAnnualReports, parseForecastReports), all three intake routes in server/routes/report.js, threeWayForecastAssembler.js, annualAssembler.js JSDoc, components/QuickPositionIntake.vue, report-models.md, and five test files.",
-      "note": "BOTH SLICES ARE BUILT (2026-09-08). One reader, reportsFromBuffer, walks every sheet; parseAnnualReports and parseForecastReports return every report, and each caller takes what its screen needs - the forecast and Quick Position take both, EBITDA takes the P&L wherever it sits. Nothing takes 'the first' any more. Quick Position's screen already routed by kind, so one drop now fills both zones and no screen was redesigned. EBITDA's loud WRONG_REPORT_KIND refusal is unchanged; only its trigger is right. NOT YET WATCHED IN A BROWSER - the nine live faults on 4.66 are why that distinction is kept.",
-      "comment": "2026-09-08 - found while building 4.65 slice 1 and filed on Mike's instruction the same day. It surfaced only because his real exports were run through the route; every existing test used one report per file, which is how Xero exports and not how MYOB or QuickBooks do. Same day: both slices built on his approval, slice by slice. A file-count guard in the assembler was DELETED rather than left unreachable - it counted reports while the route counts files. Slice 2 was almost parked as a decision for Mike; reading the two screens showed there was none to take, and that Quick Position failed SILENTLY where the forecast at least failed loudly."
-    },
-    {
       "ref": "4.80",
       "name": "\"Global manager\" is the old name and it is still in 45 places",
       "rankedByMike": false,

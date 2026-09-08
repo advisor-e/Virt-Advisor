@@ -185,6 +185,47 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.79 — only the first report in a workbook was read, so a real export was refused.**
+✅ Closed 2026-09-08, the day it was found, built and proved on Mike's own exports.
+
+- **Why it mattered:** the readers returned the first recognised report in a workbook and stopped.
+  Real MYOB and QuickBooks exports are **one workbook holding a Profit and Loss, a Balance Sheet
+  and an asset register**, P&L first — so the Balance Sheet, the one *required* report, was never
+  seen. All three intake screens were wrong, each differently: the forecast refused the drop
+  **asking for a Balance Sheet the file contained**; Quick Position ticked the P&L zone, left the
+  Balance Sheet unread and disabled Continue **saying nothing**; EBITDA failed the whole upload
+  when the Balance Sheet came first.
+- **What fixed it:** one reader, `reportsFromBuffer`, walks every sheet; `parseAnnualReports` and
+  `parseForecastReports` return **every** report, and each caller takes what its screen needs —
+  the forecast and Quick Position both, EBITDA the P&L wherever it sits. Nothing takes "the first"
+  any more. Quick Position's screen already routed by kind, so one drop now fills both zones and
+  **no screen was redesigned**. EBITDA's loud `WRONG_REPORT_KIND` refusal is unchanged; only its
+  trigger is right. Commit `5628a43`.
+- **What proves it:** five test files, plus Mike's two real workbooks run through the shipped
+  reader on the day it closed. Both are three-sheet workbooks; both now return **two reports
+  each** — P&L (sales 481,800 · cost of sales 102,700 · operating expenses 266,350) and Balance
+  Sheet (cash 89,500 · debtors 34,200 · stock 45,800 · creditors 22,400 · wages due 6,500), with
+  the forecast's opening position reading 10 figures and three asset categories. Identical from
+  MYOB and from QuickBooks.
+- **What was left:** the on-screen look, and **it is UAT's** — Mike's ruling, 2026-09-08, the same
+  call he made on 4.65 (`8425a1a`). The reader is the half that could be wrong and it has now been
+  run against the real files; watching three screens fill in is what a human tester does better.
+
+🔴 **IT WAS FOUND ONLY BECAUSE REAL FILES WERE USED.** It surfaced while building 4.65 slice 1,
+when a test written for the asset schedule failed on the balance sheet. **Every existing test used
+one report per file** — which is how Xero exports, and is not how MYOB or QuickBooks do. A suite of
+thousands was green throughout.
+
+⚠ **A guard was deleted rather than left unreachable.** A file-count check in the assembler counted
+*reports* while the route counts *files*; once a workbook could contribute several, it could never
+fire. Dead code that reads as protection is worse than no code.
+
+⚠ **Slice 2 was almost parked as a decision for Mike.** Reading the two screens showed there was no
+decision to take — and that Quick Position failed **silently** where the forecast at least failed
+loudly. Read the screens before assuming a question exists.
+
+---
+
 **4.72 — a removed observation point's id was handed to the next one added.**
 ✅ Closed 2026-09-08, the day after it was filed, on Mike's instruction to fix it.
 
