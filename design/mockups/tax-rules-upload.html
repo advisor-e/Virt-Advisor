@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tax Rules — a firm loads its own IRD documents</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.78 — Tax Rules per country. Screen mockup for approval (drawn 2026-09-08).
+
+   Colours, spacing and type are READ OFF the shipped hub tabs and the report
+   standard, per the owner ruling of 2026-07-23 — nothing here is a new look:
+     - design/REPORT-VISUAL-STANDARD.md       the ruled numbers
+     - design/mockups/ai-prompts-tab.html     the most recent hub-tab drawn
+     - components/base/ProvenanceBadge.vue    the source tag
+   No dark mode: one light look, RULED 2026-07-27.
+
+   MIKE'S RULINGS BUILT INTO THIS DRAWING (2026-09-08):
+     - "a field in the firm manager hub where tax pdfs can be loaded" — the FIRM
+       owns it, and loads as MANY documents as it needs.
+     - "it cant be reliant on the group manager" — a firm is never blocked by,
+       and never waits on, the tier above.
+     - "it should have cascade level functionality" — all four tiers hold one,
+       mentor -> global group manager -> group manager -> firm.
+     - Filed against the recommendation, which he overturned: the uploader is an
+       accountant who should be encouraged to check their own sources.
+
+   FIGURES ARE REAL. Every rate below is read from the IRD guides Mike supplied
+   (IR265, October 2023), not invented. The garbled-text panel reproduces an
+   ACTUAL extraction failure seen on that file on 2026-09-08.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+/* tab strip */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+/* cards */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+/* cascade banner */
+.cascade{display:flex;align-items:center;gap:0;flex-wrap:wrap;font-size:12.5px;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:11px 14px;margin-bottom:16px}
+.ct{display:flex;align-items:center;gap:7px;padding:0 12px 0 0}
+.ct .dot{width:8px;height:8px;border-radius:50%;background:var(--rs-line);flex:none}
+.ct.has .dot{background:var(--rs-accent-bright)}
+.ct.you{font-weight:600;color:var(--rs-ink)}
+.ct.you .dot{background:var(--rs-good)}
+.carrow{color:var(--rs-muted);padding:0 12px 0 0;opacity:.6}
+.cnote{margin-left:auto;color:var(--rs-muted)}
+
+/* upload zone */
+.drop{border:2px dashed #b9d3e8;border-radius:12px;background:var(--rs-panel-2);
+  padding:26px 18px;text-align:center}
+.drop b{display:block;font-size:15px;font-weight:600;margin-bottom:4px}
+.drop span{font-size:12.5px;color:var(--rs-muted)}
+.btn{display:inline-block;margin-top:12px;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:5px 11px;font-size:12.5px;margin-top:0}
+
+/* document rows */
+.doc{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--rs-line)}
+.doc:last-child{border-bottom:0}
+.doc .ico{width:34px;height:34px;border-radius:8px;background:var(--rs-panel-2);
+  display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--rs-muted);flex:none}
+.doc .meta{flex:1;min-width:0}
+.doc .nm{font-weight:600;font-size:14px}
+.doc .sub{font-size:12px;color:var(--rs-muted);margin-top:2px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.bad{background:var(--rs-crit-soft);color:#b01212;border:1px solid #e0000045}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+
+/* rate table */
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--rs-accent-soft);color:#0058a0}
+.badge.def{background:#f1f4f7;color:#7a8ba0}
+.changed{background:var(--rs-warn-soft)}
+
+/* notices */
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.crit{background:var(--rs-crit-soft);border:1px solid #e0000045;border-left:3px solid var(--rs-crit)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+
+/* gap list */
+.gaps{margin:0;padding-left:18px;font-size:13px}
+.gaps li{margin:6px 0}
+
+/* history */
+.hist{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--rs-line);font-size:13px}
+.hist:last-child{border-bottom:0}
+.hist .when{color:var(--rs-muted);font-size:12px;width:150px;flex:none}
+.hist .who{flex:1}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Item 4.78 — screen drawn for approval, 2026-09-08. Nothing is built.</b> This is the
+  artefact the build will be checked against, saved before approval as CLAUDE.md requires.</p>
+  <p><b>Your rulings, built in:</b> the <b>firm manager</b> owns this and loads as many IRD
+  documents as it needs; a firm is <b>never reliant on the group manager</b>; and it has
+  <b>full cascade functionality</b> across all four tiers. Filed on your instruction after you
+  overturned the recommendation against it — the uploader is an accountant who should be
+  encouraged to check their sources.</p>
+  <p><b>Five open questions are in §7</b>, each with a recommendation. Nothing gets built until
+  they are ruled.</p>
+</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Firm Manager Hub</div>
+  <h1 class="hub-h1">Tax Rules</h1>
+  <div class="hub-sub">Apex Auto &amp; Engineering Ltd · New Zealand</div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Domain Support</div>
+  <div class="tab">Logic Tables</div>
+  <div class="tab">Advisory Distinctions</div>
+  <div class="tab">Coaching Reference</div>
+  <div class="tab">AI Prompts</div>
+  <div class="tab on">Tax Rules</div>
+  <div class="tab">Team Progress</div>
+</div>
+
+<div class="stepmark">1 · Where this firm's rules come from</div>
+
+<div class="mock">
+  <p>The cascade, shown as a fact rather than a setting. Each tier may hold its own approved
+  table; the nearest one above you is what you inherit until you load your own.
+  <b>Your ruling: a firm is never blocked by this</b> — the "Load your own" button below is
+  live whatever the tiers above have or have not done.</p>
+</div>
+
+<div class="cascade">
+  <div class="ct has"><span class="dot"></span> Mentor</div><span class="carrow">→</span>
+  <div class="ct"><span class="dot"></span> Global group manager</div><span class="carrow">→</span>
+  <div class="ct has"><span class="dot"></span> Group manager</div><span class="carrow">→</span>
+  <div class="ct you"><span class="dot"></span> This firm</div>
+  <div class="cnote">Inheriting from <b>Group manager</b> · NZ, approved 12 Aug 2026</div>
+</div>
+
+<div class="stepmark">2 · The documents this firm has loaded</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>IRD documents</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">3 loaded · 2 in use</span>
+  </div>
+  <div class="card-b">
+
+    <div class="doc">
+      <div class="ico">PDF</div>
+      <div class="meta">
+        <div class="nm">IR265 — General depreciation rates</div>
+        <div class="sub">Inland Revenue · October 2023 · New Zealand · 156 rates read ·
+          loaded 8 Sep 2026 by M. Bell</div>
+      </div>
+      <span class="pill ok">In use</span>
+    </div>
+
+    <div class="doc">
+      <div class="ico">PDF</div>
+      <div class="meta">
+        <div class="nm">IR260 — Depreciation, a guide for businesses</div>
+        <div class="sub">Inland Revenue · April 2024 · New Zealand · 0 rates, 4 rules read ·
+          loaded 8 Sep 2026 by M. Bell</div>
+      </div>
+      <span class="pill ok">In use</span>
+    </div>
+
+    <div class="doc">
+      <div class="ico">PDF</div>
+      <div class="meta">
+        <div class="nm">IR267 — Historic depreciation rates</div>
+        <div class="sub">Inland Revenue · Not yet reviewed · 41 rates proposed ·
+          loaded 8 Sep 2026 by M. Bell</div>
+      </div>
+      <span class="pill wait">Needs your approval</span>
+    </div>
+
+    <div class="drop" style="margin-top:18px">
+      <b>Load another IRD document</b>
+      <span>PDF, up to 20 MB. Add as many as your firm needs — a second document never
+        replaces the first, it is read alongside it.</span>
+      <button class="btn">Choose a file</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="stepmark">3 · What the AI proposed, and what you approve</div>
+
+<div class="mock">
+  <p><b>Nothing on this table is read by anything until you approve it.</b> That is CLAUDE.md's
+  existing rule for financial output (<code>isApproved</code> before committing AI output), not a
+  new one invented here. Until approval the forecast keeps using the figure it uses today, and
+  says so.</p>
+</div>
+
+<div class="notice info">
+  <b>41 rates proposed from IR267, awaiting your approval</b>
+  Every figure shows the document and page it came from. Change any of them — what you approve
+  is what the app uses, not what the AI said.
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Proposed depreciation rates — New Zealand</h2>
+    <div>
+      <button class="btn ghost small">Reject</button>
+      <button class="btn small">Approve 41 rates</button>
+    </div>
+  </div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:42%">Asset class</th>
+          <th>Life</th>
+          <th>Diminishing value</th>
+          <th>Straight line</th>
+          <th>Currently used</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Motor vehicles (transporting people, up to 12 seats)
+            <div class="src">IR265, p.61 · October 2023</div></td>
+          <td class="num">4 yrs</td>
+          <td class="num">50%</td>
+          <td class="num">40%</td>
+          <td class="num changed">20% <span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Motor vehicles — class NC (heavy goods, over 12 tonnes)
+            <div class="src">IR265, p.61 · October 2023</div></td>
+          <td class="num">10 yrs</td>
+          <td class="num">20%</td>
+          <td class="num">13.5%</td>
+          <td class="num">20% <span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Tractors (wheeled)
+            <div class="src">IR265, p.9 · October 2023</div></td>
+          <td class="num">15.5 yrs</td>
+          <td class="num">13%</td>
+          <td class="num">8.5%</td>
+          <td class="num changed">20% <span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Office equipment and furniture
+            <div class="src">IR265, p.34 · October 2023</div></td>
+          <td class="num">8 yrs</td>
+          <td class="num">25%</td>
+          <td class="num">17.5%</td>
+          <td class="num">25% <span class="badge">from group manager</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">4 · What the AI could NOT find</div>
+
+<div class="mock">
+  <p><b>This panel is not decoration and it is the reason the item exists.</b> On 2026-09-08 a
+  session read IR260 and IR265 in full and concluded New Zealand had no first-year depreciation
+  regime. It was wrong — <b>Investment Boost postdates both documents</b>, so the gap is
+  invisible from inside the file. A screen that only shows what was found will confidently
+  mislead. This one names the holes.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Gaps in what was loaded</h2></div>
+  <div class="card-b">
+    <ul class="gaps">
+      <li><b>No first-year or accelerated-deduction rule was found in any loaded document.</b>
+        The newest document here is dated April 2024. If a scheme was introduced after that date,
+        nothing loaded would mention it.</li>
+      <li><b>No rates for buildings after the 2024–25 income year.</b> IR260 records the rate
+        returning to 0%; there is nothing later to confirm it still is.</li>
+      <li><b>27 of the app's asset categories matched no row</b> in any loaded document. Those keep
+        the figure they use today, tagged <span class="badge def">app default</span> above.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="stepmark">5 · When a document cannot be read properly</div>
+
+<div class="mock">
+  <p><b>A real failure, reproduced.</b> Reading IR265 on 2026-09-08 with ordinary tooling silently
+  dropped about a dozen letters — "diminishing value" came out as "diinisin alue" — and it still
+  looked like plain English. A search of that text for a term containing any dropped letter
+  returned nothing, and the nothing looked like a real answer. <b>Garbled text handed to a model
+  produces confident, wrong rates.</b> The screen must refuse, not guess.</p>
+</div>
+
+<div class="notice crit">
+  <b>This document could not be read reliably — nothing was extracted from it</b>
+  About 12% of the text came through damaged, for example <code>diinisin alue</code> where
+  <code>diminishing value</code> was expected. No rates have been proposed and nothing has
+  changed. Try exporting or re-downloading the document from the IRD website, or load a
+  different edition.
+</div>
+
+<div class="stepmark">6 · History — and getting back</div>
+
+<div class="mock">
+  <p>Version history and restore come free from the existing firm-overlay mechanism the other
+  editable blocks already use; last-known-good means a bad or half-finished upload can never
+  leave a firm with no rates at all.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Approved versions</h2></div>
+  <div class="card-b">
+    <div class="hist">
+      <span class="when">8 Sep 2026, 14:20</span>
+      <span class="who"><b>M. Bell</b> approved 156 rates from IR265</span>
+      <span class="pill ok">Current</span>
+    </div>
+    <div class="hist">
+      <span class="when">12 Aug 2026, 09:05</span>
+      <span class="who">Inherited from <b>Group manager</b> — New Zealand baseline</span>
+      <button class="btn ghost small">Restore</button>
+    </div>
+    <div class="hist">
+      <span class="when">—</span>
+      <span class="who">App defaults, before any document was loaded</span>
+      <button class="btn ghost small">Restore</button>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">7 · Five questions for Mike — nothing is built until these are ruled</div>
+
+<div class="card">
+  <div class="card-b">
+    <ul class="gaps" style="font-size:13.5px">
+      <li><b>1 · Two documents give the same asset class a different rate. Which wins?</b>
+        <span class="rec">Recommendation: the document with the newer publication date, with the
+        loser shown beside it and never silently dropped</span> — so a firm can see the
+        disagreement and overrule it. Silent selection is how a wrong rate becomes invisible.</li>
+
+      <li><b>2 · A firm has loaded nothing. What does it use?</b>
+        <span class="rec">Recommendation: the nearest approved table above it in the cascade,
+        read-only and badged with which tier it came from</span> — falling back to the app's own
+        defaults only when no tier above has one.</li>
+
+      <li><b>3 · Rates are approved but a client's country has no table. Block, or carry on?</b>
+        <span class="rec">Recommendation: carry on with today's defaults, badged
+        <span class="badge def">app default</span> on the forecast itself</span> — never block an
+        advisor mid-report over a document a manager has not loaded.</li>
+
+      <li><b>4 · Does an approved table apply to every client, or only clients in its country?</b>
+        <span class="rec">Recommendation: only clients in the country the table is tagged with</span>
+        — a firm advising across two countries is exactly why you asked for multiple documents.</li>
+
+      <li><b>5 · Who may load and approve, within a firm?</b>
+        <span class="rec">Recommendation: the firm manager alone, not advisors</span> — approving
+        a rate table changes every forecast the firm produces, and it is already the role gate the
+        hub's other editable blocks use.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mock" style="margin-top:26px">
+  <p><b>Security, stated before any code is written</b> — CLAUDE.md requires flagging this.
+  An upload is an attack surface. The build follows the repository's own procedure
+  (<code>.claude/skills/master-export-upload</code>), adapted where it assumes JSON:</p>
+  <ul>
+    <li><b>Identity from the verified token only.</b> The firm comes from <code>firmAuth</code>,
+      never from the browser — the existing rule against cross-firm access.</li>
+    <li><b>Size cap and type check before the body is read</b>, then parse inside try/catch.
+      A PDF, not JSON, so the shape check is on the <b>extracted table</b> instead: every rate
+      must be a number in a plausible range and carry a source, or the row is refused.</li>
+    <li><b>The live table is never overwritten in place.</b> The previous approved version is kept
+      as last-known-good, so a bad upload cannot leave a firm with no rates.</li>
+    <li><b>The storage path is derived from the verified firm id</b>, never from the file's own
+      name — no path traversal.</li>
+    <li><b>The document goes to the AI; nothing about a client does.</b> Tax PDFs are public, so
+      no personal-data question arises and no exception to CLAUDE.md's stripping rule is needed.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>
