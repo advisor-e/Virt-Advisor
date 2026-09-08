@@ -149,6 +149,20 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('sellDownLadder')" v-show="activeTab === 'sellDownLadder'")
         firm-sell-down-ladder(:api-token="apiToken")
 
+      //- ── Tab: Depreciation Rates (item 4.78) ─────────────────────────────
+      //- The rates a client's forecast writes assets down at, for the client's
+      //- own country, read from that country's tax authority's documents and
+      //- approved by a firm manager before anything uses them. Asked for by Mike
+      //- 2026-09-08; the FIRM owns it and it cascades all four tiers, on his
+      //- ruling that a firm is never reliant on the group manager.
+      //- ⚠ NOT "Tax Rules" — renamed on his ruling of 2026-09-09. IR265 is a
+      //- DEPRECIATION schedule published BY the tax office, not a set of tax
+      //- rules; the old name promised GST and company tax and delivered neither.
+      //- ⚠ Slice 2: this shows what a firm is working to and where each rate came
+      //- from. The upload and the AI extraction are slice 3.
+      div.hub-panel(v-if="showsTab('depreciationRates')" v-show="activeTab === 'depreciationRates'")
+        firm-depreciation-rates(:api-token="apiToken")
+
       //- ── Tab: AI Prompts (item 4.28) ────────────────────────────────────
       //- The instructions the AI is given when it builds a model, and the three
       //- settings a manager may change on them. Asked for by Mike 2026-08-21,
@@ -781,6 +795,7 @@ import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThresholds.vue'
 import FirmSellDownLadder from '~/components/firm/FirmSellDownLadder.vue'
+import FirmDepreciationRates from '~/components/firm/FirmDepreciationRates.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
@@ -992,6 +1007,18 @@ const TAB_TIERS = {
   // are already scoped per tier, so adding a tier here is the whole of the change.
   sellDownLadder: ['mentor'],
 
+  // 🔴 ALL FOUR MANAGER TIERS, AND THIS ONE IS NOT THE DEFAULT-IS-MENTOR-ALONE CASE.
+  // Mike ruled on 2026-09-08 that the FIRM owns this and that "it cant be reliant on the
+  // group manager" — a firm may advise a client in a country the tiers above it have done
+  // nothing about, and must not wait on them. He asked for full cascade functionality in the
+  // same breath, so all four are here on his own words rather than on our judgement.
+  //
+  // ⚠ ADVISORS ARE EXCLUDED FROM THIS TAB, AND THAT IS ALSO HIS RULING RATHER THAN AN
+  // OVERSIGHT: an advisor may LOAD a document but only a firm manager may APPROVE one, and
+  // approving is what this screen leads to. The advisor's own half lives on the forecast
+  // itself (design/mockups/depreciation-rates-advisor.html), where they meet the problem.
+  depreciationRates: ['mentor', 'global', 'group', 'firm'],
+
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
   // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
   // Advisors and clients are excluded — they consume the output, they do not set the
@@ -1153,7 +1180,12 @@ const NAV_GROUPS = [
       { key: 'trendThresholds', label: 'Forecast Trend Thresholds' },
       // Appended for the same reason as the line above, and the label is Mike's own —
       // approved 2026-09-04. Mentor-only; see TAB_TIERS.sellDownLadder.
-      { key: 'sellDownLadder', label: 'Imported Stock Prices' }
+      { key: 'sellDownLadder', label: 'Imported Stock Prices' },
+      // Appended for the same reason as the two lines above — adding at the end moves
+      // nothing already on a manager's screen. All four tiers, on Mike's own ruling; see
+      // TAB_TIERS.depreciationRates. The label is the feature's name after his rename of
+      // 2026-09-09: it is a depreciation schedule, not a set of tax rules.
+      { key: 'depreciationRates', label: 'Depreciation Rates' }
     ]
   },
   {
@@ -1203,7 +1235,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmDepreciationRates, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

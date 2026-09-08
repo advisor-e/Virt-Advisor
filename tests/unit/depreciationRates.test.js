@@ -23,8 +23,25 @@ const {
   publishedKey,
   validateDepreciationRates,
   pickNewer,
-  loadResolvedDepreciationRates
+  loadResolvedDepreciationRates,
+  ruleAppliesOn,
+  splitQualifyingPurchase
 } = require('../../server/utils/depreciationRates')
+
+/** A valid first-year rule — New Zealand's Investment Boost, as Inland Revenue states it. */
+function boost (over) {
+  return Object.assign({
+    name: 'Investment Boost',
+    rate: 0.2,
+    startsOn: '2025-05-22',
+    endsOn: null,
+    qualifies: 'New assets; new commercial and industrial buildings; capital improvements',
+    excludes: 'Land, residential buildings, trading stock, fixed-life intangible property',
+    source: { document: 'Inland Revenue — New assets: Investment Boost', page: null, published: '2025-05' },
+    approvedAt: '2026-09-09T09:00:00.000Z',
+    approvedBy: 'mike@advisor-e.com'
+  }, over || {})
+}
 
 /** A loader over a `{scopeId: storedValue}` map, standing in for the overlay store. */
 function loaderFor (map) {
@@ -390,5 +407,139 @@ describe('what a scope actually works to', () => {
   test('no scope id at all gets the defaults', async () => {
     const r = await loadResolvedDepreciationRates(null, 'NZ', loaderFor({}))
     expect(r.isDefault).toBe(true)
+  })
+})
+
+describe('a country’s first-year rule', () => {
+  test('a well-formed rule is accepted whole', () => {
+    const r = validateDepreciationRates({ NZ: table({ vehicles: entry() }, { firstYearRule: boost() }) })
+    expect(r.ok).toBe(true)
+    expect(r.value.NZ.firstYearRule.rate).toBe(0.2)
+    expect(r.value.NZ.firstYearRule.startsOn).toBe('2025-05-22')
+  })
+
+  // The same unit guard as a depreciation rate, and it bites harder: 20 would expense
+  // twenty times the asset's cost in the month it was bought.
+  test('a share above 1 is refused, not clamped', () => {
+    const r = validateDepreciationRates({ NZ: table({ vehicles: entry() }, { firstYearRule: boost({ rate: 20 }) }) })
+    expect(r.ok).toBe(false)
+    expect(r.errors.join(' ')).toMatch(/20% is 0\.2, not 20/)
+  })
+
+  // 🔴 Mike's own point, 2026-09-09. Investment Boost starts mid-month, so a month cannot
+  // decide eligibility at the boundary — the rule has to carry a full date or the purchase
+  // date it is compared against is pointless.
+  test('a month is refused where a full start date is required', () => {
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry() }, { firstYearRule: boost({ startsOn: '2025-05' }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry() }, { firstYearRule: boost({ startsOn: '22 May 2025' }) }) }).ok).toBe(false)
+  })
+
+  test('an end date before the start date is refused', () => {
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry() }, { firstYearRule: boost({ endsOn: '2024-01-01' }) }) }).ok).toBe(false)
+  })
+
+  // 🔴 THE SEPARATE APPROVAL, ruled 2026-09-09. A rule that cannot name who adopted it and
+  // when is dropped exactly as an unapproved rate table is — the table's own approval does
+  // not carry it, which is the whole point of the second button.
+  test('a rule the table approved but nobody adopted is refused', () => {
+    const noApprover = boost()
+    delete noApprover.approvedBy
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry() }, { firstYearRule: noApprover }) }).ok).toBe(false)
+  })
+
+  test('a rule with no source document is refused', () => {
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry() }, { firstYearRule: boost({ source: null }) }) }).ok).toBe(false)
+  })
+
+  // Two decisions, two buttons: a firm may take the group's rates unchanged and still adopt
+  // its country's scheme itself.
+  test('a country holding only a rule, with no rates of its own, is accepted', () => {
+    const r = validateDepreciationRates({ NZ: table({}, { firstYearRule: boost() }) })
+    expect(r.ok).toBe(true)
+    expect(r.value.NZ.firstYearRule.name).toBe('Investment Boost')
+  })
+
+  test('a country holding neither rates nor a rule is refused', () => {
+    expect(validateDepreciationRates({ NZ: table({}) }).ok).toBe(false)
+  })
+
+  test('a resolved rule says which tier adopted it, and the nearest wins', async () => {
+    setFirmMembership({ 'firm-1': { globalGroup: 'Advisor-e', country: 'NZ' } })
+    const stored = {
+      __platform__: { NZ: table({ vehicles: entry() }, { firstYearRule: boost({ rate: 0.1 }) }) },
+      'firm-1': { NZ: table({ vehicles: entry() }, { firstYearRule: boost({ rate: 0.2 }) }) }
+    }
+    const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor(stored))
+    expect(r.firstYearRule.rate).toBe(0.2)
+    expect(r.firstYearRule.originTier).toBe('firm_manager')
+  })
+
+  // The app ships no first-year rule and never will — inventing a country's tax scheme is
+  // the fabrication this feature exists to end. Absent means the advisor's field is absent.
+  test('no scope having adopted one leaves it null', async () => {
+    const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor({ 'firm-1': { NZ: table({ vehicles: entry() }) } }))
+    expect(r.firstYearRule).toBeNull()
+  })
+})
+
+describe('whether a rule reaches a particular purchase', () => {
+  const rule = { rate: 0.2, startsOn: '2025-05-22', endsOn: null }
+
+  // 🔴 THE BOUNDARY THE PURCHASE DATE EXISTS FOR. Both of these fall in May 2025, so a
+  // month-level answer would treat them identically and one of them would be wrong.
+  test('the day before the rule starts does not qualify; the day it starts does', () => {
+    expect(ruleAppliesOn(rule, '2025-05-21')).toBe(false)
+    expect(ruleAppliesOn(rule, '2025-05-22')).toBe(true)
+  })
+
+  test('a rule with an end date stops at it', () => {
+    const windowed = { rate: 0.2, startsOn: '2025-05-22', endsOn: '2026-03-31' }
+    expect(ruleAppliesOn(windowed, '2026-03-31')).toBe(true)
+    expect(ruleAppliesOn(windowed, '2026-04-01')).toBe(false)
+  })
+
+  test('no rule, or no usable date, never qualifies', () => {
+    expect(ruleAppliesOn(null, '2026-06-12')).toBe(false)
+    expect(ruleAppliesOn(rule, '')).toBe(false)
+    expect(ruleAppliesOn(rule, '12 June 2026')).toBe(false)
+    expect(ruleAppliesOn(rule, undefined)).toBe(false)
+  })
+
+  // Compared as strings on purpose: parsing to Date would put a purchase into the previous
+  // day for anyone east of UTC, which is the fault the Economic Analysis run was caught by.
+  test('the comparison carries no timezone', () => {
+    expect(ruleAppliesOn(rule, '2025-05-22')).toBe(true)
+    expect(ruleAppliesOn(rule, '2025-05-22')).toBe(ruleAppliesOn(rule, '2025-05-22'))
+  })
+})
+
+describe('splitting a qualifying purchase', () => {
+  const rule = { rate: 0.2, startsOn: '2025-05-22', endsOn: null }
+
+  // 🔴 MIKE'S OWN EXAMPLE, and the figures behind item 4.77: an 800,000 tractor unit.
+  // 160,000 is expensed now and 640,000 goes on the register — which is what makes his
+  // costed year-one deduction of 276,895 reconcile at all.
+  test('an 800,000 qualifying purchase splits 160,000 / 640,000', () => {
+    expect(splitQualifyingPurchase(rule, 800000, '2026-06-12')).toEqual({ deductedNow: 160000, capitalised: 640000 })
+  })
+
+  test('a purchase before the rule starts is capitalised in full', () => {
+    expect(splitQualifyingPurchase(rule, 12000, '2025-05-10')).toEqual({ deductedNow: 0, capitalised: 12000 })
+  })
+
+  test('no rule at all capitalises in full', () => {
+    expect(splitQualifyingPurchase(null, 45000, '2026-08-03')).toEqual({ deductedNow: 0, capitalised: 45000 })
+  })
+
+  test('nothing qualifying splits to nothing', () => {
+    expect(splitQualifyingPurchase(rule, 0, '2026-06-12')).toEqual({ deductedNow: 0, capitalised: 0 })
+    expect(splitQualifyingPurchase(rule, null, '2026-06-12')).toEqual({ deductedNow: 0, capitalised: 0 })
+  })
+
+  // The two halves must add back to the cost exactly, or the balance sheet stops
+  // articulating by a cent on an odd figure and nothing on screen would show it.
+  test('the two halves always add back to the cost', () => {
+    const odd = splitQualifyingPurchase(rule, 6433.33, '2026-09-20')
+    expect(odd.deductedNow + odd.capitalised).toBeCloseTo(6433.33, 2)
   })
 })

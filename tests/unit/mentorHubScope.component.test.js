@@ -318,7 +318,7 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s thirteen tabs under three headings', async () => {
+  it('groups the firm manager’s fourteen tabs under three headings', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
@@ -327,9 +327,14 @@ describe('the hub menu — the sidebar itself', () => {
     // Template Library (item 4.55, Phase 3 §7) and Meeting Review's observation points
     // (Mike asked for the feature and approved its drawing that day). Template Library
     // reached master first, so it holds index 6 and Meeting Review follows at 7.
+    //
+    // FOURTEEN on 2026-09-09, when Depreciation Rates was appended to Model Inputs (item
+    // 4.78). Mike ruled it onto all four manager tiers on 2026-09-08 — the firm owns it and
+    // "it cant be reliant on the group manager". Appended at the end of that group, so the
+    // three index assertions below are untouched, which is the point of appending.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(13)
+    expect(tabLabels(wrapper)).toHaveLength(14)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -406,11 +411,16 @@ describe('the hub menu — the sidebar itself', () => {
     // global group and group manager before firm manager, they accept or edit". This
     // is the first entry to exceed the approved design's 13, and it is a ruling of his
     // rather than drift, which is why the number moves rather than the tab.
+    //
+    // ⚠ AND TO 15 ON 2026-09-09, when Depreciation Rates joined Model Inputs (item 4.78).
+    // Mike ruled it onto all four manager tiers on 2026-09-08 — the firm owns it and "it
+    // cant be reliant on the group manager" — so, like Meeting Review above, the number
+    // moves because he ruled, not because anything drifted.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(14)
+    expect(tabLabels(wrapper)).toHaveLength(15)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

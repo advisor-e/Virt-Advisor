@@ -116,6 +116,7 @@ const economicAnalysisRoute = require('./routes/economicAnalysis')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
+const depreciationRatesRoute = require('./routes/depreciationRates')
 const sellDownRoute = require('./routes/forecastSellDown')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
@@ -250,6 +251,11 @@ server.get('/api/report/property-tax-rules', firmAuth, propertyTaxRulesRoute.get
 // 4.61b). Same asymmetry and same reason as the tax rules above: every advisor building a
 // forecast needs to READ them, and the write is manager-only on /api/firm-manager below.
 server.get('/api/report/trend-thresholds', firmAuth, trendThresholdsRoute.get)
+// The depreciation rates a client's forecast writes assets down at, for the client's own
+// country (item 4.78). Same asymmetry and the same reason once more, and here Mike stated it
+// himself on 2026-09-08: "Never block the advisor." The read degrades to the app's own six
+// rates rather than failing, and the write is manager-only on /api/firm-manager below.
+server.get('/api/report/depreciation-rates', firmAuth, depreciationRatesRoute.get)
 // The prices imported stock sells down at as it ages (item 4.64). Same asymmetry and same
 // reason again: the advisor's step 3 seeds its ladder from this, so the read must never
 // require a manager role, and the write is manager-only on /api/firm-manager below.
@@ -363,6 +369,20 @@ server.post('/api/firm-manager/property-tax-rules/restore', ...fmGuard, property
 // JWT. Only the MENTOR's screen is switched on today (TAB_TIERS), per the
 // default-is-mentor-alone ruling of 2026-08-24; the routes carry every tier already so
 // that switching one on later is a line in that matrix and nothing here.
+// The depreciation rates and each country's first-year rule (item 4.78). Same shape and same
+// guard as the blocks around it — one set of routes for every tier, scoped to `req.firmId`
+// from the verified JWT.
+//
+// 🔴 TWO APPROVE ROUTES, AND THAT IS MIKE'S RULING OF 2026-09-09 MADE STRUCTURAL. A
+// first-year rule gets its own Approve, separate from the rates', because approving 41 rates
+// is a routine review and adopting a 20% first-year write-off is not. Two routes mean
+// approving rates CANNOT adopt a tax scheme as a side effect: the handler that writes rates
+// cannot reach `firstYearRule` and the one that writes the rule cannot reach the rates.
+server.get('/api/firm-manager/depreciation-rates', ...fmGuard, depreciationRatesRoute.getForManager)
+server.post('/api/firm-manager/depreciation-rates', ...fmGuard, depreciationRatesRoute.approveRates)
+server.post('/api/firm-manager/depreciation-rates/first-year-rule', ...fmGuard, depreciationRatesRoute.approveFirstYearRule)
+server.get('/api/firm-manager/depreciation-rates/history', ...fmGuard, depreciationRatesRoute.history)
+server.post('/api/firm-manager/depreciation-rates/restore', ...fmGuard, depreciationRatesRoute.restore)
 server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.getForManager)
 server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
 server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)

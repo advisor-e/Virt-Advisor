@@ -78,6 +78,13 @@ const MAX_SUPERSEDED = 5
 /** Longest an asset-class label or document name may be, in characters. */
 const MAX_LABEL = 120
 
+/**
+ * Longest the "what qualifies" and "what does not" sentences on a first-year rule may be.
+ * They are the tax authority's own wording, shown to the manager verbatim and never
+ * paraphrased, so the cap is generous — but it is a cap, because this text reaches a screen.
+ */
+const MAX_RULE_TEXT = 400
+
 /** The oldest publication year worth believing, and the newest. */
 const MIN_YEAR = 1980
 const MAX_YEAR = 2100
@@ -245,6 +252,104 @@ function cleanEntry (value, where, errors, allowSuperseded) {
 }
 
 /**
+ * Validate a country's FIRST-YEAR RULE — New Zealand's Investment Boost, and whatever
+ * another country calls its own.
+ *
+ * 🔴 IT CARRIES ITS OWN APPROVAL, SEPARATE FROM THE RATES' — Mike's ruling of 2026-09-09.
+ * A manager working down a rate table is in a different frame of mind from one adopting a
+ * tax scheme, and sweeping the second along in the click that confirms the first is how a
+ * rule gets adopted without anyone quite deciding to. So `approvedAt` and `approvedBy` live
+ * on the rule, not only on the table, and a rule that cannot name both is dropped exactly as
+ * an unapproved table is.
+ *
+ * ⚠ `rate` IS THE SHARE DEDUCTED UP FRONT, NOT A DEPRECIATION RATE. For Investment Boost it
+ * is 0.2 — twenty per cent of a qualifying asset's cost, expensed in the period of purchase,
+ * with the remaining 0.8 capitalised and depreciated at the ordinary rate. It never replaces
+ * a depreciation rate and the forecast still holds only one of those (FR-025, FR-035).
+ *
+ * ⚠ `startsOn` IS A FULL DATE AND MUST BE. Investment Boost begins on 22 May 2025, part-way
+ * through a month, so a month cannot answer the eligibility question at the boundary —
+ * which is why the asset data carries a purchase date at all (FR-039, Mike's own point).
+ *
+ * @param {*} value
+ * @param {string} where - for the error message
+ * @param {string[]} errors - collected in place
+ * @returns {object|null} the cleaned rule, or null when it was refused
+ */
+function cleanFirstYearRule (value, where, errors) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    errors.push(`${where} must be a non-array JSON object`)
+    return null
+  }
+
+  const name = typeof value.name === 'string' ? value.name.trim() : ''
+  if (!name || name.length > MAX_LABEL) {
+    errors.push(`${where}.name must be the rule's own name, 1 to ${MAX_LABEL} characters`)
+    return null
+  }
+
+  const rate = num(value.rate)
+  // Refused above 1 for the same reason a depreciation rate is: `20` is not a bad 20%, it is
+  // a share typed in the wrong unit, and it would expense twenty times the asset's cost.
+  if (rate === null || rate <= 0 || rate > 1) {
+    errors.push(`${where}.rate must be a share between 0 and 1 (20% is 0.2, not 20)`)
+    return null
+  }
+
+  const startsOn = typeof value.startsOn === 'string' ? value.startsOn.trim() : ''
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startsOn) || Number.isNaN(Date.parse(startsOn))) {
+    errors.push(`${where}.startsOn must be a full date like 2025-05-22 — a month cannot decide eligibility at the boundary`)
+    return null
+  }
+
+  let endsOn = null
+  if (value.endsOn !== null && value.endsOn !== undefined && value.endsOn !== '') {
+    const e = String(value.endsOn).trim()
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(e) || Number.isNaN(Date.parse(e))) {
+      errors.push(`${where}.endsOn must be a full date like 2028-03-31, or absent`)
+      return null
+    }
+    if (e < startsOn) {
+      errors.push(`${where}.endsOn cannot fall before startsOn`)
+      return null
+    }
+    endsOn = e
+  }
+
+  const text = (field, cap) => {
+    const v = value[field]
+    return typeof v === 'string' && v.trim() ? v.trim().slice(0, cap) : null
+  }
+
+  const source = cleanSource(value.source, where, errors)
+  if (source === null) { return null }
+
+  // Its own approval — see the note above. Same two fields, same reasons, on the rule.
+  const approvedBy = typeof value.approvedBy === 'string' ? value.approvedBy.trim() : ''
+  if (!approvedBy || approvedBy.length > MAX_LABEL) {
+    errors.push(`${where}.approvedBy must name the manager who approved this rule`)
+    return null
+  }
+  const approvedAt = typeof value.approvedAt === 'string' ? value.approvedAt.trim() : ''
+  if (!approvedAt || Number.isNaN(Date.parse(approvedAt))) {
+    errors.push(`${where}.approvedAt must be the date the rule was approved`)
+    return null
+  }
+
+  return {
+    name,
+    rate,
+    startsOn,
+    endsOn,
+    qualifies: text('qualifies', MAX_RULE_TEXT),
+    excludes: text('excludes', MAX_RULE_TEXT),
+    source,
+    approvedAt,
+    approvedBy
+  }
+}
+
+/**
  * Validate a scope's OWN approved tax tables — the whole stored value at one tier.
  *
  * The shape is `{ <COUNTRY>: { approvedAt, approvedBy, categories: { <key>: entry } } }`.
@@ -315,14 +420,26 @@ function validateDepreciationRates (value) {
     })
     if (bad) { return }
 
-    // A country approved with no rates in it would inherit every figure from the layer
-    // above while claiming on screen to be this firm's own table.
-    if (Object.keys(cleanCategories).length === 0) {
-      errors.push(`${country} has no rates in it`)
+    let firstYearRule = null
+    if (table.firstYearRule !== null && table.firstYearRule !== undefined) {
+      firstYearRule = cleanFirstYearRule(table.firstYearRule, `${country}.firstYearRule`, errors)
+      if (firstYearRule === null) { return }
+    }
+
+    // A country approved with neither rates nor a rule would inherit every figure from the
+    // layer above while claiming on screen to be this scope's own table.
+    //
+    // ⚠ RATES ALONE AND A RULE ALONE ARE BOTH LEGITIMATE, which is why this asks for either
+    // rather than for rates. A firm may take the group's rate table unchanged and still
+    // adopt its country's first-year rule itself — those are two decisions and Mike ruled
+    // them onto two buttons.
+    if (Object.keys(cleanCategories).length === 0 && firstYearRule === null) {
+      errors.push(`${country} has neither rates nor a first-year rule in it`)
       return
     }
 
     clean[country] = { approvedAt, approvedBy, categories: cleanCategories }
+    if (firstYearRule) { clean[country].firstYearRule = firstYearRule }
   })
 
   return { ok: errors.length === 0, errors, value: clean }
@@ -413,7 +530,10 @@ async function loadResolvedDepreciationRates (scopeId, country, loadFirmConfig) 
   CATEGORY_KEYS.forEach((key) => {
     categories[key] = { ...BASE_DEPRECIATION_RATES[key], originTier: null, originScopeId: null }
   })
-  const flat = { country: code, categories, isDefault: true }
+  // The app ships no first-year rule and never will: a first-year rule is a country's tax
+  // scheme, and inventing one would be exactly the fabrication this feature exists to end.
+  // null means "no scope above has approved one", and the advisor's field stays absent.
+  const flat = { country: code, categories, firstYearRule: null, isDefault: true }
 
   if (!scopeId || code === null) { return flat }
 
@@ -451,10 +571,66 @@ async function loadResolvedDepreciationRates (scopeId, country, loadFirmConfig) 
       }
       touched = true
     })
+
+    // The rule follows the same nearest-tier-wins rule as a rate, and for the same reason:
+    // a firm that has adopted its country's scheme itself should not be overruled by what
+    // the tier above did or did not adopt.
+    if (table.firstYearRule) {
+      flat.firstYearRule = { ...table.firstYearRule, originTier: tier, originScopeId: at }
+      touched = true
+    }
   }
 
   flat.isDefault = !touched
   return flat
+}
+
+/**
+ * Does a first-year rule reach an asset bought on this date?
+ *
+ * 🔴 THE WHOLE REASON THE ASSET DATA CARRIES A PURCHASE DATE (Mike, 2026-09-09). Investment
+ * Boost starts on 22 May 2025, part-way through a month, and the forecast otherwise records
+ * only the month a purchase falls in — so a month cannot answer this at the boundary, and a
+ * claim with no date behind it cannot be evidenced afterwards.
+ *
+ * Dates are compared as `YYYY-MM-DD` strings, which sort correctly and carry no timezone:
+ * parsing them into `Date` objects would put a purchase into the previous day for anyone
+ * east of UTC, which is the fault the Economic Analysis run of 2026-09-07 was caught by.
+ *
+ * @param {object|null} rule - a resolved first-year rule, or null
+ * @param {*} purchasedOn - the asset's purchase date, `YYYY-MM-DD`
+ * @returns {boolean} false for no rule, an unusable date, or a date outside the rule's window
+ */
+function ruleAppliesOn (rule, purchasedOn) {
+  if (!rule || typeof rule !== 'object') { return false }
+  if (typeof purchasedOn !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(purchasedOn.trim())) { return false }
+  const on = purchasedOn.trim()
+  if (on < rule.startsOn) { return false }
+  if (rule.endsOn && on > rule.endsOn) { return false }
+  return true
+}
+
+/**
+ * Split a qualifying purchase into the part deducted now and the part capitalised.
+ *
+ * `20% expensed, 80% capitalised and depreciated as normal` — Inland Revenue's own
+ * description, and the whole of the arithmetic. It is here rather than in the forecast
+ * engine because it is a property of the RULE, and because the engine's input shape must not
+ * change (FR-042): the caller adds `capitalised` to the month's additions exactly as it adds
+ * any other purchase, and the engine never learns that a rule exists.
+ *
+ * @param {object|null} rule - a resolved first-year rule, or null
+ * @param {*} qualifyingCost - how much of the purchase qualifies, as the advisor stated it
+ * @param {*} purchasedOn - the asset's purchase date, `YYYY-MM-DD`
+ * @returns {{deductedNow: number, capitalised: number}} zeroes and the full cost when the
+ *   rule does not reach this purchase — never a partial or guessed split.
+ */
+function splitQualifyingPurchase (rule, qualifyingCost, purchasedOn) {
+  const cost = num(qualifyingCost)
+  if (cost === null || cost <= 0) { return { deductedNow: 0, capitalised: 0 } }
+  if (!ruleAppliesOn(rule, purchasedOn)) { return { deductedNow: 0, capitalised: cost } }
+  const deductedNow = Math.round(cost * rule.rate * 100) / 100
+  return { deductedNow, capitalised: Math.round((cost - deductedNow) * 100) / 100 }
 }
 
 module.exports = {
@@ -463,9 +639,12 @@ module.exports = {
   CONFIG_KEY,
   METHODS,
   MAX_SUPERSEDED,
+  MAX_RULE_TEXT,
   normaliseCountry,
   publishedKey,
   validateDepreciationRates,
   pickNewer,
-  loadResolvedDepreciationRates
+  loadResolvedDepreciationRates,
+  ruleAppliesOn,
+  splitQualifyingPurchase
 }

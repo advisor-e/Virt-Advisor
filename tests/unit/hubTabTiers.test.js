@@ -67,8 +67,14 @@ const MENTOR_BEFORE = [
  *   that the points "cascade down to global group and group manager before firm manager,
  *   they accept or edit" — the mentor-alone default of 2026-08-24 holds until a tier has a
  *   real reason, and he gave it.
+ * - `depreciationRates` — Mike, 2026-09-08 (item 4.78): the rates a client's forecast writes
+ *   assets down at, read from that country's tax authority's documents. **ALL FOUR MANAGER
+ *   TIERS ON HIS OWN WORDS** rather than on our judgement — he ruled that the FIRM owns it and
+ *   that *"it cant be reliant on the group manager"*, and asked for full cascade functionality
+ *   in the same breath. ⚠ Renamed from *Tax Rules* on his ruling of 2026-09-09: IR265 is a
+ *   depreciation schedule published BY the tax office, not a set of tax rules.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -97,8 +103,12 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   section he approved and built the same day — his figures were driving a client's
  *   revenue from a data file no screen rendered, which the hub-page rule does not allow.
  *   ⚠ MENTOR ALONE, same default and same statement in `TAB_TIERS` as `trendThresholds`.
+ * - `depreciationRates` — Mike, 2026-09-08 (item 4.78). The mentor is included because the
+ *   cascade starts there and a firm with no table of its own inherits the nearest above it;
+ *   the firm is included because he ruled a firm must never wait on the tier above. This is
+ *   NOT the default-is-mentor-alone case — all four tiers are his own words.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'depreciationRates']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -169,9 +179,14 @@ describe('hub tab matrix — the two new tiers', () => {
     // from ['mentor', 'firm'] to all four manager tiers on Mike's instruction that day — the
     // points "cascade down to global group and group manager before firm manager, they accept
     // or edit". So a middle tier now shows 14: six unconditional plus eight conditional.
-    expect(conditional).toHaveLength(8)
+    //
+    // 🔴 NINE SINCE 2026-09-09, NOT EIGHT. Depreciation Rates (item 4.78) was ruled onto all
+    // four manager tiers by Mike on 2026-09-08 — the FIRM owns it and "it cant be reliant on
+    // the group manager", with full cascade functionality asked for in the same breath. So a
+    // middle tier now shows 15: six unconditional plus nine conditional.
+    expect(conditional).toHaveLength(9)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(14)
+    expect(unconditional.concat(conditional)).toHaveLength(15)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {
