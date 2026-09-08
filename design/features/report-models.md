@@ -497,10 +497,31 @@ buffer reader (`gridsFromBuffer` in `xeroReportParser.js`), and both are parse-a
 the upload is deleted the moment it has been read, nothing is stored, and no filename,
 account label or company name is ever logged.
 
-**Annual — one figure per period.** `xeroReportParser.js` (`parseUpload`), used by Quick
+**Annual — one figure per period.** `xeroReportParser.js` (`parseAnnualReports`), used by Quick
 Position and EBITDA & DCF. It **deliberately refuses** a by-month or by-quarter export
 (`MULTI_PERIOD_COLUMNS`, at 5+ figure columns): reading only the first column silently lost
 the rest of the year, which is the fault that refusal exists to prevent. That refusal stays.
+
+🔴 **A workbook contributes every report it holds, and the caller takes what it needs**
+(item 4.79, 2026-09-08). Both readers walk every sheet — `parseAnnualReports` and
+`parseForecastReports`, over one shared `reportsFromBuffer`. It matters because a real MYOB or
+QuickBooks export is **one workbook** holding a Profit and Loss, a Balance Sheet and an asset
+register, and both put the P&L first; Xero exports one report per file, which is the shape
+every fixture used before this and the reason none of them caught it.
+
+Each caller then takes what its own screen needs, and none of them takes "the first":
+
+- **The forecast** takes every report — one drop seeds the opening position and the cost base.
+- **Quick Position** takes every report. Its screen already keeps a Balance Sheet result and a
+  P&L result side by side and routes each by kind, so one drop fills both zones.
+- **EBITDA & DCF** takes the P&L, whichever sheet holds it. A file with no P&L in it still
+  fails loudly with `WRONG_REPORT_KIND`, naming the file position.
+
+Reading only the first report failed each of them differently: the forecast refused the drop
+with *"A Balance Sheet is needed"* while the advisor was looking at the file containing one;
+Quick Position ticked the P&L zone, left the Balance Sheet unread and disabled Continue with
+nothing on screen saying why; and EBITDA failed the whole upload whenever the Balance Sheet
+happened to come first.
 
 **By-month — a monthly series.** `monthlySalesParser.js` (`parseMonthlyUpload`) plus
 `monthlySeriesAssembler.js`, used by the Volatility Report via

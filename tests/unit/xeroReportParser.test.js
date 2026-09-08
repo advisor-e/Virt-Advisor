@@ -1,8 +1,8 @@
 'use strict'
 
-const { parseUpload, extractBalanceSheet, extractProfitLoss } = require('../../server/report/intake/xeroReportParser')
+const { parseAnnualReports, extractBalanceSheet, extractProfitLoss } = require('../../server/report/intake/xeroReportParser')
 const { parseCsv } = require('../../server/report/intake/csvReader')
-const { makeXlsx } = require('./xlsxFixture')
+const { makeXlsx, makeMultiSheetXlsx } = require('./xlsxFixture')
 
 /** A realistic Xero Balance Sheet grid (shape per REPORT-DATA-MODEL §3/§3.9). */
 const BS_GRID = [
@@ -138,9 +138,9 @@ describe('P&L extraction — seeds the Expenses Review', () => {
   })
 })
 
-describe('parseUpload — sniffing and dispatch', () => {
+describe('parseAnnualReports — sniffing and dispatch', () => {
   test('a real .xlsx Balance Sheet round-trips end to end', () => {
-    const r = parseUpload(makeXlsx(BS_GRID, 'Balance Sheet'))
+    const [r] = parseAnnualReports(makeXlsx(BS_GRID, 'Balance Sheet'))
     expect(r.kind).toBe('balanceSheet')
     expect(r.proposals.cash.value).toBe(170000)
     expect(r.proposals.stock.candidates).toHaveLength(2)
@@ -148,14 +148,14 @@ describe('parseUpload — sniffing and dispatch', () => {
 
   test('a CSV export lands on the same result', () => {
     const csv = BS_GRID.map(row => row.map(c => (typeof c === 'string' && c.includes(',') ? '"' + c + '"' : c)).join(',')).join('\r\n')
-    const r = parseUpload(Buffer.from(csv, 'utf8'))
+    const [r] = parseAnnualReports(Buffer.from(csv, 'utf8'))
     expect(r.kind).toBe('balanceSheet')
     expect(r.proposals.cash.value).toBe(170000)
   })
 
   test('a PDF is refused BY NAME with guidance (contract rule 1)', () => {
     try {
-      parseUpload(Buffer.from('%PDF-1.7 whatever'))
+      parseAnnualReports(Buffer.from('%PDF-1.7 whatever'))
       throw new Error('should have thrown')
     } catch (e) {
       expect(e.code).toBe('PDF_REJECTED')
@@ -168,21 +168,40 @@ describe('parseUpload — sniffing and dispatch', () => {
 
   test('binary junk is refused as unrecognised', () => {
     const junk = Buffer.from([0x00, 0x01, 0x02, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A])
-    try { parseUpload(junk) } catch (e) { expect(e.code).toBe('UNRECOGNISED_FILE') }
+    try { parseAnnualReports(junk) } catch (e) { expect(e.code).toBe('UNRECOGNISED_FILE') }
   })
 
   test('an empty upload is refused', () => {
-    try { parseUpload(Buffer.alloc(0)) } catch (e) { expect(e.code).toBe('UNRECOGNISED_FILE') }
+    try { parseAnnualReports(Buffer.alloc(0)) } catch (e) { expect(e.code).toBe('UNRECOGNISED_FILE') }
   })
 
   test('a readable file that is NOT a known Xero report names what was expected (no partial parse)', () => {
     try {
-      parseUpload(Buffer.from('Hello,World\n1,2\n'))
+      parseAnnualReports(Buffer.from('Hello,World\n1,2\n'))
       throw new Error('should have thrown')
     } catch (e) {
       expect(e.code).toBe('UNRECOGNISED_REPORT')
       expect(e.message).toMatch(/Balance Sheet or Profit and Loss/i)
     }
+  })
+
+  test('🔴 a multi-sheet workbook yields BOTH its reports, in sheet order', () => {
+    // ITEM 4.79 (2026-09-08). This asserted the opposite for the length of slice 1 — that a
+    // workbook gave up only its first report — and slice 2 is what changed it.
+    //
+    // The shape that matters: a real MYOB or QuickBooks export is ONE workbook holding both
+    // reports. Quick Position keeps a Balance Sheet result and a P&L result side by side, so
+    // it wants both; EBITDA & DCF wants the P&L wherever it sits. Neither can take "the first".
+    const book = makeMultiSheetXlsx([
+      { name: 'Profit and Loss', grid: PL_GRID },
+      { name: 'Balance Sheet', grid: BS_GRID }
+    ])
+
+    const reports = parseAnnualReports(book)
+
+    expect(reports.map(r => r.kind)).toEqual(['profitLoss', 'balanceSheet'])
+    // The Balance Sheet is genuinely read, not merely present in the list.
+    expect(reports[1].proposals.cash.value).toBe(170000)
   })
 })
 

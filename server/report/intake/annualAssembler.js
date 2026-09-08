@@ -6,7 +6,7 @@
  * the oldest-first aligned arrays the calc engine takes.
  *
  * Pure and side-effect free so the multi-file rules are fully unit-testable; the
- * upload route is a thin wrapper around parseUpload + this. No-partial-parse rule:
+ * upload route is a thin wrapper around parseAnnualReports + this. No-partial-parse rule:
  * enforcing "every file is a P&L" happens HERE, loudly, before anything assembles.
  */
 
@@ -25,7 +25,9 @@ const SERIES_KEYS = ['sales', 'costOfSales', 'operatingExpenses', 'loanInterestP
 const SUNDRY_KEYS = ['otherIncome', 'interestReceived', 'dividendsReceived', 'badDebtsRecovered']
 
 /**
- * @param {Array<object>} parsed - parseUpload results, one per uploaded file, in upload order.
+ * @param {Array<object>} parsed - one P&L extract per uploaded file, in upload order. The
+ *   route picks it out of the file's reports, so a workbook holding a Balance Sheet too
+ *   still arrives here as its P&L alone (item 4.79).
  * @returns {object} {
  *   files: [{ kind, companyName, reportDate, year, figures, warnings }],  // upload order
  *   assembled: { years, sales, costOfSales, operatingExpenses, loanInterestPaid,

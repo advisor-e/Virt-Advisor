@@ -27,7 +27,7 @@ const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../re
 const { computeTrend } = require('../report/trendModel')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
-const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
+const { parseAnnualReports, parseForecastReports } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
 const { parseAssetScheduleUpload, compareToBalanceSheet } = require('../report/intake/assetScheduleParser')
@@ -238,7 +238,9 @@ function loanEstimator (req, res, next) {
  * ever logged — only stable error codes.
  *
  * @param {object} req - multipart request; req.firmId set by firmAuth.
- * @returns {object} { success, data: { kind, companyName, reportDate, proposals|expenseLines, warnings }, timestamp }
+ * @returns {object} { success, data: { reports: [{ kind, companyName, reportDate,
+ *   proposals|expenseLines, warnings }] }, timestamp } — one entry per report the workbook
+ *   holds, in sheet order. A single-report export gives a one-entry list.
  */
 async function quickPositionIntake (req, res) {
   const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: false })
@@ -264,8 +266,13 @@ async function quickPositionIntake (req, res) {
     }
 
     const buffer = fs.readFileSync(uploadedFile.filepath)
-    const data = parseUpload(buffer)
-    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+    // 🔴 EVERY REPORT THE WORKBOOK HOLDS (item 4.79 slice 2). The screen already keeps a
+    // Balance Sheet result and a P&L result side by side and routes each by its own kind, so
+    // one combined MYOB or QuickBooks export now fills both zones from a single drop. Taking
+    // only the first left the advisor's Balance Sheet unread, the P&L zone ticked, and
+    // Continue greyed out with nothing on screen saying why.
+    const reports = parseAnnualReports(buffer)
+    res.send(200, { success: true, data: { reports }, timestamp: new Date().toISOString() })
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
     console.error('[report] quick-position intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
@@ -325,7 +332,16 @@ async function ebitdaDcfIntake (req, res) {
       throw e
     }
 
-    const parsed = uploaded.map(f => parseUpload(fs.readFileSync(f.filepath)))
+    // 🔴 THE P&L, WHICHEVER SHEET IT SITS ON (item 4.79 slice 2). This model reads P&L
+    // exports only, so a combined MYOB or QuickBooks workbook contributes its P&L and the
+    // Balance Sheet beside it is simply not wanted. Taking the first report failed the whole
+    // upload with WRONG_REPORT_KIND whenever the Balance Sheet came first. A file with no P&L
+    // in it still hands the first report on, so that same error still fires and still names
+    // the offending file position — the loud refusal is unchanged, only its trigger is right.
+    const parsed = uploaded.map((f) => {
+      const reports = parseAnnualReports(fs.readFileSync(f.filepath))
+      return reports.find(r => r.kind === 'profitLoss') || reports[0]
+    })
     const data = assembleAnnualReports(parsed)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
@@ -891,7 +907,12 @@ async function threeWayForecastIntake (req, res) {
         continue
       }
       try {
-        annual.push(parseForecastUpload(buf))
+        // 🔴 EVERY REPORT THE WORKBOOK HOLDS, NOT JUST THE FIRST (item 4.79). One MYOB or
+        // QuickBooks export is a single workbook carrying both the Profit and Loss and the
+        // Balance Sheet, so one file legitimately contributes two reports here — exactly as
+        // the asset-schedule scan above already treats one file as able to contribute both.
+        const reports = parseForecastReports(buf)
+        for (let r = 0; r < reports.length; r++) { annual.push(reports[r]) }
       } catch (annualErr) {
         // A workbook holding ONLY a Fixed Asset Schedule is a legitimate drop — the seventh
         // slot is exactly that — so it must not be refused as an unreadable export. Any file

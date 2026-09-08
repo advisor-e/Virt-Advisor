@@ -396,20 +396,17 @@ describe('the Fixed Asset Schedule reaches the forecast', () => {
     expect(res.body.data.assetSchedule.totalBookValue).toBe(63283.33)
   })
 
-  test('⚠ DOCUMENTS A DEFECT: the Balance Sheet in that same workbook is NOT read', async () => {
-    // 🔴 THIS ASSERTS SOMETHING WRONG ON PURPOSE, so that fixing it breaks this test rather
-    // than passing unnoticed. Found 2026-09-08 while building item 4.65 slice 1, by running
-    // Mike's real exports through the route.
+  test('🔴 the Balance Sheet in that same workbook IS read, though the P&L comes first', async () => {
+    // ITEM 4.79, FIXED 2026-09-08. This test asserted the opposite until that day — a
+    // deliberate pin, so that fixing the defect broke it rather than passing unnoticed.
     //
-    // `parseForecastUpload` returns the FIRST recognised report across the workbook's sheets.
-    // Both real exports put the Profit and Loss first, so the Balance Sheet sitting on the
-    // next sheet is ignored — and the Balance Sheet is the one REQUIRED file. An advisor
-    // dropping their own MYOB or QuickBooks export is told to drop a Balance Sheet while
-    // looking at the file that contains one. It fails loudly rather than silently, which is
-    // the only reason this is not worse.
+    // The readers returned the FIRST recognised report across a workbook's sheets. Both of
+    // Mike's real exports put the Profit and Loss first, so the Balance Sheet on the next
+    // sheet was ignored — and the Balance Sheet is the one REQUIRED file. The advisor was
+    // told to drop a Balance Sheet while looking at the file that contained one.
     //
-    // NOT FIXED HERE: it is a defect in a shared reader, outside the drawing Mike approved,
-    // and it is his to schedule. Reported 2026-09-08.
+    // One workbook, three sheets, and all three must land: the P&L, the Balance Sheet it
+    // opens from, and the asset register.
     const book = tempFile(makeMultiSheetXlsx([
       { name: 'Profit and Loss', grid: PL_GRID },
       { name: 'Balance Sheet', grid: BS_GRID },
@@ -418,7 +415,14 @@ describe('the Fixed Asset Schedule reaches the forecast', () => {
 
     const res = await run([book])
 
-    expect(res.body.data.blocked).toMatch(/Balance Sheet is needed/i)
+    expect(res.status).toBe(200)
+    expect(res.body.data.blocked).toBeNull()
+    // The opening position came from the Balance Sheet sheet, not from anywhere else.
+    expect(res.body.data.proposal.openingBalanceSheet.cashAtBank).toBe(71000)
+    // One file, two reports — the P&L is still read, and still first.
+    expect(res.body.data.files.map(f => f.kind)).toEqual(['profitLoss', 'forecastBalanceSheet'])
+    // And the schedule scan is unaffected: the same file still contributes it.
+    expect(res.body.data.assetSchedule.assets).toHaveLength(4)
   })
 
   test('a schedule dropped as a file of its own is read, not refused', async () => {

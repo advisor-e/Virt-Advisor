@@ -4,7 +4,7 @@ const {
   extractForecastBalanceSheet,
   extractBalanceSheet,
   extractProfitLoss,
-  parseForecastUpload
+  parseForecastReports
 } = require('../../server/report/intake/xeroReportParser')
 const { assembleForecastIntake, MAX_FILES } = require('../../server/report/intake/threeWayForecastAssembler')
 const { computeThreeWayForecast } = require('../../server/report/threeWayForecastModel')
@@ -680,16 +680,17 @@ describe('🔴 a balance sheet that ties in the accounting package ties here', (
 describe('Forecast intake — hostile and malformed uploads', () => {
   test('a real .xlsx Balance Sheet round-trips through the reader', () => {
     const buf = makeXlsx(BS_GRID, 'Balance Sheet')
-    const parsed = parseForecastUpload(buf)
-    expect(parsed.kind).toBe('forecastBalanceSheet')
-    expect(parsed.figures.cashAtBank.value).toBe(80000)
+    const reports = parseForecastReports(buf)
+    expect(reports).toHaveLength(1)
+    expect(reports[0].kind).toBe('forecastBalanceSheet')
+    expect(reports[0].figures.cashAtBank.value).toBe(80000)
   })
 
   test('binary junk is refused with a stable code, never half-parsed', () => {
     const junk = Buffer.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07])
-    expect(() => parseForecastUpload(junk)).toThrow()
+    expect(() => parseForecastReports(junk)).toThrow()
     try {
-      parseForecastUpload(junk)
+      parseForecastReports(junk)
     } catch (err) {
       expect(typeof err.code).toBe('string')
       expect(err.code.length).toBeGreaterThan(0)
@@ -699,7 +700,7 @@ describe('Forecast intake — hostile and malformed uploads', () => {
   test('a spreadsheet that is not a Xero report is refused by name', () => {
     const buf = makeXlsx([['Shopping list'], ['Milk', 3]], 'Sheet1')
     try {
-      parseForecastUpload(buf)
+      parseForecastReports(buf)
       throw new Error('should have thrown')
     } catch (err) {
       expect(err.code).toBe('UNRECOGNISED_REPORT')

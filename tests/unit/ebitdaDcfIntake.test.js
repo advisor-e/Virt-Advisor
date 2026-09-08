@@ -1,6 +1,6 @@
 'use strict'
 
-const { parseUpload, extractProfitLoss } = require('../../server/report/intake/xeroReportParser')
+const { parseAnnualReports, extractProfitLoss } = require('../../server/report/intake/xeroReportParser')
 const { assembleAnnualReports } = require('../../server/report/intake/annualAssembler')
 const { makeXlsx } = require('./xlsxFixture')
 
@@ -104,9 +104,9 @@ describe('P&L extraction — the EBITDA & DCF figure buckets', () => {
   })
 })
 
-describe('parseUpload end-to-end — a real .xlsx P&L reaches the buckets', () => {
+describe('parseAnnualReports end-to-end — a real .xlsx P&L reaches the buckets', () => {
   test('xlsx bytes -> plFigures', () => {
-    const r = parseUpload(makeXlsx(plGrid(2023)))
+    const [r] = parseAnnualReports(makeXlsx(plGrid(2023)))
     expect(r.kind).toBe('profitLoss')
     expect(r.year).toBe(2023)
     expect(r.plFigures.costOfSales.value).toBe(320000)

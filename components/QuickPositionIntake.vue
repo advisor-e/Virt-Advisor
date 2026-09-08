@@ -221,12 +221,28 @@ export default {
           this.$set(this.errors, kind, (json.error && json.error.message) || this.$t('report.quickPosition.drop.uploadFailed'))
           return
         }
-        // Auto-detection means either zone accepts either report — route by kind found
-        if (json.data.kind === 'balanceSheet') {
-          this.applyBalanceSheet(json.data)
-          if (kind === 'pl') { this.$set(this.errors, 'pl', null) }
-        } else if (json.data.kind === 'profitLoss') {
-          this.plResult = json.data
+        // Auto-detection means either zone accepts either report — route by kind found.
+        // ONE FILE MAY CARRY BOTH (item 4.79): a combined MYOB or QuickBooks export is a
+        // single workbook holding a Profit and Loss and a Balance Sheet, so every report the
+        // backend read is applied and one drop can fill both zones. Before this, only the
+        // first was returned: the advisor's Balance Sheet went unread, the P&L zone ticked,
+        // and Continue stayed disabled with nothing on screen saying why.
+        const reports = json.data.reports || []
+        let applied = 0
+        for (let i = 0; i < reports.length; i++) {
+          if (reports[i].kind === 'balanceSheet') {
+            this.applyBalanceSheet(reports[i])
+            applied++
+          } else if (reports[i].kind === 'profitLoss') {
+            this.plResult = reports[i]
+            applied++
+          }
+        }
+        if (applied) {
+          // The zone that was used may not be the zone that filled, so clear both errors
+          // rather than the one the advisor happened to drop on.
+          this.$set(this.errors, 'bs', null)
+          this.$set(this.errors, 'pl', null)
         } else {
           this.$set(this.errors, kind, this.$t('report.quickPosition.drop.uploadFailed'))
         }
