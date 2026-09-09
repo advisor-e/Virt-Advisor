@@ -93,6 +93,28 @@ Two differences, both deliberate, both stated in the Brief §7 as well:
    its source by hand. Everything an extraction would need is already there — the store, the
    approval gate, the source-per-figure rule — so what is missing is the reading step alone.
    It is named rather than quietly omitted.
+
+   🔴 **IT STAYS INSIDE ITEM 4.81 — Mike's ruling, 2026-09-09.** It was put to him as a
+   possible item of its own and he kept it here, for the reason the sibling was kept whole a
+   day earlier: it is part of the drawing he approved, so filing it separately would let 4.81
+   read as finished while a piece of its approved scope was not built. **A narrowed request
+   looks exactly like a completed one.**
+
+   ⚠ **AND READ THIS BEFORE BUILDING IT, because the record otherwise makes it sound like
+   easy leftover work.** The AI reading buys far less here than it does next door, and the
+   difference is arithmetic rather than opinion: **IR265 publishes about 156 asset classes to
+   be matched against the forecast's six, and a tax document publishes FOUR figures.** For
+   depreciation the reading *is* the feature — nobody hand-matches 156 classes. Here a
+   manager types four numbers and the page each came from, on a screen that already refuses
+   any figure which cannot name its source.
+
+   The consequence is worth stating plainly: **an extraction would still have to be checked
+   against the document, figure by figure, because nothing may be believed until a manager
+   approves it.** So it saves the typing and none of the checking — while adding an untrusted
+   file upload, a second extraction prompt, a proposals store and an entry on the AI Prompts
+   page to the surface that has to be looked after. That may still be worth it. It is not
+   obviously worth it, and whoever picks this up should meet that question at the start rather
+   than at the end.
 2. **The country is not saved with the forecast.** The drawing requires that reopening an old
    forecast resolves the figures it was built on rather than whatever has been approved since.
    That needs this screen's saved shape, which is item 4.62's last unbuilt screen. The code

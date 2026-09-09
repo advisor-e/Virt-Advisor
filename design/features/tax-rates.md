@@ -149,7 +149,11 @@ accepts or ignores.
 - 🔴 **Loading a tax PDF for the model to read.** The approved drawing shows it (§4) and it is
   not there. **Today a manager types each figure and its source by hand.** Everything an
   extraction would need already exists — the store, the approval gate, the source-per-figure
-  rule — so this is the reading step alone.
+  rule — so this is the reading step alone. ⚠ **It stays inside item 4.81 on Mike's ruling of
+  2026-09-09, and whether it is worth building at all is genuinely open — read
+  [the history §5](tax-rates-history.md) first.** A tax document publishes four figures where a
+  depreciation schedule publishes about 156 classes, so an extraction here saves the typing and
+  none of the checking.
 - **The country saved with the forecast.** The drawing requires that reopening an old forecast
   resolves the figures it was built on rather than whatever has been approved since. That needs
   this screen's saved shape, which is item 4.62's last unbuilt screen. Until then the country
