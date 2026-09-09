@@ -76,7 +76,7 @@
         "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
       },
       "touches": "data/logic_trees.json, the Mentor Hub logic tables, the Template Check screen where the real page names are settled, and tests/unit/recommendationGate.test.js, which pins 39 whole / 8 partial / 8 withheld.",
-      "note": "Waits on Mike naming the real pages; the whole list is design/LOGIC-TABLE-TEMPLATES-NEEDED.md (now 14 branches, 18 names). Ranked last on his ruling: technical work first, wording after. A second step was found 2026-08-26: 22 branches name their template only in prose, which the ranking engine never reads, so once the names resolve their templates[] must be populated too, and not before. Detail in logic-tables-history.md §8.",
+      "note": "MIKE SETTLES THE 18 NAMES HIMSELF, IN UAT, by editing the logic tables while testing (his ruling, 2026-09-10). Not session work: do not propose it. The whole list is design/LOGIC-TABLE-TEMPLATES-NEEDED.md (14 branches, 18 names). A second step was found 2026-08-26: 22 branches name their template only in prose, which the ranking engine never reads, so once the names resolve their templates[] must be populated too, and not before. Detail in logic-tables-history.md §8.",
       "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
     },
     {
