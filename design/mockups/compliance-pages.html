@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compliance — the mentor publishes, the firm declares</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Compliance pages in the four manager hubs. Screen mockup for approval,
+   drawn 2026-09-10 on Mike's instruction.
+
+   Colours, spacing and type are READ OFF the shipped hub tabs, per the owner
+   ruling of 2026-07-23 — nothing here is a new look:
+     - design/REPORT-VISUAL-STANDARD.md            the ruled numbers
+     - design/mockups/depreciation-rates-upload.html   the most recent upload tab
+   No dark mode: one light look, RULED 2026-07-27.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-10):
+     - "Advisor-e provides software on an 'all-care' basis. Anyone using our
+       software is responsible for meeting legal requirements and is ultimately
+       responsible for any information given or received. We are required to
+       identify best practice and take all reasonable steps to comply but we
+       can't be responsible for a user who chooses to ignore our suggestions."
+     - "i want these compliance pages to show in the mentor, global manager,
+       group manager and firm manager hubs - again, cascading so that if I as a
+       mentor, gets new information, I can share it downwards but they can seek
+       their own legal opinion and comply thereafter"
+     - "we can't dictate or make it a condition for firms to seek legal advice,
+       we can only ask that they indicate that they have read and understand the
+       law, as it relates to them, in their country - and yes, they have to tick
+       a box before the feature becomes active"
+     - The drop zone takes THE FIRM'S OWN COMPLIANCE EVIDENCE, not the text of
+       the law — his agreement to the recommendation against uploading statutes.
+
+     - "no, I publish an update - they get a notification such as a red dot next
+       to the topic (currently get blue and orange in the handbook so could use
+       similar system?)" ... "we could also add the blue and orange - never
+       opened and not opened in 3 weeks"
+
+   🔴 LEGAL ADVICE IS SUGGESTED AND NEVER REQUIRED. No screen asks whether a firm
+   took it and no route checks. The DECLARATION is what gates the feature, and it
+   says only that the firm has read and understands the law that applies to it.
+
+     - "put the dots in the left hand menu" / "every tab" (2026-09-10)
+
+   🔴 ONLY THE FIRST DECLARATION GATES. A published update NOTIFIES with a dot and
+   suspends nothing. Three states, the Handbook's own mechanism: red = new since
+   you declared (new); blue = never opened; orange = not opened in 3 weeks. Red
+   beats blue beats orange — a judgement, flagged as one at §7.
+
+   🔴 THE DOTS SIT IN THE HUB'S LEFT-HAND MENU, ON EVERY TAB. This is a NARROW,
+   STATUS-ONLY exception to the no-icons ruling of 2026-08-19 — a dot that says
+   what the label cannot, and nothing else. A decorative icon does not return to
+   that menu by this door.
+
+   ⚠ TWO PIECES OF WORK, NOT ONE. The Compliance pages, and the hub notification
+   dots — the second is general hub infrastructure that every tab gains from, and
+   burying it inside a compliance feature would hide it from anyone looking later.
+
+   THE CONTENT IS REAL. Every item in the published pack below exists in this
+   repository today; the nine-point checklist is §9 of MEETING-REVIEW-DPIA.md
+   word for word, and the IPP3A gap is the finding that document records.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+/* tab strip */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+/* cards */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+/* cascade banner */
+.cascade{display:flex;align-items:center;gap:0;flex-wrap:wrap;font-size:12.5px;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:11px 14px;margin-bottom:16px}
+.ct{display:flex;align-items:center;gap:7px;padding:0 12px 0 0}
+.ct .dot{width:8px;height:8px;border-radius:50%;background:var(--rs-line);flex:none}
+.ct.has .dot{background:var(--rs-accent-bright)}
+.ct.you{font-weight:600;color:var(--rs-ink)}
+.ct.you .dot{background:var(--rs-good)}
+.carrow{color:var(--rs-muted);padding:0 12px 0 0;opacity:.6}
+.cnote{margin-left:auto;color:var(--rs-muted)}
+
+/* upload zone */
+.drop{border:2px dashed #b9d3e8;border-radius:12px;background:var(--rs-panel-2);
+  padding:26px 18px;text-align:center}
+.drop b{display:block;font-size:15px;font-weight:600;margin-bottom:4px}
+.drop span{font-size:12.5px;color:var(--rs-muted)}
+.btn{display:inline-block;margin-top:12px;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:5px 11px;font-size:12.5px;margin-top:0}
+
+/* document rows */
+.doc{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--rs-line)}
+.doc:last-child{border-bottom:0}
+.doc .ico{width:34px;height:34px;border-radius:8px;background:var(--rs-panel-2);
+  display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--rs-muted);flex:none}
+.doc .meta{flex:1;min-width:0}
+.doc .nm{font-weight:600;font-size:14px}
+.doc .sub{font-size:12px;color:var(--rs-muted);margin-top:2px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.bad{background:var(--rs-crit-soft);color:#b01212;border:1px solid #e0000045}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+
+/* notices */
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.crit{background:var(--rs-crit-soft);border:1px solid #e0000045;border-left:3px solid var(--rs-crit)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+
+/* checklist */
+.chk{list-style:none;margin:0;padding:0;font-size:13.5px}
+.chk li{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--rs-line)}
+.chk li:last-child{border-bottom:0}
+.chk .m{flex:none;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;
+  font-size:11px;font-weight:700;margin-top:1px}
+.chk .m.y{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.chk .m.n{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.chk .t{flex:1}
+.chk .why{font-size:12px;color:var(--rs-muted);margin-top:2px}
+
+/* acknowledgement */
+.ack{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:16px 18px}
+.ack .line{display:flex;gap:11px;align-items:flex-start;font-size:13.5px;margin-bottom:12px}
+.ack .box{flex:none;width:17px;height:17px;border:2px solid var(--rs-accent);border-radius:4px;
+  margin-top:2px;background:#fff}
+.ack .box.on{background:var(--rs-accent);position:relative}
+.ack .box.on::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:12px;
+  display:grid;place-items:center;font-weight:700}
+.ack .sig{font-size:12.5px;color:var(--rs-muted);border-top:1px solid var(--rs-line);padding-top:12px}
+
+/* history */
+.hist{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--rs-line);font-size:13px}
+.hist:last-child{border-bottom:0}
+.hist .when{color:var(--rs-muted);font-size:12px;width:150px;flex:none}
+.hist .who{flex:1}
+
+/* notification dot — the Handbook's own mechanism, scripts/handbook-shell.html.
+   There the rail carries .navlink.unseen .dot (blue, never opened) and
+   .navlink.stale .dot (orange, not opened in 3 weeks). RED is new and is Mike's
+   word, 2026-09-10, for a compliance item published and not yet declared. */
+.nd{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none;margin-right:7px;
+  vertical-align:middle;background:transparent}
+.nd.red{background:#e00000}
+.nd.blue{background:#00b1e0}
+.nd.amber{background:#ff9900}
+.side{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);padding:14px 0;max-width:290px;margin-bottom:16px}
+.side .grp{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;padding:12px 16px 5px}
+.side .row{display:flex;align-items:center;padding:7px 16px;font-size:13.5px}
+.side .row.on{background:var(--rs-accent-soft);font-weight:600;
+  box-shadow:inset 3px 0 0 var(--rs-accent-bright)}
+
+/* questions */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Compliance pages — screens drawn for approval, 2026-09-10. Nothing is built.</b> This is
+  the artefact the build will be checked against, saved before approval as CLAUDE.md requires.</p>
+  <p><b>Your all-care basis is the whole design.</b> The mentor publishes what we assess and
+  recommend; the firm evidences what it actually did. We identify best practice and take all
+  reasonable steps; they take their own legal opinion and comply thereafter — and the record
+  shows both halves happened.</p>
+  <p>🔴 <b>THE DROP ZONE TAKES THE FIRM'S OWN COMPLIANCE EVIDENCE, NEVER THE TEXT OF THE LAW.</b>
+  Uploading statutes for the AI to interpret was recommended against and you agreed: it would put
+  our software in the place of their lawyer, and a statute goes stale silently — a 2024 copy of the
+  Privacy Act would have the AI confidently reading law that IPP3A superseded on 1 May 2026.</p>
+  <p>🔴 <b>REDRAWN 2026-09-10 ON YOUR SECOND RULING, WHICH CHANGED TWO THINGS.</b> In your words:
+  <i>"we can't dictate or make it a condition for firms to seek legal advice, we can only ask that
+  they indicate that they have read and understand the law, as it relates to them, in their country
+  — and yes, they have to tick a box before the feature becomes active."</i></p>
+  <ul>
+    <li><b>The declaration is no longer about legal advice.</b> It says the firm has read and
+      understands the law as it applies to them in their country. Advice is <b>suggested</b>
+      throughout and required nowhere — no screen and no route checks whether they took it.</li>
+    <li><b>The tick is now a GATE.</b> Meeting Review is inactive for a firm until it is given.
+      <b>This reverses the recommendation at question 5 of the first drawing</b> — and the objection
+      it was based on does not apply to what you ruled. That objection was to gating on the
+      <b>evidence pack</b>, which would make Advisor-e the judge of a firm's compliance. Gating on
+      the firm's <b>own declaration</b> judges nothing. The completeness check still blocks
+      nothing.</li>
+    <li><b>Screen C is new</b> — what an advisor sees when their firm has not ticked. A gate needs
+      a locked state, and it has to explain itself rather than look broken.</li>
+  </ul>
+  <p>🔴 <b>REDRAWN AGAIN ON THE DOT RULINGS.</b> Publishing an update <b>notifies</b> and never
+  suspends. All three states are in, blue and orange keeping the Handbook's own meanings, <b>in the
+  hub's left-hand menu, on every tab</b>. See the legend below and §7.</p>
+  <p>✅ <b>EVERY QUESTION IS NOW RULED — see §7.</b> Nine rulings, all given by Mike on 2026-09-10,
+  one at a time. The declaration is <b>in his own words, verbatim, and pinned</b>. The only item at
+  §7 that is not his ruling is question 6, who may record the declaration, which the platform
+  decides for us and is stated as a judgement.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — the Firm Manager's view</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Firm Manager Hub</div>
+  <h1 class="hub-h1">Compliance</h1>
+  <div class="hub-sub">Apex Auto &amp; Engineering Ltd · New Zealand</div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Domain Support</div>
+  <div class="tab">Advisory Distinctions</div>
+  <div class="tab">Logic Tables</div>
+  <div class="tab">AI Prompts</div>
+  <div class="tab">Meeting Review</div>
+  <div class="tab">Depreciation Rates</div>
+  <div class="tab">Tax Rates</div>
+  <div class="tab on"><span class="nd red"></span>Compliance</div>
+</div>
+
+<div class="mock">
+  <p><b>THE DOTS ARE MIKE'S RULING, 2026-09-10</b> — <i>"I publish an update - they get a
+  notification such as a red dot next to the topic (currently get blue and orange in the handbook so
+  could use similar system?)"</i>, then <i>"we could also add the blue and orange - never opened and
+  not opened in 3 weeks"</i>. It answers question 2: <b>an update NEVER switches the feature
+  off.</b> It marks the topic, a manager sees it without opening anything, and everyone keeps
+  working.</p>
+  <p><b>All three states, and the mechanism is the Handbook's own</b>
+  (<code>scripts/handbook-shell.html</code>, <code>.navlink.unseen</code> /
+  <code>.navlink.stale</code>) — so this is a look already in use, not a new one invented here.
+  <b>Blue and orange keep the Handbook's exact meanings</b>; red is the one new state.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>The three dots, and what each means here</h2></div>
+  <div class="card-b">
+    <table>
+      <thead><tr><th>Dot</th><th>Means</th><th>Where it comes from</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="nd red"></span><b>Red</b></td>
+          <td><b>Something new has been published to you since you last declared</b></td>
+          <td>New. Mike's ruling, 2026-09-10</td>
+        </tr>
+        <tr>
+          <td><span class="nd blue"></span><b>Blue</b></td>
+          <td>You have never opened this topic</td>
+          <td>The Handbook's <i>never opened</i>, unchanged</td>
+        </tr>
+        <tr>
+          <td><span class="nd amber"></span><b>Orange</b></td>
+          <td>You have not opened it in 3 weeks</td>
+          <td>The Handbook's <i>not opened in 3 weeks</i>, unchanged</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="notice info" style="margin:14px 0 0">
+      <b>One dot at a time, and red always wins</b>
+      A topic can be all three at once — never opened, stale, and carrying a new publication. Drawn
+      as <b>red beats blue beats orange</b>: the most urgent state is the one shown, and a manager
+      is never asked to decode two dots. ⚠ <b>A judgement, not your ruling</b> — say if you want it
+      the other way.
+    </div>
+  </div>
+</div>
+
+<div class="side">
+  <div class="grp">Model Inputs</div>
+  <div class="row"><span class="nd"></span>Depreciation Rates</div>
+  <div class="row"><span class="nd amber"></span>Tax Rates</div>
+  <div class="grp">Your firm</div>
+  <div class="row on"><span class="nd red"></span>Compliance</div>
+  <div class="row"><span class="nd blue"></span>Adviser Network</div>
+</div>
+<p style="font-size:12.5px;color:var(--rs-muted);margin:-6px 0 16px">
+  The hub's own left-hand menu. Compliance carries a new publication; Tax Rates has not been opened
+  in three weeks; Adviser Network has never been opened. <b>Where these sit is question 7 —
+  you ruled in August that the sidebar carries no icons.</b></p>
+
+<div class="cascade">
+  <div class="ct has"><span class="dot"></span>Mentor</div><span class="carrow">→</span>
+  <div class="ct has"><span class="dot"></span>Global group manager</div><span class="carrow">→</span>
+  <div class="ct"><span class="dot"></span>Group manager</div><span class="carrow">→</span>
+  <div class="ct you"><span class="dot"></span>Your firm</div>
+  <div class="cnote">2 published by the mentor · 1 by your global group manager · 3 added by you</div>
+</div>
+
+<div class="notice info">
+  <b>What this page is, and what it is not</b>
+  Advisor-e supplies this software on an all-care basis. We identify best practice and set out our
+  assessment below. <b>You remain responsible for meeting your own legal obligations and for what
+  you do with the information here.</b> Nothing on this page is legal advice, and it is not a
+  statement that your firm is compliant. <b>We strongly suggest taking your own legal advice on
+  it</b> — we do not require it, and nothing here checks whether you have.
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Published to you</h2><span class="pill inh">From the mentor</span></div>
+  <div class="card-b">
+    <div class="doc">
+      <div class="ico">DP</div>
+      <div class="meta">
+        <div class="nm"><span class="nd red"></span>Meeting Review — Data Protection Impact Assessment</div>
+        <div class="sub">Version 1 · published 10 Sep 2026 · assessed against the NZ Privacy Act 2020,
+          all fourteen principles, and against UK/EU GDPR where it goes further</div>
+      </div>
+      <span class="pill wait">New — not yet declared</span>
+    </div>
+    <div class="doc">
+      <div class="ico">CW</div>
+      <div class="meta">
+        <div class="nm">Meeting consent wording</div>
+        <div class="sub">Version 3 · published 1 Sep 2026 · the spoken line, the two-step screen, and
+          what happens when a client declines. <b>Not editable by a firm</b> — one lawyer-checked
+          version per market</div>
+      </div>
+      <span class="pill ok">Acknowledged 2 Sep</span>
+    </div>
+    <div class="doc">
+      <div class="ico">AU</div>
+      <div class="meta">
+        <div class="nm">Recording law — Australia</div>
+        <div class="sub">Version 1 · published 4 Sep 2026 by your global group manager · added at
+          that level because it applies to their country and not to the whole platform</div>
+      </div>
+      <span class="pill ok">Acknowledged 5 Sep</span>
+    </div>
+  </div>
+</div>
+
+<div class="notice warn">
+  <b>One finding in the assessment needs a decision from your firm</b>
+  <b>IPP3A — people discussed in a meeting who are not in the room.</b> Since 1 May 2026 New Zealand
+  law requires reasonable steps to notify someone whose information you collected from a source
+  other than themselves. When a client discusses a named employee or a family member, that is
+  indirect collection. <b>The software cannot solve this — it cannot know who was mentioned.</b>
+  Your firm needs a recorded position on what reasonable steps mean in your practice.
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Your firm's compliance evidence</h2><span class="pill ok">Held by your firm only</span></div>
+  <div class="card-b">
+    <p style="margin-top:0;font-size:13.5px">These are <b>your</b> documents — what you did, and the
+    advice you took. They stay inside your firm. Advisor-e can see that a document exists and when
+    it was added; <b>we do not read them and they are never shown to another firm.</b></p>
+
+    <div class="drop">
+      <b>Drop your compliance documents here</b>
+      <span>Your lawyer's opinion · your privacy statement · client engagement terms · staff
+        consultation record · your breach process<br>PDF, Word or text · up to 20 MB each</span>
+      <div class="btn">Choose files</div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div class="doc">
+        <div class="ico">✓</div>
+        <div class="meta">
+          <div class="nm">Privacy statement — Apex Auto &amp; Engineering</div>
+          <div class="sub">Added 8 Sep 2026 by Janine Cole · 2 pages</div>
+        </div>
+        <span class="pill ok">Held</span>
+      </div>
+      <div class="doc">
+        <div class="ico">✓</div>
+        <div class="meta">
+          <div class="nm">Legal opinion — Harrow &amp; Tait, 3 Sep 2026</div>
+          <div class="sub">Added 8 Sep 2026 by Janine Cole · 6 pages · covers New Zealand and Australia</div>
+        </div>
+        <span class="pill ok">Held</span>
+      </div>
+      <div class="doc">
+        <div class="ico">✓</div>
+        <div class="meta">
+          <div class="nm">Client engagement terms 2026</div>
+          <div class="sub">Added 8 Sep 2026 by Janine Cole · 4 pages</div>
+        </div>
+        <span class="pill ok">Held</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What is missing from your pack</h2>
+    <span class="pill wait">Checked 8 Sep · 2 of 8 covered</span>
+  </div>
+  <div class="card-b">
+    <div class="notice info" style="margin-bottom:14px">
+      <b>This is a completeness check, not a legal opinion</b>
+      We check your documents against the nine points in §9 of the impact assessment — the list we
+      published. <b>We do not tell you what the law requires and we do not read your documents for
+      meaning.</b> A tick means a document appears to address that point, never that it addresses it
+      adequately. Only your lawyer can say that.
+    </div>
+    <ul class="chk">
+      <li><span class="m y">✓</span><span class="t">That it may lawfully record meetings in its jurisdiction
+        <span class="why">Covered by: Legal opinion — Harrow &amp; Tait, 3 Sep 2026</span></span></li>
+      <li><span class="m n">!</span><span class="t"><b>Its reasonable steps under IPP3A</b> — for people discussed but not present
+        <span class="why">Nothing in your pack appears to address this. In force since 1 May 2026</span></span></li>
+      <li><span class="m n">!</span><span class="t"><b>That its staff have been consulted</b>
+        <span class="why">No record found. Recording employees and reporting on their conduct is monitoring</span></span></li>
+      <li><span class="m n">!</span><span class="t"><b>How it handles a withdrawal of consent that arrives later</b>
+        <span class="why">The software handles withdrawal during a meeting; a later one is your process</span></span></li>
+      <li><span class="m n">!</span><span class="t"><b>How it answers a client asking for a copy of their transcript, or its deletion</b>
+        <span class="why">Not found. ⚠ This is also an open gap on Advisor-e's side — see the assessment §10</span></span></li>
+      <li><span class="m n">!</span><span class="t"><b>That it has a privacy breach process</b>
+        <span class="why">No document found. "As soon as practicable" in NZ; 72 hours in the UK and EU</span></span></li>
+      <li><span class="m y">✓</span><span class="t">That its privacy statement and engagement terms cover this
+        <span class="why">Covered by: Privacy statement; Client engagement terms 2026</span></span></li>
+      <li><span class="m n">!</span><span class="t"><b>That its deployment is secured</b>
+        <span class="why">Not a document we can check for. Confirm with whoever runs your servers</span></span></li>
+    </ul>
+    <div class="notice info" style="margin:14px 0 0">
+      <b>The ninth point is not on this list, and that is deliberate</b>
+      §9's last point — that the firm has read and understands the law as it applies to it — is the
+      declaration below, not a document. <b>It is the only one we ask for, and the only one that
+      changes anything.</b> Nothing in this software checks whether you took legal advice.
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Your firm's declaration</h2>
+    <span class="pill ok">Meeting Review is active for your firm</span>
+  </div>
+  <div class="card-b">
+    <div class="notice info" style="margin-bottom:14px">
+      <b>Meeting Review does not switch on until this is recorded</b>
+      Until a firm manager records the declaration below, no advisor at your firm can open the
+      meeting recorder. <b>This is the only thing that gates it.</b> Your evidence pack above is for
+      your own benefit — an empty pack blocks nothing, and Advisor-e does not judge whether your
+      firm is compliant.
+    </div>
+
+    <div class="ack">
+      <div class="line">
+        <span class="box on"></span>
+        <span><b>I confirm I have read the material provided above, and have read and understand
+        the law as it applies to this firm in the country in which we operate. I act for and on
+        behalf of my firm when I confirm we accept that meeting our legal obligations is our
+        responsibility.</b></span>
+      </div>
+      <p style="font-size:12.5px;color:var(--rs-muted);margin:0 0 12px">
+        We strongly suggest taking your own legal advice before recording a client. We do not
+        require it and we do not ask you to tell us whether you have.</p>
+      <div class="notice warn" style="margin:0 0 12px">
+        <b><span class="nd red"></span>One published item is new since you last declared</b>
+        The impact assessment v1 was published on 10 September. Your declaration is recorded against
+        the consent wording v3 and the Australian recording law, on 2 September. <b>Your advisors can
+        keep recording</b> — this is a notification, not a suspension. Read it and record your
+        declaration again, and the dot clears.
+      </div>
+      <div class="btn">Record this declaration</div>
+      <div class="sig" style="margin-top:14px">
+        <b>Recorded by:</b> Janine Cole, Firm Manager · 2 Sep 2026, 4:12pm · against consent
+        wording v3 and recording law — Australia v1
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>History</h2></div>
+  <div class="card-b">
+    <div class="hist"><span class="when">10 Sep 2026</span><span class="who">Impact assessment v1 published by the mentor</span><span class="pill wait">Awaiting you</span></div>
+    <div class="hist"><span class="when">8 Sep 2026</span><span class="who">Three documents added by Janine Cole</span><span class="pill ok">Held</span></div>
+    <div class="hist"><span class="when">5 Sep 2026</span><span class="who">Acknowledged by Janine Cole — recording law, Australia v1</span><span class="pill ok">Recorded</span></div>
+    <div class="hist"><span class="when">4 Sep 2026</span><span class="who">Recording law — Australia v1 published by your global group manager</span><span class="pill inh">Inherited</span></div>
+    <div class="hist"><span class="when">2 Sep 2026</span><span class="who">Acknowledged by Janine Cole — consent wording v3</span><span class="pill ok">Recorded</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — the Mentor's view (and the two middle tiers, identically)</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Mentor Hub</div>
+  <h1 class="hub-h1">Compliance</h1>
+  <div class="hub-sub">Advisor-e platform · published to every firm</div>
+</div>
+
+<div class="notice good">
+  <b>This is where you share new information downwards</b>
+  Publish an item here and every tier beneath you receives it, is told it is new, and must record
+  that they have read it and taken their own advice. A global group manager or group manager can
+  add items of their own for their country or brand — those cascade down from that level, never
+  sideways and never up.
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What you publish</h2>
+    <span class="btn small">Publish a new item</span>
+  </div>
+  <div class="card-b">
+    <div class="doc">
+      <div class="ico">DP</div>
+      <div class="meta">
+        <div class="nm">Meeting Review — Data Protection Impact Assessment</div>
+        <div class="sub">Version 1 · published 10 Sep 2026 · <b>⚠ this assessment is not complete</b> —
+          two findings are open, one of them ours (see §10)</div>
+      </div>
+      <span class="pill wait">7 of 34 firms acknowledged</span>
+    </div>
+    <div class="doc">
+      <div class="ico">CW</div>
+      <div class="meta">
+        <div class="nm">Meeting consent wording</div>
+        <div class="sub">Version 3 · published 1 Sep 2026 · firms may read but not edit</div>
+      </div>
+      <span class="pill ok">31 of 34 firms acknowledged</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Who has recorded what</h2><span class="pill inh">Status only — never their documents</span></div>
+  <div class="card-b">
+    <div class="notice info" style="margin-bottom:14px">
+      <b>You see whether a firm has done it, never what they wrote</b>
+      A firm's legal opinion and policies are theirs. This page shows that a document exists and
+      when it arrived. <b>It does not show you the document, and neither the AI nor anyone at
+      Advisor-e reads it.</b>
+    </div>
+    <table>
+      <thead><tr><th>Firm</th><th>Country</th><th>Declaration</th><th>Meeting Review</th><th>Their evidence pack</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Apex Auto &amp; Engineering</td><td>New Zealand</td>
+          <td>2 Sep 2026 · Janine Cole<div class="src">Behind — v1 not yet acknowledged</div></td>
+          <td><span class="pill ok">Active</span></td>
+          <td>2 of 8 points covered</td>
+        </tr>
+        <tr>
+          <td>Bellhaven Advisory</td><td>New Zealand</td>
+          <td>10 Sep 2026 · Rewi Tapsell<div class="src">Current</div></td>
+          <td><span class="pill ok">Active</span></td>
+          <td>8 of 8 points covered</td>
+        </tr>
+        <tr>
+          <td>Cordell &amp; Bray</td><td>Australia</td>
+          <td>10 Sep 2026 · Sam Okafor<div class="src">Current</div></td>
+          <td><span class="pill ok">Active</span></td>
+          <td>6 of 8 points covered</td>
+        </tr>
+        <tr>
+          <td>Dunmore Partners</td><td>United Kingdom</td>
+          <td><b>Never recorded</b><div class="src">Published to them 1 Sep — no response</div></td>
+          <td><span class="pill bad">Not active</span></td>
+          <td>0 of 8 points covered</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="notice warn" style="margin:14px 0 0">
+      <b>Dunmore Partners cannot record a client meeting, and this is the only reason</b>
+      They have not made the declaration. <b>Their empty evidence pack is not why</b> — Apex is
+      recording today on 2 of 8. If a firm asks why the recorder is closed to them, the answer is
+      one tick by a firm manager, and Screen C is what their advisors are seeing.
+    </div>
+  </div>
+</div>
+
+<div class="notice warn">
+  <b>What gates, and what does not — the distinction the whole design rests on</b>
+  <b>The declaration gates.</b> A firm says it has read and understands the law that applies to it,
+  and Meeting Review opens. We assess nothing; the firm decides whether its own statement is true,
+  and the record shows they made it.<br><br>
+  <b>Nothing else gates — and neither the completeness check nor a published update does.</b> If an
+  incomplete evidence pack closed the recorder, Advisor-e would be deciding when a firm is compliant
+  enough to proceed, which is the responsibility the all-care basis puts on them. And when you
+  publish an update, a firm carries a <span class="nd red"></span>red dot and keeps working — ruled
+  2026-09-10. The check and the dot inform; only the first declaration blocks. <b>Do not let these
+  collapse into one during the build.</b>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — what an advisor sees when their firm has not declared</div>
+
+<div class="mock">
+  <p><b>NEW IN THIS DRAWING.</b> A gate needs a locked state. Without one, an advisor at Dunmore
+  Partners clicks Meeting Review and something either does nothing or throws an error — and
+  <b>"a tidy page that looks like a failure" is exactly what this feature's own P11 forbids</b>.</p>
+</div>
+
+<div class="hub-top" style="background:#5b6f8a">
+  <div class="hub-eyebrow" style="color:#dbe7f2">Meeting Review</div>
+  <h1 class="hub-h1">Not yet available at your firm</h1>
+  <div class="hub-sub">Dunmore Partners · United Kingdom</div>
+</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin-top:0;font-size:14.5px"><b>Before anyone at this firm can record a client
+    meeting, a firm manager needs to make one confirmation.</b></p>
+    <p style="font-size:13.5px">Recording a client conversation carries legal obligations, and they
+    differ by country. Advisor-e has published its assessment of what this feature does with a
+    client's information — <b>your firm confirms it has read and understands the law as it applies
+    here</b>, and the recorder opens.</p>
+    <p style="font-size:13.5px"><b>It is a one-off step and it takes a minute.</b> Ask a firm
+    manager to open <b>Firm Manager Hub → Compliance</b>.</p>
+    <div class="notice info" style="margin:16px 0 0">
+      <b>Nothing is wrong, and this is not something you can fix yourself</b>
+      Everything else in the app works normally. Your pre-set observation points are already there
+      waiting — you can review what this meeting is for; you just cannot record it yet.
+    </div>
+    <div class="btn ghost" style="margin-top:16px">Open my meeting pre-set</div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Three things this screen deliberately does NOT do.</b> It does not blame the advisor, who
+  cannot fix it. It does not name individual managers — <b>this app holds no advisors table</b>
+  (<code>config/db-schema.sql</code>), so it cannot know who they are, and inventing a name is worse
+  than "a firm manager". And it does not offer to notify anyone: a message channel is a dependency
+  nobody has asked for, and pointing at the exact tab is enough.</p>
+</div>
+
+<div class="stepmark">§7 — Every question ruled, 2026-09-10</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — the tick is a gate</b>
+  The first drawing recommended <i>no gate</i> and Mike ruled the other way: <i>"they have to tick a
+  box before the feature becomes active."</i> <b>Recorded here so it is not re-raised.</b> The
+  recommendation it overturned was against gating on the <b>evidence pack</b>; gating on the firm's
+  <b>own declaration</b> carries none of that objection, because Advisor-e assesses nothing. Both
+  halves stand: the declaration gates, the completeness check never does.
+</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — the tab is called "Compliance"</b>
+  Approved by Mike. <i>Privacy &amp; Compliance</i> was rejected as accurate today and wrong the
+  moment anything non-privacy is published here; <i>Legal</i> as reading like an offer of legal
+  advice, which is the one impression this page must never give. <b>Pinned — not to be reworded.</b>
+</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — question 2 is answered: an update NOTIFIES, it never suspends</b>
+  Asked whether publishing an update should close the recorder until each firm re-declares, Mike
+  ruled: <i>"no, I publish an update - they get a notification such as a red dot next to the topic"</i>,
+  then <i>"we could also add the blue and orange - never opened and not opened in 3 weeks"</i>.
+  <b>Recorded here so it is not re-raised.</b> The recommendation this replaced — a per-item "must be
+  re-declared" switch on the publish screen — is <b>dropped, not deferred</b>: it invented a control
+  and a rule where a dot already carries the message, and the three-state system is a look this
+  product already uses. <b>The first declaration still gates.</b> Only re-declaration is by dot.
+</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — the declaration, in Mike's own words</b>
+  🔴 <b>WRITTEN BY MIKE, VERBATIM. This string is load-bearing and is pinned — it is the sentence a
+  firm manager is held to, and no session rewords it, tidies it or "improves" it:</b>
+  <br><br>
+  <i>"I confirm I have read the material provided above, and have read and understand the law as it
+  applies to this firm in the country in which we operate. I act for and on behalf of my firm when
+  I confirm we accept that meeting our legal obligations is our responsibility."</i>
+  <br><br>
+  It replaced a proposal of ours and improved on it in two ways worth recording, because they are
+  why it reads as it does. It is <b>first person</b> — the individual attests, rather than a firm
+  attesting through nobody in particular. And it carries an <b>authority clause</b>, <i>"I act for
+  and on behalf of my firm"</i>, so the person ticking states they can bind the firm. Neither was in
+  the draft. It still says nothing about legal advice, and never claims the firm is compliant.
+</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — a firm may never edit what a tier above it published</b>
+  Mike's words: <i>"never edit ours."</i> They read it, and they add their own material alongside
+  it; the published text itself is not theirs to change. <b>This is a deliberate departure from
+  every other cascading block in this app</b>, which offers accept / edit / switch off / add — so a
+  build that reaches for the usual overlay shape will offer an edit control by habit. It must not.
+  <br><br>
+  The reason, recorded so it is not re-argued: a firm that edits our assessment and later relies on
+  the edited version has <b>our name on words we did not write</b>, and the record no longer shows
+  what we actually told them. That is the exposure the all-care basis exists to avoid, and it costs
+  a firm nothing — they may add anything they like beside it.
+</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — nor may a firm HIDE a published item</b>
+  Asked separately from editing, because they are separate mechanics and the usual overlay offers
+  both: Mike ruled a firm <b>cannot switch off</b> an item published to it. A published item is
+  always visible at every tier below the one that published it.
+  <br><br>
+  🔴 <b>AND THE DOT IS THE REASON, WHICH IS WHY IT HAD TO BE ASKED.</b> Hiding an item would clear
+  its red dot — the notification would defeat itself, and a firm could silently switch off the one
+  signal telling them to read something new. <b>A firm's OWN uploads stay theirs to remove.</b>
+  Only what arrives from above is fixed.
+</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — the completeness check runs on a button, never automatically</b>
+  Not on upload, and not on opening the page. The header states when it was last run and the firm
+  asks for a fresh one.
+  <br><br>
+  ⚠ <b>ITEM 4.82 IS THE REASON AND IT IS STILL OPEN.</b> Nothing anywhere caps how many paid AI
+  readings a user can trigger; an automatic check on every upload would add a second route into
+  that same unbilled hole. <b>A build that "helpfully" re-checks on page load has undone this
+  ruling without noticing.</b>
+</div>
+
+<div class="q">
+  <h3>6 · Who at the firm may record the declaration?</h3>
+  <p>Drawn as <b>any firm manager</b>, and this is a judgement stated rather than a question, because
+  the platform decides it for us: <b>this app holds no advisors table</b> and roles arrive in the
+  token from Advisor-e, so "a firm manager" is the only distinction it can actually make.</p>
+  <p class="rec">Say so if you want it narrower — a named principal, or two people rather than one.
+  <b>It would need Advisor-e to tell us who they are</b>, which is a master-team question and not a
+  build we could finish here.</p>
+</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — the dots go in the hub's left-hand menu</b>
+  <i>"put the dots in the left hand menu."</i> 🔴 <b>This is a NARROW, STATUS-ONLY exception to the
+  no-icons ruling of 2026-08-19</b> (<i>"if we don't need the icons drop them out"</i>, after which
+  eleven were removed). It admits a dot that says something the label cannot, and <b>nothing
+  else</b> — a decorative icon does not return to that menu by this door. Recorded so a later
+  session finds the exception beside the rule rather than reading one of them alone.
+</div>
+
+<div class="notice good">
+  <b>RULED 2026-09-10 — every hub tab, not Compliance alone</b>
+  <i>"every tab."</i> The three states apply across the hub, which is what makes it a system rather
+  than a curiosity on one tab out of fourteen.
+  <br><br>
+  ✅ <b>AND IT IS BUILDABLE — CHECKED BEFORE THIS WAS DRAWN AS DELIVERABLE.</b> Blue and orange need
+  a per-manager, per-tab record of when each was last opened, and this app <b>holds no advisors
+  table</b> to hang one on. The pattern already exists:
+  <code>server/utils/meetingObservationsAdvisor.js</code> stores per-person rows as a config key
+  with the person's id in the address, on their own firm's row — <code>…-own:adv-7</code>. Same
+  shape here, <b>one row per manager per tab</b> rather than one row holding every tab.
+  <b>That is deliberate and it follows item 4.75</b>, where a single row holding a map of everyone
+  lost writes whenever two people saved inside the same read-modify-write. A single timestamp per
+  row needs no read first, so the race cannot occur. <b>No schema change.</b>
+</div>
+
+<div class="notice warn">
+  <b>⚠ THIS IS NOW TWO PIECES OF WORK, AND THEY SHOULD BE FILED AS TWO</b>
+  <b>The Compliance pages</b> — four tiers, the cascade, the declaration gate, the evidence pack and
+  the completeness check. And <b>the hub notification dots</b> — three states across every hub tab,
+  with the per-manager last-opened record behind them. The second is independent: it would be worth
+  building even if Compliance never shipped, and every other tab gains from it. Filing them as one
+  item would hide a general piece of hub infrastructure inside a compliance feature, where nobody
+  looking for it later would find it. <b>Proposed, not done — the live list is not written without
+  your say-so.</b>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which tiers get this, and why</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin-top:0"><b>All four manager tiers — mentor, global group manager, group manager
+    and firm manager — on Mike's instruction of 2026-09-10, in his own words.</b> The hub-page rule's
+    default is the mentor alone; he has named all four and given the reason, which is that a global
+    group manager or group manager has genuinely different material to publish (Australia's recording
+    law is not the platform's business, and it is not one firm's either).</p>
+    <p><b>The two screens above are the same screen.</b> Every tier sees what was published to it,
+    publishes its own, and — below the mentor — records its own acknowledgement. Screen B's roll-up
+    shows the tiers beneath the reader, so a group manager sees their country's firms and the mentor
+    sees all of them.</p>
+    <p><b>Not the advisor — with one exception, and the gate created it.</b> Compliance is a firm's
+    obligation, not an individual advisor's, and the assessment is addressed to whoever runs the
+    firm. An advisor already meets the part that concerns them — the consent screen, in the words a
+    lawyer approved. <b>But an advisor whose firm has not declared meets the locked state</b>, so
+    Screen C is the one piece of this feature that reaches them.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

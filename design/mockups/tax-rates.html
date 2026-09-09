@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tax Rates — the manager's tab, and what the advisor sees</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.81 — Tax Rates per country. Drawn for approval 2026-09-09. NOTHING BUILT.
+
+   WHAT CREATED IT. Mike's request of 2026-09-08 — "is it worth having a field in
+   the firm manager hub where tax pdfs can be loaded to be read by the AI so it
+   can be accurate per country?" — and his correction of 2026-09-09 when a session
+   reported the tax rate as a gap he had not asked for: "of course i want the tax
+   rate made contry aware - i literally asked for that!"
+
+   WHY IT IS A SEPARATE TAB rather than a block inside Depreciation Rates.
+   Mike renamed that feature on 2026-09-09 for exactly this reason: a tab called
+   Tax Rules promised GST and company tax and delivered a depreciation schedule.
+   Its Brief now says, in bold, that it "does not cover TAX RATES". Folding tax
+   rates back into it would recreate the confusion he had just removed. The two
+   share their machinery in the code — one country table, one cascade, one
+   approval gate — and nothing on screen.
+     Approved by Mike in chat, 2026-09-09, before this file was drawn.
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner ruling
+   of 2026-07-23. No dark mode: one light look, RULED 2026-07-27.
+
+   REAL VALUES. Today's figures are the shipped constants in
+   components/ThreeWayForecastIntake.vue (taxRate: 28, gstRate: 15, gstPeriod:
+   'Two Monthly', gstBasis: 'Invoice') and server/report/threeWayForecastModel.js
+   (taxRate: 0.28, gstRate: 0.15). The Australian figures are drawn as a WORKED
+   EXAMPLE of what a document would supply, not as rates this app asserts — see §6.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+
+.rs-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:18px;border-bottom:1px solid var(--rs-line)}
+.tab{font-size:13px;font-weight:600;color:var(--rs-muted);padding:9px 14px;
+  border-bottom:2px solid transparent;white-space:nowrap}
+.tab.on{color:var(--rs-accent);border-bottom-color:var(--rs-accent)}
+.tab.new{color:var(--rs-accent);position:relative}
+.tab.new::after{content:'NEW';font-size:8.5px;font-weight:700;letter-spacing:.06em;
+  background:var(--rs-accent);color:#fff;border-radius:4px;padding:1px 4px;margin-left:6px;
+  vertical-align:2px}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-f{padding:13px 18px;border-top:1px solid var(--rs-line);background:var(--rs-panel-2);
+  border-radius:0 0 var(--rs-radius) var(--rs-radius);display:flex;justify-content:space-between;
+  align-items:center;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--rs-muted)}
+
+.field{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.field label{font-size:13.5px;font-weight:600;min-width:190px}
+select{font:inherit;font-size:14px;font-weight:600;color:var(--rs-ink);background:#fff;
+  border:1px solid var(--rs-line);border-radius:8px;padding:8px 12px;min-width:230px}
+.hint{font-size:12.5px;color:var(--rs-muted);margin-top:8px}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;
+  padding:5px 10px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-muted);min-width:66px;text-align:right}
+.ed{background:#fff;border:1px solid var(--rs-accent);border-radius:7px;
+  padding:5px 10px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-ink);min-width:66px;text-align:right}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:4px;line-height:1.4}
+.figname{font-weight:600}
+.figsub{font-size:11.5px;color:var(--rs-muted);margin-top:2px;font-weight:400}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--rs-accent-soft);color:#0058a0;white-space:nowrap}
+.badge.def{background:#f1f4f7;color:#7a8ba0}
+.badge.firm{background:var(--rs-good-soft);color:#2f7d32}
+.badge.ent{background:var(--rs-warn-soft);color:#8a5a00}
+.badge.miss{background:var(--rs-crit-soft);color:#a51919}
+
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.crit{background:var(--rs-crit-soft);border:1px solid #e0000040;border-left:3px solid var(--rs-crit)}
+.notice b{display:block;margin-bottom:3px}
+.notice .row{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap}
+
+.btn{display:inline-block;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:6px 13px;font-size:12.5px}
+.btn.off{background:#e6ebf1;color:#9aa8b8;border:0}
+
+.drop{border:2px dashed var(--rs-line);border-radius:11px;padding:22px;text-align:center;
+  background:var(--rs-panel-2)}
+.drop .big{font-size:15px;font-weight:600}
+.drop .sm{font-size:12.5px;color:var(--rs-muted);margin-top:5px}
+
+.gaps{margin:0;padding-left:18px;font-size:13.5px}
+.gaps li{margin:8px 0}
+
+.seg{display:inline-flex;border:1px solid var(--rs-line);border-radius:8px;overflow:hidden}
+.seg span{font-size:12.5px;font-weight:600;padding:6px 12px;color:var(--rs-muted);
+  border-right:1px solid var(--rs-line)}
+.seg span:last-child{border-right:0}
+.seg span.on{background:var(--rs-accent);color:#fff}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Item 4.81 — Tax Rates per country. Drawn for approval 2026-09-09. Nothing is built.</b></p>
+  <p><b>What it fixes.</b> The Three-Way Forecast applies a <b>28% company tax rate</b> and a
+  <b>15% GST rate</b> to every client in every country, on a <b>New Zealand filing cycle</b>.
+  An advisor can type over the two rates — but nothing on the screen says the numbers in front
+  of them are New Zealand's, no manager can set what a country's figures should be, and no
+  figure names a source. A forecast for an Australian client is wrong on tax
+  <b>whether or not the client owns a single asset</b>, and it balances perfectly.</p>
+  <p><b>Why a separate tab.</b> Mike renamed Depreciation Rates on 2026-09-09 precisely because
+  a tab called <i>Tax Rules</i> promised GST and company tax and delivered a depreciation
+  schedule. These two share their machinery in the code — one country table, one four-tier
+  cascade, one approve-before-use gate — and nothing on screen.</p>
+  <p><b>It rides what item 4.78 already built.</b> ISO country codes, the cascade through
+  <b>scopeChain</b>, a store that structurally cannot hold an unapproved table, a mandatory
+  source document and page on every figure, newer-document-wins with the older figure shown
+  beside it, and per-row origin badges. This drawing adds no new machinery — only a second
+  kind of figure travelling through it.</p>
+</div>
+
+<div class="stepmark">1 · Where the tab sits</div>
+
+<div class="mock">
+  <p><b>Beside Depreciation Rates, at the end of the same group, on all four manager tiers</b>
+  — mentor, global group manager, group manager, firm manager. Appending moves nothing already
+  on a manager's screen.</p>
+  <p><b>All four tiers, not mentor-alone.</b> The default since 2026-08-24 is the mentor tier
+  by itself, and the judgement has to be stated rather than assumed. It is stated here: a tax
+  rate is national, a firm advises clients in more than one country, and a firm in Australia
+  must be able to approve Australian figures without waiting for the mentor to do it for them.
+  This is the same reasoning that put Depreciation Rates on four tiers, and it is the same
+  table underneath.</p>
+</div>
+
+<div class="rs-top">
+  <div class="rs-eyebrow">Firm Manager</div>
+  <h1 class="rs-h1">Harbour &amp; Co Chartered Accountants</h1>
+  <div class="rs-client">Signed in as Ruth Alderman · Firm manager</div>
+</div>
+
+<div class="tabs">
+  <span class="tab">Property Tax Rules</span>
+  <span class="tab">Forecast Trend Thresholds</span>
+  <span class="tab">Imported Stock Prices</span>
+  <span class="tab">Depreciation Rates</span>
+  <span class="tab on new">Tax Rates</span>
+</div>
+
+<div class="stepmark">2 · The screen — one country at a time</div>
+
+<div class="mock">
+  <p><b>Same shape as the Depreciation Rates tab, deliberately.</b> A country selector, the
+  figures this level works to, where each came from, and the documents this level holds. A
+  manager who has used one screen has used both.</p>
+  <p><span class="rec">Considered and rejected:</span> one long table with every country in it.
+  It reads as a comparison, and nobody compares tax regimes — they set one country's figures
+  and move on. It would also make the approval question ambiguous: approving <i>the table</i>
+  would mean approving countries the manager never looked at.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Which country</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">Your firm holds figures for 2 countries</span>
+  </div>
+  <div class="card-b">
+    <div class="field">
+      <label for="c">Country</label>
+      <select id="c">
+        <option>Australia</option>
+        <option>New Zealand</option>
+        <option>— add a country —</option>
+      </select>
+    </div>
+    <div class="hint">
+      These figures apply to <b>clients trading in Australia</b>, and to nothing else. A country
+      nobody has approved figures for falls back to the level above, and then to the app's own
+      defaults — badged as defaults, and the advisor is never blocked.
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">3 · The four figures, each with its source</div>
+
+<div class="mock">
+  <p><b>Four figures, not two.</b> The item was filed as "the tax rate and the GST rate", and
+  that turned out to be incomplete: the forecast's GST section also fixes <b>how often a return
+  is filed</b> and <b>whether it is filed on invoices or on cash</b>. Both are New Zealand's
+  today, and the filing cycle changes when the client pays, not just what they pay. A right
+  rate on a wrong filing cycle is still a wrong cash flow.</p>
+  <p><b>Every figure carries its document, page and publication date</b> — the same rule as a
+  depreciation rate, for the same reason: an unsourced number in an approved table is
+  indistinguishable from a sourced one on the page a lender reads.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Australia · approved by Ruth Alderman, 9 September 2026</h2>
+    <span class="badge firm">your firm</span>
+  </div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:31%">Figure</th>
+          <th style="width:15%">Value</th>
+          <th style="width:32%">Source</th>
+          <th>Set at</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="figname">Company tax rate</div>
+            <div class="figsub">Applied to profit before tax, every month</div>
+          </td>
+          <td><span class="ed">30%</span></td>
+          <td>
+            Company tax rates<div class="src">ATO · published 2025-07 · page 1</div>
+          </td>
+          <td><span class="badge firm">your firm</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="figname">GST rate</div>
+            <div class="figsub">Charged on sales, reclaimed on purchases</div>
+          </td>
+          <td><span class="ed">10%</span></td>
+          <td>
+            GST — how it works<div class="src">ATO · published 2025-07 · page 2</div>
+          </td>
+          <td><span class="badge firm">your firm</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="figname">Filing cycle</div>
+            <div class="figsub">Decides which months a return falls due</div>
+          </td>
+          <td><span class="ed">Quarterly</span></td>
+          <td>
+            Business activity statements<div class="src">ATO · published 2025-07 · page 4</div>
+          </td>
+          <td><span class="badge firm">your firm</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="figname">Accounting basis</div>
+            <div class="figsub">Whether GST follows the invoice or the payment</div>
+          </td>
+          <td><span class="ed">Accruals</span></td>
+          <td>
+            Business activity statements<div class="src">ATO · published 2025-07 · page 4</div>
+          </td>
+          <td><span class="badge firm">your firm</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-f">
+    <span>Every figure above is editable. Correcting one keeps its source and records that you
+      changed it.</span>
+    <span><b>Last read from a document:</b> 9 September 2026</span>
+  </div>
+</div>
+
+<div class="notice info">
+  <b>What New Zealand looks like on the same screen</b>
+  Company tax 28%, GST 15%, filing cycle <b>Two-monthly</b>, basis <b>Invoice</b> — which is
+  exactly what the app applies to every client today, to every country, with none of the four
+  rows above it.
+</div>
+
+<div class="stepmark">4 · Loading a document — identical to Depreciation Rates</div>
+
+<div class="mock">
+  <p><b>Nothing new is drawn here.</b> The upload, the AI reading, the "what the document did
+  not cover" list and the approve-or-reject gate are the screens approved on 2026-09-08 and
+  built as slices 3a and 3b. They are shown so the two tabs are seen to behave the same way.</p>
+  <p><b>The one difference worth naming:</b> a depreciation document publishes dozens of asset
+  classes and the hard part was matching them to our six. A tax document publishes a handful of
+  figures and there is nothing to match — so <b>there is no class-match step on this tab</b>,
+  and Approve is not gated behind one.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Documents this level holds</h2></div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr><th style="width:44%">Document</th><th>Published</th><th>Read</th><th>State</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ATO — Company tax rates &amp; GST<div class="src">Loaded by Ruth Alderman, 9 Sep 2026</div></td>
+          <td>July 2025</td><td>4 of 4 figures</td>
+          <td><span class="badge firm">approved</span></td>
+        </tr>
+        <tr>
+          <td>IRD — Tax rates for businesses<div class="src">Loaded by Ruth Alderman, 8 Sep 2026</div></td>
+          <td>April 2025</td><td>4 of 4 figures</td>
+          <td><span class="badge firm">approved</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px" class="drop">
+      <div class="big">Drop a tax document here</div>
+      <div class="sm">PDF. The machine reads it and proposes figures — nothing reaches a
+        forecast until you approve them.</div>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">5 · The filing cycle is the part that is not just a number</div>
+
+<div class="notice crit">
+  <b>This is the real work in item 4.81, and it is in the engine, not on this screen</b>
+  The forecast does not hold a general filing cycle. It holds <b>three named branches</b> —
+  one-monthly, two-monthly and six-monthly — written straight into
+  <b>server/report/threeWayForecastModel.js</b>. Those are New Zealand's three cycles.
+  <b>Australia's quarterly BAS cannot be expressed at all</b>, and neither can the UK's
+  quarterly VAT. Making the cycle country-aware means replacing three hardcoded branches with
+  one that takes a number of months.
+</div>
+
+<div class="mock">
+  <p><b>Why this is drawn rather than left to the build.</b> Everything else in this item is a
+  screen and a stored figure. This one changes a calculation that already has a known fault in
+  it — the six-monthly branch was the workbook's own <b>#REF!</b> in the first month of each
+  year, and is reproduced deliberately (correction R5). Anyone rewriting those branches has to
+  keep that behaviour for New Zealand while adding a cycle New Zealand does not have.</p>
+  <p><span class="rec">Recommended:</span> the stored figure is a <b>number of months</b>
+  (1, 2, 3, 6, 12) with the country's own <b>name</b> for it beside it — <i>Quarterly</i>,
+  <i>Two-monthly</i>, <i>BAS</i>. The engine reads the number; the manager and the advisor read
+  the name. One generic branch replaces three, and a country with a cycle nobody anticipated
+  needs no code.</p>
+</div>
+
+<div class="card">
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr><th style="width:26%">Country</th><th style="width:30%">What the manager sees</th>
+        <th style="width:20%">What the engine reads</th><th>Today</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>New Zealand</td><td>Two-monthly</td><td class="num">2</td>
+          <td><span class="badge def">already works</span></td></tr>
+        <tr><td>New Zealand</td><td>Six-monthly</td><td class="num">6</td>
+          <td><span class="badge def">already works</span></td></tr>
+        <tr><td>Australia</td><td>Quarterly (BAS)</td><td class="num">3</td>
+          <td><span class="badge miss">cannot be expressed</span></td></tr>
+        <tr><td>United Kingdom</td><td>Quarterly (VAT)</td><td class="num">3</td>
+          <td><span class="badge miss">cannot be expressed</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">6 · One number may not be enough for a company tax rate</div>
+
+<div class="notice warn">
+  <b>Flagged, not solved — and deliberately not drawn as solved</b>
+  Australia has <b>two</b> company rates: a lower one for a base rate entity and the standard
+  one for everything else, with a turnover and passive-income test between them. New Zealand
+  has one flat company rate and a different flat rate for trusts. <b>A single "company tax
+  rate" box cannot express that</b>, and this drawing does not pretend otherwise: it shows one
+  editable figure, sourced, which a manager sets to whichever rate their clients actually pay.
+</div>
+
+<div class="mock">
+  <p><b>Why one box is still the right answer for now.</b> The forecast applies a single flat
+  rate to monthly profit — <b>taxOnMonthProfit[m] = netSurplusBeforeTax[m] × taxRate</b>. It
+  has no concept of bands, entity types or eligibility tests, and giving it one is a different
+  and much larger piece of work than this item. The honest position is: <b>one sourced,
+  manager-approved figure is a large improvement on one unsourced hardcoded figure</b>, and
+  pretending to model eligibility would be worse than either.</p>
+  <p><span class="rec">Recommended:</span> the figure carries a free-text <b>"which entities
+  this applies to"</b> line, in the manager's own words, shown to the advisor beside the rate.
+  A firm writes <i>"base rate entities — turnover under $50m"</i> and the advisor reading the
+  forecast can see whether their client is one. It is a sentence, not a rule engine, and it
+  costs nothing.</p>
+  <p><b>Mike's own words, 2026-09-09:</b> <i>"overall profit tax rates in bands for individuals
+  with flat rates for companies and trusts etc"</i>. <b>Bands for individuals are out of scope
+  and stated as such</b> — the Three-Way Forecast models a trading entity, not a person.</p>
+</div>
+
+<div class="stepmark">7 · What the advisor sees on the forecast</div>
+
+<div class="mock">
+  <p><b>The tax card on step 3 of the forecast, as it would become.</b> The four fields already
+  exist and are already editable — what is new is that they arrive from the client's country,
+  each says where it came from, and changing the country never moves one silently.</p>
+  <p><b>The country field itself is not drawn here.</b> It is already approved —
+  <b>design/mockups/depreciation-rates-country-field.html</b>, 2026-09-09 — and not yet built.
+  Whichever item builds it first, both use it.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Tax and GST</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">Change any figure for this client — it is
+      tagged <b>entered</b> and never alters your firm's table</span>
+  </div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr><th style="width:34%">Figure</th><th style="width:18%">Value</th><th>Where it comes from</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Company tax rate
+            <div class="figsub">Base rate entities — turnover under $50m</div></td>
+          <td><span class="ed">30%</span></td>
+          <td><span class="badge firm">your firm · ATO Jul 2025</span></td>
+        </tr>
+        <tr>
+          <td>GST rate</td>
+          <td><span class="ed">10%</span></td>
+          <td><span class="badge firm">your firm · ATO Jul 2025</span></td>
+        </tr>
+        <tr>
+          <td>Filing cycle</td>
+          <td><span class="seg"><span>Monthly</span><span class="on">Quarterly</span><span>Annually</span></span></td>
+          <td><span class="badge firm">your firm · ATO Jul 2025</span></td>
+        </tr>
+        <tr>
+          <td>Accounting basis</td>
+          <td><span class="seg"><span class="on">Accruals</span><span>Cash</span></span></td>
+          <td><span class="badge ent">entered by you</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="notice warn">
+  <div class="row">
+    <div>
+      <b>You changed this client's country to New Zealand — 4 of 4 tax figures would change</b>
+      Company tax 30% → 28%, GST 10% → 15%, filing cycle Quarterly → Two-monthly, basis
+      Accruals → Invoice. <b>Your forecast has not been altered.</b> The basis you set yourself
+      will be kept.
+    </div>
+    <button class="btn small">Apply the New Zealand figures</button>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>The same rule Mike ruled for depreciation rates</b> (advisor drawing §5, ruling 3):
+  figures moving underneath someone part-way through a report is how a wrong number reaches a
+  document nobody meant to send. Switching country is told, counted, and waits — and a figure
+  the advisor typed themselves survives the switch.</p>
+</div>
+
+<div class="stepmark">8 · What this drawing deliberately does NOT do</div>
+
+<div class="card">
+  <div class="card-b">
+    <ul class="gaps">
+      <li><b>It does not model tax bands, entity types or eligibility tests.</b> One flat rate
+        on monthly profit, which is what the engine has. §6 says why, and says what is offered
+        instead — a sentence in the manager's own words, not a rule engine.</li>
+      <li><b>It does not touch provisional or instalment tax.</b> The forecast pays tax on a
+        schedule it already has. When that schedule falls due is a separate question from what
+        rate applies, and nobody has asked for it.</li>
+      <li><b>It does not touch the Multiple Property Assessment's tax settings.</b> That is a
+        separate block on the Property Tax Rules tab, ruled on differently, and it stays where
+        it is.</li>
+      <li><b>It does not assert any country's tax figures.</b> Every figure on every screen
+        above came from a document a firm loaded. The app ships no tax rates and never will —
+        the same position Depreciation Rates takes, for the same reason.</li>
+      <li><b>It does not add a class-match step.</b> §4 says why: there is nothing to match.</li>
+      <li><b>It does not build the country field.</b> Already approved, still unbuilt, shared
+        with item 4.78.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="stepmark">9 · What has to be decided before anything is built</div>
+
+<div class="card">
+  <div class="card-b">
+    <ul class="gaps">
+      <li><b>The filing cycle becomes a number of months with a country's own name beside it</b>
+        (§5). This replaces three hardcoded branches in the forecast engine with one, and it is
+        the only change in this item that touches a calculation.</li>
+      <li><b>The company tax rate carries a free-text "which entities this applies to" line</b>
+        (§6), shown to the advisor beside the rate.</li>
+      <li><b>Four figures, not two</b> (§3) — the filing cycle and the accounting basis are in
+        scope, because a right rate on a wrong cycle is still a wrong cash flow.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -150,11 +150,11 @@ Exactly the model already written in
 This feature joins it; it does not invent a second one.
 
 ```
-Mentor (Mike)            — authors the baseline
+Mentor (Mike)                  — authors the baseline
   └─ Global Group Manager      — may override; becomes the default for everyone below
-       └─ Group Manager  — may override; becomes the default for firms in that group
-            └─ Firm Manager — may override; applies to THEIR FIRM ONLY
-                 └─ Advisors  — see what their firm allows
+       └─ Group Manager        — may override; becomes the default for firms in that group
+            └─ Firm Manager    — may override; applies to THEIR FIRM ONLY
+                 └─ Advisors   — see what their firm allows
 ```
 
 ### 2.3 "Reset to default" means **reset to what I inherit**

@@ -263,6 +263,69 @@ search content cascade plan"*.
   the mentor tab's history then showed version 1 saved by `advisor-e`.
 - **Left to the master team, and named:** holding the same secret and making the call on
   publish. Nothing here waits on it; the mentor's upload tab remains the way in until then.
+**4.66 — economic analysis: the forecast asks the AI for market research.**
+✅ Closed 2026-09-09 on Mike's ruling. All three slices built, run live end to end, and every
+question its design page ever carried is settled.
+
+- **Why it mattered:** Mike's request of 2026-09-03 — a tick charging the AI to research global
+  and local markets, *"since the majority of 3 way forecasts are used to support funding
+  requests"*. It is the **first report model in this app to call the AI at all.**
+- **The risk it was filed against, and what holds it:** AI text going into a document a bank
+  reads, where a confident wrong claim about a market looks exactly like research. Three things
+  hold it — **the citation guard**, which refuses an unsourced figure; **`isApproved`**, without
+  which the pack does not print, so research nobody accepted cannot reach a lender; and the
+  **privacy ruling of 2026-09-06** — the advisor writes the brief and sees the exact words sent,
+  the app volunteers nothing about the client, so no PII exception was needed. A test also pins
+  that `buildInputs()` sends amounts only, so a client's own account names cannot ride along.
+- **What proves it:** five test files, and — more to the point — **a browser run end to end on
+  2026-09-07**: brief, research, approval, printed pack.
+- 🔴 **Nine live faults came out of running it, and the green suite had caught none of them.**
+  The citation guard was refusing **half of all runs** by reading the digits in a web address as
+  figures; the research date was missing from the client's pack entirely; and the date sent was
+  UTC. All fixed. **The advisor now sets the assessment date on a field of its own** — Mike's
+  ruling, both wordings his. Recorded in full in
+  [`../ECONOMIC-ANALYSIS-PROMPT.md`](../ECONOMIC-ANALYSIS-PROMPT.md) §7b and
+  [`../ECONOMIC-ANALYSIS-TEST-RUNS.md`](../ECONOMIC-ANALYSIS-TEST-RUNS.md).
+- **What was left, and why it is not an item:** Mike said when he asked for it that he would
+  *"give detailed instructions and prompt in future"*. **The prompt lives on the AI Prompts page**,
+  where he or a firm manager reads and edits it, so refining it is a change made on a screen —
+  never a build. It needs no open row to happen.
+
+⚠ **The lesson that generalises: a suite of thousands green is not evidence that a feature
+works.** Nine faults survived it and the first browser run found all nine. Every AI-calling
+feature after this one gets watched in a browser before it is called done.
+
+---
+
+**4.77 — first-year depreciation cannot differ from later years, or between two vehicles.**
+✅ Closed 2026-09-09 into **4.78**, on Mike's ruling. ⚠ **Closed, not built** — the work is real
+and outstanding; it is now one item rather than two.
+
+- **Why it mattered, in Mike's own costing:** the engine applies one rate to a whole category
+  for every month, so a new asset cannot be written down faster in its first year than the old
+  one beside it. Against New Zealand's **Investment Boost** (20% of a new asset's cost deducted
+  up front, the rest depreciated as normal, from 22 May 2025), an **$800,000 tractor unit**
+  deducts **146,118** in year one as the engine models it, against **276,895** with the boost —
+  **36,617 of tax in year one and 130,776 of asset value carried into year two.** A forecast a
+  lender reads would be wrong, and would balance perfectly.
+- **Why it closed here:** its asset model *is* 4.78's. The dated purchase list and the
+  first-year rule were drawn, ruled and specified as part of 4.78 on 2026-09-09, and both sit on
+  that item's outstanding list. Two items pointing at one build is how 4.54 came to be built on
+  both machines in one week.
+- **Where the work now lives:** [`depreciation-rates.md`](depreciation-rates.md) §3 (the dated
+  purchase list, and why the engine's input shape does not change) and
+  [`depreciation-rates-history.md`](depreciation-rates-history.md) §1, which records that this
+  item is where the whole feature started.
+- **What was NOT settled by closing it:** the UK and Australia were never checked for an
+  equivalent scheme. That is a question for whoever loads those countries' schedules, not a
+  task here.
+
+⚠ **A session got this wrong once, and the correction is the useful part.** On 2026-09-08 it was
+reported that New Zealand had abolished first-year acceleration — reading the 2010 end of the
+20% *loading* as the end of all such rules. Mike corrected it. **The two are different
+mechanisms:** the loading inflated a rate; Investment Boost deducts a slice of cost.
+
+---
 
 **4.79 — only the first report in a workbook was read, so a real export was refused.**
 ✅ Closed 2026-09-08, the day it was found, built and proved on Mike's own exports.

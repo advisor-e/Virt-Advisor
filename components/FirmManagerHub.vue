@@ -155,6 +155,31 @@ section.firm-manager-hub.section
       //- typed. Mentor only, stated in TAB_TIERS. design/mockups/benchmarker-hub-tab.html.
       div.hub-panel(v-if="showsTab('industryBenchmarks')" v-show="activeTab === 'industryBenchmarks'")
         firm-benchmarker(:api-token="apiToken")
+      //- ── Tab: Depreciation Rates (item 4.78) ─────────────────────────────
+      //- The rates a client's forecast writes assets down at, for the client's
+      //- own country, read from that country's tax authority's documents and
+      //- approved by a firm manager before anything uses them. Asked for by Mike
+      //- 2026-09-08; the FIRM owns it and it cascades all four tiers, on his
+      //- ruling that a firm is never reliant on the group manager.
+      //- ⚠ NOT "Tax Rules" — renamed on his ruling of 2026-09-09. IR265 is a
+      //- DEPRECIATION schedule published BY the tax office, not a set of tax
+      //- rules; the old name promised GST and company tax and delivered neither.
+      //- ⚠ Slice 2: this shows what a firm is working to and where each rate came
+      //- from. The upload and the AI extraction are slice 3.
+      div.hub-panel(v-if="showsTab('depreciationRates')" v-show="activeTab === 'depreciationRates'")
+        firm-depreciation-rates(:api-token="apiToken")
+
+      //- ── Tab: Tax Rates (item 4.81) ─────────────────────────────────────
+      //- The company tax rate, GST rate, filing cycle and accounting basis a
+      //- country's clients are taxed on. A SIBLING of the tab above, never part
+      //- of it: Mike renamed that one on 2026-09-09 because a tab called Tax
+      //- Rules promised GST and company tax and delivered a depreciation
+      //- schedule, and folding these back in would rebuild that confusion.
+      //- The two share one country table, one cascade and one approval gate in
+      //- the backend, and nothing on screen.
+      //- design/mockups/tax-rates.html, approved 2026-09-09.
+      div.hub-panel(v-if="showsTab('taxRates')" v-show="activeTab === 'taxRates'")
+        firm-tax-rates(:api-token="apiToken")
 
       //- ── Tab: AI Prompts (item 4.28) ────────────────────────────────────
       //- The instructions the AI is given when it builds a model, and the three
@@ -175,6 +200,16 @@ section.firm-manager-hub.section
       //- transcript, no report. The list is useful on its own (Brief §3).
       div.hub-panel(v-if="showsTab('meetingObservations')" v-show="activeTab === 'meetingObservations'")
         firm-meeting-observations(:api-token="apiToken")
+
+      //- Client Copy Request — a client asks for a copy of what was recorded about them
+      //- (Mike, 2026-09-10). IPP6 access and IPP7 correction: finding B of
+      //- design/MEETING-REVIEW-DPIA.md §10, the last open gap in Meeting Review that was ours.
+      //- 🔴 THE TAB NAME IS HIS OWN WORD and replaced ours. Pinned; not to be reworded, and
+      //- not to be made plural. design/mockups/client-record-request.html.
+      //- 🔴 NOT A CLIENT PORTAL — there is no client sign-in in this application. A request
+      //- arrives by email or in the room and somebody at the firm records it here.
+      div.hub-panel(v-if="showsTab('clientCopyRequests')" v-show="activeTab === 'clientCopyRequests'")
+        firm-client-copy-requests(:api-token="apiToken")
 
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
@@ -789,8 +824,11 @@ import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThresholds.vue'
 import FirmBenchmarker from '~/components/firm/FirmBenchmarker.vue'
 import FirmSellDownLadder from '~/components/firm/FirmSellDownLadder.vue'
+import FirmDepreciationRates from '~/components/firm/FirmDepreciationRates.vue'
+import FirmTaxRates from '~/components/firm/FirmTaxRates.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
+import FirmClientCopyRequests from '~/components/firm/FirmClientCopyRequests.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -1006,6 +1044,31 @@ const TAB_TIERS = {
   // (`server/utils/benchmarkerStore.js`), so there is no cascade to switch on. Mike
   // approved the drawing 2026-09-08 (item 4.70 stage 3).
   industryBenchmarks: ['mentor'],
+  // 🔴 ALL FOUR MANAGER TIERS, AND THIS ONE IS NOT THE DEFAULT-IS-MENTOR-ALONE CASE.
+  // Mike ruled on 2026-09-08 that the FIRM owns this and that "it cant be reliant on the
+  // group manager" — a firm may advise a client in a country the tiers above it have done
+  // nothing about, and must not wait on them. He asked for full cascade functionality in the
+  // same breath, so all four are here on his own words rather than on our judgement.
+  //
+  // ⚠ ADVISORS ARE EXCLUDED FROM THIS TAB, AND THAT IS ALSO HIS RULING RATHER THAN AN
+  // OVERSIGHT: an advisor may LOAD a document but only a firm manager may APPROVE one, and
+  // approving is what this screen leads to. The advisor's own half lives on the forecast
+  // itself (design/mockups/depreciation-rates-advisor.html), where they meet the problem.
+  depreciationRates: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 ALL FOUR MANAGER TIERS, AND THE JUDGEMENT IS STATED RATHER THAN ASSUMED — the
+  // default since 2026-08-24 is the mentor alone. Two reasons, and the second is Mike's
+  // own words rather than ours. (1) A tax rate is NATIONAL and a firm advises clients in
+  // more than one country, which is the whole reason this feature exists; the approved
+  // drawing states it in §1. (2) It is the same country table as `depreciationRates`
+  // above, which he ruled onto all four tiers on 2026-09-08 — the firm owns it and
+  // "it cant be reliant on the group manager". The same sentence governs here: a firm in
+  // Australia must be able to approve Australian figures without waiting for the mentor.
+  //
+  // ⚠ ADVISORS ARE EXCLUDED, exactly as they are next door: an advisor may one day LOAD a
+  // document, but only a manager may APPROVE one, and approving is what this screen leads
+  // to. The advisor's own half lives on the forecast, where they meet the problem.
+  taxRates: ['mentor', 'global', 'group', 'firm'],
 
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
   // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
@@ -1049,7 +1112,20 @@ const TAB_TIERS = {
   //
   // Per-advisor and per-entity editing is simply NOT BUILT YET — the cascade currently
   // ends at the firm. Its absence is an unfinished feature, never a permission decision.
-  meetingObservations: ['mentor', 'global', 'group', 'firm']
+  meetingObservations: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 THE FIRM ALONE, AND IT IS THE SAME RULING AS THE MANAGER'S AGGREGATE RATHER THAN A
+  // DIFFERENT ONE. Brief P13: nothing derived from a recorded meeting travels beyond the firm
+  // it came from, because the consent line promises a named client exactly that. A client's
+  // request, the meetings it reaches and every release recorded against it are all derived
+  // from recorded meetings, so this runs at the firm and the routes answer a tier above it
+  // nothing of substance.
+  //
+  // ⚠ NOT the default-is-mentor-alone case (2026-08-24) with the tiers left off for economy.
+  // It is the opposite direction: cascading this UPWARD would break a promise, so no later
+  // "real need" adds a tier here. That is what separates it from every other line in this
+  // object, and it is why the reason is written out rather than assumed.
+  clientCopyRequests: ['firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
@@ -1140,7 +1216,20 @@ const NAV_GROUPS = [
       // find and quote in a meeting transcript. Both machines appended to this group on
       // the same day; the firm's Template Library reached master first, so it keeps its
       // place and this one follows it — appending still moves nothing already on screen.
-      { key: 'meetingObservations', label: 'Meeting Review' }
+      { key: 'meetingObservations', label: 'Meeting Review' },
+      // 🔴 THE LABEL IS MIKE'S OWN WORD, 2026-09-10 — "name it 'Client Copy Request'" — and it
+      // REPLACED ours ("Client Requests"). Pinned; no session rewords it, including to make it
+      // plural. ⚠ One mismatch recorded rather than quietly corrected: the tab is named for
+      // copies and also carries corrections and deletions, which are not copies.
+      //
+      // ⚠ THE GROUP IS A JUDGEMENT AND IT IS THE LEAST WRONG ONE, stated rather than assumed.
+      // This heading says "Your AI coach" and THIS FEATURE USES NO AI AT ALL — it moves text a
+      // firm already holds. It sits here because it is entirely about meeting records, so it is
+      // where somebody would look for it, directly under Meeting Review. The alternative was a
+      // fifth heading, and the four headings are Mike's own words; inventing one unasked is the
+      // thing the gate ruling of 2026-08-26 exists to prevent. Appended at the END, as
+      // aiPrompts was: appending moves nothing already on a manager's screen.
+      { key: 'clientCopyRequests', label: 'Client Copy Request' }
     ]
   },
   {
@@ -1171,7 +1260,18 @@ const NAV_GROUPS = [
       { key: 'sellDownLadder', label: 'Imported Stock Prices' },
       // Appended for the same reason; the label is the drawing's, approved by Mike
       // 2026-09-08. Mentor-only; see TAB_TIERS.industryBenchmarks.
-      { key: 'industryBenchmarks', label: 'Industry Benchmarks' }
+      { key: 'industryBenchmarks', label: 'Industry Benchmarks' },
+      // Appended for the same reason as the two lines above — adding at the end moves
+      // nothing already on a manager's screen. All four tiers, on Mike's own ruling; see
+      // TAB_TIERS.depreciationRates. The label is the feature's name after his rename of
+      // 2026-09-09: it is a depreciation schedule, not a set of tax rules.
+      { key: 'depreciationRates', label: 'Depreciation Rates' },
+      // Appended for the same reason as every line above it — adding at the end moves
+      // nothing already on a manager's screen. All four tiers; see TAB_TIERS.taxRates.
+      // 🔴 A SEPARATE ENTRY FROM THE LINE ABOVE ON PURPOSE. Mike renamed that tab on
+      // 2026-09-09 so a tab's name would predict what is inside it; these are the tax
+      // rates that name promised and did not deliver.
+      { key: 'taxRates', label: 'Tax Rates' }
     ]
   },
   {
@@ -1221,7 +1321,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

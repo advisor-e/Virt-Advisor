@@ -67,8 +67,33 @@ const MENTOR_BEFORE = [
  *   that the points "cascade down to global group and group manager before firm manager,
  *   they accept or edit" — the mentor-alone default of 2026-08-24 holds until a tier has a
  *   real reason, and he gave it.
+ * - `depreciationRates` — Mike, 2026-09-08 (item 4.78): the rates a client's forecast writes
+ *   assets down at, read from that country's tax authority's documents. **ALL FOUR MANAGER
+ *   TIERS ON HIS OWN WORDS** rather than on our judgement — he ruled that the FIRM owns it and
+ *   that *"it cant be reliant on the group manager"*, and asked for full cascade functionality
+ *   in the same breath. ⚠ Renamed from *Tax Rules* on his ruling of 2026-09-09: IR265 is a
+ *   depreciation schedule published BY the tax office, not a set of tax rules.
+ * - `taxRates` — Mike, 2026-09-08 (item 4.81), the same request `depreciationRates` was filed
+ *   under: *"is it worth having a field in the firm manager hub where tax pdfs can be loaded to
+ *   be read by the AI so it can be accurate per country?"*, and confirmed on 2026-09-09 —
+ *   *"of course i want the tax rate made contry aware - i literally asked for that!"*
+ *   **A SEPARATE TAB, approved by him before the drawing was drawn**
+ *   (`design/mockups/tax-rates.html`): he had renamed the tab above the same day precisely so
+ *   a tab's name predicts what is inside it, and these are the tax rates that name promised.
+ *   All four tiers for the reason stated in `TAB_TIERS.taxRates` — a tax rate is national, and
+ *   a firm must not wait on the tier above, which is his own ruling on the sibling.
+ * - `clientCopyRequests` — Mike, 2026-09-10: *"you also need to include the feature for a client
+ *   to request a copy of the meeting notes."* The tab's name is his own word too, ruling 9 of
+ *   `design/mockups/client-record-request.html` — *"name it 'Client Copy Request'"*.
+ *   🔴 **THE FIRM ALONE, AND IT IS THE ONLY ENTRY ON THIS LIST THAT CAN NEVER GAIN A TIER.**
+ *   Every other narrow line here is the default-is-mentor-alone ruling of 2026-08-24, which
+ *   says a tier is added the moment one has a real reason. This is the opposite direction:
+ *   Brief **P13** keeps everything derived from a recorded meeting inside the firm it came
+ *   from, because the consent line promises a named client exactly that — so cascading it
+ *   upward would break a promise rather than add a feature. Same ruling as the manager's
+ *   aggregate, which is firm-tier-only for the same sentence.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -100,8 +125,15 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  * - `industryBenchmarks` — Mike, 2026-09-08 (item 4.70 stage 3, `design/mockups/benchmarker-hub-tab.html`):
  *   the Stats NZ benchmarker release in force and the two-file upload that replaces it.
  *   ⚠ MENTOR ALONE by design, not by default: one national table, stored at the platform scope.
+ * - `depreciationRates` — Mike, 2026-09-08 (item 4.78). The mentor is included because the
+ *   cascade starts there and a firm with no table of its own inherits the nearest above it;
+ *   the firm is included because he ruled a firm must never wait on the tier above. This is
+ *   NOT the default-is-mentor-alone case — all four tiers are his own words.
+ * - `taxRates` — Mike, 2026-09-08 (item 4.81), and the mentor is included for the same reason
+ *   its sibling's is: the cascade starts there, and a firm with no figures of its own inherits
+ *   the nearest tier above it. Also NOT the default-is-mentor-alone case.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -172,9 +204,19 @@ describe('hub tab matrix — the two new tiers', () => {
     // from ['mentor', 'firm'] to all four manager tiers on Mike's instruction that day — the
     // points "cascade down to global group and group manager before firm manager, they accept
     // or edit". So a middle tier now shows 14: six unconditional plus eight conditional.
-    expect(conditional).toHaveLength(8)
+    //
+    // 🔴 NINE SINCE 2026-09-09, NOT EIGHT. Depreciation Rates (item 4.78) was ruled onto all
+    // four manager tiers by Mike on 2026-09-08 — the FIRM owns it and "it cant be reliant on
+    // the group manager", with full cascade functionality asked for in the same breath. So a
+    // middle tier now shows 15: six unconditional plus nine conditional.
+    //
+    // 🔴 TEN SINCE 2026-09-09, NOT NINE. Tax Rates (item 4.81) joined it — the same request of
+    // Mike's, the same country table underneath, and a separate tab because he renamed the
+    // other one that day so a tab's name would predict what is inside it. So a middle tier now
+    // shows 16: six unconditional plus ten conditional.
+    expect(conditional).toHaveLength(10)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(14)
+    expect(unconditional.concat(conditional)).toHaveLength(16)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

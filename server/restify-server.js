@@ -117,6 +117,8 @@ const nextStepsDraftRoute = require('./routes/nextStepsDraft')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
+const depreciationRatesRoute = require('./routes/depreciationRates')
+const taxRatesRoute = require('./routes/taxRates')
 const sellDownRoute = require('./routes/forecastSellDown')
 const benchmarkerRoute = require('./routes/benchmarker')
 const aiPromptsRoute = require('./routes/aiPrompts')
@@ -125,6 +127,7 @@ const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
+const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 const clientReportsRoute = require('./routes/clientReports')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -269,6 +272,34 @@ server.get('/api/report/property-tax-rules', firmOrEntityAuth, propertyTaxRulesR
 // 4.61b). Same asymmetry and same reason as the tax rules above: every advisor building a
 // forecast needs to READ them, and the write is manager-only on /api/firm-manager below.
 server.get('/api/report/trend-thresholds', firmAuth, trendThresholdsRoute.get)
+// The depreciation rates a client's forecast writes assets down at, for the client's own
+// country (item 4.78). Same asymmetry and the same reason once more, and here Mike stated it
+// himself on 2026-09-08: "Never block the advisor." The read degrades to the app's own six
+// rates rather than failing, and the write is manager-only on /api/firm-manager below.
+server.get('/api/report/depreciation-rates', firmAuth, depreciationRatesRoute.get)
+// 🔴 AN ADVISOR MAY LOAD A DOCUMENT; ONLY A FIRM MANAGER APPROVES ONE. Mike's ruling of
+// 2026-09-08, from his own question: "does the advisor have the ability to enter a tax doc for
+// the client with the different country?" As the manager's screen was first drawn the answer
+// was no, which left an advisor with an overseas client stuck behind their manager.
+//
+// IT IS THE SAME HANDLER AS THE MANAGER'S, deliberately, because what it writes is a PROPOSAL
+// — held in a store the rate resolver never reads (Brief P1). Nothing an advisor loads can
+// reach a forecast until a manager approves it, and the role gate stays exactly where it was,
+// on approve and reject below. `firmAuth` resolves the storage scope once, so an advisor's
+// document lands in their own firm's store and can land nowhere else.
+//
+// ⚠ IT WIDENS WHO CAN SPEND AN AI CALL, from managers to every advisor. The file must be a
+// real PDF of 20 MB or less and the store keeps 20 documents — but the store's cap trims
+// AFTER the model has been paid, so nothing here limits how many readings an advisor can
+// trigger. Raised with Mike 2026-09-09; no rate limit added without his word.
+server.post('/api/report/depreciation-rates/documents', firmAuth, depreciationRatesRoute.loadDocument)
+// The company tax rate, GST rate, filing cycle and accounting basis a client's forecast uses,
+// for the client's own country (item 4.81). A SIBLING OF THE LINE ABOVE, NOT PART OF IT — a
+// tax rate turns profit into tax owed, a depreciation rate writes an asset down, and Mike
+// renamed that feature on 2026-09-09 because one screen was promising both. Same asymmetry
+// and the same "never block the advisor": the read degrades to the app's own four figures,
+// which are what every forecast uses today, and the write is manager-only below.
+server.get('/api/report/tax-rates', firmAuth, taxRatesRoute.get)
 // The prices imported stock sells down at as it ages (item 4.64). Same asymmetry and same
 // reason again: the advisor's step 3 seeds its ladder from this, so the read must never
 // require a manager role, and the write is manager-only on /api/firm-manager below. A
@@ -387,6 +418,42 @@ server.post('/api/firm-manager/property-tax-rules/restore', ...fmGuard, property
 // JWT. Only the MENTOR's screen is switched on today (TAB_TIERS), per the
 // default-is-mentor-alone ruling of 2026-08-24; the routes carry every tier already so
 // that switching one on later is a line in that matrix and nothing here.
+// The depreciation rates and each country's first-year rule (item 4.78). Same shape and same
+// guard as the blocks around it — one set of routes for every tier, scoped to `req.firmId`
+// from the verified JWT.
+//
+// 🔴 TWO APPROVE ROUTES, AND THAT IS MIKE'S RULING OF 2026-09-09 MADE STRUCTURAL. A
+// first-year rule gets its own Approve, separate from the rates', because approving 41 rates
+// is a routine review and adopting a 20% first-year write-off is not. Two routes mean
+// approving rates CANNOT adopt a tax scheme as a side effect: the handler that writes rates
+// cannot reach `firstYearRule` and the one that writes the rule cannot reach the rates.
+server.get('/api/firm-manager/depreciation-rates', ...fmGuard, depreciationRatesRoute.getForManager)
+server.post('/api/firm-manager/depreciation-rates', ...fmGuard, depreciationRatesRoute.approveRates)
+server.post('/api/firm-manager/depreciation-rates/first-year-rule', ...fmGuard, depreciationRatesRoute.approveFirstYearRule)
+server.get('/api/firm-manager/depreciation-rates/history', ...fmGuard, depreciationRatesRoute.history)
+server.post('/api/firm-manager/depreciation-rates/restore', ...fmGuard, depreciationRatesRoute.restore)
+// Slice 3 — loading a tax authority's schedule and having the model read it. The proposal
+// these produce is stored apart from the approved tables and the resolver never reads it, so
+// a document loaded here changes no forecast until `documents/approve` is called.
+//
+// ⚠ MANAGER-ONLY TODAY BY SLICE, NOT BY RULING. Mike settled that an advisor may LOAD and
+// only a manager may APPROVE (FR-017); the advisor's screen is drawn and unbuilt, so until it
+// exists these sit behind the same guard as everything else here.
+//
+// The upload parses its own multipart body per-route (formidable), which is why it is not
+// affected by the JSON body limit above.
+server.post('/api/firm-manager/depreciation-rates/documents', ...fmGuard, depreciationRatesRoute.loadDocument)
+server.get('/api/firm-manager/depreciation-rates/documents', ...fmGuard, depreciationRatesRoute.listDocuments)
+server.post('/api/firm-manager/depreciation-rates/documents/approve', ...fmGuard, depreciationRatesRoute.approveDocument)
+server.post('/api/firm-manager/depreciation-rates/documents/reject', ...fmGuard, depreciationRatesRoute.rejectDocument)
+// The four tax figures a country's clients are taxed on (item 4.81). Same shape and same
+// guard as the block above, and ONE approve route rather than two: a first-year rule is a tax
+// scheme a manager adopts, which is why it earned its own button next door, whereas these
+// four are the same kind of decision taken together off the same document.
+server.get('/api/firm-manager/tax-rates', ...fmGuard, taxRatesRoute.getForManager)
+server.post('/api/firm-manager/tax-rates', ...fmGuard, taxRatesRoute.approveFigures)
+server.get('/api/firm-manager/tax-rates/history', ...fmGuard, taxRatesRoute.history)
+server.post('/api/firm-manager/tax-rates/restore', ...fmGuard, taxRatesRoute.restore)
 server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.getForManager)
 server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
 server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)
@@ -524,6 +591,42 @@ server.put('/api/meeting/recordings/:meetingId/reports/summary', firmAuth, mr.sa
 server.post('/api/meeting/recordings/:meetingId/reports/summary/approve', firmAuth, mr.approveSummary)
 server.post('/api/meeting/recordings/:meetingId/reports/coaching/dispute', firmAuth, mr.disputeFinding)
 server.post('/api/meeting/recordings/:meetingId/reports/coaching/heard', firmAuth, mr.answerCannotHear)
+
+// ── A client asks for a copy of what was recorded about them ────────────────────────────
+// design/mockups/client-record-request.html, ruled by Mike 2026-09-10. IPP6 access, IPP7
+// correction — finding B of MEETING-REVIEW-DPIA.md §10.
+//
+// 🔴 `firmAuth` ONLY ON THE REQUEST ROUTES, NOT `fmGuard`, AND THAT IS RULING 2. The advisor
+// alone releases a meeting, so an advisor must be able to open the request they are being
+// waited on for. Each handler then checks the meeting's stored owner against `req.advisorId`,
+// exactly as `ownedMeeting` does above — a caller sees every meeting on a request, because it
+// is the CLIENT's request, and may act only on the ones they recorded.
+//
+// 🔴 THE ONE EXCEPTION IS `release-absent`, THE BREAK-GLASS OF RULING 2b — manager-gated, and
+// refused without the declaration that the recording advisor can no longer act.
+const ccrRoute = clientCopyRequestsRoute
+server.get('/api/firm-manager/client-copy-deadline', ...fmGuard, ccrRoute.getDeadline)
+server.put('/api/firm-manager/client-copy-deadline', ...fmGuard, ccrRoute.setDeadline)
+server.post('/api/firm-manager/client-copy-deadline/reset', ...fmGuard, ccrRoute.resetDeadline)
+
+server.get('/api/client-copy-requests', firmAuth, ccrRoute.listRequests)
+server.post('/api/client-copy-requests', firmAuth, ccrRoute.logRequest)
+server.get('/api/client-copy-requests/:requestId', firmAuth, ccrRoute.getRequest)
+server.post('/api/client-copy-requests/:requestId/close', firmAuth, ccrRoute.closeRequest)
+server.post('/api/client-copy-requests/:requestId/meetings/:meetingId/release',
+  firmAuth, ccrRoute.releaseMeeting)
+server.post('/api/client-copy-requests/:requestId/meetings/:meetingId/release-absent',
+  ...fmGuard, ccrRoute.releaseAbsent)
+server.post('/api/client-copy-requests/:requestId/meetings/:meetingId/correction',
+  firmAuth, ccrRoute.attachCorrection)
+server.post('/api/client-copy-requests/:requestId/meetings/:meetingId/delete',
+  firmAuth, ccrRoute.deleteMeetingText)
+
+// Screen E — what the advisor is told about their own meeting. `firmAuth` only, and the
+// handler guards on `req.advisorId` as well: P2 gives a recording and its notices to the
+// advisor who made it.
+server.get('/api/meeting/recordings/:meetingId/client-notices',
+  firmAuth, ccrRoute.meetingNotices)
 
 // Share a prompt — Lane A (item 4.31, steps 1–3). Checks a pasted prompt and stores
 // nothing. That route is deliberately incapable of writing anywhere; Lane B below is a

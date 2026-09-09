@@ -321,3 +321,81 @@ not repeated; this is the sequence, and the things found on the way.
   null for every empty case, which would have made an expired previous meeting render exactly like
   a meeting where nothing was agreed. It now says which kind of empty it is, and a test pins the
   three apart. 21 new tests in all.
+
+---
+
+## 9. A client asks for a copy — 2026-09-10
+
+**Asked for by Mike, in his own words:** *"you also need to include the feature for a client to
+request a copy of the meeting notes - that should be in the drawing prior to build."* Drawn as
+[`../mockups/client-record-request.html`](../mockups/client-record-request.html), all eight of its
+questions ruled the same day one at a time, and built on his *"go build it"*. It closes **§4 item 7**
+of the Brief and **finding B** of [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md) §10 —
+IPP6 access and IPP7 correction, the last open finding in this feature that was **ours**.
+
+### The two rulings that reversed the recommendation
+
+🔴 **Ruling 1 — the coaching notes NEVER go to a client, and his reasoning replaced ours.** The
+recommendation reached the same answer on weaker ground: P2, which says the report belongs to the
+advisor. His ground is what the report is *for* — *"the advisor is covered by their terms of
+engagement… our performance report is part of the advisors training and quality control for the
+firm - clients never get these notes."* That is the question a regulator asks, and it survives the
+objection the recommendation could not: those notes quote the client throughout, so a regulator
+could hold the quoted parts to be the client's information whoever the report is about. **The
+drawing's own fallback — releasing the quotations without the observations around them — is
+dropped, not deferred.**
+
+🔴 **Ruling 2 — the advisor ALONE releases, and it reshaped the screen rather than adjusting it.**
+The recommendation was the firm manager as well, because advisor-only fails when somebody leaves
+and a deadline does not pause. He refused it: *"the firm manager will never have the time to check
+every interaction of their advisors and in many cases, those advisors will in fact be senior
+partners."* **The consequence is that a client's request reaches across every advisor who ever met
+them, so no one person can answer it.** It became shared work under a single clock, closed when the
+last advisor releases their part. *The cost is carried rather than solved:* a request stalls on the
+slowest advisor while the deadline belongs to the firm.
+
+**That ruling opened a gap with no answer, which was put to him and ruled the same day (2b).**
+`va_clients` is firm-scoped with **no owning advisor** — checked in `config/db-schema.sql` and
+`server/utils/clientStore.js` — so when the recording advisor has left there is no "current
+advisor" to fall back on, and a client's right does not lapse because a partner retired. A firm
+manager may release, but **only by declaring the advisor can no longer act**. ⚠ **The declaration
+cannot be verified**: this app holds no advisors table and does not handle sign-in. The permanent,
+named record *is* the control — the same shape as the consent tick, which has never been verifiable
+either.
+
+### What the build found that the drawing did not
+
+🔴 **Screen B's two tick-boxes were missing from the first cut of the code**, and putting the
+artefact beside the build is what found them. They are not decoration: **they are ruling 8's actual
+control.** *"Warn, and remove nothing automatically"* is only a control if somebody passed through
+the warning — otherwise the third-party paragraph is a notice beside a button. Both are now
+enforced **on the route**, because a disabled button is not one and a caller who never loaded the
+screen would have sailed past it. Screen D's two ticks had been collapsed into one and are two
+again: without *"my client asked for this"*, a firm could destroy a record for its own reasons and
+have the surviving stub read afterwards as a client's request.
+
+**No test would have caught it.** Nothing was asserting a control nobody had written. This is the
+second time on this feature that the drawing-beside-the-build step has found something review did
+not — §8 records the first.
+
+⚠ **And a factual error of ours inside ruling 6 was corrected on the drawing during the build.** It
+read that 20 working days is *"roughly 28 calendar days, so a UK firm shown 20 working days would
+believe it had longer than it has"*. Backwards. **20 working days is exactly four weeks from any
+weekday**; a calendar month is 28 to 31, so the month is **always at least as long**, equal only
+across a non-leap February. Which makes one substitution merely wrong and the other dangerous:
+showing a New Zealand firm "one calendar month" hands them up to three days they do not legally
+have, on a screen that looks entirely reasonable.
+
+### Three things the build could not do, recorded rather than worked around
+
+1. **An older meeting cannot name its advisor.** This application holds no advisors table, so a
+   name is now captured on the meeting record at write time — and every meeting recorded before
+   2026-09-10 has none. The screen falls back to the identifier. **The same wall the "4 of 12"
+   denominator met, and the same answer: a plausible wrong name is worse than an honest id.**
+2. **Public holidays cannot be excluded from a working-day count.** There is no holiday calendar
+   for any country here and inventing one would be worse than having none. The due date therefore
+   runs **earlier** than a strict legal reading, which is the safe direction, and a test holds that
+   direction so a later "improvement" cannot quietly push real due dates past the law.
+3. **Nothing removes a third party your client named.** Ruling 8, deliberately. Software guessing
+   at redaction would miss some, cut things it should not, and leave the firm believing the problem
+   had been handled.

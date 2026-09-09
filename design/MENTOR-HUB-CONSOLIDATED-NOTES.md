@@ -95,7 +95,7 @@ clients see.
 
 ```text
 Mentor Hub            ← every editable function is authored here
-  └─ Global Group Manager Hub          ← same functions, its own copy
+  └─ Global Group Manager Hub    ← same functions, its own copy
        └─ Group Manager Hub      ← same functions, its own copy
             └─ Firm Manager Hub  ← same functions, its own copy — final say on visibility
                  └─ Advisor
