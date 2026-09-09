@@ -1,8 +1,9 @@
 # Business Performance Report — the Brief
 
-> **Status: ☑ APPROVED TO BUILD FROM — Mike, 2026-09-07; stages 1 to 5 built, live at
-> `/dashboard-reports` (2026-09-08). Stage 6, the AI draft of next steps, was ruled, drawn, approved and built on
-> 2026-09-09, so all six stages exist.** Item **4.70**.
+> **Status: ✅ BUILT AND CLOSED — all six stages live at `/dashboard-reports`; item 4.70 closed
+> by Mike on 2026-09-09 after his own walk on a real client's export** (the closure is on
+> [`to-do-done-and-parked.md`](to-do-done-and-parked.md) §2). Approved to build from on
+> 2026-09-07; stages 1 to 5 built 2026-09-08, stage 6 on 2026-09-09.
 > The two drawings are [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html)
 > (the client's report) and [`../mockups/business-performance-report-intake.html`](../mockups/business-performance-report-intake.html)
 > (the advisor's six steps), both registered in [`../ARTEFACTS.md`](../ARTEFACTS.md). **The four

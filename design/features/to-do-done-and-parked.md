@@ -185,6 +185,36 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.70 — Business Performance Report — the client's own report.**
+✅ Closed 2026-09-09 by Mike — *"all good go ahead"* — after his own walk on a real client's
+export, through all six steps, the AI draft on step 4, page 8 and the browser's print.
+
+- **Why it mattered:** Mike's request of 2026-09-07, in his words in the
+  [Brief](business-performance-report.md): a rich, colourful report a private business owner can
+  read, 7 to 10 base pages and up to 15, built from the accounts. A client reads it on paper and
+  acts on it, so every figure carries its provenance and the unruled parts show no number.
+- **What was built, 2026-09-07 to 09:** six stages at `/dashboard-reports` — the ratio hub and
+  its route; the eleven-page document with the eight-measure health score; the Stats NZ
+  benchmarker with the finder, the size bands and the comparison on page 7; the stock export on
+  step 3 and the *Stock against the accounts* page; the monthly view, the third year and the
+  Sales Volatility page; the three accounts-only optional pages; and stage 6, the AI draft of the
+  three next steps behind the tick that is its approval gate, page 8 printing on the server's
+  record alone. Every stage was drawn first and approved under the Save-the-Artefact rule; the
+  Brief §4 lists each stage's files, tests and every recorded deviation from the drawings.
+- **What proves it:** the golden test on the workbook's own cells, the hand-worked page models,
+  the route envelopes, the four validators on what leaves the app and what comes back from the
+  model, and the component mounts — all in the Brief's per-stage rows. Then the walks: stages 1
+  to 5 on reconstructed exports (2026-09-08), three live AI runs for stage 6, and **Mike's own
+  walk on a real export (2026-09-09), which found five faults the suite could not see** — the
+  size bands could not be ticked (`b-radio` unregistered), the advisor's strip printed on the
+  client's report, the frame padding pushed every page onto two sheets, the phone breakpoint
+  fired on paper and stacked every page, and a loaded report lost its size bands. All five fixed
+  and proved the same day (`4a44b94`, `7c46f8a`, `8688151`); the print was then eyeballed page by
+  page on A4 landscape.
+- **Left open, and named:** the Brief §2's unruled parts still show no number — the two
+  thresholds the score cannot band, the provisional score band cut-offs, and the tax page that
+  waits on the tax tool. Each is a fresh decision for Mike, not a task here.
+
 **4.81 — the Search-Content Cascade Plan's last phase: Advisor-e pushes the export itself.**
 ✅ Closed 2026-09-09, filed and built the same day on Mike's instruction — *"lets finish the
 search content cascade plan"*.
