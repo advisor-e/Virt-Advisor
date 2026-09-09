@@ -43,8 +43,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **4.82** Nothing caps how many paid AI readings an advisor can trigger ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 7 | **4.83** Compliance pages in the four manager hubs ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
 | 8 | **4.84** Notification dots on every hub tab ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 9 | **4.85** One Handbook both machines update, built from master ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 
-**Eight live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Nine live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
