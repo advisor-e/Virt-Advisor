@@ -873,7 +873,7 @@ async function addAdvisorPoint (req, res) {
     }
 
     const minted = nextAdvisorPointId(current, entry.nextSeq[scenario])
-    const point = { id: minted.id, text: value.text, hintWords: value.hintWords || [] }
+    const point = { id: minted.id, text: value.text, hintWords: value.hintWords || [], cannotHear: Boolean(value.cannotHear) }
     entry.scenarios[scenario] = current.concat([point])
     entry.nextSeq[scenario] = minted.seq
 
@@ -914,7 +914,7 @@ async function updateAdvisorPoint (req, res) {
     // write, and answering 200 would tell them an edit landed that never happened.
     if (index === -1) { return sendError(res, 404, 'NOT_FOUND', 'No point of yours with that id') }
 
-    const point = { id: pointId, text: value.text, hintWords: value.hintWords || [] }
+    const point = { id: pointId, text: value.text, hintWords: value.hintWords || [], cannotHear: Boolean(value.cannotHear) }
     entry.scenarios[scenario] = current.slice(0, index).concat([point], current.slice(index + 1))
 
     await writeAdvisorEntry(req.firmId, 'advisorOwn', req.advisorId, entry)
