@@ -9,36 +9,35 @@
 
 ---
 
-## 2026-09-09 (thirteenth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-10 (fourteenth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,977 green** (439 suites), lint 0 errors, coverage and audit gates clean. **Two
-commits, both pushed.** 33 ahead, 0 behind `origin/master`; nothing merged in.
+Suite **9,007 green** (439 suites) at the push gate, lint 0, coverage and audit clean.
+**Three commits, all pushed.** 36 ahead, 0 behind `origin/master`; nothing merged in.
 
-**NO FEATURE WORK TODAY. The app was opened and looked at instead** — the gap the last two
-handovers both flagged. It found a defect in ten minutes that 8,977 passing tests could
-not see: the Mentor Hub's Template Check screen was rendering `templateCheck.filter.all`
-to the user as its first filter button. The key had never been written into any locale
-file, and `fallbackLocale: 'en'` meant all eight languages showed the same raw string.
-Fixed, verified in the browser, one line.
+**NO APPLICATION CODE WAS WRITTEN.** The whole session was 4.58's §4 — the non-coding items
+gating a first real client recording — and what it turned into.
 
-✅ **THE TAX AND DEPRECIATION SCREENS ARE NOW EYEBALLED, and they are sound.** Both hub
-tabs render, take a country and show their figures with the right provenance badges; the
-forecast's Assets card shows all six rates badged `APP DEFAULT`; both backend routes
-answer. Two sessions of work no longer rest on stubs alone.
+**`MEETING-REVIEW-DPIA.md` is new**, assessing all fourteen NZ information privacy
+principles. Ten met. 🔴 **IPP3A is NOT met and it is new law — in force 1 May 2026**,
+requiring notice to someone whose information was collected indirectly; a client discussing a
+named employee is exactly that, and no software can answer it. **IPP12 is unevidenced** until
+OpenAI say where audio is processed. **IPP6/IPP7 is OURS and unbuilt** — nothing serves a
+client asking for a copy of their transcript.
 
-⚠ **ONE PATH IS STILL UNSEEN:** no country has an approved table, so slice 4's heart — an
-approved table being *offered* to an advisor — has never fired. It needs a table approved
-as a manager first.
+**The OpenAI letter is rewritten and sendable** — five questions, Zero Data Retention named,
+IPP12 cited. It waits on Mike alone.
 
-**New skill `run-the-app`** — how to launch, sign in without Advisor-e, drive the pages
-with Playwright, and what each page is for. Three gotchas that cost an hour are in it:
-`127.0.0.1:3000` never answers (Nuxt binds IPv6-only), `networkidle` never fires, and the
-hub's hidden tab panels stay in the DOM so locators must be `:visible`-scoped.
+**4.83 (Compliance pages) is APPROVED TO BUILD FROM and not started** —
+[`mockups/compliance-pages.html`](mockups/compliance-pages.html), nine rulings, one at a time.
+Two distinctions the build must not collapse: the **declaration gates**, the **completeness
+check never does**; and only the **first** declaration gates — an update notifies with a dot.
+The declaration is Mike's own words, verbatim and pinned. **4.84** (hub notification dots,
+every tab) and **4.85** (the Handbook) filed alongside.
 
-**4.81's active flag CLEARED and it now waits on Mike** — its build finished last session;
-only his call on the §4 tax-PDF reading remains. **4.78 stays flagged active here** — the
-dated purchase list and Investment Boost are still to build, in
-`ThreeWayForecastIntake.vue`. **All six live items now wait on Mike.**
+**4.78 stays flagged active here** — the dated purchase list and Investment Boost, untouched
+today.
 
-**DESKTOP:** 🔴 your note is now dated 2026-09-04 — five days, with commits since. Nothing
-of yours was touched; nothing went near quiz screens.
+**DESKTOP:** 🔴 **you republished the Handbook over ours this morning** — it showed Mike a page
+with zero mentions of Depreciation Rates and Tax Rates and said nothing about it. Not your
+fault; the design never anticipated two branches, one URL. That is item **4.85**, filed, and
+**I have not republished** — the page is still yours. Your note is now dated 2026-09-04.
