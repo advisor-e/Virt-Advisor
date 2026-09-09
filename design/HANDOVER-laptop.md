@@ -9,37 +9,50 @@
 
 ---
 
-## 2026-09-09 (eighth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-09 (ninth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,503 green** (430 suites), lint 0 errors, audit pass. **Ten commits, all pushed.**
-10 ahead, 0 behind — `origin/master` was merged in first (PR #69, no content).
+Suite **8,662 green** (432 suites), lint 0 errors, audit gate clean. **One commit,
+`f805933`, pushed.** 13 ahead, 0 behind — started level with `origin/master`, so nothing
+was merged in.
 
-**4.78 RENAMED TO DEPRECIATION RATES** on Mike's ruling — IR265 is a depreciation schedule
-published *by* the tax office, not tax rules. 11 files moved with `git mv`; the separate
-**Property Tax Rules** feature is untouched and must stay that way.
+**4.78 SLICE 3a IS BUILT — the AI now reads a document.** Four new pieces: the
+`depreciation-read` prompt in `data/ai-prompts.json` (all four tiers, so a manager can read
+what the machine is told), `server/utils/depreciationExtract.js` (sends the PDF, validates
+every field of the answer), `server/utils/depreciationProposals.js` (a proposal store the
+rate resolver never reads), and four routes — load, list, approve, reject.
 
-**Slices 1 and 2 built** (`d8621e9`, `af54bcb`): the store with the four-tier cascade and a
-per-rate origin, six routes, and the **Depreciation Rates** tab at all four manager tiers.
-**Nothing has ever read a document.**
+🔴 **A PENDING PROPOSAL CHANGES NO FORECAST, and it is structural.** The approved store
+cannot hold an unapproved table, so a proposal is kept somewhere else entirely rather than
+behind a flag. A test populates both stores at once and the advisor's read still answers the
+app's own six rates. **Do not "tidy" the two stores into one.**
 
-**The feature has no open questions.** Every ruling is in
-[`features/depreciation-rates-history.md`](features/depreciation-rates-history.md); five
-drawings, all approved. **Next is slice 3** — upload, the AI reading the PDF (ruled: sent to
-the model, never extracted locally), and the proposed-rates table.
+**149 new tests.** `depreciationExtract.js` is at 100% on all four measures — `CLAUDE.md`'s
+rule for anything parsing AI output. One test holds the prompt's own list of the six
+categories against `CATEGORY_KEYS`: a category the model is never told about can never be
+proposed, and no screen would say why.
 
-**Open for Mike:** 4.15, 4.58, 4.66 · and **whether 4.77 closes into 4.78** — its asset model
-is now 4.78's dated purchase list. Not ours to decide; it is on 4.77's note.
+**NEXT IS SLICE 3b — the screen, and it needs no decisions from Mike.** The upload control,
+the proposed-rates table with editable figures, the class-match confirmation, the gaps panel
+and Approve. The backend it calls is done and tested. `FirmDepreciationRates.vue` still
+carries a header saying the PDF-reading question is open — it is not; Mike ruled it
+2026-09-09 and it is built. Fix that line when you touch the file.
 
-🔴 **NEW: 4.81 — the forecast's tax rate and GST rate are New Zealand's, hardcoded, for every
-country.** Filed at Mike's insistence at the very end of the session: this session had recorded
-it as a gap he *had not asked for*, and he had — *"accurate per country"*, 2026-09-08. **Finding
-that IR265 was a depreciation schedule justified renaming the feature, not shrinking his
-request to match the document.** It rides everything 4.78 built, so it is small. Needs a
-drawing first.
+⚠ **No real schedule has been read.** Every path is proven against a stubbed model. The
+first live run needs a key and a real IR265, which is UAT's, not this machine's — and the
+thing to watch first is whether the model picks the right published class for each of the
+six categories.
 
-⚠ **Known deviation:** the new tab's strings are hardcoded English, like four of its five
-siblings, against the i18n standard. Named in the component header.
+**Also:** `data/dev-depreciation-rates.json` had no `.gitignore` entry from slice 2 — a
+firm's approved rates could have been committed by accident. Added, with the new proposals
+file. Neither file exists; nothing leaked.
 
-**DESKTOP:** you were active today — `feat/firm-quiz-builder-ui`, 43 ahead. Nothing of yours
-was touched. We share one Handbook link and each overwrite the other; ours was published last
-tonight.
+**Open for Mike:** 4.15, 4.58, 4.66 · **whether 4.77 closes into 4.78** (still on 4.77's
+note, still not ours to decide) · and **4.81**, the hardcoded NZ tax and GST rates, which
+needs a drawing before any build and rides everything 4.78 has now built.
+
+⚠ **Known deviation, unchanged:** the Depreciation Rates tab's strings are hardcoded English
+like four of its five siblings, against the i18n standard. Named in the component header.
+
+**DESKTOP:** 🔴 **your note is stale — it is dated 2026-09-04 and describes 5 commits; your
+branch is 43 ahead with a commit from today.** Nothing of yours was touched here. Nothing
+this session went near quiz screens, and 4.78 is flagged active on the laptop.
