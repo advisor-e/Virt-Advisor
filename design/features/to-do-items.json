@@ -119,7 +119,7 @@
         "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
       },
       "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
-      "note": "NOTHING READS AN UNAPPROVED TABLE, structurally rather than by a flag: a proposal lives in its own store. THE MANAGER'S SIDE IS COMPLETE, slices 1 to 3b. SLICES 4 AND 5 ARE THE ADVISOR'S HALF: each rate badges its origin; an approved table is OFFERED, filling only rates still on defaults so a typed rate survives; and an advisor may LOAD a document while approval stays manager-only. ⚠ THAT LETS EVERY ADVISOR SPEND AN AI CALL, and nothing rate-limits it - Mike's call. NOT BUILT: the dated purchase list with the first-year deduction - item 4.77, closed here. No document has been read in earnest; that needs UAT. Detail is in the Brief; rulings in depreciation-rates-history.md.",
+      "note": "NOTHING READS AN UNAPPROVED TABLE, structurally rather than by a flag: a proposal lives in its own store. THE MANAGER'S SIDE IS COMPLETE, slices 1 to 3b. SLICES 4 AND 5 ARE THE ADVISOR'S HALF: each rate badges its origin; an approved table is OFFERED, filling only rates still on defaults so a typed rate survives; and an advisor may LOAD a document while approval stays manager-only. ⚠ THE AI-CALL EXPOSURE THAT WIDENING CREATED IS ITEM 4.82, not a warning here. NOT BUILT: the dated purchase list with the first-year deduction - item 4.77, closed here. No document has been read in earnest; that needs UAT. Detail is in the Brief; rulings in depreciation-rates-history.md.",
       "comment": "2026-09-08 - raised by Mike and filed on his instruction. The recommendation was AGAINST it and he overturned it; the concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers. 2026-09-09 - the manager's side built, slices 1 to 3b, after Mike caught the build conflating a tax rate with a depreciation rate and the feature was renamed. Spec Kit produced eleven rulings, Investment Boost among them. Slices 4 and 5 built the same day on his yes: the advisor sees where each rate came from, is offered their country's table, and may load a document their manager decides on. 44 new tests."
     },
     {
@@ -164,6 +164,27 @@
       "touches": "server/utils/taxRates.js and sourcedFigure.js, server/routes/taxRates.js, the Tax Rates tab in components/firm/FirmTaxRates.vue at all four tiers, the GST filing cycle in server/report/threeWayForecastModel.js, and the country field and tax card in components/ThreeWayForecastIntake.vue.",
       "note": "BUILT, SLICES 1-5, AND A SEPARATE TAB FROM DEPRECIATION RATES ON MIKE'S APPROVAL: the country table, the cascade, the routes, the manager's screen, the engine and the advisor's side. FOUR FIGURES, NOT TWO - the drawing found the GST section also fixes the filing cycle and the accounting basis, both New Zealand's. THE ENGINE'S THREE HARDCODED CYCLES BECAME ONE FORMULA, so Australia's quarterly BAS can be expressed at all; the 3,385 golden workbook cells pass unchanged. NOT BUILT: loading a tax PDF for the AI to read, drawn in §4 - today a manager types each figure and its source by hand. Company tax stays ONE flat rate with a free-text line naming which entities it reaches.",
       "comment": "2026-09-09 - Mike's own words when the gap was reported as something he had not asked for: 'of course i want the tax rate made contry aware - i literally asked for that!' He had. Drawing approved the same day, then built in five slices on the laptop. The item's own wording was corrected in the build: both rates WERE already editable by an advisor, so the fault was never 'nothing can change them' but 'they are silently New Zealand's and no manager can set them'. The country field was built here on his explicit yes - it is 4.78's approved addendum and nothing here resolves without it."
+    },
+    {
+      "ref": "4.82",
+      "name": "Nothing caps how many paid AI readings an advisor can trigger",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Loading a tax document sends it to the model and every reading is paid for. Nothing caps how many one person may set off, and the store's 20-document limit trims only after the model has already been paid.",
+      "risk": "An advisor inside a real firm could load the same PDF over and over and run up a bill nobody sees until it arrives. No data leaks and no wrong figure reaches a client, which is why this is a 2 and not a 5. It is not new in kind - a manager could always do it - but 2026-09-09 widened it from managers to every advisor.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-09 while building 4.78 slice 5, the change that widened it, and raised with Mike the same day. Filed at his instruction rather than left as a warning inside 4.78's note."
+      },
+      "touches": "server/restify-server.js, where the advisor's load route and the manager's sit beside each other, and server/routes/depreciationRates.js loadDocument, which both reach and which calls the model. A cap belongs there, never on the screen - a screen-side limit is not a limit.",
+      "note": "NO CAP EXISTS ANYWHERE TODAY, on the advisor's route or the manager's. The store's 20-document limit is not one: it trims AFTER the model has been paid. Mike's ruling of 2026-09-08 that an advisor may load is NOT in question here - only whether the loading is capped, and at what. A first cap could be per firm per day, which needs nothing this app does not already know.",
+      "comment": "2026-09-09 - filed at shutdown on Mike's yes, having first been written as a warning inside 4.78's note. That is the shape this list explicitly refuses: a hazard nobody owns gets described repeatedly and fixed never. Scored 2 rather than 5 deliberately - no data leaks, no wrong figure reaches a client, and it takes an authenticated advisor inside a real firm to spend anything."
     }
   ]
 }

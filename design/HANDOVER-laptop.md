@@ -9,41 +9,39 @@
 
 ---
 
-## 2026-09-09 (eleventh session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-09 (twelfth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,926 green** (438 suites), lint 0 errors, coverage and audit gates clean. **Ten
-commits, all pushed.** 27 ahead, 0 behind `origin/master`; nothing merged in.
+Suite **8,977 green** (439 suites), lint 0 errors, coverage and audit gates clean. **Three
+commits, all pushed.** 31 ahead, 0 behind `origin/master`; nothing merged in.
 
-**4.81 TAX RATES IS BUILT, SLICES 1 TO 5** — the country table, the four-tier cascade, five
-routes, the **Tax Rates** tab at every manager tier, the engine, and the advisor's side. A
-manager approves a country's company tax rate, GST rate, filing cycle and accounting basis,
-each naming its document and page; an advisor names the client's country and is *offered* the
-change. New pages: [`features/tax-rates.md`](features/tax-rates.md) and its history.
+**4.78's ADVISOR HALF IS BUILT, slices 4 and 5.** Every rate on the forecast's Assets card
+now badges where it came from — *app default*, the tier that approved it beside its document,
+or *entered by you*. An approved table is **offered, never applied**: taking it fills only
+rates still on platform defaults, so a rate the advisor typed survives. And an advisor may
+now **load** a tax document, on `POST /api/report/depreciation-rates/documents` behind
+`firmAuth` alone — approve and reject keep the manager guard, and both halves are pinned
+against the registration in `restify-server.js`, not left to a comment.
 
-🔴 **A SEPARATE TAB FROM DEPRECIATION RATES — Mike approved that before the drawing was drawn.**
-He renamed 4.78 hours earlier so a tab's name predicts its contents. They share one country
-table, one cascade and one approval gate in the code, and **nothing on screen**. Do not merge
-them.
+🔴 **DESKTOP — `ThreeWayForecastIntake.vue` GREW BY ~410 LINES.** It is the file we keep
+colliding on. Nothing outside the Assets card and the new document panel was touched, and
+`buildInputs()` is unchanged apart from carrying the same rates it always did. **4.78 stays
+flagged active here** — the dated purchase list and Investment Boost are still to build, and
+they land in this same file.
 
-🔴 **DESKTOP — THE ONE THING THAT COULD TRIP YOU UP.** `ThreeWayForecastIntake.vue` now has a
-**country field** (4.78's approved addendum, built here on Mike's explicit yes). **Only the TAX
-half is wired to it.** Wiring the six depreciation rates to that same field is still 4.78's
-work and is *not* done.
+⚠ **4.81 is still flagged active on the laptop and was NOT touched today.** Its build finished
+last session; only Mike's call on whether the tax-PDF reading is worth building remains. Left
+flagged deliberately, since 4.78 holds the same files anyway — clear it on his word.
 
-⚠ **`threeWayForecastModel.js` CHANGED.** Its three hardcoded GST filing branches became one
-formula, so a quarterly BAS can be expressed at all. **All 3,385 golden workbook cells pass
-unchanged and no existing test was edited** — but it is a shared file, so merge with care.
+**4.80 IS DONE AS FAR AS IT GOES AND NOW WAITS ON MIKE.** 21 sites of our own prose fixed; his
+quotes and the frozen records untouched. The guard is **not** widened: four sentences of our
+prose inside the approved mockup `global-groups-membership.html` would still fail it, and one
+of them says these managers cannot log in — which contradicts his ruling of 2026-08-31.
 
-**Not built, both drawn and both named in the Brief §7:** loading a tax PDF for the AI to read,
-and the country saved with the forecast (needs 4.62's last screen). 🔴 **Mike ruled the PDF
-reading STAYS INSIDE 4.81** rather than becoming its own item — and whether it is worth building
-at all is genuinely open: four figures here against IR265's ~156 classes. History §5 says why.
+**New item 4.82** (score 2): nothing caps how many paid AI readings an advisor can trigger.
+Raised with Mike today; no cap added without his word.
 
-⚠ **NOT OPENED IN A BROWSER.** Every path is proven against stubs. Economic Analysis threw up
-nine live faults green tests all missed — treat the first real run as the real test.
+⚠ **NOT OPENED IN A BROWSER.** Two sessions of tax and depreciation work now rest on stubs
+alone. Economic Analysis threw up nine live faults green tests all missed.
 
-**4.78 and 4.81 both stay flagged active on the laptop.** `FirmTaxRates.vue` uses `$t()` where
-four of its six siblings hardcode English; it deliberately did not join that open deviation.
-
-**DESKTOP:** 🔴 **your note is still dated 2026-09-04 while your branch is 51 ahead with a commit
-from today.** Nothing of yours was touched here; nothing went near quiz screens.
+**DESKTOP:** 🔴 **your note is still dated 2026-09-04** — five days, with commits since.
+Nothing of yours was touched here; nothing went near quiz screens.

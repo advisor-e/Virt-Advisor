@@ -40,8 +40,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 3 | **4.78** Depreciation rates per country - a manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-08 |
 | 4 | **4.80** "Global manager" is the old name and it is still in 45 places ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 5 | **4.81** The forecast's tax rates are New Zealand's, hardcoded, for every country ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-09 |
+| 6 | **4.82** Nothing caps how many paid AI readings an advisor can trigger ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
-**Five live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Six live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
