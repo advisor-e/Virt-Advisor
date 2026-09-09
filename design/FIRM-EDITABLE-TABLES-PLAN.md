@@ -151,7 +151,7 @@ This feature joins it; it does not invent a second one.
 
 ```
 Mentor (Mike)            — authors the baseline
-  └─ Global Manager      — may override; becomes the default for everyone below
+  └─ Global Group Manager      — may override; becomes the default for everyone below
        └─ Group Manager  — may override; becomes the default for firms in that group
             └─ Firm Manager — may override; applies to THEIR FIRM ONLY
                  └─ Advisors  — see what their firm allows

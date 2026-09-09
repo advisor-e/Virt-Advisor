@@ -56,7 +56,7 @@ Read out of the components 2026-08-11. Line numbers are as at commit `2d38c60`.
 
 ### `components/MentorReview.vue` — the receiving screen
 
-Both of these matter because this same component is what a group or global manager would
+Both of these matter because this same component is what a group or global group manager would
 open. As written, a group manager's Case Reviews tab would greet them with the word
 "Mentor".
 

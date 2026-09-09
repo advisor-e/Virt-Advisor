@@ -306,7 +306,7 @@ function isWithinScope (firmId, scopeId) {
  *   - the remainder is the address inside that group, which is what makes the group
  *     worth opening.
  *
- * So a group manager gets [firm]; a global manager gets [group, firm]; the mentor
+ * So a group manager gets [firm]; a global group manager gets [group, firm]; the mentor
  * gets [global, group, firm]. One function, no per-tier branch, nothing hidden from
  * a manager about their own people.
  *

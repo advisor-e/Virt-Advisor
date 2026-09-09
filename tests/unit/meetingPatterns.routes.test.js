@@ -7,7 +7,7 @@
  *
  *   1. **It does not cascade upward.** Brief P13 keeps everything derived from a recorded
  *      meeting inside the firm it came from, because the consent line promises a named client
- *      exactly that. A group or global manager must be REFUSED, not shown an empty screen —
+ *      exactly that. A group or global group manager must be REFUSED, not shown an empty screen —
  *      and a tester signed in as one would read an empty screen as "no meetings yet".
  *   2. **A firm collects its own meetings and nobody else's.** Ownership is checked against
  *      each meeting's own record. A tester with one firm's login can never see the failure,

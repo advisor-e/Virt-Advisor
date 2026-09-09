@@ -76,7 +76,7 @@ silently drop the mentor's. Hence:
 | Tier | Staircase | Quizzes |
 |---|---|---|
 | mentor | `ms-` | `mq-` |
-| global manager | `xs-` | `xq-` |
+| global group manager | `xs-` | `xq-` |
 | group manager | `gs-` | `gq-` |
 | firm manager | `fs-` | `fq-` |
 

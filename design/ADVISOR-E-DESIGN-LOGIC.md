@@ -317,7 +317,7 @@ One seam: [`server/utils/tierChain.js`](../server/utils/tierChain.js) — `paren
 | Tier | Scope id | Row in `firms` |
 |---|---|---|
 | Mentor | `__platform__` | seeded |
-| Global manager | `__global__:<brand>` | one per global group |
+| Global group manager | `__global__:<brand>` | one per global group |
 | Group manager | `__group__:<brand>:<country>` | one per country |
 | Firm manager | the real firm id | already there |
 

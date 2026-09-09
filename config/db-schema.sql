@@ -63,7 +63,7 @@ VALUES ('__platform__', 'Platform (mentor)', '__platform__')
 ON DUPLICATE KEY UPDATE `id` = `id`;
 
 -- -----------------------------------------------------------------------------
--- The MIDDLE management tiers — Global Manager and Group Manager.
+-- The MIDDLE management tiers — Global Group Manager and Group Manager.
 --
 -- 🔴 INTEGRATION NOTE (for the Advisor-e team): THESE ROWS DO NOT EXIST YET, AND
 --    THEY CANNOT BE WRITTEN HERE. Each one names a real global group or country,

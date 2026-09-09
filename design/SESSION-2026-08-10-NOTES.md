@@ -3,7 +3,7 @@
 > **Nothing is unsaved.** `feat/advisor-progress`, tree clean, level with `origin`, suite
 > **4,845 green / 282 suites**, lint 0 errors, **25 ahead / 0 behind `master`**.
 >
-> Mike asked for the Mentor Hub's cascade to reach the **global manager** and **group manager**
+> Mike asked for the Mentor Hub's cascade to reach the **global group manager** and **group manager**
 > tiers by Wednesday. **The mechanism is built and shipped.** It holds nothing until the master
 > team supplies two things that are theirs, not ours — see below.
 

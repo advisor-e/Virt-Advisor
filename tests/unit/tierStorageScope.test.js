@@ -77,7 +77,7 @@ describe('tier storage scope — the two middle tiers FAIL CLOSED today', () => 
     expect(AUTH.groupManagerRole).toBe('')
   })
 
-  test('a token claiming to be a global manager gets NO tier scope while the role is unset', () => {
+  test('a token claiming to be a global group manager gets NO tier scope while the role is unset', () => {
     // It is admitted as an ordinary caller under its own firm claim — it does not
     // silently acquire a brand's storage scope by asserting a role name.
     const { req, next } = run({ firmId: 'firm-1', role: 'global_group_manager', globalGroup: 'BDO' })
@@ -110,7 +110,7 @@ describe('tier storage scope — once the master team supplies the roles', () =>
     AUTH.groupManagerRole = savedGroup
   })
 
-  test('a global manager writes under their brand, not under the firm they claim', () => {
+  test('a global group manager writes under their brand, not under the firm they claim', () => {
     const { req, next } = run({ firmId: 'firm-1', role: 'global_group_manager', globalGroup: 'BDO' })
     expect(next).toHaveBeenCalledTimes(1)
     expect(req.firmId).toBe('__global__:BDO')
@@ -138,7 +138,7 @@ describe('tier storage scope — once the master team supplies the roles', () =>
     expect(a.req.firmId).not.toBe(b.req.firmId)
   })
 
-  test('REFUSED: a global manager whose token does not name their group', () => {
+  test('REFUSED: a global group manager whose token does not name their group', () => {
     const { res, next, error } = run({ firmId: 'firm-1', role: 'global_group_manager' })
     expect(next).not.toHaveBeenCalled()
     expect(res._status).toBe(403)
