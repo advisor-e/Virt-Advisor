@@ -546,13 +546,26 @@ server.get('/api/firm-manager/meeting-observations/set-aside', ...fmGuard, mo.ge
 // display name is stored beside the decision: this app holds no advisors table to join one
 // out of later (config/db-schema.sql). Design: design/mockups/meeting-preset-advisor-level.html.
 //
-// The per-CLIENT level is NOT built and is not drawn — it needs the client picker, which is
-// empty without MySQL. MEETING-TYPES-CASCADE.md §7 slice 4.
 server.get('/api/meeting/observations', firmAuth, mo.getForAdvisor)
 server.post('/api/meeting/observations/decline', firmAuth, mo.setAdvisorDecline)
 server.post('/api/meeting/observations/own', firmAuth, mo.addAdvisorPoint)
 server.put('/api/meeting/observations/own', firmAuth, mo.updateAdvisorPoint)
 server.post('/api/meeting/observations/own/remove', firmAuth, mo.deleteAdvisorPoint)
+
+// ── The BUSINESS-ENTITY level — "how I run meetings with THIS client" (2026-09-10) ──
+// The bottom of the cascade, MEETING-TYPES-CASCADE.md §7 slice 4 second half, built from
+// design/mockups/meeting-preset-client-level.html with all five questions ruled by Mike
+// the same day. ONE SHARED LIST PER CLIENT that any advisor in the firm may edit, every
+// entry named; it can only remove or add on top of the advisor's own layer, never put back
+// what an advisor set aside for themselves. NO MANAGER ROUTES, on his ruling: a firm
+// manager opens the same screen. The client is checked against the firm's register on
+// every call, so another firm's client id is a 404.
+const moEntity = require('./routes/meetingObservationsEntity')
+server.get('/api/meeting/observations/client/:clientId', firmAuth, moEntity.getForClient)
+server.post('/api/meeting/observations/client/decline', firmAuth, moEntity.setClientDecline)
+server.post('/api/meeting/observations/client/own', firmAuth, moEntity.addClientPoint)
+server.put('/api/meeting/observations/client/own', firmAuth, moEntity.updateClientPoint)
+server.post('/api/meeting/observations/client/own/remove', firmAuth, moEntity.deleteClientPoint)
 
 // ── Meeting Review — consent, capture, transcription and deletion (slice 2) ──
 // Asked for by Mike 2026-09-01 ("4.56 - slice 2"). Design design/features/meeting-review.md;

@@ -229,3 +229,135 @@ describe('changing meeting type', () => {
     expect(wrapper.vm.scenarioId).toBe('client_sales')
   })
 })
+
+// ── The BUSINESS-ENTITY level (2026-09-10) ────────────────────────────────────────────
+//
+// design/mockups/meeting-preset-client-level.html, all five questions ruled by Mike that day.
+// What UAT cannot see, and these pin:
+//
+// - 🔴 NO ADVISOR ID AND NO NAME IS EVER SENT with a client-level write. Question 4 puts a
+//   name beside every entry and question 3 lets any advisor write, so a name the browser
+//   supplied would let anyone sign a colleague's name to a decision. Only the CLIENT id
+//   travels, and the backend checks it against the firm's register.
+// - picking a client re-reads from the client route; clearing it returns to the usual list.
+// - inside a client's list the advisor's OWN points are neither editable nor offered "Not
+//   with this client" — they are one person's, edited on their own list.
+// - a client register that fails to load says so and leaves the usual list working.
+
+const CLIENT = 'client-42'
+const CLIENT_PAYLOAD = {
+  client: { id: CLIENT, name: 'Harbourside Joinery Ltd' },
+  maxOwnPerScenario: 20,
+  scenarios: [
+    {
+      id: EOY,
+      name: 'End of Year Meeting',
+      points: [
+        { id: 'mo-eoy-1', text: 'The meeting was framed.', sourceTier: 'platform', sourceLabel: 'From Advisor-e', hintWords: [] },
+        { id: 'ao-1', text: 'I asked about home.', sourceTier: 'advisor', sourceLabel: 'Added by you', hintWords: [] },
+        { id: 'eo-1', text: 'Raise succession gently.', sourceTier: 'client', sourceLabel: 'For this client · added by Tom Boyd', hintWords: [], setBy: { byId: 'adv-t', byName: 'Tom Boyd', at: 'x' } }
+      ],
+      setAside: [
+        { id: 'fm-2', text: "Our firm's own question.", sourceTier: 'firm', sourceLabel: 'From your firm', setAsideLabel: 'off for this client · set aside by Ruth Kelleher', hintWords: [] }
+      ]
+    }
+  ]
+}
+
+function mountWithClients ({ registerFails = false } = {}) {
+  global.fetch = jest.fn((url, opts) => {
+    if (String(url) === '/api/clients') {
+      return registerFails
+        ? Promise.resolve({ ok: false, statusText: 'down', json: () => Promise.resolve({}) })
+        : Promise.resolve({ ok: true, json: () => Promise.resolve({ clients: [{ id: CLIENT, name: 'Harbourside Joinery Ltd' }] }) })
+    }
+    if (String(url).indexOf('/api/meeting/observations/client/') === 0 && !(opts && opts.method)) {
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(CLIENT_PAYLOAD) })
+    }
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(PAYLOAD) })
+  })
+  return mountWithBuefy(MeetingPreset, {
+    propsData: { apiToken: 'test-token' },
+    mocks: { $buefy: { toast: { open: jest.fn() }, dialog: { confirm: jest.fn() } } }
+  })
+}
+
+describe("the client's level", () => {
+  it('picking a client re-reads from the client route, and clearing it returns to the usual list', async () => {
+    const wrapper = mountWithClients()
+    await flush()
+    expect(wrapper.vm.clients).toHaveLength(1)
+    wrapper.vm.clientId = CLIENT
+    await flush(); await flush()
+    const reads = global.fetch.mock.calls.map(c => String(c[0]))
+    expect(reads).toContain('/api/meeting/observations/client/' + CLIENT)
+    expect(wrapper.vm.current.points.map(p => p.id)).toEqual(['mo-eoy-1', 'ao-1', 'eo-1'])
+    expect(wrapper.vm.clientName).toBe('Harbourside Joinery Ltd')
+
+    wrapper.vm.clientId = ''
+    await flush(); await flush()
+    expect(wrapper.vm.current.points.map(p => p.id)).toEqual(['mo-eoy-1', 'fm-2', 'ao-1'])
+  })
+
+  it('🔴 a client-level set-aside carries the client id and nothing about who is asking', async () => {
+    const wrapper = mountWithClients()
+    await flush()
+    wrapper.vm.clientId = CLIENT
+    await flush(); await flush()
+    await wrapper.vm.setAside({ id: 'mo-eoy-1' }, true)
+    const write = lastWrite()
+    expect(write.url).toBe('/api/meeting/observations/client/decline')
+    expect(write.body).toEqual({ scenario: EOY, clientId: CLIENT, pointId: 'mo-eoy-1', declined: true })
+    expect(write.body.advisorId).toBeUndefined()
+    expect(write.body.byName).toBeUndefined()
+  })
+
+  it('🔴 a point added for a client goes to the client route with the client id only', async () => {
+    const wrapper = mountWithClients()
+    await flush()
+    wrapper.vm.clientId = CLIENT
+    await flush(); await flush()
+    wrapper.vm.startAdd()
+    wrapper.vm.newText = 'Raise succession gently.'
+    await wrapper.vm.addOwn()
+    const write = lastWrite()
+    expect(write.url).toBe('/api/meeting/observations/client/own')
+    expect(write.body).toEqual({ scenario: EOY, clientId: CLIENT, text: 'Raise succession gently.', cannotHear: false, hintWords: [] })
+  })
+
+  it("inside a client's list the advisor's own point is neither editable nor offered for set-aside; the client's is editable", async () => {
+    const wrapper = mountWithClients()
+    await flush()
+    wrapper.vm.clientId = CLIENT
+    await flush(); await flush()
+    const [platform, mine, client] = wrapper.vm.current.points
+    expect(wrapper.vm.editableTier).toBe('client')
+    expect(wrapper.vm.canSetAside(platform)).toBe(true)
+    expect(wrapper.vm.canSetAside(mine)).toBe(false)
+    expect(client.sourceTier).toBe(wrapper.vm.editableTier)
+    // And with no client, the advisor's own point is the editable one again.
+    wrapper.vm.clientId = ''
+    await flush(); await flush()
+    expect(wrapper.vm.editableTier).toBe('advisor')
+    expect(wrapper.vm.canSetAside(platform)).toBe(true)
+  })
+
+  it('a client register that fails to load says so, and the usual list still loads', async () => {
+    const wrapper = mountWithClients({ registerFails: true })
+    await flush()
+    expect(wrapper.vm.clientsError).toBeTruthy()
+    expect(wrapper.vm.clients).toEqual([])
+    expect(wrapper.vm.current.points).toHaveLength(3)
+  })
+
+  it('🔴 changing client drops a half-finished draft, so it cannot land on another client\'s list', async () => {
+    const wrapper = mountWithClients()
+    await flush()
+    wrapper.vm.startAdd()
+    wrapper.vm.newText = 'meant for nobody in particular'
+    wrapper.vm.clientId = CLIENT
+    await flush(); await flush()
+    expect(wrapper.vm.adding).toBe(false)
+    expect(wrapper.vm.newText).toBe('')
+  })
+})

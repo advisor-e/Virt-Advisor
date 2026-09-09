@@ -3,7 +3,13 @@
 <style>
 /* ============================================================================
    Meeting Review — the BUSINESS-ENTITY LEVEL: "how I run meetings with THIS client".
-   ✎ DRAWN 2026-09-10 FOR APPROVAL. FIVE QUESTIONS OPEN. NOTHING BUILT.
+   ✅ ALL FIVE QUESTIONS RULED BY MIKE 2026-09-10 — APPROVED TO BUILD FROM, ONE SCREEN.
+   🔴 QUESTION 5 REMOVED STAGE C. Mike: "WHY does the firm manager need a copy? ...
+   it's the PARTNER or firm manager that owns the client data base - NOT the advisor.
+   WHY are we building two levels of this??" With one shared list per client (Q1)
+   that any advisor in the firm may edit (Q3), the manager uses the SAME pre-set
+   screen, or Advisor-e's own view-as-advisor. No hub section. D2 holds in
+   substance — a manager can set a client's points — without a screen of its own.
 
    What this is: slice 4 of design/MEETING-TYPES-CASCADE.md §7, SECOND half — the
    last unbuilt row in the Meeting Review Brief's build table. The first half, the
@@ -33,7 +39,7 @@
      navy   #002B64 — the firm's standard
      teal   #00857A — the advisor's own level (built)
      amber  #B56200 — THIS CLIENT: the level this page adds
-     violet #5B4B9E — the manager's half
+     violet #5B4B9E — (was the manager's half; removed by Q5)
 
    WORDING IS MARKED IN TWO KINDS:
      .approved  ✅ Mike's exact words, ruled and quoted from the repo.
@@ -149,6 +155,7 @@ table.words td.w{font-weight:600;white-space:nowrap}
 .q .against{background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:7px;padding:11px 13px;margin-top:9px;font-size:13.5px;color:#5c4405}
 .q .qn{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
 .q.big{border-left-color:var(--rec)}
+.q.ruled{border-left-color:var(--good)}
 
 footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
 footer p{max-width:80ch;margin-bottom:8px}
@@ -165,10 +172,14 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      for one relationship. This is that level, and it is the last unbuilt row of Meeting Review.</p>
 </div>
 
-<div class="banner warn">
-  <b>✎ DRAWN 2026-09-10 FOR APPROVAL — five questions at the foot of the page, nothing built.</b>
-  Every label is proposed unless marked ✅. The advisor's own level is not redrawn here; where
-  a verb or a source label already has Mike's ruling from 2026-09-08 it is reused unchanged.
+<div class="banner navy">
+  <b>✅ ALL FIVE QUESTIONS RULED BY MIKE, 2026-09-10 — APPROVED TO BUILD FROM.</b>
+  <b>Question 5 removed a whole stage.</b> The manager's section drawn as Stage C is gone: with
+  one shared list per client that any advisor in the firm may edit, a firm manager opens the same
+  pre-set screen, and Advisor-e's own view-as-advisor reaches an advisor's side of it. In his
+  words: <i>"it's the PARTNER or firm manager that owns the client data base - NOT the advisor.
+  WHY are we building two levels of this??"</i> One screen. The questions are kept below with
+  their rulings, because the reasoning is what a later session needs.
 </div>
 
 <div class="banner navy">
@@ -312,45 +323,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 
 </div>
 
-<!-- ══ STAGE C ══════════════════════════════════════════════════════════ -->
-<div class="stage s-c">
-  <div class="num">C</div>
-  <div><h2>The firm manager's half of D2</h2><div class="sub">"A partner can prepare a difficult client's meeting for a junior"</div></div>
-</div>
-<div class="s-c rail">
-  <div class="screen">
-    <div class="cap">C1 · On the manager's Meeting Review tab · <span class="pill prop">✎ proposed</span> · firm tier only</div>
-    <div class="frame">
-      <div class="chrome"><span>Manage AI Coach › Meeting Review</span><span class="r">firm manager · Tom Boyd</span></div>
-      <div class="pane">
-        <h3>Points for one client</h3>
-        <p class="lede">Set what anyone in the firm is checked on when they meet a particular
-          client. Advisors see these on their pre-set, with your name beside them.</p>
-        <div class="two">
-          <div class="field"><label>Client</label><div class="select" style="border-color:var(--violet)">Harbourside Joinery Ltd</div></div>
-          <div class="field"><label>What kind of meeting?</label><div class="select">End of Year Meeting — Planning and Delivery</div></div>
-        </div>
-        <div class="pts">
-          <div class="pt client"><span class="box" style="background:var(--violet)"></span><div class="body">The succession question was raised again, gently — last time it closed the conversation.<div class="src client"><span class="dot" style="background:var(--violet)"></span>For this client · added by Tom Boyd</div></div><div class="acts"><span class="btn link sm">Edit</span><span class="btn link sm">Remove</span></div></div>
-          <div class="pt off"><span class="box"></span><div class="body">A metaphor or analogy was used to explain a financial idea.<div class="src client"><span class="dot"></span>From Advisor-e · off for this client · set aside by Ruth Kelleher</div></div><div class="acts"><span class="btn link sm">Put it back</span></div></div>
-        </div>
-        <div class="btns"><span class="btn">Add a point for this client</span></div>
-      </div>
-    </div>
-    <div class="note">
-      <b>The same list, seen from the other chair.</b> D2 gives the advisor and the manager one
-      client list between them, so the manager's screen is the client's list with the same verbs,
-      not a mirror of somebody else's decisions — which is why there is no Stage C "set aside by
-      advisors" panel here: the manager already sees, and can undo, a set-aside on the list itself.
-      <b>Firm tier only, stated as the judgement it is:</b> the client register is the firm's
-      (<code>/api/clients</code> is scoped to <code>req.firmId</code>), so a tier above the firm has
-      no clients to pick from. The full list of a client's inherited points is not repeated on
-      this screen; only what is set at the client level shows, because the manager's own list is
-      one tab up. <b>Question 5.</b>
-    </div>
-  </div>
-</div>
-
 <!-- ══ STORAGE ═════════════════════════════════════════════════════════ -->
 <div class="stage s-b">
   <div class="num">§</div>
@@ -399,21 +371,17 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
   <tr><td class="w">Hint field</td><td>Words that hint it happened (optional)</td><td>✅ Unchanged, ruled 2026-09-08.</td></tr>
   <tr><td class="w">Add form note</td><td>This is for meetings with this client only. Whoever in your firm meets them will see it, and your firm's list is not changed.</td><td>Replaces <i>nobody else sees this</i>, which would be false at this level.</td></tr>
   <tr><td class="w">Save</td><td>Add this point</td><td>✅ Unchanged, approved 2026-09-01.</td></tr>
-  <tr><th colspan="3" style="background:var(--violet-soft);color:var(--violet)">Stage C — the manager's half</th></tr>
-  <tr><td class="w">Section heading</td><td>Points for one client</td><td>Sits under the firm's own list on the same tab. <i>Client points</i> would read as points a client sets.</td></tr>
-  <tr><td class="w">Section lede</td><td>Set what anyone in the firm is checked on when they meet a particular client. Advisors see these on their pre-set, with your name beside them.</td><td>Answers what it does and who sees it, in that order. The last clause is question 4's consequence, said where the manager decides.</td></tr>
-  <tr><td class="w">Client select label</td><td>Client</td><td>The manager is choosing a record, not going to a meeting.</td></tr>
 </table>
 </div>
 
 <!-- ══ QUESTIONS ══════════════════════════════════════════════════════ -->
 <div class="stage s-c">
   <div class="num">?</div>
-  <div><h2>Five questions</h2><div class="sub">One recommendation each, and the argument against</div></div>
+  <div><h2>Five questions</h2><div class="sub">All five ruled 2026-09-10 · the fifth removed Stage C</div></div>
 </div>
 
-<div class="q big">
-  <div class="qn">Question 1</div>
+<div class="q ruled">
+  <div class="qn">Question 1 — ✅ RULED BY MIKE, 2026-09-10: ONE SHARED LIST PER CLIENT. "a firms internal proceedings will determine who meets with them but at least everyone is on the same page"</div>
   <h3>Is a client's list <i>one list</i>, shared by everyone who meets them — or one per advisor per client?</h3>
   <p>D2 says the advisor and the firm manager may <i>each</i> set a client's points. That can mean
      one shared list they both write to, or a manager's client list and each advisor's private
@@ -428,8 +396,8 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      decision (question 4) is what makes that a conversation instead of a mystery.</div>
 </div>
 
-<div class="q">
-  <div class="qn">Question 2</div>
+<div class="q ruled">
+  <div class="qn">Question 2 — ✅ RULED BY MIKE, 2026-09-10: NO. "the person responsible for completing that task should be the one to take it off"</div>
   <h3>Can a client-level entry put back a point the advisor set aside for <i>all</i> their meetings?</h3>
   <div class="rec"><b>Recommendation: NO.</b> The layers apply firm → advisor's own → client, and the client
      layer only sets aside or adds. An advisor who has said <i>not for my meetings</i> should not find
@@ -441,8 +409,8 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      answer the advisor-level Stage C gave: a mirror, not a control.</div>
 </div>
 
-<div class="q">
-  <div class="qn">Question 3</div>
+<div class="q ruled">
+  <div class="qn">Question 3 — ✅ RULED BY MIKE, 2026-09-10: YES, any advisor in the firm, named on every entry</div>
   <h3>Who may set a client's points — any advisor in the firm, or only the advisor who meets them?</h3>
   <div class="rec"><b>Recommendation: ANY advisor in the firm.</b> The register is firm-wide and the app
      holds no record of which advisor "owns" a client — the meeting record names the advisor who
@@ -452,8 +420,8 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      manager who can remove it.</div>
 </div>
 
-<div class="q">
-  <div class="qn">Question 4</div>
+<div class="q ruled">
+  <div class="qn">Question 4 — ✅ RULED BY MIKE, 2026-09-10: YES, always</div>
   <h3>Does every client-level entry name who set it?</h3>
   <div class="rec"><b>Recommendation: YES, always</b> — <i>added by Tom Boyd</i>, <i>set aside by Ruth
      Kelleher</i>. The advisor level shows <i>Added by you</i> because only you can write there. A
@@ -464,8 +432,8 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      level already names advisors to their manager for the same reason.</div>
 </div>
 
-<div class="q">
-  <div class="qn">Question 5</div>
+<div class="q ruled">
+  <div class="qn">Question 5 — 🔴 RULED BY MIKE, 2026-09-10: NO MANAGER SCREEN AT ALL. "WHY does the firm manager need a copy? ... it's the PARTNER or firm manager that owns the client data base - NOT the advisor. WHY are we building two levels of this??" Stage C deleted from this page.</div>
   <h3>Is the manager's half a section on the existing Meeting Review tab, firm tier only?</h3>
   <div class="rec"><b>Recommendation: YES.</b> The client register belongs to the firm, so the two middle
      tiers and the mentor have no clients to pick from — a client picker at the mentor tier would

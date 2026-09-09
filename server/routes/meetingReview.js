@@ -64,6 +64,7 @@ const obs = require('../utils/meetingObservations')
 // The advisor's own level sits on top of the firm's resolved list. Report generation applies
 // it through the same function the screen uses — see `presetFor`.
 const { applyAdvisorLayer } = require('../utils/meetingObservationsAdvisor')
+const { applyEntityLayer } = require('../utils/meetingObservationsEntity')
 const { computeMetrics } = require('../utils/meetingMetrics')
 const { generateSummary, generateCoachingNotes } = require('../utils/meetingReports')
 // The firm's own client register (built 2026-07-14). A meeting records WHICH client it was
@@ -596,7 +597,7 @@ const reportJobs = new Map()
  * @param {string|null} scenarioId
  * @returns {Promise<{points: Array<object>, scenarioName: (string|null)}>}
  */
-async function presetFor (req, scenarioId) {
+async function presetFor (req, scenarioId, clientId) {
   if (!scenarioId) { return { points: [], scenarioName: null } }
   const observationRoutes = require('./meetingObservations')
   const resolved = await obs.loadResolvedObservations(req.firmId, observationRoutes.readScopeConfig)
@@ -608,7 +609,19 @@ async function presetFor (req, scenarioId) {
     declines: state.declines[scenarioId] || [],
     own: state.own[scenarioId] || []
   }
-  const points = applyAdvisorLayer(scenario.points || [], mine)
+  let points = applyAdvisorLayer(scenario.points || [], mine)
+
+  // The client's shared layer (2026-09-10), applied AFTER the advisor's through the same
+  // function the screen calls — the fault above, made once, is not to be made again one level
+  // down. A meeting recorded without a client gets the advisor's list unchanged.
+  if (clientId) {
+    const entityRoutes = require('./meetingObservationsEntity')
+    const entity = await entityRoutes.loadEntityState(req.firmId, clientId)
+    points = applyEntityLayer(points, {
+      declines: entity.declines[scenarioId] || [],
+      own: entity.own[scenarioId] || []
+    })
+  }
 
   return { points: obs.asAdvisorPreset({ points }), scenarioName: scenario.name || null }
 }
@@ -716,7 +729,7 @@ async function generateReports (req, res) {
 
   let ctx
   try {
-    ctx = await presetFor(req, meta.scenarioId)
+    ctx = await presetFor(req, meta.scenarioId, meta.clientId || null)
   } catch (err) {
     return serverError(res, err, 'read the observation points')
   }
