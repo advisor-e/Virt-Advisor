@@ -50,9 +50,16 @@
 > repository's rules exist to stop. It happened on 2026-09-07 and was corrected the same day.
 >
 > ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE — AND NOW THE CODE CAN.** That
-> changed on 2026-09-01: until slice 2 there was nothing to misuse. The four items in §4 are
-> not coding tasks and they gate a first recording rather than a first commit. `/meeting-record`
-> carries a banner saying so, which is a warning and not a control.
+> changed on 2026-09-01: until slice 2 there was nothing to misuse. The items in §4 are not coding
+> tasks and they gate a first recording rather than a first commit. `/meeting-record` carries a
+> banner saying so, **which is a warning and not a control — until item 4.83 builds one.**
+>
+> ✅ **§4 ITEM 3 IS CLOSED (2026-09-10) — the impact assessment is written**, against all fourteen
+> NZ information privacy principles: [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md).
+> **Four remain**, and two of them are now somebody's rather than nobody's: the letter to OpenAI
+> is written and waits on Mike to send (item 5), and **item 4.83 turns the banner into a real
+> gate** — a firm declares it understands the law where it operates, or Meeting Review does not
+> open for it. ⚠ **The staff consultation (item 4) is untouched by all of this and still stands.**
 >
 > **The screens are drawn in [`../mockups/meeting-review.html`](../mockups/meeting-review.html)**
 > — seven of them, from the pre-set through to the manager's aggregate, registered in
@@ -331,26 +338,52 @@ their own client. It is worth building as a visible setting rather than a buried
    [`../ARTEFACTS.md`](../ARTEFACTS.md). **What remains is not drafting but review: a lawyer reads
    it in each market the feature is sold into**, and the eight locales are translated by someone
    competent in the local law rather than machine-translated — see that page §5, and item 6 below.
-3. **A data protection impact assessment.** Recording identifiable third parties and processing
-   what will sometimes be special-category data (health, family, bereavement) requires one.
+3. ✅ **The impact assessment — WRITTEN 2026-09-10, and it is
+   [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md).** Mandatory under GDPR Art. 35 in
+   UK/EU markets; recommended rather than required in New Zealand, and done anyway because that is
+   what the all-care basis means. It assesses all fourteen NZ information privacy principles and
+   names where GDPR goes further. **Ten are met**, several better than most systems could show.
+   ⚠ **It is not COMPLETE, and §10 says why** — two findings are open, and they are not the same
+   kind of thing:
+   - 🔴 **IPP3A is not met, and it is new law** — in force **1 May 2026**, requiring reasonable
+     steps to notify someone whose information was collected from a source other than themselves.
+     A client discussing a named employee or a family member is exactly that. **The software
+     cannot solve it** — it cannot know who was mentioned. It needs a firm-level position, which
+     is item 7 of the assessment's §9 and one of the things the Compliance page publishes.
+   - 🔴 **IPP6/IPP7 is OURS and it is unbuilt** — no route serves a client asking for a copy of
+     what was recorded about them, or its correction. That is item 7 below, and the assessment
+     records it as finding B rather than leaving it inside a prose paragraph.
 4. **Staff consultation.** Recording employees and generating performance findings about them is
    monitoring in employment-law terms, whoever owns the report. P2 makes the position defensible;
    it does not remove the obligation.
-5. 📧 **The transcription terms, for audio specifically — the email is drafted and waits on Mike
-   to send it: [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)** (2026-09-07,
-   on his instruction). It asks the four things below in writing and nothing else. ⚠ **The item
-   closes on a written reply that names audio** — not a phone call, not a public policy page. A
-   "no" on training, or a long retention period, would falsify the spoken consent line rather
-   than being a detail to work around. Smaller than this list first assumed: the
+5. 📧 **The transcription terms, for audio specifically — the letter is ready to send as it
+   stands and waits only on Mike:
+   [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)** (drafted 2026-09-07,
+   rewritten 2026-09-10 on his instruction to be sendable). **It asks five things and nothing
+   else**, and the page names where to send it. ⚠ **The item closes on a written reply that names
+   audio** — not a phone call, not a public policy page. Smaller than this list first assumed: the
    provider is OpenAI, already this app's contracted sub-processor (§3), so no new company and no
-   new data-processing agreement are introduced. What is still needed **in writing** is that the
-   existing terms cover *submitted audio* — no training on it, and a stated retention period —
-   because a text prompt and an hour of a named client's financial affairs are not the same
-   undertaking.
+   new data-processing agreement are introduced. What is needed **in writing** is that the existing
+   terms cover *submitted audio*, because a text prompt and an hour of a named client's financial
+   affairs are not the same undertaking. **Three of the five are the ones that can falsify the
+   spoken consent line rather than being details to work around:** a "no" on training, a long
+   retention period, or a "yes" on whether the provider's own people can listen to it.
+   🔴 **This is also what closes IPP12** — the assessment cannot evidence that principle until the
+   processing regions are named, so the letter and the assessment close each other.
 6. **Jurisdiction.** The app is already localised for more than one country, and the law on
-   recording a conversation is not the same in all of them.
-7. **The client's rights.** A named individual may ask for a copy of what was recorded about them,
-   or its deletion. There must be an answer before the first recording, not after the first request.
+   recording a conversation is not the same in all of them. ⚠ **This is the item item 4.83 changes
+   the shape of** — it does not answer the question, and it never could, but it stops the answer
+   being nobody's: a firm declares in its own words that it has read and understands the law where
+   it operates, and Meeting Review does not open until it has. **Advisor-e still assesses nothing**,
+   which is the point.
+7. 🔴 **The client's rights — OURS, UNBUILT, AND NOW NAMED RATHER THAN DESCRIBED.** A named
+   individual may ask for a copy of what was recorded about them, or its correction or deletion.
+   There is **no route that serves it** — the data is findable and it can be answered by hand, but
+   nothing in the software supports it. It is **finding B of
+   [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md) §10**, which is where its state is
+   maintained. ⚠ **It is materially more serious in a UK/EU market than in New Zealand**: IPP6 and
+   IPP7 are rights of access and correction, where GDPR adds erasure and portability as hard rights
+   with a one-month deadline.
 
 ---
 
