@@ -16,7 +16,7 @@
 through the two management tiers between them:
 
 ```
-Mentor  →  Global Manager  →  Group Manager  →  Firm Manager  →  Advisor
+Mentor  →  Global Group Manager  →  Group Manager  →  Firm Manager  →  Advisor
 ```
 
 ---
@@ -85,7 +85,7 @@ row:
 | Tier | Scope id | Row in `firms` |
 |---|---|---|
 | Mentor | `__platform__` | already seeded |
-| Global Manager | `__global__:<globalGroup>` | seeded per global group |
+| Global Group Manager | `__global__:<globalGroup>` | seeded per global group |
 | Group Manager | `__group__:<globalGroup>:<country>` | seeded per country |
 | Firm Manager | the real firm id | already there |
 
@@ -120,7 +120,7 @@ bug returns with three new ways to hit it:
 | Tier | Staircase | Quiz |
 |---|---|---|
 | Mentor | `ms-` | `mq-` |
-| Global Manager | `xs-` | `xq-` |
+| Global Group Manager | `xs-` | `xq-` |
 | Group Manager | `gs-` | `gq-` |
 | Firm | `fs-` | `fq-` |
 

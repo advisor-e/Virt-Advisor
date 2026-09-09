@@ -59,6 +59,25 @@ const ASSEMBLED_FILE = 'assembled.audio'
 const TRANSCRIPT_FILE = 'transcript.json'
 
 /**
+ * A client's own correction statements, attached to moments in the transcript.
+ *
+ * 🔴 ATTACHED, NEVER AN EDIT — Mike's ruling 4 of 2026-09-10,
+ * `design/mockups/client-record-request.html`. IPP7 asks you to correct information where you
+ * can and, where you decline, to attach the individual's own statement so anyone reading the
+ * record afterwards sees it. A transcript is the second case almost every time: it records
+ * what was said in a room rather than a claim about the world, and rewriting it would destroy
+ * the only thing it is good for. It would also break every coaching finding built on it —
+ * each quote is verified against the transcript before it is stored, so an edit would strand
+ * findings that still read as evidenced.
+ *
+ * ⚠ IT LIVES BESIDE THE TRANSCRIPT AND DIES WITH IT. A correction quotes the passage it
+ * disputes, so keeping it past the retention clock would preserve the client's words in a file
+ * nobody was looking at — the same fault `destroyTranscript` was written to prevent for the
+ * two reports. It is in that function's list for exactly that reason.
+ */
+const CORRECTIONS_FILE = 'corrections.json'
+
+/**
  * Size limits.
  *
  * An hour of browser-encoded Opus is roughly 30 MB, so 400 MB is generous for a long meeting
@@ -113,6 +132,18 @@ function _chunkName (seq) {
  * @param {object} owner
  * @param {string} owner.firmId - the verified scope from the JWT
  * @param {string} owner.advisor - the signed-in advisor's identifier
+ * @param {string} [owner.advisorName] - their name, captured at write time.
+ *
+ *   🔴 CAPTURED, NOT JOINED, AND FOR THE SAME REASON AS `advisor_va_sessions.advisor_name`:
+ *   **this application holds no advisors table** — `config/db-schema.sql` says so four times —
+ *   so there is nothing to look a name out of later. Added 2026-09-10 for the client copy
+ *   request, whose screen names the advisor a client is waiting on.
+ *
+ *   ⚠ AND SO IT IS ABSENT ON EVERY MEETING RECORDED BEFORE THAT DAY, which is a named
+ *   deviation from `design/mockups/client-record-request.html`: the drawing shows *"Recorded by
+ *   Owen Fraser"* and an older meeting can only show his identifier. It cannot be backfilled
+ *   from anywhere, and inventing a lookup would be the "4 of 12" fault — a plausible wrong name
+ *   is worse than an honest id.
  * @param {string} [owner.scenarioId] - the meeting type chosen in the pre-set
  * @param {string} [owner.clientId] - which client this meeting is with, from the firm's own
  *   register. The ID ONLY, never the name: a firm may rename a client and the record must not
@@ -131,6 +162,9 @@ function createMeeting (owner) {
     meetingId,
     firmId: (owner && owner.firmId) || null,
     advisor: (owner && owner.advisor) || null,
+    // See the parameter note: captured because there is no advisors table to join, and null
+    // on every meeting recorded before 2026-09-10 rather than guessed at afterwards.
+    advisorName: (owner && owner.advisorName) || null,
     scenarioId: (owner && owner.scenarioId) || null,
     // Which client, from the firm's own register. Null when the advisor recorded without
     // choosing one — follow-through then has nothing to match on, and says so rather than
@@ -431,6 +465,48 @@ function readTranscript (meetingId) {
 }
 
 /**
+ * The client's correction statements for this meeting, oldest first.
+ *
+ * Always an array — a meeting with no corrections and a meeting whose file will not parse both
+ * read as none, because a screen that cannot render the transcript is worse than one rendering
+ * it without an attachment nobody can read anyway.
+ *
+ * @param {string} meetingId
+ * @returns {Array<object>}
+ */
+function readCorrections (meetingId) {
+  try {
+    const rows = JSON.parse(
+      fs.readFileSync(path.join(_meetingDir(meetingId), CORRECTIONS_FILE), 'utf8')
+    )
+    return Array.isArray(rows) ? rows : []
+  } catch (_e) {
+    return []
+  }
+}
+
+/**
+ * Append one correction statement.
+ *
+ * 🔴 APPEND-ONLY, AND NOTHING REMOVES ONE. A client's attached statement is the record IPP7
+ * asks for; a firm that could take it back down would have a correction facility that corrects
+ * nothing. The transcript's own expiry is what removes it, with everything else.
+ *
+ * @param {string} meetingId
+ * @param {object} correction - `{id, at, statement, quote, quoteAt, recordedBy}`
+ * @returns {Array<object>} every correction now held
+ */
+function appendCorrection (meetingId, correction) {
+  const rows = readCorrections(meetingId)
+  rows.push(correction)
+  fs.writeFileSync(
+    path.join(_meetingDir(meetingId), CORRECTIONS_FILE),
+    JSON.stringify(rows, null, 2)
+  )
+  return rows
+}
+
+/**
  * Destroy the TEXT a meeting left behind — the transcript and both reports — keeping the
  * meeting record itself.
  *
@@ -453,7 +529,15 @@ function readTranscript (meetingId) {
  */
 function destroyTranscript (meetingId) {
   const dir = _meetingDir(meetingId)
-  const text = [TRANSCRIPT_FILE, _reportName('summary'), _reportName('coaching')]
+  // 🔴 THE CORRECTIONS GO TOO, for the reason in `CORRECTIONS_FILE`'s own note: a client's
+  // attached statement quotes the passage it disputes, so leaving it behind would keep their
+  // words in a file the promise never mentioned. Same argument as the two reports.
+  const text = [
+    TRANSCRIPT_FILE,
+    _reportName('summary'),
+    _reportName('coaching'),
+    CORRECTIONS_FILE
+  ]
 
   let removed = 0
   let bytesRemoved = 0
@@ -523,6 +607,7 @@ module.exports = {
   META_FILE,
   ASSEMBLED_FILE,
   TRANSCRIPT_FILE,
+  CORRECTIONS_FILE,
   MAX_CHUNK_BYTES,
   MAX_MEETING_BYTES,
   audioRoot,
@@ -540,6 +625,8 @@ module.exports = {
   destroyTranscript,
   writeTranscript,
   readTranscript,
+  readCorrections,
+  appendCorrection,
   writeReport,
   readReport
 }

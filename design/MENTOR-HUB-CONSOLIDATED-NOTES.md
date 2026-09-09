@@ -26,7 +26,7 @@ the seven user levels — the Mentor is level 1:
 | Level | Role | Operates this app as… |
 |---|---|---|
 | 1 | **Mentor** | Platform owner (Mike). Makes app changes; authors content, domain logic trees, summary documents; seeds the baseline distinctions every firm starts with. |
-| 2 | Global Manager / Global Coach | — same screens as a Firm Manager — |
+| 2 | Global Group Manager / Global Coach | — same screens as a Firm Manager — |
 | 3 | Group Manager | — same screens as a Firm Manager — |
 | 4 | Firm Manager | Final say on what their advisors and clients see |
 | 5 | Advisor / Client | Read what the Firm allows |
@@ -95,7 +95,7 @@ clients see.
 
 ```text
 Mentor Hub            ← every editable function is authored here
-  └─ Global Manager Hub          ← same functions, its own copy
+  └─ Global Group Manager Hub    ← same functions, its own copy
        └─ Group Manager Hub      ← same functions, its own copy
             └─ Firm Manager Hub  ← same functions, its own copy — final say on visibility
                  └─ Advisor

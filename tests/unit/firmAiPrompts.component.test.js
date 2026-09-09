@@ -27,6 +27,7 @@ const CASHFLOW = 'cashflow-forecast'
 const SECURITY = 'ai-audit-security'
 const REVIEW = 'prompt-review' // item 4.31 — mentor only
 const ECONOMIC = 'economic-analysis' // item 4.66 — all four tiers
+const DEPRECIATION = 'depreciation-read' // item 4.78 slice 3 — all four tiers, like the two above
 
 /**
  * Mount the tab with the backend answering exactly as the real route does — the payload
@@ -56,10 +57,10 @@ async function mountTab (tier, own) {
 afterEach(() => { delete global.fetch })
 
 describe('what a firm manager opens', () => {
-  it('shows both client-facing documents, and the picker that comes back with them', async () => {
+  it('shows the client-facing documents, and the picker that comes back with them', async () => {
     const wrapper = await mountTab('firm')
 
-    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC])
+    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, DEPRECIATION])
 
     // 🔴 THE COMPONENT PREDICTED THIS AND IT NEEDED NO CHANGE. Mike ruled 2026-08-22 that
     // a picker offering a choice of one is furniture, and the fix asked the DATA rather
@@ -146,7 +147,7 @@ describe('what the mentor additionally sees', () => {
   it('gets every mentor document and therefore a picker', async () => {
     const wrapper = await mountTab('mentor')
 
-    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC])
+    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, DEPRECIATION])
     expect(wrapper.vm.hasPicker).toBe(true)
     // One card per document. The count follows the list rather than being pinned to a
     // number, so adding a fourth document is a data change and not a test change.

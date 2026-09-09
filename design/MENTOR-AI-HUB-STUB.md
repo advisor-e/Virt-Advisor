@@ -102,7 +102,7 @@ holds this property; the report must keep it.
 1. **Firm enumeration.** "Every firm" is a query this app cannot answer today — firm
    identity arrives per-request from the JWT. The cross-firm report needs an upstream
    list of firm ids (Advisor-e + SQL), scoped correctly once Global/Group tiers exist
-   (a Global Manager could conceivably get the same report over their group — not asked
+   (a Global Group Manager could conceivably get the same report over their group — not asked
    for, but the shape allows it).
 2. **The baseline write path.** Where a Mentor save lands (the storage-scope decision in
    `USER-LEVEL-CASCADE-HANDOVER.md` Part 3) and how it versions — the firm mechanism

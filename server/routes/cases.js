@@ -58,7 +58,7 @@ async function listCases (req, res) {
  * once argued to be firm-only. Reading `listSharedWithMentor` is what makes rolling
  * it up safe rather than a widening.
  *
- * ⚠ BEFORE 2026-08-12 THIS WAS FIRM-EXACT AT EVERY TIER, so a group or global manager
+ * ⚠ BEFORE 2026-08-12 THIS WAS FIRM-EXACT AT EVERY TIER, so a group or global group manager
  * got an empty list. That was invisible only because no firm was mapped to a middle
  * tier yet, so the screen showed "not connected yet" instead. The moment membership
  * existed it began saying "no shared case studies yet" to a manager whose advisers

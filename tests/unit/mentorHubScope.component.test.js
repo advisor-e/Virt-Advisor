@@ -246,7 +246,16 @@ describe('the two tiers are recognisably the same screen', () => {
   // wins the whole library, and a firm is the tier with a real reason to hold its own
   // set. It sits FIRST here because it is drawn in "Your AI coach", the first group,
   // while the other three sit in later groups — menu order, per the note above.
-  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules']
+  //
+  // ⚠ AMENDED 2026-09-10, and the list is now FIVE. `Client Copy Request` is Mike's own tab
+  // name (ruling 9 of design/mockups/client-record-request.html) for a client asking for a
+  // copy of what was recorded about them. 🔴 IT IS FIRM-ONLY IN A DIFFERENT SENSE FROM EVERY
+  // OTHER ENTRY HERE: the others are narrow for economy and gain a tier the moment one has a
+  // reason, while this one can never gain a tier at all — Brief P13 keeps everything derived
+  // from a recorded meeting inside the firm it came from, so cascading it upward would break
+  // the promise a named client heard spoken. It sits SECOND because it is drawn immediately
+  // after Meeting Review in "Your AI coach", the first group — menu order, per the note above.
+  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
   //
@@ -318,7 +327,7 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s thirteen tabs under three headings', async () => {
+  it('groups the firm manager’s fifteen tabs under three headings', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
@@ -327,15 +336,34 @@ describe('the hub menu — the sidebar itself', () => {
     // Template Library (item 4.55, Phase 3 §7) and Meeting Review's observation points
     // (Mike asked for the feature and approved its drawing that day). Template Library
     // reached master first, so it holds index 6 and Meeting Review follows at 7.
+    //
+    // FOURTEEN on 2026-09-09, when Depreciation Rates was appended to Model Inputs (item
+    // 4.78). Mike ruled it onto all four manager tiers on 2026-09-08 — the firm owns it and
+    // "it cant be reliant on the group manager". Appended at the end of that group, so the
+    // three index assertions below are untouched, which is the point of appending.
+    //
+    // FIFTEEN the same day, when Tax Rates followed it into Model Inputs (item 4.81) — the
+    // same request of Mike's and the same country table, kept a SEPARATE tab because he had
+    // renamed the one above it hours earlier so that a tab's name predicts what is inside it.
+    // Appended again, so the three index assertions below are untouched again.
+    //
+    // SIXTEEN on 2026-09-10, when Client Copy Request was appended to "Your AI coach" — a
+    // client asking for a copy of what was recorded about them, asked for by Mike that day
+    // and named by him. ⚠ IT IS THE FIRST ADDITION TO THIS GROUP SINCE MEETING REVIEW, so it
+    // takes index 8 and the three assertions below are untouched once more. The group heading
+    // is a poor fit and that is stated in NAV_GROUPS rather than papered over: this feature
+    // uses no AI at all, and it sits there because it is entirely about meeting records and
+    // is where somebody would look for it.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(13)
+    expect(tabLabels(wrapper)).toHaveLength(16)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
     expect(tabLabels(wrapper)[5]).toBe('AI Prompts')
     expect(tabLabels(wrapper)[6]).toBe('firmTemplateLibrary.tab')
     expect(tabLabels(wrapper)[7]).toBe('Meeting Review')
+    expect(tabLabels(wrapper)[8]).toBe('Client Copy Request')
   })
 
   it('gives the mentor a Model Inputs heading holding only what it is entitled to', async () => {
@@ -406,11 +434,21 @@ describe('the hub menu — the sidebar itself', () => {
     // global group and group manager before firm manager, they accept or edit". This
     // is the first entry to exceed the approved design's 13, and it is a ruling of his
     // rather than drift, which is why the number moves rather than the tab.
+    //
+    // ⚠ AND TO 15 ON 2026-09-09, when Depreciation Rates joined Model Inputs (item 4.78).
+    // Mike ruled it onto all four manager tiers on 2026-09-08 — the firm owns it and "it
+    // cant be reliant on the group manager" — so, like Meeting Review above, the number
+    // moves because he ruled, not because anything drifted.
+    //
+    // ⚠ AND TO 16 THE SAME DAY, when Tax Rates joined Model Inputs beside it (item 4.81) —
+    // the same request of his, the same country table underneath, and a separate tab because
+    // he renamed Depreciation Rates that day precisely so a tab's name would predict what is
+    // inside it. Again his ruling, again not drift.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(14)
+    expect(tabLabels(wrapper)).toHaveLength(16)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

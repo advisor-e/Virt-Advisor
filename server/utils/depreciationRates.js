@@ -1,0 +1,583 @@
+'use strict'
+
+/**
+ * @file The depreciation rates one scope works to for one country — the app's own six
+ *   defaults, with each tier's APPROVED tax table laid over them.
+ * @module server/utils/depreciationRates
+ *
+ * Item 4.78, slice 1. Asked for by Mike on 2026-09-08 — *"is it worth having a field in
+ * the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be
+ * accurate per country?"* — and filed on his yes, after he overturned the recommendation
+ * against it. The artefacts are `design/mockups/depreciation-rates-upload.html` (the firm manager's
+ * screen) and `design/mockups/depreciation-rates-advisor.html` (the advisor's), both approved.
+ *
+ * 🔴 NOTHING IN THIS MODULE CAN READ AN UNAPPROVED TABLE, AND THAT IS STRUCTURAL RATHER
+ * THAN A CHECK SOMEBODY REMEMBERED TO WRITE. `CLAUDE.md` requires `isApproved: true`
+ * before AI output reaches a financial operation, so the store holds APPROVED TABLES ONLY:
+ * a country entry without `approvedAt` and `approvedBy` fails `validateDepreciationRates` and is
+ * dropped by the resolver like any other malformed value. A proposal the AI has extracted
+ * and nobody has accepted is not stored here at all — it lives with its document, which is
+ * slice 3. There is therefore no flag to forget to test and no state in which an
+ * unapproved rate can reach a forecast.
+ *
+ * 🔴 RATES ARE DECIMALS, 0..1 — 50% is 0.5, never 50. Same convention as
+ * `propertyTaxRules.js`, and it is the ENGINE's: `threeWayForecastModel.assetSchedule`
+ * multiplies the book value by this number directly. A `50` accepted here would depreciate
+ * an asset by 5000% a year and the forecast would still balance, which is exactly the
+ * failure the item was filed against. It is refused, never clamped.
+ *
+ * ⚠ EVERY TABLE IS TAGGED WITH ITS COUNTRY AND APPLIES ONLY TO CLIENTS IN IT — Mike's
+ * ruling 4 of 2026-09-08. That is why `country` is a parameter of the resolver rather than
+ * a property of the scope: one firm has clients in more than one, which is the whole reason
+ * the advisor's half of this feature exists.
+ *
+ * ⚠ A COUNTRY NOBODY HAS LOADED A DOCUMENT FOR GETS THE APP'S SIX DEFAULTS, badged as such,
+ * and the advisor is never blocked — ruling 3, in his words: *"Never block the advisor."*
+ * Stopping someone mid-report because a manager has not loaded a document punishes the
+ * wrong person.
+ *
+ * 🔴 WHY THIS RESOLVES TOP-DOWN INSTEAD OF RECURSING UP LIKE ITS THREE SIBLINGS.
+ * `propertyTaxRules`, `forecastTrendThresholds` and `forecastSellDown` recurse upward and
+ * `deepMerge` the result, which is correct for them and would lose the one thing this
+ * screen exists to show. The approved advisor drawing badges EACH ROW with where its rate
+ * came from — *your firm · IR265*, *group manager · NZ*, *app default* — three origins in
+ * one table. A merged object cannot say which layer supplied which key, so this walks
+ * `scopeChain` from the mentor down and records the origin as it overwrites. Same
+ * inheritance, same result, plus the provenance the artefact requires.
+ */
+
+const BASE_FILE = require('../../data/depreciation-rates.json')
+const { scopeChain, tierOfScope } = require('./tierChain')
+// What this and Tax Rates (item 4.81) both mean by a figure read out of a published
+// document: a country code, a publication date that can be ranked, and a mandatory source.
+// These four lived here first and were extracted verbatim; this module's own tests are the
+// proof the move changed nothing. Its RATE checks are deliberately NOT shared — their
+// messages name the rate they refused ("50% is 0.5, not 50") and are pinned by test.
+const { MAX_LABEL, normaliseCountry, num, publishedKey, cleanSource } = require('./sourcedFigure')
+
+/**
+ * The app's own six rates.
+ *
+ * `_`-prefixed keys are the data file's own documentation and are stripped here rather
+ * than in the file, so the note explaining that these are a GUESS stays beside the guess
+ * it explains and never reaches an API response or the model.
+ */
+const BASE_DEPRECIATION_RATES = BASE_FILE.categories
+
+/** The six fixed-asset categories the forecast has, in the order the engine holds them. */
+const CATEGORY_KEYS = Object.keys(BASE_DEPRECIATION_RATES)
+
+/** The overlay address an approved table is stored under, at every tier. */
+const CONFIG_KEY = 'depreciation-rates'
+
+/** How a rate is applied. `dv` reduces the book value; `sl` writes off original cost. */
+const METHODS = ['dv', 'sl']
+
+/**
+ * The longest chain of superseded figures kept beside a rate. Ruling 1 says the older
+ * figure is SHOWN rather than dropped, so the firm sees a disagreement between two
+ * documents; a cap stops a table that has been reloaded thirty times from carrying thirty
+ * dead rates into every forecast response.
+ */
+const MAX_SUPERSEDED = 5
+
+/**
+ * Longest the "what qualifies" and "what does not" sentences on a first-year rule may be.
+ * They are the tax authority's own wording, shown to the manager verbatim and never
+ * paraphrased, so the cap is generous — but it is a cap, because this text reaches a screen.
+ */
+const MAX_RULE_TEXT = 400
+
+/**
+ * This module's own source validator — `sourcedFigure.cleanSource` with the noun it uses.
+ *
+ * The noun is passed so the message a manager sees is unchanged by the extraction: this
+ * feature refuses an unsourced RATE, and Tax Rates refuses an unsourced FIGURE.
+ *
+ * @param {*} value
+ * @param {string} where - for the error message
+ * @param {string[]} errors - collected in place
+ * @returns {object|null} the cleaned source, or null when it was refused
+ */
+function cleanRateSource (value, where, errors) {
+  return cleanSource(value, where, errors, 'rate')
+}
+
+/**
+ * Validate one category's rate entry.
+ *
+ * @param {*} value
+ * @param {string} where - for the error message
+ * @param {string[]} errors - collected in place
+ * @param {boolean} allowSuperseded - false inside a `superseded` entry, so the older
+ *   figures cannot themselves carry older figures and nest without limit
+ * @returns {object|null} the cleaned entry, or null when it was refused
+ */
+function cleanEntry (value, where, errors, allowSuperseded) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    errors.push(`${where} must be a non-array JSON object`)
+    return null
+  }
+
+  const method = value.method
+  if (!METHODS.includes(method)) {
+    errors.push(`${where}.method must be one of: ${METHODS.join(', ')}`)
+    return null
+  }
+
+  const rates = {}
+  let bad = false
+  ;['dvRate', 'slRate'].forEach((field) => {
+    const n = num(value[field])
+    if (n === null) { rates[field] = null; return }
+    // Refused, never clamped: `50` is not a bad 50%, it is a rate typed in the wrong unit,
+    // and reading it as 5000% puts a wrong figure into a forecast that still balances.
+    if (n < 0 || n > 1) {
+      errors.push(`${where}.${field} must be a rate between 0 and 1 (50% is 0.5, not 50)`)
+      bad = true
+      return
+    }
+    rates[field] = n
+  })
+  if (bad) { return null }
+
+  // The rate the method names has to exist, or the entry says how to apply a number it
+  // does not have — and the resolver would fall through to the app default while the
+  // screen showed an approved row. A silent no-op is the one outcome nobody can see.
+  const operative = method === 'dv' ? rates.dvRate : rates.slRate
+  if (operative === null) {
+    errors.push(`${where}.${method === 'dv' ? 'dvRate' : 'slRate'} is required when method is '${method}'`)
+    return null
+  }
+
+  const lifeYears = num(value.lifeYears)
+  if (lifeYears !== null && (lifeYears <= 0 || lifeYears > 100)) {
+    errors.push(`${where}.lifeYears must be a number of years between 0 and 100`)
+    return null
+  }
+
+  const label = typeof value.label === 'string' ? value.label.trim().slice(0, MAX_LABEL) : null
+
+  const source = cleanRateSource(value.source, where, errors)
+  if (source === null) { return null }
+
+  const entry = { label: label || null, method, dvRate: rates.dvRate, slRate: rates.slRate, lifeYears, source }
+
+  if (allowSuperseded && value.superseded !== undefined && value.superseded !== null) {
+    if (!Array.isArray(value.superseded)) {
+      errors.push(`${where}.superseded must be an array of the figures this one replaced`)
+      return null
+    }
+    if (value.superseded.length > MAX_SUPERSEDED) {
+      errors.push(`${where}.superseded may hold at most ${MAX_SUPERSEDED} earlier figures`)
+      return null
+    }
+    const older = []
+    for (let i = 0; i < value.superseded.length; i++) {
+      const one = cleanEntry(value.superseded[i], `${where}.superseded[${i}]`, errors, false)
+      if (one === null) { return null }
+      older.push(one)
+    }
+    if (older.length) { entry.superseded = older }
+  }
+
+  return entry
+}
+
+/**
+ * Validate a country's FIRST-YEAR RULE — New Zealand's Investment Boost, and whatever
+ * another country calls its own.
+ *
+ * 🔴 IT CARRIES ITS OWN APPROVAL, SEPARATE FROM THE RATES' — Mike's ruling of 2026-09-09.
+ * A manager working down a rate table is in a different frame of mind from one adopting a
+ * tax scheme, and sweeping the second along in the click that confirms the first is how a
+ * rule gets adopted without anyone quite deciding to. So `approvedAt` and `approvedBy` live
+ * on the rule, not only on the table, and a rule that cannot name both is dropped exactly as
+ * an unapproved table is.
+ *
+ * ⚠ `rate` IS THE SHARE DEDUCTED UP FRONT, NOT A DEPRECIATION RATE. For Investment Boost it
+ * is 0.2 — twenty per cent of a qualifying asset's cost, expensed in the period of purchase,
+ * with the remaining 0.8 capitalised and depreciated at the ordinary rate. It never replaces
+ * a depreciation rate and the forecast still holds only one of those (FR-025, FR-035).
+ *
+ * ⚠ `startsOn` IS A FULL DATE AND MUST BE. Investment Boost begins on 22 May 2025, part-way
+ * through a month, so a month cannot answer the eligibility question at the boundary —
+ * which is why the asset data carries a purchase date at all (FR-039, Mike's own point).
+ *
+ * @param {*} value
+ * @param {string} where - for the error message
+ * @param {string[]} errors - collected in place
+ * @returns {object|null} the cleaned rule, or null when it was refused
+ */
+function cleanFirstYearRule (value, where, errors) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    errors.push(`${where} must be a non-array JSON object`)
+    return null
+  }
+
+  const name = typeof value.name === 'string' ? value.name.trim() : ''
+  if (!name || name.length > MAX_LABEL) {
+    errors.push(`${where}.name must be the rule's own name, 1 to ${MAX_LABEL} characters`)
+    return null
+  }
+
+  const rate = num(value.rate)
+  // Refused above 1 for the same reason a depreciation rate is: `20` is not a bad 20%, it is
+  // a share typed in the wrong unit, and it would expense twenty times the asset's cost.
+  if (rate === null || rate <= 0 || rate > 1) {
+    errors.push(`${where}.rate must be a share between 0 and 1 (20% is 0.2, not 20)`)
+    return null
+  }
+
+  const startsOn = typeof value.startsOn === 'string' ? value.startsOn.trim() : ''
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startsOn) || Number.isNaN(Date.parse(startsOn))) {
+    errors.push(`${where}.startsOn must be a full date like 2025-05-22 — a month cannot decide eligibility at the boundary`)
+    return null
+  }
+
+  let endsOn = null
+  if (value.endsOn !== null && value.endsOn !== undefined && value.endsOn !== '') {
+    const e = String(value.endsOn).trim()
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(e) || Number.isNaN(Date.parse(e))) {
+      errors.push(`${where}.endsOn must be a full date like 2028-03-31, or absent`)
+      return null
+    }
+    if (e < startsOn) {
+      errors.push(`${where}.endsOn cannot fall before startsOn`)
+      return null
+    }
+    endsOn = e
+  }
+
+  const text = (field, cap) => {
+    const v = value[field]
+    return typeof v === 'string' && v.trim() ? v.trim().slice(0, cap) : null
+  }
+
+  const source = cleanRateSource(value.source, where, errors)
+  if (source === null) { return null }
+
+  // Its own approval — see the note above. Same two fields, same reasons, on the rule.
+  const approvedBy = typeof value.approvedBy === 'string' ? value.approvedBy.trim() : ''
+  if (!approvedBy || approvedBy.length > MAX_LABEL) {
+    errors.push(`${where}.approvedBy must name the manager who approved this rule`)
+    return null
+  }
+  const approvedAt = typeof value.approvedAt === 'string' ? value.approvedAt.trim() : ''
+  if (!approvedAt || Number.isNaN(Date.parse(approvedAt))) {
+    errors.push(`${where}.approvedAt must be the date the rule was approved`)
+    return null
+  }
+
+  return {
+    name,
+    rate,
+    startsOn,
+    endsOn,
+    qualifies: text('qualifies', MAX_RULE_TEXT),
+    excludes: text('excludes', MAX_RULE_TEXT),
+    source,
+    approvedAt,
+    approvedBy
+  }
+}
+
+/**
+ * Validate a scope's OWN approved tax tables — the whole stored value at one tier.
+ *
+ * The shape is `{ <COUNTRY>: { approvedAt, approvedBy, categories: { <key>: entry } } }`.
+ * A tier holds only the countries it has approved something for; an absent country means
+ * "keep taking this from the level above", exactly as an absent field does in every other
+ * cascading block here.
+ *
+ * An UNKNOWN category key is an error rather than a silent drop. The forecast has six
+ * categories and no seventh is read by anything, so a rate stored under a name the engine
+ * has never heard of is a rate a firm manager believes they approved and which can never
+ * reach a single forecast.
+ *
+ * @param {*} value - the candidate object, from a request body or the store.
+ * @returns {{ok: boolean, errors: string[], value: object}} `value` holds only the
+ *   recognised, in-range countries and is meaningful only when `ok` is true.
+ */
+function validateDepreciationRates (value) {
+  const errors = []
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return { ok: false, errors: ['Depreciation Rates must be a non-array JSON object'], value: {} }
+  }
+
+  const clean = {}
+
+  Object.keys(value).forEach((rawCountry) => {
+    const country = normaliseCountry(rawCountry)
+    if (country === null) {
+      errors.push(`${rawCountry} is not a two-letter country code (NZ, AU)`)
+      return
+    }
+    const table = value[rawCountry]
+    if (!table || typeof table !== 'object' || Array.isArray(table)) {
+      errors.push(`${country} must be a non-array JSON object`)
+      return
+    }
+
+    // The approval gate, and the only one there is. See this file's header: an approved
+    // table is the only thing this store can hold, so a table that cannot name who
+    // approved it and when is not a table.
+    const approvedBy = typeof table.approvedBy === 'string' ? table.approvedBy.trim() : ''
+    if (!approvedBy || approvedBy.length > MAX_LABEL) {
+      errors.push(`${country}.approvedBy must name the manager who approved this table`)
+      return
+    }
+    const approvedAt = typeof table.approvedAt === 'string' ? table.approvedAt.trim() : ''
+    if (!approvedAt || Number.isNaN(Date.parse(approvedAt))) {
+      errors.push(`${country}.approvedAt must be the date the table was approved`)
+      return
+    }
+
+    const categories = table.categories
+    if (!categories || typeof categories !== 'object' || Array.isArray(categories)) {
+      errors.push(`${country}.categories must be a non-array JSON object`)
+      return
+    }
+
+    const cleanCategories = {}
+    let bad = false
+    Object.keys(categories).forEach((key) => {
+      if (!CATEGORY_KEYS.includes(key)) {
+        errors.push(`${country}.categories.${key} is not one of the forecast's asset categories`)
+        bad = true
+        return
+      }
+      const entry = cleanEntry(categories[key], `${country}.categories.${key}`, errors, true)
+      if (entry === null) { bad = true; return }
+      cleanCategories[key] = entry
+    })
+    if (bad) { return }
+
+    let firstYearRule = null
+    if (table.firstYearRule !== null && table.firstYearRule !== undefined) {
+      firstYearRule = cleanFirstYearRule(table.firstYearRule, `${country}.firstYearRule`, errors)
+      if (firstYearRule === null) { return }
+    }
+
+    // A country approved with neither rates nor a rule would inherit every figure from the
+    // layer above while claiming on screen to be this scope's own table.
+    //
+    // ⚠ RATES ALONE AND A RULE ALONE ARE BOTH LEGITIMATE, which is why this asks for either
+    // rather than for rates. A firm may take the group's rate table unchanged and still
+    // adopt its country's first-year rule itself — those are two decisions and Mike ruled
+    // them onto two buttons.
+    if (Object.keys(cleanCategories).length === 0 && firstYearRule === null) {
+      errors.push(`${country} has neither rates nor a first-year rule in it`)
+      return
+    }
+
+    clean[country] = { approvedAt, approvedBy, categories: cleanCategories }
+    if (firstYearRule) { clean[country].firstYearRule = firstYearRule }
+  })
+
+  return { ok: errors.length === 0, errors, value: clean }
+}
+
+/**
+ * Two documents give one asset class a different rate. Which one does the firm use?
+ *
+ * 🔴 RULED BY MIKE, 2026-09-08 (ruling 1): **the newer publication date wins, and the
+ * older figure is shown beside it** — never silently dropped, so the firm sees the
+ * disagreement and can overrule it. In his drawing's words, silent selection is how a
+ * wrong rate becomes invisible.
+ *
+ * Two guards on top of the ruling, both deliberate:
+ *   - EQUAL DATES KEEP THE INCUMBENT. Two documents published the same month do not rank,
+ *     and inventing an order between them would be the silent selection the ruling forbids.
+ *     The newcomer is still recorded beside it, so the disagreement is on the screen.
+ *   - THE LOSER'S OWN superseded HISTORY IS CARRIED THROUGH, oldest figures dropped past
+ *     the cap. A rate that has been superseded twice keeps both predecessors.
+ *
+ * @param {object|null} current - the figure in hand, already validated
+ * @param {object} incoming - the figure from the newly read document, already validated
+ * @returns {object} the figure to store, with the other in its `superseded` list
+ */
+function pickNewer (current, incoming) {
+  if (!current) { return incoming }
+
+  const currentKey = publishedKey(current.source && current.source.published)
+  const incomingKey = publishedKey(incoming.source && incoming.source.published)
+  const incomingWins = currentKey === null
+    ? incomingKey !== null
+    : (incomingKey !== null && incomingKey > currentKey)
+
+  const winner = incomingWins ? incoming : current
+  const loser = incomingWins ? current : incoming
+
+  const idOf = entry => String(entry.source && entry.source.document) + '|' +
+    String(entry.source && entry.source.published) + '|' +
+    String(entry.method === 'dv' ? entry.dvRate : entry.slRate)
+
+  const history = []
+  // Seeded with the WINNER, so a figure can never appear in its own superseded list —
+  // which is what reloading the same document twice would otherwise produce, and it
+  // would read on screen as a document disagreeing with itself.
+  const seen = { [idOf(winner)]: true }
+  const push = (entry) => {
+    if (!entry) { return }
+    const id = idOf(entry)
+    if (seen[id]) { return }
+    seen[id] = true
+    history.push(entry)
+  }
+
+  const bare = { ...loser }
+  delete bare.superseded
+  push(bare)
+  ;(loser.superseded || []).forEach(push)
+  ;(winner.superseded || []).forEach(push)
+
+  const out = { ...winner }
+  delete out.superseded
+  if (history.length) { out.superseded = history.slice(0, MAX_SUPERSEDED) }
+  return out
+}
+
+/**
+ * The depreciation rates one scope works to for one country, with every tier above it
+ * already applied, and each rate saying where it came from.
+ *
+ * @param {string|null} scopeId - the scope to resolve for, taken from the verified JWT and
+ *   NEVER from a request body — a body-supplied id would let one firm read another's
+ *   configuration (`tier-cascade.md` P6).
+ * @param {*} country - the CLIENT's country. An unrecognised or absent one is not an
+ *   error: it resolves to the app's own six defaults, because ruling 3 is that an advisor
+ *   is never blocked by a country nobody has loaded a document for.
+ * @param {function(string, string): Promise<Object|null>} loadFirmConfig - the overlay
+ *   reader, injected rather than imported so tests need no database.
+ * @returns {Promise<{country: string|null, categories: object, isDefault: boolean}>} every
+ *   one of the six categories, each carrying `originTier` and `originScopeId` (both null
+ *   when the figure is the app's own). NEVER REJECTS: a tax-table read must not stop an
+ *   advisor building a forecast, and the worst case is the six defaults — which is what
+ *   every firm gets today.
+ */
+async function loadResolvedDepreciationRates (scopeId, country, loadFirmConfig) {
+  const code = normaliseCountry(country)
+
+  const categories = {}
+  CATEGORY_KEYS.forEach((key) => {
+    categories[key] = { ...BASE_DEPRECIATION_RATES[key], originTier: null, originScopeId: null }
+  })
+  // The app ships no first-year rule and never will: a first-year rule is a country's tax
+  // scheme, and inventing one would be exactly the fabrication this feature exists to end.
+  // null means "no scope above has approved one", and the advisor's field stays absent.
+  const flat = { country: code, categories, firstYearRule: null, isDefault: true }
+
+  if (!scopeId || code === null) { return flat }
+
+  // Mentor first, this scope last, so a nearer tier simply overwrites a further one and
+  // the last writer is the origin. `scopeChain` is the same seam every cascading block
+  // asks — see `tierChain.js`.
+  const chain = scopeChain(scopeId)
+  let touched = false
+
+  for (let i = 0; i < chain.length; i++) {
+    const at = chain[i]
+    let stored = null
+    try {
+      stored = await loadFirmConfig(at, CONFIG_KEY)
+    } catch (err) {
+      // One unreachable tier must not lose the tiers already applied, and must not stop
+      // the ones below it being asked. The worst case stays "the layer above".
+      console.error('[depreciation-rates] scope read failed:', err.message)
+      continue
+    }
+
+    const { ok, value } = validateDepreciationRates(stored)
+    if (!ok) { continue }
+    const table = value[code]
+    if (!table) { continue }
+
+    const tier = tierOfScope(at)
+    Object.keys(table.categories).forEach((key) => {
+      categories[key] = {
+        ...table.categories[key],
+        originTier: tier,
+        originScopeId: at,
+        approvedAt: table.approvedAt,
+        approvedBy: table.approvedBy
+      }
+      touched = true
+    })
+
+    // The rule follows the same nearest-tier-wins rule as a rate, and for the same reason:
+    // a firm that has adopted its country's scheme itself should not be overruled by what
+    // the tier above did or did not adopt.
+    if (table.firstYearRule) {
+      flat.firstYearRule = { ...table.firstYearRule, originTier: tier, originScopeId: at }
+      touched = true
+    }
+  }
+
+  flat.isDefault = !touched
+  return flat
+}
+
+/**
+ * Does a first-year rule reach an asset bought on this date?
+ *
+ * 🔴 THE WHOLE REASON THE ASSET DATA CARRIES A PURCHASE DATE (Mike, 2026-09-09). Investment
+ * Boost starts on 22 May 2025, part-way through a month, and the forecast otherwise records
+ * only the month a purchase falls in — so a month cannot answer this at the boundary, and a
+ * claim with no date behind it cannot be evidenced afterwards.
+ *
+ * Dates are compared as `YYYY-MM-DD` strings, which sort correctly and carry no timezone:
+ * parsing them into `Date` objects would put a purchase into the previous day for anyone
+ * east of UTC, which is the fault the Economic Analysis run of 2026-09-07 was caught by.
+ *
+ * @param {object|null} rule - a resolved first-year rule, or null
+ * @param {*} purchasedOn - the asset's purchase date, `YYYY-MM-DD`
+ * @returns {boolean} false for no rule, an unusable date, or a date outside the rule's window
+ */
+function ruleAppliesOn (rule, purchasedOn) {
+  if (!rule || typeof rule !== 'object') { return false }
+  if (typeof purchasedOn !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(purchasedOn.trim())) { return false }
+  const on = purchasedOn.trim()
+  if (on < rule.startsOn) { return false }
+  if (rule.endsOn && on > rule.endsOn) { return false }
+  return true
+}
+
+/**
+ * Split a qualifying purchase into the part deducted now and the part capitalised.
+ *
+ * `20% expensed, 80% capitalised and depreciated as normal` — Inland Revenue's own
+ * description, and the whole of the arithmetic. It is here rather than in the forecast
+ * engine because it is a property of the RULE, and because the engine's input shape must not
+ * change (FR-042): the caller adds `capitalised` to the month's additions exactly as it adds
+ * any other purchase, and the engine never learns that a rule exists.
+ *
+ * @param {object|null} rule - a resolved first-year rule, or null
+ * @param {*} qualifyingCost - how much of the purchase qualifies, as the advisor stated it
+ * @param {*} purchasedOn - the asset's purchase date, `YYYY-MM-DD`
+ * @returns {{deductedNow: number, capitalised: number}} zeroes and the full cost when the
+ *   rule does not reach this purchase — never a partial or guessed split.
+ */
+function splitQualifyingPurchase (rule, qualifyingCost, purchasedOn) {
+  const cost = num(qualifyingCost)
+  if (cost === null || cost <= 0) { return { deductedNow: 0, capitalised: 0 } }
+  if (!ruleAppliesOn(rule, purchasedOn)) { return { deductedNow: 0, capitalised: cost } }
+  const deductedNow = Math.round(cost * rule.rate * 100) / 100
+  return { deductedNow, capitalised: Math.round((cost - deductedNow) * 100) / 100 }
+}
+
+module.exports = {
+  BASE_DEPRECIATION_RATES,
+  CATEGORY_KEYS,
+  CONFIG_KEY,
+  METHODS,
+  MAX_SUPERSEDED,
+  MAX_RULE_TEXT,
+  normaliseCountry,
+  publishedKey,
+  validateDepreciationRates,
+  pickNewer,
+  loadResolvedDepreciationRates,
+  ruleAppliesOn,
+  splitQualifyingPurchase
+}

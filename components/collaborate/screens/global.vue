@@ -4,7 +4,7 @@
 
 <script>
 /**
- * Global Manager console — SHOW-HOME PREVIEW (see ManagerConsole / pages/group.vue).
+ * Global Group Manager console — SHOW-HOME PREVIEW (see ManagerConsole / pages/group.vue).
  * Dev-only; production serves every tier from the single role-gated /firm page.
  */
 import ManagerConsole from '~/components/collaborate/shared/ManagerConsole.vue'

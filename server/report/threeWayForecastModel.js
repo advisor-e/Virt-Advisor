@@ -649,6 +649,8 @@ function resolveInputs (raw, fallback) {
     return { balanceOwing: pick(t.balanceOwing, def.balanceOwing), landing }
   })(i.stockInTransit, d.stockInTransit, openingBalanceSheet.stockInTransitDeposits)
 
+  const gstFiling = resolveGstFiling(i, d)
+
   return {
     startDateSerial: pick(i.startDateSerial, d.startDateSerial),
     overseas,
@@ -680,10 +682,111 @@ function resolveInputs (raw, fallback) {
     debtorCollection: bucket(i.debtorCollection, d.debtorCollection),
     creditorPayment: bucket(i.creditorPayment, d.creditorPayment),
     gstRate: pick(i.gstRate, d.gstRate),
-    gstPeriod: i.gstPeriod === 'One Monthly' || i.gstPeriod === 'Six Monthly' ? i.gstPeriod : (i.gstPeriod === 'Two Monthly' ? 'Two Monthly' : d.gstPeriod),
+    // 🔴 THE CYCLE IS A NUMBER OF MONTHS AND `gstPeriod` IS ITS NAME (item 4.81). For the
+    // workbook's own three the name is the workbook's own wording, so nothing an existing
+    // caller sends or reads has changed; a cycle it never had carries the country's name.
+    gstFilingMonths: gstFiling.months,
+    gstPeriod: gstFiling.label,
     gstBasis: i.gstBasis === 'Cash' ? 'Cash' : (i.gstBasis === 'Invoice' ? 'Invoice' : d.gstBasis),
     shareholderInterestRate: pick(i.shareholderInterestRate, d.shareholderInterestRate)
   }
+}
+
+/* ----------------------------------------------------------- the GST filing cycle -- */
+
+/**
+ * The filing cycles a twelve-month forecast can carry, as numbers of months.
+ *
+ * 🔴 DIVISORS OF TWELVE, AND IT IS AN ENGINEERING CONSTRAINT RATHER THAN A PREFERENCE. A
+ * cycle that does not divide into twelve leaves a partial period at the end whose return
+ * falls due outside the forecast, so the last filing is either dropped or paid early — and
+ * both are wrong in a way that still balances. Every real cycle fits.
+ *
+ * ⚠ 1, 2 AND 6 ARE THE WORKBOOK'S OWN. The rest are item 4.81: before it, a three-month
+ * cycle could not be expressed at all, so Australia's quarterly BAS and the United Kingdom's
+ * quarterly VAT had no representation and every overseas client silently filed New Zealand's
+ * two-monthly return.
+ */
+const GST_FILING_MONTHS = [1, 2, 3, 4, 6, 12]
+
+/** The workbook's three cycles, and the number of months each one is. */
+const LEGACY_GST_PERIODS = { 'One Monthly': 1, 'Two Monthly': 2, 'Six Monthly': 6 }
+
+/** The same, read the other way, so a resolved cycle keeps the workbook's own wording. */
+const GST_PERIOD_BY_MONTHS = { 1: 'One Monthly', 2: 'Two Monthly', 6: 'Six Monthly' }
+
+/**
+ * The GST return falling due in month `m`, on a cycle of `months` — or null when none is.
+ *
+ * 🔴 THIS REPLACED THREE HARDCODED BRANCHES AND REPRODUCES ALL THREE EXACTLY. The workbook
+ * filed one-monthly every month, two-monthly on the odd calendar months, and six-monthly in
+ * March and September. Every one of those is `calendarMonth % months === 3 % months`:
+ *
+ *   months 1 → 0, and every month satisfies it            → every month, as before
+ *   months 2 → 1, so January, March, May, July, …          → the odd months, as before
+ *   months 6 → 3, so March and September                   → as before
+ *
+ * The anchor is March because that is New Zealand's standard balance date, 31 March, which
+ * is what the workbook's cycles were aligned to. It is not a coincidence and it is not a
+ * fitted constant: the same formula puts a three-month cycle on March, June, September and
+ * December, which are the Australian BAS quarters and the United Kingdom's VAT quarters.
+ *
+ * 🔴 AND THE #REF! IS PRESERVED, FOR SIX-MONTHLY ALONE. Correction R5: the workbook's
+ * six-monthly formula reads six columns back, which falls off the sheet in the first month of
+ * each year and reads `#REF!`. `corrected` clamps that window to the start of the year, which
+ * is what the intact columns already do. The two-monthly window has always clamped instead —
+ * that asymmetry is the workbook's, it is reproduced deliberately, and a generalisation that
+ * tidied it away would change a shipped figure.
+ *
+ * @param {Array<number>} series the GST arising in each month
+ * @param {number} m the month the return would fall due in, 0-based
+ * @param {number} months the cycle, one of GST_FILING_MONTHS
+ * @param {number} calendarMonth 1-12, the real calendar month `m` falls in
+ * @param {boolean} corrected whether R5's clamp is in force
+ * @returns {number|null} the amount to file, null when no return is due, and null for the
+ *   workbook's own `#REF!` when R5 is not corrected
+ */
+function gstReturnFor (series, m, months, calendarMonth, corrected) {
+  if (calendarMonth % months !== 3 % months) { return null }
+
+  const start = m - (months - 1)
+  if (start < 0) {
+    // Six-monthly alone reproduces the workbook's #REF! here. See the note above.
+    if (months === 6 && !corrected) { return null }
+    let clamped = series[0]
+    for (let i = 1; i <= m; i++) { clamped += series[i] }
+    return clamped
+  }
+
+  let s = series[start]
+  for (let i = start + 1; i <= m; i++) { s += series[i] }
+  return s
+}
+
+/**
+ * Which cycle this forecast files on, and what to call it.
+ *
+ * Accepts the workbook's `gstPeriod` wording and item 4.81's `gstFilingMonths` number, and
+ * the number wins when both are given. **The engine's input shape is unchanged for every
+ * existing caller**: a forecast that says nothing about either resolves exactly as it did.
+ *
+ * @param {object} i the raw inputs
+ * @param {object} d the defaults
+ * @returns {{months: number, label: string}}
+ */
+function resolveGstFiling (i, d) {
+  const asked = Number(i.gstFilingMonths)
+  const months = GST_FILING_MONTHS.includes(asked)
+    ? asked
+    : (LEGACY_GST_PERIODS[i.gstPeriod] || LEGACY_GST_PERIODS[d.gstPeriod])
+
+  // The country's own name for the cycle, kept because it is what a manager approved and
+  // what an advisor reads. "Every 3 months" is not what any document says, so it is only
+  // ever the fallback for a cycle nobody named.
+  const supplied = typeof i.gstFilingLabel === 'string' ? i.gstFilingLabel.trim() : ''
+  const label = GST_PERIOD_BY_MONTHS[months] || supplied || `Every ${months} months`
+
+  return { months, label }
 }
 
 /* ------------------------------------------------------------- the month headers -- */
@@ -1572,26 +1675,15 @@ function computeThreeWayForecast (rawInputs, options) {
     gstInputs[m] = gstOnExpenses[m] + gstOnAssetPurchases[m] + OS.borderGst[m] + OS.transitBorderGst[m]
     gstForMonth[m] = gstOutputs[m] - gstInputs[m]
 
-    gstFileOneMonthly[m] = gstForMonth[m]
     const cal = headers.calendarMonths[m]
-    const twoMonthlyDue = (cal === 1 || cal === 3 || cal === 5 || cal === 7 || cal === 9 || cal === 11)
-    gstFileTwoMonthly[m] = twoMonthlyDue ? gstForMonth[m] + (m > 0 ? gstForMonth[m - 1] : 0) : null
-    if (cal === 3 || cal === 9) {
-      // R5: a six-month window. The workbook's first month reads #REF! because six
-      // columns back falls off the sheet; the window now clamps to the start of the year,
-      // which is exactly what the intact columns already do.
-      const from = corrected ? Math.max(0, m - 5) : (m - 5)
-      if (from < 0) {
-        gstFileSixMonthly[m] = null // the workbook's #REF!
-      } else {
-        let s = 0
-        for (let i = from; i <= m; i++) { s += gstForMonth[i] }
-        gstFileSixMonthly[m] = s
-      }
-    }
-    gstAmountToFile[m] = I.gstPeriod === 'One Monthly'
-      ? gstFileOneMonthly[m]
-      : (I.gstPeriod === 'Two Monthly' ? gstFileTwoMonthly[m] : gstFileSixMonthly[m])
+    // The workbook's own three, computed every month whatever cycle is in force, because
+    // all three are in the response and a reader compares them.
+    gstFileOneMonthly[m] = gstReturnFor(gstForMonth, m, 1, cal, corrected)
+    gstFileTwoMonthly[m] = gstReturnFor(gstForMonth, m, 2, cal, corrected)
+    gstFileSixMonthly[m] = gstReturnFor(gstForMonth, m, 6, cal, corrected)
+    // And the one this client actually files on, which may be a cycle the workbook never
+    // had — item 4.81. For 1, 2 and 6 this is the same call as the three above.
+    gstAmountToFile[m] = gstReturnFor(gstForMonth, m, I.gstFilingMonths, cal, corrected)
 
     gstBalanceOpening[m] = m === 0 ? (opening.gstPayable - opening.gstRefund) : gstBalanceClosing[m - 1]
     // Month 1 settles the opening GST balance; later months settle what the previous
@@ -1920,6 +2012,9 @@ function computeThreeWayForecast (rawInputs, options) {
       gst: {
         basis: I.gstBasis,
         period: I.gstPeriod,
+        // The cycle as a number, beside its name (item 4.81). `period` alone could not say
+        // whether a return was quarterly, because the workbook had no word for it.
+        periodMonths: I.gstFilingMonths,
         rate: gst,
         onIncome: gstOnIncome,
         onOtherIncome: gstOnOtherIncome,

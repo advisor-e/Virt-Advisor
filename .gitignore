@@ -76,6 +76,25 @@ data/dev-forecast-trend-thresholds.json
 # out of his Import & Retail workbook, and they move a client's revenue.
 data/dev-forecast-sell-down.json
 
+# Dev-only depreciation rates — a scope's APPROVED tables, per country (item 4.78). Keyed
+# by SCOPE, ignored for the same reason as every sibling above. The PLATFORM's own six
+# rates are data/depreciation-rates.json and ARE committed: they are the app's declared
+# floor and are labelled a guess wherever they appear.
+data/dev-depreciation-rates.json
+
+# Dev-only depreciation-rate PROPOSALS — the documents a scope has loaded and what the
+# model read out of each (item 4.78, slice 3). Keyed by SCOPE, ignored for the same reason
+# as every sibling above. It holds no approved rate and nothing a forecast reads; the
+# APPROVED tables are data/dev-depreciation-rates.json.
+data/dev-depreciation-proposals.json
+
+# Dev-only tax rates — a scope's APPROVED company tax rate, GST rate, filing cycle and
+# accounting basis, per country (item 4.81). Keyed by SCOPE, ignored for the same reason as
+# every sibling above. The app's own four are data/tax-rates.json and ARE committed: they
+# are New Zealand's, they are what every forecast uses today, and they are labelled an app
+# default wherever they appear.
+data/dev-tax-rates.json
+
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
 # The four cascade keys, added when the staircase joined the one firm-editable

@@ -1,0 +1,39 @@
+{
+  "_readme": [
+    "THE APP'S OWN DEPRECIATION RATES — the floor every country falls back to (item 4.78).",
+    "",
+    "🔴 THESE ARE NOT ANY COUNTRY'S Depreciation Rates AND MUST NEVER BE PRESENTED AS ONE. They are",
+    "the six figures the Three-Way Forecast has shipped with since it was built, and they",
+    "are a guess: Vehicles is 20% where New Zealand's IRD gives 50% diminishing value for a",
+    "passenger vehicle. That gap is the whole reason item 4.78 exists. Everything here is",
+    "tagged `app default` on screen, in exactly those words, so nobody reads it as sourced.",
+    "",
+    "WHY THE NUMBERS LIVE HERE RATHER THAN ONLY IN THE SCREEN. They were declared twice —",
+    "ASSET_SPECS in components/ThreeWayForecastIntake.vue (percentages) and the engine's own",
+    "defaults in server/report/threeWayForecastModel.js (decimals). A cascading store needs a",
+    "third reading of the same six numbers, and three copies is two too many.",
+    "tests/unit/depreciationRates.test.js pins this file against the ENGINE's defaults, which are the",
+    "ones that actually compute a forecast, so the three can no longer drift apart.",
+    "",
+    "🔴 RATES ARE DECIMALS, 0..1 — 50% is 0.5, never 50. That is the engine's own convention",
+    "(threeWayForecastModel assetSchedule multiplies by it directly) and the backend's",
+    "convention everywhere else (server/utils/propertyTaxRules.js). The intake SCREEN works",
+    "in percentages and converts; the store never does.",
+    "",
+    "`method` is `dv` (diminishing value) for all six because that is what the engine does —",
+    "it depreciates the reducing book value, not the original cost. A `sl` rate cannot be",
+    "stored here for the same reason: nothing would read it.",
+    "",
+    "`source` is null on every entry, and that is the point. A rate with no source document",
+    "is an app default; a rate WITH one came from a tax document a firm manager approved.",
+    "The screen tells them apart by exactly this field."
+  ],
+  "categories": {
+    "vehicles": { "label": null, "method": "dv", "dvRate": 0.2, "slRate": null, "lifeYears": null, "source": null },
+    "leaseholdImprovements": { "label": null, "method": "dv", "dvRate": 0.15, "slRate": null, "lifeYears": null, "source": null },
+    "plantEquipment": { "label": null, "method": "dv", "dvRate": 0.22, "slRate": null, "lifeYears": null, "source": null },
+    "officeEquipment": { "label": null, "method": "dv", "dvRate": 0.25, "slRate": null, "lifeYears": null, "source": null },
+    "computerHardware": { "label": null, "method": "dv", "dvRate": 0.3, "slRate": null, "lifeYears": null, "source": null },
+    "other": { "label": null, "method": "dv", "dvRate": 0.35, "slRate": null, "lifeYears": null, "source": null }
+  }
+}

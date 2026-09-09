@@ -238,7 +238,7 @@ function pushNotification (userId, type, params, link) {
 // ── Cross-org engagement postures — three-level ceiling (plan §8; D1/Q6; Q-ROLES) ─
 // The open/closed control exists at THREE stacked levels; a lower level may only
 // ever TIGHTEN, never loosen — the "ceiling" model (owner decision, 2026-07-07):
-//   • global[brand]                — set by a Global Manager (or the Mentor)
+//   • global[brand]                — set by a Global Group Manager (or the Mentor)
 //   • country[brand '||' country]  — set by a Group (country) Manager
 //   • firm[branch]                 — set by a Firm Manager
 // A branch's EFFECTIVE posture = MOST-CLOSED-WINS across the three: open only when
@@ -970,7 +970,7 @@ async function listConsoleAdvisersPreview (tier, firm, opts) {
 }
 
 // A manager sets the cross-org posture at their OWN tier level — a Firm Manager
-// the branch, a Group Manager their country, a Global Manager/Mentor the brand
+// the branch, a Group Manager their country, a Global Group Manager/Mentor the brand
 // (postureScopeFor). ONE key is written; a lower level may only tighten, and the
 // returned crossOrgPosture is the EFFECTIVE state (their choice capped by any
 // stricter level above). Guarded to a managing tier (Q-ROLES); the write itself is

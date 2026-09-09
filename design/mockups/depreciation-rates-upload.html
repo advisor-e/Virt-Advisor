@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tax Rules — a firm loads its own IRD documents</title>
+<title>Depreciation Rates — a firm loads its own IRD documents</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
 <style>
 /* ============================================================================
-   Item 4.78 — Tax Rules per country. Screen mockup for approval (drawn 2026-09-08).
+   Item 4.78 — Depreciation Rates per country. Screen mockup for approval (drawn 2026-09-08).
 
    Colours, spacing and type are READ OFF the shipped hub tabs and the report
    standard, per the owner ruling of 2026-07-23 — nothing here is a new look:
@@ -171,7 +171,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 
 <div class="hub-top">
   <div class="hub-eyebrow">Firm Manager Hub</div>
-  <h1 class="hub-h1">Tax Rules</h1>
+  <h1 class="hub-h1">Depreciation Rates</h1>
   <div class="hub-sub">Apex Auto &amp; Engineering Ltd · New Zealand</div>
 </div>
 
@@ -181,7 +181,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   <div class="tab">Advisory Distinctions</div>
   <div class="tab">Coaching Reference</div>
   <div class="tab">AI Prompts</div>
-  <div class="tab on">Tax Rules</div>
+  <div class="tab on">Depreciation Rates</div>
   <div class="tab">Team Progress</div>
 </div>
 
@@ -368,7 +368,22 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   produces confident, wrong rates.</b> The screen must refuse, not guess.</p>
 </div>
 
-<div class="notice crit">
+<div class="mock" style="border-color:#e00000;background:#fff5f5;color:#7a1010">
+  <p>🔴 <b>SUPERSEDED 2026-09-09, AND THE PANEL BELOW IS KEPT ONLY AS THE RECORD OF WHAT WAS
+  APPROVED.</b> Mike ruled that the document is <b>sent to the AI and read there</b>, rather
+  than the app extracting the text itself — no new dependency, and the local extraction is the
+  very tooling that produced <code>diinisin alue</code>. <b>So the app is no longer the one
+  reading, and cannot measure a damage percentage.</b></p>
+  <p><b>His approved replacement wording, 2026-09-09, verbatim:</b><br>
+  <b>“This document could not be read reliably — nothing was taken from it.”</b> No rates have
+  been proposed and nothing has changed. Try downloading it again from the tax authority's
+  website, or load a different edition.</p>
+  <p>He also <b>refused</b> showing the model's own explanation of what defeated it: unedited
+  model text on a screen is the one thing this feature is otherwise careful never to do.
+  See <b>specs/001-depreciation-rates-per-country/spec.md</b> FR-046 to FR-050.</p>
+</div>
+
+<div class="notice crit" style="opacity:.55">
   <b>This document could not be read reliably — nothing was extracted from it</b>
   About 12% of the text came through damaged, for example <code>diinisin alue</code> where
   <code>diminishing value</code> was expected. No rates have been proposed and nothing has
@@ -450,7 +465,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   whichever one that advisor happened to make — <b>no second pair of eyes on a number a bank
   reads</b>. Splitting loading from approving answers both.</p>
   <p>🔴 <b>THE ADVISOR'S OWN SCREEN IS A SEPARATE DRAWING —
-  <b>design/mockups/tax-rules-advisor.html</b>, drawn the same day.</b> This file is the Firm
+  <b>design/mockups/depreciation-rates-advisor.html</b>, drawn the same day.</b> This file is the Firm
   Manager hub tab; all it shows of the advisor's half is the <b>Advisor proposal</b> row in §2,
   which is where their upload arrives. Where the advisor loads it, what they see while it is
   pending, and how the forecast badges an unapproved country are settled there, and that file

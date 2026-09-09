@@ -9,27 +9,35 @@
 
 ---
 
-## 2026-09-08 (seventh session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-10 (fourteenth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,398 green**, lint 0, audit pass. **Six commits, all pushed.** 55 ahead, 0 behind.
-Clean. **Docs only — no code changed.**
+Suite **9,007 green** (439 suites) at the push gate, lint 0, coverage and audit clean.
+**Three commits, all pushed.** 36 ahead, 0 behind `origin/master`; nothing merged in.
 
-**Closed 4.79** — proved on Mike's real MYOB and QuickBooks exports before closing; the
-browser check is UAT's, his ruling. **Live list is 6.**
+**NO APPLICATION CODE WAS WRITTEN.** The whole session was 4.58's §4 — the non-coding items
+gating a first real client recording — and what it turned into.
 
-**4.77** — the two IRD guides are at `C:\Documents\Visual Code Projects\Perf Report\tax
-rules nz`. IR260 is **April 2024**; neither mentions Investment Boost, which is the only
-thing still missing.
+**`MEETING-REVIEW-DPIA.md` is new**, assessing all fourteen NZ information privacy
+principles. Ten met. 🔴 **IPP3A is NOT met and it is new law — in force 1 May 2026**,
+requiring notice to someone whose information was collected indirectly; a client discussing a
+named employee is exactly that, and no software can answer it. **IPP12 is unevidenced** until
+OpenAI say where audio is processed. **IPP6/IPP7 is OURS and unbuilt** — nothing serves a
+client asking for a copy of their transcript.
 
-**4.78 designed, nothing built, `activeOn` laptop.**
-[`mockups/tax-rules-upload.html`](mockups/tax-rules-upload.html) and
-[`tax-rules-advisor.html`](mockups/tax-rules-advisor.html) — nine rulings, no open
-questions. Ready to build.
+**The OpenAI letter is rewritten and sendable** — five questions, Zero Data Retention named,
+IPP12 cited. It waits on Mike alone.
 
-**If the push gate fails on missing coverage data with every test green:** `rm -rf
-coverage` and push again. It would not reproduce; cause unproven.
+**4.83 (Compliance pages) is APPROVED TO BUILD FROM and not started** —
+[`mockups/compliance-pages.html`](mockups/compliance-pages.html), nine rulings, one at a time.
+Two distinctions the build must not collapse: the **declaration gates**, the **completeness
+check never does**; and only the **first** declaration gates — an update notifies with a dot.
+The declaration is Mike's own words, verbatim and pinned. **4.84** (hub notification dots,
+every tab) and **4.85** (the Handbook) filed alongside.
 
-**Open for Mike:** 4.15, 4.58, 4.66, 4.77. 4.80 is ours, parked today.
+**4.78 stays flagged active here** — the dated purchase list and Investment Boost, untouched
+today.
 
-⚠ **Desktop note still dated 2026-09-04** while `feat/firm-quiz-builder-ui` committed
-2026-09-08, 39 ahead of `master`.
+**DESKTOP:** 🔴 **you republished the Handbook over ours this morning** — it showed Mike a page
+with zero mentions of Depreciation Rates and Tax Rates and said nothing about it. Not your
+fault; the design never anticipated two branches, one URL. That is item **4.85**, filed, and
+**I have not republished** — the page is still yours. Your note is now dated 2026-09-04.

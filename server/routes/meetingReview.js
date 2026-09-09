@@ -295,6 +295,9 @@ async function startRecording (req, res) {
     const { meetingId, meta } = store.createMeeting({
       firmId: req.firmId,
       advisor: req.advisorId,
+      // Captured from the verified token — see `createMeeting`'s note. This app holds no
+      // advisors table, so a name not written here can never be recovered.
+      advisorName: req.advisorName || null,
       scenarioId: body.scenarioId || null,
       clientId,
       retentionMonths: resolved.months

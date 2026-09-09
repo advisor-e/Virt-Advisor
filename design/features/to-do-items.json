@@ -90,61 +90,19 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports; the advisor's half is built and the manager's half is still a design.",
-      "risk": "The code can now record a client, and the four non-coding items in Brief §4 (an impact assessment, staff consultation, the provider's written audio terms, a lawyer per market) gate a first real recording. The banner on the recorder is a warning, not a control.",
+      "risk": "The code can now record a client, and the non-coding items in Brief §4 gate a first real recording: staff consultation, the provider's written audio terms, and a lawyer per market. The impact assessment is written. Until item 4.83 builds the declaration gate, the banner on the recorder is a warning and not a control.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, diarized transcription, audio destruction, the two reports, meeting-types slices 1-3 (every manager tier), the MANAGER AGGREGATE (firm tier ALONE - P13 keeps meeting figures inside the firm), TRANSCRIPT EXPIRY (each meeting on the period its own client was shown), and FOLLOW-THROUGH, screen included, matched on the client and never guessed. Not built: meeting-types slice 4's CLIENT level (needs the client picker, empty without MySQL); the advisor level shipped 2026-09-08 with the manager's set-aside view Mike ordered. The jargon tile is NOT outstanding - Mike REMOVED it 2026-09-02. Open for Mike: §4, and three slice-4 decisions that are ours, in Brief §5. Record: meeting-review-history.md §8.",
-      "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14). 2026-09-07 — slice 4, the manager aggregate, built on the laptop from the approved drawing: 37 new tests, suite 8,184 green. 2026-09-08 — meeting-types slice 3 (every manager tier, one computed property) and slice 4's ADVISOR half: the pre-set is editable, each point names its tier, and a manager sees what advisors set aside — Mike's order. 76 new tests."
-    },
-    {
-      "ref": "4.66",
-      "name": "Economic analysis — the forecast asks the AI for market research",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike's request, 2026-09-03: a tick reading \"economic analysis\" charging the AI to research global and local markets, because most three-way forecasts support funding requests. It would be the FIRST report model here to call the AI. Detail in report-models.md.",
-      "risk": "AI text going into a document a bank reads: a confident wrong claim about a market looks exactly like research. 🔴 PRIVACY IS RULED (2026-09-06) — the advisor writes the brief and sees the exact words sent; the app sends nothing about the client on its own, so no PII exception is needed. The citation guard has now refused a real unsourced answer and passed a sourced one, live.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"i want to include an option to tick 'economic analysis' which then charges AI to conduct global and local market research (i will give detailed instructions and prompt in future) such that they can be included in an overall report - since the majority of 3 way forecasts are used to support funding requests\". Filed on his instruction (\"yes\")."
-      },
-      "touches": "BUILT: data/ai-prompts.json (a fourth prompt, all four tiers), server/routes/economicAnalysis.js, server/report/economicAnalysis/researchResult.js, server/utils/economicAnalysisRuns.js, openaiClient.js (a /v1/responses path), restify-server.js, components/EconomicAnalysisStep.vue, components/EconomicAnalysisPack.vue, utils/researchText.js (the parser both share), pages/three-way-forecast.vue (step 5, and the pack), ProvenanceBadge.vue (a fifth state), locales/en.json, five test files.",
-      "note": "ALL THREE SLICES ARE BUILT, AND IT HAS NOW BEEN WATCHED END TO END IN A BROWSER (2026-09-07): brief, research, approval, printed pack. The pack prints only on isApproved, so research nobody accepted cannot reach a lender. 🔴 Nine live faults have come out of running it and the green tests caught none: the citation guard refused HALF of all runs by reading web-address digits as figures; the research date was missing from the client's pack entirely; and the date sent was UTC. THE ADVISOR NOW SETS THE ASSESSMENT DATE on a field at step 5 — Mike's ruling, both wordings his. Detail in ECONOMIC-ANALYSIS-PROMPT.md §7b.",
-      "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it. RENUMBERED 4.62 → 4.66 on 2026-09-04, both machines having filed a 4.62 that day; 4.62 is not reused. 2026-09-06 — privacy ruled; prompt drafted and revised; screens drawn; all three slices built in one day, and run 5 proved it live. 2026-09-07 — watched in a browser for the first time; the guard was refusing half of all runs, and Mike ruled the assessment date onto a field of its own. Nine live faults have now come out of running it, and the green tests had caught none of them."
-    },
-    {
-      "ref": "4.77",
-      "name": "First-year depreciation cannot differ from later years, or between two vehicles",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The engine applies one rate to a whole category for every month, so a new asset cannot be written down faster in its first year than the old one beside it.",
-      "risk": "Mike's example, costed against NZ's Investment Boost (20% of a new asset's cost deducted up front, the rest depreciated as normal): an 800,000 tractor unit deducts 146,118 in year one as the engine models it, against 276,895 with the boost. That is 36,617 of tax in year one and 130,776 of asset value carried into year two. A forecast a lender reads would be wrong, and balance perfectly.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-08 - 'it might make a difference if it is a large purchase - like an $800,000 truck/tractor unit in terms of tax to pay and working capital balance year 2 - perhaps worth making as another task?' Raised by him while ruling question 4 of the 4.65 drawing."
-      },
-      "touches": "server/report/threeWayForecastModel.js assetSchedule, which applies one depreciationRate per category across twelve months, and the six-category shape in ASSET_SPECS. A per-asset or first-year rate changes the engine's asset model, so the golden set and every forecast test move with it. No screen exists to enter such a rate.",
-      "note": "NOT A BIGGER VERSION OF 4.65 - a different asset model. assetSchedule applies one rate to a whole pool every month; a first-year rule needs assets carrying a rate or deduction that changes at a date. MYOB's per-asset rates do NOT deliver it - one standing rate per asset, no first-year concept, and QuickBooks gives no rate at all. SOURCE STILL NEEDED: Investment Boost is cited from an AI session's own knowledge, NOT from the two IRD files Mike supplied - IR265 (October 2023) and IR260 (April 2024) both predate it - both read in full 2026-09-08, zero mentions. Only THAT rule lacks a source. UK and Australia have their own regimes, unchecked here.",
-      "comment": "2026-09-08 - raised and filed by Mike while ruling question 4 of the asset-schedule drawing, and costed on his own example. Same day: a session wrongly reported that NZ had abolished first-year acceleration, reading the 2010 end of the 20% LOADING as the end of all such rules. Mike corrected it. The two are different mechanisms - the loading inflated a rate, Investment Boost deducts a slice of cost."
+      "note": "Built: observation points, consent and capture, transcription, audio destruction, the two reports, meeting-types slices 1-4, the MANAGER AGGREGATE (firm tier ALONE - P13), TRANSCRIPT EXPIRY on each meeting's own promised period, FOLLOW-THROUGH matched on the client, and the CLIENT COPY REQUEST - access, correction and early deletion. Not built: meeting-types slice 4's CLIENT level, which needs the client picker and is empty without MySQL. §4 ITEMS 3 AND 7 ARE CLOSED; THREE REMAIN and none is ours - staff consultation, the lawyer per market, and the OpenAI letter, which waits on Mike. Item 4.83 turns the /meeting-record banner into a real gate. Record: meeting-review-history.md §9.",
+      "comment": "2026-09-01 - filed; screens approved; slices 1-2 built. 2026-09-02 - slice 3, the types cascade, renumbered from 4.56; two rules Mike never made deleted (Brief P14). 2026-09-07 - the manager aggregate, transcript expiry and follow-through. 2026-09-08 - meeting-types slice 3 and slice 4's advisor half. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day on his instruction, closing §4 item 7. Two of its eight rulings reversed the recommendation: the advisor ALONE releases, so a request spanning several advisors is answered by each in turn."
     },
     {
       "ref": "4.78",
-      "name": "Tax rules per country - a firm manager uploads the source, the AI proposes, they approve",
+      "name": "Depreciation rates per country - a manager uploads the source, the AI proposes, they approve",
       "rankedByMike": false,
       "activeOn": { "machine": "laptop", "since": "2026-09-08" },
       "kind": "feature",
@@ -161,8 +119,8 @@
         "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
       },
       "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
-      "note": "AI PROPOSES, THE MANAGER APPROVES, AND NOTHING READS AN UNAPPROVED TABLE - CLAUDE.md already requires this for financial output (isApproved before committing). Every rate shows its source document and date. IT MUST ALSO SHOW WHAT THE AI COULD NOT FIND: on 2026-09-08 a session read IR260 and IR265 in full and still concluded NZ had no first-year regime, because Investment Boost postdates both - a gap invisible from inside the file. SIX QUESTIONS RULED 2026-09-08 on design/mockups/tax-rules-upload.html: the FIRM owns it, full cascade, an advisor LOADS and only the manager APPROVES. Both screens are drawn; the advisor's is tax-rules-advisor.html, with three questions open. Tax PDFs are public, so no PII question arises.",
-      "comment": "2026-09-08 - raised by Mike and filed on his instruction the same day. The recommendation was AGAINST it and he overturned it: the uploader is a firm manager who knows the topic and should be encouraged to check their sources. The concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers."
+      "note": "NOTHING READS AN UNAPPROVED TABLE, structurally rather than by a flag: a proposal lives in its own store. THE MANAGER'S SIDE IS COMPLETE, slices 1 to 3b. SLICES 4 AND 5 ARE THE ADVISOR'S HALF: each rate badges its origin; an approved table is OFFERED, filling only rates still on defaults so a typed rate survives; and an advisor may LOAD a document while approval stays manager-only. ⚠ THE AI-CALL EXPOSURE THAT WIDENING CREATED IS ITEM 4.82, not a warning here. NOT BUILT: the dated purchase list with the first-year deduction - item 4.77, closed here. No document has been read in earnest; that needs UAT. Detail is in the Brief; rulings in depreciation-rates-history.md.",
+      "comment": "2026-09-08 - raised by Mike and filed on his instruction. The recommendation was AGAINST it and he overturned it; the concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers. 2026-09-09 - the manager's side built, slices 1 to 3b, after Mike caught the build conflating a tax rate with a depreciation rate and the feature was renamed. Spec Kit produced eleven rulings, Investment Boost among them. Slices 4 and 5 built the same day on his yes: the advisor sees where each rate came from, is offered their country's table, and may load a document their manager decides on. 44 new tests."
     },
     {
       "ref": "4.80",
@@ -173,7 +131,7 @@
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "The role was renamed global_group_manager on 2026-08-11 and the short form survives in about 45 places, including the file sessions learn the tier names from.",
       "risk": "It is the exact mechanism that produced the coined job titles Mike has now banned ten times: a shortened name invites the shortcut, and a stale name in a document that reads as authority comes back looking correct. The guard bans only the QUOTED form, so the unquoted one passes.",
       "askedBy": {
@@ -182,8 +140,113 @@
         "detail": "Found 2026-09-08 while purging tier names taken from a brand or a country, on Mike's instruction. Filed the same day rather than swept at shutdown."
       },
       "touches": "config/db-schema.sql, design/ADVISOR-E-DESIGN-LOGIC.md, TIER-CASCADE-MAP.md, MENTOR-TIER-CHAIN-PLAN.md, components/collaborate/screens/global.vue, server/collaborate/data/repository.js, and the tierVocabulary guard, which needs the unquoted pattern.",
-      "note": "🔴 A LARGE SHARE OF THE 45 ARE MIKE'S OWN WORDS IN DIRECT QUOTES - \"repeated at group manager or global manager\" (2026-07-30), \"too technical for a firm or global manager\" (2026-08-16). THOSE STAY VERBATIM. The job is separating his quotes from our prose, site by site, which is why it was not done at the end of a session. The guard pattern must be widened LAST, once our prose is clean, and it has to tolerate his quotes - most likely by exempting quoted spans rather than whole files.",
-      "comment": "2026-09-08 - found while purging tier names taken from a brand or a country, and filed on Mike's instruction rather than started at shutdown. One instance written by that same session was fixed on the spot; the other 45 were not touched."
+      "note": "🔴 MIKE'S OWN WORDS IN DIRECT QUOTES STAY VERBATIM, and they are most of what is left. OUR LIVE PROSE IS NOW CLEAN - 21 sites across 8 code files and 7 design documents. Frozen records were deliberately not touched: ACTIONS.md, the session notes and the release notes are history, not prose anyone reads for the tier names. THE GUARD IS THE ONE STEP LEFT AND IT IS BLOCKED ON MIKE: exempting quoted spans clears 12 of 17 files, but four sentences of OUR prose inside the APPROVED mockup global-groups-membership.html would still fail it - and one of them says these managers cannot log in, which contradicts his ruling of 2026-08-31.",
+      "comment": "2026-09-08 - found while purging tier names taken from a brand or a country, and filed on Mike's instruction rather than started at shutdown. One instance written by that same session was fixed on the spot; the other 45 were not touched. 2026-09-09 - the sweep done on the laptop on his yes: our own prose corrected wherever it is live, his quotes left word for word, frozen records untouched, and the guard left exactly as it is pending his call on the approved mockup."
+    },
+    {
+      "ref": "4.81",
+      "name": "The forecast's tax rates are New Zealand's, hardcoded, for every country",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The forecast applies New Zealand's company tax rate, GST rate and filing cycle to every client in every country, with nothing on screen saying so and no manager able to change it.",
+      "risk": "Every forecast for an overseas client is wrong on tax whether or not it owns a single asset, so this is WIDER than 4.78. An advisor can type over the two rates but is never told they are New Zealand's; the filing cycle they cannot change at all, and it decides which months the money leaves the bank. The statements balance perfectly, which is how it reaches a lender.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' The same request 4.78 was filed under."
+      },
+      "touches": "server/utils/taxRates.js and sourcedFigure.js, server/routes/taxRates.js, the Tax Rates tab in components/firm/FirmTaxRates.vue at all four tiers, the GST filing cycle in server/report/threeWayForecastModel.js, and the country field and tax card in components/ThreeWayForecastIntake.vue.",
+      "note": "BUILT, SLICES 1-5, AND A SEPARATE TAB FROM DEPRECIATION RATES ON MIKE'S APPROVAL: the country table, the cascade, the routes, the manager's screen, the engine and the advisor's side. FOUR FIGURES, NOT TWO - the drawing found the GST section also fixes the filing cycle and the accounting basis, both New Zealand's. THE ENGINE'S THREE HARDCODED CYCLES BECAME ONE FORMULA, so Australia's quarterly BAS can be expressed at all; the 3,385 golden workbook cells pass unchanged. NOT BUILT: loading a tax PDF for the AI to read, drawn in §4 - today a manager types each figure and its source by hand. Company tax stays ONE flat rate with a free-text line naming which entities it reaches.",
+      "comment": "2026-09-09 - Mike's own words when the gap was reported as something he had not asked for: 'of course i want the tax rate made contry aware - i literally asked for that!' He had. Drawing approved the same day, then built in five slices on the laptop. The item's own wording was corrected in the build: both rates WERE already editable by an advisor, so the fault was never 'nothing can change them' but 'they are silently New Zealand's and no manager can set them'. The country field was built here on his explicit yes - it is 4.78's approved addendum and nothing here resolves without it."
+    },
+    {
+      "ref": "4.82",
+      "name": "Nothing caps how many paid AI readings an advisor can trigger",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Loading a tax document sends it to the model and every reading is paid for. Nothing caps how many one person may set off, and the store's 20-document limit trims only after the model has already been paid.",
+      "risk": "An advisor inside a real firm could load the same PDF over and over and run up a bill nobody sees until it arrives. No data leaks and no wrong figure reaches a client, which is why this is a 2 and not a 5. It is not new in kind - a manager could always do it - but 2026-09-09 widened it from managers to every advisor.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-09 while building 4.78 slice 5, the change that widened it, and raised with Mike the same day. Filed at his instruction rather than left as a warning inside 4.78's note."
+      },
+      "touches": "server/restify-server.js, where the advisor's load route and the manager's sit beside each other, and server/routes/depreciationRates.js loadDocument, which both reach and which calls the model. A cap belongs there, never on the screen - a screen-side limit is not a limit.",
+      "note": "NO CAP EXISTS ANYWHERE TODAY, on the advisor's route or the manager's. The store's 20-document limit is not one: it trims AFTER the model has been paid. Mike's ruling of 2026-09-08 that an advisor may load is NOT in question here - only whether the loading is capped, and at what. A first cap could be per firm per day, which needs nothing this app does not already know.",
+      "comment": "2026-09-09 - filed at shutdown on Mike's yes, having first been written as a warning inside 4.78's note. That is the shape this list explicitly refuses: a hazard nobody owns gets described repeatedly and fixed never. Scored 2 rather than 5 deliberately - no data leaks, no wrong figure reaches a client, and it takes an authenticated advisor inside a real firm to spend anything."
+    },
+    {
+      "ref": "4.83",
+      "name": "Compliance pages in the four manager hubs",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 5,
+      "scoreReason": "security/privacy/data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike asked for compliance material that cascades from the mentor down to every firm, and for a firm to declare it understands its own country's law before Meeting Review becomes active.",
+      "risk": "A firm can record a client meeting today with nothing showing it was ever told its obligations. The assessment found two live gaps: IPP3A, in force since 1 May 2026 and unanswerable by software, and IPP12, unevidenced until OpenAI confirms where audio is processed. Without the gate the all-care basis is asserted in a document nobody has to open.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-10 - 'i want these compliance pages to show in the mentor, global manager, group manager and firm manager hubs - again, cascading'. The gate is his too: 'they have to tick a box before the feature becomes active'."
+      },
+      "touches": "A Compliance tab at all four tiers in TAB_TIERS and NAV_GROUPS, the firmOverlay cascade, an upload route reusing the master-export-upload validation, an on-demand AI completeness check against MEETING-REVIEW-DPIA.md section 9, the declaration record, and a locked state on pages/meeting-record.vue.",
+      "note": "NOT BUILT - approved to build from 2026-09-10. The artefact is design/mockups/compliance-pages.html and all nine of its questions are ruled. THE DECLARATION IS MIKE'S OWN WORDS, VERBATIM AND PINNED. Two rules must not collapse in the build: the declaration GATES, the completeness check NEVER does. A firm may neither edit nor hide what a tier above published. The AI checks completeness only - it never reads a statute and never says what the law requires. 4.84 generalises this page's dot.",
+      "comment": "2026-09-10 - raised by Mike and filed on his instruction after he approved the drawing. It grew out of Meeting Review 4.58 section 4, whose impact assessment was written the same day and is the first thing the page publishes. His own proposal to upload privacy statutes for the AI to read was recommended against and he agreed: it would put our software in place of their lawyer, and a stale PDF would have the AI quoting law that IPP3A superseded."
+    },
+    {
+      "ref": "4.84",
+      "name": "Notification dots on every hub tab",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A manager has no way of knowing something new arrived on a hub tab. Mike asked for the Handbook's own dot system in the hub's left-hand menu, on every tab.",
+      "risk": "Without it a firm never learns the mentor published new compliance material, so 4.83's notification does not exist and its record goes stale unread. No data is at risk and nothing breaks, which is why this is a 3 rather than higher.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-10 - 'they get a notification such as a red dot next to the topic (currently get blue and orange in the handbook so could use similar system?)', then 'put the dots in the left hand menu' and 'every tab'."
+      },
+      "touches": "NAV_GROUPS in components/FirmManagerHub.vue, a new per-manager per-tab last-opened record on the firm row following meetingObservationsAdvisor.js, and a route to stamp it. The no-icons ruling of 2026-08-19 gets a narrow status-only exception.",
+      "note": "NOT BUILT. Three states, the Handbook's own mechanism: red = published since you last declared, blue = never opened, orange = not opened in 3 weeks. Red beats blue beats orange, which is our judgement and flagged as one. ONE ROW PER MANAGER PER TAB, never one row holding every tab - that is item 4.75's lost-update fault. No schema change. Red alone needs no new storage, so 4.83 can ship its own dot; blue and orange are what need the last-opened record.",
+      "comment": "2026-09-10 - filed on Mike's yes as a SEPARATE item from 4.83 rather than inside it. It is general hub machinery every tab gains from and would be worth building even if Compliance never shipped; buried inside a compliance feature, nobody looking for it later would find it."
+    },
+    {
+      "ref": "4.85",
+      "name": "One Handbook both machines update, built from master",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 1,
+      "scoreReason": "internal only",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The Handbook is built from whichever branch a machine is on and published to one shared page, so it shows the last machine to run startup and silently omits the other's work.",
+      "risk": "On 2026-09-10 Mike opened a Handbook with Depreciation Rates and Tax Rates missing entirely - zero mentions of two features this laptop built and pushed - and nothing on the page said so. A session reading it could conclude a built feature needs building, which is how 4.16's wasted work started.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-10 - 'i want both machines to update a single handbook', after being shown that the published page was the desktop's and was missing two of the laptop's features."
+      },
+      "touches": "scripts/build-handbook.js, which reads design/features from the working tree; the startup and shutdown skills that publish it; and check-branch-state.js, whose ahead/behind counts the banner would use.",
+      "note": "NOT BUILT. Recommended shape, which Mike said yes to FILING rather than to building: build from master rather than the working branch, so both machines produce a byte-identical page and neither can overwrite the other. A banner names what each machine holds that master does not, from the counts check:branch already computes. THE COST IS REAL - master is 36 behind the laptop and 51 behind the desktop today, so a master-built Handbook shows neither machine's recent work until both merge, which is the drift becoming visible rather than hidden. A naive union of both branches was REJECTED: both machines edit to-do-items.json, so newest-wins would silently drop one machine's items from the live list.",
+      "comment": "2026-09-10 - found at shutdown while checking whether republishing would overwrite edits Mike had made in the browser. He had made none: the page was the desktop's, rebuilt from its own branch that morning. SCORED 1 BY THE LIST'S OWN TEST - no customer ever sees the Handbook - and filed anyway because he asked for it. His order decides where it sits, not the score; the 4.13 lesson is that a finder's score is an opinion wearing a number."
     }
   ]
 }
