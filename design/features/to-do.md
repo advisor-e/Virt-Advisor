@@ -35,7 +35,7 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** | — |
+| 1 | **4.15** The 14 branches that still name a page nobody can open | 4 | — | **Mike** | — |
 | 2 | **4.58** Meeting Review — the advisor's side is complete; §4 remains ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **4.77** First-year depreciation cannot differ from later years, or between two vehicles ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |

@@ -61,22 +61,22 @@
   "items": [
     {
       "ref": "4.15",
-      "name": "The 21 branches that still name a page nobody can open",
+      "name": "The 14 branches that still name a page nobody can open",
       "kind": "defect",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Twenty-one logic-table recommendations name documents the template library does not hold, so the gate withholds or cuts that advice before an adviser sees it.",
+      "why": "Fourteen logic-table recommendations name documents the template library does not hold, so the gate withholds or cuts that advice before an adviser sees it.",
       "risk": "Coaching Mike wrote is withheld from advisers and nothing on screen says so. The gate is behaving correctly; the content names tools that are not there.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
       },
-      "touches": "data/logic_trees.json, the Mentor Hub logic tables, the Template Check screen where the real page names are settled, and tests/unit/recommendationGate.test.js, which pins 36 whole / 6 partial / 13 withheld.",
-      "note": "Waits on Mike naming the real pages; the whole list is design/LOGIC-TABLE-TEMPLATES-NEEDED.md (now 19 branches, 23 names). Ranked last on his ruling: technical work first, wording after. A second step was found 2026-08-26: 22 branches name their template only in prose, which the ranking engine never reads, so once the names resolve their templates[] must be populated too, and not before. Detail in logic-tables-history.md §8.",
+      "touches": "data/logic_trees.json, the Mentor Hub logic tables, the Template Check screen where the real page names are settled, and tests/unit/recommendationGate.test.js, which pins 39 whole / 8 partial / 8 withheld.",
+      "note": "Waits on Mike naming the real pages; the whole list is design/LOGIC-TABLE-TEMPLATES-NEEDED.md (now 14 branches, 18 names). Ranked last on his ruling: technical work first, wording after. A second step was found 2026-08-26: 22 branches name their template only in prose, which the ranking engine never reads, so once the names resolve their templates[] must be populated too, and not before. Detail in logic-tables-history.md §8.",
       "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
     },
     {

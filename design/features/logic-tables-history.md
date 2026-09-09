@@ -110,16 +110,15 @@ Moved here from the live list on 2026-09-03, when the item's note and comment we
 list's word caps.
 
 - **The list of missing names is [`../LOGIC-TABLE-TEMPLATES-NEEDED.md`](../LOGIC-TABLE-TEMPLATES-NEEDED.md):**
-  19 branches across three tables (CA Firm Strategy 5, Firm Board Pack 7, Leadership & Partner
-  Development 7) naming 23 documents `data/templates.json` does not hold. Mike says the documents
+  14 branches across three tables (CA Firm Strategy 5, Firm Board Pack 5, Leadership & Partner
+  Development 6) naming 18 documents `data/templates.json` does not hold. Mike says the documents
   exist and will update the search content, then pick this up. It was 21: COI Development pt1 and
   pt2 were published all along and the name scanner cut the title at the lowercase "pt" (fixed
-  2026-08-25, `48265ac`).
-- **Matching ignores case and punctuation**, so some may already resolve ("Demings Volatility"
-  matches "Deming's Theory of Volatility"; "6 Hats" matches "De Bono's 6 Hats"). A sentence is
-  withheld if ANY name in it is missing, and four branches name two. "Psyche Errors" and "Team AI"
-  may be concepts rather than documents; if so the fix is to reword the sentence and no page is
-  needed.
+  2026-08-25, `48265ac`); on 2026-09-10 Mike matched four more to published titles (FM Board
+  White Paper, FM Board Pack Tables, Directorship Pathway, Demings Volatility) and ruled Psyche
+  Errors a concept inside Quality Decisions. A sentence is withheld if ANY name in it is missing,
+  and three branches name two. "Team AI" may be a concept rather than a document; if so the fix is
+  to reword the sentence and no page is needed.
 - **The second step, found 2026-08-26 while measuring the empty `templates[]` arrays (item 4.51):**
   22 branches with an empty array name their template only in the recommendation prose ("Use
   Design & Deliver template"). `walkLogicTree` in `server/utils/logicTrees.js` reads only
@@ -128,5 +127,5 @@ list's word caps.
   resolve, those arrays must be populated — and not before: `validateLogicTreeReferences`
   hard-fails under `VA_STRICT_CONTENT` on a name the library does not hold, so writing it early
   turns a silent gap into a broken build.
-- **The gate's count today is 36 whole / 6 partial / 13 withheld**, pinned in
+- **The gate's count today is 39 whole / 8 partial / 8 withheld**, pinned in
   `tests/unit/recommendationGate.test.js`; the re-run command is in the reference file above.
