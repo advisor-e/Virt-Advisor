@@ -117,6 +117,7 @@ const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
 const depreciationRatesRoute = require('./routes/depreciationRates')
+const taxRatesRoute = require('./routes/taxRates')
 const sellDownRoute = require('./routes/forecastSellDown')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
@@ -256,6 +257,13 @@ server.get('/api/report/trend-thresholds', firmAuth, trendThresholdsRoute.get)
 // himself on 2026-09-08: "Never block the advisor." The read degrades to the app's own six
 // rates rather than failing, and the write is manager-only on /api/firm-manager below.
 server.get('/api/report/depreciation-rates', firmAuth, depreciationRatesRoute.get)
+// The company tax rate, GST rate, filing cycle and accounting basis a client's forecast uses,
+// for the client's own country (item 4.81). A SIBLING OF THE LINE ABOVE, NOT PART OF IT — a
+// tax rate turns profit into tax owed, a depreciation rate writes an asset down, and Mike
+// renamed that feature on 2026-09-09 because one screen was promising both. Same asymmetry
+// and the same "never block the advisor": the read degrades to the app's own four figures,
+// which are what every forecast uses today, and the write is manager-only below.
+server.get('/api/report/tax-rates', firmAuth, taxRatesRoute.get)
 // The prices imported stock sells down at as it ages (item 4.64). Same asymmetry and same
 // reason again: the advisor's step 3 seeds its ladder from this, so the read must never
 // require a manager role, and the write is manager-only on /api/firm-manager below.
@@ -397,6 +405,14 @@ server.post('/api/firm-manager/depreciation-rates/documents', ...fmGuard, deprec
 server.get('/api/firm-manager/depreciation-rates/documents', ...fmGuard, depreciationRatesRoute.listDocuments)
 server.post('/api/firm-manager/depreciation-rates/documents/approve', ...fmGuard, depreciationRatesRoute.approveDocument)
 server.post('/api/firm-manager/depreciation-rates/documents/reject', ...fmGuard, depreciationRatesRoute.rejectDocument)
+// The four tax figures a country's clients are taxed on (item 4.81). Same shape and same
+// guard as the block above, and ONE approve route rather than two: a first-year rule is a tax
+// scheme a manager adopts, which is why it earned its own button next door, whereas these
+// four are the same kind of decision taken together off the same document.
+server.get('/api/firm-manager/tax-rates', ...fmGuard, taxRatesRoute.getForManager)
+server.post('/api/firm-manager/tax-rates', ...fmGuard, taxRatesRoute.approveFigures)
+server.get('/api/firm-manager/tax-rates/history', ...fmGuard, taxRatesRoute.history)
+server.post('/api/firm-manager/tax-rates/restore', ...fmGuard, taxRatesRoute.restore)
 server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.getForManager)
 server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
 server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)

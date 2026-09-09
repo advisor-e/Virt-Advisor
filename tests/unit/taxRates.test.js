@@ -150,6 +150,21 @@ describe('validating an approved table', () => {
   test('a country whose table is an array is refused', () => {
     expect(validateTaxRates({ AU: [] }).ok).toBe(false)
   })
+
+  // The model is asked for an object per figure. Every other shape it could answer with is
+  // refused rather than read through — CLAUDE.md requires LLM output be validated for shape
+  // before it reaches state, and this is that check for the four figures.
+  test.each([
+    ['a bare number', 0.3],
+    ['a string', '30%'],
+    ['an array', [0.3]],
+    ['null', null],
+    ['missing', undefined]
+  ])('a figure given as %s is refused', (_label, value) => {
+    const { ok, errors } = validateTaxRates({ AU: table({ figures: { gst: value } }) })
+    expect(ok).toBe(false)
+    expect(errors.length).toBeGreaterThan(0)
+  })
 })
 
 describe('the approval gate', () => {

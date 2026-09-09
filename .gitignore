@@ -88,6 +88,13 @@ data/dev-depreciation-rates.json
 # APPROVED tables are data/dev-depreciation-rates.json.
 data/dev-depreciation-proposals.json
 
+# Dev-only tax rates — a scope's APPROVED company tax rate, GST rate, filing cycle and
+# accounting basis, per country (item 4.81). Keyed by SCOPE, ignored for the same reason as
+# every sibling above. The app's own four are data/tax-rates.json and ARE committed: they
+# are New Zealand's, they are what every forecast uses today, and they are labelled an app
+# default wherever they appear.
+data/dev-tax-rates.json
+
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
 # The four cascade keys, added when the staircase joined the one firm-editable
