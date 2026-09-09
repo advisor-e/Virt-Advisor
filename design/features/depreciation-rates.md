@@ -174,7 +174,8 @@ model, which asked for the same thing.
 | Sending a document to the model, and refusing to trust what comes back | [`server/utils/depreciationExtract.js`](../../server/utils/depreciationExtract.js) · [`tests`](../../tests/unit/depreciationExtract.test.js) |
 | The reading instruction itself, on the AI Prompts page at all four tiers | [`data/ai-prompts.json`](../../data/ai-prompts.json) — `depreciation-read` |
 | Where a PROPOSAL lives — a store the rate resolver never reads | [`server/utils/depreciationProposals.js`](../../server/utils/depreciationProposals.js) · [`tests`](../../tests/unit/depreciationProposals.test.js) |
-| The manager's tab | [`components/firm/FirmDepreciationRates.vue`](../../components/firm/FirmDepreciationRates.vue) · [`tests`](../../tests/unit/firmDepreciationRates.component.test.js) |
+| The manager's tab — what is in force, the documents loaded, and the upload | [`components/firm/FirmDepreciationRates.vue`](../../components/firm/FirmDepreciationRates.vue) · [`tests`](../../tests/unit/firmDepreciationRates.component.test.js) |
+| Reviewing one document — the class match, the picker, the rates, the gaps | [`components/firm/DepreciationDocumentReview.vue`](../../components/firm/DepreciationDocumentReview.vue) · [`tests`](../../tests/unit/depreciationDocumentReview.component.test.js) |
 | Where the tab is gated and named | [`components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue) — `TAB_TIERS.depreciationRates` |
 | The tier seam every cascading block asks | [`server/utils/tierChain.js`](../../server/utils/tierChain.js) |
 | The engine whose rate this sets | [`server/report/threeWayForecastModel.js`](../../server/report/threeWayForecastModel.js) |
@@ -215,11 +216,23 @@ that the resolver never reads; and four routes load, list, approve and reject a 
 prompt the model is given is on the **AI Prompts** page at all four tiers, so a manager whose
 rates come back wrong can read what the machine was told.
 
-**Not built, and not to be described as built:** the upload control, the proposed-rates table
-and its Approve, the class-match step, the gaps panel, the country field on the forecast, the
-dated purchase list, the advisor's half entirely, and the report's Investment Boost line.
-**No document has been read in earnest yet** — that needs a real schedule, a key and a
-manager — so no rate in this app has yet come from a tax authority.
+**Slice 3b adds the manager's screen, and with it the last of the manager's side.** A manager
+loads a schedule, sees the documents this level holds, confirms or changes which published
+class each of the six categories takes its rate from, corrects any figure, reads what the
+document did not cover, and approves or rejects. **Approve is disabled until every matched
+class has been confirmed** — the check P10 exists for. The reading gained the document's own
+class list to make the picker possible: the model is asked for every class the schedule
+publishes (prompt section 6, capped at 250), each held to the same bar as a proposed rate, and
+a class that could not carry a rate and a page is never offered. Every difference between this
+build and the two approved drawings is named in the history, §5.
+
+**Not built, and not to be described as built:** the country field on the forecast, the dated
+purchase list, **the advisor's half entirely** — including the screen an advisor loads a
+document from, so every document a manager sees today was loaded by a manager — and the
+report's Investment Boost line. **No document has been read in earnest yet** — that needs a
+real schedule, a key and a manager — so no rate in this app has yet come from a tax authority,
+and the first thing to watch on a live run is whether the model picks the right published class
+for each of the six.
 
 **How a document is read was settled by Mike on 2026-09-09** — sent to the model, never
 extracted locally — and is now built that way. **Nothing about this feature is undecided.**

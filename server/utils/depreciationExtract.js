@@ -84,6 +84,17 @@ const IDLE_TIMEOUT_MS = 180000
 const MAX_LABEL = 120
 
 /**
+ * How many published classes are kept from one document, for the manager's own picker.
+ *
+ * ⚠ A CAP, NOT A TARGET, AND IT IS ABOVE THE REAL DOCUMENTS. IR265 publishes about 156
+ * classes and the approved drawing's picker says so in as many words; 250 clears that with
+ * room for a longer schedule, while stopping a runaway answer from filling a firm's stored
+ * record. Classes past the cap are dropped from the END, so the order the document prints
+ * them in is the order that survives.
+ */
+const MAX_CLASSES = 250
+
+/**
  * 🔴 MIKE'S WORDS, SETTLED 2026-09-09, AND PINNED BY TEST BECAUSE THEY ARE LOAD-BEARING.
  *
  * This is the whole of what a person is told when a document cannot be read. It replaced a
@@ -178,7 +189,7 @@ function textFromResponse (response) {
 /**
  * Parses the model's reply as JSON, tolerating a code fence around it.
  *
- * Section 7 of the prompt asks for bare JSON; a fence is the one deviation common enough to
+ * Section 8 of the prompt asks for bare JSON; a fence is the one deviation common enough to
  * be worth absorbing, and absorbing it here is cheaper than a refused read a manager cannot
  * act on. Anything else parses to null and is refused as malformed.
  *
@@ -200,21 +211,21 @@ function parseModelJson (text) {
 }
 
 /**
- * Validates one proposed row into the shape the approved store already accepts.
+ * Validates the FIGURES of one row — the part a proposed category and a published class have
+ * in common — into the shape the approved store already accepts.
  *
  * Returning the STORE's shape is deliberate: what a manager approves is handed to
  * `validateDepreciationRates` unchanged, so there is no second definition of what a rate is
- * and no translation step in which a field could be lost.
+ * and no translation step in which a field could be lost. A class the manager PICKS instead
+ * of the proposed match is written to that same store, so it has to clear the same bar —
+ * which is why one function serves both rather than two that could drift apart.
  *
- * @param {*} row - one entry of the model's `rates` array
+ * @param {*} row - one entry of the model's `rates` or `classes` array
  * @param {object} source - `{ document, published }` from the document itself
- * @returns {{key: string, entry: object}|null} null when the row is refused
+ * @returns {object|null} the store-shaped entry, or null when the row is refused
  */
-function cleanRow (row, source) {
+function cleanFigures (row, source) {
   if (!row || typeof row !== 'object' || Array.isArray(row)) { return null }
-
-  const key = typeof row.category === 'string' ? row.category.trim() : ''
-  if (!CATEGORY_KEYS.includes(key)) { return null }
 
   const method = row.method
   if (!METHODS.includes(method)) { return null }
@@ -238,16 +249,30 @@ function cleanRow (row, source) {
   const page = oneLine(row.page).slice(0, 20)
 
   return {
-    key,
-    entry: {
-      label,
-      method,
-      dvRate,
-      slRate,
-      lifeYears,
-      source: { document: source.document, page: page || null, published: source.published }
-    }
+    label,
+    method,
+    dvRate,
+    slRate,
+    lifeYears,
+    source: { document: source.document, page: page || null, published: source.published }
   }
+}
+
+/**
+ * Validates one proposed row — a published class the model matched to one of the six.
+ *
+ * @param {*} row - one entry of the model's `rates` array
+ * @param {object} source - `{ document, published }` from the document itself
+ * @returns {{key: string, entry: object}|null} null when the row is refused
+ */
+function cleanRow (row, source) {
+  if (!row || typeof row !== 'object' || Array.isArray(row)) { return null }
+
+  const key = typeof row.category === 'string' ? row.category.trim() : ''
+  if (!CATEGORY_KEYS.includes(key)) { return null }
+
+  const entry = cleanFigures(row, source)
+  return entry === null ? null : { key, entry }
 }
 
 /**
@@ -255,7 +280,7 @@ function cleanRow (row, source) {
  *
  * Three ways a read is refused outright, and each is a different sentence to the manager:
  *   - `UNREADABLE`      — the model said so. Nothing is proposed (FR-047).
- *   - `MALFORMED`       — the answer is not the shape section 7 asked for, or names no
+ *   - `MALFORMED`       — the answer is not the shape section 8 asked for, or names no
  *                         document, or no date we can rank. Believing half of it is worse
  *                         than believing none.
  *   - `COUNTRY_MISMATCH`— the document is another country's. An approved table is tagged
@@ -327,13 +352,38 @@ function validateReading (raw, opts) {
     const cleaned = cleanRow(row, source)
     if (cleaned === null) { refusedRows++; return }
     // A second row for a category already proposed is refused rather than allowed to
-    // overwrite the first. Section 6 forbids it, so a second one means something went wrong
+    // overwrite the first. Section 7 forbids it, so a second one means something went wrong
     // in the read, and silently taking the last would be a selection nobody could see.
     if (categories[cleaned.key]) { refusedRows++; return }
     categories[cleaned.key] = cleaned.entry
   })
 
   const unmatched = CATEGORY_KEYS.filter(k => !categories[k])
+
+  // The document's own class list, which is what a manager picks from when the model's match
+  // is wrong (FR-027, and §2 of the approved class-match drawing). It is held to the SAME bar
+  // as a proposed row — a class offered in the picker can be chosen, and a chosen class is
+  // written to the approved table, so one that cannot carry a rate and a page would put an
+  // unsourced figure in front of a lender by a different door.
+  //
+  // ⚠ A REFUSED CLASS IS SIMPLY ABSENT FROM THE PICKER, and is deliberately not counted into
+  // `refusedRows`. That figure means "rows the model proposed for a category and we would not
+  // take", which is a statement about the SIX; folding a dropped class into it would make a
+  // number the screen shows mean two different things.
+  const classes = []
+  const seen = {}
+  const offered = Array.isArray(raw.classes) ? raw.classes : []
+  offered.forEach((row) => {
+    if (classes.length >= MAX_CLASSES) { return }
+    const entry = cleanFigures(row, source)
+    if (entry === null) { return }
+    // Two entries with the same wording are one class listed twice: a picker offering both
+    // asks a manager to choose between two things they cannot tell apart.
+    const key = entry.label.toLowerCase()
+    if (seen[key]) { return }
+    seen[key] = true
+    classes.push(entry)
+  })
 
   return {
     ok: true,
@@ -346,7 +396,8 @@ function validateReading (raw, opts) {
       firstYearRuleFound: raw.firstYearRuleFound === true,
       categories,
       unmatched,
-      refusedRows
+      refusedRows,
+      classes
     }
   }
 }
@@ -440,11 +491,13 @@ module.exports = {
   PDF_MIME,
   IDLE_TIMEOUT_MS,
   MAX_LABEL,
+  MAX_CLASSES,
   UNREADABLE_MESSAGE,
   oneLine,
   buildRequest,
   textFromResponse,
   parseModelJson,
+  cleanFigures,
   cleanRow,
   validateReading,
   readDocument,

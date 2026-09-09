@@ -69,6 +69,57 @@
           p.is-size-7.has-text-grey(v-if="row.source") {{ row.source }}
 
     .box
+      .level.is-mobile.mb-2
+        .level-left
+          p.has-text-weight-semibold Documents loaded for {{ country }}
+        .level-right
+          span.is-size-7.has-text-grey {{ documentSummary }}
+
+      p.is-size-7.has-text-grey.mb-3
+        | The schedules {{ country }}'s tax authority publishes, read by the AI so a manager can check
+        |  every figure and approve it. #[b A second document never replaces the first] — it is read
+        |  alongside it, and where two disagree the newer publication wins.
+
+      p.is-size-7.has-text-grey(v-if="!documents.length") Nothing has been loaded for {{ country }} yet.
+
+      .fdr-doc(v-for="d in documents" :key="d.id")
+        .fdr-doc-meta
+          p.is-size-7.has-text-weight-semibold {{ d.documentName }}
+          p.is-size-7.has-text-grey {{ documentLine(d) }}
+        .fdr-doc-state
+          b-tag(:type="statusType(d)" size="is-small") {{ statusText(d) }}
+          b-button(
+            v-if="d.status === 'pending'"
+            size="is-small"
+            type="is-light"
+            @click="review(d.id)"
+          ) {{ reviewing === d.id ? 'Close' : 'Review' }}
+
+      b-message(v-if="uploadMessage" :type="uploadType" size="is-small") {{ uploadMessage }}
+
+      .fdr-drop
+        p.has-text-weight-semibold.is-size-7.mb-1 Load a depreciation schedule
+        p.is-size-7.has-text-grey.mb-2
+          | PDF, up to 20 MB, as {{ country }}'s tax authority publishes it. It is sent to the AI to be
+          |  read and is not kept afterwards — the AI proposes, and nothing it proposes reaches a
+          |  forecast until you approve it.
+        b-upload(v-model="file" accept="application/pdf" :disabled="uploading" @input="upload")
+          a.button.is-primary.is-small(:class="{ 'is-loading': uploading }")
+            span Choose a file
+
+    depreciation-document-review(
+      v-if="reviewingDocument"
+      :key="reviewingDocument.id"
+      :document="reviewingDocument"
+      :resolved="resolved"
+      :newest-published="newestPublished"
+      :saving="saving"
+      :error="reviewError"
+      @approve="approveDocument"
+      @reject="rejectDocument"
+    )
+
+    .box
       p.has-text-weight-semibold.mb-1 First-year rule
       p.is-size-7.has-text-grey.mb-3
         | Some countries let a business deduct part of a new asset's cost up front. It is
@@ -151,12 +202,15 @@
  * `design/features/depreciation-rates.md`; the approved drawings are
  * `design/mockups/depreciation-rates-upload.html` and its two addenda.
  *
- * 🔴 WHAT THIS SLICE DELIBERATELY DOES NOT DO, so nobody reads it as unfinished. There is no
- * upload here and no AI extraction: loading a document, having it read, and approving what it
- * proposed are slice 3, and the PDF-reading question is still open. What this screen does
- * today is show a manager which rates their firm is actually on, which tier supplied each one,
- * and which are still the app's own guesses — which is the whole point of the hub-page rule
- * and is useful before a single document exists.
+ * 🔴 WHAT THIS TAB DOES NOT DO, so nobody reads it as unfinished. The ADVISOR's half is not
+ * built: an advisor may load a document under P6, and the screen they load it from does not
+ * exist yet, so every document listed here was loaded by a manager. Nothing else of the
+ * manager's side is outstanding — loading a document, having it read, confirming which
+ * published class each category takes, correcting the figures and approving them are all here
+ * as of slice 3b.
+ *
+ * 🔴 IT SHOWS WHICH RATES ARE IN FORCE BEFORE IT SHOWS ANY PROPOSAL, and that order is the
+ * point. A manager arriving at a document has to be able to see what it would replace.
  *
  * 🔴 IT SHOWS WHERE EVERY RATE CAME FROM, not just what it is, and that is the feature rather
  * than decoration. A rate badged as an app default is a starting point; a rate badged with a
@@ -177,8 +231,12 @@
  * the majority keeps this folder to two styles rather than three, and converting all five is
  * one job rather than five. Raised with Mike on 2026-09-09.
  */
+import DepreciationDocumentReview from './DepreciationDocumentReview.vue'
+
 export default {
   name: 'FirmDepreciationRates',
+
+  components: { DepreciationDocumentReview },
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -192,6 +250,18 @@ export default {
       error: '',
       showHistory: false,
       history: [],
+      /** Every document this level has loaded for the country on screen, newest first. */
+      documents: [],
+      /** The file chosen in the upload control, held only until it has been sent. */
+      file: null,
+      uploading: false,
+      /** What the last upload attempt has to say — including the model's refusal to read. */
+      uploadMessage: '',
+      uploadType: 'is-info',
+      /** The id of the document open for review, or '' for none. */
+      reviewing: '',
+      /** A message from the last approve or reject, shown on the review itself. */
+      reviewError: '',
       /** Two-letter code in the box, before it is asked for. */
       countryInput: '',
       /** The country actually being shown, once the backend has answered for it. */
@@ -262,6 +332,30 @@ export default {
     ruleSource () {
       const s = this.rule && this.rule.source
       return s ? `${s.document} · ${s.published}` : ''
+    },
+
+    /** The document open for review, or null. Only a pending one can be reviewed. */
+    reviewingDocument () {
+      if (!this.reviewing) { return null }
+      return this.documents.filter(d => d.id === this.reviewing && d.status === 'pending')[0] || null
+    },
+
+    /**
+     * The publication date of the newest document held for this country.
+     *
+     * The gaps panel states it because an absence looks identical to a negative: a scheme
+     * introduced after every loaded document is invisible from inside them, which is exactly
+     * how a session concluded on 2026-09-08 that New Zealand had no first-year rule at all.
+     */
+    newestPublished () {
+      const dates = this.documents.map(d => d.published).filter(Boolean).sort()
+      return dates.length ? dates[dates.length - 1] : ''
+    },
+
+    documentSummary () {
+      if (!this.documents.length) { return '' }
+      const pending = this.documents.filter(d => d.status === 'pending').length
+      return this.documents.length + ' loaded' + (pending ? ' · ' + pending + ' awaiting you' : '')
     }
   },
 
@@ -315,10 +409,160 @@ export default {
           await this.load(this.countries[0])
           return
         }
+        if (this.country) { await this.loadDocuments() }
       } catch (err) {
         this.error = err.message
       } finally {
         this.loading = false
+      }
+    },
+
+    /**
+     * The documents this level has loaded for the country on screen.
+     *
+     * ⚠ A COUNTRY THIS LEVEL HAS APPROVED NOTHING FOR STILL HAS DOCUMENTS. `countries` lists
+     * approved tables; a document loaded an hour ago and not yet approved appears in neither,
+     * which is why this is its own call rather than a field of the rates read.
+     */
+    async loadDocuments () {
+      const q = `?country=${encodeURIComponent(this.country)}`
+      const data = await this.api('GET', `/api/firm-manager/depreciation-rates/documents${q}`)
+      this.documents = data.documents || []
+      // A document decided while the screen was open must not leave a stale review mounted.
+      if (this.reviewing && !this.documents.filter(d => d.id === this.reviewing && d.status === 'pending').length) {
+        this.reviewing = ''
+      }
+    },
+
+    /**
+     * One document's second line: who loaded it, when, and what came out of it.
+     * @param {object} d - a stored document record
+     * @returns {string}
+     */
+    documentLine (d) {
+      const parts = []
+      if (d.published) { parts.push(d.published) }
+      parts.push(d.country)
+      const read = Object.keys(d.categories || {}).length
+      parts.push(d.status === 'unreadable' ? 'nothing could be read' : `${read} of 6 categories read`)
+      if (d.loadedBy) { parts.push(`loaded by ${d.loadedBy}`) }
+      return parts.join(' · ')
+    },
+
+    /**
+     * @param {object} d - a stored document record
+     * @returns {string} the Buefy tag type for its state
+     */
+    statusType (d) {
+      if (d.status === 'approved') { return 'is-success is-light' }
+      if (d.status === 'pending') { return 'is-warning is-light' }
+      if (d.status === 'unreadable') { return 'is-danger is-light' }
+      return 'is-light'
+    },
+
+    /**
+     * @param {object} d - a stored document record
+     * @returns {string} what its state means to a manager, not the stored word
+     */
+    statusText (d) {
+      const words = {
+        approved: 'In use',
+        pending: 'Needs your approval',
+        rejected: 'Rejected',
+        unreadable: 'Could not be read'
+      }
+      return words[d.status] || d.status
+    },
+
+    /** Opens or closes the review of one pending document. @param {string} id */
+    review (id) {
+      this.reviewError = ''
+      this.reviewing = this.reviewing === id ? '' : id
+    },
+
+    /**
+     * Sends one document to be read.
+     *
+     * 🔴 A DOCUMENT THE MODEL COULD NOT READ COMES BACK AS A 200 WITH `ok: false`, and the
+     * backend's own sentence is shown unchanged. That wording is Mike's, settled verbatim on
+     * 2026-09-09 and pinned by a test beside the value it protects; restating it here would
+     * put a second copy of a load-bearing string in the one place nobody would think to look.
+     *
+     * ⚠ MULTIPART, SO NO `Content-Type` IS SET. The browser writes it with the boundary; a
+     * hand-set header produces a body the backend cannot parse.
+     */
+    async upload () {
+      if (!this.file || !this.country) { return }
+      this.uploading = true
+      this.uploadMessage = ''
+      this.error = ''
+      try {
+        const form = new FormData()
+        form.append('country', this.country)
+        form.append('file', this.file)
+        const res = await fetch('/api/firm-manager/depreciation-rates/documents', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiToken}` },
+          body: form
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          throw new Error((data.error && data.error.message) || data.message || res.statusText)
+        }
+
+        await this.loadDocuments()
+        if (data.ok) {
+          this.uploadType = 'is-success'
+          this.uploadMessage = 'The document was read. Check what it proposed before approving it.'
+          if (data.document) { this.reviewing = data.document.id }
+        } else {
+          this.uploadType = 'is-warning'
+          this.uploadMessage = data.message || 'That document could not be read.'
+        }
+      } catch (err) {
+        this.uploadType = 'is-danger'
+        this.uploadMessage = err.message
+      } finally {
+        this.uploading = false
+        this.file = null
+      }
+    },
+
+    /**
+     * Approves the manager's own figures for one document.
+     * @param {{documentId: string, categories: object}} payload - from the review component
+     */
+    async approveDocument (payload) {
+      this.saving = true
+      this.reviewError = ''
+      try {
+        await this.api('POST', '/api/firm-manager/depreciation-rates/documents/approve', payload)
+        this.reviewing = ''
+        await this.load(this.country)
+        this.$buefy.toast.open({ message: 'These rates are now in force', type: 'is-success' })
+      } catch (err) {
+        this.reviewError = err.message
+      } finally {
+        this.saving = false
+      }
+    },
+
+    /**
+     * Throws one proposal away. Nothing was using it, so no rate changes.
+     * @param {{documentId: string}} payload - from the review component
+     */
+    async rejectDocument (payload) {
+      this.saving = true
+      this.reviewError = ''
+      try {
+        await this.api('POST', '/api/firm-manager/depreciation-rates/documents/reject', payload)
+        this.reviewing = ''
+        await this.loadDocuments()
+        this.$buefy.toast.open({ message: 'That proposal has been rejected', type: 'is-success' })
+      } catch (err) {
+        this.reviewError = err.message
+      } finally {
+        this.saving = false
       }
     },
 
@@ -431,5 +675,31 @@ export default {
 .fdr-num {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+}
+.fdr-doc {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f0f3f7;
+}
+.fdr-doc:last-of-type { border-bottom: 0; }
+.fdr-doc-meta { min-width: 0; }
+.fdr-doc-state {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+/* The drawing's dashed drop zone, as a quiet panel rather than a drag target: the control
+   underneath is a file picker, and a dashed border promising drag-and-drop it does not do
+   would be a screen that lies. */
+.fdr-drop {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px dashed #b9d3e8;
+  border-radius: 10px;
+  background: #f8fbfe;
 }
 </style>

@@ -31,6 +31,8 @@
 
 const crypto = require('crypto')
 const { CATEGORY_KEYS, normaliseCountry, publishedKey } = require('./depreciationRates')
+// One number, one home: the reading applies this cap and the store holds it to the same one.
+const { MAX_CLASSES } = require('./depreciationExtract')
 
 /** The overlay address these records are stored under, at every tier. */
 const CONFIG_KEY = 'depreciation-proposals'
@@ -129,6 +131,16 @@ function cleanDocument (value, errors, where) {
     ? value.unmatched.filter(k => CATEGORY_KEYS.includes(k))
     : CATEGORY_KEYS.filter(k => !categories[k])
 
+  // The document's own published classes, which the manager's screen offers when the model
+  // matched a category to the wrong one. Held as the reading left them — an entry a manager
+  // actually picks is validated by `validateDepreciationRates` on the way into the approved
+  // table, which is the gate that matters and the only one a stored figure passes through.
+  const classes = Array.isArray(value.classes)
+    ? value.classes
+      .filter(c => c && typeof c === 'object' && !Array.isArray(c) && text(c.label))
+      .slice(0, MAX_CLASSES)
+    : []
+
   const refused = Number(value.refusedRows)
 
   return {
@@ -143,6 +155,7 @@ function cleanDocument (value, errors, where) {
     firstYearRuleFound: value.firstYearRuleFound === true,
     categories,
     unmatched,
+    classes,
     refusedRows: Number.isFinite(refused) && refused > 0 ? Math.floor(refused) : 0,
     decidedBy: text(value.decidedBy),
     decidedAt: text(value.decidedAt, 40) || null
@@ -201,6 +214,7 @@ function documentRecord (opts) {
     firstYearRuleFound: Boolean(reading && reading.firstYearRuleFound),
     categories: reading ? reading.categories : {},
     unmatched: reading ? reading.unmatched : CATEGORY_KEYS.slice(),
+    classes: reading && Array.isArray(reading.classes) ? reading.classes : [],
     refusedRows: reading ? reading.refusedRows : 0,
     decidedBy: '',
     decidedAt: null

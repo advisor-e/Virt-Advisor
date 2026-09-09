@@ -12,6 +12,7 @@
  */
 
 const p = require('../../server/utils/depreciationProposals')
+const ex = require('../../server/utils/depreciationExtract')
 const { CATEGORY_KEYS } = require('../../server/utils/depreciationRates')
 
 const READING = {
@@ -202,5 +203,71 @@ describe('adding, finding and deciding', () => {
 
   test('setting a status on a store with nothing in it is not an error', () => {
     expect(p.setStatus(null, 'x', 'approved', 'm').documents).toEqual([])
+  })
+})
+
+describe('the classes a manager picks from are kept with the document', () => {
+  const CLASS = {
+    label: 'Engineering (heavy) — plant and machinery',
+    method: 'dv',
+    dvRate: 0.13,
+    slRate: 0.085,
+    lifeYears: 15.5,
+    source: { document: 'IR265', page: '9', published: '2023-10' }
+  }
+
+  test('a reading\'s class list rides onto the record', () => {
+    const rec = p.documentRecord({
+      filename: 'ir265.pdf',
+      country: 'NZ',
+      loadedBy: 'mike@advisor-e.com',
+      reading: {
+        document: 'IR265',
+        published: '2023-10',
+        country: 'NZ',
+        firstYearRuleFound: false,
+        categories: {},
+        unmatched: [],
+        refusedRows: 0,
+        classes: [CLASS]
+      }
+    })
+    expect(rec.classes).toEqual([CLASS])
+  })
+
+  test('a document nothing could be read from offers no classes', () => {
+    const rec = p.documentRecord({ filename: 'scan.pdf', country: 'NZ', loadedBy: 'm', reading: null })
+    expect(rec.classes).toEqual([])
+    expect(rec.status).toBe('unreadable')
+  })
+
+  test('an older record with no class list reads back as an empty one', () => {
+    // Slice 3a stored documents without this field. They must still open.
+    const out = p.validateProposals({ documents: [{ id: 'd1', country: 'NZ', status: 'pending', filename: 'a.pdf', loadedAt: '2026-09-09T00:00:00.000Z' }] })
+    expect(out.ok).toBe(true)
+    expect(out.value.documents[0].classes).toEqual([])
+  })
+
+  test('an entry with no wording is dropped rather than offered as a nameless choice', () => {
+    const out = p.validateProposals({
+      documents: [{
+        id: 'd1',
+        country: 'NZ',
+        status: 'pending',
+        filename: 'a.pdf',
+        loadedAt: '2026-09-09T00:00:00.000Z',
+        classes: [CLASS, { method: 'dv', dvRate: 0.2 }, null, 'Engineering', [CLASS]]
+      }]
+    })
+    expect(out.value.documents[0].classes).toEqual([CLASS])
+  })
+
+  test('a hand-edited store cannot exceed the cap the reading applies', () => {
+    const many = []
+    for (let i = 0; i < ex.MAX_CLASSES + 10; i++) { many.push(Object.assign({}, CLASS, { label: 'Class ' + i })) }
+    const out = p.validateProposals({
+      documents: [{ id: 'd1', country: 'NZ', status: 'pending', filename: 'a.pdf', loadedAt: '2026-09-09T00:00:00.000Z', classes: many }]
+    })
+    expect(out.value.documents[0].classes).toHaveLength(ex.MAX_CLASSES)
   })
 })

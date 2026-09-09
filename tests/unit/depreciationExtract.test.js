@@ -550,3 +550,109 @@ loadFirmConfig: noConfig
     )
   })
 })
+
+describe('the document\'s own class list — what a manager picks from when the match is wrong', () => {
+  function cls (over) {
+    return Object.assign({
+      class: 'Engineering (heavy) — plant and machinery',
+      method: 'dv',
+      dvRate: 0.13,
+      slRate: 0.085,
+      lifeYears: 15.5,
+      page: '9'
+    }, over || {})
+  }
+
+  test('a published class survives in the same shape a proposed rate does', () => {
+    // Identical shapes on purpose: a class a manager PICKS is written to the approved table,
+    // so it clears the same bar as a rate the model proposed. Two shapes could drift.
+    const out = ex.validateReading(goodAnswer({ classes: [cls()] }), { country: 'NZ' })
+    expect(out.ok).toBe(true)
+    expect(out.reading.classes).toEqual([{
+      label: 'Engineering (heavy) — plant and machinery',
+      method: 'dv',
+      dvRate: 0.13,
+      slRate: 0.085,
+      lifeYears: 15.5,
+      source: { document: 'IR265 — General depreciation rates', page: '9', published: '2023-10' }
+    }])
+  })
+
+  test('a class carrying a percentage instead of a decimal is refused, not rescaled', () => {
+    // 13 here means 1300% a year. The picker must not be able to offer it at all.
+    const out = ex.validateReading(goodAnswer({ classes: [cls({ dvRate: 13 })] }), { country: 'NZ' })
+    expect(out.reading.classes).toEqual([])
+  })
+
+  test('a class with no rate on its own method is refused', () => {
+    const out = ex.validateReading(goodAnswer({ classes: [cls({ method: 'sl', slRate: null })] }), { country: 'NZ' })
+    expect(out.reading.classes).toEqual([])
+  })
+
+  test('a class with no wording is refused — a picker cannot offer a nameless choice', () => {
+    const out = ex.validateReading(goodAnswer({ classes: [cls({ class: '   ' })] }), { country: 'NZ' })
+    expect(out.reading.classes).toEqual([])
+  })
+
+  test('a class with a method the store does not hold is refused', () => {
+    const out = ex.validateReading(goodAnswer({ classes: [cls({ method: 'pooled' })] }), { country: 'NZ' })
+    expect(out.reading.classes).toEqual([])
+  })
+
+  test('a class with an impossible life is refused', () => {
+    const out = ex.validateReading(goodAnswer({ classes: [cls({ lifeYears: 900 })] }), { country: 'NZ' })
+    expect(out.reading.classes).toEqual([])
+  })
+
+  test('an entry that is not an object at all is refused rather than throwing', () => {
+    const out = ex.validateReading(goodAnswer({ classes: [null, 'Engineering', ['x'], cls()] }), { country: 'NZ' })
+    expect(out.reading.classes).toHaveLength(1)
+  })
+
+  test('the same class listed twice is offered once', () => {
+    // A picker offering two identical rows asks a manager to choose between two things they
+    // cannot tell apart. Case is not a difference either.
+    const out = ex.validateReading(goodAnswer({
+      classes: [cls(), cls({ page: '11' }), cls({ class: 'ENGINEERING (HEAVY) — PLANT AND MACHINERY' })]
+    }), { country: 'NZ' })
+    expect(out.reading.classes).toHaveLength(1)
+    // The FIRST one survives, so the order the document prints is the order that is kept.
+    expect(out.reading.classes[0].source.page).toBe('9')
+  })
+
+  test('a runaway answer is capped, keeping the order the document printed', () => {
+    const many = []
+    for (let i = 0; i < ex.MAX_CLASSES + 40; i++) { many.push(cls({ class: 'Class ' + i })) }
+    const out = ex.validateReading(goodAnswer({ classes: many }), { country: 'NZ' })
+    expect(out.reading.classes).toHaveLength(ex.MAX_CLASSES)
+    expect(out.reading.classes[0].label).toBe('Class 0')
+  })
+
+  test('no class list at all is an empty list, not a failure', () => {
+    expect(ex.validateReading(goodAnswer(), { country: 'NZ' }).reading.classes).toEqual([])
+    expect(ex.validateReading(goodAnswer({ classes: null }), { country: 'NZ' }).reading.classes).toEqual([])
+    expect(ex.validateReading(goodAnswer({ classes: 'lots' }), { country: 'NZ' }).reading.classes).toEqual([])
+  })
+
+  test('a refused class does not inflate the count of refused RATE rows', () => {
+    // refusedRows is a statement about the six categories, and the screen shows it as one.
+    // Folding a dropped class into it would make one number mean two things.
+    const out = ex.validateReading(goodAnswer({ classes: [cls({ dvRate: 13 })] }), { country: 'NZ' })
+    expect(out.reading.refusedRows).toBe(0)
+  })
+
+  test('a document that could not be read proposes no classes either', () => {
+    const out = ex.validateReading(goodAnswer({ readable: false, classes: [cls()] }), { country: 'NZ' })
+    expect(out.ok).toBe(false)
+    expect(out.reading).toBeNull()
+  })
+
+  test('the prompt asks for the class list the code reads', () => {
+    // The same seam as the six category keys above: a list the model is never asked for is a
+    // picker that is always empty, and no screen would say why.
+    const prompt = require('../../data/ai-prompts.json').prompts.find(p => p.id === ex.PROMPT_ID)
+    const section = prompt.sections.find(s => s.id === 'classlist')
+    expect(section).toBeTruthy()
+    expect(prompt.sections.find(s => s.id === 'output').body).toContain('"classes"')
+  })
+})

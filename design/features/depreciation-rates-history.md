@@ -172,7 +172,42 @@ its whole duration with no bytes on the socket and be killed by that guard.
 
 ---
 
-## 5. Where the raw material is
+## 5. The manager's screen against the drawings it was built from — slice 3b, 2026-09-09
+
+**Every difference between the two approved drawings and what was built, named here because
+that is the only place a reader can check one against the other afterwards** (`CLAUDE.md`,
+*Save the Artefact*). Nothing below was decided quietly; the first one was put to Mike before
+a line was written, and he approved it.
+
+**The picker could not be built from what the reading kept, and the reading was extended
+rather than the drawing trimmed.** §2 of the class-match addendum lets a manager open a row
+and choose a different published class — *"156 classes in IR265 · type to narrow"* — and slice
+3a asked the model only for the six matched categories, so the list a manager would choose
+from did not exist anywhere. **Mike's decision, 2026-09-09: add it to the reading and build the
+screen complete.** The prompt gained section 6 (*Every other class the document publishes*),
+`validateReading` holds every class to the same bar as a proposed rate, and a class that
+cannot carry a rate and a page is simply not offered — a picker cannot offer a choice that
+would fail the store on the way in.
+
+| The drawing shows | What was built | Why |
+|---|---|---|
+| A proposal of **41 rows**, and a gap line reading *"27 of the app's asset categories"* | **Six rows**, and gaps out of six | Illustrative in the drawing and unbuildable — the forecast has six categories, and a rate against a seventh could reach no forecast. Already recorded in the Brief §3 |
+| A **four-dot cascade banner** — mentor → global group manager → group manager → this firm | The tag slice 2 already ships: *this level's own table* / *inherited from above* / *nobody has approved one* | Same fact, already built, already approved. Redrawing it as a chain would be a second way of saying one thing |
+| A document row reading *"156 rates read"* | *"n of 6 categories read"* | Follows from the row above: what is kept from a document is the six, not the schedule |
+| An **Advisor proposal** row in the document list | Every row names whoever loaded it, and no advisor can load one yet | The advisor's half is not built (P6). The list needs no change on the day it is |
+| A dashed **drop zone** | A file picker inside a dashed panel | The control underneath opens a file dialog. A dashed border promising drag-and-drop it does not do would be a screen that lies |
+| **Confirm all matched** and **Continue to the rates** as two buttons | One **Approve**, disabled until every matched class is confirmed; Confirm-all kept | Both cards are on one page, so there is nowhere to continue *to*. The gate the two buttons implied is the disabled Approve, which cannot be walked past |
+| An approval table with **Life · Diminishing value · Straight line · Currently used** | Life · basis · **the operative rate, editable** · used today, with its tier | Only one of the two rates reaches a forecast — the one the document's method names. Editing the other would put a figure on screen that changes nothing |
+| §5's refusal panel quoting *"about 12% of the text came through damaged"* | The backend's own sentence, Mike's wording | Settled 2026-09-09 and recorded in §4 above. The application no longer measures damage because it is no longer the one reading |
+
+**One thing the drawings do not show and the screen states anyway:** the publication date of
+the newest document held for the country, on the gaps panel. It is P3, and it exists because on
+2026-09-08 two documents were read in full and Investment Boost — which postdates both — was
+reported as an absence rather than a gap.
+
+---
+
+## 6. Where the raw material is
 
 - [`design/mockups/depreciation-rates-upload.html`](../mockups/depreciation-rates-upload.html) — the firm
   manager's screen, drawn and ruled 2026-09-08. §7 holds the six rulings verbatim.
