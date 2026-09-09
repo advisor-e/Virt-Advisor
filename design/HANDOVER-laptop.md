@@ -9,63 +9,41 @@
 
 ---
 
-## 2026-09-09 (tenth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-09 (eleventh session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,722 green** (433 suites), lint 0 errors, audit gate clean. **One commit,
-`d0b5095`, pushed.** 15 ahead, 0 behind — started level with `origin/master`, so nothing
-was merged in.
+Suite **8,926 green** (438 suites), lint 0 errors, coverage and audit gates clean. **Ten
+commits, all pushed.** 27 ahead, 0 behind `origin/master`; nothing merged in.
 
-**4.78 SLICE 3b IS BUILT, AND THE MANAGER'S SIDE IS NOW COMPLETE.** A manager loads a
-schedule, sees the documents this level holds, confirms or changes which published class
-each of the six categories takes its rate from, corrects any figure, reads what the
-document did not cover, and approves or rejects. Two components:
-`FirmDepreciationRates.vue` (the tab, the list, the upload) and the new
-`DepreciationDocumentReview.vue` (one document under review).
+**4.81 TAX RATES IS BUILT, SLICES 1 TO 5** — the country table, the four-tier cascade, five
+routes, the **Tax Rates** tab at every manager tier, the engine, and the advisor's side. A
+manager approves a country's company tax rate, GST rate, filing cycle and accounting basis,
+each naming its document and page; an advisor names the client's country and is *offered* the
+change. New pages: [`features/tax-rates.md`](features/tax-rates.md) and its history.
 
-🔴 **APPROVE STAYS SHUT UNTIL EVERY MATCHED CLASS IS CONFIRMED** — Mike's P10 ruling. It is
-the whole point of the class-match step; do not "helpfully" enable it.
+🔴 **A SEPARATE TAB FROM DEPRECIATION RATES — Mike approved that before the drawing was drawn.**
+He renamed 4.78 hours earlier so a tab's name predicts its contents. They share one country
+table, one cascade and one approval gate in the code, and **nothing on screen**. Do not merge
+them.
 
-🔴 **THE READING WAS EXTENDED, WITH MIKE'S YES BEFORE ANY CODE.** The picker in the approved
-class-match drawing needs the document's OTHER published classes, and slice 3a asked the
-model only for the six. The prompt gained **section 6** (renumbering `never` to 7 and
-`output` to 8), and every class clears the same bar as a proposed rate — a class that
-cannot carry a rate and a page is never offered, because a class a manager picks is written
-straight to the approved table.
+🔴 **DESKTOP — THE ONE THING THAT COULD TRIP YOU UP.** `ThreeWayForecastIntake.vue` now has a
+**country field** (4.78's approved addendum, built here on Mike's explicit yes). **Only the TAX
+half is wired to it.** Wiring the six depreciation rates to that same field is still 4.78's
+work and is *not* done.
 
-**Every difference from the two approved drawings is named in
-`depreciation-rates-history.md` §5** — eight of them, with the reason for each. That file is
-where to check the build against the artefacts, not this note.
+⚠ **`threeWayForecastModel.js` CHANGED.** Its three hardcoded GST filing branches became one
+formula, so a quarterly BAS can be expressed at all. **All 3,385 golden workbook cells pass
+unchanged and no existing test was edited** — but it is a shared file, so merge with care.
 
-**60 new tests.** The rate seam is the one to respect: **typed as a percentage, stored as a
-decimal, converted in `setPercent` and nowhere else.** 500 is refused, never clamped.
+**Not built, both drawn and both named in the Brief §7:** loading a tax PDF for the AI to read,
+and the country saved with the forecast (needs 4.62's last screen). 🔴 **Mike ruled the PDF
+reading STAYS INSIDE 4.81** rather than becoming its own item — and whether it is worth building
+at all is genuinely open: four figures here against IR265's ~156 classes. History §5 says why.
 
-⚠ **THIS SCREEN HAS NOT BEEN OPENED IN A BROWSER.** Every path is proven against stubs. The
-Economic Analysis threw up nine live faults that green tests had all missed, so treat the
-first real run as the real test. It needs a key, a real IR265 and a manager — UAT's, not
-this machine's.
+⚠ **NOT OPENED IN A BROWSER.** Every path is proven against stubs. Economic Analysis threw up
+nine live faults green tests all missed — treat the first real run as the real test.
 
-**Next on 4.78:** the advisor's half entirely (the screen they load a document from), the
-forecast's country field, and the dated purchase list. **4.78 stays flagged active on the
-laptop** — the item is unfinished and this machine has built all of it.
+**4.78 and 4.81 both stay flagged active on the laptop.** `FirmTaxRates.vue` uses `$t()` where
+four of its six siblings hardcode English; it deliberately did not join that open deviation.
 
-⚠ **Known deviation, unchanged:** both Depreciation Rates components hardcode English like
-four of their five sibling tabs, against the i18n standard. Named in each component header.
-
-🔴 **MIKE CLEARED THE OPEN QUESTIONS THE SAME EVENING — five rulings, and the list is now
-FIVE items, not seven.**
-
-- **4.77 CLOSED into 4.78.** Same asset model, one build. ⚠ *Closed, not built* — the dated
-  purchase list and the first-year deduction are on 4.78's outstanding list, and his $800,000
-  tractor costing is in the closure.
-- **4.66 CLOSED.** Built, run live end to end, every design question ruled. His *"detailed
-  instructions and prompt in future"* is a change on the **AI Prompts page**, not a build.
-- **4.81 IS THE NEXT PIECE OF WORK** — the drawing first, and nothing built until he approves
-  it. It rides 4.78's country table, cascade and approval gate, so it is small.
-- **4.15 stays parked at the bottom**, on his own ordering rule: technical first, wording after.
-- **4.58 stays open, unchanged.** Nothing is ours to build until the database exists; what is
-  left is his four non-coding items — the drafted **OpenAI audio-terms email** is the one that
-  unblocks a first real recording.
-
-**DESKTOP:** 🔴 **your note is stale — it is dated 2026-09-04 and describes 5 commits; your
-branch is 46 ahead with a commit from today.** Nothing of yours was touched here. Nothing
-this session went near quiz screens.
+**DESKTOP:** 🔴 **your note is still dated 2026-09-04 while your branch is 51 ahead with a commit
+from today.** Nothing of yours was touched here; nothing went near quiz screens.
