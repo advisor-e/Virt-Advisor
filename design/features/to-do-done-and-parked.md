@@ -185,6 +185,27 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.80 — "Global manager" is the old name and it is still in 45 places.**
+✅ Closed 2026-09-10 by Mike, on the desktop, in one commit — `51a46a4`.
+
+- **Why it mattered:** the role was renamed `global_group_manager` on 2026-08-11 and the short
+  display name survived in 44 places, including the tier tables sessions learn the names from. It is
+  the mechanism behind the coined job titles Mike has banned ten times: a shortened name in a document
+  that reads as authority comes back looking correct. The guard banned only the quoted form.
+- **What was done:** every site sorted by author. **27 are ours** and now read "global group
+  manager" — comments and test titles in eight code files, the tier tables and diagrams in eight
+  design documents, one word in the frozen `ACTIONS.md` (a name correction, not a new item), and
+  four in the global-groups-membership mockup. No logic moved. **12 are Mike's own words in direct
+  quotes** (2026-07-30, 2026-08-09, 2026-08-16), plus one place `CLAUDE.md` quotes an old code
+  comment; all untouched. The rest name the old spelling on purpose: this item, and the guard.
+- **What proves it:** [`tests/unit/tierVocabulary.test.js`](../../tests/unit/tierVocabulary.test.js)
+  now bans the unquoted old name under every scanned root, with quoted spans — straight,
+  curly, and the `\"…\"` a quote takes inside JSON — stripped before matching so his quotes pass
+  and ours cannot. A span never crosses a blank line or 800 characters, so an unbalanced quote in
+  code cannot hide an offender; a self-test proves both directions. Suite 8,802 green.
+- **Flagged, not fixed:** the same mockup says no one can log in as a global group manager, which
+  contradicts Mike's ruling of 2026-08-31 that they do. A separate sentence, outside this item.
+
 **4.70 — Business Performance Report — the client's own report.**
 ✅ Closed 2026-09-09 by Mike — *"all good go ahead"* — after his own walk on a real client's
 export, through all six steps, the AI draft on step 4, page 8 and the browser's print.

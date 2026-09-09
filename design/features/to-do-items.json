@@ -166,27 +166,6 @@
       "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
       "note": "AI PROPOSES, THE MANAGER APPROVES, AND NOTHING READS AN UNAPPROVED TABLE - CLAUDE.md already requires this for financial output (isApproved before committing). Every rate shows its source document and date. IT MUST ALSO SHOW WHAT THE AI COULD NOT FIND: on 2026-09-08 a session read IR260 and IR265 in full and still concluded NZ had no first-year regime, because Investment Boost postdates both - a gap invisible from inside the file. SIX QUESTIONS RULED 2026-09-08 on design/mockups/tax-rules-upload.html: the FIRM owns it, full cascade, an advisor LOADS and only the manager APPROVES. Both screens are drawn; the advisor's is tax-rules-advisor.html, with three questions open. Tax PDFs are public, so no PII question arises.",
       "comment": "2026-09-08 - raised by Mike and filed on his instruction the same day. The recommendation was AGAINST it and he overturned it: the uploader is a firm manager who knows the topic and should be encouraged to check their sources. The concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers."
-    },
-    {
-      "ref": "4.80",
-      "name": "\"Global manager\" is the old name and it is still in 45 places",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The role was renamed global_group_manager on 2026-08-11 and the short form survives in about 45 places, including the file sessions learn the tier names from.",
-      "risk": "It is the exact mechanism that produced the coined job titles Mike has now banned ten times: a shortened name invites the shortcut, and a stale name in a document that reads as authority comes back looking correct. The guard bans only the QUOTED form, so the unquoted one passes.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-08 while purging tier names taken from a brand or a country, on Mike's instruction. Filed the same day rather than swept at shutdown."
-      },
-      "touches": "config/db-schema.sql, design/ADVISOR-E-DESIGN-LOGIC.md, TIER-CASCADE-MAP.md, MENTOR-TIER-CHAIN-PLAN.md, components/collaborate/screens/global.vue, server/collaborate/data/repository.js, and the tierVocabulary guard, which needs the unquoted pattern.",
-      "note": "🔴 A LARGE SHARE OF THE 45 ARE MIKE'S OWN WORDS IN DIRECT QUOTES - \"repeated at group manager or global manager\" (2026-07-30), \"too technical for a firm or global manager\" (2026-08-16). THOSE STAY VERBATIM. The job is separating his quotes from our prose, site by site, which is why it was not done at the end of a session. The guard pattern must be widened LAST, once our prose is clean, and it has to tolerate his quotes - most likely by exempting quoted spans rather than whole files.",
-      "comment": "2026-09-08 - found while purging tier names taken from a brand or a country, and filed on Mike's instruction rather than started at shutdown. One instance written by that same session was fixed on the spot; the other 45 were not touched."
     }
   ]
 }
