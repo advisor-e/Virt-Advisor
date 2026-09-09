@@ -2929,6 +2929,9 @@
       "list": "Template list",
       "prose": "In a sentence"
     },
+    "filter": {
+      "all": "All"
+    },
     "verdict": {
       "none": "Nothing matches",
       "maybe": "Probably this",
