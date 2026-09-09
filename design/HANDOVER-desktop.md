@@ -9,22 +9,26 @@
 
 ---
 
-## 2026-09-10 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-10 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **8,791 green** at push; 55 ahead, 0 behind master; nothing uncommitted. Four commits
-pushed: `51a46a4` + `363d8a9` (4.80 closed), `1cb682a` (three "cannot log in" sentences
-corrected), `38f6387` (4.15: five branches restored).
+Pushed mid-session on Mike's instruction so the laptop can read it. **PR #70 is open** (desktop →
+master, 56 commits, tested and built); Mike has not merged it.
 
-**4.80 CLOSED.** The guard now bans the unquoted "global manager"; Mike's quotes are exempt by
-quoted-span stripping. Write his tier names in full.
+**4.58 — STOPPED, HANDED TO THE LAPTOP.** The client level of the pre-set is **drawn, not built**:
+[`mockups/meeting-preset-client-level.html`](mockups/meeting-preset-client-level.html), five
+questions open, none ruled. Mike stopped the desktop because the laptop is on Meeting Review right
+now. The `activeOn` marker this session put on 4.58 is removed. Laptop: rule the five questions
+with him before building; question 1 (one shared list per client, or one per advisor per client)
+shapes the rest.
 
-**4.15:** Mike matched four names to published pages and ruled Psyche Errors a concept. Gate
-39 / 8 / 8. 18 names still have no page; waits on him.
+**4.15** — Mike settles the 18 names himself in UAT. Never propose it as session work.
 
-**Mike's ruling today:** wrong text is replaced, never annotated with a dated correction. No
-history notes in the app.
+**Integration email** — question 7 added: where an adviser's identity lives, for the Adviser
+Network seam.
 
-**LAPTOP:** 4.78 untouched. Shared files changed here: `tierVocabulary.test.js` (wider guard),
-`logic_trees.json` (five recommendations), `TIER-CASCADE-MAP.md`.
+**Release v0.11.0** — Mike wants one tag covering both machines, on his word later today. The
+desktop cuts it when he says; the laptop's branch must be merged to master first (12 files
+conflicted with the desktop branch at 09:20; re-derive at the time).
 
-**Next:** nothing on the list is ours. All five items wait on Mike.
+**LAPTOP:** shared files changed here today: `to-do-items.json` (4.15 note), `ARTEFACTS.md`
+(one row), `MASTER-TEAM-INTEGRATION-EMAIL.md`.

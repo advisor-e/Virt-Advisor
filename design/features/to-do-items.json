@@ -83,10 +83,6 @@
       "ref": "4.58",
       "name": "Meeting Review — the advisor's side is complete; §4 remains",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-10"
-      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
