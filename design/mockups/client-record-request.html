@@ -247,11 +247,21 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   recorded meeting leaves the firm, and a named client heard that promised aloud. Tiers above the
   firm are answered <b>403</b>, never an empty screen.</p>
 
-  <p>⚠ <b>YOUR WORDS WERE "MEETING NOTES", AND THERE ARE THREE DIFFERENT THINGS THAT COULD
-  MEAN</b> — the transcript, the client's Meeting Summary, and the advisor's My Coaching Notes.
-  They are deliberately kept apart by P6. Which of them a client is entitled to is
-  <b>question 1</b>, and it is the one ruling this whole drawing turns on. Everything below shows
-  my recommendation; say the word and it changes.</p>
+  <p>✅ <b>EVERY QUESTION IS RULED — see §Rulings at the foot.</b> Eight rulings, all given by Mike
+  on 2026-09-10, one at a time. <b>Two reversed the recommendation</b> and one <b>dissolved</b>,
+  so anyone building from the recommendations builds the wrong screen. Read the rulings, not the
+  drawing's first instincts — both are kept side by side deliberately.</p>
+
+  <p>🔴 <b>YOUR WORDS WERE "MEETING NOTES", AND RULING 1 SETTLED WHICH.</b> Three things carried
+  that meaning — the transcript, the client's Meeting Summary, and the advisor's My Coaching Notes,
+  kept apart by P6. <b>The client gets the transcript and the Meeting Summary. NEVER the coaching
+  notes</b>, and the drawing's own fallback of releasing their quotations without the observations
+  around them is <b>dropped, not deferred</b>. Mike's reasoning, which is stronger than the
+  recommendation's and is the one to quote: <i>"the advisor is covered by their terms of
+  engagement, they are allowed to engage with clients in a meaningful manner - our performance
+  report is part of the advisors training and quality control for the firm - clients never get
+  these notes."</i> The recommendation rested on who OWNS the report (P2); his rests on what it is
+  FOR, which is the question a regulator actually asks.</p>
 
   <p>⚠ <b>THESE SCREENS CANNOT BE EYEBALLED ON THE LAPTOP.</b> They stand on the firm's client
   register, which is MySQL. Seeing them run is desktop or UAT work.</p>
@@ -262,7 +272,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 
 <div class="hub-top">
   <div class="hub-eyebrow">Firm Manager Hub</div>
-  <h1 class="hub-h1">Client Requests</h1>
+  <h1 class="hub-h1">Client Copy Request</h1>
   <div class="hub-sub">Apex Auto &amp; Engineering Ltd · New Zealand</div>
 </div>
 
@@ -272,7 +282,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   <div class="tab">Meeting Types</div>
   <div class="tab">Meeting Patterns</div>
   <div class="tab">Compliance</div>
-  <div class="tab on">Client Requests</div>
+  <div class="tab on">Client Copy Request</div>
   <div class="tab">Tax Rates</div>
   <div class="tab">Depreciation Rates</div>
 </div>
@@ -307,7 +317,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
           </td>
           <td>
             A copy of everything recorded
-            <div class="src">Logged by Dana Whitfield · by email</div>
+            <div class="src">Logged by Dana Whitfield · by email · <b>waiting on Owen Fraser</b></div>
           </td>
           <td>2 Sep 2026</td>
           <td class="num" style="color:#8a5a00">4 working days left</td>
@@ -374,16 +384,16 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 <div class="stepmark">Screen B — serving one request</div>
 
 <div class="hub-top">
-  <div class="hub-eyebrow">Client Requests</div>
+  <div class="hub-eyebrow">Client Copy Request</div>
   <h1 class="hub-h1">Priya Raman</h1>
-  <div class="hub-sub">Raman Joinery Ltd · asked on 2 September 2026, by email</div>
+  <div class="hub-sub">Raman Joinery Ltd · asked on 2 September 2026, by email · you are Dana Whitfield</div>
 </div>
 
 <div class="clock">
   <div class="big warn">4</div>
   <div class="lab">
     <b>working days left</b>
-    Due 16 September 2026. New Zealand allows 20 working days.
+    Due 16 September 2026. Your firm answers within 20 working days.
   </div>
 </div>
 
@@ -393,10 +403,16 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   when consent was taken. What can be provided is text.
 </div>
 
+<div class="notice info">
+  <b>You can release the meetings you recorded. The others are for the advisor who took them.</b>
+  Two of these four are yours. Owen Fraser is shown the same screen for his, and the request is
+  answered once every advisor has released their part.
+</div>
+
 <div class="card">
   <div class="card-h">
     <h2>Meetings held with this client</h2>
-    <span class="pill inh">4 found · 3 still hold text</span>
+    <span class="pill inh">4 found · 2 are yours to release</span>
   </div>
   <div class="card-b">
 
@@ -404,11 +420,11 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
       <div class="box on"></div>
       <div class="meta">
         <div class="nm">End-of-year review · 27 August 2026</div>
-        <div class="sub">Recorded by Dana Whitfield · retained until 27 February 2028</div>
+        <div class="sub">You recorded this · retained until 27 February 2028</div>
         <div class="parts">
           <span class="pill ok">Transcript</span>
           <span class="pill ok">Meeting Summary</span>
-          <span class="pill off">My Coaching Notes — not provided</span>
+          <span class="pill off">My Coaching Notes — never provided</span>
         </div>
       </div>
     </div>
@@ -417,24 +433,26 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
       <div class="box on"></div>
       <div class="meta">
         <div class="nm">Quarterly catch-up · 14 May 2026</div>
-        <div class="sub">Recorded by Dana Whitfield · retained until 14 November 2027</div>
+        <div class="sub">You recorded this · retained until 14 November 2027</div>
         <div class="parts">
           <span class="pill ok">Transcript</span>
           <span class="pill ok">Meeting Summary</span>
-          <span class="pill off">My Coaching Notes — not provided</span>
+          <span class="pill off">My Coaching Notes — never provided</span>
         </div>
       </div>
     </div>
 
     <div class="mrow">
-      <div class="box on"></div>
+      <div class="box dis"></div>
       <div class="meta">
         <div class="nm">Cashflow planning · 3 March 2026</div>
         <div class="sub">Recorded by Owen Fraser · retained until 3 September 2027</div>
         <div class="parts">
-          <span class="pill ok">Transcript</span>
-          <span class="pill bad">Meeting Summary was never approved</span>
-          <span class="pill off">My Coaching Notes — not provided</span>
+          <span class="pill wait">Waiting on Owen Fraser</span>
+        </div>
+        <div class="src" style="margin-top:6px">
+          Only the advisor who took a meeting can release it. Owen has been told this request is
+          open and which meeting is his.
         </div>
       </div>
     </div>
@@ -449,12 +467,84 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
         </div>
         <div class="src" style="margin-top:6px">
           This meeting was held when the firm kept transcripts for 18 months. The transcript and
-          both reports were destroyed on that date and cannot be recovered.
+          both reports were destroyed on that date and cannot be recovered. Nothing is waiting on
+          anybody for this one.
         </div>
       </div>
     </div>
 
   </div>
+</div>
+
+<div class="mock">
+  <p>🔴 <b>THIS SCREEN CHANGED WHEN YOU RULED THAT THE ADVISOR ALONE MAY SEND</b>, and the change
+  is not cosmetic. A client's request reaches across <b>every advisor who ever met them</b>, so one
+  person can no longer answer the whole thing. The request is now a shared piece of work with a
+  single clock over it, and it is closed when the last advisor has released their part.</p>
+  <p><b>The cost this creates, recorded rather than solved:</b> a request stalls on the slowest
+  advisor, and the deadline belongs to the firm rather than to any one of them. The screen shows
+  who is outstanding so it is visible; nothing chases them, and nothing overrides them except the
+  break-glass below.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B2 — the advisor who took the meeting has left</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Cashflow planning · 3 March 2026</h2>
+    <span class="pill bad">Break-glass</span>
+  </div>
+  <div class="card-b">
+
+    <div class="notice crit">
+      <b>Only Owen Fraser can release this meeting, and a request cannot wait forever.</b>
+      Your client's right does not lapse because an advisor left the firm. If Owen can no longer
+      act, you may release it on the firm's behalf — and this application cannot check that for
+      itself, so <b>you are declaring it</b>.
+    </div>
+
+    <div class="ack">
+      <div class="line">
+        <div class="box on"></div>
+        <div>
+          <b>Owen Fraser can no longer act on this request.</b>
+          <div class="src" style="margin-top:3px">
+            Sign-in is handled by Advisor-e, not by this application, so nothing here can confirm
+            whether an advisor has left. Your firm states it.
+          </div>
+        </div>
+      </div>
+      <div class="line">
+        <div class="box on"></div>
+        <div><b>I have read what is being released</b> and I am satisfied it is right to provide it.</div>
+      </div>
+      <div class="sig">
+        This declaration stays on the record permanently, with your name and today's date, and is
+        shown wherever this meeting appears. Owen remains named as the advisor who took it.
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <span class="btn danger">Release on the firm's behalf</span>
+      <span class="btn ghost">Cancel</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>A fire alarm, not a key.</b> Day to day the advisor alone sends and the firm manager never
+  appears — no reviewing every interaction, no looking over a senior partner's shoulder. This fires
+  only where the alternative is a firm that cannot answer its client at all.</p>
+  <p>⚠ <b>The tick is unverifiable and that is stated, not hidden.</b> A determined manager could
+  use it to read a transcript they should not. It is permanent and visible in the record, which is
+  the whole of the deterrent — the same shape as the consent tick, which this app also cannot
+  verify and has always relied on.</p>
+  <p><b>Why it could not be automatic:</b> this application holds no advisors table and does not
+  handle sign-in — <code>config/db-schema.sql</code> says so four times. It cannot know that
+  somebody has left, and a rule that guessed would either free meetings it should not or lock ones
+  it should not.</p>
 </div>
 
 <div class="card">
@@ -642,10 +732,14 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 <div class="stepmark">Screen E — what the advisor sees afterwards</div>
 
 <div class="mock">
-  <p>The advisor is never asked for permission — a person's right to their own information does
-  not wait on a colleague's approval, and the advisor may have left the firm. But they are
-  <b>told</b>, on the meeting itself, because a coaching finding whose evidence is disputed should
-  not read as settled.</p>
+  <p>🔴 <b>REDRAWN AFTER RULING 2.</b> As first drawn, both banners told an advisor about something
+  done without them. That case has mostly gone: the advisor <b>is</b> the one who sends, so nothing
+  needs announcing to them.</p>
+  <p><b>What survives, and why each earns its place.</b> The <b>correction</b> banner always does —
+  a client can dispute a passage months later, and a coaching finding whose evidence is now
+  disputed must not read as settled. The <b>release</b> banner fires <b>only for the break-glass in
+  ruling 2b</b>: a meeting released by a firm manager because the advisor could not act. If that
+  advisor still has access, they are owed the fact that their meeting went out without them.</p>
 </div>
 
 <div class="card">
@@ -662,13 +756,16 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
     </div>
 
     <div class="abanner">
-      <b>A copy of this meeting was provided to your client on 10 September 2026.</b>
-      The transcript and the Meeting Summary. Your coaching notes were not included.
+      <b>This meeting was released to your client on 10 September 2026 by Marcus Bell.</b>
+      He recorded that you could not act on the request. The transcript and the Meeting Summary
+      went; <b>these coaching notes did not, and never do.</b>
     </div>
 
     <p class="src">
       Both notices are facts about the record, not actions the advisor must take. Neither can be
       dismissed, because the second time somebody reads these notes is exactly when it matters.
+      The second appears <b>only</b> where a firm manager used the break-glass — an advisor who
+      released their own meeting does not need telling that they did.
     </p>
 
   </div>
@@ -699,100 +796,172 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
-<div class="stepmark">The questions — one at a time, please</div>
+<div class="stepmark">The rulings — all given by Mike, 2026-09-10, one at a time</div>
 
-<div class="notice warn">
-  <b>Nine questions, and question 1 is the one everything else hangs off.</b>
-  I have drawn my recommendation throughout so there is something concrete to disagree with.
-  Nothing is built and nothing will be until each of these has your word.
+<div class="notice good">
+  <b>Nine questions were asked; eight were ruled and one dissolved.</b>
+  🔴 <b>TWO REVERSED THE RECOMMENDATION</b> — rulings 2 and 9 — <b>and ruling 2 redrew Screen B and
+  added Screen B2.</b> The recommendations are kept beside the rulings on purpose: anyone building
+  from the recommendations builds the wrong screen. <b>Nothing is built.</b>
 </div>
 
 <div class="q">
-  <h3>1 · Which documents is a client entitled to?</h3>
-  <p>You said "meeting notes", and three different things carry that meaning. The
-  <b>transcript</b> is the record of the conversation. The <b>Meeting Summary</b> is written for
-  the client and already sent to them. <b>My Coaching Notes</b> is about the advisor — how they
-  handled the meeting.</p>
-  <p class="rec">Recommendation: the transcript and the Meeting Summary. Not My Coaching Notes.</p>
-  <p>The coaching notes are the advisor's own information, generated for them, and P2 says they
-  are shared upward only by the advisor's own act — handing them to a client is a bigger breach of
-  that than handing them to a manager. ⚠ <b>The honest counter-argument, stated rather than
-  buried:</b> those notes quote the client verbatim throughout, and a regulator could hold that
-  the quoted parts are the client's information whoever the report is about. If you would rather
-  be safe, the alternative is to provide the quotations from the coaching notes without the
-  observations around them. It is more work and it is defensible either way.</p>
+  <h3>☑ 1 · Which documents is a client entitled to?</h3>
+  <p>🔴 <b>RULED: the transcript and the Meeting Summary. The coaching notes NEVER.</b> In Mike's
+  words: <i>"they don't get the advisor feedback notes. The advisor is covered by their terms of
+  engagement, they are allowed to engage with clients in a meaningful manner - our performance
+  report is part of the advisors training and quality control for the firm - clients never get
+  these notes."</i></p>
+  <p class="rec">Recommended: the same — but on weaker grounds, and with a fallback he closed.</p>
+  <p>⚠ <b>HIS REASONING REPLACES THE RECOMMENDATION'S AND IS THE ONE TO QUOTE.</b> The
+  recommendation rested on who <b>owns</b> the report — P2, which gives it to the advisor. His
+  rests on what it is <b>for</b>: training and quality control, under terms of engagement the
+  client has already signed. That is the question a regulator asks, and it survives the objection
+  the recommendation could not.</p>
+  <p>🔴 <b>THE FALLBACK IS DROPPED, NOT DEFERRED.</b> The recommendation offered releasing the
+  client's quotations from the coaching notes without the observations around them, in case a
+  regulator held the quoted parts to be the client's information. He ruled the notes out entirely.
+  <b>No session revives this as a compromise.</b></p>
 </div>
 
 <div class="q">
-  <h3>2 · Who at the firm may serve a request?</h3>
-  <p class="rec">Recommendation: the firm manager, and any advisor for meetings they recorded
-  themselves.</p>
-  <p>Advisor-only would fail the moment somebody leaves, changes team or is on leave — and a
-  deadline does not pause. The firm manager is already the person who answers for the firm's
-  obligations on the Compliance page, so this sits with the same person.</p>
+  <h3>☑ 2 · Who at the firm may serve a request?</h3>
+  <p>🔴 <b>RULED: THE ADVISOR ALONE, and this REVERSED the recommendation.</b> In his words:
+  <i>"nope - the advisor alone can send. The firm manager will never have the time to check every
+  interaction of their advisors and in many cases, those advisors will in fact be senior
+  partners."</i></p>
+  <p class="rec">Recommended: the firm manager as well, because advisor-only fails when somebody
+  leaves and a deadline does not pause.</p>
+  <p>🔴 <b>THIS REDREW SCREEN B AND ADDED SCREEN B2, and the redraw is not cosmetic.</b> A client's
+  request reaches across every advisor who ever met them, so <b>no one person can answer it</b>.
+  The request became shared work under a single clock, closed when the last advisor releases their
+  part. <b>A build that gives one person a "release everything" button has not built what was
+  ruled.</b></p>
+  <p><b>The cost is carried, not solved:</b> a request stalls on the slowest advisor while the
+  deadline belongs to the firm. The screen shows who is outstanding; nothing chases them.</p>
 </div>
 
 <div class="q">
-  <h3>3 · Does the advisor have to agree before their meeting is handed over?</h3>
-  <p class="rec">Recommendation: no. They are told, never asked.</p>
-  <p>A person's right to their own information cannot wait on a colleague's approval, and an
-  advisor who has left the firm could block it forever. Screen E is how they find out.</p>
+  <h3>✖ 3 · Does the advisor have to agree before their meeting is handed over?</h3>
+  <p>🔴 <b>DISSOLVED BY RULING 2, not answered.</b> The question assumed somebody else would do the
+  sending and the advisor would consent to it. Once the advisor is the only one who can send,
+  there is nothing to agree to.</p>
+  <p>⚠ <b>What it leaves behind:</b> Screen E's second banner — <i>"a copy of this meeting was
+  provided to your client"</i> — was drawn to inform an advisor of something done without them.
+  It survives for the break-glass case in ruling 2b, and only that.</p>
 </div>
 
 <div class="q">
-  <h3>4 · Correction — an attached statement, never an edit to the transcript?</h3>
-  <p class="rec">Recommendation: attached statement only.</p>
-  <p>A transcript records what was said, not what is true, and editing it would break every
-  coaching finding that quotes it. The client's objection is preserved in their own words beside
-  the moment they dispute. This is what the law asks for where a record cannot be rewritten.</p>
+  <h3>☑ 2b · What happens when the advisor has left the firm?</h3>
+  <p>🔴 <b>RULED: the firm manager may release a meeting, but only by declaring that its advisor
+  can no longer act.</b> Put to him as the gap ruling 2 opened, and ruled yes the same day.</p>
+  <p><b>Why the gap is real and was not guessed at:</b> <code>va_clients</code> is <b>firm-scoped
+  with no owning advisor</b> — checked in <code>config/db-schema.sql</code> and
+  <code>server/utils/clientStore.js</code>. The only link from a client to an advisor is the
+  meeting record itself, so there is no "current advisor" to fall back on. A client's right does
+  not lapse because a partner retired.</p>
+  <p>🔴 <b>A FIRE ALARM, NOT A KEY, and the distinction is what makes it consistent with ruling
+  2.</b> The manager never appears in ordinary traffic. It fires only where the alternative is a
+  firm that cannot answer its client at all.</p>
+  <p>⚠ <b>THE TICK IS UNVERIFIABLE AND THAT IS STATED ON THE SCREEN.</b> This app holds no advisors
+  table and does not handle sign-in, so it cannot know somebody has left. A determined manager
+  could use the tick to read a transcript they should not; it is permanent and visible in the
+  record, which is the whole of the deterrent — the same shape as the consent tick, which this app
+  has never been able to verify either.</p>
 </div>
 
 <div class="q">
-  <h3>5 · Should a client be able to have a meeting deleted before its retention date?</h3>
-  <p class="rec">Recommendation: yes.</p>
-  <p>In New Zealand this is a courtesy rather than a right. In the UK and EU it is a hard right
-  with a one-month deadline, and the assessment says so. Building it once, now, is cheaper than
-  discovering it at the point of selling into a second market — and a firm that can honour the
-  request will look considerably better than one that explains why it cannot.</p>
+  <h3>☑ 4 · Correction — an attached statement, never an edit?</h3>
+  <p>🔴 <b>RULED: attach the statement.</b> In his words: <i>"attach statement"</i>.</p>
+  <p class="rec">Recommended: the same.</p>
+  <p>A transcript records what was said, not what is true. Editing it would break every coaching
+  finding that quotes it — each quote is verified against the transcript before it is stored, so an
+  edit would silently strand the findings built on it. The client's objection is preserved in their
+  own words <b>and</b> so is the original.</p>
+  <p><b>The cost, stated:</b> a client who believes they were misheard does not get the words
+  changed. They get their objection permanently beside the passage, which is the weaker feeling and
+  the stronger record.</p>
 </div>
 
 <div class="q">
-  <h3>6 · What deadline should the clock show?</h3>
-  <p class="rec">Recommendation: 20 working days by default, and the firm can change it.</p>
-  <p>Twenty working days is New Zealand's statutory maximum. The UK and EU work to one calendar
-  month, which is usually shorter. The retention period already cascades from you down to each
-  firm; the deadline would follow exactly the same path, so a firm in another country can be
-  given the right figure without new machinery.</p>
+  <h3>☑ 5 · May a client have a meeting deleted before its retention date?</h3>
+  <p>🔴 <b>RULED: yes.</b></p>
+  <p class="rec">Recommended: the same.</p>
+  <p>A courtesy in New Zealand; <b>a hard right with a one-month deadline in the UK and EU</b>, per
+  §7 of the assessment. It calls the same removal the retention clock already calls, so there is
+  one deletion path and not two that must agree.</p>
+  <p>🔴 <b>IT TAKES ALL THREE DOCUMENTS.</b> Deleting the transcript alone would leave the client's
+  words in both reports, so the Meeting Summary and the advisor's coaching notes go with it — the
+  advisor loses their record of that meeting. A stub survives: date, client, advisor, and the fact
+  it was deleted at the client's request, so the deletion is provable rather than a folder that
+  quietly went missing.</p>
 </div>
 
 <div class="q">
-  <h3>7 · When the transcript has already expired, what does the screen say?</h3>
-  <p class="rec">Recommendation: name the date it was destroyed and the promise it was kept
-  under — never "nothing found".</p>
+  <h3>☑ 6 · What deadline does the clock show?</h3>
+  <p>🔴 <b>RULED: a firm-set number AND unit, defaulting to 20 working days, cascading exactly like
+  the retention dial.</b></p>
+  <p class="rec">Recommended: the same.</p>
+  <p>🔴 <b>THE UNIT IS PART OF THE SETTING, NOT DECORATION.</b> New Zealand allows <b>20 working
+  days</b>; the UK and EU work to <b>one calendar month</b>. Those are different lengths — 20
+  working days is roughly 28 calendar days — so a UK firm shown "20 working days" would believe it
+  had longer than it has. A build storing a bare number has built the wrong thing.</p>
+  <p><b>Rejected:</b> hanging the figure off the country tables that Tax Rates and Depreciation
+  Rates now use. That is a great deal of apparatus for one number, and it would make the deadline
+  depend on the <b>client's</b> country when it depends on the <b>firm's</b>.</p>
+  <p><b>The cost, stated:</b> a firm that never touches the setting keeps New Zealand's figure —
+  the same exposure the retention dial already carries. The Compliance declaration is what puts the
+  obligation to know it on the firm.</p>
+</div>
+
+<div class="q">
+  <h3>☑ 7 · What does the screen say when the transcript has expired?</h3>
+  <p>🔴 <b>RULED: name the destruction date and the retention period it was kept under. Never
+  "nothing found".</b></p>
+  <p class="rec">Recommended: the same.</p>
   <p>Drawn on the fourth row of Screen B. "No records" reads as though the meeting never happened
-  and invites somebody to go looking for a backup. "Destroyed on 11 May 2026, as promised" is the
-  same fact told truthfully, and it is the strongest thing a firm can say to a client who asked.
-  It is the rule already ruled for the follow-through screen, applied here.</p>
+  and sends somebody hunting for a backup that does not exist. The same fact told truthfully shows
+  the firm's policy visibly working, and it is the strongest thing a firm can say to a client who
+  asked. It is the rule already ruled for the follow-through screen on 2026-09-07 — one rule, not
+  two.</p>
+  <p>🔴 <b>EACH MEETING NAMES ITS OWN PERIOD — what that client was told on that day — never the
+  firm's current dial.</b> A firm that later extended to 24 months still reports 18 against an old
+  meeting, because 18 is what was promised. This is <code>meetingPurge</code>'s existing rule, and
+  the screen must not quietly render today's figure.</p>
 </div>
 
 <div class="q">
-  <h3>8 · Third parties named in a transcript — warn, or remove?</h3>
-  <p class="rec">Recommendation: warn clearly, and remove nothing automatically.</p>
-  <p>Your client may have named an employee, a family member or a customer. Whether that should
-  come out before release depends on facts only the firm knows. Software guessing at it would be
-  worse than useless: it would miss some, cut things it should not, and give the firm a false
-  sense that the problem was handled.</p>
+  <h3>☑ 8 · Third parties named in a transcript — warn, or remove?</h3>
+  <p>🔴 <b>RULED: warn, and remove nothing automatically.</b></p>
+  <p class="rec">Recommended: the same.</p>
+  <p>A client naming an employee, a family member or a customer is naming somebody who consented to
+  nothing and was not in the room. Whether a name should come out depends on facts only the firm
+  knows. Software guessing at redaction would be the worst of both: it would miss some, cut things
+  it should not, and leave the firm believing the problem had been handled.</p>
+  <p>🔴 <b>THE COST IS ACCEPTED WITH ITS EYES OPEN AND IS THE LARGEST IN THIS FEATURE.</b> A rushed
+  firm ticks without reading and sends a transcript naming a third party. Nothing in the software
+  stops them. The judgement sits with the people who know who those individuals are — that is the
+  decision, not an oversight.</p>
+  <p>⚠ <b>This is also where IPP3A bites</b> — in force 1 May 2026, owing notice to someone whose
+  information was collected from a source other than themselves. It is the firm's position,
+  published on the Compliance page. This feature does not answer it and cannot.</p>
 </div>
 
 <div class="q">
-  <h3>9 · The wording on the tab and the three buttons.</h3>
-  <p>Provisional throughout and yours to set. The tab reads <b>"Client Requests"</b>. The buttons
-  read <b>"Prepare the copy"</b>, <b>"Attach this statement"</b> and <b>"Delete permanently"</b>.
-  The clock reads <b>"4 working days left"</b>.</p>
-  <p class="rec">Recommendation: keep them, with one flag — "Client Requests" is broad enough that
-  a later feature may want the same tab.</p>
-  <p>I have deliberately avoided "Subject Access Request", which is the legal term of art. Nobody
-  in a small firm says it, and a tab nobody understands is a tab nobody opens.</p>
+  <h3>☑ 9 · The wording on the tab and the buttons.</h3>
+  <p>🔴 <b>RULED: the tab is "Client Copy Request", in his own words, and it REPLACED ours.</b>
+  <i>"name it 'Client Copy Request'"</i>. <b>Pinned. No session rewords this string</b>, including
+  to make it plural.</p>
+  <p class="rec">Recommended: "Client Requests", flagged as broad.</p>
+  <p><b>The four labels stand as drawn</b> — <b>Prepare the copy</b>, <b>Attach this
+  statement</b>, <b>Delete permanently</b>, and the clock's <b>"4 working days left"</b>. He ruled
+  the tab and left these, which was reported to him as the reading being taken.</p>
+  <p>⚠ <b>ONE MISMATCH, RECORDED RATHER THAN QUIETLY CORRECTED:</b> the tab is named for copies,
+  and it also carries corrections and deletions, which are not copies. It is his word and it stays
+  his word; the observation is here so a later session does not "fix" the name on its own
+  authority.</p>
+  <p><b>"Subject Access Request" was deliberately avoided</b> — the legal term of art, and nobody in
+  a small firm says it. A tab nobody understands is a tab nobody opens.</p>
 </div>
 
 <div class="mock" style="margin-top:26px">
