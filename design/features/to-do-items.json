@@ -101,48 +101,6 @@
       "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14). 2026-09-07 — slice 4, the manager aggregate, built on the laptop from the approved drawing: 37 new tests, suite 8,184 green. 2026-09-08 — meeting-types slice 3 (every manager tier, one computed property) and slice 4's ADVISOR half: the pre-set is editable, each point names its tier, and a manager sees what advisors set aside — Mike's order. 76 new tests."
     },
     {
-      "ref": "4.66",
-      "name": "Economic analysis — the forecast asks the AI for market research",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike's request, 2026-09-03: a tick reading \"economic analysis\" charging the AI to research global and local markets, because most three-way forecasts support funding requests. It would be the FIRST report model here to call the AI. Detail in report-models.md.",
-      "risk": "AI text going into a document a bank reads: a confident wrong claim about a market looks exactly like research. 🔴 PRIVACY IS RULED (2026-09-06) — the advisor writes the brief and sees the exact words sent; the app sends nothing about the client on its own, so no PII exception is needed. The citation guard has now refused a real unsourced answer and passed a sourced one, live.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"i want to include an option to tick 'economic analysis' which then charges AI to conduct global and local market research (i will give detailed instructions and prompt in future) such that they can be included in an overall report - since the majority of 3 way forecasts are used to support funding requests\". Filed on his instruction (\"yes\")."
-      },
-      "touches": "BUILT: data/ai-prompts.json (a fourth prompt, all four tiers), server/routes/economicAnalysis.js, server/report/economicAnalysis/researchResult.js, server/utils/economicAnalysisRuns.js, openaiClient.js (a /v1/responses path), restify-server.js, components/EconomicAnalysisStep.vue, components/EconomicAnalysisPack.vue, utils/researchText.js (the parser both share), pages/three-way-forecast.vue (step 5, and the pack), ProvenanceBadge.vue (a fifth state), locales/en.json, five test files.",
-      "note": "ALL THREE SLICES ARE BUILT, AND IT HAS NOW BEEN WATCHED END TO END IN A BROWSER (2026-09-07): brief, research, approval, printed pack. The pack prints only on isApproved, so research nobody accepted cannot reach a lender. 🔴 Nine live faults have come out of running it and the green tests caught none: the citation guard refused HALF of all runs by reading web-address digits as figures; the research date was missing from the client's pack entirely; and the date sent was UTC. THE ADVISOR NOW SETS THE ASSESSMENT DATE on a field at step 5 — Mike's ruling, both wordings his. Detail in ECONOMIC-ANALYSIS-PROMPT.md §7b.",
-      "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it. RENUMBERED 4.62 → 4.66 on 2026-09-04, both machines having filed a 4.62 that day; 4.62 is not reused. 2026-09-06 — privacy ruled; prompt drafted and revised; screens drawn; all three slices built in one day, and run 5 proved it live. 2026-09-07 — watched in a browser for the first time; the guard was refusing half of all runs, and Mike ruled the assessment date onto a field of its own. Nine live faults have now come out of running it, and the green tests had caught none of them."
-    },
-    {
-      "ref": "4.77",
-      "name": "First-year depreciation cannot differ from later years, or between two vehicles",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The engine applies one rate to a whole category for every month, so a new asset cannot be written down faster in its first year than the old one beside it.",
-      "risk": "Mike's example, costed against NZ's Investment Boost (20% of a new asset's cost deducted up front, the rest depreciated as normal): an 800,000 tractor unit deducts 146,118 in year one as the engine models it, against 276,895 with the boost. That is 36,617 of tax in year one and 130,776 of asset value carried into year two. A forecast a lender reads would be wrong, and balance perfectly.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-08 - 'it might make a difference if it is a large purchase - like an $800,000 truck/tractor unit in terms of tax to pay and working capital balance year 2 - perhaps worth making as another task?' Raised by him while ruling question 4 of the 4.65 drawing."
-      },
-      "touches": "server/report/threeWayForecastModel.js assetSchedule, which applies one depreciationRate per category across twelve months, and the six-category shape in ASSET_SPECS. A per-asset or first-year rate changes the engine's asset model, so the golden set and every forecast test move with it. No screen exists to enter such a rate.",
-      "note": "NOT A BIGGER VERSION OF 4.65 - a different asset model. assetSchedule applies one rate to a whole pool every month; a first-year rule needs assets carrying a rate or deduction that changes at a date. SOURCE FOUND 2026-09-09, closing the gap this note used to name: Investment Boost is real and sourced to ird.govt.nz - 20% of a new asset expensed, the rest depreciated as normal, from 22 May 2025. ABSORBED BY 4.78: its dated purchase list and first-year rule ARE this item's asset model, drawn and approved 2026-09-09. OPEN FOR MIKE: whether to close this item into 4.78 or keep it separate - not ours to decide. UK and Australia unchecked.",
-      "comment": "2026-09-08 - raised and filed by Mike while ruling question 4 of the asset-schedule drawing, and costed on his own example. Same day: a session wrongly reported that NZ had abolished first-year acceleration, reading the 2010 end of the 20% LOADING as the end of all such rules. Mike corrected it. The two are different mechanisms - the loading inflated a rate, Investment Boost deducts a slice of cost. 2026-09-09 - he asked for the boost field, and his own costing (276,895 against 146,118) reconciles only under 20%-expensed, which is how the model was settled."
-    },
-    {
       "ref": "4.78",
       "name": "Depreciation rates per country - a manager uploads the source, the AI proposes, they approve",
       "rankedByMike": false,
@@ -161,7 +119,7 @@
         "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
       },
       "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
-      "note": "NOTHING READS AN UNAPPROVED TABLE, and it is structural rather than a flag: a proposal is kept in its own store the resolver never reads. THE MANAGER'S SIDE IS COMPLETE, slices 1 to 3b: the store, six routes, the tab at all four tiers, the AI reading with every field validated, and the screen - upload, class match with a picker of the document's classes, correctable rates, gaps panel, and an Approve that stays shut until every match is confirmed. NOT BUILT: the advisor's half, the forecast's country field, the dated purchase list. No document has been read in earnest yet - that needs a real schedule, a key and a manager. Rulings and the build-versus-drawings check: depreciation-rates-history.md.",
+      "note": "NOTHING READS AN UNAPPROVED TABLE, and it is structural rather than a flag: a proposal is kept in its own store the resolver never reads. THE MANAGER'S SIDE IS COMPLETE, slices 1 to 3b: the store, the routes, the tab at all four tiers, the AI reading, and the screen, whose Approve stays shut until every class match is confirmed. NOT BUILT: the advisor's half, the forecast's country field, and the dated purchase list with the first-year deduction it feeds. That is item 4.77, closed into this one on Mike's ruling of 2026-09-09. No document has been read in earnest yet: that needs a real schedule, a key and a manager. Rulings and the build-versus-drawings check: depreciation-rates-history.md.",
       "comment": "2026-09-08 - raised by Mike and filed on his instruction. The recommendation was AGAINST it and he overturned it; the concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers. 2026-09-09 - the whole of the manager's side built, slices 1 to 3b. Mike caught the build conflating a tax rate with a depreciation rate, and the feature was renamed. Spec Kit used for the first time here; eleven rulings came out of it, including Investment Boost, dated asset purchases, and extending the reading to keep the document's class list so a manager can change a match rather than only agree with one."
     },
     {
@@ -203,7 +161,7 @@
         "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' The same request 4.78 was filed under."
       },
       "touches": "taxRate and the GST rate in server/report/threeWayForecastModel.js and components/ThreeWayForecastIntake.vue, plus the country table, routes and approval gate already built for 4.78 - server/utils/depreciationRates.js and server/routes/depreciationRates.js.",
-      "note": "IT RIDES WHAT 4.78 ALREADY BUILT, which is why it is small: the country-tagged table, the four-tier cascade, the approve-before-use gate and the source-per-figure rule all exist. The country table gains a taxRates block beside its depreciation rates. FILED AS ITS OWN ITEM rather than widening 4.78, whose drawings and spec are approved and half built - reopening them mid-build would muddy what Mike signed off. It needs its own drawing before any build.",
+      "note": "IT RIDES WHAT 4.78 ALREADY BUILT, which is why it is small: the country-tagged table, the four-tier cascade, the approve-before-use gate and the source-per-figure rule all exist. The country table gains a taxRates block beside its depreciation rates. FILED AS ITS OWN ITEM rather than widening 4.78, whose drawings and spec are approved and half built - reopening them mid-build would muddy what Mike signed off. NEXT UP: Mike ruled on 2026-09-09 that its drawing is the next piece of work. Nothing is built until he approves that drawing.",
       "comment": "2026-09-09 - Mike's own words when the gap was reported to him as something he had not asked for: 'of course i want the tax rate made contry aware - i literally asked for that!' He had. His request of 2026-09-08 says 'accurate per country'; a session narrowed it to depreciation alone after finding that IR265 is a depreciation schedule, and then treated the rest as unrequested."
     }
   ]

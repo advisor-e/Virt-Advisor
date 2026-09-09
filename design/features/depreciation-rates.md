@@ -158,8 +158,10 @@ rate table can never adopt a tax scheme by accident.
 own point: the boost begins on 22 May 2025, part-way through a month, and the forecast records
 only the month a purchase falls in. So each purchase carries its date, and the twelve monthly
 totals the engine works to are **derived** from that list — the engine's input shape does not
-change, and the golden set that pins the workbook stays valid. This absorbs item 4.77's asset
-model, which asked for the same thing.
+change, and the golden set that pins the workbook stays valid. **Item 4.77 asked for this same
+asset model and was closed into this feature on Mike's ruling of 2026-09-09**, so the work lives
+here and nowhere else; its closure, with his own $800,000 tractor costing, is on
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md) §2.
 
 ---
 

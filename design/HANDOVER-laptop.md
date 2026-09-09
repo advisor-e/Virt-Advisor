@@ -51,9 +51,20 @@ laptop** — the item is unfinished and this machine has built all of it.
 ⚠ **Known deviation, unchanged:** both Depreciation Rates components hardcode English like
 four of their five sibling tabs, against the i18n standard. Named in each component header.
 
-**Open for Mike:** 4.15, 4.58, 4.66 · **whether 4.77 closes into 4.78** (still not ours to
-decide) · and **4.81**, the hardcoded NZ tax and GST rates, which needs a drawing before any
-build and rides everything 4.78 has now built.
+🔴 **MIKE CLEARED THE OPEN QUESTIONS THE SAME EVENING — five rulings, and the list is now
+FIVE items, not seven.**
+
+- **4.77 CLOSED into 4.78.** Same asset model, one build. ⚠ *Closed, not built* — the dated
+  purchase list and the first-year deduction are on 4.78's outstanding list, and his $800,000
+  tractor costing is in the closure.
+- **4.66 CLOSED.** Built, run live end to end, every design question ruled. His *"detailed
+  instructions and prompt in future"* is a change on the **AI Prompts page**, not a build.
+- **4.81 IS THE NEXT PIECE OF WORK** — the drawing first, and nothing built until he approves
+  it. It rides 4.78's country table, cascade and approval gate, so it is small.
+- **4.15 stays parked at the bottom**, on his own ordering rule: technical first, wording after.
+- **4.58 stays open, unchanged.** Nothing is ours to build until the database exists; what is
+  left is his four non-coding items — the drafted **OpenAI audio-terms email** is the one that
+  unblocks a first real recording.
 
 **DESKTOP:** 🔴 **your note is stale — it is dated 2026-09-04 and describes 5 commits; your
 branch is 46 ahead with a commit from today.** Nothing of yours was touched here. Nothing

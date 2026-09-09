@@ -37,13 +37,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- | --- |
 | 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** | — |
 | 2 | **4.58** Meeting Review — the advisor's side is complete; §4 remains ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 3 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 4 | **4.77** First-year depreciation cannot differ from later years, or between two vehicles ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 5 | **4.78** Depreciation rates per country - a manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-08 |
-| 6 | **4.80** "Global manager" is the old name and it is still in 45 places ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 7 | **4.81** The forecast's tax rates are New Zealand's, hardcoded, for every country ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 3 | **4.78** Depreciation rates per country - a manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-08 |
+| 4 | **4.80** "Global manager" is the old name and it is still in 45 places ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 5 | **4.81** The forecast's tax rates are New Zealand's, hardcoded, for every country ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**Seven live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Five live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
