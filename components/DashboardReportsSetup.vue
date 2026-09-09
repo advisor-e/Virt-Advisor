@@ -35,7 +35,7 @@
               | {{ m.code }} ·
               |
               | {{ $t('report.dashboardReports.setup.' + (m.benchmarks ? 'benchmarksPublished' : 'noBenchmarks')) }}
-        p.drs-hint(v-else-if="query.length >= 2") {{ $t('report.dashboardReports.setup.noMatches') }}
+        p.drs-hint(v-else-if="query.length >= 2 && query !== setup.industryName") {{ $t('report.dashboardReports.setup.noMatches') }}
         p.drs-chosen(v-if="setup.industryCode")
           b {{ setup.industryName }}
           |
@@ -104,7 +104,8 @@ export default {
   },
 
   data () {
-    return { query: '' }
+    // A loaded report opens with its industry's name in the box, as a fresh pick leaves it.
+    return { query: this.setup && this.setup.industryName ? this.setup.industryName : '' }
   },
 
   computed: {
@@ -145,6 +146,11 @@ export default {
       this.$emit('change', Object.assign({}, this.setup, { industryCode: m.code, industryName: m.name, sizeBand: '' }))
       // industry: the code whose bands the workbench should load
       this.$emit('industry', m.code)
+      // The pick is the end of the search: the box shows the chosen name and the list goes
+      // (Mike, 2026-09-09 — the other candidates staying on screen read as "not chosen").
+      this.query = m.name
+      // search: blank, so the workbench clears its matches
+      this.$emit('search', '')
     }
   }
 }
