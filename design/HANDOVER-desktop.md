@@ -9,26 +9,22 @@
 
 ---
 
-## 2026-09-09 (third session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-10 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **8,800 green** at push; 50 ahead, 0 behind master; nothing uncommitted. Four commits
-pushed: `4a44b94` (radio registered, three print faults), `7c46f8a` (a loaded report keeps its
-bands), `8688151` (a pick ends the search), `59f410a` (4.70 closed).
+Suite **8,791 green** at push; 55 ahead, 0 behind master; nothing uncommitted. Four commits
+pushed: `51a46a4` + `363d8a9` (4.80 closed), `1cb682a` (three "cannot log in" sentences
+corrected), `38f6387` (4.15: five branches restored).
 
-**4.70 CLOSED by Mike** after his own walk on a real client's export and print. Five faults the
-suite could not see were found and fixed the same day; the print was eyeballed page by page on
-A4 landscape. Closure on `features/to-do-done-and-parked.md` §2; the Brief's Known state names
-the faults.
+**4.80 CLOSED.** The guard now bans the unquoted "global manager"; Mike's quotes are exempt by
+quoted-span stripping. Write his tier names in full.
 
-**Two lessons that generalise:** an unregistered Buefy tag renders nothing and no test notices
-(third time — register it in `plugins/buefy.js` and look); and Chrome lays an A4 landscape sheet
-out at 842px, so any `max-width` phone breakpoint must be `screen and`.
+**4.15:** Mike matched four names to published pages and ruled Psyche Errors a concept. Gate
+39 / 8 / 8. 18 names still have no page; waits on him.
 
-**Desktop tooling:** PyMuPDF is installed in the machine's Python, so a PDF Mike prints can be
-rendered to images and read page by page.
+**Mike's ruling today:** wrong text is replaced, never annotated with a dated correction. No
+history notes in the app.
 
-**LAPTOP:** 4.78 untouched; the Handbook was republished from there four times today. Shared
-files changed here: `plugins/buefy.js` (Radio added) and the dashboard-report components only.
+**LAPTOP:** 4.78 untouched. Shared files changed here: `tierVocabulary.test.js` (wider guard),
+`logic_trees.json` (five recommendations), `TIER-CASCADE-MAP.md`.
 
-**Next:** 4.80 (the "global manager" rename) is the only open desktop-sized job. Six live items;
-four wait on Mike.
+**Next:** nothing on the list is ours. All five items wait on Mike.
