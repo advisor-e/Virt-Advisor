@@ -163,6 +163,18 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('depreciationRates')" v-show="activeTab === 'depreciationRates'")
         firm-depreciation-rates(:api-token="apiToken")
 
+      //- ── Tab: Tax Rates (item 4.81) ─────────────────────────────────────
+      //- The company tax rate, GST rate, filing cycle and accounting basis a
+      //- country's clients are taxed on. A SIBLING of the tab above, never part
+      //- of it: Mike renamed that one on 2026-09-09 because a tab called Tax
+      //- Rules promised GST and company tax and delivered a depreciation
+      //- schedule, and folding these back in would rebuild that confusion.
+      //- The two share one country table, one cascade and one approval gate in
+      //- the backend, and nothing on screen.
+      //- design/mockups/tax-rates.html, approved 2026-09-09.
+      div.hub-panel(v-if="showsTab('taxRates')" v-show="activeTab === 'taxRates'")
+        firm-tax-rates(:api-token="apiToken")
+
       //- ── Tab: AI Prompts (item 4.28) ────────────────────────────────────
       //- The instructions the AI is given when it builds a model, and the three
       //- settings a manager may change on them. Asked for by Mike 2026-08-21,
@@ -796,6 +808,7 @@ import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThresholds.vue'
 import FirmSellDownLadder from '~/components/firm/FirmSellDownLadder.vue'
 import FirmDepreciationRates from '~/components/firm/FirmDepreciationRates.vue'
+import FirmTaxRates from '~/components/firm/FirmTaxRates.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
@@ -1019,6 +1032,20 @@ const TAB_TIERS = {
   // itself (design/mockups/depreciation-rates-advisor.html), where they meet the problem.
   depreciationRates: ['mentor', 'global', 'group', 'firm'],
 
+  // 🔴 ALL FOUR MANAGER TIERS, AND THE JUDGEMENT IS STATED RATHER THAN ASSUMED — the
+  // default since 2026-08-24 is the mentor alone. Two reasons, and the second is Mike's
+  // own words rather than ours. (1) A tax rate is NATIONAL and a firm advises clients in
+  // more than one country, which is the whole reason this feature exists; the approved
+  // drawing states it in §1. (2) It is the same country table as `depreciationRates`
+  // above, which he ruled onto all four tiers on 2026-09-08 — the firm owns it and
+  // "it cant be reliant on the group manager". The same sentence governs here: a firm in
+  // Australia must be able to approve Australian figures without waiting for the mentor.
+  //
+  // ⚠ ADVISORS ARE EXCLUDED, exactly as they are next door: an advisor may one day LOAD a
+  // document, but only a manager may APPROVE one, and approving is what this screen leads
+  // to. The advisor's own half lives on the forecast, where they meet the problem.
+  taxRates: ['mentor', 'global', 'group', 'firm'],
+
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
   // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
   // Advisors and clients are excluded — they consume the output, they do not set the
@@ -1185,7 +1212,13 @@ const NAV_GROUPS = [
       // nothing already on a manager's screen. All four tiers, on Mike's own ruling; see
       // TAB_TIERS.depreciationRates. The label is the feature's name after his rename of
       // 2026-09-09: it is a depreciation schedule, not a set of tax rules.
-      { key: 'depreciationRates', label: 'Depreciation Rates' }
+      { key: 'depreciationRates', label: 'Depreciation Rates' },
+      // Appended for the same reason as every line above it — adding at the end moves
+      // nothing already on a manager's screen. All four tiers; see TAB_TIERS.taxRates.
+      // 🔴 A SEPARATE ENTRY FROM THE LINE ABOVE ON PURPOSE. Mike renamed that tab on
+      // 2026-09-09 so a tab's name would predict what is inside it; these are the tax
+      // rates that name promised and did not deliver.
+      { key: 'taxRates', label: 'Tax Rates' }
     ]
   },
   {
@@ -1235,7 +1268,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmDepreciationRates, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

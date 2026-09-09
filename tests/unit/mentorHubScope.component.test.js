@@ -318,7 +318,7 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s fourteen tabs under three headings', async () => {
+  it('groups the firm manager’s fifteen tabs under three headings', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
@@ -332,9 +332,14 @@ describe('the hub menu — the sidebar itself', () => {
     // 4.78). Mike ruled it onto all four manager tiers on 2026-09-08 — the firm owns it and
     // "it cant be reliant on the group manager". Appended at the end of that group, so the
     // three index assertions below are untouched, which is the point of appending.
+    //
+    // FIFTEEN the same day, when Tax Rates followed it into Model Inputs (item 4.81) — the
+    // same request of Mike's and the same country table, kept a SEPARATE tab because he had
+    // renamed the one above it hours earlier so that a tab's name predicts what is inside it.
+    // Appended again, so the three index assertions below are untouched again.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(14)
+    expect(tabLabels(wrapper)).toHaveLength(15)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -416,11 +421,16 @@ describe('the hub menu — the sidebar itself', () => {
     // Mike ruled it onto all four manager tiers on 2026-09-08 — the firm owns it and "it
     // cant be reliant on the group manager" — so, like Meeting Review above, the number
     // moves because he ruled, not because anything drifted.
+    //
+    // ⚠ AND TO 16 THE SAME DAY, when Tax Rates joined Model Inputs beside it (item 4.81) —
+    // the same request of his, the same country table underneath, and a separate tab because
+    // he renamed Depreciation Rates that day precisely so a tab's name would predict what is
+    // inside it. Again his ruling, again not drift.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(15)
+    expect(tabLabels(wrapper)).toHaveLength(16)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })
