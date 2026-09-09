@@ -383,6 +383,20 @@ server.post('/api/firm-manager/depreciation-rates', ...fmGuard, depreciationRate
 server.post('/api/firm-manager/depreciation-rates/first-year-rule', ...fmGuard, depreciationRatesRoute.approveFirstYearRule)
 server.get('/api/firm-manager/depreciation-rates/history', ...fmGuard, depreciationRatesRoute.history)
 server.post('/api/firm-manager/depreciation-rates/restore', ...fmGuard, depreciationRatesRoute.restore)
+// Slice 3 — loading a tax authority's schedule and having the model read it. The proposal
+// these produce is stored apart from the approved tables and the resolver never reads it, so
+// a document loaded here changes no forecast until `documents/approve` is called.
+//
+// ⚠ MANAGER-ONLY TODAY BY SLICE, NOT BY RULING. Mike settled that an advisor may LOAD and
+// only a manager may APPROVE (FR-017); the advisor's screen is drawn and unbuilt, so until it
+// exists these sit behind the same guard as everything else here.
+//
+// The upload parses its own multipart body per-route (formidable), which is why it is not
+// affected by the JSON body limit above.
+server.post('/api/firm-manager/depreciation-rates/documents', ...fmGuard, depreciationRatesRoute.loadDocument)
+server.get('/api/firm-manager/depreciation-rates/documents', ...fmGuard, depreciationRatesRoute.listDocuments)
+server.post('/api/firm-manager/depreciation-rates/documents/approve', ...fmGuard, depreciationRatesRoute.approveDocument)
+server.post('/api/firm-manager/depreciation-rates/documents/reject', ...fmGuard, depreciationRatesRoute.rejectDocument)
 server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.getForManager)
 server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
 server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)

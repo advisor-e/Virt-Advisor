@@ -33,7 +33,17 @@ jest.mock('../../server/utils/firmOverlay', () => ({
   restoreVersion: jest.fn()
 }))
 
+// formidable parses the multipart body of an upload. Mocked so a test can hand the route a
+// body without building one over a socket; the file it names is a real temporary file, so
+// the route's own PDF check, its read and its cleanup all run for real.
+jest.mock('formidable', () => ({ formidable: jest.fn() }))
+
+const os = require('os')
+const fs = require('fs')
+const path = require('path')
+const { formidable } = require('formidable')
 const overlay = require('../../server/utils/firmOverlay')
+const extract = require('../../server/utils/depreciationExtract')
 const routes = require('../../server/routes/depreciationRates')
 const { BASE_DEPRECIATION_RATES } = require('../../server/utils/depreciationRates')
 const { setFirmMembership } = require('../../server/utils/tierChain')
@@ -379,5 +389,400 @@ describe('history and restore', () => {
     await routes.restore(makeReq({ body: { versionId: 4, firmId: 'other-firm', country: 'NZ' } }), res)
     expect(overlay.restoreVersion).toHaveBeenCalledWith(FIRM, 'depreciation-rates', 4)
     expect(res._body.restored).toBe(true)
+  })
+})
+
+// ── Slice 3: loading a document, and what the model read out of it ────────────
+
+/**
+ * 🔴 THE FOUR THAT MATTER HERE, and not one of them is visible to a person in UAT:
+ *
+ *   1. A PENDING PROPOSAL CHANGES NO FORECAST. Both stores are live at once in these tests
+ *      and the advisor's read still answers the app's defaults. This is SC-002 — "no rate
+ *      that has not been approved ever appears in a forecast, including while a proposal is
+ *      pending" — and it is the whole reason a proposal is kept in its own store.
+ *   2. THE RATES ARE WRITTEN BEFORE THE DOCUMENT IS MARKED. A refused write leaves the
+ *      document pending, so nothing can read `approved` beside a table that was never saved.
+ *   3. THE COUNTRY COMES FROM THE DOCUMENT, NEVER THE BODY. Otherwise an Australian schedule
+ *      could be approved as a New Zealand table in a single request.
+ *   4. A FILE THAT IS NOT A PDF IS NEVER SENT ANYWHERE. The browser's own content type is
+ *      not believed; the first bytes are.
+ */
+
+const PROPOSALS_KEY = 'depreciation-proposals'
+
+/** What the store holds for this firm, per config key. */
+function storedByKey (map) {
+  overlay.loadFirmConfig.mockImplementation((scopeId, key) =>
+    Promise.resolve(scopeId === FIRM ? (map[key] || null) : null))
+}
+
+/** The last value written to one config key. */
+function savedFor (key) {
+  const calls = overlay.saveFirmConfig.mock.calls.filter(c => c[1] === key)
+  return calls.length ? calls[calls.length - 1][2] : null
+}
+
+/** A real temporary file, and a formidable stub that hands the route its path. */
+function uploadOf (content, fields) {
+  const filepath = path.join(os.tmpdir(), 'dep-test-' + Math.random().toString(16).slice(2) + '.pdf')
+  fs.writeFileSync(filepath, content)
+  formidable.mockReturnValue({
+    parse (req, cb) {
+      cb(null, fields || { country: 'NZ' }, { file: { filepath, originalFilename: 'ir265.pdf' } })
+    }
+  })
+  return filepath
+}
+
+const READING = {
+  document: 'IR265 — General depreciation rates',
+  published: '2023-10',
+  country: 'NZ',
+  firstYearRuleFound: false,
+  categories: { vehicles: entry() },
+  unmatched: ['leaseholdImprovements', 'plantEquipment', 'officeEquipment', 'computerHardware', 'other'],
+  refusedRows: 1
+}
+
+/** One pending document in the proposal store, as the routes would read it back. */
+function pending (over) {
+  return Object.assign({
+    id: 'doc-1',
+    filename: 'ir265.pdf',
+    documentName: 'IR265 — General depreciation rates',
+    country: 'NZ',
+    published: '2023-10',
+    loadedBy: MANAGER,
+    loadedAt: '2026-09-09T01:00:00.000Z',
+    status: 'pending',
+    firstYearRuleFound: false,
+    categories: { vehicles: entry() },
+    unmatched: ['other'],
+    refusedRows: 0,
+    decidedBy: '',
+    decidedAt: null
+  }, over || {})
+}
+
+describe('loading a document', () => {
+  let quiet
+  beforeEach(() => { quiet = jest.spyOn(console, 'error').mockImplementation(() => {}) })
+  afterEach(() => { quiet.mockRestore(); jest.restoreAllMocks() })
+
+  test('a read document is stored as a pending proposal, loaded by the verified user', async () => {
+    const file = uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument').mockResolvedValue({ ok: true, code: null, message: null, reading: READING })
+
+    const res = makeRes()
+    await routes.loadDocument(makeReq({ userEmail: MANAGER }), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.ok).toBe(true)
+    expect(res._body.document.status).toBe('pending')
+    expect(res._body.document.loadedBy).toBe(MANAGER)
+    expect(res._body.document.categories.vehicles.dvRate).toBe(0.5)
+
+    const written = savedFor(PROPOSALS_KEY)
+    expect(written.documents).toHaveLength(1)
+    // 🔴 The approved store is untouched. Loading is not approving.
+    expect(savedFor('depreciation-rates')).toBeNull()
+    expect(fs.existsSync(file)).toBe(false)
+  })
+
+  test('the temporary file is deleted even when nothing could be read from it', async () => {
+    const file = uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument').mockResolvedValue({
+      ok: false, code: 'UNREADABLE', message: extract.UNREADABLE_MESSAGE, reading: null
+    })
+    await routes.loadDocument(makeReq(), makeRes())
+    expect(fs.existsSync(file)).toBe(false)
+  })
+
+  test('a document the model could not read is recorded as unreadable and proposes nothing', async () => {
+    uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument').mockResolvedValue({
+      ok: false, code: 'UNREADABLE', message: extract.UNREADABLE_MESSAGE, reading: null
+    })
+
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.ok).toBe(false)
+    expect(res._body.message).toBe(extract.UNREADABLE_MESSAGE)
+    expect(res._body.document.status).toBe('unreadable')
+    expect(res._body.document.categories).toEqual({})
+    expect(savedFor(PROPOSALS_KEY).documents[0].status).toBe('unreadable')
+  })
+
+  test('a file that is not a PDF is refused before anything is sent to a model', async () => {
+    // The declared content type comes from the browser. The first bytes do not.
+    const file = uploadOf('PK this is a zip')
+    const spy = jest.spyOn(extract, 'readDocument')
+
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+
+    expect(res._status).toBe(400)
+    expect(errorBody(res).error.code).toBe('NOT_A_PDF')
+    expect(spy).not.toHaveBeenCalled()
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+    expect(fs.existsSync(file)).toBe(false)
+  })
+
+  test('a country that is not a two-letter code is refused', async () => {
+    uploadOf('%PDF-1.4 ...', { country: 'New Zealand' })
+    const spy = jest.spyOn(extract, 'readDocument')
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+    expect(res._status).toBe(400)
+    expect(errorBody(res).error.code).toBe('INVALID_COUNTRY')
+    expect(spy).not.toHaveBeenCalled()
+  })
+
+  test('no file is refused', async () => {
+    formidable.mockReturnValue({ parse (req, cb) { cb(null, { country: 'NZ' }, {}) } })
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+    expect(res._status).toBe(400)
+    expect(errorBody(res).error.code).toBe('NO_FILE')
+  })
+
+  test('a body that will not parse — an oversized file among them — is refused, not thrown', async () => {
+    formidable.mockReturnValue({
+      parse (req, cb) { cb(new Error('maxFileSize exceeded')) }
+    })
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+    expect(res._status).toBe(400)
+    expect(errorBody(res).error.code).toBe('UPLOAD_FAILED')
+    // Never the library's own message.
+    expect(errorBody(res).error.message).not.toContain('maxFileSize')
+  })
+
+  test('a document published for another country is refused and nothing is recorded', async () => {
+    uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument').mockResolvedValue({
+      ok: false, code: 'COUNTRY_MISMATCH', message: 'This document is published for AU, not NZ.', reading: null
+    })
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+    expect(res._status).toBe(400)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('a network fault records nothing — it is not the document that failed', async () => {
+    uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument').mockResolvedValue({
+      ok: false, code: 'READ_FAILED', message: 'The document could not be sent for reading.', reading: null
+    })
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+    expect(res._status).toBe(502)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('the read is asked for THIS scope, never one from the body', async () => {
+    uploadOf('%PDF-1.4 ...', { country: 'NZ', firmId: 'other-firm' })
+    const spy = jest.spyOn(extract, 'readDocument')
+      .mockResolvedValue({ ok: true, code: null, message: null, reading: READING })
+    await routes.loadDocument(makeReq(), makeRes())
+    expect(spy.mock.calls[0][0].scopeId).toBe(FIRM)
+  })
+})
+
+describe('a pending proposal reaches no forecast', () => {
+  // 🔴 SC-002, and the reason the two stores are two stores. Both are populated here.
+  test('an advisor read still answers the app own rates while a proposal is pending', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending()] } })
+    const res = makeRes()
+    await routes.get(makeReq({ query: { country: 'NZ' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.isDefault).toBe(true)
+    expect(res._body.categories.vehicles.dvRate).toBe(BASE_DEPRECIATION_RATES.vehicles.dvRate)
+  })
+
+  test('the manager own view says the same until the proposal is approved', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending()] } })
+    const res = makeRes()
+    await routes.getForManager(makeReq({ query: { country: 'NZ' } }), res)
+    expect(res._body.hasOwn).toBe(false)
+    expect(res._body.resolved.isDefault).toBe(true)
+  })
+})
+
+describe('listing what has been loaded', () => {
+  test('every document this level has loaded, newest first', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending({ id: 'a' }), pending({ id: 'b' })] } })
+    const res = makeRes()
+    await routes.listDocuments(makeReq(), res)
+    expect(res._body.documents.map(d => d.id)).toEqual(['a', 'b'])
+  })
+
+  test('a country filters the list', async () => {
+    storedByKey({
+      [PROPOSALS_KEY]: { documents: [pending({ id: 'a' }), pending({ id: 'b', country: 'AU' })] }
+    })
+    const res = makeRes()
+    await routes.listDocuments(makeReq({ query: { country: 'AU' } }), res)
+    expect(res._body.documents.map(d => d.id)).toEqual(['b'])
+  })
+
+  test('a level that has loaded nothing gets an empty list, not an error', async () => {
+    const res = makeRes()
+    await routes.listDocuments(makeReq(), res)
+    expect(res._status).toBe(200)
+    expect(res._body.documents).toEqual([])
+  })
+})
+
+describe('approving a proposal', () => {
+  let quiet
+  beforeEach(() => { quiet = jest.spyOn(console, 'error').mockImplementation(() => {}) })
+  afterEach(() => quiet.mockRestore())
+
+  test('what is written is the MANAGER figures, signed with the verified token', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending()] } })
+    const corrected = { vehicles: entry({ dvRate: 0.45 }) }
+
+    const res = makeRes()
+    await routes.approveDocument(makeReq({
+      body: { documentId: 'doc-1', categories: corrected, approvedBy: 'someone.else@example.com' }
+    }), res)
+
+    expect(res._status).toBe(200)
+    const table = savedFor('depreciation-rates').NZ
+    // FR-007: the approved value is the manager's, not the one proposed.
+    expect(table.categories.vehicles.dvRate).toBe(0.45)
+    // 🔴 The signature is the token's, never the body's.
+    expect(table.approvedBy).toBe(MANAGER)
+    expect(savedFor(PROPOSALS_KEY).documents[0].status).toBe('approved')
+    expect(savedFor(PROPOSALS_KEY).documents[0].decidedBy).toBe(MANAGER)
+  })
+
+  test('the country comes from the document, never from the body', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending({ country: 'AU' })] } })
+    const res = makeRes()
+    await routes.approveDocument(makeReq({
+      body: { documentId: 'doc-1', country: 'NZ', categories: { vehicles: entry() } }
+    }), res)
+    expect(res._body.country).toBe('AU')
+    expect(Object.keys(savedFor('depreciation-rates'))).toEqual(['AU'])
+  })
+
+  test('a refused table leaves the document pending — the rates are written first', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending()] } })
+    const res = makeRes()
+    await routes.approveDocument(makeReq({
+      // 50 is a rate in the wrong unit, refused rather than clamped.
+      body: { documentId: 'doc-1', categories: { vehicles: entry({ dvRate: 50 }) } }
+    }), res)
+
+    expect(res._status).toBe(400)
+    expect(savedFor('depreciation-rates')).toBeNull()
+    expect(savedFor(PROPOSALS_KEY)).toBeNull()
+  })
+
+  test('a rate with no source document is refused', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending()] } })
+    const res = makeRes()
+    await routes.approveDocument(makeReq({
+      body: { documentId: 'doc-1', categories: { vehicles: entry({ source: undefined }) } }
+    }), res)
+    expect(res._status).toBe(400)
+    expect(savedFor('depreciation-rates')).toBeNull()
+  })
+
+  test('a document this level has not loaded cannot be approved', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending()] } })
+    const res = makeRes()
+    await routes.approveDocument(makeReq({ body: { documentId: 'someone-elses', categories: { vehicles: entry() } } }), res)
+    expect(res._status).toBe(404)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('a document already decided cannot be approved twice', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending({ status: 'approved' })] } })
+    const res = makeRes()
+    await routes.approveDocument(makeReq({ body: { documentId: 'doc-1', categories: { vehicles: entry() } } }), res)
+    expect(res._status).toBe(409)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test.each([
+    ['no documentId', { categories: {} }],
+    ['categories that are an array', { documentId: 'doc-1', categories: [] }],
+    ['no categories at all', { documentId: 'doc-1' }]
+  ])('%s is refused', async (_label, body) => {
+    const res = makeRes()
+    await routes.approveDocument(makeReq({ body }), res)
+    expect(res._status).toBe(400)
+  })
+
+  test('an approval carries a first-year rule already adopted, without re-approving it', async () => {
+    // Mike's ruling of 2026-09-09 made structural: the rates handler cannot reach the rule.
+    storedByKey({
+      'depreciation-rates': {
+        NZ: {
+          approvedAt: '2026-09-01T00:00:00.000Z',
+          approvedBy: 'earlier@example.com',
+          categories: { vehicles: entry() },
+          firstYearRule: Object.assign(boost(), {
+            approvedAt: '2026-09-01T00:00:00.000Z',
+            approvedBy: 'earlier@example.com'
+          })
+        }
+      },
+      [PROPOSALS_KEY]: { documents: [pending()] }
+    })
+
+    const res = makeRes()
+    await routes.approveDocument(makeReq({
+      body: { documentId: 'doc-1', categories: { vehicles: entry({ dvRate: 0.45 }) } }
+    }), res)
+
+    expect(res._status).toBe(200)
+    const table = savedFor('depreciation-rates').NZ
+    expect(table.firstYearRule.approvedBy).toBe('earlier@example.com')
+    expect(table.firstYearRule.approvedAt).toBe('2026-09-01T00:00:00.000Z')
+    expect(table.approvedBy).toBe(MANAGER)
+  })
+})
+
+describe('rejecting a proposal', () => {
+  let quiet
+  beforeEach(() => { quiet = jest.spyOn(console, 'error').mockImplementation(() => {}) })
+  afterEach(() => quiet.mockRestore())
+
+  test('the proposal is marked rejected and no rate is touched', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending()] } })
+    const res = makeRes()
+    await routes.rejectDocument(makeReq({ body: { documentId: 'doc-1' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(savedFor(PROPOSALS_KEY).documents[0].status).toBe('rejected')
+    expect(savedFor(PROPOSALS_KEY).documents[0].decidedBy).toBe(MANAGER)
+    expect(savedFor('depreciation-rates')).toBeNull()
+  })
+
+  test('a document nobody here loaded cannot be rejected', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending()] } })
+    const res = makeRes()
+    await routes.rejectDocument(makeReq({ body: { documentId: 'nope' } }), res)
+    expect(res._status).toBe(404)
+  })
+
+  test('a document already decided cannot be rejected', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending({ status: 'rejected' })] } })
+    const res = makeRes()
+    await routes.rejectDocument(makeReq({ body: { documentId: 'doc-1' } }), res)
+    expect(res._status).toBe(409)
+  })
+
+  test('no documentId is refused', async () => {
+    const res = makeRes()
+    await routes.rejectDocument(makeReq({ body: {} }), res)
+    expect(res._status).toBe(400)
   })
 })

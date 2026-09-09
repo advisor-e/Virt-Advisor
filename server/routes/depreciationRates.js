@@ -3,7 +3,7 @@
 /**
  * Depreciation rates per country — Restify routes.
  *
- * Item 4.78, slice 2. The rates a client's forecast writes assets down at, read from that
+ * Item 4.78, slices 2 and 3. The rates a client's forecast writes assets down at, read from that
  * client's own tax authority's documents and approved by a firm manager before anything uses
  * them. Design: `design/features/depreciation-rates.md`;
  * `specs/001-depreciation-rates-per-country/spec.md`.
@@ -14,8 +14,15 @@
  *     forecast: on any failure it degrades to the app's own six rates. Mike's ruling of
  *     2026-09-08, in his words: *"Never block the advisor."*
  *   - MANAGE (`getForManager` / `approveRates` / `approveFirstYearRule` / `history` /
- *     `restore`) — managers only (`firmAuth` + the managing-tier guard, wired in
+ *     `restore`, and slice 3's `loadDocument` / `listDocuments` / `approveDocument` /
+ *     `rejectDocument`) — managers only (`firmAuth` + the managing-tier guard, wired in
  *     restify-server.js).
+ *
+ * ⚠ LOADING A DOCUMENT IS MANAGER-ONLY TODAY, AND THAT IS THE SLICE RATHER THAN THE RULING.
+ * Mike settled on 2026-09-08 that an ADVISOR may load a document and only a manager may
+ * approve one (FR-017). The advisor's half is its own screen and its own drawing
+ * (`design/mockups/depreciation-rates-advisor.html`) and is not built. Until it is, the
+ * loading routes sit behind the manager guard — which is the safe direction to be wrong in.
  *
  * 🔴 EVERY ROUTE IS SCOPED TO `req.firmId`, THE VERIFIED SCOPE FROM THE JWT. No handler here
  * reads a scope from a body or a query, so one firm can never read or write another's tables
@@ -38,6 +45,10 @@
 
 const fs = require('fs')
 const path = require('path')
+// formidable is pinned to v2.1.2 — the last v2 release before it required Node > 14.15.
+// Both v2 and v3 expose the factory as a named export, so this destructure works on either.
+// Same import and same reasoning as `routes/firmManager.js`, which uploads firm documents.
+const { formidable } = require('formidable')
 const overlay = require('../utils/firmOverlay')
 const { sendError } = require('../utils/sendError')
 const { devFallbackAllowed } = require('../utils/dbFailure')
@@ -49,24 +60,41 @@ const {
   validateDepreciationRates,
   loadResolvedDepreciationRates
 } = require('../utils/depreciationRates')
+const extract = require('../utils/depreciationExtract')
+const proposals = require('../utils/depreciationProposals')
 
-const DEV_FILE = path.resolve(__dirname, '../../data/dev-depreciation-rates.json')
+/**
+ * The dev-JSON fallback, one file per config key.
+ *
+ * Keyed rather than a single path because this file now stores two different things — the
+ * APPROVED tables and the PENDING proposals — and they are two stores on purpose (see
+ * `depreciationProposals.js`). One file holding both would put a proposal one careless read
+ * away from the resolver.
+ */
+const DEV_FILES = {
+  [CONFIG_KEY]: path.resolve(__dirname, '../../data/dev-depreciation-rates.json'),
+  [proposals.CONFIG_KEY]: path.resolve(__dirname, '../../data/dev-depreciation-proposals.json')
+}
 
-/** Dev-only: this scope's own stored tables from the JSON fallback, or null. */
-function devRead (scopeId) {
+/** Dev-only: this scope's own stored value for one key from the JSON fallback, or null. */
+function devRead (scopeId, key) {
+  const file = DEV_FILES[key]
+  if (!file) { return null }
   try {
-    const all = JSON.parse(fs.readFileSync(DEV_FILE, 'utf8'))
+    const all = JSON.parse(fs.readFileSync(file, 'utf8'))
     const own = all[scopeId]
     return (own && typeof own === 'object' && !Array.isArray(own)) ? own : null
   } catch (e) { return null }
 }
 
-/** Dev-only: persist this scope's own tables to the JSON fallback. */
-function devWrite (scopeId, value) {
+/** Dev-only: persist this scope's own value for one key to the JSON fallback. */
+function devWrite (scopeId, key, value) {
+  const file = DEV_FILES[key]
+  if (!file) { return }
   let all = {}
-  try { all = JSON.parse(fs.readFileSync(DEV_FILE, 'utf8')) } catch (e) { all = {} }
+  try { all = JSON.parse(fs.readFileSync(file, 'utf8')) } catch (e) { all = {} }
   all[scopeId] = value
-  fs.writeFileSync(DEV_FILE, JSON.stringify(all, null, 2))
+  fs.writeFileSync(file, JSON.stringify(all, null, 2))
 }
 
 /**
@@ -80,7 +108,7 @@ async function readScopeConfig (scopeId, key) {
   try {
     return await overlay.loadFirmConfig(scopeId, key)
   } catch (err) {
-    if (devFallbackAllowed(err)) { return devRead(scopeId) }
+    if (devFallbackAllowed(err)) { return devRead(scopeId, key) }
     throw err
   }
 }
@@ -98,8 +126,65 @@ async function writeTables (scopeId, tables, userEmail) {
     await overlay.saveFirmConfig(scopeId, CONFIG_KEY, tables, userEmail)
   } catch (err) {
     if (!devFallbackAllowed(err)) { throw err }
-    devWrite(scopeId, tables)
+    devWrite(scopeId, CONFIG_KEY, tables)
   }
+}
+
+/** This scope's OWN loaded documents and their proposals, validated. */
+async function ownProposals (scopeId) {
+  const stored = await readScopeConfig(scopeId, proposals.CONFIG_KEY)
+  const { errors, value } = proposals.validateProposals(stored)
+  if (errors.length) {
+    // Dropped records are logged rather than hidden: a manager's document vanishing from a
+    // list with nothing said anywhere is the failure this feature exists to end.
+    console.error('[depreciation-rates] dropped proposal records:', errors.join('; '))
+  }
+  return value
+}
+
+/** Write this scope's own documents, through the overlay or the dev file. */
+async function writeProposals (scopeId, value, userEmail) {
+  try {
+    await overlay.saveFirmConfig(scopeId, proposals.CONFIG_KEY, value, userEmail)
+  } catch (err) {
+    if (!devFallbackAllowed(err)) { throw err }
+    devWrite(scopeId, proposals.CONFIG_KEY, value)
+  }
+}
+
+/**
+ * Approve a country's rate table for one scope — the one write path, shared by the two
+ * routes that approve rates.
+ *
+ * ⚠ IT NEVER TOUCHES `firstYearRule`, and neither of its callers can make it. A rule already
+ * adopted for this country is carried forward with its own approver and date; a rule is
+ * adopted only by the route that exists for that (see this file's header).
+ *
+ * @param {string} scopeId - the VERIFIED scope from the JWT
+ * @param {string} country - already normalised
+ * @param {object} categories - the manager's own figures, corrections included
+ * @param {string} userEmail - from the verified token; this is the name beside the rates
+ * @returns {Promise<{ok: boolean, errors: string[]}>}
+ */
+async function saveApprovedRates (scopeId, country, categories, userEmail) {
+  const mine = await ownTables(scopeId)
+  const existing = mine[country] || {}
+
+  const candidate = {
+    approvedAt: new Date().toISOString(),
+    // From the verified token, never the body — see this file's header.
+    approvedBy: userEmail || '',
+    categories
+  }
+  // Carried forward rather than re-approved: the rule keeps its own approver and date.
+  if (existing.firstYearRule) { candidate.firstYearRule = existing.firstYearRule }
+
+  const next = Object.assign({}, mine, { [country]: candidate })
+  const { ok, errors } = validateDepreciationRates(next)
+  if (!ok) { return { ok: false, errors } }
+
+  await writeTables(scopeId, next, userEmail)
+  return { ok: true, errors: [] }
 }
 
 /** The everything-defaults answer, for a read that cannot be served. */
@@ -215,25 +300,11 @@ async function approveRates (req, res) {
   }
 
   try {
-    const mine = await ownTables(req.firmId)
-    const existing = mine[country] || {}
-
-    const candidate = {
-      approvedAt: new Date().toISOString(),
-      // From the verified token, never the body — see this file's header.
-      approvedBy: req.userEmail || '',
-      categories: body.categories
-    }
-    // Carried forward rather than re-approved: the rule keeps its own approver and date.
-    if (existing.firstYearRule) { candidate.firstYearRule = existing.firstYearRule }
-
-    const next = { ...mine, [country]: candidate }
-    const { ok, errors } = validateDepreciationRates(next)
-    if (!ok) {
-      return sendError(res, 400, 'INVALID_RATES', errors.join('; '))
+    const saved = await saveApprovedRates(req.firmId, country, body.categories, req.userEmail)
+    if (!saved.ok) {
+      return sendError(res, 400, 'INVALID_RATES', saved.errors.join('; '))
     }
 
-    await writeTables(req.firmId, next, req.userEmail)
     const resolved = await loadResolvedDepreciationRates(req.firmId, country, readScopeConfig)
     res.send(200, { approved: true, country, resolved })
   } catch (err) {
@@ -353,6 +424,251 @@ async function restore (req, res) {
   }
 }
 
+// ── Loading a document, and what the model read out of it (slice 3) ───────────
+
+/**
+ * Reads the multipart body of an upload. formidable v2's `parse` is callback-style, so it is
+ * wrapped to keep the `await` shape the handler reads in.
+ *
+ * @param {object} form
+ * @param {object} req
+ * @returns {Promise<[object, object]>} `[fields, files]`
+ */
+function parseForm (form, req) {
+  return new Promise((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) { reject(err); return }
+      resolve([fields, files])
+    })
+  })
+}
+
+/** One field from a formidable v2/v3 body, which may hand back an array. */
+function field (fields, name) {
+  const v = fields && fields[name]
+  return Array.isArray(v) ? v[0] : v
+}
+
+/**
+ * POST /api/firm-manager/depreciation-rates/documents  (manager)
+ *
+ * Load one tax-authority depreciation schedule, have the model read it, and keep what it
+ * proposed for a manager to approve. NOTHING HERE REACHES A FORECAST: the proposal is stored
+ * in its own place and the resolver never reads it.
+ *
+ * 🔴 THE FILE IS NOT KEPT. It is read into memory, sent to the model, and the temporary copy
+ * formidable made is deleted. There is no firm-PDF store here, and keeping none removes path
+ * traversal, a storage quota and a deletion policy from the attack surface at once. What is
+ * kept is what was read: the document's name, its date, and the rates.
+ *
+ * ⚠ THE DECLARED MIME TYPE IS NOT BELIEVED. It comes from the browser, so the first bytes of
+ * the file are checked for a PDF header as well. A document that is not a PDF is refused
+ * before a single byte of it is sent anywhere.
+ *
+ * @route POST /api/firm-manager/depreciation-rates/documents
+ * @param {object} req - multipart: a `file` part and a `country` field
+ * @returns {{ok: boolean, code: (string|null), message: (string|null), document: (object|null)}}
+ */
+async function loadDocument (req, res) {
+  const form = formidable({
+    maxFileSize: extract.MAX_PDF_BYTES,
+    filter ({ mimetype }) { return mimetype === extract.PDF_MIME }
+  })
+
+  let fields, files
+  try {
+    ;[fields, files] = await parseForm(form, req)
+  } catch (err) {
+    console.error('[depreciation-rates] upload parse failed:', err.message)
+    return sendError(res, 400, 'UPLOAD_FAILED',
+      'That file could not be read. It must be a PDF of 20 MB or less.')
+  }
+
+  const country = normaliseCountry(field(fields, 'country'))
+  if (country === null) {
+    return sendError(res, 400, 'INVALID_COUNTRY', 'country must be a two-letter code, such as NZ')
+  }
+
+  const uploaded = files && files.file
+    ? (Array.isArray(files.file) ? files.file[0] : files.file)
+    : null
+  if (!uploaded) {
+    return sendError(res, 400, 'NO_FILE', 'A file field named "file" is required')
+  }
+
+  let buffer
+  try {
+    buffer = fs.readFileSync(uploaded.filepath)
+  } catch (err) {
+    console.error('[depreciation-rates] upload read failed:', err.message)
+    return sendError(res, 400, 'UPLOAD_FAILED', 'That file could not be read')
+  } finally {
+    // The temporary copy goes whatever happens next. A failed read must not leave a 20 MB
+    // file behind on every attempt.
+    try { fs.unlinkSync(uploaded.filepath) } catch (e) { /* already gone */ }
+  }
+
+  if (buffer.slice(0, 5).toString('latin1') !== '%PDF-') {
+    return sendError(res, 400, 'NOT_A_PDF',
+      'That file is not a PDF. Load the schedule as it is published by the tax authority.')
+  }
+
+  const filename = uploaded.originalFilename || uploaded.newFilename || 'document.pdf'
+  const result = await extract.readDocument({
+    scopeId: req.firmId,
+    country,
+    filename,
+    buffer,
+    loadFirmConfig: readScopeConfig
+  })
+
+  // A document the model could not read, or answered about in a shape we cannot use, is
+  // RECORDED as unreadable rather than dropped: a manager who loaded three files has to be
+  // able to see which one failed. Everything else — a network fault, a prompt that could not
+  // be assembled — is not the document's fault and records nothing.
+  if (!result.ok && result.code !== 'UNREADABLE' && result.code !== 'MALFORMED') {
+    const status = result.code === 'COUNTRY_MISMATCH' || result.code === 'INVALID_COUNTRY' ? 400 : 502
+    return sendError(res, status, result.code, result.message)
+  }
+
+  try {
+    const store = await ownProposals(req.firmId)
+    const record = proposals.documentRecord({
+      filename,
+      country,
+      loadedBy: req.userEmail,
+      reading: result.ok ? result.reading : null
+    })
+    await writeProposals(req.firmId, proposals.addDocument(store, record), req.userEmail)
+    res.send(200, {
+      ok: result.ok,
+      code: result.code,
+      message: result.message,
+      document: record
+    })
+  } catch (err) {
+    console.error('[depreciation-rates] proposal save failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'The document was read but the result could not be saved')
+  }
+}
+
+/**
+ * GET /api/firm-manager/depreciation-rates/documents?country=NZ  (manager)
+ *
+ * Every document this scope has loaded, newest first, with what was read out of each and
+ * which of the six categories it did not cover.
+ *
+ * @route GET /api/firm-manager/depreciation-rates/documents
+ * @returns {{documents: object[]}}
+ */
+async function listDocuments (req, res) {
+  const country = normaliseCountry(req.query && req.query.country)
+  try {
+    const store = await ownProposals(req.firmId)
+    const documents = country === null
+      ? store.documents
+      : store.documents.filter(d => d.country === country)
+    res.send(200, { documents })
+  } catch (err) {
+    console.error('[depreciation-rates] document list failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not read the loaded documents')
+  }
+}
+
+/**
+ * POST /api/firm-manager/depreciation-rates/documents/approve  (manager)
+ *
+ * Approve a table built from one loaded document. The figures written are THE MANAGER'S —
+ * whatever they have on screen when they press the button, corrections included — never the
+ * model's untouched proposal (FR-007).
+ *
+ * ⚠ THE RATES ARE WRITTEN FIRST AND THE DOCUMENT MARKED SECOND. If the write is refused
+ * nothing is marked, so a document can never read `approved` beside a table that was never
+ * stored. The reverse order could.
+ *
+ * @route POST /api/firm-manager/depreciation-rates/documents/approve
+ * @param {object} req.body - `{ documentId, categories }`
+ * @returns {{approved: true, country: string, resolved: object, document: object}}
+ */
+async function approveDocument (req, res) {
+  const body = req.body || {}
+  const documentId = typeof body.documentId === 'string' ? body.documentId.trim() : ''
+  if (!documentId) {
+    return sendError(res, 400, 'MISSING_DOCUMENT', 'documentId is required')
+  }
+  if (!body.categories || typeof body.categories !== 'object' || Array.isArray(body.categories)) {
+    return sendError(res, 400, 'INVALID_RATES', 'categories must be a non-array JSON object')
+  }
+
+  try {
+    const store = await ownProposals(req.firmId)
+    const document = proposals.findDocument(store, documentId)
+    if (!document) {
+      return sendError(res, 404, 'NO_DOCUMENT', 'That document is not one this level has loaded')
+    }
+    if (document.status !== 'pending') {
+      return sendError(res, 409, 'NOT_PENDING', 'That document has already been decided')
+    }
+
+    // The country comes from the DOCUMENT, never from the body. A body-supplied country
+    // would let an Australian schedule be approved as a New Zealand table in one request.
+    const saved = await saveApprovedRates(req.firmId, document.country, body.categories, req.userEmail)
+    if (!saved.ok) {
+      return sendError(res, 400, 'INVALID_RATES', saved.errors.join('; '))
+    }
+
+    const next = proposals.setStatus(store, documentId, 'approved', req.userEmail)
+    await writeProposals(req.firmId, next, req.userEmail)
+
+    const resolved = await loadResolvedDepreciationRates(req.firmId, document.country, readScopeConfig)
+    res.send(200, {
+      approved: true,
+      country: document.country,
+      resolved,
+      document: proposals.findDocument(next, documentId)
+    })
+  } catch (err) {
+    console.error('[depreciation-rates] document approve failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not approve that document')
+  }
+}
+
+/**
+ * POST /api/firm-manager/depreciation-rates/documents/reject  (manager)
+ *
+ * Throw a proposal away. The rates in force are untouched — nothing was ever using it.
+ *
+ * @route POST /api/firm-manager/depreciation-rates/documents/reject
+ * @param {object} req.body - `{ documentId }`
+ * @returns {{rejected: true, document: object}}
+ */
+async function rejectDocument (req, res) {
+  const documentId = req.body && typeof req.body.documentId === 'string'
+    ? req.body.documentId.trim()
+    : ''
+  if (!documentId) {
+    return sendError(res, 400, 'MISSING_DOCUMENT', 'documentId is required')
+  }
+
+  try {
+    const store = await ownProposals(req.firmId)
+    const document = proposals.findDocument(store, documentId)
+    if (!document) {
+      return sendError(res, 404, 'NO_DOCUMENT', 'That document is not one this level has loaded')
+    }
+    if (document.status !== 'pending') {
+      return sendError(res, 409, 'NOT_PENDING', 'That document has already been decided')
+    }
+
+    const next = proposals.setStatus(store, documentId, 'rejected', req.userEmail)
+    await writeProposals(req.firmId, next, req.userEmail)
+    res.send(200, { rejected: true, document: proposals.findDocument(next, documentId) })
+  } catch (err) {
+    console.error('[depreciation-rates] document reject failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not reject that document')
+  }
+}
+
 module.exports = {
   get,
   getForManager,
@@ -360,5 +676,9 @@ module.exports = {
   approveFirstYearRule,
   history,
   restore,
-  readScopeConfig
+  readScopeConfig,
+  loadDocument,
+  listDocuments,
+  approveDocument,
+  rejectDocument
 }

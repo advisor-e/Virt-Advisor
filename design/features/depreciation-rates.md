@@ -170,7 +170,10 @@ model, which asked for the same thing.
 | The store — validation, the newer-wins rule, the four-tier resolver | [`server/utils/depreciationRates.js`](../../server/utils/depreciationRates.js) |
 | The app's own six rates — the floor under every country | [`data/depreciation-rates.json`](../../data/depreciation-rates.json) |
 | Its tests | [`tests/unit/depreciationRates.test.js`](../../tests/unit/depreciationRates.test.js) |
-| The routes — read, approve rates, adopt or withdraw the rule, history, restore | [`server/routes/depreciationRates.js`](../../server/routes/depreciationRates.js) · [`tests`](../../tests/unit/depreciationRates.routes.test.js) |
+| The routes — read, approve rates, adopt or withdraw the rule, history, restore, and load / list / approve / reject a document | [`server/routes/depreciationRates.js`](../../server/routes/depreciationRates.js) · [`tests`](../../tests/unit/depreciationRates.routes.test.js) |
+| Sending a document to the model, and refusing to trust what comes back | [`server/utils/depreciationExtract.js`](../../server/utils/depreciationExtract.js) · [`tests`](../../tests/unit/depreciationExtract.test.js) |
+| The reading instruction itself, on the AI Prompts page at all four tiers | [`data/ai-prompts.json`](../../data/ai-prompts.json) — `depreciation-read` |
+| Where a PROPOSAL lives — a store the rate resolver never reads | [`server/utils/depreciationProposals.js`](../../server/utils/depreciationProposals.js) · [`tests`](../../tests/unit/depreciationProposals.test.js) |
 | The manager's tab | [`components/firm/FirmDepreciationRates.vue`](../../components/firm/FirmDepreciationRates.vue) · [`tests`](../../tests/unit/firmDepreciationRates.component.test.js) |
 | Where the tab is gated and named | [`components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue) — `TAB_TIERS.depreciationRates` |
 | The tier seam every cascading block asks | [`server/utils/tierChain.js`](../../server/utils/tierChain.js) |
@@ -198,23 +201,28 @@ model, which asked for the same thing.
 - **A rate must never appear in its own superseded list.** Reloading the same document twice
   would otherwise show a document disagreeing with itself.
 
-**Known state, 2026-09-09.** **Built: the store and the manager's screen.** The store
-(`d8621e9`) holds the rates and each country's first-year rule, resolves both through the four
-tiers with an origin per rate, and refuses a rate or a share typed in the wrong unit. Slice 2
-(`af54bcb`) adds the six routes, the **Depreciation Rates** tab at all four manager tiers, and
-the two pure functions the forecast will need — `ruleAppliesOn` and `splitQualifyingPurchase`.
-The six defaults are pinned by test to the forecast engine's own, so the three declarations of
-those numbers cannot drift.
+**Known state, 2026-09-09.** **Built: the store, the manager's screen, and the reading.** The
+store (`d8621e9`) holds the rates and each country's first-year rule, resolves both through the
+four tiers with an origin per rate, and refuses a rate or a share typed in the wrong unit.
+Slice 2 (`af54bcb`) adds the six routes, the **Depreciation Rates** tab at all four manager
+tiers, and the two pure functions the forecast will need — `ruleAppliesOn` and
+`splitQualifyingPurchase`. The six defaults are pinned by test to the forecast engine's own, so
+the three declarations of those numbers cannot drift.
 
-**Not built, and not to be described as built:** the upload, the reading of a document, the
-proposed-rates table and its Approve, the class-match step, the gaps panel, the country field
-on the forecast, the dated purchase list, the advisor's badges, and the report's Investment
-Boost line. **Nothing has ever read a document**, so no rate in this app has yet come from a
-tax authority.
+**Slice 3a adds the whole of the reading, and no screen.** The document is sent to the model
+and every field of the answer is validated before it is kept; a proposal lives in its own store
+that the resolver never reads; and four routes load, list, approve and reject a document. The
+prompt the model is given is on the **AI Prompts** page at all four tiers, so a manager whose
+rates come back wrong can read what the machine was told.
 
-**How a document will be read is now settled** (Mike, 2026-09-09): it is sent to the model and
-read there, never extracted locally. That closed the last open question — **nothing about this
-feature is undecided**.
+**Not built, and not to be described as built:** the upload control, the proposed-rates table
+and its Approve, the class-match step, the gaps panel, the country field on the forecast, the
+dated purchase list, the advisor's half entirely, and the report's Investment Boost line.
+**No document has been read in earnest yet** — that needs a real schedule, a key and a
+manager — so no rate in this app has yet come from a tax authority.
+
+**How a document is read was settled by Mike on 2026-09-09** — sent to the model, never
+extracted locally — and is now built that way. **Nothing about this feature is undecided.**
 
 ---
 

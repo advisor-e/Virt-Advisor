@@ -138,7 +138,7 @@ tax rates, and the feature was renamed the same day so that its name says it.
 
 ---
 
-## 4. The unsolved problem — reading a PDF
+## 4. Reading a PDF — the problem, and how it was settled
 
 **Nothing in this stack can extract text from a PDF, and the obvious fix is the thing that
 already failed.** On 2026-09-08 a session read IR265 with ordinary tooling and about a dozen
@@ -147,18 +147,28 @@ the damaged text still read as English, so a search for a term containing a drop
 returned nothing and the nothing looked like an answer. That failure is reproduced in §5 of
 both approved drawings.
 
-The options, as they stand:
+**Ruled by Mike, 2026-09-09: the document is sent to the model and read there.** A local
+text-extraction dependency was the alternative, and it was refused twice over — it is a new
+dependency on a locked Node 14.15 runtime, and it is the same class of tooling that produced
+the garble above.
 
-- **Send the document to the model and let it read the PDF natively.** No new dependency, Node
-  14 safe, and the app already hand-builds a multipart upload to OpenAI for Meeting Review's
-  audio (`server/utils/transcriptionClient.js`), so the path is proven here. **The cost is
-  that the refusal notice can no longer quote a damage percentage**, because we would not be
-  the one doing the reading — a difference from both drawings that has been named to Mike and
-  is not yet ruled on.
-- **Add a PDF text-extraction dependency.** A new dependency on a locked Node 14.15 runtime,
-  and it is the same class of tooling that produced the garble above.
+**The ruling had a cost, and it was paid rather than hidden.** §5 of both approved drawings
+refuses an unreadable document by quoting a measured damage figure — *"about 12% of the text
+came through damaged"*. Once the model is the one reading, the application cannot measure that
+and must not appear to. Mike settled the replacement wording verbatim the same day; it is
+FR-049, it is what `UNREADABLE_MESSAGE` holds, and one test pins it because it is what a
+manager is told happened to their document. He also **refused** showing the model's own
+account of what defeated it (FR-050): unedited model text on a screen is the one thing this
+feature is otherwise careful never to do.
 
-**This is the next real decision and it belongs to slice 3.**
+**Built in slice 3a**, and the mechanism is worth recording because a later session would
+reasonably reach for the other one. The file rides as a **base64 data URL on an `input_file`
+part of `/v1/responses`** — no multipart, no Files API, no new machinery. Meeting Review's
+audio path (`server/utils/transcriptionClient.js`) hand-builds a multipart upload because
+`/v1/audio/transcriptions` demands one; this endpoint does not, so it does not get one. The
+read **streams**, which is not a preference either: `openaiClient` guards every call with a
+per-socket inactivity timeout, and a non-streamed read of a sixty-page schedule would spend
+its whole duration with no bytes on the socket and be killed by that guard.
 
 ---
 
