@@ -99,11 +99,13 @@ function publishedKey (published) {
  * @param {*} value
  * @param {string} where - for the error message
  * @param {string[]} errors - collected in place
+ * @param {string} [noun] - what the caller calls the thing being sourced, so each feature's
+ *   own message is unchanged by sharing this function. Depreciation Rates says *rate*.
  * @returns {object|null} the cleaned source, or null when it was refused
  */
-function cleanSource (value, where, errors) {
+function cleanSource (value, where, errors, noun) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    errors.push(`${where}.source is required — an approved figure must name the document it came from`)
+    errors.push(`${where}.source is required — an approved ${noun || 'figure'} must name the document it came from`)
     return null
   }
   const document = typeof value.document === 'string' ? value.document.trim() : ''

@@ -48,6 +48,12 @@
 
 const BASE_FILE = require('../../data/depreciation-rates.json')
 const { scopeChain, tierOfScope } = require('./tierChain')
+// What this and Tax Rates (item 4.81) both mean by a figure read out of a published
+// document: a country code, a publication date that can be ranked, and a mandatory source.
+// These four lived here first and were extracted verbatim; this module's own tests are the
+// proof the move changed nothing. Its RATE checks are deliberately NOT shared — their
+// messages name the rate they refused ("50% is 0.5, not 50") and are pinned by test.
+const { MAX_LABEL, normaliseCountry, num, publishedKey, cleanSource } = require('./sourcedFigure')
 
 /**
  * The app's own six rates.
@@ -75,9 +81,6 @@ const METHODS = ['dv', 'sl']
  */
 const MAX_SUPERSEDED = 5
 
-/** Longest an asset-class label or document name may be, in characters. */
-const MAX_LABEL = 120
-
 /**
  * Longest the "what qualifies" and "what does not" sentences on a first-year rule may be.
  * They are the tax authority's own wording, shown to the manager verbatim and never
@@ -85,89 +88,19 @@ const MAX_LABEL = 120
  */
 const MAX_RULE_TEXT = 400
 
-/** The oldest publication year worth believing, and the newest. */
-const MIN_YEAR = 1980
-const MAX_YEAR = 2100
-
 /**
- * A country code, normalised — two letters, upper case (`NZ`, `AU`), or null.
+ * This module's own source validator — `sourcedFigure.cleanSource` with the noun it uses.
  *
- * ISO 3166-1 alpha-2, which is what the rest of the app already speaks: advisor records
- * carry `country: 'DE'` (`server/collaborate/data/repository.js`) and a group manager's
- * scope id is composed from the same value (`tierChain.groupScopeId`). A full country NAME
- * is refused rather than guessed at — "New Zealand", "NZL" and "nz" are three spellings of
- * one country and a store holding all three has three tables where a firm approved one.
- *
- * @param {*} value
- * @returns {string|null} the code, or null when it is not one
- */
-function normaliseCountry (value) {
-  if (typeof value !== 'string') { return null }
-  const code = value.trim().toUpperCase()
-  return /^[A-Z]{2}$/.test(code) ? code : null
-}
-
-/** A finite number, or null for anything that is not one — including '' from a blank input. */
-function num (v) {
-  if (v === null || v === undefined || v === '') { return null }
-  const n = typeof v === 'number' ? v : parseFloat(v)
-  return Number.isFinite(n) ? n : null
-}
-
-/**
- * A publication date as a sortable integer, for ruling 1's "the newer document wins".
- *
- * Accepts `YYYY-MM` and `YYYY-MM-DD`, which is how tax authorities date a guide — IR265 is
- * *October 2023* and has no day. A missing day sorts as the 1st, so `2024-04` and
- * `2024-04-01` compare equal rather than one silently beating the other.
- *
- * @param {*} published
- * @returns {number|null} `YYYYMMDD` as a number, or null when it is not a date we can rank
- */
-function publishedKey (published) {
-  if (typeof published !== 'string') { return null }
-  const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(published.trim())
-  if (!m) { return null }
-  const year = Number(m[1])
-  const month = Number(m[2])
-  const day = m[3] === undefined ? 1 : Number(m[3])
-  if (year < MIN_YEAR || year > MAX_YEAR) { return null }
-  if (month < 1 || month > 12) { return null }
-  if (day < 1 || day > 31) { return null }
-  return (year * 10000) + (month * 100) + day
-}
-
-/**
- * Validate one rate's source document.
- *
- * 🔴 A SOURCE IS MANDATORY ON A STORED RATE AND THERE IS NO WAY TO STORE ONE WITHOUT IT.
- * Both approved drawings show every figure with its document and date beneath it, and the
- * reason is not presentation: an unsourced number in an approved table is indistinguishable
- * from a sourced one on the page a lender reads. A rate with no document is an app default,
- * and app defaults live in `data/depreciation-rates.json`, not in a firm's approved table.
+ * The noun is passed so the message a manager sees is unchanged by the extraction: this
+ * feature refuses an unsourced RATE, and Tax Rates refuses an unsourced FIGURE.
  *
  * @param {*} value
  * @param {string} where - for the error message
  * @param {string[]} errors - collected in place
  * @returns {object|null} the cleaned source, or null when it was refused
  */
-function cleanSource (value, where, errors) {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    errors.push(`${where}.source is required — an approved rate must name the document it came from`)
-    return null
-  }
-  const document = typeof value.document === 'string' ? value.document.trim() : ''
-  if (!document || document.length > MAX_LABEL) {
-    errors.push(`${where}.source.document must be a document name of 1 to ${MAX_LABEL} characters`)
-    return null
-  }
-  const key = publishedKey(value.published)
-  if (key === null) {
-    errors.push(`${where}.source.published must be a date like 2023-10 or 2023-10-31`)
-    return null
-  }
-  const page = value.page === null || value.page === undefined ? null : String(value.page).trim().slice(0, 20)
-  return { document, page: page || null, published: value.published.trim() }
+function cleanRateSource (value, where, errors) {
+  return cleanSource(value, where, errors, 'rate')
 }
 
 /**
@@ -225,7 +158,7 @@ function cleanEntry (value, where, errors, allowSuperseded) {
 
   const label = typeof value.label === 'string' ? value.label.trim().slice(0, MAX_LABEL) : null
 
-  const source = cleanSource(value.source, where, errors)
+  const source = cleanRateSource(value.source, where, errors)
   if (source === null) { return null }
 
   const entry = { label: label || null, method, dvRate: rates.dvRate, slRate: rates.slRate, lifeYears, source }
@@ -321,7 +254,7 @@ function cleanFirstYearRule (value, where, errors) {
     return typeof v === 'string' && v.trim() ? v.trim().slice(0, cap) : null
   }
 
-  const source = cleanSource(value.source, where, errors)
+  const source = cleanRateSource(value.source, where, errors)
   if (source === null) { return null }
 
   // Its own approval — see the note above. Same two fields, same reasons, on the rule.
