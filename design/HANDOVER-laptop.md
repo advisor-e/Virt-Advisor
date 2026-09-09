@@ -9,50 +9,52 @@
 
 ---
 
-## 2026-09-09 (ninth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-09 (tenth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,662 green** (432 suites), lint 0 errors, audit gate clean. **One commit,
-`f805933`, pushed.** 13 ahead, 0 behind — started level with `origin/master`, so nothing
+Suite **8,722 green** (433 suites), lint 0 errors, audit gate clean. **One commit,
+`d0b5095`, pushed.** 15 ahead, 0 behind — started level with `origin/master`, so nothing
 was merged in.
 
-**4.78 SLICE 3a IS BUILT — the AI now reads a document.** Four new pieces: the
-`depreciation-read` prompt in `data/ai-prompts.json` (all four tiers, so a manager can read
-what the machine is told), `server/utils/depreciationExtract.js` (sends the PDF, validates
-every field of the answer), `server/utils/depreciationProposals.js` (a proposal store the
-rate resolver never reads), and four routes — load, list, approve, reject.
+**4.78 SLICE 3b IS BUILT, AND THE MANAGER'S SIDE IS NOW COMPLETE.** A manager loads a
+schedule, sees the documents this level holds, confirms or changes which published class
+each of the six categories takes its rate from, corrects any figure, reads what the
+document did not cover, and approves or rejects. Two components:
+`FirmDepreciationRates.vue` (the tab, the list, the upload) and the new
+`DepreciationDocumentReview.vue` (one document under review).
 
-🔴 **A PENDING PROPOSAL CHANGES NO FORECAST, and it is structural.** The approved store
-cannot hold an unapproved table, so a proposal is kept somewhere else entirely rather than
-behind a flag. A test populates both stores at once and the advisor's read still answers the
-app's own six rates. **Do not "tidy" the two stores into one.**
+🔴 **APPROVE STAYS SHUT UNTIL EVERY MATCHED CLASS IS CONFIRMED** — Mike's P10 ruling. It is
+the whole point of the class-match step; do not "helpfully" enable it.
 
-**149 new tests.** `depreciationExtract.js` is at 100% on all four measures — `CLAUDE.md`'s
-rule for anything parsing AI output. One test holds the prompt's own list of the six
-categories against `CATEGORY_KEYS`: a category the model is never told about can never be
-proposed, and no screen would say why.
+🔴 **THE READING WAS EXTENDED, WITH MIKE'S YES BEFORE ANY CODE.** The picker in the approved
+class-match drawing needs the document's OTHER published classes, and slice 3a asked the
+model only for the six. The prompt gained **section 6** (renumbering `never` to 7 and
+`output` to 8), and every class clears the same bar as a proposed rate — a class that
+cannot carry a rate and a page is never offered, because a class a manager picks is written
+straight to the approved table.
 
-**NEXT IS SLICE 3b — the screen, and it needs no decisions from Mike.** The upload control,
-the proposed-rates table with editable figures, the class-match confirmation, the gaps panel
-and Approve. The backend it calls is done and tested. `FirmDepreciationRates.vue` still
-carries a header saying the PDF-reading question is open — it is not; Mike ruled it
-2026-09-09 and it is built. Fix that line when you touch the file.
+**Every difference from the two approved drawings is named in
+`depreciation-rates-history.md` §5** — eight of them, with the reason for each. That file is
+where to check the build against the artefacts, not this note.
 
-⚠ **No real schedule has been read.** Every path is proven against a stubbed model. The
-first live run needs a key and a real IR265, which is UAT's, not this machine's — and the
-thing to watch first is whether the model picks the right published class for each of the
-six categories.
+**60 new tests.** The rate seam is the one to respect: **typed as a percentage, stored as a
+decimal, converted in `setPercent` and nowhere else.** 500 is refused, never clamped.
 
-**Also:** `data/dev-depreciation-rates.json` had no `.gitignore` entry from slice 2 — a
-firm's approved rates could have been committed by accident. Added, with the new proposals
-file. Neither file exists; nothing leaked.
+⚠ **THIS SCREEN HAS NOT BEEN OPENED IN A BROWSER.** Every path is proven against stubs. The
+Economic Analysis threw up nine live faults that green tests had all missed, so treat the
+first real run as the real test. It needs a key, a real IR265 and a manager — UAT's, not
+this machine's.
 
-**Open for Mike:** 4.15, 4.58, 4.66 · **whether 4.77 closes into 4.78** (still on 4.77's
-note, still not ours to decide) · and **4.81**, the hardcoded NZ tax and GST rates, which
-needs a drawing before any build and rides everything 4.78 has now built.
+**Next on 4.78:** the advisor's half entirely (the screen they load a document from), the
+forecast's country field, and the dated purchase list. **4.78 stays flagged active on the
+laptop** — the item is unfinished and this machine has built all of it.
 
-⚠ **Known deviation, unchanged:** the Depreciation Rates tab's strings are hardcoded English
-like four of its five siblings, against the i18n standard. Named in the component header.
+⚠ **Known deviation, unchanged:** both Depreciation Rates components hardcode English like
+four of their five sibling tabs, against the i18n standard. Named in each component header.
+
+**Open for Mike:** 4.15, 4.58, 4.66 · **whether 4.77 closes into 4.78** (still not ours to
+decide) · and **4.81**, the hardcoded NZ tax and GST rates, which needs a drawing before any
+build and rides everything 4.78 has now built.
 
 **DESKTOP:** 🔴 **your note is stale — it is dated 2026-09-04 and describes 5 commits; your
-branch is 43 ahead with a commit from today.** Nothing of yours was touched here. Nothing
-this session went near quiz screens, and 4.78 is flagged active on the laptop.
+branch is 46 ahead with a commit from today.** Nothing of yours was touched here. Nothing
+this session went near quiz screens.
