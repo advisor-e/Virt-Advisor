@@ -304,7 +304,7 @@ async function handleDesign (req, body, res) {
             const choices = fitOptions(grounded.outline, budget, askedFor, templates)
             if (choices) {
               console.warn('[course:design] Session plan does not fit the request: ' +
-                `asked ${askedFor} × ${budget.min}-${budget.max} min; offering ` +
+                `asked ${askedFor.min}-${askedFor.max} × ${budget.min}-${budget.max} min; offering ` +
                 `${choices.keepLength.sessions} sessions at that length, or ` +
                 `${choices.keepCount.sessions} at up to ${choices.keepCount.max} min`)
               // No card until they answer — an outline shown here would be one
