@@ -199,6 +199,24 @@
           h2.tw-h2
             | {{ $t('report.threeWayForecast.confirm.assetsHeading') }}
             glossary-term(term="bookValue")
+
+        //- 🔴 THE ADVISOR MEETS THE GAP HERE, MID-FORECAST, not on a screen they have to go
+        //- and find — Mike's first ruling of 2026-09-08. A named country with nothing
+        //- approved for it says so plainly: the six figures below are not that country's,
+        //- and depreciation, tax and closing cash all move with them.
+        //- design/mockups/depreciation-rates-advisor.html §1.
+        p.warn-note(v-if="noApprovedRatesWarning") {{ noApprovedRatesWarning }}
+
+        //- 🔴 AN APPROVED TABLE NEVER MOVES AN ADVISOR'S RATES ON ITS OWN, and applying it
+        //- fills only the rates still on platform defaults — a rate the advisor typed is a
+        //- decision, not a gap. Mike's third ruling of 2026-09-08.
+        .tw-edu(v-if="depreciationOffer")
+          p.tw-edu-p {{ depreciationOffer }}
+          b-button.mt-2(
+            type="is-primary"
+            size="is-small"
+            @click="applyCountryDepreciation") {{ $t('report.threeWayForecast.confirm.applyCountryRates') }}
+
         .tw-tblwrap
           table.confirm-table
             thead
@@ -206,6 +224,7 @@
                 th {{ $t('report.threeWayForecast.confirm.category') }}
                 th.num {{ $t('report.threeWayForecast.confirm.openingValue') }}
                 th.num {{ $t('report.threeWayForecast.confirm.ratePerYear') }}
+                th {{ $t('report.threeWayForecast.confirm.rateOriginHeading') }}
             tbody
               tr(v-for="(asset, i) in form.assets" :key="asset.key")
                 td {{ $t('report.threeWayForecast.confirm.assets.' + asset.key) }}
@@ -230,8 +249,11 @@
                       v-model.number="asset.rate"
                       type="number"
                       step="any"
-                      size="is-small")
+                      size="is-small"
+                      @input="markRateEntered(i)")
                     span.pctmark %
+                td
+                  span.ratefrom(:class="{ 'is-sourced': asset.rateSource === 'approved', 'is-entered': asset.rateSource === 'entered' }") {{ rateOrigin(i) }}
         p.tw-note {{ $t('report.threeWayForecast.confirm.assetsNote') }}
 
       //- Loans and shareholder accounts — positional and unnamed, by design.
@@ -1564,6 +1586,18 @@ export default {
       /** Guards against a country typed one letter at a time firing four reads. */
       taxTimer: null,
       /**
+       * The six depreciation rates this client's country is on, as the firm's tiers have
+       * approved them (item 4.78). `null` until a country is named and the backend answers.
+       *
+       * 🔴 IT IS NOT ON THE FORM, for the same reason `resolvedTax` is not: the form is what
+       * gets computed, this is what a firm approved, and keeping them apart is what lets the
+       * screen OFFER a change the advisor can decline. It also carries each rate's ORIGIN,
+       * which is what the badge column beside the rate boxes reads.
+       */
+      resolvedDepreciation: null,
+      /** The same guard, for the rates read. */
+      depreciationTimer: null,
+      /**
        * What the shipment calculator last returned (item 4.64 slice 2). It is NOT on the
        * form: every figure in it is derived from the shipments and the terms, and a derived
        * value stored beside its inputs is a value that can disagree with them. A restored
@@ -1970,6 +2004,77 @@ export default {
         out.push(`${this.$t('report.threeWayForecast.assume.gstBasis')} ${this.form.gstBasis} → ${t.basis.label}`)
       }
       return out
+    },
+
+    /** The six rates this country's approved table holds, keyed by category, or {} for none. */
+    countryDepreciation () {
+      return (this.resolvedDepreciation && this.resolvedDepreciation.categories) || {}
+    },
+
+    /**
+     * Has this client's country got an approved table at any tier above the advisor?
+     *
+     * `isDefault` is the backend's own word for "nobody has approved anything for this
+     * country", and it is the difference between a rate somebody looked up and the six
+     * figures the forecast has shipped with since it was built.
+     */
+    hasApprovedRates () {
+      return !!(this.resolvedDepreciation && !this.resolvedDepreciation.isDefault)
+    },
+
+    /**
+     * The band that opens the advisor's drawing: a named country with nothing approved for
+     * it. Empty until the country is named AND the backend has answered, so the warning
+     * never appears in the gap before the read returns.
+     */
+    noApprovedRatesWarning () {
+      if (!this.countryCode || this.resolvedDepreciation === null || this.hasApprovedRates) { return '' }
+      return this.$t('report.threeWayForecast.confirm.noApprovedRates', { country: this.countryCode })
+    },
+
+    /**
+     * Which rates an approved table would move, and to what.
+     *
+     * 🔴 ONLY THE ONES STILL ON A PLATFORM DEFAULT. A rate the advisor typed is a decision,
+     * not a gap (Mike's ruling, 2026-09-08), so it is neither counted here nor filled by
+     * `applyCountryDepreciation`. Each entry names both figures, so the advisor reads what
+     * would move rather than a count on its own.
+     *
+     * @returns {Array<{index: number, key: string, rate: number, label: string}>}
+     */
+    depreciationChanges () {
+      const out = []
+      for (let i = 0; i < this.form.assets.length; i++) {
+        const asset = this.form.assets[i]
+        if (asset.rateSource !== 'default') { continue }
+        const approved = this.countryDepreciation[asset.key]
+        if (!approved || typeof approved.dvRate !== 'number') { continue }
+        // The store keeps decimals and the screen works in percentages — the one conversion
+        // this whole feature turns on. See data/depreciation-rates.json's own note.
+        const rate = Math.round(approved.dvRate * 1000) / 10
+        if (Math.abs(rate - Number(asset.rate)) < 1e-9) { continue }
+        const name = this.$t('report.threeWayForecast.confirm.assets.' + asset.key)
+        out.push({ index: i, key: asset.key, rate, label: `${name} ${asset.rate}% → ${rate}%` })
+      }
+      return out
+    },
+
+    /**
+     * What to say about an approved table this forecast is not yet using, or '' when there
+     * is nothing to offer.
+     *
+     * 🔴 IT IS AN OFFER, NEVER AN APPLICATION — the same ruling the tax card above runs on.
+     */
+    depreciationOffer () {
+      if (!this.countryCode || !this.hasApprovedRates) { return '' }
+      const changes = this.depreciationChanges
+      if (!changes.length) { return '' }
+      return this.$t('report.threeWayForecast.confirm.depreciationOffer', {
+        country: this.countryCode,
+        count: changes.length,
+        total: this.form.assets.length,
+        changes: changes.map(c => c.label).join('; ')
+      })
     },
 
     gstPeriodOptions () {
@@ -2499,9 +2604,11 @@ export default {
      */
     countryCode (code) {
       if (this.taxTimer) { clearTimeout(this.taxTimer) }
-      if (!code) { this.resolvedTax = null; return }
+      if (this.depreciationTimer) { clearTimeout(this.depreciationTimer) }
+      if (!code) { this.resolvedTax = null; this.resolvedDepreciation = null; return }
       // Typed a letter at a time, so a two-letter box would otherwise fire on the first.
       this.taxTimer = setTimeout(() => { this.loadCountryTax(code) }, 250)
+      this.depreciationTimer = setTimeout(() => { this.loadCountryDepreciation(code) }, 250)
     },
 
     /**
@@ -2600,6 +2707,7 @@ export default {
     if (this.volatilityTimer) { clearTimeout(this.volatilityTimer) }
     if (this.revenueTimer) { clearTimeout(this.revenueTimer) }
     if (this.taxTimer) { clearTimeout(this.taxTimer) }
+    if (this.depreciationTimer) { clearTimeout(this.depreciationTimer) }
   },
 
   methods: {
@@ -2685,6 +2793,111 @@ export default {
       if (t.basis) { this.form.gstBasis = this.basisWord(t.basis.basis) }
     },
 
+    /**
+     * Ask what depreciation rates this country's clients are on, as the firm's tiers
+     * approved them.
+     *
+     * ⚠ A FAILURE IS SILENT ON PURPOSE — *"Never block the advisor"* (Mike, 2026-09-08). The
+     * route already degrades to the app's own six rates rather than erroring, so there is
+     * nothing an advisor could do about a failure here; the forecast carries on with exactly
+     * what it uses today, and the badges keep saying `app default`, which stays true.
+     *
+     * @param {string} code two-letter country code
+     */
+    async loadCountryDepreciation (code) {
+      try {
+        const res = await fetch(`/api/report/depreciation-rates?country=${encodeURIComponent(code)}`, {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { this.resolvedDepreciation = null; return }
+        const data = await res.json()
+        // Ignore an answer for a country the advisor has since typed away from.
+        if (data && data.country === this.countryCode) { this.resolvedDepreciation = data }
+      } catch (err) {
+        this.resolvedDepreciation = null
+      }
+    },
+
+    /**
+     * Which tier approved a rate, in the words the manager's own screen uses.
+     *
+     * The four names are the settled tier names and are NOT re-coined here — they match
+     * `originLabel` in components/firm/FirmDepreciationRates.vue, so a manager and an
+     * advisor looking at the same rate read the same word for where it came from.
+     *
+     * @param {string} tier one of the four, or null for a platform default
+     * @returns {string}
+     */
+    tierWord (tier) {
+      const keys = {
+        mentor: 'originMentor',
+        global_group_manager: 'originGlobalGroup',
+        group_manager: 'originGroup',
+        firm_manager: 'originFirm'
+      }
+      return keys[tier] ? this.$t('report.threeWayForecast.confirm.' + keys[tier]) : ''
+    },
+
+    /**
+     * Take this country's approved rates onto the form — only when the advisor says so.
+     *
+     * ⚠ IT FILLS ONLY WHAT IS STILL ON A PLATFORM DEFAULT, and that is the whole of the
+     * ruling: *"applying these fills only the rates still on defaults"* (Mike, 2026-09-08).
+     * A category the advisor typed a rate into keeps it, and a category the approved table
+     * says nothing about keeps the platform's figure rather than being blanked.
+     */
+    applyCountryDepreciation () {
+      const changes = this.depreciationChanges
+      for (let i = 0; i < changes.length; i++) {
+        const change = changes[i]
+        const asset = this.form.assets[change.index]
+        const approved = this.countryDepreciation[change.key]
+        asset.rate = change.rate
+        asset.rateSource = 'approved'
+        // The origin is STORED rather than looked up when the badge draws, so changing the
+        // country afterwards cannot relabel a rate that is already on the form as having
+        // come from a country it did not come from.
+        asset.rateOriginLabel = [
+          this.tierWord(approved.originTier),
+          approved.source && approved.source.document
+        ].filter(Boolean).join(' · ')
+      }
+    },
+
+    /**
+     * The advisor typed a rate, so it becomes theirs — badged `entered by you` on screen and
+     * in the print, applying to this client alone and never touching the firm's table.
+     * Mike's ruling of 2026-09-08, which overturned the recommendation that these boxes stay
+     * read-only.
+     *
+     * @param {number} i the category's position in `form.assets`
+     */
+    markRateEntered (i) {
+      this.form.assets[i].rateSource = 'entered'
+      this.form.assets[i].rateOriginLabel = ''
+    },
+
+    /**
+     * Where the rate on screen came from, in the words beside it.
+     *
+     * 🔴 IT DESCRIBES THE FIGURE ON THE FORM, NEVER THE ONE ON OFFER. A country with an
+     * approved table the advisor has not applied still reads `app default`, because that is
+     * what the forecast would compute with — *"the badge does not lie while it waits"*.
+     *
+     * @param {number} i the category's position in `form.assets`
+     * @returns {string}
+     */
+    rateOrigin (i) {
+      const asset = this.form.assets[i]
+      if (asset.rateSource === 'entered') {
+        return this.$t('report.threeWayForecast.confirm.originEntered')
+      }
+      if (asset.rateSource === 'approved' && asset.rateOriginLabel) {
+        return asset.rateOriginLabel
+      }
+      return this.$t('report.threeWayForecast.confirm.originDefault')
+    },
+
     /** @param {number} n @returns {string} */
     phaseFor (n) {
       if (n === 1) { return 'drop' }
@@ -2758,6 +2971,17 @@ export default {
       // The six asset categories are a fixed set the engine knows, so a form carrying none
       // of them gets the platform's own rates rather than an empty table.
       if (!Array.isArray(form.assets) || !form.assets.length) { form.assets = blank.assets }
+      // A forecast saved before item 4.78 carries a rate with no record of where it came
+      // from. It is RECONSTRUCTED rather than assumed: a rate still on the platform's own
+      // figure is a default, and one the advisor moved off it was theirs. Guessing the other
+      // way would let an approved table overwrite a rate somebody deliberately typed.
+      for (let i = 0; i < form.assets.length; i++) {
+        const a = form.assets[i]
+        if (a && !a.rateSource) {
+          const platform = blank.assets[i] ? blank.assets[i].rate : null
+          a.rateSource = Number(a.rate) === Number(platform) ? 'default' : 'entered'
+        }
+      }
       if (!Array.isArray(form.shareholders) || !form.shareholders.length) { form.shareholders = blank.shareholders }
       if (!Array.isArray(form.capital)) { form.capital = [] }
       // A form saved before the volatility block existed carries no history, and an
@@ -2828,7 +3052,14 @@ export default {
       for (let i = 0; i < OPENING_KEYS.length; i++) { opening[OPENING_KEYS[i]] = tagged(0, 'entered') }
       const overheads = {}
       for (let i = 0; i < OVERHEAD_KEYS.length; i++) { overheads[OVERHEAD_KEYS[i]] = tagged(0, 'entered') }
-      const assets = ASSET_SPECS.map(spec => ({ key: spec.key, opening: tagged(0, 'entered'), rate: spec.rate }))
+      // `rateSource` says where the rate on screen came from, and it is a THIRD state rather
+      // than the opening figure's two: a rate is the platform's own guess until either a
+      // country's approved table fills it or the advisor types over it. Applying an approved
+      // table fills only the ones still on 'default' (item 4.78, the advisor's drawing §3),
+      // so a rate the advisor decided on is never quietly overwritten.
+      const assets = ASSET_SPECS.map(spec => ({
+        key: spec.key, opening: tagged(0, 'entered'), rate: spec.rate, rateSource: 'default'
+      }))
       const loans = []
       for (let i = 0; i < LOAN_COUNT; i++) { loans.push(this.blankFundingLine()) }
       const shareholders = []
@@ -4165,6 +4396,12 @@ export default {
 .slot.empty { border-style: dashed; color: var(--rs-muted); }
 .slot .nm { font-size: 12.5px; font-weight: 600; }
 .slot .mt { font-size: 11.5px; color: var(--rs-muted); margin-top: 2px; }
+/* Where a depreciation rate came from (item 4.78). Three looks for three states, read off
+   the approved drawing: a platform default is deliberately the QUIETEST of the three, so a
+   sourced rate stands out beside it rather than the other way round. */
+.ratefrom { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border-radius: 5px; padding: 2px 7px; white-space: nowrap; color: #7a8ba0; background: #f1f4f7; }
+.ratefrom.is-sourced { color: #2f7d32; background: var(--rs-good-soft); }
+.ratefrom.is-entered { color: #8a5a00; background: var(--rs-warn-soft); }
 .req { font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; padding: 2.5px 7px; white-space: nowrap; color: #b36b00; background: var(--rs-warn-soft); border: 1px solid #ff990059; }
 .req.opt { color: var(--rs-muted); background: var(--rs-panel); border: 1px solid var(--rs-line); }
 .chosen { display: grid; gap: 6px; margin-top: 14px; text-align: left; }

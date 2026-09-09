@@ -181,7 +181,7 @@ here and nowhere else; its closure, with his own $800,000 tractor costing, is on
 | Where the tab is gated and named | [`components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue) — `TAB_TIERS.depreciationRates` |
 | The tier seam every cascading block asks | [`server/utils/tierChain.js`](../../server/utils/tierChain.js) |
 | The engine whose rate this sets | [`server/report/threeWayForecastModel.js`](../../server/report/threeWayForecastModel.js) |
-| The screen the six rates are entered on today | [`components/ThreeWayForecastIntake.vue`](../../components/ThreeWayForecastIntake.vue) |
+| The screen the six rates are entered on, where the advisor meets the gap | [`components/ThreeWayForecastIntake.vue`](../../components/ThreeWayForecastIntake.vue) · [`tests`](../../tests/unit/forecastCountryDepreciation.component.test.js) |
 | The specification, with all twelve rulings and 50 requirements | [`specs/001-depreciation-rates-per-country/spec.md`](../../specs/001-depreciation-rates-per-country/spec.md) |
 | The manager's screen, approved 2026-09-08 | [`design/mockups/depreciation-rates-upload.html`](../mockups/depreciation-rates-upload.html) |
 | The advisor's screen, approved 2026-09-08 | [`design/mockups/depreciation-rates-advisor.html`](../mockups/depreciation-rates-advisor.html) |
@@ -204,7 +204,8 @@ here and nowhere else; its closure, with his own $800,000 tractor costing, is on
 - **A rate must never appear in its own superseded list.** Reloading the same document twice
   would otherwise show a document disagreeing with itself.
 
-**Known state, 2026-09-09.** **Built: the store, the manager's screen, and the reading.** The
+**Known state, 2026-09-09.** **Built: the store, the manager's screen, the reading, and the
+advisor's rates.** The
 store (`d8621e9`) holds the rates and each country's first-year rule, resolves both through the
 four tiers with an origin per rate, and refuses a rate or a share typed in the wrong unit.
 Slice 2 (`af54bcb`) adds the six routes, the **Depreciation Rates** tab at all four manager
@@ -228,10 +229,17 @@ publishes (prompt section 6, capped at 250), each held to the same bar as a prop
 a class that could not carry a rate and a page is never offered. Every difference between this
 build and the two approved drawings is named in the history, §5.
 
-**Not built, and not to be described as built:** the country field on the forecast, the dated
-purchase list, **the advisor's half entirely** — including the screen an advisor loads a
-document from, so every document a manager sees today was loaded by a manager — and the
-report's Investment Boost line. **No document has been read in earnest yet** — that needs a
+**Slice 4 gives the advisor the rates and where each one came from, and no upload.** The
+Assets card reads the client's country's approved table and badges every rate with its own
+origin — `app default`, the tier that approved it beside the document it came from, or
+`entered by you`. A named country with nothing approved says so in a band above the table.
+**An approved table is OFFERED, never applied:** taking it fills only the rates still on
+platform defaults, so a rate the advisor typed survives, and until they take it the badge
+still reads `app default`, because that is what the forecast would compute with.
+
+**Not built, and not to be described as built:** the screen an advisor loads a document from
+— so every document a manager sees today was loaded by a manager — the dated purchase list,
+and the report's Investment Boost line. **No document has been read in earnest yet** — that needs a
 real schedule, a key and a manager — so no rate in this app has yet come from a tax authority,
 and the first thing to watch on a live run is whether the model picks the right published class
 for each of the six.

@@ -111,7 +111,7 @@ describe('canManage — the scope matrix', () => {
     const sameBrandOtherCountry = { id: 't2', globalGroup: 'BrandX', country: 'IE', firm: 'X Dublin' }
     const otherBrand = { id: 't3', globalGroup: 'BrandY', country: 'DE', firm: 'Y Munich' }
     expect(roles.canManage(glob, sameBrandOtherCountry)).toBe(true) // same brand, other country
-    expect(roles.canManage(glob, otherBrand)).toBe(false) // other brand — outside a global manager's scope
+    expect(roles.canManage(glob, otherBrand)).toBe(false) // other brand — outside a global group manager's scope
     expect(roles.canManage(mentor, sameBrandOtherCountry)).toBe(true)
     expect(roles.canManage(mentor, otherBrand)).toBe(true) // mentor = everyone
   })
