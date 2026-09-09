@@ -257,6 +257,22 @@ server.get('/api/report/trend-thresholds', firmAuth, trendThresholdsRoute.get)
 // himself on 2026-09-08: "Never block the advisor." The read degrades to the app's own six
 // rates rather than failing, and the write is manager-only on /api/firm-manager below.
 server.get('/api/report/depreciation-rates', firmAuth, depreciationRatesRoute.get)
+// 🔴 AN ADVISOR MAY LOAD A DOCUMENT; ONLY A FIRM MANAGER APPROVES ONE. Mike's ruling of
+// 2026-09-08, from his own question: "does the advisor have the ability to enter a tax doc for
+// the client with the different country?" As the manager's screen was first drawn the answer
+// was no, which left an advisor with an overseas client stuck behind their manager.
+//
+// IT IS THE SAME HANDLER AS THE MANAGER'S, deliberately, because what it writes is a PROPOSAL
+// — held in a store the rate resolver never reads (Brief P1). Nothing an advisor loads can
+// reach a forecast until a manager approves it, and the role gate stays exactly where it was,
+// on approve and reject below. `firmAuth` resolves the storage scope once, so an advisor's
+// document lands in their own firm's store and can land nowhere else.
+//
+// ⚠ IT WIDENS WHO CAN SPEND AN AI CALL, from managers to every advisor. The file must be a
+// real PDF of 20 MB or less and the store keeps 20 documents — but the store's cap trims
+// AFTER the model has been paid, so nothing here limits how many readings an advisor can
+// trigger. Raised with Mike 2026-09-09; no rate limit added without his word.
+server.post('/api/report/depreciation-rates/documents', firmAuth, depreciationRatesRoute.loadDocument)
 // The company tax rate, GST rate, filing cycle and accounting basis a client's forecast uses,
 // for the client's own country (item 4.81). A SIBLING OF THE LINE ABOVE, NOT PART OF IT — a
 // tax rate turns profit into tax owed, a depreciation rate writes an asset down, and Mike

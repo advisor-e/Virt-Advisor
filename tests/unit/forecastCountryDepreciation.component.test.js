@@ -404,6 +404,168 @@ describe('a forecast saved before this existed', () => {
   })
 })
 
+describe('🔴 an advisor may LOAD a document; only a firm manager APPROVES one', () => {
+  // Mike's ruling, 2026-09-08. The gating is the whole of it, so it is pinned against the
+  // registration itself rather than trusted to a comment — the same check
+  // currency.routes.test.js makes, for the same reason.
+  const fs = require('fs')
+  const path = require('path')
+  const SERVER = fs.readFileSync(
+    path.join(__dirname, '../../server/restify-server.js'), 'utf8'
+  )
+
+  test('the advisor’s load route carries firmAuth and NOT the manager guard', () => {
+    expect(SERVER).toMatch(
+      /server\.post\('\/api\/report\/depreciation-rates\/documents',\s*firmAuth,\s*depreciationRatesRoute\.loadDocument\)/
+    )
+  })
+
+  // 🔴 The other half, and the one that would actually hurt. Widening the load must not have
+  // widened the decision: an advisor who can approve their own document is an advisor who can
+  // put an unchecked AI-read rate into every forecast their firm produces.
+  test('approving and rejecting still require a manager', () => {
+    expect(SERVER).toMatch(
+      /server\.post\('\/api\/firm-manager\/depreciation-rates\/documents\/approve',\s*\.\.\.fmGuard,/
+    )
+    expect(SERVER).toMatch(
+      /server\.post\('\/api\/firm-manager\/depreciation-rates\/documents\/reject',\s*\.\.\.fmGuard,/
+    )
+    expect(SERVER).toMatch(
+      /server\.post\('\/api\/firm-manager\/depreciation-rates',\s*\.\.\.fmGuard,/
+    )
+  })
+})
+
+describe('loading a tax document from the forecast', () => {
+  /** A document record as the backend returns it, with three of the six matched. */
+  function readDocument () {
+    return {
+      ok: true,
+      code: null,
+      message: null,
+      document: {
+        id: 'doc-1',
+        filename: 'IR265.pdf',
+        documentName: 'IR265',
+        country: 'NZ',
+        status: 'pending',
+        categories: { vehicles: {}, plantEquipment: {}, computerHardware: {} },
+        unmatched: ['leaseholdImprovements', 'officeEquipment', 'other']
+      }
+    }
+  }
+
+  /** Mount with a country resolved, then answer the upload with `reply`. */
+  async function readyToSend (reply, ok) {
+    const wrapper = await withCountry('ZZ', defaultRates())
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: ok !== false,
+      json: () => Promise.resolve(reply)
+    }))
+    wrapper.vm.openDocPanel()
+    wrapper.vm.docFile = new File(['%PDF-1.4'], 'IR265.pdf', { type: 'application/pdf' })
+    return wrapper
+  }
+
+  it('posts the file and the client’s country to the advisor’s own route', async () => {
+    const wrapper = await readyToSend(readDocument())
+    await wrapper.vm.sendTaxDocument()
+
+    const [url, opts] = global.fetch.mock.calls[0]
+    expect(url).toBe('/api/report/depreciation-rates/documents')
+    expect(opts.method).toBe('POST')
+    expect(opts.body.get('country')).toBe('ZZ')
+    expect(opts.body.get('file')).toBeTruthy()
+  })
+
+  // 🔴 THE RULING THE WHOLE PANEL RESTS ON. What the backend keeps is a proposal in a store
+  // the rate resolver never reads, so a document in flight must move nothing at all.
+  it('moves no rate on this forecast, and leaves every badge saying so', async () => {
+    const wrapper = await readyToSend(readDocument())
+    await wrapper.vm.sendTaxDocument()
+
+    Object.keys(PLATFORM).forEach((key) => {
+      expect(categoryOf(wrapper, key).rate).toBe(PLATFORM[key])
+      expect(categoryOf(wrapper, key).rateSource).toBe('default')
+    })
+    expect(wrapper.vm.rateOrigin(0)).toBe('report.threeWayForecast.confirm.originDefault')
+  })
+
+  it('reports what was proposed, and that none of it is in use', async () => {
+    const wrapper = await readyToSend(readDocument())
+    await wrapper.vm.sendTaxDocument()
+
+    expect(wrapper.vm.docSent).toBe(true)
+    expect(wrapper.vm.docRefused).toBe(false)
+  })
+
+  // 🔴 The count is of the SIX CATEGORIES, not the schedule's classes. A tax authority
+  // publishes around 156; a rate stored against a seventh category could never reach a
+  // forecast, so counting anything else would tell the advisor a number that means nothing.
+  it('counts the categories that got a rate, not the document’s rows', async () => {
+    const wrapper = await readyToSend(readDocument())
+    await wrapper.vm.sendTaxDocument()
+
+    // $t returns the key, so the interpolation is checked on the component's own inputs.
+    const doc = wrapper.vm.docResult.document
+    expect(Object.keys(doc.categories)).toHaveLength(3)
+    expect(wrapper.vm.form.assets).toHaveLength(6)
+  })
+
+  // The advisor sees the refusal immediately, not after their manager has wasted time on it.
+  it('an unreadable document is reported as read by nobody, and proposes nothing', async () => {
+    const wrapper = await readyToSend({
+      ok: false,
+      code: 'UNREADABLE',
+      message: 'could not be read',
+      document: { id: 'doc-2', status: 'unreadable', categories: {} }
+    })
+    await wrapper.vm.sendTaxDocument()
+
+    expect(wrapper.vm.docRefused).toBe(true)
+    expect(wrapper.vm.docSent).toBe(false)
+    expect(categoryOf(wrapper, 'vehicles').rate).toBe(20)
+  })
+
+  // Not a PDF, too large, a country mismatch — each one tells the advisor something they can
+  // act on, so the backend's own message is shown rather than a generic one.
+  it('shows the backend’s own refusal rather than a generic failure', async () => {
+    const wrapper = await readyToSend(
+      { success: false, error: { code: 'NOT_A_PDF', message: 'That file is not a PDF.' } },
+      false
+    )
+    await wrapper.vm.sendTaxDocument()
+
+    expect(wrapper.vm.docError).toBe('That file is not a PDF.')
+    expect(wrapper.vm.docResult).toBeNull()
+  })
+
+  it('sends nothing when no country has been named', async () => {
+    global.fetch = jest.fn()
+    const wrapper = mountWithBuefy(ThreeWayForecastIntake, { propsData: {} })
+    wrapper.vm.openDocPanel()
+    wrapper.vm.docFile = new File(['%PDF-1.4'], 'IR265.pdf', { type: 'application/pdf' })
+
+    await wrapper.vm.sendTaxDocument()
+    // Mounting asks for the sell-down ladder, so a bare call count measures the wrong thing.
+    const uploads = global.fetch.mock.calls
+      .filter(([url]) => String(url).indexOf('/api/report/depreciation-rates/documents') === 0)
+    expect(uploads).toHaveLength(0)
+  })
+
+  it('a network failure says so rather than reporting a document nobody has', async () => {
+    const wrapper = await withCountry('ZZ', defaultRates())
+    global.fetch = jest.fn(() => Promise.reject(new Error('offline')))
+    wrapper.vm.openDocPanel()
+    wrapper.vm.docFile = new File(['%PDF-1.4'], 'IR265.pdf', { type: 'application/pdf' })
+
+    await wrapper.vm.sendTaxDocument()
+    expect(wrapper.vm.docResult).toBeNull()
+    expect(wrapper.vm.docError).toBeTruthy()
+    expect(wrapper.vm.docSent).toBe(false)
+  })
+})
+
 describe('a read that fails never blocks the advisor', () => {
   it('a refused read leaves the forecast’s own rates working', async () => {
     const wrapper = await withCountry('NZ', null)

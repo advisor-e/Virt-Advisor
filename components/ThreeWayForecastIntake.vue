@@ -205,7 +205,55 @@
         //- approved for it says so plainly: the six figures below are not that country's,
         //- and depreciation, tax and closing cash all move with them.
         //- design/mockups/depreciation-rates-advisor.html §1.
-        p.warn-note(v-if="noApprovedRatesWarning") {{ noApprovedRatesWarning }}
+        p.warn-note(v-if="noApprovedRatesWarning")
+          | {{ noApprovedRatesWarning }}
+          b-button.ml-2(
+            v-if="!docPanel"
+            size="is-small"
+            @click="openDocPanel") {{ $t('report.threeWayForecast.confirm.loadTaxDocument') }}
+
+        //- 🔴 THE ADVISOR LOADS; THE FIRM MANAGER APPROVES. Mike's ruling of 2026-09-08.
+        //- Everything else — reviewing the extracted rates, correcting them, approving them —
+        //- happens on the firm manager's screen, by the firm manager. Nothing loaded here
+        //- reaches this forecast, and the panel says so before the advisor presses send.
+        .tw-edu(v-if="docPanel")
+          p.tw-edu-p
+            strong {{ $t('report.threeWayForecast.confirm.loadTaxDocument') }}
+          p.tw-edu-p {{ $t('report.threeWayForecast.confirm.docPanelNote') }}
+          .field
+            .fieldlab
+              span {{ $t('report.threeWayForecast.confirm.docFile') }}
+            span(v-if="docFile") {{ docFile.name }}
+            b-button(v-else size="is-small" @click="pickTaxDocument") {{ $t('report.threeWayForecast.confirm.docChoose') }}
+          .field
+            .fieldlab
+              span {{ $t('report.threeWayForecast.confirm.docCountry') }}
+            span {{ countryCode || $t('report.threeWayForecast.confirm.docNoCountry') }}
+          .field
+            .fieldlab
+              span {{ $t('report.threeWayForecast.confirm.docGoesTo') }}
+            span {{ $t('report.threeWayForecast.confirm.docGoesToManager') }}
+          input(
+            ref="taxDocInput"
+            type="file"
+            accept="application/pdf,.pdf"
+            hidden
+            @change="onTaxDocChosen")
+          p.err(v-if="docError") {{ docError }}
+          .tw-actions
+            b-button(
+              type="is-primary"
+              size="is-small"
+              :disabled="!docFile || !countryCode || docSending"
+              :loading="docSending"
+              @click="sendTaxDocument") {{ $t('report.threeWayForecast.confirm.docSend') }}
+            b-button(size="is-small" @click="closeDocPanel") {{ $t('report.threeWayForecast.confirm.docCancel') }}
+
+        //- 🔴 THE BADGES ABOVE STILL SAY `app default`, AND THAT IS THE POINT. A pending
+        //- document must never make a rate look settled — an "awaiting approval" state that
+        //- quietly showed the proposed rate would be worse than showing nothing.
+        p.tw-note(v-if="docSent") {{ docSentMessage }}
+        p.crit-note(v-if="docRefused") {{ docRefusedMessage }}
 
         //- 🔴 AN APPROVED TABLE NEVER MOVES AN ADVISOR'S RATES ON ITS OWN, and applying it
         //- fills only the rates still on platform defaults — a rate the advisor typed is a
@@ -1598,6 +1646,20 @@ export default {
       /** The same guard, for the rates read. */
       depreciationTimer: null,
       /**
+       * Loading a tax document for the firm manager to approve (item 4.78, the advisor's
+       * drawing §2). Deliberately small: the advisor is mid-forecast with a client in front
+       * of them, and this is not the place for a document library.
+       *
+       * `docResult` holds what the backend made of the file — `ok: false` with a code is a
+       * document that could not be read, which the advisor is told IMMEDIATELY rather than
+       * after their manager has wasted time on it.
+       */
+      docPanel: false,
+      docFile: null,
+      docSending: false,
+      docResult: null,
+      docError: '',
+      /**
        * What the shipment calculator last returned (item 4.64 slice 2). It is NOT on the
        * form: every figure in it is derived from the shipments and the terms, and a derived
        * value stored beside its inputs is a value that can disagree with them. A restored
@@ -2075,6 +2137,46 @@ export default {
         total: this.form.assets.length,
         changes: changes.map(c => c.label).join('; ')
       })
+    },
+
+    /** A document read and now waiting on the firm manager. */
+    docSent () {
+      return !!(this.docResult && this.docResult.ok)
+    },
+
+    /**
+     * What was proposed, and that none of it is in use.
+     *
+     * 🔴 IT COUNTS THE SIX CATEGORIES, NOT THE SCHEDULE'S CLASSES. The approved drawing says
+     * "88 rates proposed", which is how many rows a tax authority publishes — the forecast has
+     * six categories and a rate stored against a seventh could never reach it. The same
+     * correction the Brief already makes for the manager's drawing (§3).
+     */
+    docSentMessage () {
+      const doc = (this.docResult && this.docResult.document) || {}
+      const matched = doc.categories ? Object.keys(doc.categories).length : 0
+      return this.$t('report.threeWayForecast.confirm.docSent', {
+        count: matched,
+        total: this.form.assets.length
+      })
+    },
+
+    /**
+     * A document the model could not read reliably.
+     *
+     * The advisor sees this refusal too, and immediately — not after their manager has wasted
+     * time on it. Reproduced from a real failure: reading IR265 on 2026-09-08 with ordinary
+     * tooling silently dropped about a dozen letters and the damaged text still read as
+     * English, so a search for a missing term returned nothing and the nothing looked like an
+     * answer.
+     */
+    docRefused () {
+      return !!(this.docResult && !this.docResult.ok)
+    },
+
+    /** Mike's approved replacement wording of 2026-09-09, and the reason it replaced the drawing's. */
+    docRefusedMessage () {
+      return this.$t('report.threeWayForecast.confirm.docUnreadable')
     },
 
     gstPeriodOptions () {
@@ -2861,6 +2963,74 @@ export default {
           this.tierWord(approved.originTier),
           approved.source && approved.source.document
         ].filter(Boolean).join(' · ')
+      }
+    },
+
+    /** Open the loading panel, clearing whatever the last attempt said. */
+    openDocPanel () {
+      this.docPanel = true
+      this.docFile = null
+      this.docResult = null
+      this.docError = ''
+    },
+
+    /** Put the panel away. A document already sent stays reported above it. */
+    closeDocPanel () {
+      this.docPanel = false
+      this.docFile = null
+      this.docError = ''
+    },
+
+    pickTaxDocument () {
+      this.$refs.taxDocInput.click()
+    },
+
+    /** @param {Event} event */
+    onTaxDocChosen (event) {
+      const files = event.target.files
+      this.docFile = files && files.length ? files[0] : null
+      this.docError = ''
+      // Chosen twice in a row, the same file fires no change event unless the input is cleared.
+      event.target.value = ''
+    },
+
+    /**
+     * Send the document to the firm manager, by way of the model that reads it.
+     *
+     * 🔴 NOTHING ON THIS FORECAST MOVES, whatever comes back. What the backend keeps is a
+     * PROPOSAL, in a store the rate resolver never reads, and only a firm manager can turn one
+     * into rates. The badges above go on saying `app default` until they do.
+     */
+    async sendTaxDocument () {
+      if (!this.docFile || !this.countryCode) { return }
+      this.docSending = true
+      this.docError = ''
+      this.docResult = null
+      try {
+        const body = new FormData()
+        body.append('file', this.docFile)
+        body.append('country', this.countryCode)
+        const res = await fetch('/api/report/depreciation-rates/documents', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiToken}` },
+          body
+        })
+        const json = await res.json()
+        if (!res.ok) {
+          // A refusal the backend explains — not a PDF, too large, a country mismatch. Its own
+          // message is shown rather than a generic one, because every one of them tells the
+          // advisor something they can act on.
+          this.docError = (json && json.error && json.error.message) ||
+            this.$t('report.threeWayForecast.confirm.docFailed')
+          return
+        }
+        this.docResult = json
+        this.docPanel = false
+        this.docFile = null
+      } catch (e) {
+        this.docError = this.$t('report.threeWayForecast.confirm.docFailed')
+      } finally {
+        this.docSending = false
       }
     },
 

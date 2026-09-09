@@ -172,7 +172,8 @@ here and nowhere else; its closure, with his own $800,000 tractor costing, is on
 | The store — validation, the newer-wins rule, the four-tier resolver | [`server/utils/depreciationRates.js`](../../server/utils/depreciationRates.js) |
 | The app's own six rates — the floor under every country | [`data/depreciation-rates.json`](../../data/depreciation-rates.json) |
 | Its tests | [`tests/unit/depreciationRates.test.js`](../../tests/unit/depreciationRates.test.js) |
-| The routes — read, approve rates, adopt or withdraw the rule, history, restore, and load / list / approve / reject a document | [`server/routes/depreciationRates.js`](../../server/routes/depreciationRates.js) · [`tests`](../../tests/unit/depreciationRates.routes.test.js) |
+| The routes — read, approve rates, adopt or withdraw the rule, history, restore, and load / list / approve / reject a document. **Load is the one an advisor may call too** | [`server/routes/depreciationRates.js`](../../server/routes/depreciationRates.js) · [`tests`](../../tests/unit/depreciationRates.routes.test.js) |
+| Which routes are manager-only, pinned against the registration | [`server/restify-server.js`](../../server/restify-server.js) · [`tests`](../../tests/unit/forecastCountryDepreciation.component.test.js) |
 | Sending a document to the model, and refusing to trust what comes back | [`server/utils/depreciationExtract.js`](../../server/utils/depreciationExtract.js) · [`tests`](../../tests/unit/depreciationExtract.test.js) |
 | The reading instruction itself, on the AI Prompts page at all four tiers | [`data/ai-prompts.json`](../../data/ai-prompts.json) — `depreciation-read` |
 | Where a PROPOSAL lives — a store the rate resolver never reads | [`server/utils/depreciationProposals.js`](../../server/utils/depreciationProposals.js) · [`tests`](../../tests/unit/depreciationProposals.test.js) |
@@ -237,9 +238,21 @@ origin — `app default`, the tier that approved it beside the document it came 
 platform defaults, so a rate the advisor typed survives, and until they take it the badge
 still reads `app default`, because that is what the forecast would compute with.
 
-**Not built, and not to be described as built:** the screen an advisor loads a document from
-— so every document a manager sees today was loaded by a manager — the dated purchase list,
-and the report's Investment Boost line. **No document has been read in earnest yet** — that needs a
+**Slice 5 lets the advisor LOAD a document, and approve nothing.** The panel sits beside the
+rates, on the step where the advisor meets the gap — not on the client record and not in a
+menu. They pick a PDF, it goes to the model, and what comes back is a proposal their firm
+manager decides on. The refusal is theirs to see immediately rather than after their manager
+has wasted time on it. **It is the same backend handler as the manager's**, on
+`POST /api/report/depreciation-rates/documents` behind `firmAuth` alone; approve and reject
+keep the manager guard, and a test pins both halves against the registration itself.
+
+> ⚠ **It widens who can spend an AI call, from managers to every advisor.** The file must be a
+> real PDF of 20 MB or less and the store keeps 20 documents — but the cap trims *after* the
+> model has been paid, so nothing limits how many readings an advisor can trigger. **Raised
+> with Mike on 2026-09-09; no rate limit was added without his word.**
+
+**Not built, and not to be described as built:** the dated purchase list, and the report's
+Investment Boost line. **No document has been read in earnest yet** — that needs a
 real schedule, a key and a manager — so no rate in this app has yet come from a tax authority,
 and the first thing to watch on a live run is whether the model picks the right published class
 for each of the six.
