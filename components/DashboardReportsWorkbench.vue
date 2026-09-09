@@ -289,6 +289,9 @@ export default {
       if (!next) { return }
       this.state = JSON.parse(JSON.stringify(next))
       this.recompute()
+      // The saved row carries the industry code; its bands come from the backend, as at mount.
+      // Without this the size-band list is empty after a reload and the save looks lost.
+      this.loadIndustry(this.state.setup.industryCode)
     }
   },
 
