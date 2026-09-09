@@ -152,8 +152,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "activeOn": { "machine": "laptop", "since": "2026-09-09" },
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "The forecast applies New Zealand's company tax rate, GST rate and filing cycle to every client in every country, with nothing on screen saying so and no manager able to change it.",
       "risk": "Every forecast for an overseas client is wrong on tax whether or not it owns a single asset, so this is WIDER than 4.78. An advisor can type over the two rates but is never told they are New Zealand's; the filing cycle they cannot change at all, and it decides which months the money leaves the bank. The statements balance perfectly, which is how it reaches a lender.",
       "askedBy": {

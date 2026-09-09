@@ -9,39 +9,36 @@
 
 ---
 
-## 2026-09-09 (twelfth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-09 (thirteenth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,977 green** (439 suites), lint 0 errors, coverage and audit gates clean. **Three
-commits, all pushed.** 31 ahead, 0 behind `origin/master`; nothing merged in.
+Suite **8,977 green** (439 suites), lint 0 errors, coverage and audit gates clean. **Two
+commits, both pushed.** 33 ahead, 0 behind `origin/master`; nothing merged in.
 
-**4.78's ADVISOR HALF IS BUILT, slices 4 and 5.** Every rate on the forecast's Assets card
-now badges where it came from — *app default*, the tier that approved it beside its document,
-or *entered by you*. An approved table is **offered, never applied**: taking it fills only
-rates still on platform defaults, so a rate the advisor typed survives. And an advisor may
-now **load** a tax document, on `POST /api/report/depreciation-rates/documents` behind
-`firmAuth` alone — approve and reject keep the manager guard, and both halves are pinned
-against the registration in `restify-server.js`, not left to a comment.
+**NO FEATURE WORK TODAY. The app was opened and looked at instead** — the gap the last two
+handovers both flagged. It found a defect in ten minutes that 8,977 passing tests could
+not see: the Mentor Hub's Template Check screen was rendering `templateCheck.filter.all`
+to the user as its first filter button. The key had never been written into any locale
+file, and `fallbackLocale: 'en'` meant all eight languages showed the same raw string.
+Fixed, verified in the browser, one line.
 
-🔴 **DESKTOP — `ThreeWayForecastIntake.vue` GREW BY ~410 LINES.** It is the file we keep
-colliding on. Nothing outside the Assets card and the new document panel was touched, and
-`buildInputs()` is unchanged apart from carrying the same rates it always did. **4.78 stays
-flagged active here** — the dated purchase list and Investment Boost are still to build, and
-they land in this same file.
+✅ **THE TAX AND DEPRECIATION SCREENS ARE NOW EYEBALLED, and they are sound.** Both hub
+tabs render, take a country and show their figures with the right provenance badges; the
+forecast's Assets card shows all six rates badged `APP DEFAULT`; both backend routes
+answer. Two sessions of work no longer rest on stubs alone.
 
-⚠ **4.81 is still flagged active on the laptop and was NOT touched today.** Its build finished
-last session; only Mike's call on whether the tax-PDF reading is worth building remains. Left
-flagged deliberately, since 4.78 holds the same files anyway — clear it on his word.
+⚠ **ONE PATH IS STILL UNSEEN:** no country has an approved table, so slice 4's heart — an
+approved table being *offered* to an advisor — has never fired. It needs a table approved
+as a manager first.
 
-**4.80 IS DONE AS FAR AS IT GOES AND NOW WAITS ON MIKE.** 21 sites of our own prose fixed; his
-quotes and the frozen records untouched. The guard is **not** widened: four sentences of our
-prose inside the approved mockup `global-groups-membership.html` would still fail it, and one
-of them says these managers cannot log in — which contradicts his ruling of 2026-08-31.
+**New skill `run-the-app`** — how to launch, sign in without Advisor-e, drive the pages
+with Playwright, and what each page is for. Three gotchas that cost an hour are in it:
+`127.0.0.1:3000` never answers (Nuxt binds IPv6-only), `networkidle` never fires, and the
+hub's hidden tab panels stay in the DOM so locators must be `:visible`-scoped.
 
-**New item 4.82** (score 2): nothing caps how many paid AI readings an advisor can trigger.
-Raised with Mike today; no cap added without his word.
+**4.81's active flag CLEARED and it now waits on Mike** — its build finished last session;
+only his call on the §4 tax-PDF reading remains. **4.78 stays flagged active here** — the
+dated purchase list and Investment Boost are still to build, in
+`ThreeWayForecastIntake.vue`. **All six live items now wait on Mike.**
 
-⚠ **NOT OPENED IN A BROWSER.** Two sessions of tax and depreciation work now rest on stubs
-alone. Economic Analysis threw up nine live faults green tests all missed.
-
-**DESKTOP:** 🔴 **your note is still dated 2026-09-04** — five days, with commits since.
-Nothing of yours was touched here; nothing went near quiz screens.
+**DESKTOP:** 🔴 your note is now dated 2026-09-04 — five days, with commits since. Nothing
+of yours was touched; nothing went near quiz screens.
