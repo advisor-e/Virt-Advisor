@@ -9,35 +9,47 @@
 
 ---
 
-## 2026-09-10 (fourteenth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-10 (fifteenth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **9,007 green** (439 suites) at the push gate, lint 0, coverage and audit clean.
-**Three commits, all pushed.** 36 ahead, 0 behind `origin/master`; nothing merged in.
+Suite **9,092 green** (442 suites), lint 0, coverage and audit clean, and **`npm run build`
+succeeds** — run before the merge, not after. **0 ahead, 0 behind `origin/master`.**
 
-**NO APPLICATION CODE WAS WRITTEN.** The whole session was 4.58's §4 — the non-coding items
-gating a first real client recording — and what it turned into.
+🔴 **PR #71 IS MERGED. `master` now holds three days of this laptop's work** — Depreciation
+Rates (4.78), country-aware Tax Rates (4.81), the impact assessment, and the feature below.
+41 commits.
 
-**`MEETING-REVIEW-DPIA.md` is new**, assessing all fourteen NZ information privacy
-principles. Ten met. 🔴 **IPP3A is NOT met and it is new law — in force 1 May 2026**,
-requiring notice to someone whose information was collected indirectly; a client discussing a
-named employee is exactly that, and no software can answer it. **IPP12 is unevidenced** until
-OpenAI say where audio is processed. **IPP6/IPP7 is OURS and unbuilt** — nothing serves a
-client asking for a copy of their transcript.
+**Built today: a client asks for a copy of what was recorded about them** — Mike asked for it,
+ruled all eight questions, and said build it, in one session. It closes **§4 item 7** of Meeting
+Review and **finding B** of the assessment: IPP6 access, IPP7 correction. Artefact
+[`mockups/client-record-request.html`](mockups/client-record-request.html).
 
-**The OpenAI letter is rewritten and sendable** — five questions, Zero Data Retention named,
-IPP12 cited. It waits on Mike alone.
+**Two rulings reversed the recommendation, and the second reshaped the screens:**
+**the coaching notes NEVER go to a client** (his reasoning: they are the firm's training and
+quality-control record, under the advisor's terms of engagement), and **the recording advisor
+ALONE releases a meeting**. That second one means a client's request reaches across every advisor
+who ever met them, so **no one person can answer it** — shared work under one clock. A firm
+manager reaches an absent advisor's meeting only through a **break-glass declaration**.
 
-**4.83 (Compliance pages) is APPROVED TO BUILD FROM and not started** —
-[`mockups/compliance-pages.html`](mockups/compliance-pages.html), nine rulings, one at a time.
-Two distinctions the build must not collapse: the **declaration gates**, the **completeness
-check never does**; and only the **first** declaration gates — an update notifies with a dot.
-The declaration is Mike's own words, verbatim and pinned. **4.84** (hub notification dots,
-every tab) and **4.85** (the Handbook) filed alongside.
+🔴 **Putting the drawing beside the finished code found a control I had not built** — Screen B's
+two tick-boxes, which are ruling 8's actual enforcement. Now on the route, not the screen. No test
+would have caught it; nothing was asserting a control nobody had written.
 
-**4.78 stays flagged active here** — the dated purchase list and Investment Boost, untouched
-today.
+**The Handbook is republished and is now correct** — built from a branch identical to `master`,
+so it shows everything merged. Item 4.85 stands, but today the laptop's build *was* the master
+build.
 
-**DESKTOP:** 🔴 **you republished the Handbook over ours this morning** — it showed Mike a page
-with zero mentions of Depreciation Rates and Tax Rates and said nothing about it. Not your
-fault; the design never anticipated two branches, one URL. That is item **4.85**, filed, and
-**I have not republished** — the page is still yours. Your note is now dated 2026-09-04.
+**4.78's `activeOn` flag is CLEARED** on Mike's word — its slices are done and merged. Nothing on
+this machine is half-finished.
+
+⚠ **NOTHING BUILT THIS WEEK HAS BEEN EYEBALLED.** The client register, Depreciation Rates and Tax
+Rates all need MySQL. **That is the first thing to do in UAT**, and it is stated at the foot of
+PR #71 rather than left to be discovered.
+
+**Next, and unblocked: 4.83 — the Compliance pages.** Approved to build from, not started, nine
+rulings on the drawing. Two distinctions the build must not collapse: the **declaration gates**,
+the **completeness check never does**; and only the **first** declaration gates.
+
+**DESKTOP:** nothing of yours was touched — no quiz-builder files, and your branch is untouched by
+any of this. Your note is dated 2026-09-04 while your branch committed on 2026-09-10, so a session
+ended without writing one. **`master` moved today**, so merge it in at your next startup before
+you push.
