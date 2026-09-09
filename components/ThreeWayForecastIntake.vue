@@ -165,6 +165,33 @@
             //- read as a complete Customs assessment. design/TAX-RULES-IMPORT-GST.md.
             .tw-foot {{ $t('report.threeWayForecast.confirm.transitGstNote') }}
 
+      //- Which country this client trades in. Directly above the Assets card, where its
+      //- effect is visible — the depreciation rates beneath it and the tax figures on the
+      //- next step both come from this country's own published documents. Step 1 was
+      //- considered and rejected in the drawing: it would be answered before the advisor
+      //- has any reason to care. design/mockups/depreciation-rates-country-field.html,
+      //- approved by Mike 2026-09-09.
+      //-
+      //- ⚠ IT IS BLANK RATHER THAN SEEDED WITH THE FIRM'S OWN COUNTRY, which is what the
+      //- drawing shows. This app is never told which country a firm is in — that mapping is
+      //- Advisor-e's and has not been supplied (USER-LEVEL-CASCADE-HANDOVER.md Part 3).
+      //- Guessing one would put a country's tax rules on a client who is not in it, so it
+      //- stays empty and the forecast uses the app's own figures until an advisor says.
+      .tw-group
+        .tw-glabel
+          span.tw-dot
+          h2.tw-h2 {{ $t('report.threeWayForecast.confirm.countryHeading') }}
+        .field
+          .fieldlab
+            span {{ $t('report.threeWayForecast.confirm.countryLabel') }}
+          b-input(
+            v-model="form.country"
+            maxlength="2"
+            size="is-small"
+            style="width: 7rem"
+            :placeholder="$t('report.threeWayForecast.confirm.countryPlaceholder')")
+        p.tw-note {{ $t('report.threeWayForecast.confirm.countryNote') }}
+
       //- Fixed assets: an opening value a file can carry, and a rate it never can.
       .tw-group
         .tw-glabel
@@ -468,10 +495,24 @@
           .tw-glabel
             span.tw-dot
             h2.tw-h2 {{ $t('report.threeWayForecast.assume.taxHeading') }}
+
+          //- 🔴 AN APPROVED COUNTRY TABLE NEVER MOVES AN ADVISOR'S FIGURES ON ITS OWN.
+          //- Mike's ruling of 2026-09-09 for the sibling feature, and it governs here for
+          //- the same reason: figures moving underneath someone part-way through a report
+          //- is how a wrong number reaches a document nobody meant to send. The advisor is
+          //- told how many would change, and chooses. design/mockups/tax-rates.html §7.
+          .tw-edu(v-if="taxOffer")
+            p {{ taxOffer }}
+            b-button.mt-2(
+              type="is-primary"
+              size="is-small"
+              @click="applyCountryTax") {{ $t('report.threeWayForecast.assume.applyCountryTax', { country: countryCode }) }}
+
           .field
             .fieldlab
               span {{ $t('report.threeWayForecast.assume.gstRate') }}
             b-input(v-model.number="form.gstRate" type="number" step="any" size="is-small")
+          p.tw-src(v-if="taxSource('gst')") {{ taxSource('gst') }}
           .field
             .fieldlab
               span {{ $t('report.threeWayForecast.assume.gstPeriod') }}
@@ -481,7 +522,8 @@
                 :key="opt.value"
                 type="button"
                 :class="{ on: form.gstPeriod === opt.value }"
-                @click="form.gstPeriod = opt.value") {{ $t(opt.label) }}
+                @click="chooseGstPeriod(opt)") {{ opt.text || $t(opt.label) }}
+          p.tw-src(v-if="taxSource('filing')") {{ taxSource('filing') }}
           .field
             .fieldlab
               span
@@ -494,10 +536,17 @@
                 type="button"
                 :class="{ on: form.gstBasis === opt.value }"
                 @click="form.gstBasis = opt.value") {{ $t(opt.label) }}
+          p.tw-src(v-if="taxSource('basis')") {{ taxSource('basis') }}
           .field
             .fieldlab
               span {{ $t('report.threeWayForecast.assume.taxRate') }}
             b-input(v-model.number="form.taxRate" type="number" step="any" size="is-small")
+          p.tw-src(v-if="taxSource('companyTax')") {{ taxSource('companyTax') }}
+          //- 🔴 The manager's own words about which entities this rate reaches. The forecast
+          //- applies ONE flat rate and cannot judge eligibility — Australia has two company
+          //- rates behind a turnover test — so the advisor is shown what their firm said
+          //- rather than the app pretending to work it out. tax-rates.html §6.
+          p.tw-note(v-if="companyTaxAppliesTo") {{ companyTaxAppliesTo }}
 
         //- Not in the approved drawing. Mike's ruling 2026-09-03: every figure the engine
         //- takes goes on a screen, because anything left off keeps the source workbook's
@@ -1503,6 +1552,18 @@ export default {
       volatilityStale: false,
       volatilityTimer: null,
       /**
+       * The tax figures this client's country is on, as the firm's tiers have approved them
+       * (item 4.81). `null` until a country is named and the backend answers.
+       *
+       * 🔴 IT IS NOT ON THE FORM, AND THAT IS THE RULING RATHER THAN TIDINESS. The form is
+       * what gets computed; this is what a firm approved. Keeping them apart is what lets
+       * the screen OFFER a change and let the advisor decline it — a single merged value
+       * could only ever have applied itself. Mike, 2026-09-09, tax-rates.html §7.
+       */
+      resolvedTax: null,
+      /** Guards against a country typed one letter at a time firing four reads. */
+      taxTimer: null,
+      /**
        * What the shipment calculator last returned (item 4.64 slice 2). It is NOT on the
        * form: every figure in it is derived from the shipments and the terms, and a derived
        * value stored beside its inputs is a value that can disagree with them. A restored
@@ -1847,12 +1908,87 @@ export default {
       ]
     },
 
+    /** The client's country, normalised, or '' when the advisor has not said. */
+    countryCode () {
+      const code = String(this.form.country || '').trim().toUpperCase()
+      return /^[A-Z]{2}$/.test(code) ? code : ''
+    },
+
+    /** The four figures this country's approved table holds, or {} for none. */
+    countryTax () {
+      return (this.resolvedTax && this.resolvedTax.figures) || {}
+    },
+
+    /**
+     * The manager's own words about which entities the company tax rate reaches, shown to
+     * the advisor beside the rate. Absent unless a firm actually wrote one.
+     */
+    companyTaxAppliesTo () {
+      const own = this.countryTax.companyTax
+      return (own && own.appliesTo) || ''
+    },
+
+    /**
+     * How many of the four figures this country's approved table would change, and what to
+     * say about it. Empty when there is nothing to offer — no country, no approved table,
+     * or the advisor is already on every figure it holds.
+     *
+     * 🔴 IT IS AN OFFER, NEVER AN APPLICATION. See the template's note.
+     */
+    taxOffer () {
+      if (!this.countryCode || this.resolvedTax === null || this.resolvedTax.isDefault) { return '' }
+      const changes = this.countryTaxChanges
+      if (!changes.length) { return '' }
+      return this.$t('report.threeWayForecast.assume.countryTaxOffer', {
+        country: this.countryCode,
+        count: changes.length,
+        changes: changes.join('; ')
+      })
+    },
+
+    /**
+     * Which of the four differ from what is on screen, each named with both figures so the
+     * advisor reads what would move rather than a count alone.
+     *
+     * @returns {string[]}
+     */
+    countryTaxChanges () {
+      const t = this.countryTax
+      const out = []
+      const pct = v => `${Math.round(v * 1000) / 10}%`
+
+      if (t.companyTax && Math.abs(Number(this.form.taxRate) / 100 - t.companyTax.rate) > 1e-9) {
+        out.push(`${this.$t('report.threeWayForecast.assume.taxRate')} ${this.form.taxRate}% → ${pct(t.companyTax.rate)}`)
+      }
+      if (t.gst && Math.abs(Number(this.form.gstRate) / 100 - t.gst.rate) > 1e-9) {
+        out.push(`${this.$t('report.threeWayForecast.assume.gstRate')} ${this.form.gstRate}% → ${pct(t.gst.rate)}`)
+      }
+      if (t.filing && t.filing.months !== this.form.gstFilingMonths) {
+        out.push(`${this.$t('report.threeWayForecast.assume.gstPeriod')} ${this.form.gstPeriod} → ${t.filing.label}`)
+      }
+      if (t.basis && this.basisWord(t.basis.basis) !== this.form.gstBasis) {
+        out.push(`${this.$t('report.threeWayForecast.assume.gstBasis')} ${this.form.gstBasis} → ${t.basis.label}`)
+      }
+      return out
+    },
+
     gstPeriodOptions () {
-      return [
-        { value: 'One Monthly', label: 'report.threeWayForecast.assume.gstMonthly' },
-        { value: 'Two Monthly', label: 'report.threeWayForecast.assume.gstTwoMonthly' },
-        { value: 'Six Monthly', label: 'report.threeWayForecast.assume.gstSixMonthly' }
+      const legacy = [
+        { value: 'One Monthly', months: 1, label: 'report.threeWayForecast.assume.gstMonthly' },
+        { value: 'Two Monthly', months: 2, label: 'report.threeWayForecast.assume.gstTwoMonthly' },
+        { value: 'Six Monthly', months: 6, label: 'report.threeWayForecast.assume.gstSixMonthly' }
       ]
+
+      // 🔴 A COUNTRY'S OWN CYCLE JOINS THE THREE WHEN IT IS NOT ONE OF THEM (item 4.81).
+      // The workbook had three cycles and all three are New Zealand's, so Australia's
+      // quarterly BAS and the United Kingdom's quarterly VAT had no button to press. The
+      // country's own NAME is used, never a made-up one — "Every 3 months" is not what any
+      // document says, and it is the advisor's client who files the return.
+      const own = this.countryTax.filing
+      if (own && !legacy.some(o => o.months === own.months)) {
+        legacy.push({ value: own.label, months: own.months, text: own.label })
+      }
+      return legacy
     },
 
     gstBasisOptions () {
@@ -2354,6 +2490,21 @@ export default {
     },
 
     /**
+     * The client's country changed, so ask what that country's tax figures are.
+     *
+     * 🔴 IT READS, AND NOTHING ELSE. No figure on the form moves here — the answer becomes
+     * an OFFER the advisor accepts or ignores. Mike's ruling, 2026-09-09.
+     *
+     * @param {string} code the normalised two-letter code, or '' for none
+     */
+    countryCode (code) {
+      if (this.taxTimer) { clearTimeout(this.taxTimer) }
+      if (!code) { this.resolvedTax = null; return }
+      // Typed a letter at a time, so a two-letter box would otherwise fire on the first.
+      this.taxTimer = setTimeout(() => { this.loadCountryTax(code) }, 250)
+    },
+
+    /**
      * Report the working state upward so a Save carries what is on screen NOW, not only
      * what was confirmed with the Build button (item 4.62).
      *
@@ -2448,9 +2599,92 @@ export default {
   beforeDestroy () {
     if (this.volatilityTimer) { clearTimeout(this.volatilityTimer) }
     if (this.revenueTimer) { clearTimeout(this.revenueTimer) }
+    if (this.taxTimer) { clearTimeout(this.taxTimer) }
   },
 
   methods: {
+    /**
+     * Ask what tax figures this country's clients are on, as the firm's tiers approved them.
+     *
+     * ⚠ A FAILURE IS SILENT ON PURPOSE, and it is the same ruling as everywhere else in this
+     * feature — *"Never block the advisor"* (Mike, 2026-09-08). The route already degrades to
+     * the app's own four figures rather than erroring, so there is nothing an advisor could
+     * do about a failure here; the forecast carries on with exactly what it uses today.
+     *
+     * @param {string} code two-letter country code
+     */
+    async loadCountryTax (code) {
+      try {
+        const res = await fetch(`/api/report/tax-rates?country=${encodeURIComponent(code)}`, {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { this.resolvedTax = null; return }
+        const data = await res.json()
+        // Ignore an answer for a country the advisor has since typed away from.
+        if (data && data.country === this.countryCode) { this.resolvedTax = data }
+      } catch (err) {
+        this.resolvedTax = null
+      }
+    },
+
+    /**
+     * The engine's word for a stored accounting basis.
+     *
+     * @param {string} basis 'invoice' or 'cash'
+     * @returns {string} 'Invoice' or 'Cash'
+     */
+    basisWord (basis) {
+      return basis === 'cash' ? 'Cash' : 'Invoice'
+    },
+
+    /**
+     * The document one of the four figures came from, or '' when it is an app default.
+     *
+     * 🔴 AN APP DEFAULT SHOWS NOTHING, WHICH IS THE POINT. The four the forecast ships with
+     * are New Zealand's — 28%, 15%, two-monthly, invoice — and they are what every client in
+     * every country got before item 4.81. A source line under a figure is the only thing
+     * telling an advisor that somebody actually looked it up for this country.
+     *
+     * @param {string} key one of companyTax, gst, filing, basis
+     * @returns {string}
+     */
+    taxSource (key) {
+      const own = this.countryTax[key]
+      if (!own || !own.source || !own.source.document) { return '' }
+      return this.$t('report.threeWayForecast.assume.taxFrom', {
+        document: [own.source.document, own.source.published, own.source.page ? `p. ${own.source.page}` : '']
+          .filter(Boolean).join(' · ')
+      })
+    },
+
+    /**
+     * The advisor picked a filing cycle. Sets the number and the name together.
+     *
+     * @param {{value: string, months: number}} opt one of `gstPeriodOptions`
+     */
+    chooseGstPeriod (opt) {
+      this.form.gstPeriod = opt.value
+      this.form.gstFilingMonths = opt.months
+    },
+
+    /**
+     * Take this country's approved figures onto the form — only when the advisor says so.
+     *
+     * ⚠ IT APPLIES ONLY WHAT THE TABLE ACTUALLY HOLDS. A country whose firm approved the
+     * company tax rate and nothing else moves that one figure and leaves the other three
+     * exactly as they are, because the other three were never approved for it.
+     */
+    applyCountryTax () {
+      const t = this.countryTax
+      if (t.companyTax) { this.form.taxRate = Math.round(t.companyTax.rate * 1000) / 10 }
+      if (t.gst) { this.form.gstRate = Math.round(t.gst.rate * 1000) / 10 }
+      if (t.filing) {
+        this.form.gstFilingMonths = t.filing.months
+        this.form.gstPeriod = t.filing.label
+      }
+      if (t.basis) { this.form.gstBasis = this.basisWord(t.basis.basis) }
+    },
+
     /** @param {number} n @returns {string} */
     phaseFor (n) {
       if (n === 1) { return 'drop' }
@@ -2612,7 +2846,14 @@ export default {
         taxRate: 28,
         gstRate: 15,
         gstPeriod: 'Two Monthly',
+        // The cycle as a NUMBER, beside its name (item 4.81). The engine reads the number;
+        // the advisor reads the name. They are set together and never separately.
+        gstFilingMonths: 2,
         gstBasis: 'Invoice',
+        // 🔴 BLANK, NOT THE FIRM'S OWN COUNTRY. See the field's own note in the template:
+        // this app is never told which country a firm is in, and guessing would put a
+        // country's tax rules on a client who is not in it.
+        country: '',
         debtor: [10, 55, 30, 5, 0],
         creditor: [0, 90, 10, 0, 0],
         direct: { freight: 0, otherDirectExempt: 0, otherTwo: 0, commissions: 0 },
@@ -3718,7 +3959,22 @@ export default {
         creditorPayment: this.form.creditor.map(v => Number(v) / 100),
         gstRate: Number(this.form.gstRate) / 100,
         gstPeriod: this.form.gstPeriod,
+        // 🔴 THE CYCLE AS A NUMBER (item 4.81). Without it the engine falls back to reading
+        // `gstPeriod`, which only knows New Zealand's three words — so an Australian client
+        // on a quarterly BAS would silently file two-monthly, and the forecast would balance
+        // perfectly with the money leaving the bank in the wrong months.
+        gstFilingMonths: this.form.gstFilingMonths,
+        gstFilingLabel: this.form.gstPeriod,
         gstBasis: this.form.gstBasis,
+        // The country the four figures above were resolved for, so the response records it
+        // rather than leaving a reader to infer it from the figures.
+        //
+        // ⚠ THE ENGINE IGNORES IT, AND "SAVED WITH THE FORECAST" IS NOT TRUE YET. The
+        // approved drawing says reopening an old forecast must resolve the figures it was
+        // built on rather than whatever has been approved since — that needs this screen's
+        // saved shape, which is item 4.62's last unbuilt screen. Until it exists the country
+        // lives on the form for the session and no further. Stated rather than implied.
+        country: this.countryCode,
         shareholderInterestRate: Number(this.form.shareholderRate) / 100,
         shareholders: this.form.shareholders.map((s, i) => ({
           name: this.$t('report.threeWayForecast.confirm.shareholder', { n: i + 1 }),
@@ -3889,6 +4145,11 @@ export default {
 .tw-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rs-accent-bright); }
 .tw-h2 { margin: 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rs-muted); font-weight: 600; }
 .tw-note { font-size: 11.5px; color: var(--rs-muted); margin: 10px 0 0; }
+/* Where a tax figure came from (item 4.81). Sits directly under its own field and is
+   quieter than the field, because it is provenance rather than a control — but it is
+   present, which is the only thing telling an advisor the figure was looked up for this
+   country rather than being the app's New Zealand default. */
+.tw-src { font-size: 11px; color: var(--rs-muted); margin: -6px 0 8px; font-style: italic; }
 .tw-foot { font-size: 12px; color: var(--rs-muted); }
 .tw-foot.is-good { color: var(--rs-good); font-weight: 600; }
 .tw-foot.is-crit { color: var(--rs-crit); font-weight: 600; }
