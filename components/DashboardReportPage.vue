@@ -110,7 +110,10 @@ export default {
 .drd-tag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border-radius: 999px; padding: 1px 6px; margin-top: 3px; }
 .drd-tag.is-uses { background: var(--drd-tint-caution); color: #8a5a00; }
 .drd-tag.is-rel { background: var(--drd-tint-good); color: #2f6b19; }
-@media (max-width: 900px) {
+/* `screen` on purpose: Chrome lays an A4 landscape sheet out at 842px, so without it this
+   phone breakpoint fires on paper and stacks every page into one tall column (found in
+   Mike's printed PDF, 2026-09-09). The same word guards the three sibling breakpoints. */
+@media screen and (max-width: 900px) {
   .drd-page { aspect-ratio: auto; padding: 22px 18px 56px; }
   .drd-tiles { grid-template-columns: 1fr 1fr; }
   .drd-strip { grid-template-columns: 1fr 1fr; }

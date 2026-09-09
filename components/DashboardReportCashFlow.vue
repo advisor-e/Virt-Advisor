@@ -162,7 +162,7 @@ export default {
 .drd-c.is-uses { background: var(--drd-tint-caution); color: #8a5a00; }
 .drd-c.is-releases { background: var(--drd-tint-good); color: #2f6b19; }
 .drd-c.is-none { background: var(--drd-tint-sky); color: var(--drd-muted); }
-@media (max-width: 900px) {
+@media screen and (max-width: 900px) {
   .drd-cycle { grid-template-columns: 1fr 1fr; }
   .drd-op { display: none; }
   .drd-drivers { grid-template-columns: 1fr 1fr; }

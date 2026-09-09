@@ -308,9 +308,16 @@ Buefy tooltip was dead in the app while every test passed (4.67); register the c
 with reconstructed exports: six steps, the eight drop zones, twelve landscape pages with the
 Sales Volatility page added, the browser's print. The stage 5 walk found and fixed two faults the
 suite could not see: page 7's month labels overlapped, and the Sales Volatility page overran its
-frame. Nothing has been run against a real export yet — no real annual, by-month or stock file
-from any client has been read. The eight benchmark ratios on page 7 are computed on Stats NZ's
-own definitions (stage 3).
+frame. **The first real-export walk was Mike's, 2026-09-09:** a real client's annual export
+through all six steps and the browser's print to PDF. It found four faults the suite could not
+see, all fixed the same day — step 1's size bands could not be ticked (`b-radio` was never
+registered in `plugins/buefy.js`, the glossary tooltip's failure again); the advisor's strip
+printed at the top of the client's report (the print rule named the tags, not the classes the
+components render); the Model Library frame's padding still applied on paper and pushed every
+page onto two sheets; and the 900px phone breakpoint fired on paper, because Chrome lays an A4
+landscape sheet out at 842px, stacking every two-column grid (the four breakpoints are now
+scoped to `screen`). No by-month or stock file from a real client has been read yet. The eight
+benchmark ratios on page 7 are computed on Stats NZ's own definitions (stage 3).
 
 ---
 

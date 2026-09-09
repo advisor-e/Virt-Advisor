@@ -176,5 +176,10 @@ export default {
 @media print {
   .steps { display: none !important; }
   .report-shell ::v-deep .rs-top { display: none !important; }
+  /* The document's pages fill a sheet edge to edge (one page per sheet, DashboardReportPage).
+     The shell's frame padding and column width are for the screen: left in place they push
+     every printed page 28px down and onto a second sheet (found in the print preview
+     2026-09-09). This screen alone lifts them; the other reports print inside the frame. */
+  .report-shell ::v-deep .report-shell__wrap { padding: 0; max-width: none; }
 }
 </style>

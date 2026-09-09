@@ -414,5 +414,8 @@ export default {
 <style scoped>
 /* Root: a flex column with ONE gap (16px) so header→band→step space uniformly. */
 .drb-root { display: flex; flex-direction: column; gap: 16px; }
-@media print { .drb-root > .hero-strip, .drb-root > .stale-banner { display: none !important; } }
+/* The strip and the banner are the advisor's screen, never the client's paper. Their rendered
+   root classes are `.herostrip` and `.stale` — not the tag names — or the rule matches nothing
+   and every printed page slides down a sheet (found in the print preview 2026-09-09). */
+@media print { .drb-root > .herostrip, .drb-root > .stale { display: none !important; } }
 </style>

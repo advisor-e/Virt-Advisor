@@ -134,5 +134,5 @@ export default {
 .drd-rv { font: 700 26px/1.1 var(--drd-serif); color: var(--drd-navy); margin: 6px 0 8px; }
 .drd-rk { font-size: 12.5px; color: var(--drd-muted); }
 .drd-defs { margin-top: 10px; }
-@media (max-width: 900px) { .drd-ratios { grid-template-columns: 1fr 1fr; } }
+@media screen and (max-width: 900px) { .drd-ratios { grid-template-columns: 1fr 1fr; } }
 </style>

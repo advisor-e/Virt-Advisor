@@ -78,7 +78,7 @@ export default {
 .drd-toc b { font-size: 16px; color: var(--drd-ink); }
 .drd-toc small { display: block; color: var(--drd-muted); font-size: 12.5px; margin-top: 2px; }
 .drd-toc-note { margin-top: 14px; }
-@media (max-width: 900px) {
+@media screen and (max-width: 900px) {
   .drd-cover-title { font-size: 40px; margin-top: 36px; max-width: 100%; }
   .drd-c1, .drd-c2, .drd-c3 { display: none; }
   .drd-toc { grid-template-columns: 1fr; }
