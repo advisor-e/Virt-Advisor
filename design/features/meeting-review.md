@@ -376,14 +376,24 @@ their own client. It is worth building as a visible setting rather than a buried
    being nobody's: a firm declares in its own words that it has read and understands the law where
    it operates, and Meeting Review does not open until it has. **Advisor-e still assesses nothing**,
    which is the point.
-7. 🔴 **The client's rights — OURS, UNBUILT, AND NOW NAMED RATHER THAN DESCRIBED.** A named
-   individual may ask for a copy of what was recorded about them, or its correction or deletion.
-   There is **no route that serves it** — the data is findable and it can be answered by hand, but
-   nothing in the software supports it. It is **finding B of
-   [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md) §10**, which is where its state is
-   maintained. ⚠ **It is materially more serious in a UK/EU market than in New Zealand**: IPP6 and
-   IPP7 are rights of access and correction, where GDPR adds erasure and portability as hard rights
-   with a one-month deadline.
+7. ✅ **The client's rights — BUILT 2026-09-10, and this item is CLOSED.** A named individual may
+   ask for a copy of what was recorded about them, its correction, or its deletion, and the
+   **Client Copy Request** tab now serves all three. Asked for by Mike that day — *"you also need
+   to include the feature for a client to request a copy of the meeting notes - that should be in
+   the drawing prior to build"* — drawn as
+   [`../mockups/client-record-request.html`](../mockups/client-record-request.html), all eight of
+   its questions ruled the same day, and built on his *"go build it"*.
+   🔴 **The four rulings a later reader most needs, because two reversed the recommendation:**
+   a client gets the **transcript and the Meeting Summary and never My Coaching Notes** — *"our
+   performance report is part of the advisors training and quality control for the firm - clients
+   never get these notes"*; **the recording advisor alone releases a meeting**, so a request
+   spanning several advisors is answered by each in turn and no one person can answer it; a firm
+   manager may release only through a **break-glass declaration that the advisor can no longer
+   act**; and a correction is an **attached statement, never an edit to the transcript**.
+   ⚠ **It was materially more serious in a UK/EU market than in New Zealand** — IPP6 and IPP7 are
+   access and correction, where GDPR adds erasure and portability as hard rights with a one-month
+   deadline — which is why **early deletion and a firm-set deadline with its own unit** were built
+   now rather than at the point of selling into a second market.
 
 ---
 
@@ -416,6 +426,9 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | The manager's aggregate | `server/utils/meetingAggregate.js`, `server/routes/meetingPatterns.js`, `components/firm/FirmMeetingPatterns.vue` | ✅ **BUILT (slice 4, 2026-09-07)** — counts per point over the current month, above Mike's 5-advisor / 20-meeting gate. 🔴 **FIRM TIER ALONE and it does NOT cascade upward** — P13, and the route answers every tier above the firm **403** rather than an empty screen, because an empty screen reads as "your firm did nothing". No advisor identifier leaves `meetingAggregate.js`: advisors are counted and then forgotten, so the shape cannot carry one |
 | Follow-through, and the client on the record | `server/utils/meetingFollowThrough.js`; `clientId` on the meeting record; the picker on `pages/meeting-record.vue` | ✅ **BUILT (slice 6, 2026-09-07)** — 🔴 **it matches on the CLIENT**, which is the whole reason the client is now stored: matching on the advisor and meeting type alone would check one client's agreed actions against another client's transcript and read as an ordinary report. 🔴 **Same advisor too, per P2.** No client on the record means **no match, never a guess**. The check rides the coaching call as extra points rather than a third prompt, so the citation guard covers it unchanged. An **expired** previous meeting is reported as expired, never as "no actions agreed". **The screen is built too** — `components/MeetingReview.vue`, from [`../mockups/meeting-review-follow-through.html`](../mockups/meeting-review-follow-through.html), approved 2026-09-07 with all four questions ruled: the block sits above the observation points, the heading is *"Since we last met"*, the labels are *"You raised it"* / *"Not raised"* (🔴 **not "Done" / "Not done" — the software cannot know it**), and the expired panel names the firm's own retention period. **Three empty states, and they must not read the same** |
 | Transcript expiry | `server/utils/meetingPurge.js`, swept daily from `restify-server.js` | ✅ **BUILT (slice 5, 2026-09-07)** — deferred by Mike on 2026-09-01 and built on his word *"finish the meeting review"*. 🔴 **Each meeting expires on the period stored on ITS OWN record — what the client was shown that day — never the firm's current dial**, which would silently extend a transcript somebody was promised would be gone. 🔴 **The two reports go with the transcript**, because every coaching finding quotes it verbatim; deleting `transcript.json` alone keeps the client's words in two other files. ⚠ **A meeting with no recorded period is never purged**, only reported — it cannot be expired against a promise nobody can produce. The meeting record survives, stamped `transcriptPurgedAt`, so the expiry is provable rather than a directory that quietly went missing (P8) |
+
+| A client asks for a copy | `server/utils/clientCopyRequests.js`, `server/utils/copyRequestDeadline.js`, `server/routes/clientCopyRequests.js`, `components/firm/FirmClientCopyRequests.vue`, `components/shared/ClientCopyRequestDetail.vue` | ✅ **BUILT 2026-09-10** — §4 item 7 and finding B of the assessment, closed. Asked for by Mike that day and ruled the same day, eight rulings: [`../mockups/client-record-request.html`](../mockups/client-record-request.html). 🔴 **THE ADVISOR ALONE RELEASES A MEETING**, which reversed the drawing's own recommendation and reshaped the screen — a client's request reaches across every advisor who ever met them, so it is shared work under one clock and **a build offering one caller a "release everything" button has not built what was ruled**. A firm manager reaches another advisor's meeting only through the **break-glass** of ruling 2b, declaring they can no longer act; the declaration is unverifiable by design — this app holds no advisors table and does not handle sign-in — so the permanent named record IS the control. 🔴 **THE COACHING NOTES ARE NEVER RELEASED**, in Mike's words, and the drawing's own fallback of releasing the client's quotations without the observations is **dropped, not deferred**. An **unapproved** Meeting Summary is not released either (P7 — the app writes, the advisor publishes). A correction is an **attached statement, never an edit** — every finding is verified against the transcript before storage, so an edit would strand findings that still read as evidenced. Early deletion calls the **same `destroyTranscript` the retention sweep calls**, taking both reports and any correction with it, and stamps `deletedForClientAt` so the deletion is provable. **FIRM TIER ALONE per P13, and unlike every other narrow tab it can never gain a tier** — cascading it upward would break the promise a named client heard. Storage is one row per writer (item 4.75's lost-update fault, which ruling 2 walks into); no schema change, no new dependency, **and no model is called anywhere in the feature**. ⚠ **The advisor's NAME is captured on the meeting record from 2026-09-10 and is absent on every meeting before it** — no advisors table to backfill from, so the screen shows the identifier rather than inventing a name |
+| Transcript expiry — a client's own statement | `CORRECTIONS_FILE` in `server/utils/meetingAudioStore.js` | ✅ **BUILT 2026-09-10** — a correction lives beside the transcript and **dies with it**, in `destroyTranscript`'s own list. It quotes the passage it disputes, so keeping it past the retention clock would preserve the client's words in a file the promise never mentioned — the same argument that puts the two reports there |
 
 **✅ SETTLED IN SLICE 3 — the question slice 1 deliberately left open.** A point such as *"I drew
 the numbers out for the client"* cannot be heard on audio (§3), and the drawing shows it as a third

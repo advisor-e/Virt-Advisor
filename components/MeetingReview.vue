@@ -10,6 +10,39 @@
     |  nothing to show.
 
   template(v-else)
+    //- ── Screen E of design/mockups/client-record-request.html ────────────────────────
+    //- What an advisor must be told about their own meeting. Neither can be dismissed: the
+    //- second time somebody reads these notes is exactly when it matters.
+    //-
+    //- 🔴 A CORRECTION ALWAYS SHOWS. A client can dispute a passage months later, and a
+    //- coaching finding whose evidence is now disputed must not read as settled.
+    b-message(v-if="corrections.length" type="is-info" size="is-small")
+      p.mb-1
+        b Your client has attached a statement to this meeting.
+      p(v-for="c in corrections" :key="c.id")
+        span(v-if="c.quoteAt") At {{ c.quoteAt }}, your client
+        span(v-else) Your client
+        |  disputes what the transcript records.
+        template(v-if="c.quote")
+          |  The passage: #[i “{{ c.quote }}”]
+        br
+        | Their statement: #[i “{{ c.statement }}”]
+      p.is-size-7.has-text-grey.mt-2
+        | The transcript has not been changed, and nothing in your notes has been altered. A
+        |  transcript records what was said rather than a claim about the world, so your
+        |  client’s statement is attached to it and travels with it from now on.
+
+    //- 🔴 A RELEASE SHOWS ONLY WHERE THE BREAK-GLASS WAS USED (ruling 2b). An advisor who
+    //- released their own meeting does not need telling that they did — the backend returns
+    //- nothing for that case, so this banner cannot appear for it.
+    b-message(v-if="releasedWithoutYou" type="is-info" size="is-small")
+      p.mb-1
+        b This meeting was released to your client on
+          |  {{ noticeDate(releasedWithoutYou.at) }} by {{ releasedWithoutYou.releasedBy }}.
+      p
+        | They recorded that you could no longer act on your client’s request. The transcript
+        |  and the Meeting Summary went; #[b these coaching notes did not, and never do.]
+
     //- P11. A failure says so in those words. A tidy page of "no observations" must never be
     //- what a total failure looks like.
     b-message(v-if="state === 'failed'" type="is-danger" size="is-small")
@@ -306,6 +339,14 @@ export default {
       state: 'none',
       error: null,
       attributionConfident: null,
+      /**
+       * Screen E. A client's attached correction statements, and a release made under the
+       * break-glass. Both default empty so a notices call that fails leaves the reports
+       * readable rather than taking the page down — the notices are additions to the record,
+       * never the record itself.
+       */
+      corrections: [],
+      releasedWithoutYou: null,
       summary: null,
       coaching: null,
       segments: [],
@@ -386,6 +427,46 @@ export default {
       } finally {
         this.loading = false
       }
+      await this.loadNotices()
+    },
+
+    /**
+     * Screen E's two banners — a client's attached correction, and a break-glass release.
+     *
+     * ⚠ ITS FAILURE IS SWALLOWED, DELIBERATELY, AND THIS IS THE ONE PLACE IN THIS COMPONENT
+     * THAT SWALLOWS ONE. P11 says a failed report must never look like a quiet page, and that
+     * still holds — the reports are loaded above and their failure is shown in those words.
+     * These notices are additions to a record that has already loaded, so a notices call that
+     * fails must not replace two working reports with an error. The cost is real and is stated
+     * here rather than hidden: a correction could go unseen if this call fails.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadNotices () {
+      try {
+        const res = await fetch(
+          `/api/meeting/recordings/${this.meetingId}/client-notices`,
+          { headers: { Authorization: `Bearer ${this.apiToken}` } }
+        )
+        if (!res.ok) { return }
+        const data = await res.json()
+        this.corrections = data.corrections || []
+        this.releasedWithoutYou = data.releasedWithoutYou || null
+      } catch (_e) {
+        // See the note above.
+      }
+    },
+
+    /**
+     * A notice's date, as an advisor reads it.
+     * @param {string} iso
+     * @returns {string}
+     */
+    noticeDate (iso) {
+      if (!iso) { return 'an unrecorded date' }
+      const at = new Date(iso)
+      if (isNaN(at.getTime())) { return 'an unrecorded date' }
+      return at.toLocaleDateString('en-NZ', { day: 'numeric', month: 'long', year: 'numeric' })
     },
 
     /** Every call to the reports API, with both failure modes handled in one place. */

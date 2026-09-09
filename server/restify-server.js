@@ -125,6 +125,7 @@ const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
+const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const { firmAuth, entityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 const clientReportsRoute = require('./routes/clientReports')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -566,6 +567,42 @@ server.put('/api/meeting/recordings/:meetingId/reports/summary', firmAuth, mr.sa
 server.post('/api/meeting/recordings/:meetingId/reports/summary/approve', firmAuth, mr.approveSummary)
 server.post('/api/meeting/recordings/:meetingId/reports/coaching/dispute', firmAuth, mr.disputeFinding)
 server.post('/api/meeting/recordings/:meetingId/reports/coaching/heard', firmAuth, mr.answerCannotHear)
+
+// ── A client asks for a copy of what was recorded about them ────────────────────────────
+// design/mockups/client-record-request.html, ruled by Mike 2026-09-10. IPP6 access, IPP7
+// correction — finding B of MEETING-REVIEW-DPIA.md §10.
+//
+// 🔴 `firmAuth` ONLY ON THE REQUEST ROUTES, NOT `fmGuard`, AND THAT IS RULING 2. The advisor
+// alone releases a meeting, so an advisor must be able to open the request they are being
+// waited on for. Each handler then checks the meeting's stored owner against `req.advisorId`,
+// exactly as `ownedMeeting` does above — a caller sees every meeting on a request, because it
+// is the CLIENT's request, and may act only on the ones they recorded.
+//
+// 🔴 THE ONE EXCEPTION IS `release-absent`, THE BREAK-GLASS OF RULING 2b — manager-gated, and
+// refused without the declaration that the recording advisor can no longer act.
+const ccrRoute = clientCopyRequestsRoute
+server.get('/api/firm-manager/client-copy-deadline', ...fmGuard, ccrRoute.getDeadline)
+server.put('/api/firm-manager/client-copy-deadline', ...fmGuard, ccrRoute.setDeadline)
+server.post('/api/firm-manager/client-copy-deadline/reset', ...fmGuard, ccrRoute.resetDeadline)
+
+server.get('/api/client-copy-requests', firmAuth, ccrRoute.listRequests)
+server.post('/api/client-copy-requests', firmAuth, ccrRoute.logRequest)
+server.get('/api/client-copy-requests/:requestId', firmAuth, ccrRoute.getRequest)
+server.post('/api/client-copy-requests/:requestId/close', firmAuth, ccrRoute.closeRequest)
+server.post('/api/client-copy-requests/:requestId/meetings/:meetingId/release',
+  firmAuth, ccrRoute.releaseMeeting)
+server.post('/api/client-copy-requests/:requestId/meetings/:meetingId/release-absent',
+  ...fmGuard, ccrRoute.releaseAbsent)
+server.post('/api/client-copy-requests/:requestId/meetings/:meetingId/correction',
+  firmAuth, ccrRoute.attachCorrection)
+server.post('/api/client-copy-requests/:requestId/meetings/:meetingId/delete',
+  firmAuth, ccrRoute.deleteMeetingText)
+
+// Screen E — what the advisor is told about their own meeting. `firmAuth` only, and the
+// handler guards on `req.advisorId` as well: P2 gives a recording and its notices to the
+// advisor who made it.
+server.get('/api/meeting/recordings/:meetingId/client-notices',
+  firmAuth, ccrRoute.meetingNotices)
 
 // Share a prompt — Lane A (item 4.31, steps 1–3). Checks a pasted prompt and stores
 // nothing. That route is deliberately incapable of writing anywhere; Lane B below is a

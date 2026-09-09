@@ -195,6 +195,16 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('meetingObservations')" v-show="activeTab === 'meetingObservations'")
         firm-meeting-observations(:api-token="apiToken")
 
+      //- Client Copy Request — a client asks for a copy of what was recorded about them
+      //- (Mike, 2026-09-10). IPP6 access and IPP7 correction: finding B of
+      //- design/MEETING-REVIEW-DPIA.md §10, the last open gap in Meeting Review that was ours.
+      //- 🔴 THE TAB NAME IS HIS OWN WORD and replaced ours. Pinned; not to be reworded, and
+      //- not to be made plural. design/mockups/client-record-request.html.
+      //- 🔴 NOT A CLIENT PORTAL — there is no client sign-in in this application. A request
+      //- arrives by email or in the room and somebody at the firm records it here.
+      div.hub-panel(v-if="showsTab('clientCopyRequests')" v-show="activeTab === 'clientCopyRequests'")
+        firm-client-copy-requests(:api-token="apiToken")
+
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
@@ -811,6 +821,7 @@ import FirmDepreciationRates from '~/components/firm/FirmDepreciationRates.vue'
 import FirmTaxRates from '~/components/firm/FirmTaxRates.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
+import FirmClientCopyRequests from '~/components/firm/FirmClientCopyRequests.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -1088,7 +1099,20 @@ const TAB_TIERS = {
   //
   // Per-advisor and per-entity editing is simply NOT BUILT YET — the cascade currently
   // ends at the firm. Its absence is an unfinished feature, never a permission decision.
-  meetingObservations: ['mentor', 'global', 'group', 'firm']
+  meetingObservations: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 THE FIRM ALONE, AND IT IS THE SAME RULING AS THE MANAGER'S AGGREGATE RATHER THAN A
+  // DIFFERENT ONE. Brief P13: nothing derived from a recorded meeting travels beyond the firm
+  // it came from, because the consent line promises a named client exactly that. A client's
+  // request, the meetings it reaches and every release recorded against it are all derived
+  // from recorded meetings, so this runs at the firm and the routes answer a tier above it
+  // nothing of substance.
+  //
+  // ⚠ NOT the default-is-mentor-alone case (2026-08-24) with the tiers left off for economy.
+  // It is the opposite direction: cascading this UPWARD would break a promise, so no later
+  // "real need" adds a tier here. That is what separates it from every other line in this
+  // object, and it is why the reason is written out rather than assumed.
+  clientCopyRequests: ['firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
@@ -1179,7 +1203,20 @@ const NAV_GROUPS = [
       // find and quote in a meeting transcript. Both machines appended to this group on
       // the same day; the firm's Template Library reached master first, so it keeps its
       // place and this one follows it — appending still moves nothing already on screen.
-      { key: 'meetingObservations', label: 'Meeting Review' }
+      { key: 'meetingObservations', label: 'Meeting Review' },
+      // 🔴 THE LABEL IS MIKE'S OWN WORD, 2026-09-10 — "name it 'Client Copy Request'" — and it
+      // REPLACED ours ("Client Requests"). Pinned; no session rewords it, including to make it
+      // plural. ⚠ One mismatch recorded rather than quietly corrected: the tab is named for
+      // copies and also carries corrections and deletions, which are not copies.
+      //
+      // ⚠ THE GROUP IS A JUDGEMENT AND IT IS THE LEAST WRONG ONE, stated rather than assumed.
+      // This heading says "Your AI coach" and THIS FEATURE USES NO AI AT ALL — it moves text a
+      // firm already holds. It sits here because it is entirely about meeting records, so it is
+      // where somebody would look for it, directly under Meeting Review. The alternative was a
+      // fifth heading, and the four headings are Mike's own words; inventing one unasked is the
+      // thing the gate ruling of 2026-08-26 exists to prevent. Appended at the END, as
+      // aiPrompts was: appending moves nothing already on a manager's screen.
+      { key: 'clientCopyRequests', label: 'Client Copy Request' }
     ]
   },
   {
@@ -1268,7 +1305,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

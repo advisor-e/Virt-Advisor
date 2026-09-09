@@ -247,10 +247,14 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   recorded meeting leaves the firm, and a named client heard that promised aloud. Tiers above the
   firm are answered <b>403</b>, never an empty screen.</p>
 
-  <p>✅ <b>EVERY QUESTION IS RULED — see §Rulings at the foot.</b> Eight rulings, all given by Mike
-  on 2026-09-10, one at a time. <b>Two reversed the recommendation</b> and one <b>dissolved</b>,
-  so anyone building from the recommendations builds the wrong screen. Read the rulings, not the
+  <p>✅ <b>EVERY QUESTION IS RULED, AND IT IS BUILT — 2026-09-10, on his word "go build it".</b>
+  Eight rulings, one at a time. <b>Two reversed the recommendation</b> and one <b>dissolved</b>, so
+  anyone building from the recommendations builds the wrong screen. Read the rulings, not the
   drawing's first instincts — both are kept side by side deliberately.</p>
+  <p>🔴 <b>AND THE BUILD'S OWN DIFFERENCES FROM THIS PAGE ARE NAMED AT THE FOOT, under "Built
+  2026-09-10".</b> The first of them is a control this drawing showed and the first cut of the
+  code did not have — found by putting the two side by side, which is the whole reason that step
+  exists.</p>
 
   <p>🔴 <b>YOUR WORDS WERE "MEETING NOTES", AND RULING 1 SETTLED WHICH.</b> Three things carried
   that meaning — the transcript, the client's Meeting Summary, and the advisor's My Coaching Notes,
@@ -903,9 +907,17 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   the retention dial.</b></p>
   <p class="rec">Recommended: the same.</p>
   <p>🔴 <b>THE UNIT IS PART OF THE SETTING, NOT DECORATION.</b> New Zealand allows <b>20 working
-  days</b>; the UK and EU work to <b>one calendar month</b>. Those are different lengths — 20
-  working days is roughly 28 calendar days — so a UK firm shown "20 working days" would believe it
-  had longer than it has. A build storing a bare number has built the wrong thing.</p>
+  days</b>; the UK and EU work to <b>one calendar month</b>. A build storing a bare number has
+  built the wrong thing.</p>
+  <p>⚠ <b>CORRECTED DURING THE BUILD, BECAUSE THIS PARAGRAPH HAD IT BACKWARDS.</b> It read that
+  20 working days is "roughly 28 calendar days, so a UK firm shown 20 working days would believe
+  it had longer than it has". The arithmetic is the other way round, and a test now pins it:
+  <b>20 working days is EXACTLY four weeks — 28 calendar days, from any weekday</b>, before public
+  holidays. A calendar month is 28 to 31, so <b>the month is always at least as long</b>, equal
+  only across a non-leap February. <b>Which makes one substitution merely wrong and the other
+  dangerous:</b> showing a UK firm New Zealand's figure has them answer early and harmlessly;
+  showing a New Zealand firm "one calendar month" hands them up to three days they do not legally
+  have, on a screen that looks entirely reasonable.</p>
   <p><b>Rejected:</b> hanging the figure off the country tables that Tax Rates and Depreciation
   Rates now use. That is a great deal of apparatus for one number, and it would make the deadline
   depend on the <b>client's</b> country when it depends on the <b>firm's</b>.</p>
@@ -964,14 +976,94 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   a small firm says it. A tab nobody understands is a tab nobody opens.</p>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">✅ Built 2026-09-10 — and what the build changed</div>
+
+<div class="notice good">
+  <b>BUILT THE SAME DAY IT WAS RULED, on Mike's word "go build it".</b>
+  Suite green, 9,092 tests. <b>Every difference between this drawing and the code is named
+  below</b> — that is the Save-the-Artefact rule, and it is the step that found the first item
+  on this list.
+</div>
+
+<div class="q">
+  <h3>🔴 1 · The two ticks were missing from the build, and the drawing found them</h3>
+  <p><b>Screen B carries two tick-boxes before anything is released</b> — <i>"I have confirmed I
+  am dealing with Priya Raman"</i> and <i>"I have read what is being provided"</i> — and the first
+  version of the routes required neither. Putting this page beside the code is what turned that
+  up; no test would have, because nothing was asserting a control nobody had built.</p>
+  <p>🔴 <b>It matters because those ticks ARE ruling 8.</b> "Warn, and remove nothing
+  automatically" is only a control if somebody actually passed through the warning. Without them
+  the third-party paragraph is a notice beside a button rather than something a person went past.
+  <b>Both are now enforced on the ROUTE, not the screen</b> — a disabled button is not a control,
+  and a caller who never loaded the screen would have sailed straight past it.</p>
+  <p><b>Screen D's two ticks were collapsed into one and are now two again</b>, because they say
+  different things: without <i>"my client asked for this"</i>, a firm could destroy a record for
+  its own reasons and have the surviving stub read afterwards as a client's request. <b>Screen B2
+  gained the reading tick too</b> — the break-glass does not excuse it; if anything it matters
+  more, because the person releasing was never in the room.</p>
+</div>
+
+<div class="q">
+  <h3>⚠ 2 · An older meeting cannot name its advisor</h3>
+  <p>This drawing says <i>"Recorded by Owen Fraser"</i>. <b>The application holds no advisors
+  table</b> — <code>config/db-schema.sql</code> says so four times — so a name is now captured on
+  the meeting record when the recording starts. <b>Every meeting recorded before 2026-09-10 has
+  none</b>, and the screen falls back to the advisor's identifier.</p>
+  <p>🔴 <b>It is not backfillable and no lookup was invented for it.</b> That is the same wall the
+  "4 of 12" denominator met on the advisor's-own-level screen, and the same answer: a plausible
+  wrong name is worse than an honest id.</p>
+</div>
+
+<div class="q">
+  <h3>⚠ 3 · The clock runs slightly fast, deliberately</h3>
+  <p><b>Working days mean weekdays. Public holidays are not counted out and cannot be</b> — this
+  application holds no holiday calendar for any country, and inventing one would be worse than
+  having none.</p>
+  <p>So <b>the due date is EARLIER than a strict legal reading</b>: excluding only weekends uses
+  the allowance up faster. That is the safe direction — the firm is prompted sooner than it must
+  be — and it is why the screen calls the clock a working aid rather than a legal calculation. A
+  test holds the direction in place, so a later "improvement" that padded the count cannot quietly
+  push real due dates past the law.</p>
+</div>
+
+<div class="q">
+  <h3>⚠ 4 · Three units, and an unapproved summary is not released</h3>
+  <p><b>THREE units, not two:</b> working days, calendar days and calendar months. The third
+  exists solely so "one calendar month" can be stored as itself rather than approximated as 28 or
+  30 days — an approximation would replace a legal deadline with one nobody chose.</p>
+  <p>🔴 <b>AND A MEETING SUMMARY THE ADVISOR NEVER APPROVED IS NOT RELEASABLE</b>, which this
+  drawing shows as a red tag without saying what follows from it. P7 makes the summary a DRAFT
+  until the advisor approves it — <i>"the app writes; the advisor publishes"</i> — so handing a
+  client an unapproved draft would publish on the advisor's behalf, the one thing P7 exists to
+  prevent. The transcript still goes; the release records what the meeting <b>actually held</b>,
+  never what was ticked.</p>
+</div>
+
+<div class="q">
+  <h3>⚠ 5 · Deletion takes a fourth thing, and the tab sits under an ill-fitting heading</h3>
+  <p><b>Screen D lists the transcript and both reports. The build removes a fourth:</b> any
+  correction statement attached to that meeting. It quotes the passage it disputes, so leaving it
+  behind would keep the client's words in a file the promise never mentioned — the same argument
+  the drawing already makes for the two reports.</p>
+  <p><b>The tab lives in the hub group headed "Your AI coach", and this feature uses no AI at
+  all.</b> Stated rather than quietly accepted: it sits there because it is entirely about meeting
+  records and is directly under Meeting Review, which is where somebody would look for it. The
+  alternative was a fifth heading, and the four headings are Mike's own words.</p>
+</div>
+
 <div class="mock" style="margin-top:26px">
-  <p><b>Where this lands once it is ruled.</b> The request record follows
-  <code>clientReportAccess.js</code> exactly — one firm-scoped overlay key, keyed by the client
-  register's own id — so version history and restore come for free. Finding a client's meetings
-  reuses the walk <code>meetingFollowThrough</code> already performs, minus the advisor filter.
-  Deletion calls the same <code>destroyMeeting</code> the retention sweep calls, so there is one
-  removal path and not two that must agree.</p>
-  <p><b>No schema change, and no new dependency.</b></p>
+  <p><b>Where it landed, and it is where this drawing said it would.</b> The request record
+  follows <code>clientReportAccess.js</code> — firm-scoped overlay keys on the client register's
+  own id — so version history and restore come free. Finding a client's meetings reuses the walk
+  <code>meetingFollowThrough</code> already performs, minus the advisor filter. Deletion calls the
+  same <code>destroyTranscript</code> the retention sweep calls, so there is one removal path and
+  not two that must agree.</p>
+  <p>🔴 <b>ONE ROW PER WRITER, WHICH RULING 2 MADE NECESSARY.</b> A release is addressed by
+  request AND meeting, so two advisors releasing their own parts of one request can never
+  overwrite each other. That is item 4.75's lost-update fault, and ruling 2 walks straight into
+  it — a single row holding every release would lose one and show a client's meeting as sent.</p>
+  <p><b>No schema change, no new dependency, and no model is called anywhere in the feature.</b></p>
 </div>
 
 </div>

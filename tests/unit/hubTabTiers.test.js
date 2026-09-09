@@ -82,8 +82,18 @@ const MENTOR_BEFORE = [
  *   a tab's name predicts what is inside it, and these are the tax rates that name promised.
  *   All four tiers for the reason stated in `TAB_TIERS.taxRates` — a tax rate is national, and
  *   a firm must not wait on the tier above, which is his own ruling on the sibling.
+ * - `clientCopyRequests` — Mike, 2026-09-10: *"you also need to include the feature for a client
+ *   to request a copy of the meeting notes."* The tab's name is his own word too, ruling 9 of
+ *   `design/mockups/client-record-request.html` — *"name it 'Client Copy Request'"*.
+ *   🔴 **THE FIRM ALONE, AND IT IS THE ONLY ENTRY ON THIS LIST THAT CAN NEVER GAIN A TIER.**
+ *   Every other narrow line here is the default-is-mentor-alone ruling of 2026-08-24, which
+ *   says a tier is added the moment one has a real reason. This is the opposite direction:
+ *   Brief **P13** keeps everything derived from a recorded meeting inside the firm it came
+ *   from, because the consent line promises a named client exactly that — so cascading it
+ *   upward would break a promise rather than add a feature. Same ruling as the manager's
+ *   aggregate, which is firm-tier-only for the same sentence.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
