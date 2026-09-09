@@ -41,8 +41,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 4 | **4.80** "Global manager" is the old name and it is still in 45 places ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 5 | **4.81** The forecast's tax rates are New Zealand's, hardcoded, for every country ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 6 | **4.82** Nothing caps how many paid AI readings an advisor can trigger ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 7 | **4.83** Compliance pages in the four manager hubs ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
+| 8 | **4.84** Notification dots on every hub tab ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**Six live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Eight live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

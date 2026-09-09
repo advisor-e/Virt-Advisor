@@ -184,6 +184,48 @@
       "touches": "server/restify-server.js, where the advisor's load route and the manager's sit beside each other, and server/routes/depreciationRates.js loadDocument, which both reach and which calls the model. A cap belongs there, never on the screen - a screen-side limit is not a limit.",
       "note": "NO CAP EXISTS ANYWHERE TODAY, on the advisor's route or the manager's. The store's 20-document limit is not one: it trims AFTER the model has been paid. Mike's ruling of 2026-09-08 that an advisor may load is NOT in question here - only whether the loading is capped, and at what. A first cap could be per firm per day, which needs nothing this app does not already know.",
       "comment": "2026-09-09 - filed at shutdown on Mike's yes, having first been written as a warning inside 4.78's note. That is the shape this list explicitly refuses: a hazard nobody owns gets described repeatedly and fixed never. Scored 2 rather than 5 deliberately - no data leaks, no wrong figure reaches a client, and it takes an authenticated advisor inside a real firm to spend anything."
+    },
+    {
+      "ref": "4.83",
+      "name": "Compliance pages in the four manager hubs",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 5,
+      "scoreReason": "security/privacy/data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike asked for compliance material that cascades from the mentor down to every firm, and for a firm to declare it understands its own country's law before Meeting Review becomes active.",
+      "risk": "A firm can record a client meeting today with nothing showing it was ever told its obligations. The assessment found two live gaps: IPP3A, in force since 1 May 2026 and unanswerable by software, and IPP12, unevidenced until OpenAI confirms where audio is processed. Without the gate the all-care basis is asserted in a document nobody has to open.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-10 - 'i want these compliance pages to show in the mentor, global manager, group manager and firm manager hubs - again, cascading'. The gate is his too: 'they have to tick a box before the feature becomes active'."
+      },
+      "touches": "A Compliance tab at all four tiers in TAB_TIERS and NAV_GROUPS, the firmOverlay cascade, an upload route reusing the master-export-upload validation, an on-demand AI completeness check against MEETING-REVIEW-DPIA.md section 9, the declaration record, and a locked state on pages/meeting-record.vue.",
+      "note": "NOT BUILT - approved to build from 2026-09-10. The artefact is design/mockups/compliance-pages.html and all nine of its questions are ruled. THE DECLARATION IS MIKE'S OWN WORDS, VERBATIM AND PINNED. Two rules must not collapse in the build: the declaration GATES, the completeness check NEVER does. A firm may neither edit nor hide what a tier above published. The AI checks completeness only - it never reads a statute and never says what the law requires. 4.84 generalises this page's dot.",
+      "comment": "2026-09-10 - raised by Mike and filed on his instruction after he approved the drawing. It grew out of Meeting Review 4.58 section 4, whose impact assessment was written the same day and is the first thing the page publishes. His own proposal to upload privacy statutes for the AI to read was recommended against and he agreed: it would put our software in place of their lawyer, and a stale PDF would have the AI quoting law that IPP3A superseded."
+    },
+    {
+      "ref": "4.84",
+      "name": "Notification dots on every hub tab",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A manager has no way of knowing something new arrived on a hub tab. Mike asked for the Handbook's own dot system in the hub's left-hand menu, on every tab.",
+      "risk": "Without it a firm never learns the mentor published new compliance material, so 4.83's notification does not exist and its record goes stale unread. No data is at risk and nothing breaks, which is why this is a 3 rather than higher.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-10 - 'they get a notification such as a red dot next to the topic (currently get blue and orange in the handbook so could use similar system?)', then 'put the dots in the left hand menu' and 'every tab'."
+      },
+      "touches": "NAV_GROUPS in components/FirmManagerHub.vue, a new per-manager per-tab last-opened record on the firm row following meetingObservationsAdvisor.js, and a route to stamp it. The no-icons ruling of 2026-08-19 gets a narrow status-only exception.",
+      "note": "NOT BUILT. Three states, the Handbook's own mechanism: red = published since you last declared, blue = never opened, orange = not opened in 3 weeks. Red beats blue beats orange, which is our judgement and flagged as one. ONE ROW PER MANAGER PER TAB, never one row holding every tab - that is item 4.75's lost-update fault. No schema change. Red alone needs no new storage, so 4.83 can ship its own dot; blue and orange are what need the last-opened record.",
+      "comment": "2026-09-10 - filed on Mike's yes as a SEPARATE item from 4.83 rather than inside it. It is general hub machinery every tab gains from and would be worth building even if Compliance never shipped; buried inside a compliance feature, nobody looking for it later would find it."
     }
   ]
 }
