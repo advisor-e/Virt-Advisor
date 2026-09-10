@@ -33,7 +33,11 @@
        the count of adjustments applying to it;
      - drawing 2: the mentor's tab is Outcome Learning.
 
-   THE PLAN'S RULE THIS DRAWING PUTS TO HIM (question 1): the cap. A template's
+   ALL THREE QUESTIONS RULED BY MIKE 2026-09-10, one at a time - see the rulings
+   block before the questions. The drawing itself is NOT yet approved; that is
+   its own question, asked after the rulings.
+
+   THE CAP - RULED BY MIKE 2026-09-10 as recommended. A template's
    pooled hold-back is at most 10 points in total, and it is SKIPPED — shown
    as outweighed — when the advisor's own words matched one of the firm's
    Advisory Distinctions for that template in this session. That is what
@@ -135,8 +139,8 @@ table.trace-scores td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
 <div class="shell">
 
 <div class="mock">
-  <p><b>Outcome Learning, drawing 3 of 3 — the trace line. Drawn for approval 2026-09-10. Nothing is
-  built.</b> Drawings 1 and 2 are approved.</p>
+  <p><b>Outcome Learning, drawing 3 of 3 — the trace line. Drawn 2026-09-10; all three questions ruled
+  the same day; the drawing itself awaits its own approval. Nothing is built.</b> Drawings 1 and 2 are approved.</p>
   <p><b>What this screen is for, in one sentence:</b> when a live adjustment changed a template's place
   in the ranking, the advisor can see that it did, by how much, on how much evidence — and when it was
   considered and did not apply, they can see that too. No influence on a recommendation is invisible.</p>
@@ -250,7 +254,7 @@ no difference in any score (spec FR-012). This is the state the fixed bench prov
 100% of runs are byte-for-byte what they were.</p></div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
-<div class="stepmark">Every new word on this panel — proposed, none approved</div>
+<div class="stepmark">Every new word on this panel — the title and the quiet line ruled, the rest still proposed</div>
 
 <div class="card">
   <div class="card-b">
@@ -258,13 +262,13 @@ no difference in any score (spec FR-012). This is the state the fixed bench prov
     <table class="w">
       <thead><tr><th>Where</th><th>Proposed wording</th><th>Status</th></tr></thead>
       <tbody>
-        <tr><td>Section title</td><td>Learned from outcomes</td><td><span class="pill wait">Proposed — Q2</span></td></tr>
+        <tr><td>Section title</td><td>Learned from outcomes</td><td><span class="pill ok">Ruled 2026-09-10</span></td></tr>
         <tr><td>Applied line</td><td>−4 <b>Break-Even</b> — held back in profitability and feasibility · 6 firms · 31 cases</td><td><span class="pill wait">Proposed</span></td></tr>
         <tr><td>Outweighed line</td><td>0 <b>7 Cash Drivers</b> — a hold-back of 3 with a cash flow gap was outweighed by your firm's distinction · 5 firms · 28 cases</td><td><span class="pill wait">Proposed</span></td></tr>
         <tr><td>Note under the section</td><td>Pooled from firms that share outcomes. It never outranks what you told me today.</td><td><span class="pill wait">Proposed</span></td></tr>
         <tr><td>Why column, applied</td><td>learned from outcomes −4</td><td><span class="pill wait">Proposed</span></td></tr>
         <tr><td>Why column, outweighed</td><td>outcome learning weighed and outweighed</td><td><span class="pill wait">Proposed</span></td></tr>
-        <tr><td>Nothing matched</td><td>Nothing learned from other firms applies to this situation yet.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Nothing matched</td><td>Nothing learned from other firms applies to this situation yet.</td><td><span class="pill ok">Shown at sharing firms — ruled 2026-09-10</span></td></tr>
         <tr><td>Could not be read</td><td>What other firms have learned could not be read for this session. The advice was built without it.</td><td><span class="pill wait">Proposed</span></td></tr>
       </tbody>
     </table>
@@ -276,7 +280,27 @@ no difference in any score (spec FR-012). This is the state the fixed bench prov
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
-<div class="stepmark">Open questions — one recommendation each, put to Mike one at a time</div>
+<div class="stepmark">Rulings — all three questions answered by Mike 2026-09-10, one at a time</div>
+
+<div class="notice good">
+  <b>RULED — the cap: at most 10 points, and set aside when the advisor's words matched a distinction</b>
+  Approved as recommended. <code>POOLED_HOLDBACK_MAX = 10</code> summed across every matching live
+  adjustment; skipped and shown as outweighed when the template carries a distinction boost from the
+  advisor's own words in this session. This is the meaning of "never outranks what the advisor said
+  today", and it is pinned by <code>tests/unit/pooledHoldback.test.js</code>, not by this page.
+</div>
+
+<div class="notice good">
+  <b>RULED — the section is "Learned from outcomes"</b>
+  Approved as recommended.
+</div>
+
+<div class="notice good">
+  <b>RULED — an advisor at a sharing firm sees the quiet line when nothing applied</b>
+  Approved as recommended. At sharing firms only; a firm that does not share sees no section.
+</div>
+
+<div class="stepmark">The questions as they were put — kept beside the rulings</div>
 
 <div class="q">
   <h3>1 · The cap: at most 10 points, and set aside when the advisor's words matched a distinction?</h3>
