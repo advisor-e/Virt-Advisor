@@ -43,9 +43,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **4.83** Compliance pages in the four manager hubs ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
 | 7 | **4.84** Notification dots on every hub tab ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 8 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
-| 9 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
+| 9 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-10 |
 
-**Nine live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Nine live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

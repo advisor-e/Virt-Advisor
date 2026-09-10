@@ -239,7 +239,7 @@
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "Case reviews already record how each template landed, and the engine reads that back for the same client only. Pooled across firms that consent, anonymised, it can adjust recommendations for everyone.",
       "risk": "Without it the product cannot honestly claim to get smarter with use beyond one client. The counter-risk is privacy: identifiers or client words leaving a firm, or a firm that never consented being changed by others' outcomes - both refused by the spec.",
       "askedBy": {
@@ -249,7 +249,7 @@
       },
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
       "note": "SPEC KIT FEATURE, specs/002-outcome-learning. Explainable code, not a black-box model: pooled verdicts become capped score adjustments through the same seam as distinction boosts, published only above a firm-and-case floor and only after the mentor accepts each one; every applied adjustment shows on the decision trace with its evidence. Nothing leaves a firm that has not opted in. Three drawings come before any code.",
-      "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
+      "comment": "2026-09-10 - spec, clarify, plan and tasks done and three drawings approved by Mike the same day, every question ruled on the drawing (ARTEFACTS.md). Next is T007 in specs/002-outcome-learning/tasks.md, the store's delete-by-prefix, approved. Waits on us."
     }
   ]
 }

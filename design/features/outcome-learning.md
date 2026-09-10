@@ -224,7 +224,7 @@ the spec (FR-008, FR-010). **Clarified with him the same day**, in the spec's Cl
 no free text enters the pool, only the tick-box verdicts; an adjustment is keyed to a template and one
 situation dimension at a time; only "went less well" on a delivered template counts against it, and
 "not used at all" is neutral; recompute happens when the mentor opens the page or asks for it, and on
-a firm's withdrawal, never on a background schedule. **Three drawings come before any code.**
+a firm's withdrawal, never on a background schedule. **The three drawings are drawn and approved (2026-09-10); their rulings sit on each drawing.**
 
 ## 7. The task, as Mike set it
 
@@ -273,8 +273,9 @@ Every change needs Mike's explicit yes. Wording on screens is his to approve bef
 
 ## 8. For the coder
 
-Nothing is built. The spec names what is reused; the plan, when Mike approves one, names the
-files.
+Nothing is built. The plan names the files, the task list the order, and the three drawings —
+approved by Mike 2026-09-10 with every question ruled on the drawing — are what the build is
+checked against.
 
 | Piece | Where it stands today |
 |---|---|
@@ -284,6 +285,8 @@ files.
 | The score-adjustment seam | distinction boosts in `templateResolver.js` |
 | The bench | `scripts/scenario-lab.js` |
 | The specification | [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md) |
+| The plan and the task list | [`plan.md`](../../specs/002-outcome-learning/plan.md) · [`tasks.md`](../../specs/002-outcome-learning/tasks.md) |
+| The three approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html), rulings on each; register rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
 
 ## 9. Related briefs
 

@@ -9,29 +9,23 @@
 
 ---
 
-## 2026-09-10 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-10 (third session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Built and closed today: 4.85 — the Handbook is built from `origin/master`.** Both
-machines now publish the same page, neither can erase the other's features, and the line
-under the title names the master commit and how many commits each machine holds beyond it.
-`npm run handbook -- --working-tree` previews unmerged pages and says so on the page.
-Closure on [`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
+**4.87 Outcome Learning is through Phase 1 — nothing is built.** Mike ruled the floor (5 firms,
+25 cases) and hold-back only; `/speckit-clarify` took four more answers; the plan, research, data
+model, contracts, quickstart and a 47-task list are in `specs/002-outcome-learning/`. **All three
+drawings are approved**, every question ruled on the drawing, in
+[`ARTEFACTS.md`](ARTEFACTS.md). Both named additions (a delete-by-prefix on the overlay store,
+`OUTCOME_POOL_SECRET`) are approved on `plan.md`.
 
-**The consequence for both machines:** a feature shows on the Handbook once its pull
-request has landed, not when it is pushed. Read the banner's counts out at startup.
+**Next: T007** — the store function and its test, then Phase 2. Mike stopped before code started.
+`activeOn` for 4.87 stays on the desktop; it waits on us.
 
-Suite **9,700 green** (471 suites). Tree clean once this commit lands. Nine live items.
-Nothing active on this machine except 4.87's flag (below).
+**Master merged in** (17 ahead, 0 behind at close): the laptop's 4.84 hub dots, the v0.11.1 fix and
+its ledger row. One conflict, `ARTEFACTS.md`, resolved by keeping both sides.
 
-**v0.11.0** is cut on `0f0fdab`, awaiting the master team's pull; the ledger row is the next
-thing to write when it lands.
+Suite green at the push gate. Tree clean, everything pushed.
 
-**Next session, bring to Mike first** (his instruction of 2026-09-10): the two open decisions
-on **4.87 Outcome Learning** — the evidence floor, and hold-back only or both directions —
-then `/speckit-clarify` on his yes. Its `activeOn` is the desktop. Then **4.84**, the hub
-notification dots, which is unblocked and waits on us.
-
-**LAPTOP:** none of your files were touched. `scripts/build-handbook.js`,
-`scripts/handbook-shell.html`, the Handbook Brief, `.claude/commands/startup.md` and
-`WORKING-AGREEMENT.md` changed; merge `master` in at startup and your next
-`npm run handbook` will carry the banner.
+**LAPTOP:** none of your files were touched. New on master once this branch's PR lands:
+`specs/002-outcome-learning/`, three `design/mockups/outcome-learning-*.html`, three rows in
+`ARTEFACTS.md`, the 4.87 Brief and live-list entry. 4.84 is no longer "waits on us" — you built it.
