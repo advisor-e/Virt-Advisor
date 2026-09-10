@@ -3,8 +3,9 @@
 > **One page, two halves.** The first half is the audit Mike asked for on 2026-09-10: three
 > claims he wants to market, read against the design documents and the code. The second half
 > is the task that came out of it, item **4.87 · Outcome Learning**, in his words, with the spec
-> at [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md). Nothing
-> in the second half is built. The history is in
+> at [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md). The
+> backend and the advisor's panel are built through story 3 (2026-09-11); the two hub screens,
+> the seed script and the benches are not — §8 says what stands where. The history is in
 > [`outcome-learning-history.md`](outcome-learning-history.md).
 >
 > **Read against the code at commit `b1466ef`**: the Advisory Engine, Advisory Distinctions and
@@ -110,12 +111,12 @@ offers rather than overwrites. What does not exist is any loop that closes itsel
 
 ### What is missing, and it is the difference between "loops" and "learning"
 
-> - **The outcome loop stops at the client.** A verdict on a template changes the next
->   recommendation for that client and nothing else. No firm-wide or platform-wide weight, boost
->   or signal moves because of what advisors recorded, and no screen aggregates those verdicts so
->   a mentor or manager can see which templates keep going less well. The engine brief says
->   improvement comes from real sessions, not pre-emptive patching; the sessions are now recorded,
->   but only one client at a time reads them.
+> - **The outcome loop now crosses firms on the backend, and is not yet on a screen or proven.**
+>   Since 2026-09-11 a consenting firm's per-template verdicts are pooled anonymised at the
+>   platform scope, turned into capped hold-backs that only a mentor-accepted decision can make
+>   live, and applied in the resolver beneath the advisor's own words (part two). No hub screen
+>   shows the pool or lets the mentor accept anything yet, and no real pool has crossed the
+>   floor, so "learning across firms" is built and untested, not proven.
 > - **The review is optional and its uptake is unmeasured.** A case stays flagged "feedback
 >   pending" until the advisor returns to it. Nothing reports how many ever do, so the loop's
 >   reach is unknown.
@@ -159,8 +160,9 @@ thing a serious buyer checks before believing that phrase.
 
 **Not yet supportable**
 
-- "Gets smarter with use" across the board. It remembers and adjusts for each client; it does not
-  yet learn across clients or firms.
+- "Gets smarter with use" across the board. The cross-firm loop is built on the backend
+  (part two) but supportable only once the mentor's page exists and a real pool has crossed the
+  floor in UAT.
 - Any accuracy or outcome figure from real advisors. Verdicts are recorded per case, but nothing
   adds them up, and the app is not yet in production.
 - "World class" as a comparison. Say what it does instead; the list above is stronger than the
@@ -273,20 +275,25 @@ Every change needs Mike's explicit yes. Wording on screens is his to approve bef
 
 ## 8. For the coder
 
-Nothing is built. The plan names the files, the task list the order, and the three drawings —
-approved by Mike 2026-09-10 with every question ruled on the drawing — are what the build is
-checked against.
+Built through story 3 on 2026-09-11, task by task from
+[`tasks.md`](../../specs/002-outcome-learning/tasks.md), each checked against the three drawings
+approved by Mike 2026-09-10. The two hub screens, the advisor's notice and industry suggestions,
+the seed script and the benches remain.
 
 | Piece | Where it stands today |
 |---|---|
-| The per-template verdict | `server/utils/caseStore.js`, `template_outcomes` |
-| The per-client read-back | `server/utils/priorEngagement.js`, `HISTORY_HOLDBACK_PENALTY` in `server/utils/templateResolver.js` |
-| The anonymiser and its guard | the mentor-share path in `caseStore.js`, [`case-reviews.md`](case-reviews.md) P1–P4 |
-| The score-adjustment seam | distinction boosts in `templateResolver.js` |
-| The bench | `scripts/scenario-lab.js` |
-| The specification | [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md) |
-| The plan and the task list | [`plan.md`](../../specs/002-outcome-learning/plan.md) · [`tasks.md`](../../specs/002-outcome-learning/tasks.md) |
-| The three approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html), rulings on each; register rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
+| Consent record, tokens, pinned wording | `server/utils/outcomeConsent.js` — HMAC tokens under `OUTCOME_POOL_SECRET` (`.env.example`, UAT load pack §3) |
+| Pool row, guard, arithmetic | `server/utils/outcomeLearning.js` — floor 5 firms / 25 cases, cap 10; primary issue validated by membership in Mike's authored labels (cap 120, a stated exception) |
+| The one hard delete | `deleteFirmConfigsByPrefix` in `server/utils/firmOverlay.js` — withdrawal removes every version under `outcome-pool:<token>:` |
+| The review hook and the advisor's flag | `server/utils/outcomeContribute.js`, called from `reviewCase` in `server/routes/cases.js`; `outcomeContribution` rides the case list |
+| Firm routes | `server/routes/outcomeConsent.js` — read, set, withdraw under `fmGuard`; withdraw recomputes |
+| Mentor routes | `server/routes/outcomeLearning.js` — list, recompute, decision, history, restore, export under `mentorGuard`; a page load recomputes but never writes a version |
+| The resolver | `pooledAdjustments` / `pooledSignalTypes` in `server/utils/templateResolver.js`, before the history clamp; `SCORING_VERSION` 2.2.0 |
+| The session and the trace | `server/utils/outcomeLearningSession.js`, wired in `server/advisorEngine.js`; `decisionTrace.outcomeLearning` |
+| Reason wording | `pooled:held_back-<n>`, `pooled:outweighed` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
+| The advisor's panel | "Learned from outcomes" in `components/VirtualAdvisor.vue` |
+| NOT BUILT | `FirmOutcomeConsent.vue` and its tab (nine wording rows wait on Mike), the advisor's case-review notice, industry suggestions on intake, `MentorOutcomeLearning.vue` and its tab, the seed script, `--adjustments` on the Scenario Lab, the outcome bench and the bench route |
+| The three approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html), rulings on each, rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
 
 ## 9. Related briefs
 
