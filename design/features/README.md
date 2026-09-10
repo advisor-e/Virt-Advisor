@@ -32,6 +32,7 @@ can be read in one place — the Handbook does not move them.*
 | **[Approved Artefacts](../ARTEFACTS.md)** | The register of what Mike has actually approved. If a thing is not in that table, nothing should be built from it. Guarded by a test. |
 | **[Content Routing](../CONTENT-ROUTING.md)** | What reaches a client recommendation, and what is filed into a lane where it becomes invisible. Regenerated from the code by `npm run routing`. |
 | **[Deployed Versions](../DEPLOYED-VERSIONS.md)** | Which commit is running in which environment, who put it there, and when. |
+| **[Code Size](../CODE-SIZE.md)** | How much working code there is, by area, with comments, tests and locale strings shown beside it. Recomputed every time the Handbook is built. |
 | **[The Handbook](handbook.md)** | How this handbook is built, published, opened and edited — and why a new feature starts as a page in it. [history](handbook-history.md) |
 
 ## The AI engine
@@ -46,6 +47,7 @@ can be read in one place — the Handbook does not move them.*
 | [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
 | [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
 | [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
+| [Founder's Claims Audit & Outcome Learning](outcome-learning.md) — three marketing claims read against the code, and the task that came out of it | [history](outcome-learning-history.md) |
 
 ## Hub pages — mentor & firm
 

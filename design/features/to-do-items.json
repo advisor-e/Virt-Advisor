@@ -246,6 +246,31 @@
       "touches": "server/collaborate/data/repository.js, the master team's seam by Mike's 2026-08-15 ruling on 4.8; config/db-schema.sql COLLABORATE tables; design/MASTER-TEAM-INTEGRATION-EMAIL.md question 7.",
       "note": "DO NOT WIRE THE SEAM FROM HERE. The repository header names the master team as the only party to change it, and Mike ruled 2026-08-15 that only they can complete it once the stubs exist. The dev-only snapshot (devStore.js) hides this on a developer's machine; NODE_ENV=production, which the UAT pack recommends, reads and writes nothing by design. Closes when their reply to question 7 names where identity lives and they wire the two identity functions; our tables can follow through the same seam.",
       "comment": "2026-09-10 - filed on Mike's yes after the wiring was proposed and then stopped on the evidence above. Numbered after the laptop's 4.85 (3492421); renumber here if the laptop files a 4.86 the same day."
+    },
+    {
+      "ref": "4.87",
+      "name": "Learning from outcomes across consenting firms - the platform gets smarter with use",
+      "rankedByMike": false,
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-10"
+      },
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Case reviews already record how each template landed, and the engine reads that back for the same client only. Pooled across firms that consent, anonymised, it can adjust recommendations for everyone.",
+      "risk": "Without it the product cannot honestly claim to get smarter with use beyond one client. The counter-risk is privacy: identifiers or client words leaving a firm, or a firm that never consented being changed by others' outcomes - both refused by the spec.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-10 - 'build a prompt to develop the task to enable real machine learning - such that it does, indeed, get smarter with use. Not just from one firm, but from all those who consent to help develop the model by sharing anonymised data'."
+      },
+      "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
+      "note": "SPEC KIT FEATURE, specs/002-outcome-learning. Explainable code, not a black-box model: pooled verdicts become capped score adjustments through the same seam as distinction boosts, published only above a firm-and-case floor and only after the mentor accepts each one; every applied adjustment shows on the decision trace with its evidence. Nothing leaves a firm that has not opted in. Three drawings come before any code.",
+      "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
     }
   ]
 }

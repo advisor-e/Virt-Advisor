@@ -1,7 +1,7 @@
 # Meeting Types and Observation Points — the full cascade
 
 > **Status: ✅ APPROVED BY MIKE 2026-09-02**, all four decisions in §6 ruled the same day.
-> **Slices 1–3 of §7 are BUILT; slice 4 is not.** Written 2026-09-02 on his instruction;
+> **All four slices of §7 are BUILT** (slice 4 completed 2026-09-10). Written 2026-09-02 on his instruction;
 > registered in [`ARTEFACTS.md`](ARTEFACTS.md).
 >
 > **As a page:** https://claude.ai/code/artifact/d685c390-a0aa-4c67-a85b-ef0654eea7df
@@ -51,7 +51,7 @@ Mentor                    ← writes the platform's types and points
                       └─ Business entity   ← this client, this relationship
 ```
 
-**The top four are built.** The bottom two are not, and there is no storage for them — §5.
+**All six are built** — the bottom two on 2026-09-08 and 2026-09-10; their storage is §5.
 
 **Who may edit: everyone, at their own level and below. Nobody, ever, above.** That is P14 and
 it is the only permission rule here. An advisor switching a point off for one client changes
@@ -60,7 +60,7 @@ app can express reaching upward — every one is scoped to the caller's own veri
 
 > ⚠ **A correction worth stating once, so it is not re-derived.** Earlier notes in this
 > repository claimed advisors were barred from editing on principle. **Mike never said that.**
-> Those sentences were ours and are deleted. The advisor and entity levels are simply unbuilt.
+> Those sentences were ours and are deleted. Both levels are now built and editable at their own level.
 
 ---
 
@@ -113,7 +113,8 @@ under config keys that name the person they belong to:
 ```
 meeting-observation-advisor-declines:<advisorId>   { name, scenarios: { typeId: [pointId] } }
 meeting-observation-advisor-own:<advisorId>        { name, scenarios: { typeId: [point] }, nextSeq }
-meeting-observation-entity:<clientId>              (the per-client half — not built, not drawn)
+meeting-observation-entity-declines:<clientId>     { scenarios: { typeId: [ {id, byId, byName, at} ] } }
+meeting-observation-entity-own:<clientId>          { scenarios: { typeId: [ {point, byId, byName, at} ] }, nextSeq }
 ```
 
 Three properties come out of that, and all three matter:

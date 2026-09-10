@@ -390,6 +390,10 @@ function renderNavLink (item) {
 // ── Assembly ───────────────────────────────────────────────────────────────
 
 function build (outPath) {
+  // The Code Size record is recomputed before any page is read, so the Handbook can never
+  // show a figure older than the build that carries it (Mike, 2026-09-10: a rolling summary).
+  require("./count-code").writeRecord(ROOT)
+
   const files = fs.readdirSync(FEATURES_DIR).filter(name => name.endsWith('.md'))
   const known = new Set(files.map(name => name.replace(/\.md$/, '')))
   const read = page => fs.readFileSync(

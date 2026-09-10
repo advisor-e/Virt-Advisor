@@ -17,6 +17,7 @@
     "check:engines": "node scripts/check-engines.js",
     "routing": "node scripts/generate-content-routing.js",
     "handbook": "node scripts/build-handbook.js",
+    "code-size": "node scripts/count-code.js",
     "to-do": "node scripts/apply-to-do.js",
     "feature": "node scripts/new-feature.js",
     "lint": "eslint --ext .js,.vue .",
