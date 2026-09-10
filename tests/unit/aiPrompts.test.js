@@ -31,6 +31,12 @@ const ECONOMIC = 'economic-analysis'
 const NEXT_STEPS = 'next-steps-draft'
 const DEPRECIATION = 'depreciation-read' // item 4.78 slice 3 — all four tiers, like the two above
 const COMPLIANCE = 'compliance-check' // item 4.83 slice 4 — all four tiers, like the three above
+// Added by item 4.92: reading a COUNTRY's whole schedule, in two calls rather than one.
+// The survey says how far the document runs; a pass reads one page range of it. All four
+// tiers, because only the global group manager may LOAD a schedule but every tier below
+// reads the table it produces, and must be able to read what the machine was told.
+const SURVEY = 'country-schedule-survey'
+const PASS = 'country-schedule-pass'
 
 describe('the shipped prompts are the shape the design says they are', () => {
   test('both documents are present, by id', () => {
@@ -299,7 +305,7 @@ describe('listPrompts — what a screen is given', () => {
 
 describe('which documents a tier is shown', () => {
   test('the mentor gets every document', () => {
-    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
+    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 
   test('every tier below the mentor gets the client-facing documents ONLY', () => {
@@ -308,7 +314,7 @@ describe('which documents a tier is shown', () => {
     // The two mentor-only documents are about how WE work; the cash flow and economic
     // analysis documents are about how a firm's own client work is done, so both cascade.
     ;['global', 'group', 'firm'].forEach((tier) => {
-      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
+      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
     })
   })
 
@@ -321,8 +327,8 @@ describe('which documents a tier is shown', () => {
   })
 
   test('asking for no tier at all returns everything, so the send path is unaffected', () => {
-    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
-    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
+    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 
   test('a prompt that declares no tiers is shown everywhere, not nowhere', () => {
