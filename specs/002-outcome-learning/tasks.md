@@ -83,11 +83,11 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `pages
 
 ### Tests for User Story 2
 
-- [ ] T024 [P] [US2] Write `tests/unit/outcomeLearning.routes.test.js` — GET recomputes from `loadFirmConfigsByPrefix(PLATFORM_SCOPE, 'outcome-pool:')` and returns counts, floor, cap, adjustments and benches; decision refuses `live` below the floor (400 `OUTCOME_BELOW_FLOOR`) and an unknown id (404); decision writes `by`/`at` from `req.userEmail`; history and restore call the store with `PLATFORM_SCOPE` and `'outcome-adjustments'`; export returns only live adjustments in the resolver shape; store failure returns the safe error shape; a 10,000-row fixture recomputes under 2000 ms
+- [x] T024 [P] [US2] Write `tests/unit/outcomeLearning.routes.test.js` — GET recomputes from `loadFirmConfigsByPrefix(PLATFORM_SCOPE, 'outcome-pool:')` and returns counts, floor, cap, adjustments and benches; decision refuses `live` below the floor (400 `OUTCOME_BELOW_FLOOR`) and an unknown id (404); decision writes `by`/`at` from `req.userEmail`; history and restore call the store with `PLATFORM_SCOPE` and `'outcome-adjustments'`; export returns only live adjustments in the resolver shape; store failure returns the safe error shape; a 10,000-row fixture recomputes under 2000 ms
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Create `server/routes/outcomeLearning.js` — `list` (GET, recomputes), `recompute` (POST), `decision`, `history`, `restore`, `export`, and a `recomputeAndPersist()` helper used by list, recompute and T016's withdraw; per contracts §Mentor
+- [x] T025 [US2] Create `server/routes/outcomeLearning.js` — `list` (GET, recomputes), `recompute` (POST), `decision`, `history`, `restore`, `export`, and a `recomputeAndPersist()` helper used by list, recompute and T016's withdraw; per contracts §Mentor
 - [ ] T026 [US2] Register the routes in `server/restify-server.js` under `/api/mentor/outcome-learning` with `mentorGuard`; wire T016's withdraw to `recomputeAndPersist()`
 - [ ] T027 [US2] Create `components/MentorOutcomeLearning.vue` from the approved mentor drawing — counts and floor, last recompute and "Recompute now", the adjustment table with state chips, accept / hold / reject with a reason field, history list with restore, the empty state, the orphaned list, the bench figures block (filled by US4); loading and error states; strings via `$t('outcomeLearning.*')`
 - [ ] T028 [US2] Add `outcomeLearning: ['mentor']` to `TAB_TIERS` and `{ key: 'outcomeLearning', i18n: 'outcomeLearning.tab' }` appended to *Rolled up from below* in `NAV_GROUPS`; register the component and panel in `components/FirmManagerHub.vue`; the FR-014 one-line judgement as the comment; extend the pin in `tests/unit/hubTabTiers.test.js`
