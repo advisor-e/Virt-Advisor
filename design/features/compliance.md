@@ -92,10 +92,14 @@ that could be read as either says so in terms.
    a recording; `/meeting-record` shows the locked state instead.
 4. The completeness check, on a button, and the roll-up of who has declared.
 
-🔴 **THE GATE IS LIVE, AND IT CHANGES BEHAVIOUR EVERYWHERE.** Every firm starts undeclared, so
-Meeting Review is **off for everyone** — in development and in UAT — until a firm manager records
-the declaration on this tab. That is the feature working, but it looks like a break to anyone
-who does not know it landed.
+🔴 **THE GATE IS LIVE, AND IT IS PER FIRM.** A firm that has recorded the declaration is
+unaffected — its advisors record exactly as before, from the moment the tick goes in. A firm
+that has not cannot start a recording, and only that firm is held up: one firm's state has no
+bearing on another's, and two tests pin both halves.
+
+⚠ **NO FIRM HAS TICKED YET**, in development or in UAT, so each one needs its own manager to do
+it once. That is the feature working rather than a break, but somebody meeting a locked recorder
+without knowing this landed will read it as one.
 
 **None of this has been seen running.** The publishing, the declaration and the roll-up need
 MySQL; the evidence pack needs Google Drive credentials as well; the completeness check needs
