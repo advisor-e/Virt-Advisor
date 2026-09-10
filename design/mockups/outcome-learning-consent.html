@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outcome Learning — the firm's consent, and the advisor's one line</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Outcome Learning, item 4.87 — drawing 1 of 3: the firm manager's consent
+   switch and the one line an advisor sees on the case review.
+   Drawn 2026-09-10 on Mike's instruction in the task he pasted to
+   /speckit-specify. Nothing is built.
+
+   Colours, spacing and type are COPIED from design/mockups/compliance-pages.html
+   (approved by Mike 2026-09-10) — nothing here is a new look. No dark mode,
+   RULED 2026-07-27.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-10):
+     - "build a prompt to develop the task to enable real machine learning -
+       such that it does, indeed, get smarter with use. Not just from one firm,
+       but from all those who consent to help develop the model by sharing
+       anonymised data"
+     - "A firm manager opts the firm in, and can opt out at any time, on a hub
+       page at the firm tier. Nothing leaves a firm that has not opted in, and
+       opting out stops future contributions without deleting what was already
+       pooled unless the manager asks for that too. Every advisor is told on
+       the case-review screen that anonymised outcomes may contribute, in
+       wording Mike approves."
+
+   HIS RULINGS ALREADY GIVEN (2026-09-10), which this drawing does not re-ask:
+     - the floor is 5 contributing firms and 25 cases;
+     - hold-back only — nothing pooled ever lifts a template;
+     - NO FREE TEXT enters the pool — only the tick-box verdicts;
+     - one situation dimension per adjustment; "not used" is neutral;
+     - recompute on the mentor's page, never on a schedule.
+
+   WHAT LEAVES THE FIRM, EXACTLY (spec FR-005 as clarified): the advisory
+   domain, the primary issue where present, the industry ONLY where it matches
+   the engine's own industry vocabulary, the signals that fired, the engagement
+   type, the staircase step, the template titles, and each template's two
+   ticks — used fully / partly / not at all, landed well / didn't land. The
+   month. Nothing else. No firm, advisor, client or case identifier, and no
+   words anybody typed.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+/* tab strip */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+/* cards */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+.btn{display:inline-block;margin-top:12px;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.danger{background:transparent;color:#b01212;border:1px solid #e0000045}
+.btn.small{padding:5px 11px;font-size:12.5px;margin-top:0}
+
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.bad{background:var(--rs-crit-soft);color:#b01212;border:1px solid #e0000045}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+.pill.off{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+
+/* notices */
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.crit{background:var(--rs-crit-soft);border:1px solid #e0000045;border-left:3px solid var(--rs-crit)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+
+/* two-column "leaves / never leaves" */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){.two{grid-template-columns:1fr}}
+.col{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px}
+.col h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.col.leaves h3{color:#2f7d32}.col.never h3{color:#b01212}
+.col ul{margin:0;padding-left:18px;font-size:13.5px}
+.col li{margin:4px 0}
+
+/* the switch */
+.ack{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:16px 18px}
+.ack .line{display:flex;gap:11px;align-items:flex-start;font-size:13.5px;margin-bottom:12px}
+.ack .box{flex:none;width:17px;height:17px;border:2px solid var(--rs-accent);border-radius:4px;
+  margin-top:2px;background:#fff}
+.ack .box.on{background:var(--rs-accent);position:relative}
+.ack .box.on::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:12px;
+  display:grid;place-items:center;font-weight:700}
+.ack .sig{font-size:12.5px;color:var(--rs-muted);border-top:1px solid var(--rs-line);padding-top:12px}
+.sw{display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.sw .track{width:44px;height:24px;border-radius:999px;background:var(--rs-line);position:relative;flex:none}
+.sw .track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 2px #0003}
+.sw.on .track{background:var(--rs-good)}
+.sw.on .track::after{left:23px}
+
+/* history */
+.hist{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--rs-line);font-size:13px}
+.hist:last-child{border-bottom:0}
+.hist .when{color:var(--rs-muted);font-size:12px;width:150px;flex:none}
+.hist .who{flex:1}
+
+/* the advisor's review panel — copied from the shipped Post-Delivery Review */
+.rev{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);padding:18px 20px;margin-bottom:16px;max-width:760px}
+.rev h2{margin:0 0 2px;font-size:17px;font-weight:600}
+.rev .sub{font-size:12.5px;color:var(--rs-muted);margin:0 0 14px}
+.rev .title{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;margin:14px 0 6px}
+.orow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:9px 0;border-top:1px solid var(--rs-line);font-size:13.5px}
+.orow:first-of-type{border-top:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--rs-line);color:var(--rs-muted);background:#fff}
+.chip.on{background:var(--rs-accent);border-color:var(--rs-accent);color:#fff;font-weight:600}
+.chip.well{background:var(--rs-good-soft);border-color:#4ca52d55;color:#2f7d32;font-weight:600}
+.chip.less{background:var(--rs-warn-soft);border-color:#ff990059;color:#8a5a00;font-weight:600}
+.oline{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--rs-muted);
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:9px;padding:9px 12px;margin-top:12px}
+.oline .nd{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright);flex:none;margin-top:6px}
+.ta{border:1px solid var(--rs-line);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--rs-muted);
+  background:#fff;min-height:44px;margin-top:4px}
+
+/* questions */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Outcome Learning, drawing 1 of 3 — the firm's consent, and the advisor's one line. Drawn for
+  approval 2026-09-10. Nothing is built.</b> This is the artefact the build will be checked against,
+  saved before approval as CLAUDE.md requires. Drawings 2 and 3 (the Mentor Hub page, the trace line)
+  follow separately.</p>
+  <p><b>What this screen is for, in one sentence:</b> a firm manager decides whether their firm's
+  case-review ticks — never their words — join a platform-wide pool that teaches the engine which
+  templates keep not landing, and can undo that decision at any time.</p>
+  <p>🔴 <b>THE SWITCH IS THE WHOLE GATE.</b> Nothing from a firm reaches the pool unless the switch is
+  on at the moment an advisor saves a review; a firm whose switch is off never receives an
+  adjustment either (spec FR-002, FR-012). There is no second condition and no default-on.</p>
+  <p><b>Figures on this page marked <span class="ex">example</span> are invented.</b> Firm names are the
+  Compliance drawing's. Template titles and chip labels are the app's own.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — the Firm Manager's view, switch OFF (the default for every firm)</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Firm Manager Hub</div>
+  <h1 class="hub-h1">Outcome Sharing</h1>
+  <div class="hub-sub">Apex Auto &amp; Engineering Ltd · New Zealand</div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Domain Support</div>
+  <div class="tab">Advisory Distinctions</div>
+  <div class="tab">Logic Tables</div>
+  <div class="tab">AI Prompts</div>
+  <div class="tab">Meeting Review</div>
+  <div class="tab">Compliance</div>
+  <div class="tab on">Outcome Sharing</div>
+</div>
+
+<div class="mock">
+  <p><b>WHERE IT SITS.</b> Appended to the <b>Compliance</b> group of the hub's left-hand menu, at the
+  firm tier only, because consent is a firm's own undertaking in the same way its declaration is.
+  The mentor has nothing to switch here; the mentor's page is drawing 2. <b>The tab name is question
+  1 below.</b></p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Your firm's choice</h2>
+    <span class="pill off">Not sharing</span>
+  </div>
+  <div class="card-b">
+    <p style="font-size:14.5px;margin-bottom:14px"><b>When your advisors record how each template
+    went, those ticks can help every firm on the platform — including yours — get better
+    recommendations.</b> Advisor-e pools them, without names, to learn which templates keep not
+    landing in which situations, and holds those back a little for everyone who takes part.</p>
+
+    <div class="two">
+      <div class="col leaves">
+        <h3>What leaves your firm</h3>
+        <ul>
+          <li>The advisory domain, and the primary issue where one was confirmed</li>
+          <li>The client's industry — <b>only</b> where it matches Advisor-e's own industry list</li>
+          <li>The signals the engine detected, the engagement type, the staircase step</li>
+          <li>The template titles, and each template's two ticks: <i>Used fully / Partly used /
+            Didn't use it</i>, and <i>Landed well / Didn't land</i></li>
+          <li>The month of the review</li>
+        </ul>
+      </div>
+      <div class="col never">
+        <h3>What never leaves</h3>
+        <ul>
+          <li>Your firm's name, your advisors, your clients, the case</li>
+          <li><b>Anything anybody typed</b> — the "what went well", "what went less well" and
+            "suggested changes" notes stay at your firm</li>
+          <li>The conversation, the summary, the client's figures</li>
+          <li>Any identifier of any kind</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="notice info" style="margin:14px 0 0">
+      <b>What you get back</b>
+      Where enough firms — at least five, across at least twenty-five cases — have seen the same
+      template not land in the same situation, and the mentor has accepted it, that template ranks a
+      little lower for your advisors in that situation. It never ranks higher because of the pool,
+      and it never outranks what your advisor tells the engine on the day. Every such adjustment is
+      shown on the advisor's "Why this?" panel with the number of firms and cases behind it.
+    </div>
+
+    <div class="ack" style="margin-top:16px">
+      <div class="line">
+        <span class="box"></span>
+        <span><b>I act for and on behalf of my firm when I choose to share our anonymised template
+        outcomes with Advisor-e to improve recommendations for every participating firm. I understand
+        exactly what leaves our firm and what never does, as set out above, and that I can stop
+        sharing at any time.</b></span>
+      </div>
+      <p style="font-size:12.5px;color:var(--rs-muted);margin:0 0 12px">
+        Stopping is immediate and needs no reason. What was already shared stays in the pool unless
+        you also ask for it to be withdrawn — that is a separate step, and it is always available.</p>
+      <div class="btn">Start sharing</div>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>The sentence in the box is OURS, marked proposed, and it is question 2.</b> It copies the two
+  things Mike put into the Compliance declaration on 2026-09-10 — first person, and an authority
+  clause — because a manager binding a firm is the same act here. It deliberately says
+  <i>"as set out above"</i> rather than repeating the list, so the record shows the manager saw the
+  two columns. <b>Whatever sentence he approves is stored with the record, verbatim, and pinned</b>
+  (the pattern of <code>compliance.js</code>): a later change to the wording never rewrites what an
+  earlier manager agreed to.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — the same view, switch ON, some months later</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Your firm's choice</h2>
+    <span class="pill ok">Sharing since 10 Sep 2026</span>
+  </div>
+  <div class="card-b">
+    <div class="ack">
+      <div class="line">
+        <span class="box on"></span>
+        <span><b>I act for and on behalf of my firm when I choose to share our anonymised template
+        outcomes with Advisor-e to improve recommendations for every participating firm. I understand
+        exactly what leaves our firm and what never does, as set out above, and that I can stop
+        sharing at any time.</b></span>
+      </div>
+      <div class="sig">
+        <b>Switched on by:</b> Janine Cole, Firm Manager · 10 Sep 2026, 9:41am
+        &nbsp;·&nbsp; <b>Shared so far:</b> 14 reviews <span class="ex">example</span>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <div class="btn ghost" style="margin-top:0">Stop sharing</div>
+        <div class="btn danger" style="margin-top:0">Withdraw what we have shared</div>
+      </div>
+    </div>
+
+    <div class="notice good" style="margin:16px 0 0">
+      <b>What sharing has changed for your advisors so far</b>
+      2 adjustments accepted by the mentor currently apply at your firm <span class="ex">example</span>.
+      Your advisors see each one on the "Why this?" panel when it applies. The full list, with the
+      evidence behind each, is the mentor's to publish and is not shown here.
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Two buttons, two different things, deliberately kept apart</b> (Mike's task text: <i>"opting
+  out stops future contributions without deleting what was already pooled unless the manager asks
+  for that too"</i>). <b>Stop sharing</b> flips the switch and nothing else. <b>Withdraw</b> removes
+  every row this firm ever contributed and reports the count, and it works whether the switch is on
+  or off. Making withdrawal a side effect of stopping would take data out of the pool that a manager
+  only meant to pause; making stopping a side effect of withdrawing would be the reverse surprise.</p>
+  <p><b>The "2 adjustments currently apply at your firm" line is question 3.</b> It tells a firm the
+  pool is doing something without showing it the mentor's page. The count comes free — the engine
+  already has to load the live adjustments to apply them.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B2 — the withdraw confirmation</div>
+
+<div class="card" style="max-width:640px">
+  <div class="card-h"><h2>Withdraw what your firm has shared</h2></div>
+  <div class="card-b">
+    <p style="font-size:14px"><b>This removes all 14 reviews <span class="ex">example</span> your firm
+    has contributed from the pool, now.</b> Any adjustment they were helping to support is re-checked
+    straight away, and one that no longer has enough firms or cases behind it stops applying —
+    everywhere, including at your firm.</p>
+    <p style="font-size:13px;color:var(--rs-muted)">Your sharing switch is not changed by this. If it is
+    on, reviews your advisors record from now on will still be shared; switch it off first if you
+    want both.</p>
+    <div class="ack" style="margin-top:12px">
+      <div class="line"><span class="box"></span><span>I understand this cannot be undone.</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div class="btn danger" style="margin-top:0">Withdraw 14 reviews</div>
+        <div class="btn ghost" style="margin-top:0">Keep them</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>"Cannot be undone" is true and is why the tick is there.</b> The rows are deleted, not marked;
+  the store's version history is not kept for them, because a withdrawal that left the data readable
+  in history would not be a withdrawal. This is the one addition to the shared store the plan names
+  for Mike (a delete-by-prefix), and it is scoped so it can only ever reach this firm's own rows under
+  the pool.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>History</h2></div>
+  <div class="card-b">
+    <div class="hist"><span class="when">14 Nov 2026 <span class="ex">example</span></span><span class="who">Withdrew 14 reviews — Janine Cole</span><span class="pill bad">Removed</span></div>
+    <div class="hist"><span class="when">14 Nov 2026</span><span class="who">Stopped sharing — Janine Cole</span><span class="pill off">Off</span></div>
+    <div class="hist"><span class="when">10 Sep 2026</span><span class="who">Started sharing — Janine Cole</span><span class="pill ok">On</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — what an advisor sees on the case review, at a firm that is sharing</div>
+
+<div class="mock">
+  <p><b>This is the shipped Post-Delivery Review panel</b> (<code>components/VirtualAdvisor.vue</code>,
+  the <code>advisor.review</code> and <code>advisor.outcome</code> strings, unchanged) <b>with one line
+  added</b>, below the template ticks and above the free-text boxes. At a firm that is not sharing the
+  line is absent and the panel is exactly today's.</p>
+</div>
+
+<div class="rev">
+  <h2>Post-Delivery Review</h2>
+  <p class="sub">After delivering this session to your client, record what actually happened. The AI will use this to improve future recommendations.</p>
+
+  <div class="title">How did each template go?</div>
+  <div class="orow"><span>Break-even Analysis</span>
+    <span class="chips"><span class="chip on">Used fully</span><span class="chip">Partly used</span><span class="chip">Didn't use it</span>
+      <span class="chip well">Landed well</span><span class="chip">Didn't land</span></span></div>
+  <div class="orow"><span>Cash Flow Forecast</span>
+    <span class="chips"><span class="chip">Used fully</span><span class="chip on">Partly used</span><span class="chip">Didn't use it</span>
+      <span class="chip">Landed well</span><span class="chip less">Didn't land</span></span></div>
+  <div class="orow"><span>Pricing for Profit</span>
+    <span class="chips"><span class="chip">Used fully</span><span class="chip">Partly used</span><span class="chip on">Didn't use it</span></span></div>
+
+  <div class="oline"><span class="nd"></span>
+    <span>Your firm shares these ticks, without names or notes, to improve recommendations across
+    Advisor-e. Nothing you type below leaves the firm.</span></div>
+
+  <div class="title">⚠ What went less well?</div>
+  <div class="ta">What was harder than expected? What didn't land well?</div>
+  <div class="title">✓ What went well?</div>
+  <div class="ta">What worked? What did the client respond well to?</div>
+  <div class="title">→ Suggested changes for similar cases</div>
+  <div class="ta">What would you do differently next time?</div>
+  <div class="btn">Save review</div>
+</div>
+
+<div class="mock">
+  <p><b>The line is question 4.</b> It sits exactly at the boundary it describes: above it, what is
+  shared; below it, what is not. It is informational — the task text says the advisor is <i>told</i>,
+  and the spec's assumption is that an advisor cannot opt out individually in this release. The
+  existing subtitle already says <i>"The AI will use this to improve future recommendations"</i>;
+  this line says <i>where</i>, and that the notes stay home.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every new word on these screens — proposed, none approved</div>
+
+<div class="card">
+  <div class="card-b">
+    <table>
+      <thead><tr><th>Where</th><th>Proposed wording</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Hub tab and page title</td><td>Outcome Sharing</td><td><span class="pill wait">Proposed — Q1</span></td></tr>
+        <tr><td>Card heading</td><td>Your firm's choice</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Status pills</td><td>Not sharing · Sharing since 10 Sep 2026</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Opening sentence</td><td>When your advisors record how each template went, those ticks can help every firm on the platform — including yours — get better recommendations.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Column headings</td><td>What leaves your firm · What never leaves</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Notice heading</td><td>What you get back</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>The consent sentence</td><td>I act for and on behalf of my firm when I choose to share our anonymised template outcomes with Advisor-e to improve recommendations for every participating firm. I understand exactly what leaves our firm and what never does, as set out above, and that I can stop sharing at any time.</td><td><span class="pill wait">Proposed — Q2, pinned once approved</span></td></tr>
+        <tr><td>Under the sentence</td><td>Stopping is immediate and needs no reason. What was already shared stays in the pool unless you also ask for it to be withdrawn — that is a separate step, and it is always available.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Buttons</td><td>Start sharing · Stop sharing · Withdraw what we have shared · Withdraw 14 reviews · Keep them</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Signature line</td><td>Switched on by: … · Shared so far: 14 reviews</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Green notice</td><td>What sharing has changed for your advisors so far — 2 adjustments accepted by the mentor currently apply at your firm.</td><td><span class="pill wait">Proposed — Q3</span></td></tr>
+        <tr><td>Withdraw dialog</td><td>Withdraw what your firm has shared · This removes all 14 reviews … · I understand this cannot be undone.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>History rows</td><td>Started sharing · Stopped sharing · Withdrew 14 reviews</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>The advisor's line</td><td>Your firm shares these ticks, without names or notes, to improve recommendations across Advisor-e. Nothing you type below leaves the firm.</td><td><span class="pill wait">Proposed — Q4</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Open questions — one recommendation each, put to Mike one at a time</div>
+
+<div class="q">
+  <h3>1 · What is the tab called?</h3>
+  <p>Drawn as <b>Outcome Sharing</b>. A firm manager sees a switch about giving something away, so the
+  name says what they are doing, not what the platform does with it.</p>
+  <p class="rec">Recommended: "Outcome Sharing". Against: the mentor's tab (drawing 2) will be called
+  something like "Outcome Learning", and two names for one feature costs a moment's translation
+  between a firm and the mentor. Kept anyway, because the firm never sees the learning and the mentor
+  never flips the switch.</p>
+</div>
+
+<div class="q">
+  <h3>2 · Is the consent sentence right?</h3>
+  <p>The sentence in the box above. First person, an authority clause, and "as set out above" so the
+  record shows the two columns were in front of the person who agreed.</p>
+  <p class="rec">Recommended: approve it as drawn, or replace it with your own words — either way it is
+  stored verbatim with every consent record and pinned. Against: it is four lines; a shorter sentence
+  reads faster, but would have to drop either the authority clause or the "I can stop" clause, and
+  both are load-bearing.</p>
+</div>
+
+<div class="q">
+  <h3>3 · Does a sharing firm see how many adjustments currently apply to it?</h3>
+  <p>The green notice on Screen B: <i>"2 adjustments accepted by the mentor currently apply at your
+  firm."</i> A count only — never the list, which is the mentor's.</p>
+  <p class="rec">Recommended: yes, the count. It answers "is this doing anything?" without giving a
+  firm a second screen to maintain, and it costs nothing because the engine loads those adjustments
+  anyway. Against: a firm seeing "0" for months may switch off; but that is a true statement about a
+  young pool, and hiding it would not make the pool older.</p>
+</div>
+
+<div class="q">
+  <h3>4 · Is the advisor's line right, and is it in the right place?</h3>
+  <p><i>"Your firm shares these ticks, without names or notes, to improve recommendations across
+  Advisor-e. Nothing you type below leaves the firm."</i> Placed between the ticks and the text boxes.</p>
+  <p class="rec">Recommended: approve as drawn. The position is the message — it draws the line where
+  the data line is. Against: it is one more line on a panel advisors fill in often; but it appears
+  only at sharing firms, and an advisor who has never been told their ticks travel would be right to
+  be annoyed to find out later.</p>
+</div>
+
+<div class="notice warn" style="margin-top:20px">
+  <b>What this drawing does not decide, so nobody reads a decision into it</b>
+  The floor, the direction and the "no free text" rule are Mike's rulings already, quoted in the
+  header, and are not re-asked. The mentor's page and the trace line are drawings 2 and 3. Whether
+  the two middle tiers get a view is answered by the spec (FR-014: no — the pool is one platform-wide
+  set, and a firm's only lever is this switch), and is not a question here.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which tiers get this, and why</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin-top:0"><b>The firm tier alone.</b> Consent is the firm's own undertaking, given
+    by a person who can bind the firm, in the same way its Compliance declaration is. The mentor and
+    the two middle tiers have nothing to switch: they contribute no reviews and they receive no
+    adjustment. The mentor's screen — what was learned, and accept / hold / reject — is drawing 2 and
+    sits at the mentor tier alone (spec FR-014, stated).</p>
+    <p><b>The advisor gets one line, not a screen.</b> They are told, at the exact point where the
+    shared ticks end and the private notes begin. Whether an advisor can opt out individually is not
+    in this release, and the spec says so.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
