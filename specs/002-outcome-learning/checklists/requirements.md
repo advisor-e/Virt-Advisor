@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — **two remain, both Mike's to rule**: FR-008 (the floor figures) and FR-010 (hold-back only, or both directions)
+- [x] No [NEEDS CLARIFICATION] markers remain — FR-008 (floor: 5 firms, 25 cases) and FR-010 (hold-back only) ruled by Mike 2026-09-10
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)

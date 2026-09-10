@@ -218,10 +218,9 @@ shown beside every adjustment.
 **P7 · A recommendation never waits on learning.** If the pool cannot be read, the engine runs
 without adjustments and the trace says so.
 
-**Two decisions open for Mike**, each with a recommendation in the spec: the floor figures
-(proposed 5 firms and 30 cases, from the meeting aggregate's precedent), and whether an
-adjustment can only hold a template back or may also lift one (recommended hold-back only in the
-first release). **Three drawings come before any code.**
+**Ruled by Mike, 2026-09-10:** the floor is **5 contributing firms and 25 cases**, and an
+adjustment can only **hold a template back**, never lift one, in this release. Both are written into
+the spec (FR-008, FR-010). **Three drawings come before any code.**
 
 ## 7. The task, as Mike set it
 
