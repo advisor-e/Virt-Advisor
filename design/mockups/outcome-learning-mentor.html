@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outcome Learning — the Mentor Hub page</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Outcome Learning, item 4.87 — drawing 2 of 3: the Mentor Hub page. What was
+   learned, from how many firms and cases, each adjustment with its evidence,
+   accept / hold / reject, history, and the two bench figures.
+   Drawn 2026-09-10 on Mike's instruction in the task he pasted to
+   /speckit-specify. Nothing is built.
+
+   Colours, spacing and type are COPIED from design/mockups/compliance-pages.html
+   (approved 2026-09-10) and outcome-learning-consent.html (approved 2026-09-10).
+   No dark mode, RULED 2026-07-27.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-10):
+     - "It surfaces on the Mentor Hub first. A page shows what has been learned,
+       from how many firms and cases, each adjustment with its evidence, and the
+       mentor accepts, holds or rejects each one before it goes live, with
+       version history and restore."
+     - "No adjustment is published below a minimum number of contributing firms
+       and cases; the numbers are shown beside every adjustment."
+     - "'Smarter' is a number: the Scenario Lab runs before and after, plus a
+       second bench built from the pooled anonymised outcomes themselves."
+
+   HIS RULINGS ALREADY GIVEN (2026-09-10), applied here and not re-asked:
+     - the floor is 5 contributing firms and 25 cases;
+     - hold-back only — a template is never lifted;
+     - no free text in the pool — so no "advisors' words" column exists;
+     - one situation dimension per adjustment: template x domain, x industry,
+       x signal, or x engagement type;
+     - only "Didn't land" on a delivered template counts; "Didn't use it" is
+       neutral;
+     - recompute when this page opens, on "Recompute now", and on a firm's
+       withdrawal — never on a schedule.
+
+   THE CONTENT IS REAL: template titles are from the master export
+   (Central Frameworks/search_content_20260730041439.json), domain labels from
+   data/domains.json, signal names from data/signal-dictionary.json, engagement
+   types from data/engagement-types.json. Every COUNT is invented and marked.
+
+   THE ARITHMETIC ON THIS PAGE (spec FR-007, as clarified, plan research §4):
+     delivered = outcomes where the template was Used fully or Partly used
+     didn't land = of those, marked Didn't land
+     hold-back = round(10 x didn't land / delivered)          0..10 points
+     publishable when firms >= 5 and cases >= 25 (cases = delivered)
+   A person can check every figure below by hand from the two counts.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+/* tab strip */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+/* cards */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+.btn{display:inline-block;margin-top:12px;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.danger{background:transparent;color:#b01212;border:1px solid #e0000045}
+.btn.small{padding:5px 11px;font-size:12.5px;margin-top:0}
+.btn.dim{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.bad{background:var(--rs-crit-soft);color:#b01212;border:1px solid #e0000045}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+.pill.off{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+/* summary strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media (max-width:760px){.strip{grid-template-columns:1fr 1fr}}
+.stat{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px;
+  box-shadow:var(--rs-shadow)}
+.stat .l{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.stat .v{font-size:26px;font-weight:300;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .s{font-size:12px;color:var(--rs-muted);margin-top:4px}
+
+/* tables */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:900px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line);white-space:nowrap}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+.tt{font-weight:600}
+.sit{font-size:12.5px;color:var(--rs-muted)}
+.sit b{color:var(--rs-ink);font-weight:600}
+.hb{display:inline-block;min-width:34px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;
+  border-radius:6px;padding:2px 7px;background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.hb.zero{background:var(--rs-panel-2);color:var(--rs-muted);border-color:var(--rs-line)}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.acts .btn{margin-top:0}
+tr.dim td{opacity:.6}
+
+/* notices */
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.crit{background:var(--rs-crit-soft);border:1px solid #e0000045;border-left:3px solid var(--rs-crit)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+
+/* history */
+.hist{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--rs-line);font-size:13px}
+.hist:last-child{border-bottom:0}
+.hist .when{color:var(--rs-muted);font-size:12px;width:150px;flex:none}
+.hist .who{flex:1}
+
+/* the decision dialog */
+.dlg{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:16px 18px;max-width:640px}
+.dlg .ta{border:1px solid var(--rs-line);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--rs-muted);
+  background:#fff;min-height:54px;margin:6px 0 12px}
+.dlg .lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+
+/* benches */
+.bench{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){.bench{grid-template-columns:1fr}}
+.bcard{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px}
+.bcard h3{margin:0 0 4px;font-size:13.5px;font-weight:600}
+.bcard .d{font-size:12px;color:var(--rs-muted);margin-bottom:10px}
+.bfig{display:flex;gap:18px;align-items:baseline}
+.bfig .n{font-size:24px;font-weight:300;font-variant-numeric:tabular-nums}
+.bfig .n small{font-size:12px;color:var(--rs-muted);display:block}
+.bfig .arrow{color:var(--rs-muted)}
+.bfig .delta{font-weight:700;color:#2f7d32}
+
+/* questions */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Outcome Learning, drawing 2 of 3 — the Mentor Hub page. Drawn for approval 2026-09-10. Nothing
+  is built.</b> Drawing 1 (the firm's consent) is approved; drawing 3 (the trace line) follows.</p>
+  <p><b>What this page is for, in one sentence:</b> the mentor sees what the pool has learned — which
+  templates keep not landing, in which situation, on how much evidence — and decides, one adjustment
+  at a time, whether it goes live for every sharing firm.</p>
+  <p>🔴 <b>NOTHING ON THIS PAGE CHANGES A RECOMMENDATION UNTIL THE MENTOR PRESSES ACCEPT.</b> A
+  proposed adjustment is a finding, not an action. And a hold-back is <b>at most 10 points</b>, is
+  skipped when the advisor's own words matched a distinction for that template, and never takes a
+  template off the list — the plan's cap, question 1 on drawing 3.</p>
+  <p><b>Template titles, domain labels, signal names and engagement types are the app's own. Every
+  count marked <span class="ex">example</span> is invented.</b></p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — the Mentor Hub page, with a pool that has crossed the floor</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Mentor Hub</div>
+  <h1 class="hub-h1">Outcome Learning</h1>
+  <div class="hub-sub">Advisor-e platform · pooled from every firm that shares</div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Adoption</div>
+  <div class="tab">Logic-Lab Report</div>
+  <div class="tab">Case Reviews</div>
+  <div class="tab">Template Check</div>
+  <div class="tab">Template Library</div>
+  <div class="tab on">Outcome Learning</div>
+</div>
+
+<div class="mock">
+  <p><b>WHERE IT SITS.</b> Appended to the <b>Rolled up from below</b> group of the Mentor Hub's
+  left-hand menu, beside Case Reviews and Template Check, because it is the same kind of thing: what
+  the firms' reviews add up to. <b>Mentor tier alone</b> (spec FR-014) — the pool is one
+  platform-wide set and no lower tier holds a different value; a firm's only lever is the switch on
+  drawing 1. <b>The tab name is question 2.</b></p>
+</div>
+
+<div class="strip">
+  <div class="stat"><div class="l">Firms sharing</div><div class="v">7 <span class="ex">example</span></div><div class="s">of 23 on the platform</div></div>
+  <div class="stat"><div class="l">Reviews in the pool</div><div class="v">212 <span class="ex">example</span></div><div class="s">since 10 Sep 2026</div></div>
+  <div class="stat"><div class="l">Live adjustments</div><div class="v">1</div><div class="s">2 proposed · 1 held · 1 below the floor</div></div>
+  <div class="stat"><div class="l">Last recomputed</div><div class="v" style="font-size:16px;margin-top:8px">Today, 9:14am</div><div class="s"><span class="btn small ghost">Recompute now</span></div></div>
+</div>
+
+<div class="mock">
+  <p><b>The page recomputes every time it opens</b> (your ruling of 2026-09-10 — no background
+  schedule), so "Last recomputed" is normally "just now". The button exists for the mentor who has
+  had the page open a while and wants fresh figures without reloading. <b>Firms sharing</b> is the
+  count of distinct firm codes in the pool — the page never knows which firms they are.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What the pool has learned</h2>
+    <span class="pill inh">Floor: 5 firms and 25 cases</span>
+  </div>
+  <div class="card-b">
+    <div class="tw">
+    <table>
+      <thead><tr>
+        <th>Template</th><th>In this situation</th><th>Delivered</th><th>Didn't land</th>
+        <th>Hold-back</th><th>Firms</th><th>State</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tt">Break-Even</span><div class="src">Profitability &amp; Feasibility</div></td>
+          <td class="sit">Domain: <b>profitability and feasibility</b></td>
+          <td class="num">31</td>
+          <td class="num">12 <div class="src" style="font-weight:300">39%</div></td>
+          <td><span class="hb">−4</span></td>
+          <td class="num">6</td>
+          <td><span class="pill ok">Live</span><div class="src">Accepted 3 Nov · Rewi Tapsell</div></td>
+          <td><div class="acts"><span class="btn small dim">Hold</span><span class="btn small danger">Reject</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">7 Cash Drivers</span><div class="src">Profitability &amp; Feasibility</div></td>
+          <td class="sit">Signal: <b>cash flow gap</b></td>
+          <td class="num">28</td>
+          <td class="num">9 <div class="src" style="font-weight:300">32%</div></td>
+          <td><span class="hb">−3</span></td>
+          <td class="num">5</td>
+          <td><span class="pill wait">Proposed</span><div class="src">Crossed the floor 12 Nov</div></td>
+          <td><div class="acts"><span class="btn small">Accept</span><span class="btn small dim">Hold</span><span class="btn small danger">Reject</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">Price Rise</span><div class="src">Profitability &amp; Feasibility</div></td>
+          <td class="sit">Engagement type: <b>education</b></td>
+          <td class="num">26</td>
+          <td class="num">0 <div class="src" style="font-weight:300">0%</div></td>
+          <td><span class="hb zero">0</span></td>
+          <td class="num">5</td>
+          <td><span class="pill wait">Proposed</span><div class="src">Nothing to hold back</div></td>
+          <td><div class="acts"><span class="btn small">Accept</span><span class="btn small dim">Hold</span><span class="btn small danger">Reject</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">Stock Policies</span><div class="src">Stock Purchasing</div></td>
+          <td class="sit">Industry: <b>cafe</b></td>
+          <td class="num">27</td>
+          <td class="num">15 <div class="src" style="font-weight:300">56%</div></td>
+          <td><span class="hb">−6</span></td>
+          <td class="num">5</td>
+          <td><span class="pill off">Held</span><div class="src">Held 12 Nov · Rewi Tapsell — "wait for a second industry"</div></td>
+          <td><div class="acts"><span class="btn small">Accept</span><span class="btn small danger">Reject</span></div></td>
+        </tr>
+        <tr class="dim">
+          <td><span class="tt">Debtor Protocols</span><div class="src">Profitability &amp; Feasibility</div></td>
+          <td class="sit">Signal: <b>sales volume</b></td>
+          <td class="num">19</td>
+          <td class="num">8 <div class="src" style="font-weight:300">42%</div></td>
+          <td><span class="hb">−4</span></td>
+          <td class="num">4</td>
+          <td><span class="pill off">Below the floor</span><div class="src">Needs 1 more firm and 6 more cases</div></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">
+      <b>How to check a row by hand:</b> hold-back = 10 × didn't land ÷ delivered, rounded.
+      Break-Even: 10 × 12 ÷ 31 = 3.9 → 4. Only templates that were <i>Used fully</i> or
+      <i>Partly used</i> count as delivered; <i>Didn't use it</i> is neutral. Cases = delivered.
+      All counts marked example.
+    </p>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Reading the table.</b> One row is one template in one situation, never a combination
+  (your ruling). The Break-Even row says: across 6 sharing firms, advisors delivered Break-Even in
+  31 profitability cases and marked it "Didn't land" in 12, so it is held back 4 points in that
+  domain for every sharing firm's advisors — and the mentor accepted that on 3 November.</p>
+  <p><b>The Price Rise row is question 4.</b> It crossed the floor with nothing to hold back — 26
+  deliveries, none marked "Didn't land". Drawn as listed, with a hold-back of 0, so the mentor can
+  see the pool learned something reassuring about it; accepting it applies nothing.</p>
+  <p><b>The Stock Policies row is question 1.</b> "cafe" is a word an advisor typed. It is on this
+  page only because it matches the engine's own industry vocabulary; a typed industry that matches
+  nothing carries no industry row at all.</p>
+  <p><b>Hold on a live row</b> pauses it: it stops applying and keeps its place. <b>Reject</b> asks
+  for a reason (Screen B). A rejected row stays visible, greyed, so the same finding is not
+  re-proposed to a mentor who already said no. <b>Accept on a held row</b> makes it live.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — rejecting an adjustment</div>
+
+<div class="dlg">
+  <p style="margin:0 0 4px;font-size:14.5px"><b>Reject: Break-Even in profitability and feasibility</b></p>
+  <p style="margin:0 0 12px;font-size:13px;color:var(--rs-muted)">It stops applying now, everywhere. It stays on the page as rejected and can be restored from history.</p>
+  <div class="lbl">Why — kept with the decision</div>
+  <div class="ta">Break-Even is the first thing we teach in this domain; a low landing rate here says more about when it is delivered than whether it should be.</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <span class="btn danger" style="margin-top:0">Reject this adjustment</span>
+    <span class="btn ghost" style="margin-top:0">Keep it live</span>
+  </div>
+</div>
+
+<div class="mock" style="margin-top:14px">
+  <p><b>The reason is question 3.</b> Drawn as required for Reject and optional for Hold. A
+  rejection is a mentor overruling the evidence, and the next mentor to open this page deserves to
+  know why; a hold is a pause and often needs no reason beyond "not yet".</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — the two benches, on the same page</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Is it smarter? The number</h2>
+    <span class="btn small ghost">Run the benches</span>
+  </div>
+  <div class="card-b">
+    <div class="bench">
+      <div class="bcard">
+        <h3>Fixed bench — the Scenario Lab</h3>
+        <div class="d">50 invented cases across 14 domains, unchanged since June. Share whose top recommendation is the one the case expects.</div>
+        <div class="bfig">
+          <span class="n">62%<small>without adjustments</small></span>
+          <span class="arrow">→</span>
+          <span class="n">64%<small>with the 1 live adjustment</small></span>
+          <span class="delta">+2 <span class="ex">example</span></span>
+        </div>
+      </div>
+      <div class="bcard">
+        <h3>Outcome bench — the pool itself</h3>
+        <div class="d">Every pooled review replayed through the engine. Share whose top recommendation that review marked "Landed well".</div>
+        <div class="bfig">
+          <span class="n">58%<small>without adjustments</small></span>
+          <span class="arrow">→</span>
+          <span class="n">63%<small>with the 1 live adjustment</small></span>
+          <span class="delta">+5 <span class="ex">example</span></span>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">
+      Last run today, 9:14am, with 1 live adjustment. The outcome bench scores the adjustments on the
+      same reviews that produced them, so it flatters them a little; the fixed bench cannot be flattered
+      because it never saw the pool. Read them together.
+    </p>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Both figures are Mike's task text made visible</b> — <i>"'Smarter' is a number … report both."</i>
+  The run happens on the button, not on page open, because it replays hundreds of cases through the
+  engine; if it ever takes longer than the page-render limit, the button reports "running" and the
+  figures arrive when it finishes (plan contracts §Mentor). The honesty line under the figures is on
+  the page on purpose: the pool bench is in-sample in this release, and saying so beats a number that
+  looks better than it is.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen D — history, orphans, and the empty page</div>
+
+<div class="card">
+  <div class="card-h"><h2>History</h2><span class="pill inh">Every decision, restorable</span></div>
+  <div class="card-b">
+    <div class="hist"><span class="when">12 Nov 2026 <span class="ex">example</span></span><span class="who">Held — Stock Policies in cafe — Rewi Tapsell — "wait for a second industry"</span><span class="btn small ghost">Restore to here</span></div>
+    <div class="hist"><span class="when">3 Nov 2026</span><span class="who">Accepted — Break-Even in profitability and feasibility — Rewi Tapsell</span><span class="btn small ghost">Restore to here</span></div>
+    <div class="hist"><span class="when">14 Oct 2026</span><span class="who">Unpublished automatically — Debtor Protocols with sales volume — a firm withdrew and it fell below the floor</span><span class="pill off">System</span></div>
+    <div class="hist"><span class="when">2 Oct 2026</span><span class="who">Accepted — Debtor Protocols with sales volume — Rewi Tapsell</span><span class="btn small ghost">Restore to here</span></div>
+  </div>
+</div>
+
+<div class="notice warn">
+  <b>1 adjustment refers to a template that is no longer in the library</b>
+  <i>Labour, Margin, Sales</i> in <i>financial management</i> was accepted on 20 October and the title
+  has since gone from the template export. It is not applied and cannot be. If the template comes
+  back under the same title it resumes; if it was renamed, the pool will learn the new title afresh.
+</div>
+
+<div class="mock">
+  <p><b>The "unpublished automatically" row is the withdrawal rule from drawing 1 seen from this
+  side.</b> A firm withdrew, Debtor Protocols dropped to 4 firms, and it stopped applying at once —
+  the history says why, and the table above shows it as below the floor with what it needs. Nobody
+  had to notice.</p>
+  <p><b>The orphan notice</b> is the spec's edge case for a renamed or removed template. It is a
+  notice, not a row, because there is nothing to accept or reject.</p>
+</div>
+
+<div class="hub-top" style="background:#5b6f8a">
+  <div class="hub-eyebrow" style="color:#dbe7f2">Mentor Hub</div>
+  <h1 class="hub-h1">Outcome Learning</h1>
+  <div class="hub-sub">Advisor-e platform · pooled from every firm that shares</div>
+</div>
+<div class="card">
+  <div class="card-b">
+    <p style="font-size:14.5px"><b>Nothing to show yet.</b> 2 firms are sharing and 11 reviews are in the pool
+    <span class="ex">example</span>. An adjustment is proposed once 5 firms and 25 cases have delivered the
+    same template in the same situation, and nothing has reached that yet.</p>
+    <p style="font-size:13px;color:var(--rs-muted)">This page recomputes each time it opens. There is nothing to do here until it does.</p>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>The empty state says the two numbers that explain it</b> — how many firms, how many reviews —
+  and the floor, so a mentor opening this page in week one sees a young pool rather than a broken
+  page (spec FR-013, and this product's own P11: a tidy page that looks like a failure is a failure).</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every new word on this page — proposed, none approved</div>
+
+<div class="card">
+  <div class="card-b">
+    <div class="tw">
+    <table style="min-width:0">
+      <thead><tr><th>Where</th><th>Proposed wording</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Hub tab and page title</td><td>Outcome Learning</td><td><span class="pill wait">Proposed — Q2</span></td></tr>
+        <tr><td>Header line</td><td>Advisor-e platform · pooled from every firm that shares</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Summary tiles</td><td>Firms sharing · Reviews in the pool · Live adjustments · Last recomputed · Recompute now</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Table heading and floor pill</td><td>What the pool has learned · Floor: 5 firms and 25 cases</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Column headings</td><td>Template · In this situation · Delivered · Didn't land · Hold-back · Firms · State</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Situation labels</td><td>Domain: · Signal: · Industry: · Engagement type:</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>States</td><td>Live · Proposed · Held · Rejected · Below the floor</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>State sub-lines</td><td>Accepted 3 Nov · Crossed the floor 12 Nov · Nothing to hold back · Needs 1 more firm and 6 more cases</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Buttons</td><td>Accept · Hold · Reject · Reject this adjustment · Keep it live · Run the benches · Restore to here</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Under the table</td><td>How to check a row by hand: hold-back = 10 × didn't land ÷ delivered, rounded. …</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Reject dialog</td><td>It stops applying now, everywhere. It stays on the page as rejected and can be restored from history. · Why — kept with the decision</td><td><span class="pill wait">Proposed — Q3</span></td></tr>
+        <tr><td>Bench card</td><td>Is it smarter? The number · Fixed bench — the Scenario Lab · Outcome bench — the pool itself · without adjustments · with the 1 live adjustment</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Bench honesty line</td><td>The outcome bench scores the adjustments on the same reviews that produced them, so it flatters them a little; the fixed bench cannot be flattered because it never saw the pool. Read them together.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>History rows</td><td>Accepted — … · Held — … · Unpublished automatically — … — a firm withdrew and it fell below the floor</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Orphan notice</td><td>1 adjustment refers to a template that is no longer in the library …</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Empty state</td><td>Nothing to show yet. 2 firms are sharing and 11 reviews are in the pool. An adjustment is proposed once 5 firms and 25 cases have delivered the same template in the same situation, and nothing has reached that yet.</td><td><span class="pill wait">Proposed</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Open questions — one recommendation each, put to Mike one at a time</div>
+
+<div class="q">
+  <h3>1 · Does a typed industry enter the pool at all?</h3>
+  <p>An advisor types the client's industry as free text — "cafe", "dairy farm", "Smith &amp; Co
+  panelbeaters". Your rule is that no free text enters the pool. The engine already keeps its own
+  industry vocabulary for scoring templates.</p>
+  <p class="rec">Recommended: industry enters only when the typed value matches a term in that
+  vocabulary, exactly; anything else carries no industry, and the review still contributes on its
+  other dimensions. Against: a firm whose advisors type "café" with an accent, or "coffee shop",
+  contributes no industry rows — but that is the price of never letting a typed name through, and
+  the vocabulary can grow on the Domain Support tab where it already lives.</p>
+</div>
+
+<div class="q">
+  <h3>2 · What is the mentor's tab called?</h3>
+  <p>Drawn as <b>Outcome Learning</b> — the item's own name, and the thing the mentor is looking at:
+  what the platform learned from outcomes. The firm's tab is <b>Outcome Sharing</b> (ruled on
+  drawing 1), because the firm shares and the mentor learns.</p>
+  <p class="rec">Recommended: "Outcome Learning". Against: two names for one feature; kept because
+  they name two different acts by two different people.</p>
+</div>
+
+<div class="q">
+  <h3>3 · Is a reason required to reject, and optional to hold?</h3>
+  <p>Screen B. A rejection overrules the evidence and the next mentor should know why; a hold is a
+  pause.</p>
+  <p class="rec">Recommended: required to reject, optional to hold. Against: a required box gets
+  filled with "no" by a mentor in a hurry — true, and still better than nothing, because the reason
+  travels with the decision into history.</p>
+</div>
+
+<div class="q">
+  <h3>4 · Is a template that crossed the floor with nothing to hold back shown at all?</h3>
+  <p>The Price Rise row: 26 deliveries in education engagements across 5 firms, none marked "Didn't
+  land". The pool has learned something about it, but there is nothing to adjust.</p>
+  <p class="rec">Recommended: show it, hold-back 0, so the mentor sees the reassuring findings as well
+  as the worrying ones — it is the only place the good news appears, since the pool never lifts a
+  template. Against: rows that do nothing add length; on a mature pool most templates will sit at 0,
+  and a filter "show only hold-backs" is a one-line addition when that day comes.</p>
+</div>
+
+<div class="notice warn" style="margin-top:20px">
+  <b>What this drawing does not decide</b>
+  The size of the cap (10 points) and how an applied or outweighed adjustment reads on the advisor's
+  "Why this?" panel are drawing 3. The floor, the direction, "no free text", one dimension per row,
+  and recompute-on-open are your rulings already and are applied here, not re-asked.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which tiers get this, and why</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin-top:0"><b>The mentor tier alone</b> (spec FR-014, a stated judgement under the
+    hub-page rule's default). The pool is one platform-wide set: a global group manager or group
+    manager would see exactly the same rows and could take no different decision on them, and a firm
+    holds no value of its own here — its only lever is the switch on drawing 1, and its only view is
+    the count of adjustments applying to it (ruled there). Cascading becomes mandatory the day a
+    lower tier has a real reason to hold a different value; none has one today.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
