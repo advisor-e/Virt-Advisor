@@ -275,10 +275,10 @@ Every change needs Mike's explicit yes. Wording on screens is his to approve bef
 
 ## 8. For the coder
 
-Built through story 3 and the firm's screen on 2026-09-11, task by task from
+Built through story 3 and both hub screens on 2026-09-11, task by task from
 [`tasks.md`](../../specs/002-outcome-learning/tasks.md), each checked against the three drawings
-approved by Mike 2026-09-10. The mentor's screen, industry suggestions on intake, the seed
-script and the benches remain.
+approved by Mike 2026-09-10. Industry suggestions on intake, the seed script and the benches
+remain.
 
 | Piece | Where it stands today |
 |---|---|
@@ -289,12 +289,13 @@ script and the benches remain.
 | Firm routes | `server/routes/outcomeConsent.js` — read, set, withdraw under `fmGuard`; withdraw recomputes. The read also returns `adjustmentsApplying` (the count a sharing firm sees, never the list) and every switch is kept as `events` on the record for the History card |
 | The firm's screen | `components/firm/FirmOutcomeConsent.vue`, the Outcome Sharing tab under Compliance at the firm tier alone (`TAB_TIERS.outcomeConsent`); strings in `locales/en.json` `outcomeConsent.*` |
 | The advisor's notice | the one line on the review panel in `components/VirtualAdvisor.vue`, shown when `outcomeContribution` on the case list is true (`mixins/caseMixin.js`) |
-| Mentor routes | `server/routes/outcomeLearning.js` — list, recompute, decision, history, restore, export under `mentorGuard`; a page load recomputes but never writes a version |
+| Mentor routes | `server/routes/outcomeLearning.js` — list, recompute, decision, history, restore, export under `mentorGuard`; a page load recomputes but never writes a version; a rejection without a reason is refused |
+| The mentor's screen | `components/mentor/MentorOutcomeLearning.vue`, the Outcome Learning tab under Rolled up from below at the mentor tier alone (`TAB_TIERS.outcomeLearning`); strings in `locales/en.json` `outcomeLearning.*`. The bench card says the benches have not been run until user story 4 |
 | The resolver | `pooledAdjustments` / `pooledSignalTypes` in `server/utils/templateResolver.js`, before the history clamp; `SCORING_VERSION` 2.2.0 |
 | The session and the trace | `server/utils/outcomeLearningSession.js`, wired in `server/advisorEngine.js`; `decisionTrace.outcomeLearning` |
 | Reason wording | `pooled:held_back-<n>`, `pooled:outweighed` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
 | The advisor's panel | "Learned from outcomes" in `components/VirtualAdvisor.vue` |
-| NOT BUILT | industry suggestions on intake (T022a), `MentorOutcomeLearning.vue` and its tab, the seed script, `--adjustments` on the Scenario Lab, the outcome bench and the bench route |
+| NOT BUILT | industry suggestions on intake (T022a), the seed script (T030), `--adjustments` on the Scenario Lab, the outcome bench and the bench route |
 | The three approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html), rulings on each, rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
 
 ## 9. Related briefs

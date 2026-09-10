@@ -175,6 +175,12 @@ async function decision (req, res) {
   if (body.reason !== undefined && (typeof body.reason !== 'string' || body.reason.length > MAX_REASON)) {
     return sendError(res, 400, 'INVALID_DECISION', 'reason must be a string of at most 500 characters')
   }
+  // Mike's ruling of 2026-09-10: a reason is REQUIRED to reject, optional to hold. A rejection
+  // overrules the evidence and the next mentor deserves to know why. Refused here, not only on
+  // the screen — a screen-side rule is not a rule.
+  if (body.state === 'rejected' && !(typeof body.reason === 'string' && body.reason.trim())) {
+    return sendError(res, 400, 'INVALID_DECISION', 'a reason is required to reject')
+  }
   try {
     const result = await recompute()
     const target = result.computed.find(a => a.id === id)

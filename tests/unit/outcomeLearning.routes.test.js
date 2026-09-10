@@ -206,12 +206,22 @@ describe('decision', () => {
 
   test('held and rejected are allowed below the floor', async () => {
     withPool({ firms: 4, cases: 31, less: 12 })
-    for (const state of ['held', 'rejected']) {
+    for (const body of [{ id: ID, state: 'held' }, { id: ID, state: 'rejected', reason: 'not this one' }]) {
       const res = makeRes()
-      await routes.decision(req({ body: { id: ID, state } }), res)
+      await routes.decision(req({ body }), res)
       expect(res._status).toBe(200)
     }
     expect(overlay.saveFirmConfig).toHaveBeenCalledTimes(2)
+  })
+
+  // Mike's ruling of 2026-09-10: required to reject, optional to hold. Refused on the backend
+  // so no screen can reject without one.
+  test.each([['missing', undefined], ['blank', '   ']])('refuses a rejection with a %s reason before reading anything', async (_l, reason) => {
+    const res = makeRes()
+    await routes.decision(req({ body: { id: ID, state: 'rejected', reason } }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('INVALID_DECISION')
+    expect(overlay.loadFirmConfigsByPrefix).not.toHaveBeenCalled()
   })
 
   test('refuses live on an orphaned adjustment', async () => {

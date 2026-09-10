@@ -149,8 +149,12 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   at: the platform's own assessment of what this software does with a client's information is
  *   the first thing published, and every tier beneath inherits it. The mentor is also the only
  *   tier with nothing published TO it, which is the one way its screen differs.
+ * - `outcomeLearning` — Mike, 2026-09-10 (item 4.87): *"It surfaces on the Mentor Hub first. A
+ *   page shows what has been learned … and the mentor accepts, holds or rejects each one before
+ *   it goes live."* ⚠ MENTOR ALONE by design (spec FR-014): the pool is one platform-wide set,
+ *   and a lower tier would see the same rows and could take no different decision on them.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

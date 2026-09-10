@@ -691,6 +691,14 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('adoption')" v-show="activeTab === 'adoption'")
         mentor-adoption(:api-token="apiToken")
 
+      //- Outcome Learning (item 4.87) — what the pooled, anonymised case reviews have
+      //- learned, and the mentor's accept / hold / reject on each adjustment before it
+      //- goes live. Asked for by Mike on 2026-09-10: "It surfaces on the Mentor Hub first."
+      //- design/mockups/outcome-learning-mentor.html, approved the same day; wording ruled
+      //- 2026-09-11. 🔴 NOTHING CHANGES A RECOMMENDATION UNTIL THE MENTOR PRESSES ACCEPT.
+      div.hub-panel(v-if="showsTab('outcomeLearning')" v-show="activeTab === 'outcomeLearning'")
+        mentor-outcome-learning(:api-token="apiToken")
+
       //- ── Tab: Team Case Studies (manager review) ────────────────────
       //- FIRM SCOPE ONLY, and hidden rather than widened. The mentor already has
       //- the correct cross-firm version in the Case Reviews tab below, which shows
@@ -913,6 +921,7 @@ import FirmTemplateLibrary from '~/components/firm/FirmTemplateLibrary.vue'
 // off) — the server role-gates every /api/mentor call regardless.
 import MentorReview from '~/components/MentorReview.vue'
 import MentorAdoption from '~/components/mentor/MentorAdoption.vue'
+import MentorOutcomeLearning from '~/components/mentor/MentorOutcomeLearning.vue'
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
 import MentorTemplateLibrary from '~/components/mentor/MentorTemplateLibrary.vue'
@@ -1227,7 +1236,15 @@ const TAB_TIERS = {
   // middle tiers contribute no reviews and receive no adjustment, so they have nothing to
   // switch (spec FR-014). The mentor's side of the same feature — what was learned, and
   // accept / hold / reject — is a separate tab at the mentor tier alone.
-  outcomeConsent: ['firm']
+  outcomeConsent: ['firm'],
+
+  // 🔴 THE MENTOR ALONE, AS A STATED JUDGEMENT (item 4.87, spec FR-014). The pool is one
+  // platform-wide set: a global group manager or group manager would see exactly the same
+  // rows and could take no different decision on them, and a firm holds no value of its own
+  // here — its only lever is the switch above, and its only view is the count of adjustments
+  // applying to it. Cascading becomes mandatory the day a lower tier has a real reason to
+  // hold a different value; none has one today.
+  outcomeLearning: ['mentor']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
@@ -1415,7 +1432,11 @@ const NAV_GROUPS = [
       // Placed beside Template Check as approved (Mike, 2026-08-31): both are
       // mentor-only maintenance of the one shared template catalogue, even though
       // an upload is not itself a roll-up. Named to Mike at approval time.
-      { key: 'templateLibrary', i18n: 'templateLibrary.tab' }
+      { key: 'templateLibrary', i18n: 'templateLibrary.tab' },
+      // Item 4.87. Beside Case Reviews and Template Check because it is the same kind of
+      // thing — what the firms' reviews add up to — as the drawing places it. Mentor only;
+      // see TAB_TIERS.outcomeLearning.
+      { key: 'outcomeLearning', i18n: 'outcomeLearning.tab' }
     ]
   }
 ]
@@ -1451,7 +1472,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected },
 
   mixins: [traceReasonMixin],
 
