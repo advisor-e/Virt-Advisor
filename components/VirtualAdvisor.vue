@@ -718,6 +718,15 @@
                       @click="setOutcomeResult(t, 'less')"
                     ) {{ $t('advisor.outcome.didntLand') }}
 
+              //- Outcome Learning (item 4.87) — the one line an advisor sees at a firm
+              //- that is sharing, in Mike's ruled wording (design/mockups/
+              //- outcome-learning-consent.html, Screen C). It sits at the boundary it
+              //- describes: above it, what is shared; below it, what never leaves.
+              //- Absent at a firm that is not sharing, so the panel is exactly today's.
+              .review-share-note(v-if="outcomeContribution")
+                span.review-share-dot
+                span {{ $t('outcomeConsent.advisorNotice') }}
+
               .review-field
                 label.review-label {{ $t('advisor.review.wentLess') }}
                 .review-voice-bar(v-if="speechSupported")
@@ -3352,6 +3361,27 @@ export default {
   border-top: 1px solid #f3f4f6;
 }
 .review-outcome-row:first-of-type { border-top: none; }
+.review-share-note {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  color: #5b6f8a;
+  background: #f1f6fb;
+  border: 1px solid #d5e1ee;
+  border-radius: 9px;
+  padding: 9px 12px;
+  margin: 12px 0;
+}
+.review-share-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00b1e0;
+  flex: none;
+  margin-top: 6px;
+}
 .review-outcome-name {
   flex: 1 1 100%;
   font-size: 12.5px;

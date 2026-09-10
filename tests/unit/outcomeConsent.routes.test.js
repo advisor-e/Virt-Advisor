@@ -14,9 +14,11 @@ jest.mock('../../server/utils/firmOverlay', () => ({
   deleteFirmConfigsByPrefix: jest.fn()
 }))
 jest.mock('../../server/routes/outcomeLearning', () => ({ recomputeAndPersist: jest.fn() }))
+jest.mock('../../server/utils/outcomeLearningSession', () => ({ loadPooledForSession: jest.fn() }))
 
 const overlay = require('../../server/utils/firmOverlay')
 const { recomputeAndPersist } = require('../../server/routes/outcomeLearning')
+const { loadPooledForSession } = require('../../server/utils/outcomeLearningSession')
 const routes = require('../../server/routes/outcomeConsent')
 const { CONFIG_KEY, CONSENT_WORDING, firmToken } = require('../../server/utils/outcomeConsent')
 const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
@@ -42,6 +44,7 @@ const stored = (over = {}) => ({
   setAt: '2026-09-01T00:00:00Z',
   wording: CONSENT_WORDING,
   withdrawals: [{ requestedBy: 'earlier@firm.example', requestedAt: '2026-09-02T00:00:00Z', removed: 3 }],
+  events: [{ on: true, by: 'earlier@firm.example', at: '2026-09-01T00:00:00Z' }],
   ...over
 })
 
@@ -57,6 +60,7 @@ beforeEach(() => {
   overlay.saveFirmConfig.mockResolvedValue(1)
   overlay.deleteFirmConfigsByPrefix.mockResolvedValue(0)
   recomputeAndPersist.mockResolvedValue({})
+  loadPooledForSession.mockResolvedValue({ consented: true, available: true, adjustments: [{ id: 'a' }, { id: 'b' }] })
   jest.spyOn(console, 'error').mockImplementation(() => {})
 })
 
@@ -74,13 +78,34 @@ describe('read', () => {
     expect(overlay.loadFirmConfig).toHaveBeenCalledWith(FIRM, CONFIG_KEY)
     expect(overlay.loadFirmConfigsByPrefix).toHaveBeenCalledWith(PLATFORM_SCOPE, 'outcome-pool:' + token + ':')
     expect(res._status).toBe(200)
-    expect(res._body).toEqual({ success: true, consent: stored(), wording: CONSENT_WORDING, pooledCount: 2 })
+    expect(res._body).toEqual({ success: true, consent: stored(), wording: CONSENT_WORDING, pooledCount: 2, adjustmentsApplying: 2 })
+    expect(loadPooledForSession).toHaveBeenCalledWith(FIRM)
+  })
+
+  // Mike's ruling of 2026-09-10: a sharing firm sees the COUNT of adjustments applying to
+  // it, never the list. A firm that is not sharing receives no adjustment, so there is
+  // nothing to count and the pool is not read for it.
+  test('a firm that is not sharing gets no adjustment count, and the pool is not asked', async () => {
+    overlay.loadFirmConfig.mockResolvedValue(stored({ on: false }))
+    const res = makeRes()
+    await routes.read(req(), res)
+    expect(res._body.adjustmentsApplying).toBeNull()
+    expect(loadPooledForSession).not.toHaveBeenCalled()
+  })
+
+  test('a sharing firm whose pool could not be read gets null, not zero', async () => {
+    overlay.loadFirmConfig.mockResolvedValue(stored())
+    loadPooledForSession.mockResolvedValue({ consented: true, available: false, adjustments: [] })
+    const res = makeRes()
+    await routes.read(req(), res)
+    expect(res._status).toBe(200)
+    expect(res._body.adjustmentsApplying).toBeNull()
   })
 
   test('no record yet reads as consent null, count 0, even when the pool read returns null', async () => {
     const res = makeRes()
     await routes.read(req(), res)
-    expect(res._body).toEqual({ success: true, consent: null, wording: CONSENT_WORDING, pooledCount: 0 })
+    expect(res._body).toEqual({ success: true, consent: null, wording: CONSENT_WORDING, pooledCount: 0, adjustmentsApplying: null })
     overlay.loadFirmConfigsByPrefix.mockResolvedValue(null)
     const res2 = makeRes()
     await routes.read(req(), res2)
@@ -130,10 +155,24 @@ describe('set', () => {
     expect(res._body.consent).toMatchObject({ on: true, setBy: MANAGER })
   })
 
-  test('the first switch has no withdrawals', async () => {
+  // The History card: every switch is kept on the record, oldest first, signed from the
+  // token. The store's version history cannot supply this — it keeps who saved and when,
+  // not what was saved.
+  test('appends this switch to the events the record already holds, signed from the token', async () => {
+    overlay.loadFirmConfig.mockResolvedValue(stored({ on: true }))
+    const res = makeRes()
+    await routes.set(req({ body: { on: false, by: 'impostor@x' } }), res)
+    const value = overlay.saveFirmConfig.mock.calls[0][2]
+    expect(value.events).toHaveLength(2)
+    expect(value.events[0]).toEqual(stored().events[0])
+    expect(value.events[1]).toMatchObject({ on: false, by: MANAGER, at: value.setAt })
+    expect(res._body.consent.events).toHaveLength(2)
+  })
+
+  test('the first switch has no withdrawals and is the first event', async () => {
     const res = makeRes()
     await routes.set(req({ body: { on: false } }), res)
-    expect(overlay.saveFirmConfig.mock.calls[0][2]).toMatchObject({ on: false, withdrawals: [] })
+    expect(overlay.saveFirmConfig.mock.calls[0][2]).toMatchObject({ on: false, withdrawals: [], events: [{ on: false, by: MANAGER }] })
   })
 
   test.each([['a string', 'true'], ['a number', 1], ['missing', undefined], ['no body at all', null]])('refuses on as %s with 400 before reading', async (_l, on) => {

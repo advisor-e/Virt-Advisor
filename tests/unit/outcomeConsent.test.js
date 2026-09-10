@@ -21,7 +21,8 @@ const valid = () => ({
   setBy: 'manager@firm.example',
   setAt: '2026-09-10T02:14:00Z',
   wording: CONSENT_WORDING,
-  withdrawals: [{ requestedBy: 'manager@firm.example', requestedAt: '2026-09-11T01:00:00Z', removed: 12 }]
+  withdrawals: [{ requestedBy: 'manager@firm.example', requestedAt: '2026-09-11T01:00:00Z', removed: 12 }],
+  events: [{ on: true, by: 'manager@firm.example', at: '2026-09-10T02:14:00Z' }]
 })
 
 describe('readConsent', () => {
@@ -51,11 +52,27 @@ describe('readConsent', () => {
     expect(readConsent(input)).toBeNull()
   })
 
-  test('tolerates a missing wording and a missing withdrawals list', () => {
+  test('tolerates a missing wording, a missing withdrawals list and a missing events list', () => {
     const v = valid()
     delete v.wording
     delete v.withdrawals
-    expect(readConsent(v)).toEqual({ ...valid(), wording: '', withdrawals: [] })
+    delete v.events
+    expect(readConsent(v)).toEqual({ ...valid(), wording: '', withdrawals: [], events: [] })
+  })
+
+  // A record written before the History card existed has no events; one written since
+  // must never let a malformed entry through, because the card names who did what.
+  test('drops malformed switch events and keeps the well-formed ones', () => {
+    const v = valid()
+    v.events = [
+      'not an object',
+      null,
+      { on: 'true', by: 'a@b', at: '2026-09-11T01:00:00Z' },
+      { on: true, by: '', at: '2026-09-11T01:00:00Z' },
+      { on: true, by: 'a@b', at: 'never' },
+      { on: false, by: 'a@b', at: '2026-09-11T01:00:00Z' }
+    ]
+    expect(readConsent(v).events).toEqual([{ on: false, by: 'a@b', at: '2026-09-11T01:00:00Z' }])
   })
 
   test('drops malformed withdrawal entries and keeps the well-formed ones', () => {

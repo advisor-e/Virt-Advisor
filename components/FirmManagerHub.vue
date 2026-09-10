@@ -275,6 +275,15 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('compliance')" v-show="activeTab === 'compliance'")
         firm-compliance(:api-token="apiToken" @new-count="complianceNewCount = $event")
 
+      //- Outcome Sharing (item 4.87) — the firm's consent to pool its anonymised
+      //- template outcomes, and the way back out. Asked for by Mike on 2026-09-10:
+      //- "A firm manager opts the firm in, and can opt out at any time, on a hub page at
+      //- the firm tier." design/mockups/outcome-learning-consent.html, approved the same
+      //- day; its wording ruled 2026-09-11.
+      //- 🔴 THE SWITCH IS THE WHOLE GATE, and it is the backend's — this panel only asks.
+      div.hub-panel(v-if="showsTab('outcomeConsent')" v-show="activeTab === 'outcomeConsent'")
+        firm-outcome-consent(:api-token="apiToken")
+
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
@@ -894,6 +903,7 @@ import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmClientCopyRequests from '~/components/firm/FirmClientCopyRequests.vue'
 import FirmCompliance from '~/components/firm/FirmCompliance.vue'
+import FirmOutcomeConsent from '~/components/firm/FirmOutcomeConsent.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -1209,7 +1219,15 @@ const TAB_TIERS = {
   // 🔴 WHAT A TIER MAY DO WITH WHAT IT RECEIVES IS DECIDED ON THE BACKEND, not here. A tier below
   // the publisher may read and add beside, never edit and never hide (Mike's two rulings of
   // 2026-09-10) — server/routes/compliance.js has no route that could do either.
-  compliance: ['mentor', 'global', 'group', 'firm']
+  compliance: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 THE FIRM ALONE, AS A STATED JUDGEMENT (item 4.87, Mike's own words 2026-09-10: "on a
+  // hub page at the firm tier"). Consent is a firm's own undertaking, given by a person who
+  // can bind the firm, in the same way its Compliance declaration is. The mentor and the two
+  // middle tiers contribute no reviews and receive no adjustment, so they have nothing to
+  // switch (spec FR-014). The mentor's side of the same feature — what was learned, and
+  // accept / hold / reject — is a separate tab at the mentor tier alone.
+  outcomeConsent: ['firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
@@ -1377,7 +1395,11 @@ const NAV_GROUPS = [
     // thing every other addition to this file has taken care not to do.
     heading: 'Compliance',
     items: [
-      { key: 'compliance', label: 'Compliance' }
+      { key: 'compliance', label: 'Compliance' },
+      // Item 4.87. Appended here rather than given a group of its own because consent is
+      // a firm's own undertaking in the same way its declaration is — the drawing's
+      // placement, approved 2026-09-10. Firm tier only; see TAB_TIERS.outcomeConsent.
+      { key: 'outcomeConsent', i18n: 'outcomeConsent.tab' }
     ]
   },
   {
@@ -1429,7 +1451,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

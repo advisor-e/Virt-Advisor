@@ -25,6 +25,7 @@ const CONFIG_KEY = 'outcome-consent'
 const MAX_TEXT = 120
 const MAX_WORDING = 600
 const MAX_WITHDRAWALS = 50
+const MAX_EVENTS = 50
 
 /**
  * 🔴 MIKE'S OWN WORDS, RULED 2026-09-10 ON design/mockups/outcome-learning-consent.html,
@@ -43,8 +44,13 @@ const CONSENT_WORDING = 'I act for and on behalf of my firm when I choose to sha
  * is treated as no record. `on` must be a real boolean, `setBy` a non-empty string and
  * `setAt` a parseable date; anything else is null rather than a guess.
  *
+ * `events` is every switch the firm has made, oldest first — the History card on the
+ * approved drawing. It rides on the record rather than being rebuilt from the store's
+ * version history, because that history keeps who saved and when but not what was saved,
+ * so it cannot say whether a version switched sharing on or off.
+ *
  * @param {*} value - whatever the store returned
- * @returns {{on:boolean,setBy:string,setAt:string,wording:string,withdrawals:Array}|null}
+ * @returns {{on:boolean,setBy:string,setAt:string,wording:string,withdrawals:Array,events:Array}|null}
  */
 function readConsent (value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) { return null }
@@ -70,12 +76,25 @@ function readConsent (value) {
       .slice(-MAX_WITHDRAWALS)
     : []
 
+  const events = Array.isArray(value.events)
+    ? value.events
+      .filter(e => e && typeof e === 'object' && !Array.isArray(e) && typeof e.on === 'boolean')
+      .map(e => ({
+        on: e.on,
+        by: typeof e.by === 'string' ? e.by.trim().slice(0, MAX_TEXT) : '',
+        at: typeof e.at === 'string' ? e.at.trim() : ''
+      }))
+      .filter(e => e.by && e.at && !Number.isNaN(Date.parse(e.at)))
+      .slice(-MAX_EVENTS)
+    : []
+
   return {
     on: value.on,
     setBy: setBy.slice(0, MAX_TEXT),
     setAt,
     wording,
-    withdrawals
+    withdrawals,
+    events
   }
 }
 

@@ -24,6 +24,7 @@ const { PLATFORM_SCOPE } = require('../utils/platformScope')
 const { sendError } = require('../utils/sendError')
 const { CONFIG_KEY, CONSENT_WORDING, readConsent, firmToken } = require('../utils/outcomeConsent')
 const { POOL_PREFIX } = require('../utils/outcomeLearning')
+const { loadPooledForSession } = require('../utils/outcomeLearningSession')
 const { recomputeAndPersist } = require('./outcomeLearning')
 
 function _secretMissing (err) {
@@ -33,8 +34,12 @@ function _secretMissing (err) {
 /**
  * GET /api/firm-manager/outcome-consent — the switch's state and what a withdrawal would remove.
  * @route GET /api/firm-manager/outcome-consent
- * @returns {200} { success, consent, wording, pooledCount } — `pooledCount` is null when the
- *   server has no OUTCOME_POOL_SECRET, so the screen can say the pool is not configured
+ * @returns {200} { success, consent, wording, pooledCount, adjustmentsApplying } —
+ *   `pooledCount` is null when the server has no OUTCOME_POOL_SECRET, so the screen can say
+ *   the pool is not configured; `adjustmentsApplying` is the number of mentor-accepted
+ *   adjustments live at this firm right now (Mike's ruling of 2026-09-10: a sharing firm
+ *   sees the COUNT, never the list), null when the firm is not sharing or the pool could
+ *   not be read. It comes from the same cached loader the engine uses for a session.
  * @returns {500} DB_ERROR
  */
 async function read (req, res) {
@@ -49,7 +54,12 @@ async function read (req, res) {
       if (!_secretMissing(err)) { throw err }
       console.error('[outcome-consent] OUTCOME_POOL_SECRET is not set; the pooled count is unavailable')
     }
-    res.send(200, { success: true, consent, wording: CONSENT_WORDING, pooledCount })
+    let adjustmentsApplying = null
+    if (consent && consent.on) {
+      const pooled = await loadPooledForSession(firmId)
+      adjustmentsApplying = pooled.available ? pooled.adjustments.length : null
+    }
+    res.send(200, { success: true, consent, wording: CONSENT_WORDING, pooledCount, adjustmentsApplying })
   } catch (err) {
     console.error('[outcome-consent] read failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not read the sharing setting')
@@ -74,13 +84,16 @@ async function set (req, res) {
   const firmId = req.firmId
   try {
     const existing = readConsent(await overlay.loadFirmConfig(firmId, CONFIG_KEY))
+    const setAt = new Date().toISOString()
     const record = {
       on,
       setBy: req.userEmail,
-      setAt: new Date().toISOString(),
+      setAt,
       // The words this manager saw, kept with the record rather than looked up later.
       wording: CONSENT_WORDING,
-      withdrawals: existing ? existing.withdrawals : []
+      withdrawals: existing ? existing.withdrawals : [],
+      // Every switch, oldest first, for the History card. readConsent caps the length.
+      events: (existing ? existing.events : []).concat([{ on, by: req.userEmail, at: setAt }])
     }
     await overlay.saveFirmConfig(firmId, CONFIG_KEY, record, req.userEmail)
     res.send(200, { success: true, consent: readConsent(record) })

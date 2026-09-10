@@ -19,15 +19,18 @@ function authHeaders (token) {
 /**
  * Fetch the cases visible to the signed-in advisor (their own, any visibility,
  * plus their firm's shared cases). Returns the authenticated advisorId too, so
- * the caller can tell which cases are the advisor's own.
+ * the caller can tell which cases are the advisor's own, and `outcomeContribution`
+ * (item 4.87): whether the firm currently shares anonymised template outcomes, so
+ * the review panel can show its one-line notice. Anything but an explicit `true`
+ * reads as not sharing.
  * @param {string} token - Bearer token
- * @returns {Promise<{cases: object[], advisorId: string|null}>}
+ * @returns {Promise<{cases: object[], advisorId: string|null, outcomeContribution: boolean}>}
  */
 export async function listCases (token) {
   const res = await fetch('/api/cases', { headers: authHeaders(token) })
   if (!res.ok) { throw new Error(`Failed to load cases (${res.status})`) }
   const data = await res.json()
-  return { cases: data.cases || [], advisorId: data.advisorId || null }
+  return { cases: data.cases || [], advisorId: data.advisorId || null, outcomeContribution: data.outcomeContribution === true }
 }
 
 /**

@@ -100,8 +100,13 @@ const MENTOR_BEFORE = [
  *   reason, which is that a global group manager or group manager has material of its own to
  *   publish for its country or brand. ⚠ The firm is where it lands and where the declaration
  *   that gates Meeting Review is recorded (slice 3).
+ * - `outcomeConsent` — Mike, 2026-09-10 (item 4.87), in his own words: *"A firm manager opts
+ *   the firm in, and can opt out at any time, on a hub page at the firm tier."* 🔴 **THE FIRM
+ *   ALONE, and stated rather than assumed:** consent is a firm's own undertaking, and the
+ *   tiers above contribute no reviews and receive no adjustment, so they have nothing to
+ *   switch (spec FR-014). The mentor's page for the same feature is a separate tab.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
