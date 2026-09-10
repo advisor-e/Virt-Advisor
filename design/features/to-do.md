@@ -37,7 +37,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- | --- |
 | 1 | **4.15** The 14 branches that still name a page nobody can open | 4 | — | **Mike** | — |
 | 2 | **4.58** Meeting Review — the advisor's side is complete; §4 remains ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 3 | **4.78** Depreciation rates per country - a manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-08 |
+| 3 | **4.78** Depreciation rates per country - a manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 4 | **4.81** The forecast's tax rates are New Zealand's, hardcoded, for every country ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 5 | **4.82** Nothing caps how many paid AI readings an advisor can trigger ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 6 | **4.83** Compliance pages in the four manager hubs ⚠ *not yet ranked by Mike* | 5 | — | Us | — |

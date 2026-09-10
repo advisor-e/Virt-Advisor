@@ -122,7 +122,17 @@ const DRIVE = {
     DOMAIN_SUPPORT: 'domain-support',
     TEMPLATES: 'templates',
     VIDEOS: 'videos', // stores JSON metadata, not raw video files
-    JSON_CONFIG: 'json-config'
+    JSON_CONFIG: 'json-config',
+    // A firm's OWN compliance evidence — its lawyer's opinion, its privacy statement, its
+    // engagement terms, its staff consultation record, its breach process (item 4.83,
+    // slice 2). 🔴 NEVER THE TEXT OF THE LAW: Mike agreed on 2026-09-10 that uploading
+    // statutes for the AI to read would put our software in the place of a firm's lawyer,
+    // and a stale statute would have it quoting law that IPP3A superseded on 1 May 2026.
+    //
+    // ⚠ ADVISOR-E HOLDS THESE FILES AND DOES NOT READ THEM. They live in the same Drive as
+    // every other firm document, under that firm's own folder, and the screen says so. A
+    // tier above sees THAT a document exists and when it arrived, never the document.
+    COMPLIANCE: 'compliance'
   }
 }
 

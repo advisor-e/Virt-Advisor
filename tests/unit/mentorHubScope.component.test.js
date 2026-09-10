@@ -332,7 +332,7 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s fifteen tabs under three headings', async () => {
+  it('groups the firm manager’s tabs under the headings NAV_GROUPS gives them', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
@@ -359,9 +359,24 @@ describe('the hub menu — the sidebar itself', () => {
     // is a poor fit and that is stated in NAV_GROUPS rather than papered over: this feature
     // uses no AI at all, and it sits there because it is entirely about meeting records and
     // is where somebody would look for it.
+    //
+    // 🔴 SEVENTEEN ON 2026-09-10, AND THE FIRST NEW HEADING SINCE THE MENU WAS APPROVED.
+    // Compliance (item 4.83) was named onto all four manager tiers by Mike that day, with
+    // the cascade asked for in the same sentence. None of the four existing headings is true
+    // of it, so a fifth is added at the end — after Model Inputs and before the roll-up, which
+    // the firm never sees.
+    //
+    // ⚠ THE HEADING IS "COMPLIANCE", NOT THE DRAWING'S "YOUR FIRM". It was built as the
+    // drawing had it and then found to break the rule one heading down — a heading has to be
+    // true at every tier that sees it, and a mentor has no firm. Mike ruled for his own pinned
+    // word the same day. ⚠ ADVISER NETWORK IS NOT MOVED INTO IT, though the drawing's sidebar
+    // shows it there: it has been under "Your Team In Action" since 2026-08-19 and moving it
+    // would move something already on a manager's screen.
     const wrapper = await mountHub()
-    expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(16)
+    expect(groupHeadings(wrapper)).toEqual([
+      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance'
+    ])
+    expect(tabLabels(wrapper)).toHaveLength(17)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -383,8 +398,16 @@ describe('the hub menu — the sidebar itself', () => {
     // empty, because one gap in a list of twelve reads as a bug — is unchanged and is
     // still covered: the firm sees no "Rolled up from below" heading at all (asserted in
     // the test above), which is the same mechanism from the other side.
+    //
+    // ⚠ A "Compliance" HEADING JOINED THE LIST ON 2026-09-10 with the tab of the same name
+    // (item 4.83), which Mike named onto all four tiers. It is drawn at the mentor too,
+    // because the mentor is where the cascade starts and it publishes from this same screen —
+    // and the heading reads correctly here, which is exactly why he chose that word over the
+    // drawing's "Your firm".
     const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
-    expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'])
+    expect(groupHeadings(wrapper)).toEqual([
+      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
+    ])
     const names = tabLabels(wrapper)
     expect(names).toContain('Forecast Trend Thresholds')
     expect(names).not.toContain('Property Tax Rules')
@@ -449,11 +472,16 @@ describe('the hub menu — the sidebar itself', () => {
     // the same request of his, the same country table underneath, and a separate tab because
     // he renamed Depreciation Rates that day precisely so a tab's name would predict what is
     // inside it. Again his ruling, again not drift.
+    //
+    // ⚠ AND TO 17 ON 2026-09-10, when Compliance arrived under a heading of its own (item
+    // 4.83) — named onto all four manager tiers by Mike, with the cascade asked for in the
+    // same sentence. His ruling again, and the first time a HEADING has moved rather than an
+    // entry within one.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
-      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
+      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(16)
+    expect(tabLabels(wrapper)).toHaveLength(17)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })
