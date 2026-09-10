@@ -128,6 +128,9 @@ const staircaseRoute = require('./routes/staircase')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
+const complianceRoute = require('./routes/compliance')
+// Both sides of the 2026-09-10 merge: this machine's compliance routes, and the desktop's
+// `firmOrEntityAuth` in the guard list.
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 const clientReportsRoute = require('./routes/clientReports')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -454,6 +457,42 @@ server.get('/api/firm-manager/tax-rates', ...fmGuard, taxRatesRoute.getForManage
 server.post('/api/firm-manager/tax-rates', ...fmGuard, taxRatesRoute.approveFigures)
 server.get('/api/firm-manager/tax-rates/history', ...fmGuard, taxRatesRoute.history)
 server.post('/api/firm-manager/tax-rates/restore', ...fmGuard, taxRatesRoute.restore)
+// Compliance (item 4.83, slice 1) — what a tier publishes about a firm's legal obligations,
+// and what every tier beneath it receives. Asked for by Mike on 2026-09-10, naming all four
+// manager tiers himself. Same guard as the blocks above: managers only, at every tier, and no
+// advisor-facing read at all — compliance is a firm's obligation rather than an individual
+// advisor's, and the one screen an advisor meets is the locked state on /meeting-record.
+//
+// 🔴 THERE IS NO ROUTE HERE THAT EDITS OR HIDES AN ITEM A TIER ABOVE PUBLISHED, and that is
+// Mike's two rulings of 2026-09-10 made structural rather than checked. Every write addresses
+// `req.firmId`'s own row; a republish refuses an id the caller does not already own. Adding a
+// route that takes a scope from the body would undo both rulings at once.
+server.get('/api/firm-manager/compliance', ...fmGuard, complianceRoute.getForManager)
+server.post('/api/firm-manager/compliance', ...fmGuard, complianceRoute.publish)
+server.get('/api/firm-manager/compliance/history', ...fmGuard, complianceRoute.history)
+server.post('/api/firm-manager/compliance/restore', ...fmGuard, complianceRoute.restore)
+// The firm's OWN compliance evidence (slice 2) — its lawyer's opinion, its privacy statement,
+// its engagement terms. Advisor-e holds these and does not read them, and a tier above sees
+// only that a document exists. The upload parses its own multipart body per-route
+// (formidable), which is why it is not affected by the JSON body limit above. Download rides
+// the document library's existing route, whose cross-firm gate already covers these rows.
+// The declaration itself — the ONLY thing that opens Meeting Review for a firm (slice 3).
+server.post('/api/firm-manager/compliance/declaration', ...fmGuard, complianceRoute.declare)
+// 🔴 `firmAuth` AND NOT `fmGuard`, DELIBERATELY. The person who meets the locked recorder is an
+// ADVISOR; behind the manager guard they would be told nothing at all and would meet a screen
+// that simply fails. This read says whether their firm has declared and nothing else.
+server.get('/api/compliance/gate', firmAuth, complianceRoute.gate)
+// Who beneath this tier has declared, and who therefore cannot record. STATUS ONLY — a firm's
+// documents are the firm's, and no route here returns one.
+server.get('/api/firm-manager/compliance/firms', ...fmGuard, complianceRoute.listFirmsStatus)
+server.get('/api/firm-manager/compliance/evidence', ...fmGuard, complianceRoute.listEvidence)
+server.post('/api/firm-manager/compliance/evidence', ...fmGuard, complianceRoute.uploadEvidence)
+server.del('/api/firm-manager/compliance/evidence/:fileId', ...fmGuard, complianceRoute.deleteEvidence)
+// 🔴 THE COMPLETENESS CHECK, ON A BUTTON AND NEVER AUTOMATICALLY (Mike, 2026-09-10). It is
+// sent DOCUMENT NAMES ONLY — the artefact promises three times that we do not read a firm's
+// documents. It reports what appears to be missing; it never gates anything, and it never says
+// what the law requires.
+server.post('/api/firm-manager/compliance/check', ...fmGuard, complianceRoute.runCheck)
 server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.getForManager)
 server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
 server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)
@@ -588,7 +627,20 @@ server.put('/api/firm-manager/meeting-retention', ...fmGuard, mr.setRetention)
 server.del('/api/firm-manager/meeting-retention', ...fmGuard, mr.resetRetention)
 
 server.get('/api/meeting/consent', firmAuth, mr.getConsentContext)
-server.post('/api/meeting/recordings', firmAuth, mr.startRecording)
+// 🔴 THE COMPLIANCE GATE, AND IT SITS ON EXACTLY ONE ROUTE (item 4.83, slice 3). Mike's ruling
+// of 2026-09-10: "they have to tick a box before the feature becomes active." Until a firm
+// manager records the declaration on the Compliance tab, no advisor at that firm can start a
+// recording. `pages/meeting-record.vue` shows the locked state, but a screen is not a control —
+// that page's own comment says its access check is UI-only because the server re-checks.
+//
+// ⚠ STARTING A RECORDING IS THE CHOKE POINT. Consent, chunks, finish and both reports all
+// address a meeting that already exists, so nothing can come into being without passing here.
+// Repeating the guard on all seven would add six places for it to drift.
+//
+// ⚠ THE DECLARATION IS THE ONLY THING THAT GATES. Not the evidence pack — an empty pack blocks
+// nothing — not the completeness check, and not a published update, which notifies with a dot
+// and suspends nothing. A second condition added here has undone a ruling.
+server.post('/api/meeting/recordings', firmAuth, complianceRoute.requireDeclaration, mr.startRecording)
 server.post('/api/meeting/recordings/:meetingId/consent', firmAuth, mr.confirmConsent)
 server.post('/api/meeting/recordings/:meetingId/chunk', firmAuth, mr.uploadChunk)
 server.post('/api/meeting/recordings/:meetingId/finish', firmAuth, mr.finishRecording)

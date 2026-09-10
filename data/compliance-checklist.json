@@ -1,0 +1,64 @@
+{
+  "_readme": [
+    "THE EIGHT POINTS A FIRM'S COMPLIANCE PACK IS CHECKED AGAINST (item 4.83, slice 4).",
+    "",
+    "These are section 9 of design/MEETING-REVIEW-DPIA.md, which is the mentor's own published",
+    "assessment and the single home of the reasoning behind each one. They live here as data",
+    "rather than inside the prompt builder, because CLAUDE.md's hub-page rule is explicit that",
+    "content the AI reads must never be hardcoded in a prompt: somebody has to be able to see",
+    "it. Every point below is rendered in full on the Compliance tab beside its result.",
+    "",
+    "SECTION 9 HAS NINE POINTS AND THIS FILE HOLDS EIGHT. The ninth -- that the firm has read",
+    "and understands the law as it applies to it -- is the DECLARATION, not a document, and it",
+    "is the only one Advisor-e asks for. Checking a pack for it would be checking a document",
+    "for something no document can carry. The drawing states this in terms.",
+    "",
+    "🔴 THE CHECK READS A DOCUMENT'S NAME, NEVER ITS CONTENTS. design/mockups/compliance-pages.html",
+    "says three times that we do not read a firm's documents, and its own examples of a covered",
+    "point are file names. A tick means a document APPEARS to address a point, never that it",
+    "addresses it adequately -- only the firm's lawyer can say that, and no part of this tells",
+    "anyone what the law requires."
+  ],
+  "points": [
+    {
+      "id": "lawful-recording",
+      "title": "That it may lawfully record meetings in its jurisdiction",
+      "why": "The law on recording a conversation is not the same in every country this app is sold into."
+    },
+    {
+      "id": "ipp3a",
+      "title": "Its reasonable steps under IPP3A — for people discussed but not present",
+      "why": "New Zealand, and in force since 1 May 2026. The software cannot solve this: it cannot know who was mentioned."
+    },
+    {
+      "id": "staff-consulted",
+      "title": "That its staff have been consulted",
+      "why": "Recording employees and reporting on their conduct is monitoring, whoever owns the report."
+    },
+    {
+      "id": "later-withdrawal",
+      "title": "How it handles a withdrawal of consent that arrives later",
+      "why": "The software handles a withdrawal during a meeting; one that arrives a week afterwards is the firm's process."
+    },
+    {
+      "id": "client-copy",
+      "title": "How it answers a client asking for a copy of their transcript, or its deletion",
+      "why": "The software now serves this through Client Copy Request. A firm still needs its own position on who confirms they are dealing with the right person."
+    },
+    {
+      "id": "breach-process",
+      "title": "That it has a privacy breach process",
+      "why": "\"As soon as practicable\" in New Zealand; 72 hours in the UK and EU."
+    },
+    {
+      "id": "statement-and-terms",
+      "title": "That its privacy statement and client engagement terms cover this",
+      "why": "The spoken consent line is not a substitute for a firm's own published position."
+    },
+    {
+      "id": "deployment-secured",
+      "title": "That its deployment is secured",
+      "why": "The server, its access controls, and who at the firm can reach the transcript store. Not a document we can check for — confirm it with whoever runs your servers."
+    }
+  ]
+}

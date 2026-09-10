@@ -12,6 +12,57 @@
           br
           | Contact your account administrator if you think you should have access.
 
+  //- ── Screen C — the firm has not declared ──────────────────────────────────
+  //- 🔴 A GATE NEEDS A LOCKED STATE. Without one an advisor at a firm that has not
+  //- declared clicks through and meets something that either does nothing or throws,
+  //- and "a tidy page that looks like a failure" is what this feature's own P11 forbids.
+  //- Three things it deliberately does NOT do: blame the advisor, who cannot fix it;
+  //- name individual managers, because this app holds no advisors table and inventing
+  //- a name is worse than "a firm manager"; or offer to notify anyone, which is a
+  //- message channel nobody has asked for.
+  //- ⚠ THIS IS THE EXPLANATION, NOT THE GATE. The gate is on the route that starts a
+  //- recording (server/routes/compliance.js requireDeclaration).
+  .container.py-5(v-else-if="!gateOpen")
+    .box.fcm-locked
+      p.title.is-5.mb-1 Not yet available at your firm
+      p.subtitle.is-6.has-text-grey Meeting Review
+
+      p.mb-3
+        b Before anyone at this firm can record a client meeting, a firm manager needs to make one confirmation.
+
+      p.is-size-7.mb-3
+        | Recording a client conversation carries legal obligations, and they differ by country.
+        |  Advisor-e has published its assessment of what this feature does with a client's
+        |  information —
+        b  your firm confirms it has read and understands the law as it applies here
+        | , and the recorder opens.
+
+      p.is-size-7.mb-4
+        b It is a one-off step and it takes a minute.
+        |  Ask a firm manager to open Firm Manager Hub, under Compliance.
+
+      b-message(type="is-info" size="is-small")
+        | #[b Nothing is wrong, and this is not something you can fix yourself.] Everything else
+        |  in the app works normally. Your pre-set observation points are already there waiting —
+        |  you can review what this meeting is for; you just cannot record it yet.
+
+      .buttons.mt-4
+        b-button(outlined @click="showPreset = !showPreset")
+          | {{ showPreset ? 'Hide my meeting pre-set' : 'Open my meeting pre-set' }}
+
+      template(v-if="showPreset")
+        b-message(v-if="loadError" type="is-danger" size="is-small") {{ loadError }}
+        template(v-else)
+          b-field(label="What kind of meeting?" label-position="on-border")
+            b-select(v-model="scenarioId" expanded)
+              option(v-for="s in scenarios" :key="s.id" :value="s.id") {{ s.name }}
+          h4.title.is-6.mt-4.mb-2 What you will be checked on
+          p.is-size-7.has-text-grey(v-if="!points.length")
+            | Your firm has not set anything for this kind of meeting yet.
+          .mrp-pt(v-for="p in points" :key="p.id")
+            span.mrp-box
+            span {{ p.text }}
+
   .container.py-5(v-else)
     h1.title.is-4 Record a meeting
 
@@ -115,7 +166,17 @@ export default {
       clients: [],
       /** Empty means "not for a particular client", which is allowed and has a consequence. */
       clientId: '',
-      started: false
+      started: false,
+      /**
+       * Has this firm recorded its compliance declaration (item 4.83, slice 3)?
+       *
+       * 🔴 STARTS CLOSED AND IS ONLY OPENED BY AN ANSWER. A page that assumed open and
+       * corrected itself after the fetch would flash the recorder at a firm that may not use
+       * it. The backend refuses the route regardless — this decides what the advisor is TOLD,
+       * not what they may do.
+       */
+      gateOpen: false,
+      showPreset: false
     }
   },
 
@@ -130,12 +191,35 @@ export default {
   mounted () {
     this.checkAuth()
     if (this.authorised) {
+      this.checkGate()
       this.loadPoints()
       this.loadClients()
     }
   },
 
   methods: {
+    /**
+     * Has this firm declared? Decides whether the advisor meets the recorder or Screen C.
+     *
+     * ⚠ A FAILURE LEAVES IT CLOSED. The recoverable wrong answer is telling an advisor to ask
+     * a firm manager; the other direction offers to record a client meeting at a firm that
+     * has not confirmed it may. The route enforces this independently either way.
+     *
+     * @returns {Promise<void>}
+     */
+    async checkGate () {
+      try {
+        const res = await fetch('/api/compliance/gate', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { return }
+        const data = await res.json()
+        this.gateOpen = data.open === true
+      } catch (_err) {
+        // Left closed on purpose — see the note above.
+      }
+    },
+
     checkAuth () {
       // Dev auto-login — this machine only (see utils/devHost.js), never in production.
       if (isDevHost()) {
