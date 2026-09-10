@@ -129,8 +129,8 @@ describe('buildOutcomeLearningTrace', () => {
     expect(block).toEqual({
       consented: true,
       available: true,
-      applied: [{ template: 'Break-even Analysis', holdBack: 7, id: ID, firms: 5, cases: 28 }],
-      outweighed: [{ template: '7 Cash Drivers', holdBack: 3, id: '7-cash-drivers|signal|client-awareness', firms: 5, cases: 28, by: 'distinction' }]
+      applied: [{ template: 'Break-even Analysis', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 5, cases: 28 }],
+      outweighed: [{ template: '7 Cash Drivers', holdBack: 3, id: '7-cash-drivers|signal|client-awareness', dimension: 'signal', value: 'client_awareness', firms: 5, cases: 28, by: 'distinction' }]
     })
   })
 
@@ -145,12 +145,12 @@ describe('buildOutcomeLearningTrace', () => {
 
   test('a held-back template with no matching adjustment still shows, with no evidence', () => {
     const block = buildOutcomeLearningTrace([{ title: 'Mystery', matchReasons: ['pooled:held_back-2'] }], [null, { template: 5 }], { consented: true })
-    expect(block.applied).toEqual([{ template: 'Mystery', holdBack: 2, id: null, firms: 0, cases: 0 }])
+    expect(block.applied).toEqual([{ template: 'Mystery', holdBack: 2, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
     expect(buildOutcomeLearningTrace('nope', undefined, { consented: true }).applied).toEqual([])
     // An outweighed template whose adjustment carries no numeric hold-back reports 0, not NaN.
     const odd = buildOutcomeLearningTrace([{ title: 'Odd', matchReasons: ['pooled:outweighed'] }], [{ id: 'odd|domain|x', template: 'Odd', firms: 5, cases: 25 }], { consented: true })
-    expect(odd.outweighed).toEqual([{ template: 'Odd', holdBack: 0, id: 'odd|domain|x', firms: 5, cases: 25, by: 'distinction' }])
+    expect(odd.outweighed).toEqual([{ template: 'Odd', holdBack: 0, id: 'odd|domain|x', dimension: null, value: null, firms: 5, cases: 25, by: 'distinction' }])
     const none = buildOutcomeLearningTrace([{ title: 'Nobody', matchReasons: ['pooled:outweighed'] }], [], { consented: true })
-    expect(none.outweighed).toEqual([{ template: 'Nobody', holdBack: 0, id: null, firms: 0, cases: 0, by: 'distinction' }])
+    expect(none.outweighed).toEqual([{ template: 'Nobody', holdBack: 0, id: null, dimension: null, value: null, firms: 0, cases: 0, by: 'distinction' }])
   })
 })

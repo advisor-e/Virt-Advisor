@@ -115,7 +115,7 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `pages
 - [x] T034 [US3] In `server/utils/templateResolver.js`: read `options.pooledAdjustments`, apply per contracts §Resolver immediately before the client-history clamp, export `POOLED_HOLDBACK_MAX`, bump `SCORING_VERSION`, comment the why (advisor's words win; clamp at 1 for the same reason as history)
 - [x] T035 [US3] In `server/advisorEngine.js`: before resolving, read consent for `req.firmId` and the live adjustments via `outcomeLearning.js` (pool rows + decisions), inside a try/catch that degrades to `[]` with `available: false`; pass `pooledAdjustments`; after resolving, emit `decisionTrace.outcomeLearning` from the scoring log
 - [x] T036 [US3] Add the two `REASON_RULES` entries to `utils/traceReasonCodes.js` and the two keys to `decisionTrace` in all eight `locales/*.json` with the approved wording; add the same two codes to `explainReasons()` in `scripts/scenario-lab.js`; add the wording to `design/WORDING-TRACE-REASONS.md` beside the existing rulings
-- [ ] T037 [US3] Add the Outcome Learning section to the "Why this?" panel in `components/VirtualAdvisor.vue` from the approved trace drawing — applied lines, outweighed lines, the unavailable line, nothing when both lists are empty and `available` is true
+- [x] T037 [US3] Add the Outcome Learning section to the "Why this?" panel in `components/VirtualAdvisor.vue` from the approved trace drawing — applied lines, outweighed lines, the unavailable line, nothing when both lists are empty and `available` is true
 
 **Checkpoint**: quickstart Story 3 passes; the Scenario Lab still runs clean with no adjustments file.
 

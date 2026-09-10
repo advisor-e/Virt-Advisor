@@ -104,9 +104,12 @@ function buildOutcomeLearningTrace (scoringLog, adjustments, status) {
 
   const evidence = (title) => {
     const matched = byTitle.get(String(title).trim().toLowerCase()) || []
-    if (matched.length === 0) { return { id: null, firms: 0, cases: 0 } }
+    if (matched.length === 0) { return { id: null, dimension: null, value: null, firms: 0, cases: 0 } }
     return {
       id: matched[0].id,
+      // What matched, so the panel can say "held back in {where}" (the trace drawing).
+      dimension: matched[0].dimension || null,
+      value: matched[0].value || null,
       firms: Math.min(...matched.map(a => a.firms)),
       cases: Math.min(...matched.map(a => a.cases))
     }

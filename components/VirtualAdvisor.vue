@@ -412,6 +412,23 @@
             p.trace-nearmiss(v-for="nm in lastTrace.distinctions.nearMisses" :key="nm.id")
               span.trace-value {{ nm.description }}
               span.trace-note  {{ $t('decisionTrace.currentlyIn', { area: nm.domain }) }}
+          //- Outcome Learning (item 4.87) — design/mockups/outcome-learning-trace.html, approved
+          //- 2026-09-10. SHARING FIRMS ONLY: a firm that does not share sees no section (Mike's
+          //- ruling B3), and a sharing firm with nothing matched sees the quiet line (ruling B1),
+          //- so an adviser who has seen it before is not left wondering whether it stopped. The
+          //- fault line comes first, in the same voice as the distinctions fault above: a layer
+          //- that could not be read is named, never passed off as "nothing applied".
+          .trace-section(v-if="lastTrace.outcomeLearning && lastTrace.outcomeLearning.consented")
+            .trace-section-title {{ $t('decisionTrace.outcomeTitle') }}
+            p.trace-note.trace-fault(v-if="lastTrace.outcomeLearning.available === false") {{ $t('decisionTrace.outcomeUnavailable') }}
+            template(v-else-if="traceOutcomeLines.length")
+              p.trace-line(v-for="line in traceOutcomeLines" :key="line.key")
+                span.trace-hb(:class="{ 'trace-ow': !line.applied }") {{ line.applied ? '−' + line.holdBack : '0' }}
+                b {{ line.template }}
+                span  — {{ line.text }}
+                span.trace-count {{ $t('decisionTrace.outcomeCounts', { firms: line.firms, cases: line.cases }) }}
+              p.trace-note {{ $t('decisionTrace.outcomeNote') }}
+            p.trace-note(v-else) {{ $t('decisionTrace.outcomeNothing') }}
           .trace-section
             .trace-section-title {{ $t('decisionTrace.templatesScored') }}
             table.trace-scores
@@ -996,6 +1013,36 @@ export default {
     traceBoostList () {
       const boosts = (this.lastTrace && this.lastTrace.distinctions && this.lastTrace.distinctions.boostsApplied) || {}
       return Object.keys(boosts).map(title => ({ title, boost: boosts[title] }))
+    },
+    // Outcome Learning lines, applied first then outweighed. "{where}" is the area's name
+    // when the match was on the area, else the matched value itself — one phrase for every
+    // dimension, the stated deviation from the drawing's per-dimension wording (2026-09-11).
+    traceOutcomeLines () {
+      const ol = this.lastTrace && this.lastTrace.outcomeLearning
+      if (!ol) { return [] }
+      const where = (e) => {
+        if (e.dimension === 'domain') { return (this.lastTrace.domain && this.lastTrace.domain.label) || e.value || '' }
+        return e.value || ''
+      }
+      const applied = (ol.applied || []).map(e => ({
+        key: 'a:' + e.template,
+        applied: true,
+        template: e.template,
+        holdBack: e.holdBack,
+        text: this.$t('decisionTrace.outcomeApplied', { where: where(e) }),
+        firms: e.firms,
+        cases: e.cases
+      }))
+      const outweighed = (ol.outweighed || []).map(e => ({
+        key: 'o:' + e.template,
+        applied: false,
+        template: e.template,
+        holdBack: e.holdBack,
+        text: this.$t('decisionTrace.outcomeOutweighed', { n: e.holdBack, where: where(e) }),
+        firms: e.firms,
+        cases: e.cases
+      }))
+      return applied.concat(outweighed)
     },
     domainSelectorOptions () {
       return [
@@ -2855,6 +2902,12 @@ export default {
    line here that says the advice above is missing a layer. */
 .trace-fault { color: #9a3412; background: #fff7ed; border-left: 3px solid #ea580c; padding: 4px 8px; border-radius: 3px; }
 .trace-boost { color: #047857; font-weight: 600; }
+/* Outcome Learning lines: the number first, red for a hold-back applied, grey for one
+   the adviser's own words outweighed; the evidence count at the end of the line. */
+.trace-line { margin: 3px 0; font-size: 12.5px; color: #374151; }
+.trace-hb { display: inline-block; min-width: 26px; font-weight: 700; color: #b91c1c; margin-right: 6px; }
+.trace-hb.trace-ow { color: #6b7280; }
+.trace-count { color: #6b7280; font-size: 11.5px; margin-left: 8px; white-space: nowrap; }
 .trace-nearmiss { margin: 3px 0; padding: 4px 8px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 3px; }
 .trace-scores { width: 100%; border-collapse: collapse; margin-top: 4px; }
 .trace-scores th, .trace-scores td {
