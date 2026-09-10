@@ -9,23 +9,29 @@
 
 ---
 
-## 2026-09-10 (third session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-11 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**4.87 Outcome Learning is through Phase 1 — nothing is built.** Mike ruled the floor (5 firms,
-25 cases) and hold-back only; `/speckit-clarify` took four more answers; the plan, research, data
-model, contracts, quickstart and a 47-task list are in `specs/002-outcome-learning/`. **All three
-drawings are approved**, every question ruled on the drawing, in
-[`ARTEFACTS.md`](ARTEFACTS.md). Both named additions (a delete-by-prefix on the overlay store,
-`OUTCOME_POOL_SECRET`) are approved on `plan.md`.
+**4.87 Outcome Learning: built through story 3, twelve commits, all pushed.** T007–T037
+task by task from `specs/002-outcome-learning/tasks.md`, each approved: the overlay
+store's delete-by-prefix, the consent record and tokens, the pool/guard/arithmetic,
+the mentor routes and the firm routes (both registered), the review hook, the capped
+hold-back in the resolver (SCORING_VERSION 2.2.0), the session wiring and trace block,
+and "Learned from outcomes" on the advisor's Why-this panel. Brief §8 says what stands
+where. Two wording rulings taken as drawn and recorded on the trace drawing.
 
-**Next: T007** — the store function and its test, then Phase 2. Mike stopped before code started.
-`activeOn` for 4.87 stays on the desktop; it waits on us.
+**Next: the firm's Outcome Sharing screen (T020–T023).** Its nine proposed wording rows
+on `design/mockups/outcome-learning-consent.html` wait on Mike; one correction proposed
+("those ticks" → "those answers", to match his own correction of the advisor's line).
+Then the mentor page (T027–T030), then the benches (T038–T042). `activeOn` for 4.87
+stays on the desktop.
 
-**Master merged in** (17 ahead, 0 behind at close): the laptop's 4.84 hub dots, the v0.11.1 fix and
-its ledger row. One conflict, `ARTEFACTS.md`, resolved by keeping both sides.
+**Unseen:** nothing has run against a real pool. `OUTCOME_POOL_SECRET` must be set in
+`.env` before a review at a consenting firm pools anything.
 
-Suite green at the push gate. Tree clean, everything pushed.
+Suite green at the push gate (483 suites, 9,941 tests). Tree clean, 31 ahead, 0 behind.
 
-**LAPTOP:** none of your files were touched. New on master once this branch's PR lands:
-`specs/002-outcome-learning/`, three `design/mockups/outcome-learning-*.html`, three rows in
-`ARTEFACTS.md`, the 4.87 Brief and live-list entry. 4.84 is no longer "waits on us" — you built it.
+**LAPTOP:** none of your files touched. Shared files that changed: `templateResolver.js`
+(pooled hold-back, one new export), `advisorEngine.js` (a few lines around the resolve
+call and the trace), `cases.js` (review hook, one flag on the list), `restify-server.js`
+(nine routes), `firmOverlay.js` (one function), `traceReasonCodes.js`, `en.json`.
+Merge master before you touch any of them.
