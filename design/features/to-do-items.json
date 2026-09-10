@@ -167,7 +167,6 @@
       "ref": "4.83",
       "name": "Compliance pages in the four manager hubs",
       "rankedByMike": false,
-      "activeOn": { "machine": "laptop", "since": "2026-09-10" },
       "kind": "feature",
       "score": 5,
       "scoreReason": "security/privacy/data integrity",
