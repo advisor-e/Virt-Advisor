@@ -92,8 +92,16 @@ const MENTOR_BEFORE = [
  *   from, because the consent line promises a named client exactly that — so cascading it
  *   upward would break a promise rather than add a feature. Same ruling as the manager's
  *   aggregate, which is firm-tier-only for the same sentence.
+ * - `compliance` — Mike, 2026-09-10 (item 4.83), naming all four manager tiers in his own
+ *   words: *"i want these compliance pages to show in the mentor, global manager, group manager
+ *   and firm manager hubs - again, cascading so that if I as a mentor, gets new information, I
+ *   can share it downwards but they can seek their own legal opinion and comply thereafter"*.
+ *   **NOT the default-is-mentor-alone case of 2026-08-24** — he named the four and gave the
+ *   reason, which is that a global group manager or group manager has material of its own to
+ *   publish for its country or brand. ⚠ The firm is where it lands and where the declaration
+ *   that gates Meeting Review is recorded (slice 3).
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -129,8 +137,12 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  * - `taxRates` — Mike, 2026-09-08 (item 4.81), and the mentor is included for the same reason
  *   its sibling's is: the cascade starts there, and a firm with no figures of its own inherits
  *   the nearest tier above it. Also NOT the default-is-mentor-alone case.
+ * - `compliance` — Mike, 2026-09-10 (item 4.83), and the mentor is the tier the cascade STARTS
+ *   at: the platform's own assessment of what this software does with a client's information is
+ *   the first thing published, and every tier beneath inherits it. The mentor is also the only
+ *   tier with nothing published TO it, which is the one way its screen differs.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'depreciationRates', 'taxRates']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'depreciationRates', 'taxRates', 'compliance']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -211,9 +223,13 @@ describe('hub tab matrix — the two new tiers', () => {
     // Mike's, the same country table underneath, and a separate tab because he renamed the
     // other one that day so a tab's name would predict what is inside it. So a middle tier now
     // shows 16: six unconditional plus ten conditional.
-    expect(conditional).toHaveLength(10)
+    //
+    // 🔴 ELEVEN SINCE 2026-09-10, NOT TEN. Compliance (item 4.83) was named onto all four
+    // manager tiers by Mike that day, with the cascade asked for in the same sentence. So a
+    // middle tier now shows 17: six unconditional plus eleven conditional.
+    expect(conditional).toHaveLength(11)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(16)
+    expect(unconditional.concat(conditional)).toHaveLength(17)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

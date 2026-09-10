@@ -95,6 +95,13 @@ data/dev-depreciation-proposals.json
 # default wherever they appear.
 data/dev-tax-rates.json
 
+# Dev-only compliance material — what each scope has PUBLISHED to the tiers beneath it, and
+# (from slice 3) the declaration it has recorded (item 4.83). Keyed by SCOPE and then by
+# config key, ignored for the same reason as every sibling above. There is deliberately no
+# committed base file to sit beside it: the platform's own material is published through the
+# mentor's screen, so `design/MEETING-REVIEW-DPIA.md` stays the single home of its own text.
+data/dev-compliance.json
+
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
 # The four cascade keys, added when the staircase joined the one firm-editable

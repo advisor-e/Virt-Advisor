@@ -63,6 +63,7 @@ can be read in one place — the Handbook does not move them.*
 | [AI Prompts](ai-prompts.md) — The prompt templates a manager can tune — locked method, three declared variables | [history](ai-prompts-history.md) |
 | [Depreciation Rates](depreciation-rates.md) — the depreciation rates a firm's forecasts use, read from its tax authority's own documents | [history](depreciation-rates-history.md) |
 | [Tax Rates](tax-rates.md) — the company tax rate, GST rate, filing cycle and accounting basis a client's forecast is computed on, per country | [history](tax-rates-history.md) |
+| [Compliance](compliance.md) — what a tier publishes to the tiers beneath it about their legal obligations, and the declaration that will gate Meeting Review. **Slice 1 built 2026-09-10.** | [history](compliance-history.md) |
 
 *Also on the Hub but covered elsewhere: Domain Support and Logic Tables (above, under the
 engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).

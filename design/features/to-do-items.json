@@ -188,6 +188,7 @@
       "ref": "4.83",
       "name": "Compliance pages in the four manager hubs",
       "rankedByMike": false,
+      "activeOn": { "machine": "laptop", "since": "2026-09-10" },
       "kind": "feature",
       "score": 5,
       "scoreReason": "security/privacy/data integrity",
@@ -202,8 +203,8 @@
         "detail": "2026-09-10 - 'i want these compliance pages to show in the mentor, global manager, group manager and firm manager hubs - again, cascading'. The gate is his too: 'they have to tick a box before the feature becomes active'."
       },
       "touches": "A Compliance tab at all four tiers in TAB_TIERS and NAV_GROUPS, the firmOverlay cascade, an upload route reusing the master-export-upload validation, an on-demand AI completeness check against MEETING-REVIEW-DPIA.md section 9, the declaration record, and a locked state on pages/meeting-record.vue.",
-      "note": "NOT BUILT - approved to build from 2026-09-10. The artefact is design/mockups/compliance-pages.html and all nine of its questions are ruled. THE DECLARATION IS MIKE'S OWN WORDS, VERBATIM AND PINNED. Two rules must not collapse in the build: the declaration GATES, the completeness check NEVER does. A firm may neither edit nor hide what a tier above published. The AI checks completeness only - it never reads a statute and never says what the law requires. 4.84 generalises this page's dot.",
-      "comment": "2026-09-10 - raised by Mike and filed on his instruction after he approved the drawing. It grew out of Meeting Review 4.58 section 4, whose impact assessment was written the same day and is the first thing the page publishes. His own proposal to upload privacy statutes for the AI to read was recommended against and he agreed: it would put our software in place of their lawyer, and a stale PDF would have the AI quoting law that IPP3A superseded."
+      "note": "SLICE 1 BUILT: the tab at all four manager tiers, a tier publishes and every tier beneath RECEIVES IT READ-ONLY, and the dot in the hub's left-hand menu. NOT BUILT - the firm's evidence pack (2), the declaration and the gate it puts on /meeting-record (3), the completeness check and the mentor's roll-up (4). SO NOTHING GATES MEETING REVIEW TODAY. THE DECLARATION IS MIKE'S OWN WORDS, VERBATIM AND PINNED. Two rules must not collapse: the declaration GATES, the completeness check NEVER does. A tier may neither edit nor hide what a tier above published - structural, not a check. Brief: design/features/compliance.md. 4.84 generalises this page's dot.",
+      "comment": "2026-09-10 - raised by Mike and filed on his instruction after he approved the drawing. It grew out of Meeting Review 4.58 section 4, whose impact assessment was written the same day and is the first thing the page publishes. His own proposal to upload privacy statutes for the AI to read was recommended against and he agreed: it would put our software in place of their lawyer, and a stale PDF would have the AI quoting law that IPP3A superseded. Slice 1 built the same day; the menu heading is his pinned word 'Compliance', not the drawing's 'Your firm', which is untrue at the Mentor Hub."
     },
     {
       "ref": "4.84",

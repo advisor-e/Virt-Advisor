@@ -126,6 +126,7 @@ const staircaseRoute = require('./routes/staircase')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
+const complianceRoute = require('./routes/compliance')
 const { firmAuth, entityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 const clientReportsRoute = require('./routes/clientReports')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -430,6 +431,20 @@ server.get('/api/firm-manager/tax-rates', ...fmGuard, taxRatesRoute.getForManage
 server.post('/api/firm-manager/tax-rates', ...fmGuard, taxRatesRoute.approveFigures)
 server.get('/api/firm-manager/tax-rates/history', ...fmGuard, taxRatesRoute.history)
 server.post('/api/firm-manager/tax-rates/restore', ...fmGuard, taxRatesRoute.restore)
+// Compliance (item 4.83, slice 1) — what a tier publishes about a firm's legal obligations,
+// and what every tier beneath it receives. Asked for by Mike on 2026-09-10, naming all four
+// manager tiers himself. Same guard as the blocks above: managers only, at every tier, and no
+// advisor-facing read at all — compliance is a firm's obligation rather than an individual
+// advisor's, and the one screen an advisor meets is the locked state on /meeting-record.
+//
+// 🔴 THERE IS NO ROUTE HERE THAT EDITS OR HIDES AN ITEM A TIER ABOVE PUBLISHED, and that is
+// Mike's two rulings of 2026-09-10 made structural rather than checked. Every write addresses
+// `req.firmId`'s own row; a republish refuses an id the caller does not already own. Adding a
+// route that takes a scope from the body would undo both rulings at once.
+server.get('/api/firm-manager/compliance', ...fmGuard, complianceRoute.getForManager)
+server.post('/api/firm-manager/compliance', ...fmGuard, complianceRoute.publish)
+server.get('/api/firm-manager/compliance/history', ...fmGuard, complianceRoute.history)
+server.post('/api/firm-manager/compliance/restore', ...fmGuard, complianceRoute.restore)
 server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.getForManager)
 server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
 server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)

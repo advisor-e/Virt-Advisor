@@ -50,14 +50,35 @@ section.firm-manager-hub.section
             :key="group.heading"
             :label="group.heading"
           )
+            //- 🔴 THE DOT SITS IN THIS MENU ON MIKE'S RULING OF 2026-09-10 — "put the
+            //- dots in the left hand menu". It is a NARROW, STATUS-ONLY EXCEPTION to the
+            //- no-icons ruling of 2026-08-19 ("if we don't need the icons drop them
+            //- out", after which eleven were removed): it admits a mark that says
+            //- something the label cannot, and nothing else. A decorative icon does not
+            //- return to this menu by this door.
+            //-
+            //- ⚠ ONE TAB CARRIES ONE TODAY. The three-state system across every tab —
+            //- red, blue and orange — is item 4.84, filed separately on his say-so
+            //- because it is general hub machinery every tab gains from. Red alone needs
+            //- no stored last-opened record, which is why Compliance can carry its own
+            //- now without pre-empting it.
+            //-
+            //- ⚠ NEVER THE COLOUR ALONE — the same rule the Advisory Distinctions rail
+            //- follows: the dot is red, and the words beside it say "new" to a reader
+            //- who cannot see that.
             b-menu-item(
               v-for="item in group.items"
               :key="item.key"
               :data-tab="item.key"
               :active="activeTab === item.key"
-              :label="item.i18n ? $t(item.i18n) : item.label"
+              :label="menuDot(item.key) ? undefined : (item.i18n ? $t(item.i18n) : item.label)"
               @click="activeTab = item.key"
             )
+              template(v-if="menuDot(item.key)" v-slot:label)
+                span.hub-menu-label
+                  span.hub-menu-dot(:title="menuDotTitle(item.key)")
+                  span {{ item.i18n ? $t(item.i18n) : item.label }}
+                  span.is-sr-only  — {{ menuDotTitle(item.key) }}
       //- Closed, the menu leaves the way back to itself on the screen. A control
       //- that hides its own means of return is a trap, not a preference.
       .hub-menu-closed(v-else)
@@ -204,6 +225,19 @@ section.firm-manager-hub.section
       //- arrives by email or in the room and somebody at the firm records it here.
       div.hub-panel(v-if="showsTab('clientCopyRequests')" v-show="activeTab === 'clientCopyRequests'")
         firm-client-copy-requests(:api-token="apiToken")
+
+      //- Compliance (item 4.83, slice 1) — what a tier publishes about a firm's legal
+      //- obligations, and what every tier beneath it receives. Asked for by Mike on
+      //- 2026-09-10, naming all four manager tiers himself and asking for the cascade.
+      //- design/mockups/compliance-pages.html, approved the same day, nine questions ruled.
+      //- 🔴 A TIER BELOW THE PUBLISHER MAY READ AND ADD BESIDE — NEVER EDIT, NEVER HIDE.
+      //- Two separate rulings of his, and this is the one cascading block on this hub that
+      //- does NOT offer the usual accept / edit / switch off / add.
+      //- ⚠ Slice 1: the publishing and the cascade. The firm's evidence pack is slice 2, the
+      //- declaration and the gate it puts on Meeting Review slice 3, the completeness check
+      //- and the mentor's roll-up slice 4.
+      div.hub-panel(v-if="showsTab('compliance')" v-show="activeTab === 'compliance'")
+        firm-compliance(:api-token="apiToken" @new-count="complianceNewCount = $event")
 
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
@@ -822,6 +856,7 @@ import FirmTaxRates from '~/components/firm/FirmTaxRates.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmClientCopyRequests from '~/components/firm/FirmClientCopyRequests.vue'
+import FirmCompliance from '~/components/firm/FirmCompliance.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -1112,7 +1147,26 @@ const TAB_TIERS = {
   // It is the opposite direction: cascading this UPWARD would break a promise, so no later
   // "real need" adds a tier here. That is what separates it from every other line in this
   // object, and it is why the reason is written out rather than assumed.
-  clientCopyRequests: ['firm']
+  clientCopyRequests: ['firm'],
+
+  // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-09-10): "i want these compliance
+  // pages to show in the mentor, global manager, group manager and firm manager hubs - again,
+  // cascading so that if I as a mentor, gets new information, I can share it downwards but they
+  // can seek their own legal opinion and comply thereafter". So this is NOT the
+  // default-is-mentor-alone case of 2026-08-24 — he named the four and gave the reason, which is
+  // that a global group manager or group manager has genuinely different material to publish
+  // (Australia's recording law is not the platform's business, and it is not one firm's either).
+  //
+  // ⚠ ADVISORS ARE EXCLUDED, and that is a judgement stated rather than an oversight: compliance
+  // is a FIRM's obligation, not an individual advisor's, and the assessment is addressed to
+  // whoever runs the firm. An advisor already meets the part that concerns them — the consent
+  // screen, in the words a lawyer approved. The one piece of this feature that reaches an advisor
+  // is the locked state on /meeting-record when their firm has not declared, which is slice 3.
+  //
+  // 🔴 WHAT A TIER MAY DO WITH WHAT IT RECEIVES IS DECIDED ON THE BACKEND, not here. A tier below
+  // the publisher may read and add beside, never edit and never hide (Mike's two rulings of
+  // 2026-09-10) — server/routes/compliance.js has no route that could do either.
+  compliance: ['mentor', 'global', 'group', 'firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
@@ -1259,6 +1313,28 @@ const NAV_GROUPS = [
     ]
   },
   {
+    // 🔴 A FIFTH HEADING, AND THE FIRST SINCE THE MENU WAS APPROVED IN AUGUST 2026. The
+    // word is Mike's own — the one he pinned for the tab on 2026-09-10, unchanged here —
+    // and he approved this heading on 2026-09-10 in preference to the drawing's.
+    //
+    // ⚠ IT IS NOT THE DRAWING'S WORD, AND THAT IS THE POINT. design/mockups/compliance-pages.html
+    // draws the sidebar with a "Your firm" group, which was built first and then found to
+    // break the rule stated on the next heading down: a heading has to be true at every tier
+    // that sees it, and "Your firm" is not true at the Mentor Hub, which has no firm of its
+    // own. The drawing showed that sidebar on the FIRM's screen alone, so the conflict was
+    // invisible in it. Put to Mike rather than settled by us, because a menu heading is a
+    // label and labels are his; he ruled for "Compliance" the same day.
+    //
+    // ⚠ ADVISER NETWORK IS DELIBERATELY NOT MOVED HERE, though the drawing's sidebar
+    // shows it alongside Compliance. It has lived under "Your Team In Action" since
+    // 2026-08-19 and moving it would move something already on a manager's screen — the
+    // thing every other addition to this file has taken care not to do.
+    heading: 'Compliance',
+    items: [
+      { key: 'compliance', label: 'Compliance' }
+    ]
+  },
+  {
     // ⚠ NOT "Across your firms", though it reads better. The level below a global
     // group manager is a COUNTRY, not a firm, and a heading has to be true at every
     // tier that sees it.
@@ -1305,7 +1381,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 
@@ -1342,6 +1418,11 @@ export default {
       activeTab: 'domainSupport',
       // The hub menu is open until the manager closes it, and never otherwise.
       menuHidden: false,
+
+      // How many compliance items have been published to this scope since it last declared
+      // (item 4.83). The Compliance panel is mounted at every tier that shows the tab, open or
+      // not, so it reports this on load and the menu's dot costs no second call.
+      complianceNewCount: 0,
 
       // Template import
       templateImport: { hasImport: false, templateCount: 0, history: [] },
@@ -1545,6 +1626,37 @@ export default {
      */
     tabVisible (key) {
       return TAB_TIERS[key] ? this.showsTab(key) : true
+    },
+
+    /**
+     * Does this menu entry carry a notification dot right now?
+     *
+     * ⚠ ONE TAB ANSWERS TRUE TODAY, and that is deliberate rather than unfinished. The
+     * three-state system across every hub tab — red for published-since-you-declared, blue
+     * for never opened, orange for not opened in three weeks — is item 4.84, filed as its
+     * own piece of work on Mike's say-so because every tab gains from it. Red is the only
+     * state that needs no stored last-opened record, which is why Compliance can carry its
+     * own dot now without building 4.84 early or making it harder to build later.
+     *
+     * @param {string} key - a NAV_GROUPS item key
+     * @returns {boolean}
+     */
+    menuDot (key) {
+      return key === 'compliance' && this.complianceNewCount > 0
+    },
+
+    /**
+     * What the dot means, in words — for the title attribute and for the line a screen
+     * reader is given. Never the colour alone.
+     *
+     * @param {string} key - a NAV_GROUPS item key
+     * @returns {string}
+     */
+    menuDotTitle (key) {
+      if (key !== 'compliance') { return '' }
+      return this.complianceNewCount === 1
+        ? '1 new item since you last declared'
+        : `${this.complianceNewCount} new items since you last declared`
     },
 
     /**
@@ -2344,6 +2456,22 @@ export default {
 }
 .hub-menu-top {
   margin-bottom: 0.5rem;
+}
+/* A menu entry carrying a notification dot. The dot is the narrow, status-only exception
+   to the no-icons ruling of 2026-08-19 (Mike, 2026-09-10: "put the dots in the left hand
+   menu"); the label sits beside it unchanged, and a screen-reader line says in words what
+   the colour says, so the colour is never the only signal. */
+.hub-menu-label {
+  display: inline-flex;
+  align-items: center;
+}
+.hub-menu-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e00000;
+  margin-right: 0.45rem;
 }
 /* Only one panel is ever shown; the rest are display:none and take no space, so the
    open one fills whatever the menu leaves. `min-width: 0` stops a wide table inside
