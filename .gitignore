@@ -104,6 +104,12 @@ data/dev-tax-rates.json
 # mentor's screen, so `design/MEETING-REVIEW-DPIA.md` stays the single home of its own text.
 data/dev-compliance.json
 
+# Dev-only record of when a manager last opened each hub tab — the BLUE and ORANGE
+# notification dots (item 4.84). One row per manager per tab, keyed by scope then by config
+# key, ignored for the same reason as every sibling above: it is one machine's local reading
+# history and belongs to nobody else.
+data/dev-hub-tabs.json
+
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
 # The four cascade keys, added when the staircase joined the one firm-editable

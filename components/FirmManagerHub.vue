@@ -76,9 +76,35 @@ section.firm-manager-hub.section
             )
               template(v-if="menuDot(item.key)" v-slot:label)
                 span.hub-menu-label
-                  span.hub-menu-dot(:title="menuDotTitle(item.key)")
+                  span.hub-menu-dot(
+                    :class="`hub-menu-dot--${menuDot(item.key)}`"
+                    :title="menuDotTitle(item.key)"
+                  )
                   span {{ item.i18n ? $t(item.i18n) : item.label }}
                   span.is-sr-only  — {{ menuDotTitle(item.key) }}
+        //- The three colours mean nothing on their own the first time somebody meets
+        //- them, so the foot of the menu says what they are — the Handbook's own three
+        //- lines, in the same place, and its count sentence with the right noun for this
+        //- screen. Mike ruled the count's wording on 2026-09-10, and declined the option
+        //- of having no count at all, so its presence is a decision rather than a habit.
+        //-
+        //- ⚠ ONE DEVIATION FROM THE APPROVED DRAWING, NAMED RATHER THAN QUIET. The drawing
+        //- shows the legend at the foot of a menu that has dots in it; this hides the whole
+        //- block when NOTHING is asking for attention, because a key to three colours none
+        //- of which are on screen is noise, and the count would read "0 tabs needing a
+        //- look" — a sentence nobody ruled on. Mike's four rulings are all unaffected: the
+        //- wording, the order and the presence of the count are exactly as approved.
+        .hub-menu-legend(v-if="menuDotCount() > 0")
+          .hub-menu-legend-row
+            span.hub-menu-dot.hub-menu-dot--red
+            span something new
+          .hub-menu-legend-row
+            span.hub-menu-dot.hub-menu-dot--blue
+            span never opened
+          .hub-menu-legend-row
+            span.hub-menu-dot.hub-menu-dot--orange
+            span not opened in 3 weeks
+          .hub-menu-legend-count {{ menuDotCountLabel() }}
       //- Closed, the menu leaves the way back to itself on the screen. A control
       //- that hides its own means of return is a trap, not a preference.
       .hub-menu-closed(v-else)
@@ -1442,6 +1468,21 @@ export default {
       // not, so it reports this on load and the menu's dot costs no second call.
       complianceNewCount: 0,
 
+      // ── Notification dots (item 4.84) ──────────────────────────────────────
+      // When this MANAGER last opened each tab: `{ tabKey: ISO }`, from the backend. It is
+      // this person's own reading history, never the firm's — two managers in one firm each
+      // have their own, and one clearing a dot never clears the other's.
+      tabOpened: {},
+      // How long a tab may go unopened before its dot turns orange. NOT DEFAULTED TO 21 HERE:
+      // the number lives on the backend (`server/utils/hubTabOpened.js`) and travels in the
+      // answer, so there is exactly one copy of it. Null until the answer arrives.
+      tabStaleDays: null,
+      // Has the record been read yet? Until it has, NO blue or orange dot is painted — an
+      // unread record is indistinguishable from "never opened anything", and seventeen blue
+      // dots flashing on every hub open would be a fault, not a notification. Red is
+      // unaffected: it comes from the tab itself and needs nothing stored.
+      tabOpenedLoaded: false,
+
       // Template import
       templateImport: { hasImport: false, templateCount: 0, history: [] },
       loadingTemplateImport: false,
@@ -1599,6 +1640,17 @@ export default {
     }
   },
 
+  watch: {
+    /**
+     * A manager moved to another tab: stamp it as opened, which clears its dot.
+     *
+     * @param {string} key - the tab now showing
+     */
+    activeTab (key) {
+      this.markTabOpened(key)
+    }
+  },
+
   mounted () {
     this.loadTemplateImport()
     this.loadVideos()
@@ -1612,6 +1664,10 @@ export default {
     // localStorage is browser-only. Read here rather than in data() so the server
     // render and the first client render agree — see restoreMenuState.
     this.restoreMenuState()
+    // The dots. Reads this manager's own last-opened record, then stamps whichever tab the
+    // hub opened on — the watcher below only sees a CHANGE, so the first tab would otherwise
+    // stay blue for ever however often it is read.
+    this.loadTabOpened()
   },
 
   methods: {
@@ -1647,34 +1703,125 @@ export default {
     },
 
     /**
-     * Does this menu entry carry a notification dot right now?
+     * Which notification dot does this menu entry carry right now — item 4.84.
      *
-     * ⚠ ONE TAB ANSWERS TRUE TODAY, and that is deliberate rather than unfinished. The
-     * three-state system across every hub tab — red for published-since-you-declared, blue
-     * for never opened, orange for not opened in three weeks — is item 4.84, filed as its
-     * own piece of work on Mike's say-so because every tab gains from it. Red is the only
-     * state that needs no stored last-opened record, which is why Compliance can carry its
-     * own dot now without building 4.84 early or making it harder to build later.
+     * 🔴 RED BEATS BLUE BEATS ORANGE, RULED BY MIKE 2026-09-10. It was drawn as our judgement
+     * and flagged as one on `design/mockups/hub-menu-dots.html` §3; he settled it as drawn. A
+     * tab that is both never-opened and holding new material shows RED — the new material is
+     * the more urgent fact. No session reorders these three.
+     *
+     * 🔴 RED IS RAISED BY THE TAB ITSELF, and only Compliance raises one. "New" means
+     * *published since you last declared*, which is a Compliance sentence; no other tab in
+     * this hub knows what it would mean for itself, and inventing an answer for the other
+     * sixteen would be building sixteen features nobody asked for. The machinery here is
+     * general; the signal is each tab's own. Stated as a judgement on the drawing at §7.
+     *
+     * ⚠ NO BLUE OR ORANGE UNTIL THE RECORD HAS BEEN READ. An unread record looks exactly like
+     * "this manager has opened nothing", so painting from it early would flash a blue dot on
+     * every tab each time the hub loads.
      *
      * @param {string} key - a NAV_GROUPS item key
-     * @returns {boolean}
+     * @returns {string} 'red' | 'blue' | 'orange' | '' — empty means no dot
      */
     menuDot (key) {
-      return key === 'compliance' && this.complianceNewCount > 0
+      if (key === 'compliance' && this.complianceNewCount > 0) { return 'red' }
+      if (!this.tabOpenedLoaded) { return '' }
+
+      const at = this.tabOpened[key]
+      if (!at) { return 'blue' }
+      if (typeof this.tabStaleDays !== 'number') { return '' }
+
+      const ms = Date.parse(at)
+      if (Number.isNaN(ms)) { return 'blue' }
+      const daysSince = (Date.now() - ms) / 86400000
+      return daysSince > this.tabStaleDays ? 'orange' : ''
     },
 
     /**
      * What the dot means, in words — for the title attribute and for the line a screen
-     * reader is given. Never the colour alone.
+     * reader is given. 🔴 NEVER THE COLOUR ALONE; the same rule the Advisory Distinctions
+     * rail follows.
+     *
+     * The three strings are Mike's, ruled 2026-09-10 one at a time. The 3 weeks in the orange
+     * line is `STALE_DAYS` on the backend saying 21; `tests/unit/hubTabOpened.test.js` pins
+     * that number beside a note that this sentence depends on it.
      *
      * @param {string} key - a NAV_GROUPS item key
      * @returns {string}
      */
     menuDotTitle (key) {
-      if (key !== 'compliance') { return '' }
+      const state = this.menuDot(key)
+      if (state === 'blue') { return 'Never opened' }
+      if (state === 'orange') { return 'Not opened in 3 weeks' }
+      if (state !== 'red') { return '' }
       return this.complianceNewCount === 1
         ? '1 new item since you last declared'
         : `${this.complianceNewCount} new items since you last declared`
+    },
+
+    /**
+     * How many tabs are asking for attention — the count at the foot of the menu.
+     *
+     * It counts TABS, NOT ITEMS: a Compliance tab holding four new documents counts once.
+     * Only entries this tier actually shows are counted, so a manager is never told to look
+     * at something their hub does not have.
+     *
+     * @returns {number}
+     */
+    menuDotCount () {
+      return this.visibleGroups
+        .reduce((all, group) => all.concat(group.items), [])
+        .filter(item => this.menuDot(item.key) !== '')
+        .length
+    },
+
+    /**
+     * The count as a sentence. 🔴 MIKE'S WORDING, ruled 2026-09-10 — *"6 tabs needing a
+     * look"* — with the one inflection his sentence does not cover: a single tab is not
+     * "1 tabs". Grammar, not a second wording decision.
+     *
+     * @returns {string}
+     */
+    menuDotCountLabel () {
+      const n = this.menuDotCount()
+      return n === 1 ? '1 tab needing a look' : `${n} tabs needing a look`
+    },
+
+    /**
+     * Read this manager's own last-opened record, then stamp the tab the hub opened on.
+     *
+     * ⚠ A FAILURE IS SILENT, DELIBERATELY. It leaves `tabOpenedLoaded` false, so the menu
+     * simply carries no blue or orange dots. A red toast over a hub where nothing is wrong
+     * would be worse than a missing dot — the same reasoning `mounted` already applies to
+     * the firm-scoped cases call.
+     */
+    async loadTabOpened () {
+      try {
+        const data = await this.api('GET', '/api/firm-manager/hub-tabs/opened')
+        this.tabOpened = (data && data.opened) || {}
+        this.tabStaleDays = data && typeof data.staleDays === 'number' ? data.staleDays : null
+        this.tabOpenedLoaded = true
+      } catch (e) { /* no dots, rather than an alarm over a hub that is working */ }
+      this.markTabOpened(this.activeTab)
+    },
+
+    /**
+     * Stamp one tab as opened by this manager, now.
+     *
+     * The local record is updated FIRST, so the dot clears the moment the tab opens rather
+     * than after a round trip. A failed write is silent for the same reason as the read: the
+     * dot returns on the next load, and nothing a manager is doing has failed.
+     *
+     * @param {string} key - a NAV_GROUPS item key
+     */
+    async markTabOpened (key) {
+      if (!key) { return }
+      // $set: `tabOpened` is a plain object, and a key added to it any other way would not be
+      // reactive — the dot would clear only on the next full render. Vue 2.
+      this.$set(this.tabOpened, key, new Date().toISOString())
+      try {
+        await this.api('POST', '/api/firm-manager/hub-tabs/opened', { tab: key })
+      } catch (e) { /* the stamp is a convenience; it retries by simply being opened again */ }
     },
 
     /**
@@ -2490,6 +2637,33 @@ export default {
   border-radius: 50%;
   background: #e00000;
   margin-right: 0.45rem;
+}
+/* The three states — item 4.84, from design/mockups/hub-menu-dots.html. The colours are the
+   ones already ruled for this app (REPORT-VISUAL-STANDARD.md): the same red the Compliance
+   dot has carried since 2026-09-10, the Handbook's blue for never-opened and its orange for
+   not-opened-in-three-weeks. Which one is shown is decided in menuDot(), never here — a
+   colour chosen in CSS could not honour the precedence Mike ruled. */
+.hub-menu-dot--red { background: #e00000; }
+.hub-menu-dot--blue { background: #00b1e0; }
+.hub-menu-dot--orange { background: #ff9900; }
+/* The key to those three colours, and the count. Sits under the menu rather than in it: it
+   describes the list, and a legend that scrolled inside the list would be a menu entry that
+   goes nowhere. */
+.hub-menu-legend {
+  margin-top: 0.9rem;
+  padding: 0.6rem 0.75rem 0.15rem;
+  border-top: 1px solid #d5e1ee;
+  font-size: 0.75rem;
+  color: #5b6f8a;
+}
+.hub-menu-legend-row {
+  display: flex;
+  align-items: center;
+}
+.hub-menu-legend-count {
+  margin-top: 0.35rem;
+  color: #002b64;
+  font-weight: 600;
 }
 /* Only one panel is ever shown; the rest are display:none and take no space, so the
    open one fills whatever the menu leaves. `min-width: 0` stops a wide table inside
