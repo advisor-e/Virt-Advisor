@@ -9,36 +9,28 @@
 
 ---
 
-## 2026-09-10 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-10 (close) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **9,541 green**, lint 0, build exit 0, everything pushed (`4f74f38`). **0 behind master**
-after merging the laptop's PR #71 in (13 conflicts, all side-by-side additions). **PR #70 is
-open**, desktop → master, and now carries the whole day. Nothing active on this machine.
+**🔴 v0.11.0 IS CUT AND PUSHED** — tag on `0f0fdab`, the merge of PR #75, on Mike's word.
+484 commits from both machines since v0.10.0. Ledger row backfilled; notes at
+[`RELEASE-NOTES-v0.11.0.md`](RELEASE-NOTES-v0.11.0.md). **Awaiting the master team's pull** —
+when it lands, the deployment row is the next thing to write. The notes carry the one thing
+they must not miss: `npm install` with **npm 8 on Node 14.15**, engine-strict is on.
 
-**🔴 MIKE'S INSTRUCTION FOR NEXT SESSION: "bring them to me".** Put these in front of him first:
+Suite **9,694 green** (471 suites), lint 0, build exit 0. Both branches level with master,
+tree clean, everything pushed. Nothing active on this machine except 4.87's flag (below).
 
-- **Release v0.11.0** — he wants one tag covering both machines. Step 2 of Integration is done
-  (master merged in); what remains is merge PR #70, build on master, notes, version bump,
-  ledger row, tag. Start from the live state, on his word.
-- **The three items that wait on us**, all the laptop's by its own handover: 4.83 Compliance
-  pages (score 5, approved, not started), 4.84 Notification dots, 4.85 One Handbook.
-- **The five that wait on him**: 4.15 (he settles the 18 names in UAT — never propose it),
-  4.58 §4 (staff consultation, lawyer per market, OpenAI letter), 4.78 / 4.81 / 4.82 (the
-  laptop's depreciation and tax work, built, needs his review in the app).
-- **4.86** waits on the master team's answer to email question 7 (adviser identity).
-- **Stale flag:** 4.78 still reads active on the laptop in master; the laptop's clearing
-  commit lands with its next push.
+**Next session, bring to Mike first** (his instruction): the two open decisions on **4.87
+Outcome Learning** — the evidence floor, and hold-back only or both directions — then
+`/speckit-clarify` on his yes. Its `activeOn` is the desktop. The three items waiting on us
+(4.83 built by the laptop and merged, 4.84, 4.85) and the five waiting on him are unchanged.
 
-**Built today:** the client level of the Meeting Review pre-set (4.58) — one shared list per
-client, every entry named, no manager screen; five rulings on
-[`mockups/meeting-preset-client-level.html`](mockups/meeting-preset-client-level.html). A
-cannot-be-heard tick dropped in storage on the advisor level, fixed. Course Builder's live
-click-through completed. Search-content cascade confirmed complete on our side. Integration
-email gained question 7.
+**Built today:** the client level of the Meeting Review pre-set; the Course Builder live
+click-through; a Code Size page recomputed on every Handbook build; the Founder's Claims Audit
+and the Outcome Learning task on one Handbook page, with the spec at
+`specs/002-outcome-learning`; question 7 on the integration email; 4.86 filed; five stale
+sentences corrected; two small fixes (a dropped cannot-be-heard flag, a log line). The
+Handbook's tests no longer rewrite the Code Size record.
 
-**He was going to open the app before the release**: `/meeting-preset`, pick Dev Client Ltd.
-Backend on Node 14.15 exact path with `ALLOW_DEV_AUTH=true`; frontend `nuxt start`.
-
-**LAPTOP:** shared files changed here today: `to-do-items.json`, `ARTEFACTS.md`,
-`MEETING-TYPES-CASCADE.md`, `meeting-review.md`, `server/routes/meetingReview.js` (presetFor
-takes a clientId), `server/routes/meetingObservations.js` (two lines), `restify-server.js`.
+**LAPTOP:** master moved four times today (PRs #70, #73, #74, #75); merge it in at startup.
+Nothing of yours was touched after your PR #72.
