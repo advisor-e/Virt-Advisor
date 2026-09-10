@@ -43,7 +43,9 @@
       .group
         h2 {{ $t('report.quickPosition.aside.assets') }}
         //- The provenance badge is the VALUE's (which nobody edits here); the factor is
-        //- the client's own figure, so a client change to it is badged separately (§5, D4).
+        //- the client's own figure, so a client change to it is badged beside the
+        //- percentage it describes, never on the label next to the value's badge — two
+        //- badges on one label read as two claims about one figure (4.69, Mike 2026-09-07).
         .field(v-for="f in visibleFactorFields" :key="f.key")
           .row
             label
@@ -54,8 +56,9 @@
                 :file-label="$t('report.quickPosition.confirm.fromFile')"
                 :entered-label="$t('report.quickPosition.confirm.entered')"
               )
+            output
+              | {{ money(inputs[f.key]) }} × {{ inputs[f.key + 'Factor'] }}%
               client-changed-badge(v-if="isClientChanged(f.key + 'Factor')" :label="$t('clientReports.saved.badge')")
-            output {{ money(inputs[f.key]) }} × {{ inputs[f.key + 'Factor'] }}%
           input(type="range" min="0" max="100" step="5" v-model.number="inputs[f.key + 'Factor']")
       //- R11: creditors/wagesDue shape the result but had no on-screen presence — shown
       //- read-only with their provenance (making them editable is a separate design call)

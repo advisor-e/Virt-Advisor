@@ -63,6 +63,24 @@ const MEASURES = [
 /** The measures a Balance Sheet is needed for — the half that goes missing on its own. */
 const BALANCE_SHEET_MEASURES = ['debtorDays', 'creditorDays', 'stockDays']
 
+/**
+ * The two balance-sheet ratios the Business Performance Report's health score counts
+ * beside the six (item 4.70; Mike, 2026-09-08: "two new threshold rows on the
+ * trend-thresholds page, and the score counts eight once they are set"). Kept OUT of
+ * `MEASURES` on purpose: the forecast's own trend page stays the six rows Mike approved,
+ * and a caller that wants these passes `measures: MEASURES.concat(SCORE_MEASURES)`.
+ *
+ * Current ratio is the one measure here that reads the other way up — higher is better —
+ * so its `{green, amber}` pair is the BOTTOM of each band and `bandLevel` honours
+ * `worseWhen` rather than assuming "above is worse". Both ratios take their inputs from
+ * the report's own balance-sheet definitions (current assets include the bank; equity is
+ * assets less liabilities), so the score and the page it sits on cannot disagree.
+ */
+const SCORE_MEASURES = [
+  { key: 'currentRatio', basis: 'level', unit: 'ratio', worseWhen: 'down', needs: ['currentAssets', 'currentLiabilities'] },
+  { key: 'debtToEquity', basis: 'level', unit: 'ratio', worseWhen: 'up', needs: ['totalDebt', 'totalEquity'] }
+]
+
 const MONTH_NAMES = [
   'january', 'february', 'march', 'april', 'may', 'june',
   'july', 'august', 'september', 'october', 'november', 'december'
@@ -147,6 +165,10 @@ function valuesFor (y) {
   const debtors = num(src.accountsReceivable)
   const stock = num(src.inventory)
   const creditors = num(src.accountsPayable)
+  const currentAssets = num(src.currentAssets)
+  const currentLiabilities = num(src.currentLiabilities)
+  const totalDebt = num(src.totalDebt)
+  const totalEquity = num(src.totalEquity)
 
   const salesOk = sales !== null && sales > 0
   const cosOk = costOfSales !== null && costOfSales > 0
@@ -157,7 +179,11 @@ function valuesFor (y) {
     overheadRatio: (salesOk && opex !== null) ? (opex / sales) * 100 : null,
     debtorDays: (salesOk && debtors !== null) ? (debtors / sales) * DAYS_IN_YEAR : null,
     creditorDays: (cosOk && creditors !== null) ? (creditors / costOfSales) * DAYS_IN_YEAR : null,
-    stockDays: (cosOk && stock !== null) ? (stock / costOfSales) * DAYS_IN_YEAR : null
+    stockDays: (cosOk && stock !== null) ? (stock / costOfSales) * DAYS_IN_YEAR : null,
+    // The two score ratios (SCORE_MEASURES). A non-positive denominator is refused, not
+    // divided: negative equity is a finding in its own right, not a ratio to band.
+    currentRatio: (currentLiabilities !== null && currentLiabilities > 0 && currentAssets !== null) ? currentAssets / currentLiabilities : null,
+    debtToEquity: (totalEquity !== null && totalEquity > 0 && totalDebt !== null) ? totalDebt / totalEquity : null
   }
 }
 
@@ -170,14 +196,26 @@ function valuesFor (y) {
  * judgement he had not given. Missing either returns null, which the screen draws as
  * "no threshold set": shown in full, banded not at all.
  *
+ * WHICH WAY UP. For the day-counts (`worseWhen: 'up'`, the default) the pair is the TOP
+ * of green and the top of amber. For a measure that reads the other way — current ratio,
+ * where higher is better — the pair is the BOTTOM of each band: green at or above the
+ * first figure, amber at or above the second, red below. The direction travels with the
+ * measure definition; a caller never decides it.
+ *
  * @param {number} value - this year's level.
  * @param {object|null} t - `{green, amber}`.
+ * @param {'up'|'down'} [worseWhen='up'] - which direction is worse.
  * @returns {'good'|'warn'|'crit'|null}
  */
-function bandLevel (value, t) {
+function bandLevel (value, t, worseWhen) {
   const green = t ? num(t.green) : null
   const amber = t ? num(t.amber) : null
   if (green === null || amber === null) { return null }
+  if (worseWhen === 'down') {
+    if (value >= green) { return 'good' }
+    if (value >= amber) { return 'warn' }
+    return 'crit'
+  }
   if (value <= green) { return 'good' }
   if (value <= amber) { return 'warn' }
   return 'crit'
@@ -252,6 +290,9 @@ function firstMissing (m, current, prior) {
  * @param {object} input.current - this year's figures (see `valuesFor`), plus `reportDate`.
  * @param {object|null} input.prior - last year's, or null when nothing was dropped.
  * @param {object} [input.thresholds] - `{levels, movements}` as resolved for the scope.
+ * @param {Array<object>} [input.measures] - which measures to read; `MEASURES` (the
+ *   forecast's six) unless a caller says otherwise. The report passes the six plus
+ *   `SCORE_MEASURES`.
  * @returns {object} {
  *   available: boolean,          // is there anything to draw at all?
  *   blocked: string|null,        // why not, in the advisor's words
@@ -294,13 +335,14 @@ function computeTrend (input) {
 
   const cur = valuesFor(opts.current)
   const pri = valuesFor(opts.prior)
+  const list = Array.isArray(opts.measures) && opts.measures.length ? opts.measures : MEASURES
 
   const measures = []
   const omitted = []
   const counts = { good: 0, warn: 0, crit: 0, unbanded: 0 }
 
-  for (let i = 0; i < MEASURES.length; i++) {
-    const m = MEASURES[i]
+  for (let i = 0; i < list.length; i++) {
+    const m = list[i]
 
     // Sales is the one measure whose value IS the movement, so it is built by hand
     // rather than differenced — there is no such thing as "this year's sales growth".
@@ -333,7 +375,7 @@ function computeTrend (input) {
     }
 
     const band = m.basis === 'level'
-      ? bandLevel(currentValue, levels[m.key])
+      ? bandLevel(currentValue, levels[m.key], m.worseWhen)
       : bandMovement(movement, m.compare, movements[m.key])
 
     if (band === null) { counts.unbanded++ } else { counts[band]++ }
@@ -386,6 +428,7 @@ module.exports = {
   bandMovement,
   breaches,
   MEASURES,
+  SCORE_MEASURES,
   BALANCE_SHEET_MEASURES,
   DAYS_IN_YEAR
 }

@@ -113,12 +113,14 @@ const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const economicAnalysisRoute = require('./routes/economicAnalysis')
+const nextStepsDraftRoute = require('./routes/nextStepsDraft')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
 const depreciationRatesRoute = require('./routes/depreciationRates')
 const taxRatesRoute = require('./routes/taxRates')
 const sellDownRoute = require('./routes/forecastSellDown')
+const benchmarkerRoute = require('./routes/benchmarker')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
@@ -127,7 +129,9 @@ const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
-const { firmAuth, entityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
+// Both sides of the 2026-09-10 merge: this machine's compliance routes, and the desktop's
+// `firmOrEntityAuth` in the guard list.
+const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 const clientReportsRoute = require('./routes/clientReports')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
@@ -171,7 +175,9 @@ const JSON_BODY_LIMIT = 1024 * 1024
 const _jsonParsers = restify.plugins.jsonBodyParser({ mapParams: false, maxBodySize: JSON_BODY_LIMIT })
 server.use((req, res, next) => {
   const p = (req.url || '').split('?')[0]
-  if (p === '/api/advisor/query' || p === '/api/course') { return next() }
+  // The template push reads its own body under the 10 MB upload cap (Cascade Phase 4);
+  // a 337 KB export fits the 1 MB parser today, but the cap is the upload's, not this one's.
+  if (p === '/api/advisor/query' || p === '/api/course' || p === '/api/integration/templates') { return next() }
   let i = 0
   ;(function runNext (err) {
     if (err || i >= _jsonParsers.length) { return next(err) }
@@ -209,6 +215,12 @@ server.post('/api/report/working-capital-cycle', reportRoute.workingCapitalCycle
 server.post('/api/report/debtor-drag', reportRoute.debtorDrag)
 server.post('/api/report/margin-breakeven', reportRoute.marginBreakeven)
 server.post('/api/report/eight-levers', reportRoute.eightLevers)
+// The Business Performance Report's ratio hub (item 4.70, stage 1) — calc-only, anonymous.
+server.post('/api/report/dashboard-reports', reportRoute.dashboardReports)
+// The report's pages (stage 2). Guarded, unlike the hub above, because the cash drivers and
+// the health score band on the FIRM'S thresholds, resolved from the token — a client reading
+// their saved report is a business entity of the same firm, so both are admitted.
+server.post('/api/report/dashboard-reports/pages', firmOrEntityAuth, reportRoute.dashboardReportPages)
 server.post('/api/report/quick-position', reportRoute.quickPosition)
 server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
 server.post('/api/report/loan-estimator', reportRoute.loanEstimator)
@@ -234,6 +246,13 @@ server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPosi
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
 server.post('/api/report/volatility/intake', firmAuth, reportRoute.volatilityIntake)
 server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.threeWayForecastIntake)
+server.post('/api/report/dashboard-reports/intake', firmAuth, reportRoute.dashboardReportsIntake)
+server.post('/api/report/dashboard-reports/inventory', firmAuth, reportRoute.dashboardReportsInventory)
+server.post('/api/report/dashboard-reports/monthly', firmAuth, reportRoute.dashboardReportsMonthly)
+// Item 4.70 stage 6 — the AI draft of the three next steps, and the tick that approves them.
+server.post('/api/report/dashboard-reports/next-steps', firmAuth, nextStepsDraftRoute.startDraft)
+server.post('/api/report/dashboard-reports/next-steps/ready', firmAuth, nextStepsDraftRoute.setReady)
+server.get('/api/report/dashboard-reports/next-steps/:runId', firmAuth, nextStepsDraftRoute.getDraft)
 // Economic Analysis (item 4.66) — the Three-Way Forecast's optional market research, and
 // the first AI call in the report area. firmAuth on all three: the run belongs to the
 // advisor who started it, and the route checks BOTH identities, not just the firm.
@@ -241,15 +260,17 @@ server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.three
 server.post('/api/report/economic-analysis', firmAuth, economicAnalysisRoute.startResearch)
 server.get('/api/report/economic-analysis/:runId', firmAuth, economicAnalysisRoute.getRun)
 server.post('/api/report/economic-analysis/:runId/include', firmAuth, economicAnalysisRoute.setInclude)
-// Firm preferred currency: READ open to any firm user (reports render for advisors);
-// WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
-server.get('/api/report/currency', firmAuth, currencyRoute.get)
+// Firm preferred currency: READ open to any firm user — an advisor OR a client of the firm,
+// because the client's page renders the same reports (item 4.68); WRITE managers only
+// (account-wide setting). Persistence via firmOverlay (config_key 'currency').
+server.get('/api/report/currency', firmOrEntityAuth, currencyRoute.get)
 server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.set)
 // The property model's tax rules, resolved through the tier chain. READ open to any
 // signed-in user — every advisor opening the Multiple Property Assessment needs it, and
-// they may type over any of it for the client in front of them (Mike, 2026-08-17). The
-// WRITE lives on the manager-only /api/firm-manager route below.
-server.get('/api/report/property-tax-rules', firmAuth, propertyTaxRulesRoute.get)
+// they may type over any of it for the client in front of them (Mike, 2026-08-17); a
+// client of the firm opening the same screen needs it too (item 4.68). The WRITE lives
+// on the manager-only /api/firm-manager route below.
+server.get('/api/report/property-tax-rules', firmOrEntityAuth, propertyTaxRulesRoute.get)
 // The bands the Three-Way Forecast's two-year trend read draws (Mike, 2026-09-03, item
 // 4.61b). Same asymmetry and same reason as the tax rules above: every advisor building a
 // forecast needs to READ them, and the write is manager-only on /api/firm-manager below.
@@ -284,8 +305,13 @@ server.post('/api/report/depreciation-rates/documents', firmAuth, depreciationRa
 server.get('/api/report/tax-rates', firmAuth, taxRatesRoute.get)
 // The prices imported stock sells down at as it ages (item 4.64). Same asymmetry and same
 // reason again: the advisor's step 3 seeds its ladder from this, so the read must never
-// require a manager role, and the write is manager-only on /api/firm-manager below.
-server.get('/api/report/sell-down', firmAuth, sellDownRoute.get)
+// require a manager role, and the write is manager-only on /api/firm-manager below. A
+// client editing the forecast seeds the same ladder, so the read admits a client too (4.68).
+server.get('/api/report/sell-down', firmOrEntityAuth, sellDownRoute.get)
+// The Stats NZ benchmarker (item 4.70 stage 3, Brief P9). The finder and an industry's bands
+// are open to any signed-in reader, a client included — nothing here is a firm's own data.
+server.get('/api/report/benchmarker/industries', firmOrEntityAuth, benchmarkerRoute.industries)
+server.get('/api/report/benchmarker/industries/:code', firmOrEntityAuth, benchmarkerRoute.industry)
 // /api/firm/advisors and /api/firm/insights were removed 2026-07-29 with the
 // FirmDashboard mock they existed for. Both were stubs returning empty data, and
 // proposed a three-table schema (advisors/courses/course_sessions) that was never
@@ -559,13 +585,26 @@ server.get('/api/firm-manager/meeting-observations/set-aside', ...fmGuard, mo.ge
 // display name is stored beside the decision: this app holds no advisors table to join one
 // out of later (config/db-schema.sql). Design: design/mockups/meeting-preset-advisor-level.html.
 //
-// The per-CLIENT level is NOT built and is not drawn — it needs the client picker, which is
-// empty without MySQL. MEETING-TYPES-CASCADE.md §7 slice 4.
 server.get('/api/meeting/observations', firmAuth, mo.getForAdvisor)
 server.post('/api/meeting/observations/decline', firmAuth, mo.setAdvisorDecline)
 server.post('/api/meeting/observations/own', firmAuth, mo.addAdvisorPoint)
 server.put('/api/meeting/observations/own', firmAuth, mo.updateAdvisorPoint)
 server.post('/api/meeting/observations/own/remove', firmAuth, mo.deleteAdvisorPoint)
+
+// ── The BUSINESS-ENTITY level — "how I run meetings with THIS client" (2026-09-10) ──
+// The bottom of the cascade, MEETING-TYPES-CASCADE.md §7 slice 4 second half, built from
+// design/mockups/meeting-preset-client-level.html with all five questions ruled by Mike
+// the same day. ONE SHARED LIST PER CLIENT that any advisor in the firm may edit, every
+// entry named; it can only remove or add on top of the advisor's own layer, never put back
+// what an advisor set aside for themselves. NO MANAGER ROUTES, on his ruling: a firm
+// manager opens the same screen. The client is checked against the firm's register on
+// every call, so another firm's client id is a 404.
+const moEntity = require('./routes/meetingObservationsEntity')
+server.get('/api/meeting/observations/client/:clientId', firmAuth, moEntity.getForClient)
+server.post('/api/meeting/observations/client/decline', firmAuth, moEntity.setClientDecline)
+server.post('/api/meeting/observations/client/own', firmAuth, moEntity.addClientPoint)
+server.put('/api/meeting/observations/client/own', firmAuth, moEntity.updateClientPoint)
+server.post('/api/meeting/observations/client/own/remove', firmAuth, moEntity.deleteClientPoint)
 
 // ── Meeting Review — consent, capture, transcription and deletion (slice 2) ──
 // Asked for by Mike 2026-09-01 ("4.56 - slice 2"). Design design/features/meeting-review.md;
@@ -785,6 +824,12 @@ server.get('/api/mentor/adoption', firmAuth, requireManagingTier, mentorRoute.ge
 // The mentor authors the platform set every firm receives as its default; plain CRUD
 // (no decline/override at this tier). Global scope — handlers never read req.firmId.
 const mentorGuard = [firmAuth, requireMentorRole]
+// The benchmarker's release is one national table, replaced each year: the MENTOR uploads it
+// and it is stored at the platform scope. No tier below has a different Stats NZ.
+server.get('/api/firm-manager/benchmarker', ...mentorGuard, benchmarkerRoute.summary)
+server.post('/api/firm-manager/benchmarker', ...mentorGuard, benchmarkerRoute.upload)
+server.get('/api/firm-manager/benchmarker/history', ...mentorGuard, benchmarkerRoute.history)
+server.post('/api/firm-manager/benchmarker/restore', ...mentorGuard, benchmarkerRoute.restore)
 server.get('/api/mentor/distinctions', ...mentorGuard, mentorRoute.listMentorDistinctions)
 server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentorDistinction)
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
@@ -798,6 +843,14 @@ server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMen
 server.get('/api/mentor/templates', ...mentorGuard, mentorRoute.getPlatformTemplates)
 server.post('/api/mentor/templates/import', ...mentorGuard, mentorRoute.importPlatformTemplates)
 server.post('/api/mentor/templates/restore', ...mentorGuard, mentorRoute.restorePlatformTemplates)
+
+// ── Master template library — the PUSH doorway (Cascade Phase 4, our half) ──
+// Advisor-e posts the export here when Mike publishes. Not behind a user token:
+// a shared secret (config/integration.js PUSH) guards it, and the route answers
+// 404 while that secret is unset. Same validator, same platform scope, same
+// history and cache clear as the mentor's upload above — one store, two doors.
+const integrationTemplates = require('./routes/integrationTemplates')
+server.post('/api/integration/templates', integrationTemplates.requirePushSecret, integrationTemplates.pushPlatformTemplates)
 
 // ── Template Check (MENTOR ONLY — and it stays that way) ──
 // Every tool a logic table names, checked against the templates the app can open.

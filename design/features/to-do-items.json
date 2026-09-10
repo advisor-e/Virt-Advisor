@@ -61,22 +61,22 @@
   "items": [
     {
       "ref": "4.15",
-      "name": "The 21 branches that still name a page nobody can open",
+      "name": "The 14 branches that still name a page nobody can open",
       "kind": "defect",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Twenty-one logic-table recommendations name documents the template library does not hold, so the gate withholds or cuts that advice before an adviser sees it.",
+      "why": "Fourteen logic-table recommendations name documents the template library does not hold, so the gate withholds or cuts that advice before an adviser sees it.",
       "risk": "Coaching Mike wrote is withheld from advisers and nothing on screen says so. The gate is behaving correctly; the content names tools that are not there.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
       },
-      "touches": "data/logic_trees.json, the Mentor Hub logic tables, the Template Check screen where the real page names are settled, and tests/unit/recommendationGate.test.js, which pins 36 whole / 6 partial / 13 withheld.",
-      "note": "Waits on Mike naming the real pages; the whole list is design/LOGIC-TABLE-TEMPLATES-NEEDED.md (now 19 branches, 23 names). Ranked last on his ruling: technical work first, wording after. A second step was found 2026-08-26: 22 branches name their template only in prose, which the ranking engine never reads, so once the names resolve their templates[] must be populated too, and not before. Detail in logic-tables-history.md §8.",
+      "touches": "data/logic_trees.json, the Mentor Hub logic tables, the Template Check screen where the real page names are settled, and tests/unit/recommendationGate.test.js, which pins 39 whole / 8 partial / 8 withheld.",
+      "note": "MIKE SETTLES THE 18 NAMES HIMSELF, IN UAT, by editing the logic tables while testing (his ruling, 2026-09-10). Not session work: do not propose it. The whole list is design/LOGIC-TABLE-TEMPLATES-NEEDED.md (14 branches, 18 names). A second step was found 2026-08-26: 22 branches name their template only in prose, which the ranking engine never reads, so once the names resolve their templates[] must be populated too, and not before. Detail in logic-tables-history.md §8.",
       "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
     },
     {
@@ -97,7 +97,7 @@
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, transcription, audio destruction, the two reports, meeting-types slices 1-4, the MANAGER AGGREGATE (firm tier ALONE - P13), TRANSCRIPT EXPIRY on each meeting's own promised period, FOLLOW-THROUGH matched on the client, and the CLIENT COPY REQUEST - access, correction and early deletion. Not built: meeting-types slice 4's CLIENT level, which needs the client picker and is empty without MySQL. §4 ITEMS 3 AND 7 ARE CLOSED; THREE REMAIN and none is ours - staff consultation, the lawyer per market, and the OpenAI letter, which waits on Mike. Item 4.83 turns the /meeting-record banner into a real gate. Record: meeting-review-history.md §9.",
+      "note": "Built: observation points, consent and capture, transcription, audio destruction, the two reports, meeting-types slices 1-4, the MANAGER AGGREGATE (firm tier ALONE - P13), TRANSCRIPT EXPIRY on each meeting's own promised period, FOLLOW-THROUGH matched on the client, and the CLIENT COPY REQUEST - access, correction and early deletion. The CLIENT level of the pre-set is BUILT 2026-09-10 on the desktop (one shared list per client, every entry named, no manager screen - Mike's five rulings on the drawing). §4 ITEMS 3 AND 7 ARE CLOSED; THREE REMAIN and none is ours - staff consultation, the lawyer per market, and the OpenAI letter, which waits on Mike. Item 4.83 turns the /meeting-record banner into a real gate. Record: meeting-review-history.md §9.",
       "comment": "2026-09-01 - filed; screens approved; slices 1-2 built. 2026-09-02 - slice 3, the types cascade, renumbered from 4.56; two rules Mike never made deleted (Brief P14). 2026-09-07 - the manager aggregate, transcript expiry and follow-through. 2026-09-08 - meeting-types slice 3 and slice 4's advisor half. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day on his instruction, closing §4 item 7. Two of its eight rulings reversed the recommendation: the advisor ALONE releases, so a request spanning several advisors is answered by each in turn."
     },
     {
@@ -120,27 +120,6 @@
       "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
       "note": "NOTHING READS AN UNAPPROVED TABLE, structurally rather than by a flag: a proposal lives in its own store. THE MANAGER'S SIDE IS COMPLETE, slices 1 to 3b. SLICES 4 AND 5 ARE THE ADVISOR'S HALF: each rate badges its origin; an approved table is OFFERED, filling only rates still on defaults so a typed rate survives; and an advisor may LOAD a document while approval stays manager-only. ⚠ THE AI-CALL EXPOSURE THAT WIDENING CREATED IS ITEM 4.82, not a warning here. NOT BUILT: the dated purchase list with the first-year deduction - item 4.77, closed here. No document has been read in earnest; that needs UAT. Detail is in the Brief; rulings in depreciation-rates-history.md.",
       "comment": "2026-09-08 - raised by Mike and filed on his instruction. The recommendation was AGAINST it and he overturned it; the concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers. 2026-09-09 - the manager's side built, slices 1 to 3b, after Mike caught the build conflating a tax rate with a depreciation rate and the feature was renamed. Spec Kit produced eleven rulings, Investment Boost among them. Slices 4 and 5 built the same day on his yes: the advisor sees where each rate came from, is offered their country's table, and may load a document their manager decides on. 44 new tests."
-    },
-    {
-      "ref": "4.80",
-      "name": "\"Global manager\" is the old name and it is still in 45 places",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The role was renamed global_group_manager on 2026-08-11 and the short form survives in about 45 places, including the file sessions learn the tier names from.",
-      "risk": "It is the exact mechanism that produced the coined job titles Mike has now banned ten times: a shortened name invites the shortcut, and a stale name in a document that reads as authority comes back looking correct. The guard bans only the QUOTED form, so the unquoted one passes.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-08 while purging tier names taken from a brand or a country, on Mike's instruction. Filed the same day rather than swept at shutdown."
-      },
-      "touches": "config/db-schema.sql, design/ADVISOR-E-DESIGN-LOGIC.md, TIER-CASCADE-MAP.md, MENTOR-TIER-CHAIN-PLAN.md, components/collaborate/screens/global.vue, server/collaborate/data/repository.js, and the tierVocabulary guard, which needs the unquoted pattern.",
-      "note": "🔴 MIKE'S OWN WORDS IN DIRECT QUOTES STAY VERBATIM, and they are most of what is left. OUR LIVE PROSE IS NOW CLEAN - 21 sites across 8 code files and 7 design documents. Frozen records were deliberately not touched: ACTIONS.md, the session notes and the release notes are history, not prose anyone reads for the tier names. THE GUARD IS THE ONE STEP LEFT AND IT IS BLOCKED ON MIKE: exempting quoted spans clears 12 of 17 files, but four sentences of OUR prose inside the APPROVED mockup global-groups-membership.html would still fail it - and one of them says these managers cannot log in, which contradicts his ruling of 2026-08-31.",
-      "comment": "2026-09-08 - found while purging tier names taken from a brand or a country, and filed on Mike's instruction rather than started at shutdown. One instance written by that same session was fixed on the spot; the other 45 were not touched. 2026-09-09 - the sweep done on the laptop on his yes: our own prose corrected wherever it is live, his quotes left word for word, frozen records untouched, and the guard left exactly as it is pending his call on the approved mockup."
     },
     {
       "ref": "4.81",
@@ -247,6 +226,27 @@
       "touches": "scripts/build-handbook.js, which reads design/features from the working tree; the startup and shutdown skills that publish it; and check-branch-state.js, whose ahead/behind counts the banner would use.",
       "note": "NOT BUILT. Recommended shape, which Mike said yes to FILING rather than to building: build from master rather than the working branch, so both machines produce a byte-identical page and neither can overwrite the other. A banner names what each machine holds that master does not, from the counts check:branch already computes. THE COST IS REAL - master is 36 behind the laptop and 51 behind the desktop today, so a master-built Handbook shows neither machine's recent work until both merge, which is the drift becoming visible rather than hidden. A naive union of both branches was REJECTED: both machines edit to-do-items.json, so newest-wins would silently drop one machine's items from the live list.",
       "comment": "2026-09-10 - found at shutdown while checking whether republishing would overwrite edits Mike had made in the browser. He had made none: the page was the desktop's, rebuilt from its own branch that morning. SCORED 1 BY THE LIST'S OWN TEST - no customer ever sees the Handbook - and filed anyway because he asked for it. His order decides where it sits, not the score; the 4.13 lesson is that a finder's score is an opinion wearing a number."
+    },
+    {
+      "ref": "4.86",
+      "name": "Adviser Network runs on nine invented people and forgets every decision in production",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Outside",
+      "why": "The people layer is an in-memory demo list. In production mode nothing persists, so a UAT tester meets invented advisers and every manager decision vanishes on restart.",
+      "risk": "UAT judges a network that does not exist. Wiring our tables now would store ids nothing here can name: adviser identity belongs to Advisor-e and this app holds no advisers table. Not ours to fix until the master team answers question 7 of the integration email.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-10 - found while proposing to wire the seam; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "server/collaborate/data/repository.js, the master team's seam by Mike's 2026-08-15 ruling on 4.8; config/db-schema.sql COLLABORATE tables; design/MASTER-TEAM-INTEGRATION-EMAIL.md question 7.",
+      "note": "DO NOT WIRE THE SEAM FROM HERE. The repository header names the master team as the only party to change it, and Mike ruled 2026-08-15 that only they can complete it once the stubs exist. The dev-only snapshot (devStore.js) hides this on a developer's machine; NODE_ENV=production, which the UAT pack recommends, reads and writes nothing by design. Closes when their reply to question 7 names where identity lives and they wire the two identity functions; our tables can follow through the same seam.",
+      "comment": "2026-09-10 - filed on Mike's yes after the wiring was proposed and then stopped on the evidence above. Numbered after the laptop's 4.85 (3492421); renumber here if the laptop files a 4.86 the same day."
     }
   ]
 }

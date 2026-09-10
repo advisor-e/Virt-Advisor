@@ -6857,8 +6857,10 @@
           "type": "recommendation",
           "condition": "Client wants to make a major capital purchase, launch a new product, or enter a new market",
           "notes": "Require completion of a Board White Paper before any capital is committed. Forces the client to objectively outline the historical context, feasible solutions, alternative options, and measurable benefits before spending money. The White Paper process eliminates shiny-object decisions driven by enthusiasm rather than evidence.",
-          "recommendation": "Use Board White Paper framework to structure and document the strategic proposal before any board vote or capital commitment.",
-          "templates": []
+          "recommendation": "Use FM Board White Paper to structure and document the strategic proposal before any board vote or capital commitment.",
+          "templates": [
+            "FM Board White Paper"
+          ]
         },
         {
           "id": "fbp_combating_bias",
@@ -6866,7 +6868,7 @@
           "type": "recommendation",
           "condition": "Client has a history of repeating mistakes, ignoring negative data, or making gut-feel choices",
           "notes": "Introduce the Quality Decisions frameworks, specifically addressing Psyche Errors. Educate the client on Optimism Bias (overestimating success probability) and Confirmation Bias (seeking only data that confirms existing beliefs). Have them use a Decision Workpaper to outline logic, counter-arguments, and early failure indicators for every major decision.",
-          "recommendation": "Use Quality Decisions frameworks to introduce Psyche Errors concepts. Use Decision Workpaper to structure future high-stakes decisions.",
+          "recommendation": "Use Quality Decisions to introduce the psyche errors concepts. Use Decision Workpaper to structure future high-stakes decisions.",
           "templates": [
             "Quality Decisions"
           ]
@@ -6877,7 +6879,7 @@
           "type": "recommendation",
           "condition": "Client is making assumptions or taking action based on sudden spikes or drops in business metrics",
           "notes": "Apply the Interpreting Data Correctly framework and Deming's Theory of Volatility. Determine if the data shift is Common cause (normal variation — do not act), Special cause (genuine anomaly — investigate and act), or Seasonal cause (predictable pattern — plan for). Test whether any apparent relationship between variables is actual Causation or merely Correlation or Coincidence.",
-          "recommendation": "Use Interpreting Data Correctly framework. Apply Deming's Theory of Volatility to classify the cause type before recommending any action.",
+          "recommendation": "Use Interpreting Data Correctly framework. Apply Demings Volatility to classify the cause type before recommending any action.",
           "templates": [
             "Demings Volatility"
           ]
@@ -6897,8 +6899,10 @@
           "type": "recommendation",
           "condition": "Directors are arriving at meetings unprepared or having not read required documents",
           "notes": "Implement the Boardpack Table tracker. This mandates that each director signs off confirming they have Read and Understood required documents (financials, legal correspondence) prior to the meeting. The tracker creates a formal pre-meeting accountability step — if a director has not signed off, they are visibly unprepared and cannot credibly participate in the vote.",
-          "recommendation": "Use Boardpack Table Tracker to enforce a read-and-sign-off requirement for all directors before each meeting.",
-          "templates": []
+          "recommendation": "Use FM Board Pack Tables to enforce a read-and-sign-off requirement for all directors before each meeting.",
+          "templates": [
+            "FM Board Pack Tables"
+          ]
         }
       ]
     },
@@ -6981,8 +6985,10 @@
           "type": "recommendation",
           "condition": "Firm states they want to promote a senior staff member to partner",
           "notes": "Initiate Directorship Pathway 1 checklist. Verify if the candidate has 30 months of firm experience and has managed $250k in fees. These baseline requirements must be confirmed before spending time on complex competency testing — they are the entry gate, not the destination.",
-          "recommendation": "Use Directorship Pathway 1 to verify baseline requirements before proceeding to any competency assessment.",
-          "templates": []
+          "recommendation": "Use Directorship Pathway to verify baseline requirements before proceeding to any competency assessment.",
+          "templates": [
+            "Directorship Pathway"
+          ]
         },
         {
           "id": "ol_competency_assessment",

@@ -105,11 +105,18 @@ export default {
     async saveReport () {
       const s = this.savedReport
       if (!s.mode || (s.mode === 'advisor' && !s.clientId)) { return }
-      s.busy = true
       s.error = ''
       s.notice = ''
+      const inputs = this.reportInputs()
+      // A screen whose row is built from confirmed steps (Loan Estimator) has nothing to
+      // send until one is confirmed; the store would refuse an empty row and the screen
+      // would show a failure that a retry cannot fix. Say what is missing instead (4.69).
+      if (!inputs || Object.keys(inputs).length === 0) {
+        s.notice = this.$t('clientReports.saved.nothingYet')
+        return
+      }
+      s.busy = true
       try {
-        const inputs = this.reportInputs()
         const data = s.mode === 'client'
           ? await saveMyReport(this.savedReportRoute, inputs, s.token)
           : await saveReportForClient(s.clientId, this.savedReportRoute, inputs, s.token)

@@ -1,8 +1,11 @@
 # Search-Content Cascade Plan — the master library moves into the database
 
-**Status:** Phases 1–3 approved and built (Phase 1 `5cf3743`/`6ba5dd7` 2026-08-31;
+**Status:** all four phases built on our side (Phase 1 `5cf3743`/`6ba5dd7` 2026-08-31;
 Phase 2 `c3f2ee9` 2026-09-01; Phase 3 approved by Mike 2026-09-01 — wording in §7 — and
-built the same day). Phase 4 remains the master team's. Authored 2026-08-31 at Mike's
+built the same day; Phase 4's receiving end built 2026-09-09 on Mike's instruction —
+*"lets finish the search content cascade plan"* — see §9). What remains is the master
+team's: Advisor-e calling that endpoint when Mike publishes, with the shared secret.
+Authored 2026-08-31 at Mike's
 request (*"plan/design how to convert the manual download and upload of a json script
 (the search contents script) into a cascading - dynamic - database so that future changes
 to content can be more easily shared and maintained"*).
@@ -12,21 +15,27 @@ artefact the Save-the-Artefact rule requires before approval.
 
 ---
 
-## 1. The problem, precisely
+## 1. The problem this plan solved, and how a content change works now
 
-A content change today needs five manual steps and a developer:
+**Before (to 2026-08-31)** a content change needed five manual steps and a developer:
+Mike edited content in **Advisor-e** (the master app — the only place the content and
+its IDs are ever edited; that rule is unchanged), Advisor-e exported
+`search_content_<timestamp>.json`, the file was dropped by hand into
+`Central Frameworks/`, a developer mirrored it 1:1 into the tracked `data/templates.json`
+— the file the running app read, cached forever — and the change was committed and the
+app redeployed. Every firm saw the same library.
 
-1. Mike edits content upstream in **Advisor-e** (the master app — the only place the
-   content and its IDs are ever edited; that rule is unchanged by this plan).
-2. Advisor-e exports `search_content_<timestamp>.json`.
-3. The file is dropped by hand into `Central Frameworks/` (gitignored).
-4. A developer mirrors it 1:1 into the tracked `data/templates.json` — **the file the
-   running app actually reads** (`server/utils/templates.js` L14), cached in memory
-   forever once loaded.
-5. The change is committed and the app redeployed.
+**Now** a content change is one step and no developer:
 
-Every firm sees the same library; the only variation is a firm upload route
-(`importTemplates`) that has no screen in front of it yet.
+1. Mike edits content in Advisor-e and publishes. Advisor-e posts the export to
+   `POST /api/integration/templates` (§9) — or, until the master team wires that call,
+   Mike uploads the exported file on the Mentor Hub's **Template Library** tab.
+2. The library is live for every firm within a minute (§4 Phase 2), with version history
+   and one-click restore.
+
+A firm that uploads its own export on its Template Library tab (§7) sees that library
+whole instead of the platform's. `data/templates.json` remains in git only as the seed
+beneath everything and the fallback when no tier has uploaded.
 
 ## 2. What already exists to build on (checked against the code 2026-08-31)
 
@@ -107,13 +116,13 @@ Manager Hub, align its validation with the real export shape (field-for-field), 
 the restore button (history is already stored). This is Stage 2 of the
 `master-export-upload` skill, done per its procedure.
 
-### Phase 4 (future, upstream) — remove the download step entirely
+### Phase 4 — remove the download step entirely
 
 Advisor-e pushes the export straight to a Restify endpoint at the moment Mike publishes,
-instead of Mike downloading and re-uploading. Needs the master team (app-to-app
-authentication), so it is a handover item for `USER-LEVEL-CASCADE-HANDOVER.md`, not work
-this repo can do alone. Phases 1–3 are shaped so Phase 4 is only a second doorway into
-the same validated store — same validation, same versioning, same loader.
+instead of Mike downloading and re-uploading. Phases 1–3 were shaped so this is only a
+second doorway into the same validated store — same validation, same versioning, same
+loader. **Our half is built (§9).** The master team's half — Advisor-e making the call —
+is question 6 of `MASTER-TEAM-INTEGRATION-EMAIL.md`.
 
 ## 5. Risks, named before anything is built
 
@@ -181,6 +190,47 @@ Edit Content field set, shown not editable). **View-only by ruling:** *"view onl
 now with potential to become the master doc source in future — depending on feedback
 from the master coding team."* Editing stays in Advisor-e; one page, not two (contents
 below the controls — same question, one screen).
+
+## 9. Phase 4 — the push doorway, as built (2026-09-09)
+
+**`POST /api/integration/templates`** — `server/routes/integrationTemplates.js`, mounted
+in `server/restify-server.js`. Advisor-e sends the export file's own JSON array as the
+request body (`Content-Type: application/json`) with the shared secret in the
+`x-advisor-e-push-secret` header. The route validates with the same
+`validateTemplateImport` as both upload screens, saves under the reserved `__platform__`
+scope with `saved_by = 'advisor-e'`, clears the template cache, and answers
+`201 { imported: true, templateCount, version }`. The mentor's Template Library tab then
+shows the pushed version in its history like any upload, and **Restore** undoes it.
+
+**It fails closed, and that is the whole of its security.** A server is calling, not a
+person, so there is no JWT. The secret lives only in the backend's environment
+(`ADVISOR_E_PUSH_SECRET`; `config/integration.js` → `PUSH`). While it is unset the route
+answers **404**, as if it did not exist. A missing or wrong header answers **401** with a
+fixed message. The comparison is constant-time over a digest of both values, so neither
+length nor prefix leaks through timing. The body is read by the route itself under the
+upload cap (10 MB, refused mid-stream, never buffered whole); the global 1 MB JSON parser
+is skipped for this path. Nothing in the payload is ever logged. A live MySQL refusal
+(the missing reserved-row trap) surfaces as a 500 and never lands in the dev file.
+
+**Tests:** `tests/unit/integrationTemplates.routes.test.js` — the guard in every state,
+the constant-time compare, the size cap mid-stream, every rejection leaving the store
+untouched, the platform-scope write, the dev-fallback rule, and a source tripwire on the
+mount and the parser skip.
+
+**Walked live 2026-09-09** against the running backend on Node 14.15 and the desktop's real
+MySQL: no secret configured → 404; secret configured, header missing or wrong → 401; right
+secret, wrong shape → 400 `INVALID_FORMAT` and the history unchanged; right secret with the
+real 291-template export → 201 version 1, and `GET /api/mentor/templates` then listed that
+version with `saved_by: advisor-e`.
+
+**Scope judgement, stated:** platform tier only. A firm's own export still arrives through
+its Template Library tab (§7). Letting Advisor-e push a firm's library would need the
+payload to name the firm and the route to trust that naming — a separate decision for
+Mike, not built.
+
+**What the master team does (their half):** hold the same secret, and on publish `POST`
+the export to the endpoint above. Set out as question 6 in
+`MASTER-TEAM-INTEGRATION-EMAIL.md`.
 
 ## 8. References
 

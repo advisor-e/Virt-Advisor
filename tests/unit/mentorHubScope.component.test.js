@@ -271,7 +271,12 @@ describe('the two tiers are recognisably the same screen', () => {
   // 4.64 — the tab's name is his), and it sits beside `Forecast Trend Thresholds` under
   // "Model Inputs", not in the tail. Mentor-only per the same default of 2026-08-24.
   const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab']
-  const MENTOR_ONLY = ['Forecast Trend Thresholds', 'Imported Stock Prices'].concat(MENTOR_ONLY_TAIL)
+  //
+  // ⚠ AMENDED 2026-09-08: `Industry Benchmarks` joins it — the Stats NZ benchmarker release in
+  // force and the two-file upload that replaces it (Mike, 2026-09-08, item 4.70 stage 3; the
+  // tab's name is the approved drawing's). Under "Model Inputs" beside the two above. Mentor-only
+  // by DESIGN rather than by default: one national table, and no firm has a different Stats NZ.
+  const MENTOR_ONLY = ['Forecast Trend Thresholds', 'Imported Stock Prices', 'Industry Benchmarks'].concat(MENTOR_ONLY_TAIL)
 
   /**
    * A selector that matches nothing makes every comparison below succeed against an

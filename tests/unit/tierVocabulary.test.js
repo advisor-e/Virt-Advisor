@@ -132,6 +132,14 @@ describe('🔴 no superseded spelling survives anywhere in the source', () => {
     { pattern: /\bglobal_manager\b/, why: 'superseded by global_group_manager' },
     { pattern: /["']Global Manager["']/, why: 'display name is "Global Group Manager"' },
 
+    // 🔴 WIDENED 2026-09-10 (item 4.80). The pattern above bans only the QUOTED form, so the
+    // unquoted "global manager" survived in 45 places for a month — including the file
+    // sessions learn the tier names from. A large share of those were Mike's own words in
+    // direct quotes ("repeated at group manager or global manager", 2026-07-30), and his
+    // quotes stay verbatim, so this pattern is tested with quoted spans stripped first —
+    // see stripQuotedSpans below. Our prose and code have no such licence.
+    { pattern: /\bglobal managers?\b/i, why: 'the old short name — the role is "global group manager"', outsideQuotes: true },
+
     // 🔴 THE TWO COINED JOB TITLES, BANNED BY MIKE ON 2026-09-02: "any mention of brand
     // manager or country manager needs to be deleted AS A ROLE… delete the wrong terms
     // throughout so you never get confused again".
@@ -182,12 +190,42 @@ describe('🔴 no superseded spelling survives anywhere in the source', () => {
     expect(/\bglobal_manager\b/.test("tier === 'global_manager'")).toBe(true)
   })
 
-  FORBIDDEN.forEach(({ pattern, why }) => {
+  /**
+   * Blank out every double-quoted span — straight or curly, and the \"…\" form a quote
+   * takes inside a JSON string — so a pattern marked outsideQuotes ignores Mike's own
+   * words and catches only ours. A span may run over line ends (his quotes are wrapped
+   * in markdown, comment blocks and HTML) but never over a blank line, and never past
+   * 800 characters: an unbalanced quote in code must not be able to hide a real offender
+   * by swallowing the rest of the file. The self-test below proves both directions.
+   * @param {string} text
+   * @returns {string}
+   */
+  function stripQuotedSpans (text) {
+    const span = '(?:(?!\\r?\\n[ \\t>*/]*\\r?\\n)[^"“”]){0,800}'
+    return text
+      .replace(new RegExp('\\\\"' + span + '\\\\"', 'g'), ' ')
+      .replace(new RegExp('["“]' + span + '["”]', 'g'), ' ')
+  }
+
+  test('stripQuotedSpans hides a quoted offender and exposes an unquoted one', () => {
+    const bad = /\bglobal manager\b/i
+    expect(bad.test(stripQuotedSpans('his words, *"repeated at group manager or\n> global manager… no new functionality"*'))).toBe(false)
+    expect(bad.test(stripQuotedSpans('<em>“too technical for a firm or global manager.”</em>'))).toBe(false)
+    expect(bad.test(stripQuotedSpans('"name": "\\"Global manager\\" is the old name"'))).toBe(false)
+    expect(bad.test(stripQuotedSpans('a global manager gets [group, firm]'))).toBe(true)
+    // An unbalanced quote cannot swallow the file: a blank line ends the span…
+    expect(bad.test(stripQuotedSpans('x = "oops\n\nso a global manager sees'))).toBe(true)
+    // …and so does the length cap.
+    expect(bad.test(stripQuotedSpans('x = "' + 'a'.repeat(801) + ' global manager sees"'))).toBe(true)
+  })
+
+  FORBIDDEN.forEach(({ pattern, why, outsideQuotes }) => {
     test(`no file contains ${pattern} — ${why}`, () => {
       const offenders = FILES.filter((f) => {
         // This test file names the forbidden spellings on purpose.
         if (path.basename(f) === 'tierVocabulary.test.js') { return false }
-        return pattern.test(fs.readFileSync(f, 'utf8'))
+        const text = fs.readFileSync(f, 'utf8')
+        return pattern.test(outsideQuotes ? stripQuotedSpans(text) : text)
       }).map(f => path.relative(path.resolve(__dirname, '../..'), f))
 
       expect(offenders).toEqual([])

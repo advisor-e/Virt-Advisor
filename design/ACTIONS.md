@@ -3391,7 +3391,7 @@ that the warning is not being followed by default.
   reasoning; the wrong *sentence* was replaced rather than struck through, because a wrong sentence
   left on the page gets quoted.
 
-- <a id="tier-chain"></a>✅ **BUILD — the cascade goes all the way down: mentor → global manager →
+- <a id="tier-chain"></a>✅ **BUILD — the cascade goes all the way down: mentor → global group manager →
   group manager → firm manager. BUILT 2026-08-10** (`fbaafb5`). **The plan, the design and its one
   deviation are on the artefact — [`MENTOR-TIER-CHAIN-PLAN.md`](MENTOR-TIER-CHAIN-PLAN.md). Read it
   rather than this row.**

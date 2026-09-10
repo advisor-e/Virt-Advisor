@@ -75,6 +75,8 @@ data/dev-forecast-trend-thresholds.json
 # ladder is data/forecast-sell-down.json and IS committed: those figures are Mike's own,
 # out of his Import & Retail workbook, and they move a client's revenue.
 data/dev-forecast-sell-down.json
+# Dev-only Stats NZ benchmarker release uploaded by the mentor (item 4.70 stage 3)
+data/dev-statsnz-benchmarker.json
 
 # Dev-only depreciation rates — a scope's APPROVED tables, per country (item 4.78). Keyed
 # by SCOPE, ignored for the same reason as every sibling above. The PLATFORM's own six

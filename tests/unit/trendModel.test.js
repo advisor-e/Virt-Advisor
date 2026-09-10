@@ -23,7 +23,8 @@ const {
   valuesFor,
   bandLevel,
   bandMovement,
-  MEASURES
+  MEASURES,
+  SCORE_MEASURES
 } = require('../../server/report/trendModel')
 
 /** The drawing's constructed client, both years. */
@@ -349,5 +350,75 @@ describe('trendModel — what it refuses to do', () => {
   test('called with nothing it refuses rather than throwing', () => {
     expect(computeTrend().blocked).toBe('NO_PRIOR_YEAR')
     expect(computeTrend({}).blocked).toBe('NO_PRIOR_YEAR')
+  })
+})
+
+describe('trendModel — the two score ratios (item 4.70), which the forecast never shows', () => {
+  // The forecast's trend page is the six rows Mike approved. A caller that passes nothing
+  // extra must keep getting exactly those, even when the inputs would let the two ratios
+  // be computed — otherwise every forecast would gain two rows nobody asked for.
+  test('the default read is still the six, even with the ratio inputs present', () => {
+    const cur = Object.assign({}, CURRENT, { currentAssets: 800000, currentLiabilities: 410000, totalDebt: 615000, totalEquity: 690000 })
+    const pri = Object.assign({}, PRIOR, { currentAssets: 592000, currentLiabilities: 387000, totalDebt: 607000, totalEquity: 455000 })
+    const r = computeTrend({ current: cur, prior: pri })
+    expect(r.measures.map(m => m.key)).toEqual(MEASURES.map(m => m.key))
+  })
+
+  test('asked for the eight, it reads the eight, with the two ratios worked from their inputs', () => {
+    const cur = Object.assign({}, CURRENT, { currentAssets: 800000, currentLiabilities: 410000, totalDebt: 615000, totalEquity: 690000 })
+    const pri = Object.assign({}, PRIOR, { currentAssets: 592000, currentLiabilities: 387000, totalDebt: 607000, totalEquity: 455000 })
+    const r = computeTrend({ current: cur, prior: pri, measures: MEASURES.concat(SCORE_MEASURES) })
+    expect(r.measures.map(m => m.key)).toEqual(MEASURES.concat(SCORE_MEASURES).map(m => m.key))
+    const cr = r.measures.find(m => m.key === 'currentRatio')
+    expect(cr.current).toBeCloseTo(800000 / 410000, 10)
+    expect(cr.prior).toBeCloseTo(592000 / 387000, 10)
+    expect(cr.worseWhen).toBe('down')
+    const de = r.measures.find(m => m.key === 'debtToEquity')
+    expect(de.current).toBeCloseTo(615000 / 690000, 10)
+    expect(de.prior).toBeCloseTo(607000 / 455000, 10)
+    expect(de.worseWhen).toBe('up')
+  })
+
+  test('a non-positive denominator is refused, not divided — negative equity is a finding, not a ratio', () => {
+    expect(valuesFor({ currentAssets: 100, currentLiabilities: 0 }).currentRatio).toBeNull()
+    expect(valuesFor({ totalDebt: 100, totalEquity: 0 }).debtToEquity).toBeNull()
+    expect(valuesFor({ totalDebt: 100, totalEquity: -50 }).debtToEquity).toBeNull()
+    expect(valuesFor({ currentAssets: 300, currentLiabilities: 200 }).currentRatio).toBeCloseTo(1.5, 10)
+  })
+
+  test('a ratio missing from either year drops the row and names the figure it wanted', () => {
+    const cur = Object.assign({}, CURRENT, { currentAssets: 800000, currentLiabilities: 410000 })
+    const r = computeTrend({ current: cur, prior: PRIOR, measures: MEASURES.concat(SCORE_MEASURES) })
+    expect(r.measures.map(m => m.key)).toEqual(MEASURES.map(m => m.key))
+    expect(r.omitted).toEqual(expect.arrayContaining([
+      { key: 'currentRatio', missing: 'currentAssets' },
+      { key: 'debtToEquity', missing: 'totalDebt' }
+    ]))
+  })
+})
+
+describe('trendModel — a level that reads the other way up', () => {
+  // Current ratio: higher is better, so the pair is the BOTTOM of green and of amber. A
+  // band that fired one tenth early on this scale would call a healthy balance sheet amber
+  // on a client's printed page, which is what nobody in UAT can see.
+  test('green at or above the first figure, amber at or above the second, red below', () => {
+    const t = { green: 1.5, amber: 1.0 }
+    expect(bandLevel(2.1, t, 'down')).toBe('good')
+    expect(bandLevel(1.5, t, 'down')).toBe('good')
+    expect(bandLevel(1.49, t, 'down')).toBe('warn')
+    expect(bandLevel(1.0, t, 'down')).toBe('warn')
+    expect(bandLevel(0.99, t, 'down')).toBe('crit')
+  })
+
+  test('the default direction is unchanged — the day-counts still read above-is-worse', () => {
+    const t = { green: 35, amber: 45 }
+    expect(bandLevel(35, t)).toBe('good')
+    expect(bandLevel(35, t, 'up')).toBe('good')
+    expect(bandLevel(46, t, 'up')).toBe('crit')
+  })
+
+  test('one boundary alone still bands nothing, whichever way up', () => {
+    expect(bandLevel(1.2, { green: 1.5, amber: null }, 'down')).toBeNull()
+    expect(bandLevel(1.2, { green: null, amber: 1.0 }, 'down')).toBeNull()
   })
 })

@@ -28,6 +28,7 @@ const REVIEW = 'prompt-review'
 // All four tiers, like the cash flow document — a firm may need to change how research
 // is conducted for its own market (design/ECONOMIC-ANALYSIS-PROMPT.md §2).
 const ECONOMIC = 'economic-analysis'
+const NEXT_STEPS = 'next-steps-draft'
 const DEPRECIATION = 'depreciation-read' // item 4.78 slice 3 — all four tiers, like the two above
 const COMPLIANCE = 'compliance-check' // item 4.83 slice 4 — all four tiers, like the three above
 
@@ -298,7 +299,7 @@ describe('listPrompts — what a screen is given', () => {
 
 describe('which documents a tier is shown', () => {
   test('the mentor gets every document', () => {
-    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, DEPRECIATION, COMPLIANCE])
+    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
   })
 
   test('every tier below the mentor gets the client-facing documents ONLY', () => {
@@ -307,7 +308,7 @@ describe('which documents a tier is shown', () => {
     // The two mentor-only documents are about how WE work; the cash flow and economic
     // analysis documents are about how a firm's own client work is done, so both cascade.
     ;['global', 'group', 'firm'].forEach((tier) => {
-      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, DEPRECIATION, COMPLIANCE])
+      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
     })
   })
 
@@ -320,8 +321,8 @@ describe('which documents a tier is shown', () => {
   })
 
   test('asking for no tier at all returns everything, so the send path is unaffected', () => {
-    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, DEPRECIATION, COMPLIANCE])
-    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, DEPRECIATION, COMPLIANCE])
+    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
+    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
   })
 
   test('a prompt that declares no tiers is shown everywhere, not nowhere', () => {

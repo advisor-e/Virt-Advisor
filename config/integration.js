@@ -136,6 +136,25 @@ const DRIVE = {
   }
 }
 
+// ── Advisor-e → this app: the template-library push (Cascade Phase 4) ─────────
+// Advisor-e posts the search_content export to POST /api/integration/templates
+// when Mike publishes, instead of him downloading and re-uploading it
+// (design/SEARCH-CONTENT-CASCADE-PLAN.md Phase 4). A server is calling, not a
+// person, so there is no JWT — a shared secret in the header below stands in.
+//
+// 🔴 EMPTY IS THE FAIL-CLOSED STATE. While `secret` is unset the route answers 404
+// as though it did not exist. Set ADVISOR_E_PUSH_SECRET on the backend only, and
+// give the same value to the Advisor-e team; it never reaches a Nuxt file.
+//
+// INTEGRATION NOTE (for the Advisor-e team): send the export file's JSON array as
+// the request body, Content-Type application/json, with this header carrying the
+// secret. 201 means stored and live within a minute; a 4xx body says why not.
+
+const PUSH = {
+  header: 'x-advisor-e-push-secret', // request header carrying the shared secret (lower-case, as Node exposes it)
+  secret: process.env.ADVISOR_E_PUSH_SECRET || ''
+}
+
 // ── Storage limits ────────────────────────────────────────────────────────────
 
 const STORAGE = {
@@ -216,5 +235,5 @@ const INVITE = {
 }
 
 module.exports = {
-  AUTH, DB, DRIVE, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, OUTREACH, INVITE
+  AUTH, DB, DRIVE, PUSH, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, OUTREACH, INVITE
 }

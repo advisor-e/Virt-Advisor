@@ -155,7 +155,7 @@ into another that resembled it, with nothing in the code able to notice.
 The middle two tiers are built, tested and ready. **They hold nothing today**, and both
 reasons belong to the Advisor-e master team, not to us:
 
-1. **No one can log in as one.** `roles.js` maps only `platform_admin` → mentor and
+1. **This app does not yet recognise their role value.** `roles.js` maps only `platform_admin` → mentor and
    `firm_manager` → firm_manager. No role value anywhere produces `global_group_manager` or
    `group_manager`. (⚠ `mentor` was never added either — it is still borrowing
    `platform_admin`.)

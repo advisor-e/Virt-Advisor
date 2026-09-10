@@ -80,7 +80,11 @@ All six ruled on 2026-09-03, each as recommended, one at a time.
 1. **Role wiring, fail-closed**, exactly as the middle tiers: `businessEntityRole: ''` and
    `businessEntityIdClaim` in `config/integration.js`, empty until the master team supplies
    the value. `server/middleware/firmAuth.js` now refuses a client token by name on every
-   advisor route (`BUSINESS_ENTITY_NOT_ALLOWED`), and a new `entityAuth` admits only a client
+   advisor route (`BUSINESS_ENTITY_NOT_ALLOWED`) except three firm-level reads a client's
+   report page also needs — the currency, the property tax rules and the imported-stock
+   sell-down prices — which sit behind `firmOrEntityAuth`, admitting either an advisor or a
+   client of the firm, the client still scoped to its own firm by its token, and never a
+   write (item 4.68, 2026-09-07). A new `entityAuth` admits only a client
    whose token names its firm and its register id. Dev token `dev-local-entity` (client
    `dev-client-001` of `dev-firm-001`), honoured on the same terms as every dev token.
 2. **A page, `/my-reports`** (`components/ClientReportLibrary.vue`): every routed catalogue
@@ -124,8 +128,10 @@ A **saved report** is one `firmOverlay` key per client per model —
 ride the store every firm setting uses (`server/utils/savedReports.js`). `advisorVersion` is
 the advisor's **last** save, carried forward untouched through every client save. That is what
 makes D4 possible without stamping a figure at a time: a figure the client changed is one whose
-value **differs from the advisor's version** (`changedKeys`), the banner reads `savedBy`, and
-Restore writes the advisor's version back as a fresh advisor save.
+value **differs from the advisor's version** (`changedKeys`) — a source flag such as
+`source.<i>` never counting as a figure — the banner reads `savedBy`, and Restore writes the
+advisor's version back as a fresh advisor save. A save with nothing confirmed yet is not sent:
+the screen says a step must be confirmed first (item 4.69, ruled 2026-09-07).
 
 **Who may write.** An advisor of the firm, for a client the route checks belongs to it. A
 client, **only for a model the advisor has opened to it** — checked in the store against the
@@ -174,8 +180,9 @@ store admits a list of short names for this. **A file-sourced figure the client 
 shows `client` in place of `from file`, never beside it** (ruled by Mike 2026-09-04): the
 number is no longer the file's. The saved source is untouched, so Restore brings the
 advisor's version back with its file tags. Where the client can change only a factor
-against a file figure (the asset rows), the value keeps its file tag and the factor is
-badged on its own. **A client never sees the upload steps**: the upload needs the
+against a file figure (the asset rows), the value keeps its tag and the factor's `client`
+badge sits beside the percentage it describes, never on the label beside the value's tag
+(ruled 2026-09-07). **A client never sees the upload steps**: the upload needs the
 advisor's sign-in, so the client's page is the report alone, and a saved row opens on it.
 Nothing a file alone knows (the company name, the income total) is in a saved row.
 
@@ -199,6 +206,7 @@ and the month is badged on its label. The accounts upload is hidden from a clien
 
 ✅ **Wording CHECKED AND APPROVED BY MIKE** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
+The nothing-to-save notice (`nothingYet`) was ruled by Mike on 2026-09-07.
 
 🔴 **This line read "proposed and not yet ruled" until 2026-09-08, and it was wrong — he had
 approved them.** Corrected on his own word. It matters because the claim was load-bearing: a

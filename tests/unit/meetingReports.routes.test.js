@@ -274,6 +274,49 @@ describe("the advisor's own level reaches the report", () => {
   })
 })
 
+describe("the client's shared level reaches the report (2026-09-10)", () => {
+  // The same fault one level down, pinned before it can be made: the client's list is
+  // applied by presetFor through the same function the screen uses, and only when the
+  // meeting was recorded against that client.
+  const { advisorConfigKey } = require('../../server/utils/meetingObservationsAdvisor')
+  const { entityConfigKey } = require('../../server/utils/meetingObservationsEntity')
+  const CLIENT = 'client-42'
+
+  function seedClientState ({ declines = null, own = null, advisorDeclines = null } = {}) {
+    overlay.loadFirmConfig.mockImplementation((scopeId, key) => {
+      if (declines && key === entityConfigKey('entityDeclines', CLIENT)) { return { scenarios: { eoy_meeting: declines } } }
+      if (own && key === entityConfigKey('entityOwn', CLIENT)) { return { scenarios: { eoy_meeting: own } } }
+      if (advisorDeclines && key === advisorConfigKey('advisorDeclines', ADVISOR)) { return { scenarios: { eoy_meeting: advisorDeclines } } }
+      return null
+    })
+  }
+
+  test("a point set aside for this client is NOT in the report's list; a point added for them IS", async () => {
+    seedClientState({
+      declines: [{ id: 'mo-eoy-1', byId: 'adv-t', byName: 'Tom Boyd', at: 'x' }],
+      own: [{ id: 'eo-1', text: 'Raise succession gently.', hintWords: [], byId: 'adv-t', byName: 'Tom Boyd', at: 'x' }]
+    })
+    const ctx = await routes.presetFor(makeReq(), 'eoy_meeting', CLIENT)
+    const ids = ctx.points.map(p => p.id)
+    expect(ids).not.toContain('mo-eoy-1')
+    expect(ids).toContain('eo-1')
+  })
+
+  test('a meeting recorded with no client gets the advisor list unchanged, and reads no client row', async () => {
+    seedClientState({ declines: [{ id: 'mo-eoy-1', byId: 'adv-t', byName: 'Tom Boyd', at: 'x' }] })
+    const ctx = await routes.presetFor(makeReq(), 'eoy_meeting', null)
+    expect(ctx.points.map(p => p.id)).toContain('mo-eoy-1')
+    const clientReads = overlay.loadFirmConfig.mock.calls.filter(c => String(c[1]).indexOf('meeting-observation-entity') === 0)
+    expect(clientReads.length).toBe(0)
+  })
+
+  test('🔴 question 2: the client layer cannot put back a point the advisor set aside for themselves', async () => {
+    seedClientState({ advisorDeclines: ['mo-eoy-1'], own: [{ id: 'eo-1', text: 'x', hintWords: [] }] })
+    const ctx = await routes.presetFor(makeReq(), 'eoy_meeting', CLIENT)
+    expect(ctx.points.map(p => p.id)).not.toContain('mo-eoy-1')
+  })
+})
+
 describe('the client summary', () => {
   test('cannot be saved empty', () => {
     const meetingId = seedMeeting({ summary: A_SUMMARY })

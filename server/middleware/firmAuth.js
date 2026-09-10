@@ -311,6 +311,36 @@ function entityAuth (req, res, next) {
 }
 
 /**
+ * firmOrEntityAuth — the firm-level READS a client's screen needs as much as an
+ * advisor's: the firm's currency and its property tax rules (item 4.68).
+ *
+ * A report screen loads those two with whatever token the browser holds, and on the
+ * client's page that is the client's token — which firmAuth refuses by name. Both callers
+ * swallow the refusal and keep the shipped defaults, so a client of a firm trading in
+ * another currency saw the wrong symbol on every report and nothing on screen said so.
+ *
+ * This reads the token ONCE to decide which guard owns it, then hands off, so exactly one
+ * of the two runs: the scope, the refusal codes and the dev-token rules are theirs, not
+ * copies. A client is still scoped to the firm in its verified token, so one firm's
+ * settings are never readable from another's sign-in. READS ONLY — the writes keep
+ * firmAuth + requireManagerRole, and the wiring test pins that.
+ */
+function firmOrEntityAuth (req, res, next) {
+  const token = extractToken(req, false)
+  if (!token) {
+    return sendError(res, 401, 'MISSING_TOKEN', 'Authorization Bearer token required')
+  }
+  if (DEV_AUTH_ENABLED && token === DEV_ENTITY_TOKEN) { return entityAuth(req, res, next) }
+  let isClient = false
+  try {
+    isClient = isBusinessEntity(identityFromPayload(verifyToken(token)))
+  } catch (e) {
+    // Not a valid token for anyone — firmAuth reports it with its own code.
+  }
+  return isClient ? entityAuth(req, res, next) : firmAuth(req, res, next)
+}
+
+/**
  * Re-point a MANAGING TIER's request at the storage scope that tier writes under.
  *
  * Extended 2026-08-11 from `mentorStorageScope` to cover the two middle tiers
@@ -511,4 +541,4 @@ function requireManagingTier (req, res, next) {
   return next()
 }
 
-module.exports = { firmAuth, entityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier, DEV_IDENTITY }
+module.exports = { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier, DEV_IDENTITY }

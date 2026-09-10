@@ -170,6 +170,12 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('sellDownLadder')" v-show="activeTab === 'sellDownLadder'")
         firm-sell-down-ladder(:api-token="apiToken")
 
+      //- ── Tab: Industry Benchmarks (item 4.70 stage 3) ─────────────────────
+      //- The Stats NZ Business Performance Benchmarker release in force, and the
+      //- two-file upload that replaces it. Every figure is Stats NZ's; nothing is
+      //- typed. Mentor only, stated in TAB_TIERS. design/mockups/benchmarker-hub-tab.html.
+      div.hub-panel(v-if="showsTab('industryBenchmarks')" v-show="activeTab === 'industryBenchmarks'")
+        firm-benchmarker(:api-token="apiToken")
       //- ── Tab: Depreciation Rates (item 4.78) ─────────────────────────────
       //- The rates a client's forecast writes assets down at, for the client's
       //- own country, read from that country's tax authority's documents and
@@ -850,6 +856,7 @@ import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThresholds.vue'
+import FirmBenchmarker from '~/components/firm/FirmBenchmarker.vue'
 import FirmSellDownLadder from '~/components/firm/FirmSellDownLadder.vue'
 import FirmDepreciationRates from '~/components/firm/FirmDepreciationRates.vue'
 import FirmTaxRates from '~/components/firm/FirmTaxRates.vue'
@@ -1066,6 +1073,12 @@ const TAB_TIERS = {
   // are already scoped per tier, so adding a tier here is the whole of the change.
   sellDownLadder: ['mentor'],
 
+  // MENTOR ALONE, and here that is the whole design rather than the default: the Stats NZ
+  // benchmarker is one national table replaced each release, and no firm has a different
+  // Stats NZ. It is stored at the platform scope and read by every tier from there
+  // (`server/utils/benchmarkerStore.js`), so there is no cascade to switch on. Mike
+  // approved the drawing 2026-09-08 (item 4.70 stage 3).
+  industryBenchmarks: ['mentor'],
   // 🔴 ALL FOUR MANAGER TIERS, AND THIS ONE IS NOT THE DEFAULT-IS-MENTOR-ALONE CASE.
   // Mike ruled on 2026-09-08 that the FIRM owns this and that "it cant be reliant on the
   // group manager" — a firm may advise a client in a country the tiers above it have done
@@ -1299,6 +1312,9 @@ const NAV_GROUPS = [
       // Appended for the same reason as the line above, and the label is Mike's own —
       // approved 2026-09-04. Mentor-only; see TAB_TIERS.sellDownLadder.
       { key: 'sellDownLadder', label: 'Imported Stock Prices' },
+      // Appended for the same reason; the label is the drawing's, approved by Mike
+      // 2026-09-08. Mentor-only; see TAB_TIERS.industryBenchmarks.
+      { key: 'industryBenchmarks', label: 'Industry Benchmarks' },
       // Appended for the same reason as the two lines above — adding at the end moves
       // nothing already on a manager's screen. All four tiers, on Mike's own ruling; see
       // TAB_TIERS.depreciationRates. The label is the feature's name after his rename of
@@ -1381,7 +1397,9 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
+  // FirmCompliance. Neither replaces the other.
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

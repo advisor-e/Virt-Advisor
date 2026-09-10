@@ -245,9 +245,9 @@ describe('route wiring', () => {
     require('path').resolve(__dirname, '../../server/restify-server.js'), 'utf8'
   )
 
-  test('GET currency is firmAuth-guarded and open to any firm user', () => {
+  test('GET currency is open to any firm user — an advisor or a client of the firm (item 4.68)', () => {
     expect(server).toMatch(
-      /server\.get\('\/api\/report\/currency',\s*firmAuth,\s*currencyRoute\.get\)/
+      /server\.get\('\/api\/report\/currency',\s*firmOrEntityAuth,\s*currencyRoute\.get\)/
     )
   })
 

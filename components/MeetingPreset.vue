@@ -15,13 +15,30 @@
     |  nothing to show.
 
   template(v-else)
-    b-field(label="What kind of meeting?" label-position="on-border")
-      b-select(v-model="scenarioId" expanded)
-        option(v-for="s in scenarios" :key="s.id" :value="s.id") {{ s.name }}
+    .columns.is-variable.is-3
+      .column
+        b-field(label="What kind of meeting?" label-position="on-border")
+          b-select(v-model="scenarioId" expanded)
+            option(v-for="s in scenarios" :key="s.id" :value="s.id") {{ s.name }}
+      .column
+        //- The business-entity level (2026-09-10): the same register the recorder reads, the
+        //- same default. With nobody picked this is the screen it always was.
+        b-field(label="Who is this meeting with?" label-position="on-border")
+          b-select.mpre-client(v-model="clientId" expanded)
+            option(value="") Nobody in particular
+            option(v-for="c in clients" :key="c.id" :value="c.id") {{ c.name }}
+    p.is-size-7.has-text-grey.mb-3
+      | Pick a client to see, and change, what you check on with them in particular. Leave it
+      |  as it is and you see your usual list.
+    p.is-size-7.has-text-danger.mb-3(v-if="clientsError") {{ clientsError }}
 
-    .box.mt-4(v-if="current")
+    .box.mt-2(v-if="current")
       h3.title.is-5.mb-1 What is this meeting for?
-      p.is-size-7.has-text-grey.mb-4
+      p.is-size-7.has-text-grey.mb-4(v-if="clientId")
+        | This is what you are checked on in a meeting of this kind with
+        |  #[strong {{ clientName }}]. Read it before you go in — that is most of the value,
+        |  before anything is recorded at all.
+      p.is-size-7.has-text-grey.mb-4(v-else)
         | This is what your firm checks on in a meeting of this kind. Read it before you go
         |  in — that is most of the value, before anything is recorded at all.
 
@@ -35,7 +52,7 @@
         span.mpre-box
         .mpre-body
           template(v-if="editingId === p.id")
-            b-field(label="What you want to be reminded of" label-position="on-border")
+            b-field(:label="reminderLabel" label-position="on-border")
               b-input(v-model="editText" :maxlength="300" type="textarea" rows="2")
             //- The checkbox gates the hint field, exactly as the manager's screen does
             //- (FirmMeetingObservations.vue) — hint phrases are read ONLY for a point carrying
@@ -52,40 +69,40 @@
               b-button(type="is-light" size="is-small" @click="cancelEdit") Cancel
           template(v-else)
             span {{ p.text }}
-            //- Question 4, ruled by Mike 2026-09-08: EVERY point, always. A label that shows
-            //- only sometimes teaches an advisor to read its absence as meaning something,
-            //- and they will guess wrong.
+            //- Question 4 (2026-09-08, and again 2026-09-10 for the client level): EVERY
+            //- point, always. A client-level label already carries the name of who set it.
             .mpre-src(:class="'is-' + p.sourceTier") {{ p.sourceLabel }}
         .mpre-acts(v-if="editingId !== p.id")
-          //- Only a point YOU added can be edited or removed. Rewriting an inherited point
-          //- would be editing your firm's words, which is the level above — P14.
-          template(v-if="p.sourceTier === 'advisor'")
+          //- Only a point written at THIS level can be edited or removed here. Rewriting an
+          //- inherited point would be editing the level above — P14. Inside a client's list the
+          //- advisor's own points are theirs alone and are edited on their own list.
+          template(v-if="p.sourceTier === editableTier")
             b-button(size="is-small" type="is-text" @click="startEdit(p)") Edit
             b-button(size="is-small" type="is-text" :loading="saving" @click="removeOwn(p)") Remove
           b-button(
-            v-else
+            v-else-if="canSetAside(p)"
             size="is-small" type="is-text" :loading="saving" @click="setAside(p, true)"
-          ) Not for my meetings
+          ) {{ setAsideVerb }}
 
       //- Shown rather than hidden, for the reason the manager's screen already carries:
       //- somebody who cannot see what they set aside cannot put it back, and would read the
       //- shorter list as the whole list.
       .mpre-off.mt-4(v-if="current.setAside.length")
-        p.is-size-7.has-text-weight-semibold.mb-2 Not for my meetings
+        p.is-size-7.has-text-weight-semibold.mb-2 {{ setAsideVerb }}
         .mpre-pt(v-for="p in current.setAside" :key="p.id")
           span.mpre-box.is-off
           .mpre-body
             span.has-text-grey {{ p.text }}
-            .mpre-src(:class="'is-' + p.sourceTier") {{ p.sourceLabel }} · off for you only
+            .mpre-src(:class="'is-' + p.sourceTier") {{ p.sourceLabel }} · {{ clientId ? p.setAsideLabel : 'off for you only' }}
           .mpre-acts
             b-button(size="is-small" type="is-text" :loading="saving" @click="setAside(p, false)") Put it back
 
       .mpre-add.mt-5
         template(v-if="adding")
-          b-field(label="What you want to be reminded of" label-position="on-border")
+          b-field(:label="reminderLabel" label-position="on-border")
             b-input(
               v-model="newText" :maxlength="300" type="textarea" rows="2"
-              placeholder="I asked what had changed at home, not just in the business."
+              :placeholder="clientId ? 'The succession question was raised again, gently — last time it closed the conversation.' : 'I asked what had changed at home, not just in the business.'"
             )
           b-checkbox.mt-2(v-model="newCannotHear" size="is-small")
             | This cannot be heard on a recording
@@ -94,13 +111,16 @@
             label="Words that hint it happened (optional)"
             label-position="on-border")
             b-input(v-model="newHints" placeholder="how are things at home · outside the business")
-          .notification.is-light.is-size-7.mt-2
+          .notification.is-light.is-size-7.mt-2(v-if="clientId")
+            | This is for meetings with this client only. Whoever in your firm meets them will
+            |  see it, and your firm's list is not changed.
+          .notification.is-light.is-size-7.mt-2(v-else)
             | This is for your meetings only. Your firm's list is not changed, and nobody else
             |  sees this.
           .buttons.mt-2
             b-button(type="is-primary" :loading="saving" @click="addOwn") Add this point
             b-button(type="is-light" @click="cancelAdd") Cancel
-        b-button(v-else type="is-light" @click="startAdd") Add a point of my own
+        b-button(v-else type="is-light" @click="startAdd") {{ clientId ? 'Add a point for this client' : 'Add a point of my own' }}
 </template>
 
 <script>
@@ -128,16 +148,13 @@
  *   2. **No tick boxes that record anything, and the squares are list markers** — as they
  *      are in the drawing. ✅ THE OTHER HALF OF THIS NOTE IS NOW CLOSED: the drawing's "Add
  *      an objective" exists as **"Add a point of my own"**, built 2026-09-08 at the
- *      advisor's own level. ⚠ It is NOT the same thing the original drawing meant — that
- *      objective belonged to ONE MEETING, and this belongs to every meeting of this kind
- *      that this advisor runs. A per-meeting objective is still unbuilt.
+ *      advisor's own level, and as **"Add a point for this client"**, built 2026-09-10 at the
+ *      client's. ⚠ Neither is the same thing the original drawing meant — that objective
+ *      belonged to ONE MEETING. A per-meeting objective is still unbuilt.
  *   3. **No firm reference material.** The drawing puts the firm's script one tap away.
  *      The upload exists (`uploadDocument`); the join between a document and a set of
  *      observation points does not, and the drawing's own note calls that join the actual
  *      new work.
- *
- * The banner at the top says all of this in an advisor's language, because a screen that
- * quietly shows half a feature is how somebody concludes the feature is broken.
  *
  * ✅ NO LONGER READ-ONLY (2026-09-08). The advisor's own level is built, from
  * `design/mockups/meeting-preset-advisor-level.html` — drawn, all six of its questions ruled
@@ -171,12 +188,36 @@
  * the model would: the point is not judged rather than judged badly, and the finding stays the
  * advisor's confirmation (his rule of 2026-09-01) instead of a guess they were able to tune.
  *
- * ⚠ THE BUSINESS-ENTITY LEVEL — "how I run meetings with THIS client" — is still unbuilt and
- * deliberately not drawn: it hangs off the client picker, which is empty without MySQL, and a
- * screen nobody can verify is how item 4.62's saved reports became "wired but never proven".
+ * ✅ THE BUSINESS-ENTITY LEVEL — "how I run meetings with THIS client" — IS BUILT (2026-09-10),
+ * from `design/mockups/meeting-preset-client-level.html`, all five questions ruled by Mike the
+ * same day. It is the bottom of the cascade. A second picker asks who the meeting is with, from
+ * the same register the recorder reads; with a client picked the list is that relationship's,
+ * resolved firm → this advisor's own layer → the client's, on the backend. 🔴 ONE SHARED LIST
+ * PER CLIENT, edited by any advisor in the firm and naming who set each entry (Q1, Q3, Q4);
+ * it can only set aside or add, never put back a point the advisor set aside for themselves
+ * (Q2); and there is NO MANAGER SCREEN for it (Q5) — a firm manager opens this one, in Mike's
+ * words: *"it's the PARTNER or firm manager that owns the client data base - NOT the advisor.
+ * WHY are we building two levels of this??"*.
  *
  * Vue 2 Options API, Pug, Buefy.
  */
+
+/** The routes for each level. Client paths carry the client id; the advisor's never carry theirs. */
+const PATHS = {
+  advisor: {
+    list: () => '/api/meeting/observations',
+    decline: '/api/meeting/observations/decline',
+    own: '/api/meeting/observations/own',
+    remove: '/api/meeting/observations/own/remove'
+  },
+  client: {
+    list: id => '/api/meeting/observations/client/' + encodeURIComponent(id),
+    decline: '/api/meeting/observations/client/decline',
+    own: '/api/meeting/observations/client/own',
+    remove: '/api/meeting/observations/client/own/remove'
+  }
+}
+
 export default {
   name: 'MeetingPreset',
 
@@ -193,7 +234,12 @@ export default {
       saving: false,
       scenarios: [],
       scenarioId: '',
-      /** The point being edited, and its draft. Only ever a point this advisor added. */
+      /** The firm's client register — names only, as `/api/clients` returns them. */
+      clients: [],
+      clientsError: '',
+      /** The client this meeting is with; empty means the advisor's usual list. */
+      clientId: '',
+      /** The point being edited, and its draft. Only ever a point written at this level. */
       editingId: '',
       editText: '',
       editHints: '',
@@ -209,6 +255,27 @@ export default {
     /** The scenario on screen. */
     current () {
       return this.scenarios.filter(s => s.id === this.scenarioId)[0] || null
+    },
+    /** Which level this screen is editing: the client's when one is picked, else the advisor's. */
+    level () {
+      return this.clientId ? 'client' : 'advisor'
+    },
+    /** The tier whose points may be edited or removed here. */
+    editableTier () {
+      return this.level
+    },
+    clientName () {
+      const c = this.clients.filter(x => x.id === this.clientId)[0]
+      return c ? c.name : ''
+    },
+    /** The set-aside verb and section heading, which carry the level in the label. */
+    setAsideVerb () {
+      return this.clientId ? 'Not with this client' : 'Not for my meetings'
+    },
+    reminderLabel () {
+      return this.clientId
+        ? 'What you want to be reminded of, with ' + this.clientName
+        : 'What you want to be reminded of'
     }
   },
 
@@ -223,16 +290,24 @@ export default {
     scenarioId () {
       this.cancelEdit()
       this.cancelAdd()
+    },
+    /** A different client is a different list: drop drafts and re-read. */
+    clientId () {
+      this.cancelEdit()
+      this.cancelAdd()
+      this.load()
     }
   },
 
   mounted () {
     this.load()
+    this.loadClients()
   },
 
   methods: {
     /**
-     * Read every meeting type with the points in force for this advisor's firm.
+     * Read every meeting type with the points in force — for this advisor's firm, or for
+     * meetings with the picked client.
      *
      * A failure is SHOWN, never swallowed into an empty page — `advisor-progression.md` §1
      * and Brief P11: a tidy page of nothing must not be what a failure looks like.
@@ -241,7 +316,7 @@ export default {
       this.loading = true
       this.loadError = ''
       try {
-        const res = await fetch('/api/meeting/observations', {
+        const res = await fetch(PATHS[this.level].list(this.clientId), {
           headers: { Authorization: `Bearer ${this.apiToken}` }
         })
         if (!res.ok) {
@@ -267,11 +342,45 @@ export default {
       }
     },
 
-    // ── The advisor's own level (2026-09-08) ──────────────────────────────────────────
+    /**
+     * The firm's client register, for the picker. A failure leaves the picker on "Nobody in
+     * particular" and says so in one line — the usual list still loads.
+     */
+    async loadClients () {
+      this.clientsError = ''
+      try {
+        const res = await fetch('/api/clients', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { throw new Error(res.statusText || 'request failed') }
+        const data = await res.json()
+        this.clients = (data.clients || []).filter(c => c && c.id && c.name)
+      } catch (err) {
+        this.clients = []
+        this.clientsError = "Your firm's client list could not be loaded, so a client cannot be picked here: " + err.message
+      }
+    },
+
+    /**
+     * Whether "Not with this client" / "Not for my meetings" is offered for a point.
+     *
+     * At the advisor's level every inherited point may be set aside. Inside a client's list
+     * the advisor's OWN points are not offered: they are one person's, invisible to every
+     * colleague, and are edited on that advisor's own list — a judgement stated, not assumed.
+     */
+    canSetAside (point) {
+      if (point.sourceTier === this.editableTier) { return false }
+      if (this.clientId && point.sourceTier === 'advisor') { return false }
+      return true
+    },
+
+    // ── Editing at this level ─────────────────────────────────────────────────────────
     //
     // 🔴 EVERY CALL BELOW SENDS NO ADVISOR ID. The backend takes it from the verified token
     // and nowhere else, so there is nothing here that could be tampered with to reach a
-    // colleague's list. Do not "helpfully" add one.
+    // colleague's list — or to sign a colleague's name to a client-level entry. Do not
+    // "helpfully" add one. The CLIENT id is sent, and the backend checks it against the
+    // firm's own register before every read and write.
 
     startEdit (point) {
       this.editingId = point.id
@@ -322,27 +431,31 @@ export default {
         .filter(w => w)
     },
 
+    /** The body every write carries: the scenario, and the client when one is picked. */
+    scope () {
+      return this.clientId
+        ? { scenario: this.scenarioId, clientId: this.clientId }
+        : { scenario: this.scenarioId }
+    },
+
     /**
-     * Take an inherited point off MY list, or put it back.
+     * Take an inherited point off this level's list, or put it back.
      *
-     * Mike ruled on 2026-09-08 that an advisor may set aside a point their firm set. It
-     * binds this advisor's level only; the firm's list is untouched, which is what the
-     * "off for you only" line on screen tells them.
+     * At the advisor's level it binds that advisor only ("off for you only"). At the client's
+     * it binds everyone in the firm who meets that client, and the entry names who did it.
      *
      * @param {object} point
      * @param {boolean} declined
      * @returns {Promise<void>}
      */
     async setAside (point, declined) {
-      await this.write('POST', '/api/meeting/observations/decline', {
-        scenario: this.scenarioId, pointId: point.id, declined
-      })
+      await this.write('POST', PATHS[this.level].decline, { ...this.scope(), pointId: point.id, declined })
     },
 
-    /** Add a point only I am checked on. */
+    /** Add a point at this level. */
     async addOwn () {
-      const ok = await this.write('POST', '/api/meeting/observations/own', {
-        scenario: this.scenarioId,
+      const ok = await this.write('POST', PATHS[this.level].own, {
+        ...this.scope(),
         text: this.newText,
         // Sent even when false, for the reason the manager's screen sends it: a dropped false
         // leaves an earlier true standing while the box shows unticked.
@@ -352,10 +465,10 @@ export default {
       if (ok) { this.cancelAdd() }
     },
 
-    /** Save an edit to a point I added. */
+    /** Save an edit to a point written at this level. */
     async saveEdit (point) {
-      const ok = await this.write('PUT', '/api/meeting/observations/own', {
-        scenario: this.scenarioId,
+      const ok = await this.write('PUT', PATHS[this.level].own, {
+        ...this.scope(),
         pointId: point.id,
         text: this.editText,
         cannotHear: this.editCannotHear,
@@ -365,19 +478,17 @@ export default {
       if (ok) { this.cancelEdit() }
     },
 
-    /** Remove a point I added. A POST, because Restify 9 does not parse a DELETE body. */
+    /** Remove a point written at this level. A POST, because Restify 9 does not parse a DELETE body. */
     async removeOwn (point) {
-      await this.write('POST', '/api/meeting/observations/own/remove', {
-        scenario: this.scenarioId, pointId: point.id
-      })
+      await this.write('POST', PATHS[this.level].remove, { ...this.scope(), pointId: point.id })
     },
 
     /**
      * One write, then a re-read so the screen shows what was actually stored.
      *
      * ⚠ IT RE-READS RATHER THAN PATCHING LOCAL STATE. The resolved list is computed on the
-     * backend from four tiers plus this advisor's layer; guessing the result here is how a
-     * screen and a store drift apart, and the advisor would be the last to know.
+     * backend from four tiers plus the advisor's layer plus the client's; guessing the result
+     * here is how a screen and a store drift apart, and the advisor would be the last to know.
      *
      * @param {string} method
      * @param {string} path
@@ -434,7 +545,8 @@ export default {
 .mpre-body { flex: 1; min-width: 0; }
 .mpre-acts { flex: 0 0 auto; margin-left: auto; }
 /* The source line. Colour follows the tier so a scan down the list separates the firm's
-   standard from the advisor's own additions without reading every word. */
+   standard, the advisor's own additions and the client's from one another without reading
+   every word. Amber for the client is the drawing's hue. */
 .mpre-src {
   font-size: 0.72rem;
   font-weight: 600;
@@ -445,4 +557,5 @@ export default {
 .mpre-src.is-platform { color: #5b4b9e; }
 .mpre-src.is-firm { color: #002b64; }
 .mpre-src.is-advisor { color: #00857a; }
+.mpre-src.is-client { color: #b56200; }
 </style>

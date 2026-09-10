@@ -184,23 +184,31 @@ Four slices, each shippable and each useful alone.
    longer a permission check and must not be made one again** — `tierOfScope` returns exactly
    four values, so a condition naming all four is always true. P14 is enforced on the backend,
    where it always was. Pinned by `tests/unit/meetingTypesCascade.component.test.js`.
-4. ◐ **HALF BUILT — The advisor level SHIPPED 2026-09-08; the entity level has not.** The two new config keys, the advisor's own
+4. ✅ **BUILT — the advisor level 2026-09-08, the entity level 2026-09-10.** The two new config keys, the advisor's own
    screen, and the per-client tailoring on the pre-set. This is the only slice with new
    storage in it, and D1/D2 make one more thing mandatory with it: **the pre-set must name
    where each point came from**, because after slice 4 there are five possible sources.
 
    **It is drawn in two halves** — [`mockups/meeting-preset-advisor-level.html`](mockups/meeting-preset-advisor-level.html)
-   covers the advisor's own level only. The per-client half is deliberately not drawn yet: it
-   hangs off the client picker, which is empty without MySQL, and a screen nobody can verify
-   is how item 4.62's saved reports became "wired but never proven".
+   covers the advisor's own level only; the per-client half is
+   [`mockups/meeting-preset-client-level.html`](mockups/meeting-preset-client-level.html),
+   drawn once the desktop had a real MySQL to verify it against.
 
    ✅ **THE ADVISOR'S HALF IS BUILT (2026-09-08)** — `server/utils/meetingObservationsAdvisor.js`,
    five routes, the pre-set made editable, and the manager's view below. Storage is **two**
    config keys on the advisor's own firm row rather than the one this document sketched, a
    deviation put to Mike and approved before the build.
 
-   ☐ **THE ENTITY LEVEL IS NOT BUILT AND NOT DRAWN.** It hangs off the client picker, which is
-   empty without MySQL.
+   ✅ **THE ENTITY LEVEL IS BUILT (2026-09-10)** — `server/utils/meetingObservationsEntity.js`,
+   five routes in `server/routes/meetingObservationsEntity.js`, a client picker on the pre-set,
+   and `presetFor` applying the client's layer to the report — from
+   [`mockups/meeting-preset-client-level.html`](mockups/meeting-preset-client-level.html), all
+   five questions ruled by Mike that day. 🔴 **ONE SHARED LIST PER CLIENT** that any advisor in
+   the firm may edit, every entry naming who set it; it can only set aside or add on top of the
+   advisor's own layer, never put back what an advisor set aside for themselves. 🔴 **NO MANAGER
+   SCREEN**, on his ruling — *"it's the PARTNER or firm manager that owns the client data base -
+   NOT the advisor. WHY are we building two levels of this??"* — so D2 holds in substance through
+   the same screen. Storage: two keys per client on the firm's row, mirroring the advisor level.
 
    🔴 **AND IT GAINED A THIRD PART ON 2026-09-08.** Ruling on the drawing's question 1 — *may
    an advisor switch off a point their firm set?* — Mike answered **yes**, and then refused the

@@ -146,12 +146,11 @@ describe('the runtime gate withholds nothing new', () => {
 
 describe("Mike's existing rulings stay attached to their rows", () => {
   // A ruling is filed under the normalised name. Changing the normaliser moved
-  // three keys, and without the legacy fallback three questions he answered on
+  // keys, and without the legacy fallback the questions he answered on
   // 2026-08-12 would have reappeared as unanswered — the very fault this change
   // was made to end, arriving by the back door.
   const RULED = [
-    { tree: 'org_ca_firm_strategy', rule: 'cas_strategic_decision', name: "De Bono's 6 Hats", title: '6 Hats' },
-    { tree: 'org_firm_board_pack', rule: 'fbp_data_interpretation', name: "Deming's Theory of Volatility", title: 'Demings Volatility' }
+    { tree: 'org_ca_firm_strategy', rule: 'cas_strategic_decision', name: "De Bono's 6 Hats", title: '6 Hats' }
   ]
 
   test('the legacy key is the old spelling, and it differs from the new one', () => {

@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Business Performance Report</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,700&family=Open+Sans:wght@400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Business Performance Report — the client's report, drawn for approval. Item 4.70.
+   SECOND DRAWING, 2026-09-07. The first was portrait and half-empty; Mike: "The one provided
+   is full and complete, rich in colour and completes the page - why did you avoid following
+   the example?" This one follows his deck slide for slide —
+   Support models for perf reports/Business_Performance_Report_Mockup.pptx — landscape, the
+   same composition and density on every page, in the BRAND palette from utils/brandTokens.js
+   and design/BRAND-TOKENS.md: navy #002B64, blue #0070C0, cyan #00B1E0, sky #7FD3F1,
+   charcoal #3A3A3A; semantic good #4CA52D / caution #FF9900 / danger #FF0000 used ONLY where a
+   colour signals a state. Room for the firm's logo on the cover and in every footer.
+   Every figure is the deck's own SAMPLE data and every page says so. Nothing here is built.
+   Brief: design/features/business-performance-report.md
+   ========================================================================= */
+:root{
+  --navy:#002b64; --blue:#0070c0; --cyan:#00b1e0; --sky:#7fd3f1; --charcoal:#3a3a3a;
+  --good:#4ca52d; --caution:#ff9900; --danger:#ff0000;
+  --tint-navy:#ebeef3; --tint-blue:#ebf4fa; --tint-cyan:#ebf9fd; --tint-sky:#f5fbfe;
+  --tint-good:#eef6ea; --tint-caution:#fff4e5; --tint-danger:#fdeaea;
+  --paper:#ffffff; --ground:#eef3f8; --ink:#002b64; --body:#363636; --muted:#5b6f8a; --line:#d5e1ee;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"Open Sans",system-ui,"Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ground)}
+body{margin:0;color:var(--body);font:14px/1.45 var(--sans);font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding:24px 20px 80px}
+
+/* ---- note to Mike ---- */
+.memo{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin:0 0 22px}
+.memo h1{font:700 22px var(--serif);color:var(--navy);margin-bottom:4px}
+.memo p{margin:0 0 8px}
+.memo h2{font:700 14px var(--sans);color:var(--navy);margin:14px 0 6px;letter-spacing:.04em;text-transform:uppercase}
+.memo ul{margin:0;padding-left:20px}
+.memo li{margin:3px 0}
+
+/* ---- advisor controls ---- */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:0 0 22px;font-size:13px}
+.controls .lbl{color:var(--muted)}
+.pill{border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:var(--paper)}
+.btn{border:1px solid var(--blue);color:var(--blue);border-radius:8px;padding:6px 12px;font-weight:600;background:var(--paper)}
+.btn.primary{background:var(--blue);color:#fff}
+.dd-menu{margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);min-width:460px;font-size:12.5px}
+.dd-menu div{display:flex;justify-content:space-between;gap:12px;padding:7px 12px;border-top:1px solid var(--line)}
+.dd-menu div:first-child{border-top:0;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+.dd-menu .ok{color:var(--blue);font-weight:600} .dd-menu .no{color:var(--muted)}
+
+/* ---- pages: 16:9 landscape, as the deck ---- */
+.page{position:relative;width:100%;max-width:1280px;aspect-ratio:16/9;background:var(--paper);margin:0 auto 22px;padding:44px 64px 52px;box-shadow:0 2px 14px rgba(0,43,100,.10);overflow:hidden;color:var(--body)}
+.page h2{font:700 38px/1.1 var(--serif);color:var(--navy)}
+.page .sub{color:var(--muted);font-size:16px;margin:8px 0 22px}
+.page h3{font:700 15px var(--sans);color:var(--ink);margin-bottom:10px}
+.foot{position:absolute;left:64px;bottom:20px;display:flex;align-items:center;gap:14px;color:var(--muted);font-size:12px}
+.pno{position:absolute;right:64px;bottom:20px;font-weight:700;color:var(--blue);font-size:14px}
+.logo{display:inline-grid;place-items:center;width:92px;height:26px;border:1px dashed var(--sky);border-radius:4px;color:var(--blue);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;background:var(--tint-sky)}
+.logo.big{width:180px;height:56px;font-size:12px;border-color:var(--cyan);background:rgba(255,255,255,.08);color:var(--sky)}
+.prov{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:2px 8px;border:1px solid var(--line);color:var(--muted);vertical-align:middle;margin-left:6px;background:var(--paper)}
+.prov.file{color:var(--blue);border-color:var(--blue)} .prov.typed{color:#8a5a00;border-color:var(--caution)} .prov.ai{color:#4b3a8a;border-color:#7a6ba8} .prov.stats{color:var(--navy);border-color:var(--navy)}
+.help{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid var(--cyan);color:var(--blue);font-size:9.5px;line-height:12px;text-align:center;font-weight:700;margin-left:4px;vertical-align:middle}
+
+/* tiles, as the deck's */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.tile{border-radius:12px;padding:20px 22px 18px;background:var(--tint-blue)}
+.tile.cyan{background:var(--tint-cyan)} .tile.caution{background:var(--tint-caution)} .tile.danger{background:var(--tint-danger)} .tile.navy{background:var(--navy);color:#fff}
+.tile .ic{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;margin-bottom:8px;background:var(--blue);color:#fff;font-weight:700}
+.tile.cyan .ic{background:var(--cyan);color:var(--navy)} .tile.caution .ic{background:var(--caution);color:#fff} .tile.danger .ic{background:var(--danger);color:#fff}
+.tile .v{font:700 40px/1.05 var(--serif);color:var(--navy);margin:2px 0 6px}
+.tile.navy .v{color:#fff}
+.tile .k{font-weight:700;font-size:15px;color:var(--ink)} .tile.navy .k{color:#fff}
+.tile .d{font-size:13px;margin-top:6px}
+.up{color:var(--good);font-weight:600} .down{color:var(--danger);font-weight:600}
+.tile .tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)} .tile.caution .tag{color:#8a5a00} .tile.danger .tag{color:#9c2323}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:22px}
+.cols.wide{grid-template-columns:1.25fr 1fr}
+.panel{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--paper)}
+.panel.soft{background:var(--tint-blue);border-color:transparent}
+.panel.caution{background:var(--tint-caution);border-color:transparent}
+.panel.danger{background:var(--tint-danger);border-color:transparent}
+.list{list-style:none;padding:0;margin:0}
+.list li{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;margin:14px 0;font-size:15px}
+.list .ok{width:26px;height:26px;border-radius:50%;background:var(--good);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700}
+.list .w{width:26px;height:26px;border-radius:6px;background:var(--caution);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700}
+
+svg{display:block;max-width:100%;height:auto}
+.axis{stroke:var(--line);stroke-width:1} .grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 3}
+.lab{font:11.5px var(--sans);fill:var(--muted)} .lab.b{fill:var(--ink);font-weight:600}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left}
+td.n,th.n{text-align:right}
+tr.total td{font-weight:700;background:var(--tint-blue)} tr.total td:first-child{color:var(--navy)}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.pct{color:var(--muted);font-size:12.5px}
+
+/* ratio tiles row (dashboard) */
+.ratios{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:22px}
+.ratio{border-radius:12px;padding:16px 16px 14px;background:var(--tint-blue)}
+.ratio.caution{background:var(--tint-cyan)} .ratio.danger{background:var(--tint-sky)}
+.ratio .tag{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)} .ratio.caution .tag{color:#007fa1} .ratio.danger .tag{color:#4b7c8e}
+.ratio .v{font:700 30px/1.1 var(--serif);color:var(--navy);margin:8px 0 10px}
+.ratio .k{font-size:13.5px;color:var(--muted)}
+.light{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.light.g{background:var(--good)} .light.a{background:var(--caution)} .light.c{background:var(--danger)}
+
+/* balance-sheet reading tiles */
+.reads{display:grid;gap:14px;align-content:start}
+.read{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;border-radius:12px;padding:16px 18px;background:var(--tint-blue)}
+.read.caution{background:var(--tint-caution)}
+.read .v{font:700 34px/1.05 var(--serif);color:var(--navy)} .read .k{font-weight:700;font-size:13px;color:var(--ink);margin-top:4px}
+.read .r{font-size:14px}
+.read .r::before{content:"✔";display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--good);color:#fff;font-size:12px;margin-right:10px;vertical-align:-6px}
+.read.caution .r::before{content:"$";background:var(--caution)}
+
+/* cash cycle */
+.cycle{display:grid;grid-template-columns:1fr 34px 1fr 34px 1fr 34px 1.05fr;align-items:stretch;gap:8px}
+.cycle .op{align-self:center;text-align:center;font:700 30px var(--serif);color:var(--muted)}
+.cycle .tile{padding:18px 20px} .cycle .tile .v{font-size:34px}
+.cycle .tile .d{color:var(--muted);font-size:12.5px}
+.drivers{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:18px}
+.drv{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:11.5px;background:var(--paper)}
+.drv .k{font-weight:700;color:var(--ink);line-height:1.2}
+.drv .v{font:700 17px/1.1 var(--serif);color:var(--navy);margin:3px 0 1px}
+.drv .c{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:1px 6px;margin-top:3px}
+.drv .c.uses{background:var(--tint-caution);color:#8a5a00} .drv .c.rel{background:var(--tint-good);color:#2f6b19}
+
+/* contents cards */
+.toc{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
+.toc div{display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:center;background:#f4f8fb;border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+.toc .ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font:700 22px var(--serif);color:var(--navy);background:var(--tint-cyan)}
+.toc .ic.c{background:var(--tint-caution);color:#8a5a00} .toc .ic.d{background:var(--tint-danger);color:#9c2323}
+.toc b{font-size:18px;color:var(--ink)} .toc small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
+
+/* next steps */
+.dark{background:var(--navy);color:#fff}
+.dark h2{color:#fff} .dark .sub{color:var(--sky)}
+.dark .foot,.dark .pno{color:var(--sky)}
+.steps{display:grid;gap:16px;margin-top:26px}
+.step{display:grid;grid-template-columns:56px 1fr;gap:18px;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(127,211,241,.25);border-radius:12px;padding:20px 24px}
+.step .ic{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:700 20px var(--serif);color:#fff;background:var(--caution)}
+.step.b .ic{background:var(--danger)} .step.c .ic{background:var(--cyan);color:var(--navy)}
+.step h3{color:#fff;font-size:20px;margin-bottom:4px} .step p{color:#dbeaf7;font-size:14.5px}
+
+/* cover */
+.cover{background:var(--navy);color:#fff;padding:60px 64px}
+.cover .eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--cyan)}
+.cover h2{color:#fff;font-size:76px;line-height:1.05;margin-top:110px;max-width:62%}
+.cover .client{margin-top:36px;font:700 26px var(--sans);color:var(--caution)}
+.cover .period{margin-top:14px;font-size:18px;color:#dbeaf7}
+.cover .by{position:absolute;left:64px;bottom:56px;font-size:15px;color:var(--sky)}
+.cover .note{position:absolute;left:64px;bottom:24px;font-size:13px;color:#8fb2d9;font-style:italic}
+.cover .c1,.cover .c2,.cover .c3{position:absolute;border-radius:50%}
+.cover .c1{width:640px;height:640px;right:-200px;top:-300px;background:var(--blue);opacity:.75}
+.cover .c2{width:420px;height:420px;right:-90px;bottom:-140px;background:var(--cyan);opacity:.85}
+.cover .c3{width:270px;height:270px;right:270px;bottom:-60px;background:var(--caution)}
+.cover .badge{position:absolute;right:120px;top:120px;width:150px;height:150px;border-radius:50%;background:var(--sky);display:grid;place-items:center;color:var(--navy);font:700 54px var(--serif)}
+.cover .logo.big{position:absolute;right:64px;top:44px}
+
+/* score */
+.score{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center}
+.ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center}
+.ring span{width:112px;height:112px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font:700 42px var(--serif);color:var(--navy)}
+.small{font-size:11.5px;color:var(--muted)}
+
+/* inventory */
+.inv{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.inv .tile .v{font-size:34px}
+
+/* disclaimer */
+.disc p{font-size:13.5px;margin:0 0 10px;max-width:1080px}
+.disc b{color:var(--navy)}
+.ruling{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--tint-danger);color:#9c2323;border-radius:999px;padding:2px 8px;vertical-align:middle}
+
+.src ol{margin:6px 0 0;padding-left:18px;font-size:12px;color:var(--muted)} .src li{margin:2px 0;word-break:break-all}
+.para{font-size:13.5px;margin:0 0 8px} .para b.h{display:block;font:700 15px var(--serif);color:var(--navy);margin:10px 0 3px}
+
+@media print{
+  html,body{background:#fff}
+  .memo,.controls{display:none}
+  .wrap{padding:0;max-width:none}
+  .page{box-shadow:none;margin:0;max-width:none;aspect-ratio:auto;height:100vh;break-after:page;page-break-after:always}
+  @page{size:landscape;margin:0}
+}
+@media (max-width:900px){
+  .page{aspect-ratio:auto;padding:24px 20px 56px}
+  .tiles,.ratios,.inv,.drivers{grid-template-columns:1fr 1fr}
+  .cols,.cols.wide,.toc{grid-template-columns:1fr}
+  .cycle{grid-template-columns:1fr 1fr} .cycle .op{display:none}
+  .cover h2{font-size:44px;margin-top:40px;max-width:100%} .cover .badge,.cover .c1,.cover .c2,.cover .c3{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section class="memo">
+  <h1>Business Performance Report — second drawing, for approval</h1>
+  <p>Item 4.70. Landscape, slide for slide against your deck, every page composed and coloured to the same density, in the brand palette from the rules: navy, blue, cyan and sky for the report; green, amber and red only where a colour means good, caution or danger. A dashed box marks where the firm's logo goes, on the cover and in every footer. Every figure is your deck's sample data, said in every footer.</p>
+  <h2>What differs from the deck, and why each is there</h2>
+  <ul>
+    <li><b>Page 1, the score</b> shows how it is made and cites the Piotroski F-score — your ruling.</li>
+    <li><b>Page 7, benchmarks</b> shows the Stats NZ comparison table in the place your deck has the industry bars — your ruling. Industry and size are chosen in the controls above.</li>
+    <li><b>Page 6, inventory,</b> is a base page as in your deck; until the inventory reader is built its stock-by-category and ageing figures are badged as entered by the advisor.</li>
+    <li><b>A disclaimer page</b> is added at the end — your instruction. Its wording is a draft for you to rule.</li>
+    <li><b>The seven cash drivers</b> sit as a slim row on page 5 under the cash cycle, from the Cash Drivers material you supplied.</li>
+    <li><b>Provenance marks</b> on every figure: from your accounts, entered by your advisor, Stats NZ, or AI research approved.</li>
+  </ul>
+  <p style="margin-top:8px">Still placeholders for you to rule at build time: the score band words ("Good", "Steady", "At risk"), the sample industry, and the disclaimer wording.</p>
+</section>
+
+<div class="controls">
+  <span class="lbl">Client</span><span class="pill">Harbourside Kitchen Supplies Ltd</span>
+  <span class="lbl">Period</span><span class="pill">FY2026 · 1 Jul 2025 – 30 Jun 2026</span>
+  <span class="lbl">Industry</span><span class="pill">Kitchenware wholesaling · from the ANZSIC finder ▾</span>
+  <span class="lbl">Size</span><span class="pill">Small · turnover $1.6M–$3.9M in this industry ▾</span>
+  <span class="lbl">Pages</span><span class="pill">12 of 15</span>
+  <span><span class="btn">Add a page ▾</span>
+    <div class="dd-menu">
+      <div><span>Optional pages</span><span>Offered only when the figures behind them exist</span></div>
+      <div><span>Economic &amp; Industry Outlook</span><span class="ok">Research run 2, approved 6 Sep · added</span></div>
+      <div><span>Sales Volatility</span><span class="ok">12 months of sales by month · ready</span></div>
+      <div><span>The Eight Levers</span><span class="ok">Ready</span></div>
+      <div><span>Debtor Drag</span><span class="ok">Ready</span></div>
+      <div><span>Valuation (EBITDA &amp; DCF)</span><span class="ok">Ready</span></div>
+      <div><span>Loan Servicing</span><span class="no">Needs a loan on the file</span></div>
+      <div><span>Tax Provision</span><span class="no">Needs the firm's tax rates set</span></div>
+    </div>
+  </span>
+  <span class="btn primary">Print or save as PDF</span>
+</div>
+
+<!-- Cover -->
+<section class="page cover">
+  <div class="c1"></div><div class="c2"></div><div class="c3"></div>
+  <div class="badge">↗</div>
+  <span class="logo big">Firm logo</span>
+  <div class="eyebrow">Business advisory &nbsp;|&nbsp; Confidential</div>
+  <h2>Business Performance Report</h2>
+  <div class="client">Harbourside Kitchen Supplies Ltd</div>
+  <div class="period">Reporting period: FY2026 · 1 July 2025 – 30 June 2026</div>
+  <div class="by">Prepared by: Jordan Reid, Reid &amp; Partners &nbsp;&nbsp;&nbsp; Date issued: 7 September 2026</div>
+  <div class="note">MOCK-UP — all figures are illustrative sample data</div>
+</section>
+
+<!-- Contents -->
+<section class="page">
+  <h2>Contents</h2>
+  <p class="sub">What this report covers and how to read it</p>
+  <div class="toc">
+    <div><span class="ic c">1</span><span><b>Executive Summary</b><small>The year at a glance — headline results and business health score</small></span></div>
+    <div><span class="ic">5</span><span><b>Cash Flow &amp; Working Capital</b><small>How quickly money moves through the business</small></span></div>
+    <div><span class="ic">2</span><span><b>Financial Dashboard</b><small>Key numbers from your P&amp;L, Balance Sheet and Inventory in one view</small></span></div>
+    <div><span class="ic c">6</span><span><b>Inventory Performance</b><small>Stock levels, turnover and slow-moving lines</small></span></div>
+    <div><span class="ic">3</span><span><b>Profit &amp; Loss</b><small>Revenue, margins and expenses — where the profit came from</small></span></div>
+    <div><span class="ic d">7</span><span><b>Benchmarks &amp; Trends</b><small>How you compare with your industry and last year</small></span></div>
+    <div><span class="ic">4</span><span><b>Balance Sheet</b><small>What the business owns, owes, and your financial strength</small></span></div>
+    <div><span class="ic">8</span><span><b>Key Insights &amp; Next Steps</b><small>The three things to act on this quarter</small></span></div>
+  </div>
+  <p class="small" style="margin-top:16px">Added by your advisor: <b>9. Economic &amp; Industry Outlook</b>. Closing page: <b>Important information</b>. Every figure is marked <span class="prov file">From your accounts</span> <span class="prov typed">Entered by your advisor</span> <span class="prov stats">Stats NZ</span> or <span class="prov ai">AI research · approved</span>; a <span class="help">?</span> opens a term's meaning.</p>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data)</div><span class="pno">2</span>
+</section>
+
+<!-- 1 Executive Summary -->
+<section class="page">
+  <h2>Executive Summary</h2>
+  <p class="sub">FY2026 at a glance — a strong year with one watch-point: cash tied up in stock <span class="prov file">From your accounts</span></p>
+  <div class="tiles">
+    <div class="tile"><div class="ic">$</div><div class="v">$2.84M</div><div class="k">Revenue</div><div class="d up">▲ 12.4% vs last year</div></div>
+    <div class="tile cyan"><div class="ic">◎</div><div class="v">$396K</div><div class="k">Net Profit</div><div class="d up">▲ 18.2% vs last year</div></div>
+    <div class="tile caution"><div class="ic">%</div><div class="v">13.9%</div><div class="k">Net Margin <span class="help">?</span></div><div class="d up">▲ 0.7 pts vs last year</div></div>
+    <div class="tile danger"><div class="ic">◷</div><div class="v">47 days</div><div class="k">Cash Cycle <span class="help">?</span></div><div class="d down">▼ Slower by 6 days</div></div>
+  </div>
+  <div class="cols wide">
+    <div>
+      <h3 style="font-size:18px">What went well / what to watch <span class="prov typed">advisor</span></h3>
+      <ul class="list">
+        <li><span class="ok">✔</span><span>Sales grew in all four quarters, led by repeat customers (+19%).</span></li>
+        <li><span class="ok">✔</span><span>Gross margin held at 41% despite supplier price increases.</span></li>
+        <li><span class="w">!</span><span>Stock on hand grew faster than sales — $118K extra cash tied up.</span></li>
+        <li><span class="w">!</span><span>Customers are paying 5 days slower than last year (38 → 43 days).</span></li>
+      </ul>
+    </div>
+    <div class="panel soft">
+      <h3 style="text-align:center;font-size:17px;color:var(--navy)">Business Health Score</h3>
+      <div class="score">
+        <div class="ring" style="background:conic-gradient(var(--blue) 0 69%, var(--line) 69% 100%)"><span>69</span></div>
+        <div><b style="color:#8a5a00;font-size:18px">STEADY</b><p style="margin-top:4px;font-size:13.5px">Profitability strong; cash and stock management pull the score down.</p></div>
+      </div>
+      <p class="small" style="margin-top:12px">Scored on the eight measures on pages 2 and 5: 2 in green, 1 in amber, 0 in red against your firm's thresholds, out of 100. The method follows the Piotroski F-score, the pass-or-fail test count investors use to screen a company's financial strength.</p>
+    </div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data)</div><span class="pno">3</span>
+</section>
+
+<!-- 2 Financial Dashboard -->
+<section class="page">
+  <h2>Financial Dashboard</h2>
+  <p class="sub">One-page summary drawn from your P&amp;L, Balance Sheet and Inventory reports <span class="prov file">From your accounts</span></p>
+  <div class="cols" style="margin-top:0">
+    <div class="panel">
+      <h3>Revenue vs Total Expenses ($'000, quarterly)</h3>
+      <svg viewBox="0 0 520 210" role="img" aria-label="Grouped bars: revenue and expenses by quarter">
+        <line class="grid" x1="44" x2="510" y1="20" y2="20"/><text class="lab" x="8" y="24">1000</text>
+        <line class="grid" x1="44" x2="510" y1="57.5" y2="57.5"/><text class="lab" x="14" y="61">750</text>
+        <line class="grid" x1="44" x2="510" y1="95" y2="95"/><text class="lab" x="14" y="99">500</text>
+        <line class="grid" x1="44" x2="510" y1="132.5" y2="132.5"/><text class="lab" x="14" y="136">250</text>
+        <line class="axis" x1="44" x2="510" y1="170" y2="170"/><text class="lab" x="28" y="174">0</text>
+        <rect x="70" y="74" width="44" height="96" fill="#0070c0"/><rect x="116" y="86" width="44" height="84" fill="#00b1e0"/>
+        <rect x="186" y="66.5" width="44" height="103.5" fill="#0070c0"/><rect x="232" y="80.75" width="44" height="89.25" fill="#00b1e0"/>
+        <rect x="302" y="62" width="44" height="108" fill="#0070c0"/><rect x="348" y="77.75" width="44" height="92.25" fill="#00b1e0"/>
+        <rect x="418" y="51.5" width="44" height="118.5" fill="#0070c0"/><rect x="464" y="69.5" width="44" height="100.5" fill="#00b1e0"/>
+        <g class="lab b"><text x="92" y="68" text-anchor="middle">640</text><text x="208" y="60" text-anchor="middle">690</text><text x="324" y="56" text-anchor="middle">720</text><text x="440" y="45" text-anchor="middle">790</text></g>
+        <g class="lab"><text x="138" y="80" text-anchor="middle">560</text><text x="254" y="75" text-anchor="middle">595</text><text x="370" y="72" text-anchor="middle">615</text><text x="486" y="64" text-anchor="middle">670</text></g>
+        <g class="lab"><text x="115" y="192" text-anchor="middle">Q1</text><text x="231" y="192" text-anchor="middle">Q2</text><text x="347" y="192" text-anchor="middle">Q3</text><text x="463" y="192" text-anchor="middle">Q4</text></g>
+      </svg>
+      <div class="legend"><span><i style="background:#0070c0"></i>Revenue</span><span><i style="background:#00b1e0"></i>Expenses</span></div>
+    </div>
+    <div class="panel">
+      <h3>Where the money went (operating costs)</h3>
+      <svg viewBox="0 0 520 210" role="img" aria-label="Doughnut: share of costs by kind">
+        <g transform="translate(120 105) rotate(-90)">
+          <circle r="66" fill="none" stroke="#ebf4fa" stroke-width="30"/>
+          <circle r="66" fill="none" stroke="#002b64" stroke-width="30" stroke-dasharray="242.7 172" stroke-dashoffset="0"/>
+          <circle r="66" fill="none" stroke="#0070c0" stroke-width="30" stroke-dasharray="85.1 329.6" stroke-dashoffset="-244.7"/>
+          <circle r="66" fill="none" stroke="#00b1e0" stroke-width="30" stroke-dasharray="31.2 383.5" stroke-dashoffset="-331.8"/>
+          <circle r="66" fill="none" stroke="#7fd3f1" stroke-width="30" stroke-dasharray="18.7 396" stroke-dashoffset="-365"/>
+          <circle r="66" fill="none" stroke="#3a3a3a" stroke-width="30" stroke-dasharray="27 387.7" stroke-dashoffset="-385.7"/>
+        </g>
+        <text class="lab b" x="120" y="110" text-anchor="middle" style="font-size:16px">$2.44M</text>
+        <g font-family="Open Sans" font-size="13" fill="#363636">
+          <rect x="250" y="40" width="12" height="12" fill="#002b64"/><text x="270" y="51">Cost of goods · 59%</text>
+          <rect x="250" y="68" width="12" height="12" fill="#0070c0"/><text x="270" y="79">Wages · 21%</text>
+          <rect x="250" y="96" width="12" height="12" fill="#00b1e0"/><text x="270" y="107">Rent &amp; utilities · 8%</text>
+          <rect x="250" y="124" width="12" height="12" fill="#7fd3f1"/><text x="270" y="135">Marketing · 5%</text>
+          <rect x="250" y="152" width="12" height="12" fill="#3a3a3a"/><text x="270" y="163">Other · 7%</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="ratios">
+    <div class="ratio"><div class="tag">P&amp;L</div><div class="v">41.0%</div><div class="k"><span class="light g"></span>Gross Margin <span class="help">?</span></div></div>
+    <div class="ratio"><div class="tag">P&amp;L</div><div class="v">13.9%</div><div class="k"><span class="light g"></span>Net Margin</div></div>
+    <div class="ratio caution"><div class="tag">Balance sheet</div><div class="v">2.1×</div><div class="k"><span class="light g"></span>Current Ratio <span class="help">?</span></div></div>
+    <div class="ratio caution"><div class="tag">Balance sheet</div><div class="v">0.38</div><div class="k"><span class="light g"></span>Debt / Equity</div></div>
+    <div class="ratio danger"><div class="tag">Inventory</div><div class="v">5.2×</div><div class="k"><span class="light a"></span>Stock Turnover</div></div>
+    <div class="ratio danger"><div class="tag">Inventory</div><div class="v">70 days</div><div class="k"><span class="light c"></span>Days on Hand</div></div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data)</div><span class="pno">4</span>
+</section>
+
+<!-- 3 Profit & Loss -->
+<section class="page">
+  <h2>Profit &amp; Loss Summary</h2>
+  <p class="sub">Extracted from your P&amp;L report — plain-English view of how profit was made <span class="prov file">From your accounts</span></p>
+  <div class="cols" style="margin-top:0">
+    <div class="panel" style="background:#f4f8fb">
+      <table>
+        <tr><td>Revenue</td><td class="n">$2,840K</td><td class="n pct">100%</td></tr>
+        <tr><td>Cost of goods sold</td><td class="n">– $1,676K</td><td class="n pct">59%</td></tr>
+        <tr class="total"><td>Gross profit</td><td class="n">$1,164K</td><td class="n pct">41%</td></tr>
+        <tr><td>Operating expenses</td><td class="n">– $698K</td><td class="n pct">25%</td></tr>
+        <tr class="total"><td>Operating profit (EBITDA) <span class="help">?</span></td><td class="n">$466K</td><td class="n pct">16.4%</td></tr>
+        <tr><td>Interest, tax &amp; depreciation</td><td class="n">– $70K</td><td class="n pct">2.5%</td></tr>
+        <tr class="total"><td>Net profit</td><td class="n">$396K</td><td class="n pct">13.9%</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="panel">
+        <h3>Gross &amp; net profit by quarter ($'000)</h3>
+        <svg viewBox="0 0 520 200" role="img" aria-label="Grouped bars: gross profit and net profit by quarter">
+          <line class="grid" x1="44" x2="510" y1="20" y2="20"/><text class="lab" x="14" y="24">350</text>
+          <line class="grid" x1="44" x2="510" y1="95" y2="95"/><text class="lab" x="14" y="99">175</text>
+          <line class="axis" x1="44" x2="510" y1="170" y2="170"/><text class="lab" x="28" y="174">0</text>
+          <rect x="70" y="57.7" width="44" height="112.3" fill="#0070c0"/><rect x="116" y="133.1" width="44" height="36.9" fill="#00b1e0"/>
+          <rect x="186" y="49.1" width="44" height="120.9" fill="#0070c0"/><rect x="232" y="129.3" width="44" height="40.7" fill="#00b1e0"/>
+          <rect x="302" y="44" width="44" height="126" fill="#0070c0"/><rect x="348" y="126.7" width="44" height="43.3" fill="#00b1e0"/>
+          <rect x="418" y="32" width="44" height="138" fill="#0070c0"/><rect x="464" y="121.6" width="44" height="48.4" fill="#00b1e0"/>
+          <g class="lab b"><text x="92" y="52" text-anchor="middle">262</text><text x="208" y="43" text-anchor="middle">282</text><text x="324" y="38" text-anchor="middle">294</text><text x="440" y="26" text-anchor="middle">322</text></g>
+          <g class="lab"><text x="115" y="190" text-anchor="middle">Q1</text><text x="231" y="190" text-anchor="middle">Q2</text><text x="347" y="190" text-anchor="middle">Q3</text><text x="463" y="190" text-anchor="middle">Q4</text></g>
+        </svg>
+        <div class="legend"><span><i style="background:#0070c0"></i>Gross profit</span><span><i style="background:#00b1e0"></i>Net profit</span></div>
+      </div>
+      <div class="panel caution" style="margin-top:16px">
+        <p style="font-size:14.5px"><b>Insight:</b> Every $1 of sales returned 13.9¢ of profit — up from 13.2¢ last year. Wage costs are the fastest-growing expense (+9%). <span class="prov typed">advisor</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data)</div><span class="pno">5</span>
+</section>
+
+<!-- 4 Balance Sheet -->
+<section class="page">
+  <h2>Balance Sheet Summary</h2>
+  <p class="sub">Extracted from your Balance Sheet — what the business owns and owes at 30 June 2026 <span class="prov file">From your accounts</span></p>
+  <div class="cols" style="margin-top:0">
+    <div>
+      <div class="panel">
+        <h3>What you own vs what you owe ($'000)</h3>
+        <svg viewBox="0 0 520 210" role="img" aria-label="Two stacked bars: assets, and liabilities plus equity">
+          <line class="grid" x1="44" x2="510" y1="20" y2="20"/><text class="lab" x="6" y="24">1600</text>
+          <line class="grid" x1="44" x2="510" y1="95" y2="95"/><text class="lab" x="12" y="99">800</text>
+          <line class="axis" x1="44" x2="510" y1="170" y2="170"/><text class="lab" x="28" y="174">0</text>
+          <rect x="120" y="88.4" width="120" height="81.6" fill="#0070c0"/><rect x="120" y="39.1" width="120" height="47.3" fill="#00b1e0"/>
+          <text class="lab b" x="180" y="134" text-anchor="middle" style="fill:#fff">870</text><text class="lab b" x="180" y="66" text-anchor="middle" style="fill:#002b64">505</text>
+          <rect x="320" y="131.6" width="120" height="38.4" fill="#0070c0"/><rect x="320" y="110.4" width="120" height="19.2" fill="#00b1e0"/><rect x="320" y="37.2" width="120" height="71.2" fill="#002b64"/>
+          <text class="lab b" x="380" y="154" text-anchor="middle" style="fill:#fff">410</text><text class="lab b" x="380" y="124" text-anchor="middle" style="fill:#002b64">205</text><text class="lab b" x="380" y="76" text-anchor="middle" style="fill:#fff">760</text>
+          <g class="lab"><text x="180" y="192" text-anchor="middle">Assets</text><text x="380" y="192" text-anchor="middle">Liabilities + Equity</text></g>
+        </svg>
+        <div class="legend"><span><i style="background:#0070c0"></i>Current</span><span><i style="background:#00b1e0"></i>Non-current</span><span><i style="background:#002b64"></i>Equity</span></div>
+      </div>
+      <div class="panel soft" style="margin-top:16px"><p style="font-size:14.5px"><b>Net position:</b> Owner's equity of $760K, up 11% year-on-year — the business is building real value.</p></div>
+    </div>
+    <div class="reads">
+      <div class="read"><div><div class="v">2.1×</div><div class="k">Current Ratio</div></div><div class="r">You hold $2.10 in short-term assets for every $1 owed soon. Healthy (target &gt; 1.5).</div></div>
+      <div class="read"><div><div class="v">0.38</div><div class="k">Debt-to-Equity</div></div><div class="r">Low reliance on borrowed money — strong position to fund growth.</div></div>
+      <div class="read caution"><div><div class="v">$457K</div><div class="k">Working Capital <span class="help">?</span></div></div><div class="r">Cash buffer after paying near-term bills. Up $38K on last year.</div></div>
+    </div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data)</div><span class="pno">6</span>
+</section>
+
+<!-- 5 Cash Flow & Working Capital -->
+<section class="page">
+  <h2>Cash Flow &amp; Working Capital</h2>
+  <p class="sub">How quickly money moves through the business — the cash conversion cycle <span class="prov file">From your accounts</span></p>
+  <div class="cycle">
+    <div class="tile caution"><div class="ic">▦</div><div class="v">70 days</div><div class="k">Stock on shelf</div><div class="d">DIO — days inventory outstanding</div></div>
+    <div class="op">+</div>
+    <div class="tile danger"><div class="ic">◷</div><div class="v">43 days</div><div class="k">Waiting to be paid</div><div class="d">DSO — days sales outstanding</div></div>
+    <div class="op">−</div>
+    <div class="tile cyan"><div class="ic">$</div><div class="v">– 66 days</div><div class="k">Time to pay suppliers</div><div class="d">DPO — days payables outstanding</div></div>
+    <div class="op">=</div>
+    <div class="tile navy"><div class="v">47 days</div><div class="k" style="color:var(--sky)">Cash locked in the cycle</div><div class="d" style="color:#dbeaf7">6 days slower than FY25</div></div>
+  </div>
+  <div class="cols wide" style="margin-top:18px">
+    <div class="panel">
+      <h3>Closing bank balance by month ($'000)</h3>
+      <svg viewBox="0 0 620 170" role="img" aria-label="Line: closing bank balance for each of twelve months">
+        <line class="grid" x1="44" x2="600" y1="18" y2="18"/><text class="lab" x="12" y="22">250</text>
+        <line class="grid" x1="44" x2="600" y1="78" y2="78"/><text class="lab" x="12" y="82">125</text>
+        <line class="axis" x1="44" x2="600" y1="138" y2="138"/><text class="lab" x="28" y="142">0</text>
+        <polyline fill="none" stroke="#0070c0" stroke-width="2.5" points="44,50.2 94.5,53.5 145,57.4 195.5,46.8 246,39.1 296.5,67 347,55.4 397.5,48.7 448,52.6 498.5,43.9 549,37.2 599.5,30.5"/>
+        <g fill="#0070c0"><circle cx="44" cy="50.2" r="4.5"/><circle cx="94.5" cy="53.5" r="4.5"/><circle cx="145" cy="57.4" r="4.5"/><circle cx="195.5" cy="46.8" r="4.5"/><circle cx="246" cy="39.1" r="4.5"/><circle cx="347" cy="55.4" r="4.5"/><circle cx="397.5" cy="48.7" r="4.5"/><circle cx="448" cy="52.6" r="4.5"/><circle cx="498.5" cy="43.9" r="4.5"/><circle cx="549" cy="37.2" r="4.5"/></g>
+        <circle cx="296.5" cy="67" r="5.5" fill="#ff0000"/><text class="lab b" x="296.5" y="86" text-anchor="middle">148</text>
+        <circle cx="599.5" cy="30.5" r="5.5" fill="#002b64"/><text class="lab b" x="592" y="24" text-anchor="end">224</text>
+        <g class="lab"><text x="44" y="158" text-anchor="middle">Jul</text><text x="94.5" y="158" text-anchor="middle">Aug</text><text x="145" y="158" text-anchor="middle">Sep</text><text x="195.5" y="158" text-anchor="middle">Oct</text><text x="246" y="158" text-anchor="middle">Nov</text><text x="296.5" y="158" text-anchor="middle">Dec</text><text x="347" y="158" text-anchor="middle">Jan</text><text x="397.5" y="158" text-anchor="middle">Feb</text><text x="448" y="158" text-anchor="middle">Mar</text><text x="498.5" y="158" text-anchor="middle">Apr</text><text x="549" y="158" text-anchor="middle">May</text><text x="599.5" y="158" text-anchor="middle">Jun</text></g>
+      </svg>
+    </div>
+    <div class="panel danger">
+      <div style="width:34px;height:34px;border-radius:8px;background:var(--caution);color:#fff;display:grid;place-items:center;font-weight:700;margin-bottom:10px">!</div>
+      <h3 style="font-size:17px">Watch-point <span class="prov typed">advisor</span></h3>
+      <p style="font-size:14px">The December dip (–$57K) coincides with peak stock purchases. Consider staggering orders or a seasonal overdraft facility.</p>
+    </div>
+  </div>
+  <div class="drivers">
+    <div class="drv"><div class="k">Sales growth</div><div class="v">+12.4%</div><span class="c uses">uses cash</span></div>
+    <div class="drv"><div class="k">Gross margin</div><div class="v">41.0%</div><span class="c rel">releases cash</span></div>
+    <div class="drv"><div class="k">Expenses % sales</div><div class="v">24.6%</div><span class="c uses">uses cash</span></div>
+    <div class="drv"><div class="k">Debtor days</div><div class="v">43</div><span class="c uses">uses cash</span></div>
+    <div class="drv"><div class="k">Stock days</div><div class="v">70</div><span class="c uses">uses cash</span></div>
+    <div class="drv"><div class="k">Creditor days</div><div class="v">66</div><span class="c rel">releases cash</span></div>
+    <div class="drv"><div class="k">Net capital spend</div><div class="v">$85K</div><span class="c uses">uses cash</span></div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data) · the seven cash drivers, this year</div><span class="pno">7</span>
+</section>
+
+<!-- 6 Inventory Performance -->
+<section class="page">
+  <h2>Inventory Performance</h2>
+  <p class="sub">Extracted from your Inventory report — stock value, speed and slow movers <span class="prov typed">Entered by your advisor until the inventory reader is built</span></p>
+  <div class="inv">
+    <div class="tile caution"><div class="v">$322K</div><div class="k">Stock on hand (at cost)</div><div class="d down">▲ $118K vs last year</div></div>
+    <div class="tile caution"><div class="v">5.2×</div><div class="k">Turnover per year <span class="prov file">accounts</span></div><div class="d down">▼ from 6.1× last year</div></div>
+    <div class="tile caution"><div class="v">70 days</div><div class="k">Average days on shelf <span class="prov file">accounts</span></div><div class="d down">▲ from 60 days</div></div>
+    <div class="tile caution"><div class="v">$46K</div><div class="k">Slow / obsolete stock</div><div class="d" style="color:#9c2323">14% of total holding</div></div>
+  </div>
+  <div class="cols" style="margin-top:18px">
+    <div class="panel">
+      <h3>Stock value by category</h3>
+      <svg viewBox="0 0 520 190" role="img" aria-label="Doughnut: stock value by category">
+        <g transform="translate(110 95) rotate(-90)">
+          <circle r="60" fill="none" stroke="#ebf4fa" stroke-width="28"/>
+          <circle r="60" fill="none" stroke="#002b64" stroke-width="28" stroke-dasharray="126.2 250.8" stroke-dashoffset="0"/>
+          <circle r="60" fill="none" stroke="#0070c0" stroke-width="28" stroke-dasharray="96 281" stroke-dashoffset="-128.2"/>
+          <circle r="60" fill="none" stroke="#00b1e0" stroke-width="28" stroke-dasharray="62.1 314.9" stroke-dashoffset="-226.2"/>
+          <circle r="60" fill="none" stroke="#7fd3f1" stroke-width="28" stroke-dasharray="31.9 345.1" stroke-dashoffset="-290.3"/>
+          <circle r="60" fill="none" stroke="#ff0000" stroke-width="28" stroke-dasharray="50.8 326.2" stroke-dashoffset="-324.2"/>
+        </g>
+        <g font-family="Open Sans" font-size="13" fill="#363636">
+          <rect x="230" y="30" width="12" height="12" fill="#002b64"/><text x="250" y="41">Product line A · 34%</text>
+          <rect x="230" y="58" width="12" height="12" fill="#0070c0"/><text x="250" y="69">Product line B · 26%</text>
+          <rect x="230" y="86" width="12" height="12" fill="#00b1e0"/><text x="250" y="97">Product line C · 17%</text>
+          <rect x="230" y="114" width="12" height="12" fill="#7fd3f1"/><text x="250" y="125">Consumables · 9%</text>
+          <rect x="230" y="142" width="12" height="12" fill="#ff0000"/><text x="250" y="153">Slow / obsolete · 14%</text>
+        </g>
+      </svg>
+    </div>
+    <div class="panel">
+      <h3>Stock ageing — how long items have been on the shelf ($'000)</h3>
+      <svg viewBox="0 0 520 190" role="img" aria-label="Horizontal bars: stock value by age band">
+        <g class="lab"><text x="96" y="34" text-anchor="end">180+ days</text><text x="96" y="66" text-anchor="end">91–180</text><text x="96" y="98" text-anchor="end">61–90</text><text x="96" y="130" text-anchor="end">31–60</text><text x="96" y="162" text-anchor="end">0–30 days</text></g>
+        <rect x="106" y="22" width="78" height="18" fill="#ff0000"/><text class="lab b" x="192" y="35">26</text>
+        <rect x="106" y="54" width="96" height="18" fill="#ff9900"/><text class="lab b" x="210" y="67">32</text>
+        <rect x="106" y="86" width="156" height="18" fill="#0070c0"/><text class="lab b" x="270" y="99">52</text>
+        <rect x="106" y="118" width="252" height="18" fill="#0070c0"/><text class="lab b" x="366" y="131">84</text>
+        <rect x="106" y="150" width="384" height="18" fill="#0070c0"/><text class="lab b" x="498" y="163">128</text>
+      </svg>
+    </div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data)</div><span class="pno">8</span>
+</section>
+
+<!-- 7 Benchmarks & Trends -->
+<section class="page">
+  <h2>Benchmarks &amp; Trends</h2>
+  <p class="sub">How you compare with similar businesses in your industry <span class="prov stats">Stats NZ</span> and with your own last three years <span class="prov file">From your accounts</span></p>
+  <div class="cols wide" style="margin-top:0">
+    <div class="panel">
+      <h3>You vs businesses of your size in your industry</h3>
+      <p class="small" style="margin:0 0 8px">Kitchenware wholesaling · small businesses by turnover · Stats NZ Business Performance Benchmarker 2025 (provisional) · accuracy: good</p>
+      <table style="font-size:13px">
+        <tr><th>Ratio</th><th class="n">You</th><th class="n">Industry median</th><th class="n">Middle half</th><th></th></tr>
+        <tr><td>Return on equity</td><td class="n">52%</td><td class="n">31%</td><td class="n pct">18% – 47%</td><td><span class="light g"></span>above</td></tr>
+        <tr><td>Gross profit ratio</td><td class="n">41%</td><td class="n">38%</td><td class="n pct">31% – 44%</td><td><span class="light g"></span>within</td></tr>
+        <tr><td>Return on total assets</td><td class="n">29%</td><td class="n">14%</td><td class="n pct">7% – 22%</td><td><span class="light g"></span>above</td></tr>
+        <tr><td>Liability structure</td><td class="n">45%</td><td class="n">58%</td><td class="n pct">41% – 72%</td><td><span class="light g"></span>within</td></tr>
+        <tr><td>Wages to turnover</td><td class="n">21%</td><td class="n">17%</td><td class="n pct">12% – 23%</td><td><span class="light a"></span>within, high</td></tr>
+        <tr><td>Quick ratio</td><td class="n">1.3</td><td class="n">1.1</td><td class="n pct">0.7 – 1.6</td><td><span class="light g"></span>within</td></tr>
+        <tr><td>Current ratio</td><td class="n">2.1</td><td class="n">1.6</td><td class="n pct">1.1 – 2.3</td><td><span class="light g"></span>within</td></tr>
+        <tr><td>Stock turnover per year</td><td class="n">5.2</td><td class="n">7.4</td><td class="n pct">5.5 – 10.1</td><td><span class="light c"></span>below</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="font-size:20px;color:var(--navy)">Three-year trend</h3>
+      <table style="font-size:13.5px">
+        <tr><th></th><th class="n">FY24</th><th class="n">FY25</th><th class="n" style="color:var(--blue)">FY26</th></tr>
+        <tr><td><b>Revenue</b></td><td class="n">$2.31M</td><td class="n">$2.53M</td><td class="n"><b>$2.84M</b> <span class="up">↑</span></td></tr>
+        <tr><td><b>Net profit</b></td><td class="n">$268K</td><td class="n">$335K</td><td class="n"><b>$396K</b> <span class="up">↑</span></td></tr>
+        <tr><td><b>Net margin</b></td><td class="n">11.6%</td><td class="n">13.2%</td><td class="n"><b>13.9%</b> <span class="up">↑</span></td></tr>
+        <tr><td><b>Stock turnover</b></td><td class="n">6.4×</td><td class="n">6.1×</td><td class="n"><b>5.2×</b> <span class="down">↓</span></td></tr>
+        <tr><td><b>Debtor days</b></td><td class="n">36</td><td class="n">38</td><td class="n"><b>43</b> <span class="down">↓</span></td></tr>
+      </table>
+      <p class="small" style="margin-top:10px">"Within" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like.</p>
+    </div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data)</div><span class="pno">9</span>
+</section>
+
+<!-- 8 Key Insights & Next Steps -->
+<section class="page dark">
+  <h2>Key Insights &amp; Next Steps</h2>
+  <p class="sub">The three priorities we recommend acting on this quarter <span class="prov typed" style="background:transparent;color:var(--caution)">Written by your advisor</span></p>
+  <div class="steps">
+    <div class="step"><div class="ic">▦</div><div><h3>Free up cash from stock</h3><p>Run down slow-moving lines ($46K) and trim reorder points on category C. Target: back to 60 days on hand — releasing roughly $45K in cash.</p></div></div>
+    <div class="step b"><div class="ic">↑</div><div><h3>Tighten up debtor collection</h3><p>Move key accounts to 14-day terms and automate reminders. Every 5 days faster releases about $39K.</p></div></div>
+    <div class="step c"><div class="ic">✦</div><div><h3>Protect the margin</h3><p>Review the top-10 supplier agreements before the next price round; wages are growing faster than sales.</p></div></div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Next review: December 2026 quarter &nbsp;·&nbsp; Prepared by Jordan Reid, Reid &amp; Partners &nbsp;·&nbsp; Sample data shown for mock-up purposes only</div><span class="pno">10</span>
+</section>
+
+<!-- 9 Optional page, added by the advisor -->
+<section class="page">
+  <h2>Economic &amp; Industry Outlook</h2>
+  <p class="sub">Conditions around your business, from public sources, every figure with its source and date <span class="prov ai">AI research · run 2 · approved by Jordan Reid, 6 Sep 2026</span></p>
+  <div class="cols wide" style="margin-top:0">
+    <div class="panel">
+      <p class="para"><b class="h">1. Global outlook</b>Global activity has remained resilient despite conflict and trade disruption, but energy prices and supply-chain effects are lifting import costs for small importers. Purchases from Italy and Germany are ordinarily euro-denominated, so the exchange rate is a direct cost driver. <span class="prov ai">RBNZ, 2 Sep 2026</span></p>
+      <p class="para"><b class="h">2. Local and regional outlook</b>The Official Cash Rate rose to 2.75% on 2 September 2026, from 2.50% in July, with inflation expected to stay above 3% for the rest of the year. Unemployment was 5.6% in the June 2026 quarter. <span class="prov ai">RBNZ · Stats NZ</span></p>
+      <p class="para"><b class="h">3. Sector outlook</b>The kitchen-hardware trade reports softer project volumes and longer trade-credit terms. <span class="prov ai">Industry association survey, 2026</span></p>
+      <p class="para"><b class="h">4. What this means for a business of this kind</b>Higher borrowing costs and slower household spending bear on a discretionary importer; the debtor and stock findings on page 7 sit inside that setting. No figure from your accounts is repeated here.</p>
+      <p class="para"><b class="h">5. What could not be sourced</b>New Zealand kitchen-hardware market size and growth, and average trade-credit terms for the sector.</p>
+    </div>
+    <div class="panel src">
+      <h3>Sources, in full</h3>
+      <ol>
+        <li>Reserve Bank of New Zealand, Monetary Policy Statement, 2 September 2026 · rbnz.govt.nz/monetary-policy/…</li>
+        <li>Stats NZ, Labour market statistics: June 2026 quarter · stats.govt.nz/information-releases/…</li>
+        <li>Stats NZ, 2023 Census place summaries: Nelson City · stats.govt.nz/tools/…</li>
+      </ol>
+      <p class="small" style="margin-top:12px">This page prints only on an advisor's recorded approval of a finished research run. Research nobody accepted never reaches a client.</p>
+    </div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data) · page added by your advisor</div><span class="pno">11</span>
+</section>
+
+<!-- Disclaimer -->
+<section class="page disc">
+  <h2>Important information</h2>
+  <p class="sub">Please read this page before acting on anything in this report <span class="ruling">Wording is a draft for Mike to rule</span></p>
+  <p><b>What this report is.</b> This report has been prepared by Reid &amp; Partners for Harbourside Kitchen Supplies Ltd from the financial records the business supplied for the period 1 July 2025 to 30 June 2026. It summarises and interprets those records to support a conversation between the business and its advisor.</p>
+  <p><b>What it is not.</b> It is not an audit, a review, or a verification of the underlying records, and it is not financial product advice, tax advice, legal advice, or a recommendation to borrow, lend, invest or restructure. Decisions of that kind should be taken with the appropriate professional advice for your circumstances.</p>
+  <p><b>Where the figures come from.</b> Each figure carries a mark showing its source: read from your accounting records, entered by your advisor, published by Stats NZ, or produced by AI research that your advisor has reviewed and approved. Figures read from your records are only as complete and accurate as those records. Figures entered by your advisor are their professional judgement. Ratios calculated in this report follow the definitions stated on the page they appear.</p>
+  <p><b>Industry comparisons.</b> Benchmark figures are from the Stats NZ Business Performance Benchmarker for the industry and size band shown, are for the year stated, and are medians and quartiles for a population of businesses. They are a guide to where a business sits, not a target and not a judgement. Stats NZ's own accuracy category for the figures is shown with them.</p>
+  <p><b>Business Health Score.</b> The score is a count of how many of the stated measures sit within the thresholds your advisor's firm uses, expressed out of 100, following the method of the Piotroski F-score. It is a summary of the pages before it and has no meaning beyond them.</p>
+  <p><b>Economic and industry research.</b> Where included, that page was produced by an AI research tool from public sources, each figure carrying its source and date, and was reviewed and approved by your advisor before inclusion. The advisor's firm does not warrant the accuracy of third-party sources.</p>
+  <p><b>Confidentiality.</b> This report is confidential to Harbourside Kitchen Supplies Ltd and its advisor and is not to be provided to any other party without the advisor's agreement, other than to a lender or professional adviser acting for the business.</p>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data)</div><span class="pno">12</span>
+</section>
+
+</div>
+</body>
+</html>

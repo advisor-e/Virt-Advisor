@@ -9,27 +9,36 @@
 
 ---
 
-## 2026-09-04 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-10 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite 7,809 green (406 suites) at the push gate. Started 0/0 against master; ended
-5 ahead / 0 behind after merging PR #58's 36 commits in. Everything pushed.
+Suite **9,541 green**, lint 0, build exit 0, everything pushed (`4f74f38`). **0 behind master**
+after merging the laptop's PR #71 in (13 conflicts, all side-by-side additions). **PR #70 is
+open**, desktop → master, and now carries the whole day. Nothing active on this machine.
 
-**4.62 slice 2 is COMPLETE — all ten routed screens save per client.** Loan Estimator,
-Quick Position, EBITDA/DCF and Volatility today, one commit each. Three new utilities hold
-the awkward shapes (`utils/*SavedShape.js`). Brief §5 says how each behaves.
+**🔴 MIKE'S INSTRUCTION FOR NEXT SESSION: "bring them to me".** Put these in front of him first:
 
-**Mike's ruling, 2026-09-04:** a file-sourced figure the client changed shows `client` IN
-PLACE of `from file`, never beside it; Restore brings the file tags back. Built on Quick
-Position; EBITDA/DCF and Volatility have no editable file figure after intake, so the rule
-is stated there, not built. Clients never see an upload step on any of the four.
+- **Release v0.11.0** — he wants one tag covering both machines. Step 2 of Integration is done
+  (master merged in); what remains is merge PR #70, build on master, notes, version bump,
+  ledger row, tag. Start from the live state, on his word.
+- **The three items that wait on us**, all the laptop's by its own handover: 4.83 Compliance
+  pages (score 5, approved, not started), 4.84 Notification dots, 4.85 One Handbook.
+- **The five that wait on him**: 4.15 (he settles the 18 names in UAT — never propose it),
+  4.58 §4 (staff consultation, lawyer per market, OpenAI letter), 4.78 / 4.81 / 4.82 (the
+  laptop's depreciation and tax work, built, needs his review in the app).
+- **4.86** waits on the master team's answer to email question 7 (adviser identity).
+- **Stale flag:** 4.78 still reads active on the laptop in master; the laptop's clearing
+  commit lands with its next push.
 
-**Merge notes:** `VolatilityReport.vue` took both sides (your VolatilityDial + my seam);
-`to-do-items.json` kept my 4.62 note and every item you filed (4.63–4.66).
+**Built today:** the client level of the Meeting Review pre-set (4.58) — one shared list per
+client, every entry named, no manager screen; five rulings on
+[`mockups/meeting-preset-client-level.html`](mockups/meeting-preset-client-level.html). A
+cannot-be-heard tick dropped in storage on the advisor level, fixed. Course Builder's live
+click-through completed. Search-content cascade confirmed complete on our side. Integration
+email gained question 7.
 
-**Next:** the Three-Way Forecast is the last screen for 4.62. It waits on 4.64 (active on
-the laptop, same intake and report files) — do not start it while that flag stands.
-4.59 (the "Added here" badge) is a one-line fix, still open. 🔴 Still not eyeballed:
-MySQL needs `MYSQL_PASSWORD` in `.env`.
+**He was going to open the app before the release**: `/meeting-preset`, pick Dev Client Ltd.
+Backend on Node 14.15 exact path with `ALLOW_DEV_AUTH=true`; frontend `nuxt start`.
 
-**LAPTOP:** none of your forecast files were touched today. `server/utils/savedReports.js`
-changed (string lists admitted) — additive.
+**LAPTOP:** shared files changed here today: `to-do-items.json`, `ARTEFACTS.md`,
+`MEETING-TYPES-CASCADE.md`, `meeting-review.md`, `server/routes/meetingReview.js` (presetFor
+takes a clientId), `server/routes/meetingObservations.js` (two lines), `restify-server.js`.

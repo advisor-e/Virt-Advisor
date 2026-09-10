@@ -1,0 +1,65 @@
+Industry_Division,Industry_ANZSIC_class_name,Ratio,Industry_ANZSIC_class_code,Value_min_range,Value_max_range,Value_median,Sizeband_name,Sizeband_min,Sizeband_max
+Accommodation and food services,Accommodation,Current ratio,H440000,0.24,2.25,0.82,Large,683001,10000000
+Accommodation and food services,Accommodation,Stock turnover per annum,H440000,n/a,n/a,n/a,Large,683001,10000000
+Accommodation and food services,Accommodation,Return on equity,H440000,0,0.58,0.19,Large,683001,10000000
+Accommodation and food services,Accommodation,Gross profit ratio,H440000,n/a,n/a,n/a,Large,683001,10000000
+Accommodation and food services,Accommodation,Return on total assets,H440000,0,0.14,0.04,Large,683001,10000000
+Accommodation and food services,Accommodation,Liability structure,H440000,0.03,0.63,0.27,Large,683001,10000000
+Accommodation and food services,Accommodation,Salaries and wages / turnover ratio,H440000,0.09,0.27,0.19,Large,683001,10000000
+Accommodation and food services,Accommodation,Quick ratio,H440000,0.22,2.17,0.76,Large,683001,10000000
+Accommodation and food services,Accommodation,Current ratio,H440000,0.11,2.09,0.46,Medium,268001,683000
+Accommodation and food services,Accommodation,Gross profit ratio,H440000,n/a,n/a,n/a,Medium,268001,683000
+Accommodation and food services,Accommodation,Liability structure,H440000,0,0.64,0.18,Medium,268001,683000
+Accommodation and food services,Accommodation,Quick ratio,H440000,0.1,2.02,0.44,Medium,268001,683000
+Accommodation and food services,Accommodation,Stock turnover per annum,H440000,n/a,n/a,n/a,Medium,268001,683000
+Accommodation and food services,Accommodation,Return on equity,H440000,0,0.44,0.09,Medium,268001,683000
+Accommodation and food services,Accommodation,Return on total assets,H440000,0,0.08,0.01,Medium,268001,683000
+Accommodation and food services,Accommodation,Salaries and wages / turnover ratio,H440000,0,0.21,0.09,Medium,268001,683000
+Accommodation and food services,Accommodation,Gross profit ratio,H440000,n/a,n/a,n/a,Micro,60000,120000
+Accommodation and food services,Accommodation,Liability structure,H440000,-0.02,0.88,0.2,Micro,60000,120000
+Accommodation and food services,Accommodation,Quick ratio,H440000,0.04,2.92,0.44,Micro,60000,120000
+Accommodation and food services,Accommodation,Current ratio,H440000,0.05,2.94,0.46,Micro,60000,120000
+Accommodation and food services,Accommodation,Return on equity,H440000,0,0.33,0.03,Micro,60000,120000
+Accommodation and food services,Accommodation,Return on total assets,H440000,-0.01,0.05,0,Micro,60000,120000
+Accommodation and food services,Accommodation,Salaries and wages / turnover ratio,H440000,0,0,0,Micro,60000,120000
+Accommodation and food services,Accommodation,Stock turnover per annum,H440000,n/a,n/a,n/a,Micro,60000,120000
+Accommodation and food services,Accommodation,Return on equity,H440000,0,0.3,0.04,Small,120001,268000
+Accommodation and food services,Accommodation,Gross profit ratio,H440000,n/a,n/a,n/a,Small,120001,268000
+Accommodation and food services,Accommodation,Return on total assets,H440000,0,0.06,0.01,Small,120001,268000
+Accommodation and food services,Accommodation,Liability structure,H440000,0,0.79,0.2,Small,120001,268000
+Accommodation and food services,Accommodation,Salaries and wages / turnover ratio,H440000,0,0.01,0,Small,120001,268000
+Accommodation and food services,Accommodation,Quick ratio,H440000,0.08,3.18,0.49,Small,120001,268000
+Accommodation and food services,Accommodation,Current ratio,H440000,0.08,3.28,0.51,Small,120001,268000
+Accommodation and food services,Accommodation,Stock turnover per annum,H440000,n/a,n/a,n/a,Small,120001,268000
+Accommodation and food services,Cafes and restaurants,Current ratio,H451100,0.23,1.41,0.64,Large,972001,10000000
+Accommodation and food services,Cafes and restaurants,Stock turnover per annum,H451100,20,57,34,Large,972001,10000000
+Accommodation and food services,Cafes and restaurants,Return on equity,H451100,0,0.74,0.22,Large,972001,10000000
+Accommodation and food services,Cafes and restaurants,Gross profit ratio,H451100,0.62,0.71,0.67,Large,972001,10000000
+Accommodation and food services,Cafes and restaurants,Return on total assets,H451100,0,0.19,0.04,Large,972001,10000000
+Accommodation and food services,Cafes and restaurants,Liability structure,H451100,-0.03,0.5,0.15,Large,972001,10000000
+Accommodation and food services,Cafes and restaurants,Salaries and wages / turnover ratio,H451100,0.27,0.42,0.36,Large,972001,10000000
+Accommodation and food services,Cafes and restaurants,Quick ratio,H451100,0.16,1.26,0.53,Large,972001,10000000
+Accommodation and food services,Cafes and restaurants,Current ratio,H451100,0.14,1.22,0.42,Medium,506001,972000
+Accommodation and food services,Cafes and restaurants,Gross profit ratio,H451100,0.59,0.7,0.65,Medium,506001,972000
+Accommodation and food services,Cafes and restaurants,Liability structure,H451100,-0.19,0.42,0.02,Medium,506001,972000
+Accommodation and food services,Cafes and restaurants,Quick ratio,H451100,0.09,1,0.33,Medium,506001,972000
+Accommodation and food services,Cafes and restaurants,Stock turnover per annum,H451100,18,56,32,Medium,506001,972000
+Accommodation and food services,Cafes and restaurants,Return on equity,H451100,0,0.65,0.13,Medium,506001,972000
+Accommodation and food services,Cafes and restaurants,Return on total assets,H451100,-0.05,0.12,0,Medium,506001,972000
+Accommodation and food services,Cafes and restaurants,Salaries and wages / turnover ratio,H451100,0.24,0.42,0.34,Medium,506001,972000
+Accommodation and food services,Cafes and restaurants,Gross profit ratio,H451100,0.52,0.71,0.62,Micro,60000,249000
+Accommodation and food services,Cafes and restaurants,Liability structure,H451100,-0.6,0.46,0,Micro,60000,249000
+Accommodation and food services,Cafes and restaurants,Quick ratio,H451100,0.04,1,0.2,Micro,60000,249000
+Accommodation and food services,Cafes and restaurants,Current ratio,H451100,0.07,1.1,0.27,Micro,60000,249000
+Accommodation and food services,Cafes and restaurants,Return on equity,H451100,0,0.92,0.1,Micro,60000,249000
+Accommodation and food services,Cafes and restaurants,Return on total assets,H451100,-0.27,0.07,0,Micro,60000,249000
+Accommodation and food services,Cafes and restaurants,Salaries and wages / turnover ratio,H451100,0,0.3,0.11,Micro,60000,249000
+Accommodation and food services,Cafes and restaurants,Stock turnover per annum,H451100,9,38,20,Micro,60000,249000
+Accommodation and food services,Cafes and restaurants,Return on equity,H451100,0,0.66,0.1,Small,249001,506000
+Accommodation and food services,Cafes and restaurants,Gross profit ratio,H451100,0.58,0.69,0.64,Small,249001,506000
+Accommodation and food services,Cafes and restaurants,Return on total assets,H451100,-0.12,0.09,0,Small,249001,506000
+Accommodation and food services,Cafes and restaurants,Liability structure,H451100,-0.36,0.38,0,Small,249001,506000
+Accommodation and food services,Cafes and restaurants,Salaries and wages / turnover ratio,H451100,0.16,0.39,0.29,Small,249001,506000
+Accommodation and food services,Cafes and restaurants,Quick ratio,H451100,0.06,0.9,0.26,Small,249001,506000
+Accommodation and food services,Cafes and restaurants,Current ratio,H451100,0.11,1.06,0.35,Small,249001,506000
+Accommodation and food services,Cafes and restaurants,Stock turnover per annum,H451100,14,45,26,Small,249001,506000

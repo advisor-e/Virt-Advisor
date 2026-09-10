@@ -129,6 +129,25 @@ describe('savedReport — saving', () => {
     await w.vm.saveReport()
     expect(global.fetch).not.toHaveBeenCalled()
   })
+
+  it('an empty row is not sent — the screen says a step must be confirmed first (4.69)', async () => {
+    // The store refuses a row with no figures, and the generic failure it produced told the
+    // advisor to try again, which could never work. Ruled by Mike 2026-09-07.
+    window.localStorage.setItem('advisor_e_token', 'tok')
+    window.localStorage.setItem('advisor_e_role', 'firm_manager')
+    global.fetch = jest.fn(() => respond(200, { success: true, report: null, clientChanges: [] }))
+    const w = mount()
+    await settle(w)
+    w.vm.onReportClient({ clientId: 'c-1', clientName: 'Big Bird Bakery' })
+    await settle(w)
+    global.fetch.mockClear()
+    w.vm.f = {}
+    await w.vm.saveReport()
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(w.vm.savedReport.notice).toBe('clientReports.saved.nothingYet')
+    expect(w.vm.savedReport.error).toBe('')
+    expect(w.vm.savedReport.busy).toBe(false)
+  })
 })
 
 describe('savedReport — restore and the badge list', () => {
