@@ -47,10 +47,13 @@ it, do not perform it unasked.
    EXISTING Handbook artifact (pass its URL — never create a second one), open that URL
    in Mike's browser, and give him the link in your reply.
 
-   Why this is a step and not a courtesy: the Handbook is rebuilt from committed markdown
-   every time, so doing it here means the page **cannot** drift from the repository. It
-   also means overwriting the published version is always safe. If the build reports a
-   page under "Unlisted", say so — the index has forgotten a page.
+   Why this is a step and not a courtesy: the Handbook is rebuilt from `origin/master`
+   every time — not from this machine's branch — so both machines publish the same page
+   and neither can erase the other's features (item 4.85). Overwriting the published
+   version is therefore always safe. The line under the title says which master commit it
+   came from and how many commits each machine still holds beyond it; read those counts
+   out. If the build reports a page under "Unlisted", say so — the index has forgotten a
+   page.
 
 4. **What is open?** Read **`design/features/to-do-items.json`** — the ten live items
    themselves — and **BOTH handover notes**: `design/HANDOVER-desktop.md` and

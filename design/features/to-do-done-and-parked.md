@@ -185,6 +185,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.85 — One Handbook both machines update, built from master.**
+✅ Closed 2026-09-10 by Mike, on the desktop — *"yes"* to the proposal, then *"yes"* to commit.
+
+- **Why it mattered:** each machine built the Handbook from its own branch and published it to the
+  one shared link, so the last to run startup silently erased the other's features. On 2026-09-10
+  Mike opened a page with Depreciation Rates and Tax Rates missing entirely, and nothing said so.
+- **What was done:** [`build-handbook.js`](../../scripts/build-handbook.js) reads the pages, the
+  index and the live list from `origin/master`, never from the working folder, and refuses to build
+  if master has not been fetched rather than falling back. One line under the title, in Mike's
+  approved wording, names the master commit and how many commits each machine holds beyond it,
+  from the same git counts `check:branch` prints. `--working-tree` gives a preview that says it is
+  one. The Brief, the startup command and the Working Agreement each had their sentence replaced.
+- **What proves it:** six checks in
+  [`buildHandbook.test.js`](../../tests/unit/buildHandbook.test.js) — the hash is master's, the
+  page list is master's, the per-machine counts match git, a bad ref throws. None pins wording.
+  Suite 9,700 green.
+- **The cost, accepted:** a feature appears on the Handbook once its pull request has landed. The
+  banner shows that drift instead of hiding it.
+
 **4.80 — "Global manager" is the old name and it is still in 45 places.**
 ✅ Closed 2026-09-10 by Mike, on the desktop, in one commit — `51a46a4`.
 

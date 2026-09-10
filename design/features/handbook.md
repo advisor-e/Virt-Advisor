@@ -10,7 +10,7 @@ begins as a page in it before any code is written.
 
 | | |
 |---|---|
-| **The content** | Every `*.md` file in [`design/features/`](README.md), plus any document in `design/` that the index lists with a `../` row — read where it lies, never moved. |
+| **The content** | Every `*.md` file in [`design/features/`](README.md), plus any document in `design/` that the index lists with a `../` row — read where it lies, never moved. **Read from `origin/master`, not from the machine's own branch** (Mike, 2026-09-10, item 4.85), so both machines build the same page; a feature appears here once its pull request has landed. A line under the title names the master commit and what each machine still holds beyond it. `npm run handbook -- --working-tree` previews unmerged pages and says so on the page. |
 | **The navigation** | Read from [`README.md`](README.md) — its headings are the groups, its table rows the entries. |
 | **The design** | [`scripts/handbook-shell.html`](../../scripts/handbook-shell.html) — an approved artefact. |
 | **The generator** | [`scripts/build-handbook.js`](../../scripts/build-handbook.js), run with `npm run handbook`. |
@@ -96,8 +96,9 @@ Save and send them before switching machines.
 ## 4. How it opens
 
 [`/startup`](../../.claude/commands/startup.md) builds it, republishes it, opens it, and hands
-over the link. Because it is rebuilt from committed markdown every session, the page cannot drift
-from the repository — and overwriting the published version is therefore always safe.
+over the link. Because it is rebuilt from `origin/master` every session, the page cannot drift
+from the repository and neither machine can overwrite the other's work — so republishing is
+always safe.
 
 [`/shutdown`](../../.claude/commands/shutdown.md) updates it first, into **three write-targets and
 only three** (Mike's ruling, 2026-08-24 — it used to be seven, and six copies of a fact are six

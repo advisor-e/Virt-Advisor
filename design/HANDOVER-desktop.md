@@ -9,28 +9,29 @@
 
 ---
 
-## 2026-09-10 (close) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-10 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**🔴 v0.11.0 IS CUT AND PUSHED** — tag on `0f0fdab`, the merge of PR #75, on Mike's word.
-484 commits from both machines since v0.10.0. Ledger row backfilled; notes at
-[`RELEASE-NOTES-v0.11.0.md`](RELEASE-NOTES-v0.11.0.md). **Awaiting the master team's pull** —
-when it lands, the deployment row is the next thing to write. The notes carry the one thing
-they must not miss: `npm install` with **npm 8 on Node 14.15**, engine-strict is on.
+**Built and closed today: 4.85 — the Handbook is built from `origin/master`.** Both
+machines now publish the same page, neither can erase the other's features, and the line
+under the title names the master commit and how many commits each machine holds beyond it.
+`npm run handbook -- --working-tree` previews unmerged pages and says so on the page.
+Closure on [`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
 
-Suite **9,694 green** (471 suites), lint 0, build exit 0. Both branches level with master,
-tree clean, everything pushed. Nothing active on this machine except 4.87's flag (below).
+**The consequence for both machines:** a feature shows on the Handbook once its pull
+request has landed, not when it is pushed. Read the banner's counts out at startup.
 
-**Next session, bring to Mike first** (his instruction): the two open decisions on **4.87
-Outcome Learning** — the evidence floor, and hold-back only or both directions — then
-`/speckit-clarify` on his yes. Its `activeOn` is the desktop. The three items waiting on us
-(4.83 built by the laptop and merged, 4.84, 4.85) and the five waiting on him are unchanged.
+Suite **9,700 green** (471 suites). Tree clean once this commit lands. Nine live items.
+Nothing active on this machine except 4.87's flag (below).
 
-**Built today:** the client level of the Meeting Review pre-set; the Course Builder live
-click-through; a Code Size page recomputed on every Handbook build; the Founder's Claims Audit
-and the Outcome Learning task on one Handbook page, with the spec at
-`specs/002-outcome-learning`; question 7 on the integration email; 4.86 filed; five stale
-sentences corrected; two small fixes (a dropped cannot-be-heard flag, a log line). The
-Handbook's tests no longer rewrite the Code Size record.
+**v0.11.0** is cut on `0f0fdab`, awaiting the master team's pull; the ledger row is the next
+thing to write when it lands.
 
-**LAPTOP:** master moved four times today (PRs #70, #73, #74, #75); merge it in at startup.
-Nothing of yours was touched after your PR #72.
+**Next session, bring to Mike first** (his instruction of 2026-09-10): the two open decisions
+on **4.87 Outcome Learning** — the evidence floor, and hold-back only or both directions —
+then `/speckit-clarify` on his yes. Its `activeOn` is the desktop. Then **4.84**, the hub
+notification dots, which is unblocked and waits on us.
+
+**LAPTOP:** none of your files were touched. `scripts/build-handbook.js`,
+`scripts/handbook-shell.html`, the Handbook Brief, `.claude/commands/startup.md` and
+`WORKING-AGREEMENT.md` changed; merge `master` in at startup and your next
+`npm run handbook` will carry the banner.

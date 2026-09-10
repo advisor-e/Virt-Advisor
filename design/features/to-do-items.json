@@ -206,27 +206,6 @@
       "comment": "2026-09-10 - filed on Mike's yes as a SEPARATE item from 4.83 rather than inside it. It is general hub machinery every tab gains from and would be worth building even if Compliance never shipped; buried inside a compliance feature, nobody looking for it later would find it."
     },
     {
-      "ref": "4.85",
-      "name": "One Handbook both machines update, built from master",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 1,
-      "scoreReason": "internal only",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The Handbook is built from whichever branch a machine is on and published to one shared page, so it shows the last machine to run startup and silently omits the other's work.",
-      "risk": "On 2026-09-10 Mike opened a Handbook with Depreciation Rates and Tax Rates missing entirely - zero mentions of two features this laptop built and pushed - and nothing on the page said so. A session reading it could conclude a built feature needs building, which is how 4.16's wasted work started.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-10 - 'i want both machines to update a single handbook', after being shown that the published page was the desktop's and was missing two of the laptop's features."
-      },
-      "touches": "scripts/build-handbook.js, which reads design/features from the working tree; the startup and shutdown skills that publish it; and check-branch-state.js, whose ahead/behind counts the banner would use.",
-      "note": "NOT BUILT. Recommended shape, which Mike said yes to FILING rather than to building: build from master rather than the working branch, so both machines produce a byte-identical page and neither can overwrite the other. A banner names what each machine holds that master does not, from the counts check:branch already computes. THE COST IS REAL - master is 36 behind the laptop and 51 behind the desktop today, so a master-built Handbook shows neither machine's recent work until both merge, which is the drift becoming visible rather than hidden. A naive union of both branches was REJECTED: both machines edit to-do-items.json, so newest-wins would silently drop one machine's items from the live list.",
-      "comment": "2026-09-10 - found at shutdown while checking whether republishing would overwrite edits Mike had made in the browser. He had made none: the page was the desktop's, rebuilt from its own branch that morning. SCORED 1 BY THE LIST'S OWN TEST - no customer ever sees the Handbook - and filed anyway because he asked for it. His order decides where it sits, not the score; the 4.13 lesson is that a finder's score is an opinion wearing a number."
-    },
-    {
       "ref": "4.86",
       "name": "Adviser Network runs on nine invented people and forgets every decision in production",
       "rankedByMike": false,

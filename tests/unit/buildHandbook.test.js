@@ -19,6 +19,8 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
+const { execFileSync } = require('child_process')
+
 const builder = require('../../scripts/build-handbook')
 
 const ROOT = path.join(__dirname, '..', '..')
@@ -34,7 +36,8 @@ describe('the Handbook', () => {
   beforeAll(() => {
     shell = fs.readFileSync(SHELL_PATH, 'utf8')
     outPath = path.join(os.tmpdir(), 'handbook-test-' + process.pid + '.html')
-    result = builder.build(outPath)
+    // The working tree, so a Brief edited on this branch is what these tests see.
+    result = builder.build(outPath, { source: builder.WORKING_TREE })
     html = fs.readFileSync(outPath, 'utf8')
   })
 
@@ -313,6 +316,68 @@ describe('the Handbook', () => {
 
     it('returns null when a page has no companion', () => {
       expect(builder.companionOf('model-library', new Set())).toBeNull()
+    })
+  })
+
+  // Item 4.85 (Mike, 2026-09-10): both machines publish to one page, so the content
+  // must come from origin/master, not whichever branch a machine is standing on.
+  // These check the data on the banner, never its wording: a wrong hash or a wrong
+  // count is what a reader could not see on screen.
+  describe('the shared page is built from origin/master', () => {
+    const gitOut = args => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim()
+    let masterResult
+    let masterHtml
+    let masterOut
+
+    beforeAll(() => {
+      masterOut = path.join(os.tmpdir(), 'handbook-master-test-' + process.pid + '.html')
+      masterResult = builder.build(masterOut)
+      masterHtml = fs.readFileSync(masterOut, 'utf8')
+    })
+
+    afterAll(() => {
+      if (fs.existsSync(masterOut)) {
+        fs.unlinkSync(masterOut)
+      }
+    })
+
+    it('defaults to origin/master', () => {
+      expect(builder.DEFAULT_SOURCE).toBe('origin/master')
+      expect(masterResult.source).toBe('origin/master')
+    })
+
+    it('names the commit it was built from, and that commit is origin/master', () => {
+      expect(masterResult.built.hash).toBe(gitOut(['rev-parse', '--short', 'origin/master']))
+      expect(masterHtml).toContain('<span class="built">' + masterResult.built.text)
+      expect(masterResult.built.text).toContain(masterResult.built.hash)
+    })
+
+    it('reads master\'s pages, not this folder\'s', () => {
+      const onMaster = gitOut(['ls-tree', '--name-only', 'origin/master:design/features'])
+        .split(/\r?\n/).filter(name => name.endsWith('.md'))
+      expect(masterResult.files.sort()).toEqual(onMaster.sort())
+    })
+
+    it('counts what each machine holds beyond master, from git', () => {
+      const machines = masterResult.built.machines.map(m => m.machine).sort()
+      expect(machines).toEqual(['desktop', 'laptop'])
+      masterResult.built.machines.forEach((m) => {
+        const expected = (() => {
+          try { return parseInt(gitOut(['rev-list', '--count', 'origin/master..origin/' + m.branch]), 10) } catch (err) { return null }
+        })()
+        expect(m.ahead).toBe(expected)
+      })
+    })
+
+    it('refuses to build from a ref that does not exist, rather than falling back', () => {
+      expect(() => builder.build(masterOut, { source: 'origin/no-such-branch' }))
+        .toThrow(/cannot resolve git ref/)
+    })
+
+    it('the working-tree build says it is a preview', () => {
+      expect(result.source).toBe(builder.WORKING_TREE)
+      expect(result.built.hash).toBeNull()
+      expect(html).toContain('<span class="built">' + result.built.text)
     })
   })
 

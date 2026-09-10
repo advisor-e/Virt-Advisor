@@ -5,7 +5,7 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-10 at commit `1443550`.**
+> **Measured 2026-09-10 at commit `71af377`.**
 
 **Working code: 84,918 lines** across 419 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
@@ -32,7 +32,7 @@ comment lines stripped; tests, design documents, data, scripts and locale string
 **Beside the code, and not counted in it:**
 
 - **Comments and documentation** inside those same files: 43,330 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 481 files, 80,443 lines of test code.
+- **Tests**: 481 files, 80,493 lines of test code.
 - **Locale strings**: 5,082 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 
