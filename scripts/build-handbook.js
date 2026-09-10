@@ -25,8 +25,16 @@
  *  3. The original substituted its slots with String.replace, which fills the
  *     FIRST match only. See substitute().
  *
- * Run:  npm run handbook            (writes to the OS temp directory)
- *       npm run handbook -- <path>  (writes where you say)
+ * Run:  npm run handbook                   (content from origin/master, to the OS temp directory)
+ *       npm run handbook -- <path>         (writes where you say)
+ *       npm run handbook -- --working-tree (content from this folder — a preview of unmerged pages)
+ *
+ * THE CONTENT COMES FROM origin/master, NOT THIS FOLDER (item 4.85, 2026-09-10).
+ * Two machines each published their own branch to the one shared page, so the last
+ * to run startup silently erased the other's features. Built from master, both
+ * produce the same page, and a line under the title says what each machine still
+ * holds beyond it. The shell and this script are the tool and stay the working
+ * tree's; the pages, the index and the live list are the content and are master's.
  *
  * Then publish the written file as an Artifact, updating the EXISTING handbook
  * URL rather than creating a second one.
@@ -53,16 +61,29 @@
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
+const { execFileSync } = require('child_process')
+const { MACHINE_BY_BRANCH } = require('./active-items')
 
 const ROOT = path.join(__dirname, '..')
-const DESIGN_DIR = path.join(ROOT, 'design')
-const FEATURES_DIR = path.join(DESIGN_DIR, 'features')
 const SHELL_PATH = path.join(__dirname, 'handbook-shell.html')
 const INDEX_SLUG = 'README'
 
+/** Where the content lives, relative to the repository root. */
+const DESIGN_REL = 'design'
+const FEATURES_REL = 'design/features'
+
 /** The page whose ranked table becomes the ranking control. */
 const QUEUE_SLUG = 'to-do'
-const QUEUE_DATA_PATH = path.join(FEATURES_DIR, 'to-do-items.json')
+const QUEUE_DATA_REL = FEATURES_REL + '/to-do-items.json'
+
+/**
+ * The content is read from here unless told otherwise (item 4.85, Mike 2026-09-10:
+ * "i want both machines to update a single handbook"). Two machines each publishing
+ * their own branch to one shared page meant the last to run startup silently erased
+ * the other's features. Built from master, both produce the same page.
+ */
+const DEFAULT_SOURCE = 'origin/master'
+const WORKING_TREE = 'working-tree'
 
 const DEFAULT_OUT = path.join(os.tmpdir(), 'advisor-e-handbook.html')
 
@@ -70,7 +91,92 @@ const MarkdownIt = require(path.join(ROOT, 'node_modules', 'markdown-it'))
 const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
 
 /** The shell's substitution slots. Each must appear EXACTLY once — see substitute(). */
-const PLACEHOLDERS = ['<!--NAV-->', '<!--PAGES-->', '<!--COUNT-->', '<!--QUEUE-->']
+const PLACEHOLDERS = ['<!--NAV-->', '<!--PAGES-->', '<!--COUNT-->', '<!--QUEUE-->', '<!--BUILT-->']
+
+// ── Where the content comes from ───────────────────────────────────────────
+
+function git (args) {
+  return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim()
+}
+
+function gitSafe (args) {
+  try { return git(args) } catch (err) { return null }
+}
+
+/**
+ * A content source: the same three questions answered either by the working
+ * folder or by a git ref, so build() need not know which it is talking to.
+ *
+ * The git source refuses to build when the ref cannot be resolved. A silent fall
+ * back to the working folder would reproduce the very fault 4.85 records, one
+ * machine at a time and with a banner claiming otherwise.
+ *
+ * @param {string} name  'working-tree', or a git ref such as 'origin/master'
+ * @returns {{name: string, list: function(string): string[], read: function(string): string}}
+ */
+function contentSource (name) {
+  if (name === WORKING_TREE) {
+    return {
+      name,
+      list: rel => fs.readdirSync(path.join(ROOT, rel)),
+      read: rel => fs.readFileSync(path.join(ROOT, rel), 'utf8')
+    }
+  }
+  if (gitSafe(['rev-parse', '--verify', '--quiet', name + '^{commit}']) === null) {
+    throw new Error(
+      'Handbook: cannot resolve git ref "' + name + '". Run `git fetch origin` first, or pass ' +
+      '--working-tree to build a preview from this folder instead.'
+    )
+  }
+  return {
+    name,
+    list: rel => git(['ls-tree', '--name-only', name + ':' + rel]).split(/\r?\n/).filter(Boolean),
+    read: rel => git(['show', name + ':' + rel])
+  }
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** '2026-09-10' → '10 Sep 2026'. */
+function shortDate (iso) {
+  const parts = String(iso).split('-')
+  if (parts.length !== 3) return iso
+  return parseInt(parts[2], 10) + ' ' + (MONTHS[parseInt(parts[1], 10) - 1] || parts[1]) + ' ' + parts[0]
+}
+
+/**
+ * What the page was built from, and what each machine still holds beyond it.
+ *
+ * The counts are the ones check-branch-state prints; a machine whose branch is not
+ * on the remote is reported as unknown rather than as zero, because zero is a
+ * claim and unknown is the truth.
+ *
+ * @param {{name: string}} source
+ * @returns {{hash: string|null, date: string|null, machines: Array<{machine: string,
+ *   branch: string, ahead: number|null}>, text: string}}
+ */
+function provenance (source) {
+  if (source.name === WORKING_TREE) {
+    const branch = gitSafe(['rev-parse', '--abbrev-ref', 'HEAD']) || 'unknown branch'
+    return {
+      hash: null,
+      date: null,
+      machines: [],
+      text: 'Built from the working tree on ' + branch + ' · a preview, not the shared page'
+    }
+  }
+  const hash = git(['rev-parse', '--short', source.name])
+  const date = git(['log', '-1', '--format=%cs', source.name])
+  const machines = Object.keys(MACHINE_BY_BRANCH).map((branch) => {
+    const count = gitSafe(['rev-list', '--count', source.name + '..origin/' + branch])
+    return { machine: MACHINE_BY_BRANCH[branch], branch, ahead: count === null ? null : parseInt(count, 10) }
+  })
+  const label = source.name.replace(/^origin\//, '')
+  const text = 'Built from ' + label + ' ' + hash + ', ' + shortDate(date) +
+    machines.map(m => ' · ' + m.machine + ' holds ' +
+      (m.ahead === null ? 'an unknown number of' : String(m.ahead)) + ' commits ' + label + ' does not').join('')
+  return { hash, date, machines, text }
+}
 
 /**
  * Replaces a slot in the shell, refusing to guess when the slot is not where it
@@ -327,10 +433,10 @@ function mountQueue (html) {
  * the build with a JSON error, instead of producing a Handbook whose control is
  * silently empty.
  *
+ * @param {{items: Array}} data  the parsed list
  * @returns {string} a JSON data island
  */
-function renderQueueData () {
-  const data = JSON.parse(fs.readFileSync(QUEUE_DATA_PATH, 'utf8'))
+function renderQueueData (data) {
 
   // `<` cannot survive raw inside a script element — a `</script>` in any string
   // would end the island early. It only ever occurs inside JSON string values,
@@ -389,17 +495,31 @@ function renderNavLink (item) {
 
 // ── Assembly ───────────────────────────────────────────────────────────────
 
-function build (outPath) {
+/**
+ * Assemble the Handbook.
+ *
+ * @param {string} outPath  where the page is written
+ * @param {{source?: string}} [options]  `source` is 'working-tree' or a git ref;
+ *   the default is origin/master so both machines build the same page (4.85)
+ * @returns {object} what was built, for the console report and the tests
+ */
+function build (outPath, options) {
+  const source = contentSource((options && options.source) || DEFAULT_SOURCE)
+
   // The Code Size record is recomputed before any page is read, so the Handbook can never
   // show a figure older than the build that carries it (Mike, 2026-09-10: a rolling summary).
   // Skipped under Jest: the Handbook tests call build(), and a test must not rewrite a tracked file.
-  if (!process.env.JEST_WORKER_ID) { require("./count-code").writeRecord(ROOT) }
+  // A master build still writes it — that is how the fresh figure reaches master on the next
+  // merge — but renders master's committed copy, like every other page.
+  if (!process.env.JEST_WORKER_ID) { require('./count-code').writeRecord(ROOT) }
 
-  const files = fs.readdirSync(FEATURES_DIR).filter(name => name.endsWith('.md'))
+  const files = source.list(FEATURES_REL).filter(name => name.endsWith('.md'))
   const known = new Set(files.map(name => name.replace(/\.md$/, '')))
-  const read = page => fs.readFileSync(
-    path.join(page.source === 'design' ? DESIGN_DIR : FEATURES_DIR, page.file), 'utf8'
+  const read = page => source.read(
+    (page.source === 'design' ? DESIGN_REL : FEATURES_REL) + '/' + page.file
   )
+  const queueData = JSON.parse(source.read(QUEUE_DATA_REL))
+  const built = provenance(source)
 
   const groups = parseIndex(read({ source: 'features', file: INDEX_SLUG + '.md' }))
 
@@ -454,7 +574,8 @@ function build (outPath) {
     '<!--NAV-->': nav,
     '<!--PAGES-->': allPages.map(page => renderPage(page, read, designPages)).join(''),
     '<!--COUNT-->': String(allPages.length),
-    '<!--QUEUE-->': renderQueueData()
+    '<!--QUEUE-->': renderQueueData(queueData),
+    '<!--BUILT-->': escapeHtml(built.text)
   }
 
   const html = PLACEHOLDERS.reduce(
@@ -465,13 +586,15 @@ function build (outPath) {
   fs.writeFileSync(outPath, html, 'utf8')
 
   return {
+    source: source.name,
+    built,
     pages: allPages,
     groups: navGroups,
     unlisted,
     designPages,
     files,
     outPath,
-    queueItems: JSON.parse(fs.readFileSync(QUEUE_DATA_PATH, 'utf8')).items.length,
+    queueItems: queueData.items.length,
     bytes: Buffer.byteLength(html)
   }
 }
@@ -479,16 +602,21 @@ function build (outPath) {
 // ── Console report ─────────────────────────────────────────────────────────
 
 if (require.main === module) {
-  const outPath = process.argv[2] ? path.resolve(process.argv[2]) : DEFAULT_OUT
-  const result = build(outPath)
+  const args = process.argv.slice(2)
+  const fromWorkingTree = args.indexOf('--working-tree') !== -1
+  const outArg = args.filter(arg => arg !== '--working-tree')[0]
+  const outPath = outArg ? path.resolve(outArg) : DEFAULT_OUT
+  const result = build(outPath, { source: fromWorkingTree ? WORKING_TREE : DEFAULT_SOURCE })
 
   const gated = result.pages.filter(page => page.companion).length
   const navCount = result.groups.reduce((total, group) => total + group.items.length, 0)
 
   console.log('')
   console.log('Advisor-e Handbook built.')
+  console.log('  ' + result.built.text)
   console.log('  ' + result.pages.length + ' feature pages, ' + gated + ' with a history behind the gate')
-  console.log('  ' + result.files.length + ' markdown files read from design/features/')
+  console.log('  ' + result.files.length + ' markdown files read from design/features/ on ' +
+    (result.source === WORKING_TREE ? 'this machine\'s working tree' : result.source))
   console.log('  ' + result.groups.length + ' navigation groups, ' + navCount + ' entries, read from ' + INDEX_SLUG + '.md')
   console.log('  ' + result.queueItems + ' ranked items on the To-Do page, as a control rather than a table')
   console.log('  ' + Math.round(result.bytes / 1024) + ' KB written to ' + result.outPath)
@@ -514,5 +642,9 @@ module.exports = {
   stripMarkers,
   substitute,
   mountQueue,
-  PLACEHOLDERS
+  contentSource,
+  provenance,
+  PLACEHOLDERS,
+  DEFAULT_SOURCE,
+  WORKING_TREE
 }

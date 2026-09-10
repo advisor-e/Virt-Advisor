@@ -77,8 +77,9 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
 2. **How far off master am I?** — `npm run check:branch`. *Behind* is the number that
    matters. This is the step that catches drift at 3 commits instead of 97.
 3. **Open the Handbook** — `npm run handbook`, republished to its existing link and opened
-   in the browser. Because it is rebuilt from committed markdown every session, the page
-   cannot drift from the repository, and the link never needs re-sending.
+   in the browser. It is rebuilt from `origin/master` every session, not from the machine's
+   own branch, so both machines publish the same page, neither can overwrite the other, and
+   the link never needs re-sending. A feature shows there once its pull request has landed.
 4. **What is open?** — [`features/to-do-items.json`](features/to-do-items.json), which *is*
    the live list, and **both handover notes** —
    [`HANDOVER-desktop.md`](HANDOVER-desktop.md) and [`HANDOVER-laptop.md`](HANDOVER-laptop.md),

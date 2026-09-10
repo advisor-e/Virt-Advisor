@@ -76,6 +76,7 @@
   .brand { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
   .brand b { color: var(--ink); font-size: 16px; letter-spacing: -.01em; }
   .brand span { color: var(--muted); font-size: 12px; }
+  .brand .built { font-size: 11px; line-height: 1.4; margin-top: 4px; }
 
   .filter {
     width: 100%; font: inherit; font-size: 13.5px; padding: 8px 10px;
@@ -459,6 +460,7 @@
     <div class="brand">
       <b>Advisor-e Handbook</b>
       <span><!--COUNT--> features · rules first, history behind the gate</span>
+      <span class="built"><!--BUILT--></span>
     </div>
     <button class="railtoggle" id="railtoggle" type="button">Browse features</button>
     <input class="filter" id="filter" type="search" placeholder="Filter features…" aria-label="Filter features">
