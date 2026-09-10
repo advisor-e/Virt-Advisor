@@ -47,6 +47,7 @@ can be read in one place — the Handbook does not move them.*
 | [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
 | [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
 | [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
+| [Outcome Learning](outcome-learning.md) — the platform gets smarter with use, across firms that consent | [history](outcome-learning-history.md) |
 
 ## Hub pages — mentor & firm
 
