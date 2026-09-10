@@ -410,6 +410,7 @@ describe('history and restore', () => {
  */
 
 const PROPOSALS_KEY = 'depreciation-proposals'
+const BUDGET_KEY = 'ai-document-loads'
 
 /** What the store holds for this firm, per config key. */
 function storedByKey (map) {
@@ -569,7 +570,9 @@ describe('loading a document', () => {
     const res = makeRes()
     await routes.loadDocument(makeReq(), res)
     expect(res._status).toBe(400)
-    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+    // No PROPOSAL is recorded. The reading itself is still spent against the firm's cap,
+    // because the model was still paid to tell us the country was wrong (item 4.82).
+    expect(savedFor(PROPOSALS_KEY)).toBeNull()
   })
 
   test('a network fault records nothing — it is not the document that failed', async () => {
@@ -580,7 +583,7 @@ describe('loading a document', () => {
     const res = makeRes()
     await routes.loadDocument(makeReq(), res)
     expect(res._status).toBe(502)
-    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+    expect(savedFor(PROPOSALS_KEY)).toBeNull()
   })
 
   test('the read is asked for THIS scope, never one from the body', async () => {
@@ -589,6 +592,69 @@ describe('loading a document', () => {
       .mockResolvedValue({ ok: true, code: null, message: null, reading: READING })
     await routes.loadDocument(makeReq(), makeRes())
     expect(spy.mock.calls[0][0].scopeId).toBe(FIRM)
+  })
+
+  // ── The cap on paid readings — item 4.82 ───────────────────────────────────
+  // The counting itself is proved in tests/unit/aiLoadBudget.test.js. What matters HERE is
+  // only that the route consults it, and that it does so BEFORE the model is called.
+
+  test('a reading is spent against the firm’s cap, on its own key', async () => {
+    uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument')
+      .mockResolvedValue({ ok: true, code: null, message: null, reading: READING })
+
+    await routes.loadDocument(makeReq(), makeRes())
+
+    expect(savedFor(BUDGET_KEY).loads).toHaveLength(1)
+    // The rates the forecasts read are untouched by a load. Counting is not approving.
+    expect(savedFor('depreciation-rates')).toBeNull()
+  })
+
+  test('🔴 the twenty-first reading in 24 hours is refused BEFORE anything is sent to a model', async () => {
+    const spent = new Array(20).fill(new Date().toISOString())
+    storedByKey({ [BUDGET_KEY]: { loads: spent } })
+    uploadOf('%PDF-1.4 ...')
+    const spy = jest.spyOn(extract, 'readDocument')
+
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+
+    expect(res._status).toBe(429)
+    expect(errorBody(res).error.code).toBe('AI_LOAD_LIMIT')
+    // The whole point of the cap: the model is never paid for the refused reading.
+    expect(spy).not.toHaveBeenCalled()
+    expect(savedFor(PROPOSALS_KEY)).toBeNull()
+  })
+
+  test('an advisor and a manager share one count — the same handler serves both routes', async () => {
+    // The manager's route and the advisor's differ only in the guard in restify-server.js.
+    // Both arrive here with the same verified firm, which is what makes the count shared.
+    storedByKey({ [BUDGET_KEY]: { loads: new Array(20).fill(new Date().toISOString()) } })
+    uploadOf('%PDF-1.4 ...')
+
+    const advisor = makeRes()
+    await routes.loadDocument(makeReq({ userEmail: 'advisor@example.com' }), advisor)
+    expect(advisor._status).toBe(429)
+
+    uploadOf('%PDF-1.4 ...')
+    const manager = makeRes()
+    await routes.loadDocument(makeReq({ userEmail: MANAGER }), manager)
+    expect(manager._status).toBe(429)
+  })
+
+  test('a firm at its limit is told so in the approved words, and never in an error code', async () => {
+    // Pinned because Mike approved this sentence on 2026-09-11 and a person reads it at the
+    // moment they are stopped. The wording lives in design/features/depreciation-rates.md.
+    storedByKey({ [BUDGET_KEY]: { loads: new Array(20).fill(new Date().toISOString()) } })
+    uploadOf('%PDF-1.4 ...')
+
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+
+    expect(errorBody(res).error.message).toBe(
+      'Your firm has used all 20 document readings for today. ' +
+      'Nothing has been lost — you can load this document again tomorrow.'
+    )
   })
 })
 

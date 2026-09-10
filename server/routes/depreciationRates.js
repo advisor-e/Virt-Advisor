@@ -13,16 +13,20 @@
  *     forecast needs it, so it must never require a manager role and must never break the
  *     forecast: on any failure it degrades to the app's own six rates. Mike's ruling of
  *     2026-09-08, in his words: *"Never block the advisor."*
+ *   - LOAD (`loadDocument`) — any signed-in user (`firmAuth`), since slice 5 on 2026-09-09.
+ *     Mike settled on 2026-09-08 that an ADVISOR may load a document and only a manager may
+ *     approve one (FR-017). It is mounted twice, on the advisor's route and the manager's,
+ *     and it is deliberately the SAME handler: what it writes is a PROPOSAL, held in a store
+ *     the rate resolver never reads, so nothing an advisor loads can reach a forecast.
  *   - MANAGE (`getForManager` / `approveRates` / `approveFirstYearRule` / `history` /
- *     `restore`, and slice 3's `loadDocument` / `listDocuments` / `approveDocument` /
- *     `rejectDocument`) — managers only (`firmAuth` + the managing-tier guard, wired in
- *     restify-server.js).
+ *     `restore`, and slice 3's `listDocuments` / `approveDocument` / `rejectDocument`) —
+ *     managers only (`firmAuth` + the managing-tier guard, wired in restify-server.js).
  *
- * ⚠ LOADING A DOCUMENT IS MANAGER-ONLY TODAY, AND THAT IS THE SLICE RATHER THAN THE RULING.
- * Mike settled on 2026-09-08 that an ADVISOR may load a document and only a manager may
- * approve one (FR-017). The advisor's half is its own screen and its own drawing
- * (`design/mockups/depreciation-rates-advisor.html`) and is not built. Until it is, the
- * loading routes sit behind the manager guard — which is the safe direction to be wrong in.
+ * 🔴 LOADING SPENDS MONEY, AND IT IS CAPPED: 20 readings per firm in any rolling 24 hours,
+ * shared by advisors and managers (item 4.82, Mike's rulings of 2026-09-11). The check sits
+ * one line before the model call in `loadDocument`, so a refusal costs nothing, and the count
+ * rides the same overlay store as everything else here, so a restart cannot hand a firm a
+ * fresh 20. Every part of that reasoning is in `utils/aiLoadBudget.js`.
  *
  * 🔴 EVERY ROUTE IS SCOPED TO `req.firmId`, THE VERIFIED SCOPE FROM THE JWT. No handler here
  * reads a scope from a body or a query, so one firm can never read or write another's tables
@@ -62,6 +66,7 @@ const {
 } = require('../utils/depreciationRates')
 const extract = require('../utils/depreciationExtract')
 const proposals = require('../utils/depreciationProposals')
+const aiLoadBudget = require('../utils/aiLoadBudget')
 
 /**
  * The dev-JSON fallback, one file per config key.
@@ -514,6 +519,18 @@ async function loadDocument (req, res) {
   }
 
   const filename = uploaded.originalFilename || uploaded.newFilename || 'document.pdf'
+
+  // 🔴 THE CAP IS SPENT HERE, ONE LINE BEFORE THE MODEL, AND THAT POSITION IS THE POINT
+  // (item 4.82). A refusal at this line costs nothing — the file has been read into memory
+  // and its temporary copy already deleted, and not a byte has left the building. Both
+  // routes reach this handler, so the advisor's loads and the manager's share one count of
+  // 20 per firm per rolling 24 hours, exactly as Mike ruled on 2026-09-11. The reasoning
+  // for each part of that, and the fail-closed rule, is in `utils/aiLoadBudget.js`.
+  const budget = await aiLoadBudget.consume(req.firmId, req.userEmail)
+  if (!budget.ok) {
+    return sendError(res, budget.status, budget.code, budget.message)
+  }
+
   const result = await extract.readDocument({
     scopeId: req.firmId,
     country,

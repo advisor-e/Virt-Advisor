@@ -103,6 +103,33 @@ plausible match the system proposes none and names the category in the gaps list
 this and a category is matched to a class nobody checked, producing a wrong rate that looks
 perfectly well sourced.*
 
+**P11 · A firm may have 20 documents read in any rolling 24 hours, and the 21st is refused
+before the model is called** (item 4.82). Mike's rulings of 2026-09-11, each answered on its
+own: the count is **per firm**, because the firm is what pays and its id is the one identity
+every route here has already verified; the number is **20**, because the proposal store only
+ever *keeps* 20, so a firm paying for more is paying for readings it cannot keep; advisors and
+managers **share one count**, because two pools of 20 would let a firm spend 40; the window
+**rolls**, because every fixed reset needs a clock and midnight UTC lands at midday in New
+Zealand, which would hand a firm 20 before lunch and 20 after; and it **fails closed**, because
+a store we cannot read is exactly when we cannot know what has already been spent. A reading
+the model answers badly still spends one — it was still paid for — while a file refused before
+that point, a non-PDF among them, costs nothing. His approved wording, at the moment a person
+is stopped:
+
+> **Your firm has used all 20 document readings for today. Nothing has been lost — you can
+> load this document again tomorrow.**
+
+It names the firm rather than the person, because the advisor in front of it may not be the
+one who used it up, and it deliberately does not say *ask your manager* — no manager can raise
+it, and promising that sends someone on an errand that goes nowhere. When the count itself
+cannot be reached, a separate sentence, because we cannot claim a firm has used all 20 when
+the truth is that we do not know:
+
+> **Document readings can't be checked right now. Please try again shortly.**
+
+*Ignore this and one advisor re-loading the same PDF runs up a bill nobody sees until it
+arrives.*
+
 ---
 
 ## 3. Design considerations
@@ -176,6 +203,7 @@ here and nowhere else; its closure, with his own $800,000 tractor costing, is on
 | Which routes are manager-only, pinned against the registration | [`server/restify-server.js`](../../server/restify-server.js) · [`tests`](../../tests/unit/forecastCountryDepreciation.component.test.js) |
 | Sending a document to the model, and refusing to trust what comes back | [`server/utils/depreciationExtract.js`](../../server/utils/depreciationExtract.js) · [`tests`](../../tests/unit/depreciationExtract.test.js) |
 | The reading instruction itself, on the AI Prompts page at all four tiers | [`data/ai-prompts.json`](../../data/ai-prompts.json) — `depreciation-read` |
+| The cap on paid readings — 20 per firm per rolling 24 hours, spent one line before the model (P11) | [`server/utils/aiLoadBudget.js`](../../server/utils/aiLoadBudget.js) · [`tests`](../../tests/unit/aiLoadBudget.test.js) |
 | Where a PROPOSAL lives — a store the rate resolver never reads | [`server/utils/depreciationProposals.js`](../../server/utils/depreciationProposals.js) · [`tests`](../../tests/unit/depreciationProposals.test.js) |
 | The manager's tab — what is in force, the documents loaded, and the upload | [`components/firm/FirmDepreciationRates.vue`](../../components/firm/FirmDepreciationRates.vue) · [`tests`](../../tests/unit/firmDepreciationRates.component.test.js) |
 | Reviewing one document — the class match, the picker, the rates, the gaps | [`components/firm/DepreciationDocumentReview.vue`](../../components/firm/DepreciationDocumentReview.vue) · [`tests`](../../tests/unit/depreciationDocumentReview.component.test.js) |

@@ -90,6 +90,11 @@ data/dev-depreciation-rates.json
 # APPROVED tables are data/dev-depreciation-rates.json.
 data/dev-depreciation-proposals.json
 
+# Dev-only record of when each scope had a document read by the AI — the 20-per-firm cap on
+# paid readings (item 4.82). Keyed by SCOPE, ignored for the same reason as every sibling
+# above: it is one machine's local spending count and means nothing on another.
+data/dev-ai-load-budget.json
+
 # Dev-only tax rates — a scope's APPROVED company tax rate, GST rate, filing cycle and
 # accounting basis, per country (item 4.81). Keyed by SCOPE, ignored for the same reason as
 # every sibling above. The app's own four are data/tax-rates.json and ARE committed: they

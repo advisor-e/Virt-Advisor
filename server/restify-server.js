@@ -292,10 +292,11 @@ server.get('/api/report/depreciation-rates', firmAuth, depreciationRatesRoute.ge
 // on approve and reject below. `firmAuth` resolves the storage scope once, so an advisor's
 // document lands in their own firm's store and can land nowhere else.
 //
-// ⚠ IT WIDENS WHO CAN SPEND AN AI CALL, from managers to every advisor. The file must be a
-// real PDF of 20 MB or less and the store keeps 20 documents — but the store's cap trims
-// AFTER the model has been paid, so nothing here limits how many readings an advisor can
-// trigger. Raised with Mike 2026-09-09; no rate limit added without his word.
+// ⚠ IT WIDENS WHO CAN SPEND AN AI CALL, from managers to every advisor — AND THAT SPENDING
+// IS NOW CAPPED (item 4.82, Mike's rulings of 2026-09-11): 20 readings per firm in any
+// rolling 24 hours, counted across this route and the manager's together, refused before the
+// model is called. The file must still be a real PDF of 20 MB or less. See
+// `server/utils/aiLoadBudget.js`, which carries the reasoning for each part of the cap.
 server.post('/api/report/depreciation-rates/documents', firmAuth, depreciationRatesRoute.loadDocument)
 // The company tax rate, GST rate, filing cycle and accounting basis a client's forecast uses,
 // for the client's own country (item 4.81). A SIBLING OF THE LINE ABOVE, NOT PART OF IT — a
