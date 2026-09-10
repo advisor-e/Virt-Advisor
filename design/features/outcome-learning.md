@@ -277,8 +277,7 @@ Every change needs Mike's explicit yes. Wording on screens is his to approve bef
 
 Built through story 3 and both hub screens on 2026-09-11, task by task from
 [`tasks.md`](../../specs/002-outcome-learning/tasks.md), each checked against the three drawings
-approved by Mike 2026-09-10. Industry suggestions on intake, the seed script and the benches
-remain.
+approved by Mike 2026-09-10. Industry suggestions on intake and the benches remain.
 
 | Piece | Where it stands today |
 |---|---|
@@ -295,7 +294,8 @@ remain.
 | The session and the trace | `server/utils/outcomeLearningSession.js`, wired in `server/advisorEngine.js`; `decisionTrace.outcomeLearning` |
 | Reason wording | `pooled:held_back-<n>`, `pooled:outweighed` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
 | The advisor's panel | "Learned from outcomes" in `components/VirtualAdvisor.vue` |
-| NOT BUILT | industry suggestions on intake (T022a), the seed script (T030), `--adjustments` on the Scenario Lab, the outcome bench and the bench route |
+| The dev seed | `scripts/dev/seed-outcome-pool.js` — 31 reviews across five firms through the guard and the store, never around them; refuses under `NODE_ENV=production`; `--reset` clears its own firms' rows first. Firm A is `dev-firm`, so a withdrawal from its tab is quickstart Story 2 step 5 |
+| NOT BUILT | industry suggestions on intake (T022a), `--adjustments` on the Scenario Lab, the outcome bench and the bench route |
 | The three approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html), rulings on each, rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
 
 ## 9. Related briefs
