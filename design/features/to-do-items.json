@@ -188,10 +188,6 @@
       "ref": "4.84",
       "name": "Notification dots on every hub tab",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-10"
-      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
