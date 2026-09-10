@@ -12,8 +12,8 @@
 ## 2026-09-10 (seventeenth session) · Laptop · branch `feat/advisor-progress`
 
 Suite **9,749 green** (475 suites), lint 0, coverage and audit clean, `npm run build` exit 0,
-**and the backend started and seen listening.** Everything merged to `master` by PR #78 and PR
-#79. **0 ahead, 0 behind.** Nothing active on this machine.
+**and the backend started and seen listening.** Everything merged to `master` by pull requests
+78, 79 and 80. **0 ahead, 0 behind.** Nothing active on this machine.
 
 🔴 **v0.11.0 IS WITHDRAWN AND `v0.11.1` REPLACES IT. THE BACKEND IN v0.11.0 DOES NOT START.**
 One route handler in item 4.83's compliance gate — `requireDeclaration` — was an `async`
@@ -48,6 +48,9 @@ deviation from the drawing.
 with the count dropping 18 → 17, both routes answering live. Looking at it also found the menu's
 labels shifting sideways as dots appeared — the drawing had solved that with a transparent
 placeholder and the build had dropped it. Fixed.
+
+**4.84 is CLOSED** — closure on [`to-do-done-and-parked.md`](features/to-do-done-and-parked.md)
+§2, eight live items left.
 
 **Next, and unblocked: 4.82** (nothing caps how many paid AI readings a user can trigger) still
 waits on Mike for the cap. **4.83's Compliance screens are still UNSEEN** — they need MySQL,
