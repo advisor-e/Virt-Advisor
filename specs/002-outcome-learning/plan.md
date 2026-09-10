@@ -46,7 +46,7 @@ The constitution points at `CLAUDE.md`, `design/WORKING-AGREEMENT.md` and the li
 | No schema change unless proved unavoidable | None. One store function is added (a deletion by key prefix) and is named as a deviation for Mike below. **Pass with one named addition.** |
 | Secrets backend only | The contribution-token secret is a backend environment variable, never in the Nuxt `env:` block. **Pass.** |
 
-No violations. Complexity Tracking carries the one addition that is not a violation but must be named.
+No violations. Complexity Tracking carries the two additions that are not violations but had to be named; both were ruled by Mike on 2026-09-10.
 
 ## Project Structure
 
@@ -138,8 +138,8 @@ Unchanged from above. The design added no dependency, no schema change, no front
 
 | Addition | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|
-| `deleteFirmConfigsByPrefix(firmId, keyPrefix)` in `server/utils/firmOverlay.js` — a hard delete of every version of every row under a prefix at one scope | FR-003 withdrawal must **remove** a firm's contributions. The store today only appends versions; a "withdrawn" tombstone would leave the anonymised rows readable in history, which is not removal. | Tombstones (leave data in history, contradict the screen's promise); a schema change (a `withdrawn_at` column — heavier, and the rule says none unless unavoidable). The prefix delete is one function, scoped to `PLATFORM_SCOPE` + `outcome-pool:<token>:`, tested for refusing any other prefix. **Put to Mike as a named addition before it is written.** |
-| `OUTCOME_POOL_SECRET`, a backend-only environment variable | The contribution token must not be reversible to a firm id by anyone reading the pool rows. | A plain hash of the firm id (reversible by anyone who can list firm ids); a random per-firm token stored on the firm's consent row (works, but then the consent row names the pool rows, and the mapping lives in the database rather than in a secret held outside it). Named for Mike alongside the addition above; goes in `.env.example` and the UAT pack. |
+| `deleteFirmConfigsByPrefix(firmId, keyPrefix)` in `server/utils/firmOverlay.js` — a hard delete of every version of every row under a prefix at one scope | FR-003 withdrawal must **remove** a firm's contributions. The store today only appends versions; a "withdrawn" tombstone would leave the anonymised rows readable in history, which is not removal. | Tombstones (leave data in history, contradict the screen's promise); a schema change (a `withdrawn_at` column — heavier, and the rule says none unless unavoidable). The prefix delete is one function, scoped to `PLATFORM_SCOPE` + `outcome-pool:<token>:`, tested for refusing any other prefix. **Ruled by Mike 2026-09-10: approved.** |
+| `OUTCOME_POOL_SECRET`, a backend-only environment variable | The contribution token must not be reversible to a firm id by anyone reading the pool rows. | A plain hash of the firm id (reversible by anyone who can list firm ids); a random per-firm token stored on the firm's consent row (works, but then the consent row names the pool rows, and the mapping lives in the database rather than in a secret held outside it). **Ruled by Mike 2026-09-10: approved.** Goes in `.env.example` and the UAT pack. |
 
 ## What is deliberately not in this plan
 

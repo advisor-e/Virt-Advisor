@@ -26,9 +26,9 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `pages
 - [x] T003 [P] Draw `design/mockups/outcome-learning-trace.html` — the Outcome Learning section on "Why this?": applied and outweighed lines with counts, and the "learning unavailable" line; style from `components/VirtualAdvisor.vue`'s existing trace; question 1: `POOLED_HOLDBACK_MAX = 10` (research §4)
 - [x] T004 Register the three drawings as rows in `design/ARTEFACTS.md`, each linking its file and `to-do-items.json` 4.87
 - [x] T005 Put every question on the three drawings to Mike one at a time, one yes/no each; record each ruling on the drawing beside its recommendation; then ask him to approve each drawing itself as its own question and record that on the drawing and in `design/ARTEFACTS.md`
-- [ ] T006 Put the two named additions in plan.md Complexity Tracking to Mike, one at a time: the prefix delete on the overlay store, and `OUTCOME_POOL_SECRET`; record his answers on plan.md
+- [x] T006 Put the two named additions in plan.md Complexity Tracking to Mike, one at a time: the prefix delete on the overlay store, and `OUTCOME_POOL_SECRET`; record his answers on plan.md
 
-**Checkpoint**: three approved drawings, every wording table settled, both additions ruled. Only now does code start.
+**Checkpoint**: ✅ reached 2026-09-10 — three approved drawings, every question ruled, both additions ruled. Code may start.
 
 ---
 
