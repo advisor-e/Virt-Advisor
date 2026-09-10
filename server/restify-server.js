@@ -130,6 +130,7 @@ const meetingReviewRoute = require('./routes/meetingReview')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
 const hubTabsRoute = require('./routes/hubTabs')
+const outcomeLearningRoute = require('./routes/outcomeLearning')
 // Both sides of the 2026-09-10 merge: this machine's compliance routes, and the desktop's
 // `firmOrEntityAuth` in the guard list.
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
@@ -843,6 +844,16 @@ server.get('/api/mentor/distinctions', ...mentorGuard, mentorRoute.listMentorDis
 server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentorDistinction)
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
 server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
+
+// Outcome Learning — item 4.87, the mentor's side (specs/002-outcome-learning contracts
+// §Mentor). The pool is one platform-wide set, so this is the MENTOR TIER ALONE (FR-014):
+// no lower tier holds a different value, and the firm's only lever is its consent.
+server.get('/api/mentor/outcome-learning', ...mentorGuard, outcomeLearningRoute.list)
+server.post('/api/mentor/outcome-learning/recompute', ...mentorGuard, outcomeLearningRoute.recomputeNow)
+server.post('/api/mentor/outcome-learning/decision', ...mentorGuard, outcomeLearningRoute.decision)
+server.get('/api/mentor/outcome-learning/history', ...mentorGuard, outcomeLearningRoute.history)
+server.post('/api/mentor/outcome-learning/restore', ...mentorGuard, outcomeLearningRoute.restore)
+server.get('/api/mentor/outcome-learning/export', ...mentorGuard, outcomeLearningRoute.exportLive)
 
 // ── Master template library (MENTOR ONLY — the upload doorway) ──
 // SEARCH-CONTENT-CASCADE-PLAN.md Phase 1: the mentor uploads the Advisor-e master

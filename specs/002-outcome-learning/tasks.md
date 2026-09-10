@@ -88,7 +88,7 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `pages
 ### Implementation for User Story 2
 
 - [x] T025 [US2] Create `server/routes/outcomeLearning.js` — `list` (GET, recomputes), `recompute` (POST), `decision`, `history`, `restore`, `export`, and a `recomputeAndPersist()` helper used by list, recompute and T016's withdraw; per contracts §Mentor
-- [ ] T026 [US2] Register the routes in `server/restify-server.js` under `/api/mentor/outcome-learning` with `mentorGuard`; wire T016's withdraw to `recomputeAndPersist()`
+- [x] T026 [US2] Register the routes in `server/restify-server.js` under `/api/mentor/outcome-learning` with `mentorGuard`; wire T016's withdraw to `recomputeAndPersist()`
 - [ ] T027 [US2] Create `components/MentorOutcomeLearning.vue` from the approved mentor drawing — counts and floor, last recompute and "Recompute now", the adjustment table with state chips, accept / hold / reject with a reason field, history list with restore, the empty state, the orphaned list, the bench figures block (filled by US4); loading and error states; strings via `$t('outcomeLearning.*')`
 - [ ] T028 [US2] Add `outcomeLearning: ['mentor']` to `TAB_TIERS` and `{ key: 'outcomeLearning', i18n: 'outcomeLearning.tab' }` appended to *Rolled up from below* in `NAV_GROUPS`; register the component and panel in `components/FirmManagerHub.vue`; the FR-014 one-line judgement as the comment; extend the pin in `tests/unit/hubTabTiers.test.js`
 - [ ] T029 [US2] Add the `outcomeLearning` namespace to all eight `locales/*.json` with the approved wording
