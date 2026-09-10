@@ -401,6 +401,14 @@ function loadEffectiveTemplates (...args) {
   return _loadEffectiveTemplates(...args)
 }
 
+// Outcome Learning (item 4.87) — lazy for the same reason. The module itself is what
+// guarantees a session never fails because the pool could not be read.
+let _outcomeSession = null
+function outcomeSession () {
+  if (!_outcomeSession) { _outcomeSession = require('../server/utils/outcomeLearningSession') }
+  return _outcomeSession
+}
+
 // ── Startup checks ──
 // Validate critical env vars and required files before any request arrives.
 ;(function startupCheck () {
@@ -2965,6 +2973,11 @@ async function handleQuery (rawBody, res, identity) {
       for (const _name of walkLogicTree(state, _tree.id, firmLogicTrees)) { _treeHintNames.push(_name) }
     }
 
+    // Outcome Learning (item 4.87): the firm's consent and the mentor-accepted live
+    // adjustments, or nothing — on ANY failure the session resolves exactly as it would
+    // have before this feature, and the trace says learning was unavailable (FR-019).
+    const _pooled = await outcomeSession().loadPooledForSession(firmId)
+
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
     const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool, {
@@ -2972,7 +2985,11 @@ async function handleQuery (rawBody, res, identity) {
       treeHintNames: _treeHintNames,
       // Client-history hold-back (Option A): already-delivered templates are
       // discouraged, never banned — visible in the trace via history:* reasons.
-      priorHoldback: _historyInputs
+      priorHoldback: _historyInputs,
+      // Pooled hold-back: capped, clamped, outweighed by the advisor's own words —
+      // visible in the trace via pooled:* reasons. Empty unless the firm consents.
+      pooledAdjustments: _pooled.adjustments,
+      pooledSignalTypes: _signals.map(s => s.type)
     })
     const _resolvedTemplates = _resolvedResult.primary // primary used for scoring log / observability
     const _hasOutlier = _resolvedResult.hasOutlier
@@ -3327,6 +3344,9 @@ async function handleQuery (rawBody, res, identity) {
               .some(t => (t.matchReasons || []).some(r => r.indexOf('history:') === 0))
           }
         : null,
+      // Outcome Learning (item 4.87, data-model §5): computed from the scoring log, never
+      // from intent — a template is "applied" only if the resolver wrote pooled:held_back-<n>.
+      outcomeLearning: outcomeSession().buildOutcomeLearningTrace(_resolvedTemplates.scoringLog, _pooled.adjustments, _pooled),
       // Phase A context contract (saved-client intake): trusted context
       // resolution metadata only — consumed for UX behavior in Phase B.
       savedClientContext: {
