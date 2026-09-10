@@ -9,57 +9,43 @@
 
 ---
 
-## 2026-09-10 (seventeenth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-11 (eighteenth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **9,749 green** (475 suites), lint 0, coverage and audit clean, `npm run build` exit 0,
-**and the backend started and seen listening.** Everything merged to `master` by pull requests
-78, 79 and 80. **0 ahead, 0 behind.** Nothing active on this machine.
+Suite **9,794 green** (476 suites), lint 0, audit PASS. Four commits, all pushed, all in
+**PR #82** — not yet merged. Tree clean. Nothing active on this machine.
 
-🔴 **v0.11.0 IS WITHDRAWN AND `v0.11.1` REPLACES IT. THE BACKEND IN v0.11.0 DOES NOT START.**
-One route handler in item 4.83's compliance gate — `requireDeclaration` — was an `async`
-function that also took Restify's `next`. Restify refuses to **mount** such a handler and
-asserts at mount time, so the process exited during startup with **no routes registered at
-all**. Nuxt starts normally in front of nothing, which is why it looks alive. Found by running
-the app, hours after the tag was cut. Fixed, tagged as `v0.11.1` on `e7e6271`, ledger row
-written. If anyone is holding v0.11.0, they replace the tag rather than patch it.
+**4.82 IS BUILT AND CLOSED — the cap on paid AI readings.** 20 per firm in any rolling 24
+hours, shared by advisors and managers, spent one line before the model call so a refusal
+costs nothing. Seven rulings from Mike, asked one at a time; the reasoning is in
+[`server/utils/aiLoadBudget.js`](../server/utils/aiLoadBudget.js) beside the code. **Seen
+working live:** both routes refused at the limit with his exact wording, and two refusals
+recorded nothing.
 
-🔴 **EVERY GATE IN THIS REPOSITORY PASSED IT, AND THAT IS THE PART TO REMEMBER.** 9,748 tests,
-lint 0, audit PASS, `nuxt build` exit 0 — none of them start the server. Route tests call
-handlers directly, so a signature Restify rejects is one they never see; and
-`serverWiring.test.js`, the only test that loads the bootstrap, **mocks Restify away**, so a
-stub with no rules registered the route happily. `tests/unit/serverMounts.test.js` now mounts
-every route against real Restify and is mutation-verified against exactly this fault — **but it
-is a guard, not a substitute. Run the app before cutting a tag.** That is now step 2½ of
-Integration in practice, and the v0.11.1 ledger row records it as a check that was run.
+🔴 **THE REAL EVENT: IR265 WAS LOADED FOR THE FIRST TIME AND THE FEATURE REFUSED IT.**
+Section 3 of the reading prompt told the model that anything leaving it guessing meant refuse
+everything — so one pair of rows about Southern Cross Cable capacity on pages 39–40 discarded
+all 52 pages. Every gate here passed it. **Fixed:** section 3 now tests legibility only;
+entries that cannot be settled are listed with their pages and the rest is read. Brief P8
+rewritten. On the next load IR265 **read** — named, dated, and it surfaced **three real
+contradictions in IRD's own schedule** (powder dryer buildings pages 14/46, microwave ovens
+page 36, the cable entry).
 
-**Built today: item 4.84, the hub notification dots.** Every menu entry can carry one — red for
-the tab's own news, blue for never opened, orange for not opened in 21 days — with the meaning
-in words beside the colour, and a key and count under the menu. Drawn first at
-[`mockups/hub-menu-dots.html`](mockups/hub-menu-dots.html), four questions ruled one at a time,
-all as drawn, then approved to build from. Brief:
-[`features/firm-manager-hub.md`](features/firm-manager-hub.md).
+⚠ **BUT IT PROPOSED NO RATES — item 4.91, and the feature still delivers no table.**
+`refusedRows` was 0, so the model sent an empty rates list; why is unknown. The reading now
+logs what the model OFFERED as well as what we kept, so the next load explains itself instead
+of costing another paid reading. **Six readings were spent today; two were wasted because I
+restarted the backend without checking it had bound to port 4000.**
 
-**Two judgements on it, both stated rather than assumed.** Red stays a signal each tab raises
-for itself and only Compliance raises one — *"published since you last declared"* is a
-Compliance sentence. And the legend hides when nothing wants attention, which is a named
-deviation from the drawing.
+**Filed today: 4.88** (a failed load can never be cleared — shut at both ends), **4.89** (a
+refusal cannot say why), **4.90** (MAX_CLASSES is 250; IR265 publishes ~2,800 — the same wrong
+"156" figure sits in the code comment and the Brief), **4.91**, and **4.92**.
 
-**SEEN RUNNING, not just tested:** all three states at the Mentor Hub, a dot clearing on open
-with the count dropping 18 → 17, both routes answering live. Looking at it also found the menu's
-labels shifting sideways as dots appeared — the drawing had solved that with a transparent
-placeholder and the build had dropped it. Fixed.
+🔴 **4.92 IS THE ONE TO READ. Mike asked for a country's whole schedule stored as a searchable
+table, and ruled it LOADS AT THE GLOBAL GROUP MANAGER TIER** — one person per brand covering
+every country they operate in, each table tagged by country. It is the likely cure for 4.90
+and 4.91. Nothing is built; a spec comes first.
 
-**4.84 is CLOSED** — closure on [`to-do-done-and-parked.md`](features/to-do-done-and-parked.md)
-§2, eight live items left.
-
-**Next, and unblocked: 4.82** (nothing caps how many paid AI readings a user can trigger) still
-waits on Mike for the cap. **4.83's Compliance screens are still UNSEEN** — they need MySQL,
-Drive and a model key, so they are UAT work, along with the client register and the two rate
-tables.
-
-**DESKTOP:** your quiz-builder files were not touched. What changed under you:
-`server/routes/compliance.js` (the gate's shape only — same check), `components/FirmManagerHub.vue`
-(the dot on every menu entry, the legend), `server/restify-server.js` (two new routes),
-`tests/unit/mentorHubScope.component.test.js` (one helper reads the label rather than the whole
-anchor) and `tests/unit/compliance.routes.test.js` (five gate tests flush instead of awaiting).
-**4.87 was left alone all session** — it is yours and its `activeOn` says so.
+**DESKTOP:** your quiz-builder and 4.87 files were untouched. What changed under you:
+`server/utils/depreciationExtract.js`, `depreciationProposals.js`, `aiLoadBudget.js` (new),
+`data/ai-prompts.json` (the depreciation-read prompt), `DepreciationDocumentReview.vue`,
+`restify-server.js` (two comments), and the depreciation Brief.

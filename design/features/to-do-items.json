@@ -292,6 +292,27 @@
       "touches": "The rates and classlist sections of the depreciation-read prompt in data/ai-prompts.json, validateReading in server/utils/depreciationExtract.js, and whatever the country-wide table Mike asked for on 2026-09-11 does instead.",
       "note": "PROVEN, NOT INFERRED: refusedRows was 0, so nothing was rejected on our side - the model sent an empty rates list. The reading logging now records what the model OFFERED before any cleaning, so the next load says which of the two it is without another round of guessing. IT IS PROBABLY THE SAME ROOT AS 4.90: one reply cannot carry a 52-page schedule, which is exactly what a stored per-country table removes.",
       "comment": "2026-09-11 - the second wall, met immediately after the first came down. The section 3 fix worked: the document that had been refused four times was read, named IR265, dated 2023-10, and three genuine contradictions surfaced - powder dryer buildings at two rates on pages 14 and 46, microwave ovens twice on page 36, and the Southern Cross Cable entry."
+    },
+    {
+      "ref": "4.92",
+      "name": "A country's whole rate schedule, stored as a searchable table",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": "4.90 and 4.91, which both come back to one reply carrying a 52-page schedule",
+      "waitingOn": "Mike",
+      "why": "Mike asked for a country's published schedule to be stored and turned into a searchable table the models can use, instead of being re-read per firm and reduced to six rough categories.",
+      "risk": "Without it every firm pays to re-read the same document, an advisor's client is depreciated at the nearest of six buckets rather than the class the tax authority publishes, and nothing accumulates. It is also the likely cure for 4.90 and 4.91: a table is built up in sections, so no single answer has to carry 2,800 classes.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-11 - 'if a single source of truth doc is available for a country - with ALL depreciation rates in it - we need the capability to store it, save it, translate it into a serachable table so it can be used in our models'."
+      },
+      "touches": "A new store beside the approved tables, the reading route and prompt in depreciationExtract.js and data/ai-prompts.json, the tier chain and the global-group scope in tierChain.js, a screen at the global group manager tier in FirmManagerHub.vue, and the class picker in DepreciationDocumentReview.vue.",
+      "note": "🔴 MIKE'S RULING, 2026-09-11: IT LOADS AT THE GLOBAL GROUP MANAGER TIER. One person loads the schedules for every country their brand operates in, each table tagged with its country; group managers and firms inherit the one matching their client and load nothing. This OVERRIDES the default-is-mentor-alone rule for this feature. PER COUNTRY, NOT PER DOCUMENT - some authorities publish several schedules and revise through the year, so each row names the document and page it came from. NOTHING IS BUILT. Three drawings and a spec come before any code.",
+      "comment": "2026-09-11 - raised by Mike while the IR265 read was being diagnosed, and filed at shutdown on his yes. THE COST HE SHOULD MEET AT THE START: once we store a country's table, keeping it current is ours - when the next edition is published, every firm inheriting it holds last year's rates until someone loads the new one, so every rate must show which edition it came from."
     }
   ]
 }
