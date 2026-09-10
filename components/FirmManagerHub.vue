@@ -66,22 +66,26 @@ section.firm-manager-hub.section
             //- ⚠ NEVER THE COLOUR ALONE — the same rule the Advisory Distinctions rail
             //- follows: the dot is red, and the words beside it say "new" to a reader
             //- who cannot see that.
+            //- 🔴 EVERY ENTRY RENDERS THE DOT'S SPACE, dotted or not — the drawing's own
+            //- `.dot.none`. Dropping the span where there is no dot shifts that label a few
+            //- pixels left, so the list ripples as dots come and go. Found by putting the
+            //- built screen beside the artefact on 2026-09-10, which is why that comparison
+            //- is a step and not a courtesy.
             b-menu-item(
               v-for="item in group.items"
               :key="item.key"
               :data-tab="item.key"
               :active="activeTab === item.key"
-              :label="menuDot(item.key) ? undefined : (item.i18n ? $t(item.i18n) : item.label)"
               @click="activeTab = item.key"
             )
-              template(v-if="menuDot(item.key)" v-slot:label)
+              template(v-slot:label)
                 span.hub-menu-label
                   span.hub-menu-dot(
-                    :class="`hub-menu-dot--${menuDot(item.key)}`"
+                    :class="`hub-menu-dot--${menuDot(item.key) || 'none'}`"
                     :title="menuDotTitle(item.key)"
                   )
                   span {{ item.i18n ? $t(item.i18n) : item.label }}
-                  span.is-sr-only  — {{ menuDotTitle(item.key) }}
+                  span.is-sr-only(v-if="menuDot(item.key)")  — {{ menuDotTitle(item.key) }}
         //- The three colours mean nothing on their own the first time somebody meets
         //- them, so the foot of the menu says what they are — the Handbook's own three
         //- lines, in the same place, and its count sentence with the right noun for this
@@ -2643,6 +2647,9 @@ export default {
    dot has carried since 2026-09-10, the Handbook's blue for never-opened and its orange for
    not-opened-in-three-weeks. Which one is shown is decided in menuDot(), never here — a
    colour chosen in CSS could not honour the precedence Mike ruled. */
+/* The placeholder: it holds the space so a label without a dot starts where every other
+   label starts. Without it the whole list shifts left and right as dots appear. */
+.hub-menu-dot--none { background: transparent; }
 .hub-menu-dot--red { background: #e00000; }
 .hub-menu-dot--blue { background: #00b1e0; }
 .hub-menu-dot--orange { background: #ff9900; }
