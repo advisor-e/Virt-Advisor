@@ -31,7 +31,7 @@
 
 ## Notes
 
-- The two open markers are decisions only Mike can make, and each carries a recommendation in
-  the spec. `/speckit-clarify` is the next step, and it stops for his yes.
+- `/speckit-clarify` ran on 2026-09-10: four questions, four answers from Mike, recorded under
+  the spec's Clarifications heading. `/speckit-plan` is the next step, and it waits for his yes.
 - Per the project's own rules, the three drawings come before any plan is executed, and every
   on-screen word is approved by Mike before it reaches code.

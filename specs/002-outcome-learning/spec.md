@@ -16,6 +16,15 @@
 > accepts before they go live, and shows every applied adjustment on the advisor's decision
 > trace. It is counting and weighting, visible and reversible, not a trained model.
 
+## Clarifications
+
+### Session 2026-09-10
+
+- Q: Should advisors' free-text review words enter the shared pool at all, or only the tick-box verdicts? → A: Verdicts only; no free text enters the pool in this release.
+- Q: Is an adjustment keyed to a template and one situation dimension at a time, or to the full combination of every dimension a case carries? → A: One dimension at a time: template × domain, template × industry, template × signal, or template × engagement type, each meeting the floor on its own.
+- Q: Which review verdicts count as evidence against a template: only "went less well" on a template the advisor actually delivered, or also "not used at all"? → A: Only "went less well" on a delivered template (used in full or in part) counts against it; "went well" on a delivered template balances the count; "not used at all" is neutral.
+- Q: When are the proposed adjustments recomputed from the pool: when the mentor opens the page, or on a timed schedule in the background? → A: When the mentor opens the page and on a "Recompute now" action, and immediately on a firm's withdrawal; no background schedule.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - A firm manager decides whether their firm contributes (Priority: P1)
@@ -38,7 +47,7 @@ A firm manager opens a Contribute tab on their hub, reads exactly what would lea
 
 ### User Story 2 - The mentor sees what has been learned and decides what goes live (Priority: P2)
 
-On the Mentor Hub the mentor opens a page listing every proposed adjustment: which template, in which situation (domain, industry, signal or engagement type), the direction and size of the adjustment, how many firms and cases stand behind it, and the advisors' own anonymised words where they exist. The mentor accepts, holds or rejects each one. Accepted adjustments go live for every opted-in firm; held and rejected ones do not. Every decision has version history and can be restored.
+On the Mentor Hub the mentor opens a page listing every proposed adjustment: which template, in which situation (domain, industry, signal or engagement type), the direction and size of the adjustment, and how many firms and cases stand behind it. The mentor accepts, holds or rejects each one. Accepted adjustments go live for every opted-in firm; held and rejected ones do not. Every decision has version history and can be restored.
 
 **Why this priority**: Pooled evidence must not change anybody's recommendation without a person who understands the advisory content deciding it should. This is the same "a human accepts before it is used" rule every other AI-adjacent feature here follows.
 
@@ -46,7 +55,7 @@ On the Mentor Hub the mentor opens a page listing every proposed adjustment: whi
 
 **Acceptance Scenarios**:
 
-1. **Given** pooled outcomes above the floor for a template, **When** the mentor opens the page, **Then** the adjustment is listed with its direction, size, firm count, case count and evidence lines, marked proposed.
+1. **Given** pooled outcomes above the floor for a template, **When** the mentor opens the page, **Then** the adjustment is listed with its direction, size, firm count and case count, marked proposed.
 2. **Given** a proposed adjustment, **When** the mentor accepts it, **Then** it is marked live with the mentor's name and date, appears in version history, and applies to the next recommendation at every opted-in firm.
 3. **Given** a live adjustment, **When** the mentor rejects it, **Then** it stops applying immediately, stays visible as rejected with the reason the mentor typed, and can be restored from history.
 4. **Given** pooled outcomes below the floor, **When** the mentor opens the page, **Then** the adjustment is listed as "not yet enough evidence" with the counts and the floor, and cannot be accepted.
@@ -91,6 +100,7 @@ Before any adjustment goes live and after, the fixed Scenario Lab runs and a sec
 - A withdrawal takes an adjustment below the floor after the mentor accepted it: it is unpublished automatically and the mentor page says why.
 - A template is renamed or removed from the library: adjustments keyed to it are shown as orphaned on the mentor page and never applied.
 - The same firm submits many reviews for one client: they count as one firm and as many cases; the firm floor cannot be met by one prolific firm.
+- A template is delivered in 25 cases across 5 firms but never marked "went less well": it crosses the floor with a hold-back of zero, is listed so the mentor can see it was learned about, and applies no adjustment.
 - A review has a verdict on a template the case never held: it is refused at the door, as the case store already does.
 - A review contains a personal field the anonymiser does not recognise: the guard throws and nothing from that review enters the pool; the failure is logged for a person to read, never filtered silently.
 - The pool is unreachable when a recommendation is requested: recommendations run without adjustments and the trace says so; a recommendation is never blocked by learning.
@@ -104,15 +114,15 @@ Before any adjustment goes live and after, the fixed Scenario Lab runs and a sec
 - **FR-002**: Nothing from a firm MUST enter the pool unless that firm's contribution switch is on at the moment the review is recorded.
 - **FR-003**: Switching off MUST stop future contributions without removing what was pooled; withdrawal of pooled contributions MUST be a separate, explicit request that reports the count removed.
 - **FR-004**: The case-review screen at an opted-in firm MUST show a one-line notice, in wording Mike approves, that anonymised outcomes may contribute; at a firm not opted in it MUST NOT.
-- **FR-005**: What enters the pool MUST be exactly: advisory domain, primary issue where present, industry, the signals that fired, engagement type, staircase step, template titles, each template's verdict (used in full, partly, not at all; went well, less well), and the advisor's review words only after the same personal-data stripping the mentor-share path applies.
+- **FR-005**: What enters the pool MUST be exactly: advisory domain, primary issue where present, industry, the signals that fired, engagement type, staircase step, template titles, and each template's verdict (used in full, partly, not at all; went well, less well). No free text enters the pool: the advisor's review words stay at the firm (clarified 2026-09-10).
 - **FR-006**: No firm, advisor, client or case identifier MUST enter the pool. The anonymisation guard MUST refuse the whole contribution when it finds a personal field, and MUST log the refusal; it MUST NOT silently drop the field.
-- **FR-007**: The system MUST compute proposed adjustments per template and per situation from the pooled verdicts using explainable arithmetic that a person can check by hand from the counts shown; no trained model is part of this feature.
+- **FR-007**: The system MUST compute proposed adjustments per template and per single situation dimension (template × domain, template × industry, template × signal, or template × engagement type; never a combination of dimensions) from the pooled verdicts, each pairing counting its own firms and cases, using explainable arithmetic that a person can check by hand from the counts shown; no trained model is part of this feature. Only templates the advisor delivered (used in full or in part) are evidence: "went less well" counts against the template, "went well" balances it, and "not used at all" is neutral and never counts. The hold-back size derives from the share of delivered cases that went less well (clarified 2026-09-10).
 - **FR-008**: An adjustment MUST NOT be proposed as publishable until it meets a floor of contributing firms and cases; the floor is **5 contributing firms and 25 cases** (Mike's ruling, 2026-09-10), and the floor and the current counts MUST be shown beside every adjustment.
 - **FR-009**: The mentor MUST accept, hold or reject each adjustment on the Mentor Hub before it applies anywhere; every decision MUST carry the mentor's name and date, be kept in version history, and be restorable.
 - **FR-010**: A live adjustment MUST apply as a score adjustment through the same mechanism as distinction boosts, and MUST be capped so that pooled evidence can never outrank what the advisor said in the current session. Adjustments are **hold-back only** in this release (Mike's ruling, 2026-09-10): a template that keeps going less well ranks lower, and nothing pooled ever lifts a template above the advisor's own evidence. Lifting is a separate decision for a later release.
 - **FR-011**: Every applied adjustment MUST appear on the decision trace with the situation it matched and its evidence counts; an adjustment that was considered and outweighed MUST also be visible on the trace.
 - **FR-012**: A firm that has not opted in MUST receive no adjustment, ever.
-- **FR-013**: The Mentor Hub page MUST show the number of contributing firms, the pool's case count, each adjustment's state, and an empty state in words when there is nothing to show.
+- **FR-013**: The Mentor Hub page MUST show the number of contributing firms, the pool's case count, each adjustment's state, the date and time of the last recompute, and an empty state in words when there is nothing to show; opening the page recomputes, and a "Recompute now" action (wording Mike's to approve) does the same, within the page-render limit.
 - **FR-014**: The page is built at the mentor tier alone; the middle tiers and firms get no view in this release, because the pool is one platform-wide set and no lower tier holds a different value. (Stated judgement, per the hub-page rule.)
 - **FR-015**: Two benches MUST report a figure before and after any adjustment goes live: the existing fixed-case bench and a new bench built from the pooled anonymised outcomes; the latest figures MUST be visible on the Mentor Hub page.
 - **FR-016**: Every write MUST be scoped to the verified caller, never an identifier supplied in a request.
@@ -123,8 +133,8 @@ Before any adjustment goes live and after, the fixed Scenario Lab runs and a sec
 ### Key Entities
 
 - **Contribution consent**: one per firm; on or off, who set it, when; and a separate withdrawal request with its date and the count withdrawn.
-- **Pooled outcome**: one anonymised review: domain, primary issue, industry, signals fired, engagement type, staircase step, template titles, per-template verdicts, stripped review words, and the date; carries a contribution token that links it to its firm's consent without naming the firm, so withdrawal can find it.
-- **Proposed adjustment**: template plus situation (domain, industry, signal or engagement type), direction and size, firm count, case count, evidence lines, computed date, state (below floor, proposed, live, held, rejected, orphaned).
+- **Pooled outcome**: one anonymised review: domain, primary issue, industry, signals fired, engagement type, staircase step, template titles, per-template verdicts, and the date; carries a contribution token that links it to its firm's consent without naming the firm, so withdrawal can find it.
+- **Proposed adjustment**: template plus exactly one situation dimension value (a domain, an industry, a signal or an engagement type), direction and size, firm count, case count, computed date, state (below floor, proposed, live, held, rejected, orphaned).
 - **Mentor decision**: accept, hold or reject on one adjustment, with name, date, optional reason, and version history.
 - **Bench result**: which bench, run date, the figures before and after, and which adjustments were live at the time.
 - **Trace line**: the adjustment name, the situation matched, the evidence counts, the effect applied or outweighed, on an advisor's decision trace.
@@ -138,16 +148,17 @@ Before any adjustment goes live and after, the fixed Scenario Lab runs and a sec
 - **SC-003**: Every live adjustment can be recomputed by hand from the counts shown on the mentor page and matches to the unit.
 - **SC-004**: On the fixed bench, no case where the advisor's own signals favour a template sees that template pushed below an adjusted one; the cap holds in 100% of cases.
 - **SC-005**: On the outcome bench, the share of top recommendations that a later review marked "went well" is higher with accepted adjustments live than without, and the difference is reported as a number the mentor can read on the page.
+- **SC-008**: Opening the mentor page, including its recompute, returns within the page-render limit of 2000 ms at a pool of 10,000 outcomes.
 - **SC-006**: A firm manager can switch contribution on or off, or request withdrawal, in under one minute from opening the hub, and the screen confirms the result in words.
 - **SC-007**: The mentor can see, for any live adjustment, who accepted it and when, and can restore any earlier state, within one screen.
 
 ## Assumptions
 
 - Consent is a firm-level decision made by a firm manager, and an advisor's notice is informational; an advisor cannot opt out individually in this release.
-- The anonymiser used by the mentor-share path is the reference for what "stripped" means; this feature reuses it and extends its guard only where a new field needs covering.
-- "Situation" means the dimensions already recorded on a case: domain, primary issue where present, industry, the signals that fired, engagement type and staircase step. No new dimension is captured.
+- The anonymiser used by the mentor-share path is the reference for what "stripped" means; this feature reuses its guard on the structured fields and extends it only where a new field needs covering. Free text is excluded outright rather than stripped.
+- "Situation" means the dimensions already recorded on a case: domain, primary issue where present, industry, the signals that fired, engagement type and staircase step. No new dimension is captured. An adjustment is keyed to one dimension value at a time; a case matching several live adjustments has each weighed, all under the one cap (clarified 2026-09-10).
 - Only reviews recorded after consent was switched on contribute; nothing is back-filled from earlier cases.
-- Adjustments are computed on demand or on a schedule the plan decides, never inside the request that asks for a recommendation.
+- Adjustments are recomputed when the mentor opens the page, when the mentor asks for a recompute, and immediately when a firm withdraws; there is no background schedule, and the computation never runs inside the request that asks for a recommendation (clarified 2026-09-10).
 - The meeting aggregate's floor (5 advisors, 20 meetings) is the in-app precedent for evidence thresholds; the floor of 5 firms and 25 cases follows it, ruled by Mike on 2026-09-10.
 - The middle tiers and firms need no view of adjustments in this release because the pool is one platform-wide set; a firm's only lever is consent.
 - Three drawings precede any code, per the Save-the-Artefact rule, and every screen's wording is Mike's to approve.

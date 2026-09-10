@@ -220,7 +220,11 @@ without adjustments and the trace says so.
 
 **Ruled by Mike, 2026-09-10:** the floor is **5 contributing firms and 25 cases**, and an
 adjustment can only **hold a template back**, never lift one, in this release. Both are written into
-the spec (FR-008, FR-010). **Three drawings come before any code.**
+the spec (FR-008, FR-010). **Clarified with him the same day**, in the spec's Clarifications section:
+no free text enters the pool, only the tick-box verdicts; an adjustment is keyed to a template and one
+situation dimension at a time; only "went less well" on a delivered template counts against it, and
+"not used at all" is neutral; recompute happens when the mentor opens the page or asks for it, and on
+a firm's withdrawal, never on a background schedule. **Three drawings come before any code.**
 
 ## 7. The task, as Mike set it
 
