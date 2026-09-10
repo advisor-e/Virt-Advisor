@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hub menu dots — red, blue and orange on every tab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Notification dots on every hub tab — item 4.84. Screen mockup for approval,
+   drawn 2026-09-10.
+
+   Colours, spacing and type are READ OFF the shipped hub menu, per the owner
+   ruling of 2026-07-23 — nothing here is a new look:
+     - components/FirmManagerHub.vue          .hub-menu-dot, shipped 2026-09-10
+     - design/mockups/compliance-pages.html   where the dot was first drawn
+     - design/REPORT-VISUAL-STANDARD.md       the ruled numbers
+   No dark mode: one light look, RULED 2026-07-27.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-10):
+     - "they get a notification such as a red dot next to the topic (currently
+       get blue and orange in the handbook so could use similar system?)"
+     - "we could also add the blue and orange - never opened and not opened in
+       3 weeks"
+     - "put the dots in the left hand menu"
+     - "every tab"
+
+   🔴 HIS FOUR RULINGS, 2026-09-10 — asked ONE AT A TIME, each as recommended:
+     (1) RED BEATS BLUE BEATS ORANGE. No longer our judgement; his order. §3.
+     (2) The blue dot says "Never opened" — the Handbook's own wording.
+     (3) The orange dot says "Not opened in 3 weeks" — it names the rule (21
+         days) rather than hiding it behind "recently".
+     (4) The count says "6 tabs needing a look" — the Handbook's sentence with
+         the right noun for this screen. The count stays; dropping it was
+         offered and declined.
+   Nothing on this drawing moved as a result: all four were ruled as drawn.
+
+   🔴 ONE TAB CARRIES A DOT TODAY. Compliance shipped its own red dot on
+   2026-09-10 and it is drawn here exactly as it ships — same 7px circle, same
+   #e00000, same words beside it. This drawing does not restyle it. It adds the
+   two states that need a stored last-opened record, and puts all three on every
+   tab.
+
+   🔴 THE DOTS ARE A NARROW, STATUS-ONLY EXCEPTION to the no-icons ruling of
+   2026-08-19. A mark that says something the label cannot, and nothing else. A
+   decorative icon does not return to this menu by this door.
+
+   🔴 NEVER THE COLOUR ALONE. Every dot carries words — in the tooltip, and in a
+   line read out to anyone who cannot see the colour. This is the same rule the
+   Advisory Distinctions rail already follows.
+
+   THE MENU IS REAL. Every heading and every tab below is what a firm manager
+   sees today, read off NAV_GROUPS and TAB_TIERS in FirmManagerHub.vue.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-top h1{margin:6px 0 0;font-size:26px;font-weight:600;letter-spacing:-.01em}
+.hub-top p{margin:8px 0 0;color:#9dc2e8;font-size:13.5px;max-width:70ch}
+
+/* panels */
+.panel{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);padding:18px 20px;margin:0 0 16px}
+.panel h2{margin:0 0 4px;font-size:18px;font-weight:600}
+.panel h3{margin:18px 0 6px;font-size:14.5px;font-weight:600}
+.panel p{margin:0 0 10px;font-size:14px;max-width:78ch}
+.panel p.lead{color:var(--rs-muted);font-size:13.5px}
+.panel ul{margin:0 0 10px;padding-left:20px;font-size:14px}
+.panel li{margin:5px 0;max-width:78ch}
+
+/* the two-column layout of the real hub */
+.hub{display:flex;gap:18px;align-items:flex-start}
+.hub-body{flex:1 1 320px;min-width:0;background:var(--rs-panel);border:1px solid var(--rs-line);
+  border-radius:var(--rs-radius);box-shadow:var(--rs-shadow);padding:18px 20px}
+.hub-body h2{margin:0 0 6px;font-size:17px;font-weight:600}
+.hub-body p{margin:0 0 10px;font-size:14px;color:var(--rs-muted);max-width:70ch}
+
+/* ── the menu itself: Buefy b-menu, as it renders today ─────────────────── */
+.menu{flex:0 0 258px;background:var(--rs-panel);border:1px solid var(--rs-line);
+  border-radius:var(--rs-radius);box-shadow:var(--rs-shadow);padding:14px 12px 12px}
+.menu-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;padding:14px 10px 6px}
+.menu-label:first-child{padding-top:2px}
+.menu a{display:flex;align-items:center;gap:0;padding:6px 10px;border-radius:8px;
+  color:var(--rs-ink);text-decoration:none;font-size:13.5px}
+.menu a:hover{background:var(--rs-panel-2)}
+.menu a.is-active{background:var(--rs-accent-soft);color:var(--rs-accent);font-weight:600}
+.dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;margin-right:.45rem}
+.dot.red{background:var(--rs-crit)}
+.dot.blue{background:var(--rs-accent-bright)}
+.dot.orange{background:var(--rs-warn)}
+/* An entry with no dot keeps its label in exactly the same place as one with a
+   dot — the list must not ripple left and right as dots come and go. */
+.dot.none{background:transparent}
+
+/* the legend at the foot of the menu */
+.legend{margin-top:14px;padding:10px 10px 2px;border-top:1px solid var(--rs-line);
+  font-size:12px;color:var(--rs-muted);display:flex;flex-direction:column;gap:5px}
+.legend div{display:flex;align-items:center}
+.legend .count{margin-top:4px;color:var(--rs-ink);font-weight:600}
+
+/* the close-up state table */
+.states{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0 4px}
+.states th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:700;padding:8px 12px 8px 0;border-bottom:1px solid var(--rs-line)}
+.states td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+.states .swatch{white-space:nowrap;font-weight:600}
+.states .words{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.5px;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:6px;padding:2px 7px;
+  display:inline-block;color:var(--rs-ink)}
+
+.callout{border-left:3px solid var(--rs-accent);background:var(--rs-panel-2);
+  border-radius:0 10px 10px 0;padding:12px 14px;margin:0 0 12px;font-size:13.5px;max-width:80ch}
+.callout.warn{border-left-color:var(--rs-warn);background:var(--rs-warn-soft)}
+.callout.crit{border-left-color:var(--rs-crit);background:var(--rs-crit-soft)}
+.callout p{margin:0 0 8px}.callout p:last-child{margin:0}
+
+.ask{border:1px solid var(--rs-accent);background:var(--rs-accent-soft);border-radius:10px;
+  padding:14px 16px;margin:0 0 14px}
+.ask h3{margin:0 0 8px;font-size:14.5px;font-weight:600;color:var(--rs-accent)}
+.ask ol{margin:0;padding-left:20px;font-size:14px}
+.ask li{margin:8px 0;max-width:80ch}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Item 4.84 · screen mockup for approval</div>
+  <h1>Notification dots on every hub tab</h1>
+  <p>Three states in the hub's left-hand menu — red for something new, blue for never
+     opened, orange for not opened in three weeks. Drawn 2026-09-10 from Mike's own
+     words. The Compliance dot below is not a proposal: it ships today, and it is drawn
+     here unchanged.</p>
+</div>
+
+<div class="mock">
+  <p><b>This is a drawing, not the app.</b> Everything on a yellow background is a note
+     about the drawing and is never built. The menu is real: every heading and every tab
+     is what a firm manager sees today.</p>
+  <p><b>What is already built:</b> the red dot on Compliance, its words, its position and
+     its size. <b>What this drawing adds:</b> the blue and orange states, the rule for
+     which wins, the legend at the foot of the menu, and the same treatment on every tab.</p>
+</div>
+
+<div class="stepmark">1 · The menu, with dots</div>
+
+<div class="hub">
+  <nav class="menu">
+    <div class="menu-label">Your AI coach</div>
+    <a href="#"><span class="dot none"></span>Domain Support</a>
+    <a href="#"><span class="dot none"></span>Advisory Distinctions</a>
+    <a href="#"><span class="dot orange" title="Not opened in 3 weeks"></span>Logic Tables</a>
+    <a href="#"><span class="dot none"></span>Advisory Staircase</a>
+    <a href="#"><span class="dot none"></span>Logic-Lab</a>
+    <a href="#"><span class="dot none"></span>AI Prompts</a>
+    <a href="#"><span class="dot blue" title="Never opened"></span>Template Library</a>
+    <a href="#" class="is-active"><span class="dot none"></span>Meeting Review</a>
+    <a href="#"><span class="dot blue" title="Never opened"></span>Client Copy Request</a>
+
+    <div class="menu-label">Your Team In Action</div>
+    <a href="#"><span class="dot none"></span>Adviser Network</a>
+    <a href="#"><span class="dot none"></span>Team Progress</a>
+    <a href="#"><span class="dot orange" title="Not opened in 3 weeks"></span>Quizzes</a>
+    <a href="#"><span class="dot none"></span>Team Case Studies</a>
+
+    <div class="menu-label">Model Inputs</div>
+    <a href="#"><span class="dot none"></span>Property Tax Rules</a>
+    <a href="#"><span class="dot blue" title="Never opened"></span>Depreciation Rates</a>
+    <a href="#"><span class="dot blue" title="Never opened"></span>Tax Rates</a>
+
+    <div class="menu-label">Compliance</div>
+    <a href="#"><span class="dot red" title="2 new items since you last declared"></span>Compliance</a>
+
+    <div class="legend">
+      <div><span class="dot red"></span>something new</div>
+      <div><span class="dot blue"></span>never opened</div>
+      <div><span class="dot orange"></span>not opened in 3 weeks</div>
+      <div class="count">6 tabs needing a look</div>
+    </div>
+  </nav>
+
+  <div class="hub-body">
+    <h2>Meeting Review</h2>
+    <p>The open tab — whatever it happens to be. Nothing inside any tab changes.
+       This item touches the menu and nothing else.</p>
+    <div class="callout">
+      <p><b>The tab you are reading has no dot.</b> Opening a tab clears its dot at once
+         and the count above drops by one. It does not wait for a save, a scroll or a
+         reload.</p>
+    </div>
+    <div class="mock" style="margin-top:14px">
+      <p><b>Why five of seventeen tabs carry a dot in this drawing and not one or all.</b>
+         A drawing that shows one dot cannot show the rule for which colour wins, and one
+         that dots everything looks like a fault rather than a signal. This is roughly what
+         a real manager sees a fortnight in: two tabs they have never opened, two they
+         have not been back to, and one with genuinely new material in it.</p>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">2 · The three states, close up</div>
+
+<div class="panel">
+  <p class="lead">The colour is never the only signal. Each dot carries the words in the
+     right-hand column — as the tooltip when a mouse rests on it, and as a line read aloud
+     to anyone using a screen reader.</p>
+  <table class="states">
+    <thead>
+      <tr><th>Dot</th><th>When it shows</th><th>The words beside it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="swatch"><span class="dot red"></span>Red</td>
+        <td><b>Something new arrived in this tab.</b> Only a tab that knows what "new"
+            means for itself can raise this. Compliance does — material published by the
+            tier above since this firm last declared. No other tab raises one today.</td>
+        <td><span class="words">2 new items since you last declared</span><br>
+            <span style="font-size:12.5px;color:#5b6f8a">Compliance's own words, shipped
+            2026-09-10 and unchanged here.</span></td>
+      </tr>
+      <tr>
+        <td class="swatch"><span class="dot blue"></span>Blue</td>
+        <td><b>This manager has never opened this tab.</b> Not the firm — the person. A
+            new manager at an established firm sees their own blue dots, not their
+            predecessor's.</td>
+        <td><span class="words">Never opened</span></td>
+      </tr>
+      <tr>
+        <td class="swatch"><span class="dot orange"></span>Orange</td>
+        <td><b>Opened once, but not in the last three weeks.</b> Three weeks is 21 days,
+            the same number the Handbook has used since it was built.</td>
+        <td><span class="words">Not opened in 3 weeks</span></td>
+      </tr>
+      <tr>
+        <td class="swatch"><span class="dot none" style="border:1px dashed #d5e1ee"></span>None</td>
+        <td>Opened, recently, with nothing new in it.</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="stepmark">3 · When two apply at once</div>
+
+<div class="panel">
+  <h2>Red beats blue beats orange</h2>
+  <p>A tab can qualify for two states at the same moment — never opened <em>and</em>
+     holding new material, for instance. One dot shows, and it is the most urgent one.</p>
+  <ul>
+    <li><b>Red first.</b> Something arrived that this manager has not seen. That is the
+        only state where somebody else has done something.</li>
+    <li><b>Then blue.</b> Never opened at all is a bigger gap than not opened lately.</li>
+    <li><b>Then orange.</b> The gentlest of the three — a nudge, not news.</li>
+  </ul>
+  <div class="callout">
+    <p><b>🔴 RULED BY MIKE, 2026-09-10 — this order is his, not ours.</b> It was drawn as
+       our judgement and flagged as one; he was asked and he settled it as drawn. A tab
+       that is both never-opened and holding new material shows <b>red</b>: the new
+       material is the more urgent fact. No session reorders these three.</p>
+  </div>
+</div>
+
+<div class="stepmark">4 · The legend, and the count</div>
+
+<div class="panel">
+  <p>The three colours mean nothing on their own the first time somebody sees them, so the
+     foot of the menu says what they are — the same three lines the Handbook carries, in
+     the same place, plus a count of how many tabs are asking for attention.</p>
+  <div class="callout">
+    <p><b>The count is the one piece here with no precedent in the app.</b> The Handbook has
+       it ("3 pages needing a look") and it earns its place for the same reason: a manager
+       who has scrolled past the menu still knows whether anything wants them. It counts
+       tabs, not items — a Compliance tab with four new documents in it counts once.</p>
+  </div>
+</div>
+
+<div class="stepmark">5 · What the app has to remember</div>
+
+<div class="panel">
+  <h2>One line per manager, per tab</h2>
+  <p>Blue and orange are both questions about time — <em>when did this person last open
+     this tab?</em> — so the app has to write that down. Red needs nothing stored, which
+     is exactly why Compliance could ship its dot early.</p>
+  <ul>
+    <li><b>It is the manager's own record, not the firm's.</b> Two managers at one firm
+        have their own dots and neither clears the other's.</li>
+    <li><b>One line per tab, never one line holding all seventeen.</b> A manager with the
+        hub open in two browser windows would otherwise overwrite themselves — the fault
+        item 4.75 records, in miniature.</li>
+    <li><b>No new database table.</b> It rides the storage every other per-person setting
+        in this app already uses.</li>
+    <li><b>Nothing is stored about what is inside a tab</b> — only that this person opened
+        it, and when. No content, no counts, no client data.</li>
+  </ul>
+  <div class="callout">
+    <p><b>Where a record has never been written, the tab is blue.</b> That is the honest
+       answer rather than a convenient one: on the day this ships, every tab every manager
+       has ever used goes blue, because the app genuinely does not know they opened it. It
+       clears itself the first time round the hub.</p>
+  </div>
+</div>
+
+<div class="stepmark">6 · Which hubs get this</div>
+
+<div class="panel">
+  <p><b>All four — mentor, global group manager, group manager and firm manager.</b> This
+     is one menu component shared by every tier, so the dots arrive at all four the moment
+     the component has them. There is no per-tier decision to make and none is being made
+     quietly: a tier that does not show a tab simply has no dot for it.</p>
+</div>
+
+<div class="stepmark">7 · The judgements, stated</div>
+
+<div class="panel">
+  <div class="callout crit">
+    <p><b>🔴 Red stays a per-tab signal, and only Compliance raises one.</b> Item 4.84
+       describes red as "published since you last declared" — but <em>declared</em> is a
+       Compliance word. No other tab in the hub knows what "new" would mean for itself, and
+       inventing an answer for sixteen tabs would be building sixteen features nobody asked
+       for. So the machinery is general and the signal is each tab's own. When a tab has
+       real news to raise, it raises it, and the dot is already waiting.</p>
+  </div>
+  <div class="callout">
+    <p><b>✅ Red beats blue beats orange</b> — §3. Drawn as ours, <b>ruled by Mike on
+       2026-09-10</b>, and now his.</p>
+  </div>
+  <div class="callout warn">
+    <p><b>⚠ Three weeks is 21 days</b>, matching the Handbook. Your words were "3 weeks",
+       so this is arithmetic rather than a decision, but it is written down because a
+       number in code with nothing behind it is how a rule quietly becomes a guess.</p>
+  </div>
+</div>
+
+<div class="stepmark">8 · Settled by Mike, 2026-09-10</div>
+
+<div class="ask">
+  <h3>Four questions, asked one at a time, all four ruled as drawn</h3>
+  <ol>
+    <li><b>The order in §3 — red, then blue, then orange.</b> ✅ <b>His.</b> Drawn as our
+        judgement and flagged as one; he settled it unchanged.</li>
+    <li><b>The words beside the blue dot</b> — <span class="words">Never opened</span>. ✅
+        The Handbook's own wording, so the two screens say the same thing.</li>
+    <li><b>The words beside the orange dot</b> —
+        <span class="words">Not opened in 3 weeks</span>. ✅ It names the rule rather than
+        hiding it behind "recently".</li>
+    <li><b>The words in the count</b> —
+        <span class="words">6 tabs needing a look</span>. ✅ The Handbook's sentence with
+        the right noun for this screen. <b>Dropping the count was offered and declined</b>,
+        so it is a decision that it is there, not an assumption.</li>
+  </ol>
+  <p style="margin:12px 0 0;font-size:13.5px;color:#002b64">
+    <b>Nothing on this drawing moved as a result.</b> Every one was ruled as drawn, which
+    is worth saying plainly: a drawing that changes after the rulings is a different
+    drawing, and this is not one.</p>
+  <p style="margin:8px 0 0;font-size:13.5px;color:#002b64">
+    Red's own words were never on this list. <b>They ship today</b> — "2 new items since
+    you last declared" — and this drawing does not reopen them.</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -40,7 +40,16 @@ const MentorPage = require('../../pages/mentor.vue').default
  * would sweep those up as if they were hub tabs.
  */
 function tabLabels (wrapper) {
-  return wrapper.findAll('.hub-menu a[data-tab]').wrappers.map(a => a.text().trim())
+  // ⚠ THE SCREEN-READER LINE IS STRIPPED, not asserted on. A menu entry carrying a
+  // notification dot (item 4.84) renders the dot's meaning in words beside the label — "…
+  // — Never opened" — for anyone who cannot see the colour, and `.text()` returns both.
+  // These tests are about WHICH TABS EXIST and in what order; the dot's wording is pinned
+  // once, next to the logic that produces it, in tests/unit/hubMenuDots.test.js.
+  return wrapper.findAll('.hub-menu a[data-tab]').wrappers.map((a) => {
+    const sr = a.find('.is-sr-only')
+    const text = a.text().trim()
+    return sr.exists() ? text.replace(sr.text().trim(), '').trim() : text
+  })
 }
 
 /**
