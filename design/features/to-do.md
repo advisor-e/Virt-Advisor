@@ -45,8 +45,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 8 | **4.88** A failed document load can never be cleared from the screen ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 9 | **4.89** A refused document cannot tell a manager why ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 10 | **4.90** Only 250 of about 2,800 published classes are kept ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 11 | **4.91** A read can succeed and propose no rates at all ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

@@ -271,6 +271,27 @@
       "touches": "MAX_CLASSES and its comment in server/utils/depreciationExtract.js, the same wrong figure in design/features/depreciation-rates.md section 3, and the picker in components/firm/DepreciationDocumentReview.vue.",
       "note": "THE FIGURE IS WRONG IN TWO PLACES AND THEY AGREE WITH EACH OTHER: the code comment and the Brief both say a tax authority publishes 'about 156' classes. IR265's own table pages are 52, at about 54 classes a page. RAISING THE CAP IS NOT OBVIOUSLY THE FIX - a stored per-country table, which Mike asked for on 2026-09-11, holds them all without any one answer carrying 2,800 rows.",
       "comment": "2026-09-11 - found while building the section 3 fix, when the same wrong figure turned up in the code that had already been found in the Brief."
+    },
+    {
+      "ref": "4.91",
+      "name": "A read can succeed and propose no rates at all",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "IR265 was read, named and dated correctly, and three real contradictions in it were flagged - then not one rate and not one class was proposed. The manager gets a pending document with nothing on it to approve.",
+      "risk": "A manager loads a schedule, waits, pays for the reading and is shown a proposal that proposes nothing, with no way to tell whether the document was poor or the reading was. Every forecast keeps the app's own six figures, which are New Zealand guesses, and the screen does not say that is why.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found 2026-09-11 by loading the real IR265 after the section 3 fix, and filed on Mike's yes. A defect in something already built."
+      },
+      "touches": "The rates and classlist sections of the depreciation-read prompt in data/ai-prompts.json, validateReading in server/utils/depreciationExtract.js, and whatever the country-wide table Mike asked for on 2026-09-11 does instead.",
+      "note": "PROVEN, NOT INFERRED: refusedRows was 0, so nothing was rejected on our side - the model sent an empty rates list. The reading logging now records what the model OFFERED before any cleaning, so the next load says which of the two it is without another round of guessing. IT IS PROBABLY THE SAME ROOT AS 4.90: one reply cannot carry a 52-page schedule, which is exactly what a stored per-country table removes.",
+      "comment": "2026-09-11 - the second wall, met immediately after the first came down. The section 3 fix worked: the document that had been refused four times was read, named IR265, dated 2023-10, and three genuine contradictions surfaced - powder dryer buildings at two rates on pages 14 and 46, microwave ovens twice on page 36, and the Southern Cross Cable entry."
     }
   ]
 }

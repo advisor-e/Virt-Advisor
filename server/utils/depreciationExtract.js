@@ -536,6 +536,16 @@ async function readDocument (opts) {
   // Server-side only and never shown to anyone: the subject is a PUBLISHED TAX SCHEDULE and the
   // model's reply about it. No client, business or person is in this request at all — section 2
   // of the prompt says so and the route sends nothing else.
+  // ⚠ AND A SUCCESS IS LOGGED TOO, which is the half this did not have. On 2026-09-11 IR265
+  // came back readable, correctly named and dated, flagging three real contradictions in the
+  // schedule — and proposing NO RATES AND NO CLASSES AT ALL. That is a `pending` document with
+  // nothing on it to approve, and it is indistinguishable from a healthy read in every record
+  // we keep. `refusedRows` was 0, so nothing was rejected on our side; beyond that we could
+  // only guess. WHAT THE MODEL OFFERED, BEFORE ANY CLEANING, IS THE ONE FACT THAT SETTLES IT.
+  const parsed = parseModelJson(answer)
+  const offered = (parsed && typeof parsed === 'object') ? parsed : {}
+  const countOf = v => (Array.isArray(v) ? v.length : -1)
+
   if (!result.ok) {
     console.error(
       '[depreciation-read] refused as ' + result.code +
@@ -543,6 +553,22 @@ async function readDocument (opts) {
       ' · answer length=' + answer.length +
       (result.detail ? ' · the model said: ' + JSON.stringify(result.detail) : '') +
       ' · answer began: ' + JSON.stringify(answer.slice(0, 400))
+    )
+  } else {
+    // A count of -1 means the key was absent rather than empty — a different fault from an
+    // empty list, and the two are worth telling apart.
+    console.error(
+      '[depreciation-read] read ' + JSON.stringify(result.reading.document) +
+      ' · response status=' + (completed.status || 'unknown') +
+      ' · answer length=' + answer.length +
+      ' · the model OFFERED rates=' + countOf(offered.rates) +
+      ' classes=' + countOf(offered.classes) +
+      ' unresolved=' + countOf(offered.unresolved) +
+      ' · WE KEPT rates=' + Object.keys(result.reading.categories).length +
+      ' classes=' + result.reading.classes.length +
+      ' unresolved=' + result.reading.unresolved.length +
+      ' refused=' + result.reading.refusedRows +
+      (countOf(offered.rates) < 1 ? ' · NO RATES WERE OFFERED — item 4.91' : '')
     )
   }
 
