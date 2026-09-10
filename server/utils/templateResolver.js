@@ -701,4 +701,6 @@ function buildDisplaySet (resolvedResult, budget) {
 // TREE_HINT_BOOST is exported for the Logic-Lab page, which states the number to
 // firm managers as fact. Exporting it means the screen reads the engine's own
 // value instead of carrying a copy that is free to disagree with it.
-module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION, TREE_HINT_BOOST }
+// INDUSTRY_STOPWORDS is exported so Outcome Learning's industry vocabulary is built with the
+// SAME filter this matcher applies (specs/002-outcome-learning research §9) — one list, not two.
+module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION, TREE_HINT_BOOST, INDUSTRY_STOPWORDS }

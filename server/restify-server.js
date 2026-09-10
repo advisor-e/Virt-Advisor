@@ -131,6 +131,7 @@ const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
 const hubTabsRoute = require('./routes/hubTabs')
 const outcomeLearningRoute = require('./routes/outcomeLearning')
+const outcomeConsentRoute = require('./routes/outcomeConsent')
 // Both sides of the 2026-09-10 merge: this machine's compliance routes, and the desktop's
 // `firmOrEntityAuth` in the guard list.
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
@@ -471,6 +472,14 @@ server.post('/api/firm-manager/tax-rates/restore', ...fmGuard, taxRatesRoute.res
 // route that takes a scope from the body would undo both rulings at once.
 server.get('/api/firm-manager/compliance', ...fmGuard, complianceRoute.getForManager)
 server.post('/api/firm-manager/compliance', ...fmGuard, complianceRoute.publish)
+
+// Outcome Sharing — item 4.87, the firm's consent (specs/002-outcome-learning contracts
+// §Firm manager). THE FIRM TIER ALONE: consent is a firm's own undertaking, as its
+// compliance declaration is; the mentor has nothing to switch. Withdraw calls the mentor
+// side's recomputeAndPersist so an adjustment now below the floor is recorded as such.
+server.get('/api/firm-manager/outcome-consent', ...fmGuard, outcomeConsentRoute.read)
+server.post('/api/firm-manager/outcome-consent', ...fmGuard, outcomeConsentRoute.set)
+server.post('/api/firm-manager/outcome-consent/withdraw', ...fmGuard, outcomeConsentRoute.withdraw)
 server.get('/api/firm-manager/compliance/history', ...fmGuard, complianceRoute.history)
 server.post('/api/firm-manager/compliance/restore', ...fmGuard, complianceRoute.restore)
 // The firm's OWN compliance evidence (slice 2) — its lawyer's opinion, its privacy statement,
