@@ -32,7 +32,7 @@
 const crypto = require('crypto')
 const { CATEGORY_KEYS, normaliseCountry, publishedKey } = require('./depreciationRates')
 // One number, one home: the reading applies this cap and the store holds it to the same one.
-const { MAX_CLASSES } = require('./depreciationExtract')
+const { MAX_CLASSES, MAX_UNRESOLVED } = require('./depreciationExtract')
 
 /** The overlay address these records are stored under, at every tier. */
 const CONFIG_KEY = 'depreciation-proposals'
@@ -141,6 +141,15 @@ function cleanDocument (value, errors, where) {
       .slice(0, MAX_CLASSES)
     : []
 
+  // The entries the document could not settle — held as the reading left them. They carry no
+  // rate and no category, so nothing validates them further: they exist to be READ by a person
+  // against the document (prompt section 3, Mike's ruling of 2026-09-11).
+  const unresolved = Array.isArray(value.unresolved)
+    ? value.unresolved
+      .filter(u => u && typeof u === 'object' && !Array.isArray(u) && text(u.label))
+      .slice(0, MAX_UNRESOLVED)
+    : []
+
   const refused = Number(value.refusedRows)
 
   return {
@@ -156,6 +165,7 @@ function cleanDocument (value, errors, where) {
     categories,
     unmatched,
     classes,
+    unresolved,
     refusedRows: Number.isFinite(refused) && refused > 0 ? Math.floor(refused) : 0,
     decidedBy: text(value.decidedBy),
     decidedAt: text(value.decidedAt, 40) || null
@@ -215,6 +225,7 @@ function documentRecord (opts) {
     categories: reading ? reading.categories : {},
     unmatched: reading ? reading.unmatched : CATEGORY_KEYS.slice(),
     classes: reading && Array.isArray(reading.classes) ? reading.classes : [],
+    unresolved: reading && Array.isArray(reading.unresolved) ? reading.unresolved : [],
     refusedRows: reading ? reading.refusedRows : 0,
     decidedBy: '',
     decidedAt: null

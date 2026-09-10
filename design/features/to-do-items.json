@@ -208,6 +208,69 @@
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
       "note": "SPEC KIT FEATURE, specs/002-outcome-learning. Explainable code, not a black-box model: pooled verdicts become capped score adjustments through the same seam as distinction boosts, published only above a firm-and-case floor and only after the mentor accepts each one; every applied adjustment shows on the decision trace with its evidence. Nothing leaves a firm that has not opted in. Three drawings come before any code.",
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
+    },
+    {
+      "ref": "4.88",
+      "name": "A failed document load can never be cleared from the screen",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A document the AI could not read stays on the list for ever. Nothing on the screen and no route can clear it, so the list fills with dead rows a manager cannot act on or remove.",
+      "risk": "The store keeps 20 documents, newest first, and trims the oldest. Twenty failed attempts push every real document out, so a manager loses the history of what was loaded and approved. The approved rates and their sources survive in their own store; the record of the documents they came from does not.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-11 - 'it does not give us a chance to delete past failed attempts', after four identical failures piled up on the NZ screen while the IR265 read was being diagnosed."
+      },
+      "touches": "components/firm/FirmDepreciationRates.vue, where the Review button shows only for a pending document, and rejectDocument in server/routes/depreciationRates.js, which refuses anything not pending with NOT_PENDING. Both ends are shut, so both change or neither does.",
+      "note": "PROVEN AT BOTH ENDS 2026-09-11, not inferred. addDocument slices to MAX_DOCUMENTS=20 newest-first, so the oldest go. A rejected document already stays on the list marked rejected, so the pattern for a decided-and-dismissed row exists; what is missing is any way to reach it for an unreadable one.",
+      "comment": "2026-09-11 - raised by Mike from the running app while diagnosing the IR265 read, and filed on his yes."
+    },
+    {
+      "ref": "4.89",
+      "name": "A refused document cannot tell a manager why",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "A manager told a document could not be read is advised to download it again or try another edition. The model's own reason is now captured server-side and never reaches them.",
+      "risk": "The section 3 fix removed the worst case - a legible document that disagrees with itself is no longer refused - so the standing advice is sound in the common case. What remains is a manager who cannot act on a refusal and re-loads the same file, paying for each attempt. That is what happened three times on 2026-09-11.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-11 - 'doesnt tell us what to do different etc', looking at four identical failure rows on the running app."
+      },
+      "touches": "UNREADABLE_MESSAGE in server/utils/depreciationExtract.js - Mike's pinned wording of 2026-09-09, changed only by him - the whyUnreadable sentence now carried as `detail` and logged, and the document row in components/firm/FirmDepreciationRates.vue.",
+      "note": "THE MATERIAL NOW EXISTS: the model is asked for one plain sentence saying what defeated it, and it is logged. Whether any of it reaches a manager is a WORDING DECISION FOR MIKE, since UNREADABLE_MESSAGE is his own pinned sentence and a test fails the build if it drifts.",
+      "comment": "2026-09-11 - raised by Mike from the running app and filed on his yes, alongside 4.88."
+    },
+    {
+      "ref": "4.90",
+      "name": "Only 250 of about 2,800 published classes are kept",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "MAX_CLASSES is 250 and IR265 publishes roughly 2,800 classes. A manager's picker would hold the first tenth of the document and stop, with nothing on screen saying so.",
+      "risk": "A manager whose category matched the wrong class looks for the right one in a picker that ends around page 10 of 52, does not find it, and has no way to know the class is in the document. Dropped classes are deliberately not counted into refusedRows, so the absence is silent by design.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found 2026-09-11 while building the section 3 fix, and filed on Mike's yes. A defect in something already built, not a new capability."
+      },
+      "touches": "MAX_CLASSES and its comment in server/utils/depreciationExtract.js, the same wrong figure in design/features/depreciation-rates.md section 3, and the picker in components/firm/DepreciationDocumentReview.vue.",
+      "note": "THE FIGURE IS WRONG IN TWO PLACES AND THEY AGREE WITH EACH OTHER: the code comment and the Brief both say a tax authority publishes 'about 156' classes. IR265's own table pages are 52, at about 54 classes a page. RAISING THE CAP IS NOT OBVIOUSLY THE FIX - a stored per-country table, which Mike asked for on 2026-09-11, holds them all without any one answer carrying 2,800 rows.",
+      "comment": "2026-09-11 - found while building the section 3 fix, when the same wrong figure turned up in the code that had already been found in the Brief."
     }
   ]
 }

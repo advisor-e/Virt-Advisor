@@ -84,12 +84,21 @@ tax rates so the two agree and no deferred tax arises. *Because it moves reporte
 every rate's origin must be visible in the finished report and not only on the screen where
 it was set.*
 
-**P8 · A document that cannot be read reliably is refused outright.** Nothing is proposed
-from partially recovered text. Reading IR265 on 2026-09-08 with ordinary tooling silently
-dropped about a dozen letters — *"diminishing value"* came through as *"diinisin alue"* — and
-the damaged text still read as English, so a search for a missing term returned nothing and
-the nothing looked like an answer. *Ignore this and garbled text produces confident, wrong
-rates.*
+**P8 · A document that cannot be READ is refused outright — but a document that disagrees with
+ITSELF is not.** Nothing is proposed from partially recovered text. Reading IR265 on 2026-09-08
+with ordinary tooling silently dropped about a dozen letters — *"diminishing value"* came
+through as *"diinisin alue"* — and the damaged text still read as English, so a search for a
+missing term returned nothing and the nothing looked like an answer.
+
+**Legibility is the test, and only legibility (Mike, 2026-09-11).** A published schedule repeats
+a heading across a page break and prints the same class twice for different bands of remaining
+life; IR265 does exactly that on pages 39 and 40, for capacity in the Southern Cross Cable
+Network. Under the older rule the model met that one pair of rows, judged the document
+contradictory and refused **all 52 pages** — nothing about vehicles, plant or computers was ever
+attempted. Now an entry that cannot be settled is left out, listed on the review screen with the
+pages it appears on, and everything else is read as normal. *Ignore this and garbled text
+produces confident, wrong rates — or one odd line about undersea cable discards an entire
+schedule.*
 
 **P9 · Where two documents disagree, the newer publication wins and the older is shown
 beside it.** Never silently dropped. Where the dates are equal the incumbent is kept and the

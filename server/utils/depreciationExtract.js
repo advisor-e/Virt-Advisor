@@ -95,6 +95,16 @@ const MAX_LABEL = 120
 const MAX_CLASSES = 250
 
 /**
+ * How many unsettled entries are kept from one document.
+ *
+ * These are not rates and nothing is ever taken from them: each names a class, the pages it
+ * appears on and what differs, so a manager can settle it against the document themselves
+ * (section 3 of the prompt). Fifty is far above what a published schedule produces — IR265
+ * produced exactly one — and exists so a confused answer cannot fill a firm's stored record.
+ */
+const MAX_UNRESOLVED = 50
+
+/**
  * 🔴 MIKE'S WORDS, SETTLED 2026-09-09, AND PINNED BY TEST BECAUSE THEY ARE LOAD-BEARING.
  *
  * This is the whole of what a person is told when a document cannot be read. It replaced a
@@ -312,7 +322,17 @@ function validateReading (raw, opts) {
   // for first must be present before anything it returns is worth reading.
   if (raw.readable !== true) {
     if (raw.readable === false) {
-      return { ok: false, code: 'UNREADABLE', message: UNREADABLE_MESSAGE, reading: null }
+      // `detail` is the model's own sentence saying what defeated it, added to the prompt on
+      // 2026-09-11. It is LOGGED AND NEVER SENT: the manager gets UNREADABLE_MESSAGE, which is
+      // Mike's pinned wording. Before this existed, a refusal was a dead end for whoever had to
+      // work out why — IR265 cost three paid readings to diagnose for exactly that reason.
+      return {
+        ok: false,
+        code: 'UNREADABLE',
+        message: UNREADABLE_MESSAGE,
+        detail: oneLine(raw.whyUnreadable) || '',
+        reading: null
+      }
     }
     return { ok: false, code: 'MALFORMED', message: UNREADABLE_MESSAGE, reading: null }
   }
@@ -385,6 +405,28 @@ function validateReading (raw, opts) {
     classes.push(entry)
   })
 
+  // 🔴 THE ENTRIES THE DOCUMENT ITSELF COULD NOT SETTLE (Mike's ruling, 2026-09-11). A legible
+  // document that disagrees with itself is not an unreadable document: IR265 prints the same
+  // Southern Cross Cable class on pages 39 and 40 with different rates — a sliding scale split
+  // across a page break — and the old rule made that one pair of rows throw away all 52 pages.
+  //
+  // ⚠ NOTHING IS EVER TAKEN FROM THIS LIST. It carries no rate and no category; it exists so a
+  // dropped entry is VISIBLE rather than silently absent, which is P3 of the Brief applied to
+  // the rows rather than to the categories.
+  const unresolved = []
+  const flagged = Array.isArray(raw.unresolved) ? raw.unresolved : []
+  flagged.forEach((row) => {
+    if (unresolved.length >= MAX_UNRESOLVED) { return }
+    if (!row || typeof row !== 'object' || Array.isArray(row)) { return }
+    const label = oneLine(row.class)
+    if (!label) { return }
+    unresolved.push({
+      label,
+      pages: oneLine(row.pages) || '',
+      differs: oneLine(row.differs) || ''
+    })
+  })
+
   return {
     ok: true,
     code: null,
@@ -397,7 +439,8 @@ function validateReading (raw, opts) {
       categories,
       unmatched,
       refusedRows,
-      classes
+      classes,
+      unresolved
     }
   }
 }
@@ -481,7 +524,29 @@ async function readDocument (opts) {
     }
   }
 
-  return validateReading(parseModelJson(textFromResponse(completed)), { country })
+  const answer = textFromResponse(completed)
+  const result = validateReading(parseModelJson(answer), { country })
+
+  // 🔴 DIAGNOSTIC, added 2026-09-11 on Mike's instruction, because a real document failed and
+  // NOTHING RECORDED WHY. `UNREADABLE` (the model said it could not read it) and `MALFORMED`
+  // (its answer was not the shape section 8 asked for) show the same sentence on screen, store
+  // the same `unreadable` status, and were logged nowhere — so the two cannot be told apart
+  // after the fact, which is exactly the position we were in with IR265.
+  //
+  // Server-side only and never shown to anyone: the subject is a PUBLISHED TAX SCHEDULE and the
+  // model's reply about it. No client, business or person is in this request at all — section 2
+  // of the prompt says so and the route sends nothing else.
+  if (!result.ok) {
+    console.error(
+      '[depreciation-read] refused as ' + result.code +
+      ' · response status=' + (completed.status || 'unknown') +
+      ' · answer length=' + answer.length +
+      (result.detail ? ' · the model said: ' + JSON.stringify(result.detail) : '') +
+      ' · answer began: ' + JSON.stringify(answer.slice(0, 400))
+    )
+  }
+
+  return result
 }
 
 module.exports = {
@@ -492,6 +557,7 @@ module.exports = {
   IDLE_TIMEOUT_MS,
   MAX_LABEL,
   MAX_CLASSES,
+  MAX_UNRESOLVED,
   UNREADABLE_MESSAGE,
   oneLine,
   buildRequest,

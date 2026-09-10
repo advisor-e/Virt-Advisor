@@ -248,6 +248,43 @@ describe('the classes a manager picks from are kept with the document', () => {
     expect(out.value.documents[0].classes).toEqual([])
   })
 
+  test('the entries the document could not settle survive a save and a reload', () => {
+    // A dropped entry that vanishes on the way into the store looks exactly like a document
+    // with nothing unsettled — an absence that reads as a negative, which is what P3 of the
+    // Brief exists to stop. Nobody in UAT could tell the two apart.
+    const UNRESOLVED = {
+      label: 'Right to use capacity in the Southern Cross Cable Network granted 7 Oct 2004 - 23 Nov 2006',
+      pages: '39, 40',
+      differs: 'printed twice with different useful-life bands and different rates'
+    }
+    const rec = p.documentRecord({
+      filename: 'ir265.pdf',
+      country: 'NZ',
+      loadedBy: 'mike@advisor-e.com',
+      reading: {
+        document: 'IR265',
+        published: '2023-10',
+        country: 'NZ',
+        firstYearRuleFound: false,
+        categories: {},
+        unmatched: [],
+        refusedRows: 0,
+        classes: [],
+        unresolved: [UNRESOLVED]
+      }
+    })
+    expect(rec.unresolved).toEqual([UNRESOLVED])
+
+    const out = p.validateProposals({ documents: [rec] })
+    expect(out.ok).toBe(true)
+    expect(out.value.documents[0].unresolved).toEqual([UNRESOLVED])
+  })
+
+  test('a record stored before this existed reads back as an empty list', () => {
+    const out = p.validateProposals({ documents: [{ id: 'd1', country: 'NZ', status: 'pending', filename: 'a.pdf', loadedAt: '2026-09-09T00:00:00.000Z' }] })
+    expect(out.value.documents[0].unresolved).toEqual([])
+  })
+
   test('an entry with no wording is dropped rather than offered as a nameless choice', () => {
     const out = p.validateProposals({
       documents: [{

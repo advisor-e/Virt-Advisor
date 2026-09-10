@@ -656,3 +656,85 @@ describe('the document\'s own class list — what a manager picks from when the 
     expect(prompt.sections.find(s => s.id === 'output').body).toContain('"classes"')
   })
 })
+
+describe('a document that disagrees with ITSELF is still a readable document', () => {
+  // 🔴 THE FAULT THIS EXISTS TO STOP, found by loading the real IR265 on 2026-09-11. The
+  // schedule prints the same Southern Cross Cable class on pages 39 and 40 with different
+  // rates — a sliding scale split across a page break — and the model, obeying the old
+  // section 3, refused all 52 pages over it. Nothing about vehicles or plant was attempted.
+  // No test could have caught it: the rule was in prose, and it was doing what it said.
+
+  function unresolvedRow (over) {
+    return Object.assign({
+      class: 'Right to use capacity in the Southern Cross Cable Network granted 7 Oct 2004 - 23 Nov 2006',
+      pages: '39, 40',
+      differs: 'printed twice with different useful-life bands and different rates'
+    }, over || {})
+  }
+
+  test('an unsettled entry does not refuse the read — the other rates survive', () => {
+    const out = ex.validateReading(goodAnswer({ unresolved: [unresolvedRow()] }), { country: 'NZ' })
+    expect(out.ok).toBe(true)
+    expect(out.reading.categories.vehicles.dvRate).toBe(0.5)
+    expect(out.reading.unresolved).toHaveLength(1)
+    expect(out.reading.unresolved[0].pages).toBe('39, 40')
+  })
+
+  test('an unsettled entry is never a rate — it carries no figures at all', () => {
+    // If one of these ever reached the approved table it would put an unchecked number in
+    // front of a lender by a side door. It holds a name, pages and a difference. Nothing else.
+    const out = ex.validateReading(
+      goodAnswer({ unresolved: [unresolvedRow({ dvRate: 0.22, category: 'vehicles' })] }),
+      { country: 'NZ' }
+    )
+    expect(Object.keys(out.reading.unresolved[0]).sort()).toEqual(['differs', 'label', 'pages'])
+    expect(out.reading.categories.vehicles.dvRate).toBe(0.5)
+  })
+
+  test('an entry with no class name is dropped rather than listed as a blank', () => {
+    const out = ex.validateReading(
+      goodAnswer({ unresolved: [unresolvedRow({ class: '   ' }), unresolvedRow()] }),
+      { country: 'NZ' }
+    )
+    expect(out.reading.unresolved).toHaveLength(1)
+  })
+
+  test('a runaway answer cannot fill the stored record', () => {
+    const many = []
+    for (let i = 0; i < ex.MAX_UNRESOLVED + 25; i++) { many.push(unresolvedRow({ class: 'Class ' + i })) }
+    const out = ex.validateReading(goodAnswer({ unresolved: many }), { country: 'NZ' })
+    expect(out.reading.unresolved).toHaveLength(ex.MAX_UNRESOLVED)
+  })
+
+  test('a reading with nothing unsettled reports an empty list, never a missing one', () => {
+    const out = ex.validateReading(goodAnswer(), { country: 'NZ' })
+    expect(out.reading.unresolved).toEqual([])
+  })
+
+  test('the model\'s reason for a refusal is carried for the log and NEVER for the manager', () => {
+    // The manager gets Mike's pinned sentence. Whoever has to fix it gets the real reason,
+    // server-side. Without this, IR265 took three paid readings to diagnose.
+    const out = ex.validateReading(
+      goodAnswer({ readable: false, whyUnreadable: 'Pages 12 to 30 are scanned without recoverable text.' }),
+      { country: 'NZ' }
+    )
+    expect(out.code).toBe('UNREADABLE')
+    expect(out.message).toBe(ex.UNREADABLE_MESSAGE)
+    expect(out.detail).toBe('Pages 12 to 30 are scanned without recoverable text.')
+    expect(out.message).not.toContain('scanned')
+  })
+
+  test('the prompt asks for both of the things the code now reads', () => {
+    // The same seam again: a field the model is never asked for is a list that is always
+    // empty, and no screen would say why.
+    const prompt = require('../../data/ai-prompts.json').prompts.find(p => p.id === ex.PROMPT_ID)
+    const output = prompt.sections.find(s => s.id === 'output').body
+    expect(output).toContain('"unresolved"')
+    expect(output).toContain('"whyUnreadable"')
+
+    // And section 3 must still tell it that self-contradiction is not unreadability. This is
+    // the sentence the whole fix rests on; if it goes, the code below it does nothing.
+    const readable = prompt.sections.find(s => s.id === 'readable').body
+    expect(readable).toContain('A LEGIBLE DOCUMENT THAT DISAGREES WITH ITSELF IS NOT AN UNREADABLE DOCUMENT')
+  })
+})

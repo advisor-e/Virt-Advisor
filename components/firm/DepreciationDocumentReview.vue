@@ -150,6 +150,17 @@
         | #[b {{ document.refusedRows }} proposed {{ document.refusedRows === 1 ? 'row was' : 'rows were' }} refused] for
         |  carrying a rate, a class or a page we could not use. Nothing was taken from
         | {{ document.refusedRows === 1 ? 'it' : 'them' }}.
+      //- The entries the document itself could not settle. Named with their pages so a
+        manager can look, rather than dropped where nobody would know they existed.
+      li(v-if="unresolved.length")
+        | #[b {{ unresolved.length }} {{ unresolved.length === 1 ? 'entry' : 'entries' }} could not be settled]
+        |  from this document and {{ unresolved.length === 1 ? 'was' : 'were' }} left out. Check
+        | {{ unresolved.length === 1 ? 'it' : 'them' }} against the pages named:
+        ul.ddr-unresolved
+          li(v-for="(u, i) in unresolved" :key="i")
+            | {{ u.label }}
+            template(v-if="u.pages") &nbsp;— page {{ u.pages }}
+            template(v-if="u.differs") &nbsp;— {{ u.differs }}
       li(v-if="!gapCount") #[b Nothing was missing.] All six categories matched a published class, and a first-year rule was found.
 
   b-message(v-if="error" type="is-danger" size="is-small") {{ error }}
@@ -303,11 +314,21 @@ export default {
       return this.rows.filter(r => !r.matched).map(r => r.label)
     },
 
+    /**
+     * Entries the document could not settle — the same class printed twice with figures that
+     * disagree, and the like. They carry no rate and nothing is ever taken from them; they are
+     * here so a dropped entry is visible rather than silently absent.
+     */
+    unresolved () {
+      return Array.isArray(this.document.unresolved) ? this.document.unresolved : []
+    },
+
     /** How many things the gaps panel has to report. */
     gapCount () {
       return (this.document.firstYearRuleFound ? 0 : 1) +
         this.unmatchedLabels.length +
-        (this.document.refusedRows ? 1 : 0)
+        (this.document.refusedRows ? 1 : 0) +
+        (this.unresolved.length ? 1 : 0)
     },
 
     /**
@@ -557,4 +578,10 @@ export default {
   font-size: 0.85rem;
 }
 .ddr-gaps li { margin: 0.35rem 0; }
+.ddr-unresolved {
+  list-style: circle;
+  padding-left: 1.1rem;
+  margin-top: 0.25rem;
+  color: #4a4a4a;
+}
 </style>
