@@ -27,6 +27,9 @@ const {
   nextItemId,
   resolveComplianceItems,
   newCountSince,
+  readDeclaration,
+  meetingReviewOpen,
+  DECLARATION_WORDING,
   CONFIG_KEY,
   MAX_BODY,
   MAX_ITEMS,
@@ -228,6 +231,59 @@ describe('resolveComplianceItems', () => {
       [FIRM]: { 'ci-1': item() }
     }))
     expect(new Set(items.map(i => i.ref)).size).toBe(items.length)
+  })
+})
+
+// ── The declaration, and the gate ─────────────────────────────────────────────
+
+describe('readDeclaration and meetingReviewOpen', () => {
+  const good = {
+    declaredAt: '2026-09-10T00:00:00.000Z',
+    declaredBy: 'janine@example.com',
+    wording: DECLARATION_WORDING,
+    against: [{ ref: '__platform__/ci-1', title: 'The assessment', version: 2 }]
+  }
+
+  test('accepts a complete declaration and keeps what was on screen', () => {
+    const out = readDeclaration(good)
+    expect(out.declaredBy).toBe('janine@example.com')
+    expect(out.wording).toBe(DECLARATION_WORDING)
+    expect(out.against[0].version).toBe(2)
+  })
+
+  test.each([
+    ['nothing at all', null],
+    ['an array', []],
+    ['no date', { declaredBy: 'a@b.c' }],
+    ['an unparseable date', { declaredAt: 'someday', declaredBy: 'a@b.c' }],
+    ['🔴 nobody\'s name — a declaration nobody signed is not a declaration',
+      { declaredAt: '2026-09-10T00:00:00.000Z' }]
+  ])('refuses %s', (_label, value) => {
+    expect(readDeclaration(value)).toBeNull()
+    expect(meetingReviewOpen(value)).toBe(false)
+  })
+
+  test('🔴 the gate opens on the declaration and on nothing else', () => {
+    // The distinction the whole design rests on, at the level of the function that decides
+    // it: there is one input, and it is the declaration.
+    expect(meetingReviewOpen(good)).toBe(true)
+  })
+
+  test('a malformed entry in `against` is dropped, and the declaration still stands', () => {
+    // The record of what was on screen is evidence, not a gate. One unreadable entry must
+    // not invalidate a declaration a manager actually made.
+    const out = readDeclaration({ ...good, against: [{ nope: true }, good.against[0]] })
+    expect(out).not.toBeNull()
+    expect(out.against).toHaveLength(1)
+  })
+
+  test('the pinned wording is Mike\'s sentence, first person and with the authority clause', () => {
+    // 🔴 THE ONE DELIBERATE WORDING PIN IN THIS FEATURE, and it is load-bearing: this is the
+    // sentence a firm manager is held to when their advisors record a client. It is pinned
+    // here, beside the store that keeps it, with the reason stated — not scattered across
+    // screen tests. Everything else this feature says on screen is UAT's to judge.
+    expect(DECLARATION_WORDING).toContain('I confirm I have read the material provided above')
+    expect(DECLARATION_WORDING).toContain('I act for and on behalf of my firm')
   })
 })
 

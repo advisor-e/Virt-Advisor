@@ -79,15 +79,33 @@ drawing did not settle, and one of them changed a ruling of his:
 - **The drop zone accepts more file types than the app does.** The drawing says *PDF, Word or
   text*; `config/integration.js` allows PDFs only, platform-wide. Kept as it is rather than
   loosening a security setting for one tab.
-- **The completeness check must read a firm's documents** to say which point each one covers.
-  Those are legal and HR documents and may name people. The standing rule strips personal data
-  before anything reaches a model, with **one** scoped exception, granted for meeting
-  transcripts. **This is a second case and it needs Mike's ruling** — it belongs to slice 4 and
-  is not settled here.
+- 🔴 **A question was put to Mike that the artefact had already answered, and it should not have
+  been.** A session proposed sending the firm's documents to the model to be read, and asked him
+  to rule on the personal data in them. **The drawing says three times that we do not read
+  them** — *"we do not read them"*, *"we do not read your documents for meaning"*, *"neither the
+  AI nor anyone at Advisor-e reads it"* — and its own examples of a covered point are **file
+  names**: *"Covered by: Legal opinion — Harrow & Tait, 3 Sep 2026"*. The check matches what a
+  document **is**, as the firm titled it, against the eight points. **No document content leaves
+  the server, so no ruling was ever needed.** The lesson is the one this repository already
+  keeps: the artefact is the specification, and a question it answers is not an open question.
 
 **The other deviations from the artefact** — the empty starting pack, no withdraw control, the
 simplified cascade strip, the shortened *New* pill, and Adviser Network staying where it is — are
 listed in the Brief §5, where a coder meets them.
+
+**Slices 2, 3 and 4, the same day.** Three decisions worth recording, because each could
+reasonably have gone the other way:
+
+- **The evidence pack reuses the document library's storage** rather than a store of its own —
+  the firm's Drive folder, its `firm_documents` row, the 500 MB quota and the cross-firm gate
+  that was already proven. A new store would have meant writing those protections again under a
+  new name.
+- **The gate sits on one route**, the one that starts a recording. Consent, chunks, finish and
+  both reports all address a meeting that already exists, so nothing can come into being without
+  passing it; guarding all seven would have added six places for the check to drift.
+- **The declaration is stored with the words the signer saw.** A record naming only a date and a
+  person is a record of a click. If the wording is ever changed, older records still show what
+  was actually agreed to.
 
 ---
 

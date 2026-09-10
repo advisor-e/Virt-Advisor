@@ -313,9 +313,88 @@ function newCountSince (items, declaredAt) {
   }).length
 }
 
+/**
+ * The declaration a firm records, in Mike's own words.
+ *
+ * 🔴 WRITTEN BY MIKE, VERBATIM, 2026-09-10. THIS STRING IS LOAD-BEARING AND IS PINNED: it is
+ * the sentence a firm manager is held to, and no session rewords it, tidies it or "improves"
+ * it. It is deliberately FIRST PERSON — an individual attests, rather than a firm attesting
+ * through nobody in particular — and it carries an AUTHORITY CLAUSE, "I act for and on behalf
+ * of my firm", so the person ticking states they can bind the firm. Neither was in the draft
+ * of ours it replaced.
+ *
+ * It says nothing about legal advice, and never claims the firm is compliant. Advice is
+ * suggested throughout this feature and required nowhere — his ruling of the same day: "we
+ * can't dictate or make it a condition for firms to seek legal advice, we can only ask that
+ * they indicate that they have read and understand the law".
+ *
+ * It lives here, on the backend, because the route stores it WITH the record: a declaration
+ * that names only a date and a person is a record of a click, not of what was agreed. If this
+ * wording is ever changed by him, older records keep the words their signer actually saw.
+ */
+const DECLARATION_WORDING = 'I confirm I have read the material provided above, and have read ' +
+  'and understand the law as it applies to this firm in the country in which we operate. I act ' +
+  'for and on behalf of my firm when I confirm we accept that meeting our legal obligations is ' +
+  'our responsibility.'
+
+/**
+ * Validate a stored declaration.
+ *
+ * @param {*} value
+ * @returns {object|null} the cleaned record, or null when there is no usable declaration
+ */
+function readDeclaration (value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) { return null }
+
+  const declaredAt = typeof value.declaredAt === 'string' ? value.declaredAt.trim() : ''
+  if (!declaredAt || Number.isNaN(Date.parse(declaredAt))) { return null }
+
+  const declaredBy = typeof value.declaredBy === 'string' ? value.declaredBy.trim() : ''
+  if (!declaredBy) { return null }
+
+  const wording = typeof value.wording === 'string' ? value.wording : ''
+
+  return {
+    declaredAt,
+    declaredBy: declaredBy.slice(0, MAX_TITLE),
+    // The words the signer actually saw, kept with the record rather than looked up later.
+    wording,
+    // What was on the screen when they signed: each item's ref and the version of it.
+    against: Array.isArray(value.against)
+      ? value.against.filter(a => a && typeof a.ref === 'string').slice(0, MAX_ITEMS).map(a => ({
+        ref: String(a.ref).slice(0, 300),
+        title: typeof a.title === 'string' ? a.title.slice(0, MAX_TITLE) : '',
+        version: Number(a.version) || 1
+      }))
+      : []
+  }
+}
+
+/**
+ * Is Meeting Review open for this scope?
+ *
+ * 🔴 THE DECLARATION GATES AND NOTHING ELSE DOES. Mike's ruling of 2026-09-10 — *"they have to
+ * tick a box before the feature becomes active"*. The evidence pack does NOT gate: an empty
+ * pack blocks nothing, because a firm's own documents are for its own benefit and Advisor-e
+ * does not judge whether a firm is compliant. Neither does the completeness check, and neither
+ * does a published update — **only the FIRST declaration blocks**.
+ *
+ * ⚠ A BUILD THAT ADDS A SECOND CONDITION HERE HAS UNDONE THAT RULING. If a later slice wants
+ * to refuse a recording for some other reason, it needs its own gate and its own ruling.
+ *
+ * @param {*} storedDeclaration - the raw value under DECLARATION_KEY for the scope
+ * @returns {boolean}
+ */
+function meetingReviewOpen (storedDeclaration) {
+  return readDeclaration(storedDeclaration) !== null
+}
+
 module.exports = {
   CONFIG_KEY,
   DECLARATION_KEY,
+  DECLARATION_WORDING,
+  readDeclaration,
+  meetingReviewOpen,
   MAX_TITLE,
   MAX_SUMMARY,
   MAX_BODY,

@@ -67,6 +67,171 @@
     p.is-size-7.has-text-grey.mb-4(v-else-if="!isMentor")
       | Nothing has been published to your firm yet.
 
+    //- ── The firm's own compliance evidence ───────────────────────────────────
+    //- 🔴 THE FIRM TIER ALONE, AND THAT IS A JUDGEMENT STATED RATHER THAN ASSUMED.
+    //- The drawing calls this "Your firm's compliance evidence", and the completeness
+    //- check that reads it (slice 4) checks a FIRM's obligations. A tier above may
+    //- publish and may declare; if one ever needs a pack of its own that is one line
+    //- here, not a rebuild.
+    //- 🔴 THE ZONE TAKES THE FIRM'S OWN EVIDENCE, NEVER THE TEXT OF THE LAW — Mike
+    //- agreed on 2026-09-10 that uploading statutes for the AI to read would put our
+    //- software in the place of their lawyer.
+    .box(v-if="isFirm")
+      .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
+        h4.title.is-6.mb-0 Your firm's compliance evidence
+        b-tag(type="is-success" size="is-small") Held by your firm only
+
+      p.is-size-7.has-text-grey.mb-4
+        | These are your documents — what you did, and the advice you took. Advisor-e can see
+        |  that a document exists and when it was added;
+        b  we do not read them and they are never shown to another firm.
+
+      .fcm-drop
+        b-upload(v-model="evidenceFile" accept="application/pdf" drag-drop expanded)
+          .has-text-centered.py-5
+            p.is-size-6.has-text-weight-semibold Drop a compliance document here
+            p.is-size-7.has-text-grey
+              | Your lawyer's opinion · your privacy statement · client engagement terms ·
+              |  staff consultation record · your breach process
+            p.is-size-7.has-text-grey.mt-2 PDF, up to {{ maxFileMb }} MB
+
+        .mt-3(v-if="evidenceFile")
+          p.is-size-7.mb-2 {{ evidenceFile.name }}
+          .buttons
+            b-button(type="is-primary" size="is-small" :loading="uploading" @click="addEvidence") Add it
+            b-button(size="is-small" @click="evidenceFile = null") Cancel
+
+      b-message.mt-3(v-if="evidenceError" type="is-danger" size="is-small") {{ evidenceError }}
+
+      .mt-4
+        p.is-size-7.has-text-grey.py-3(v-if="!evidence.length")
+          | Your pack is empty. Nothing is blocked by that — an empty pack stops nothing, and
+          |  Advisor-e does not judge whether your firm is compliant.
+
+        .fcm-doc(v-for="doc in evidence" :key="doc.fileId")
+          .fcm-doc-main
+            .fcm-doc-title {{ doc.name }}
+            .fcm-doc-sub
+              | Added {{ dateWords(doc.addedAt) }}
+              |  by {{ doc.addedBy || 'someone at your firm' }} · {{ sizeWords(doc.sizeBytes) }}
+          b-button.fcm-read(size="is-small" outlined @click="openEvidence(doc)") Open
+          b-button.fcm-read(
+            size="is-small"
+            outlined
+            type="is-danger"
+            :loading="removing === doc.fileId"
+            @click="removeEvidence(doc)") Remove
+
+    //- ── What is missing from your pack ───────────────────────────────────────
+    //- 🔴 A COMPLETENESS CHECK, NOT A LEGAL OPINION, AND IT GATES NOTHING. If an
+    //- incomplete pack closed the recorder, Advisor-e would be deciding when a firm is
+    //- compliant enough to proceed — the responsibility the all-care basis puts on them.
+    //- 🔴 IT READS DOCUMENT NAMES, NEVER CONTENTS. The artefact says so three times.
+    //- 🔴 ON A BUTTON, NEVER AUTOMATICALLY — his ruling, and item 4.82 is the reason:
+    //- nothing caps how many paid readings a user can set off. A screen that re-checked
+    //- on load would have undone that ruling.
+    .box(v-if="isFirm")
+      .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
+        h4.title.is-6.mb-0 What is missing from your pack
+        span.is-size-7.has-text-grey(v-if="check")
+          | Checked {{ dateWords(check.checkedAt) }} · {{ check.covered }} of {{ check.total }} covered
+
+      .fcm-note.mb-4
+        p.is-size-7
+          b This is a completeness check, not a legal opinion.
+          |  We look at what your documents are called and say which of the eight points each
+          |  one appears to address.
+          b  We do not tell you what the law requires, we do not read your documents, and
+          b  nothing inside one is ever sent anywhere.
+          |  A tick means a document appears to address that point, never that it addresses it
+          |  adequately. Only your lawyer can say that.
+
+      b-message(v-if="checkError" type="is-danger" size="is-small") {{ checkError }}
+
+      ul.fcm-chk(v-if="check")
+        li(v-for="p in check.points" :key="p.id")
+          span.fcm-chk-mark(:class="p.covered ? 'is-yes' : 'is-no'") {{ p.covered ? '✓' : '!' }}
+          span.fcm-chk-text
+            span(:class="{ 'has-text-weight-semibold': !p.covered }") {{ p.title }}
+            .fcm-chk-why(v-if="p.covered") Covered by: {{ p.coveredBy.join('; ') }}
+            .fcm-chk-why(v-else) {{ p.why }}
+
+      p.is-size-7.has-text-grey.py-3(v-else)
+        | Your pack has not been checked yet.
+
+      .fcm-note.mt-4
+        p.is-size-7
+          b The ninth point is not on this list, and that is deliberate.
+          |  That the firm has read and understands the law as it applies to it is the
+          |  declaration below, not a document.
+          b  It is the only one we ask for, and the only one that changes anything.
+          |  Nothing in this software checks whether you took legal advice.
+
+      .buttons.mt-4
+        b-button(type="is-primary" :loading="checking" @click="runCheck")
+          | {{ check ? 'Check my pack again' : 'Check my pack' }}
+      p.is-size-7.has-text-grey
+        | This sends the names of your documents — never the documents — to be matched against
+        |  the eight points. It runs only when you press the button.
+
+    //- ── The declaration ──────────────────────────────────────────────────────
+    //- 🔴 THE TICK IS THE GATE — Mike's ruling, 2026-09-10: "they have to tick a box
+    //- before the feature becomes active." It reversed a recommendation of ours against
+    //- gating, and the objection that recommendation rested on does not apply to what he
+    //- ruled: gating on the EVIDENCE PACK would make Advisor-e the judge of a firm's
+    //- compliance; gating on the firm's OWN declaration judges nothing.
+    //- 🔴 THE WORDING IS HIS, VERBATIM, AND COMES FROM THE BACKEND so no screen holds a
+    //- second copy of a pinned sentence. No session rewords it.
+    //- ⚠ EVERY TIER BELOW THE MENTOR, because the dot counts against a declaration and a
+    //- tier that could never make one could never clear it. Only a FIRM's declaration
+    //- opens Meeting Review — that is the only tier whose advisors record anything.
+    .box(v-if="!isMentor")
+      .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
+        h4.title.is-6.mb-0 Your firm's declaration
+        b-tag(v-if="isFirm" :type="declaration ? 'is-success' : 'is-danger'")
+          | {{ declaration ? 'Meeting Review is active for your firm' : 'Meeting Review is not active' }}
+
+      .fcm-note.mb-4(v-if="isFirm")
+        p.is-size-7
+          b Meeting Review does not switch on until this is recorded.
+          |  Until a firm manager records the declaration below, no advisor at your firm can
+          |  open the meeting recorder.
+          b  This is the only thing that gates it.
+          |  Your evidence pack above is for your own benefit — an empty pack blocks nothing,
+          |  and Advisor-e does not judge whether your firm is compliant.
+
+      .fcm-ack
+        .fcm-ack-line
+          b-checkbox(v-model="ticked" :disabled="saving")
+            b {{ declarationWording }}
+
+        p.is-size-7.has-text-grey.mt-2.mb-3
+          | We strongly suggest taking your own legal advice before recording a client. We do
+          |  not require it and we do not ask you to tell us whether you have.
+
+        //- A published update NOTIFIES and never suspends — his ruling of 2026-09-10. The
+        //- advisors keep recording; this asks the manager to read and declare again.
+        b-message(v-if="declaration && newCount" type="is-warning" size="is-small")
+          | {{ newCount === 1 ? 'One published item is' : newCount + ' published items are' }}
+          |  new since you last declared.
+          b  Your advisors can keep recording
+          |  — this is a notification, not a suspension. Read it and record your declaration
+          |  again, and the dot clears.
+
+        b-message(v-if="declareError" type="is-danger" size="is-small") {{ declareError }}
+
+        b-button(
+          type="is-primary"
+          :disabled="!ticked"
+          :loading="saving"
+          @click="recordDeclaration") Record this declaration
+
+        p.is-size-7.has-text-grey.mt-3(v-if="declaration")
+          b Recorded by:
+          |  {{ declaration.declaredBy }} · {{ dateWords(declaration.declaredAt) }}
+          |  · against {{ declaration.against.length }}
+          |  {{ declaration.against.length === 1 ? 'published item' : 'published items' }}
+
     //- ── What you publish ─────────────────────────────────────────────────────
     .box
       .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
@@ -97,7 +262,7 @@
 
         .fcm-body(v-if="open[item.ref]") {{ item.body }}
 
-      //- ── Publishing one ───────────────────────────────────────────────────
+      //- ── Publishing one ─────────────────────────────────────────────────────
       .fcm-form.mt-4(v-if="publishing")
         p.is-size-7.has-text-grey.mb-3(v-if="form.id")
           | This replaces
@@ -119,6 +284,47 @@
           b-button(type="is-primary" :loading="saving" @click="submit")
             | {{ form.id ? 'Publish this version' : 'Publish it' }}
           b-button(@click="cancel") Cancel
+
+    //- ── Who has recorded what ────────────────────────────────────────────────
+    //- 🔴 STATUS ONLY, NEVER THEIR DOCUMENTS. A firm's legal opinion and its policies are
+    //- the firm's. This shows that a document exists and how many; it does not show the
+    //- document, and nobody at Advisor-e reads one.
+    //- ⚠ ONE REASON, BECAUSE THERE IS ONLY ONE. A firm that cannot record has not
+    //- declared — never because its pack is thin. The drawing states it in terms.
+    .box(v-if="!isFirm && firms.length")
+      .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
+        h4.title.is-6.mb-0 Who has recorded what
+        b-tag(type="is-info" size="is-small") Status only — never their documents
+
+      p.is-size-7.has-text-grey.mb-4
+        | You see whether a firm has done it, never what they wrote.
+        b  Neither the AI nor anyone at Advisor-e reads their documents.
+
+      table.table.is-fullwidth.is-narrow
+        thead
+          tr
+            th Firm
+            th Declaration
+            th Meeting Review
+            th Documents held
+        tbody
+          tr(v-for="f in firms" :key="f.id")
+            td {{ f.name || f.id }}
+            td
+              template(v-if="f.declaredAt")
+                | {{ dateWords(f.declaredAt) }} · {{ f.declaredBy }}
+              b(v-else) Never recorded
+            td
+              b-tag(:type="f.active ? 'is-success' : 'is-danger'")
+                | {{ f.active ? 'Active' : 'Not active' }}
+            td {{ f.documentsHeld }}
+
+      b-message(type="is-warning" size="is-small" v-if="blockedFirms.length")
+        | {{ blockedNames }}
+        |  cannot record a client meeting, and this is the only reason:
+        b  the declaration has not been made.
+        |  An empty evidence pack is not why — a firm records on an empty pack. If they ask
+        |  why the recorder is closed to them, the answer is one tick by a firm manager.
 </template>
 
 <script>
@@ -166,19 +372,47 @@ export default {
       publishing: false,
       /** Every item published to this scope, newest first, each naming the tier that sent it. */
       items: [],
-      /** When this scope last declared, or null. Written by slice 3; read here for the dot. */
+      /** This scope's declaration record, or null when it has never made one. */
+      declaration: null,
+      /** When this scope last declared, or null. */
       declaredAt: null,
+      /**
+       * 🔴 MIKE'S OWN WORDS, PINNED, AND SENT FROM THE BACKEND. Empty here on purpose: a
+       * fallback string in this file would be a second copy of a sentence a firm manager is
+       * held to, and the two could drift without anything failing.
+       */
+      declarationWording: '',
+      /** Published to this scope since it last declared — the dot's number, kept for the card. */
+      newCount: 0,
+      ticked: false,
+      declareError: '',
+      /** The firms beneath this tier and whether each has declared. Status only. */
+      firms: [],
+      /**
+       * The last completeness check, or null. The eight points travel WITH it, so this screen
+       * renders what was actually checked rather than holding its own copy of the list.
+       */
+      check: null,
+      checking: false,
+      checkError: '',
       tier: '',
       /** Which item bodies are open, by `ref`. */
       open: {},
       form: { id: '', title: '', summary: '', body: '' },
+      /** The firm's own compliance documents — held by us, read by nobody here. */
+      evidence: [],
+      evidenceFile: null,
+      evidenceError: '',
+      uploading: false,
+      /** The fileId currently being removed, so one row's button spins and not all of them. */
+      removing: '',
       /**
        * How long each field may be, as the STORE decides it — sent with the answer rather than
        * written down again here. A second copy of a limit in a Vue file is a copy that drifts,
        * so these start EMPTY rather than at a plausible number: the form is not rendered until
        * the load has finished, and an unset maxlength is a limit the server still enforces.
        */
-      limits: { title: null, summary: null, body: null }
+      limits: { title: null, summary: null, body: null, fileBytes: 0 }
     }
   },
 
@@ -186,6 +420,31 @@ export default {
     /** @returns {boolean} true at the top of the tree, where nothing is published to you */
     isMentor () {
       return this.tier === 'mentor'
+    },
+
+    /**
+     * @returns {boolean} true at the firm, the one tier that holds an evidence pack —
+     *   a judgement stated in the template rather than assumed.
+     */
+    isFirm () {
+      return this.tier === 'firm_manager'
+    },
+
+    /** @returns {Array<object>} firms beneath this tier whose recorder is closed */
+    blockedFirms () {
+      return this.firms.filter(f => !f.active)
+    },
+
+    /** @returns {string} those firms, named, so a manager can act rather than count */
+    blockedNames () {
+      const names = this.blockedFirms.map(f => f.name || f.id)
+      if (names.length === 1) { return names[0] }
+      return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
+    },
+
+    /** @returns {number} the per-file limit in whole megabytes, as the platform sets it */
+    maxFileMb () {
+      return Math.round((this.limits.fileBytes || 0) / (1024 * 1024))
     },
 
     /** @returns {Array<object>} what arrived from a tier above — read-only, always */
@@ -241,14 +500,206 @@ export default {
         const data = await this.api('GET', '/api/firm-manager/compliance')
         this.items = data.items || []
         this.declaredAt = data.declaredAt || null
+        this.declaration = data.declaration || null
+        this.declarationWording = data.declarationWording || ''
         this.tier = data.tier || ''
+        this.newCount = Number(data.newCount) || 0
+        this.check = data.check || null
         if (data.limits) { this.limits = data.limits }
         // Payload: the number of items published to this scope since it last declared.
-        this.$emit('new-count', Number(data.newCount) || 0)
+        this.$emit('new-count', this.newCount)
+
+        if (this.isFirm) {
+          await this.loadEvidence()
+        } else {
+          await this.loadFirms()
+        }
       } catch (e) {
         this.loadError = e.message
       }
       this.loading = false
+    },
+
+    /**
+     * Ask for a fresh completeness check.
+     *
+     * 🔴 ONLY FROM THIS BUTTON. Never on upload, never on load — Mike's ruling, and item 4.82
+     * is the reason: every reading is paid for and nothing caps how many one person can set
+     * off. A failed check leaves the previous result on screen rather than blanking it.
+     *
+     * @returns {Promise<void>}
+     */
+    async runCheck () {
+      this.checkError = ''
+      this.checking = true
+      try {
+        const data = await this.api('POST', '/api/firm-manager/compliance/check')
+        this.check = data.check || this.check
+      } catch (e) {
+        this.checkError = e.message
+      }
+      this.checking = false
+    },
+
+    /**
+     * Which firms beneath this tier have declared.
+     *
+     * ⚠ NOT FATAL TO THE PAGE if it fails, and empty is a legitimate answer rather than a
+     * fault: which firms a middle tier can see depends on membership data that is Advisor-e's
+     * to supply, and until it arrives every firm resolves under the mentor.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadFirms () {
+      try {
+        const data = await this.api('GET', '/api/firm-manager/compliance/firms')
+        this.firms = data.firms || []
+      } catch (_e) {
+        this.firms = []
+      }
+    },
+
+    /**
+     * Record the declaration.
+     *
+     * 🔴 THE ONE THING THAT OPENS MEETING REVIEW FOR A FIRM. The tick travels as
+     * `confirmed: true` and the route refuses without it, so a screen cannot record a
+     * declaration nobody made. The signer's name is taken from the token, never sent.
+     *
+     * @returns {Promise<void>}
+     */
+    async recordDeclaration () {
+      if (!this.ticked) { return }
+      this.declareError = ''
+      this.saving = true
+      try {
+        const data = await this.api('POST', '/api/firm-manager/compliance/declaration', {
+          confirmed: true
+        })
+        this.declaration = data.declaration || null
+        this.declaredAt = this.declaration ? this.declaration.declaredAt : null
+        this.newCount = Number(data.newCount) || 0
+        this.ticked = false
+        this.$emit('new-count', this.newCount)
+      } catch (e) {
+        this.declareError = e.message
+      }
+      this.saving = false
+    },
+
+    /**
+     * The firm's own compliance pack.
+     *
+     * ⚠ A FAILURE HERE IS DELIBERATELY NOT FATAL to the page. An empty pack blocks nothing —
+     * it is the declaration that gates and never this — so a manager who cannot load their
+     * documents can still read what was published to them and still declare.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadEvidence () {
+      this.evidenceError = ''
+      try {
+        const data = await this.api('GET', '/api/firm-manager/compliance/evidence')
+        this.evidence = data.documents || []
+      } catch (e) {
+        this.evidenceError = 'Your compliance documents could not be loaded: ' + e.message
+      }
+    },
+
+    /**
+     * Add the chosen PDF to the firm's pack.
+     * @returns {Promise<void>}
+     */
+    async addEvidence () {
+      if (!this.evidenceFile) { return }
+      this.evidenceError = ''
+      this.uploading = true
+      try {
+        const body = new FormData()
+        body.append('file', this.evidenceFile)
+        // Multipart, so no Content-Type header of our own — the browser sets the boundary.
+        const res = await fetch('/api/firm-manager/compliance/evidence', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiToken}` },
+          body
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          throw new Error((data.error && data.error.message) || 'That document could not be added.')
+        }
+        this.evidenceFile = null
+        await this.loadEvidence()
+      } catch (e) {
+        this.evidenceError = e.message
+      }
+      this.uploading = false
+    },
+
+    /**
+     * Take one document out of the firm's pack.
+     *
+     * 🔴 A FIRM'S OWN UPLOADS STAY THEIRS TO REMOVE — the other half of the ruling that a
+     * firm may not hide what a tier ABOVE published. Only what arrives from above is fixed.
+     *
+     * @param {object} doc
+     * @returns {Promise<void>}
+     */
+    async removeEvidence (doc) {
+      this.evidenceError = ''
+      this.removing = doc.fileId
+      try {
+        await this.api('DELETE', `/api/firm-manager/compliance/evidence/${encodeURIComponent(doc.fileId)}`)
+        await this.loadEvidence()
+      } catch (e) {
+        this.evidenceError = e.message
+      }
+      this.removing = ''
+    },
+
+    /**
+     * Open one of the firm's own documents.
+     *
+     * Fetched with the bearer token and handed to the browser as a blob, because a plain
+     * link carries no Authorization header — the same route and the same pattern the
+     * document library uses.
+     *
+     * @param {object} doc
+     * @returns {Promise<void>}
+     */
+    async openEvidence (doc) {
+      this.evidenceError = ''
+      try {
+        const params = new URLSearchParams({
+          fileId: doc.fileId,
+          fileName: doc.name,
+          source: 'firm'
+        })
+        const res = await fetch(`/api/firm-manager/documents/download?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { throw new Error('That document could not be opened.') }
+        const url = URL.createObjectURL(await res.blob())
+        const a = document.createElement('a')
+        a.href = url
+        a.setAttribute('download', doc.name)
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      } catch (e) {
+        this.evidenceError = e.message
+      }
+    },
+
+    /**
+     * A file size in the words a manager reads, never bytes.
+     * @param {number} bytes
+     * @returns {string}
+     */
+    sizeWords (bytes) {
+      const kb = Number(bytes) / 1024
+      if (!Number.isFinite(kb) || kb <= 0) { return '' }
+      return kb < 1024 ? `${Math.round(kb)} KB` : `${(kb / 1024).toFixed(1)} MB`
     },
 
     /**
@@ -431,6 +882,12 @@ export default {
   vertical-align: middle;
 }
 .fcm-read { flex: 0 0 auto; }
+.fcm-drop >>> .upload-draggable {
+  border: 2px dashed #b9d3e8;
+  border-radius: 12px;
+  background: #f1f6fb;
+  width: 100%;
+}
 .fcm-body {
   flex-basis: 100%;
   margin-top: 0.75rem;
@@ -446,5 +903,59 @@ export default {
 .fcm-form {
   border-top: 1px solid #eef3f8;
   padding-top: 1rem;
+}
+.fcm-ack {
+  background: #f1f6fb;
+  border: 1px solid #d5e1ee;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+}
+.fcm-ack-line {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.fcm-chk {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.85rem;
+}
+.fcm-chk li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eef3f8;
+}
+.fcm-chk li:last-child { border-bottom: 0; }
+/* The mark carries a character as well as a colour — the same rule the rest of this hub
+   follows: a colour alone says nothing to a reader who cannot see it. */
+.fcm-chk-mark {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-top: 0.1rem;
+}
+.fcm-chk-mark.is-yes {
+  background: rgba(76, 165, 45, 0.1);
+  color: #2f7d32;
+  border: 1px solid rgba(76, 165, 45, 0.35);
+}
+.fcm-chk-mark.is-no {
+  background: rgba(255, 153, 0, 0.1);
+  color: #8a5a00;
+  border: 1px solid rgba(255, 153, 0, 0.35);
+}
+.fcm-chk-text { flex: 1; }
+.fcm-chk-why {
+  font-size: 0.75rem;
+  color: #5b6f8a;
+  margin-top: 0.15rem;
 }
 </style>

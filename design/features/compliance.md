@@ -80,20 +80,27 @@ that could be read as either says so in terms.
 
 ---
 
-## 3. What is built, and what is not
+## 3. What is built
 
-**Slice 1 — built 2026-09-10.** The tab at all four manager tiers; a tier publishes an item and
-every tier beneath receives it, read-only; the red dot in the hub's left-hand menu.
+**All four slices, 2026-09-10.**
 
-**Not built:** the firm's evidence pack (slice 2), the declaration and the gate it puts on
-`/meeting-record` (slice 3), the completeness check and the mentor's roll-up of who has declared
-(slice 4).
+1. The tab at all four manager tiers; a tier publishes an item and every tier beneath receives
+   it, read-only; the red dot in the hub's left-hand menu.
+2. The firm's own evidence pack — upload, list, open, remove — on the document library's
+   existing storage.
+3. **The declaration, and the gate.** Until a firm records it, no advisor at that firm can start
+   a recording; `/meeting-record` shows the locked state instead.
+4. The completeness check, on a button, and the roll-up of who has declared.
 
-**Until slice 3 lands, the banner on the recorder is a warning and not a control** — nothing
-gates Meeting Review today.
+🔴 **THE GATE IS LIVE, AND IT CHANGES BEHAVIOUR EVERYWHERE.** Every firm starts undeclared, so
+Meeting Review is **off for everyone** — in development and in UAT — until a firm manager records
+the declaration on this tab. That is the feature working, but it looks like a break to anyone
+who does not know it landed.
 
-**None of this has been seen running.** It needs MySQL, and the evidence pack will need Google
-Drive credentials as well. First sight is UAT.
+**None of this has been seen running.** The publishing, the declaration and the roll-up need
+MySQL; the evidence pack needs Google Drive credentials as well; the completeness check needs
+`OPENAI_API_KEY` and says so plainly rather than failing as though the pack were at fault. First
+sight is UAT.
 
 ---
 
@@ -118,10 +125,14 @@ item is new, which is the correct answer for a firm that has declared nothing.
 
 | Piece | Path |
 |---|---|
-| The cascade, validation and the dot's arithmetic | `server/utils/compliance.js` |
-| The four routes | `server/routes/compliance.js` |
-| Route registration (managers only, all four tiers) | `server/restify-server.js` |
+| The cascade, the declaration, the gate's rule, the dot's arithmetic | `server/utils/compliance.js` |
+| The completeness check and its answer validation | `server/utils/complianceCheck.js` |
+| The eight points | `data/compliance-checklist.json` — §9 of the assessment |
+| The prompt | `compliance-check` in `data/ai-prompts.json` — readable on the AI Prompts tab |
+| The routes | `server/routes/compliance.js` |
+| Route registration, and **the gate on `POST /api/meeting/recordings`** | `server/restify-server.js` |
 | The screen | `components/firm/FirmCompliance.vue` |
+| The locked state an advisor meets | `pages/meeting-record.vue` |
 | Tab tiers, menu heading, the menu dot | `components/FirmManagerHub.vue` |
 | **The artefact** | `design/mockups/compliance-pages.html` — ruled 2026-09-10 |
 
@@ -129,6 +140,16 @@ item is new, which is the correct answer for a firm that has declared nothing.
 
 - The absence of an edit control and a hide control **is the feature**. Adding either undoes a
   ruling; see P3 and P4.
+- 🔴 **The completeness check is sent DOCUMENT NAMES, never contents**, and the artefact says so
+  three times. A session once proposed sending the documents and asked Mike to rule on the
+  personal data in them; the drawing had already answered it. Attaching a file in
+  `complianceCheck.js` breaks a promise printed on the screen the firm is reading.
+- 🔴 **The gate has exactly one condition and it is the declaration.** Not the evidence pack,
+  not the check, not a newer publication — each has a test that fails if it starts gating.
+- 🔴 **The gate fails CLOSED**, which reverses this app's usual rule that a failed read degrades
+  to the permissive answer. Here the permissive answer is "record a client meeting".
+- The check runs **on a button only**. Re-checking on upload or on page load undoes a ruling,
+  and item 4.82 — nothing caps how many paid readings a user can trigger — is still open.
 - The **declaration wording is Mike's own, verbatim**, and is pinned in the artefact. No session
   rewords it, tidies it or improves it. It is the sentence a firm manager is held to.
 - The menu heading is **"Compliance"**, not the artefact's *"Your firm"* — that was built first and
@@ -143,10 +164,19 @@ item is new, which is the correct answer for a firm that has declared nothing.
 
 **Known deviations from the artefact**, recorded here rather than left in a commit message: the
 published pack starts empty (seeding it would copy the impact assessment into a second home that
-could drift); there is no withdraw or delete control, only republish; the cascade strip is a count
-line rather than a chain of tiers; the "New" pill says *New* rather than *New — not yet declared*;
-and Adviser Network was not moved into the new menu group, because it would move something already
-on a manager's screen.
+could drift); there is no withdraw or delete control on a published item, only republish; the
+cascade strip is a count line rather than a chain of tiers; the "New" pill says *New* rather than
+*New — not yet declared*; Adviser Network was not moved into the new menu group, because it would
+move something already on a manager's screen; the drop zone takes **PDFs only** where the drawing
+says *PDF, Word or text*, because that is a platform-wide security setting and widening it for one
+tab is not a scope call; and the roll-up shows **how many documents** a firm holds rather than the
+drawing's *"2 of 8 points covered"*, because a firm's own check result is the firm's.
+
+**The evidence pack is the FIRM tier alone**, and that is a judgement stated rather than assumed:
+the drawing calls it *"Your firm's compliance evidence"* and the check reads a firm's obligations.
+**The declaration is every tier below the mentor**, because the dot counts against a declaration
+and a tier that could never make one could never clear it — but only a firm's declaration opens
+Meeting Review, since a firm's advisors are the only people who record anything.
 
 ---
 
