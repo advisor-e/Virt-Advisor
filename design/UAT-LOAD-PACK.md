@@ -52,6 +52,10 @@ the app reads, grouped by whether you need it, with the consequences of leaving 
 in [`HANDOFF.md`](HANDOFF.md) and appears only in a side note there. Without it the backend
 treats the condition as fatal.
 
+`OUTCOME_POOL_SECRET` (optional, item 4.87) keys the anonymous tokens in the Outcome Learning
+pool. Set it once to a long random string and keep it; unset, consenting firms' reviews are
+logged and not pooled, and nothing else is affected.
+
 ## 4. Database
 
 Run [`config/db-schema.sql`](../config/db-schema.sql) against the Advisor-e MySQL instance.
