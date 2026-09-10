@@ -1,99 +1,232 @@
-# Outcome Learning — the Brief
+# The Founder's Claims Audit and Outcome Learning
 
-> **Item 4.87 · specified, not built.** This page is the task as Mike set it, and the rules
-> the spec derived from it. Nothing here is live in the product yet; the spec is
-> [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md), and the
-> history of how the task came about is in
+> **One page, two halves.** The first half is the audit Mike asked for on 2026-09-10: three
+> claims he wants to market, read against the design documents and the code. The second half
+> is the task that came out of it, item **4.87 · Outcome Learning**, in his words, with the spec
+> at [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md). Nothing
+> in the second half is built. The history is in
 > [`outcome-learning-history.md`](outcome-learning-history.md).
 >
-> **Covers:** pooling the outcomes advisors already record, anonymised, from firms that
-> consent, and turning them into explainable adjustments to what the engine recommends.
-> **Does not cover:** the per-client memory that exists today
-> ([`advisory-engine.md`](advisory-engine.md) reads it before scoring), or how a case is
-> reviewed ([`cases-and-clients.md`](cases-and-clients.md)).
+> **Read against the code at commit `b1466ef`**: the Advisory Engine, Advisory Distinctions and
+> Virtual Advisor briefs, the Design Logic, the Scenario Lab report; `server/advisorEngine.js`,
+> `templateResolver.js`, `strategyResolver.js`, `fabricationWatch.js`, `validateAIResponse.js`,
+> `caseStore.js`, `priorEngagement.js`, the labs, and the test suite.
 
 ---
 
-## 1. Design philosophy
+## Part one — the Founder's Claims Audit
 
-**The verdicts already exist; the task is to let them cross firms.** After delivery an
-advisor records, for every template, whether it was used in full, partly or not at all, and
-whether it went well or less well. Today that verdict changes the next recommendation for the
-same client and nothing else. Pooled, anonymised, across every firm that consents, the same
-verdicts can tell the platform which templates keep going less well in which situations, and
-adjust the ranking for everyone. That is what "smarter with use" means here, and it is a claim
-the product could not honestly make before this is built.
+You said you have built a world-class AI coach for advisors from hard-coded logic, AI, and
+robust learning loops. This is what the design documents promise, what the code actually does,
+and where the gap is. Every line points at a file you can open.
 
-**It is counting and weighting, not a trained model.** The engine decides and the AI writes;
-that boundary does not move. An adjustment is arithmetic a person can check by hand from the
-counts shown beside it, applied through the same seam that Advisory Distinctions already use,
-capped so that pooled evidence can never outrank what the advisor said today, and accepted by
-the mentor before it applies anywhere.
+| Claim | Verdict | In one line |
+|---|---|---|
+| Hard-coded logic makes the decisions | **Holds** | The engine decides which templates and why. The AI never picks one. |
+| AI is in the product | **Holds, bounded** | Used in seven places, each fenced, validated or gated. Fully dependent on one provider. |
+| Robust learning loops | **Partly** | Real loops exist, including one that closes on outcomes for the same client. Nothing yet learns across clients, firms or the platform. |
+| World class | **Unprovable here** | The code cannot prove a comparison. It can prove traceability, guardrails and test depth, which is what a buyer can check. |
 
-**Consent is the gate, and it belongs to the firm.** Nothing leaves a firm that has not opted
-in. No firm, advisor, client or case identifier ever leaves at all.
+## 1. Hard-coded logic makes the decisions
+
+The Advisory Engine brief states the architecture in one line: *the engine decides; the AI
+writes.* The code matches it.
+
+| Claim in the design | What the code does | Where |
+|---|---|---|
+| Template selection is scored and ranked in code, no AI | A deterministic scorer over domain, primary issue, industry, signals and distinction boosts. No model call anywhere in the resolver. | `server/utils/templateResolver.js` |
+| The staircase ceiling is the one hard block; everything else ranks and flags | Exactly one hard filter, `CEILING_BLOCKED`; engagement type is a scoring preference only. A second pass runs without the ceiling so the best out-of-range option is shown as a stretch, never hidden. | `templateResolver.js` lines 96–260 |
+| AI classifies one typed signal at a time, temperature 0 | Five model call sites in the engine, every one at temperature 0. | `server/advisorEngine.js` lines 147, 287, 333, 671, 1189 |
+| Domain detection is keyword-first, AI only as a boxed backstop | Keyword match first; a tie asks the advisor; no match at all lets the AI choose, restricted to the 14 domain ids, and the decision trace records which path chose it. | `advisorEngine.js` lines 1976–2017, `domainSetBy` at 3230 |
+| Every recommendation is traceable | A decision trace is built through the session and carried to the screen. | `decisionTrace`, 8 sites in the engine |
+| Advisor and client text is hostile | Delimited before it enters any prompt, at 61 sites across the backend. | `fenceUntrusted` |
+| Never trust model output as data | Every structured AI reply passes a validator. Those validators are held at 100% line, branch and function coverage by the build itself. | `validateAIResponse.js`, `jest.config.js` line 104 |
+| The AI cannot invent the firm's material | A fabrication watch detects quoted script-like wording that traces to neither the firm's reference material nor the conversation, and appends a visible correction. Shipped log-only in June, enforcement in July after live threads showed zero false positives. | `server/utils/fabricationWatch.js` |
+| The AI says what it does not know rather than filling the gap | Every Learn-mode prompt carries a generated statement of which guides it holds and which it does not, and the instruction to decline and name the right guide. Verified against the live model. | `design/LEARN-SCOPE-HONESTY.md` |
+
+> **Measured, not asserted.** The Scenario Lab runs a fixed set of 51 invented sessions across all
+> 14 domains before and after any engine change. Its last run: the top recommendation matched
+> something the advisor actually said in 51 of 51 cases; the distress read caught all 4 genuine
+> crises with one false alarm. [`SCENARIO-LAB-REPORT.md`](../SCENARIO-LAB-REPORT.md).
+
+> ⚠ **The honest gap in this claim.** The same report shows the signal lever fired in only 21 of
+> 51 sessions. The other 30 ranked on domain priors alone. Two stages of the designed pipeline,
+> primary-issue classification and routing groups, are written down and not in the code, and the
+> brief says so plainly. 88 templates have thin purpose-only profiles and 23 carry no signals,
+> which limits how sharply the scorer can separate them. These are precision limits, not
+> correctness faults, and they are all on the record.
+
+## 2. AI is in the product, and it is bounded everywhere it appears
+
+Seven distinct uses, each with a control around it. That combination is the real claim, and it
+holds.
+
+| Where the AI works | The control around it |
+|---|---|
+| Signal classification from free text | One enumerated signal per call, temperature 0, never a free answer |
+| Writing the recommendation narrative | Template names validated against the library; images and raw HTML disabled in the renderer; the markdown pipeline locked after repeated real-world breakage |
+| Domain backstop | Only when keywords find nothing; boxed to the 14 ids; logged |
+| Course sessions and quizzes | The AI facilitates and points to the library, never teaches the content; questions built from the firm's own banks (63 banks); a grading failure records "ungraded", never an invented score |
+| Meeting transcription and the two reports | Every quote verified against the transcript before storage; a quote the client said, or one uncited, is dropped; transcript wrapped in delimiters and declared not-instructions |
+| Economic analysis for a forecast | The advisor writes the brief and sees the exact words sent; a citation guard refuses unsourced answers; the pack prints only on explicit approval |
+| Reading a tax authority's depreciation schedule | The AI proposes, a manager approves, and nothing reads an unapproved table; every figure carries its source document and date |
+
+> ⚠ **Weaknesses a buyer would find.** Everything runs on one provider, OpenAI, through a direct
+> REST call. The economic analysis produced nine live faults that the green tests never caught,
+> found only by running it in a browser. The rendering pipeline is protected by a lock rather than
+> by a design that cannot break. A handful of on-screen strings are still hardcoded English
+> despite the localisation rule.
+
+## 3. Robust learning loops — partly
+
+The loops that exist are real, and they are human-in-the-loop by design: a domain expert changes
+the system without a developer, and the change reaches every advisor through a cascade that
+offers rather than overwrites. What does not exist is any loop that closes itself across firms.
+
+### What is built and proven
+
+- **Advisory Distinctions.** Plain-English rows a mentor or firm writes, turned into score boosts
+  in the resolver. A firm's edit sticks; the mentor's later change is offered, never applied. This
+  is the mechanism behind the product's central promise, and it is live at every tier.
+  `templateResolver.js` line 367.
+- **Logic tables and observation points editable at four tiers**, with version history and restore.
+- **Quiz banks and graded results** feeding an advisor's progress and CPD record; 63 banks keyed to
+  templates.
+- **The case-study review, and it closes on outcomes.** After delivery the advisor records what
+  went well, what went less well, what they would change, and a verdict on every template: used in
+  full, partly or not at all, and whether it went well or less well (Mike's ruling, 2026-07-14).
+  At the next session for the same client the engine reads that history *before* scoring:
+  templates already delivered, and any marked as having gone less well, are held back by a fixed
+  penalty, and the advisor's own "went less well" words are mined for fresh signals.
+  `server/utils/priorEngagement.js`, `templateResolver.js` line 561, pinned by
+  `historyHoldback.test.js`.
+- **Case reviews travelling upward**, anonymised, double opt-in, so a firm's cases become team
+  development.
+- **Meeting Review follow-through**: last meeting's agreed actions checked against this meeting's
+  transcript, matched on the client, never guessed.
+- **Adoption reporting** that names silent firms, counts only, never people.
+- **Three laboratory benches**, Scenario, Quiz and Discover, that measure the engine before and
+  after a change on fixed cases.
+
+### What is missing, and it is the difference between "loops" and "learning"
+
+> - **The outcome loop stops at the client.** A verdict on a template changes the next
+>   recommendation for that client and nothing else. No firm-wide or platform-wide weight, boost
+>   or signal moves because of what advisors recorded, and no screen aggregates those verdicts so
+>   a mentor or manager can see which templates keep going less well. The engine brief says
+>   improvement comes from real sessions, not pre-emptive patching; the sessions are now recorded,
+>   but only one client at a time reads them.
+> - **The review is optional and its uptake is unmeasured.** A case stays flagged "feedback
+>   pending" until the advisor returns to it. Nothing reports how many ever do, so the loop's
+>   reach is unknown.
+> - **The middle of the pipeline is designed, not built.** Primary issues and routing groups.
+> - **Content still has holes that a human must fill.** 18 logic-table names still point at pages
+>   the library does not hold; the signal lever fires in fewer than half the lab cases.
+
+## 4. "World class"
+
+The code cannot prove a comparison with anything outside it. What it can prove is the kind of
+thing a serious buyer checks before believing that phrase.
+
+| What can be checked | The figure |
+|---|---|
+| Working code, comments stripped | 83,407 lines across 415 files ([Code Size](../CODE-SIZE.md), recomputed every build) |
+| Tests | 9,541 tests, 467 suites, green; more test code than app code; AI-output validators pinned at 100% |
+| Content the engine reasons over | 291 templates, 42 logic trees, 14 advisory domains, 63 quiz banks |
+| Tiers the configuration cascades through | Mentor, global group, group, firm, advisor, and now the client |
+| Traceability | Signal → strategy → template on every recommendation, with the decision path shown |
+
+> ⚠ **What a buyer would probe, and you should have an answer ready.** The app is in UAT, not
+> production, so there is no usage data behind any claim yet. The Adviser Network runs on nine
+> invented people until the master team wires identity. No independent benchmark exists against a
+> competitor. The build and its two CI gates run on the master team's side, not here. One AI
+> provider, no fallback.
+
+## 5. What you can say, and what to avoid
+
+**Supportable today**
+
+- Every recommendation is decided by explainable logic and can be traced back to what the advisor
+  said.
+- The AI writes and classifies; it never chooses a template, invents a document, or grades a blank.
+- A firm pours its own vocabulary and judgement in, without a developer, and it reaches its
+  advisors automatically while the firm's choices are protected.
+- It remembers each client: what was delivered, what went less well, and the advisor's own words,
+  and it changes the next recommendation for that client accordingly.
+- Advice is tested against a fixed bench of cases across all 14 domains before any engine change
+  ships.
+- More test code than product code, with the AI-output checks held at 100%.
+
+**Not yet supportable**
+
+- "Gets smarter with use" across the board. It remembers and adjusts for each client; it does not
+  yet learn across clients or firms.
+- Any accuracy or outcome figure from real advisors. Verdicts are recorded per case, but nothing
+  adds them up, and the app is not yet in production.
+- "World class" as a comparison. Say what it does instead; the list above is stronger than the
+  adjective.
+- Anything about the adviser network's people until identity is wired.
+
+> **The one change that would turn a per-client loop into learning.** The verdicts already exist,
+> one case at a time. Add them up: a mentor and firm view of which templates keep going less well,
+> and for what kind of client, read from the same recorded outcomes. That gives the Scenario Lab
+> real cases instead of invented ones, gives the mentor evidence for which distinctions earn their
+> boost, and is the first thing any self-adjusting step would need. **This became part two.**
 
 ---
 
-## 2. Key principles — the non-negotiables
+## Part two — Outcome Learning, item 4.87
 
-**P1 · Nothing leaves a firm that has not opted in.** A firm manager switches contribution on
-and off on a hub page at the firm tier. A review recorded while the switch is off never enters
-the pool, and a firm that is not opted in never receives an adjustment. Ignore this and the
-feature becomes a way for one firm's advisors to be steered by strangers' cases.
+Mike's response to the third verdict, verbatim: *"now i want to build a prompt to develop the
+task to enable real machine learning - such that it does, indeed, get smarter with use. Not just
+from one firm, but from all those who consent to help develop the model by sharing anonymised
+data."*
 
-**P2 · The anonymised shape is exact, and the guard throws.** Domain, primary issue, industry,
-the signals that fired, engagement type, staircase step, template titles, the per-template
-verdict, and review words only after the same stripping the mentor-share path applies. A
-personal field refuses the whole contribution and is logged; nothing is dropped silently.
+## 6. The rules the spec derived from the task
 
-**P3 · The learning is explainable.** Every adjustment can be recomputed from its counts. No
-trained model is part of this feature; if a later step needs one, that is a fresh decision for
-Mike.
+**The verdicts already exist; the task is to let them cross firms.** Pooled, anonymised, across
+every firm that consents, the same per-template verdicts can tell the platform which templates
+keep going less well in which situations, and adjust the ranking for everyone. That is what
+"smarter with use" means here.
 
-**P4 · The mentor accepts before it applies.** Accept, hold or reject each adjustment, with
-name, date, version history and restore. Pooled evidence changes nobody's recommendation
-without a person who understands the content saying so.
+**It is counting and weighting, not a trained model.** The engine decides and the AI writes; that
+boundary does not move. An adjustment is arithmetic a person can check by hand from the counts
+shown beside it, applied through the same seam Advisory Distinctions already use, capped so
+pooled evidence can never outrank what the advisor said today, and accepted by the mentor before
+it applies anywhere.
 
-**P5 · The advisor's own words win.** Adjustments are capped below what the current session's
-signals contribute, and every applied or outweighed adjustment appears on the decision trace
-with its evidence count. An invisible influence on the ranking would be the first in this
-product, and the engine's own principles forbid it.
+**P1 · Nothing leaves a firm that has not opted in.** A firm manager switches contribution on and
+off on a hub page at the firm tier. A firm that is not opted in never receives an adjustment.
+
+**P2 · The anonymised shape is exact, and the guard throws.** Domain, primary issue, industry, the
+signals that fired, engagement type, staircase step, template titles, the per-template verdict,
+and review words only after the stripping the mentor-share path applies. A personal field refuses
+the whole contribution and is logged; nothing is dropped silently.
+
+**P3 · The learning is explainable.** Every adjustment can be recomputed from its counts. A
+trained model is a fresh decision for Mike, never an assumption.
+
+**P4 · The mentor accepts before it applies.** Accept, hold or reject, with name, date, version
+history and restore.
+
+**P5 · The advisor's own words win.** Adjustments are capped below the current session's signals,
+and every applied or outweighed adjustment appears on the decision trace with its evidence count.
 
 **P6 · Below the floor, nothing publishes.** A minimum number of contributing firms and cases,
-shown beside every adjustment. One prolific firm cannot meet the firm floor alone.
+shown beside every adjustment.
 
 **P7 · A recommendation never waits on learning.** If the pool cannot be read, the engine runs
 without adjustments and the trace says so.
 
----
-
-## 3. Design considerations
-
-**Why not per-advisor consent.** Consent is a firm decision because the firm owns the client
-data and the cases; advisors see a notice, worded by Mike, on the case-review screen.
-
-**Why the mentor tier alone.** The pool is one platform-wide set and no lower tier holds a
-different value; a firm's only lever is consent. Stated as a judgement, per the hub-page rule.
-
-**Why two benches.** The fixed Scenario Lab proves the cap and the opt-out; a second bench
-built from the pooled outcomes themselves proves the adjustments help on real cases. "Smarter"
-is the change in those two numbers, on the record.
-
 **Two decisions open for Mike**, each with a recommendation in the spec: the floor figures
 (proposed 5 firms and 30 cases, from the meeting aggregate's precedent), and whether an
-adjustment can only hold a template back or may also lift one (recommended hold-back only in
-the first release).
+adjustment can only hold a template back or may also lift one (recommended hold-back only in the
+first release). **Three drawings come before any code.**
 
-**Three drawings come before any code**, under the Save-the-Artefact rule: the firm's consent
-screen and the advisor's notice, the Mentor Hub page, and the trace line.
+## 7. The task, as Mike set it
 
----
-
-## 4. The task, as Mike set it
-
-Pasted to `/speckit-specify` on 2026-09-10 and kept here verbatim, so the spec, the plan and
-the build can always be checked against what was asked.
+Pasted to `/speckit-specify` on 2026-09-10 and kept here verbatim, so the spec, the plan and the
+build can always be checked against what was asked.
 
 ```text
 Learning from outcomes across consenting firms — "the platform gets smarter with use".
@@ -135,9 +268,7 @@ WORKING RULES FOR THIS TASK.
 Every change needs Mike's explicit yes. Wording on screens is his to approve before it goes into code. Tests are written for what UAT cannot see: the consent gate, the anonymisation guard, the threshold, the cap on adjustments, and the trace, with the AI-output and anonymisation validators at 100% coverage. After the spec: run /speckit-clarify, then /speckit-plan, then /speckit-tasks, stopping for Mike's yes between each.
 ```
 
----
-
-## 5. For the coder
+## 8. For the coder
 
 Nothing is built. The spec names what is reused; the plan, when Mike approves one, names the
 files.
@@ -151,9 +282,7 @@ files.
 | The bench | `scripts/scenario-lab.js` |
 | The specification | [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md) |
 
----
-
-## 6. Related briefs
+## 9. Related briefs
 
 [`advisory-engine.md`](advisory-engine.md) — the engine this adjusts ·
 [`advisory-distinctions.md`](advisory-distinctions.md) — the seam it reuses ·
