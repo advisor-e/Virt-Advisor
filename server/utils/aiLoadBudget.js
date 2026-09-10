@@ -96,11 +96,11 @@ const UNAVAILABLE_MESSAGE =
   "Document readings can't be checked right now. Please try again shortly."
 
 /**
- * ⚠ NOT YET APPROVED WORDING. Built to the same shape as Mike's sentence above — it names the
- * GROUP rather than the person, says when the door opens again, and does not send anyone to a
- * manager who cannot raise it — but he has not settled these words, and CLAUDE.md says wording
- * is his. Raised with him at the end of slice 3; if he changes it, this constant is the only
- * place it lives.
+ * 🔴 MIKE'S APPROVED WORDING, 2026-09-11 (item 4.92), and load-bearing for the same reason the
+ * sentence above is. It follows the shape he settled for the document cap: it names the GROUP
+ * rather than the person, because the manager reading it may not be the one who used it up; it
+ * says when the door opens again; and it deliberately does not say *ask your manager*, because
+ * nobody can raise it and promising that sends someone on an errand that goes nowhere.
  */
 const SCHEDULE_LIMIT_MESSAGE =
   'Your group has used all 10 country schedule readings for today. ' +
