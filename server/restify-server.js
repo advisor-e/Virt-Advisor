@@ -129,6 +129,7 @@ const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
+const hubTabsRoute = require('./routes/hubTabs')
 // Both sides of the 2026-09-10 merge: this machine's compliance routes, and the desktop's
 // `firmOrEntityAuth` in the guard list.
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
@@ -493,6 +494,14 @@ server.del('/api/firm-manager/compliance/evidence/:fileId', ...fmGuard, complian
 // documents. It reports what appears to be missing; it never gates anything, and it never says
 // what the law requires.
 server.post('/api/firm-manager/compliance/check', ...fmGuard, complianceRoute.runCheck)
+// ── Hub tab notification dots (item 4.84, slice 1) ──
+// When this manager last opened each hub tab — the record the BLUE and ORANGE dots are drawn
+// from. Keyed to the manager's own identity on the verified token, so nobody reads or clears
+// anybody else's; one row per manager per tab, which is what stops two windows of one hub
+// overwriting each other (item 4.75). RED is not here: it is raised by the individual tab that
+// knows what "new" means for itself, which today is Compliance alone.
+server.get('/api/firm-manager/hub-tabs/opened', ...fmGuard, hubTabsRoute.getOpened)
+server.post('/api/firm-manager/hub-tabs/opened', ...fmGuard, hubTabsRoute.markOpened)
 server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.getForManager)
 server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
 server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)

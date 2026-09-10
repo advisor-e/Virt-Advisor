@@ -433,12 +433,29 @@ describe('the gate on starting a recording', () => {
     return fn
   }
 
+  /**
+   * Call the gate and wait for it to finish.
+   *
+   * 🔴 THE GATE IS DELIBERATELY NOT AN `async` FUNCTION and must never become one: Restify
+   * refuses to MOUNT a handler that is both async and takes `next`, and refusing at mount
+   * means the whole server exits on boot rather than one route failing. It shipped that way
+   * on 2026-09-10 and took the backend down; `server/routes/compliance.js` carries the note.
+   *
+   * So it cannot be awaited, and a test that called it and asserted immediately would be
+   * asserting before the read came back. Flushing the queue here is what awaiting used to
+   * do — every assertion below is unchanged.
+   */
+  async function callGate (req, res, next) {
+    routes.requireDeclaration(req, res, next)
+    await new Promise(resolve => setImmediate(resolve))
+  }
+
   test('🔴 a firm that has not declared cannot start a recording', async () => {
     // Mike's ruling of 2026-09-10 in one assertion. The screen shows a locked state, but a
     // screen is not a control — this is the control.
     const res = makeRes()
     const next = spyNext()
-    await routes.requireDeclaration(makeReq(), res, next)
+    await callGate(makeReq(), res, next)
 
     expect(next).not.toHaveBeenCalled()
     expect(res._status).toBe(403)
@@ -450,7 +467,7 @@ describe('the gate on starting a recording', () => {
 
     const res = makeRes()
     const next = spyNext()
-    await routes.requireDeclaration(makeReq(), res, next)
+    await callGate(makeReq(), res, next)
 
     expect(next).toHaveBeenCalled()
     expect(res._status).toBeNull()
@@ -463,7 +480,7 @@ describe('the gate on starting a recording', () => {
 
     const res = makeRes()
     const next = spyNext()
-    await routes.requireDeclaration(makeReq(), res, next)
+    await callGate(makeReq(), res, next)
 
     expect(next).toHaveBeenCalled()
   })
@@ -478,7 +495,7 @@ describe('the gate on starting a recording', () => {
 
     const res = makeRes()
     const next = spyNext()
-    await routes.requireDeclaration(makeReq(), res, next)
+    await callGate(makeReq(), res, next)
 
     expect(next).toHaveBeenCalled()
   })
@@ -493,7 +510,7 @@ describe('the gate on starting a recording', () => {
 
     const res = makeRes()
     const next = spyNext()
-    await routes.requireDeclaration(makeReq(), res, next)
+    await callGate(makeReq(), res, next)
 
     expect(next).not.toHaveBeenCalled()
     expect(res._status).toBe(403)

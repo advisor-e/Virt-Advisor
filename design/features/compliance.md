@@ -142,6 +142,14 @@ item is new, which is the correct answer for a firm that has declared nothing.
 
 **Traps.**
 
+- 🔴 **`requireDeclaration` MUST NOT BE AN `async` FUNCTION.** It takes `next`, and Restify
+  refuses to *mount* a handler that is both — asserted at mount time, so the failure is not a
+  500 on this route but **the whole backend exiting on boot with no routes registered**. It
+  shipped that way on 2026-09-10, reached `master` and the `v0.11.0` tag, and was found the
+  first time anyone started the app. It now uses `.then()`; the check, the 403 and the
+  fail-closed direction are unchanged. `tests/unit/serverMounts.test.js` mounts every route
+  against real Restify and is mutation-verified against exactly this fault — but it is a guard,
+  not a licence to stop looking: **run the app.**
 - The absence of an edit control and a hide control **is the feature**. Adding either undoes a
   ruling; see P3 and P4.
 - 🔴 **The completeness check is sent DOCUMENT NAMES, never contents**, and the artefact says so

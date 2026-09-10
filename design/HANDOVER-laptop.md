@@ -9,49 +9,54 @@
 
 ---
 
-## 2026-09-10 (sixteenth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-10 (seventeenth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **9,675 green** (470 suites) with both machines' work together, lint 0, coverage and audit
-clean, and **`npm run build` succeeds** — run before the pull request, not after.
-**5 ahead, 0 behind `origin/master`.**
+Suite **9,749 green** (475 suites), lint 0, coverage and audit clean, `npm run build` exit 0,
+**and the backend started and seen listening.** Everything merged to `master` by PR #78 and PR
+#79. **0 ahead, 0 behind.** Nothing active on this machine.
 
-**Built today: item 4.83, Compliance — all four slices.** A tier publishes compliance material
-and it cascades down read-only; a firm lodges its own evidence; a firm manager records the
-declaration in Mike's own words; and a completeness check reports what a pack appears to be
-missing. Artefact [`mockups/compliance-pages.html`](mockups/compliance-pages.html), Brief
-[`features/compliance.md`](features/compliance.md).
+🔴 **v0.11.0 IS WITHDRAWN AND `v0.11.1` REPLACES IT. THE BACKEND IN v0.11.0 DOES NOT START.**
+One route handler in item 4.83's compliance gate — `requireDeclaration` — was an `async`
+function that also took Restify's `next`. Restify refuses to **mount** such a handler and
+asserts at mount time, so the process exited during startup with **no routes registered at
+all**. Nuxt starts normally in front of nothing, which is why it looks alive. Found by running
+the app, hours after the tag was cut. Fixed, tagged as `v0.11.1` on `e7e6271`, ledger row
+written. If anyone is holding v0.11.0, they replace the tag rather than patch it.
 
-🔴 **THE MEETING RECORDER IS NOW GATED, PER FIRM.** A firm that has recorded the declaration
-records exactly as before; a firm that has not cannot start one, and meets a locked screen that
-explains itself. **No firm has ticked yet**, so in UAT each needs its own manager to do it once,
-on Firm Manager Hub → Compliance. Mike's correction is worth repeating because I got it wrong
-first time: this is **not** a switch that turns the feature off for everybody.
+🔴 **EVERY GATE IN THIS REPOSITORY PASSED IT, AND THAT IS THE PART TO REMEMBER.** 9,748 tests,
+lint 0, audit PASS, `nuxt build` exit 0 — none of them start the server. Route tests call
+handlers directly, so a signature Restify rejects is one they never see; and
+`serverWiring.test.js`, the only test that loads the bootstrap, **mocks Restify away**, so a
+stub with no rules registered the route happily. `tests/unit/serverMounts.test.js` now mounts
+every route against real Restify and is mutation-verified against exactly this fault — **but it
+is a guard, not a substitute. Run the app before cutting a tag.** That is now step 2½ of
+Integration in practice, and the v0.11.1 ledger row records it as a check that was run.
 
-**Two things the build settled that the drawing had not.** The menu heading is **"Compliance"**,
-not the drawing's *"Your firm"* — which is untrue at the Mentor Hub, and Mike ruled on it. And the
-completeness check reads **document names, never contents**: a question was put to him about
-sending firm documents to the model, and the artefact had already answered it three times over.
+**Built today: item 4.84, the hub notification dots.** Every menu entry can carry one — red for
+the tab's own news, blue for never opened, orange for not opened in 21 days — with the meaning
+in words beside the colour, and a key and count under the menu. Drawn first at
+[`mockups/hub-menu-dots.html`](mockups/hub-menu-dots.html), four questions ruled one at a time,
+all as drawn, then approved to build from. Brief:
+[`features/firm-manager-hub.md`](features/firm-manager-hub.md).
 
-**`master` came in — 67 commits, the desktop's PR #70.** Eight conflicts, all resolved by taking
-both sides: Industry Benchmarks and Compliance both live in the hub, both new AI prompts are in
-the pinned lists in the order the merged file holds them, and every live-list item from both
-machines survives. **4.78's `activeOn` stayed cleared** — master still carried it, and Mike had
-cleared it on 2026-09-09.
+**Two judgements on it, both stated rather than assumed.** Red stays a signal each tab raises
+for itself and only Compliance raises one — *"published since you last declared"* is a
+Compliance sentence. And the legend hides when nothing wants attention, which is a named
+deviation from the drawing.
 
-**4.83's `activeOn` is CLEARED.** Nothing on this machine is half-finished.
+**SEEN RUNNING, not just tested:** all three states at the Mentor Hub, a dot clearing on open
+with the count dropping 18 → 17, both routes answering live. Looking at it also found the menu's
+labels shifting sideways as dots appeared — the drawing had solved that with a transparent
+placeholder and the build had dropped it. Fixed.
 
-⚠ **NOTHING BUILT TODAY HAS BEEN EYEBALLED.** Compliance needs MySQL, the evidence pack needs
-Google Drive credentials, and the check needs `OPENAI_API_KEY`. **That is the first thing to do in
-UAT**, along with the client register and the two rate tables from earlier in the week.
-
-**Next, and unblocked: 4.84 — notification dots on every hub tab.** Compliance ships its own red
-dot already; blue and orange are what need the per-manager last-opened record. **4.82** (nothing
-caps how many paid AI readings a user can trigger) is now touched by a second feature and still
-waits on Mike for the cap.
+**Next, and unblocked: 4.82** (nothing caps how many paid AI readings a user can trigger) still
+waits on Mike for the cap. **4.83's Compliance screens are still UNSEEN** — they need MySQL,
+Drive and a model key, so they are UAT work, along with the client register and the two rate
+tables.
 
 **DESKTOP:** your quiz-builder files were not touched. What changed under you:
-`components/FirmManagerHub.vue` (a new tab, a new menu group and a dot in the left-hand menu),
-`server/restify-server.js`, `data/ai-prompts.json` (one new prompt), `config/integration.js` (one
-new Drive category) and `pages/meeting-record.vue` (the locked state). **Your 4.58 client-level
-work merged cleanly with it.** A pull request into `master` is open; once it lands, `master` holds
-both machines and is the first commit worth cutting a release from.
+`server/routes/compliance.js` (the gate's shape only — same check), `components/FirmManagerHub.vue`
+(the dot on every menu entry, the legend), `server/restify-server.js` (two new routes),
+`tests/unit/mentorHubScope.component.test.js` (one helper reads the label rather than the whole
+anchor) and `tests/unit/compliance.routes.test.js` (five gate tests flush instead of awaiting).
+**4.87 was left alone all session** — it is yours and its `activeOn` says so.

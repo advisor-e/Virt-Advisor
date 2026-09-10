@@ -423,21 +423,36 @@ async function gate (req, res) {
  * ⚠ A STORAGE FAILURE REFUSES. See `gate` above for why this one fails closed where the rest
  * of the app fails open.
  *
+ * 🔴 NOT AN `async` FUNCTION, AND IT NEVER MAY BE. Restify refuses to mount a handler that is
+ * both async and takes `next` — `node_modules/restify/lib/chain.js`, asserted at MOUNT time, so
+ * the failure is not a 500 on this route but the whole server exiting on boot with every route
+ * unregistered. It shipped that way on 2026-09-10 and was found the first time the app was
+ * started, by which point it was on `master` and inside the `v0.11.0` tag. The check itself is
+ * unchanged: same read, same 403, same fail-closed on a storage error — it just uses `.then()`
+ * rather than `await` so the function is not an AsyncFunction.
+ *
+ * ⚠ NO TEST CAN CATCH THE NEXT ONE YET. The suite's only reader of `restify-server.js`
+ * (`serverWiring.test.js`) mocks restify away, so routes are registered against a stub with no
+ * such rule and nothing has ever mounted a real server.
+ *
  * @param {object} req
  * @param {object} res
  * @param {function} next
  */
-async function requireDeclaration (req, res, next) {
-  try {
-    const stored = await readScopeConfig(req.firmId, DECLARATION_KEY)
-    if (meetingReviewOpen(stored)) { next(); return }
-  } catch (err) {
-    console.error('[compliance] gate check failed:', err.message)
-  }
-
-  sendError(res, 403, 'NOT_DECLARED',
+function requireDeclaration (req, res, next) {
+  const refuse = () => sendError(res, 403, 'NOT_DECLARED',
     'Meeting Review is not active at this firm yet. A firm manager needs to record the ' +
     'compliance declaration in Firm Manager Hub, under Compliance.')
+
+  readScopeConfig(req.firmId, DECLARATION_KEY)
+    .then((stored) => {
+      if (meetingReviewOpen(stored)) { next(); return }
+      refuse()
+    })
+    .catch((err) => {
+      console.error('[compliance] gate check failed:', err.message)
+      refuse()
+    })
 }
 
 /**

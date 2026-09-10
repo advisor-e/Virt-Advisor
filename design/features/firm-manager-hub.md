@@ -206,6 +206,50 @@ mentor 3 / **11** · group and global 4 / **12**. Asserted off the rendered scre
 `TAB_TIERS`, because the matrix is what the design predicted and the screen is what a manager
 gets.
 
+### ✅ Notification dots — built 2026-09-10 (item 4.84)
+
+**Every menu entry can carry one dot, and it says in words what it says in colour.** Asked for by
+Mike — *"a red dot next to the topic"*, *"put the dots in the left hand menu"*, *"every tab"* —
+and built from [`../mockups/hub-menu-dots.html`](../mockups/hub-menu-dots.html), approved the same
+day with all four of its questions ruled.
+
+| Dot | When | The words |
+|---|---|---|
+| 🔴 red | something new arrived in that tab | the tab's own sentence — Compliance: *"2 new items since you last declared"* |
+| 🔵 blue | this manager has never opened it | *"Never opened"* |
+| 🟠 orange | opened, but not in the last 21 days | *"Not opened in 3 weeks"* |
+
+**🔴 Red beats blue beats orange — Mike's ruling, 2026-09-10.** It was drawn as our judgement and
+flagged as one; he settled it as drawn. A tab that is both never-opened and holding new material
+shows red. `hubMenuDots.test.js` fails if the order changes.
+
+**🔴 Red is raised by the tab itself, and only Compliance raises one.** *"Published since you last
+declared"* is a Compliance sentence; no other tab knows what "new" would mean for itself, and
+answering it for the other sixteen would be sixteen features nobody asked for. The machinery is
+general, the signal is each tab's own — stated as a judgement at §7 of the drawing.
+
+**What is stored:** one row per manager per tab, on the scope's own row, keyed by the manager's
+identity from the verified token — `server/utils/hubTabOpened.js`, read and written through
+`GET`/`POST /api/firm-manager/hub-tabs/opened`. Never one row holding every tab: that is item
+4.75's lost-update fault. No schema change, and nothing about a tab's contents is stored.
+
+**The 21 days lives on the backend and travels in the answer.** The screen holds no copy of it, so
+the rule and the words beside the dot cannot drift apart.
+
+**Two things a later change must not undo:**
+
+- **No blue or orange until the record has been read.** An unread record looks exactly like "this
+  manager has opened nothing", so painting early flashes a dot on every tab each time the hub
+  loads. Red is unaffected — it needs nothing stored.
+- **A read or write failure is silent.** The menu simply carries no dots. A red toast over a hub
+  where nothing is wrong would be the worse fault.
+
+⚠ **One named deviation from the approved drawing.** The drawing shows the legend and count at the
+foot of a menu that has dots in it; the build **hides that block entirely when nothing is asking
+for attention** — a key to three colours none of which are on screen is noise, and the count would
+otherwise read *"0 tabs needing a look"*, a sentence nobody ruled on. All four of Mike's rulings
+are untouched.
+
 ### 🔴 Which tabs can hide their own list — three, not four
 
 **Domain Support, Logic Tables and Quizzes** — same words (**Hide list / Show list**), same
