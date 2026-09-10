@@ -137,10 +137,13 @@ deliberately, because it had almost none.
 
 ### Known open items
 
-The live end-to-end click-through has never been completed: build a course, finish a session and
-quiz, interrupt a streaming reply with Start-fresh, refresh and confirm the course survives, and
-confirm the legacy migration ran. Until that is done, this feature is proven by tests and not by
-use.
+None. **The live end-to-end click-through was completed on 2026-09-10** on the desktop,
+production build against real MySQL and live OpenAI: a course built from a starter (the fit
+question fired and was answered), a session run and its quiz taken with every answer graded,
+the course found again after a full page refresh with no dev-file fallback in the log, a legacy
+browser-stored course migrated to the server with the flag set and the browser copy kept, and a
+streaming design reply interrupted with Start fresh with nothing from the old stream landing
+afterwards. Splitting the 2,700-line component remains deferred, as §3 says.
 
 ---
 

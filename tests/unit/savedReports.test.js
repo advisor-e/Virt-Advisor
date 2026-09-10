@@ -103,6 +103,21 @@ describe('savedReports — the client saves', () => {
     expect(saved.changedKeys(row)).toEqual(['sales', 'np'])
   })
 
+  it('a source flag that changed with its figure is neither counted nor badged (4.69)', async () => {
+    // Volatility saves `source.<i>` beside `sales.<i>`. One retyped month flips both, and
+    // the banner read "2 figures changed" for one edit. Ruled by Mike 2026-09-07.
+    access.isOpen.mockResolvedValue(true)
+    const advisorVersion = {
+      inputs: { 'sales.3': 100, 'source.3': 'file', 'sales.4': 50, 'source.4': 'file' },
+      savedBy: { tier: 'advisor', name: 'Pat' },
+      savedAt: 't0'
+    }
+    overlay.loadFirmConfig.mockResolvedValue({ inputs: advisorVersion.inputs, savedBy: advisorVersion.savedBy, savedAt: 't0', advisorVersion })
+    const row = await saved.saveAsClient('firm-1', 'client-a', '/volatility',
+      { 'sales.3': 120, 'source.3': 'entered', 'sales.4': 50, 'source.4': 'file' }, CLIENT)
+    expect(saved.changedKeys(row)).toEqual(['sales.3'])
+  })
+
   it('validates before it checks access, so a hostile payload never reaches the table', async () => {
     await expect(saved.saveAsClient('firm-1', 'client-a', '/debtor-drag', { a: { b: 1 } }, CLIENT))
       .rejects.toEqual(expect.objectContaining({ code: 'BAD_INPUTS' }))

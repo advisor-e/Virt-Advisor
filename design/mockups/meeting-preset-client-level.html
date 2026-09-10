@@ -1,0 +1,459 @@
+<title>How I Run Meetings With This Client</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Meeting Review — the BUSINESS-ENTITY LEVEL: "how I run meetings with THIS client".
+   ✅ ALL FIVE QUESTIONS RULED BY MIKE 2026-09-10 — APPROVED TO BUILD FROM, ONE SCREEN.
+   🔴 QUESTION 5 REMOVED STAGE C. Mike: "WHY does the firm manager need a copy? ...
+   it's the PARTNER or firm manager that owns the client data base - NOT the advisor.
+   WHY are we building two levels of this??" With one shared list per client (Q1)
+   that any advisor in the firm may edit (Q3), the manager uses the SAME pre-set
+   screen, or Advisor-e's own view-as-advisor. No hub section. D2 holds in
+   substance — a manager can set a client's points — without a screen of its own.
+
+   What this is: slice 4 of design/MEETING-TYPES-CASCADE.md §7, SECOND half — the
+   last unbuilt row in the Meeting Review Brief's build table. The first half, the
+   advisor's own level, was drawn in meeting-preset-advisor-level.html, ruled on
+   2026-09-08 and built the same day. This page continues that drawing and reuses
+   its rulings; it does not re-open them.
+
+   Why it was not drawn before: it hangs off the client picker, which is empty
+   without MySQL. The desktop has had a real MySQL since 2026-09-04, so a screen
+   drawn here can be verified here.
+
+   Sources — nothing on this page is invented:
+     design/MEETING-TYPES-CASCADE.md §2 §5 §6 §7   the cascade, D1/D2, storage
+     design/features/meeting-review.md P2, P14      the Brief
+     data/meeting-observations.json                 EVERY point text on this page
+     components/MeetingPreset.vue                   the advisor's screen as built
+     pages/meeting-record.vue                       the client picker as built
+     server/routes/clients.js                       the firm's client register
+     server/routes/meetingReview.js presetFor       how the pre-set reaches the report
+
+   🔴 THE POINT TEXT IS REAL. The four platform points are copied character for
+   character from data/meeting-observations.json, scenario `eoy_meeting`. The
+   client-level points and the client names do not exist yet and are marked
+   EXAMPLE. Advisor names are the ones the advisor-level drawing used.
+
+   COLOUR CARRIES MEANING (BRAND-TOKENS.md § Journey stages), one hue added:
+     navy   #002B64 — the firm's standard
+     teal   #00857A — the advisor's own level (built)
+     amber  #B56200 — THIS CLIENT: the level this page adds
+     violet #5B4B9E — (was the manager's half; removed by Q5)
+
+   WORDING IS MARKED IN TWO KINDS:
+     .approved  ✅ Mike's exact words, ruled and quoted from the repo.
+     .proposed  ✎ Drafted here, and every one is in the wording table.
+   ========================================================================= */
+
+:root{
+  --bg:#eef3f8; --panel:#ffffff; --panel-2:#f4f8fb; --panel-3:#e6edf4;
+  --ink:#002b64; --ink-2:#33455e; --muted:#5b6f8a; --line:#d5e1ee;
+  --navy:#002b64;   --navy-soft:#002b6412;  --navy-line:#002b6440;
+  --teal:#00857a;   --teal-soft:#00857a14;  --teal-line:#00857a44;
+  --amber:#b56200;  --amber-soft:#b5620014; --amber-line:#b5620048;
+  --violet:#5b4b9e; --violet-soft:#5b4b9e14;--violet-line:#5b4b9e44;
+  --blue:#0070c0;   --sky:#7fd3f1;
+  --good:#4ca52d;   --good-soft:#4ca52d1a;  --good-line:#4ca52d55;
+  --warn:#ff9900;   --warn-soft:#ff99001a;  --warn-line:#ff990059;
+  --rec:#ff0000;
+  --sans:'Open Sans', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --r:14px; --r-sm:9px;
+  --shadow:0 1px 2px #002b6414, 0 10px 28px -16px #002b6440;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 20px 80px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0;max-width:68ch}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.mast{background:linear-gradient(120deg,var(--navy) 0%,var(--teal) 55%,var(--amber) 100%);color:#fff;border-radius:var(--r);padding:34px 32px;box-shadow:var(--shadow)}
+.mast .kicker{font-size:11px;font-weight:600;letter-spacing:.19em;text-transform:uppercase;color:var(--sky)}
+.mast h1{font-size:44px;font-weight:300;letter-spacing:-.015em;margin:9px 0 12px;line-height:1.05}
+.mast p{font-size:15.5px;color:#dbeaf5;max-width:60ch}
+
+.banner{border-radius:var(--r-sm);padding:15px 17px;font-size:14px;line-height:1.6;border:1px solid;margin-top:16px}
+.banner b{display:block;margin-bottom:3px;font-size:14.5px}
+.banner.warn{background:var(--warn-soft);border-color:var(--warn-line);color:#5c4405}
+.banner.navy{background:var(--navy-soft);border-color:var(--navy-line);color:#002b64}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid;white-space:nowrap}
+.pill.ok{background:var(--good-soft);border-color:var(--good-line);color:#2c6641}
+.pill.prop{background:var(--warn-soft);border-color:var(--warn-line);color:#8a6508}
+.pill.ex{background:var(--panel-3);border-color:var(--line);color:var(--muted)}
+
+.stage{margin:52px 0 4px;display:flex;align-items:center;gap:14px}
+.stage .num{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:15px;font-weight:600;color:#fff;flex:0 0 auto}
+.stage h2{font-size:29px;font-weight:300;letter-spacing:-.01em}
+.stage .sub{font-size:13.5px;color:var(--muted);margin-top:1px}
+.s-a .num{background:var(--teal)}   .s-a h2{color:#00655d}
+.s-b .num{background:var(--amber)}  .s-b h2{color:var(--amber)}
+.s-c .num{background:var(--violet)} .s-c h2{color:var(--violet)}
+.rail{border-left:3px solid;padding-left:22px;margin-left:18px;margin-top:18px;display:flex;flex-direction:column;gap:26px}
+@media (max-width:640px){.rail{padding-left:14px;margin-left:6px}}
+.s-a .rail{border-color:var(--teal-line)} .s-b .rail{border-color:var(--amber-line)} .s-c .rail{border-color:var(--violet-line)}
+
+.screen{display:flex;flex-direction:column;gap:11px}
+.screen > .cap{font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.frame{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.chrome{padding:11px 17px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:12px;color:#fff;font-weight:500}
+.s-a .chrome{background:var(--teal)} .s-b .chrome{background:var(--amber)} .s-c .chrome{background:var(--violet)}
+.chrome .r{opacity:.88;font-size:11.5px}
+.pane{padding:22px 22px 24px;display:flex;flex-direction:column;gap:17px}
+.pane h3{font-size:24px;font-weight:500;letter-spacing:-.01em}
+.pane .lede{color:var(--muted);font-size:14px}
+.pane h4{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.note{background:var(--panel-3);border-radius:var(--r-sm);padding:15px 17px;font-size:13.5px;line-height:1.65;color:var(--ink-2);border:1px solid var(--line)}
+.note b{color:var(--ink)} .note ul{margin:9px 0 0;padding-left:19px} .note li{margin:5px 0}
+
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-size:13.5px;font-weight:600;padding:10px 19px;border-radius:8px;border:1.5px solid;cursor:default;background:var(--amber);border-color:var(--amber);color:#fff}
+.s-c .btn{background:var(--violet);border-color:var(--violet)}
+.btn.ghost{background:var(--panel);border-color:var(--line);color:var(--ink)}
+.btn.sm{font-size:12.5px;padding:6px 13px;border-radius:7px}
+.btn.link{background:none;border-color:transparent;color:var(--blue);padding:6px 4px}
+
+.pts{display:flex;flex-direction:column;gap:8px}
+.pt{display:flex;gap:12px;align-items:flex-start;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;font-size:14px}
+.pt .box{width:17px;height:17px;border-radius:5px;flex:0 0 auto;margin-top:2px;background:var(--teal);position:relative}
+.pt .box::after{content:"";position:absolute;left:5.5px;top:2px;width:4px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(43deg)}
+.pt .body{flex:1;min-width:0}
+.pt .acts{margin-left:auto;flex:0 0 auto;display:flex;gap:2px;align-items:flex-start}
+.src{font-size:11.5px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:6px;font-weight:600;letter-spacing:.02em;flex-wrap:wrap}
+.src .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.src.platform .dot{background:var(--violet)} .src.firm .dot{background:var(--navy)}
+.src.mine .dot{background:var(--teal)} .src.client .dot{background:var(--amber)}
+.pt.off{background:var(--panel);border-style:dashed;opacity:.75}
+.pt.off .box{background:transparent;border:1.5px dashed var(--muted)} .pt.off .box::after{display:none}
+.pt.off .body{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.pt.off .src{text-decoration:none}
+.pt.client{background:var(--amber-soft);border-color:var(--amber-line)} .pt.client .box{background:var(--amber)}
+
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.input{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:11px 13px;font-size:14px;color:var(--ink)}
+.input.ph{color:var(--muted)}
+.select{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:11px 13px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.select::after{content:"▾";color:var(--muted)}
+.select.hot{border-color:var(--amber)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.two{grid-template-columns:1fr}}
+
+table.words{width:100%;border-collapse:collapse;margin-top:16px;font-size:13.5px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+table.words th{text-align:left;padding:11px 14px;background:var(--panel-3);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table.words td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:top}
+table.words td.w{font-weight:600;white-space:nowrap}
+.tblwrap{overflow-x:auto}
+
+.q{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:var(--r-sm);padding:18px 20px;margin-top:14px}
+.q h3{font-size:17px;font-weight:600;margin-bottom:8px}
+.q .rec{background:var(--good-soft);border:1px solid var(--good-line);border-radius:7px;padding:11px 13px;margin-top:11px;font-size:13.5px;color:#2c6641}
+.q .rec b{color:#1f4a2e}
+.q .against{background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:7px;padding:11px 13px;margin-top:9px;font-size:13.5px;color:#5c4405}
+.q .qn{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.q.big{border-left-color:var(--rec)}
+.q.ruled{border-left-color:var(--good)}
+
+footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+footer p{max-width:80ch;margin-bottom:8px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;background:var(--panel-3);padding:1px 5px;border-radius:4px}
+</style>
+
+<div class="wrap">
+
+<div class="mast">
+  <div class="kicker">Meeting Review · cascade slice 4, second half</div>
+  <h1>How I run meetings with this client</h1>
+  <p>The business-entity level — the bottom of the cascade, where it ends at the client
+     the meeting is with. Today an advisor can tailor their own list; they cannot tailor it
+     for one relationship. This is that level, and it is the last unbuilt row of Meeting Review.</p>
+</div>
+
+<div class="banner navy">
+  <b>✅ ALL FIVE QUESTIONS RULED BY MIKE, 2026-09-10 — APPROVED TO BUILD FROM.</b>
+  <b>Question 5 removed a whole stage.</b> The manager's section drawn as Stage C is gone: with
+  one shared list per client that any advisor in the firm may edit, a firm manager opens the same
+  pre-set screen, and Advisor-e's own view-as-advisor reaches an advisor's side of it. In his
+  words: <i>"it's the PARTNER or firm manager that owns the client data base - NOT the advisor.
+  WHY are we building two levels of this??"</i> One screen. The questions are kept below with
+  their rulings, because the reasoning is what a later session needs.
+</div>
+
+<div class="banner navy">
+  <b>What is already settled, so it is not re-argued here.</b>
+  <b>The level exists</b> — Mike, 2026-09-02: the cascade runs <i>"down thru the layers until
+  reaching the business entity level"</i>. <b>D1</b>: it is separate from the advisor's own
+  level. <b>D2 — both</b>: the advisor AND the firm manager may set a client's points; his reason,
+  a partner preparing a difficult client's meeting for a junior. <b>P14</b>: nobody edits a level
+  above their own. <b>§5 storage</b>: a client's decisions live inside the firm's own row under
+  keys naming the client — no schema change. <b>The client already exists as a record</b>: the
+  firm's register at <code>/api/clients</code>, the same list the recorder already picks from.
+</div>
+
+<!-- ══ STAGE A ══════════════════════════════════════════════════════════ -->
+<div class="stage s-a">
+  <div class="num">A</div>
+  <div><h2>What the advisor has today</h2><div class="sub">Built 2026-09-08 — unchanged by any of this</div></div>
+</div>
+<div class="s-a rail">
+  <div class="screen">
+    <div class="cap">The pre-set, advisor's own level · <span class="pill ok">✅ built</span></div>
+    <div class="frame">
+      <div class="chrome"><span>Before the meeting</span><span class="r">advisor</span></div>
+      <div class="pane">
+        <div class="field"><label>What kind of meeting?</label><div class="select">End of Year Meeting — Planning and Delivery</div></div>
+        <div class="pts">
+          <div class="pt"><span class="box"></span><div class="body">The meeting was framed — what we would cover and why, in the first two minutes.<div class="src firm"><span class="dot"></span>From your firm</div></div><div class="acts"><span class="btn link sm">Not for my meetings</span></div></div>
+          <div class="pt"><span class="box"></span><div class="body">Understanding was checked before moving on from the figures.<div class="src platform"><span class="dot"></span>From Advisor-e</div></div><div class="acts"><span class="btn link sm">Not for my meetings</span></div></div>
+        </div>
+        <div class="btns"><span class="btn ghost" style="background:var(--panel);border-color:var(--line);color:var(--ink)">Add a point of my own</span></div>
+      </div>
+    </div>
+    <div class="note">
+      <b>One thing is missing, and it is Mike's own ruling rather than a new idea.</b> The
+      screen does not know <i>who</i> the meeting is with. The recorder asks (<i>"Who is this
+      session for?"</i>, the client picker on <code>pages/meeting-record.vue</code>) and stores
+      the client on the meeting record, but the pre-set never asks — so there is nowhere for
+      <i>"how I run meetings with this client"</i> to appear.
+    </div>
+  </div>
+</div>
+
+<!-- ══ STAGE B ══════════════════════════════════════════════════════════ -->
+<div class="stage s-b">
+  <div class="num">B</div>
+  <div><h2>This client</h2><div class="sub">The new work — <code>components/MeetingPreset.vue</code>, one picker and one layer</div></div>
+</div>
+<div class="s-b rail">
+
+  <div class="screen">
+    <div class="cap">B1 · The pre-set asks who the meeting is with · <span class="pill prop">✎ proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>Before the meeting</span><span class="r">advisor</span></div>
+      <div class="pane">
+        <div class="two">
+          <div class="field"><label>What kind of meeting?</label><div class="select">End of Year Meeting — Planning and Delivery</div></div>
+          <div class="field"><label>Who is this meeting with?</label><div class="select hot">Nobody in particular</div></div>
+        </div>
+        <p class="lede">Pick a client to see, and change, what you check on with them in
+          particular. Leave it as it is and you see your usual list.</p>
+      </div>
+    </div>
+    <div class="note">
+      <b>Same register, same picker, same default.</b> The list is the firm's client register,
+      exactly as the recorder reads it. <b>With no client picked the screen is today's screen</b>,
+      unchanged — most meetings will be run that way and it has to look ordinary. The recorder
+      keeps its own picker; the meeting record's client is what the report uses (<code>presetFor</code>
+      already reads it), so a client chosen here and a client chosen there are the same fact
+      in two places, not two facts.
+    </div>
+  </div>
+
+  <div class="screen">
+    <div class="cap">B2 · A client is picked — the list for this relationship · <span class="pill prop">✎ proposed</span> · client name is <span class="pill ex">example</span></div>
+    <div class="frame">
+      <div class="chrome"><span>Before the meeting</span><span class="r">advisor · Ruth Kelleher</span></div>
+      <div class="pane">
+        <div class="two">
+          <div class="field"><label>What kind of meeting?</label><div class="select">End of Year Meeting — Planning and Delivery</div></div>
+          <div class="field"><label>Who is this meeting with?</label><div class="select hot">Harbourside Joinery Ltd</div></div>
+        </div>
+        <h3>What is this meeting for?</h3>
+        <p class="lede">This is what you are checked on in a meeting of this kind
+          <b>with Harbourside Joinery Ltd</b>. Read it before you go in.</p>
+        <div class="pts">
+          <div class="pt"><span class="box"></span><div class="body">The meeting was framed — what we would cover and why, in the first two minutes.<div class="src firm"><span class="dot"></span>From your firm</div></div><div class="acts"><span class="btn link sm">Not with this client</span></div></div>
+          <div class="pt"><span class="box"></span><div class="body">Understanding was checked before moving on from the figures.<div class="src platform"><span class="dot"></span>From Advisor-e</div></div><div class="acts"><span class="btn link sm">Not with this client</span></div></div>
+          <div class="pt"><span class="box"></span><div class="body">Named actions were agreed, with an owner and a date, before the time ran out.<div class="src firm"><span class="dot"></span>From your firm</div></div><div class="acts"><span class="btn link sm">Not with this client</span></div></div>
+          <div class="pt client"><span class="box"></span><div class="body">The succession question was raised again, gently — last time it closed the conversation.<div class="src client"><span class="dot"></span>For this client · added by Tom Boyd</div></div><div class="acts"><span class="btn link sm">Edit</span><span class="btn link sm">Remove</span></div></div>
+        </div>
+        <h4>Not with this client</h4>
+        <div class="pts">
+          <div class="pt off"><span class="box"></span><div class="body">A metaphor or analogy was used to explain a financial idea.<div class="src client"><span class="dot"></span>From Advisor-e · off for this client · set aside by Ruth Kelleher</div></div><div class="acts"><span class="btn link sm">Put it back</span></div></div>
+        </div>
+        <div class="btns"><span class="btn ghost">Add a point for this client</span></div>
+      </div>
+    </div>
+    <div class="note">
+      <b>Five things this screen does, and why each is here rather than invented.</b>
+      <ul>
+        <li><b>A fourth source appears — <i>For this client</i> — and it names who set it.</b>
+          D2 makes a client's list shared between the advisor and the firm manager, so unlike
+          <i>Added by you</i> a client-level point may have been written by somebody else. The
+          advisor-level ruling of 2026-09-08 (question 2: name them, do not count them) is applied
+          here for the same reason: a name says who to ask. <b>Question 4.</b></li>
+        <li><b>The verbs change one word.</b> <i>Not for my meetings</i> becomes <i>Not with this
+          client</i>; <i>Add a point of my own</i> becomes <i>Add a point for this client</i>.
+          The blast radius is in the label, as the advisor level's <i>off for you only</i> is.</li>
+        <li><b>The layers stack: firm → your own level → this client.</b> A point you set aside
+          for all your meetings stays aside here, and a point set aside for this client is off for
+          this client only, for whoever runs the meeting. <b>Question 2</b> asks whether the client
+          layer may reverse your own set-aside; the drawing says no.</li>
+        <li><b>A switched-off point is shown, not hidden</b>, for the reason written on the
+          manager's screen and repeated at the advisor level.</li>
+        <li><b>Only a client-level point can be edited or removed here.</b> The firm's and
+          Advisor-e's words are never edited below their level; the advisor's own points are edited
+          on the advisor's own list, not from inside a client's.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="screen">
+    <div class="cap">B3 · Adding a point for this client · <span class="pill prop">✎ proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>Before the meeting</span><span class="r">advisor</span></div>
+      <div class="pane">
+        <div class="field"><label>What you want to be reminded of, with Harbourside Joinery Ltd</label><div class="input ph">The succession question was raised again, gently — last time it closed the conversation.</div></div>
+        <div class="field"><label>Words that hint it happened (optional)</label><div class="input ph">succession · handing over · who takes over</div></div>
+        <div class="note" style="margin:0"><b>This is for meetings with this client only.</b> Whoever in your firm meets them will see it, and your firm's list is not changed.</div>
+        <div class="btns"><span class="btn">Add this point</span><span class="btn ghost">Cancel</span></div>
+      </div>
+    </div>
+    <div class="note">
+      <b>Same two fields as the advisor's own form</b> — the hint-words field is Mike's ruling of
+      2026-09-08 (question 5 there, which reversed the recommendation) and is not re-asked. The
+      note under the form changes because the fact changes: at the advisor level <i>nobody else
+      sees this</i>; at the client level everybody who meets that client does. <b>Question 3</b>
+      asks who that is.
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ STORAGE ═════════════════════════════════════════════════════════ -->
+<div class="stage s-b">
+  <div class="num">§</div>
+  <div><h2>Where it is stored, and how it reaches the report</h2><div class="sub">Follows §5 and the advisor level as built — no decision needed, stated so it is checkable</div></div>
+</div>
+<div class="note" style="margin-top:14px">
+  <ul style="margin-top:0">
+    <li><b>Two keys per client on the firm's own row</b>, mirroring the advisor level exactly:
+      <code>meeting-observation-entity-declines:&lt;clientId&gt;</code> and
+      <code>meeting-observation-entity-own:&lt;clientId&gt;</code>. One row per client, one writer
+      at a time per key, so the lost-write fault item 4.75 closed cannot return. No schema change.</li>
+    <li><b>Every entry is stamped with who wrote it</b> — name and whether they wrote it as an advisor
+      or a firm manager — from the verified token at write time, because this app holds no advisors
+      table to join a name out of later. Same pattern as the advisor level.</li>
+    <li><b>The client id is checked against the firm's register on every write</b>, as the recorder
+      already does (<code>clientStore.getById(id, req.firmId)</code>). A client of another firm is a
+      404, never a write.</li>
+    <li><b>The report applies the same layer through the same function.</b> <code>presetFor</code> in
+      <code>meetingReview.js</code> already reads the meeting's client; it applies the client layer after
+      the advisor layer, through one shared function the screen also calls — the fault found on
+      2026-09-08, where the screen and the report disagreed, must not be re-made.</li>
+    <li><b>Deleting a client from the register</b> leaves its two keys in place, readable in history,
+      unreachable from any screen. Nothing is silently lost; nothing dangles on a picker.</li>
+  </ul>
+</div>
+
+<!-- ══ WORDING ════════════════════════════════════════════════════════ -->
+<div class="stage s-b">
+  <div class="num">✎</div>
+  <div><h2>Every new word on this page</h2><div class="sub">All of it ours. None of it approved.</div></div>
+</div>
+<div class="tblwrap">
+<table class="words">
+  <tr><th>Where</th><th>Proposed wording</th><th>Why this, and what it replaces</th></tr>
+  <tr><td class="w">Client picker label</td><td>Who is this meeting with?</td><td>The recorder's is <i>Who is this session for?</i> — approved 2026-07-14 for the session. A meeting is <i>with</i> somebody; the word changes because the fact does.</td></tr>
+  <tr><td class="w">Picker default</td><td>Nobody in particular</td><td>Says plainly that the ordinary list follows. <i>None</i> reads as an error; <i>All clients</i> would claim the list applies to clients, which the firm's list does not.</td></tr>
+  <tr><td class="w">Picker hint</td><td>Pick a client to see, and change, what you check on with them in particular. Leave it as it is and you see your usual list.</td><td>The two things an advisor would otherwise guess: what picking does, and what not picking does.</td></tr>
+  <tr><td class="w">Lede, client picked</td><td>…in a meeting of this kind with {client}.</td><td>The existing lede with the client's name appended, so the screen says whose list it is.</td></tr>
+  <tr><td class="w">Source · client</td><td>For this client · added by {name}</td><td>Fourth source. The name is there because D2 makes the list shared — see question 4.</td></tr>
+  <tr><td class="w">Switch off</td><td>Not with this client</td><td>Advisor level's is <i>Not for my meetings</i>. Same shape, one word carries the level.</td></tr>
+  <tr><td class="w">Off section heading</td><td>Not with this client</td><td>Same words as the button, as the advisor level does.</td></tr>
+  <tr><td class="w">Off-state suffix</td><td>off for this client · set aside by {name}</td><td>Advisor level's is <i>off for you only</i>. Here it is off for everyone who meets this client, so it names who did it instead.</td></tr>
+  <tr><td class="w">Put back</td><td>Put it back</td><td>✅ Unchanged from the advisor level, ruled 2026-09-08.</td></tr>
+  <tr><td class="w">Add button</td><td>Add a point for this client</td><td>Advisor level's is <i>Add a point of my own</i>.</td></tr>
+  <tr><td class="w">Add form label</td><td>What you want to be reminded of, with {client}</td><td>The advisor level's label with the client named, so the form cannot be mistaken for the advisor's own.</td></tr>
+  <tr><td class="w">Hint field</td><td>Words that hint it happened (optional)</td><td>✅ Unchanged, ruled 2026-09-08.</td></tr>
+  <tr><td class="w">Add form note</td><td>This is for meetings with this client only. Whoever in your firm meets them will see it, and your firm's list is not changed.</td><td>Replaces <i>nobody else sees this</i>, which would be false at this level.</td></tr>
+  <tr><td class="w">Save</td><td>Add this point</td><td>✅ Unchanged, approved 2026-09-01.</td></tr>
+</table>
+</div>
+
+<!-- ══ QUESTIONS ══════════════════════════════════════════════════════ -->
+<div class="stage s-c">
+  <div class="num">?</div>
+  <div><h2>Five questions</h2><div class="sub">All five ruled 2026-09-10 · the fifth removed Stage C</div></div>
+</div>
+
+<div class="q ruled">
+  <div class="qn">Question 1 — ✅ RULED BY MIKE, 2026-09-10: ONE SHARED LIST PER CLIENT. "a firms internal proceedings will determine who meets with them but at least everyone is on the same page"</div>
+  <h3>Is a client's list <i>one list</i>, shared by everyone who meets them — or one per advisor per client?</h3>
+  <p>D2 says the advisor and the firm manager may <i>each</i> set a client's points. That can mean
+     one shared list they both write to, or a manager's client list and each advisor's private
+     client list resolved one after the other.</p>
+  <div class="rec"><b>Recommendation: ONE list per client, shared.</b> Mike's own reason for D2 — a partner
+     preparing a difficult client's meeting for a junior — only works if the junior sees what the
+     partner set. A private list per advisor per client would make the partner's preparation
+     invisible to the person it was for. It is also what "the level ends at the business entity"
+     means: the entity is the level, not the pairing.</div>
+  <div class="against"><b>Against:</b> two advisors who both meet the same client can undo each
+     other's set-asides, and the screen will show it rather than prevent it. The name beside each
+     decision (question 4) is what makes that a conversation instead of a mystery.</div>
+</div>
+
+<div class="q ruled">
+  <div class="qn">Question 2 — ✅ RULED BY MIKE, 2026-09-10: NO. "the person responsible for completing that task should be the one to take it off"</div>
+  <h3>Can a client-level entry put back a point the advisor set aside for <i>all</i> their meetings?</h3>
+  <div class="rec"><b>Recommendation: NO.</b> The layers apply firm → advisor's own → client, and the client
+     layer only sets aside or adds. An advisor who has said <i>not for my meetings</i> should not find
+     the point back on their list because a colleague set something for a client. If they want it
+     with this client, they put it back at their own level.</div>
+  <div class="against"><b>Against:</b> a manager preparing a junior's difficult meeting may want a point
+     the junior habitually skips to be checked this once, and this says they cannot force it.
+     That is P14's downward-only rule reaching the bottom of the cascade, and it is the same
+     answer the advisor-level Stage C gave: a mirror, not a control.</div>
+</div>
+
+<div class="q ruled">
+  <div class="qn">Question 3 — ✅ RULED BY MIKE, 2026-09-10: YES, any advisor in the firm, named on every entry</div>
+  <h3>Who may set a client's points — any advisor in the firm, or only the advisor who meets them?</h3>
+  <div class="rec"><b>Recommendation: ANY advisor in the firm.</b> The register is firm-wide and the app
+     holds no record of which advisor "owns" a client — the meeting record names the advisor who
+     recorded, which is after the fact. A rule this app cannot check is a rule it would fake.</div>
+  <div class="against"><b>Against:</b> an advisor can set points for a client they have never met.
+     With the name beside every entry that is visible, and a firm that wants it stopped has a
+     manager who can remove it.</div>
+</div>
+
+<div class="q ruled">
+  <div class="qn">Question 4 — ✅ RULED BY MIKE, 2026-09-10: YES, always</div>
+  <h3>Does every client-level entry name who set it?</h3>
+  <div class="rec"><b>Recommendation: YES, always</b> — <i>added by Tom Boyd</i>, <i>set aside by Ruth
+     Kelleher</i>. The advisor level shows <i>Added by you</i> because only you can write there. A
+     shared list needs the name or an advisor asking "who took that off?" has no answer, which is
+     the exact failure D1 was ruled to prevent.</div>
+  <div class="against"><b>Against:</b> it is a small record of who did what to a client's list.
+     It is configuration, not anything from a meeting, so P13 is not engaged, and the advisor
+     level already names advisors to their manager for the same reason.</div>
+</div>
+
+<div class="q ruled">
+  <div class="qn">Question 5 — 🔴 RULED BY MIKE, 2026-09-10: NO MANAGER SCREEN AT ALL. "WHY does the firm manager need a copy? ... it's the PARTNER or firm manager that owns the client data base - NOT the advisor. WHY are we building two levels of this??" Stage C deleted from this page.</div>
+  <h3>Is the manager's half a section on the existing Meeting Review tab, firm tier only?</h3>
+  <div class="rec"><b>Recommendation: YES.</b> The client register belongs to the firm, so the two middle
+     tiers and the mentor have no clients to pick from — a client picker at the mentor tier would
+     be an empty list, and an empty screen reads as a broken one. Same tab, because a manager
+     deciding what is checked with a client is deciding the same thing they decide for the firm,
+     one client at a time.</div>
+  <div class="against"><b>Against:</b> the Meeting Review tab is already long. A second tab
+     would be cleaner and would cost a fifth entry in the hub menu for one section.</div>
+</div>
+
+<footer>
+  <p><b>Not drawn, and why.</b> The report's header line naming the client's points is not
+    drawn: <code>presetFor</code> already applies the pre-set to the report through one function,
+    and the client layer joins it the same way, so there is nothing new to see there. The
+    business-entity level of the meeting <i>types</i> (which kinds of meeting exist for one
+    client) is not drawn either — D4 switched types off per tier, and nothing in Mike's rulings
+    asks for a type per client.</p>
+  <p><b>Sources:</b> design/MEETING-TYPES-CASCADE.md §5 §6 §7 · design/features/meeting-review.md
+    · design/mockups/meeting-preset-advisor-level.html · components/MeetingPreset.vue ·
+    pages/meeting-record.vue · server/routes/clients.js · server/routes/meetingReview.js.</p>
+</footer>
+
+</div>

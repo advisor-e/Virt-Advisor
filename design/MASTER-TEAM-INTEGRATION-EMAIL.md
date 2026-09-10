@@ -1,11 +1,11 @@
-# Email to the master coding team — the five things we need to hook up
+# Email to the master coding team — the seven things we need to hook up
 
 > **Draft for Mike to send.** Written 2026-08-15 on his instruction: *"If there's anything
 > specific you need to know, in technical terms to enable you to make provision for this, draft
 > me the email and I will provide you their response."*
 >
 > **Everything below is already provisioned on our side.** There is one file —
-> [`config/integration.js`](../config/integration.js) — and every answer to these five questions
+> [`config/integration.js`](../config/integration.js) — and the answer to five of these seven questions
 > is a value typed into it. **No code changes, no rebuild.** That is deliberate: the file's own
 > header says it is *"the ONLY file the senior integration team needs to edit."*
 >
@@ -15,13 +15,13 @@
 
 ## The email
 
-**Subject:** AI Coach module — five integration values we need before UAT
+**Subject:** AI Coach module — seven integration answers we need before UAT
 
 Hi,
 
 The AI Coach module is tagged at `v0.8.0` and ready to load. Everything below is already built
-and waiting — each answer is a single value we type into one config file, with no code change
-on either side.
+and waiting — the first five answers are single values we type into one config file, with no
+code change on either side; the last two are one call and one lookup from your side.
 
 **1 · The JWT claim names.** We read the signed-in user straight from your token and never look
 anyone up. Please confirm the field names in the payload:
@@ -56,6 +56,28 @@ any given firm, which brand and country it sits under. **Any of these works, whi
 work for you:** a column on the firms table, a small read-only endpoint, or a lookup we query
 once and cache. Until it exists, our reports fall back to a flat structure — they do not guess.
 
+**6 · Pushing the search-content export to us when I publish.** Today I download the
+`search_content_*.json` export from Advisor-e and upload it into the module by hand. The module
+now has an endpoint that accepts that same file directly, so the step can go. When I publish,
+please `POST` the export file's JSON array, as the request body with
+`Content-Type: application/json`, to:
+
+`POST {module base URL}/api/integration/templates`
+
+with a header `x-advisor-e-push-secret` carrying a shared secret. Send me the secret you would
+like to use, or I will send you one; we set it as an environment variable on the module's
+backend. A `201` means it is stored and live within a minute. Until the secret is set on our
+side the endpoint answers `404`, so nothing can arrive before we both hold it. The file is
+capped at 10 MB and validated exactly as the manual upload is.
+
+**7 · Where an adviser's identity lives.** The Adviser Network shows each adviser's name, title,
+firm, email, phone and location, and those belong to Advisor-e — we never store a copy. Our
+tables hold only what an adviser advertises about their practice (availability, about,
+strengths, industries, topics), keyed by adviser id. For a given adviser id, and for a list of
+ids, where do we read those six identity fields? **Any of these works:** the table and column
+names in your MySQL, a read-only endpoint on Advisor-e, or a view you expose to us. Until we
+know, the network runs on a placeholder list and cannot show a real adviser.
+
 **And the database.** MySQL host, port, database name, user and password. Also: do you want to
 run our schema yourself, or should we hand you the SQL? Our tables are additive and do not touch
 anything of yours.
@@ -67,7 +89,7 @@ Mike
 
 ## Notes for us — not part of the email
 
-**Why these five and nothing else.** They are exactly the `TODO` lines in
+**Why these seven and nothing else.** Questions 1–5 are exactly the `TODO` lines in
 [`config/integration.js`](../config/integration.js). Everything else in that file already has a
 working value.
 
@@ -80,6 +102,8 @@ working value.
 | Role values (3) | to-do §3.2 — the two middle hubs | `globalManagerRole`, `groupManagerRole` |
 | The two claims (4) | a manager resolving their own scope | `globalGroupClaim`, `countryClaim` |
 | Firm → group (5) | to-do §3.3 — roll-ups above a firm | `parentScopeOf()` stops returning the platform scope |
+| The push secret (6) | Cascade Phase 4 — the download step disappears | set `ADVISOR_E_PUSH_SECRET` on the backend; nothing else changes |
+| Identity source (7) | the Adviser Network showing real advisers | the two SQL-seam functions in `server/collaborate/data/repository.js` read from it; nothing above them changes |
 | DB credentials | to-do §3.1 — every write in the app | the `DB` block |
 
 **The fail-closed design is worth defending if they ask why the roles are blank.** An empty role

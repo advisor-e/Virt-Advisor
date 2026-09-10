@@ -189,11 +189,19 @@ editing.
 
 ### D. Master export / per-firm content
 
-- **`server/utils/masterExport.js`** — loads the newest `search_content_*.json` from
-  Central Frameworks as the **global Mentor baseline**. Per-firm template uploads go
-  through `importTemplates()` in `firmManager.js`. Decision for the master team: do
-  Global/Group tiers get their own export uploads, or does this stay a single Mentor
-  baseline with overrides layered on top?
+- **The running app reads the template library through the cascade** —
+  `server/utils/templateLibrary.js`: firm → group → global → platform, the nearest tier
+  that has uploaded a set supplies the whole library (ruled by Mike 2026-08-31 —
+  wholesale replace, never merged), with the committed `data/templates.json` as the seed
+  beneath everything. `server/utils/masterExport.js` reads `Central Frameworks/` for
+  **developer tools only**. Full account: `SEARCH-CONTENT-CASCADE-PLAN.md`.
+- **Three doors into that store, one validator:** the mentor's upload tab
+  (`server/routes/mentor.js`), the firm's Template Library tab
+  (`server/routes/firmManager.js` `importTemplates`), and **the push endpoint the master
+  team calls** — `POST /api/integration/templates`, `server/routes/integrationTemplates.js`,
+  guarded by the shared secret `ADVISOR_E_PUSH_SECRET` (`config/integration.js` → `PUSH`).
+  While that secret is unset the endpoint answers 404. What Advisor-e sends is question 6
+  of `MASTER-TEAM-INTEGRATION-EMAIL.md`.
 
 ### E. Hardcoded role / tier handling to revisit
 

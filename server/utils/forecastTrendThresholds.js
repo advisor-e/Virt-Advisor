@@ -30,7 +30,7 @@
  */
 
 const BASE_FILE = require('../../data/forecast-trend-thresholds.json')
-const { MEASURES } = require('../report/trendModel')
+const { MEASURES, SCORE_MEASURES } = require('../report/trendModel')
 const { deepMerge } = require('./deepMerge')
 const { parentScopeOf } = require('./tierChain')
 
@@ -52,9 +52,14 @@ const CONFIG_KEY = 'forecast-trend-thresholds'
  * unknown to the validator — the drift that would let a firm save a threshold that
  * silently does nothing.
  */
-const LEVEL_KEYS = MEASURES.filter(m => m.basis === 'level').map(m => m.key)
-const MOVEMENT_KEYS = MEASURES.filter(m => m.basis === 'movement').map(m => m.key)
-const COMPARE_BY_KEY = MEASURES.reduce((out, m) => { out[m.key] = m.compare; return out }, {})
+/** The forecast's six plus the report's two score ratios — every measure a threshold can band. */
+const ALL_MEASURES = MEASURES.concat(SCORE_MEASURES)
+const LEVEL_KEYS = ALL_MEASURES.filter(m => m.basis === 'level').map(m => m.key)
+const MOVEMENT_KEYS = ALL_MEASURES.filter(m => m.basis === 'movement').map(m => m.key)
+const COMPARE_BY_KEY = ALL_MEASURES.reduce((out, m) => { out[m.key] = m.compare; return out }, {})
+/** Which way up each level reads — `down` means higher is better, so green is the bottom of the band. */
+const WORSE_WHEN_BY_KEY = ALL_MEASURES.reduce((out, m) => { out[m.key] = m.worseWhen; return out }, {})
+const UNIT_BY_KEY = ALL_MEASURES.reduce((out, m) => { out[m.key] = m.unit; return out }, {})
 
 /** A finite number, or null for anything else — including '' from a cleared input. */
 function num (v) {
@@ -127,7 +132,9 @@ function validateTrendThresholds (value) {
         // A day-count cannot be negative; a percentage-point movement certainly can —
         // "growth falls below -5%" is a perfectly ordinary red line.
         if (n !== null && group === 'levels' && n < 0) {
-          errors.push(`${key}.${b} must be a number of days, and cannot be negative`)
+          errors.push(UNIT_BY_KEY[key] === 'days'
+            ? `${key}.${b} must be a number of days, and cannot be negative`
+            : `${key}.${b} is a ratio and cannot be negative`)
           bad = true
           return
         }
@@ -136,9 +143,19 @@ function validateTrendThresholds (value) {
       if (bad) { return }
 
       if (group === 'levels' && kept.green !== undefined && kept.amber !== undefined &&
-          kept.green !== null && kept.amber !== null && kept.green > kept.amber) {
-        errors.push(`${key}: the green figure must not be higher than the amber one`)
-        return
+          kept.green !== null && kept.amber !== null) {
+        // A measure that reads the other way up (current ratio: higher is better) has its
+        // green figure ABOVE its amber, and the same pair typed the day-count way round
+        // would make green unreachable — so the check follows the measure, not the group.
+        const readsDown = WORSE_WHEN_BY_KEY[key] === 'down'
+        if (!readsDown && kept.green > kept.amber) {
+          errors.push(`${key}: the green figure must not be higher than the amber one`)
+          return
+        }
+        if (readsDown && kept.green < kept.amber) {
+          errors.push(`${key}: higher is better here, so the green figure must not be lower than the amber one`)
+          return
+        }
       }
       if (group === 'movements' && kept.warn !== undefined && kept.crit !== undefined &&
           kept.warn !== null && kept.crit !== null) {
@@ -200,6 +217,7 @@ module.exports = {
   LEVEL_KEYS,
   MOVEMENT_KEYS,
   COMPARE_BY_KEY,
+  WORSE_WHEN_BY_KEY,
   validateTrendThresholds,
   loadResolvedTrendThresholds
 }

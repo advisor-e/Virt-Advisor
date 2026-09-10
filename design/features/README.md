@@ -43,6 +43,9 @@ can be read in one place — the Handbook does not move them.*
 | [Logic Tables](logic-tables.md) — the advisory thinking, written down | [history](logic-tables-history.md) |
 | [Domain Support](domain-support.md) — the material the AI draws on | [history](domain-support-history.md) |
 | [Advisory Distinctions](advisory-distinctions.md) — teaching the engine, without code | [history](advisory-distinctions-history.md) |
+| [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
+| [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
+| [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
 
 ## Hub pages — mentor & firm
 
@@ -52,20 +55,17 @@ can be read in one place — the Handbook does not move them.*
 |---|---|
 | [The Hub itself](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
 | [Coaching Reference](coaching-reference.md) — 🔴 **REMOVED 2026-08-20**, tab and all; kept as the record of why | [history](coaching-reference-history.md) |
-| [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
 | [Quizzes](quizzes.md) | [history](quizzes-history.md) |
-| [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
 | [Adviser Network](adviser-network.md) | [history](adviser-network-history.md) |
 | [Adoption](adoption.md) — mentor & middle tiers | [history](adoption-history.md) |
-| [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
 | [Case Reviews](case-reviews.md) — mentor & middle tiers | [history](case-reviews-history.md) |
 | [Template Check](template-check.md) — **mentor only** | [history](template-check-history.md) |
 | [AI Prompts](ai-prompts.md) — The prompt templates a manager can tune — locked method, three declared variables | [history](ai-prompts-history.md) |
 | [Depreciation Rates](depreciation-rates.md) — the depreciation rates a firm's forecasts use, read from its tax authority's own documents | [history](depreciation-rates-history.md) |
 | [Tax Rates](tax-rates.md) — the company tax rate, GST rate, filing cycle and accounting basis a client's forecast is computed on, per country | [history](tax-rates-history.md) |
 
-*Also on the Hub but covered elsewhere: Domain Support and Logic Tables (above, under the
-engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).
+*Also on the Hub but covered elsewhere: Domain Support, Logic Tables, Advisory Staircase, Logic
+Lab and Logic-Lab Report (above, under the engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).
 Templates & Videos is dormant — templates are Advisor-e's.*
 
 ## Reports & models
@@ -76,6 +76,7 @@ Templates & Videos is dormant — templates are Advisor-e's.*
 | [Report Models](report-models.md) — every model screen | [history](report-models-history.md) |
 | [The Economic Analysis Prompt](../ECONOMIC-ANALYSIS-PROMPT.md) — the tick that sends the AI to research a client's market, for a funding pack. The first report model in this app to call the AI. **Approved and built — all three slices, 2026-09-06.** | — |
 | [What the Prompt Produced](../ECONOMIC-ANALYSIS-TEST-RUNS.md) — four live runs against two fictional businesses: what it costs, how long it takes, and the citation fault they found and fixed. **Evidence, not a design.** | — |
+| [Business Performance Report](business-performance-report.md) — the client's own performance report — 7 to 15 pages built from the accounts and every model in this section | [history](business-performance-report-history.md) |
 
 ## Learning
 
@@ -93,7 +94,7 @@ Templates & Videos is dormant — templates are Advisor-e's.*
 |---|---|
 | [Firm Manager Hub](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
 | [The Tier Cascade](tier-cascade.md) — what flows down, what reports up | [history](tier-cascade-history.md) |
-| [Search-Content Cascade Plan](../SEARCH-CONTENT-CASCADE-PLAN.md) — the master template library moves into the cascading database. **Plan for approval — nothing built.** | — |
+| [Search-Content Cascade Plan](../SEARCH-CONTENT-CASCADE-PLAN.md) — the master template library moves into the cascading database. **All four phases built on our side (2026-09-09); Advisor-e's call into the push endpoint is the master team's.** | — |
 
 ## The adviser network
 

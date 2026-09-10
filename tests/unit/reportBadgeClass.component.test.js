@@ -48,6 +48,8 @@ const RENDERED_BY = {
   // banner twice; the component's was removed and the page's is now the only one. This
   // guard caught the move on the first run, which is what it is for.
   '/three-way-forecast': { source: 'pages/three-way-forecast.vue' },
+  // The Business Performance Report (4.70): the header is the page's, above six step chips.
+  '/dashboard-reports': { source: 'pages/dashboard-reports.vue' },
   '/quick-position': { source: 'pages/quick-position.vue' },
   '/ebitda-dcf': { source: 'pages/ebitda-dcf.vue' },
   '/loan-estimator': { source: 'pages/loan-estimator.vue' }

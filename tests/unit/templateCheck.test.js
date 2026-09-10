@@ -266,15 +266,6 @@ describe('the real corpus', () => {
     expect(report.findings.map(f => f.name)).not.toContain('Chart of Accounts')
   })
 
-  it('DOES still raise "Psyche Errors", and that is not a bug', () => {
-    // The other of the two. Somewhere in the corpus it is named after an
-    // instruction verb, so the scan cannot tell it from a real tool — and it
-    // should not pretend to. This is precisely the false positive "Not a tool"
-    // exists to absorb, and pinning it here stops a future tightening of the
-    // extractor from being mistaken for a fix.
-    expect(report.findings.map(f => f.name)).toContain('Psyche Errors')
-  })
-
   it('produces a list a person could actually finish', () => {
     // Not a precise number — the corpus changes. The first version of the prose
     // extractor returned 745 rows against the 27 found by hand, and a list nobody

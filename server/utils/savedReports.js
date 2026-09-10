@@ -124,9 +124,18 @@ function sameValue (a, b) {
 }
 
 /**
+ * A key that records WHERE a figure came from rather than a figure: the Volatility
+ * screen saves `source.<i>` beside each `sales.<i>`. Retyping one month flips its flag
+ * from `file` to `entered`, so counting flags read one edit as two figures changed
+ * (item 4.69, ruled by Mike 2026-09-07). Flags still save and restore; they are never
+ * counted or badged.
+ */
+const PROVENANCE_KEY = /^source\./
+
+/**
  * Which figures differ from the advisor's version — the `client` badge list (D4). With
  * no advisor version every figure counts as the client's, which is the truth: the
- * advisor never saved one.
+ * advisor never saved one. Provenance flags are excluded (see PROVENANCE_KEY).
  * @param {object|null} row
  * @returns {string[]}
  */
@@ -134,7 +143,9 @@ function changedKeys (row) {
   if (!row || !row.inputs) { return [] }
   if (!row.savedBy || row.savedBy.tier !== TIER_CLIENT) { return [] }
   const base = row.advisorVersion && row.advisorVersion.inputs
-  return Object.keys(row.inputs).filter(k => !base || !sameValue(row.inputs[k], base[k]))
+  return Object.keys(row.inputs)
+    .filter(k => !PROVENANCE_KEY.test(k))
+    .filter(k => !base || !sameValue(row.inputs[k], base[k]))
 }
 
 /**

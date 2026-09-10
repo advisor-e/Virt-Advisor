@@ -7,7 +7,7 @@
  * Design: `design/mockups/meeting-preset-advisor-level.html`, drawn 2026-09-08, all six of
  * its questions ruled by Mike the same day and the drawing itself approved to build from.
  * It is the first half of slice 4 of `design/MEETING-TYPES-CASCADE.md` §7; the per-CLIENT
- * half is not built and is not drawn.
+ * half is `meetingObservationsEntity.js`, built 2026-09-10 and applied on top of this layer.
  *
  * 🔴 WHY THIS IS A SEPARATE FILE FROM `meetingObservations.js`. Every level above the
  * advisor is a SCOPE — a row in `firms`, reached through `parentScopeOf`. An advisor is not

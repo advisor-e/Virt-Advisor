@@ -185,6 +185,84 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.80 — "Global manager" is the old name and it is still in 45 places.**
+✅ Closed 2026-09-10 by Mike, on the desktop, in one commit — `51a46a4`.
+
+- **Why it mattered:** the role was renamed `global_group_manager` on 2026-08-11 and the short
+  display name survived in 44 places, including the tier tables sessions learn the names from. It is
+  the mechanism behind the coined job titles Mike has banned ten times: a shortened name in a document
+  that reads as authority comes back looking correct. The guard banned only the quoted form.
+- **What was done:** every site sorted by author. **27 are ours** and now read "global group
+  manager" — comments and test titles in eight code files, the tier tables and diagrams in eight
+  design documents, one word in the frozen `ACTIONS.md` (a name correction, not a new item), and
+  four in the global-groups-membership mockup. No logic moved. **12 are Mike's own words in direct
+  quotes** (2026-07-30, 2026-08-09, 2026-08-16), plus one place `CLAUDE.md` quotes an old code
+  comment; all untouched. The rest name the old spelling on purpose: this item, and the guard.
+- **What proves it:** [`tests/unit/tierVocabulary.test.js`](../../tests/unit/tierVocabulary.test.js)
+  now bans the unquoted old name under every scanned root, with quoted spans — straight,
+  curly, and the `\"…\"` a quote takes inside JSON — stripped before matching so his quotes pass
+  and ours cannot. A span never crosses a blank line or 800 characters, so an unbalanced quote in
+  code cannot hide an offender; a self-test proves both directions. Suite 8,802 green.
+- **Flagged, not fixed:** the same mockup says no one can log in as a global group manager, which
+  contradicts Mike's ruling of 2026-08-31 that they do. A separate sentence, outside this item.
+
+**4.70 — Business Performance Report — the client's own report.**
+✅ Closed 2026-09-09 by Mike — *"all good go ahead"* — after his own walk on a real client's
+export, through all six steps, the AI draft on step 4, page 8 and the browser's print.
+
+- **Why it mattered:** Mike's request of 2026-09-07, in his words in the
+  [Brief](business-performance-report.md): a rich, colourful report a private business owner can
+  read, 7 to 10 base pages and up to 15, built from the accounts. A client reads it on paper and
+  acts on it, so every figure carries its provenance and the unruled parts show no number.
+- **What was built, 2026-09-07 to 09:** six stages at `/dashboard-reports` — the ratio hub and
+  its route; the eleven-page document with the eight-measure health score; the Stats NZ
+  benchmarker with the finder, the size bands and the comparison on page 7; the stock export on
+  step 3 and the *Stock against the accounts* page; the monthly view, the third year and the
+  Sales Volatility page; the three accounts-only optional pages; and stage 6, the AI draft of the
+  three next steps behind the tick that is its approval gate, page 8 printing on the server's
+  record alone. Every stage was drawn first and approved under the Save-the-Artefact rule; the
+  Brief §4 lists each stage's files, tests and every recorded deviation from the drawings.
+- **What proves it:** the golden test on the workbook's own cells, the hand-worked page models,
+  the route envelopes, the four validators on what leaves the app and what comes back from the
+  model, and the component mounts — all in the Brief's per-stage rows. Then the walks: stages 1
+  to 5 on reconstructed exports (2026-09-08), three live AI runs for stage 6, and **Mike's own
+  walk on a real export (2026-09-09), which found five faults the suite could not see** — the
+  size bands could not be ticked (`b-radio` unregistered), the advisor's strip printed on the
+  client's report, the frame padding pushed every page onto two sheets, the phone breakpoint
+  fired on paper and stacked every page, and a loaded report lost its size bands. All five fixed
+  and proved the same day (`4a44b94`, `7c46f8a`, `8688151`); the print was then eyeballed page by
+  page on A4 landscape.
+- **Left open, and named:** the Brief §2's unruled parts still show no number — the two
+  thresholds the score cannot band, the provisional score band cut-offs, and the tax page that
+  waits on the tax tool. Each is a fresh decision for Mike, not a task here.
+
+**4.81 — the Search-Content Cascade Plan's last phase: Advisor-e pushes the export itself.**
+✅ Closed 2026-09-09, filed and built the same day on Mike's instruction — *"lets finish the
+search content cascade plan"*.
+
+- **Why it mattered:** Phases 1 to 3 of [`SEARCH-CONTENT-CASCADE-PLAN.md`](../SEARCH-CONTENT-CASCADE-PLAN.md)
+  were built and live, but Phase 4 — Advisor-e posting the export straight to this app when
+  Mike publishes — had no receiving end here and no line in the master-team email, so the
+  download-and-upload step could never go away. Three records also still described the plan
+  as unbuilt.
+- **What was built:** `POST /api/integration/templates`
+  (`server/routes/integrationTemplates.js`), the second doorway into the same validated
+  store: same validator, same `__platform__` scope, same history, same cache clear. **It
+  fails closed** — a shared secret in the backend's environment (`ADVISOR_E_PUSH_SECRET`)
+  guards it, the route answers 404 while that is unset, the compare is constant-time, the
+  body is read under the 10 MB upload cap and refused mid-stream, and nothing in the payload
+  is logged. Platform tier only, by stated judgement (plan §9). Question 6 added to
+  `MASTER-TEAM-INTEGRATION-EMAIL.md`; the cascade handover's §D and the features index
+  corrected.
+- **What proves it:** `tests/unit/integrationTemplates.routes.test.js` — the guard in all
+  three states, the compare never throwing on a length mismatch, the cap mid-stream, every
+  rejection leaving the store untouched, the platform-scope write attributed to Advisor-e,
+  the dev-fallback rule on a live MySQL refusal, and a source tripwire on the mount and the
+  parser skip. Route file at 100% lines and functions. **Walked live** the same day against
+  the running backend and the desktop's real MySQL: 404, 401, 401, 400 and 201 in turn, and
+  the mentor tab's history then showed version 1 saved by `advisor-e`.
+- **Left to the master team, and named:** holding the same secret and making the call on
+  publish. Nothing here waits on it; the mentor's upload tab remains the way in until then.
 **4.66 — economic analysis: the forecast asks the AI for market research.**
 ✅ Closed 2026-09-09 on Mike's ruling. All three slices built, run live end to end, and every
 question its design page ever carried is settled.
@@ -569,6 +647,35 @@ in §3 and enforced in `validateResearch`. §7d.
 carry `{{today}}` and will pass where the route fails.
 
 ---
+
+**Four things seen on the saved-report screens that need a ruling.** ✅ Ruled one at a time by
+Mike and built 2026-09-07. Loan Estimator: a save with nothing confirmed is not sent; the screen
+says "There is nothing to save yet. Confirm a step first." Volatility: source flags are never
+counted as changed figures, so one retyped month reads as one figure. The header: the Client
+access box is capped at 470 px, so badge, switch and Save sit beside the title on every report;
+the banner was never the cause. Quick Position: the client badge on a factor sits beside the
+percentage, not on the label beside the value's tag. Rebuilt and walked live on Debtor Drag,
+Quick Position, Volatility and the Loan Estimator, no errors. **What proves it:** the empty-row
+test in [`savedReport.mixin.test.js`](../../tests/unit/savedReport.mixin.test.js) and the
+source-flag test in [`savedReports.test.js`](../../tests/unit/savedReports.test.js); the two
+layout changes are visual and carry no test, by the 2026-08-24 rule. *Built on the desktop under
+the provisional number 4.69 (commit `176390a`); that number now belongs to the laptop's later
+item, so this entry carries none.*
+
+**A client's page is refused the firm's currency and tax rules.** ✅ Built and closed
+2026-09-07. Found on the desktop's live walk of 2026-09-04. Three firm-level reads the client's
+page fetches with the client's token sat behind the advisor-only guard, and the callers swallow
+the refusal, so the client silently got the shipped defaults: the currency on every report, the
+property tax rules, and the imported-stock sell-down ladder on the forecast. One guard now admits
+either an advisor or a client of the firm on those three reads only; every write is still the
+manager's. Proven live against MySQL as client, advisor and a bad token. The item's note briefly
+named a fourth read, trend thresholds; nothing in the browser calls it, so there was no fault.
+**What proves it:** the `firmOrEntityAuth` block in
+[`entityAuth.test.js`](../../tests/unit/entityAuth.test.js) and the read-only pin in
+[`clientReportsProxyWiring.test.js`](../../tests/unit/clientReportsProxyWiring.test.js), which
+fails if any write route ever takes the guard. *Built on the desktop under the provisional number
+4.68 (commits `71b60bf`, `3e0e39a`); that number now belongs to the laptop's later item, so this
+entry carries none.*
 
 **4.68 — the forecast opened on zeros where its own note promised a worked sample.**
 ✅ Closed 2026-09-07, and the note was the stale half. The item was filed as a disagreement

@@ -682,6 +682,58 @@
         "tampering",
         "seasonal"
       ]
+    },
+    {
+      "route": "/dashboard-reports",
+      "name": "Dashboard Reports",
+      "category": "Cash Flow",
+      "modelClass": "report",
+      "answers": "How the business performed this year against last, read as a document the owner takes away: revenue, profit and margin with their movements; a Business Health Score that counts how many of the firm's banded measures sit in the green; the profit and loss and balance sheet in plain English; the cash conversion cycle and the seven cash drivers, each saying whether it used or released cash; stock, slow movers and ageing; a two-year trend table; and the advisor's own three next steps.",
+      "keyOutputs": [
+        "Revenue, net profit and net margin, each with its movement on last year",
+        "The Business Health Score out of 100, and the measures that pulled it down",
+        "The cash conversion cycle in days, and the seven cash drivers with their direction",
+        "Current ratio, debt to equity and working capital from the balance sheet"
+      ],
+      "inputsNeeded": "This year's and last year's Balance Sheet and Profit and Loss exports, dropped on the accounts step and confirmed line by line with their provenance; net capital spend, pre-filled from the movement in fixed assets plus depreciation and confirmed by the advisor; the slow-or-obsolete stock figure and the stock ageing bands, typed until the inventory reader exists; and the advisor's words — the year in one line, what went well, what to watch, an insight, a cash watch-point and three next steps.",
+      "useWhen": "The client wants a report to read at the kitchen table or show the bank rather than a screen the advisor drives — the annual review conversation, a funding application, or a quarter where the owner needs to see where the cash went and what to do about it in three actions. It is the document the other models feed into rather than a calculator.",
+      "limits": "It reads what the annual readers read — this year's and last year's Balance Sheet and Profit and Loss — so quarterly and monthly charts are drawn as two-year comparisons until the monthly view exists. The health score counts only the measures the firm has set thresholds for (six today: sales growth, gross margin, overhead ratio, debtor, stock and creditor days); current ratio and debt to equity are shown but not scored until thresholds are ruled. The industry benchmark table (Stats NZ) and the inventory export reader are later stages, so the benchmark half of the trends page and the stock-by-category chart are not drawn. Optional pages such as the economic outlook are listed but not yet offered. Ratios keep the source workbook's definitions, including its quirks, which each page states. It takes the client's real numbers, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Revenue",
+          "sub": "this year, from the Profit and Loss"
+        },
+        {
+          "label": "Net profit",
+          "sub": "and its share of revenue"
+        },
+        {
+          "label": "Total assets",
+          "sub": "at the balance date"
+        },
+        {
+          "label": "Equity",
+          "sub": "assets less liabilities, and its movement"
+        }
+      ],
+      "alsoOnScreen": "Six steps: the client and the period; the four exports and the confirm table; the typed inventory figures; the advisor's words; which pages are in the report; and the review, where the whole document is shown page by page with Save and Print. The document itself is landscape, one section per page: cover, contents, executive summary with the health score, financial dashboard, profit and loss, balance sheet, cash flow and working capital with the seven drivers, inventory, trends, next steps, and an important-information page.",
+      "coach": [
+        "The health score is a count, not a formula: each banded measure scores 2 in green, 1 in amber and 0 in red against the firm's own thresholds, out of 100, following the Piotroski F-score's shape. The page names the measures that pulled it down, so the score is a summary of the pages before it and has no meaning beyond them.",
+        "The seven cash drivers carry a direction: a rise in debtor days, stock days, expenses or sales growth uses cash; a rise in gross margin or creditor days releases it; net capital spend uses it. That is the reading an owner needs and a profit figure alone cannot give."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "business performance report",
+        "dashboard",
+        "health score",
+        "annual review",
+        "kitchen table",
+        "cash drivers",
+        "cash conversion cycle",
+        "client report",
+        "bank report",
+        "benchmarks"
+      ]
     }
   ]
 }

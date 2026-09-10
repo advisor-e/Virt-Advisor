@@ -205,10 +205,12 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Four** models —
-  8 Levers, Cost of Capital, **Lease vs Buy** and the Loan Estimator — carry explanatory
-  notes and verdict rules instead, and the screen heads them differently. Claiming a Coach
-  panel that is not there describes a screen the reader will not find.
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Five** models —
+  8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator and Dashboard Reports —
+  carry explanatory notes and verdict rules instead, and the screen heads them differently
+  (Dashboard Reports is the client's own document; its reading is the health score and the
+  advisor's words on its pages). Claiming a Coach panel that is not there describes a screen
+  the reader will not find.
   ⚠ *[`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) reads
   this very sentence and fails if it stops matching the data.*
 

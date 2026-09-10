@@ -439,7 +439,7 @@ describe('a point of my own', () => {
 
     expect(res._status).toBe(200)
     const rows = savedMap(ADVISOR_KEYS.advisorOwn)[ME].scenarios[EOY]
-    expect(rows).toEqual([{ id: 'ao-1', text: 'after', hintWords: [] }])
+    expect(rows).toEqual([{ id: 'ao-1', text: 'after', hintWords: [], cannotHear: false }])
   })
 
   test('🔴 404s an edit of a point I do not own, rather than creating one', async () => {
@@ -603,5 +603,40 @@ describe("the manager's view of what advisors set aside", () => {
     // as reassurance — the one wrong answer this screen must never give.
     expect(res._status).toBe(500)
     expect(errorBody(res).error.code).toBe('DB_ERROR')
+  })
+})
+
+describe('the "cannot be heard" flag on an advisor\'s own point (found 2026-09-10)', () => {
+  // 🔴 THE FAULT THIS PINS. Both routes validated `cannotHear` and then built the stored
+  // point from id, text and hintWords alone, so an advisor who ticked "This cannot be heard
+  // on a recording" had the tick dropped on the way in. `readAdvisorOwn` reads the flag, and
+  // `meetingReports.cannotHearFindings` sees only points carrying it — so their hint phrases
+  // were stored beside a point nothing would ever read them for. On screen the box showed
+  // ticked (the component sends it) right up until the next reload.
+  beforeEach(() => {
+    overlay.loadFirmConfig.mockResolvedValue(null)
+    overlay.saveFirmConfig.mockResolvedValue(undefined)
+  })
+
+  test('add stores the flag, and the hint phrases beside it', async () => {
+    const res = makeMockRes()
+    await routes.addAdvisorPoint(makeReq({ body: { scenario: EOY, text: 'I drew the numbers out.', cannotHear: true, hintWords: ['drew it out'] } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.point.cannotHear).toBe(true)
+    const stored = overlay.saveFirmConfig.mock.calls[0][2].scenarios[EOY][0]
+    expect(stored.cannotHear).toBe(true)
+    expect(stored.hintWords).toEqual(['drew it out'])
+  })
+
+  test('edit stores the flag both ways — unticking clears it rather than leaving an earlier true', async () => {
+    overlay.loadFirmConfig.mockImplementation((scope, key) => Promise.resolve(
+      key === advisorConfigKey('advisorOwn', ME)
+        ? { scenarios: { [EOY]: [{ id: 'ao-1', text: 'Old.', hintWords: ['x'], cannotHear: true }] }, nextSeq: { [EOY]: 1 } }
+        : null))
+    const res = makeMockRes()
+    await routes.updateAdvisorPoint(makeReq({ body: { scenario: EOY, pointId: 'ao-1', text: 'Old.', cannotHear: false, hintWords: [] } }), res)
+    expect(res._status).toBe(200)
+    const stored = overlay.saveFirmConfig.mock.calls[0][2].scenarios[EOY][0]
+    expect(stored.cannotHear).toBe(false)
   })
 })

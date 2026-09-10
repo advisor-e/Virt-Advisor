@@ -35,7 +35,12 @@ const INTAKE_STATUS = Object.assign(Object.create(null), {
   // never reached anyone, because a code missing from this map has its sentence replaced by
   // the route's generic one. It names no path, filename or internals — same shape as the
   // two above.
-  TOO_MANY_MONTHLY_FILES: 400
+  TOO_MANY_MONTHLY_FILES: 400,
+  // inventoryReader (4.70 stage 4): a file matching neither stock-export map, refused by
+  // the columns it lacks; and an Unleashed file whose Base Currency Code is not the firm's.
+  // Both messages name packages, columns and currency codes only.
+  UNRECOGNISED_INVENTORY: 422,
+  INVENTORY_CURRENCY_MISMATCH: 422
 })
 
 /**

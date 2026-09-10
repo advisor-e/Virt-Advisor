@@ -42,4 +42,22 @@ describe('business entity reports — reaching the backend', () => {
     // routes/report.js is the laptop's under item 4.61; this feature keeps out of it.
     expect(read('server/routes/report.js')).not.toMatch(/client-reports|clientReportAccess/)
   })
+
+  it('opens the two firm-level READS to a client, and ONLY the reads (item 4.68)', () => {
+    const server = read('server/restify-server.js')
+    expect(server).toMatch(/server\.get\('\/api\/report\/currency', firmOrEntityAuth/)
+    expect(server).toMatch(/server\.get\('\/api\/report\/property-tax-rules', firmOrEntityAuth/)
+    expect(server).toMatch(/server\.get\('\/api\/report\/sell-down', firmOrEntityAuth/)
+    // The writes stay the manager's. A client that could set the firm's currency would be
+    // an account-wide change from a client sign-in, and no test in UAT would try it.
+    expect(server).toMatch(/server\.post\('\/api\/report\/currency', firmAuth, requireManagerRole/)
+    // ONE POST carries it, and it is a calculation rather than a write: the Business
+    // Performance Report's pages route (item 4.70) computes a client's own figures on the
+    // firm's thresholds and stores nothing. It is named here so that any other POST, PUT or
+    // DEL opened to a client still fails this test by name.
+    const opened = server.match(/server\.(post|put|del)\([^\n]*firmOrEntityAuth[^\n]*/g) || []
+    expect(opened).toEqual([
+      expect.stringContaining("server.post('/api/report/dashboard-reports/pages', firmOrEntityAuth, reportRoute.dashboardReportPages)")
+    ])
+  })
 })

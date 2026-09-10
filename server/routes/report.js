@@ -25,18 +25,28 @@ const { computeImportShipments } = require('../report/importShipmentModel')
 const { computeThreeWayForecast, computeThreeYearForecast, importedRevenuePreview } = require('../report/threeWayForecastModel')
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { computeTrend } = require('../report/trendModel')
+const { computeDashboardReports } = require('../report/dashboardReportsModel')
+const { computeReportPages, plainLinesOf } = require('../report/dashboardReportPagesModel')
+const { compareToIndustry } = require('../report/benchmarks/statsNzBenchmarker')
+const { loadBenchmarker } = require('../utils/benchmarkerStore')
+const { assembleDashboardIntake, MAX_FILES: MAX_DASHBOARD_FILES } = require('../report/intake/dashboardReportsAssembler')
+const nextStepsRuns = require('../utils/nextStepsDraftRuns')
+const { assembleDashboardMonthly, MAX_FILES: MAX_DASHBOARD_MONTHLY_FILES } = require('../report/intake/dashboardMonthlyAssembler')
+const { readInventoryUpload, summariseInventory } = require('../report/intake/inventoryReader')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
 const { parseAnnualReports, parseForecastReports } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
-const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
+const { parseMonthlyUpload, parseDashboardMonthlyUpload } = require('../report/intake/monthlySalesParser')
 const { parseAssetScheduleUpload, compareToBalanceSheet } = require('../report/intake/assetScheduleParser')
 const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
+const { readFirmCurrency } = require('./currency')
 // The overlay reader with its dev-JSON fallback, taken from the thresholds route rather
 // than rebuilt — one definition of "how a scope's stored config is read", so the trend
 // block on step 3 and the manager screen that edits it can never disagree about it.
 const { readScopeConfig: readTrendScopeConfig } = require('./forecastTrendThresholds')
+const { readPlatformConfig: readBenchmarkerConfig } = require('./benchmarker')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
 // named-export + callback-wrap pattern as the firm-manager uploads.
@@ -151,6 +161,275 @@ function eightLevers (req, res, next) {
     res.send(400, { success: false, error: { code: 'EIGHT_LEVERS_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
+}
+
+/**
+ * POST /api/report/dashboard-reports
+ *
+ * The ratio hub behind the Business Performance Report (item 4.70, stage 1): every total and
+ * ratio the Dashboard Reports workbook computes per period, the quarterly comparison, the sales
+ * volatility band and the cash movement summary. Calc-only and therefore anonymous, like every
+ * other calc route here: numbers in, numbers out, nothing stored. Reads of a client's saved
+ * report and file intakes are separate routes and carry their own guards.
+ *
+ * @route POST /api/report/dashboard-reports
+ * @param {object} req.body - `{ yearly: object[], monthly: object[], collectible?: number }` —
+ *   `yearly` newest first, `monthly` oldest first, each period the fifteen account lines (see
+ *   `LINES` in the model) plus `daysInMonth` for a month.
+ *
+ *   🔴 THE ROUTE COMPUTES ONLY WHAT IT IS GIVEN. An absent, empty or non-object body returns
+ *   empty blocks, never the workbook's sample. The model's `DEFAULT_INPUTS` exist for the golden
+ *   test; a live route that quietly served sample figures could put them on a client's page as
+ *   if they were the client's (report-models.md §1, "never quietly both"). Found driving the
+ *   route live on 2026-09-07: Restify hands an empty JSON body over as `{}`, not `undefined`.
+ * @returns {object} { success, data, timestamp } — data is `{ yearly, monthly, quarterly,
+ *   volatility, cashMovement }`; a ratio the sheet would print as 0 on a division error is
+ *   `null` here, never 0.
+ */
+function dashboardReports (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeDashboardReports(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] dashboard-reports compute failed:', err)
+    res.send(400, { success: false, error: { code: 'DASHBOARD_REPORTS_COMPUTE_FAILED', message: 'Could not compute the report from the supplied figures.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/dashboard-reports/pages  (firmOrEntityAuth)
+ *
+ * Every figure the Business Performance Report's pages print (item 4.70, stage 2), from the
+ * confirmed table and the typed inventory figures. The one calc route here that carries a
+ * guard, and the reason is stated: the cash drivers and the health score are banded on the
+ * FIRM'S OWN thresholds, which live in the firm overlay and are resolved from the verified
+ * token — never from the body. A client reading their saved report is a business entity of
+ * the same firm, so the guard admits both.
+ *
+ * @route POST /api/report/dashboard-reports/pages
+ * @param {object} req.body - `{ current, prior, currentDates, priorDates, inventory, industry }` — see
+ *   `computeReportPages`. `thresholds` in the body is ignored; the firm's are used.
+ *   `industry` is `{ code, band }` from step 1; with a code, `data.benchmarks` carries the
+ *   Stats NZ comparison per `compareToIndustry` (stage 3, Brief P9), from the release in force.
+ *   `nextSteps` is `{ clientRef, steps }` — the three next steps as saved; with a clientRef,
+ *   `data.nextSteps` says whether that exact wording is ticked ready (stage 6): page 8 prints
+ *   on the server's record, never on a screen flag.
+ * @returns {object} { success, data, timestamp } — data per `computeReportPages`
+ */
+async function dashboardReportPages (req, res) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    // Never rejects: the resolver degrades to the platform set, and a thresholds failure
+    // must not cost a client their report.
+    const thresholds = await loadResolvedTrendThresholds(req.firmId, readTrendScopeConfig)
+    const data = computeReportPages(Object.assign({}, inputs, { thresholds }))
+    const industry = inputs.industry && typeof inputs.industry === 'object' ? inputs.industry : null
+    if (industry && typeof industry.code === 'string' && industry.code) {
+      // The same never-rejects rule: the store falls back to the shipped release.
+      const dataset = await loadBenchmarker(readBenchmarkerConfig)
+      data.benchmarks = compareToIndustry(dataset, {
+        code: industry.code.toUpperCase(),
+        band: typeof industry.band === 'string' && industry.band ? industry.band : null,
+        current: plainLinesOf(inputs.current || {}),
+        prior: inputs.prior ? plainLinesOf(inputs.prior) : null
+      })
+    } else {
+      data.benchmarks = null
+    }
+    // Stage 6: the approval record is read here, and only compared — the lines themselves
+    // never leave the record. Unreadable is unapproved, the safe way for a gate to fail.
+    const ns = inputs.nextSteps && typeof inputs.nextSteps === 'object' ? inputs.nextSteps : null
+    const clientRef = ns && typeof ns.clientRef === 'string' && ns.clientRef ? ns.clientRef.slice(0, 100) : null
+    let approval = null
+    if (clientRef) {
+      try { approval = await nextStepsRuns.latestApproval(req.firmId, clientRef) } catch (e) { approval = null }
+    }
+    data.nextSteps = nextStepsRuns.summarise(approval, ns ? ns.steps : null)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] dashboard-reports pages compute failed:', err)
+    res.send(400, { success: false, error: { code: 'DASHBOARD_REPORT_PAGES_FAILED', message: 'Could not compute the report from the supplied figures.' }, timestamp: new Date().toISOString() })
+  }
+}
+
+/**
+ * POST /api/report/dashboard-reports/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of up to six annual exports in repeated `file` fields — the Balance Sheet
+ * and Profit and Loss for this year, last year and (stage 5) the year before last — read
+ * with the forecast's own readers and laid out as the confirm table by
+ * `assembleDashboardIntake`. Which file is which year is decided by the reports' own date
+ * lines. Parse-and-discard: no file is kept.
+ *
+ * @route POST /api/report/dashboard-reports/intake
+ * @returns {object} { success, data, timestamp } — data per `assembleDashboardIntake`
+ */
+async function dashboardReportsIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — an accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send the exports in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > MAX_DASHBOARD_FILES) {
+      const e = new Error('This report reads up to ' + MAX_DASHBOARD_FILES + ' files — ' + uploaded.length + ' were sent. Please drop the Balance Sheet and Profit and Loss for this year, last year and the year before.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    // Every report each workbook holds, not just the first (item 4.79): one MYOB or
+    // QuickBooks export carries the Balance Sheet and the Profit and Loss together, so one
+    // file legitimately contributes two reports to the assembler.
+    const parsed = []
+    for (let u = 0; u < uploaded.length; u++) {
+      const reports = parseForecastReports(fs.readFileSync(uploaded[u].filepath))
+      for (let r = 0; r < reports.length; r++) { parsed.push(reports[r]) }
+    }
+    const data = assembleDashboardIntake(parsed)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] dashboard-reports intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'A file could not be read as an accounting export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/dashboard-reports/inventory  (firmAuth — uploads are never anonymous)
+ *
+ * One stock-on-hand export — Cin7 Core or Unleashed — in a `file` field, read by
+ * `readInventoryUpload` and reduced to the stock page's totals by `summariseInventory`
+ * against the firm's own currency (item 4.70, stage 4). Parse-and-discard: no file is
+ * kept, and NO PRODUCT LINE is sent back — only value by category and location, the unit
+ * counts and the file total. Stock ageing is not here: the export carries no date.
+ *
+ * @route POST /api/report/dashboard-reports/inventory
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data, timestamp } — data per `summariseInventory`
+ */
+async function dashboardReportsInventory (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a stock-on-hand export should be well under 1 MB. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the stock export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > 1) {
+      const e = new Error('This step reads one stock-on-hand export — ' + uploaded.length + ' files were sent. Please drop the one export.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const parsed = readInventoryUpload(fs.readFileSync(uploaded[0].filepath))
+    const { currency } = await readFirmCurrency(req.firmId)
+    const data = summariseInventory(parsed, currency)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, product names or content
+    console.error('[report] dashboard-reports inventory rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a stock-on-hand export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/dashboard-reports/monthly  (firmAuth — uploads are never anonymous)
+ *
+ * The monthly view's exports (item 4.70, stage 5): up to two by-month Profit and Loss files
+ * and one by-month Balance Sheet in repeated `file` fields, read by
+ * `parseDashboardMonthlyUpload` and joined by `assembleDashboardMonthly`. Only month labels
+ * and totals come back — sales, cost of sales, other income, expenses and the bank balance —
+ * never an account row's name. Parse-and-discard, as every intake here.
+ *
+ * @route POST /api/report/dashboard-reports/monthly
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data, timestamp } — data per `assembleDashboardMonthly`
+ */
+async function dashboardReportsMonthly (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a by-month accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send each by-month export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > MAX_DASHBOARD_MONTHLY_FILES) {
+      const e = new Error('This step reads up to ' + MAX_DASHBOARD_MONTHLY_FILES + ' by-month files — ' + uploaded.length + ' were sent. Please drop this year\'s Profit and Loss by month, last year\'s if this year\'s stops mid-year, and the Balance Sheet by month.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const parsed = uploaded.map(u => parseDashboardMonthlyUpload(fs.readFileSync(u.filepath)))
+    const data = assembleDashboardMonthly(parsed)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] dashboard-reports monthly rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'A file could not be read as a by-month accounting export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
 }
 
 /**
@@ -1067,4 +1346,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

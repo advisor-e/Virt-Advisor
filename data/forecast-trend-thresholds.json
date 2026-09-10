@@ -41,6 +41,19 @@
     "                of overheads gained cost exactly the same money, because both are a",
     "                point of sales.",
     "",
+    "TWO MORE LEVELS, 2026-09-08, FOR THE BUSINESS PERFORMANCE REPORT'S HEALTH SCORE (item 4.70).",
+    "  currentRatio  1.5 / 1.0 — reads the OTHER WAY UP: higher is better, so green is the",
+    "                bottom of green (at or above 1.5) and amber the bottom of amber (at or",
+    "                above 1.0); red is anything below 1.0. The lender's classic lines, and",
+    "                1.5 is the healthy mark the approved report drawing already prints.",
+    "  debtToEquity  1.0 / 2.0 — the day-count way round: green up to 1.0, amber up to 2.0,",
+    "                red above. TOTAL liabilities, suppliers included, over equity (assets less",
+    "                liabilities) — the definition the two exports can carry. At 1.0 the owners",
+    "                fund half of what the business holds; at 2.0 a third.",
+    "  Both given by Mike 2026-09-08, one pair at a time, each a \"yes\" to the figure put to",
+    "  him. The forecast's own trend page does not show these two; only the report's score",
+    "  reads them, and with all eight set it counts eight.",
+    "",
     "HE CALLED THESE \"a place to start\" AND ASKED TWICE THAT THEY BE EDITABLE. They are —",
     "the mentor's Forecast Trend Thresholds tab under Model Inputs, with version history and",
     "restore. Changing one there does NOT change this file; it stores the mentor's own",
@@ -54,7 +67,9 @@
   "levels": {
     "debtorDays": { "green": 35, "amber": 45 },
     "creditorDays": { "green": 35, "amber": 45 },
-    "stockDays": { "green": 30, "amber": 60 }
+    "stockDays": { "green": 30, "amber": 60 },
+    "currentRatio": { "green": 1.5, "amber": 1.0 },
+    "debtToEquity": { "green": 1.0, "amber": 2.0 }
   },
   "movements": {
     "salesGrowth": { "warn": 0, "crit": -5 },

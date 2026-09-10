@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business Performance Report — the AI draft of next steps</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Business Performance Report — STAGE 6, the AI draft of the three next steps, drawn
+   for approval (2026-09-09). Item 4.70.
+
+   ONE screen changes: step 4 of the intake, "Your words". The three next steps card gains
+   a draft block above its three fields. Nothing else on the six steps moves, and the
+   client's report changes only its page 8 mark (drawn at the foot).
+
+   The look is READ OFF business-performance-report-intake.html (approved 2026-09-07) and
+   three-way-forecast-economic-analysis.html (approved 2026-09-06): the shared CSS below is
+   copied from the intake drawing line for line, and the blue "exactly what will be sent"
+   box and the approval tick are the economic analysis's own, because this is the same
+   privacy shape — the advisor sees the exact words sent, and ticks before anything prints.
+
+   PRIVACY RULING, MIKE, 2026-09-09: the AI receives the eight measures and their bands,
+   and the Stats NZ position where an industry was named. Never the client's name, a
+   dollar figure, or a file. Figures on this screen are the deck's sample data.
+   Nothing here is built. Brief: design/features/business-performance-report.md §3 ruling 4.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a; --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+.root{display:flex;flex-direction:column;gap:16px}
+.root strong,.root b{font-weight:600}
+.root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#614700;line-height:1.55}
+.mock h1{font-size:16px;margin:0 0 6px;font-weight:700}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+.access{display:flex;align-items:center;gap:10px;background:#ffffff14;border:1px solid #ffffff30;border-radius:10px;padding:8px 12px;font-size:12.5px;align-self:center}
+.seg{display:inline-flex;border:1px solid #ffffff50;border-radius:8px;overflow:hidden}
+.seg span{padding:3px 10px;font-size:12px;font-weight:600;color:#c7e6fb}
+.seg span.on{background:var(--rs-accent-bright);color:var(--rs-ink)}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)} .chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)} .chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip — locked */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);box-shadow:0 12px 32px -12px #002b6466}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
+.hv.sm{font-size:18px;line-height:1.2}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+
+/* [D] two-column body */
+.layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);box-shadow:var(--rs-shadow)}
+.h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.group{padding:15px 16px;border-bottom:1px solid var(--rs-line)} .group:last-child{border-bottom:0}
+.glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+.results{display:flex;flex-direction:column;gap:16px}
+
+/* fields (Buefy look) */
+.field{margin:0 0 12px} .field:last-child{margin-bottom:0}
+.lbl{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.input{width:100%;border:1px solid var(--rs-line);border-radius:6px;padding:8px 10px;font:inherit;font-size:14px;background:#fff;color:var(--rs-ink)}
+.input.ta{min-height:64px}
+.hint{font-size:12px;color:var(--rs-muted);margin-top:5px}
+.btn{display:inline-block;border:1px solid var(--rs-accent);color:var(--rs-accent);border-radius:6px;padding:8px 14px;font-size:13.5px;font-weight:600;background:#fff}
+.btn.primary{background:var(--rs-accent);color:#fff}
+.btn.ghost{border-color:var(--rs-line);color:var(--rs-muted)}
+.actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.note{font-size:12.5px;color:var(--rs-muted)}
+.radio{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--rs-line);border-radius:8px;margin-bottom:8px;font-size:13.5px}
+.radio.on{border-color:var(--rs-accent);background:var(--rs-accent-soft)}
+.radio .r{width:16px;height:16px;border-radius:50%;border:2px solid var(--rs-line)} .radio.on .r{border-color:var(--rs-accent);background:radial-gradient(var(--rs-accent) 45%, #fff 50%)}
+.radio .rng{font-variant-numeric:tabular-nums;color:var(--rs-muted);font-size:12.5px}
+.finder{border:1px solid var(--rs-line);border-radius:8px;overflow:hidden}
+.finder .q{padding:8px 10px;border-bottom:1px solid var(--rs-line);font-size:14px;color:var(--rs-ink)}
+.finder .opt{padding:8px 10px;font-size:13px;border-bottom:1px solid var(--rs-line);display:flex;justify-content:space-between;gap:10px}
+.finder .opt:last-child{border-bottom:0} .finder .opt.on{background:var(--rs-accent-soft)}
+.finder .code{color:var(--rs-muted);font-variant-numeric:tabular-nums}
+
+/* drop zones — QuickPositionIntake */
+.drop-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.drop-zone{border:2px dashed var(--rs-line);border-radius:12px;padding:16px;background:#fff;text-align:center}
+.drop-zone.loaded{border-color:var(--rs-good);border-style:solid;background:var(--rs-good-soft)}
+.drop-title{font-weight:600;font-size:14px} .drop-how{font-size:12.5px;color:var(--rs-muted);margin:4px 0 10px}
+.file-note{font-size:12.5px;color:#2f6b19;margin:10px 0 0;font-weight:600}
+.file-error{font-size:12.5px;color:var(--rs-crit);margin:10px 0 0}
+.drop-rules{font-size:12.5px;color:var(--rs-muted)}
+
+/* confirm table */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--rs-line);text-align:left;vertical-align:middle}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+td .input{padding:5px 8px;text-align:right;max-width:130px}
+tr.sec td{background:var(--rs-panel-2);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-muted)}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--rs-line);color:var(--rs-muted);background:#fff;white-space:nowrap}
+.badge.file{color:var(--rs-accent);border-color:var(--rs-accent)}
+.badge.typed{color:#b45f00;border-color:var(--rs-warn);background:var(--rs-warn-soft)}
+.badge.stats{color:var(--rs-ink);border-color:var(--rs-ink)}
+.badge.ai{color:#4b3a8a;border-color:#7a6ba8}
+.date-ok{font-size:12.5px;color:#2f6b19;margin-top:10px}
+.warn-note{font-size:12.5px;color:#b45f00;margin-top:6px}
+
+/* pages list */
+.pg{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--rs-line);border-radius:8px;margin-bottom:8px;font-size:13.5px}
+.pg .cb{width:16px;height:16px;border-radius:4px;border:2px solid var(--rs-line)} .pg.on .cb{background:var(--rs-accent);border-color:var(--rs-accent)}
+.pg.base{background:var(--rs-panel-2)} .pg.base .cb{background:var(--rs-muted);border-color:var(--rs-muted)}
+.pg.off{color:var(--rs-muted)} .pg .why{font-size:12px;color:var(--rs-muted)}
+.pg .why.ok{color:#2f6b19}
+
+/* preview thumbs */
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.thumb{aspect-ratio:16/9;border:1px solid var(--rs-line);border-radius:8px;background:#fff;display:grid;place-items:center;font-size:11px;color:var(--rs-muted);text-align:center;padding:8px}
+.thumb.dark{background:#002b64;color:#7fd3f1}
+.edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);border-radius:0 9px 9px 0;padding:15px 17px}
+.edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.edu p{margin:0 0 8px;font-size:14px;line-height:1.6} .edu p:last-child{margin-bottom:0}
+
+/* ---- additions for this drawing only ------------------------------------------ */
+/* what will be sent — copied from three-way-forecast-economic-analysis.html */
+.sendbox{border:1px solid #0070c04d;background:#0070c00a;border-radius:10px;padding:13px 14px}
+.sendhead{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--rs-accent);margin-bottom:9px}
+.sendbody{font-size:13px;line-height:1.6}
+.sendfoot{font-size:12px;color:var(--rs-muted);margin-top:10px;padding-top:9px;border-top:1px solid #0070c026}
+/* the eight measures, as sent: a name and a colour, nothing else */
+.sent{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:13px}
+.sent div{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed #0070c022}
+.sent .b{font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.sent .g{color:#2f6b19}.sent .a{color:#b45f00}.sent .r{color:var(--rs-crit)}
+/* the draft mark on a field */
+.badge.draft{color:#4b3a8a;border-color:#7a6ba8;background:#7a6ba812}
+.lblrow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}
+.lblrow .lbl{margin:0}
+.input.drafted{border-color:#7a6ba8;background:#7a6ba808}
+/* the approval tick — copied from the economic analysis's .ticker */
+.ticker{display:grid;grid-template-columns:20px 1fr;gap:12px;align-items:start;padding:13px 14px;border:1px solid var(--rs-line);border-radius:10px;background:var(--rs-panel-2)}
+.ticker input{width:16px;height:16px;margin:3px 0 0}
+.ticker .tl{font-size:14px;font-weight:600}
+.ticker .ts{font-size:12.5px;color:var(--rs-muted);margin-top:3px;line-height:1.5}
+.ticker.off{opacity:.55}
+.record{font-size:12.5px;color:var(--rs-muted);margin-top:8px}
+/* mockup-only tags */
+.mock.tag{position:relative;padding-top:26px}
+.mock.tag::before{content:attr(data-tag);position:absolute;top:-1px;left:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;background:#ffd666;color:#614700;border-radius:0 0 6px 6px;padding:2px 8px}
+/* page 8 of the client's report, the one line that changes */
+.p8{background:#002b64;color:#fff;border-radius:14px;padding:22px 26px;aspect-ratio:16/6}
+.p8 .t{font-size:22px;font-weight:300;margin:0 0 4px}
+.p8 .sub{font-size:13px;color:#dbeaf7;margin:0}
+.p8 .prov{display:inline-block;margin-left:8px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid #ff9900;color:#ff9900}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <h1>Business Performance Report — stage 6, the AI draft of the three next steps, for approval</h1>
+  Item 4.70. One screen changes: step 4 of the intake gains a draft block above the three next steps. The privacy ruling of 2026-09-09 is drawn as the blue box, the same box the economic analysis uses, so an advisor reads the exact words before they leave the app. The tick below the three fields is the approval gate, and page 8 prints only once it is ticked.
+  <ul>
+    <li><b>Wording is proposed, not ruled:</b> the block title, the button, the badge, the tick sentence and the page 8 mark are all for you to confirm or change.</li>
+    <li>Everything already on step 4 — the executive summary, the insight and watch-point, the next review — is unchanged and drawn as approved on 2026-09-07.</li>
+    <li>The client's report changes in one place: the mark on page 8, drawn at the foot.</li>
+  </ul>
+</div>
+
+<div class="stepmark">Step 4 of 6 — your words — BEFORE the draft</div>
+<div class="root">
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span>Client &amp; industry</span><span class="chip done"><span class="n">✓</span>The accounts</span><span class="chip done"><span class="n">✓</span>Inventory</span><span class="chip now"><span class="n">4</span>Your words</span><span class="chip todo"><span class="n">5</span>Pages</span><span class="chip todo"><span class="n">6</span>Review &amp; print</span>
+  </div>
+  <div class="herostrip">
+    <div class="hs"><div class="hk">Health score</div><div class="hv">69</div><div class="hs2">5 of 8 measures green · Steady</div></div>
+    <div class="hs"><div class="hk">Cash cycle</div><div class="hv">47 <span class="u">days</span></div><div class="hs2">6 days slower than last year</div></div>
+    <div class="hs"><div class="hk">Against industry</div><div class="hv">6 of 8</div><div class="hs2">within or above the middle half</div></div>
+    <div class="hs"><div class="hk">Below industry</div><div class="hv">1</div><div class="hs2">stock turnover</div></div>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Executive summary</h2></div>
+        <div class="field"><label class="lbl">One-line summary of the year</label><div class="input">A strong year with one watch-point: cash tied up in stock</div></div>
+        <div class="field"><label class="lbl">What went well (two)</label><div class="input ta">Sales grew in all four quarters, led by repeat customers (+19%).<br>Gross margin held at 41% despite supplier price increases.</div></div>
+        <div class="field"><label class="lbl">What to watch (two)</label><div class="input ta">Stock on hand grew faster than sales — $118K extra cash tied up.<br>Customers are paying 5 days slower than last year (38 → 43 days).</div></div>
+      </div>
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Insight and watch-point</h2></div>
+        <div class="field"><label class="lbl">Profit &amp; Loss insight</label><div class="input ta">Every $1 of sales returned 13.9¢ of profit — up from 13.2¢ last year. Wage costs are the fastest-growing expense (+9%).</div></div>
+        <div class="field"><label class="lbl">Cash watch-point</label><div class="input ta">The December dip (–$57K) coincides with peak stock purchases. Consider staggering orders or a seasonal overdraft facility.</div></div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="card">
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Start from a draft</h2></div>
+          <div class="sendbox">
+            <div class="sendhead">This is exactly what will be sent</div>
+            <div class="sent">
+              <div><span>Sales growth</span><span class="b g">Green</span></div>
+              <div><span>Gross margin</span><span class="b g">Green</span></div>
+              <div><span>Overhead ratio</span><span class="b a">Amber</span></div>
+              <div><span>Debtor days</span><span class="b a">Amber</span></div>
+              <div><span>Creditor days</span><span class="b g">Green</span></div>
+              <div><span>Stock days</span><span class="b r">Red</span></div>
+              <div><span>Current ratio</span><span class="b g">Green</span></div>
+              <div><span>Debt to equity</span><span class="b g">Green</span></div>
+            </div>
+            <div class="sendbody" style="margin-top:9px">Against industry (Stats NZ middle half): stock turnover <b>below</b>; six <b>within or above</b>; one not published.</div>
+            <div class="sendfoot"><b>Nothing else about this client leaves the app.</b> Not their name, not a dollar figure, not a file, not their industry's name. Only the eight colours above and where they sit against the industry.</div>
+          </div>
+          <div class="actions" style="margin-top:12px"><span class="btn primary">Draft the three next steps</span><span class="note">About twenty seconds. You edit every word before it prints.</span></div>
+        </div>
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">The three next steps</h2></div>
+          <div class="field"><label class="lbl">1 · Title</label><div class="input" style="color:var(--rs-muted)">&nbsp;</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta">&nbsp;</div></div>
+          <div class="field"><label class="lbl">2 · Title</label><div class="input">&nbsp;</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta">&nbsp;</div></div>
+          <div class="field"><label class="lbl">3 · Title</label><div class="input">&nbsp;</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta">&nbsp;</div></div>
+          <div class="field"><label class="lbl">Next review</label><div class="input">December 2026 quarter</div></div>
+        </div>
+        <div class="group">
+          <div class="ticker off"><input type="checkbox" disabled><div><div class="tl">These three next steps are ready for the client's report</div><div class="ts">Page 8 prints only once this is ticked. Your name and today's date are recorded against the words as they stand; changing a word afterwards clears the tick.</div></div></div>
+        </div>
+      </div>
+      <div class="edu"><div class="edu-h"><span>The figures beside you</span></div><p>The band above shows what the pages will say, so the words can be written against them. Type the three next steps yourself, or start from a draft and edit it. Either way page 8 prints only once you have ticked them ready.</p></div>
+      <div class="actions"><span class="btn primary">Continue to pages</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="mock tag" data-tag="MIKE'S RULING, 2026-09-09">
+  <b>The blue box is the ruling, drawn.</b> The AI receives the eight measures and their bands, and where step 1 named an industry, whether each sits below, within or above the Stats NZ middle half. Never the client's name, a dollar figure, a file, or the industry's own name. The box lists what is sent rather than describing it, because a description is the app deciding what to disclose; it is built from the same figures the pages use, so it cannot disagree with the report.
+  <br><br>
+  <b>Why the industry's name is not sent.</b> The bands alone identify nobody. A named industry plus a size band plus eight positions starts to narrow the field, and the draft does not need it: "stock days are red and below the industry" is what the AI acts on, and the advisor adds the context in the edit, which is where their judgement belongs. If you want the industry name sent, that is one line in the box and a separate yes.
+  <br><br>
+  <b>The button is disabled until the score exists</b> — with one year of accounts there are no bands, and the box says so instead of sending an empty list.
+</div>
+
+<div class="stepmark">Step 4 of 6 — your words — AFTER the draft, edited and ticked</div>
+<div class="root">
+  <div class="layout">
+    <div class="card" style="opacity:.45">
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Executive summary</h2></div><div class="note">unchanged</div></div>
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Insight and watch-point</h2></div><div class="note">unchanged</div></div>
+    </div>
+    <div class="results">
+      <div class="card">
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Start from a draft</h2></div>
+          <div class="record">Draft 1 of 1, made 9 September 2026. <span class="btn ghost" style="padding:4px 10px;font-size:12.5px;margin-left:8px">Draft again</span></div>
+        </div>
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">The three next steps</h2></div>
+          <div class="field"><div class="lblrow"><label class="lbl">1 · Title</label><span class="badge draft">AI draft · edited</span></div><div class="input drafted">Free up cash from stock</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta drafted">Stock days are red and below the industry's middle half. Run down slow-moving lines and trim reorder points on category C; target 60 days on hand, releasing roughly $45K.</div></div>
+          <div class="field"><div class="lblrow"><label class="lbl">2 · Title</label><span class="badge draft">AI draft</span></div><div class="input drafted">Bring debtor days back</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta drafted">Debtor days are amber. Move key accounts to shorter terms and automate reminders; every five days faster releases cash the stock build-up is using.</div></div>
+          <div class="field"><div class="lblrow"><label class="lbl">3 · Title</label><span class="badge draft">AI draft · edited</span></div><div class="input drafted">Protect the margin</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta drafted">Overheads are amber against sales. Review the top-10 supplier agreements before the next price round; wages are growing faster than sales.</div></div>
+          <div class="field"><label class="lbl">Next review</label><div class="input">December 2026 quarter</div></div>
+        </div>
+        <div class="group">
+          <div class="ticker"><input type="checkbox" checked><div><div class="tl">These three next steps are ready for the client's report</div><div class="ts">Ticked by Sarah Mitchell, 9 September 2026, from draft 1 of 1. Two of the three were edited after drafting.</div></div></div>
+        </div>
+      </div>
+      <div class="actions"><span class="btn primary">Continue to pages</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="mock tag" data-tag="ONE CONTROL, TWO JOBS">
+  <b>The tick IS the approval gate the standards require.</b> Financial output needs an explicit <code>isApproved: true</code> before AI output is committed, and an advisor reading three next steps and deciding they are fit for the client is that approval. There is no second button labelled <i>Approve</i>.
+  <br><br>
+  <b>It applies to typed words too.</b> Today page 8 prints whatever is in the three boxes. With a draft in play the tick has to cover the final words whichever way they arrived, so the gate is on the words, not on the draft: an advisor who types all three still ticks. That is one rule instead of two, and it is why the badge says <i>edited</i> per field — the record has to show what the AI proposed, what the advisor changed, and what was approved, the Original / AI Suggestion / Final Approved discipline the standards already require.
+  <br><br>
+  <b>Every draft is counted, and the tick names which one went in</b> — the rule from the economic analysis, unchanged. <i>Draft again</i> stays because the commonest reason to redraft is that the accounts were corrected on step 2, not a disliked answer; the count makes a re-roll visible rather than impossible. Drafting again clears the tick and overwrites only the fields the advisor has not edited.
+  <br><br>
+  <b>What the draft is not allowed to do.</b> It cannot invent a dollar figure, because it never receives one — the sample above has the advisor adding "$45K" in the edit, not the AI. Any figure in an untouched draft is refused on the server before it reaches the screen, on the same rule the economic analysis uses. It cannot name a template or a service the firm sells; it is three plain priorities.
+</div>
+
+<div class="stepmark">The client's report — page 8, the one line that changes</div>
+<div class="p8">
+  <p class="t">Key Insights &amp; Next Steps</p>
+  <p class="sub">The three priorities we recommend acting on this quarter <span class="prov">Drafted with AI · edited and approved by your advisor</span></p>
+  <p class="sub" style="margin-top:14px;font-size:12px;color:#9dc2e8">Where the advisor typed all three, the mark stays <i>Written by your advisor</i>, exactly as built. The mark says which happened; it never says both.</p>
+</div>
+
+<div class="mock tag" data-tag="WHAT STAYS THE SAME">
+  Steps 1, 2, 3, 5 and 6 are untouched. The executive summary, insight and watch-point stay typed only — the ruling covers the three next steps, and nothing else on step 4 is offered a draft. The saved report gains the draft, the tick, who ticked and when, and the draft count; a report saved before this stage loads exactly as it does today, with the tick unset and page 8 withheld until it is set — which is the one behaviour change for an existing report, and it is deliberate: a page that already printed from typed words now waits for the tick once. Every string on this drawing goes through the locale file.
+</div>
+
+</div>
+</body>
+</html>
