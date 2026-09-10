@@ -66,6 +66,9 @@ function explainReasons (reasons) {
     if (r === 'engagement:secondary') return 'fits the engagement style'
     if (r === 'history:already_delivered') return 'already delivered to this client — held back'
     if (r === 'history:went_less_well') return 'delivered before and went less well — held back'
+    // Outcome Learning (4.87) — Mike's wording 2026-09-11, the same as the locale's.
+    if (r.indexOf('pooled:held_back-') === 0) return 'learned from outcomes −' + r.slice('pooled:held_back-'.length)
+    if (r === 'pooled:outweighed') return 'outcome learning weighed and outweighed'
     return r
   })
 }

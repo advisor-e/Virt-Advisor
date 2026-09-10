@@ -4007,6 +4007,8 @@
     "reasonConfidenceBoost": "you reported strong confidence here",
     "reasonDelivered": "already delivered to this client — held back",
     "reasonWentLess": "delivered before and went less well — held back",
+    "reasonPooledHeldBack": "learned from outcomes −{n}",
+    "reasonPooledOutweighed": "outcome learning weighed and outweighed",
     "lensTemplates": "{count} template | {count} templates",
     "caseAreaFocused": "Area focused on:",
     "caseWhatShaped": "What shaped the advice:",

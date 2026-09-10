@@ -66,6 +66,11 @@ export const REASON_RULES = [
   // Held back.
   { test: /^history:already_delivered$/, key: 'reasonDelivered' },
   { test: /^history:went_less_well$/, key: 'reasonWentLess' },
+  // Outcome Learning (item 4.87). The applied code carries the capped hold-back; the
+  // outweighed code carries nothing — the advisor's own words won. Mike's wording,
+  // 2026-09-11, from design/mockups/outcome-learning-trace.html.
+  { test: /^pooled:held_back-(\d+)$/, key: 'reasonPooledHeldBack', param: 'n' },
+  { test: /^pooled:outweighed$/, key: 'reasonPooledOutweighed' },
   { test: /^penalty:modeling_declined$/, key: 'reasonPenaltyModeling' },
   { test: /^penalty:reports_already_in_use$/, key: 'reasonPenaltyReports' },
   { test: /^advisor:confidence_mismatch$/, key: 'reasonConfidenceMismatch' },

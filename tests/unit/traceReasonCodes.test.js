@@ -51,7 +51,10 @@ const ENGINE_CODES = [
   ['advisor:confidence_boost', 'reasonConfidenceBoost'],
   ['growth:exact', 'reasonGrowth'],
   ['history:already_delivered', 'reasonDelivered'],
-  ['history:went_less_well', 'reasonWentLess']
+  ['history:went_less_well', 'reasonWentLess'],
+  // Outcome Learning (4.87, T032) — Mike's wording 2026-09-11, from the trace drawing.
+  ['pooled:held_back-4', 'reasonPooledHeldBack'],
+  ['pooled:outweighed', 'reasonPooledOutweighed']
 ]
 
 describe('every reason code the engine writes has English', () => {
@@ -62,8 +65,8 @@ describe('every reason code the engine writes has English', () => {
     expect(typeof EN.decisionTrace[expectedKey]).toBe('string')
   })
 
-  test('all 26 of them — the count is the point, not the sample', () => {
-    expect(ENGINE_CODES).toHaveLength(26)
+  test('all 28 of them — the count is the point, not the sample', () => {
+    expect(ENGINE_CODES).toHaveLength(28)
     expect(ENGINE_CODES.every(([code]) => matchReason(code) !== null)).toBe(true)
   })
 })
@@ -90,11 +93,14 @@ describe('the engine cannot add a code without English for it', () => {
       'tag:': 'tag:Cash Flow',
       'purpose:': 'purpose:Cash Flow',
       'semantic:': 'semantic:4.2',
-      'purpose_fallback:': 'purpose_fallback:3.0'
+      'purpose_fallback:': 'purpose_fallback:3.0',
+      // The engine writes `'pooled:held_back-' + total`; the ends-with test below reads
+      // the trailing '-' as incomplete, so the sample supplies the number.
+      'pooled:held_back-': 'pooled:held_back-4'
     }
     const unknown = []
     prefixes.forEach((prefix) => {
-      const complete = /[:+]$/.test(prefix)
+      const complete = /[:+-]$/.test(prefix)
       // A new partial prefix with no sample is itself a failure: nobody can say the
       // table covers a code shape this test cannot construct.
       const code = complete ? SAMPLES[prefix] : prefix
@@ -127,6 +133,13 @@ describe('the codes that carry a value', () => {
 
   test('the logic tree hands over its points', () => {
     expect(matchReason('tree_hint:+3').params).toEqual({ points: '3' })
+  })
+
+  test('a pooled hold-back hands over its capped total; outweighed carries nothing', () => {
+    expect(matchReason('pooled:held_back-4')).toMatchObject({ key: 'decisionTrace.reasonPooledHeldBack', params: { n: '4' } })
+    expect(matchReason('pooled:held_back-10').params).toEqual({ n: '10' })
+    expect(matchReason('pooled:outweighed')).toMatchObject({ key: 'decisionTrace.reasonPooledOutweighed', params: {} })
+    expect(matchReason('pooled:held_back-')).toBeNull()
   })
 
   test('a tag and a purpose hand over the category, which is the whole change', () => {
