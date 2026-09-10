@@ -115,6 +115,7 @@
       :newest-published="newestPublished"
       :saving="saving"
       :error="reviewError"
+      :api-token="apiToken"
       @approve="approveDocument"
       @reject="rejectDocument"
     )
