@@ -199,6 +199,47 @@ async function loadFirmConfigsByPrefix (firmId, keyPrefix) {
   return out
 }
 
+/**
+ * Hard-delete EVERY version of every row at one scope whose key starts with a prefix.
+ *
+ * 🔴 WHY THIS EXISTS — the store is append-only everywhere else. A save writes a new
+ * version and keeps the old ones as history, and nothing here has ever removed a row a
+ * caller could still read. Outcome Learning (specs/002-outcome-learning, FR-003) makes a
+ * promise that history cannot keep: when a firm withdraws consent its anonymised
+ * contributions are REMOVED, not marked. A tombstone would leave every contributed row
+ * readable in the version history, which is the opposite of what the consent screen says.
+ * So this deletes, and it deletes the history too. Approved on plan.md by Mike, 2026-09-10.
+ *
+ * ⚠ THE PREFIX MUST END IN ':' AND MUST NOT BE EMPTY. The pool keys are
+ * `outcome-pool:<token>:<caseHash>`, and a withdrawal passes `outcome-pool:<token>:`. The
+ * terminator is what stops `outcome-pool:abc` from also matching `outcome-pool:abcdef…`,
+ * which would delete another consenting firm's rows. An empty prefix would delete the whole
+ * scope. Both are refused before any SQL runs; there is no caller for either.
+ *
+ * ⚠ NO CASCADE. One scope, named by the caller, and nothing above or below it.
+ *
+ * @param {string} firmId - the scope id, e.g. PLATFORM_SCOPE for the pool
+ * @param {string} keyPrefix - a literal prefix ending in ':'
+ * @returns {Promise<number>} rows deleted, every version counted
+ */
+async function deleteFirmConfigsByPrefix (firmId, keyPrefix) {
+  if (typeof keyPrefix !== 'string' || keyPrefix.length === 0) {
+    throw new Error('deleteFirmConfigsByPrefix: keyPrefix must be a non-empty string')
+  }
+  if (!keyPrefix.endsWith(':')) {
+    throw new Error('deleteFirmConfigsByPrefix: keyPrefix must end in ":"')
+  }
+  if (typeof firmId !== 'string' || firmId.length === 0) {
+    throw new Error('deleteFirmConfigsByPrefix: firmId must be a non-empty string')
+  }
+  const [result] = await db.execute(
+    `DELETE FROM firm_framework_versions
+     WHERE firm_id = ? AND config_key LIKE ? ESCAPE '\\\\'`,
+    [firmId, _escapeLike(keyPrefix) + '%']
+  )
+  return result.affectedRows
+}
+
 async function saveFirmConfig (firmId, configKey, configJson, savedBy) {
   const conn = await db.getConnection()
   try {
@@ -354,6 +395,7 @@ module.exports = {
   CASCADING_CONFIG_KEYS,
   loadFirmConfig,
   loadFirmConfigsByPrefix,
+  deleteFirmConfigsByPrefix,
   saveFirmConfig,
   listFirmIdsWithConfigKey,
   getVersionHistory,
