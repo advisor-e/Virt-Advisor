@@ -422,10 +422,11 @@ describe('resolveCountrySchedule', () => {
   it('finds the brand\'s schedule for a firm beneath it', async () => {
     const load = reader({ [GLOBAL]: { [configKeyFor('NZ')]: aSchedule() } })
     const out = await resolveCountrySchedule('firm-1', 'NZ', load)
-    expect(out).not.toBeNull()
-    expect(out.document).toBe('IR265')
-    expect(out.originTier).toBe('global_group_manager')
-    expect(out.originScopeId).toBe(GLOBAL)
+    expect(out.schedule).not.toBeNull()
+    expect(out.schedule.document).toBe('IR265')
+    expect(out.schedule.originTier).toBe('global_group_manager')
+    expect(out.schedule.originScopeId).toBe(GLOBAL)
+    expect(out.unreachable).toBe(false)
   })
 
   it('asks only for the country wanted, never for every country held', async () => {
@@ -436,7 +437,7 @@ describe('resolveCountrySchedule', () => {
 
   it('gives nothing for a country nobody has loaded, so the advisor keeps the app defaults', async () => {
     const load = reader({ [GLOBAL]: { [configKeyFor('NZ')]: aSchedule() } })
-    expect(await resolveCountrySchedule('firm-1', 'AU', load)).toBeNull()
+    expect((await resolveCountrySchedule('firm-1', 'AU', load)).schedule).toBeNull()
   })
 
   it('lets the nearer tier win, exactly as the six rates do', async () => {
@@ -445,18 +446,18 @@ describe('resolveCountrySchedule', () => {
       [GROUP]: { [configKeyFor('NZ')]: aSchedule({ document: 'IR265 (NZ group edition)' }) }
     })
     const out = await resolveCountrySchedule('firm-1', 'NZ', load)
-    expect(out.document).toBe('IR265 (NZ group edition)')
-    expect(out.originTier).toBe('group_manager')
+    expect(out.schedule.document).toBe('IR265 (NZ group edition)')
+    expect(out.schedule.originTier).toBe('group_manager')
   })
 
   it('skips a stored schedule that no longer validates rather than serving it', async () => {
     const load = reader({ [GLOBAL]: { [configKeyFor('NZ')]: aSchedule({ approvedBy: '' }) } })
-    expect(await resolveCountrySchedule('firm-1', 'NZ', load)).toBeNull()
+    expect((await resolveCountrySchedule('firm-1', 'NZ', load)).schedule).toBeNull()
   })
 
   it('skips a schedule filed under the wrong country', async () => {
     const load = reader({ [GLOBAL]: { [configKeyFor('NZ')]: aSchedule({ country: 'AU' }) } })
-    expect(await resolveCountrySchedule('firm-1', 'NZ', load)).toBeNull()
+    expect((await resolveCountrySchedule('firm-1', 'NZ', load)).schedule).toBeNull()
   })
 
   it('never rejects when a tier cannot be read, and still uses the tiers that could', async () => {
@@ -466,13 +467,16 @@ describe('resolveCountrySchedule', () => {
       return Promise.resolve(null)
     })
     const out = await resolveCountrySchedule('firm-1', 'NZ', load)
-    expect(out.originScopeId).toBe(GLOBAL)
+    expect(out.schedule.originScopeId).toBe(GLOBAL)
+    // 🔴 The failure is REPORTED, not hidden: a store we could not read must never be shown
+    // as a country nobody has loaded.
+    expect(out.unreachable).toBe(true)
   })
 
   it('answers null without asking the store when there is no scope or no country', async () => {
     const load = jest.fn()
-    expect(await resolveCountrySchedule(null, 'NZ', load)).toBeNull()
-    expect(await resolveCountrySchedule('firm-1', 'New Zealand', load)).toBeNull()
+    expect((await resolveCountrySchedule(null, 'NZ', load)).schedule).toBeNull()
+    expect((await resolveCountrySchedule('firm-1', 'New Zealand', load)).schedule).toBeNull()
     expect(load).not.toHaveBeenCalled()
   })
 })

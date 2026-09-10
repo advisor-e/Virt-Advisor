@@ -190,3 +190,110 @@ describe('when the store will not answer', () => {
     expect(result.used).toBe(4)
   })
 })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Item 4.92 — the SECOND allowance. Mike ruled on 2026-09-11 that a country
+// schedule has its own reading allowance, kept apart from a firm's 20 a day,
+// and that the number is 10.
+//
+// 🔴 THE POINT UNDER TEST IS THE SEPARATION. The two allowances share every rule
+// in this module and must share no COUNT: a group that has loaded ten schedules
+// must still be able to read a document, and a firm that has spent its twenty
+// documents must still be able to load a schedule. Nothing a person can see in
+// UAT would reveal the two counters bleeding into each other until somebody was
+// stopped for a reason that made no sense to them.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const GROUP = '__global__:Advisor-e'
+
+/** What the store holds for a named allowance. */
+function storedFor (configKey, value) {
+  overlay.loadFirmConfig.mockImplementation((scopeId, key) =>
+    Promise.resolve(key === configKey ? value : null))
+}
+
+describe('the country-schedule allowance is its own', () => {
+  test('a group that has loaded nothing may load, and the load is recorded', async () => {
+    const result = await budget.consumeScheduleLoad(GROUP, USER, NOW)
+
+    expect(result.ok).toBe(true)
+    expect(result.used).toBe(1)
+    expect(result.remaining).toBe(budget.SCHEDULE_LIMIT - 1)
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith(
+      GROUP, budget.SCHEDULE_CONFIG_KEY, expect.any(Object), USER
+    )
+  })
+
+  test('the eleventh is refused, and refused before anything is spent', async () => {
+    storedFor(budget.SCHEDULE_CONFIG_KEY, { loads: loadsAgo([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) })
+
+    const result = await budget.consumeScheduleLoad(GROUP, USER, NOW)
+
+    expect(result.ok).toBe(false)
+    expect(result.status).toBe(429)
+    expect(result.code).toBe('SCHEDULE_LOAD_LIMIT')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('it is counted in SCHEDULES, so one load is one reading however many passes it takes', async () => {
+    // A 71-page schedule is nine model calls. Counting the calls would make the allowance
+    // mean "how long is your country's document", which nobody can plan around.
+    await budget.consumeScheduleLoad(GROUP, USER, NOW)
+    expect(written().loads).toHaveLength(1)
+  })
+
+  test('it never spends the firm document allowance, and is never spent by it', async () => {
+    // The separate config key is what guarantees this, rather than a rule to remember.
+    storedFor(budget.CONFIG_KEY, { loads: loadsAgo([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]) })
+
+    const schedule = await budget.consumeScheduleLoad(GROUP, USER, NOW)
+    expect(schedule.ok).toBe(true)
+
+    jest.clearAllMocks()
+    overlay.saveFirmConfig.mockResolvedValue(undefined)
+    storedFor(budget.SCHEDULE_CONFIG_KEY, { loads: loadsAgo([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) })
+
+    const document = await budget.consume(FIRM, USER, NOW)
+    expect(document.ok).toBe(true)
+  })
+
+  test('its window rolls too — a load that has aged out frees its slot', async () => {
+    storedFor(budget.SCHEDULE_CONFIG_KEY, { loads: loadsAgo([25, 2, 3, 4, 5, 6, 7, 8, 9, 10]) })
+
+    const result = await budget.consumeScheduleLoad(GROUP, USER, NOW)
+
+    expect(result.ok).toBe(true)
+    // The aged-out entry is dropped on the way past rather than carried for ever.
+    expect(written().loads).toHaveLength(10)
+  })
+
+  // Fail-closed is proved in production, exactly as the document allowance's own tests do it:
+  // outside production a connection-shaped failure is allowed to reach the dev JSON mirror, and
+  // that affordance is not what is under test here.
+  const realEnv = process.env.NODE_ENV
+  afterEach(() => {
+    if (realEnv === undefined) { delete process.env.NODE_ENV } else { process.env.NODE_ENV = realEnv }
+  })
+
+  test('it fails closed when the store cannot be read', async () => {
+    process.env.NODE_ENV = 'production'
+    overlay.loadFirmConfig.mockRejectedValue(new Error('connection refused'))
+
+    const result = await budget.consumeScheduleLoad(GROUP, USER, NOW)
+
+    expect(result.ok).toBe(false)
+    expect(result.status).toBe(503)
+    expect(result.code).toBe('BUDGET_UNAVAILABLE')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('it fails closed when the load cannot be recorded', async () => {
+    process.env.NODE_ENV = 'production'
+    overlay.saveFirmConfig.mockRejectedValue(new Error('connection refused'))
+
+    const result = await budget.consumeScheduleLoad(GROUP, USER, NOW)
+
+    expect(result.ok).toBe(false)
+    expect(result.code).toBe('BUDGET_UNAVAILABLE')
+  })
+})

@@ -442,23 +442,32 @@ function unreadPagesSentence (schedule) {
  * brand's — but the walk is the general one, so the day a tier is added the resolver does not
  * change.
  *
- * ⚠ IT NEVER REJECTS. A manager who cannot reach the store gets `null` and a screen that says
- * so; an advisor is never blocked, which is Mike's standing ruling for this whole feature.
+ * ⚠ IT NEVER REJECTS, and an advisor is never blocked — Mike's standing ruling for this whole
+ * feature. But it does not hide a failure either.
+ *
+ * 🔴 `unreachable` IS WHY THIS RETURNS AN OBJECT RATHER THAN THE SCHEDULE. A store that cannot
+ * be read and a country nobody has loaded both produce no table, and on screen they are the
+ * same empty picker. That is the absence-looks-like-a-negative failure this feature guards
+ * against everywhere else — the one that had a session conclude New Zealand has no first-year
+ * rule — and it would be built straight back in by returning null for both. A caller that only
+ * wants the table ignores the flag; a caller putting words on a screen must not.
  *
  * @param {string|null} scopeId - the caller's VERIFIED scope, never a request body
  * @param {*} country - the client's country
  * @param {function(string, string): Promise<Object|null>} loadFirmConfig - the overlay reader,
  *   injected rather than imported so tests need no database
- * @returns {Promise<object|null>} the schedule with `originTier` and `originScopeId`, or null
- *   when no tier above this scope has approved one for that country
+ * @returns {Promise<{schedule: object|null, unreachable: boolean}>} the schedule carries
+ *   `originTier` and `originScopeId`; `unreachable` is true when a tier could not be read, so a
+ *   caller can tell "nothing is loaded" from "we could not look"
  */
 async function resolveCountrySchedule (scopeId, country, loadFirmConfig) {
   const code = normaliseCountry(country)
-  if (!scopeId || code === null) { return null }
+  if (!scopeId || code === null) { return { schedule: null, unreachable: false } }
 
   const configKey = configKeyFor(code)
   const chain = scopeChain(scopeId)
   let found = null
+  let unreachable = false
 
   // Mentor first, this scope last, so a nearer tier simply overwrites a further one and the
   // last writer is the origin — the same walk depreciationRates.js makes.
@@ -469,8 +478,10 @@ async function resolveCountrySchedule (scopeId, country, loadFirmConfig) {
       stored = await loadFirmConfig(at, configKey)
     } catch (err) {
       // One unreachable tier must not lose the tiers already applied, and must not stop the
-      // ones below it being asked.
+      // ones below it being asked — but it IS recorded, so a screen never reports a store it
+      // could not read as a country nobody has loaded.
       console.error('[country-schedules] scope read failed:', err.message)
+      unreachable = true
       continue
     }
     if (stored === null || stored === undefined) { continue }
@@ -486,7 +497,7 @@ async function resolveCountrySchedule (scopeId, country, loadFirmConfig) {
     found = { ...value, originTier: tierOfScope(at), originScopeId: at }
   }
 
-  return found
+  return { schedule: found, unreachable }
 }
 
 /**

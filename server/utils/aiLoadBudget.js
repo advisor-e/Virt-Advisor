@@ -50,6 +50,32 @@ const CONFIG_KEY = 'ai-document-loads'
 /** Readings per firm per rolling window. Mike, 2026-09-11. */
 const LIMIT = 20
 
+/**
+ * 🔴 THE SECOND ALLOWANCE — a COUNTRY SCHEDULE, and it is deliberately kept apart from the 20.
+ *
+ * Mike's ruling, 2026-09-11 (item 4.92): *a country schedule has its own reading allowance,
+ * kept apart from any firm's 20 a day.* The reasoning he accepted: loading a country's whole
+ * schedule once is the thing that STOPS every firm in the group paying to re-read the same
+ * document, so charging it to a firm's daily allowance would penalise exactly the behaviour the
+ * feature exists to produce. It is also a different act by a different person at a different
+ * tier — one global group manager, a handful of times a year.
+ *
+ * ⚠ COUNTED IN SCHEDULES, NOT IN MODEL CALLS, and that is the point of a separate counter. One
+ * schedule is a survey plus one request per eight pages — seven for IR265's 52 table pages, nine
+ * for a 71-page one. Counting the calls would make the allowance mean "how long is your
+ * country's document", which is not a thing anyone can plan around.
+ *
+ * The number is 10, ruled by Mike on 2026-09-11. Ten covers a first-day setup for a group
+ * operating in up to ten countries, including a couple of retries on a document that fights
+ * back, while still stopping the runaway this exists for — a loop, or somebody re-loading a
+ * failing file, hits it within minutes. The cost he accepted with it: a group in more than ten
+ * countries loads them over two days, which is a one-off.
+ */
+const SCHEDULE_CONFIG_KEY = 'country-schedule-loads'
+
+/** Country schedules per scope per rolling window. Mike, 2026-09-11. */
+const SCHEDULE_LIMIT = 10
+
 const WINDOW_MS = 24 * 60 * 60 * 1000
 
 /**
@@ -68,6 +94,17 @@ const LIMIT_MESSAGE =
  */
 const UNAVAILABLE_MESSAGE =
   "Document readings can't be checked right now. Please try again shortly."
+
+/**
+ * ⚠ NOT YET APPROVED WORDING. Built to the same shape as Mike's sentence above — it names the
+ * GROUP rather than the person, says when the door opens again, and does not send anyone to a
+ * manager who cannot raise it — but he has not settled these words, and CLAUDE.md says wording
+ * is his. Raised with him at the end of slice 3; if he changes it, this constant is the only
+ * place it lives.
+ */
+const SCHEDULE_LIMIT_MESSAGE =
+  'Your group has used all 10 country schedule readings for today. ' +
+  'Nothing has been lost — you can load this schedule again tomorrow.'
 
 /** Dev-only mirror, for a developer machine with no MySQL. Gitignored, like every sibling. */
 const DEV_FILE = path.resolve(__dirname, '../../data/dev-ai-load-budget.json')
@@ -113,24 +150,39 @@ function _within (stored, nowMs) {
 }
 
 /**
- * Spend one of this firm's readings, or refuse.
+ * Spend one reading from a named allowance, or refuse.
+ *
+ * ⚠ EXTRACTED FROM `consume` WHEN THE SECOND ALLOWANCE ARRIVED (item 4.92, 2026-09-11), and
+ * `consume`'s own tests are the proof the move changed nothing. Every rule in this file's
+ * header applies unchanged to both allowances — spent before the model is called, rolling
+ * window, fails closed, read-then-write rather than a transaction. Two copies of that reasoning
+ * would be two places for it to rot.
  *
  * Never throws: every failure is returned as a refusal the route can send straight on, so a
  * caller can never accidentally let a reading through by catching nothing.
  *
- * @param {string} scopeId - the VERIFIED scope from the JWT, never client-supplied
- * @param {string} [savedBy] - the verified user, recorded on the version row
- * @param {Date} [now] - injected by tests; the clock otherwise
+ * @param {object} opts
+ * @param {string} opts.scopeId - the VERIFIED scope from the JWT, never client-supplied
+ * @param {string} opts.configKey - which allowance; each has its own, so one can never spend
+ *   the other's
+ * @param {number} opts.limit
+ * @param {string} opts.limitMessage - what the person is told at the limit
+ * @param {string} opts.code - the refusal code the screen switches on
+ * @param {string} [opts.savedBy] - the verified user, recorded on the version row
+ * @param {Date} [opts.now] - injected by tests; the clock otherwise
  * @returns {Promise<{ok: boolean, used: number, remaining: number, status: (number|undefined),
  *   code: (string|undefined), message: (string|undefined)}>}
  */
-async function consume (scopeId, savedBy, now) {
-  const at = now instanceof Date ? now : new Date()
+async function _spend (opts) {
+  const at = opts.now instanceof Date ? opts.now : new Date()
   const nowMs = at.getTime()
+  // Dev mirrors are per allowance too, or a developer's schedule loads would be counted
+  // against their document loads on a machine with no MySQL.
+  const devScope = opts.configKey + '|' + opts.scopeId
 
   let stored
   try {
-    stored = await overlay.loadFirmConfig(scopeId, CONFIG_KEY)
+    stored = await overlay.loadFirmConfig(opts.scopeId, opts.configKey)
   } catch (err) {
     if (!devFallbackAllowed(err)) {
       // Rule 5: we cannot see what has been spent, so nothing more is spent.
@@ -144,18 +196,18 @@ async function consume (scopeId, savedBy, now) {
         message: UNAVAILABLE_MESSAGE
       }
     }
-    stored = devRead(scopeId)
+    stored = devRead(devScope)
   }
 
   const loads = _within(stored, nowMs)
-  if (loads.length >= LIMIT) {
+  if (loads.length >= opts.limit) {
     return {
       ok: false,
       used: loads.length,
       remaining: 0,
       status: 429,
-      code: 'AI_LOAD_LIMIT',
-      message: LIMIT_MESSAGE
+      code: opts.code,
+      message: opts.limitMessage
     }
   }
 
@@ -163,7 +215,7 @@ async function consume (scopeId, savedBy, now) {
   // twenty-odd entries forever rather than growing for the life of the firm.
   const next = { loads: loads.concat([at.toISOString()]) }
   try {
-    await overlay.saveFirmConfig(scopeId, CONFIG_KEY, next, savedBy || '')
+    await overlay.saveFirmConfig(opts.scopeId, opts.configKey, next, opts.savedBy || '')
   } catch (err) {
     if (!devFallbackAllowed(err)) {
       // The same reasoning as the read: a reading we cannot record is a reading nobody can
@@ -172,23 +224,74 @@ async function consume (scopeId, savedBy, now) {
       return {
         ok: false,
         used: loads.length,
-        remaining: LIMIT - loads.length,
+        remaining: opts.limit - loads.length,
         status: 503,
         code: 'BUDGET_UNAVAILABLE',
         message: UNAVAILABLE_MESSAGE
       }
     }
-    devWrite(scopeId, next)
+    devWrite(devScope, next)
   }
 
-  return { ok: true, used: next.loads.length, remaining: LIMIT - next.loads.length }
+  return { ok: true, used: next.loads.length, remaining: opts.limit - next.loads.length }
+}
+
+/**
+ * Spend one of this firm's DOCUMENT readings, or refuse. Item 4.82, the 20 a day.
+ *
+ * @param {string} scopeId - the VERIFIED scope from the JWT, never client-supplied
+ * @param {string} [savedBy] - the verified user, recorded on the version row
+ * @param {Date} [now] - injected by tests; the clock otherwise
+ * @returns {Promise<object>} see `_spend`
+ */
+function consume (scopeId, savedBy, now) {
+  return _spend({
+    scopeId,
+    savedBy,
+    now,
+    configKey: CONFIG_KEY,
+    limit: LIMIT,
+    limitMessage: LIMIT_MESSAGE,
+    code: 'AI_LOAD_LIMIT'
+  })
+}
+
+/**
+ * Spend one of this scope's COUNTRY SCHEDULE loads, or refuse. Item 4.92, the 10 a day.
+ *
+ * 🔴 ONE SCHEDULE IS ONE READING HERE, however many model calls it takes. See
+ * `SCHEDULE_CONFIG_KEY` above: counting the calls would make the allowance mean "how long is
+ * your country's document", which nobody can plan around.
+ *
+ * ⚠ IT NEVER TOUCHES THE FIRM'S 20, and the separate config key is what guarantees that rather
+ * than a rule somebody has to remember.
+ *
+ * @param {string} scopeId - the VERIFIED scope from the JWT, never client-supplied
+ * @param {string} [savedBy] - the verified user, recorded on the version row
+ * @param {Date} [now] - injected by tests; the clock otherwise
+ * @returns {Promise<object>} see `_spend`
+ */
+function consumeScheduleLoad (scopeId, savedBy, now) {
+  return _spend({
+    scopeId,
+    savedBy,
+    now,
+    configKey: SCHEDULE_CONFIG_KEY,
+    limit: SCHEDULE_LIMIT,
+    limitMessage: SCHEDULE_LIMIT_MESSAGE,
+    code: 'SCHEDULE_LOAD_LIMIT'
+  })
 }
 
 module.exports = {
   CONFIG_KEY,
   LIMIT,
+  SCHEDULE_CONFIG_KEY,
+  SCHEDULE_LIMIT,
   WINDOW_MS,
   LIMIT_MESSAGE,
+  SCHEDULE_LIMIT_MESSAGE,
   UNAVAILABLE_MESSAGE,
-  consume
+  consume,
+  consumeScheduleLoad
 }
