@@ -143,27 +143,6 @@
       "comment": "2026-09-09 - Mike's own words when the gap was reported as something he had not asked for: 'of course i want the tax rate made contry aware - i literally asked for that!' He had. Drawing approved the same day, then built in five slices on the laptop. The item's own wording was corrected in the build: both rates WERE already editable by an advisor, so the fault was never 'nothing can change them' but 'they are silently New Zealand's and no manager can set them'. The country field was built here on his explicit yes - it is 4.78's approved addendum and nothing here resolves without it."
     },
     {
-      "ref": "4.82",
-      "name": "Nothing caps how many paid AI readings an advisor can trigger",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Loading a tax document sends it to the model and every reading is paid for. Nothing caps how many one person may set off, and the store's 20-document limit trims only after the model has already been paid.",
-      "risk": "An advisor inside a real firm could load the same PDF over and over and run up a bill nobody sees until it arrives. No data leaks and no wrong figure reaches a client, which is why this is a 2 and not a 5. It is not new in kind - a manager could always do it - but 2026-09-09 widened it from managers to every advisor.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-09 while building 4.78 slice 5, the change that widened it, and raised with Mike the same day. Filed at his instruction rather than left as a warning inside 4.78's note."
-      },
-      "touches": "server/restify-server.js, where the advisor's load route and the manager's sit beside each other, and server/routes/depreciationRates.js loadDocument, which both reach and which calls the model. A cap belongs there, never on the screen - a screen-side limit is not a limit.",
-      "note": "NO CAP EXISTS ANYWHERE TODAY, on the advisor's route or the manager's. The store's 20-document limit is not one: it trims AFTER the model has been paid. Mike's ruling of 2026-09-08 that an advisor may load is NOT in question here - only whether the loading is capped, and at what. A first cap could be per firm per day, which needs nothing this app does not already know.",
-      "comment": "2026-09-09 - filed at shutdown on Mike's yes, having first been written as a warning inside 4.78's note. That is the shape this list explicitly refuses: a hazard nobody owns gets described repeatedly and fixed never. Scored 2 rather than 5 deliberately - no data leaks, no wrong figure reaches a client, and it takes an authenticated advisor inside a real firm to spend anything."
-    },
-    {
       "ref": "4.83",
       "name": "Compliance pages in the four manager hubs",
       "rankedByMike": false,
