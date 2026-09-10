@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outcome Learning — the trace line</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Outcome Learning, item 4.87 — drawing 3 of 3: how an applied adjustment
+   appears on an advisor's decision trace, the "Why this recommendation"
+   panel. Drawn 2026-09-10 on Mike's instruction in the task he pasted to
+   /speckit-specify. Nothing is built.
+
+   The panel drawn here is the SHIPPED one — components/VirtualAdvisor.vue,
+   .trace-panel, and the decisionTrace strings in locales/en.json, quoted
+   exactly — with ONE new section added between "Distinctions" and "How the
+   templates scored", and two new phrases in the Why column of that table.
+   Colours and type follow compliance-pages.html and the two approved
+   Outcome Learning drawings. No dark mode, RULED 2026-07-27.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-10):
+     - "apply them as score adjustments in templateResolver through the same
+       seam as distinction boosts, capped so pooled evidence can never outrank
+       what the advisor said today. Every applied adjustment appears on the
+       decision trace with the evidence count behind it."
+     - "outcome-learning-trace.html — how an applied adjustment appears on an
+       advisor's decision trace."
+
+   HIS RULINGS ALREADY GIVEN (2026-09-10), applied here and not re-asked:
+     - hold-back only; the floor; no free text; one dimension per adjustment;
+     - drawing 1: the firm's tab is Outcome Sharing, and a sharing firm sees
+       the count of adjustments applying to it;
+     - drawing 2: the mentor's tab is Outcome Learning.
+
+   THE PLAN'S RULE THIS DRAWING PUTS TO HIM (question 1): the cap. A template's
+   pooled hold-back is at most 10 points in total, and it is SKIPPED — shown
+   as outweighed — when the advisor's own words matched one of the firm's
+   Advisory Distinctions for that template in this session. That is what
+   "the advisor said today" means in this engine: a distinction boost is the
+   one score the advisor's words produce directly.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+.new{outline:2px dashed #ff9900;outline-offset:4px;border-radius:6px}
+
+/* cards, pills, notices, tables, questions — as the other two drawings */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.tw{overflow-x:auto}
+table.w{border-collapse:collapse;width:100%;font-size:13.5px}
+table.w th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+table.w td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.w tr:last-child td{border-bottom:0}
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+
+/* the shipped trace panel, redrawn */
+.va{max-width:760px;background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);padding:18px 20px;margin-bottom:16px}
+.va .reco{font-size:14px;line-height:1.6;margin:0 0 14px}
+.va .reco b{display:block;margin-bottom:4px}
+.trace-toggle{font:inherit;font-size:13px;font-weight:600;color:var(--rs-accent);background:none;border:0;padding:0;cursor:default}
+.trace-body{margin-top:10px;border-top:1px solid var(--rs-line);padding-top:10px;font-size:13px}
+.trace-row{display:flex;gap:10px;padding:4px 0}
+.trace-label{color:var(--rs-muted);min-width:170px;flex:none}
+.trace-value{color:var(--rs-ink)}
+.trace-section{margin-top:12px}
+.trace-section-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600;margin-bottom:4px}
+.trace-note{color:var(--rs-muted);margin:2px 0;font-size:12.5px}
+.trace-boost{display:inline-block;margin-left:8px;font-weight:600}
+.trace-line{margin:3px 0;font-size:13px}
+.trace-line .cnt{color:var(--rs-muted);font-size:12px;margin-left:6px}
+.trace-line .hb{display:inline-block;font-weight:700;font-variant-numeric:tabular-nums;border-radius:6px;
+  padding:0 6px;background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059;margin-right:6px}
+.trace-line .ow{display:inline-block;font-weight:700;border-radius:6px;padding:0 6px;
+  background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line);margin-right:6px}
+.trace-fault{color:#8a5a00}
+table.trace-scores{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:4px}
+table.trace-scores th{text-align:left;font-weight:600;color:var(--rs-muted);padding:4px 8px 4px 0;border-bottom:1px solid var(--rs-line);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+table.trace-scores td{padding:5px 8px 5px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.trace-scores tr:last-child td{border-bottom:0}
+table.trace-scores td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.trace-reasons{color:var(--rs-muted)}
+.trace-reasons .hl{color:#8a5a00;font-weight:600}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Outcome Learning, drawing 3 of 3 — the trace line. Drawn for approval 2026-09-10. Nothing is
+  built.</b> Drawings 1 and 2 are approved.</p>
+  <p><b>What this screen is for, in one sentence:</b> when a live adjustment changed a template's place
+  in the ranking, the advisor can see that it did, by how much, on how much evidence — and when it was
+  considered and did not apply, they can see that too. No influence on a recommendation is invisible.</p>
+  <p><b>Only the dashed-outlined parts are new.</b> Everything else on the panel is what ships today,
+  quoted from the app's own strings. Template titles are the export's; the firm and the counts are
+  marked <span class="ex">example</span>.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — "Why this recommendation", at a sharing firm, one adjustment applied and one outweighed</div>
+
+<div class="va">
+  <p class="reco"><b>Recommended for this session</b>
+    Start with <b>7 Cash Drivers</b> to show where the cash is going, then <b>Break-Even</b> once
+    the owner can see the drivers. Hold <b>Price Rise</b> for a later session…</p>
+
+  <button class="trace-toggle">▾ Why this recommendation</button>
+  <div class="trace-body">
+    <div class="trace-row"><span class="trace-label">Area I focused on</span><span class="trace-value">profitability and feasibility</span></div>
+    <div class="trace-row"><span class="trace-label">What shaped the advice</span><span class="trace-value">advice engagement · step 2 ceiling · budget 3 · 2 signals</span></div>
+
+    <div class="trace-section">
+      <div class="trace-section-title">Distinctions</div>
+      <p class="trace-value">Boosted here: <span class="trace-boost">7 Cash Drivers (+5)</span></p>
+    </div>
+
+    <div class="trace-section new">
+      <div class="trace-section-title">Learned from outcomes</div>
+      <p class="trace-line"><span class="hb">−4</span><b>Break-Even</b> — held back in profitability and feasibility<span class="cnt">6 firms · 31 cases <span class="ex">example</span></span></p>
+      <p class="trace-line"><span class="ow">0</span><b>7 Cash Drivers</b> — a hold-back of 3 with a cash flow gap was outweighed by your firm's distinction<span class="cnt">5 firms · 28 cases</span></p>
+      <p class="trace-note">Pooled from firms that share outcomes. It never outranks what you told me today.</p>
+    </div>
+
+    <div class="trace-section">
+      <div class="trace-section-title">How the templates scored</div>
+      <table class="trace-scores">
+        <tr><th>Template</th><th>Score</th><th>Why</th></tr>
+        <tr><td>7 Cash Drivers</td><td class="n">31</td><td class="trace-reasons">core to this area, matches the signals in this conversation, firm distinction +5, <span class="hl">outcome learning weighed and outweighed</span></td></tr>
+        <tr><td>Break-Even</td><td class="n">24</td><td class="trace-reasons">core to this area, closely matches the stated problem, <span class="hl">learned from outcomes −4</span></td></tr>
+        <tr><td>Price Rise</td><td class="n">19</td><td class="trace-reasons">in a related part of this area, fits this engagement type</td></tr>
+        <tr><td>Margin vs Markup</td><td class="n">14</td><td class="trace-reasons">in a related part of this area</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Reading it.</b> Break-Even was held back 4 points because, across 6 sharing firms and 31
+  profitability cases, advisors marked it "Didn't land" 12 times, and the mentor accepted that
+  (drawing 2's live row). 7 Cash Drivers had a live hold-back of 3 with a cash-flow-gap signal, but
+  this advisor's words matched one of the firm's Advisory Distinctions for it, so the hold-back was
+  weighed and set aside — <b>the advisor's own words won</b>, and the panel says so rather than
+  silently doing nothing.</p>
+  <p><b>The counts are on the line</b> because Mike's task text says <i>"with the evidence count
+  behind it"</i>. The Why column carries a short phrase, as every other reason does, and the section
+  above carries the detail — the same split the Distinctions section already uses (a boost list
+  above, "firm distinction +5" in the table).</p>
+  <p><b>Section order</b>: after Distinctions and before the table, because it is the last thing the
+  engine weighs before the client-history hold-back, and a reader should meet the advisor's own
+  levers first.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — three quieter states</div>
+
+<div class="va">
+  <div class="trace-body" style="border-top:0;padding-top:0">
+    <div class="trace-section new">
+      <div class="trace-section-title">Learned from outcomes</div>
+      <p class="trace-note">Nothing learned from other firms applies to this situation yet.</p>
+    </div>
+  </div>
+</div>
+<div class="mock"><p><b>B1 — a sharing firm, nothing matched.</b> The section stays, with one line, so an
+advisor who has seen it before is not left wondering whether it stopped working. Shown only at firms
+that share; a firm that does not share sees no section at all — there is nothing to say, and saying
+"your firm is not sharing" on every advisor's trace would be a nudge nobody asked for.</p></div>
+
+<div class="va">
+  <div class="trace-body" style="border-top:0;padding-top:0">
+    <div class="trace-section new">
+      <div class="trace-section-title">Learned from outcomes</div>
+      <p class="trace-note trace-fault">What other firms have learned could not be read for this session. The advice was built without it.</p>
+    </div>
+  </div>
+</div>
+<div class="mock"><p><b>B2 — the pool could not be read.</b> The spec's FR-019: a recommendation never waits on
+learning. The panel says the advice was built without it, in the same voice as the existing
+<i>"Your firm's distinctions could not be checked"</i> line — a fault named, not hidden, and not the
+same sentence as "nothing applied", which is the mistake the Distinctions section was corrected for on
+2026-08-03.</p></div>
+
+<div class="va">
+  <div class="trace-body" style="border-top:0;padding-top:0">
+    <div class="trace-section">
+      <div class="trace-section-title">Distinctions</div>
+      <p class="trace-note">No distinction changed the scoring in this area.</p>
+    </div>
+    <div class="trace-section">
+      <div class="trace-section-title">How the templates scored</div>
+      <table class="trace-scores">
+        <tr><th>Template</th><th>Score</th><th>Why</th></tr>
+        <tr><td>Break-Even</td><td class="n">28</td><td class="trace-reasons">core to this area, closely matches the stated problem</td></tr>
+        <tr><td>7 Cash Drivers</td><td class="n">26</td><td class="trace-reasons">core to this area, matches the signals in this conversation</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="mock"><p><b>B3 — a firm that does not share.</b> Today's panel, exactly. No section, no line,
+no difference in any score (spec FR-012). This is the state the fixed bench proves: with sharing off,
+100% of runs are byte-for-byte what they were.</p></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every new word on this panel — proposed, none approved</div>
+
+<div class="card">
+  <div class="card-b">
+    <div class="tw">
+    <table class="w">
+      <thead><tr><th>Where</th><th>Proposed wording</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Section title</td><td>Learned from outcomes</td><td><span class="pill wait">Proposed — Q2</span></td></tr>
+        <tr><td>Applied line</td><td>−4 <b>Break-Even</b> — held back in profitability and feasibility · 6 firms · 31 cases</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Outweighed line</td><td>0 <b>7 Cash Drivers</b> — a hold-back of 3 with a cash flow gap was outweighed by your firm's distinction · 5 firms · 28 cases</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Note under the section</td><td>Pooled from firms that share outcomes. It never outranks what you told me today.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Why column, applied</td><td>learned from outcomes −4</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Why column, outweighed</td><td>outcome learning weighed and outweighed</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Nothing matched</td><td>Nothing learned from other firms applies to this situation yet.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Could not be read</td><td>What other firms have learned could not be read for this session. The advice was built without it.</td><td><span class="pill wait">Proposed</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">The two Why-column phrases join
+    <code>design/WORDING-TRACE-REASONS.md</code> beside the existing rulings once approved, and go into all
+    eight locale files.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Open questions — one recommendation each, put to Mike one at a time</div>
+
+<div class="q">
+  <h3>1 · The cap: at most 10 points, and set aside when the advisor's words matched a distinction?</h3>
+  <p>Your rule is that pooled evidence can never outrank what the advisor said today. The plan makes
+  that two things: a template's pooled hold-back is capped at <b>10 points in total</b> however many
+  adjustments match; and it is <b>skipped, shown as outweighed</b>, whenever the advisor's words in
+  this session matched one of the firm's Advisory Distinctions for that template. For scale: a
+  distinction boost defaults to 5, and the existing "already delivered to this client" hold-back is 15.</p>
+  <p class="rec">Recommended: yes to both. The cap keeps a hold-back smaller than the client-history
+  one, so the pool never says more than the firm's own history does; the distinction rule is a plain,
+  testable meaning of "what the advisor said today", because a distinction match is the one score the
+  advisor's words produce directly. Against: a template with no distinction can still drop up to 10,
+  which on a close ranking reorders it — but that is the feature, applied only after five firms and
+  the mentor agreed, and the panel shows it happened.</p>
+</div>
+
+<div class="q">
+  <h3>2 · Is the section called "Learned from outcomes"?</h3>
+  <p>The advisor never sees the words "Outcome Learning" or "Outcome Sharing" — those are hub tabs.
+  On the panel the section sits beside "Distinctions" and "How the templates scored", and reads as a
+  plain statement of where the influence came from.</p>
+  <p class="rec">Recommended: "Learned from outcomes". Against: it does not say <i>whose</i> outcomes;
+  the note under it does, and a title long enough to say it would not match its neighbours.</p>
+</div>
+
+<div class="q">
+  <h3>3 · Does an advisor at a sharing firm see the section when nothing applied?</h3>
+  <p>Screen B1: one quiet line, "Nothing learned from other firms applies to this situation yet."</p>
+  <p class="rec">Recommended: yes, at sharing firms only. An advisor who saw a hold-back last week and
+  nothing this week should be able to tell the difference between "nothing matched" and "it broke";
+  B2 is the broken state and reads differently on purpose. Against: one more line on a panel that is
+  already long; but it is a note, not a row, and it appears only where the firm has chosen to share.</p>
+</div>
+
+<div class="notice warn" style="margin-top:20px">
+  <b>What this drawing does not decide</b>
+  Everything on the mentor's page and the firm's switch is drawings 1 and 2, approved. The reason
+  codes' internal names, the resolver's ordering and the trace block's shape are the plan's, not the
+  screen's, and are pinned by tests rather than by this drawing.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which tiers get this, and why</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin:0"><b>The advisor, on their own trace</b> — and the firm manager, who already sees
+    the same panel on a saved case in the hub (<code>FirmManagerHub.vue</code> renders the same table
+    through the same mixin), so the new section and the two phrases appear there with no second build.
+    No tier above the firm sees an individual advisor's trace today, and this changes nothing about
+    that.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
