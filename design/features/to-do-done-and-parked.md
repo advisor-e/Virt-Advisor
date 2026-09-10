@@ -185,6 +185,44 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.84 — Notification dots on every hub tab.**
+✅ Closed 2026-09-10 by Mike, on the laptop — *"yes"* to the drawing, four rulings, *"yes"* to
+build from it, then *"yes"* to close. Shipped in `v0.11.1`.
+
+- **Why it mattered:** a manager had no way of knowing something new had arrived on a hub tab, so
+  a firm never learned the mentor had published new compliance material and 4.83's notification
+  did not exist. Mike asked for it in his own words — *"a red dot next to the topic"*, *"put the
+  dots in the left hand menu"*, *"every tab"*.
+- **What was done:** every menu entry can carry one dot — **red** for the tab's own news, **blue**
+  for never opened, **orange** for not opened in 21 days — each carrying its meaning in words as
+  well as colour, with a key and a count beneath the menu. Storage is one row per manager per tab
+  ([`hubTabOpened.js`](../../server/utils/hubTabOpened.js),
+  [`hubTabs.js`](../../server/routes/hubTabs.js)), keyed to the identity on the verified token,
+  through the existing configuration table. No schema change, and nothing about a tab's contents
+  is stored. Artefact: [`mockups/hub-menu-dots.html`](../mockups/hub-menu-dots.html). Brief:
+  [`firm-manager-hub.md`](firm-manager-hub.md).
+- **Mike's four rulings, asked one at a time and every one settled as drawn:** red beats blue beats
+  orange; the blue dot says *"Never opened"*; the orange says *"Not opened in 3 weeks"*; the count
+  says *"6 tabs needing a look"* — and dropping the count was offered and declined, so its presence
+  is a decision.
+- **One judgement stated rather than asked:** red stays a signal each tab raises for itself, and
+  only Compliance raises one. *"Published since you last declared"* is a Compliance sentence;
+  answering it for the other sixteen tabs would have been sixteen features nobody asked for.
+- **What proves it:** 58 tests across
+  [`hubTabOpened.test.js`](../../tests/unit/hubTabOpened.test.js),
+  [`hubTabs.routes.test.js`](../../tests/unit/hubTabs.routes.test.js) and
+  [`hubMenuDots.test.js`](../../tests/unit/hubMenuDots.test.js) — the precedence, the 21-day
+  boundary either side, the identity coming from the token and not the body, and both failure
+  directions. **And it was watched running** at the Mentor Hub: all three states, a dot clearing on
+  open with the count dropping 18 → 17.
+- **One named deviation from the drawing:** the legend and count hide entirely when nothing is
+  asking for attention — a key to three colours none of which are on screen is noise, and the count
+  would otherwise read *"0 tabs needing a look"*, which nobody ruled on.
+- 🔴 **What looking at it found that no test did:** the menu's labels shifted sideways as dots
+  appeared, because an entry without one rendered no placeholder. The drawing had already solved
+  that and the build had dropped it. Fixed the same day — and it is the smaller of the two things
+  running the app turned up (the other closed the backend, see `v0.11.1`).
+
 **4.85 — One Handbook both machines update, built from master.**
 ✅ Closed 2026-09-10 by Mike, on the desktop — *"yes"* to the proposal, then *"yes"* to commit.
 
