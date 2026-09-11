@@ -9,25 +9,45 @@
 
 ---
 
-## 2026-09-11 (twenty-first session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-12 (twenty-second session) · Laptop · branch `feat/advisor-progress`
 
-Suite **9,977 green**, lint 0, `npm run build` succeeds. Tree clean, level with `master`.
-**PR #86 merged — 22 commits.** Eight items closed; **four live and none is ours** — 4.15 and
-4.58 are Mike's, 4.86 waits on the master team, 4.87 is yours.
+Suite **9,977 green** (482 suites), lint 0, tree clean, level with `master`. **PR #88 merged**
+— 3 commits, documentation only, no application code touched. Four live items; **none is
+workable on this machine.**
 
-🔴 **THE LEARNING, AND IT WILL BITE 4.87 THE SAME WAY.** `countrySchedules.js` copied the
-dev-storage guard from its sibling **without the store behind it** — so with no MySQL a read
-returned null and a write was swallowed. It had passed the whole suite and been merged, and
-could not keep a single row it read. **The tests mock `firmOverlay` away entirely, so nothing
-could see it.** If 4.87 adds a store, prove it writes a real `data/dev-*.json` — and add that
-file to `.gitignore` in the same change, because it names each one individually and a new one
-is tracked by default.
+🔴 **4.58 GATE 1 IS SENT — AND THE STRONGEST POINT IS IN NEITHER LETTER.** Both went
+2026-09-12 and both are recorded in full, not paraphrased:
+[`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md) §2 (the live sales enquiry) and
+§3 (the first letter). **The point to press is §1.1 D** — the DPA's Schedule 1 says *"no
+sensitive data is intended to be transferred unless the user includes it unexpectedly in
+unstructured data"*, and Meeting Review transfers it **by design**. Verified against three
+published versions. It goes to `privacy@openai.com` in the reply thread, never to support.
 
-🔴 **`server/utils/openaiClient.js` IS YOURS TOO AND IT CHANGED.** New `failureFromEvent`:
-every streamed AI call watched only for `response.completed` and ignored `error` /
-`response.failed`, so an exhausted account reached the user as *"the reading did not finish —
-try again"*. **Use it for any streaming call in 4.87.**
+**Routing, so nobody re-derives it.** `privacy@openai.com` is the DPA's own **Data Protection
+Officer** address — correct, but it auto-triages into the consumer queue and answers about
+ChatGPT accounts. The account controls (Zero Data Retention, Eyes Off, a named region) are
+granted by **sales**, and OpenAI publishes **no sales email address**: it is the form at
+`openai.com/contact-sales`, in two steps. Both routes are live and they carry different things.
 
-**Merge `master` before touching any of:** `openaiClient.js`, `economicAnalysis.js`,
-`depreciationExtract.js`, `countryScheduleRead.js`, `countrySchedules.js`,
-`depreciationRates.js`, `.gitignore`.
+🔴 **AN AI READ THAT FAILS SILENTLY — CHECK LOADS AGAINST RECORDS.** Mike reported the IRD PDF
+taking "a massive amount of time". It was not slow: two of three reads **failed** before
+`bec650b` (the discarded-refusal fix), each still spending one of the 20 daily readings, and the
+one after it took **18 seconds**. The tell is `data/dev-ai-load-budget.json` against the
+proposals store — **loads consumed vs records written**. Three loads, one document. A service
+failure records nothing by design, so the screen shows no row and the budget is the only trace.
+
+**Three records corrected, each proven by running the code rather than reading a note:**
+`CLAUDE.md` was telling every session the stack was out of compliance (`engine-strict` has been
+ON since 2026-08-24 — verify any time with `npm run check:engines`); `/startup` claimed step 3
+writes nothing to the repository; and a typed "6,255 tests" was dropped rather than reset.
+
+⚠ **BOTH MACHINES:** `npm run handbook` **regenerates `design/CODE-SIZE.md`**. The tree comes
+back dirty from the startup checklist, and the pre-commit hook refuses any commit that leaves a
+modified tracked file behind. Expect it; put it to Mike with the session's other changes.
+
+**Waiting on Mike:** OpenAI's written reply (gate 1), the lawyer per market (gate 2, held
+deliberately behind that reply because it can change the wording), the staff consultation (gate
+3, waiting on neither) — and whether that OpenAI account had credit on 11 September.
+
+**DESKTOP:** none of your files were touched. `CLAUDE.md`, `WORKING-AGREEMENT.md` and
+`.claude/commands/startup.md` changed — merge `master` in at startup.
