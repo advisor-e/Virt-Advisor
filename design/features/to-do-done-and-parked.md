@@ -185,6 +185,38 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.89 — A refused document could not tell a manager why.**
+✅ Closed 2026-09-11 on the laptop by Mike, after the item's own stated risk happened to him in
+person — *"a manager who cannot act on a refusal and re-loads the same file, paying for each
+attempt"*.
+
+- **What actually happened that day, and it is the whole closure:** the OpenAI account ran out of
+  credit. The API said so plainly, on the `error` and `response.failed` events it sends when it
+  refuses — `credit_balance_exhausted`, *"You have no credits remaining."* **Every consumer of a
+  streamed response in this app watched for `response.completed` and ignored both**, so a refusal
+  arrived as "no completed response came" and was reported as *"the reading did not finish — load
+  the document again."* Mike followed that three times against an account with no money in it. An
+  hour went into working out why, and nothing about the document or the code was wrong.
+- **What was done:** `failureFromEvent` in
+  [`openaiClient.js`](../../server/utils/openaiClient.js), used by all three readers —
+  `depreciationExtract`, `countryScheduleRead` and `economicAnalysis`. A refusal is now its own
+  answer with its own sentence, and the provider's reason is logged. Brief:
+  [`depreciation-rates.md`](depreciation-rates.md) **P16**.
+- 🔴 **Mike's decision on the half that was genuinely open — the model's own words STAY OFF THE
+  SCREEN.** The item asked whether `whyUnreadable` should reach a manager. It does not, and the
+  day proved why: the provider's sentence carried a billing URL. Unedited text from outside this
+  app on an adviser's screen is the one thing this feature is otherwise careful never to do
+  (FR-050). **What a manager needed was not the model's words but a different message per cause**,
+  which is what now exists — and for a genuinely unreadable PDF his pinned sentence already says
+  what to do: download it again, or load a different edition.
+- **Also closed with it:** `READ_INCOMPLETE` returned above the diagnostic block in both readers,
+  so the one failure that left no trace anywhere was the one nobody could diagnose. Both now log
+  how far the stream got — zero events is a call that never started, many is one cut off — and the
+  per-document message no longer advises a retry that cannot work.
+- **What proves it:** eight tests, and then **the real thing on the running app against the
+  exhausted account** — 502 `SERVICE_REFUSED` to the caller with no document row filed, and
+  `code="credit_balance_exhausted"` in the log of both readers.
+
 **4.90 — Only 250 of about 2,800 published classes are kept.**
 ✅ Closed 2026-09-11 on the laptop by Mike — the wrong figure corrected everywhere it was still
 asserted, and **the cap deliberately left at 250**.

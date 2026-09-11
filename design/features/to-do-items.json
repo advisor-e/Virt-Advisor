@@ -210,27 +210,6 @@
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
     },
     {
-      "ref": "4.89",
-      "name": "A refused document cannot tell a manager why",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "A manager told a document could not be read is advised to download it again or try another edition. The model's own reason is now captured server-side and never reaches them.",
-      "risk": "The section 3 fix removed the worst case - a legible document that disagrees with itself is no longer refused - so the standing advice is sound in the common case. What remains is a manager who cannot act on a refusal and re-loads the same file, paying for each attempt. That is what happened three times on 2026-09-11.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-11 - 'doesnt tell us what to do different etc', looking at four identical failure rows on the running app."
-      },
-      "touches": "UNREADABLE_MESSAGE in server/utils/depreciationExtract.js - Mike's pinned wording of 2026-09-09, changed only by him - the whyUnreadable sentence now carried as `detail` and logged, and the document row in components/firm/FirmDepreciationRates.vue.",
-      "note": "THE MATERIAL NOW EXISTS: the model is asked for one plain sentence saying what defeated it, and it is logged. Whether any of it reaches a manager is a WORDING DECISION FOR MIKE, since UNREADABLE_MESSAGE is his own pinned sentence and a test fails the build if it drifts.",
-      "comment": "2026-09-11 - raised by Mike from the running app and filed on his yes, alongside 4.88."
-    },
-    {
       "ref": "4.92",
       "name": "A country's whole rate schedule, stored as a searchable table",
       "rankedByMike": false,

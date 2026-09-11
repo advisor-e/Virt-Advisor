@@ -189,6 +189,21 @@ twenty daily readings (P11) on one file, to build a class list the picker alread
 through P12. A 52-page national schedule loaded here now fails **visibly** instead of quietly,
 which is the correct answer: its home is the country schedule screen.
 
+**P16 · A SERVICE that refuses is not a DOCUMENT that failed** (item 4.89, 2026-09-11). Every
+other failure message here is about the file. This one says the opposite in as many words —
+*"This is not a problem with your document"* — because when the AI service refuses, the file is
+irrelevant and retrying cannot work. **The provider's own sentence is logged and never shown**,
+the same rule as `whyUnreadable` (P8) and for the same reason, made concrete the day this was
+found: the message carried a billing URL. **The message names no cause**, because an exhausted
+account, an expired key, a rate limit and a content refusal arrive identically and only whoever
+administers the account can tell them apart — the logged code is what does that. Three further
+consequences follow and each is a decision: a refusal is **not recorded against the document**,
+because filing it would blame a manager's PDF for an empty account; it **stops a country read**
+rather than retrying, since a service refusing this pass refuses the next thirty-nine; and
+**nothing partial is offered for approval**, because half a country's rates approved as though
+they were the whole is the silent shortfall of item 4.90. *Ignore this and a manager re-loads the
+same document forever, paying each time, while the one sentence explaining why is thrown away.*
+
 ---
 
 ## 3. Design considerations
@@ -207,6 +222,33 @@ itself and with nothing else. *P10's copy was the last one in this Brief and was
 The per-document cap of 250 therefore held a tenth of the document, silently. The country
 schedule of P12 is what removes the consequence; the stale figure in
 `server/utils/depreciationExtract.js` is still 4.90's own to settle.
+
+**✅ THE COUNTRY READ HAS NOW BEEN RUN AGAINST A REAL DOCUMENT, AND THIS IS WHAT IT PRODUCED**
+(2026-09-11, the real IR265 October 2023, on a developer machine):
+
+```
+read "IR265 — General depreciation rates" NZ · pages=62
+  · passes planned=7 read=6 unread=1
+  · classes=2303 unresolved=4 refused=12 outOfRange=0
+```
+
+Correctly named and dated; **2,303 classes**; four contradictions listed rather than dropped; 12
+rows refused by our own validator, about half of one per cent; and no class reported from another
+pass's pages. **One pass failed twice and the other six survived it** — P13 holding under real
+conditions, where the rule it replaced would have discarded all 62 pages. The same document sent
+as ONE request, the day before, proposed nothing at all.
+
+⚠ **Approval has still never been exercised against a real table**, and no figure read this way
+has reached a forecast. That needs UAT.
+
+⚠ **AND IT HAD NEVER BEEN RUN AT ALL UNTIL THAT DAY, FOR A REASON WORTH RECORDING.** The country
+routes carried the dev-storage guard from their sibling and not the store behind it, so on a
+machine without MySQL a read returned nothing and a write was swallowed: the first real reading
+of IR265 was discarded in full, after its allowance had been spent. The schedules screen answered
+500 for the same reason. Nothing in the suite could see it — those tests replace the storage
+layer with mocks, so none had ever reached it. **A feature that cannot be run on a developer
+machine will not be run**, and this one was built, tested and merged without anybody seeing it
+work once.
 
 **Rates are stored as decimals, never percentages.** 50% is `0.5`. That is the forecast
 engine's own convention — it multiplies book value by the number directly — and the backend's
