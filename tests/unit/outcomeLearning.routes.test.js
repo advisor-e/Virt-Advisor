@@ -353,6 +353,130 @@ describe('exportLive', () => {
   })
 })
 
+describe('runBench and benchJob (T039)', () => {
+  const benchLib = require('../../server/utils/outcomeBench')
+  let runSpy = null
+  const stubRun = (impl) => { runSpy = jest.spyOn(benchLib, 'runBenches').mockImplementation(impl) }
+  const noop = () => {}
+
+  afterEach(() => {
+    routes._clearJobs()
+    if (runSpy) { runSpy.mockRestore(); runSpy = null }
+  })
+
+  test('runs both benches with the live adjustments, stores them with ranAt and liveIds on the decisions row, and returns them', async () => {
+    overlay.loadFirmConfigsByPrefix.mockResolvedValue(pool({ firms: 6, cases: 31, less: 12 }))
+    overlay.loadFirmConfig.mockResolvedValue({ decisions: { [ID]: { state: 'live' } }, lastRecomputeAt: 'kept', benches: null })
+    const res = makeRes()
+    await routes.runBench(req(), res)
+    expect(res._status).toBe(200)
+    expect(res._body.success).toBe(true)
+    const { fixed, outcome } = res._body.benches
+    expect(fixed).toMatchObject({ before: 1, cases: expect.any(Number), liveIds: [ID] })
+    expect(outcome).toMatchObject({ reviews: 31, liveIds: [ID] })
+    expect(new Date(fixed.ranAt).toISOString()).toBe(fixed.ranAt)
+    expect(new Date(outcome.ranAt).toISOString()).toBe(outcome.ranAt)
+    expect(overlay.saveFirmConfig).toHaveBeenCalledTimes(1)
+    const [scope, key, value, by] = overlay.saveFirmConfig.mock.calls[0]
+    expect(scope).toBe(PLATFORM_SCOPE)
+    expect(key).toBe(DECISIONS_KEY)
+    expect(by).toBe(MENTOR)
+    expect(value.decisions).toEqual({ [ID]: { state: 'live' } })
+    expect(value.lastRecomputeAt).toBe('kept')
+    expect(value.benches).toEqual(res._body.benches)
+  })
+
+  test('with no live adjustments both benches report liveIds [] and before equals after', async () => {
+    overlay.loadFirmConfigsByPrefix.mockResolvedValue(pool({ firms: 6, cases: 31, less: 12 }))
+    const res = makeRes()
+    await routes.runBench(req(), res)
+    expect(res._status).toBe(200)
+    expect(res._body.benches.fixed).toMatchObject({ before: 1, after: 1, liveIds: [] })
+    expect(res._body.benches.outcome.before).toBe(res._body.benches.outcome.after)
+  })
+
+  test('the stored figures carry no pool key', async () => {
+    overlay.loadFirmConfigsByPrefix.mockResolvedValue(pool({ firms: 6, cases: 31, less: 12, prefix: 'SECRETTOKEN' }))
+    const res = makeRes()
+    await routes.runBench(req(), res)
+    expect(JSON.stringify(overlay.saveFirmConfig.mock.calls[0][2])).not.toContain('SECRETTOKEN')
+  })
+
+  // The page-render rule: past SYNC_BUDGET_MS the route answers with a job id, the run
+  // finishes on its own, persists, and the job serves the figures.
+  test('a run past the budget returns 202 and a jobId; the job then serves the figures and the row is saved', async () => {
+    jest.useFakeTimers()
+    overlay.loadFirmConfigsByPrefix.mockResolvedValue(pool({ firms: 6, cases: 31, less: 12 }))
+    let finish
+    stubRun(() => new Promise((resolve) => { finish = resolve }))
+    const res = makeRes()
+    const pending = routes.runBench(req(), res)
+    // Let the store reads settle, then pass the budget.
+    await Promise.resolve(); await Promise.resolve(); await Promise.resolve()
+    jest.advanceTimersByTime(routes.SYNC_BUDGET_MS + 1)
+    await pending
+    expect(res._status).toBe(202)
+    expect(typeof res._body.jobId).toBe('string')
+    expect(res._body.benches).toBeUndefined()
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+
+    const running = makeRes()
+    routes.benchJob(req({ params: { jobId: res._body.jobId } }), running, noop)
+    expect(running._body).toEqual({ success: true, status: 'running', benches: null })
+
+    const figures = { fixed: { ranAt: 'x', before: 1, after: 1, liveIds: [] }, outcome: { ranAt: 'x', before: 0.5, after: 0.5, liveIds: [] } }
+    finish(figures)
+    await new Promise(resolve => jest.requireActual('timers').setImmediate(resolve))
+    expect(overlay.saveFirmConfig).toHaveBeenCalledTimes(1)
+    expect(overlay.saveFirmConfig.mock.calls[0][2].benches).toEqual(figures)
+    const done = makeRes()
+    routes.benchJob(req({ params: { jobId: res._body.jobId } }), done, noop)
+    expect(done._body).toEqual({ success: true, status: 'done', benches: figures })
+    jest.useRealTimers()
+  })
+
+  test('a job that fails after the budget reports failed, never a stack trace', async () => {
+    jest.useFakeTimers()
+    overlay.loadFirmConfigsByPrefix.mockResolvedValue(pool({ firms: 6, cases: 31, less: 12 }))
+    let fail
+    stubRun(() => new Promise((_resolve, reject) => { fail = reject }))
+    const res = makeRes()
+    const pending = routes.runBench(req(), res)
+    await Promise.resolve(); await Promise.resolve(); await Promise.resolve()
+    jest.advanceTimersByTime(routes.SYNC_BUDGET_MS + 1)
+    await pending
+    expect(res._status).toBe(202)
+    fail(new Error('ECONNREFUSED 10.0.0.1:3306'))
+    await new Promise(resolve => jest.requireActual('timers').setImmediate(resolve))
+    const out = makeRes()
+    routes.benchJob(req({ params: { jobId: res._body.jobId } }), out, noop)
+    expect(out._body).toEqual({ success: true, status: 'failed', benches: null })
+    expect(JSON.stringify(out._body)).not.toContain('10.0.0.1')
+    jest.useRealTimers()
+  })
+
+  test('an unknown job id is a 404 OUTCOME_UNKNOWN_JOB, and next is always called', () => {
+    const res = makeRes()
+    const next = jest.fn()
+    routes.benchJob(req({ params: { jobId: 'nothing' } }), res, next)
+    expect(res._status).toBe(404)
+    expect(res._body.error.code).toBe('OUTCOME_UNKNOWN_JOB')
+    const res2 = makeRes()
+    routes.benchJob(req({ params: undefined }), res2, next)
+    expect(res2._status).toBe(404)
+    expect(next).toHaveBeenCalledTimes(2)
+  })
+
+  test('a store failure inside the budget returns the safe error shape', async () => {
+    overlay.loadFirmConfigsByPrefix.mockRejectedValue(new Error('ECONNREFUSED 10.0.0.1:3306'))
+    const res = makeRes()
+    await routes.runBench(req(), res)
+    expect(res._status).toBe(500)
+    expect(res._body).toMatchObject({ success: false, error: { code: 'DB_ERROR' } })
+    expect(JSON.stringify(res._body)).not.toContain('10.0.0.1')
+  })
+})
+
 describe('recomputeAndPersist, for the withdraw route', () => {
   test('is exported, saves once at the platform scope, and returns the recomputed result', async () => {
     overlay.loadFirmConfigsByPrefix.mockResolvedValue(pool({ firms: 6, cases: 31, less: 12 }))

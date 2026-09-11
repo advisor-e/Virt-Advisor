@@ -129,16 +129,16 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `pages
 
 ### Tests for User Story 4
 
-- [ ] T038 [P] [US4] Write `tests/unit/outcomeBench.test.js` — on a small pool fixture the replay reports the share of outcomes whose top template that review marked `well`, with and without adjustments, deterministic; a pool row lacking a `well` verdict on any template is counted in the denominator only as the spec's SC-005 defines (state the rule in the test)
-- [ ] T039 [P] [US4] Extend `tests/unit/outcomeLearning.routes.test.js` — the bench route stores `benches.fixed` and `benches.outcome` with `ranAt` and `liveIds` on the decisions row; when a run exceeds the limit it returns `jobId` (only if T041 finds it necessary)
+- [x] T038 [P] [US4] Write `tests/unit/outcomeBench.test.js` — on a small pool fixture the replay reports the share of outcomes whose top template that review marked `well`, with and without adjustments, deterministic; a pool row lacking a `well` verdict on any template is counted in the denominator only as the spec's SC-005 defines (state the rule in the test) — 2026-09-11, 17 tests
+- [x] T039 [P] [US4] Extend `tests/unit/outcomeLearning.routes.test.js` — the bench route stores `benches.fixed` and `benches.outcome` with `ranAt` and `liveIds` on the decisions row; when a run exceeds the limit it returns `jobId` (only if T041 finds it necessary) — 2026-09-11, 7 tests; the job path WAS necessary (T041)
 
 ### Implementation for User Story 4
 
-- [ ] T040 [US4] Add `--adjustments <file>` to `scripts/scenario-lab.js` — loads the export shape and passes it as `pooledAdjustments`; the METRICS block names the file and the count of live adjustments applied
-- [ ] T041 [US4] Create `scripts/outcome-bench.js` and its library half `server/utils/outcomeBench.js` — reads the pool through the store, replays each outcome's situation through `resolveTemplates` with and without live adjustments, prints and returns the two shares; measure the run time on the seeded pool and decide whether the route needs a job id
-- [ ] T042 [US4] Add the `bench` route to `server/routes/outcomeLearning.js` and register it; store the figures on the decisions row; add the "Run the benches" action and the figures block to `components/MentorOutcomeLearning.vue`
+- [x] T040 [US4] Add `--adjustments <file>` to `scripts/scenario-lab.js` — loads the export shape and passes it as `pooledAdjustments`; the METRICS block names the file and the count of live adjustments applied — 2026-09-11; the case shape now comes from `outcomeBench.scenarioToCase` so the report and the bench share one builder; the plain run's report proven identical to the committed script's apart from the new metric line
+- [x] T041 [US4] Create `scripts/outcome-bench.js` and its library half `server/utils/outcomeBench.js` — reads the pool through the store, replays each outcome's situation through `resolveTemplates` with and without live adjustments, prints and returns the two shares; measure the run time on the seeded pool and decide whether the route needs a job id — 2026-09-11. **Measured: ~1 ms per resolver pass**, so the seeded pool runs in well under a second and 10,000 reviews take ~20 s — the route needs the job id. **The fixed bench's expected answer is the engine's own unadjusted answer (Mike's yes, 2026-09-11)**: the 50 cases carry no authored key and inventing one would be inventing his content, so `before` is 1.0 by construction and `after` is the share the live adjustments left unchanged
+- [x] T042 [US4] Add the `bench` route to `server/routes/outcomeLearning.js` and register it; store the figures on the decisions row; add the "Run the benches" action and the figures block to `components/MentorOutcomeLearning.vue` — 2026-09-11; POST answers inside 1500 ms or returns 202 + `jobId`, `GET /bench/:jobId` serves the run; the page polls every two seconds and says so if the server forgot the job
 
-**Checkpoint**: quickstart Story 4 passes.
+**Checkpoint**: quickstart Story 4 passes — the scripts and the route proven by tests 2026-09-11; the button not yet pressed on the running app.
 
 ---
 

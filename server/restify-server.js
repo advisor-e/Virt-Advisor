@@ -898,6 +898,8 @@ server.post('/api/mentor/outcome-learning/decision', ...mentorGuard, outcomeLear
 server.get('/api/mentor/outcome-learning/history', ...mentorGuard, outcomeLearningRoute.history)
 server.post('/api/mentor/outcome-learning/restore', ...mentorGuard, outcomeLearningRoute.restore)
 server.get('/api/mentor/outcome-learning/export', ...mentorGuard, outcomeLearningRoute.exportLive)
+server.post('/api/mentor/outcome-learning/bench', ...mentorGuard, outcomeLearningRoute.runBench)
+server.get('/api/mentor/outcome-learning/bench/:jobId', ...mentorGuard, outcomeLearningRoute.benchJob)
 
 // ── Master template library (MENTOR ONLY — the upload doorway) ──
 // SEARCH-CONTENT-CASCADE-PLAN.md Phase 1: the mentor uploads the Advisor-e master

@@ -20,13 +20,24 @@
  *
  * The evidence floor is refused HERE, not only on the screen: a `live` decision on an
  * adjustment below the floor, or on one whose template has left the library, is a 400.
+ *
+ * THE BENCH ROUTE ANSWERS INSIDE THE PAGE RULE OR HANDS BACK A JOB. Measured 2026-09-11 at
+ * about one millisecond per resolver pass, the two benches finish in well under a second on
+ * a young pool and in about twenty seconds at 10,000 reviews. So `runBench` waits
+ * SYNC_BUDGET_MS for the run; past that it returns a job id the page polls, and the run
+ * carries on in this process and persists when it finishes. Jobs live in memory for
+ * JOB_TTL_MS — a restart loses a running job, and the page then says so, which beats a
+ * queue for a page one mentor presses a button on.
  */
 
+const crypto = require('crypto')
 const overlay = require('../utils/firmOverlay')
 const { PLATFORM_SCOPE } = require('../utils/platformScope')
 const { sendError } = require('../utils/sendError')
 const { loadEffectiveTemplates } = require('../utils/templateLibrary')
+const outcomeBench = require('../utils/outcomeBench')
 const SEED_TEMPLATES = require('../../data/templates.json')
+const SCENARIOS = require('../../scripts/scenario-lab-cases.json')
 const {
   MIN_FIRMS,
   MIN_CASES,
@@ -39,16 +50,19 @@ const {
 
 const DECISION_STATES = ['live', 'held', 'rejected']
 const MAX_REASON = 500
+const SYNC_BUDGET_MS = 1500
+const JOB_TTL_MS = 10 * 60 * 1000
+/** Running and finished bench jobs, by id. In memory on purpose — see the header. */
+const _jobs = new Map()
 
 /**
- * Every title in the platform's template library now: the mentor's uploaded library when
- * there is one, else the committed seed. `loadEffectiveTemplates` never rejects.
- * @returns {Promise<string[]>}
+ * The platform's template library now: the mentor's uploaded library when there is one,
+ * else the committed seed. `loadEffectiveTemplates` never rejects.
+ * @returns {Promise<Array<Object>>}
  */
-async function _libraryTitles () {
+async function _library () {
   const uploaded = await loadEffectiveTemplates(null)
-  const list = Array.isArray(uploaded) && uploaded.length > 0 ? uploaded : SEED_TEMPLATES
-  return list.map(t => t && t.title).filter(t => typeof t === 'string' && t.trim())
+  return Array.isArray(uploaded) && uploaded.length > 0 ? uploaded : SEED_TEMPLATES
 }
 
 /**
@@ -69,15 +83,17 @@ async function _decisionsRow () {
 
 /**
  * Recompute from the pool. Reads only.
- * @returns {Promise<Object>} the page payload minus `success`, plus the raw `computed` list
- *   and the `row` it was computed against, for the routes that go on to write
+ * @returns {Promise<Object>} the page payload minus `success`, plus the raw `computed` list,
+ *   the pool `rows`, the `library` and the `row` it was computed against, for the routes
+ *   that go on to write or to replay
  */
 async function recompute () {
-  const [rows, titles, row] = await Promise.all([
+  const [rows, library, row] = await Promise.all([
     overlay.loadFirmConfigsByPrefix(PLATFORM_SCOPE, POOL_PREFIX),
-    _libraryTitles(),
+    _library(),
     _decisionsRow()
   ])
+  const titles = library.map(t => t && t.title).filter(t => typeof t === 'string' && t.trim())
   const keys = Object.keys(rows || {})
   // Firms are distinct tokens parsed from the keys — the only place a firm is counted.
   const tokens = new Set(keys.map(k => k.split(':')[0]).filter(Boolean))
@@ -92,6 +108,8 @@ async function recompute () {
     orphaned: computed.filter(a => a.state === 'orphaned'),
     benches: row.benches,
     computed,
+    rows: rows || {},
+    library,
     row
   }
 }
@@ -268,6 +286,88 @@ async function exportLive (req, res) {
   }
 }
 
+/**
+ * Run both benches with the live adjustments as they stand now, then store the figures on
+ * the decisions row as a new version. The decisions and lastRecomputeAt are re-read at save
+ * time, so a decision taken while a long run was going is not overwritten by it.
+ * @param {string} savedBy - the verified caller
+ * @returns {Promise<Object>} the stored `benches`
+ */
+async function _runAndPersistBenches (savedBy) {
+  const result = await recompute()
+  const benches = await outcomeBench.runBenches({
+    scenarios: SCENARIOS,
+    poolRows: result.rows,
+    templates: result.library,
+    adjustments: liveAdjustments(result.computed)
+  })
+  const current = await _decisionsRow()
+  await overlay.saveFirmConfig(PLATFORM_SCOPE, DECISIONS_KEY, {
+    decisions: current.decisions,
+    lastRecomputeAt: current.lastRecomputeAt,
+    benches
+  }, savedBy)
+  return benches
+}
+
+/**
+ * POST /api/mentor/outcome-learning/bench — "Run the benches". Answers with the figures
+ * when the run finishes inside SYNC_BUDGET_MS; otherwise with a job id for the page to
+ * poll, while the run continues and persists on its own.
+ * @route POST /api/mentor/outcome-learning/bench
+ * @returns {200} { success, benches } · {202} { success, jobId } · {500} DB_ERROR
+ */
+async function runBench (req, res) {
+  const TIMED_OUT = {}
+  let timer = null
+  const run = _runAndPersistBenches(req.userEmail)
+  const budget = new Promise((resolve) => { timer = setTimeout(() => resolve(TIMED_OUT), SYNC_BUDGET_MS) })
+  try {
+    const first = await Promise.race([run, budget])
+    clearTimeout(timer)
+    if (first !== TIMED_OUT) {
+      return res.send(200, { success: true, benches: first })
+    }
+    const jobId = crypto.randomBytes(12).toString('hex')
+    const job = { status: 'running', benches: null, startedAt: new Date().toISOString() }
+    _jobs.set(jobId, job)
+    run.then((benches) => {
+      job.status = 'done'
+      job.benches = benches
+    }, (err) => {
+      console.error('[outcome-learning] bench job failed:', err.message)
+      job.status = 'failed'
+    })
+    const expiry = setTimeout(() => _jobs.delete(jobId), JOB_TTL_MS)
+    if (expiry.unref) { expiry.unref() }
+    res.send(202, { success: true, jobId })
+  } catch (err) {
+    clearTimeout(timer)
+    console.error('[outcome-learning] bench failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not run the benches')
+  }
+}
+
+/**
+ * GET /api/mentor/outcome-learning/bench/:jobId — a long run's progress.
+ * @route GET /api/mentor/outcome-learning/bench/:jobId
+ * @returns {200} { success, status: 'running' | 'done' | 'failed', benches } · {404} OUTCOME_UNKNOWN_JOB
+ */
+// Nothing here waits, so this is Restify's callback form: a two-argument handler that is not
+// async is refused at mount (tests/unit/serverMounts.test.js).
+function benchJob (req, res, next) {
+  const job = _jobs.get(String((req.params || {}).jobId || ''))
+  if (job) {
+    res.send(200, { success: true, status: job.status, benches: job.benches })
+  } else {
+    sendError(res, 404, 'OUTCOME_UNKNOWN_JOB', 'No bench run has that id — it may have finished more than ten minutes ago, or the server restarted')
+  }
+  return next()
+}
+
+/** For tests: forget every job. */
+function _clearJobs () { _jobs.clear() }
+
 module.exports = {
   list,
   recomputeNow,
@@ -275,6 +375,10 @@ module.exports = {
   history,
   restore,
   exportLive,
+  runBench,
+  benchJob,
   recompute,
-  recomputeAndPersist
+  recomputeAndPersist,
+  SYNC_BUDGET_MS,
+  _clearJobs
 }

@@ -116,10 +116,15 @@
         b-button(outlined @click="closeReject") {{ $t('outcomeLearning.rejectKeep') }}
 
     //- ── The two benches (Screen C) ───────────────────────────────────────────
-    //- The figures are user story 4's. Until the benches exist this card carries the one
-    //- sentence Mike ruled for it on 2026-09-11, and no button that could only fail.
+    //- The run happens on the button, never on page open: it replays every pooled review
+    //- through the engine twice. Past the page rule the backend hands back a job and this
+    //- polls it, so the button reads "Running…" and the figures arrive when it finishes.
     .box(v-if="!isEmpty")
-      h4.title.is-6.mb-3 {{ $t('outcomeLearning.benchHeading') }}
+      .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-3
+        h4.title.is-6.mb-0 {{ $t('outcomeLearning.benchHeading') }}
+        b-button(size="is-small" outlined type="is-primary" :loading="runningBenches" :disabled="runningBenches" @click="runBenches")
+          | {{ runningBenches ? $t('outcomeLearning.benchRunning') : $t('outcomeLearning.benchRun') }}
+      b-message(v-if="benchError" type="is-danger" size="is-small") {{ benchError }}
       template(v-if="benchFixed || benchOutcome")
         .columns
           .column(v-if="benchFixed")
@@ -133,7 +138,7 @@
                 span.has-text-grey →
                 span.mol-bn
                   | {{ percentOf(benchFixed.after) }}
-                  small {{ $tc('outcomeLearning.benchWith', counts.live) }}
+                  small {{ $tc('outcomeLearning.benchWith', liveCount(benchFixed)) }}
           .column(v-if="benchOutcome")
             .mol-bench
               h5.mol-bench-h {{ $t('outcomeLearning.benchOutcome') }}
@@ -145,8 +150,10 @@
                 span.has-text-grey →
                 span.mol-bn
                   | {{ percentOf(benchOutcome.after) }}
-                  small {{ $tc('outcomeLearning.benchWith', counts.live) }}
-        p.is-size-7.has-text-grey.mt-2 {{ $t('outcomeLearning.benchHonesty') }}
+                  small {{ $tc('outcomeLearning.benchWith', liveCount(benchOutcome)) }}
+        p.is-size-7.has-text-grey.mt-2
+          template(v-if="benchRanAt")  {{ $tc('outcomeLearning.benchLastRun', liveCount(benchOutcome || benchFixed), { when: dateTimeWords(benchRanAt) }) }}
+          |  {{ $t('outcomeLearning.benchHonesty') }}
       p.is-size-7.has-text-grey(v-else) {{ $t('outcomeLearning.benchNotRun') }}
 
     //- ── History (Screen D) ───────────────────────────────────────────────────
@@ -202,6 +209,9 @@
  * backend's (`server/routes/outcomeLearning.js`); the mentor's name comes from the token. What
  * this screen guarantees is that Accept is only offered where the backend would take it, that
  * a rejection carries a reason, and that each button sends exactly the fields the route reads.
+ * The bench figures are the backend's too (`server/utils/outcomeBench.js`); the fixed bench's
+ * "before" is 100% by construction — the case's expected answer is the engine's own unadjusted
+ * one (Mike's yes, 2026-09-11) — so "after" is the share the live adjustments left unchanged.
  *
  * The page never knows which firms are in the pool — `firms` is a count of one-way tokens.
  */
@@ -239,7 +249,12 @@ export default {
       rejecting: null,
       rejectReason: '',
       rejectError: '',
-      restoring: null
+      restoring: null,
+      /** True from pressing "Run the benches" until the figures arrive or the run fails. */
+      runningBenches: false,
+      benchError: '',
+      /** The poll timer for a long run, so leaving the page stops it. */
+      benchPoll: null
     }
   },
 
@@ -268,6 +283,12 @@ export default {
     benchOutcome () {
       const b = this.page.benches
       return b && b.outcome && typeof b.outcome === 'object' ? b.outcome : null
+    },
+
+    /** @returns {string|null} when the benches last ran — both carry the same stamp */
+    benchRanAt () {
+      const b = this.benchOutcome || this.benchFixed
+      return b && typeof b.ranAt === 'string' ? b.ranAt : null
     },
 
     /**
@@ -302,7 +323,78 @@ export default {
     await this.refresh()
   },
 
+  beforeDestroy () {
+    if (this.benchPoll) { clearTimeout(this.benchPoll) }
+  },
+
   methods: {
+    /**
+     * "Run the benches". A short run answers with the figures; a long one answers with a
+     * job id and this polls it every two seconds until it is done, failed, or forgotten.
+     * @route POST /api/mentor/outcome-learning/bench · GET /api/mentor/outcome-learning/bench/:jobId
+     * @returns {Promise<void>}
+     */
+    async runBenches () {
+      this.benchError = ''
+      this.runningBenches = true
+      try {
+        const data = await this.api('POST', BASE + '/bench')
+        if (data.benches) {
+          await this.applyBenches(data.benches)
+        } else if (data.jobId) {
+          this.pollBench(String(data.jobId))
+        } else {
+          throw new Error(this.$t('outcomeLearning.failed'))
+        }
+      } catch (e) {
+        this.benchError = e.message
+        this.runningBenches = false
+      }
+    },
+
+    /** @param {string} jobId */
+    pollBench (jobId) {
+      this.benchPoll = setTimeout(async () => {
+        this.benchPoll = null
+        try {
+          const data = await this.api('GET', BASE + '/bench/' + encodeURIComponent(jobId))
+          if (data.status === 'done' && data.benches) {
+            await this.applyBenches(data.benches)
+          } else if (data.status === 'failed') {
+            throw new Error(this.$t('outcomeLearning.failed'))
+          } else {
+            this.pollBench(jobId)
+          }
+        } catch (e) {
+          // A 404 here is a server that restarted mid-run and forgot the job.
+          this.benchError = e.status === 404 ? this.$t('outcomeLearning.benchLost') : e.message
+          this.runningBenches = false
+        }
+      }, 2000)
+    },
+
+    /**
+     * The figures are on the page, then the page is re-read so the tile, the history and
+     * the saved versions all follow the backend's own row.
+     * @param {object} benches
+     * @returns {Promise<void>}
+     */
+    async applyBenches (benches) {
+      this.page = Object.assign({}, this.page, { benches })
+      this.runningBenches = false
+      try {
+        this.applyPage(await this.api('GET', BASE))
+        await this.loadVersions()
+      } catch (_e) {
+        // The figures already shown are the backend's; a failed re-read hides nothing.
+      }
+    },
+
+    /** @param {object|null} b - a bench block @returns {number} how many adjustments were live when it ran */
+    liveCount (b) {
+      return b && Array.isArray(b.liveIds) ? b.liveIds.length : 0
+    },
+
     /**
      * Load the page. The backend recomputes on every call and writes nothing.
      * @route GET /api/mentor/outcome-learning · GET /api/mentor/outcome-learning/history

@@ -4,8 +4,8 @@
 > claims he wants to market, read against the design documents and the code. The second half
 > is the task that came out of it, item **4.87 · Outcome Learning**, in his words, with the spec
 > at [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md). The
-> backend and the advisor's panel are built through story 3 (2026-09-11); the two hub screens,
-> the seed script and the benches are not — §8 says what stands where. The history is in
+> whole of it is built (2026-09-11): the backend, the advisor's panel, the two hub screens, the
+> seed script and the two benches — §8 says what stands where. The history is in
 > [`outcome-learning-history.md`](outcome-learning-history.md).
 >
 > **Read against the code at commit `b1466ef`**: the Advisory Engine, Advisory Distinctions and
@@ -278,7 +278,7 @@ Every change needs Mike's explicit yes. Wording on screens is his to approve bef
 Built through story 3 and both hub screens on 2026-09-11, task by task from
 [`tasks.md`](../../specs/002-outcome-learning/tasks.md), each checked against the three drawings
 approved by Mike 2026-09-10; industry suggestions on the intake followed the same day from a fourth
-drawing. The benches remain.
+drawing, and the two benches the same evening.
 
 | Piece | Where it stands today |
 |---|---|
@@ -290,14 +290,14 @@ drawing. The benches remain.
 | The firm's screen | `components/firm/FirmOutcomeConsent.vue`, the Outcome Sharing tab under Compliance at the firm tier alone (`TAB_TIERS.outcomeConsent`); strings in `locales/en.json` `outcomeConsent.*` |
 | The advisor's notice | the one line on the review panel in `components/VirtualAdvisor.vue`, shown when `outcomeContribution` on the case list is true (`mixins/caseMixin.js`) |
 | Mentor routes | `server/routes/outcomeLearning.js` — list, recompute, decision, history, restore, export under `mentorGuard`; a page load recomputes but never writes a version; a rejection without a reason is refused |
-| The mentor's screen | `components/mentor/MentorOutcomeLearning.vue`, the Outcome Learning tab under Rolled up from below at the mentor tier alone (`TAB_TIERS.outcomeLearning`); strings in `locales/en.json` `outcomeLearning.*`. The bench card says the benches have not been run until user story 4 |
+| The mentor's screen | `components/mentor/MentorOutcomeLearning.vue`, the Outcome Learning tab under Rolled up from below at the mentor tier alone (`TAB_TIERS.outcomeLearning`); strings in `locales/en.json` `outcomeLearning.*`. The bench card says the benches have not been run until "Run the benches" is pressed |
 | The resolver | `pooledAdjustments` / `pooledSignalTypes` in `server/utils/templateResolver.js`, before the history clamp; `SCORING_VERSION` 2.2.0 |
 | The session and the trace | `server/utils/outcomeLearningSession.js`, wired in `server/advisorEngine.js`; `decisionTrace.outcomeLearning` |
 | Reason wording | `pooled:held_back-<n>`, `pooled:outweighed` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
 | The advisor's panel | "Learned from outcomes" in `components/VirtualAdvisor.vue` |
 | Industry suggestions on the intake | The intake has no industry field — the engine asks it in the chat — so `questionDoneEvent` in `server/advisorEngine.js` closes each sequenced question with its field, `GET /api/advisor/industry-vocabulary` (`server/routes/industryVocabulary.js`, proxied above the SSE entry) serves the same words the pool accepts, `utils/industrySuggestions.js` holds the rulings as numbers (three letters, eight chips, prefix on the whole answer), and the chip row in `components/VirtualAdvisor.vue` replaces the whole answer on a click. Nothing changes what saves to the case |
 | The dev seed | `scripts/dev/seed-outcome-pool.js` — 31 reviews across five firms through the guard and the store, never around them; refuses under `NODE_ENV=production`; `--reset` clears its own firms' rows first. Firm A is `dev-firm-001`, the firm the dev-local-bypass sign-in carries, so a withdrawal from its tab is quickstart Story 2 step 5 |
-| NOT BUILT | `--adjustments` on the Scenario Lab, the outcome bench and the bench route |
+| The two benches | `server/utils/outcomeBench.js` replays a situation through the same two-pass resolver and display-set builder the live session uses, twice — plain and with the live adjustments. **Outcome bench**: every pooled review; a hit is a top recommendation that review marked "Landed well"; a review with no such verdict counts in the denominator only (SC-005). **Fixed bench**: the 51 Scenario Lab cases; **the expected answer is the engine's own unadjusted answer (Mike's yes, 2026-09-11)** because the cases carry no authored key and inventing one would be inventing his content — so "before" is 100% by construction and "after" is the share the adjustments left unchanged, which is the guard SC-001 and SC-004 ask for. `scripts/scenario-lab.js --adjustments <file>` (the export's shape; the METRICS block names the file and the count) and `scripts/outcome-bench.js` print them; `POST /api/mentor/outcome-learning/bench` stores both on the decisions row with `ranAt` and `liveIds`, answering inside 1500 ms or with a job id the page polls (`GET …/bench/:jobId`) — measured at ~1 ms per resolver pass, so ~20 s at 10,000 reviews. In-sample in this release; the card's honesty line says so |
 | The four approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html) · [`outcome-learning-intake-industry.html`](../mockups/outcome-learning-intake-industry.html), rulings on each, rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
 
 ## 9. Related briefs

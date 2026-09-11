@@ -23,16 +23,51 @@
 //     fault, not a cert problem, and cost half an hour to spot. Recipe (export the AV
 //     root from the OS trust store): design/HANDOFF.md → Local Setup / Run.
 // FILTER:  node scripts/scenario-lab.js profit
+// WITH OUTCOME LEARNING (item 4.87, the fixed bench): the live adjustments as the mentor
+// page exports them (GET /api/mentor/outcome-learning/export → `adjustments`, or the
+// whole response) —
+//   node scripts/scenario-lab.js --adjustments live.json
+// Run it without the flag first: the difference between the two METRICS blocks is the
+// fixed bench's answer, and the block names the file and how many adjustments applied.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const fs = require('fs')
 const path = require('path')
-const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
-const { staircaseToCeiling, DOMAIN_NATURAL_ENGAGEMENT } = require('../server/utils/caseState')
+const { SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveTemplatesWithOutlier, buildDisplaySet } = require('../server/utils/templateResolver')
+const { scenarioToCase } = require('../server/utils/outcomeBench')
 const templates = require('../data/templates.json')
 
 const SCENARIOS = require('./scenario-lab-cases.json')
+
+// ── Arguments: an optional domain/key filter, and --adjustments <file> ──────
+function parseArgs (argv) {
+  const out = { filter: null, adjustmentsFile: null }
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--adjustments') {
+      out.adjustmentsFile = argv[i + 1] || null
+      i += 1
+    } else if (!out.filter) {
+      out.filter = argv[i]
+    }
+  }
+  return out
+}
+
+/**
+ * The live adjustments, in the resolver option shape. Accepts either the bare array the
+ * export returns under `adjustments`, or the whole export response. Anything else stops
+ * the run rather than measuring silently with nothing applied.
+ * @param {string|null} file
+ * @returns {Array<Object>}
+ */
+function loadAdjustments (file) {
+  if (!file) { return [] }
+  const parsed = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), file), 'utf8'))
+  const list = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.adjustments) ? parsed.adjustments : null)
+  if (!list) { throw new Error(`--adjustments ${file}: expected a JSON array, or an object with an "adjustments" array`) }
+  return list
+}
 
 const HAS_AI = !!process.env.OPENAI_API_KEY
 let classifyDistinctions, readDistressAI, platformDistinctions
@@ -85,29 +120,31 @@ const describeSignals = (s) => {
   return keys.map(n => `${SIGNAL_DESCRIPTIONS[n] || n} (×${s[n]})`).join(', ')
 }
 
-function runScenario (sc, boosts) {
-  const text = [sc.situationDiagnostic, sc.domainConfirmed].filter(Boolean).join(' ') // CURRENT live engine input
-  const problemSignals = extractProblemSignals(text)
-  const ceiling = staircaseToCeiling(sc.staircase)
-  const engagement = sc.engagement || DOMAIN_NATURAL_ENGAGEMENT[sc.domain] || 'facilitation'
-  const caseState = {
-    domain: sc.domain, primaryIssue: '', industry: sc.industry || null,
-    solutionCategories: [sc.domain], complexityCeiling: ceiling,
-    client: {}, advisor: {}, problemSignals
-  }
-  const strategy = { engagementType: engagement, templateBudget: sc.budget || 2 }
-  const resolved = resolveTemplatesWithOutlier(caseState, strategy, templates, { distinctionBoosts: boosts || {} })
+function runScenario (sc, boosts, adjustments) {
+  // The case shape is the fixed bench's own (outcomeBench.scenarioToCase), so the report
+  // and the bench can never disagree about what a case is.
+  const { caseState, strategy, signalTypes } = scenarioToCase(sc)
+  const resolved = resolveTemplatesWithOutlier(caseState, strategy, templates, {
+    distinctionBoosts: boosts || {},
+    pooledAdjustments: adjustments || [],
+    pooledSignalTypes: signalTypes
+  })
   const cards = buildDisplaySet(resolved, strategy.templateBudget)
   const log = resolved.primary.scoringLog
   return {
-    problemSignals, ceiling, engagement, budget: strategy.templateBudget, cards,
+    problemSignals: caseState.problemSignals,
+    ceiling: caseState.complexityCeiling,
+    engagement: strategy.engagementType,
+    budget: strategy.templateBudget,
+    cards,
     topScores: log.slice(0, 6).map(t => t.score),
     topReasons: (cards[0] && cards[0].matchReasons) || []
   }
 }
 
 async function main () {
-  const filter = process.argv[2]
+  const { filter, adjustmentsFile } = parseArgs(process.argv.slice(2))
+  const adjustments = loadAdjustments(adjustmentsFile)
   const scenarios = filter ? SCENARIOS.filter(s => s.domain === filter || s.key.includes(filter)) : SCENARIOS
 
   const results = []
@@ -128,7 +165,7 @@ async function main () {
       } catch (_e) { boosts = {}; aiFailed = true }
       try { distress = await readDistressAI(fullText) } catch (_e) { distress = null }
     }
-    results.push({ sc, distress, boosts, aiFailed, run: runScenario(sc, boosts) })
+    results.push({ sc, distress, boosts, aiFailed, run: runScenario(sc, boosts, adjustments) })
   }
 
   // ── Metrics ────────────────────────────────────────────────────────────────
@@ -152,6 +189,12 @@ async function main () {
       ? `- **Distress read:** fired TRUE in ${distressTrue.length}/${n}; of those, ${truePos} were genuine crises → **precision ${precision}%**, **recall ${recall}%** (there are ${crisisCases.length} genuine crises in the set).`
       : `- **Distress read:** AI layer off — run with the OpenAI key to measure.`
   ]
+  // Outcome Learning: which file, how many applied, and how many cases carry the hold-back
+  // on their top card — the fixed bench's own count, so the two runs can be laid side by side.
+  const heldBackTops = results.filter(r => (r.run.topReasons || []).some(x => /^pooled:/.test(x))).length
+  metrics.push(adjustmentsFile
+    ? `- **Outcome Learning:** ${adjustments.length} live adjustment${adjustments.length === 1 ? '' : 's'} applied from \`${adjustmentsFile}\`; the #1 card carries a pooled hold-back or outweigh in ${heldBackTops}/${n} cases.`
+    : '- **Outcome Learning:** no adjustments applied — run again with `--adjustments <file>` to measure the fixed bench with the live ones.')
   const distinctionFailures = results.filter(r => r.aiFailed).length
   if (distinctionFailures > 0) {
     metrics.push(`- 🔴 **Distinction classifier FAILED on ${distinctionFailures}/${n} cases** — those sessions ran with no distinction lever at all, so every figure above understates it. This is a fault in the run, not a result: fix it and re-run before comparing anything.`)
@@ -162,7 +205,7 @@ async function main () {
   lines.push('# Scenario Lab — Cross-Domain Case-Study Report')
   lines.push('')
   lines.push('> **Auto-generated** by `scripts/scenario-lab.js` over the fixed 50-case set (`scenario-lab-cases.json`). Re-run to refresh; do not hand-edit.')
-  lines.push(`> Coverage: **${n} sessions across all 14 content domains**. AI layer (firm distinctions + distress): **${HAS_AI ? 'ON' : 'OFF'}**.`)
+  lines.push(`> Coverage: **${n} sessions across all 14 content domains**. AI layer (firm distinctions + distress): **${HAS_AI ? 'ON' : 'OFF'}**. Outcome Learning adjustments: **${adjustmentsFile ? `${adjustments.length} from ${adjustmentsFile}` : 'none'}**.`)
   lines.push('')
   lines.push('## Metrics (measure before vs after an engine change)')
   lines.push('')

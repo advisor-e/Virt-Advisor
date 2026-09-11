@@ -24,7 +24,8 @@ The case-review screen needs one boolean. It rides on the response the screen al
 | `GET /api/mentor/outcome-learning/history` | — | `{ success, versions: [{ id, version, is_active, saved_by, created_at }] }` from `getVersionHistory(PLATFORM_SCOPE, 'outcome-adjustments')` |
 | `POST /api/mentor/outcome-learning/restore` | `{ versionId }` | `{ success }` via `restoreVersion` |
 | `GET /api/mentor/outcome-learning/export` | — | `{ success, adjustments: [live ones in the resolver option shape] }` — what the Scenario Lab's `--adjustments` flag reads |
-| `POST /api/mentor/outcome-learning/bench` | — | `{ success, benches }` — runs the fixed bench and the outcome bench with and without live adjustments, stores the figures on the decisions row. If a run exceeds the page-render limit the route returns `{ success, jobId }` and the page polls, per the performance rule; measured before that path is built |
+| `POST /api/mentor/outcome-learning/bench` | — | `200 { success, benches }` when both benches finish inside 1500 ms; otherwise `202 { success, jobId }` while the run continues in-process and persists on its own (measured 2026-09-11: ~1 ms per resolver pass, so ~20 s at 10,000 reviews). `benches` is data-model §4's shape, each half stamped `ranAt` with `liveIds`; the fixed bench's `before` is 1.0 by construction (its expected answer is the engine's own unadjusted one) |
+| `GET /api/mentor/outcome-learning/bench/:jobId` | — | `{ success, status: 'running' \| 'done' \| 'failed', benches }`; `404 OUTCOME_UNKNOWN_JOB` after ten minutes or a restart, which the page turns into "run it again" |
 
 ## Resolver — `server/utils/templateResolver.js`
 

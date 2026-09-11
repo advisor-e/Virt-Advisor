@@ -4663,6 +4663,10 @@
     "benchWith": "with the {n} live adjustment | with the {n} live adjustments",
     "benchHonesty": "The outcome bench scores the adjustments on the same reviews that produced them, so it flatters them a little; the fixed bench cannot be flattered because it never saw the pool. Read them together.",
     "benchNotRun": "The benches have not been run yet.",
+    "benchRun": "Run the benches",
+    "benchRunning": "Running…",
+    "benchLastRun": "Last run {when}, with {n} live adjustment. | Last run {when}, with {n} live adjustments.",
+    "benchLost": "The server restarted before that run finished. Run the benches again.",
     "historyHeading": "History",
     "historyPill": "Every decision, restorable",
     "past": {
