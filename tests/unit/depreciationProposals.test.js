@@ -206,6 +206,48 @@ describe('adding, finding and deciding', () => {
   })
 })
 
+// Item 4.88. What is being proved here is that removing FREES THE SLOT — a failed read that
+// merely changed status would leave the cap exactly as broken as it was.
+describe('deleting a failed read', () => {
+  test('the one named goes and the others stay', () => {
+    const a = record()
+    const b = record()
+    const next = p.removeDocument({ documents: [a, b] }, a.id)
+    expect(next.documents.map(d => d.id)).toEqual([b.id])
+  })
+
+  test('the store it was given is not mutated', () => {
+    const store = { documents: [record()] }
+    p.removeDocument(store, store.documents[0].id)
+    expect(store.documents).toHaveLength(1)
+  })
+
+  test('an id nothing matches leaves the list alone, and an empty store is not an error', () => {
+    expect(p.removeDocument({ documents: [record()] }, 'nope').documents).toHaveLength(1)
+    expect(p.removeDocument(null, 'nope').documents).toEqual([])
+  })
+
+  // 🔴 THE FAULT ITSELF. A full list drops its oldest on the next add; deleting a failed read
+  // has to give that place back, or twenty failures still cost a firm twenty real documents.
+  test('deleting from a full list gives the oldest its place back', () => {
+    let store = { documents: [] }
+    const ids = []
+    for (let i = 0; i < p.MAX_DOCUMENTS; i++) {
+      const r = record()
+      ids.push(r.id)
+      store = p.addDocument(store, r)
+    }
+    const oldest = ids[0]
+    const newest = ids[ids.length - 1]
+
+    store = p.removeDocument(store, newest)
+    store = p.addDocument(store, record())
+
+    expect(store.documents).toHaveLength(p.MAX_DOCUMENTS)
+    expect(p.findDocument(store, oldest)).not.toBeNull()
+  })
+})
+
 describe('the classes a manager picks from are kept with the document', () => {
   const CLASS = {
     label: 'Engineering (heavy) — plant and machinery',
@@ -246,6 +288,43 @@ describe('the classes a manager picks from are kept with the document', () => {
     const out = p.validateProposals({ documents: [{ id: 'd1', country: 'NZ', status: 'pending', filename: 'a.pdf', loadedAt: '2026-09-09T00:00:00.000Z' }] })
     expect(out.ok).toBe(true)
     expect(out.value.documents[0].classes).toEqual([])
+  })
+
+  test('the entries the document could not settle survive a save and a reload', () => {
+    // A dropped entry that vanishes on the way into the store looks exactly like a document
+    // with nothing unsettled — an absence that reads as a negative, which is what P3 of the
+    // Brief exists to stop. Nobody in UAT could tell the two apart.
+    const UNRESOLVED = {
+      label: 'Right to use capacity in the Southern Cross Cable Network granted 7 Oct 2004 - 23 Nov 2006',
+      pages: '39, 40',
+      differs: 'printed twice with different useful-life bands and different rates'
+    }
+    const rec = p.documentRecord({
+      filename: 'ir265.pdf',
+      country: 'NZ',
+      loadedBy: 'mike@advisor-e.com',
+      reading: {
+        document: 'IR265',
+        published: '2023-10',
+        country: 'NZ',
+        firstYearRuleFound: false,
+        categories: {},
+        unmatched: [],
+        refusedRows: 0,
+        classes: [],
+        unresolved: [UNRESOLVED]
+      }
+    })
+    expect(rec.unresolved).toEqual([UNRESOLVED])
+
+    const out = p.validateProposals({ documents: [rec] })
+    expect(out.ok).toBe(true)
+    expect(out.value.documents[0].unresolved).toEqual([UNRESOLVED])
+  })
+
+  test('a record stored before this existed reads back as an empty list', () => {
+    const out = p.validateProposals({ documents: [{ id: 'd1', country: 'NZ', status: 'pending', filename: 'a.pdf', loadedAt: '2026-09-09T00:00:00.000Z' }] })
+    expect(out.value.documents[0].unresolved).toEqual([])
   })
 
   test('an entry with no wording is dropped rather than offered as a nameless choice', () => {

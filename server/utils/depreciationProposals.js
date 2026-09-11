@@ -24,7 +24,9 @@
  *
  * ⚠ A REFUSED READ IS RECORDED, NOT DISCARDED. A document the model could not read is kept
  * with status `unreadable`, because a manager who loaded three files needs to see which one
- * failed. It proposes nothing, exactly as a rejected one does.
+ * failed. It proposes nothing, exactly as a rejected one does. A manager may DELETE one once
+ * they have read it (item 4.88) — it is the only status that can be deleted, because every
+ * other one is part of the record of what a firm approved.
  *
  * Node 14, CommonJS.
  */
@@ -32,7 +34,7 @@
 const crypto = require('crypto')
 const { CATEGORY_KEYS, normaliseCountry, publishedKey } = require('./depreciationRates')
 // One number, one home: the reading applies this cap and the store holds it to the same one.
-const { MAX_CLASSES } = require('./depreciationExtract')
+const { MAX_CLASSES, MAX_UNRESOLVED } = require('./depreciationExtract')
 
 /** The overlay address these records are stored under, at every tier. */
 const CONFIG_KEY = 'depreciation-proposals'
@@ -141,6 +143,15 @@ function cleanDocument (value, errors, where) {
       .slice(0, MAX_CLASSES)
     : []
 
+  // The entries the document could not settle — held as the reading left them. They carry no
+  // rate and no category, so nothing validates them further: they exist to be READ by a person
+  // against the document (prompt section 3, Mike's ruling of 2026-09-11).
+  const unresolved = Array.isArray(value.unresolved)
+    ? value.unresolved
+      .filter(u => u && typeof u === 'object' && !Array.isArray(u) && text(u.label))
+      .slice(0, MAX_UNRESOLVED)
+    : []
+
   const refused = Number(value.refusedRows)
 
   return {
@@ -156,6 +167,7 @@ function cleanDocument (value, errors, where) {
     categories,
     unmatched,
     classes,
+    unresolved,
     refusedRows: Number.isFinite(refused) && refused > 0 ? Math.floor(refused) : 0,
     decidedBy: text(value.decidedBy),
     decidedAt: text(value.decidedAt, 40) || null
@@ -215,6 +227,7 @@ function documentRecord (opts) {
     categories: reading ? reading.categories : {},
     unmatched: reading ? reading.unmatched : CATEGORY_KEYS.slice(),
     classes: reading && Array.isArray(reading.classes) ? reading.classes : [],
+    unresolved: reading && Array.isArray(reading.unresolved) ? reading.unresolved : [],
     refusedRows: reading ? reading.refusedRows : 0,
     decidedBy: '',
     decidedAt: null
@@ -267,6 +280,24 @@ function setStatus (store, id, status, by, now) {
   }
 }
 
+/**
+ * This scope's records with one document taken out altogether.
+ *
+ * ⚠ IT REMOVES, IT DOES NOT MARK — and that is the whole point of it (item 4.88). A failed
+ * read marked "dismissed" would still hold one of the `MAX_DOCUMENTS` slots, so twenty of
+ * them would still push a firm's real documents off the end, which is the fault being fixed.
+ * WHICH records may be removed is not decided here: the route refuses anything but an
+ * unreadable one, so this stays a plain list operation with no policy hidden inside it.
+ *
+ * @param {object} store
+ * @param {string} id
+ * @returns {{documents: object[]}} a new object; the input is not mutated
+ */
+function removeDocument (store, id) {
+  const list = (store && Array.isArray(store.documents)) ? store.documents : []
+  return { documents: list.filter(d => d.id !== id) }
+}
+
 module.exports = {
   CONFIG_KEY,
   STATUSES,
@@ -278,5 +309,6 @@ module.exports = {
   documentRecord,
   addDocument,
   findDocument,
-  setStatus
+  setStatus,
+  removeDocument
 }

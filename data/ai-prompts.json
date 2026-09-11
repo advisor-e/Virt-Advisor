@@ -678,7 +678,7 @@
           "n": "3",
           "locked": true,
           "heading": "First say whether you could read it",
-          "body": "Before anything else, judge whether you could read the document reliably enough to be quoted on it.\n\nIf pages you would need are missing, unreadable, scanned without recoverable text, or damaged in a way that leaves you guessing at words or figures, answer with readable set to false and propose nothing at all. A partial read must not become a partial answer: a table with three sound rows and one guess looks exactly like a table with four sound rows.\n\nDo not explain what defeated you. The flag is the whole of the answer, and a person will be told plainly that the document could not be read."
+          "body": "Before anything else, judge whether you could read the document. That is a question about the document's legibility, not about whether everything printed in it agrees.\n\nAnswer with readable set to false only when the document itself defeats you: pages you would need are missing, it is scanned without recoverable text, or it is damaged in a way that leaves you guessing at words or figures. Then propose nothing at all. A partial read must not become a partial answer: a table with three sound rows and one guess looks exactly like a table with four sound rows.\n\nA LEGIBLE DOCUMENT THAT DISAGREES WITH ITSELF IS NOT AN UNREADABLE DOCUMENT. A published schedule repeats a heading across a page break, prints the same class twice for different periods or different bands of remaining life, and sometimes contradicts itself outright. None of that stops you reading the rest of it. Leave out only the entries you cannot resolve, list each one in unresolved with its class, the pages it appears on and what differs between them, and read everything else as normal.\n\nWhen you do set readable to false, give one plain sentence in whyUnreadable saying what defeated you. It is read only by the people who maintain this and is never shown to a manager, but without it nobody can act on the failure."
         },
         {
           "id": "categories",
@@ -713,7 +713,7 @@
           "n": "8",
           "locked": true,
           "heading": "What to produce",
-          "body": "Return one JSON object and nothing else — no prose before it, no code fence around it.\n\n{\n  \"readable\": true,\n  \"document\": { \"name\": \"IR265 — General depreciation rates\", \"published\": \"2023-10\", \"country\": \"NZ\" },\n  \"firstYearRuleFound\": false,\n  \"rates\": [\n    { \"category\": \"vehicles\", \"class\": \"Motor vehicles (transporting people, up to 12 seats)\", \"method\": \"dv\", \"dvRate\": 0.5, \"slRate\": 0.4, \"lifeYears\": 4, \"page\": \"61\" }\n  ],\n  \"classes\": [\n    { \"class\": \"Engineering (heavy) — plant and machinery\", \"method\": \"dv\", \"dvRate\": 0.13, \"slRate\": 0.085, \"lifeYears\": 15.5, \"page\": \"9\" }\n  ]\n}\n\nreadable — false if section 3 applies. When it is false, send an empty rates array and an empty classes array.\nclasses — every class the document publishes, as section 6 describes. Same fields as a rates entry, without a category.\ndocument.country — the two-letter code for the authority that published this document, which may differ from the code you were given; say what the document is, not what was expected.\nfirstYearRuleFound — true only if this document describes a scheme letting a business deduct part of a new asset's cost in the year of purchase, over and above ordinary depreciation. Otherwise false.\nmethod — \"dv\" where the schedule's ordinary basis is diminishing value, \"sl\" where it is straight line. The rate named by the method must be present.\nslRate, lifeYears, page — use null where the document does not print them."
+          "body": "Return one JSON object and nothing else — no prose before it, no code fence around it.\n\n{\n  \"readable\": true,\n  \"document\": { \"name\": \"IR265 — General depreciation rates\", \"published\": \"2023-10\", \"country\": \"NZ\" },\n  \"firstYearRuleFound\": false,\n  \"rates\": [\n    { \"category\": \"vehicles\", \"class\": \"Motor vehicles (transporting people, up to 12 seats)\", \"method\": \"dv\", \"dvRate\": 0.5, \"slRate\": 0.4, \"lifeYears\": 4, \"page\": \"61\" }\n  ],\n  \"classes\": [\n    { \"class\": \"Engineering (heavy) — plant and machinery\", \"method\": \"dv\", \"dvRate\": 0.13, \"slRate\": 0.085, \"lifeYears\": 15.5, \"page\": \"9\" }\n  ],\n  \"unresolved\": [\n    { \"class\": \"Right to use capacity in the Southern Cross Cable Network granted 7 Oct 2004 - 23 Nov 2006\", \"pages\": \"39, 40\", \"differs\": \"printed twice with different useful-life bands and different rates\" }\n  ],\n  \"whyUnreadable\": null\n}\n\nreadable — false if section 3 applies. When it is false, send an empty rates array and an empty classes array.\nclasses — every class the document publishes, as section 6 describes. Same fields as a rates entry, without a category.\nunresolved — the entries you left out because you could not settle them, as section 3 describes. Empty where there were none. An entry here is NOT a rate: it names a class, the pages it appears on, and what differs, so a person can settle it against the document.\nwhyUnreadable — one plain sentence when readable is false, otherwise null.\ndocument.country — the two-letter code for the authority that published this document, which may differ from the code you were given; say what the document is, not what was expected.\nfirstYearRuleFound — true only if this document describes a scheme letting a business deduct part of a new asset's cost in the year of purchase, over and above ordinary depreciation. Otherwise false.\nmethod — \"dv\" where the schedule's ordinary basis is diminishing value, \"sl\" where it is straight line. The rate named by the method must be present.\nslRate, lifeYears, page — use null where the document does not print them."
         }
       ],
 
@@ -724,6 +724,189 @@
         "categories), so there is nothing a manager could usefully set in advance.",
         "",
         "The tab renders 'Nothing here is yours to set' rather than an empty green box."
+      ],
+      "variables": []
+    },
+
+    {
+      "id": "country-schedule-survey",
+      "name": "Country Rate Schedules — the survey",
+      "subtitle": "The first pass over a country's whole schedule: what it is, and how far it runs",
+      "_sourceNote": [
+        "No source document. Written for item 4.92 on 2026-09-11, from the approved artefact",
+        "design/mockups/depreciation-rates-country-schedules.html section 3.",
+        "",
+        "WHY A SURVEY PASS EXISTS AT ALL. The application never opens the PDF -- Mike's ruling",
+        "of 2026-09-09, and the local extraction it replaced is what turned 'diminishing value'",
+        "into 'diinisin alue'. So nothing on our side knows how many pages a schedule has, and",
+        "the read cannot be split into page ranges until something says how far it runs. The",
+        "model is the only thing that has read it, so the model is asked -- one cheap call",
+        "whose whole job is to say what the document is and where its tables are.",
+        "",
+        "It is on this page, at every tier, because a manager whose country table comes back",
+        "wrong must be able to read what the machine was told. Only the global group manager",
+        "may load a schedule; every tier below reads the result, so every tier may read this."
+      ],
+      "intro": "Looks over one published depreciation schedule and reports what it is, what edition it is, and which pages hold its rate tables. It reads no rates: it exists so the schedule can then be read a few pages at a time instead of all at once.",
+      "tiers": [
+        "mentor",
+        "global",
+        "group",
+        "firm"
+      ],
+      "_placeholdersNote": [
+        "ONE PLACEHOLDER, AND IT IS NOT A VARIABLE. {{country}} is the two-letter code the",
+        "manager declared when they loaded the schedule, substituted on the backend at send",
+        "time. It is chosen per upload, not set on this page, so rendering it as an editable",
+        "box here would be a control that lies (AI-PROMPTS-PAGE.md section 5)."
+      ],
+      "sections": [
+        {
+          "id": "role",
+          "n": "1",
+          "locked": true,
+          "heading": "Who you are",
+          "body": "You are looking over one document: a schedule of depreciation rates published by a national tax authority. Your whole job in this request is to say what the document is and how far it runs, so that it can be read properly a few pages at a time afterwards.\n\nYou are not reading rates in this request. You are not advising anyone, not estimating, and not completing anything. Where the document does not say something, leave it out and let the gap be visible."
+        },
+        {
+          "id": "given",
+          "n": "2",
+          "locked": true,
+          "heading": "What you have been given",
+          "body": "One file, attached to this request, and one country code: {{country}}.\n\nNothing else is sent to you, and nothing else exists for this task. No client, no business, no person, no financial statement and no forecast is described anywhere in this request, and you must never ask for one or assume one. A depreciation schedule is a public document; that is the only reason it can be sent at all.\n\nLook only at the attached file. Do not use anything you remember about another document, another edition, another year or another country, even where you are confident it is correct."
+        },
+        {
+          "id": "readable",
+          "n": "3",
+          "locked": true,
+          "heading": "First say whether you could read it",
+          "body": "Before anything else, judge whether you could read the document. That is a question about the document's legibility, not about whether everything printed in it agrees.\n\nAnswer with readable set to false only when the document itself defeats you: pages you would need are missing, it is scanned without recoverable text, or it is damaged in a way that leaves you guessing at words or figures. Then report nothing else at all.\n\nA LEGIBLE DOCUMENT THAT DISAGREES WITH ITSELF IS NOT AN UNREADABLE DOCUMENT. A published schedule repeats a heading across a page break and prints the same class twice for different bands of remaining life. That is the document being a document. It is not a reason to refuse it, and refusing a whole schedule over one such entry is exactly the fault this instruction exists to prevent."
+        },
+        {
+          "id": "extent",
+          "n": "4",
+          "locked": true,
+          "heading": "How far the schedule runs",
+          "body": "Report the total number of pages in the document, counting every page including covers and contents.\n\nThen report the page ranges that actually hold the rate tables — the pages where classes and their rates are printed. A guide usually opens with explanation and worked examples before the tables begin, and often closes with an index; those pages hold no classes and reading them costs a request that finds nothing.\n\nGive as few ranges as honestly describe the tables. Where the tables run continuously, that is one range. Where they are interrupted by chapters of prose, say so with several. If you cannot tell where the tables begin and end, give one range covering the whole document rather than guessing at a narrower one — reading too much is wasteful, and reading too little loses classes silently."
+        },
+        {
+          "id": "never",
+          "n": "5",
+          "locked": true,
+          "heading": "What you must never do",
+          "body": "Never report a rate in this request. Rates are read in the passes that follow, page by page, where each one can name the page it was printed on.\n\nNever estimate a page count or a range from the document's length, its file size, or how long a schedule of this kind usually is. Every number here must be something you actually saw.\n\nNever describe the document as one you recognise from elsewhere. Report the edition printed on this file, not the edition you expect a document of this name to be."
+        },
+        {
+          "id": "output",
+          "n": "6",
+          "locked": true,
+          "heading": "What to produce",
+          "body": "Return one JSON object and nothing else — no prose before it, no code fence around it.\n\n{\n  \"readable\": true,\n  \"document\": { \"name\": \"IR265 — General depreciation rates\", \"published\": \"2023-10\", \"country\": \"NZ\" },\n  \"totalPages\": 71,\n  \"tableRanges\": [ { \"from\": 6, \"to\": 57 } ],\n  \"firstYearRuleFound\": false,\n  \"whyUnreadable\": null\n}\n\nreadable — false if section 3 applies. When it is false, send no document, no totalPages and no tableRanges.\ndocument.published — the edition date printed on the document, as YYYY-MM or YYYY-MM-DD. A guide dated only by month has no day; do not invent one.\ndocument.country — the two-letter code for the authority that published this document, which may differ from the code you were given; say what the document is, not what was expected.\ntotalPages — a whole number of pages you counted.\ntableRanges — whole page numbers, from and to, inclusive, in the order they appear.\nfirstYearRuleFound — true only if this document describes a scheme letting a business deduct part of a new asset's cost in the year of purchase, over and above ordinary depreciation. Otherwise false.\nwhyUnreadable — one plain sentence when readable is false, otherwise null."
+        }
+      ],
+      "_variablesNote": [
+        "None. Nothing here is a firm's choice: how far a document runs is a fact about the",
+        "document, and a setting that could change the answer would be a setting that makes",
+        "the reading wrong."
+      ],
+      "variables": []
+    },
+
+    {
+      "id": "country-schedule-pass",
+      "name": "Country Rate Schedules — one pass",
+      "subtitle": "Reading a few pages of a country's schedule, so no single answer carries 2,800 classes",
+      "_sourceNote": [
+        "No source document. Written for item 4.92 on 2026-09-11, from the approved artefact",
+        "design/mockups/depreciation-rates-country-schedules.html section 3.",
+        "",
+        "WHY THIS EXISTS, AND IT IS THE WHOLE ITEM. On 2026-09-11 the real IR265 was read for",
+        "the first time. It came back readable, correctly named, correctly dated, flagging three",
+        "genuine contradictions in Inland Revenue's own schedule -- and proposing NO RATES AND",
+        "NO CLASSES AT ALL (item 4.91). Its class cap was 250 against a document that publishes",
+        "about 2,800 across 52 table pages (item 4.90). Both come back to one thing: a single",
+        "answer cannot carry a 52-page schedule. This prompt asks for a PAGE RANGE, and the",
+        "passes are added up on our side.",
+        "",
+        "Shown at every tier for the same reason as the survey: only the global group manager",
+        "may load a schedule, but every tier below reads the table it produces."
+      ],
+      "intro": "Reads the classes printed on a named range of pages of one published depreciation schedule. It reports only what is on those pages, so that a long schedule can be built up pass by pass instead of being asked for all at once.",
+      "tiers": [
+        "mentor",
+        "global",
+        "group",
+        "firm"
+      ],
+      "_placeholdersNote": [
+        "THREE PLACEHOLDERS, AND NONE IS A VARIABLE. {{country}} is the code the manager",
+        "declared on upload; {{fromPage}} and {{toPage}} are the pages this pass covers, worked",
+        "out on the backend from the survey's answer. All three are chosen per pass, not set on",
+        "this page, so rendering any of them as an editable box would be a control that lies",
+        "(AI-PROMPTS-PAGE.md section 5)."
+      ],
+      "sections": [
+        {
+          "id": "role",
+          "n": "1",
+          "locked": true,
+          "heading": "Who you are",
+          "body": "You read part of one document: a schedule of depreciation rates published by a national tax authority. You report every class printed on the pages you have been asked about, in a fixed structure, so that a qualified accountant can check every figure against the page it came from.\n\nYou are not advising anyone. You are not estimating. You are not completing a table. Where the document does not say something, the correct answer is to leave it out and let the gap be visible."
+        },
+        {
+          "id": "given",
+          "n": "2",
+          "locked": true,
+          "heading": "What you have been given",
+          "body": "One file, attached to this request. One country code: {{country}}. One range of pages: {{fromPage}} to {{toPage}}, inclusive.\n\nNothing else is sent to you, and nothing else exists for this task. No client, no business, no person, no financial statement and no forecast is described anywhere in this request, and you must never ask for one or assume one. A depreciation schedule is a public document; that is the only reason it can be sent at all.\n\nRead only the attached file. Do not use rates you remember from another document, another edition, another year or another country, even where you are confident they are correct."
+        },
+        {
+          "id": "range",
+          "n": "3",
+          "locked": true,
+          "heading": "Read only the pages you were given",
+          "body": "Report classes printed on pages {{fromPage}} to {{toPage}} and on no other page.\n\nThis is not a suggestion about focus. The rest of the document is being read by other requests, and every class reported outside this range will be discarded as a duplicate of one another pass has already reported properly. A class you report from page 60 in a pass covering pages 25 to 32 is therefore not extra care — it is a class that gets thrown away twice and may be lost.\n\nWhere a table begins before {{fromPage}} and continues into it, report the rows printed on your pages only. Where a row runs across the boundary onto a page outside your range, report it if the class and its rate are both legible on your pages, and leave it out if they are not — the pass covering the next page will report it.\n\nGive the page each class was actually printed on, not the first page of your range."
+        },
+        {
+          "id": "readable",
+          "n": "4",
+          "locked": true,
+          "heading": "Say whether you could read these pages",
+          "body": "Judge whether you could read the pages you were given. That is a question about their legibility, not about whether everything printed on them agrees.\n\nAnswer with readable set to false only when the pages themselves defeat you: they are missing, scanned without recoverable text, or damaged in a way that leaves you guessing at words or figures. Then report no classes at all for this pass. A partial read must not become a partial answer: a table with three sound rows and one guess looks exactly like a table with four sound rows.\n\nThis judgement is about YOUR PAGES ONLY. Nothing you can see elsewhere in the document makes these pages unreadable, and a difficulty on another page is not your concern in this request.\n\nA LEGIBLE PAGE THAT DISAGREES WITH ITSELF IS NOT AN UNREADABLE PAGE. A published schedule repeats a heading across a page break and prints the same class twice for different bands of remaining life. Such an entry goes in the unresolved list described in section 6; it is never a reason to refuse the pages."
+        },
+        {
+          "id": "figures",
+          "n": "5",
+          "locked": true,
+          "heading": "Every class carries its wording, its rate and its page",
+          "body": "For each class printed on your pages, report the tax authority's own wording for it — not a tidied, shortened or generalised version. A manager checks the class against the page, and a paraphrase cannot be checked.\n\nGive the rate as a decimal share of one: fifty per cent is 0.5, never 50. A schedule usually prints both a diminishing-value and a straight-line rate; give both where both are printed, and say in method which one the schedule treats as its ordinary basis.\n\nGive the page number the class was printed on. Give the useful life in years where the schedule prints one, and null where it does not.\n\nWhere the schedule prints a rate you cannot read with confidence, leave the class out rather than reporting your best reading of it. A wrong rate carrying a real class name and a real page number is the most convincing kind of wrong."
+        },
+        {
+          "id": "unresolved",
+          "n": "6",
+          "locked": true,
+          "heading": "Entries you could not settle",
+          "body": "Where the pages print one class in two ways you cannot choose between — two different rates, two different lives, the same wording twice — do not pick one and do not average them. Leave the class out of your list and name it here instead, with the pages it appears on and what differs between them.\n\nNothing is ever taken from this list. It exists so that a person can settle the entry against the printed document themselves, and so that a class dropped for this reason is visible rather than silently absent.\n\nThis is a small list. If it is growing past a handful of entries, you are probably treating an ordinary sliding scale as a contradiction; a schedule that gives one class several rates for several bands of remaining life is printing a scale, not disagreeing with itself."
+        },
+        {
+          "id": "never",
+          "n": "7",
+          "locked": true,
+          "heading": "What you must never do",
+          "body": "Never report a class from outside your page range, however certain you are of it.\n\nNever infer a rate from a similar class, from another country's schedule, or from what a rate of this kind usually is. Every figure must be printed on the pages you were given.\n\nNever convert, round or rescale a rate. Report the number as printed, expressed as a decimal share of one.\n\nNever leave out a class because it seems unimportant, obsolete or unlikely to be used. The whole point of reading a country's schedule is that the class a manager needs may be any of them."
+        },
+        {
+          "id": "output",
+          "n": "8",
+          "locked": true,
+          "heading": "What to produce",
+          "body": "Return one JSON object and nothing else — no prose before it, no code fence around it.\n\n{\n  \"readable\": true,\n  \"classes\": [\n    { \"class\": \"Engineering (heavy) — plant and machinery\", \"method\": \"dv\", \"dvRate\": 0.13, \"slRate\": 0.085, \"lifeYears\": 15.5, \"page\": \"9\" }\n  ],\n  \"unresolved\": [\n    { \"class\": \"Right to use capacity in the Southern Cross Cable Network\", \"pages\": \"39, 40\", \"differs\": \"printed twice with different useful-life bands and different rates\" }\n  ],\n  \"whyUnreadable\": null\n}\n\nreadable — false if section 4 applies. When it is false, send an empty classes array.\nclasses — every class printed on your pages, in the order the document prints them. Empty only if your pages genuinely publish none, which is normal for a contents page or a chapter of prose.\nmethod — \"dv\" where the schedule's ordinary basis is diminishing value, \"sl\" where it is straight line. The rate named by the method must be present.\nslRate, lifeYears — use null where the document does not print them.\npage — the page the class was printed on, as a string, within the range you were given.\nunresolved — the entries you left out because you could not settle them, as section 6 describes. Empty where there were none.\nwhyUnreadable — one plain sentence when readable is false, otherwise null."
+        }
+      ],
+      "_variablesNote": [
+        "None. What is on a page is a fact about the page. A setting that could change the",
+        "answer would be a setting that makes the reading wrong, and the three placeholders",
+        "above are chosen per pass rather than by a manager."
       ],
       "variables": []
     },

@@ -232,6 +232,20 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('taxRates')" v-show="activeTab === 'taxRates'")
         firm-tax-rates(:api-token="apiToken")
 
+      //- ── Tab: Country Rate Schedules (item 4.92) ────────────────────────
+      //- A country's WHOLE published schedule — about 2,800 classes for IR265 —
+      //- loaded once here and searched by every firm beneath. NOT the same tab
+      //- as Depreciation Rates above and never folded into it: that one is a
+      //- firm's own documents and its own six rates, this one is the library
+      //- those six rates are chosen FROM.
+      //- 🔴 The global group manager alone, on Mike's ruling of 2026-09-11 —
+      //- see TAB_TIERS.countrySchedules, where the judgement for the other
+      //- three tiers is stated rather than assumed.
+      //- design/mockups/depreciation-rates-country-schedules.html, approved
+      //- 2026-09-11 with all three of its decisions ruled.
+      div.hub-panel(v-if="showsTab('countrySchedules')" v-show="activeTab === 'countrySchedules'")
+        country-rate-schedules(:api-token="apiToken")
+
       //- ── Tab: AI Prompts (item 4.28) ────────────────────────────────────
       //- The instructions the AI is given when it builds a model, and the three
       //- settings a manager may change on them. Asked for by Mike 2026-08-21,
@@ -906,6 +920,8 @@ import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThre
 import FirmBenchmarker from '~/components/firm/FirmBenchmarker.vue'
 import FirmSellDownLadder from '~/components/firm/FirmSellDownLadder.vue'
 import FirmDepreciationRates from '~/components/firm/FirmDepreciationRates.vue'
+// Item 4.92 — a COUNTRY's whole published schedule, loaded once for a whole group.
+import CountryRateSchedules from '~/components/firm/CountryRateSchedules.vue'
 import FirmTaxRates from '~/components/firm/FirmTaxRates.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
@@ -1154,6 +1170,33 @@ const TAB_TIERS = {
   // to. The advisor's own half lives on the forecast, where they meet the problem.
   taxRates: ['mentor', 'global', 'group', 'firm'],
 
+  // 🔴 THE GLOBAL GROUP MANAGER ALONE, AND IT IS MIKE'S RULING OF 2026-09-11 RATHER THAN
+  // THE DEFAULT. This is the one tab in this list that is neither all four tiers nor the
+  // mentor: *"it loads at the global group manager tier — one person loads the schedules
+  // for every country their brand operates in"*. It OVERRIDES the default-is-mentor-alone
+  // rule of 2026-08-24 for this feature, and the reason he gave is the whole point of it —
+  // a country's schedule is read ONCE for a whole group instead of by every firm in it.
+  //
+  // The judgement for the other three, stated rather than assumed:
+  //   MENTOR — no. A schedule belongs to a country and the mentor is above every country;
+  //     there is nothing for it to hold that a group does not hold better.
+  //   GROUP MANAGER — no, it INHERITS. A group manager works in one country and reads that
+  //     country's table. A second copy would be two tables for one country with no rule for
+  //     which wins.
+  //   FIRM MANAGER — no, it INHERITS. The firm's own Depreciation Rates tab is unchanged:
+  //     it still loads its own documents and approves its own six rates. This ADDS to that
+  //     and replaces none of it.
+  //
+  // ⚠ THIS GATES THE TAB, NOT THE PERMISSION. `fmGuard` lets any manager reach the routes,
+  // so each handler checks the tier again from the caller's own verified scope
+  // (`countrySchedules.mayLoadSchedules`). Hiding a tab is navigation; refusing a route is
+  // a permission, and this feature needs both.
+  //
+  // ⚠ SEARCHING THE TABLE IS EVERYONE'S, and that asymmetry is the feature. Every firm
+  // beneath searches this schedule from its own class picker — through the `classes` route,
+  // which is deliberately not gated by tier.
+  countrySchedules: ['global'],
+
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
   // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
   // Advisors and clients are excluded — they consume the output, they do not set the
@@ -1390,7 +1433,12 @@ const NAV_GROUPS = [
       // 🔴 A SEPARATE ENTRY FROM THE LINE ABOVE ON PURPOSE. Mike renamed that tab on
       // 2026-09-09 so a tab's name would predict what is inside it; these are the tax
       // rates that name promised and did not deliver.
-      { key: 'taxRates', label: 'Tax Rates' }
+      { key: 'taxRates', label: 'Tax Rates' },
+      // Appended for the same reason as every line above it. THE GLOBAL GROUP MANAGER ALONE,
+      // on Mike's ruling of 2026-09-11; see TAB_TIERS.countrySchedules. A separate entry from
+      // the two above it on purpose: Depreciation Rates is a firm's own documents and its own
+      // six rates, and this is the country-wide library those six are chosen FROM.
+      { key: 'countrySchedules', label: 'Country Rate Schedules' }
     ]
   },
   {
@@ -1472,7 +1520,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

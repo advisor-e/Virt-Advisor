@@ -143,27 +143,6 @@
       "comment": "2026-09-09 - Mike's own words when the gap was reported as something he had not asked for: 'of course i want the tax rate made contry aware - i literally asked for that!' He had. Drawing approved the same day, then built in five slices on the laptop. The item's own wording was corrected in the build: both rates WERE already editable by an advisor, so the fault was never 'nothing can change them' but 'they are silently New Zealand's and no manager can set them'. The country field was built here on his explicit yes - it is 4.78's approved addendum and nothing here resolves without it."
     },
     {
-      "ref": "4.82",
-      "name": "Nothing caps how many paid AI readings an advisor can trigger",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Loading a tax document sends it to the model and every reading is paid for. Nothing caps how many one person may set off, and the store's 20-document limit trims only after the model has already been paid.",
-      "risk": "An advisor inside a real firm could load the same PDF over and over and run up a bill nobody sees until it arrives. No data leaks and no wrong figure reaches a client, which is why this is a 2 and not a 5. It is not new in kind - a manager could always do it - but 2026-09-09 widened it from managers to every advisor.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-09 while building 4.78 slice 5, the change that widened it, and raised with Mike the same day. Filed at his instruction rather than left as a warning inside 4.78's note."
-      },
-      "touches": "server/restify-server.js, where the advisor's load route and the manager's sit beside each other, and server/routes/depreciationRates.js loadDocument, which both reach and which calls the model. A cap belongs there, never on the screen - a screen-side limit is not a limit.",
-      "note": "NO CAP EXISTS ANYWHERE TODAY, on the advisor's route or the manager's. The store's 20-document limit is not one: it trims AFTER the model has been paid. Mike's ruling of 2026-09-08 that an advisor may load is NOT in question here - only whether the loading is capped, and at what. A first cap could be per firm per day, which needs nothing this app does not already know.",
-      "comment": "2026-09-09 - filed at shutdown on Mike's yes, having first been written as a warning inside 4.78's note. That is the shape this list explicitly refuses: a hazard nobody owns gets described repeatedly and fixed never. Scored 2 rather than 5 deliberately - no data leaks, no wrong figure reaches a client, and it takes an authenticated advisor inside a real firm to spend anything."
-    },
-    {
       "ref": "4.83",
       "name": "Compliance pages in the four manager hubs",
       "rankedByMike": false,
@@ -229,6 +208,111 @@
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
       "note": "SPEC KIT FEATURE, specs/002-outcome-learning. BUILT (2026-09-11): the pool, guard and routes, the review hook, the capped hold-back in the resolver beneath the advisor's own words, the trace and the Learned-from-outcomes panel, the firm's Outcome Sharing tab, the advisor's one-line notice, the mentor's Outcome Learning page (accept, hold, reject, restore) and the dev seed. Industry suggestions on the intake built 2026-09-11 from drawing 4. NOT BUILT: the two benches. Seen running 2026-09-11 on the production build against local MySQL. Every word on both screens is ruled, on the drawings. Brief §8 says what stands where.",
       "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T037 on the desktop, each approved and pushed; then the wording rows on both hub drawings ruled as drawn ('ticks' to 'answers' on the firm's; one bench sentence added on the mentor's), and both screens built from them; then the dev seed (T030); then industry suggestions on the intake, drawn, ruled and built the same day. NEXT: the benches."
+    },
+    {
+      "ref": "4.88",
+      "name": "A failed document load can never be cleared from the screen",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "A document the AI could not read stays on the list for ever. Nothing on the screen and no route can clear it, so the list fills with dead rows a manager cannot act on or remove.",
+      "risk": "The store keeps 20 documents, newest first, and trims the oldest. Twenty failed attempts push every real document out, so a manager loses the history of what was loaded and approved. The approved rates and their sources survive in their own store; the record of the documents they came from does not.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-11 - 'it does not give us a chance to delete past failed attempts', after four identical failures piled up on the NZ screen while the IR265 read was being diagnosed."
+      },
+      "touches": "components/firm/FirmDepreciationRates.vue, where the Review button shows only for a pending document, and rejectDocument in server/routes/depreciationRates.js, which refuses anything not pending with NOT_PENDING. Both ends are shut, so both change or neither does.",
+      "note": "BUILT 2026-09-11: a Delete button on a failed row ALONE, asking before it writes anything. THE ROUTE REFUSES EVERY OTHER STATUS against the stored record, so the audit trail behind a rate in force cannot be erased. IT DELETES RATHER THAN MARKING: a dismissed row would still hold one of the 20 slots, which is the fault itself. PROVEN ON THE RUNNING APP the same day: all four failed rows cleared live, both pending documents untouched. Found wider than filed: the cap is per FIRM, not per country, so NZ failures could drop an approved Australian document. Only the provenance was ever at risk, never the rates. Brief: P14. FOR MIKE: close it.",
+      "comment": "2026-09-11 - raised by Mike from the running app while diagnosing the IR265 read, and filed on his yes. Built the same day on his yes, after the fault was proved at both ends rather than inferred: the screen drew no control at all on a failed row, and the reject route refused anything not pending. The button says Delete because that is his own word for it. Rejected rows were deliberately left alone - he named failed attempts, and widening it is his call to make, not ours."
+    },
+    {
+      "ref": "4.89",
+      "name": "A refused document cannot tell a manager why",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "A manager told a document could not be read is advised to download it again or try another edition. The model's own reason is now captured server-side and never reaches them.",
+      "risk": "The section 3 fix removed the worst case - a legible document that disagrees with itself is no longer refused - so the standing advice is sound in the common case. What remains is a manager who cannot act on a refusal and re-loads the same file, paying for each attempt. That is what happened three times on 2026-09-11.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-11 - 'doesnt tell us what to do different etc', looking at four identical failure rows on the running app."
+      },
+      "touches": "UNREADABLE_MESSAGE in server/utils/depreciationExtract.js - Mike's pinned wording of 2026-09-09, changed only by him - the whyUnreadable sentence now carried as `detail` and logged, and the document row in components/firm/FirmDepreciationRates.vue.",
+      "note": "THE MATERIAL NOW EXISTS: the model is asked for one plain sentence saying what defeated it, and it is logged. Whether any of it reaches a manager is a WORDING DECISION FOR MIKE, since UNREADABLE_MESSAGE is his own pinned sentence and a test fails the build if it drifts.",
+      "comment": "2026-09-11 - raised by Mike from the running app and filed on his yes, alongside 4.88."
+    },
+    {
+      "ref": "4.90",
+      "name": "Only 250 of about 2,800 published classes are kept",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "MAX_CLASSES is 250 and IR265 publishes roughly 2,800 classes. A manager's picker would hold the first tenth of the document and stop, with nothing on screen saying so.",
+      "risk": "A manager whose category matched the wrong class looks for the right one in a picker that ends around page 10 of 52, does not find it, and has no way to know the class is in the document. Dropped classes are deliberately not counted into refusedRows, so the absence is silent by design.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found 2026-09-11 while building the section 3 fix, and filed on Mike's yes. A defect in something already built, not a new capability."
+      },
+      "touches": "MAX_CLASSES and its comment in server/utils/depreciationExtract.js, the same wrong figure in design/features/depreciation-rates.md section 3, and the picker in components/firm/DepreciationDocumentReview.vue.",
+      "note": "LARGELY CURED BY 4.92, WHICH IS BUILT: the picker now searches the country's whole schedule, so a class on page 30 is findable. What REMAINS is narrow - the per-document cap is still 250 and its code comment still says 'about 156', which bites only a firm whose group has loaded no country schedule. The Brief's copy of the wrong figure was corrected 2026-09-11. FOR MIKE: close it, or fix the comment and the cap first.",
+      "comment": "2026-09-11 - found while building the section 3 fix, when the same wrong figure turned up in the code that had already been found in the Brief."
+    },
+    {
+      "ref": "4.91",
+      "name": "A read can succeed and propose no rates at all",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "IR265 was read, named and dated correctly, and three real contradictions in it were flagged - then not one rate and not one class was proposed. The manager gets a pending document with nothing on it to approve.",
+      "risk": "A manager loads a schedule, waits, pays for the reading and is shown a proposal that proposes nothing, with no way to tell whether the document was poor or the reading was. Every forecast keeps the app's own six figures, which are New Zealand guesses, and the screen does not say that is why.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found 2026-09-11 by loading the real IR265 after the section 3 fix, and filed on Mike's yes. A defect in something already built."
+      },
+      "touches": "The rates and classlist sections of the depreciation-read prompt in data/ai-prompts.json, validateReading in server/utils/depreciationExtract.js, and whatever the country-wide table Mike asked for on 2026-09-11 does instead.",
+      "note": "PROVEN, NOT INFERRED: refusedRows was 0, so nothing was rejected on our side - the model sent an empty rates list. THE CURE IS BUILT IN 4.92: a schedule is now read a page range at a time and a read producing no classes is refused outright rather than stored as a proposal with nothing on it. That is the country path only. THE PER-DOCUMENT READ IS UNCHANGED and still asks for a whole schedule in one answer. FOR MIKE: close it, or point the per-document read at the same passes.",
+      "comment": "2026-09-11 - the second wall, met immediately after the first came down. The section 3 fix worked: the document that had been refused four times was read, named IR265, dated 2023-10, and three genuine contradictions surfaced - powder dryer buildings at two rates on pages 14 and 46, microwave ovens twice on page 36, and the Southern Cross Cable entry."
+    },
+    {
+      "ref": "4.92",
+      "name": "A country's whole rate schedule, stored as a searchable table",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": "4.90 and 4.91, which both come back to one reply carrying a 52-page schedule",
+      "waitingOn": "Mike",
+      "why": "Mike asked for a country's published schedule to be stored and turned into a searchable table the models can use, instead of being re-read per firm and reduced to six rough categories.",
+      "risk": "Without it every firm pays to re-read the same document, an advisor's client is depreciated at the nearest of six buckets rather than the class the tax authority publishes, and nothing accumulates. It is also the likely cure for 4.90 and 4.91: a table is built up in sections, so no single answer has to carry 2,800 classes.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-11 - 'if a single source of truth doc is available for a country - with ALL depreciation rates in it - we need the capability to store it, save it, translate it into a serachable table so it can be used in our models'."
+      },
+      "touches": "A new store beside the approved tables, the reading route and prompt in depreciationExtract.js and data/ai-prompts.json, the tier chain and the global-group scope in tierChain.js, a screen at the global group manager tier in FirmManagerHub.vue, and the class picker in DepreciationDocumentReview.vue.",
+      "note": "🔴 MIKE'S RULING, 2026-09-11: IT LOADS AT THE GLOBAL GROUP MANAGER TIER. One person loads the schedules for every country their brand operates in, each table tagged with its country; group managers and firms inherit the one matching their client and load nothing. This OVERRIDES the default-is-mentor-alone rule for this feature. PER COUNTRY, NOT PER DOCUMENT: each row names the document and page it came from. BUILT 2026-09-11, ALL FIVE SLICES: the store, the sectioned read, six routes with their own 10-a-day allowance, the global group manager's screen, and the firm's class picker searching the whole table. Drawing: design/mockups/depreciation-rates-country-schedules.html. NO REAL SCHEDULE HAS BEEN READ THROUGH IT - that needs UAT.",
+      "comment": "2026-09-11 - raised by Mike while the IR265 read was being diagnosed, and filed at shutdown on his yes. THE COST HE SHOULD MEET AT THE START: once we store a country's table, keeping it current is ours - when the next edition is published, every firm inheriting it holds last year's rates until someone loads the new one, so every rate must show which edition it came from. Drawn, ruled and BUILT 2026-09-11 - three decisions plus the allowance number and the limit wording, each asked one at a time. A defect was found and fixed mid-build: an unreachable store read as 'no schedule loaded'."
     }
   ]
 }

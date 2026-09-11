@@ -84,12 +84,21 @@ tax rates so the two agree and no deferred tax arises. *Because it moves reporte
 every rate's origin must be visible in the finished report and not only on the screen where
 it was set.*
 
-**P8 · A document that cannot be read reliably is refused outright.** Nothing is proposed
-from partially recovered text. Reading IR265 on 2026-09-08 with ordinary tooling silently
-dropped about a dozen letters — *"diminishing value"* came through as *"diinisin alue"* — and
-the damaged text still read as English, so a search for a missing term returned nothing and
-the nothing looked like an answer. *Ignore this and garbled text produces confident, wrong
-rates.*
+**P8 · A document that cannot be READ is refused outright — but a document that disagrees with
+ITSELF is not.** Nothing is proposed from partially recovered text. Reading IR265 on 2026-09-08
+with ordinary tooling silently dropped about a dozen letters — *"diminishing value"* came
+through as *"diinisin alue"* — and the damaged text still read as English, so a search for a
+missing term returned nothing and the nothing looked like an answer.
+
+**Legibility is the test, and only legibility (Mike, 2026-09-11).** A published schedule repeats
+a heading across a page break and prints the same class twice for different bands of remaining
+life; IR265 does exactly that on pages 39 and 40, for capacity in the Southern Cross Cable
+Network. Under the older rule the model met that one pair of rows, judged the document
+contradictory and refused **all 52 pages** — nothing about vehicles, plant or computers was ever
+attempted. Now an entry that cannot be settled is left out, listed on the review screen with the
+pages it appears on, and everything else is read as normal. *Ignore this and garbled text
+produces confident, wrong rates — or one odd line about undersea cable discards an entire
+schedule.*
 
 **P9 · Where two documents disagree, the newer publication wins and the older is shown
 beside it.** Never silently dropped. Where the dates are equal the incumbent is kept and the
@@ -103,16 +112,79 @@ plausible match the system proposes none and names the category in the gaps list
 this and a category is matched to a class nobody checked, producing a wrong rate that looks
 perfectly well sourced.*
 
+**P11 · A firm may have 20 documents read in any rolling 24 hours, and the 21st is refused
+before the model is called** (item 4.82). Mike's rulings of 2026-09-11, each answered on its
+own: the count is **per firm**, because the firm is what pays and its id is the one identity
+every route here has already verified; the number is **20**, because the proposal store only
+ever *keeps* 20, so a firm paying for more is paying for readings it cannot keep; advisors and
+managers **share one count**, because two pools of 20 would let a firm spend 40; the window
+**rolls**, because every fixed reset needs a clock and midnight UTC lands at midday in New
+Zealand, which would hand a firm 20 before lunch and 20 after; and it **fails closed**, because
+a store we cannot read is exactly when we cannot know what has already been spent. A reading
+the model answers badly still spends one — it was still paid for — while a file refused before
+that point, a non-PDF among them, costs nothing. His approved wording, at the moment a person
+is stopped:
+
+> **Your firm has used all 20 document readings for today. Nothing has been lost — you can
+> load this document again tomorrow.**
+
+It names the firm rather than the person, because the advisor in front of it may not be the
+one who used it up, and it deliberately does not say *ask your manager* — no manager can raise
+it, and promising that sends someone on an errand that goes nowhere. When the count itself
+cannot be reached, a separate sentence, because we cannot claim a firm has used all 20 when
+the truth is that we do not know:
+
+> **Document readings can't be checked right now. Please try again shortly.**
+
+*Ignore this and one advisor re-loading the same PDF runs up a bill nobody sees until it
+arrives.*
+
+**P12 · A COUNTRY's whole schedule is loaded ONCE, at the global group manager tier** (item
+4.92, Mike's ruling of 2026-09-11). One person loads the schedules for every country their
+group operates in, each tagged with its country; group managers and firms inherit the one
+matching their client and load none. **This overrides the default-is-mentor-alone rule of
+2026-08-24 for this feature**, and it is the layer P10's picker chooses from: a firm's own
+document offers 250 classes, and a country's schedule offers all of them. *Ignore this and
+every firm pays to re-read the same published document, and an advisor's client is depreciated
+at the nearest of six buckets rather than the class the tax authority publishes.*
+
+**P13 · A schedule is read a few pages at a time, and a page range that will not read is
+NAMED** (Mike's second ruling, 2026-09-11). One model answer cannot carry a 52-page schedule —
+proved on 2026-09-11, when IR265 was read, named, dated, and proposed nothing at all. A failed
+pass is retried once and then recorded as unread; everything else is kept, and **the gap is
+shown wherever the table is used, not only where the schedule was loaded**. *Ignore this and
+"there is no such class" and "those pages were never read" are the same empty list on screen.*
+
+**P14 · A failed read can be DELETED, and it is the only row that can** (item 4.88, Mike's
+words of 2026-09-11 after four identical failures piled up with no way to clear them: *"it
+does not give us a chance to delete past failed attempts"*). A **Delete** button appears on an
+`unreadable` row alone, asks *"Delete this failed attempt? Nothing else on this screen
+changes."*, and the route refuses every other status against the **stored** record — a
+pending, approved or rejected document cannot be deleted by any request, because which
+document a rate came from, who approved it and when is the audit trail behind every figure in
+force. **It deletes rather than adding a fifth status**, deliberately: the store keeps 20
+records newest-first, so a row marked "dismissed" would still hold its place and twenty
+failures would still push a firm's real documents off the end. *Ignore this and a manager who
+cannot clear four dead rows loses the record of the documents their approved rates came from —
+the rates themselves survive in their own store; the provenance does not.*
+
 ---
 
 ## 3. Design considerations
 
-**Six categories, not 156 rates.** The approved table holds one rate for each of the
+**Six categories, not thousands of rates.** The approved table holds one rate for each of the
 forecast's six asset categories, because a rate stored against a seventh could never reach a
 forecast. Each rate keeps the tax authority's own wording for the class it came from, so the
 manager's screen can show *"Motor vehicles (transporting people, up to 12 seats)"* above the
 figure. **The manager's drawing shows a proposal of 41 rows and its gaps panel says "27 of
 the app's asset categories"; both are illustrative and neither is buildable — there are six.**
+
+⚠ **THE FIGURE "ABOUT 156 CLASSES" WAS WRONG AND IS CORRECTED HERE (item 4.90).** It appeared
+in this section and in the code comment on `MAX_CLASSES`, agreeing with itself and with
+nothing else. **IR265's table pages number 52, at roughly 54 classes a page — about 2,800.**
+The per-document cap of 250 therefore held a tenth of the document, silently. The country
+schedule of P12 is what removes the consequence; the stale figure in
+`server/utils/depreciationExtract.js` is still 4.90's own to settle.
 
 **Rates are stored as decimals, never percentages.** 50% is `0.5`. That is the forecast
 engine's own convention — it multiplies book value by the number directly — and the backend's
@@ -176,6 +248,7 @@ here and nowhere else; its closure, with his own $800,000 tractor costing, is on
 | Which routes are manager-only, pinned against the registration | [`server/restify-server.js`](../../server/restify-server.js) · [`tests`](../../tests/unit/forecastCountryDepreciation.component.test.js) |
 | Sending a document to the model, and refusing to trust what comes back | [`server/utils/depreciationExtract.js`](../../server/utils/depreciationExtract.js) · [`tests`](../../tests/unit/depreciationExtract.test.js) |
 | The reading instruction itself, on the AI Prompts page at all four tiers | [`data/ai-prompts.json`](../../data/ai-prompts.json) — `depreciation-read` |
+| The cap on paid readings — 20 per firm per rolling 24 hours, spent one line before the model (P11) | [`server/utils/aiLoadBudget.js`](../../server/utils/aiLoadBudget.js) · [`tests`](../../tests/unit/aiLoadBudget.test.js) |
 | Where a PROPOSAL lives — a store the rate resolver never reads | [`server/utils/depreciationProposals.js`](../../server/utils/depreciationProposals.js) · [`tests`](../../tests/unit/depreciationProposals.test.js) |
 | The manager's tab — what is in force, the documents loaded, and the upload | [`components/firm/FirmDepreciationRates.vue`](../../components/firm/FirmDepreciationRates.vue) · [`tests`](../../tests/unit/firmDepreciationRates.component.test.js) |
 | Reviewing one document — the class match, the picker, the rates, the gaps | [`components/firm/DepreciationDocumentReview.vue`](../../components/firm/DepreciationDocumentReview.vue) · [`tests`](../../tests/unit/depreciationDocumentReview.component.test.js) |
@@ -183,7 +256,15 @@ here and nowhere else; its closure, with his own $800,000 tractor costing, is on
 | The tier seam every cascading block asks | [`server/utils/tierChain.js`](../../server/utils/tierChain.js) |
 | The engine whose rate this sets | [`server/report/threeWayForecastModel.js`](../../server/report/threeWayForecastModel.js) |
 | The screen the six rates are entered on, where the advisor meets the gap | [`components/ThreeWayForecastIntake.vue`](../../components/ThreeWayForecastIntake.vue) · [`tests`](../../tests/unit/forecastCountryDepreciation.component.test.js) |
+| **The country schedule (item 4.92)** — one country's whole published table, approved once at the global group tier, with the tier resolver and the server-side search | [`server/utils/countrySchedules.js`](../../server/utils/countrySchedules.js) · [`tests`](../../tests/unit/countrySchedules.test.js) |
+| Reading one in passes — a survey, then a request per eight pages, added up here | [`server/utils/countryScheduleRead.js`](../../server/utils/countryScheduleRead.js) · [`tests`](../../tests/unit/countryScheduleRead.test.js) |
+| Where a schedule PROPOSAL lives while it is read and until it is approved | [`server/utils/countryScheduleProposals.js`](../../server/utils/countryScheduleProposals.js) · [`tests`](../../tests/unit/countryScheduleProposals.test.js) |
+| Its six routes — load, list, watch, approve, reject, and the class SEARCH every tier calls | [`server/routes/countrySchedules.js`](../../server/routes/countrySchedules.js) · [`tests`](../../tests/unit/countrySchedules.routes.test.js) |
+| Its two reading instructions, on the AI Prompts page at all four tiers | [`data/ai-prompts.json`](../../data/ai-prompts.json) — `country-schedule-survey`, `country-schedule-pass` |
+| Its own reading allowance — 10 schedules per scope per rolling 24 hours, apart from the firm's 20 | [`server/utils/aiLoadBudget.js`](../../server/utils/aiLoadBudget.js) — `consumeScheduleLoad` |
+| The global group manager's screen | [`components/firm/CountryRateSchedules.vue`](../../components/firm/CountryRateSchedules.vue) · [`tests`](../../tests/unit/countryRateSchedules.component.test.js) |
 | The specification, with all twelve rulings and 50 requirements | [`specs/001-depreciation-rates-per-country/spec.md`](../../specs/001-depreciation-rates-per-country/spec.md) |
+| The country schedule's screen, approved 2026-09-11 | [`design/mockups/depreciation-rates-country-schedules.html`](../mockups/depreciation-rates-country-schedules.html) |
 | The manager's screen, approved 2026-09-08 | [`design/mockups/depreciation-rates-upload.html`](../mockups/depreciation-rates-upload.html) |
 | The advisor's screen, approved 2026-09-08 | [`design/mockups/depreciation-rates-advisor.html`](../mockups/depreciation-rates-advisor.html) |
 | The country field, drawn 2026-09-09 | [`design/mockups/depreciation-rates-country-field.html`](../mockups/depreciation-rates-country-field.html) |
@@ -256,6 +337,18 @@ Investment Boost line. **No document has been read in earnest yet** — that nee
 real schedule, a key and a manager — so no rate in this app has yet come from a tax authority,
 and the first thing to watch on a live run is whether the model picks the right published class
 for each of the six.
+
+**Known state, 2026-09-11 — THE COUNTRY SCHEDULE (item 4.92) IS BUILT, ALL FIVE SLICES.** The
+store, the sectioned read and its two prompts, six routes with their own 10-a-day allowance,
+the global group manager's screen, and the firm's class picker searching the whole country
+table instead of one document's first 250 classes. Mike approved the drawing on 2026-09-11
+after ruling all three of its decisions.
+
+**What it does NOT do, and must not be described as doing.** No real schedule has been read
+through it — that needs a model key, a manager and a live store, which is UAT. So no country
+table in this app has yet come from a tax authority, and the first thing to watch on a live
+run is whether the survey names the table pages correctly: get that wrong and the passes read
+the wrong part of the document, thoroughly and confidently.
 
 **How a document is read was settled by Mike on 2026-09-09** — sent to the model, never
 extracted locally — and is now built that way. **Nothing about this feature is undecided.**

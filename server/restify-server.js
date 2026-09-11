@@ -118,6 +118,9 @@ const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
 const depreciationRatesRoute = require('./routes/depreciationRates')
+// Item 4.92 — a COUNTRY's whole published schedule, loaded once at the global group manager
+// tier and searched by every firm beneath it.
+const countrySchedulesRoute = require('./routes/countrySchedules')
 const taxRatesRoute = require('./routes/taxRates')
 const sellDownRoute = require('./routes/forecastSellDown')
 const benchmarkerRoute = require('./routes/benchmarker')
@@ -298,10 +301,11 @@ server.get('/api/report/depreciation-rates', firmAuth, depreciationRatesRoute.ge
 // on approve and reject below. `firmAuth` resolves the storage scope once, so an advisor's
 // document lands in their own firm's store and can land nowhere else.
 //
-// ⚠ IT WIDENS WHO CAN SPEND AN AI CALL, from managers to every advisor. The file must be a
-// real PDF of 20 MB or less and the store keeps 20 documents — but the store's cap trims
-// AFTER the model has been paid, so nothing here limits how many readings an advisor can
-// trigger. Raised with Mike 2026-09-09; no rate limit added without his word.
+// ⚠ IT WIDENS WHO CAN SPEND AN AI CALL, from managers to every advisor — AND THAT SPENDING
+// IS NOW CAPPED (item 4.82, Mike's rulings of 2026-09-11): 20 readings per firm in any
+// rolling 24 hours, counted across this route and the manager's together, refused before the
+// model is called. The file must still be a real PDF of 20 MB or less. See
+// `server/utils/aiLoadBudget.js`, which carries the reasoning for each part of the cap.
 server.post('/api/report/depreciation-rates/documents', firmAuth, depreciationRatesRoute.loadDocument)
 // The company tax rate, GST rate, filing cycle and accounting basis a client's forecast uses,
 // for the client's own country (item 4.81). A SIBLING OF THE LINE ABOVE, NOT PART OF IT — a
@@ -456,6 +460,33 @@ server.post('/api/firm-manager/depreciation-rates/documents', ...fmGuard, deprec
 server.get('/api/firm-manager/depreciation-rates/documents', ...fmGuard, depreciationRatesRoute.listDocuments)
 server.post('/api/firm-manager/depreciation-rates/documents/approve', ...fmGuard, depreciationRatesRoute.approveDocument)
 server.post('/api/firm-manager/depreciation-rates/documents/reject', ...fmGuard, depreciationRatesRoute.rejectDocument)
+// Item 4.88 — delete a failed read, so twenty of them cannot push a firm's real documents
+// off the end of a list that keeps twenty. UNREADABLE DOCUMENTS ONLY: the route refuses
+// every other status, so the record of what was approved can never be erased by a request.
+server.post('/api/firm-manager/depreciation-rates/documents/remove', ...fmGuard, depreciationRatesRoute.removeDocument)
+// Item 4.92 — Country Rate Schedules. A country's WHOLE published schedule, not one firm's
+// document: about 2,800 classes for IR265 against the six categories a forecast depreciates.
+//
+// 🔴 LOADING AND DECIDING ARE THE GLOBAL GROUP MANAGER'S ALONE — Mike's ruling of 2026-09-11,
+// which OVERRIDES the default-is-mentor-alone rule for this feature. `fmGuard` gets any
+// manager through the door, so the tier check is INSIDE each handler, taken from the caller's
+// own verified scope (`countrySchedules.mayLoadSchedules`). A firm manager who finds these
+// URLs is refused with 403, exactly as an advisor is refused the sibling's approve routes.
+//
+// ⚠ `classes` IS THE EXCEPTION AND THE ASYMMETRY IS THE FEATURE: one person loads a country's
+// schedule, and EVERY manager beneath them searches it from their own class picker. It
+// resolves through the caller's own scope chain, so no group can read another's.
+//
+// ⚠ THE LOAD ANSWERS 202, NOT 200. One schedule is a survey plus a request per eight pages,
+// each of which may take minutes of model time; the read runs on after the response and the
+// screen watches `country-schedules/read`. The upload parses its own multipart body
+// (formidable), so the JSON body limit above does not reach it.
+server.post('/api/firm-manager/country-schedules', ...fmGuard, countrySchedulesRoute.loadSchedule)
+server.get('/api/firm-manager/country-schedules', ...fmGuard, countrySchedulesRoute.listSchedules)
+server.get('/api/firm-manager/country-schedules/read', ...fmGuard, countrySchedulesRoute.getRead)
+server.post('/api/firm-manager/country-schedules/approve', ...fmGuard, countrySchedulesRoute.approveSchedule)
+server.post('/api/firm-manager/country-schedules/reject', ...fmGuard, countrySchedulesRoute.rejectSchedule)
+server.get('/api/firm-manager/country-schedules/classes', ...fmGuard, countrySchedulesRoute.searchClasses)
 // The four tax figures a country's clients are taxed on (item 4.81). Same shape and same
 // guard as the block above, and ONE approve route rather than two: a first-year rule is a tax
 // scheme a manager adopts, which is why it earned its own button next door, whereas these
