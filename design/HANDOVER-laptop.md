@@ -11,29 +11,28 @@
 
 ## 2026-09-11 (twentieth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,034 green** (481 suites), lint 0, audit PASS. Tree clean, branch **level with
-`master`**. Nothing active on this machine, nothing uncommitted.
+Suite **10,026 green** (482 suites), lint 0, audit PASS. Tree clean, level with `master`. Nothing
+active on this machine, nothing uncommitted.
 
-🔴 **PR #82 IS MERGED.** `master` is now `152726d`, carrying **4.82** (the AI spend cap),
-**4.92** (country rate schedules) and **4.88**. Its title was corrected on the way in — it had
-named only 4.82, which would have left the merge commit claiming one item when three landed.
+**PRs #82, #83 and #84 are all merged** — `master` carries 4.82, 4.92, **4.88 closed** (a failed
+depreciation read can be deleted, and it is the only row that can — closure on
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2), and the proxy fix below.
+**Eleven live items.**
 
-🔴 **DESKTOP: you are 17 behind `master`. Merge it in at startup.** Yesterday's warning now
-reaches you for real: `components/FirmManagerHub.vue` gained a `countrySchedules` tab — 52
-lines, a `TAB_TIERS` entry, a panel, an import, a registration and a `NAV_GROUPS` entry, all
-appended rather than woven in. **4.87's consent tab and Mentor Hub page land in the same three
-places, so expect a conflict there and expect to keep both sides.**
+🔴 **DESKTOP — TWO OF YOUR FEATURES WERE UNREACHABLE FROM THE BROWSER, NOW FIXED.**
+`/api/client-copy-requests` (4.58) and `/api/compliance` (4.83) were never added to
+`serverMiddleware` in `nuxt.config.js`, so every call got a Nuxt 404 while the Restify routes
+behind them served perfectly. **Compliance is the subtle one and it is NOT the hub tab** — that
+reads `/api/firm-manager` and always worked. The only caller is the gate on `meeting-record.vue`,
+which failed closed by design, so nobody was offered a recorder at an undeclared firm — but the
+gate could never return open either, so **a firm that had ticked saw the same screen as one that
+had not.** Both answer 200 now, proven on the running app.
+`tests/unit/apiProxyWiring.test.js` now fails the build if a feature ships without its entry.
 
-**4.88 built and CLOSED** — a failed read can be deleted, and it is the only row that can. The
-route refuses every other status against the **stored** record, so the audit trail behind a rate
-in force cannot be erased by any request. It deletes rather than marking, because a dismissed row
-would still hold one of the twenty slots — the fault itself. Closure on
-[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2; Brief
-[`depreciation-rates.md`](features/depreciation-rates.md) **P14**.
+🔴 **DESKTOP — EXPECT TWO CONFLICTS WHEN YOU MERGE `master` IN, AND KEEP BOTH SIDES.**
+`components/FirmManagerHub.vue` gained a `countrySchedules` tab (52 lines, all appended) in the
+same three places 4.87's consent tab and Mentor Hub page will land. And `nuxt.config.js` now has
+two more proxy lines. You were 46 ahead / 20 behind at 15:00.
 
-**It was used for real, not deferred to UAT.** The app was run and all four failed IR265 rows
-were cleared from the live screen, with both documents awaiting approval beside them and
-untouched.
-
-**Eleven live items.** 4.90 and 4.91 each still carry a `FOR MIKE` line — close, or do the narrow
-bit that remains. 4.89 is a wording decision on Mike's own pinned sentence.
+**Still open, all Mike's:** 4.90 and 4.91 each carry a `FOR MIKE` line — close, or do the narrow
+bit that remains. 4.89 is a wording decision on his own pinned sentence.
