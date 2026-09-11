@@ -9,30 +9,25 @@
 
 ---
 
-## 2026-09-11 (twentieth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-11 (twenty-first session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,026 green** (482 suites), lint 0, audit PASS. Tree clean, level with `master`. Nothing
-active on this machine, nothing uncommitted.
+Suite **9,977 green**, lint 0, `npm run build` succeeds. Tree clean, level with `master`.
+**PR #86 merged — 22 commits.** Eight items closed; **four live and none is ours** — 4.15 and
+4.58 are Mike's, 4.86 waits on the master team, 4.87 is yours.
 
-**PRs #82, #83 and #84 are all merged** — `master` carries 4.82, 4.92, **4.88 closed** (a failed
-depreciation read can be deleted, and it is the only row that can — closure on
-[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2), and the proxy fix below.
-**Eleven live items.**
+🔴 **THE LEARNING, AND IT WILL BITE 4.87 THE SAME WAY.** `countrySchedules.js` copied the
+dev-storage guard from its sibling **without the store behind it** — so with no MySQL a read
+returned null and a write was swallowed. It had passed the whole suite and been merged, and
+could not keep a single row it read. **The tests mock `firmOverlay` away entirely, so nothing
+could see it.** If 4.87 adds a store, prove it writes a real `data/dev-*.json` — and add that
+file to `.gitignore` in the same change, because it names each one individually and a new one
+is tracked by default.
 
-🔴 **DESKTOP — TWO OF YOUR FEATURES WERE UNREACHABLE FROM THE BROWSER, NOW FIXED.**
-`/api/client-copy-requests` (4.58) and `/api/compliance` (4.83) were never added to
-`serverMiddleware` in `nuxt.config.js`, so every call got a Nuxt 404 while the Restify routes
-behind them served perfectly. **Compliance is the subtle one and it is NOT the hub tab** — that
-reads `/api/firm-manager` and always worked. The only caller is the gate on `meeting-record.vue`,
-which failed closed by design, so nobody was offered a recorder at an undeclared firm — but the
-gate could never return open either, so **a firm that had ticked saw the same screen as one that
-had not.** Both answer 200 now, proven on the running app.
-`tests/unit/apiProxyWiring.test.js` now fails the build if a feature ships without its entry.
+🔴 **`server/utils/openaiClient.js` IS YOURS TOO AND IT CHANGED.** New `failureFromEvent`:
+every streamed AI call watched only for `response.completed` and ignored `error` /
+`response.failed`, so an exhausted account reached the user as *"the reading did not finish —
+try again"*. **Use it for any streaming call in 4.87.**
 
-🔴 **DESKTOP — EXPECT TWO CONFLICTS WHEN YOU MERGE `master` IN, AND KEEP BOTH SIDES.**
-`components/FirmManagerHub.vue` gained a `countrySchedules` tab (52 lines, all appended) in the
-same three places 4.87's consent tab and Mentor Hub page will land. And `nuxt.config.js` now has
-two more proxy lines. You were 46 ahead / 20 behind at 15:00.
-
-**Still open, all Mike's:** 4.90 and 4.91 each carry a `FOR MIKE` line — close, or do the narrow
-bit that remains. 4.89 is a wording decision on his own pinned sentence.
+**Merge `master` before touching any of:** `openaiClient.js`, `economicAnalysis.js`,
+`depreciationExtract.js`, `countryScheduleRead.js`, `countrySchedules.js`,
+`depreciationRates.js`, `.gitignore`.
