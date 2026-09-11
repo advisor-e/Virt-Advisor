@@ -37,12 +37,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- | --- |
 | 1 | **4.15** The 14 branches that still name a page nobody can open | 4 | — | **Mike** | — |
 | 2 | **4.58** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 3 | **4.78** Depreciation rates per country - a manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 4 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
-| 5 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
-| 6 | **4.92** A country's whole rate schedule, stored as a searchable table ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 3 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
+| 4 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
+| 5 | **4.92** A country's whole rate schedule, stored as a searchable table ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**Six live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Five live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

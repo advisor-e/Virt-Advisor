@@ -101,27 +101,6 @@
       "comment": "2026-09-01 - filed; screens approved; slices 1-2 built. 2026-09-02 - slice 3, the types cascade, renumbered from 4.56; two rules Mike never made deleted (Brief P14). 2026-09-07 - the manager aggregate, transcript expiry and follow-through. 2026-09-08 - meeting-types slice 3 and slice 4's advisor half. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day on his instruction, closing §4 item 7. Two of its eight rulings reversed the recommendation: the advisor ALONE releases, so a request spanning several advisors is answered by each in turn."
     },
     {
-      "ref": "4.78",
-      "name": "Depreciation rates per country - a manager uploads the source, the AI proposes, they approve",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Depreciation rates and first-year rules differ by country and nothing in the app holds them. The shipped defaults are a guess: Vehicles is 20% where NZ IRD gives 50% diminishing value for a passenger vehicle.",
-      "risk": "An advisor who leaves a default produces a forecast whose depreciation, tax and closing cash are all wrong, and which balances perfectly, and it reaches a lender. The counter-risk is the AI misreading a rate nobody re-checks - which is why the manager approves the extracted table before anything reads it, and why every figure carries its source document and date.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
-      },
-      "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
-      "note": "NOTHING READS AN UNAPPROVED TABLE, structurally rather than by a flag: a proposal lives in its own store. BUILT: the manager's side (1-3b) and the advisor's (4-5) - each rate badges its origin, an approved table is OFFERED filling only rates still on defaults, and an advisor may LOAD while approval stays manager-only. NOT BUILT: the dated purchase list with the first-year deduction - item 4.77, closed here. THIS READER HAS NEVER PROPOSED A RATE FROM A REAL DOCUMENT: its two real attempts on 2026-09-11 came back named and dated proposing nothing, which NOTHING_READ now refuses. PROVING IT NEEDS A SHORT PUBLISHED DOCUMENT, NOT IR265 - a different test from 4.92's, never attempted. Rulings in depreciation-rates-history.md.",
-      "comment": "2026-09-08 - raised by Mike and filed on his instruction. The recommendation was AGAINST it and he overturned it; the concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers. 2026-09-09 - the manager's side built, slices 1 to 3b, after Mike caught the build conflating a tax rate with a depreciation rate and the feature was renamed. Spec Kit produced eleven rulings, Investment Boost among them. Slices 4 and 5 built the same day on his yes: the advisor sees where each rate came from, is offered their country's table, and may load a document their manager decides on. 44 new tests."
-    },
-    {
       "ref": "4.86",
       "name": "Adviser Network runs on nine invented people and forgets every decision in production",
       "rankedByMike": false,
@@ -178,7 +157,7 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "Mike asked for a country's published schedule to be stored and turned into a searchable table the models can use, instead of being re-read per firm and reduced to six rough categories.",
-      "risk": "Without it every firm pays to re-read the same document, an advisor's client is depreciated at the nearest of six buckets rather than the class the tax authority publishes, and nothing accumulates. It is also the likely cure for 4.90 and 4.91: a table is built up in sections, so no single answer has to carry 2,800 classes.",
+      "risk": "Without it every firm pays to re-read the same document, an advisor's client is depreciated at the nearest of six buckets rather than the class the tax authority publishes, and nothing accumulates. Building the table up in sections is also what removed the one-answer limit that defeated a 62-page schedule, and it closed 4.90 and 4.91.",
       "askedBy": {
         "who": "Mike",
         "ours": false,

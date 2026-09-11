@@ -185,6 +185,36 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.78 — Depreciation rates per country: a manager uploads the source, the AI proposes, they approve.**
+✅ Closed 2026-09-11 on the laptop by Mike, **on the day its central claim was demonstrated for the
+first time**. Built 2026-09-08/09 in five slices; it had never once been seen doing the thing it
+exists to do.
+
+- **Why it stayed open until then:** its own note said *"no document has been read in earnest"*. Two
+  real attempts that morning came back readable, correctly named and dated, and proposed **nothing**
+  — the shape item 4.89's `NOTHING_READ` now refuses outright. IR265 could never prove it either:
+  at 62 pages it is the one thing this reader cannot do, which is item 4.90's whole subject.
+  **Proving it needed a SHORT published document, and nobody had ever tried one.**
+- 🔴 **WHAT FINALLY PROVED IT, on the running app:** Inland Revenue's determination **DEP106**
+  (e-scooters and e-bicycles, three pages). The reader named the document from its own title page,
+  extracted `2021-03-26`, proposed **one of the six** categories with a rate, a page and a date,
+  named the other five as gaps rather than guessing, and offered **six published classes** for the
+  picker. `refusedRows` 0.
+- 🔴 **AND THEN THE PART THAT MATTERS MOST — THE MANAGER OVERRULED THE MACHINE.** The AI matched
+  `other` to *"Safety equipment (other)"*; the manager approved *"E-scooter"* instead, straight from
+  the picker. The advisor-facing resolve then returned `other` at **0.5 from `firm_manager`, labelled
+  E-scooter**, with the other five still `app default`. **A rate read by a model from a real
+  document reached an advisor's forecast for the first time, and it was the human's choice that got
+  there, not the machine's.** That is P10 working under real conditions rather than in a test.
+- **It also did something right that looks like a miss:** it did NOT put e-scooters in `vehicles`.
+  The prompt defines that category as *"cars, utes, vans and trucks a business owns and drives"*, so
+  it declined to stretch it — FR-032 and §4's *"omit rather than stretch"* rule, holding.
+- **What is deliberately not built:** the dated purchase list with the first-year deduction — that
+  was item 4.77, closed separately.
+- ⚠ **What this closure does NOT claim:** the approval was driven through the API as a firm manager,
+  not clicked on the screen by a person, and no country has a full table approved. **UAT does that**,
+  and by Mike's rule it does not hold the item open.
+
 **4.81 — The forecast's tax rates were New Zealand's, hardcoded, for every country.**
 ✅ Closed 2026-09-11 on the laptop by Mike. Built in five slices on 2026-09-09, verified against
 the running app the day it closed.
