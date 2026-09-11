@@ -517,6 +517,27 @@ describe('loading a document', () => {
     expect(savedFor(PROPOSALS_KEY).documents[0].status).toBe('unreadable')
   })
 
+  test('a read that found nothing is recorded as a failed row, never as one awaiting approval', async () => {
+    // Item 4.91. The status matters beyond the word on the tag: `pending` puts the document in
+    // the "awaiting you" count and opens a review panel with nothing in it, and `unreadable`
+    // is the only status a manager may delete (item 4.88). A row carrying nothing should be
+    // one they can clear away.
+    uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument').mockResolvedValue({
+      ok: false, code: 'NOTHING_READ', message: extract.NOTHING_READ_MESSAGE, reading: null
+    })
+
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.ok).toBe(false)
+    expect(res._body.message).toBe(extract.NOTHING_READ_MESSAGE)
+    expect(res._body.document.status).toBe('unreadable')
+    expect(res._body.document.categories).toEqual({})
+    expect(savedFor(PROPOSALS_KEY).documents[0].status).toBe('unreadable')
+  })
+
   test('a file that is not a PDF is refused before anything is sent to a model', async () => {
     // The declared content type comes from the browser. The first bytes do not.
     const file = uploadOf('PK this is a zip')

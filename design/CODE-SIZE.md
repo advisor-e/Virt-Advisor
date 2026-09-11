@@ -5,9 +5,9 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-11 at commit `e39fde4`.**
+> **Measured 2026-09-11 at commit `646dba3`.**
 
-**Working code: 86,993 lines** across 427 files — blank lines and
+**Working code: 86,995 lines** across 427 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
@@ -18,21 +18,21 @@ comment lines stripped; tests, design documents, data, scripts and locale string
 | Pages (`pages`) | 36 | 1,641 | 792 |
 | Mixins (`mixins`) | 11 | 1,021 | 351 |
 | Thin proxies to the backend (`server-middleware`) | 6 | 237 | 87 |
-| Nuxt configuration (`nuxt.config.js`) | 1 | 87 | 99 |
+| Nuxt configuration (`nuxt.config.js`) | 1 | 89 | 117 |
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Configuration (`config`) | 1 | 74 | 135 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **427** | **86,993** | **44,901** |
+| **Total working code** | **427** | **86,995** | **44,919** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
-| JavaScript | 247 | 42,688 |
+| JavaScript | 247 | 42,690 |
 | Vue screens and components | 180 | 44,305 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 44,901 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 491 files, 83,449 lines of test code.
+- **Comments and documentation** inside those same files: 44,919 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 492 files, 83,504 lines of test code.
 - **Locale strings**: 5,082 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 
