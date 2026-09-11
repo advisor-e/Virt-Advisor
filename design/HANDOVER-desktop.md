@@ -9,29 +9,28 @@
 
 ---
 
-## 2026-09-11 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-11 (third session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**4.87 Outcome Learning: built through both hub screens and the dev seed, five commits,
-all pushed.** The consent drawing's ten wording rows and the mentor drawing's fifteen were
-ruled by Mike as drawn ("ticks" → "answers" on the firm's; one bench sentence added on the
-mentor's), then built: `components/firm/FirmOutcomeConsent.vue` (Outcome Sharing, firm tier,
-under Compliance), the advisor's one line on the review panel, `components/mentor/
-MentorOutcomeLearning.vue` (Outcome Learning, mentor tier, under Rolled up from below), and
-`scripts/dev/seed-outcome-pool.js`. Every difference from each drawing is named in its commit.
-Two backend additions rode along: switch history (`events`) and the live-adjustment count on
-the consent read route; a rejection without a reason is refused on the decision route.
+**4.87 Outcome Learning seen running for the first time**, on the production build against
+local MySQL: seed, sharing on, the mentor's Accept turning a row Live, the firm's count
+following. Two defects found by looking and fixed the same day (`ced082b`): the seed keyed
+firm A as `dev-firm` where the sign-in carries `dev-firm-001`; and the Client Copy Request
+tab (4.58) had no Nuxt proxy line. The no-secret sentence was approved as written.
+**Industry suggestions on the intake (T022a) drawn, ruled, approved and built the same day**
+from drawing 4 (`mockups/outcome-learning-intake-industry.html`), and seen against the live
+engine (`9e52042`).
 
-**Next: run the seed against the local MySQL and eyeball both screens** the production way
-(`nuxt build` + `start`, backend on Node 14.15). `OUTCOME_POOL_SECRET` must be in the
-backend `.env` first — not checked. Then T022a (industry suggestions on intake), then the
-benches (T038–T042). `activeOn` for 4.87 stays on the desktop.
+**Next: the benches (T038–T042)** — `--adjustments` on the Scenario Lab, the outcome bench
+and the bench route. `activeOn` for 4.87 stays on the desktop. Nothing waits on Mike.
 
-**Waits on Mike:** one sentence not on the drawing, on the 4.87 row of the live list.
+**Running the app:** `OUTCOME_POOL_SECRET` is not in `.env`; pass the same value to the seed
+and the backend. The build regenerates `design/CODE-SIZE.md`; commit it.
 
-Suite green: 486 suites, 9,990 tests. Tree clean, 37 ahead of master, 0 behind.
+Suite green: 495 suites, 10,304 tests. Tree clean, 44 ahead of master, 0 behind. Master
+merged in at `452f927`.
 
-**LAPTOP:** none of your files touched. Shared files that changed: `FirmManagerHub.vue` (two
-tabs, two panels, two `TAB_TIERS` and `NAV_GROUPS` entries), `VirtualAdvisor.vue` (one line
-on the review panel and its CSS), `mixins/caseMixin.js` and `utils/cases.js` (one flag),
-`locales/en.json` (two new namespaces at the end), `tests/unit/hubTabTiers.test.js` and
-`mentorHubScope.component.test.js` (the new tabs pinned). Merge master before you touch any.
+**LAPTOP:** none of your files touched. Shared files that changed under you:
+`server/advisorEngine.js` (the question sender's closing event carries the field),
+`nuxt.config.js` (two proxy lines), `server/restify-server.js` (one mount),
+`components/VirtualAdvisor.vue` (the chip row), `components/FirmManagerHub.vue` (merge only),
+`locales/en.json` (one string). Merge master before you touch any.
