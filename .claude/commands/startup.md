@@ -29,10 +29,17 @@ Never two options. No exceptions.
 ---
 
 **The LIVE-APP / repo-change rule in `CLAUDE.md` still applies throughout.** Steps 1, 2 and
-4 are read-only. Step 3 writes nothing to the repository and republishes Mike's own private
-Handbook link — he asked for that to happen every session (2026-08-13), so it needs no fresh
-approval. Step 5 changes files, so it needs Mike's explicit yes before you run it — propose
-it, do not perform it unasked.
+4 are read-only. Step 3 republishes Mike's own private Handbook link — he asked for that to
+happen every session (2026-08-13), so it needs no fresh approval. Step 5 changes files, so it
+needs Mike's explicit yes before you run it — propose it, do not perform it unasked.
+
+⚠ **Step 3 IS NOT read-only, and this used to say it was.** `npm run handbook` regenerates
+`design/CODE-SIZE.md` — a rolling count of the codebase, computed at build time and never
+typed — so **the working tree comes back dirty from running this checklist.** The file is
+generated, not authored, and its header records the commit it was measured at. Say so when
+reporting step 3, and put it to Mike with the session's other changes: the pre-commit hook
+refuses any commit that leaves a modified tracked file behind, so it cannot simply be
+ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
 
 1. **Where am I?** Report the current branch, whether the working tree is clean, and
    whether the branch matches the machine's expected branch (desktop → course builder,
