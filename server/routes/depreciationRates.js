@@ -549,6 +549,11 @@ async function loadDocument (req, res) {
   // document, so it belongs in the list beside the two above — and `unreadable` is the one
   // status a manager may delete once they have read it (item 4.88), which a row carrying
   // nothing should be. It is NOT `pending`: that is the whole fault being fixed.
+  //
+  // ⚠ `SERVICE_REFUSED` IS NOT RECORDED, and that is the difference. The three above are things
+  // that happened to THIS DOCUMENT and belong in its history; a service that refused everyone's
+  // request says nothing about the file, and filing it as a failed document would blame the
+  // manager's PDF for an empty account. It comes back as a 502 with its own sentence instead.
   const RECORDED = ['UNREADABLE', 'MALFORMED', 'NOTHING_READ']
   if (!result.ok && !RECORDED.includes(result.code)) {
     const status = result.code === 'COUNTRY_MISMATCH' || result.code === 'INVALID_COUNTRY' ? 400 : 502

@@ -142,6 +142,37 @@ function holds (map) {
 }
 
 let quiet
+let devIsolation
+
+/**
+ * 🔴 THE DEV FILE IS ISOLATED FOR EVERY TEST IN THIS FILE, and it is not tidiness.
+ *
+ * Once the routes gained a real dev-JSON fallback (2026-09-11) any test that makes the overlay
+ * fail with a CONNECTION-shaped error reads `data/dev-country-schedules.json` for real. That file
+ * is a developer's own scratch data: the first run after the fix picked up a live failed read of
+ * IR265 sitting on this machine and a passing test went red for a reason that had nothing to do
+ * with the code. On another machine it would have stayed green and hidden the same fault.
+ *
+ * So the file always reads as ABSENT unless a test says otherwise — the `KEPT` block below
+ * installs its own in-memory spies, and an inner `beforeEach` runs after this one. Writes are
+ * swallowed for the same reason the overlay is mocked at all: the suite must never write into
+ * `data/`.
+ */
+function isolateDevFile () {
+  const realRead = fs.readFileSync.bind(fs)
+  const realWrite = fs.writeFileSync.bind(fs)
+  const read = jest.spyOn(fs, 'readFileSync').mockImplementation((p, enc) => {
+    if (String(p).endsWith('dev-country-schedules.json')) {
+      throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' })
+    }
+    return realRead(p, enc)
+  })
+  const write = jest.spyOn(fs, 'writeFileSync').mockImplementation((p, data) => {
+    if (String(p).endsWith('dev-country-schedules.json')) { return }
+    return realWrite(p, data)
+  })
+  return { read, write }
+}
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -149,11 +180,14 @@ beforeEach(() => {
   overlay.loadFirmConfigsByPrefix.mockResolvedValue({})
   overlay.saveFirmConfig.mockResolvedValue(undefined)
   setFirmMembership({})
+  devIsolation = isolateDevFile()
   quiet = jest.spyOn(console, 'error').mockImplementation(() => {})
 })
 
 afterEach(() => {
   quiet.mockRestore()
+  devIsolation.read.mockRestore()
+  devIsolation.write.mockRestore()
   reader._setClientFactory(null)
 })
 

@@ -36,7 +36,7 @@
  * Node 14, CommonJS.
  */
 
-const { createOpenAIClient } = require('../utils/openaiClient')
+const { createOpenAIClient, failureFromEvent } = require('../utils/openaiClient')
 const { fenceUntrusted } = require('../utils/promptSafety')
 const { sendError } = require('../utils/sendError')
 const { assemblePrompt, loadResolvedAiPromptOverrides, BASE_PROMPTS } = require('../utils/aiPrompts')
@@ -332,13 +332,33 @@ async function runResearch (run, promptText) {
     )
 
     let completed = null
+    let refusal = null
     for await (const event of events) {
+      // The SERVICE refusing is not the stream ending early. Until 2026-09-11 both reached the
+      // `!completed` branch below and an adviser was told to run it again — which, when the
+      // account had simply run out of credit, could never have worked.
+      if (refusal === null) { refusal = failureFromEvent(event) }
       const response = readEvent(run, event)
       if (response) { completed = response }
     }
 
+    // The provider's own sentence is logged and never shown: it is text from outside this app,
+    // and on 2026-09-11 it carried a billing URL.
+    if (refusal !== null) {
+      logCall(run.runId, startedAt, false, null, run.searchCount)
+      console.error('[economic-analysis] run ' + run.runId + ' SERVICE_REFUSED · code=' +
+        JSON.stringify(refusal.code) + ' · the service said: ' + JSON.stringify(refusal.message))
+      runsStore.failRun(run, 'SERVICE_REFUSED',
+        'The AI service refused this request, so nothing was researched and nothing has been ' +
+        'saved. This is not a problem with your figures — please tell your administrator.')
+      return
+    }
+
     if (!completed) {
       logCall(run.runId, startedAt, false, null, run.searchCount)
+      // Says how far it got, so a run that never started can be told from one that was cut off.
+      console.error('[economic-analysis] run ' + run.runId +
+        ' RESEARCH_INCOMPLETE — the stream ended with no completed response')
       runsStore.failRun(run, 'RESEARCH_INCOMPLETE',
         'The research did not finish. Nothing has been saved — run it again.')
       return

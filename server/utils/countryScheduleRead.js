@@ -45,7 +45,7 @@
  * Node 14, CommonJS.
  */
 
-const { createOpenAIClient } = require('./openaiClient')
+const { createOpenAIClient, failureFromEvent } = require('./openaiClient')
 const aiPrompts = require('./aiPrompts')
 // The pure helpers only — request assembly, response reading, JSON parsing and one-line text.
 // They are shared rather than copied so the two readers cannot drift on what a fenced answer
@@ -61,6 +61,7 @@ const {
   MODEL,
   IDLE_TIMEOUT_MS,
   UNREADABLE_MESSAGE,
+  SERVICE_REFUSED_MESSAGE,
   buildRequest,
   textFromResponse,
   parseModelJson,
@@ -393,6 +394,8 @@ async function _send (opts) {
   }
 
   let completed = null
+  let eventsSeen = 0
+  let refusal = null
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
@@ -400,6 +403,11 @@ async function _send (opts) {
       { timeout: IDLE_TIMEOUT_MS }
     )
     for await (const event of events) {
+      eventsSeen++
+      // The provider REFUSING is not the stream ending early, and both arrived here as "no
+      // completed response" until 2026-09-11. The first one wins: `response.failed` repeats the
+      // fault the earlier `error` event already carried.
+      if (refusal === null) { refusal = failureFromEvent(event) }
       if (event && event.type === 'response.completed' && event.response) {
         completed = event.response
       }
@@ -415,7 +423,29 @@ async function _send (opts) {
     }
   }
 
+  // 🔴 THE SERVICE REFUSED, AND IT SAID WHY. Same rule and same wording as the per-document
+  // reader: retrying a refusal cannot work, so it must not be dressed as an unfinished read. Its
+  // own sentence is logged and never shown — it is text from outside this app.
+  if (refusal !== null) {
+    console.error(
+      '[country-schedule] SERVICE_REFUSED · code=' + JSON.stringify(refusal.code) +
+      ' · the service said: ' + JSON.stringify(refusal.message) +
+      ' · events seen=' + eventsSeen +
+      ' · prompt=' + JSON.stringify(opts.promptId || '')
+    )
+    return { ok: false, code: 'SERVICE_REFUSED', message: SERVICE_REFUSED_MESSAGE, answer: '', parsed: null }
+  }
+
   if (!completed) {
+    // 🔴 THE SAME BLIND SPOT THE PER-DOCUMENT READER HAD, and it was left here when that one was
+    // fixed earlier the same day — which is why a survey that failed minutes later vanished
+    // without a trace too. A pass that ends with no completed response says so now, and says how
+    // far it got: zero events is a call that never started, many is one that was cut off.
+    console.error(
+      '[country-schedule] READ_INCOMPLETE — the stream ended with no completed response' +
+      ' · events seen=' + eventsSeen +
+      ' · prompt=' + JSON.stringify(opts.promptId || '')
+    )
     return {
       ok: false,
       code: 'READ_INCOMPLETE',
@@ -524,6 +554,7 @@ async function readSchedule (opts) {
     }
 
     let result = null
+    let refused = null
     // Retried ONCE, on its own. Mike's second ruling: a pass that will not read does not throw
     // the schedule away — but one transient fault should not cost a page range either.
     for (let attempt = 0; attempt < 2 && result === null; attempt++) {
@@ -531,6 +562,13 @@ async function readSchedule (opts) {
         promptId: PASS_PROMPT_ID,
         replacements: { country, fromPage: pass.from, toPage: pass.to }
       }, common))
+      // 🔴 A REFUSAL IS NOT A TRANSIENT FAULT AND MUST NOT BE RETRIED, here or on the next pass.
+      // The service refusing this request will refuse the next thirty-nine identically, so the
+      // retry-once rule above would turn one dead account into eighty futile calls and a schedule
+      // reported as "read, with every page unread" — which is a far worse answer than saying what
+      // happened. Mike's rule that a failed pass keeps the others is untouched: it governs a pass
+      // that WOULD NOT READ, not a service that is not answering anyone.
+      if (!sent.ok && sent.code === 'SERVICE_REFUSED') { refused = sent; break }
       if (!sent.ok) { continue }
       const parsed = validatePass(sent.parsed, { from: pass.from, to: pass.to, source })
       if (!parsed.ok) {
@@ -542,6 +580,18 @@ async function readSchedule (opts) {
         continue
       }
       result = parsed
+    }
+
+    // Everything already read is kept and handed back through the refusal, so a schedule that
+    // dies three passes from the end is not lost — but it is NOT offered as a proposal either,
+    // because half a country's rates approved as though they were the whole is exactly the
+    // silent-shortfall fault item 4.90 was about.
+    if (refused !== null) {
+      console.error(
+        '[country-schedule] stopped at pass ' + (i + 1) + ' of ' + passes.length +
+        ' — the service refused · classes read so far=' + classes.length
+      )
+      return { ok: false, code: refused.code, message: refused.message, reading: null }
     }
 
     if (result === null) {

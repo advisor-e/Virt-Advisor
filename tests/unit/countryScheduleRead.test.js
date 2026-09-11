@@ -522,3 +522,77 @@ describe('readSchedule', () => {
     expect(out.reading.classes).toHaveLength(1)
   })
 })
+
+describe('when the SERVICE refuses rather than the document', () => {
+  // 🔴 2026-09-11. The OpenAI account ran out of credit. The API said so in as many words —
+  // `credit_balance_exhausted` — on the `error` and `response.failed` events. This reader watched
+  // only for `response.completed`, so it reported "the reading did not finish, load the schedule
+  // again", which could never have worked. Invisible in UAT: the screen shows an ordinary failed
+  // read, and the sentence explaining it was discarded.
+
+  /** A client whose every request refuses the way an exhausted account does. */
+  function refusingClient (code, message) {
+    return () => ({
+      responses: {
+        create: () => (async function * () {
+          yield { type: 'response.created' }
+          yield { type: 'error', error: { code: code || 'credit_balance_exhausted', message: message || 'You have no credits remaining.' } }
+          yield { type: 'response.failed', response: { error: { code: code || 'credit_balance_exhausted' } } }
+        })()
+      }
+    })
+  }
+
+  let quiet
+  beforeEach(() => { quiet = jest.spyOn(console, 'error').mockImplementation(() => {}) })
+  afterEach(() => quiet.mockRestore())
+
+  it('a refused SURVEY says the service refused, not that the reading did not finish', async () => {
+    rd._setClientFactory(refusingClient())
+    const out = await read()
+    expect(out.ok).toBe(false)
+    expect(out.code).toBe('SERVICE_REFUSED')
+    expect(out.code).not.toBe('READ_INCOMPLETE')
+    // The provider's own sentence never reaches a screen — it is text from outside this app, and
+    // on the day this was found it carried a billing URL.
+    expect(out.message).not.toContain('credits')
+  })
+
+  it('a refusal partway through STOPS the read rather than grinding through every pass', async () => {
+    // The retry-once rule governs a pass that would not READ. A service refusing this request
+    // will refuse the next thirty-nine identically, so retrying turns one dead account into
+    // eighty futile calls and a schedule reported as read with every page unread.
+    let calls = 0
+    rd._setClientFactory(() => ({
+      responses: {
+        create: () => {
+          calls++
+          const body = calls === 1
+            ? JSON.stringify(survey({ totalPages: 40, tableRanges: [{ from: 1, to: 40 }] }))
+            : null
+          return (async function * () {
+            if (body !== null) {
+              yield { type: 'response.completed', response: { output_text: body } }
+              return
+            }
+            yield { type: 'error', error: { code: 'credit_balance_exhausted', message: 'You have no credits remaining.' } }
+          })()
+        }
+      }
+    }))
+
+    const out = await read()
+    expect(out.code).toBe('SERVICE_REFUSED')
+    // The survey, then ONE pass that refused. Not two attempts at it, and not five passes.
+    expect(calls).toBe(2)
+    // Nothing is offered as a proposal: half a country's rates approved as though they were the
+    // whole is the silent shortfall item 4.90 was about.
+    expect(out.reading).toBeNull()
+  })
+
+  it('a rate limit is the same event shape and is caught the same way', async () => {
+    rd._setClientFactory(refusingClient('rate_limit_exceeded', 'Slow down.'))
+    const out = await read()
+    expect(out.code).toBe('SERVICE_REFUSED')
+  })
+})

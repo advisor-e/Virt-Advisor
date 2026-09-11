@@ -591,6 +591,68 @@ loadFirmConfig: noConfig
     expect(out.code).toBe('READ_INCOMPLETE')
   })
 
+  test('a service that REFUSES is reported as a refusal, never as an unfinished reading', async () => {
+    // 🔴 2026-09-11. The account ran out of credit. The API sent `error` and `response.failed`
+    // carrying "You have no credits remaining"; this code watched only for `response.completed`,
+    // concluded the reading had not finished, and told three people in a row to load the document
+    // again. Retrying could never have worked. UAT cannot see this: the screen looks like any
+    // other failed read, and the one sentence that explains it was thrown away.
+    const logged = []
+    const spy = jest.spyOn(console, 'error').mockImplementation((...a) => logged.push(a.join(' ')))
+    ex._setClientFactory(() => ({
+      responses: {
+        create: () => (async function * () {
+          yield { type: 'response.created' }
+          yield {
+            type: 'error',
+            error: { code: 'credit_balance_exhausted', message: 'You have no credits remaining.' }
+          }
+          yield { type: 'response.failed', response: { error: { code: 'credit_balance_exhausted' } } }
+        })()
+      }
+    }))
+
+    const out = await ex.readDocument({
+      scopeId: 'firm-1',
+      country: 'NZ',
+      filename: 'ir265.pdf',
+      buffer: Buffer.from('%PDF-1.4'),
+      loadFirmConfig: noConfig
+    })
+    spy.mockRestore()
+
+    expect(out.ok).toBe(false)
+    expect(out.code).toBe('SERVICE_REFUSED')
+    expect(out.code).not.toBe('READ_INCOMPLETE')
+    expect(out.message).toBe(ex.SERVICE_REFUSED_MESSAGE)
+    // The provider's own words are logged for whoever has to fix it, and never shown — the same
+    // rule as `whyUnreadable`. That sentence carried a billing URL.
+    expect(out.message).not.toContain('credits')
+    const line = logged.filter(l => l.includes('SERVICE_REFUSED'))[0]
+    expect(line).toContain('credit_balance_exhausted')
+    expect(line).toContain('You have no credits remaining.')
+  })
+
+  test('a refusal carried only on response.failed is caught too', async () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    ex._setClientFactory(() => ({
+      responses: {
+        create: () => (async function * () {
+          yield { type: 'response.failed', response: { error: { code: 'rate_limit_exceeded', message: 'Slow down.' } } }
+        })()
+      }
+    }))
+    const out = await ex.readDocument({
+      scopeId: 'firm-1',
+      country: 'NZ',
+      filename: 'x.pdf',
+      buffer: Buffer.from('%PDF-1.4'),
+      loadFirmConfig: noConfig
+    })
+    spy.mockRestore()
+    expect(out.code).toBe('SERVICE_REFUSED')
+  })
+
   test('a stream that never completes SAYS SO in the log, and says how far it got', async () => {
     // 🔴 UAT CANNOT SEE A MISSING LOG LINE. This was the one failure in readDocument that
     // returned above the diagnostic block and recorded nothing anywhere, so a read that streamed

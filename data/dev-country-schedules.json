@@ -1,0 +1,27 @@
+{
+  "__global__:Advisor-e": {
+    "country-schedule-pending:NZ": {
+      "id": "c8cd3fda70ac61baec60bc6e",
+      "country": "NZ",
+      "filename": "ir265-october-2023.pdf",
+      "documentName": "ir265-october-2023.pdf",
+      "published": null,
+      "totalPages": 0,
+      "loadedBy": "dev-global@local",
+      "loadedAt": "2026-09-11T04:19:27.456Z",
+      "updatedAt": "2026-09-11T04:19:28.630Z",
+      "status": "failed",
+      "passesPlanned": 0,
+      "passesDone": 0,
+      "passesFailed": 0,
+      "classesSoFar": 0,
+      "reading": null,
+      "error": {
+        "code": "SERVICE_REFUSED",
+        "message": "The AI service refused this request, so nothing was read and nothing has changed. This is not a problem with your document — please tell your administrator."
+      },
+      "decidedBy": "",
+      "decidedAt": null
+    }
+  }
+}

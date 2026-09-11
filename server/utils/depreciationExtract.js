@@ -38,7 +38,7 @@
  * Node 14, CommonJS.
  */
 
-const { createOpenAIClient } = require('./openaiClient')
+const { createOpenAIClient, failureFromEvent } = require('./openaiClient')
 // The whole module rather than the two functions, so a test can stand in for one of them:
 // both of this file's prompt-assembly failure paths are otherwise unreachable, and an error
 // path nobody has run is an error path nobody knows the shape of.
@@ -148,6 +148,26 @@ const UNREADABLE_MESSAGE = 'This document could not be read reliably — nothing
 const NOTHING_READ_MESSAGE = 'This document was opened and named, but nothing could be read ' +
   'from it — no rates and no classes. Nothing has been proposed. Try downloading it again ' +
   'from the tax authority\'s website, or load a different edition.'
+
+/**
+ * What a person is told when the AI SERVICE ITSELF refused the request.
+ *
+ * 🔴 MIKE'S WORDING, APPROVED 2026-09-11. It is deliberately not about the document, because the
+ * document is not the problem and every other failure message in this file is. On that day the
+ * OpenAI account ran out of credit; the API said `credit_balance_exhausted` in as many words and
+ * the app told three people in a row that their reading "did not finish — load the document
+ * again". Retrying could never have worked, and nothing on any screen said so.
+ *
+ * ⚠ IT NAMES NO CAUSE, on purpose. Out of credit, an expired key, a rate limit and a content
+ * refusal all reach here, and only whoever administers the account can tell them apart — which
+ * is what the logged `code` and the provider's own sentence are for.
+ *
+ * It is shared with `countryScheduleRead`, exactly as `UNREADABLE_MESSAGE` is: one event, one
+ * wording, however a manager arrived at it.
+ */
+const SERVICE_REFUSED_MESSAGE = 'The AI service refused this request, so nothing was read and ' +
+  'nothing has changed. This is not a problem with your document — please tell your ' +
+  'administrator.'
 
 /** A finite number, or null. Mirrors the store's own reader so the two cannot disagree. */
 function num (v) {
@@ -550,6 +570,7 @@ async function readDocument (opts) {
   // and was cut off. Without them the two are one silent failure.
   let eventsSeen = 0
   let lastType = ''
+  let refusal = null
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
@@ -559,6 +580,10 @@ async function readDocument (opts) {
     for await (const event of events) {
       eventsSeen++
       if (event && typeof event.type === 'string') { lastType = event.type }
+      // The provider REFUSING is not the same as the stream ending early, and until 2026-09-11
+      // both arrived here as "no completed response". The first one wins: a refusal is followed
+      // by `response.failed` repeating it, and the earlier event carries the fault itself.
+      if (refusal === null) { refusal = failureFromEvent(event) }
       if (event && event.type === 'response.completed' && event.response) {
         completed = event.response
       }
@@ -571,6 +596,24 @@ async function readDocument (opts) {
       message: 'The document could not be sent for reading. Nothing has changed — try again.',
       reading: null
     }
+  }
+
+  // 🔴 THE PROVIDER REFUSED, AND IT SAID WHY. Reported as a refusal rather than as an unfinished
+  // reading, because the two need opposite responses: an unfinished read is worth retrying and a
+  // refusal is not. On 2026-09-11 the account ran out of credit, the API said exactly that, and
+  // this function told three people in a row to load the document again.
+  //
+  // ⚠ THE PROVIDER'S OWN SENTENCE IS LOGGED AND NEVER SHOWN — it is unedited text from outside
+  // this app and carries a billing URL, which is not a thing to put on an adviser's screen. The
+  // same rule as `whyUnreadable` (FR-050) and for the same reason.
+  if (refusal !== null) {
+    console.error(
+      '[depreciation-read] SERVICE_REFUSED · code=' + JSON.stringify(refusal.code) +
+      ' · the service said: ' + JSON.stringify(refusal.message) +
+      ' · events seen=' + eventsSeen +
+      ' · file=' + JSON.stringify(opts.filename || '')
+    )
+    return { ok: false, code: 'SERVICE_REFUSED', message: SERVICE_REFUSED_MESSAGE, reading: null }
   }
 
   if (!completed) {
@@ -675,6 +718,7 @@ module.exports = {
   MAX_UNRESOLVED,
   UNREADABLE_MESSAGE,
   NOTHING_READ_MESSAGE,
+  SERVICE_REFUSED_MESSAGE,
   oneLine,
   buildRequest,
   textFromResponse,
