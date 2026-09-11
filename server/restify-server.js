@@ -125,6 +125,7 @@ const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
+const industryVocabularyRoute = require('./routes/industryVocabulary')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
@@ -213,6 +214,9 @@ server.post('/api/advisor/query', firmAuth, advisorEngine)
 // any firm user (every advisor is asked the staircase question); the WRITE lives on
 // the manager-only /api/firm-manager/staircase. Same blend the engine uses.
 server.get('/api/advisor/staircase', firmAuth, staircaseRoute.get)
+// The words the intake's industry question offers as the advisor types (item 4.87
+// T022a). Same shape as the staircase read: any firm user, never an error.
+server.get('/api/advisor/industry-vocabulary', firmAuth, industryVocabularyRoute.get)
 server.post('/api/course', firmAuth, courseEngine)
 server.post('/api/report/working-capital-cycle', reportRoute.workingCapitalCycle)
 server.post('/api/report/debtor-drag', reportRoute.debtorDrag)

@@ -1393,6 +1393,20 @@ function formatCaseSummaries (cases) {
   ].join('\n')
 }
 
+/**
+ * The closing event of a streamed intake question. Carries the question's field name
+ * when there is one, so the screen knows which question is live; every other closing
+ * event on the stream is `{ type: 'done' }` exactly as before. Only a non-empty string
+ * is carried — a question asked with no field (the switch offers, the prep-mode
+ * offer, the guard's forced ownership ask) closes as it always has.
+ *
+ * @param {*} field - the intake question's `field`, or nothing
+ * @returns {{type: 'done', field?: string}}
+ */
+function questionDoneEvent (field) {
+  return typeof field === 'string' && field.trim() ? { type: 'done', field: field.trim() } : { type: 'done' }
+}
+
 // ── Saved-client intake context (Phase A) ───────────────────────────────────
 // Backend-only resolver for trusted client context. Phase A is metadata only:
 // it does NOT change the intake question sequence yet. This avoids coupling UX
@@ -2031,8 +2045,11 @@ async function handleQuery (rawBody, res, identity) {
     }
     } // end domain lock else
 
-    // Helper: stream a hardcoded question directly to the client
-    const sendQuestion = (text) => {
+    // Helper: stream a hardcoded question directly to the client. `field` names the
+    // intake question being asked, so the screen can offer industry suggestions while
+    // that one question is live (item 4.87 T022a, drawing 4) — the screen had no way
+    // to know which question it was answering before this.
+    const sendQuestion = (text, _state, field) => {
       if (sessionId) { sessionSave(sessionId, state) }
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -2041,7 +2058,7 @@ async function handleQuery (rawBody, res, identity) {
         'X-Accel-Buffering': 'no'
       })
       res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
-      res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+      res.write('data: ' + JSON.stringify(questionDoneEvent(field)) + '\n\n')
       res.end()
     }
 
@@ -2457,7 +2474,7 @@ async function handleQuery (rawBody, res, identity) {
             questionText = FRUSTRATION_ACK + '\n\n' + questionText
             state.frustrationAckPending = false
           }
-          return sendQuestion(questionText, state)
+          return sendQuestion(questionText, state, q.field)
         }
         if (state[q.field] === 'pending') {
           // Was asked last turn — record the answer
@@ -2492,7 +2509,7 @@ async function handleQuery (rawBody, res, identity) {
             state._forceAskField = null
             state._forceAskPrompt = null
             state[q.field] = 'pending'
-            return sendQuestion(prompt, state)
+            return sendQuestion(prompt, state, q.field)
           }
           // Contradiction check: if the answer signals the conversation has gone wrong, pause and verify
           if (
@@ -2732,7 +2749,7 @@ async function handleQuery (rawBody, res, identity) {
         if (q.skip && q.skip(state)) { continue }
         if (!state[q.field] || state[q.field] === 'pending') {
           if (!state[q.field]) { state[q.field] = 'pending' }
-          return sendQuestion(q.textFn ? q.textFn(state) : q.text)
+          return sendQuestion(q.textFn ? q.textFn(state) : q.text, state, q.field)
         }
       }
       // All QUESTIONS are skipped but mandatory fields are still empty — something is very wrong.
@@ -3790,6 +3807,7 @@ module.exports.parseMeetingCount = parseMeetingCount
 module.exports.parseMeetingCountDetailed = parseMeetingCountDetailed
 module.exports.MEETING_MAX = MEETING_MAX
 module.exports.buildIntakeMessages = buildIntakeMessages
+module.exports.questionDoneEvent = questionDoneEvent
 module.exports.classifyDistinctions = classifyDistinctions
 // Exported for Logic-Lab's sentence probe (server/utils/phraseProbe), which needs
 // the MATCHED ROWS rather than the boost map classifyDistinctions returns — a firm

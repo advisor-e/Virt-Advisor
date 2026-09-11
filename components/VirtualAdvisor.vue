@@ -497,6 +497,17 @@
             path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
           | {{ $t('voice.recordAgain') }}
 
+    //- Industry suggestions (item 4.87 T022a, drawing 4): only while the engine's
+    //- industry question is live, only from three letters, at most eight words.
+    .industry-suggest(v-if="industrySuggestions.length")
+      span.industry-suggest-label {{ $t('input.pickOne') }}
+      button.industry-chip(
+        v-for="word in industrySuggestions"
+        :key="word"
+        type="button"
+        @click="pickIndustry(word)"
+      ) {{ word }}
+
     //- Text input + send
     .input-inner
       textarea.message-input(
@@ -848,6 +859,7 @@ import DOMPurify from 'isomorphic-dompurify'
 import { createCase, findUnrecordedCase, updateCaseReview } from '~/utils/cases'
 import { listClients, createClient, filterClientRegister } from '~/utils/clients'
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
+import { suggestIndustries } from '~/utils/industrySuggestions'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
@@ -967,6 +979,13 @@ export default {
       showDomainSelector: false,
       selectedDomainId: null,
       suggestedDomainId: null,
+      // The intake question the advisor is answering right now — the `field` on the
+      // engine's closing event (item 4.87 T022a). Null between questions and after
+      // every send, so chips can never outlive the question they belong to.
+      liveField: null,
+      // The engine's industry vocabulary, fetched once the first time the industry
+      // question arrives; null until then, and left null if the fetch fails (no chips).
+      industryWords: null,
       // Client-knowledge-base step (design 2026-07-14): "Who is this session
       // for?" shown before the intake begins in client mode. sessionClient is
       // the chosen register entry ({id, name}) or null when skipped — the id
@@ -1119,6 +1138,15 @@ export default {
       )
       return questions
     },
+    /**
+     * The chips under the box: the vocabulary words starting with what is typed, while
+     * the industry question is live. Empty otherwise — the same computed answers "no
+     * match", "not this question" and "vocabulary not loaded" with one empty list.
+     */
+    industrySuggestions () {
+      if (this.liveField !== 'industry' || !this.industryWords) { return [] }
+      return suggestIndustries(this.industryWords, this.inputText)
+    },
     inputPlaceholder () {
       return this.mode === 'discover'
         ? this.$t('input.placeholderDiscover')
@@ -1221,6 +1249,34 @@ export default {
   },
 
   methods: {
+    /**
+     * A chip was clicked: the whole answer becomes that word (ruling 3 on drawing 4 —
+     * the pool keeps an industry only when the whole answer equals one vocabulary word,
+     * so patching the last word would let "car yard plumber" look chosen and never pool).
+     * Send is untouched; the advisor may still edit before pressing Enter.
+     * @param {string} word
+     */
+    pickIndustry (word) {
+      this.inputText = word
+    },
+
+    /**
+     * Fetch the engine's vocabulary once, the first time the industry question is
+     * asked. Never surfaces to the session: a failed read leaves `industryWords` null
+     * and the chat carries on without chips, exactly as when nothing matches.
+     */
+    async loadIndustryWords () {
+      if (this.industryWords) { return }
+      try {
+        const res = await fetch('/api/advisor/industry-vocabulary', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { return }
+        const data = await res.json()
+        if (data && Array.isArray(data.words)) { this.industryWords = data.words }
+      } catch (e) { /* no chips; the question still stands and the answer still sends */ }
+    },
+
     // humanizeReasons() — the "Why" column's plain English — now comes from
     // traceReasonMixin, shared with FirmManagerHub. It used to live here and knew
     // 7 of the engine's 26 codes; the saved-case view knew none of them, which is
@@ -1791,6 +1847,7 @@ export default {
       this.streamingText = ''
       this.showRetry = false
       this.showSellSwitch = false
+      this.liveField = null
       this.lastQuery = query
 
       await this.$nextTick()
@@ -1867,6 +1924,9 @@ export default {
                 await this.$nextTick()
                 this.scrollToBottom()
               } else if (data.type === 'done') {
+                // Which intake question is now live, if the engine said (item 4.87 T022a).
+                this.liveField = typeof data.field === 'string' ? data.field : null
+                if (this.liveField === 'industry') { this.loadIndustryWords() }
                 if (this.streamingText.includes('[INTAKE_COMPLETE]')) {
                   this.streamingText = this.streamingText.replace('[INTAKE_COMPLETE]', '').trim()
                   this.intakeComplete = true
@@ -2531,6 +2591,12 @@ export default {
 .send-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
 .input-hint { font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center; }
+
+/* Industry suggestions under the box (item 4.87 T022a, drawing 4) */
+.industry-suggest { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 0 0 10px; font-size: 12.5px; color: #6b7280; }
+.industry-suggest-label { flex: none; }
+.industry-chip { font-family: inherit; font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 999px; border: 1px solid #1e40af; color: #1e40af; background: #fff; cursor: pointer; }
+.industry-chip:hover, .industry-chip:focus-visible { background: #1e40af; color: #fff; outline: none; }
 
 .retry-row { display: flex; justify-content: center; padding: 8px 0 4px; }
 .retry-btn { background: none; border: 1px solid #d1d5db; color: #6b7280; font-size: 13px; padding: 6px 16px; border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }

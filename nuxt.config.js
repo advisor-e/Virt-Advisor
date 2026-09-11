@@ -128,6 +128,9 @@ export default {
     // GET /api/advisor/staircase would fall through every handler to a Nuxt 404,
     // and the firm's staircase wording would never reach the selector.
     { path: '/api/advisor/staircase', handler: '~/server-middleware/apiProxy.js' },
+    // Same rule, same reason: the industry words the intake offers as the advisor
+    // types (item 4.87 T022a) are a plain GET and must sit above the SSE entry.
+    { path: '/api/advisor/industry-vocabulary', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/advisor', handler: '~/server-middleware/advisor.js' },
     { path: '/api/translate', handler: '~/server-middleware/translate.js' },
     { path: '/api/course', handler: '~/server-middleware/course.js' },

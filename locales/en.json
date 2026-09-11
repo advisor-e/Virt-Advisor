@@ -224,7 +224,8 @@
     "send": "Save & Continue",
     "sending": "...",
     "hint": "Press Enter to send · Shift+Enter for new line",
-    "listening": "🎤 Listening..."
+    "listening": "🎤 Listening...",
+    "pickOne": "Pick one, or keep typing:"
   },
   "opening": {
     "client": "What is the core problem or opportunity you want to address with this client?",

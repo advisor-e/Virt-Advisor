@@ -277,7 +277,8 @@ Every change needs Mike's explicit yes. Wording on screens is his to approve bef
 
 Built through story 3 and both hub screens on 2026-09-11, task by task from
 [`tasks.md`](../../specs/002-outcome-learning/tasks.md), each checked against the three drawings
-approved by Mike 2026-09-10. Industry suggestions on intake and the benches remain.
+approved by Mike 2026-09-10; industry suggestions on the intake followed the same day from a fourth
+drawing. The benches remain.
 
 | Piece | Where it stands today |
 |---|---|
@@ -294,9 +295,10 @@ approved by Mike 2026-09-10. Industry suggestions on intake and the benches rema
 | The session and the trace | `server/utils/outcomeLearningSession.js`, wired in `server/advisorEngine.js`; `decisionTrace.outcomeLearning` |
 | Reason wording | `pooled:held_back-<n>`, `pooled:outweighed` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
 | The advisor's panel | "Learned from outcomes" in `components/VirtualAdvisor.vue` |
-| The dev seed | `scripts/dev/seed-outcome-pool.js` — 31 reviews across five firms through the guard and the store, never around them; refuses under `NODE_ENV=production`; `--reset` clears its own firms' rows first. Firm A is `dev-firm`, so a withdrawal from its tab is quickstart Story 2 step 5 |
-| NOT BUILT | industry suggestions on intake (T022a), `--adjustments` on the Scenario Lab, the outcome bench and the bench route |
-| The three approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html), rulings on each, rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
+| Industry suggestions on the intake | The intake has no industry field — the engine asks it in the chat — so `questionDoneEvent` in `server/advisorEngine.js` closes each sequenced question with its field, `GET /api/advisor/industry-vocabulary` (`server/routes/industryVocabulary.js`, proxied above the SSE entry) serves the same words the pool accepts, `utils/industrySuggestions.js` holds the rulings as numbers (three letters, eight chips, prefix on the whole answer), and the chip row in `components/VirtualAdvisor.vue` replaces the whole answer on a click. Nothing changes what saves to the case |
+| The dev seed | `scripts/dev/seed-outcome-pool.js` — 31 reviews across five firms through the guard and the store, never around them; refuses under `NODE_ENV=production`; `--reset` clears its own firms' rows first. Firm A is `dev-firm-001`, the firm the dev-local-bypass sign-in carries, so a withdrawal from its tab is quickstart Story 2 step 5 |
+| NOT BUILT | `--adjustments` on the Scenario Lab, the outcome bench and the bench route |
+| The four approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html) · [`outcome-learning-intake-industry.html`](../mockups/outcome-learning-intake-industry.html), rulings on each, rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
 
 ## 9. Related briefs
 
