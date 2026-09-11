@@ -185,6 +185,50 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.92 — A country's whole rate schedule, stored as a searchable table.**
+✅ Closed 2026-09-11 on the laptop by Mike, **after the whole chain was run end to end against the
+real IR265** — held open deliberately until then, because this is the feature that had been built,
+tested and merged without anybody ever seeing it work.
+
+- 🔴 **THE RUN, IN FULL.** Inland Revenue's IR265 (October 2023, 62 pages, 0.47 MB), loaded at the
+  global group manager tier:
+
+  ```
+  document   "IR265 — General depreciation rates"   published 2023-10
+  passes     7 planned, 7 attempted, 1 failed twice and was NAMED
+  classes    2,303 kept · unresolved 2 · refusedRows 12 · outOfRange 0
+  pagesUnread [{ from: 54, to: 58 }]
+  ```
+
+  **2,303 is the identical figure the discarded read produced that morning**, which is as good
+  evidence as this will ever have that the page-range approach is stable rather than lucky.
+- **P13 held, twice.** A pass failed on both runs, was retried once, and then recorded as unread
+  while the other six survived. The rule it replaced would have thrown away all 62 pages.
+- **And the gap follows the table to where it is USED**, which was Mike's condition rather than a
+  detail: a firm searching the schedule is told *"page 54–58 of IR265 were not read, so a class
+  printed there is missing from this list."*
+- **The cascade, proved from the other end.** A firm that loaded nothing searched its group's table
+  and got `originTier: global_group_manager` — his ruling of that morning, working: one person
+  loads a country, everyone beneath inherits it.
+
+  | search | matches | first result |
+  |---|---|---|
+  | `motor vehicle` | 4 | Motor vehicles (transporting people, up to 12 seats) — **DV 0.5** |
+  | `tractor` | 15 | Lawnmowers (domestic type, lawn mowing contractors) — DV 1.0 |
+  | `computer` | 29 | Grading machinery (computerised) — DV 0.25 |
+  | `harvester` | 1 | Harvesters — DV 0.13 |
+
+- 🔴 **THE FIRST ROW IS THE WHOLE POINT OF THE FEATURE.** The app ships **0.2** for vehicles; IR265
+  publishes **0.5** diminishing value for a passenger vehicle. That figure was the worked example in
+  this item's own text, and it is now a real row in a real table that any advisor in the group can
+  find.
+- **What had to be fixed first, the same day, before any of this could happen:** the country routes
+  carried the dev-storage guard without the store behind it, so the first successful read was
+  discarded in full after its allowance had been spent, and the schedules screen answered 500.
+- ⚠ **What this closure does NOT claim:** no rate from this table has yet been pulled into a client's
+  forecast, and the approval was driven through the API rather than clicked by a person. **UAT does
+  that**, and by Mike's rule it does not hold the item open.
+
 **4.78 — Depreciation rates per country: a manager uploads the source, the AI proposes, they approve.**
 ✅ Closed 2026-09-11 on the laptop by Mike, **on the day its central claim was demonstrated for the
 first time**. Built 2026-09-08/09 in five slices; it had never once been seen doing the thing it
