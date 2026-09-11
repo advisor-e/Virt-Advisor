@@ -9,28 +9,31 @@
 
 ---
 
-## 2026-09-11 (third session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-11 (fourth session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**4.87 Outcome Learning seen running for the first time**, on the production build against
-local MySQL: seed, sharing on, the mentor's Accept turning a row Live, the firm's count
-following. Two defects found by looking and fixed the same day (`ced082b`): the seed keyed
-firm A as `dev-firm` where the sign-in carries `dev-firm-001`; and the Client Copy Request
-tab (4.58) had no Nuxt proxy line. The no-secret sentence was approved as written.
-**Industry suggestions on the intake (T022a) drawn, ruled, approved and built the same day**
-from drawing 4 (`mockups/outcome-learning-intake-industry.html`), and seen against the live
-engine (`9e52042`).
+**4.87 Outcome Learning is complete in code**: the two benches built (`39e4c0d`), and "Run the
+benches" pressed on the production build against local MySQL — figures, "Last run" line and a
+new version in history. The fixed bench's expected answer is the engine's own unadjusted one
+(Mike's yes); on the seed the outcome bench reads 0% both ways because nothing reviewed is what
+the engine recommends. **Left on 4.87: the polish tasks T043–T047** (a final `npm run build`,
+coverage floors, tasks.md tidy). `activeOn` stays desktop.
 
-**Next: the benches (T038–T042)** — `--adjustments` on the Scenario Lab, the outcome bench
-and the bench route. `activeOn` for 4.87 stays on the desktop. Nothing waits on Mike.
+**4.93 "Read this for me" BUILT (`c5461c2`)** from `mockups/hub-page-guidance.html`, approved
+2026-09-11: a "How to use this page" panel and an AI reading card on Outcome Learning and the
+Logic-Lab Report. Seen on the built app, failure message included. **The model refused every
+reading: "no credits remaining" on the OpenAI account — Mike's to top up**; no real reading
+exists yet, and nothing in code waits.
 
-**Running the app:** `OUTCOME_POOL_SECRET` is not in `.env`; pass the same value to the seed
-and the backend. The build regenerates `design/CODE-SIZE.md`; commit it.
+**To confirm with Mike:** a second adjustment (Break-Even in education) was Accepted at 15:42
+by the dev mentor login while he had the page open; the browser driver posts no decisions.
 
-Suite green: 495 suites, 10,304 tests. Tree clean, 44 ahead of master, 0 behind. Master
-merged in at `452f927`.
+**Running the app:** `OUTCOME_POOL_SECRET` is not in `.env` — pass the same value to the seed
+and the backend. `NODE_EXTRA_CA_CERTS` is set machine-wide to the Avast root and verifies.
+
+Suite green: 499 suites, 10,377 tests. Tree clean, 50 ahead of master, 0 behind.
 
 **LAPTOP:** none of your files touched. Shared files that changed under you:
-`server/advisorEngine.js` (the question sender's closing event carries the field),
-`nuxt.config.js` (two proxy lines), `server/restify-server.js` (one mount),
-`components/VirtualAdvisor.vue` (the chip row), `components/FirmManagerHub.vue` (merge only),
-`locales/en.json` (one string). Merge master before you touch any.
+`server/restify-server.js` (three mounts), `server/routes/mentor.js` (the Logic-Lab report body
+moved into `_logicLabReportFor` plus a reading route), `data/ai-prompts.json` (one document),
+`locales/en.json`, `tests/unit/aiPrompts*.test.js` (prompt-list pins). Merge master before you
+touch any.

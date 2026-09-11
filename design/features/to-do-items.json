@@ -297,16 +297,12 @@
       "ref": "4.93",
       "name": "Read this for me - plain guidance and an AI reading on the mentor's pages",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-11"
-      },
       "kind": "feature",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Mike opened Outcome Learning and could not tell how to use it or what it was telling him; the client reports carry an AI reading and the hub pages carried none.",
       "risk": "A mentor who cannot read the page takes no decision on it, and the learning the platform gathered changes nothing. The counter-risk is a reading taken as a verdict, which the caveat under every reading and the backend's shape check answer.",
       "askedBy": {

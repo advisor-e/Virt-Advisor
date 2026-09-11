@@ -46,9 +46,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 9 | **4.90** Only 250 of about 2,800 published classes are kept ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 10 | **4.91** A read can succeed and propose no rates at all ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 11 | **4.92** A country's whole rate schedule, stored as a searchable table ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 12 | **4.93** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-11 |
+| 12 | **4.93** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**Twelve live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Seven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
