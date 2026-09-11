@@ -222,6 +222,9 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     .filter(a => a && typeof a.template === 'string' && POOLED_DIMENSIONS.includes(a.dimension) &&
       typeof a.value === 'string' && Number.isFinite(a.holdBack) && a.holdBack > 0)
     .map(a => ({
+      // The id is kept so the scoring log can name WHICH adjustments matched this
+      // session; the trace reads its evidence from those alone.
+      id: typeof a.id === 'string' ? a.id : null,
       titleKey: a.template.trim().toLowerCase(),
       dimension: a.dimension,
       valueKey: a.value.trim().toLowerCase(),
@@ -595,9 +598,15 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     // `distinction:` reason was matched by this advisor's own description of this client,
     // and pooled outcomes from other firms do not overrule that — it is marked
     // `pooled:outweighed` and left alone (Mike's ruling on the trace drawing).
+    // The ids of the adjustments that matched THIS session go on the log entry, so the
+    // trace names the situation that actually matched. Without them the trace could only
+    // group live adjustments by title, and on 2026-09-12 that put "in profit" on a line
+    // for a session in sales, with the two hold-backs summed.
+    let _pooledMatchedIds = null
     if (_pooled.length > 0 && score > 0) {
       const _matched = _pooled.filter(a => a.titleKey === _titleKey && _pooledMatches(a))
       if (_matched.length > 0) {
+        _pooledMatchedIds = _matched.map(a => a.id).filter(Boolean)
         if (reasons.some(r => r.indexOf('distinction:') === 0)) {
           reasons.push('pooled:outweighed')
         } else {
@@ -615,7 +624,10 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 
     const _profile = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
     const profileRichness = Object.values(_profile).reduce((sum, n) => sum + n, 0)
-    return { title: t.title, page: t.page, subSection, score, profileRichness, matchReasons: reasons }
+    const _entry = { title: t.title, page: t.page, subSection, score, profileRichness, matchReasons: reasons }
+    // Only on a template a pooled adjustment matched, so an unadjusted run's log is unchanged.
+    if (_pooledMatchedIds) { _entry.pooledMatched = _pooledMatchedIds }
+    return _entry
   })
 
   // ── Step 3: Rank and cap ─────────────────────────────────────────────────
@@ -670,7 +682,13 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   // Deliberately UNdeduped: a duplicate title in the library is a genuine
   // data-quality signal a firm manager should see in the trace, not something
   // to hide. Only the budget/candidates are deduped — never the evidence.
-  const scoringLog = ranked.slice(0, 20)
+  // A pooled hold-back can push a template below 20th; it is never removed from the
+  // ranking (the clamp at 1 above), so it must not vanish from the trace either — the
+  // consent tab promises the advisor sees every adjustment that applied. Found by the
+  // 4.87 quickstart on 2026-09-12: a −4 took Break-Even from 6th to absent.
+  const scoringLog = ranked.slice(0, 20).concat(
+    ranked.slice(20).filter(t => t.matchReasons.some(r => r.indexOf('pooled:') === 0))
+  )
 
   if (selected.length === 0) {
     return {

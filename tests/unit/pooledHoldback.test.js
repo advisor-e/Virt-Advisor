@@ -158,4 +158,42 @@ describe('pooled hold-back', () => {
     })
     expect(reasonsOf(r.primary, QFD)).toContain('pooled:held_back-3')
   })
+
+  // Found by the 4.87 quickstart on 2026-09-12: the trace named the evidence of EVERY live
+  // adjustment for a title, not of the ones that matched this session, so "held back in
+  // {where}" could name a situation the session was never in, with the wrong size.
+  test('the log entry names, by id, only the adjustments that matched this session', () => {
+    const matching = adj({ id: 'qfd|domain|profit' })
+    const notMatching = adj({ id: 'qfd|industry|bakery', dimension: 'industry', value: 'bakery', holdBack: 5 })
+    const r = run({ pooledAdjustments: [notMatching, matching] })
+    const entry = r.scoringLog.find(t => t.title === QFD)
+    expect(entry.matchReasons).toContain('pooled:held_back-2')
+    expect(entry.pooledMatched).toEqual(['qfd|domain|profit'])
+    // Outweighed carries the same ids, so the panel can say what was set aside.
+    const lifted = run({ pooledAdjustments: [notMatching, matching], distinctionBoosts: LIFT_ALL })
+    expect(reasonsOf(lifted, QFD)).toContain('pooled:outweighed')
+    expect(lifted.scoringLog.find(t => t.title === QFD).pooledMatched).toEqual(['qfd|domain|profit'])
+    // A template nothing matched carries no such key, so an unchanged run stays identical.
+    expect('pooledMatched' in r.scoringLog.find(t => t.title === 'Working Capital Cycle')).toBe(false)
+  })
+
+  // Found the same day: the log is the top 20 by score, and a hold-back that pushed a
+  // template below 20th made it vanish from the trace, so the advisor was never shown it.
+  test('a held-back template that falls outside the top 20 stays in the log', () => {
+    const crowd = Array.from({ length: 24 }, (_, i) => ({
+      page: `crowd-${i}`, title: `Crowd Tool ${i}`, section: 'Do the Job', subSection: 'General Tools', tags: ['cash'], purpose: 'understand the working capital cycle'
+    }))
+    const templates = makeTemplates().concat(crowd)
+    const plain = resolveTemplates(makeCaseState(), strategy, templates)
+    expect(plain.scoringLog).toHaveLength(20)
+    expect(plain.scoringLog.some(t => t.title === 'Weak Affinity Tool')).toBe(false)
+    const held = resolveTemplates(makeCaseState(), strategy, templates, {
+      pooledAdjustments: [adj({ template: 'Weak Affinity Tool', holdBack: 10 })]
+    })
+    const weak = held.scoringLog.find(t => t.title === 'Weak Affinity Tool')
+    expect(weak).toBeDefined()
+    expect(weak.score).toBe(1)
+    expect(weak.matchReasons).toContain('pooled:held_back-10')
+    expect(held.scoringLog).toHaveLength(21)
+  })
 })

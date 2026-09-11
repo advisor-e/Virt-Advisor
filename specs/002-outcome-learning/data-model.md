@@ -95,12 +95,14 @@ Trace block on `decisionTrace.outcomeLearning`:
 {
   consented: true | false,
   available: true | false,                 // false when the pool or decisions could not be read (FR-019)
-  applied:    [ { template, id, holdBack, firms, cases } ],
-  outweighed: [ { template, id, holdBack, firms, cases, by: 'distinction' } ]
+  applied:    [ { template, id, dimension, value, holdBack, firms, cases } ],
+  outweighed: [ { template, id, dimension, value, holdBack, firms, cases, by: 'distinction' } ]
 }
 ```
 
 Reason codes on `matchReasons`: `pooled:held_back-<n>` and `pooled:outweighed`. Both mapped in `utils/traceReasonCodes.js` and `scripts/scenario-lab.js`.
+
+A scoring-log entry a pooled adjustment matched also carries `pooledMatched: [id, …]` — the ids of the adjustments that matched THIS session. The trace block's `id`, `dimension`, `value`, `firms` and `cases` come from those alone, never from every live adjustment that shares the title (FR-011: *the situation it matched*; corrected 2026-09-12, item 4.94). An entry beyond the log's top 20 that carries a pooled reason stays in the log, so a hold-back can never remove a template from the trace.
 
 ## 6. Identity and uniqueness
 

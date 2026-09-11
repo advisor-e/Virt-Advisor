@@ -79,11 +79,14 @@ const HELD_BACK = /^pooled:held_back-(\d+)$/
  * is the one in that reason — the capped total the resolver applied, not the sum of the
  * adjustments. A template is `outweighed` only when it carries `pooled:outweighed`.
  *
- * Where several adjustments matched one template, `id` is the first matching one's and
- * `firms`/`cases` are the smallest across them — the weakest evidence behind the line, so
- * the panel never overstates it.
+ * The evidence comes from the adjustments the resolver names on the entry as having
+ * MATCHED this session (`pooledMatched`, their ids) — never from every live adjustment
+ * that shares the title. Found by the quickstart on 2026-09-12: grouping by title put
+ * "held back in profit" on a line for a session in sales, with both hold-backs summed.
+ * Where several matched, `id` is the first one's and `firms`/`cases` are the smallest
+ * across them — the weakest evidence behind the line, so the panel never overstates it.
  *
- * @param {Array<{title: string, matchReasons: string[]}>} scoringLog
+ * @param {Array<{title: string, matchReasons: string[], pooledMatched?: string[]}>} scoringLog
  * @param {Array<{id: string, template: string, holdBack: number, firms: number, cases: number}>} adjustments
  * @param {{consented: boolean, available: boolean}} status
  * @returns {{consented: boolean, available: boolean, applied: Array, outweighed: Array}}
@@ -94,16 +97,16 @@ function buildOutcomeLearningTrace (scoringLog, adjustments, status) {
   const block = { consented, available, applied: [], outweighed: [] }
   if (!consented) { return block }
 
-  const byTitle = new Map()
+  const byId = new Map()
   ;(Array.isArray(adjustments) ? adjustments : []).forEach((a) => {
-    if (!a || typeof a.template !== 'string') { return }
-    const key = a.template.trim().toLowerCase()
-    if (!byTitle.has(key)) { byTitle.set(key, []) }
-    byTitle.get(key).push(a)
+    if (!a || typeof a.id !== 'string') { return }
+    byId.set(a.id, a)
   })
 
-  const evidence = (title) => {
-    const matched = byTitle.get(String(title).trim().toLowerCase()) || []
+  const matchedFor = entry => (Array.isArray(entry.pooledMatched) ? entry.pooledMatched : [])
+    .map(id => byId.get(id)).filter(Boolean)
+
+  const evidence = (matched) => {
     if (matched.length === 0) { return { id: null, dimension: null, value: null, firms: 0, cases: 0 } }
     return {
       id: matched[0].id,
@@ -120,12 +123,11 @@ function buildOutcomeLearningTrace (scoringLog, adjustments, status) {
     const reasons = Array.isArray(t.matchReasons) ? t.matchReasons : []
     const held = reasons.map(r => HELD_BACK.exec(String(r))).find(Boolean)
     if (held) {
-      block.applied.push(Object.assign({ template: t.title, holdBack: Number(held[1]) }, evidence(t.title)))
+      block.applied.push(Object.assign({ template: t.title, holdBack: Number(held[1]) }, evidence(matchedFor(t))))
     } else if (reasons.includes('pooled:outweighed')) {
-      const e = evidence(t.title)
-      const matched = byTitle.get(t.title.trim().toLowerCase()) || []
+      const matched = matchedFor(t)
       const holdBack = matched.reduce((sum, a) => sum + (Number(a.holdBack) || 0), 0)
-      block.outweighed.push(Object.assign({ template: t.title, holdBack }, e, { by: 'distinction' }))
+      block.outweighed.push(Object.assign({ template: t.title, holdBack }, evidence(matched), { by: 'distinction' }))
     }
   })
 

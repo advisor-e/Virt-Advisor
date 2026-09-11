@@ -115,23 +115,41 @@ describe('buildOutcomeLearningTrace', () => {
     { id: 'break-even-analysis|industry|cafe', template: 'Break-even Analysis', dimension: 'industry', value: 'cafe', holdBack: 3, firms: 5, cases: 28 },
     { id: '7-cash-drivers|signal|client-awareness', template: '7 Cash Drivers', dimension: 'signal', value: 'client_awareness', holdBack: 3, firms: 5, cases: 28 }
   ]
+  // The resolver names, by id, the adjustments that MATCHED the session (`pooledMatched`).
+  // Here the domain one matched Break-even Analysis and the industry one did not, so the
+  // evidence on the line is the domain one's alone — 6 firms / 31 cases, not the weaker
+  // industry figures. (Quickstart finding, 2026-09-12: the line used to name every live
+  // adjustment for the title, so it said "in profit" for a session in sales.)
   const log = [
-    { title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:held_back-7'] },
-    { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed'] },
+    { title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:held_back-7'], pooledMatched: [ID] },
+    { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: ['7-cash-drivers|signal|client-awareness'] },
     { title: 'Working Capital Cycle', matchReasons: ['domain:primary_subsection'] },
     null,
     { title: 8 },
     { title: 'No Reasons' }
   ]
 
-  test('applied lists only held-back templates with the hold-back the resolver wrote, and the weakest evidence', () => {
+  test('applied lists only held-back templates with the hold-back the resolver wrote, and the evidence of the adjustments that matched', () => {
     const block = buildOutcomeLearningTrace(log, adjustments, { consented: true, available: true })
     expect(block).toEqual({
       consented: true,
       available: true,
-      applied: [{ template: 'Break-even Analysis', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 5, cases: 28 }],
+      applied: [{ template: 'Break-even Analysis', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 6, cases: 31 }],
       outweighed: [{ template: '7 Cash Drivers', holdBack: 3, id: '7-cash-drivers|signal|client-awareness', dimension: 'signal', value: 'client_awareness', firms: 5, cases: 28, by: 'distinction' }]
     })
+  })
+
+  test('when two adjustments matched, the weakest evidence is reported and the outweighed hold-back is their sum', () => {
+    const both = [
+      { title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:held_back-7'], pooledMatched: [ID, 'break-even-analysis|industry|cafe'] },
+      { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: [ID, '7-cash-drivers|signal|client-awareness'] }
+    ]
+    const block = buildOutcomeLearningTrace(both, adjustments, { consented: true, available: true })
+    expect(block.applied).toEqual([{ template: 'Break-even Analysis', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 5, cases: 28 }])
+    expect(block.outweighed[0].holdBack).toBe(7)
+    // An id the resolver names that no live adjustment carries contributes nothing.
+    const stale = buildOutcomeLearningTrace([{ title: 'Break-even Analysis', matchReasons: ['pooled:held_back-4'], pooledMatched: ['gone|domain|x'] }], adjustments, { consented: true })
+    expect(stale.applied).toEqual([{ template: 'Break-even Analysis', holdBack: 4, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
   })
 
   test('consented false gives both lists empty whatever the log says', () => {
@@ -148,7 +166,7 @@ describe('buildOutcomeLearningTrace', () => {
     expect(block.applied).toEqual([{ template: 'Mystery', holdBack: 2, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
     expect(buildOutcomeLearningTrace('nope', undefined, { consented: true }).applied).toEqual([])
     // An outweighed template whose adjustment carries no numeric hold-back reports 0, not NaN.
-    const odd = buildOutcomeLearningTrace([{ title: 'Odd', matchReasons: ['pooled:outweighed'] }], [{ id: 'odd|domain|x', template: 'Odd', firms: 5, cases: 25 }], { consented: true })
+    const odd = buildOutcomeLearningTrace([{ title: 'Odd', matchReasons: ['pooled:outweighed'], pooledMatched: ['odd|domain|x'] }], [{ id: 'odd|domain|x', template: 'Odd', firms: 5, cases: 25 }], { consented: true })
     expect(odd.outweighed).toEqual([{ template: 'Odd', holdBack: 0, id: 'odd|domain|x', dimension: null, value: null, firms: 5, cases: 25, by: 'distinction' }])
     const none = buildOutcomeLearningTrace([{ title: 'Nobody', matchReasons: ['pooled:outweighed'] }], [], { consented: true })
     expect(none.outweighed).toEqual([{ template: 'Nobody', holdBack: 0, id: null, dimension: null, value: null, firms: 0, cases: 0, by: 'distinction' }])

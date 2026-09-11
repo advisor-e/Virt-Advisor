@@ -185,6 +185,30 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.94 — "Why this?" named the wrong hold-back, and could hide one.**
+✅ Found and closed 2026-09-12 on the desktop, filed and fixed on Mike's yes the same hour. A
+defect in 4.87 as built, found by walking `specs/002-outcome-learning/quickstart.md` Story 3 on
+the running app — the two things UAT could not have seen, because a tester does not know which
+adjustment should have matched.
+
+- **The trace named every live adjustment for a template, not the ones that matched.** A sales
+  session under facilitation, two Break-Even adjustments live (one keyed to engagement type
+  facilitation, one to domain profit): the resolver correctly applied the facilitation one alone,
+  and the "Why this?" line read *a hold-back of 8 in profitability and feasibility*. Wrong size,
+  wrong situation, in Mike's ruled *"in {where}"* wording — and against FR-011, which says the line
+  carries *the situation it matched*. The unit test had pinned the wrong behaviour.
+- **A held-back template could vanish from the panel.** The scoring log is the top 20 by score; a
+  hold-back that took Break-Even from 6th to below 20th removed it from the log, so the applied
+  line was never built. The consent tab promises the advisor sees every adjustment that applies.
+- **The fix.** The resolver keeps each adjustment's id and writes `pooledMatched` (the ids that
+  matched this session) on the log entry; the trace builder reads its evidence from those alone.
+  The log keeps any entry beyond 20th that carries a pooled reason. Scores are unchanged, so
+  `SCORING_VERSION` stays 2.2.0. Tests first: two in `pooledHoldback.test.js`, the expectations in
+  `outcomeLearningTrace.test.js` corrected, one new. Proved on the same session afterwards:
+  *−4 · engagementType facilitation · 6 firms · 30 cases*, Break-Even in the log at 21st.
+- Not on the live list at any point: found, filed and closed in one sitting, recorded here so
+  the number is not reused.
+
 **4.92 — A country's whole rate schedule, stored as a searchable table.**
 ✅ Closed 2026-09-11 on the laptop by Mike, **after the whole chain was run end to end against the
 real IR265** — held open deliberately until then, because this is the feature that had been built,
