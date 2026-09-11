@@ -204,10 +204,24 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   <p><b>Outcome Learning, drawing 1 of 3 — the firm's consent, and the advisor's one line. Drawn
   2026-09-10; ✅ APPROVED BY MIKE 2026-09-10 to build from, after all four questions were ruled.
   BUILT 2026-09-11 as components/firm/FirmOutcomeConsent.vue and the one line in
-  components/VirtualAdvisor.vue; every difference from this drawing is named in that commit.</b>
+  components/VirtualAdvisor.vue; every difference from this drawing is named in the block below.</b>
   This is the artefact the build is checked against,
   saved before approval as CLAUDE.md requires. Drawings 2 and 3 (the Mentor Hub page, the trace line)
   follow separately.</p>
+  <p><b>As built, 2026-09-11 (commit 21f4bf4) — eight differences from this drawing, named:</b>
+  (1) the component lives in components/firm/ beside its siblings, not components/ as tasks.md wrote
+  it; (2) the History card needs every switch kept, so <code>events</code> is added to the consent
+  record (server/utils/outcomeConsent.js, appended by the set route) because the store's version
+  history keeps who saved and when, not what was saved; (3) the "adjustments currently apply at your
+  firm" count (ruled yes 2026-09-10) is <code>adjustmentsApplying</code> on the read route, from the
+  cached session loader, and null when the firm is not sharing or the pool could not be read;
+  (4) Withdraw is offered to a firm whose switch is OFF but which still holds rows in the pool —
+  Screen A below is a firm that never shared, and its note says withdrawal works either way; (5) the
+  withdraw confirmation is an inline card, not a modal; (6) the signature and history lines show the
+  manager's email, which is what the token carries, where this drawing shows a name; (7) one sentence
+  not on this drawing, for Mike's ruling: "The outcome pool is not configured on this server, so
+  nothing is being shared yet." (the read route's null count); (8) strings are in locales/en.json
+  only, as every feature namespace since advisor.* is.</p>
   <p><b>What this screen is for, in one sentence:</b> a firm manager decides whether their firm's
   case-review ticks — never their words — join a platform-wide pool that teaches the engine which
   templates keep not landing, and can undo that decision at any time.</p>

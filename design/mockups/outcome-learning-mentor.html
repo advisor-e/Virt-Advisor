@@ -198,7 +198,26 @@ tr.dim td{opacity:.6}
 
 <div class="mock">
   <p><b>Outcome Learning, drawing 2 of 3 — the Mentor Hub page. Drawn 2026-09-10; all four questions
-  ruled the same day; ✅ APPROVED BY MIKE 2026-09-10 to build from; its fifteen wording rows ruled 2026-09-11. BUILT 2026-09-11 as components/mentor/MentorOutcomeLearning.vue; every difference from this drawing is named in that commit.</b> Drawing 1 (the firm's consent) is approved; drawing 3 (the trace line) follows.</p>
+  ruled the same day; ✅ APPROVED BY MIKE 2026-09-10 to build from; its fifteen wording rows ruled 2026-09-11. BUILT 2026-09-11 as components/mentor/MentorOutcomeLearning.vue; every difference from this drawing is named on this page — Screens A, B and D in the block below, Screen C beside the bench card.</b> Drawing 1 (the firm's consent) is approved; drawing 3 (the trace line) follows.</p>
+  <p><b>Screens A, B and D as built, 2026-09-11 (commit 2101938) — eight differences from this drawing,
+  named:</b> (1) the component lives in components/mentor/ beside its siblings, not components/;
+  (2) the bench card carried "The benches have not been run yet." (ruled 2026-09-11) and no "Run the
+  benches" button until user story 4 built the benches and their route the same evening; (3) the
+  "Firms sharing" tile has no "of N on the platform" sub-line and "Reviews in the pool" no
+  "since &lt;date&gt;" — neither number is known to the route, so the tile shows the count alone;
+  (4) a proposed row's sub-line does not say when it crossed the floor, because the pool does not
+  record that date; it says "Nothing to hold back" where the hold-back is 0, as ruled; (5) history is
+  two lists, not one — every decision (state, template, situation, who, and the reason where given)
+  newest first, then the saved versions with "Restore to here", because the store's version history
+  keeps who saved and when but not what was saved, so a version row cannot be captioned with the
+  decision it holds; the drawing's "Unpublished automatically" row is not a history entry — a row that
+  fell below the floor after a withdrawal shows as Below the floor in the table with what it needs;
+  (6) a rejected row keeps no buttons, as the drawing greys it, and a mentor who changes their mind
+  restores an earlier version from history; (7) the mentor's name is their email, which is what the
+  token carries; (8) strings are in locales/en.json only, as every feature namespace since advisor.*
+  is. One backend change with the build: a rejection without a reason is refused by the decision route
+  (Mike's ruling of 2026-09-10 — required to reject, optional to hold), because a screen-side rule is
+  not a rule.</p>
   <p><b>What this page is for, in one sentence:</b> the mentor sees what the pool has learned — which
   templates keep not landing, in which situation, on how much evidence — and decides, one adjustment
   at a time, whether it goes live for every sharing firm.</p>
