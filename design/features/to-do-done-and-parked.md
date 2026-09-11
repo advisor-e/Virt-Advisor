@@ -185,6 +185,39 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.88 — A failed document load could never be cleared from the screen.**
+✅ Closed 2026-09-11 on the laptop — proved, built, and then used on the running app the same
+day. Commits `07b7ea5`, `be5c350`.
+
+- **Why it mattered:** it was shut at both ends. The screen drew no control at all on an
+  unreadable row, and the reject route refused any status but `pending`, so a hand-made request
+  could not clear one either. The proposal store keeps 20 documents newest-first, so twenty
+  failures push a firm's real documents off the end — and four identical failures had already
+  piled up on the New Zealand screen while the IR265 read was being diagnosed. **Found wider
+  than filed:** the cap is per *firm*, not per country, so New Zealand failures could drop an
+  approved Australian document. The approved rates themselves were never at risk — they live in
+  their own store — only the record of which document they came from.
+- **What was done:** `removeDocument` in
+  [`depreciationProposals.js`](../../server/utils/depreciationProposals.js), a manager-only
+  `POST /api/firm-manager/depreciation-rates/documents/remove`, and a **Delete** button on an
+  unreadable row alone, asking *"Delete this failed attempt? Nothing else on this screen
+  changes."* Brief: [`depreciation-rates.md`](depreciation-rates.md) **P14**.
+- **The guard, which is the whole point:** the route refuses every status but `unreadable`,
+  checked against the **stored** record and never the request body, so which document a rate came
+  from, who approved it and when cannot be erased by any request. It **deletes rather than
+  marking**, because a row marked dismissed would still hold one of the twenty slots — which is
+  the fault itself, not a side effect of it.
+- **Mike's two decisions:** the button reads **Delete**, his own word when he raised it; and
+  rejected rows were deliberately left alone, because he named failed attempts and widening it is
+  his call.
+- **What proves it:** 10 tests — deleting from a full list gives the oldest its place back; a
+  pending, approved or rejected document cannot be deleted and nothing is written; and Delete is
+  offered on a failed row and on no other, proved through the **rendered rows**, because calling
+  the method would pass just as happily with the button drawn on every row. **Then the real
+  thing:** the app was run and all four failed IR265 rows were cleared from the live screen, with
+  both documents awaiting approval sitting beside them and untouched. That is the guard holding
+  under real use, which is the check this kind of item usually leaves to UAT.
+
 **4.82 — Nothing capped how many paid AI readings an advisor could trigger.**
 ✅ Closed 2026-09-11 by Mike, on the laptop — seven rulings asked one at a time, then *"yes"* to
 build, *"yes"* to the commit message, *"yes"* to close. Commit `d85af67`.
