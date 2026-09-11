@@ -38,6 +38,12 @@ const ECONOMIC = 'economic-analysis' // item 4.66 — all four tiers, like the c
 const NEXT_STEPS = 'next-steps-draft'
 const DEPRECIATION = 'depreciation-read' // item 4.78 slice 3 — all four tiers, like the two above
 const COMPLIANCE = 'compliance-check' // item 4.83 slice 4 — all four tiers, like the three above
+// Item 4.92 — reading a COUNTRY's whole schedule takes two prompts: a survey saying how far
+// the document runs, and a pass reading one page range of it. Both are shown at all four
+// tiers: only the global group manager may LOAD a schedule, but every tier below reads the
+// table it produces and must be able to read what the machine was told.
+const SURVEY = 'country-schedule-survey'
+const PASS = 'country-schedule-pass'
 
 function makeMockRes () {
   return {
@@ -102,7 +108,7 @@ describe('what a tier is given when it opens the tab', () => {
 
     expect(res._status).toBe(200)
     expect(res._body.tier).toBe('firm')
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 
   test('the mentor gets every document', async () => {
@@ -110,7 +116,7 @@ describe('what a tier is given when it opens the tab', () => {
     await routes.getForManager(makeReq({ firmId: '__platform__' }), res)
 
     expect(res._body.tier).toBe('mentor')
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 
   test('the two middle tiers resolve correctly, unexercised though they are today', async () => {
@@ -199,7 +205,7 @@ describe('what a tier is given when it opens the tab', () => {
     await routes.getForManager(makeReq(), res)
 
     expect(res._status).toBe(200)
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 })
 
@@ -323,7 +329,7 @@ describe('version history comes free with the overlay, and is scoped the same wa
 
     expect(res._status).toBe(200)
     expect(res._body.restored).toBe(true)
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, COMPLIANCE])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
     expect(overlay.restoreVersion).toHaveBeenCalledWith('firm-test-123', 'ai-prompts', 4)
   })
 })

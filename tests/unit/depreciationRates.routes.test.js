@@ -410,6 +410,7 @@ describe('history and restore', () => {
  */
 
 const PROPOSALS_KEY = 'depreciation-proposals'
+const BUDGET_KEY = 'ai-document-loads'
 
 /** What the store holds for this firm, per config key. */
 function storedByKey (map) {
@@ -569,7 +570,9 @@ describe('loading a document', () => {
     const res = makeRes()
     await routes.loadDocument(makeReq(), res)
     expect(res._status).toBe(400)
-    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+    // No PROPOSAL is recorded. The reading itself is still spent against the firm's cap,
+    // because the model was still paid to tell us the country was wrong (item 4.82).
+    expect(savedFor(PROPOSALS_KEY)).toBeNull()
   })
 
   test('a network fault records nothing — it is not the document that failed', async () => {
@@ -580,7 +583,7 @@ describe('loading a document', () => {
     const res = makeRes()
     await routes.loadDocument(makeReq(), res)
     expect(res._status).toBe(502)
-    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+    expect(savedFor(PROPOSALS_KEY)).toBeNull()
   })
 
   test('the read is asked for THIS scope, never one from the body', async () => {
@@ -589,6 +592,69 @@ describe('loading a document', () => {
       .mockResolvedValue({ ok: true, code: null, message: null, reading: READING })
     await routes.loadDocument(makeReq(), makeRes())
     expect(spy.mock.calls[0][0].scopeId).toBe(FIRM)
+  })
+
+  // ── The cap on paid readings — item 4.82 ───────────────────────────────────
+  // The counting itself is proved in tests/unit/aiLoadBudget.test.js. What matters HERE is
+  // only that the route consults it, and that it does so BEFORE the model is called.
+
+  test('a reading is spent against the firm’s cap, on its own key', async () => {
+    uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument')
+      .mockResolvedValue({ ok: true, code: null, message: null, reading: READING })
+
+    await routes.loadDocument(makeReq(), makeRes())
+
+    expect(savedFor(BUDGET_KEY).loads).toHaveLength(1)
+    // The rates the forecasts read are untouched by a load. Counting is not approving.
+    expect(savedFor('depreciation-rates')).toBeNull()
+  })
+
+  test('🔴 the twenty-first reading in 24 hours is refused BEFORE anything is sent to a model', async () => {
+    const spent = new Array(20).fill(new Date().toISOString())
+    storedByKey({ [BUDGET_KEY]: { loads: spent } })
+    uploadOf('%PDF-1.4 ...')
+    const spy = jest.spyOn(extract, 'readDocument')
+
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+
+    expect(res._status).toBe(429)
+    expect(errorBody(res).error.code).toBe('AI_LOAD_LIMIT')
+    // The whole point of the cap: the model is never paid for the refused reading.
+    expect(spy).not.toHaveBeenCalled()
+    expect(savedFor(PROPOSALS_KEY)).toBeNull()
+  })
+
+  test('an advisor and a manager share one count — the same handler serves both routes', async () => {
+    // The manager's route and the advisor's differ only in the guard in restify-server.js.
+    // Both arrive here with the same verified firm, which is what makes the count shared.
+    storedByKey({ [BUDGET_KEY]: { loads: new Array(20).fill(new Date().toISOString()) } })
+    uploadOf('%PDF-1.4 ...')
+
+    const advisor = makeRes()
+    await routes.loadDocument(makeReq({ userEmail: 'advisor@example.com' }), advisor)
+    expect(advisor._status).toBe(429)
+
+    uploadOf('%PDF-1.4 ...')
+    const manager = makeRes()
+    await routes.loadDocument(makeReq({ userEmail: MANAGER }), manager)
+    expect(manager._status).toBe(429)
+  })
+
+  test('a firm at its limit is told so in the approved words, and never in an error code', async () => {
+    // Pinned because Mike approved this sentence on 2026-09-11 and a person reads it at the
+    // moment they are stopped. The wording lives in design/features/depreciation-rates.md.
+    storedByKey({ [BUDGET_KEY]: { loads: new Array(20).fill(new Date().toISOString()) } })
+    uploadOf('%PDF-1.4 ...')
+
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+
+    expect(errorBody(res).error.message).toBe(
+      'Your firm has used all 20 document readings for today. ' +
+      'Nothing has been lost — you can load this document again tomorrow.'
+    )
   })
 })
 
@@ -783,6 +849,54 @@ describe('rejecting a proposal', () => {
   test('no documentId is refused', async () => {
     const res = makeRes()
     await routes.rejectDocument(makeReq({ body: {} }), res)
+    expect(res._status).toBe(400)
+  })
+})
+
+// Item 4.88 — Mike, 2026-09-11, after four identical failures piled up with no way to clear
+// them. The route is the only one here that destroys a record, so what it REFUSES is the part
+// that matters and is tested first.
+describe('deleting a failed read', () => {
+  let quiet
+  beforeEach(() => { quiet = jest.spyOn(console, 'error').mockImplementation(() => {}) })
+  afterEach(() => quiet.mockRestore())
+
+  test('a document that could not be read is deleted, and the others stay', async () => {
+    storedByKey({
+      [PROPOSALS_KEY]: {
+        documents: [pending({ id: 'bad', status: 'unreadable' }), pending({ id: 'good' })]
+      }
+    })
+    const res = makeRes()
+    await routes.removeDocument(makeReq({ body: { documentId: 'bad' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(savedFor(PROPOSALS_KEY).documents.map(d => d.id)).toEqual(['good'])
+  })
+
+  // 🔴 THE GUARD THIS ROUTE EXISTS BEHIND. Which document a rate came from, who approved it
+  // and when is the audit trail behind every figure in force. No request may erase it.
+  test('a pending, approved or rejected document cannot be deleted, and nothing is written', async () => {
+    for (const status of ['pending', 'approved', 'rejected']) {
+      storedByKey({ [PROPOSALS_KEY]: { documents: [pending({ status })] } })
+      const res = makeRes()
+      await routes.removeDocument(makeReq({ body: { documentId: 'doc-1' } }), res)
+
+      expect(res._status).toBe(409)
+      expect(savedFor(PROPOSALS_KEY)).toBeNull()
+    }
+  })
+
+  test('a document nobody here loaded cannot be deleted', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending({ status: 'unreadable' })] } })
+    const res = makeRes()
+    await routes.removeDocument(makeReq({ body: { documentId: 'nope' } }), res)
+    expect(res._status).toBe(404)
+  })
+
+  test('no documentId is refused', async () => {
+    const res = makeRes()
+    await routes.removeDocument(makeReq({ body: {} }), res)
     expect(res._status).toBe(400)
   })
 })

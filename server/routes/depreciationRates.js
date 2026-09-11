@@ -13,16 +13,21 @@
  *     forecast needs it, so it must never require a manager role and must never break the
  *     forecast: on any failure it degrades to the app's own six rates. Mike's ruling of
  *     2026-09-08, in his words: *"Never block the advisor."*
+ *   - LOAD (`loadDocument`) — any signed-in user (`firmAuth`), since slice 5 on 2026-09-09.
+ *     Mike settled on 2026-09-08 that an ADVISOR may load a document and only a manager may
+ *     approve one (FR-017). It is mounted twice, on the advisor's route and the manager's,
+ *     and it is deliberately the SAME handler: what it writes is a PROPOSAL, held in a store
+ *     the rate resolver never reads, so nothing an advisor loads can reach a forecast.
  *   - MANAGE (`getForManager` / `approveRates` / `approveFirstYearRule` / `history` /
- *     `restore`, and slice 3's `loadDocument` / `listDocuments` / `approveDocument` /
- *     `rejectDocument`) — managers only (`firmAuth` + the managing-tier guard, wired in
- *     restify-server.js).
+ *     `restore`, slice 3's `listDocuments` / `approveDocument` / `rejectDocument`, and
+ *     `removeDocument` from item 4.88) — managers only (`firmAuth` + the managing-tier
+ *     guard, wired in restify-server.js).
  *
- * ⚠ LOADING A DOCUMENT IS MANAGER-ONLY TODAY, AND THAT IS THE SLICE RATHER THAN THE RULING.
- * Mike settled on 2026-09-08 that an ADVISOR may load a document and only a manager may
- * approve one (FR-017). The advisor's half is its own screen and its own drawing
- * (`design/mockups/depreciation-rates-advisor.html`) and is not built. Until it is, the
- * loading routes sit behind the manager guard — which is the safe direction to be wrong in.
+ * 🔴 LOADING SPENDS MONEY, AND IT IS CAPPED: 20 readings per firm in any rolling 24 hours,
+ * shared by advisors and managers (item 4.82, Mike's rulings of 2026-09-11). The check sits
+ * one line before the model call in `loadDocument`, so a refusal costs nothing, and the count
+ * rides the same overlay store as everything else here, so a restart cannot hand a firm a
+ * fresh 20. Every part of that reasoning is in `utils/aiLoadBudget.js`.
  *
  * 🔴 EVERY ROUTE IS SCOPED TO `req.firmId`, THE VERIFIED SCOPE FROM THE JWT. No handler here
  * reads a scope from a body or a query, so one firm can never read or write another's tables
@@ -62,6 +67,7 @@ const {
 } = require('../utils/depreciationRates')
 const extract = require('../utils/depreciationExtract')
 const proposals = require('../utils/depreciationProposals')
+const aiLoadBudget = require('../utils/aiLoadBudget')
 
 /**
  * The dev-JSON fallback, one file per config key.
@@ -514,6 +520,18 @@ async function loadDocument (req, res) {
   }
 
   const filename = uploaded.originalFilename || uploaded.newFilename || 'document.pdf'
+
+  // 🔴 THE CAP IS SPENT HERE, ONE LINE BEFORE THE MODEL, AND THAT POSITION IS THE POINT
+  // (item 4.82). A refusal at this line costs nothing — the file has been read into memory
+  // and its temporary copy already deleted, and not a byte has left the building. Both
+  // routes reach this handler, so the advisor's loads and the manager's share one count of
+  // 20 per firm per rolling 24 hours, exactly as Mike ruled on 2026-09-11. The reasoning
+  // for each part of that, and the fail-closed rule, is in `utils/aiLoadBudget.js`.
+  const budget = await aiLoadBudget.consume(req.firmId, req.userEmail)
+  if (!budget.ok) {
+    return sendError(res, budget.status, budget.code, budget.message)
+  }
+
   const result = await extract.readDocument({
     scopeId: req.firmId,
     country,
@@ -669,6 +687,56 @@ async function rejectDocument (req, res) {
   }
 }
 
+/**
+ * POST /api/firm-manager/depreciation-rates/documents/remove  (manager)
+ *
+ * Delete a failed read from the list. Item 4.88 — Mike, 2026-09-11, after four identical
+ * failures piled up on the New Zealand screen: *"it does not give us a chance to delete past
+ * failed attempts"*.
+ *
+ * 🔴 AN UNREADABLE DOCUMENT AND NOTHING ELSE, CHECKED AGAINST THE STORED STATUS. This is the
+ * only route in this file that destroys a record rather than adding one, and this check is
+ * the whole of its safety. A pending, approved or rejected document is refused: which
+ * document a rate came from, who approved it and when is the audit trail behind every figure
+ * in force, and no request may erase it. The status is read from the store, never taken from
+ * the body — a body-supplied status would hand the caller the very thing this refuses.
+ *
+ * ⚠ WHY DELETE RATHER THAN A FOURTH STATUS. The store keeps `MAX_DOCUMENTS` records, newest
+ * first, and drops the oldest. A failed read marked "dismissed" would still hold its slot, so
+ * twenty of them would still push a firm's approved documents off the end — which is the
+ * fault this closes, not a side effect of it.
+ *
+ * @route POST /api/firm-manager/depreciation-rates/documents/remove
+ * @param {object} req.body - `{ documentId }`
+ * @returns {{removed: true, documentId: string}}
+ */
+async function removeDocument (req, res) {
+  const documentId = req.body && typeof req.body.documentId === 'string'
+    ? req.body.documentId.trim()
+    : ''
+  if (!documentId) {
+    return sendError(res, 400, 'MISSING_DOCUMENT', 'documentId is required')
+  }
+
+  try {
+    const store = await ownProposals(req.firmId)
+    const document = proposals.findDocument(store, documentId)
+    if (!document) {
+      return sendError(res, 404, 'NO_DOCUMENT', 'That document is not one this level has loaded')
+    }
+    if (document.status !== 'unreadable') {
+      return sendError(res, 409, 'NOT_UNREADABLE', 'Only a document that could not be read can be deleted')
+    }
+
+    const next = proposals.removeDocument(store, documentId)
+    await writeProposals(req.firmId, next, req.userEmail)
+    res.send(200, { removed: true, documentId })
+  } catch (err) {
+    console.error('[depreciation-rates] document remove failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not delete that document')
+  }
+}
+
 module.exports = {
   get,
   getForManager,
@@ -680,5 +748,6 @@ module.exports = {
   loadDocument,
   listDocuments,
   approveDocument,
-  rejectDocument
+  rejectDocument,
+  removeDocument
 }

@@ -63,25 +63,41 @@
       .ddr-picker(v-if="picking === row.key" :key="row.key + '-picker'")
         p.has-text-weight-semibold.is-size-7.mb-1 {{ row.label }} — choose the published class
         p.is-size-7.has-text-grey.mb-2
-          | {{ classes.length }} classes in {{ document.documentName }} · type to narrow.
-          | #[b This is what the document itself publishes] — whatever you choose brings its
+          | {{ classes.length }} classes in {{ document.documentName }}
+          template(v-if="scheduleDoc")
+            |  · #[b {{ scheduleDoc.classes }} in your group's {{ document.country }} schedule]
+            |  ({{ scheduleDoc.document }}, {{ scheduleDoc.published }})
+          | . Type to narrow.
+          | #[b This is what the documents themselves publish] — whatever you choose brings its
           |  own page and date.
+        //- 🔴 Mike's second ruling of 2026-09-11, and the condition he attached to it: where a
+        //-    country's schedule has pages nobody could read, the gap shows HERE — where the
+        //-    table is used — and not only on the screen it was loaded from. Otherwise "there
+        //-    is no such class" and "those pages were never read" look identical.
+        .notification.is-warning.is-light.py-2.my-2(v-if="scheduleUnreadNote")
+          p.is-size-7 {{ scheduleUnreadNote }}
         b-input(
           v-model="search"
           size="is-small"
-          placeholder="Search the document's classes"
+          placeholder="Search the published classes"
           icon="magnify"
         )
-        p.is-size-7.has-text-grey.mt-2(v-if="!filteredClasses.length") Nothing in this document matches that.
+        p.is-size-7.has-text-grey.mt-2(v-if="scheduleSearching") Searching your group's schedule…
+        p.is-size-7.has-text-grey.mt-2(v-else-if="!pickerOptions.length") Nothing published matches that.
         .ddr-options(v-else)
           .ddr-option(
-            v-for="(cls, i) in filteredClasses"
+            v-for="(cls, i) in pickerOptions"
             :key="i"
             :class="{ 'is-chosen': chosenLabel === cls.label }"
             @click="chosenLabel = cls.label"
           )
-            span.is-size-7 {{ cls.label }}
+            span.is-size-7
+              | {{ cls.label }}
+              b-tag.ml-2(v-if="cls.from === 'schedule'" type="is-info is-light" size="is-small") {{ document.country }} schedule
             span.ddr-num.is-size-7 {{ percentText(operativeOf(cls)) }} · {{ cls.source && cls.source.page ? 'p.' + cls.source.page : 'no page' }}
+        p.is-size-7.has-text-grey.mt-2(v-if="scheduleTruncated")
+          | Showing the first {{ scheduleMatches.length }} of {{ scheduleTotal }} matching classes in
+          |  the country schedule. Type more to narrow it.
         .buttons.mt-3
           b-button(
             type="is-primary"
@@ -150,6 +166,17 @@
         | #[b {{ document.refusedRows }} proposed {{ document.refusedRows === 1 ? 'row was' : 'rows were' }} refused] for
         |  carrying a rate, a class or a page we could not use. Nothing was taken from
         | {{ document.refusedRows === 1 ? 'it' : 'them' }}.
+      //- The entries the document itself could not settle. Named with their pages so a
+        manager can look, rather than dropped where nobody would know they existed.
+      li(v-if="unresolved.length")
+        | #[b {{ unresolved.length }} {{ unresolved.length === 1 ? 'entry' : 'entries' }} could not be settled]
+        |  from this document and {{ unresolved.length === 1 ? 'was' : 'were' }} left out. Check
+        | {{ unresolved.length === 1 ? 'it' : 'them' }} against the pages named:
+        ul.ddr-unresolved
+          li(v-for="(u, i) in unresolved" :key="i")
+            | {{ u.label }}
+            template(v-if="u.pages") &nbsp;— page {{ u.pages }}
+            template(v-if="u.differs") &nbsp;— {{ u.differs }}
       li(v-if="!gapCount") #[b Nothing was missing.] All six categories matched a published class, and a first-year rule was found.
 
   b-message(v-if="error" type="is-danger" size="is-small") {{ error }}
@@ -210,7 +237,15 @@ export default {
     /** True while the tab is calling the backend. */
     saving: { type: Boolean, default: false },
     /** A message from the last failed call, shown above the buttons. */
-    error: { type: String, default: '' }
+    error: { type: String, default: '' },
+    /**
+     * The caller's bearer token, for the country-schedule search (item 4.92).
+     *
+     * ⚠ OPTIONAL, AND THE PICKER STILL WORKS WITHOUT IT. With no token the picker offers the
+     * document's own classes exactly as it did before — the country schedule is an ADDITION,
+     * and a screen that could not reach it must degrade to what it had rather than to nothing.
+     */
+    apiToken: { type: String, default: '' }
   },
 
   data () {
@@ -226,7 +261,23 @@ export default {
       /** The label chosen in the open picker, before Use this class is pressed. */
       chosenLabel: '',
       /** Per-category message when a typed rate cannot be used. */
-      errors: {}
+      errors: {},
+
+      // ── Item 4.92: the country's whole schedule, searched on the backend ──────────
+      /** Matching classes from the country schedule, for the open picker. */
+      scheduleMatches: [],
+      /** How many matched in all, so the screen can say "50 of 214" rather than imply 50. */
+      scheduleTotal: 0,
+      /** Whether more matched than were returned. */
+      scheduleTruncated: false,
+      /** Which schedule answered — document, edition and how many classes it holds. */
+      scheduleDoc: null,
+      /** The unread-pages sentence, composed by the backend so one wording has one home. */
+      scheduleUnreadNote: '',
+      /** True while the country schedule is being searched. */
+      scheduleSearching: false,
+      /** The debounce handle for the search box. */
+      searchTimer: null
     }
   },
 
@@ -253,6 +304,32 @@ export default {
       const term = String(this.search || '').trim().toLowerCase()
       if (!term) { return this.classes }
       return this.classes.filter(c => String(c.label || '').toLowerCase().includes(term))
+    },
+
+    /**
+     * What the picker actually offers — this document's own classes, then the country
+     * schedule's (item 4.92).
+     *
+     * 🔴 THE DOCUMENT'S OWN COME FIRST, AND A DUPLICATE IS DROPPED IN THE SCHEDULE'S FAVOUR
+     * OF BEING SECOND. The manager is reviewing THIS document; a class printed in it is the
+     * one they are most likely to want, and offering the same wording twice asks them to
+     * choose between two things they cannot tell apart.
+     *
+     * ⚠ THE COUNTRY SCHEDULE IS WHY ITEM 4.90 STOPS BITING HERE. This document's list is
+     * capped at 250 classes and IR265 publishes about 2,800; before this, a manager whose
+     * class was on page 30 looked for it, did not find it, and had no way to know it was in
+     * the document at all.
+     *
+     * @returns {object[]} each carrying `from` — `document` or `schedule`
+     */
+    pickerOptions () {
+      const own = this.filteredClasses.map(c => Object.assign({}, c, { from: 'document' }))
+      const seen = {}
+      own.forEach((c) => { seen[String(c.label || '').toLowerCase()] = true })
+      const fromSchedule = this.scheduleMatches
+        .filter(c => !seen[String(c.label || '').toLowerCase()])
+        .map(c => Object.assign({}, c, { from: 'schedule' }))
+      return own.concat(fromSchedule)
     },
 
     /** All six rows, matched or not, in the forecast's own order. */
@@ -303,11 +380,21 @@ export default {
       return this.rows.filter(r => !r.matched).map(r => r.label)
     },
 
+    /**
+     * Entries the document could not settle — the same class printed twice with figures that
+     * disagree, and the like. They carry no rate and nothing is ever taken from them; they are
+     * here so a dropped entry is visible rather than silently absent.
+     */
+    unresolved () {
+      return Array.isArray(this.document.unresolved) ? this.document.unresolved : []
+    },
+
     /** How many things the gaps panel has to report. */
     gapCount () {
       return (this.document.firstYearRuleFound ? 0 : 1) +
         this.unmatchedLabels.length +
-        (this.document.refusedRows ? 1 : 0)
+        (this.document.refusedRows ? 1 : 0) +
+        (this.unresolved.length ? 1 : 0)
     },
 
     /**
@@ -322,8 +409,34 @@ export default {
     }
   },
 
+  watch: {
+    /**
+     * The picker's search box drives TWO lists: the document's own classes, filtered here in
+     * the browser because they are already loaded, and the country schedule's, which is
+     * searched on the backend.
+     *
+     * ⚠ DEBOUNCED, BECAUSE THE SECOND IS A REQUEST. A search per keystroke against a table of
+     * 2,800 rows is a request every few milliseconds while somebody types "engineering". Three
+     * hundred milliseconds is below what a person notices and above the gap between keystrokes.
+     */
+    search (term) {
+      this.clearSearchTimer()
+      if (!this.picking) { return }
+      this.searchTimer = setTimeout(() => {
+        this.searchTimer = null
+        this.searchSchedule(term)
+      }, 300)
+    }
+  },
+
   mounted () {
     this.reset()
+  },
+
+  beforeDestroy () {
+    // A timer left behind fires against a component that is gone, and in a test it keeps the
+    // process alive after the assertion has passed.
+    this.clearSearchTimer()
   },
 
   methods: {
@@ -404,12 +517,67 @@ export default {
       this.picking = key
       this.search = ''
       this.chosenLabel = this.edits[key] ? this.edits[key].label : ''
+      // Opened with no term, so the picker shows the head of the country's schedule rather
+      // than an empty box beside the document's own classes.
+      this.searchSchedule('')
     },
 
     closePicker () {
       this.picking = ''
       this.search = ''
       this.chosenLabel = ''
+      this.clearSearchTimer()
+      this.scheduleMatches = []
+      this.scheduleTotal = 0
+      this.scheduleTruncated = false
+    },
+
+    clearSearchTimer () {
+      if (!this.searchTimer) { return }
+      clearTimeout(this.searchTimer)
+      this.searchTimer = null
+    },
+
+    /**
+     * Search the country's whole published schedule on the BACKEND (item 4.92).
+     *
+     * 🔴 THE TABLE NEVER COMES HERE. A country's schedule is around 2,800 rows; sending it to
+     * the browser to filter would put 400 KB on the wire for every keystroke, and the picker
+     * shows a handful. The route returns the matches and the count.
+     *
+     * ⚠ IT DEGRADES TO THE DOCUMENT'S OWN CLASSES AND NEVER BLOCKS. No token, no country, or a
+     * failed call leaves the picker exactly as it was before this feature existed. The country
+     * schedule is an addition; losing it must not lose the screen.
+     *
+     * @param {string} term - what the manager has typed
+     * @returns {Promise<void>}
+     */
+    async searchSchedule (term) {
+      const country = this.document && this.document.country
+      if (!this.apiToken || !country) { return }
+
+      this.scheduleSearching = true
+      try {
+        const path = '/api/firm-manager/country-schedules/classes?country=' +
+          encodeURIComponent(country) + '&q=' + encodeURIComponent(String(term || ''))
+        const res = await fetch(path, { headers: { Authorization: `Bearer ${this.apiToken}` } })
+        if (!res.ok) { throw new Error('unavailable') }
+        const body = await res.json()
+        this.scheduleMatches = Array.isArray(body.matches) ? body.matches : []
+        this.scheduleTotal = body.total || 0
+        this.scheduleTruncated = Boolean(body.truncated)
+        this.scheduleDoc = body.schedule || null
+        this.scheduleUnreadNote = body.unreadNote || ''
+      } catch (err) {
+        // Silent by design, and this comment is the record rather than an oversight: the
+        // picker still holds the document's own classes, which is what it offered before this
+        // feature existed. An error banner here would announce the absence of an addition.
+        this.scheduleMatches = []
+        this.scheduleTotal = 0
+        this.scheduleTruncated = false
+      } finally {
+        this.scheduleSearching = false
+      }
     },
 
     /**
@@ -423,9 +591,14 @@ export default {
      * @param {string} key - the category
      */
     useChosenClass (key) {
-      const chosen = this.classes.filter(c => c.label === this.chosenLabel)[0]
+      // Searched across BOTH lists (item 4.92) — the document's own classes and the country
+      // schedule's. `from` is this screen's own tag and must not reach the store, which holds
+      // one shape for a class however it was found.
+      const chosen = this.pickerOptions.filter(c => c.label === this.chosenLabel)[0]
       if (!chosen) { return }
-      this.$set(this.edits, key, JSON.parse(JSON.stringify(chosen)))
+      const entry = JSON.parse(JSON.stringify(chosen))
+      delete entry.from
+      this.$set(this.edits, key, entry)
       this.$set(this.confirmed, key, true)
       this.$delete(this.errors, key)
       this.closePicker()
@@ -557,4 +730,10 @@ export default {
   font-size: 0.85rem;
 }
 .ddr-gaps li { margin: 0.35rem 0; }
+.ddr-unresolved {
+  list-style: circle;
+  padding-left: 1.1rem;
+  margin-top: 0.25rem;
+  color: #4a4a4a;
+}
 </style>

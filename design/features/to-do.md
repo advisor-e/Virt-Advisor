@@ -39,12 +39,16 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.58** Meeting Review — the advisor's side is complete; §4 remains ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **4.78** Depreciation rates per country - a manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 4 | **4.81** The forecast's tax rates are New Zealand's, hardcoded, for every country ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 5 | **4.82** Nothing caps how many paid AI readings an advisor can trigger ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 6 | **4.83** Compliance pages in the four manager hubs ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
-| 7 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
-| 8 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
+| 5 | **4.83** Compliance pages in the four manager hubs ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
+| 6 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
+| 7 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
+| 8 | **4.88** A failed document load can never be cleared from the screen ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 9 | **4.89** A refused document cannot tell a manager why ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 10 | **4.90** Only 250 of about 2,800 published classes are kept ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 11 | **4.91** A read can succeed and propose no rates at all ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 12 | **4.92** A country's whole rate schedule, stored as a searchable table ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**Eight live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Eight need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

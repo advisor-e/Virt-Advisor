@@ -9,57 +9,43 @@
 
 ---
 
-## 2026-09-10 (seventeenth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-11 (nineteenth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **9,749 green** (475 suites), lint 0, coverage and audit clean, `npm run build` exit 0,
-**and the backend started and seen listening.** Everything merged to `master` by pull requests
-78, 79 and 80. **0 ahead, 0 behind.** Nothing active on this machine.
+Suite **10,024 green** (481 suites), lint 0, audit PASS. Eight commits, all pushed, all in
+**PR #82** — not yet merged. Tree clean. Nothing active on this machine.
 
-🔴 **v0.11.0 IS WITHDRAWN AND `v0.11.1` REPLACES IT. THE BACKEND IN v0.11.0 DOES NOT START.**
-One route handler in item 4.83's compliance gate — `requireDeclaration` — was an `async`
-function that also took Restify's `next`. Restify refuses to **mount** such a handler and
-asserts at mount time, so the process exited during startup with **no routes registered at
-all**. Nuxt starts normally in front of nothing, which is why it looks alive. Found by running
-the app, hours after the tag was cut. Fixed, tagged as `v0.11.1` on `e7e6271`, ledger row
-written. If anyone is holding v0.11.0, they replace the tag rather than patch it.
+🔴 **DESKTOP, READ THIS FIRST: I CHANGED `components/FirmManagerHub.vue`, WHICH IS ON 4.87'S
+`touches` LIST.** 52 lines — a new `TAB_TIERS.countrySchedules`, a panel, an import, a
+registration and a `NAV_GROUPS` entry, all appended rather than woven in. Your consent tab and
+Mentor Hub page will land in the same three places, so **expect a merge conflict there and
+expect to keep both sides**. Nothing else of 4.87's was touched. I should have raised it
+before editing rather than after; it is named here so it is not a surprise.
 
-🔴 **EVERY GATE IN THIS REPOSITORY PASSED IT, AND THAT IS THE PART TO REMEMBER.** 9,748 tests,
-lint 0, audit PASS, `nuxt build` exit 0 — none of them start the server. Route tests call
-handlers directly, so a signature Restify rejects is one they never see; and
-`serverWiring.test.js`, the only test that loads the bootstrap, **mocks Restify away**, so a
-stub with no rules registered the route happily. `tests/unit/serverMounts.test.js` now mounts
-every route against real Restify and is mutation-verified against exactly this fault — **but it
-is a guard, not a substitute. Run the app before cutting a tag.** That is now step 2½ of
-Integration in practice, and the v0.11.1 ledger row records it as a check that was run.
+**4.92 IS BUILT END TO END — a country's whole schedule, stored once.** Five slices, all on
+Mike's rulings of today, each asked one at a time: it loads at the **global group manager tier
+alone** (overriding default-is-mentor-alone for this feature); a schedule gets its **own
+allowance of 10 a day**, apart from a firm's 20 documents; a pass that will not read is stored
+as a **named gap shown wherever the table is used**; a firm's own table still wins. Drawing:
+[`depreciation-rates-country-schedules.html`](mockups/depreciation-rates-country-schedules.html),
+approved after all three decisions were ruled.
 
-**Built today: item 4.84, the hub notification dots.** Every menu entry can carry one — red for
-the tab's own news, blue for never opened, orange for not opened in 21 days — with the meaning
-in words beside the colour, and a key and count under the menu. Drawn first at
-[`mockups/hub-menu-dots.html`](mockups/hub-menu-dots.html), four questions ruled one at a time,
-all as drawn, then approved to build from. Brief:
-[`features/firm-manager-hub.md`](features/firm-manager-hub.md).
+**The shape that matters: one model answer cannot carry a 52-page schedule.** A survey call
+says how far the document runs, then one call per eight pages, added up here. That is the cure
+for 4.90 and 4.91 — and it exists because we may not open the PDF ourselves (Mike, 2026-09-09),
+so only the model can say how many pages there are.
 
-**Two judgements on it, both stated rather than assumed.** Red stays a signal each tab raises
-for itself and only Compliance raises one — *"published since you last declared"* is a
-Compliance sentence. And the legend hides when nothing wants attention, which is a named
-deviation from the drawing.
+⚠ **NOTHING HAS MET A REAL DOCUMENT.** No schedule has been read through any of it — that needs
+a model key, a manager and a live store, so it is UAT work. **First thing to watch on a live
+run: whether the survey names the table pages correctly.** Get that wrong and the passes read
+the wrong part of the document, thoroughly and confidently.
 
-**SEEN RUNNING, not just tested:** all three states at the Mentor Hub, a dot clearing on open
-with the count dropping 18 → 17, both routes answering live. Looking at it also found the menu's
-labels shifting sideways as dots appeared — the drawing had solved that with a transparent
-placeholder and the build had dropped it. Fixed.
+**4.90 and 4.91 are much narrower but NOT closed** — each carries a `FOR MIKE` line naming the
+choice. 4.90: the picker now searches the whole country table, but the per-document cap is
+still 250 and its comment still says "about 156". 4.91: the country path refuses an empty read
+outright; the per-document read still asks for a whole schedule in one answer.
 
-**4.84 is CLOSED** — closure on [`to-do-done-and-parked.md`](features/to-do-done-and-parked.md)
-§2, eight live items left.
-
-**Next, and unblocked: 4.82** (nothing caps how many paid AI readings a user can trigger) still
-waits on Mike for the cap. **4.83's Compliance screens are still UNSEEN** — they need MySQL,
-Drive and a model key, so they are UAT work, along with the client register and the two rate
-tables.
-
-**DESKTOP:** your quiz-builder files were not touched. What changed under you:
-`server/routes/compliance.js` (the gate's shape only — same check), `components/FirmManagerHub.vue`
-(the dot on every menu entry, the legend), `server/restify-server.js` (two new routes),
-`tests/unit/mentorHubScope.component.test.js` (one helper reads the label rather than the whole
-anchor) and `tests/unit/compliance.routes.test.js` (five gate tests flush instead of awaiting).
-**4.87 was left alone all session** — it is yours and its `activeOn` says so.
+**What else changed under you:** `data/ai-prompts.json` (two new prompts, so four prompt-list
+guards moved), `server/utils/aiLoadBudget.js` (window logic extracted to `_spend`; its twelve
+tests pass unmodified), `tests/unit/hubTabTiers.test.js` (the two middle tiers are no longer
+identical — it now pins that they differ by exactly one named tab), `restify-server.js`,
+`DepreciationDocumentReview.vue`, `FirmDepreciationRates.vue`, and the depreciation Brief.

@@ -308,6 +308,61 @@ describe('the documents a level has loaded', () => {
     wrapper.vm.review('doc-1')
     expect(wrapper.vm.reviewingDocument).toBeNull()
   })
+
+  // 🔴 Item 4.88, and the mirror of the route's own refusal: AN OFFERED BUTTON THAT WOULD FAIL
+  // IS WORSE THAN NO BUTTON — the rule this file already applies to the inherited first-year
+  // rule. Proved through the rendered rows, because calling the method would pass just as
+  // happily with Delete drawn on every row, where it would 409.
+  it('offers Delete on a failed row and on no other', async () => {
+    const wrapper = await mountWithDocuments([
+      document({ id: 'bad', status: 'unreadable' }),
+      document({ id: 'waiting', status: 'pending' }),
+      document({ id: 'inuse', status: 'approved' })
+    ])
+    const asked = []
+    const realConfirm = wrapper.vm.$buefy.dialog.confirm
+    wrapper.vm.$buefy.dialog.confirm = opts => asked.push(opts)
+
+    const rows = wrapper.findAll('.fdr-doc')
+    expect(rows).toHaveLength(3)
+
+    await rows.at(0).findAll('button').at(0).trigger('click')
+    expect(asked).toHaveLength(1)
+
+    // A pending row keeps its one control, Review, and it is not this one.
+    expect(rows.at(1).findAll('button')).toHaveLength(1)
+    await rows.at(1).findAll('button').at(0).trigger('click')
+    expect(asked).toHaveLength(1)
+
+    // An approved document is the record of what this level put into force. Nothing to press.
+    expect(rows.at(2).findAll('button')).toHaveLength(0)
+    wrapper.vm.$buefy.dialog.confirm = realConfirm
+  })
+
+  // Item 4.88. THE STOP IS THE POINT, and it is the half a person in UAT cannot check: they
+  // can see the question appear, but not that pressing nothing wrote nothing.
+  it('deleting a failed read asks first, and writes nothing until the answer is yes', async () => {
+    const wrapper = await mountWithDocuments([document({ status: 'unreadable' })])
+    let confirm = null
+    // `$buefy` rides one localVue shared by every mount in this file, so the stub is put
+    // back below rather than left behind for a later test to trip over.
+    const realConfirm = wrapper.vm.$buefy.dialog.confirm
+    wrapper.vm.$buefy.dialog.confirm = (opts) => { confirm = opts }
+    global.fetch.mockClear()
+
+    wrapper.vm.confirmDelete('doc-1')
+    expect(confirm).not.toBeNull()
+    expect(global.fetch).not.toHaveBeenCalled()
+
+    await confirm.onConfirm()
+    wrapper.vm.$buefy.dialog.confirm = realConfirm
+    const posts = global.fetch.mock.calls.filter(c => c[1] && c[1].method === 'POST')
+    expect(posts).toHaveLength(1)
+    expect(posts[0][0]).toBe('/api/firm-manager/depreciation-rates/documents/remove')
+    expect(JSON.parse(posts[0][1].body)).toEqual({ documentId: 'doc-1' })
+    // The list is re-read, so a row deleted on the server cannot linger on the screen.
+    expect(global.fetch.mock.calls.filter(c => String(c[0]).includes('?country='))).toHaveLength(1)
+  })
 })
 
 describe('loading a document to be read', () => {

@@ -94,6 +94,15 @@
             type="is-light"
             @click="review(d.id)"
           ) {{ reviewing === d.id ? 'Close' : 'Review' }}
+          //- Item 4.88. A failed read is the ONE row that can be deleted — every other
+            status is part of the record of what this level approved.
+          b-button(
+            v-if="d.status === 'unreadable'"
+            size="is-small"
+            type="is-danger is-light"
+            :loading="deleting === d.id"
+            @click="confirmDelete(d.id)"
+          ) Delete
 
       b-message(v-if="uploadMessage" :type="uploadType" size="is-small") {{ uploadMessage }}
 
@@ -115,6 +124,7 @@
       :newest-published="newestPublished"
       :saving="saving"
       :error="reviewError"
+      :api-token="apiToken"
       @approve="approveDocument"
       @reject="rejectDocument"
     )
@@ -260,6 +270,8 @@ export default {
       uploadType: 'is-info',
       /** The id of the document open for review, or '' for none. */
       reviewing: '',
+      /** The id of the failed read being deleted, or '' for none. */
+      deleting: '',
       /** A message from the last approve or reject, shown on the review itself. */
       reviewError: '',
       /** Two-letter code in the box, before it is asked for. */
@@ -478,6 +490,44 @@ export default {
     review (id) {
       this.reviewError = ''
       this.reviewing = this.reviewing === id ? '' : id
+    },
+
+    /**
+     * Asks before deleting a failed read, and writes nothing until the answer is yes.
+     *
+     * The wording is Mike's, approved 2026-09-11. ⚠ NO DOCUMENT NAME IS PUT IN THE MESSAGE,
+     * deliberately: the sibling screen sanitises its confirm copy with DOMPurify because it
+     * quotes a file name a person supplied, and a message with nothing interpolated into it
+     * cannot carry that risk at all.
+     *
+     * @param {string} id - the stored document's id
+     */
+    confirmDelete (id) {
+      this.$buefy.dialog.confirm({
+        message: 'Delete this failed attempt? Nothing else on this screen changes.',
+        type: 'is-danger',
+        confirmText: 'Delete',
+        onConfirm: () => this.deleteDocument(id)
+      })
+    },
+
+    /**
+     * Deletes one failed read and re-reads the list. Nothing else moves: a failed document
+     * proposed no rates, so there is no figure anywhere for this to change.
+     *
+     * @param {string} id - the stored document's id
+     */
+    async deleteDocument (id) {
+      this.deleting = id
+      try {
+        await this.api('POST', '/api/firm-manager/depreciation-rates/documents/remove', { documentId: id })
+        await this.loadDocuments()
+        this.$buefy.toast.open({ message: 'That failed attempt has been deleted', type: 'is-success' })
+      } catch (err) {
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      } finally {
+        this.deleting = ''
+      }
     },
 
     /**

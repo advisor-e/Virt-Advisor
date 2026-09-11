@@ -185,6 +185,52 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.82 — Nothing capped how many paid AI readings an advisor could trigger.**
+✅ Closed 2026-09-11 by Mike, on the laptop — seven rulings asked one at a time, then *"yes"* to
+build, *"yes"* to the commit message, *"yes"* to close. Commit `d85af67`.
+
+- **Why it mattered:** loading a tax document sends it to the model and every reading is paid for.
+  The proposal store's 20-document limit was never a cap — it trims **after** the model has been
+  paid. On 2026-09-09 slice 5 of 4.78 widened loading from managers to every advisor, so an
+  advisor inside a real firm could load the same PDF repeatedly and run up a bill nobody saw until
+  it arrived. Filed at Mike's instruction rather than left as a warning inside 4.78's note, which
+  is the shape the list refuses.
+- **What was done:** 20 readings per firm in any rolling 24 hours, counted across the advisor's
+  route and the manager's together, spent **one line before the model call** in `loadDocument` so
+  a refusal costs nothing. The count rides the existing configuration store
+  ([`aiLoadBudget.js`](../../server/utils/aiLoadBudget.js)), so a restart cannot hand a firm a
+  fresh 20 and no schema change was needed. Brief:
+  [`depreciation-rates.md`](depreciation-rates.md) **P11**, which holds Mike's two approved
+  sentences verbatim.
+- **Mike's seven rulings, asked one at a time:** per firm; twenty; one shared count for advisors
+  and managers; a rolling 24 hours rather than a daily reset; the message wording; fail closed
+  when the store cannot be read, with its own separate sentence; and the recommendation on where
+  the count lives. **The rolling window was a recommendation against the obvious answer and he
+  took it** — a fixed reset needs a clock, and midnight UTC lands at midday in New Zealand, which
+  would have handed a firm 20 before lunch and 20 after.
+- **Two judgements stated rather than asked, both written into the code:** a reading the model
+  answers badly still spends one, because it was still paid for; and a *corrupt* counter is
+  treated as no readings rather than a permanent lockout — a different case from the fail-closed
+  ruling, where the store did not answer at all.
+- **What proves it:** 17 tests across
+  [`aiLoadBudget.test.js`](../../tests/unit/aiLoadBudget.test.js) and
+  [`depreciationRates.routes.test.js`](../../tests/unit/depreciationRates.routes.test.js) — the
+  20th allowed and the 21st refused **before the model is called**, a reading exactly 24 hours old
+  freeing its slot while one an hour younger does not, a refusal writing nothing, aged rows
+  dropped so the stored list cannot grow, and a live database *refusing* a write never mistaken
+  for an absent one. Suite 9,755 green.
+- **The honest limit, in the module header:** it reads then writes rather than locking a row, so
+  two requests in the same instant can both see 19. The true ceiling is 20 plus whatever is in
+  flight. This is a spending guard, not a security boundary, and row-locking every document load
+  would buy a rounding error at the price of a new failure mode.
+- ⚠ **UAT CHECK, RECORDED HERE RATHER THAN HOLDING THE ITEM OPEN:** this machine has no MySQL, so
+  the counting is proved by tests and has never been watched against a real database. Someone in
+  UAT loading 21 documents for one firm is what confirms it end to end.
+- **Two stale comments corrected on the way past** — the route file's header claiming loading was
+  manager-only and the advisor's half unbuilt, and the note in `restify-server.js` saying no rate
+  limit existed. Both had been true until 2026-09-09 and said the opposite of the code by the time
+  they were read.
+
 **4.84 — Notification dots on every hub tab.**
 ✅ Closed 2026-09-10 by Mike, on the laptop — *"yes"* to the drawing, four rulings, *"yes"* to
 build from it, then *"yes"* to close. Shipped in `v0.11.1`.

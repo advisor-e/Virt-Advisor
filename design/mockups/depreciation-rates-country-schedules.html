@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Country Rate Schedules — a country's whole schedule, stored once</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.92 — A country's whole rate schedule, stored as a searchable table.
+   Screen mockup for approval, drawn 2026-09-11. NOTHING IS BUILT.
+
+   FAMILY. This is the fifth drawing of the depreciation family and it does not
+   replace any of them:
+     depreciation-rates-upload.html          the firm manager's tab   (approved 2026-09-08)
+     depreciation-rates-advisor.html         the advisor's side       (approved 2026-09-08)
+     depreciation-rates-country-field.html   which country is this client in?
+     depreciation-rates-class-match.html     which published class is which category?
+     depreciation-rates-country-schedules.html   THIS FILE — where the classes come from
+   The four above are left exactly as approved. This says what is being ADDED
+   above them, at a tier none of them draws.
+
+   MIKE'S RULING THAT CREATED IT, 2026-09-11, verbatim:
+     "if a single source of truth doc is available for a country - with ALL
+      depreciation rates in it - we need the capability to store it, save it,
+      translate it into a serachable table so it can be used in our models"
+   And its tier, ruled the same day: IT LOADS AT THE GLOBAL GROUP MANAGER TIER.
+   One person loads the schedules for every country their brand operates in;
+   group managers and firms inherit the one matching their client and load none.
+   That OVERRIDES the default-is-mentor-alone rule of 2026-08-24 for this feature.
+
+   Colours, spacing and type are READ OFF the shipped hub tabs per the owner
+   ruling of 2026-07-23 — nothing here is a new look. No dark mode: one light
+   look, RULED 2026-07-27.
+
+   WHICH FIGURES ARE REAL. Everything about IR265 is real and was observed on
+   2026-09-11 on the running app: the document, its October 2023 edition, its 52
+   table pages, and the three genuine contradictions in IRD's own schedule that
+   the read surfaced. Counts marked ILLUSTRATIVE are made up to show the shape of
+   a screen and are labelled as such wherever they appear.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.illus{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:#fffbe6;border:1px solid #ffd666;color:#614700;border-radius:5px;padding:1px 6px;
+  white-space:nowrap}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+/* tab strip */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+/* cards */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+/* cascade banner */
+.cascade{display:flex;align-items:center;gap:0;flex-wrap:wrap;font-size:12.5px;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:11px 14px;margin-bottom:16px}
+.ct{display:flex;align-items:center;gap:7px;padding:0 12px 0 0}
+.ct .dot{width:8px;height:8px;border-radius:50%;background:var(--rs-line);flex:none}
+.ct.has .dot{background:var(--rs-accent-bright)}
+.ct.you{font-weight:600;color:var(--rs-ink)}
+.ct.you .dot{background:var(--rs-good)}
+.carrow{color:var(--rs-muted);padding:0 12px 0 0;opacity:.6}
+.cnote{margin-left:auto;color:var(--rs-muted)}
+
+/* upload zone */
+.drop{border:2px dashed #b9d3e8;border-radius:12px;background:var(--rs-panel-2);
+  padding:26px 18px;text-align:center}
+.drop b{display:block;font-size:15px;font-weight:600;margin-bottom:4px}
+.drop span{font-size:12.5px;color:var(--rs-muted)}
+.btn{display:inline-block;margin-top:12px;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:5px 11px;font-size:12.5px;margin-top:0}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+td.cat{font-weight:600;white-space:nowrap}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+.flag{font-weight:600;white-space:nowrap}
+
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.bad{background:var(--rs-crit-soft);color:#b01212;border:1px solid #e0000045}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+.pill.none{background:#f1f4f7;color:#7a8ba0;border:1px solid var(--rs-line)}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--rs-accent-soft);color:#0058a0;white-space:nowrap}
+.badge.def{background:#f1f4f7;color:#7a8ba0}
+.badge.ok{background:var(--rs-good-soft);color:#2f7d32}
+.badge.none{background:var(--rs-crit-soft);color:#b01212}
+
+/* notices */
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.crit{background:var(--rs-crit-soft);border:1px solid #e0000045;border-left:3px solid var(--rs-crit)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+
+/* the sectioned read */
+.pass{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--rs-line);
+  font-size:13px}
+.pass:last-child{border-bottom:0}
+.pass .n{width:74px;flex:none;color:var(--rs-muted);font-variant-numeric:tabular-nums}
+.pass .pg{width:120px;flex:none;font-weight:600;font-variant-numeric:tabular-nums}
+.pass .got{flex:1;color:var(--rs-muted)}
+.bar{height:8px;border-radius:999px;background:var(--rs-panel-2);border:1px solid var(--rs-line);
+  overflow:hidden;margin:10px 0 6px}
+.bar i{display:block;height:100%;background:var(--rs-accent-bright)}
+
+/* search */
+.searchbox{background:#fff;border:1px solid var(--rs-line);border-radius:8px;padding:9px 12px;
+  font-size:13px;color:var(--rs-muted);margin-bottom:12px}
+.searchbox b{color:var(--rs-ink);font-weight:600}
+.picker{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;margin-top:8px}
+.picker .ph{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin-bottom:8px}
+.opt{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rs-line);font-size:13px}
+.opt:last-child{border-bottom:0}
+.opt .dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--rs-line);flex:none}
+.opt.on .dot{border-color:var(--rs-accent);background:var(--rs-accent);box-shadow:inset 0 0 0 2px #fff}
+.opt .r{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+
+.gaps{margin:0;padding-left:18px;font-size:13.5px}
+.gaps li{margin:8px 0}
+
+/* decisions */
+.dec{border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);border-radius:0 10px 10px 0;
+  background:var(--rs-panel-2);padding:14px 16px;margin-bottom:14px;font-size:13.5px}
+.dec h3{margin:0 0 6px;font-size:14.5px;font-weight:600}
+.dec p{margin:0 0 8px}
+.dec p:last-child{margin:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Item 4.92 — screen drawn for approval, 2026-09-11. NOTHING IS BUILT.</b> This is the
+  artefact the build will be checked against, saved before approval as CLAUDE.md requires.</p>
+  <p><b>Your ruling, built in:</b> <i>"if a single source of truth doc is available for a country -
+  with ALL depreciation rates in it - we need the capability to store it, save it, translate it
+  into a serachable table so it can be used in our models"</i> — and its tier, ruled the same day:
+  <b>it loads at the GLOBAL GROUP MANAGER tier</b>. One person loads the schedules for every
+  country their brand operates in; group managers and firms inherit the one matching their client
+  and load none.</p>
+  <p>🔴 <b>Why now.</b> On 2026-09-11 the real IR265 was read for the first time. It was named,
+  dated, and it surfaced three genuine contradictions in IRD's own schedule — and then proposed
+  <b>no rates and no classes at all</b> (item 4.91). The cap on how many classes are kept is
+  <b>250</b>, and IR265 publishes about <b>2,800</b> across 52 table pages (item 4.90). Both come
+  back to one thing: <b>a single model answer cannot carry a 52-page schedule.</b> This drawing is
+  the shape that removes the problem rather than raising a number.</p>
+  <p>✅ <b>ALL THREE OF §8'S DECISIONS WERE RULED BY MIKE ON 2026-09-11</b>, each as recommended,
+  asked and answered <b>one at a time</b>. Nothing is built yet: ruling the questions inside a
+  drawing is not the same as approving the drawing to build from, and that is a separate word.</p>
+</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Global Group Manager Hub</div>
+  <h1 class="hub-h1">Country Rate Schedules</h1>
+  <div class="hub-sub">Advisor-e Group · schedules held for 3 of 6 countries <span class="illus">illustrative</span></div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Domain Support</div>
+  <div class="tab">Logic Tables</div>
+  <div class="tab">Advisory Distinctions</div>
+  <div class="tab">Coaching Reference</div>
+  <div class="tab">AI Prompts</div>
+  <div class="tab">Depreciation Rates</div>
+  <div class="tab">Tax Rates</div>
+  <div class="tab on">Country Rate Schedules</div>
+</div>
+
+<div class="stepmark">1 · Where this sits, and who may load one</div>
+
+<div class="mock">
+  <p><b>The judgement, stated rather than assumed</b> — CLAUDE.md's hub-page rule requires it.
+  <b>This tab exists at the global group manager tier alone.</b></p>
+  <ul>
+    <li><b>Mentor — no.</b> A schedule belongs to a country, and the mentor is above every country.
+      There is nothing for it to hold that a brand does not hold better.</li>
+    <li><b>Global group manager — yes, and only here.</b> Your ruling. A brand knows which countries
+      it operates in; nobody below it has that view, and nobody above it needs one.</li>
+    <li><b>Group manager — no, it INHERITS.</b> A group manager works in one country and reads that
+      country's table. Letting them load a second copy would produce two tables for one country
+      with no rule for which wins.</li>
+    <li><b>Firm manager — no, it INHERITS.</b> The firm's own tab is unchanged: it still loads its
+      own documents and still approves its own six rates. <b>This adds to that; it replaces none
+      of it.</b></li>
+  </ul>
+</div>
+
+<div class="cascade">
+  <div class="ct"><span class="dot"></span> Mentor</div><span class="carrow">→</span>
+  <div class="ct you has"><span class="dot"></span> Global group manager</div><span class="carrow">→</span>
+  <div class="ct"><span class="dot"></span> Group manager</div><span class="carrow">→</span>
+  <div class="ct"><span class="dot"></span> Firm manager</div>
+  <div class="cnote">You load here · every tier below reads what matches their client's country</div>
+</div>
+
+<div class="stepmark">2 · The library — one row per country</div>
+
+<div class="mock">
+  <p><b>Per country, not per document.</b> Some authorities publish several schedules and revise
+  through the year, so a country's row names the edition in force and every rate carries the
+  document and page it came from. A second edition does not sit beside the first as an equal —
+  see §6.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Schedules held</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">3 in use · 1 reading · 2 countries with none</span>
+  </div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:16%">Country</th>
+          <th style="width:34%">Schedule in force</th>
+          <th>Edition</th>
+          <th>Classes</th>
+          <th>State</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="flag">New Zealand</td>
+          <td>IR265 — General depreciation rates
+            <div class="src">Inland Revenue · 52 table pages · approved by M. Bell, 11 Sep 2026</div></td>
+          <td class="num">Oct 2023</td>
+          <td class="num">~2,800 <span class="illus">illus</span></td>
+          <td><span class="pill ok">In use</span></td>
+        </tr>
+        <tr>
+          <td class="flag">Australia</td>
+          <td>TR 2025/1 — Effective life of depreciating assets
+            <div class="src">Australian Taxation Office · reading pass 4 of 9</div></td>
+          <td class="num">Jul 2025</td>
+          <td class="num">1,204 so far <span class="illus">illus</span></td>
+          <td><span class="pill wait">Reading</span></td>
+        </tr>
+        <tr>
+          <td class="flag">Ireland</td>
+          <td>Capital allowances — wear and tear
+            <div class="src">Revenue · approved by M. Bell, 4 Sep 2026</div></td>
+          <td class="num">Jan 2025</td>
+          <td class="num">118 <span class="illus">illus</span></td>
+          <td><span class="pill ok">In use</span></td>
+        </tr>
+        <tr>
+          <td class="flag">United Kingdom</td>
+          <td>No schedule loaded
+            <div class="src">Firms advising UK clients use the app's own six rates, badged
+              <span class="badge def">app default</span> on every forecast</div></td>
+          <td class="num">—</td>
+          <td class="num">—</td>
+          <td><span class="pill none">None</span></td>
+        </tr>
+        <tr>
+          <td class="flag">Singapore</td>
+          <td>No schedule loaded
+            <div class="src">Same — nobody is blocked, and the forecast says which figures are ours</div></td>
+          <td class="num">—</td>
+          <td class="num">—</td>
+          <td><span class="pill none">None</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="drop" style="margin-top:18px">
+      <b>Load a country's schedule</b>
+      <span>PDF, up to 20 MB. Name the country first — a document published for another country
+        is refused rather than filed under the wrong flag.</span>
+      <button class="btn">Choose a country and a file</button>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">3 · Reading 52 pages without asking for 52 pages at once</div>
+
+<div class="mock">
+  <p>🔴 <b>This section is the whole reason the item exists, and it is the fix for 4.90 and 4.91.</b>
+  Today one request sends the whole PDF and asks for everything back in one answer. IR265 came back
+  with <b>nothing</b>. Whether the model gave up on the length or the answer was too large to
+  finish, the cure is the same and it is not a bigger cap: <b>ask for a page range at a time and
+  build the table up.</b></p>
+  <p><span class="rec">Recommended:</span> each pass names a page range, and passes are
+  <b>additive</b> — a pass that fails is retried on its own and <b>never discards the passes that
+  worked</b>. That is the direct lesson of 2026-09-11, when one pair of rows about undersea cable
+  capacity on pages 39–40 threw away all 52 pages.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Reading TR 2025/1 — Australia</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">Started 11 Sep 2026, 14:02 · you can leave this page</span>
+  </div>
+  <div class="card-b">
+    <div class="bar"><i style="width:44%"></i></div>
+    <div style="font-size:13px;color:var(--rs-muted);margin-bottom:14px">
+      <b style="color:var(--rs-ink)">Pass 4 of 9</b> · pages 25–32 of 71 · 1,204 classes so far ·
+      2 entries the document could not settle <span class="illus">illustrative</span>
+    </div>
+
+    <div class="pass"><span class="n">Pass 1</span><span class="pg">pages 1–8</span>
+      <span class="got">312 classes · 0 unsettled</span><span class="pill ok">Done</span></div>
+    <div class="pass"><span class="n">Pass 2</span><span class="pg">pages 9–16</span>
+      <span class="got">341 classes · 0 unsettled</span><span class="pill ok">Done</span></div>
+    <div class="pass"><span class="n">Pass 3</span><span class="pg">pages 17–24</span>
+      <span class="got">288 classes · 2 unsettled</span><span class="pill ok">Done</span></div>
+    <div class="pass"><span class="n">Pass 4</span><span class="pg">pages 25–32</span>
+      <span class="got">reading…</span><span class="pill wait">Running</span></div>
+    <div class="pass"><span class="n">Pass 5–9</span><span class="pg">pages 33–71</span>
+      <span class="got">queued</span><span class="pill none">Waiting</span></div>
+  </div>
+</div>
+
+<div class="notice warn">
+  <b>A pass can fail without losing the rest</b>
+  If pass 6 comes back unreadable, passes 1–5 and 7–9 still stand and the schedule is stored with
+  <b>pages 41–48 named as not read</b>. Retrying one pass costs one reading, not nine. The screen
+  never shows a table that quietly has a hole in it.
+</div>
+
+<div class="mock">
+  <p><b>What this costs, said plainly before it is built.</b> A 71-page schedule is <b>9 model
+  calls</b>, not one. That is more calls for one schedule — and far fewer in total, because today
+  every firm in the brand pays to read the same document for itself. <b>Loading a country's
+  schedule once replaces that entirely.</b> How it counts against the 20-readings-a-day cap is
+  <b>decision 1 in §8</b>.</p>
+</div>
+
+<div class="stepmark">4 · Approving a country's table — one decision, not 2,800</div>
+
+<div class="mock">
+  <p>A manager is never asked to check 2,800 rows, and pretending otherwise would make the approval
+  a formality — which is worse than no approval at all. <span class="rec">Recommended:</span> what
+  they approve is <b>the schedule</b>: this document, this edition, this country, these pages read.
+  The table is then searchable, and anything they disagree with can be corrected in place.</p>
+  <p><b>P3 of the Brief applied to a whole schedule:</b> the panel states what was <b>not</b>
+  covered as prominently as what was, because an absence looks identical to a negative.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>IR265 — New Zealand · October 2023</h2>
+    <div>
+      <button class="btn ghost small">Reject</button>
+      <button class="btn small">Approve this schedule</button>
+    </div>
+  </div>
+  <div class="card-b">
+    <div class="notice good" style="margin-bottom:14px">
+      <b>All 52 table pages were read</b>
+      About 2,800 classes stored <span class="illus">illustrative</span>, each carrying its page and
+      the October 2023 edition date.
+    </div>
+
+    <ul class="gaps">
+      <li><b>3 entries the document could not settle</b>, listed with their pages and left out of
+        the table rather than guessed at. <b>All three are real and were found on 2026-09-11:</b>
+        powder dryer buildings at two rates on pages 14 and 46; microwave ovens twice on page 36;
+        and capacity in the Southern Cross Cable Network, printed on pages 39 and 40 as a sliding
+        scale split across a page break.</li>
+      <li><b>No first-year or accelerated-deduction rule was found.</b> This edition is dated
+        October 2023. New Zealand's Investment Boost begins 22 May 2025 and postdates it, so
+        nothing in this document could mention it. <b>It is held separately and approved
+        separately</b> — see the Depreciation Rates tab.</li>
+      <li><b>Nothing here changes any firm's rates by itself.</b> Approving a schedule makes it
+        available to be searched and offered. A firm's six rates still change only when that firm's
+        own manager approves them.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>The stored table — searchable</h2></div>
+  <div class="card-b">
+    <div class="searchbox">🔍 <b>tractor</b> — 6 of about 2,800 classes <span class="illus">illustrative</span></div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:52%">Published class</th>
+          <th>Life</th>
+          <th>Diminishing value</th>
+          <th>Straight line</th>
+          <th>Page</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tractors (wheeled)</td>
+          <td class="num">15.5 yrs</td><td class="num">13%</td><td class="num">8.5%</td>
+          <td class="num">p.9</td>
+        </tr>
+        <tr>
+          <td>Tractors (crawler)</td>
+          <td class="num">12 yrs</td><td class="num">16%</td><td class="num">10.5%</td>
+          <td class="num">p.9</td>
+        </tr>
+        <tr>
+          <td>Motor vehicles (transporting people, up to 12 seats)</td>
+          <td class="num">4 yrs</td><td class="num">50%</td><td class="num">40%</td>
+          <td class="num">p.61</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:14px 0 0">
+      Wording is the tax authority's own, never ours. A figure a manager corrects keeps its page and
+      is marked as corrected, so a reader can tell the document's number from the manager's.</p>
+  </div>
+</div>
+
+<div class="stepmark">5 · What changes below — and what does not</div>
+
+<div class="mock">
+  <p><b>Nothing that was approved on 2026-09-08 is redrawn.</b> The firm manager still loads its
+  own documents, still confirms which published class each of its six categories takes, and still
+  approves its own rates. Two things get better, and they are the point of the item.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>The class picker, at the firm — before and after</h2></div>
+  <div class="card-b">
+    <div class="picker">
+      <div class="ph" style="color:#b01212">Today · 250 classes from one document, and IR265 publishes about 2,800</div>
+      <div class="opt"><span class="dot"></span> Engineering (heavy) — plant and machinery
+        <span class="r">13% · p.9</span></div>
+      <div class="opt"><span class="dot"></span> Engineering (light) — plant and machinery
+        <span class="r">16% · p.9</span></div>
+      <div style="font-size:12.5px;color:#b01212;margin-top:9px">
+        The list ends around page 10 of 52. A manager whose class is on page 30 looks for it, does
+        not find it, and has no way to know it is in the document. That is item 4.90.</div>
+    </div>
+
+    <div class="picker" style="margin-top:14px">
+      <div class="ph" style="color:#2f7d32">With a country schedule · the whole of New Zealand's, searched</div>
+      <div class="searchbox" style="margin-bottom:8px">🔍 <b>engineering</b></div>
+      <div class="opt on"><span class="dot"></span> Engineering (heavy) — plant and machinery
+        <span class="r">13% · p.9</span></div>
+      <div class="opt"><span class="dot"></span> Engineering (light) — plant and machinery
+        <span class="r">16% · p.9</span></div>
+      <div class="opt"><span class="dot"></span> Engineering shop tooling
+        <span class="r">33% · p.30</span></div>
+      <div style="font-size:12.5px;color:var(--rs-muted);margin-top:9px">
+        <b>Source shown as:</b> <span class="badge">NZ schedule · IR265 p.9 · Oct 2023</span> —
+        the country's table, not one firm's upload.</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Who sees what</h2></div>
+  <div class="card-b">
+    <table>
+      <thead><tr><th style="width:26%">Tier</th><th>What this feature gives them</th></tr></thead>
+      <tbody>
+        <tr><td class="cat">Global group manager</td>
+          <td>Loads and approves a schedule per country. The library in §2 is theirs.</td></tr>
+        <tr><td class="cat">Group manager</td>
+          <td>Reads their country's table, searchable. <b>Read-only</b> — no load, no approve.</td></tr>
+        <tr><td class="cat">Firm manager</td>
+          <td>The class picker now searches the whole country table instead of one document's first
+            250 classes. Everything else on their tab is unchanged.</td></tr>
+        <tr><td class="cat">Advisor</td>
+          <td><b>No new screen at all.</b> They see the same six rates on the forecast, with a
+            better badge under any rate that came from the country's schedule.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="notice info">
+  <b>A firm that has approved its own table still wins</b>
+  That is the existing cascade rule and not a new one: the nearest approved table above the client
+  wins, and the firm is nearest. The country schedule fills the gap for every firm that has
+  approved nothing, which today is all of them. <b>Decision 3 in §8 asks you to confirm it.</b>
+</div>
+
+<div class="stepmark">6 · The edition problem — the cost to meet at the start</div>
+
+<div class="mock">
+  <p>🔴 <b>Said plainly because you should agree to it before it is built, not discover it later.</b>
+  Once a country's schedule is stored, <b>keeping it current is ours</b>. When the tax authority
+  publishes a new edition, every firm inheriting that table holds last year's rates until somebody
+  loads the new one. Today each firm reads its own document and that problem is each firm's; this
+  feature moves it to one place, which is better — <b>and it does not remove it.</b></p>
+  <p><b>Nothing in this app can detect that a new edition exists.</b> The banner below is a prompt
+  to a person, not a check, and it must never be dressed as one.</p>
+</div>
+
+<div class="notice warn">
+  <b>IR265 (October 2023) has been in force here for 2 years</b>
+  Inland Revenue may have published a newer edition. Nothing in this app can tell — check the
+  authority's website, and load the new edition if there is one.
+  <span style="display:inline-block;margin-top:8px"><button class="btn ghost small">Load a newer edition</button></span>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Every rate names its edition, everywhere it appears</h2></div>
+  <div class="card-b">
+    <table>
+      <thead><tr><th style="width:34%">Where</th><th>What a reader sees</th></tr></thead>
+      <tbody>
+        <tr><td class="cat">The firm manager's table</td>
+          <td>50% <span class="badge">NZ schedule · IR265 p.61 · Oct 2023</span></td></tr>
+        <tr><td class="cat">The advisor's Assets card</td>
+          <td>50% <span class="badge">NZ schedule · Oct 2023</span></td></tr>
+        <tr><td class="cat">The printed forecast a lender reads</td>
+          <td>Depreciation rates: New Zealand, IR265 (October 2023). Rates not covered by that
+            schedule are marked <span class="badge def">app default</span>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">7 · What this drawing deliberately does NOT do</div>
+
+<div class="card">
+  <div class="card-b">
+    <ul class="gaps">
+      <li><b>It does not store the PDF.</b> The document is sent to the model, read, and discarded —
+        the existing rule, and it keeps path traversal, storage limits and a deletion policy off the
+        attack surface entirely. What is stored is the table read out of it.</li>
+      <li><b>It does not replace the firm's own uploads.</b> A firm advising a client in a country
+        the brand has not loaded still loads its own document, exactly as approved on 2026-09-08.</li>
+      <li><b>It does not apply a rate to anybody automatically.</b> Nothing unapproved reaches a
+        forecast, and a firm's six rates still change only when that firm's manager approves them.</li>
+      <li><b>It does not add a seventh asset category.</b> The forecast depreciates six; a rate
+        stored against anything else could reach no forecast.</li>
+      <li><b>It does not let one country's table reach a client in another.</b> A table is tagged
+        with its country and a document published for another country is refused on load.</li>
+      <li><b>It does not make the app an authority on any country's tax law.</b> It knows how to
+        read a document somebody gave it and show a person what it found — including, plainly, what
+        it did not.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="stepmark">8 · Three decisions this needs from Mike</div>
+
+<div class="mock">
+  <p>✅ <b>ALL THREE WERE RULED BY MIKE ON 2026-09-11, each as recommended</b> — asked and answered
+  one at a time, never as a list to answer in a batch. Each ruling is recorded on its own decision
+  below, in the drawing rather than only in the conversation that produced it.</p>
+</div>
+
+<div class="dec">
+  <h3>Decision 1 · Does a sectioned read count against the 20-readings-a-day cap?</h3>
+  <p>The cap of item 4.82 is <b>20 documents per firm per rolling 24 hours</b>. A 52-page schedule
+  is 7 model calls and a 71-page one is 9, so a global group manager loading three countries in an
+  afternoon would spend 25 readings and be stopped part-way through a table.</p>
+  <p><span class="rec">Recommended:</span> a country schedule gets <b>its own separate allowance,
+  counted in schedules rather than in model calls</b>, and it does not touch a firm's 20. The reason
+  is the point of the whole item — this is the load that <b>stops</b> every firm paying to re-read
+  the same document, so charging it to a firm's daily allowance would penalise the thing we want to
+  happen. A half-read schedule is also worse than none: it looks complete.</p>
+  <p style="border-top:1px solid var(--rs-line);padding-top:9px">✅ <b>RULED BY MIKE, 2026-09-11:
+  YES — a country schedule has its OWN reading allowance, kept apart from any firm's 20 a day.</b>
+  ⚠ <b>The number itself is not settled and is his to give</b> — it is a separate question and must
+  not be inferred here. Until he names it, nothing is built that spends a reading.</p>
+
+<div class="dec">
+  <h3>Decision 2 · A pass that keeps failing — stop, or store the schedule with a hole named?</h3>
+  <p>If pages 41–48 will not read after a retry, there are two honest endings: refuse the whole
+  schedule, or store the other 44 pages and say on screen that 41–48 were not read.</p>
+  <p><span class="rec">Recommended:</span> <b>store it with the gap named.</b> It is the same
+  judgement you already made on 2026-09-11 — a document that defeats us in one place is not a
+  document we should throw away entirely — and 44 pages of real classes beat six app defaults. The
+  condition is that the gap is stated wherever the table is used, never only where it was loaded.</p>
+  <p style="border-top:1px solid var(--rs-line);padding-top:9px">✅ <b>RULED BY MIKE, 2026-09-11:
+  YES — store it, with the unread page range named.</b> 🔴 <b>The condition is part of the ruling,
+  not a note beside it: the gap shows WHEREVER THAT TABLE IS USED</b> — in the firm's class picker
+  and on the forecast, not only on the screen where the schedule was loaded. Otherwise <i>"there is
+  no such class"</i> and <i>"those pages were never read"</i> look identical, which is the mistake
+  that had a session conclude New Zealand has no first-year rule.</p>
+
+<div class="dec">
+  <h3>Decision 3 · When a firm has its own approved table AND its country has a schedule</h3>
+  <p>Today the nearest approved table above the client wins, so the firm's own would beat the
+  brand's country schedule.</p>
+  <p><span class="rec">Recommended:</span> <b>leave it exactly as it is — the firm's own wins.</b>
+  It is the existing rule for every cascading block in the app, a firm that went to the trouble of
+  approving its own table meant it, and changing the rule here alone would make this the one block
+  that behaves differently. The country schedule reaches every firm that has approved nothing, which
+  today is all of them.</p>
+  <p style="border-top:1px solid var(--rs-line);padding-top:9px">✅ <b>RULED BY MIKE, 2026-09-11:
+  YES — the firm's own approved table still wins, and the cascade is unchanged.</b> ⚠ <b>The cost he
+  accepted with it:</b> a firm that approved rates from an older edition keeps them after the brand
+  loads a newer one, until its own manager acts. §6's staleness banner is what tells that firm — and
+  it tells the firm, not the global group manager.</p>
+</div>
+
+<div class="mock" style="margin-top:26px">
+  <p><b>Security and privacy, stated before any code is written</b> — CLAUDE.md requires flagging
+  this. The exposure is the same family as the firm upload approved on 2026-09-08, with one
+  difference that makes it larger and one that makes it smaller.</p>
+  <ul>
+    <li><b>Larger: one bad schedule reaches every firm in the brand.</b> A firm's bad upload harms
+      one firm. This is why loading stays at one tier, why approval is explicit, and why every rate
+      keeps its page so a wrong figure can be traced rather than argued about.</li>
+    <li><b>Smaller: there is no personal data in this at all.</b> A published tax schedule is a
+      public document. No client, business or person is in the request — the prompt says so and the
+      route sends nothing else. <b>No exception to the stripping rule is needed or sought.</b></li>
+    <li><b>Identity from the verified token only.</b> The scope comes from the existing auth, never
+      from the browser, so one brand cannot write another brand's schedule.</li>
+    <li><b>Size cap and type check before the body is read</b>, following the repository's own
+      procedure for untrusted uploads, with last-known-good and version history.</li>
+    <li><b>The previous edition is kept as last-known-good</b>, so a bad load can never leave a
+      country with no table.</li>
+    <li><b>Nothing the model returns is trusted as structured data.</b> Every class must carry a
+      rate in range, a page and a label, or it is dropped — the existing bar, applied per pass.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

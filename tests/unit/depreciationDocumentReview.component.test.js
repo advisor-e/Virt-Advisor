@@ -327,3 +327,209 @@ describe('what a rate would replace', () => {
     expect(vehicles.currentIsDefault).toBe(true)
   })
 })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Item 4.92 — the picker searches the COUNTRY's whole schedule as well as this
+// document's own classes.
+//
+// 🔴 WHY THIS IS TESTED RATHER THAN EYEBALLED. Item 4.90 is exactly the failure a
+// person in UAT cannot see: the document's own list stops at 250 classes and IR265
+// publishes about 2,800, so a manager whose class is on page 30 looks for it, does
+// not find it, and has no way to know it is in the document at all. "Not there"
+// and "not offered" are the same empty list on screen.
+//
+// And Mike's second ruling of 2026-09-11 lands here rather than only on the screen
+// it was made for: where the country's schedule has pages nobody could read, the
+// gap shows WHEREVER THE TABLE IS USED. This picker is a place it is used.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** A class as the country-schedule search returns one. */
+function scheduleClass (label, page, over) {
+  return Object.assign({
+    label,
+    method: 'dv',
+    dvRate: 0.33,
+    slRate: 0.24,
+    lifeYears: 3,
+    source: { document: 'IR265', page: String(page), published: '2023-10' }
+  }, over || {})
+}
+
+/** Mount with a token, so the country-schedule search is reachable. */
+function mountWithSchedule (body) {
+  global.fetch = jest.fn(() => Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve(Object.assign({
+      country: 'NZ',
+      schedule: { document: 'IR265', published: '2023-10', classes: 2814, originTier: 'global_group_manager' },
+      matches: [],
+      total: 0,
+      truncated: false,
+      unreadNote: ''
+    }, body || {}))
+  }))
+  return mountWithBuefy(Review, {
+    propsData: { document: doc(), resolved: { categories: {} }, apiToken: 'test-token' },
+    mocks: { $buefy: { dialog: { confirm: jest.fn() } } }
+  })
+}
+
+/** Enough turns for the picker's backend search to settle. */
+async function settle (w) {
+  for (let i = 0; i < 8; i++) { await w.vm.$nextTick() }
+}
+
+describe('the picker reaches the country schedule', () => {
+  afterEach(() => { delete global.fetch })
+
+  test('opening it searches the country schedule for the document’s country', async () => {
+    const w = mountWithSchedule()
+    w.vm.openPicker('plantEquipment')
+    await settle(w)
+
+    const url = global.fetch.mock.calls[0][0]
+    expect(url).toContain('/api/firm-manager/country-schedules/classes')
+    expect(url).toContain('country=NZ')
+    w.destroy()
+  })
+
+  test('offers classes the document itself does not hold — the whole point of item 4.90', async () => {
+    const w = mountWithSchedule({
+      matches: [scheduleClass('Computers (desktop and laptop)', 30)],
+      total: 1
+    })
+    w.vm.openPicker('computerHardware')
+    await settle(w)
+
+    const labels = w.vm.pickerOptions.map(o => o.label)
+    expect(labels).toContain('Computers (desktop and laptop)')
+    w.destroy()
+  })
+
+  test('the document’s own classes come first, and a duplicate is offered once', async () => {
+    // Offering the same wording twice asks a manager to choose between two things they cannot
+    // tell apart.
+    const w = mountWithSchedule({
+      matches: [scheduleClass(ENGINEERING, 9), scheduleClass('Something else entirely', 12)],
+      total: 2
+    })
+    w.vm.openPicker('plantEquipment')
+    await settle(w)
+
+    const labels = w.vm.pickerOptions.map(o => o.label)
+    expect(labels.filter(l => l === ENGINEERING)).toHaveLength(1)
+    expect(w.vm.pickerOptions[0].from).toBe('document')
+    w.destroy()
+  })
+
+  test('a class chosen from the schedule is stored in the same shape as one from the document', async () => {
+    // `from` is this screen's own tag. Letting it reach the store would put a field in an
+    // approved rate that the store has never heard of.
+    const w = mountWithSchedule({
+      matches: [scheduleClass('Computers (desktop and laptop)', 30)],
+      total: 1
+    })
+    w.vm.openPicker('computerHardware')
+    await settle(w)
+    w.vm.chosenLabel = 'Computers (desktop and laptop)'
+    w.vm.useChosenClass('computerHardware')
+
+    expect(w.vm.edits.computerHardware.from).toBeUndefined()
+    expect(w.vm.edits.computerHardware.source.page).toBe('30')
+    expect(w.vm.confirmed.computerHardware).toBe(true)
+    w.destroy()
+  })
+
+  test('names the pages of the country schedule that could not be read', async () => {
+    // Mike's second ruling, and the condition he attached to it: the gap shows wherever the
+    // table is USED. Otherwise "there is no such class" and "those pages were never read"
+    // look identical to the person searching.
+    const w = mountWithSchedule({ unreadNote: 'pages 41-48 of IR265 were not read' })
+    w.vm.openPicker('plantEquipment')
+    await settle(w)
+
+    expect(w.vm.scheduleUnreadNote).toContain('41')
+    w.destroy()
+  })
+
+  test('says how many matched when more matched than were returned', async () => {
+    const w = mountWithSchedule({
+      matches: [scheduleClass('Engineering shop tooling', 30)],
+      total: 214,
+      truncated: true
+    })
+    w.vm.openPicker('plantEquipment')
+    await settle(w)
+
+    expect(w.vm.scheduleTotal).toBe(214)
+    expect(w.vm.scheduleTruncated).toBe(true)
+    w.destroy()
+  })
+
+  test('the search is debounced, so typing is not a request per keystroke', async () => {
+    jest.useFakeTimers()
+    const w = mountWithSchedule()
+    w.vm.openPicker('plantEquipment')
+    await settle(w)
+    const afterOpen = global.fetch.mock.calls.length
+
+    w.vm.search = 'e'
+    w.vm.search = 'en'
+    w.vm.search = 'eng'
+    await w.vm.$nextTick()
+    expect(global.fetch.mock.calls.length).toBe(afterOpen)
+
+    jest.advanceTimersByTime(300)
+    await settle(w)
+    expect(global.fetch.mock.calls.length).toBe(afterOpen + 1)
+
+    w.destroy()
+    jest.useRealTimers()
+  })
+
+  test('closing the picker drops the schedule results and any pending search', async () => {
+    jest.useFakeTimers()
+    const w = mountWithSchedule({ matches: [scheduleClass('Computers', 30)], total: 1 })
+    w.vm.openPicker('computerHardware')
+    await settle(w)
+    w.vm.search = 'comp'
+    await w.vm.$nextTick()
+
+    w.vm.closePicker()
+
+    expect(w.vm.searchTimer).toBeNull()
+    expect(w.vm.scheduleMatches).toEqual([])
+    w.destroy()
+    jest.useRealTimers()
+  })
+})
+
+describe('the picker without a country schedule', () => {
+  afterEach(() => { delete global.fetch })
+
+  test('works exactly as before when there is no token', () => {
+    // The country schedule is an ADDITION. A screen that cannot reach it must degrade to what
+    // it had, never to nothing.
+    global.fetch = jest.fn()
+    const w = mountReview()
+    w.vm.openPicker('plantEquipment')
+
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(w.vm.pickerOptions.map(o => o.label)).toContain(ENGINEERING)
+    w.destroy()
+  })
+
+  test('a failed search leaves the document’s own classes on offer', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({ ok: false, statusText: 'nope', json: () => Promise.resolve({}) }))
+    const w = mountWithBuefy(Review, {
+      propsData: { document: doc(), resolved: { categories: {} }, apiToken: 'test-token' },
+      mocks: { $buefy: { dialog: { confirm: jest.fn() } } }
+    })
+    w.vm.openPicker('plantEquipment')
+    await settle(w)
+
+    expect(w.vm.pickerOptions.map(o => o.label)).toContain(ENGINEERING)
+    expect(w.vm.scheduleMatches).toEqual([])
+    w.destroy()
+  })
+})

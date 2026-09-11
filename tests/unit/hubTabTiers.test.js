@@ -176,8 +176,23 @@ describe('hub tab matrix — the two new tiers', () => {
   // design/mockups/tier-hub-pages.html §2: "Why the two middle columns are
   // identical" — a global group manager and a group manager do the same job at a
   // different width.
-  it('the global and group tiers show identical tabs', () => {
-    expect(tabsAt('global')).toEqual(tabsAt('group'))
+  //
+  // 🔴 NO LONGER QUITE IDENTICAL, AND IT IS MIKE'S RULING OF 2026-09-11 RATHER THAN A SLIP.
+  // Country Rate Schedules (item 4.92) is the FIRST tab either middle tier holds alone:
+  // "it loads at the global group manager tier — one person loads the schedules for every
+  // country their brand operates in". A group manager works in one country and INHERITS that
+  // country's table; a second copy would be two tables for one country with no rule for
+  // which wins.
+  //
+  // The drawing's "why the two middle columns are identical" is not overturned — the two
+  // tiers still do the same job at a different width for everything else, which is what this
+  // now holds them to. EXACTLY ONE TAB DIFFERS, and it is named, so a second one appearing
+  // fails the build rather than quietly making the tiers diverge.
+  it('the two middle tiers differ by exactly the one tab Mike ruled onto the global tier', () => {
+    const global = tabsAt('global')
+    const group = tabsAt('group')
+    expect(global.filter(k => !group.includes(k))).toEqual(['countrySchedules'])
+    expect(group.filter(k => !global.includes(k))).toEqual([])
   })
 
   it('each middle tier shows every unconditional tab plus its own six conditional ones', () => {
@@ -230,9 +245,16 @@ describe('hub tab matrix — the two new tiers', () => {
     // 🔴 ELEVEN SINCE 2026-09-10, NOT TEN. Compliance (item 4.83) was named onto all four
     // manager tiers by Mike that day, with the cascade asked for in the same sentence. So a
     // middle tier now shows 17: six unconditional plus eleven conditional.
-    expect(conditional).toHaveLength(11)
+    //
+    // 🔴 TWELVE SINCE 2026-09-11, NOT ELEVEN — AND THIS COUNT IS NOW THE GLOBAL TIER'S ALONE.
+    // Country Rate Schedules (item 4.92) was ruled onto the global group manager tier by Mike
+    // that day, overriding the default-is-mentor-alone rule for this feature. It is the first
+    // tab that makes the two middle tiers differ, so the group tier's own count is asserted
+    // beside it rather than assumed to match.
+    expect(conditional).toHaveLength(12)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(17)
+    expect(unconditional.concat(conditional)).toHaveLength(18)
+    expect(tabsAt('group')).toHaveLength(11)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {
