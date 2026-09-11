@@ -138,6 +138,26 @@ export default {
     // read (design/features/business-entity-reports.md). Added with the feature, because
     // /api/meeting below shows what happens when a slice forgets this line.
     { path: '/api/client-reports', handler: '~/server-middleware/apiProxy.js' },
+    // 🔴 THESE TWO WERE MISSING UNTIL 2026-09-11, AND BOTH FEATURES WERE DEAD IN THE BROWSER.
+    // Built 2026-09-10 with every backend route registered and serving; neither added its line
+    // here, so every call got a Nuxt 404. That is the THIRD time — see /api/meeting below, and
+    // the note on /api/client-reports above, which says in as many words why it was added.
+    //
+    // The cost was not equal. Client Copy Request simply failed: its tab calls this path first
+    // and showed the error instead of loading.
+    //
+    // COMPLIANCE IS THE SUBTLER ONE, AND IT IS NOT THE HUB TAB. That tab reads
+    // /api/firm-manager/..., which was always proxied, so a firm could declare all along. The
+    // only caller of /api/compliance is the GATE on pages/meeting-record.vue. It FAILED CLOSED
+    // by design — `gateOpen` stays false when the check does not answer — so nobody was offered
+    // a recorder at an undeclared firm. But the gate could never return open EITHER, whatever a
+    // firm had declared, so Meeting Review was locked shut for everyone. A firm that had ticked
+    // saw the same screen as one that had not, which is the failure a fail-closed default hides.
+    //
+    // tests/unit/apiProxyWiring.test.js now compares every /api prefix the frontend calls
+    // against this list, so a fourth feature cannot ship without its entry.
+    { path: '/api/client-copy-requests', handler: '~/server-middleware/apiProxy.js' },
+    { path: '/api/compliance', handler: '~/server-middleware/apiProxy.js' },
     // NB '/api/course' (singular, the SSE engine) never prefix-matches
     // '/api/courses' — connect only mounts on a '/' boundary.
     { path: '/api/courses', handler: '~/server-middleware/apiProxy.js' },
