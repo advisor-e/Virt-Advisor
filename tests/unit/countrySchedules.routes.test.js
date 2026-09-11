@@ -573,7 +573,13 @@ describe('listing what this scope holds', () => {
   })
 
   test('a storage failure is reported rather than shown as an empty library', async () => {
-    overlay.loadFirmConfigsByPrefix.mockRejectedValue(new Error('store down'))
+    // A failure a LIVE server refused, which carries a sqlState and never falls back. Before
+    // 2026-09-11 this passed a bare Error, which asserted the same 500 for a machine that simply
+    // has no database — and that reading was the defect: the schedules screen answered 500 on
+    // every developer machine. An empty library and a broken one must still never look alike.
+    overlay.loadFirmConfigsByPrefix.mockRejectedValue(
+      Object.assign(new Error('store down'), { sqlState: '42S02' })
+    )
     const res = makeRes()
     await routes.listSchedules(makeReq(), res)
     expect(res._status).toBe(500)
@@ -684,7 +690,12 @@ describe('searching a country\'s classes', () => {
     // 🔴 A store we could not read is NOT a country nobody has loaded. Answering 200 with an
     // empty table would tell a manager their group has no schedule — a false statement about
     // their own work, which would send them to load one that already exists.
-    overlay.loadFirmConfig.mockRejectedValue(new Error('store down'))
+    // Again a LIVE refusal, carrying a sqlState. A bare Error here would now reach the dev file
+    // instead, which is the affordance that lets a firm search the schedule its group loaded on
+    // a machine with no MySQL — the other half of the same fix.
+    overlay.loadFirmConfig.mockRejectedValue(
+      Object.assign(new Error('store down'), { sqlState: '42S02' })
+    )
     const b = makeRes()
     await routes.searchClasses(makeReq({ firmId: FIRM, query: { country: 'NZ' } }), b)
     expect(b._status).toBe(503)
@@ -793,5 +804,131 @@ describe('when the store will not answer', () => {
     await routes.getRead(makeReq({ query: { country: 'NZ' } }), res)
     expect(res._status).toBe(200)
     expect(res._body.read).toBeNull()
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('with no MySQL the result is KEPT, not silently discarded', () => {
+  // 🔴 THE ONE FAULT IN THIS FEATURE A PERSON IN UAT COULD NEVER SEE, because UAT has a database.
+  // This file carried `devFallbackAllowed` on every read and write and NO STORE BEHIND IT: a read
+  // returned null and a write was swallowed. On 2026-09-11 the real IR265 was read here — 2,303
+  // classes across 62 pages, six passes of seven — and every row was discarded after the reading
+  // allowance had been spent and recorded. Nothing caught it because these tests mock the overlay
+  // away entirely, so no test had ever reached the storage layer at all. These do.
+  //
+  // ⚠ THE DEV FILE IS HELD IN MEMORY HERE. The suite must never write into `data/`, which is the
+  // reason the overlay is mocked in the first place (see the note at the top of this file).
+
+  const DEV = 'dev-country-schedules.json'
+  /** A failure with NO sqlState — nothing answered, so the dev affordance may run. */
+  const gone = () => new Error('connect ECONNREFUSED 127.0.0.1:3306')
+
+  let file, readSpy, writeSpy
+
+  beforeEach(() => {
+    file = null
+    const realRead = fs.readFileSync.bind(fs)
+    const realWrite = fs.writeFileSync.bind(fs)
+    readSpy = jest.spyOn(fs, 'readFileSync').mockImplementation((p, enc) => {
+      if (!String(p).endsWith(DEV)) { return realRead(p, enc) }
+      if (file === null) { throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' }) }
+      return file
+    })
+    writeSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation((p, data) => {
+      if (!String(p).endsWith(DEV)) { return realWrite(p, data) }
+      file = data
+    })
+    overlay.loadFirmConfig.mockRejectedValue(gone())
+    overlay.saveFirmConfig.mockRejectedValue(gone())
+    overlay.loadFirmConfigsByPrefix.mockRejectedValue(gone())
+  })
+
+  afterEach(() => { readSpy.mockRestore(); writeSpy.mockRestore() })
+
+  /** Runs one read to completion with the model stubbed, and returns nothing. */
+  async function runOneRead (reading) {
+    const spy = jest.spyOn(reader, 'readSchedule').mockResolvedValue({ ok: true, reading })
+    await routes._runRead({
+      scopeId: GROUP,
+      userEmail: MANAGER,
+      key: proposals.configKeyFor('NZ'),
+      record: proposals.startedRecord({ filename: 'ir265.pdf', country: 'NZ', loadedBy: MANAGER }),
+      country: 'NZ',
+      filename: 'ir265.pdf',
+      buffer: Buffer.from('%PDF-1.4')
+    })
+    spy.mockRestore()
+  }
+
+  test('a finished read is written somewhere, and read back whole', async () => {
+    await runOneRead(aReading({ classes: [aClass(), aClass({ label: 'Harvesters' })] }))
+    expect(file).not.toBeNull()
+
+    const res = makeRes()
+    await routes.getRead(makeReq({ query: { country: 'NZ' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.read).not.toBeNull()
+    expect(res._body.read.status).toBe('pending')
+    // The classes are the point. A record that came back with an empty table would be the same
+    // defect wearing a different mask.
+    expect(res._body.read.reading.classes).toHaveLength(2)
+    expect(res._body.read.reading.document).toBe('IR265 — General depreciation rates')
+  })
+
+  test('the library lists what was kept, rather than answering 500', async () => {
+    await runOneRead(aReading())
+
+    const res = makeRes()
+    await routes.listSchedules(makeReq(), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.reads).toHaveLength(1)
+    expect(res._body.reads[0].country).toBe('NZ')
+  })
+
+  test('one country does not overwrite another', async () => {
+    // The dev file holds one object per scope keyed by config key, unlike the sibling feature's
+    // file-per-key, precisely because a country is added by USING a new key.
+    await runOneRead(aReading())
+    const spy = jest.spyOn(reader, 'readSchedule').mockResolvedValue({
+      ok: true, reading: aReading({ country: 'AU', document: 'TR 2024/1' })
+    })
+    await routes._runRead({
+      scopeId: GROUP,
+      userEmail: MANAGER,
+      key: proposals.configKeyFor('AU'),
+      record: proposals.startedRecord({ filename: 'tr.pdf', country: 'AU', loadedBy: MANAGER }),
+      country: 'AU',
+      filename: 'tr.pdf',
+      buffer: Buffer.from('%PDF-1.4')
+    })
+    spy.mockRestore()
+
+    const res = makeRes()
+    await routes.listSchedules(makeReq(), res)
+    expect(res._body.reads.map(r => r.country).sort()).toEqual(['AU', 'NZ'])
+  })
+
+  test('a firm searching its group\'s table reaches the same store', async () => {
+    // The other half: loading kept it, and the picker has to be able to find it. Before this the
+    // search passed the bare overlay reader, so it answered 503 on a machine where the schedule
+    // had just been loaded successfully.
+    const res = makeRes()
+    await routes.searchClasses(makeReq({ firmId: GROUP, query: { country: 'NZ', q: 'tractor' } }), res)
+    expect(res._status).toBe(200)
+  })
+
+  test('a live server that REFUSES still fails loudly — it never lands in the dev file', async () => {
+    // The distinction this whole affordance turns on. A rejection carrying a sqlState means a
+    // server answered and said no; writing it to a scratch file and reporting success is the
+    // false pass `dbFailure.js` exists to prevent.
+    overlay.saveFirmConfig.mockRejectedValue(Object.assign(new Error('refused'), { sqlState: '23000' }))
+    overlay.loadFirmConfig.mockRejectedValue(Object.assign(new Error('refused'), { sqlState: '23000' }))
+
+    const res = makeRes()
+    await routes.getRead(makeReq({ query: { country: 'NZ' } }), res)
+    expect(res._status).toBe(500)
+    expect(file).toBeNull()
   })
 })

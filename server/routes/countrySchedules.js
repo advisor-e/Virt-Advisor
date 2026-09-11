@@ -36,6 +36,7 @@
  */
 
 const fs = require('fs')
+const path = require('path')
 const { formidable } = require('formidable')
 const overlay = require('../utils/firmOverlay')
 const { sendError } = require('../utils/sendError')
@@ -48,6 +49,70 @@ const aiLoadBudget = require('../utils/aiLoadBudget')
 
 /** Most classes one search may return. The picker shows a handful; the table is 2,800 rows. */
 const SEARCH_LIMIT = 50
+
+/**
+ * The dev-JSON fallback, one file for this feature's two stores.
+ *
+ * 🔴 WHY THIS EXISTS, AND IT WAS FOUND BY RUNNING THE THING (2026-09-11). This file already had
+ * `devFallbackAllowed` on both its reads and its writes — the guard was copied from
+ * `depreciationRates.js` and THE STORE IT GUARDS WAS NOT. A read therefore returned `null` and a
+ * write was swallowed, so on any machine without MySQL the feature could read a schedule and
+ * keep nothing. The real IR265 was read here that day — 2,303 classes out of 62 pages, six passes
+ * of seven — and every row of it was discarded, after the reading allowance had been spent and
+ * recorded. Nothing in the suite could catch it: `countrySchedules.routes.test.js` replaces the
+ * whole overlay with mocks, so no test had ever reached the storage layer at all.
+ *
+ * ⚠ ONE FILE, KEYED BY SCOPE AND THEN BY CONFIG KEY — unlike the sibling's file-per-key, because
+ * these keys are PREFIXED (`country-schedule:NZ`, `country-schedule-pending:NZ`) and a country is
+ * added by using one. `listSchedules` reads by prefix, which a file-per-key shape cannot answer.
+ *
+ * ⚠ DEV ONLY, and the guard is `devFallbackAllowed`, never a bare NODE_ENV test: a live MySQL
+ * that REFUSES a write must still fail loudly rather than land in a scratch file and report
+ * success. That distinction is the whole subject of `utils/dbFailure.js`.
+ */
+const DEV_FILE = path.resolve(__dirname, '../../data/dev-country-schedules.json')
+
+/** Dev-only: everything this fallback holds, or `{}` when there is no file yet. */
+function devAll () {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_FILE, 'utf8'))
+    return (all && typeof all === 'object' && !Array.isArray(all)) ? all : {}
+  } catch (e) { return {} }
+}
+
+/** Dev-only: this scope's own stored value for one key, or null. */
+function devRead (scopeId, key) {
+  const own = devAll()[scopeId]
+  if (!own || typeof own !== 'object' || Array.isArray(own)) { return null }
+  const value = own[key]
+  return (value === undefined) ? null : value
+}
+
+/** Dev-only: persist this scope's own value for one key. */
+function devWrite (scopeId, key, value) {
+  const all = devAll()
+  const own = (all[scopeId] && typeof all[scopeId] === 'object' && !Array.isArray(all[scopeId]))
+    ? all[scopeId]
+    : {}
+  own[key] = value
+  all[scopeId] = own
+  fs.writeFileSync(DEV_FILE, JSON.stringify(all, null, 2))
+}
+
+/**
+ * Dev-only: this scope's keys under one prefix, mapped by the part AFTER the prefix — the same
+ * shape `overlay.loadFirmConfigsByPrefix` returns, so `listSchedules` cannot tell the two apart.
+ */
+function devReadByPrefix (scopeId, keyPrefix) {
+  const own = devAll()[scopeId]
+  const out = {}
+  if (!own || typeof own !== 'object' || Array.isArray(own)) { return out }
+  Object.keys(own).forEach((key) => {
+    if (key.indexOf(keyPrefix) !== 0) { return }
+    out[key.slice(keyPrefix.length)] = own[key]
+  })
+  return out
+}
 
 /**
  * One scope's own stored value for a key, with no cascade.
@@ -66,7 +131,7 @@ async function readOwn (scopeId, key) {
     return await overlay.loadFirmConfig(scopeId, key)
   } catch (err) {
     if (!devFallbackAllowed(err)) { throw err }
-    return null
+    return devRead(scopeId, key)
   }
 }
 
@@ -83,6 +148,28 @@ async function writeOwn (scopeId, key, value, userEmail) {
     await overlay.saveFirmConfig(scopeId, key, value, userEmail || '')
   } catch (err) {
     if (!devFallbackAllowed(err)) { throw err }
+    devWrite(scopeId, key, value)
+  }
+}
+
+/**
+ * Every value this scope holds under one prefix, through the overlay or the dev file.
+ *
+ * ⚠ THE ONE READ IN THIS FILE THAT DID NOT GO THROUGH A GUARD, which is why the schedules screen
+ * answered 500 on a machine with no database while every other call on it worked. A storage
+ * failure a live server ACTUALLY refused still propagates, and `listSchedules` still reports it:
+ * an empty library and a broken one must never look the same.
+ *
+ * @param {string} scopeId
+ * @param {string} keyPrefix
+ * @returns {Promise<Object.<string, *>>}
+ */
+async function readOwnByPrefix (scopeId, keyPrefix) {
+  try {
+    return await overlay.loadFirmConfigsByPrefix(scopeId, keyPrefix)
+  } catch (err) {
+    if (!devFallbackAllowed(err)) { throw err }
+    return devReadByPrefix(scopeId, keyPrefix)
   }
 }
 
@@ -296,8 +383,8 @@ async function loadSchedule (req, res) {
 async function listSchedules (req, res) {
   try {
     const [approved, pending] = await Promise.all([
-      overlay.loadFirmConfigsByPrefix(req.firmId, schedules.CONFIG_KEY_PREFIX),
-      overlay.loadFirmConfigsByPrefix(req.firmId, proposals.CONFIG_KEY_PREFIX)
+      readOwnByPrefix(req.firmId, schedules.CONFIG_KEY_PREFIX),
+      readOwnByPrefix(req.firmId, proposals.CONFIG_KEY_PREFIX)
     ])
 
     const held = []
@@ -490,9 +577,11 @@ async function searchClasses (req, res) {
   }
 
   try {
-    const resolved = await schedules.resolveCountrySchedule(
-      req.firmId, country, (scopeId, key) => overlay.loadFirmConfig(scopeId, key)
-    )
+    // `readOwn`, never the bare overlay call: a firm searching its group's table must reach the
+    // same store the global group manager wrote to, with or without a database. Passing the raw
+    // reader here left the picker answering 503 on a machine where the schedule had just been
+    // loaded successfully — the keeping fixed at one end and not the other.
+    const resolved = await schedules.resolveCountrySchedule(req.firmId, country, readOwn)
     const schedule = resolved.schedule
 
     // 🔴 A STORE WE COULD NOT READ IS NOT A COUNTRY NOBODY HAS LOADED, and reporting the second
