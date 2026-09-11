@@ -288,6 +288,51 @@ async function * stripResponsesStream (events) {
 }
 
 /**
+ * The provider's own refusal, when one streamed event carries it.
+ *
+ * 🔴 WHY THIS EXISTS, AND IT WAS FOUND BY RUNNING THE APP (2026-09-11). Every consumer of a
+ * `/v1/responses` stream in this app watched for exactly ONE event — `response.completed` — and
+ * ignored the two the API sends when it refuses. So a refusal arrived as "no completed response
+ * came", which each of them reports to a person as *"the reading did not finish, try again"*.
+ *
+ * That day the account ran out of credit. The API said so in as many words —
+ * `credit_balance_exhausted`, *"You have no credits remaining"* — and the app threw the sentence
+ * away and invited the user to retry, forever, against an account with no money in it. Three
+ * readings of IR265 and an hour went into working out why. NOTHING ABOUT THE DOCUMENT OR THE
+ * CODE WAS WRONG, and nothing anywhere could have said so.
+ *
+ * The same shape covers every other refusal: a bad key, a rate limit, a content refusal, a model
+ * that no longer exists. Each is a different sentence for whoever has to fix it, and each was
+ * previously the same shrug.
+ *
+ * ⚠ IT READS, IT NEVER THROWS, AND IT NEVER DECIDES WHAT A USER SEES. Callers log the `message`
+ * server-side and show their own wording: a provider's text is unedited model-adjacent output
+ * and carries a billing URL, which is not a thing to put on an adviser's screen.
+ *
+ * @param {*} event - one parsed SSE event
+ * @returns {{code: string, message: string}|null} null when this event is not a failure
+ */
+function failureFromEvent (event) {
+  if (!event || typeof event !== 'object') { return null }
+  if (event.type !== 'error' && event.type !== 'response.failed') { return null }
+
+  // `error` carries the fault at the top level; `response.failed` carries it on the response it
+  // repeats. Both shapes are read so neither has to be the one the caller happens to see first.
+  const err = (event.error && typeof event.error === 'object')
+    ? event.error
+    : ((event.response && event.response.error && typeof event.response.error === 'object')
+        ? event.response.error
+        : null)
+
+  const code = (err && typeof err.code === 'string' && err.code) ||
+    (typeof event.code === 'string' && event.code) || event.type
+  const message = (err && typeof err.message === 'string' && err.message) ||
+    (typeof event.message === 'string' && event.message) || ''
+
+  return { code: String(code).slice(0, 80), message: String(message).slice(0, 400) }
+}
+
+/**
  * Reads an entire response stream into a string.
  * @param {AsyncIterable<Buffer|string>} res
  * @returns {Promise<string>}
@@ -392,6 +437,7 @@ module.exports = {
   parseSSEStream,
   stripResponseOutput,
   stripResponsesStream,
+  failureFromEvent,
   COMPLETIONS_PATH,
   RESPONSES_PATH
 }

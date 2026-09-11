@@ -81,7 +81,7 @@
     },
     {
       "ref": "4.58",
-      "name": "Meeting Review — the advisor's side is complete; §4 remains",
+      "name": "Meeting Review — three non-coding gates before a first real recording",
       "rankedByMike": false,
       "kind": "feature",
       "score": 3,
@@ -89,79 +89,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports; the advisor's half is built and the manager's half is still a design.",
-      "risk": "The code can now record a client, and the non-coding items in Brief §4 gate a first real recording: staff consultation, the provider's written audio terms, and a lawyer per market. The impact assessment is written. Until item 4.83 builds the declaration gate, the banner on the recorder is a warning and not a control.",
+      "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports. It is built, advisor and manager both. What remains is three things only he or a lawyer can do.",
+      "risk": "NO CODE IS OUTSTANDING. Three non-coding gates stand before a first real recording: staff consultation, a lawyer per market, and the OpenAI audio-terms letter - whose answers on training, retention and human review can falsify the spoken consent line. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, transcription, audio destruction, the two reports, meeting-types slices 1-4, the MANAGER AGGREGATE (firm tier ALONE - P13), TRANSCRIPT EXPIRY on each meeting's own promised period, FOLLOW-THROUGH matched on the client, and the CLIENT COPY REQUEST - access, correction and early deletion. The CLIENT level of the pre-set is BUILT 2026-09-10 on the desktop (one shared list per client, every entry named, no manager screen - Mike's five rulings on the drawing). §4 ITEMS 3 AND 7 ARE CLOSED; THREE REMAIN and none is ours - staff consultation, the lawyer per market, and the OpenAI letter, which waits on Mike. Item 4.83 turns the /meeting-record banner into a real gate. Record: meeting-review-history.md §9.",
+      "note": "Built: observation points, consent and capture, transcription, audio destruction, the two reports, meeting-types slices 1-4, the MANAGER AGGREGATE (firm tier ALONE - P13), TRANSCRIPT EXPIRY on each meeting's own promised period, FOLLOW-THROUGH matched on the client, and the CLIENT COPY REQUEST - access, correction and early deletion. The CLIENT level of the pre-set is BUILT 2026-09-10 on the desktop (one shared list per client, every entry named, no manager screen - Mike's five rulings on the drawing). §4 ITEMS 3 AND 7 ARE CLOSED; THREE REMAIN and none is ours - staff consultation, the lawyer per market, and the OpenAI letter, which waits on Mike. The /meeting-record banner is a real gate since 4.83 closed. Record: meeting-review-history.md §9.",
       "comment": "2026-09-01 - filed; screens approved; slices 1-2 built. 2026-09-02 - slice 3, the types cascade, renumbered from 4.56; two rules Mike never made deleted (Brief P14). 2026-09-07 - the manager aggregate, transcript expiry and follow-through. 2026-09-08 - meeting-types slice 3 and slice 4's advisor half. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day on his instruction, closing §4 item 7. Two of its eight rulings reversed the recommendation: the advisor ALONE releases, so a request spanning several advisors is answered by each in turn."
-    },
-    {
-      "ref": "4.78",
-      "name": "Depreciation rates per country - a manager uploads the source, the AI proposes, they approve",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Depreciation rates and first-year rules differ by country and nothing in the app holds them. The shipped defaults are a guess: Vehicles is 20% where NZ IRD gives 50% diminishing value for a passenger vehicle.",
-      "risk": "An advisor who leaves a default produces a forecast whose depreciation, tax and closing cash are all wrong, and which balances perfectly, and it reaches a lender. The counter-risk is the AI misreading a rate nobody re-checks - which is why the manager approves the extracted table before anything reads it, and why every figure carries its source document and date.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
-      },
-      "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
-      "note": "NOTHING READS AN UNAPPROVED TABLE, structurally rather than by a flag: a proposal lives in its own store. THE MANAGER'S SIDE IS COMPLETE, slices 1 to 3b. SLICES 4 AND 5 ARE THE ADVISOR'S HALF: each rate badges its origin; an approved table is OFFERED, filling only rates still on defaults so a typed rate survives; and an advisor may LOAD a document while approval stays manager-only. ⚠ THE AI-CALL EXPOSURE THAT WIDENING CREATED IS ITEM 4.82, not a warning here. NOT BUILT: the dated purchase list with the first-year deduction - item 4.77, closed here. No document has been read in earnest; that needs UAT. Detail is in the Brief; rulings in depreciation-rates-history.md.",
-      "comment": "2026-09-08 - raised by Mike and filed on his instruction. The recommendation was AGAINST it and he overturned it; the concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers. 2026-09-09 - the manager's side built, slices 1 to 3b, after Mike caught the build conflating a tax rate with a depreciation rate and the feature was renamed. Spec Kit produced eleven rulings, Investment Boost among them. Slices 4 and 5 built the same day on his yes: the advisor sees where each rate came from, is offered their country's table, and may load a document their manager decides on. 44 new tests."
-    },
-    {
-      "ref": "4.81",
-      "name": "The forecast's tax rates are New Zealand's, hardcoded, for every country",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The forecast applies New Zealand's company tax rate, GST rate and filing cycle to every client in every country, with nothing on screen saying so and no manager able to change it.",
-      "risk": "Every forecast for an overseas client is wrong on tax whether or not it owns a single asset, so this is WIDER than 4.78. An advisor can type over the two rates but is never told they are New Zealand's; the filing cycle they cannot change at all, and it decides which months the money leaves the bank. The statements balance perfectly, which is how it reaches a lender.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' The same request 4.78 was filed under."
-      },
-      "touches": "server/utils/taxRates.js and sourcedFigure.js, server/routes/taxRates.js, the Tax Rates tab in components/firm/FirmTaxRates.vue at all four tiers, the GST filing cycle in server/report/threeWayForecastModel.js, and the country field and tax card in components/ThreeWayForecastIntake.vue.",
-      "note": "BUILT, SLICES 1-5, AND A SEPARATE TAB FROM DEPRECIATION RATES ON MIKE'S APPROVAL: the country table, the cascade, the routes, the manager's screen, the engine and the advisor's side. FOUR FIGURES, NOT TWO - the drawing found the GST section also fixes the filing cycle and the accounting basis, both New Zealand's. THE ENGINE'S THREE HARDCODED CYCLES BECAME ONE FORMULA, so Australia's quarterly BAS can be expressed at all; the 3,385 golden workbook cells pass unchanged. NOT BUILT: loading a tax PDF for the AI to read, drawn in §4 - today a manager types each figure and its source by hand. Company tax stays ONE flat rate with a free-text line naming which entities it reaches.",
-      "comment": "2026-09-09 - Mike's own words when the gap was reported as something he had not asked for: 'of course i want the tax rate made contry aware - i literally asked for that!' He had. Drawing approved the same day, then built in five slices on the laptop. The item's own wording was corrected in the build: both rates WERE already editable by an advisor, so the fault was never 'nothing can change them' but 'they are silently New Zealand's and no manager can set them'. The country field was built here on his explicit yes - it is 4.78's approved addendum and nothing here resolves without it."
-    },
-    {
-      "ref": "4.83",
-      "name": "Compliance pages in the four manager hubs",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 5,
-      "scoreReason": "security/privacy/data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike asked for compliance material that cascades from the mentor down to every firm, and for a firm to declare it understands its own country's law before Meeting Review becomes active.",
-      "risk": "A firm can record a client meeting today with nothing showing it was ever told its obligations. The assessment found two live gaps: IPP3A, in force since 1 May 2026 and unanswerable by software, and IPP12, unevidenced until OpenAI confirms where audio is processed. Without the gate the all-care basis is asserted in a document nobody has to open.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-10 - 'i want these compliance pages to show in the mentor, global manager, group manager and firm manager hubs - again, cascading'. The gate is his too: 'they have to tick a box before the feature becomes active'."
-      },
-      "touches": "A Compliance tab at all four tiers in TAB_TIERS and NAV_GROUPS, the firmOverlay cascade, an upload route reusing the master-export-upload validation, an on-demand AI completeness check against MEETING-REVIEW-DPIA.md section 9, the declaration record, and a locked state on pages/meeting-record.vue.",
-      "note": "ALL FOUR SLICES BUILT: the cascade read-only downward, the evidence pack, the declaration and its GATE, the check and the roll-up. THE GATE IS PER FIRM: one that has ticked records as before, one that has not cannot start, and neither affects the other. NO FIRM HAS TICKED YET, so each needs its manager to do it once. THE DECLARATION IS MIKE'S OWN WORDS, VERBATIM AND PINNED. The declaration GATES, the check NEVER does - three tests fail if anything else starts gating. THE CHECK IS SENT DOCUMENT NAMES, NEVER CONTENTS. A tier may neither edit nor hide what a tier above published - structural, not a check. UNSEEN: needs MySQL, Drive and a model key. Brief: design/features/compliance.md.",
-      "comment": "2026-09-10 - raised by Mike and filed on his instruction after he approved the drawing. It grew out of Meeting Review 4.58 section 4, whose impact assessment is the first thing the page publishes. His own proposal to upload privacy statutes for the AI to read was recommended against and he agreed. All four slices built the same day. The menu heading is his pinned word 'Compliance', not the drawing's 'Your firm', which is untrue at the Mentor Hub. A session then asked him to rule on sending firm documents to the model; the artefact had already answered it - the check reads document NAMES. Record: compliance-history.md."
     },
     {
       "ref": "4.86",
@@ -208,90 +145,6 @@
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
       "note": "SPEC KIT FEATURE, specs/002-outcome-learning. ALL BUILT (2026-09-11): the pool, guard and routes, the review hook, the capped hold-back in the resolver beneath the advisor's own words, the trace and the Learned-from-outcomes panel, the firm's Outcome Sharing tab, the advisor's one-line notice, the mentor's page (accept, hold, reject, restore), the dev seed, industry suggestions on the intake, and the two benches with Run the benches on the mentor's page. Seen running against local MySQL, the bench button included. Every word on both screens is ruled, on the drawings. Brief §8 says what stands where.",
       "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T037 on the desktop, each approved and pushed; both hub screens built from their ruled wording rows; the dev seed; industry suggestions on the intake from drawing 4; then the benches (T038 to T042) on Mike's yes, with his ruling that the fixed bench's expected answer is the engine's own unadjusted one. Pressed on the running app the same evening. NEXT: the polish tasks T043 to T047."
-    },
-    {
-      "ref": "4.89",
-      "name": "A refused document cannot tell a manager why",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "A manager told a document could not be read is advised to download it again or try another edition. The model's own reason is now captured server-side and never reaches them.",
-      "risk": "The section 3 fix removed the worst case - a legible document that disagrees with itself is no longer refused - so the standing advice is sound in the common case. What remains is a manager who cannot act on a refusal and re-loads the same file, paying for each attempt. That is what happened three times on 2026-09-11.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-11 - 'doesnt tell us what to do different etc', looking at four identical failure rows on the running app."
-      },
-      "touches": "UNREADABLE_MESSAGE in server/utils/depreciationExtract.js - Mike's pinned wording of 2026-09-09, changed only by him - the whyUnreadable sentence now carried as `detail` and logged, and the document row in components/firm/FirmDepreciationRates.vue.",
-      "note": "THE MATERIAL NOW EXISTS: the model is asked for one plain sentence saying what defeated it, and it is logged. Whether any of it reaches a manager is a WORDING DECISION FOR MIKE, since UNREADABLE_MESSAGE is his own pinned sentence and a test fails the build if it drifts.",
-      "comment": "2026-09-11 - raised by Mike from the running app and filed on his yes, alongside 4.88."
-    },
-    {
-      "ref": "4.90",
-      "name": "Only 250 of about 2,800 published classes are kept",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "MAX_CLASSES is 250 and IR265 publishes roughly 2,800 classes. A manager's picker would hold the first tenth of the document and stop, with nothing on screen saying so.",
-      "risk": "A manager whose category matched the wrong class looks for the right one in a picker that ends around page 10 of 52, does not find it, and has no way to know the class is in the document. Dropped classes are deliberately not counted into refusedRows, so the absence is silent by design.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found 2026-09-11 while building the section 3 fix, and filed on Mike's yes. A defect in something already built, not a new capability."
-      },
-      "touches": "MAX_CLASSES and its comment in server/utils/depreciationExtract.js, the same wrong figure in design/features/depreciation-rates.md section 3, and the picker in components/firm/DepreciationDocumentReview.vue.",
-      "note": "LARGELY CURED BY 4.92, WHICH IS BUILT: the picker now searches the country's whole schedule, so a class on page 30 is findable. What REMAINS is narrow - the per-document cap is still 250 and its code comment still says 'about 156', which bites only a firm whose group has loaded no country schedule. The Brief's copy of the wrong figure was corrected 2026-09-11. FOR MIKE: close it, or fix the comment and the cap first.",
-      "comment": "2026-09-11 - found while building the section 3 fix, when the same wrong figure turned up in the code that had already been found in the Brief."
-    },
-    {
-      "ref": "4.91",
-      "name": "A read can succeed and propose no rates at all",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "IR265 was read, named and dated correctly, and three real contradictions in it were flagged - then not one rate and not one class was proposed. The manager gets a pending document with nothing on it to approve.",
-      "risk": "A manager loads a schedule, waits, pays for the reading and is shown a proposal that proposes nothing, with no way to tell whether the document was poor or the reading was. Every forecast keeps the app's own six figures, which are New Zealand guesses, and the screen does not say that is why.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found 2026-09-11 by loading the real IR265 after the section 3 fix, and filed on Mike's yes. A defect in something already built."
-      },
-      "touches": "The rates and classlist sections of the depreciation-read prompt in data/ai-prompts.json, validateReading in server/utils/depreciationExtract.js, and whatever the country-wide table Mike asked for on 2026-09-11 does instead.",
-      "note": "PROVEN, NOT INFERRED: refusedRows was 0, so nothing was rejected on our side - the model sent an empty rates list. THE CURE IS BUILT IN 4.92: a schedule is now read a page range at a time and a read producing no classes is refused outright rather than stored as a proposal with nothing on it. That is the country path only. THE PER-DOCUMENT READ IS UNCHANGED and still asks for a whole schedule in one answer. FOR MIKE: close it, or point the per-document read at the same passes.",
-      "comment": "2026-09-11 - the second wall, met immediately after the first came down. The section 3 fix worked: the document that had been refused four times was read, named IR265, dated 2023-10, and three genuine contradictions surfaced - powder dryer buildings at two rates on pages 14 and 46, microwave ovens twice on page 36, and the Southern Cross Cable entry."
-    },
-    {
-      "ref": "4.92",
-      "name": "A country's whole rate schedule, stored as a searchable table",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": "4.90 and 4.91, which both come back to one reply carrying a 52-page schedule",
-      "waitingOn": "Mike",
-      "why": "Mike asked for a country's published schedule to be stored and turned into a searchable table the models can use, instead of being re-read per firm and reduced to six rough categories.",
-      "risk": "Without it every firm pays to re-read the same document, an advisor's client is depreciated at the nearest of six buckets rather than the class the tax authority publishes, and nothing accumulates. It is also the likely cure for 4.90 and 4.91: a table is built up in sections, so no single answer has to carry 2,800 classes.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-11 - 'if a single source of truth doc is available for a country - with ALL depreciation rates in it - we need the capability to store it, save it, translate it into a serachable table so it can be used in our models'."
-      },
-      "touches": "A new store beside the approved tables, the reading route and prompt in depreciationExtract.js and data/ai-prompts.json, the tier chain and the global-group scope in tierChain.js, a screen at the global group manager tier in FirmManagerHub.vue, and the class picker in DepreciationDocumentReview.vue.",
-      "note": "🔴 MIKE'S RULING, 2026-09-11: IT LOADS AT THE GLOBAL GROUP MANAGER TIER. One person loads the schedules for every country their brand operates in, each table tagged with its country; group managers and firms inherit the one matching their client and load nothing. This OVERRIDES the default-is-mentor-alone rule for this feature. PER COUNTRY, NOT PER DOCUMENT: each row names the document and page it came from. BUILT 2026-09-11, ALL FIVE SLICES: the store, the sectioned read, six routes with their own 10-a-day allowance, the global group manager's screen, and the firm's class picker searching the whole table. Drawing: design/mockups/depreciation-rates-country-schedules.html. NO REAL SCHEDULE HAS BEEN READ THROUGH IT - that needs UAT.",
-      "comment": "2026-09-11 - raised by Mike while the IR265 read was being diagnosed, and filed at shutdown on his yes. THE COST HE SHOULD MEET AT THE START: once we store a country's table, keeping it current is ours - when the next edition is published, every firm inheriting it holds last year's rates until someone loads the new one, so every rate must show which edition it came from. Drawn, ruled and BUILT 2026-09-11 - three decisions plus the allowance number and the limit wording, each asked one at a time. A defect was found and fixed mid-build: an unreachable store read as 'no schedule loaded'."
     },
     {
       "ref": "4.93",

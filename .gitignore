@@ -95,6 +95,17 @@ data/dev-depreciation-proposals.json
 # above: it is one machine's local spending count and means nothing on another.
 data/dev-ai-load-budget.json
 
+# Dev-only COUNTRY schedules — a whole country's published rate table and the reads in flight
+# or waiting for a manager (item 4.92). Keyed by SCOPE, ignored for the same reason as every
+# sibling above. It holds one machine's scratch reads of a tax authority's PDF and nothing a
+# forecast reads until a manager approves it.
+#
+# ⚠ IT WAS COMMITTED ONCE, ON THE DAY IT WAS CREATED (2026-09-11), carrying a failed read —
+# because this file names every dev store INDIVIDUALLY rather than by pattern, so a new one is
+# tracked by default. That is deliberate: each entry above states why it is ignored. The cost
+# is that a new dev store must be added here in the same change that creates it.
+data/dev-country-schedules.json
+
 # Dev-only tax rates — a scope's APPROVED company tax rate, GST rate, filing cycle and
 # accounting basis, per country (item 4.81). Keyed by SCOPE, ignored for the same reason as
 # every sibling above. The app's own four are data/tax-rates.json and ARE committed: they

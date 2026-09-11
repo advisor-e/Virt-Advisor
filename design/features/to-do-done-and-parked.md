@@ -185,6 +185,240 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.92 — A country's whole rate schedule, stored as a searchable table.**
+✅ Closed 2026-09-11 on the laptop by Mike, **after the whole chain was run end to end against the
+real IR265** — held open deliberately until then, because this is the feature that had been built,
+tested and merged without anybody ever seeing it work.
+
+- 🔴 **THE RUN, IN FULL.** Inland Revenue's IR265 (October 2023, 62 pages, 0.47 MB), loaded at the
+  global group manager tier:
+
+  ```
+  document   "IR265 — General depreciation rates"   published 2023-10
+  passes     7 planned, 7 attempted, 1 failed twice and was NAMED
+  classes    2,303 kept · unresolved 2 · refusedRows 12 · outOfRange 0
+  pagesUnread [{ from: 54, to: 58 }]
+  ```
+
+  **2,303 is the identical figure the discarded read produced that morning**, which is as good
+  evidence as this will ever have that the page-range approach is stable rather than lucky.
+- **P13 held, twice.** A pass failed on both runs, was retried once, and then recorded as unread
+  while the other six survived. The rule it replaced would have thrown away all 62 pages.
+- **And the gap follows the table to where it is USED**, which was Mike's condition rather than a
+  detail: a firm searching the schedule is told *"page 54–58 of IR265 were not read, so a class
+  printed there is missing from this list."*
+- **The cascade, proved from the other end.** A firm that loaded nothing searched its group's table
+  and got `originTier: global_group_manager` — his ruling of that morning, working: one person
+  loads a country, everyone beneath inherits it.
+
+  | search | matches | first result |
+  |---|---|---|
+  | `motor vehicle` | 4 | Motor vehicles (transporting people, up to 12 seats) — **DV 0.5** |
+  | `tractor` | 15 | Lawnmowers (domestic type, lawn mowing contractors) — DV 1.0 |
+  | `computer` | 29 | Grading machinery (computerised) — DV 0.25 |
+  | `harvester` | 1 | Harvesters — DV 0.13 |
+
+- 🔴 **THE FIRST ROW IS THE WHOLE POINT OF THE FEATURE.** The app ships **0.2** for vehicles; IR265
+  publishes **0.5** diminishing value for a passenger vehicle. That figure was the worked example in
+  this item's own text, and it is now a real row in a real table that any advisor in the group can
+  find.
+- **What had to be fixed first, the same day, before any of this could happen:** the country routes
+  carried the dev-storage guard without the store behind it, so the first successful read was
+  discarded in full after its allowance had been spent, and the schedules screen answered 500.
+- ⚠ **What this closure does NOT claim:** no rate from this table has yet been pulled into a client's
+  forecast, and the approval was driven through the API rather than clicked by a person. **UAT does
+  that**, and by Mike's rule it does not hold the item open.
+
+**4.78 — Depreciation rates per country: a manager uploads the source, the AI proposes, they approve.**
+✅ Closed 2026-09-11 on the laptop by Mike, **on the day its central claim was demonstrated for the
+first time**. Built 2026-09-08/09 in five slices; it had never once been seen doing the thing it
+exists to do.
+
+- **Why it stayed open until then:** its own note said *"no document has been read in earnest"*. Two
+  real attempts that morning came back readable, correctly named and dated, and proposed **nothing**
+  — the shape item 4.89's `NOTHING_READ` now refuses outright. IR265 could never prove it either:
+  at 62 pages it is the one thing this reader cannot do, which is item 4.90's whole subject.
+  **Proving it needed a SHORT published document, and nobody had ever tried one.**
+- 🔴 **WHAT FINALLY PROVED IT, on the running app:** Inland Revenue's determination **DEP106**
+  (e-scooters and e-bicycles, three pages). The reader named the document from its own title page,
+  extracted `2021-03-26`, proposed **one of the six** categories with a rate, a page and a date,
+  named the other five as gaps rather than guessing, and offered **six published classes** for the
+  picker. `refusedRows` 0.
+- 🔴 **AND THEN THE PART THAT MATTERS MOST — THE MANAGER OVERRULED THE MACHINE.** The AI matched
+  `other` to *"Safety equipment (other)"*; the manager approved *"E-scooter"* instead, straight from
+  the picker. The advisor-facing resolve then returned `other` at **0.5 from `firm_manager`, labelled
+  E-scooter**, with the other five still `app default`. **A rate read by a model from a real
+  document reached an advisor's forecast for the first time, and it was the human's choice that got
+  there, not the machine's.** That is P10 working under real conditions rather than in a test.
+- **It also did something right that looks like a miss:** it did NOT put e-scooters in `vehicles`.
+  The prompt defines that category as *"cars, utes, vans and trucks a business owns and drives"*, so
+  it declined to stretch it — FR-032 and §4's *"omit rather than stretch"* rule, holding.
+- **What is deliberately not built:** the dated purchase list with the first-year deduction — that
+  was item 4.77, closed separately.
+- ⚠ **What this closure does NOT claim:** the approval was driven through the API as a firm manager,
+  not clicked on the screen by a person, and no country has a full table approved. **UAT does that**,
+  and by Mike's rule it does not hold the item open.
+
+**4.81 — The forecast's tax rates were New Zealand's, hardcoded, for every country.**
+✅ Closed 2026-09-11 on the laptop by Mike. Built in five slices on 2026-09-09, verified against
+the running app the day it closed.
+
+- **Why it mattered:** every forecast for an overseas client was wrong on tax whether or not it
+  owned a single asset — **wider than the depreciation item** it was filed beside. An advisor could
+  type over two of the figures but was never told they were New Zealand's, and the filing cycle
+  they could not change at all, though it decides which months the money leaves the bank. The
+  statements balanced perfectly, which is how it would have reached a lender.
+- **Four figures, not two.** The drawing found the GST section also fixes the **filing cycle** and
+  the **accounting basis**, both silently New Zealand's. **The engine's three hardcoded cycles
+  became one formula**, so Australia's quarterly BAS can be expressed at all — and the 3,385 golden
+  workbook cells pass unchanged.
+- **What was done:** [`taxRates.js`](../../server/utils/taxRates.js) and its route, a Tax Rates tab
+  at all four tiers in [`FirmTaxRates.vue`](../../components/firm/FirmTaxRates.vue), the cascade,
+  and the advisor's side — a country field on the intake and a provenance badge on every figure.
+  The engine's `0.28` and `0.15` are now **defaults in a defaults object**, overridden by input
+  (`pick(i.gstRate, d.gstRate)`), not constants applied to everyone.
+- **Mike's own words when the gap was first reported as something he had not asked for:** *"of
+  course i want the tax rate made contry aware - i literally asked for that!"* He had.
+- 🔴 **DELIBERATELY NOT BUILT, and this is the part not to lose: loading a tax PDF for the AI to
+  read.** It was Mike's own question, and the Brief argues against it in its own words — a tax
+  document publishes **four figures** where a depreciation schedule publishes about 2,800, so an
+  extraction here *"saves the typing and none of the checking"*. A manager types four numbers and
+  their source by hand, and checks four numbers either way. **It is genuinely open and it is Mike's
+  to revive**; it is off the list so that it stops reading as owed work, not because it was
+  refused. See [`tax-rates.md`](tax-rates.md) §5 and its history §5.
+- **What proves it:** the golden workbook, unchanged at 3,385 cells, plus the suite. **And then the
+  running app on 2026-09-11:** the manager route answers 200 at mentor, global-group and firm
+  tiers, and the advisor-facing resolve returns all four figures with `originTier: null` — correctly
+  labelled as app defaults on a machine where nobody has approved a table.
+- ⚠ **Not yet exercised with a real APPROVED table**, so no manager-set rate has reached a forecast.
+  That is UAT's, and by Mike's rule it does not hold the item open.
+
+**4.83 — Compliance pages in the four manager hubs.**
+✅ Closed 2026-09-11 on the laptop by Mike. **It was already built; the item's `waitingOn` field
+said "Us" and was simply out of date** — the highest-scoring item on the list, mis-filed as open.
+
+- **Verified part by part against the code, not against the note:** the Compliance tab at all four
+  tiers in `TAB_TIERS` with Mike's own 2026-09-10 words quoted beside it and advisors excluded as
+  a stated judgement ([`FirmManagerHub.vue`](../../components/FirmManagerHub.vue)); the cascade
+  read-only downward, carrying his *"read and add beside — never edit, never hide"* ruling;
+  [`compliance.js`](../../server/routes/compliance.js),
+  [`compliance.js` (utils)](../../server/utils/compliance.js) and
+  [`complianceCheck.js`](../../server/utils/complianceCheck.js);
+  [`FirmCompliance.vue`](../../components/firm/FirmCompliance.vue); the declaration gate on
+  [`meeting-record.vue`](../../pages/meeting-record.vue) calling `/api/compliance/gate` with
+  Screen C behind it; and the Brief at [`compliance.md`](compliance.md).
+- **The one thing genuinely broken was fixed the same day** — `/api/compliance` was missing from
+  the Nuxt proxy list, so the gate could never answer "open" and a firm that had declared saw the
+  same screen as one that had not. Commit `276738d`, and
+  `tests/unit/apiProxyWiring.test.js` now fails the build if a feature ships without its entry.
+- **Checked specifically, because it would have been the obvious fourth victim:** it does NOT have
+  the swallowed-refusal fault closed under 4.89 the same day. `complianceCheck` uses the
+  NON-streaming call, and that path throws with the API's own error body attached
+  ([`openaiClient.js`](../../server/utils/openaiClient.js)), which it logs. A refusal there has
+  always named its reason server-side.
+- **What remains is not ours, and does not hold an item open:** no firm has ticked the declaration
+  yet — each firm's manager does that once — and the feature cannot be seen on a developer machine
+  because it needs MySQL, Drive and a model key.
+- ⚠ **What this closure does NOT claim:** every part was verified to EXIST and the AI path to be
+  sound. Each behaviour was not re-tested by hand; the suite covers them and is green.
+
+**4.89 — A refused document could not tell a manager why.**
+✅ Closed 2026-09-11 on the laptop by Mike, after the item's own stated risk happened to him in
+person — *"a manager who cannot act on a refusal and re-loads the same file, paying for each
+attempt"*.
+
+- **What actually happened that day, and it is the whole closure:** the OpenAI account ran out of
+  credit. The API said so plainly, on the `error` and `response.failed` events it sends when it
+  refuses — `credit_balance_exhausted`, *"You have no credits remaining."* **Every consumer of a
+  streamed response in this app watched for `response.completed` and ignored both**, so a refusal
+  arrived as "no completed response came" and was reported as *"the reading did not finish — load
+  the document again."* Mike followed that three times against an account with no money in it. An
+  hour went into working out why, and nothing about the document or the code was wrong.
+- **What was done:** `failureFromEvent` in
+  [`openaiClient.js`](../../server/utils/openaiClient.js), used by all three readers —
+  `depreciationExtract`, `countryScheduleRead` and `economicAnalysis`. A refusal is now its own
+  answer with its own sentence, and the provider's reason is logged. Brief:
+  [`depreciation-rates.md`](depreciation-rates.md) **P16**.
+- 🔴 **Mike's decision on the half that was genuinely open — the model's own words STAY OFF THE
+  SCREEN.** The item asked whether `whyUnreadable` should reach a manager. It does not, and the
+  day proved why: the provider's sentence carried a billing URL. Unedited text from outside this
+  app on an adviser's screen is the one thing this feature is otherwise careful never to do
+  (FR-050). **What a manager needed was not the model's words but a different message per cause**,
+  which is what now exists — and for a genuinely unreadable PDF his pinned sentence already says
+  what to do: download it again, or load a different edition.
+- **Also closed with it:** `READ_INCOMPLETE` returned above the diagnostic block in both readers,
+  so the one failure that left no trace anywhere was the one nobody could diagnose. Both now log
+  how far the stream got — zero events is a call that never started, many is one cut off — and the
+  per-document message no longer advises a retry that cannot work.
+- **What proves it:** eight tests, and then **the real thing on the running app against the
+  exhausted account** — 502 `SERVICE_REFUSED` to the caller with no document row filed, and
+  `code="credit_balance_exhausted"` in the log of both readers.
+
+**4.90 — Only 250 of about 2,800 published classes are kept.**
+✅ Closed 2026-09-11 on the laptop by Mike — the wrong figure corrected everywhere it was still
+asserted, and **the cap deliberately left at 250**.
+
+- **Why it mattered:** `MAX_CLASSES` is 250 and IR265 publishes about 2,800 classes across 52
+  table pages, so one document's stored class list held roughly a tenth of it, with nothing on
+  screen saying so — dropped classes are deliberately not counted into `refusedRows`. A manager
+  whose category matched the wrong class would look for the right one in a picker that ended
+  around page 5 of 52.
+- **Found wider than filed:** the item's note said only the code comment still carried the wrong
+  figure. **Four live copies did** — the `MAX_CLASSES` comment, a JSDoc block in
+  [`DepreciationDocumentReview.vue`](../../components/firm/DepreciationDocumentReview.vue), a
+  comment in `forecastCountryDepreciation.component.test.js`, and a sentence in a **different
+  feature's Brief**, [`tax-rates.md`](tax-rates.md). All four now say about 2,800.
+- **The one that mattered most:** the `MAX_CLASSES` comment did not merely repeat the number, it
+  **used it to argue the cap was generous** — *"250 clears that with room"*. It now carries the
+  true reason the number stands, so the next reader is not told the opposite of the truth.
+- **Mike's ruling: the cap stays at 250.** Raising it would pretend one model answer can carry a
+  whole schedule, and **4.91 proved the same week that it cannot** — the real IR265 came back
+  offering nothing at all. The answer to a long schedule is the country schedule of 4.92, read a
+  page range at a time, which the picker searches in full.
+- **What this knowingly accepts, and it is written into the code beside the number:** a firm whose
+  group has loaded **no** country schedule still gets that document's first 250 classes with
+  nothing saying more exist. Loading the country schedule removes it. A second cure — a *"showing
+  the first 250 of N"* notice — was **not** built, because nobody asked for one.
+- **What proves it:** nothing new to prove. No behaviour changed; the suite stayed at 10,026 green.
+  The claim this closes on is that the figure is now right in every live place it is asserted, and
+  wrong in none — the mockup, the two history files and the ARTEFACTS row keep it deliberately,
+  because they record what was drawn and said at the time.
+
+**4.91 — A read could succeed and propose nothing at all.**
+✅ Closed 2026-09-11 on the laptop — the narrow fix, chosen by Mike over porting the page-range
+passes.
+
+- **Why it mattered:** on 2026-09-11 the real IR265 came back readable, correctly named, correctly
+  dated, flagging three genuine contradictions in Inland Revenue's own schedule — and offering no
+  rates and no classes. `refusedRows` was 0, so nothing was rejected on our side; the model sent
+  empty lists. That was stored as `pending`, which a manager reads as **"Needs your approval · 0 of
+  6 categories read"** — an approval that can never be given, on a row that **could not be deleted
+  either**, because only a failed row may be (4.88). None of it is visible in UAT: the screen looks
+  exactly like a document waiting its turn.
+- **What was done:** a fourth refusal, `NOTHING_READ`, in
+  [`depreciationExtract.js`](../../server/utils/depreciationExtract.js) — refused only when the
+  rates list **and** the class list are both empty — and `NOTHING_READ` added to the codes the
+  route **records** rather than errors, so the document appears as a failed row a manager can
+  clear. Brief: [`depreciation-rates.md`](depreciation-rates.md) **P15**. No screen change was
+  needed; the banner already renders the message, and the manager's and advisor's loads share one
+  handler.
+- **Mike's two decisions:** the page-range passes of P13 were **not** ported to the per-document
+  read — the country schedule already reads a national document at the tier P12 puts it at, with
+  its own allowance, and per-document passes would spend seven or more of a firm's twenty daily
+  readings on one file. And the sentence a manager sees is the country reader's own, with only the
+  words that must differ changed, so one event does not get two wordings.
+- **What proves it:** 11 tests, including the whole IR265 shape end to end — readable, named,
+  dated, three contradictions and nothing else — now coming back refused. Both lists are tested in
+  each direction: a class list with no category match still succeeds, a category match with no
+  class list still succeeds, and contradictions alone do not. An unreadable document is still
+  `UNREADABLE` and a foreign one still `COUNTRY_MISMATCH`, so the new check cannot swallow either.
+  **Two existing tests asserted the old rule and were rewritten, not deleted** — the truth inside
+  them (FR-032: no category match is a success with six gaps) survives and is still pinned.
+  The diagnostic added the day before was **moved so it follows this case into the refusal**;
+  logging it as a bare refusal would have discarded the one measurement that settles it.
+- **What UAT still has to see:** a real document read through the fixed path. Nothing here has
+  read one in earnest — that was true of the feature before this change and is unchanged by it.
+
 **4.88 — A failed document load could never be cleared from the screen.**
 ✅ Closed 2026-09-11 on the laptop — proved, built, and then used on the running app the same
 day. Commits `07b7ea5`, `be5c350`.

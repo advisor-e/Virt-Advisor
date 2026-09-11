@@ -38,7 +38,7 @@
  * Node 14, CommonJS.
  */
 
-const { createOpenAIClient } = require('./openaiClient')
+const { createOpenAIClient, failureFromEvent } = require('./openaiClient')
 // The whole module rather than the two functions, so a test can stand in for one of them:
 // both of this file's prompt-assembly failure paths are otherwise unreachable, and an error
 // path nobody has run is an error path nobody knows the shape of.
@@ -86,11 +86,20 @@ const MAX_LABEL = 120
 /**
  * How many published classes are kept from one document, for the manager's own picker.
  *
- * ⚠ A CAP, NOT A TARGET, AND IT IS ABOVE THE REAL DOCUMENTS. IR265 publishes about 156
- * classes and the approved drawing's picker says so in as many words; 250 clears that with
- * room for a longer schedule, while stopping a runaway answer from filling a firm's stored
- * record. Classes past the cap are dropped from the END, so the order the document prints
- * them in is the order that survives.
+ * 🔴 A CEILING ON A RUNAWAY ANSWER, AND IT IS BELOW THE REAL DOCUMENTS — item 4.90. This
+ * comment used to read *"IR265 publishes about 156 classes … 250 clears that with room"*, which
+ * argued the cap was generous and was wrong by a factor of eighteen: IR265 publishes about
+ * 2,800 classes across 52 table pages, so 250 holds roughly a tenth of it.
+ *
+ * 🔴 THE NUMBER STAYS AT 250 ANYWAY — Mike's ruling of 2026-09-11. Raising it would pretend one
+ * model answer can carry a whole schedule, and item 4.91 proved that same week that it cannot:
+ * the real IR265 came back offering nothing at all. The answer to a long schedule is the
+ * COUNTRY SCHEDULE (item 4.92), read a page range at a time, which the picker searches in full.
+ *
+ * ⚠ WHAT THIS KNOWINGLY ACCEPTS: a firm whose group has loaded no country schedule gets this
+ * document's first 250 classes with nothing on screen saying more exist. Classes past the cap
+ * are dropped from the END, so the order the document prints them in is the order that
+ * survives. Loading the country schedule removes it.
  */
 const MAX_CLASSES = 250
 
@@ -116,6 +125,49 @@ const MAX_UNRESOLVED = 50
 const UNREADABLE_MESSAGE = 'This document could not be read reliably — nothing was taken ' +
   'from it. No rates have been proposed and nothing has changed. Try downloading it again ' +
   'from the tax authority\'s website, or load a different edition.'
+
+/**
+ * What a person is told when a document WAS opened and named, and nothing at all came out of
+ * it — no rate for any of the six, and no class for the picker either.
+ *
+ * 🔴 ITEM 4.91, AND IT IS THE COUNTRY READER'S RULE APPLIED ON THIS SIDE. On 2026-09-11 the
+ * real IR265 came back readable, correctly named and dated, flagging three genuine
+ * contradictions in Inland Revenue's own schedule — and offering no rates and no classes at
+ * all. `refusedRows` was 0, so nothing was rejected here: the model sent empty lists. That was
+ * stored as `pending`, which a manager reads as *"Needs your approval · 0 of 6 categories
+ * read"* — an approval that can never be given, on a row that cannot even be deleted, because
+ * only an `unreadable` one may be (item 4.88). `countryScheduleRead` already refuses its own
+ * version of this (`NOTHING_READ`); the two readers now agree.
+ *
+ * ⚠ DELIBERATELY THE COUNTRY READER'S SENTENCE, with only the words that must differ changed —
+ * it stores nothing, this keeps a failed row. A manager who loads a whole schedule and one who
+ * loads a single document have had the same thing happen to them, and two wordings for one
+ * event is how a screen starts sounding like two different products. Approved by Mike
+ * 2026-09-11.
+ */
+const NOTHING_READ_MESSAGE = 'This document was opened and named, but nothing could be read ' +
+  'from it — no rates and no classes. Nothing has been proposed. Try downloading it again ' +
+  'from the tax authority\'s website, or load a different edition.'
+
+/**
+ * What a person is told when the AI SERVICE ITSELF refused the request.
+ *
+ * 🔴 MIKE'S WORDING, APPROVED 2026-09-11. It is deliberately not about the document, because the
+ * document is not the problem and every other failure message in this file is. On that day the
+ * OpenAI account ran out of credit; the API said `credit_balance_exhausted` in as many words and
+ * the app told three people in a row that their reading "did not finish — load the document
+ * again". Retrying could never have worked, and nothing on any screen said so.
+ *
+ * ⚠ IT NAMES NO CAUSE, on purpose. Out of credit, an expired key, a rate limit and a content
+ * refusal all reach here, and only whoever administers the account can tell them apart — which
+ * is what the logged `code` and the provider's own sentence are for.
+ *
+ * It is shared with `countryScheduleRead`, exactly as `UNREADABLE_MESSAGE` is: one event, one
+ * wording, however a manager arrived at it.
+ */
+const SERVICE_REFUSED_MESSAGE = 'The AI service refused this request, so nothing was read and ' +
+  'nothing has changed. This is not a problem with your document — please tell your ' +
+  'administrator.'
 
 /** A finite number, or null. Mirrors the store's own reader so the two cannot disagree. */
 function num (v) {
@@ -288,7 +340,7 @@ function cleanRow (row, source) {
 /**
  * Validates a whole reading: the document it names, and every row in it.
  *
- * Three ways a read is refused outright, and each is a different sentence to the manager:
+ * Four ways a read is refused outright, and each is a different sentence to the manager:
  *   - `UNREADABLE`      — the model said so. Nothing is proposed (FR-047).
  *   - `MALFORMED`       — the answer is not the shape section 8 asked for, or names no
  *                         document, or no date we can rank. Believing half of it is worse
@@ -298,10 +350,15 @@ function cleanRow (row, source) {
  *                         a New Zealand table out of an Australian schedule would defeat that
  *                         at the first step, and it is far likelier to be a manager picking
  *                         the wrong file than the model misreading a masthead.
+ *   - `NOTHING_READ`    — it was opened and named, and then offered no rate for any of the six
+ *                         AND no class for the picker. There is nothing in it to approve
+ *                         (item 4.91).
  *
- * A read that survives may still propose NOTHING — every row refused, or none offered. That
- * is a success with six gaps, not a failure: the categories are named on screen and each
- * keeps the figure it already had (FR-032).
+ * A read that survives may still propose no RATES — every row refused, or none offered — and
+ * that is a success with six gaps rather than a failure: the categories are named on screen
+ * and each keeps the figure it already had (FR-032). What is refused is the read with nothing
+ * in it AT ALL, which is a different thing: a manager can act on a class list that matched
+ * none of the six, and cannot act on an empty document.
  *
  * @param {*} raw - the parsed model answer
  * @param {object} opts
@@ -427,6 +484,20 @@ function validateReading (raw, opts) {
     })
   })
 
+  // 🔴 NOTHING TO APPROVE IS NOT A PROPOSAL (item 4.91). Everything above has run, so this is
+  // the last thing checked rather than the first: a read is refused here only once we know
+  // that neither list survived it.
+  //
+  // ⚠ BOTH LISTS, NEVER EITHER ONE. A document matching none of the six but publishing a
+  // hundred classes is entirely actionable — the manager picks from it, which is what the
+  // picker is for (FR-027) — so an empty `categories` alone is a success with six gaps, not
+  // a failure. And `unresolved` does not count towards either: nothing is ever taken from it,
+  // so a read carrying only the contradictions it could not settle still leaves a manager
+  // with nothing they can approve. IR265 returned exactly that.
+  if (Object.keys(categories).length === 0 && classes.length === 0) {
+    return { ok: false, code: 'NOTHING_READ', message: NOTHING_READ_MESSAGE, reading: null }
+  }
+
   return {
     ok: true,
     code: null,
@@ -494,6 +565,12 @@ async function readDocument (opts) {
   }
 
   let completed = null
+  // Counted for the diagnostic below, and the two numbers say different things: NOTHING arriving
+  // is a call that never started, while thousands of events and no completion is a read that ran
+  // and was cut off. Without them the two are one silent failure.
+  let eventsSeen = 0
+  let lastType = ''
+  let refusal = null
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
@@ -501,6 +578,12 @@ async function readDocument (opts) {
       { timeout: IDLE_TIMEOUT_MS }
     )
     for await (const event of events) {
+      eventsSeen++
+      if (event && typeof event.type === 'string') { lastType = event.type }
+      // The provider REFUSING is not the same as the stream ending early, and until 2026-09-11
+      // both arrived here as "no completed response". The first one wins: a refusal is followed
+      // by `response.failed` repeating it, and the earlier event carries the fault itself.
+      if (refusal === null) { refusal = failureFromEvent(event) }
       if (event && event.type === 'response.completed' && event.response) {
         completed = event.response
       }
@@ -515,11 +598,48 @@ async function readDocument (opts) {
     }
   }
 
+  // 🔴 THE PROVIDER REFUSED, AND IT SAID WHY. Reported as a refusal rather than as an unfinished
+  // reading, because the two need opposite responses: an unfinished read is worth retrying and a
+  // refusal is not. On 2026-09-11 the account ran out of credit, the API said exactly that, and
+  // this function told three people in a row to load the document again.
+  //
+  // ⚠ THE PROVIDER'S OWN SENTENCE IS LOGGED AND NEVER SHOWN — it is unedited text from outside
+  // this app and carries a billing URL, which is not a thing to put on an adviser's screen. The
+  // same rule as `whyUnreadable` (FR-050) and for the same reason.
+  if (refusal !== null) {
+    console.error(
+      '[depreciation-read] SERVICE_REFUSED · code=' + JSON.stringify(refusal.code) +
+      ' · the service said: ' + JSON.stringify(refusal.message) +
+      ' · events seen=' + eventsSeen +
+      ' · file=' + JSON.stringify(opts.filename || '')
+    )
+    return { ok: false, code: 'SERVICE_REFUSED', message: SERVICE_REFUSED_MESSAGE, reading: null }
+  }
+
   if (!completed) {
+    // 🔴 THE ONE FAILURE IN THIS FUNCTION THAT RECORDED NOTHING ANYWHERE, until 2026-09-11. It
+    // returns above the diagnostic block below, so a read that streamed for minutes and stopped
+    // left no trace at all — which is precisely what happened to Mike loading IR265 that day, and
+    // why it could not be told apart from a call that never started.
+    console.error(
+      '[depreciation-read] READ_INCOMPLETE — the stream ended with no completed response' +
+      ' · events seen=' + eventsSeen +
+      ' · last event=' + JSON.stringify(lastType) +
+      ' · file=' + JSON.stringify(opts.filename || '')
+    )
     return {
       ok: false,
       code: 'READ_INCOMPLETE',
-      message: 'The reading did not finish. Nothing has been proposed — load the document again.',
+      // 🔴 MIKE'S WORDING, APPROVED 2026-09-11, replacing *"load the document again"* — advice
+      // that cannot succeed for a long schedule and which he followed twice, paying each time.
+      //
+      // ⚠ IT NAMES LENGTH AS THE CAUSE, which is the common case and not the only one: a short
+      // document can reach here through a transient fault, and would be told something untrue.
+      // That was put to him with the wording and the wording stands. The log line above is what
+      // tells the two apart, and it is new.
+      message: 'The reading did not finish — this document is too long to read in one go. ' +
+        'Nothing has been proposed. A schedule this size is loaded once for the whole country ' +
+        'on the Country Rate Schedules screen.',
       reading: null
     }
   }
@@ -538,10 +658,14 @@ async function readDocument (opts) {
   // of the prompt says so and the route sends nothing else.
   // ⚠ AND A SUCCESS IS LOGGED TOO, which is the half this did not have. On 2026-09-11 IR265
   // came back readable, correctly named and dated, flagging three real contradictions in the
-  // schedule — and proposing NO RATES AND NO CLASSES AT ALL. That is a `pending` document with
-  // nothing on it to approve, and it is indistinguishable from a healthy read in every record
-  // we keep. `refusedRows` was 0, so nothing was rejected on our side; beyond that we could
-  // only guess. WHAT THE MODEL OFFERED, BEFORE ANY CLEANING, IS THE ONE FACT THAT SETTLES IT.
+  // schedule — and proposing NO RATES AND NO CLASSES AT ALL. `refusedRows` was 0, so nothing
+  // was rejected on our side; beyond that we could only guess. WHAT THE MODEL OFFERED, BEFORE
+  // ANY CLEANING, IS THE ONE FACT THAT SETTLES IT.
+  //
+  // ⚠ THE OFFERED COUNTS FOLLOW `NOTHING_READ` INTO THE REFUSAL BRANCH, and that is the whole
+  // reason they are built before the branch rather than inside it. That case is now refused
+  // rather than stored (item 4.91) — logging it as a bare refusal would throw away the exact
+  // measurement this line was added to take, one day after it was added.
   const parsed = parseModelJson(answer)
   const offered = (parsed && typeof parsed === 'object') ? parsed : {}
   const countOf = v => (Array.isArray(v) ? v.length : -1)
@@ -551,6 +675,11 @@ async function readDocument (opts) {
       '[depreciation-read] refused as ' + result.code +
       ' · response status=' + (completed.status || 'unknown') +
       ' · answer length=' + answer.length +
+      (result.code === 'NOTHING_READ'
+        ? ' · the model OFFERED rates=' + countOf(offered.rates) +
+          ' classes=' + countOf(offered.classes) +
+          ' unresolved=' + countOf(offered.unresolved)
+        : '') +
       (result.detail ? ' · the model said: ' + JSON.stringify(result.detail) : '') +
       ' · answer began: ' + JSON.stringify(answer.slice(0, 400))
     )
@@ -568,7 +697,10 @@ async function readDocument (opts) {
       ' classes=' + result.reading.classes.length +
       ' unresolved=' + result.reading.unresolved.length +
       ' refused=' + result.reading.refusedRows +
-      (countOf(offered.rates) < 1 ? ' · NO RATES WERE OFFERED — item 4.91' : '')
+      // Not item 4.91 any more: a read with no rates but a class list is a legitimate success
+      // with six gaps (FR-032), and the both-empty case never reaches this branch. It is still
+      // worth seeing, because a document that matches none of the six is worth a look.
+      (Object.keys(result.reading.categories).length === 0 ? ' · NO CATEGORY WAS MATCHED' : '')
     )
   }
 
@@ -585,6 +717,8 @@ module.exports = {
   MAX_CLASSES,
   MAX_UNRESOLVED,
   UNREADABLE_MESSAGE,
+  NOTHING_READ_MESSAGE,
+  SERVICE_REFUSED_MESSAGE,
   oneLine,
   buildRequest,
   textFromResponse,

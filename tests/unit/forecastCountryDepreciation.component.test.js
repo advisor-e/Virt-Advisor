@@ -500,8 +500,9 @@ describe('loading a tax document from the forecast', () => {
   })
 
   // 🔴 The count is of the SIX CATEGORIES, not the schedule's classes. A tax authority
-  // publishes around 156; a rate stored against a seventh category could never reach a
-  // forecast, so counting anything else would tell the advisor a number that means nothing.
+  // publishes thousands — IR265 about 2,800; a rate stored against a seventh category could
+  // never reach a forecast, so counting anything else would tell the advisor a number that
+  // means nothing.
   it('counts the categories that got a rate, not the document’s rows', async () => {
     const wrapper = await readyToSend(readDocument())
     await wrapper.vm.sendTaxDocument()

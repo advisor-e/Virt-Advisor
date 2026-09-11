@@ -152,7 +152,7 @@ accepts or ignores.
   rule — so this is the reading step alone. ⚠ **It stays inside item 4.81 on Mike's ruling of
   2026-09-09, and whether it is worth building at all is genuinely open — read
   [the history §5](tax-rates-history.md) first.** A tax document publishes four figures where a
-  depreciation schedule publishes about 156 classes, so an extraction here saves the typing and
+  depreciation schedule publishes about 2,800, so an extraction here saves the typing and
   none of the checking.
 - **The country saved with the forecast.** The drawing requires that reopening an old forecast
   resolves the figures it was built on rather than whatever has been approved since. That needs
