@@ -39,12 +39,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.58** Meeting Review — the advisor's side is complete; §4 remains ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **4.78** Depreciation rates per country - a manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 4 | **4.81** The forecast's tax rates are New Zealand's, hardcoded, for every country ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 5 | **4.83** Compliance pages in the four manager hubs ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
-| 6 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
-| 7 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
-| 8 | **4.92** A country's whole rate schedule, stored as a searchable table ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 5 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
+| 6 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
+| 7 | **4.92** A country's whole rate schedule, stored as a searchable table ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**Eight live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Seven live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

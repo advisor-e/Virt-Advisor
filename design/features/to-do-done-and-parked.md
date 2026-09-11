@@ -185,6 +185,35 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.83 — Compliance pages in the four manager hubs.**
+✅ Closed 2026-09-11 on the laptop by Mike. **It was already built; the item's `waitingOn` field
+said "Us" and was simply out of date** — the highest-scoring item on the list, mis-filed as open.
+
+- **Verified part by part against the code, not against the note:** the Compliance tab at all four
+  tiers in `TAB_TIERS` with Mike's own 2026-09-10 words quoted beside it and advisors excluded as
+  a stated judgement ([`FirmManagerHub.vue`](../../components/FirmManagerHub.vue)); the cascade
+  read-only downward, carrying his *"read and add beside — never edit, never hide"* ruling;
+  [`compliance.js`](../../server/routes/compliance.js),
+  [`compliance.js` (utils)](../../server/utils/compliance.js) and
+  [`complianceCheck.js`](../../server/utils/complianceCheck.js);
+  [`FirmCompliance.vue`](../../components/firm/FirmCompliance.vue); the declaration gate on
+  [`meeting-record.vue`](../../pages/meeting-record.vue) calling `/api/compliance/gate` with
+  Screen C behind it; and the Brief at [`compliance.md`](compliance.md).
+- **The one thing genuinely broken was fixed the same day** — `/api/compliance` was missing from
+  the Nuxt proxy list, so the gate could never answer "open" and a firm that had declared saw the
+  same screen as one that had not. Commit `276738d`, and
+  `tests/unit/apiProxyWiring.test.js` now fails the build if a feature ships without its entry.
+- **Checked specifically, because it would have been the obvious fourth victim:** it does NOT have
+  the swallowed-refusal fault closed under 4.89 the same day. `complianceCheck` uses the
+  NON-streaming call, and that path throws with the API's own error body attached
+  ([`openaiClient.js`](../../server/utils/openaiClient.js)), which it logs. A refusal there has
+  always named its reason server-side.
+- **What remains is not ours, and does not hold an item open:** no firm has ticked the declaration
+  yet — each firm's manager does that once — and the feature cannot be seen on a developer machine
+  because it needs MySQL, Drive and a model key.
+- ⚠ **What this closure does NOT claim:** every part was verified to EXIST and the AI path to be
+  sound. Each behaviour was not re-tested by hand; the suite covers them and is green.
+
 **4.89 — A refused document could not tell a manager why.**
 ✅ Closed 2026-09-11 on the laptop by Mike, after the item's own stated risk happened to him in
 person — *"a manager who cannot act on a refusal and re-loads the same file, paying for each
