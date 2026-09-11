@@ -128,9 +128,27 @@ wins and the drift is logged for reconciliation** (see the drift box below and
 >   installs and boots on Node 14.15.
 > - `engines: { node: "14.15.x" }` added to `package.json` to hold the line.
 >
-> Residual dev-toolchain drift (build tools that declare a higher Node floor) is tracked as its
-> own P1 in `design/ACTIONS.md`; `engine-strict` is currently `false` pending two transitive
-> `overrides`.
+> ✅ **The residual dev-toolchain drift is closed too, and `engine-strict` is ON.** This box used
+> to say it was `false` with a P1 open in `design/ACTIONS.md`. That stopped being true on
+> **2026-08-24** and the sentence outlived the fact — which matters more here than elsewhere,
+> because this file is the first thing every session reads and it was telling each one the stack
+> was out of compliance.
+>
+> - **`engine-strict=true`** in `.npmrc`. `engines` alone is advisory — npm warns and proceeds —
+>   and that is what let the drift in originally. This makes `npm install` hard-fail on any
+>   package whose `engines.node` excludes 14.15.
+> - **Six `overrides` in `package.json`**, not two: five clearing Node-engine mismatches, plus
+>   `@types/node` pinned to `14.18.63` because req 2 bans it **by name** and 21 transitive
+>   packages (Jest internals, webpack typings) require it — `overrides` can change a version,
+>   never delete a transitive dependency. Every pin is a **downgrade toward** this spec, never a
+>   relaxation of it.
+> - 🔴 **VERIFY AT ANY TIME WITH `npm run check:engines`.** It reads the installed tree without
+>   installing anything, so anyone can run it, any time. **Last run 2026-09-12: 1,982 packages
+>   scanned, 0 engine offenders, no `typescript` or `vue-tsc`, all 20 `@types/node` copies on the
+>   pin.**
+>
+> If `npm install` ever fails with `EBADENGINE`, that is `engine-strict` working. Fix the offender
+> with an override. Never "fix" it by setting the flag false or by raising the Node target.
 
 **Deviation logging rule (binding).** Any deviation from this Stack Constitution — a
 dependency version bump, a new plugin, a framework variation, anything that doesn't match
