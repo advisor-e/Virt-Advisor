@@ -591,6 +591,39 @@ loadFirmConfig: noConfig
     expect(out.code).toBe('READ_INCOMPLETE')
   })
 
+  test('a stream that never completes SAYS SO in the log, and says how far it got', async () => {
+    // 🔴 UAT CANNOT SEE A MISSING LOG LINE. This was the one failure in readDocument that
+    // returned above the diagnostic block and recorded nothing anywhere, so a read that streamed
+    // for minutes and stopped could not be told from a call that never started. It cost an hour
+    // and three paid readings of IR265 on 2026-09-11 before anyone could say which had happened.
+    const logged = []
+    const spy = jest.spyOn(console, 'error').mockImplementation((...a) => logged.push(a.join(' ')))
+    ex._setClientFactory(() => ({
+      responses: {
+        create: () => (async function * () {
+          yield { type: 'response.output_text.delta', delta: '{"readable"' }
+          yield { type: 'response.output_text.delta', delta: ': true' }
+        })()
+      }
+    }))
+
+    await ex.readDocument({
+      scopeId: 'firm-1',
+      country: 'NZ',
+      filename: 'ir265.pdf',
+      buffer: Buffer.from('%PDF-1.4'),
+      loadFirmConfig: noConfig
+    })
+    spy.mockRestore()
+
+    const line = logged.filter(l => l.includes('READ_INCOMPLETE'))[0]
+    expect(line).toBeTruthy()
+    // The COUNT is the diagnostic. Two events and no completion is a stream that was cut off;
+    // zero would be a call that never started, and the two need different answers.
+    expect(line).toContain('events seen=2')
+    expect(line).toContain('ir265.pdf')
+  })
+
   test('an unreadable answer carries Mike\'s wording all the way out', async () => {
     ex._setClientFactory(clientYielding(JSON.stringify({ readable: false, rates: [] })))
     const out = await ex.readDocument({

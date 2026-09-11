@@ -545,6 +545,11 @@ async function readDocument (opts) {
   }
 
   let completed = null
+  // Counted for the diagnostic below, and the two numbers say different things: NOTHING arriving
+  // is a call that never started, while thousands of events and no completion is a read that ran
+  // and was cut off. Without them the two are one silent failure.
+  let eventsSeen = 0
+  let lastType = ''
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
@@ -552,6 +557,8 @@ async function readDocument (opts) {
       { timeout: IDLE_TIMEOUT_MS }
     )
     for await (const event of events) {
+      eventsSeen++
+      if (event && typeof event.type === 'string') { lastType = event.type }
       if (event && event.type === 'response.completed' && event.response) {
         completed = event.response
       }
@@ -567,10 +574,29 @@ async function readDocument (opts) {
   }
 
   if (!completed) {
+    // 🔴 THE ONE FAILURE IN THIS FUNCTION THAT RECORDED NOTHING ANYWHERE, until 2026-09-11. It
+    // returns above the diagnostic block below, so a read that streamed for minutes and stopped
+    // left no trace at all — which is precisely what happened to Mike loading IR265 that day, and
+    // why it could not be told apart from a call that never started.
+    console.error(
+      '[depreciation-read] READ_INCOMPLETE — the stream ended with no completed response' +
+      ' · events seen=' + eventsSeen +
+      ' · last event=' + JSON.stringify(lastType) +
+      ' · file=' + JSON.stringify(opts.filename || '')
+    )
     return {
       ok: false,
       code: 'READ_INCOMPLETE',
-      message: 'The reading did not finish. Nothing has been proposed — load the document again.',
+      // 🔴 MIKE'S WORDING, APPROVED 2026-09-11, replacing *"load the document again"* — advice
+      // that cannot succeed for a long schedule and which he followed twice, paying each time.
+      //
+      // ⚠ IT NAMES LENGTH AS THE CAUSE, which is the common case and not the only one: a short
+      // document can reach here through a transient fault, and would be told something untrue.
+      // That was put to him with the wording and the wording stands. The log line above is what
+      // tells the two apart, and it is new.
+      message: 'The reading did not finish — this document is too long to read in one go. ' +
+        'Nothing has been proposed. A schedule this size is loaded once for the whole country ' +
+        'on the Country Rate Schedules screen.',
       reading: null
     }
   }
