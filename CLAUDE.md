@@ -300,7 +300,7 @@ The rule bites in the other direction. **Do not write new tests that assert:**
 A person in UAT sees all three instantly and judges them better than an assertion can. This
 is a rule about what gets **written from now on, not a licence to delete** — the ~441
 existing assertions of these shapes stay until the code around them changes anyway. They cost
-nothing to run (the whole suite of 6,255 tests takes 30 seconds); they cost a rewrite every
+nothing to run (the whole suite runs in well under a minute); they cost a rewrite every
 time a word on a screen changes, which is why the suite has felt like overkill.
 
 **Where wording genuinely must not drift** — the master app's own transcribed content, a
