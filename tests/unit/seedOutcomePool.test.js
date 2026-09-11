@@ -81,8 +81,11 @@ describe('what the seed writes', () => {
   test('firm A is the dev firm, so its own withdrawal takes its rows out', async () => {
     const { overlay, script } = load()
     await script.seed()
-    expect(script.SEED_FIRM_IDS[0]).toBe('dev-firm')
-    const devPrefix = POOL_PREFIX + firmToken('dev-firm') + ':'
+    // The id the dev-local-bypass sign-in carries (DEV_FIRM_ID in server/middleware/firmAuth.js).
+    // Pinned because the seed once said 'dev-firm', Collaborate's id, and the firm's tab then
+    // showed "Shared so far: 0 reviews" with Withdraw disabled (found running the app, 2026-09-11).
+    expect(script.SEED_FIRM_IDS[0]).toBe('dev-firm-001')
+    const devPrefix = POOL_PREFIX + firmToken('dev-firm-001') + ':'
     const devRows = overlay.saveFirmConfig.mock.calls.filter(([, key]) => key.startsWith(devPrefix))
     expect(devRows.length).toBeGreaterThan(0)
     // Five distinct tokens, and no key carries a firm id in clear.

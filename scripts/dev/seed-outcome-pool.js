@@ -12,7 +12,7 @@
  * WHAT IT WRITES. Thirty-one reviews across five firms in the profitability domain:
  *   Break-Even      delivered in 31, "Didn't land" in 12  → hold-back 4, ABOVE the floor
  *   7 Cash Drivers  delivered in 20, "Didn't land" in 5   → hold-back 3, BELOW the floor
- * Firm A is the dev firm (`dev-firm`), so a withdrawal from its Outcome Sharing tab takes
+ * Firm A is the dev firm (`dev-firm-001`), so a withdrawal from its Outcome Sharing tab takes
  * its rows out and the first adjustment drops below the floor — Story 2 step 5. The other
  * four firms are invented ids that exist nowhere else; their tokens are one-way, as every
  * pool token is.
@@ -48,7 +48,7 @@ const { platformTemplates } = require('../../server/utils/outcomeContribute')
 const SEED_SAVED_BY = 'outcome-learning-seed'
 
 /** Firm A is the dev firm the dev token signs in to; the rest exist only here. */
-const SEED_FIRM_IDS = ['dev-firm', 'seed-firm-2', 'seed-firm-3', 'seed-firm-4', 'seed-firm-5']
+const SEED_FIRM_IDS = ['dev-firm-001', 'seed-firm-2', 'seed-firm-3', 'seed-firm-4', 'seed-firm-5']
 
 const DOMAIN = 'profit'
 const TEMPLATE_ABOVE = 'Break-Even'

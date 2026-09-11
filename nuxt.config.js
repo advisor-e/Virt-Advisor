@@ -164,7 +164,10 @@ export default {
     // The prefix covers every sub-path — connect mounts on a '/' boundary — and
     // apiProxy.js is the same forwarder '/api/firm-manager' already uses for uploads,
     // so the multipart audio chunks need nothing of their own.
-    { path: '/api/meeting', handler: '~/server-middleware/apiProxy.js' }
+    { path: '/api/meeting', handler: '~/server-middleware/apiProxy.js' },
+    // Client Copy Request (item 4.58 §4 item 7). Same fault as /api/meeting above, found
+    // the same way on 2026-09-11: the backend answered 200 and the firm's tab got a 404.
+    { path: '/api/client-copy-requests', handler: '~/server-middleware/apiProxy.js' }
   ],
 
   // API_BASE_URL should point to the Restify backend server
