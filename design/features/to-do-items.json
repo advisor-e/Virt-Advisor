@@ -210,27 +210,6 @@
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
     },
     {
-      "ref": "4.88",
-      "name": "A failed document load can never be cleared from the screen",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "A document the AI could not read stays on the list for ever. Nothing on the screen and no route can clear it, so the list fills with dead rows a manager cannot act on or remove.",
-      "risk": "The store keeps 20 documents, newest first, and trims the oldest. Twenty failed attempts push every real document out, so a manager loses the history of what was loaded and approved. The approved rates and their sources survive in their own store; the record of the documents they came from does not.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-11 - 'it does not give us a chance to delete past failed attempts', after four identical failures piled up on the NZ screen while the IR265 read was being diagnosed."
-      },
-      "touches": "components/firm/FirmDepreciationRates.vue, where the Review button shows only for a pending document, and rejectDocument in server/routes/depreciationRates.js, which refuses anything not pending with NOT_PENDING. Both ends are shut, so both change or neither does.",
-      "note": "BUILT 2026-09-11: a Delete button on a failed row ALONE, asking before it writes anything. THE ROUTE REFUSES EVERY OTHER STATUS against the stored record, so the audit trail behind a rate in force cannot be erased. IT DELETES RATHER THAN MARKING: a dismissed row would still hold one of the 20 slots, which is the fault itself. PROVEN ON THE RUNNING APP the same day: all four failed rows cleared live, both pending documents untouched. Found wider than filed: the cap is per FIRM, not per country, so NZ failures could drop an approved Australian document. Only the provenance was ever at risk, never the rates. Brief: P14. FOR MIKE: close it.",
-      "comment": "2026-09-11 - raised by Mike from the running app while diagnosing the IR265 read, and filed on his yes. Built the same day on his yes, after the fault was proved at both ends rather than inferred: the screen drew no control at all on a failed row, and the reject route refused anything not pending. The button says Delete because that is his own word for it. Rejected rows were deliberately left alone - he named failed attempts, and widening it is his call to make, not ours."
-    },
-    {
       "ref": "4.89",
       "name": "A refused document cannot tell a manager why",
       "rankedByMike": false,

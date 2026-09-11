@@ -9,43 +9,31 @@
 
 ---
 
-## 2026-09-11 (nineteenth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-11 (twentieth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,024 green** (481 suites), lint 0, audit PASS. Eight commits, all pushed, all in
-**PR #82** — not yet merged. Tree clean. Nothing active on this machine.
+Suite **10,034 green** (481 suites), lint 0, audit PASS. Tree clean, branch **level with
+`master`**. Nothing active on this machine, nothing uncommitted.
 
-🔴 **DESKTOP, READ THIS FIRST: I CHANGED `components/FirmManagerHub.vue`, WHICH IS ON 4.87'S
-`touches` LIST.** 52 lines — a new `TAB_TIERS.countrySchedules`, a panel, an import, a
-registration and a `NAV_GROUPS` entry, all appended rather than woven in. Your consent tab and
-Mentor Hub page will land in the same three places, so **expect a merge conflict there and
-expect to keep both sides**. Nothing else of 4.87's was touched. I should have raised it
-before editing rather than after; it is named here so it is not a surprise.
+🔴 **PR #82 IS MERGED.** `master` is now `152726d`, carrying **4.82** (the AI spend cap),
+**4.92** (country rate schedules) and **4.88**. Its title was corrected on the way in — it had
+named only 4.82, which would have left the merge commit claiming one item when three landed.
 
-**4.92 IS BUILT END TO END — a country's whole schedule, stored once.** Five slices, all on
-Mike's rulings of today, each asked one at a time: it loads at the **global group manager tier
-alone** (overriding default-is-mentor-alone for this feature); a schedule gets its **own
-allowance of 10 a day**, apart from a firm's 20 documents; a pass that will not read is stored
-as a **named gap shown wherever the table is used**; a firm's own table still wins. Drawing:
-[`depreciation-rates-country-schedules.html`](mockups/depreciation-rates-country-schedules.html),
-approved after all three decisions were ruled.
+🔴 **DESKTOP: you are 17 behind `master`. Merge it in at startup.** Yesterday's warning now
+reaches you for real: `components/FirmManagerHub.vue` gained a `countrySchedules` tab — 52
+lines, a `TAB_TIERS` entry, a panel, an import, a registration and a `NAV_GROUPS` entry, all
+appended rather than woven in. **4.87's consent tab and Mentor Hub page land in the same three
+places, so expect a conflict there and expect to keep both sides.**
 
-**The shape that matters: one model answer cannot carry a 52-page schedule.** A survey call
-says how far the document runs, then one call per eight pages, added up here. That is the cure
-for 4.90 and 4.91 — and it exists because we may not open the PDF ourselves (Mike, 2026-09-09),
-so only the model can say how many pages there are.
+**4.88 built and CLOSED** — a failed read can be deleted, and it is the only row that can. The
+route refuses every other status against the **stored** record, so the audit trail behind a rate
+in force cannot be erased by any request. It deletes rather than marking, because a dismissed row
+would still hold one of the twenty slots — the fault itself. Closure on
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2; Brief
+[`depreciation-rates.md`](features/depreciation-rates.md) **P14**.
 
-⚠ **NOTHING HAS MET A REAL DOCUMENT.** No schedule has been read through any of it — that needs
-a model key, a manager and a live store, so it is UAT work. **First thing to watch on a live
-run: whether the survey names the table pages correctly.** Get that wrong and the passes read
-the wrong part of the document, thoroughly and confidently.
+**It was used for real, not deferred to UAT.** The app was run and all four failed IR265 rows
+were cleared from the live screen, with both documents awaiting approval beside them and
+untouched.
 
-**4.90 and 4.91 are much narrower but NOT closed** — each carries a `FOR MIKE` line naming the
-choice. 4.90: the picker now searches the whole country table, but the per-document cap is
-still 250 and its comment still says "about 156". 4.91: the country path refuses an empty read
-outright; the per-document read still asks for a whole schedule in one answer.
-
-**What else changed under you:** `data/ai-prompts.json` (two new prompts, so four prompt-list
-guards moved), `server/utils/aiLoadBudget.js` (window logic extracted to `_spend`; its twelve
-tests pass unmodified), `tests/unit/hubTabTiers.test.js` (the two middle tiers are no longer
-identical — it now pins that they differ by exactly one named tab), `restify-server.js`,
-`DepreciationDocumentReview.vue`, `FirmDepreciationRates.vue`, and the depreciation Brief.
+**Eleven live items.** 4.90 and 4.91 each still carry a `FOR MIKE` line — close, or do the narrow
+bit that remains. 4.89 is a wording decision on Mike's own pinned sentence.
