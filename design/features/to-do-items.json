@@ -259,7 +259,7 @@
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
-      "blocks": "4.90 and 4.91, which both come back to one reply carrying a 52-page schedule",
+      "blocks": "4.90, which comes back to one reply carrying a 52-page schedule",
       "waitingOn": "Mike",
       "why": "Mike asked for a country's published schedule to be stored and turned into a searchable table the models can use, instead of being re-read per firm and reduced to six rough categories.",
       "risk": "Without it every firm pays to re-read the same document, an advisor's client is depreciated at the nearest of six buckets rather than the class the tax authority publishes, and nothing accumulates. It is also the likely cure for 4.90 and 4.91: a table is built up in sections, so no single answer has to carry 2,800 classes.",

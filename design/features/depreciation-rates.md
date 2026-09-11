@@ -107,8 +107,9 @@ inventing an order between them is the silent selection this rule forbids. *Igno
 wrong rate becomes invisible.*
 
 **P10 · The machine proposes a match; the manager confirms it.** A tax authority publishes
-around 156 asset classes; the forecast has six categories. Where no published class is a
-plausible match the system proposes none and names the category in the gaps list. *Ignore
+thousands of asset classes — IR265 publishes about 2,800, see section 3 — and the forecast has
+six. Where no published class is a plausible match the system proposes none and names the
+category in the gaps list. *Ignore
 this and a category is matched to a class nobody checked, producing a wrong rate that looks
 perfectly well sourced.*
 
@@ -200,8 +201,9 @@ figure. **The manager's drawing shows a proposal of 41 rows and its gaps panel s
 the app's asset categories"; both are illustrative and neither is buildable — there are six.**
 
 ⚠ **THE FIGURE "ABOUT 156 CLASSES" WAS WRONG AND IS CORRECTED HERE (item 4.90).** It appeared
-in this section and in the code comment on `MAX_CLASSES`, agreeing with itself and with
-nothing else. **IR265's table pages number 52, at roughly 54 classes a page — about 2,800.**
+in this section, in **P10** above, and in the code comment on `MAX_CLASSES`, agreeing with
+itself and with nothing else. *P10's copy was the last one in this Brief and was corrected
+2026-09-11, while 4.91 was being closed; the code comment is still 4.90's own to settle.* **IR265's table pages number 52, at roughly 54 classes a page — about 2,800.**
 The per-document cap of 250 therefore held a tenth of the document, silently. The country
 schedule of P12 is what removes the consequence; the stale figure in
 `server/utils/depreciationExtract.js` is still 4.90's own to settle.
