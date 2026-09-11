@@ -19,8 +19,9 @@
  *     and it is deliberately the SAME handler: what it writes is a PROPOSAL, held in a store
  *     the rate resolver never reads, so nothing an advisor loads can reach a forecast.
  *   - MANAGE (`getForManager` / `approveRates` / `approveFirstYearRule` / `history` /
- *     `restore`, and slice 3's `listDocuments` / `approveDocument` / `rejectDocument`) —
- *     managers only (`firmAuth` + the managing-tier guard, wired in restify-server.js).
+ *     `restore`, slice 3's `listDocuments` / `approveDocument` / `rejectDocument`, and
+ *     `removeDocument` from item 4.88) — managers only (`firmAuth` + the managing-tier
+ *     guard, wired in restify-server.js).
  *
  * 🔴 LOADING SPENDS MONEY, AND IT IS CAPPED: 20 readings per firm in any rolling 24 hours,
  * shared by advisors and managers (item 4.82, Mike's rulings of 2026-09-11). The check sits
@@ -686,6 +687,56 @@ async function rejectDocument (req, res) {
   }
 }
 
+/**
+ * POST /api/firm-manager/depreciation-rates/documents/remove  (manager)
+ *
+ * Delete a failed read from the list. Item 4.88 — Mike, 2026-09-11, after four identical
+ * failures piled up on the New Zealand screen: *"it does not give us a chance to delete past
+ * failed attempts"*.
+ *
+ * 🔴 AN UNREADABLE DOCUMENT AND NOTHING ELSE, CHECKED AGAINST THE STORED STATUS. This is the
+ * only route in this file that destroys a record rather than adding one, and this check is
+ * the whole of its safety. A pending, approved or rejected document is refused: which
+ * document a rate came from, who approved it and when is the audit trail behind every figure
+ * in force, and no request may erase it. The status is read from the store, never taken from
+ * the body — a body-supplied status would hand the caller the very thing this refuses.
+ *
+ * ⚠ WHY DELETE RATHER THAN A FOURTH STATUS. The store keeps `MAX_DOCUMENTS` records, newest
+ * first, and drops the oldest. A failed read marked "dismissed" would still hold its slot, so
+ * twenty of them would still push a firm's approved documents off the end — which is the
+ * fault this closes, not a side effect of it.
+ *
+ * @route POST /api/firm-manager/depreciation-rates/documents/remove
+ * @param {object} req.body - `{ documentId }`
+ * @returns {{removed: true, documentId: string}}
+ */
+async function removeDocument (req, res) {
+  const documentId = req.body && typeof req.body.documentId === 'string'
+    ? req.body.documentId.trim()
+    : ''
+  if (!documentId) {
+    return sendError(res, 400, 'MISSING_DOCUMENT', 'documentId is required')
+  }
+
+  try {
+    const store = await ownProposals(req.firmId)
+    const document = proposals.findDocument(store, documentId)
+    if (!document) {
+      return sendError(res, 404, 'NO_DOCUMENT', 'That document is not one this level has loaded')
+    }
+    if (document.status !== 'unreadable') {
+      return sendError(res, 409, 'NOT_UNREADABLE', 'Only a document that could not be read can be deleted')
+    }
+
+    const next = proposals.removeDocument(store, documentId)
+    await writeProposals(req.firmId, next, req.userEmail)
+    res.send(200, { removed: true, documentId })
+  } catch (err) {
+    console.error('[depreciation-rates] document remove failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not delete that document')
+  }
+}
+
 module.exports = {
   get,
   getForManager,
@@ -697,5 +748,6 @@ module.exports = {
   loadDocument,
   listDocuments,
   approveDocument,
-  rejectDocument
+  rejectDocument,
+  removeDocument
 }

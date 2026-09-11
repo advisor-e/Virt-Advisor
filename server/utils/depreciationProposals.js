@@ -24,7 +24,9 @@
  *
  * ⚠ A REFUSED READ IS RECORDED, NOT DISCARDED. A document the model could not read is kept
  * with status `unreadable`, because a manager who loaded three files needs to see which one
- * failed. It proposes nothing, exactly as a rejected one does.
+ * failed. It proposes nothing, exactly as a rejected one does. A manager may DELETE one once
+ * they have read it (item 4.88) — it is the only status that can be deleted, because every
+ * other one is part of the record of what a firm approved.
  *
  * Node 14, CommonJS.
  */
@@ -278,6 +280,24 @@ function setStatus (store, id, status, by, now) {
   }
 }
 
+/**
+ * This scope's records with one document taken out altogether.
+ *
+ * ⚠ IT REMOVES, IT DOES NOT MARK — and that is the whole point of it (item 4.88). A failed
+ * read marked "dismissed" would still hold one of the `MAX_DOCUMENTS` slots, so twenty of
+ * them would still push a firm's real documents off the end, which is the fault being fixed.
+ * WHICH records may be removed is not decided here: the route refuses anything but an
+ * unreadable one, so this stays a plain list operation with no policy hidden inside it.
+ *
+ * @param {object} store
+ * @param {string} id
+ * @returns {{documents: object[]}} a new object; the input is not mutated
+ */
+function removeDocument (store, id) {
+  const list = (store && Array.isArray(store.documents)) ? store.documents : []
+  return { documents: list.filter(d => d.id !== id) }
+}
+
 module.exports = {
   CONFIG_KEY,
   STATUSES,
@@ -289,5 +309,6 @@ module.exports = {
   documentRecord,
   addDocument,
   findDocument,
-  setStatus
+  setStatus,
+  removeDocument
 }

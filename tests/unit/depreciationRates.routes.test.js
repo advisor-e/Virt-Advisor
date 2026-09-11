@@ -852,3 +852,51 @@ describe('rejecting a proposal', () => {
     expect(res._status).toBe(400)
   })
 })
+
+// Item 4.88 — Mike, 2026-09-11, after four identical failures piled up with no way to clear
+// them. The route is the only one here that destroys a record, so what it REFUSES is the part
+// that matters and is tested first.
+describe('deleting a failed read', () => {
+  let quiet
+  beforeEach(() => { quiet = jest.spyOn(console, 'error').mockImplementation(() => {}) })
+  afterEach(() => quiet.mockRestore())
+
+  test('a document that could not be read is deleted, and the others stay', async () => {
+    storedByKey({
+      [PROPOSALS_KEY]: {
+        documents: [pending({ id: 'bad', status: 'unreadable' }), pending({ id: 'good' })]
+      }
+    })
+    const res = makeRes()
+    await routes.removeDocument(makeReq({ body: { documentId: 'bad' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(savedFor(PROPOSALS_KEY).documents.map(d => d.id)).toEqual(['good'])
+  })
+
+  // 🔴 THE GUARD THIS ROUTE EXISTS BEHIND. Which document a rate came from, who approved it
+  // and when is the audit trail behind every figure in force. No request may erase it.
+  test('a pending, approved or rejected document cannot be deleted, and nothing is written', async () => {
+    for (const status of ['pending', 'approved', 'rejected']) {
+      storedByKey({ [PROPOSALS_KEY]: { documents: [pending({ status })] } })
+      const res = makeRes()
+      await routes.removeDocument(makeReq({ body: { documentId: 'doc-1' } }), res)
+
+      expect(res._status).toBe(409)
+      expect(savedFor(PROPOSALS_KEY)).toBeNull()
+    }
+  })
+
+  test('a document nobody here loaded cannot be deleted', async () => {
+    storedByKey({ [PROPOSALS_KEY]: { documents: [pending({ status: 'unreadable' })] } })
+    const res = makeRes()
+    await routes.removeDocument(makeReq({ body: { documentId: 'nope' } }), res)
+    expect(res._status).toBe(404)
+  })
+
+  test('no documentId is refused', async () => {
+    const res = makeRes()
+    await routes.removeDocument(makeReq({ body: {} }), res)
+    expect(res._status).toBe(400)
+  })
+})

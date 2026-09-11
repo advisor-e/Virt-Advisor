@@ -454,6 +454,10 @@ server.post('/api/firm-manager/depreciation-rates/documents', ...fmGuard, deprec
 server.get('/api/firm-manager/depreciation-rates/documents', ...fmGuard, depreciationRatesRoute.listDocuments)
 server.post('/api/firm-manager/depreciation-rates/documents/approve', ...fmGuard, depreciationRatesRoute.approveDocument)
 server.post('/api/firm-manager/depreciation-rates/documents/reject', ...fmGuard, depreciationRatesRoute.rejectDocument)
+// Item 4.88 — delete a failed read, so twenty of them cannot push a firm's real documents
+// off the end of a list that keeps twenty. UNREADABLE DOCUMENTS ONLY: the route refuses
+// every other status, so the record of what was approved can never be erased by a request.
+server.post('/api/firm-manager/depreciation-rates/documents/remove', ...fmGuard, depreciationRatesRoute.removeDocument)
 // Item 4.92 — Country Rate Schedules. A country's WHOLE published schedule, not one firm's
 // document: about 2,800 classes for IR265 against the six categories a forecast depreciates.
 //

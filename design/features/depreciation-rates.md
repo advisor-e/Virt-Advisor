@@ -155,6 +155,19 @@ pass is retried once and then recorded as unread; everything else is kept, and *
 shown wherever the table is used, not only where the schedule was loaded**. *Ignore this and
 "there is no such class" and "those pages were never read" are the same empty list on screen.*
 
+**P14 · A failed read can be DELETED, and it is the only row that can** (item 4.88, Mike's
+words of 2026-09-11 after four identical failures piled up with no way to clear them: *"it
+does not give us a chance to delete past failed attempts"*). A **Delete** button appears on an
+`unreadable` row alone, asks *"Delete this failed attempt? Nothing else on this screen
+changes."*, and the route refuses every other status against the **stored** record — a
+pending, approved or rejected document cannot be deleted by any request, because which
+document a rate came from, who approved it and when is the audit trail behind every figure in
+force. **It deletes rather than adding a fifth status**, deliberately: the store keeps 20
+records newest-first, so a row marked "dismissed" would still hold its place and twenty
+failures would still push a firm's real documents off the end. *Ignore this and a manager who
+cannot clear four dead rows loses the record of the documents their approved rates came from —
+the rates themselves survive in their own store; the provenance does not.*
+
 ---
 
 ## 3. Design considerations

@@ -218,7 +218,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "A document the AI could not read stays on the list for ever. Nothing on the screen and no route can clear it, so the list fills with dead rows a manager cannot act on or remove.",
       "risk": "The store keeps 20 documents, newest first, and trims the oldest. Twenty failed attempts push every real document out, so a manager loses the history of what was loaded and approved. The approved rates and their sources survive in their own store; the record of the documents they came from does not.",
       "askedBy": {
@@ -227,8 +227,8 @@
         "detail": "2026-09-11 - 'it does not give us a chance to delete past failed attempts', after four identical failures piled up on the NZ screen while the IR265 read was being diagnosed."
       },
       "touches": "components/firm/FirmDepreciationRates.vue, where the Review button shows only for a pending document, and rejectDocument in server/routes/depreciationRates.js, which refuses anything not pending with NOT_PENDING. Both ends are shut, so both change or neither does.",
-      "note": "PROVEN AT BOTH ENDS 2026-09-11, not inferred. addDocument slices to MAX_DOCUMENTS=20 newest-first, so the oldest go. A rejected document already stays on the list marked rejected, so the pattern for a decided-and-dismissed row exists; what is missing is any way to reach it for an unreadable one.",
-      "comment": "2026-09-11 - raised by Mike from the running app while diagnosing the IR265 read, and filed on his yes."
+      "note": "BUILT 2026-09-11: a Delete button on a failed row ALONE, asking first and writing nothing until the answer is yes. THE ROUTE REFUSES EVERY OTHER STATUS, checked against the stored record, so the audit trail behind a rate in force cannot be erased by any request. IT DELETES RATHER THAN MARKING - a row marked dismissed would still hold one of the 20 slots, which is the fault itself. Found wider than filed: the cap is per FIRM, not per country, so New Zealand failures could drop an approved Australian document. The approved rates were never at risk, only the record of which document they came from. Brief: depreciation-rates.md P14. FOR MIKE: close it.",
+      "comment": "2026-09-11 - raised by Mike from the running app while diagnosing the IR265 read, and filed on his yes. Built the same day on his yes, after the fault was proved at both ends rather than inferred: the screen drew no control at all on a failed row, and the reject route refused anything not pending. The button says Delete because that is his own word for it. Rejected rows were deliberately left alone - he named failed attempts, and widening it is his call to make, not ours."
     },
     {
       "ref": "4.89",
