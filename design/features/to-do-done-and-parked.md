@@ -185,6 +185,36 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.90 — Only 250 of about 2,800 published classes are kept.**
+✅ Closed 2026-09-11 on the laptop by Mike — the wrong figure corrected everywhere it was still
+asserted, and **the cap deliberately left at 250**.
+
+- **Why it mattered:** `MAX_CLASSES` is 250 and IR265 publishes about 2,800 classes across 52
+  table pages, so one document's stored class list held roughly a tenth of it, with nothing on
+  screen saying so — dropped classes are deliberately not counted into `refusedRows`. A manager
+  whose category matched the wrong class would look for the right one in a picker that ended
+  around page 5 of 52.
+- **Found wider than filed:** the item's note said only the code comment still carried the wrong
+  figure. **Four live copies did** — the `MAX_CLASSES` comment, a JSDoc block in
+  [`DepreciationDocumentReview.vue`](../../components/firm/DepreciationDocumentReview.vue), a
+  comment in `forecastCountryDepreciation.component.test.js`, and a sentence in a **different
+  feature's Brief**, [`tax-rates.md`](tax-rates.md). All four now say about 2,800.
+- **The one that mattered most:** the `MAX_CLASSES` comment did not merely repeat the number, it
+  **used it to argue the cap was generous** — *"250 clears that with room"*. It now carries the
+  true reason the number stands, so the next reader is not told the opposite of the truth.
+- **Mike's ruling: the cap stays at 250.** Raising it would pretend one model answer can carry a
+  whole schedule, and **4.91 proved the same week that it cannot** — the real IR265 came back
+  offering nothing at all. The answer to a long schedule is the country schedule of 4.92, read a
+  page range at a time, which the picker searches in full.
+- **What this knowingly accepts, and it is written into the code beside the number:** a firm whose
+  group has loaded **no** country schedule still gets that document's first 250 classes with
+  nothing saying more exist. Loading the country schedule removes it. A second cure — a *"showing
+  the first 250 of N"* notice — was **not** built, because nobody asked for one.
+- **What proves it:** nothing new to prove. No behaviour changed; the suite stayed at 10,026 green.
+  The claim this closes on is that the figure is now right in every live place it is asserted, and
+  wrong in none — the mockup, the two history files and the ARTEFACTS row keep it deliberately,
+  because they record what was drawn and said at the time.
+
 **4.91 — A read could succeed and propose nothing at all.**
 ✅ Closed 2026-09-11 on the laptop — the narrow fix, chosen by Mike over porting the page-range
 passes.

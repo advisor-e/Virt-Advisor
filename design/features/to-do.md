@@ -43,10 +43,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 7 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
 | 8 | **4.89** A refused document cannot tell a manager why ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 9 | **4.90** Only 250 of about 2,800 published classes are kept ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 10 | **4.92** A country's whole rate schedule, stored as a searchable table ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 9 | **4.92** A country's whole rate schedule, stored as a searchable table ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**Ten live items. Seven need Mike.** If this list passes about twenty, something is wrong.
+**Nine live items. Seven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

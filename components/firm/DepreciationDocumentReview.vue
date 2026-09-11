@@ -205,8 +205,9 @@
  * `design/features/depreciation-rates-history.md`.
  *
  * 🔴 THE MANAGER CONFIRMS EVERY MATCH BEFORE ANYTHING CAN BE APPROVED — Mike's ruling of
- * 2026-09-09 (P10). A tax authority publishes around 156 classes and the forecast has six
- * categories; a category matched to the wrong class yields a wrong rate carrying a real
+ * 2026-09-09 (P10). A tax authority publishes thousands of asset classes — IR265 about 2,800 —
+ * and the forecast has six categories; a category matched to the wrong class yields a wrong
+ * rate carrying a real
  * document, a real page and a real date, which is the most convincing kind of wrong. The
  * Approve button is disabled until each proposed row has been confirmed.
  *

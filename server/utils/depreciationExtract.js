@@ -86,11 +86,20 @@ const MAX_LABEL = 120
 /**
  * How many published classes are kept from one document, for the manager's own picker.
  *
- * ⚠ A CAP, NOT A TARGET, AND IT IS ABOVE THE REAL DOCUMENTS. IR265 publishes about 156
- * classes and the approved drawing's picker says so in as many words; 250 clears that with
- * room for a longer schedule, while stopping a runaway answer from filling a firm's stored
- * record. Classes past the cap are dropped from the END, so the order the document prints
- * them in is the order that survives.
+ * 🔴 A CEILING ON A RUNAWAY ANSWER, AND IT IS BELOW THE REAL DOCUMENTS — item 4.90. This
+ * comment used to read *"IR265 publishes about 156 classes … 250 clears that with room"*, which
+ * argued the cap was generous and was wrong by a factor of eighteen: IR265 publishes about
+ * 2,800 classes across 52 table pages, so 250 holds roughly a tenth of it.
+ *
+ * 🔴 THE NUMBER STAYS AT 250 ANYWAY — Mike's ruling of 2026-09-11. Raising it would pretend one
+ * model answer can carry a whole schedule, and item 4.91 proved that same week that it cannot:
+ * the real IR265 came back offering nothing at all. The answer to a long schedule is the
+ * COUNTRY SCHEDULE (item 4.92), read a page range at a time, which the picker searches in full.
+ *
+ * ⚠ WHAT THIS KNOWINGLY ACCEPTS: a firm whose group has loaded no country schedule gets this
+ * document's first 250 classes with nothing on screen saying more exist. Classes past the cap
+ * are dropped from the END, so the order the document prints them in is the order that
+ * survives. Loading the country schedule removes it.
  */
 const MAX_CLASSES = 250
 
