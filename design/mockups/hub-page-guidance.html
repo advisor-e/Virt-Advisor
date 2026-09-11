@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Read this for me — plain guidance and an AI reading on the mentor's pages</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Read this for me — two mentor pages gain (1) a plain "How to use this page"
+   panel and (2) an AI reading of the numbers on screen, the way the client
+   reports already carry one. Drawn 2026-09-11 on Mike's request. Nothing is
+   built.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-11), on the mentor's
+   Outcome Learning page:
+     "despite all of the coding, I have no idea how I, as a mentor, am supposed
+      to use this function and what I'm learning from it."
+     "can information like that be provided when I open those respective pages?
+      In the same way that if I get a client report, there seems to be some AI
+      interpretation of the data and some type of summary information ... I'm
+      not seeing any AI interpretation of what's in front of me. Is that
+      possible we could create that?"
+   He named both pages: Outcome Learning and the Logic-Lab Report.
+
+   WHAT THE MODEL IS SENT AND WHAT IT IS NOT. Only what the page already shows:
+   template titles, situation labels, counts, states, the bench figures; on the
+   Logic-Lab Report the grouped pushed edits — domain, template names, how many
+   firms. No firm id, no advisor, no client, no free text: neither page holds
+   any, which is why the reading can exist at all. The prompt lives in
+   data/ai-prompts.json and shows on the AI Prompts tab, per the hub-page rule.
+
+   WHAT THE READING MAY NOT DO. It never accepts, holds or rejects anything, and
+   the card says so. The rule that nothing changes a recommendation until the
+   mentor presses Accept is untouched.
+
+   Colours, spacing and type are COPIED from outcome-learning-mentor.html
+   (approved 2026-09-10). No dark mode, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+.btn{display:inline-block;margin-top:12px;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:5px 11px;font-size:12.5px;margin-top:0}
+.btn.dim{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+.pill.off{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+/* the guidance panel */
+.guide{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:14px 18px;margin-bottom:16px;font-size:13.5px}
+.guide h3{margin:0 0 6px;font-size:14px;font-weight:600}
+.guide ol,.guide ul{margin:6px 0 0;padding-left:20px}
+.guide li{margin:5px 0}
+.guide .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.guide .foot span{font-size:12px;color:var(--rs-muted)}
+.guide.closed{padding:10px 18px}
+.guide.closed h3{margin:0;font-size:13px}
+
+/* the reading card */
+.reading{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px}
+.reading p{margin:0 0 9px;font-size:13.5px}
+.reading p:last-child{margin:0}
+.reading .when{font-size:12px;color:var(--rs-muted);margin-top:8px}
+.reading .caveat{font-size:12px;color:var(--rs-muted);border-top:1px solid var(--rs-line);padding-top:8px;margin-top:10px}
+
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media (max-width:760px){.strip{grid-template-columns:1fr 1fr}}
+.stat{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px;box-shadow:var(--rs-shadow)}
+.stat .l{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.stat .v{font-size:26px;font-weight:300;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .s{font-size:12px;color:var(--rs-muted);margin-top:4px}
+
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line);white-space:nowrap}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+.faded{opacity:.45}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Read this for me — drawn 2026-09-11 on Mike's request; nothing is built.</b> Two mentor pages
+  gain the same two things: a plain <b>How to use this page</b> panel at the top, and an <b>AI reading
+  of what is on the screen</b>, the way the client reports already carry one. Three screens: the
+  Outcome Learning page with both in place, the reading's three other states, and the Logic-Lab
+  Report with both in place. The wording table and four questions follow, one recommendation each.
+  The drawing is approved as its own question after the four are ruled.</p>
+  <p>Everything in yellow is mockup chrome and is never built. Counts and the reading text are
+  <span class="ex">example</span> — the reading is the model's and will differ every time.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — Outcome Learning with the panel and the reading in place</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Mentor Hub</div>
+  <div class="hub-h1">Outcome Learning</div>
+  <div class="hub-sub">Advisor-e platform · pooled from every firm that shares</div>
+</div>
+
+<div class="guide">
+  <h3>How to use this page</h3>
+  <p style="margin:0">Every time an advisor finishes a case, they tick how each recommended template went.
+  Firms that share send those ticks here with no names attached. This page is where you read them and
+  decide whether the engine should act on them.</p>
+  <ol>
+    <li><b>Each row is one template in one kind of situation.</b> Delivered is how often it was used;
+    Didn't land is how often the advisor said it fell flat. The hold-back is how much the engine
+    proposes to recommend it less readily — never removed, and never over what an advisor said about
+    their own client today.</li>
+    <li><b>Accept</b> makes the hold-back live at every sharing firm within a minute. <b>Hold</b> parks
+    it. <b>Reject</b> refuses it and asks you why. A row below the floor cannot be accepted yet: it says
+    how many more firms and cases it needs.</li>
+    <li><b>The top of the table is where to look.</b> A template that keeps being delivered and keeps
+    not landing is the platform telling you where the content or the logic tables need attention.</li>
+    <li><b>Press Run the benches after you decide.</b> The bottom card then says whether your decisions
+    made recommendations better, before and after.</li>
+  </ol>
+  <div class="foot">
+    <span>Shown open the first time you come here. Once closed it stays closed on this browser; the title stays so you can open it again.</span>
+    <span class="btn small ghost">Got it</span>
+  </div>
+</div>
+
+<div class="strip">
+  <div class="stat"><div class="l">Firms sharing</div><div class="v">5<span class="ex">example</span></div></div>
+  <div class="stat"><div class="l">Reviews in the pool</div><div class="v">31</div></div>
+  <div class="stat"><div class="l">Live adjustments</div><div class="v">1</div><div class="s">1 proposed · 0 held · 4 below the floor</div></div>
+  <div class="stat"><div class="l">Last recomputed</div><div class="v" style="font-size:15px;margin-top:8px">Just now</div><span class="btn small ghost" style="margin-top:6px">Recompute now</span></div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What this is telling you</h2>
+    <span class="btn small ghost">Read this for me</span>
+  </div>
+  <div class="card-b">
+    <div class="reading">
+      <p><b>What stands out.</b> One template, Break-Even, is doing most of the work in this pool and
+      disappointing in two of every five profitability cases across all five sharing firms. That is a
+      pattern, not one firm's habit.<span class="ex">example</span></p>
+      <p><b>What to do first.</b> The live hold-back on Break-Even in profitability is the right call
+      on this evidence. The same template in education engagements is proposed on the same 31 cases —
+      it is the same reviews counted a second way, so accepting it too would double up; hold it. The
+      four rows below the floor need more cases before they mean anything.</p>
+      <p><b>What not to read into it yet.</b> Thirty-one reviews from five firms is a small pool, and
+      every review names only two templates. The benches read 0% because no review yet covers the
+      template the engine actually recommends in these situations, so they cannot measure anything
+      until the pool holds reviews of real recommendations.</p>
+      <div class="when">Read 11 Sept 2026, 15:40 · from 5 firms, 31 reviews, 1 live adjustment · the reading is the model's, from the numbers on this page and nothing else</div>
+      <div class="caveat">Advice about the evidence, not a decision. Nothing changes a recommendation until you press Accept.</div>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Where the card sits and what it reads.</b> Under the summary tiles and above the table, so the
+  reading is the first thing after the numbers. The model is sent exactly the rows and figures on this
+  page — template titles, situation labels, the counts, the states, the bench figures — and nothing
+  else, because the page holds nothing else: no firm, no advisor, no client. It answers in three
+  short paragraphs under three fixed headings, which the backend checks for before anything is
+  shown; a reply of the wrong shape is refused and the card says the reading failed.</p>
+  <p><b>The reading is kept with its date and its counts.</b> It costs one model call each time the
+  button is pressed, and none when the page opens. When the pool has changed since — a recompute, a
+  decision, a firm sharing or withdrawing — the card says so (Screen B) rather than showing a reading
+  of numbers that are no longer on the page.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — the reading's three other states</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What this is telling you</h2>
+    <span class="btn small ghost">Read this for me</span>
+  </div>
+  <div class="card-b">
+    <p style="font-size:13.5px;color:var(--rs-muted);margin:0">Nothing has been read yet. Press Read this for me and the model will say what stands out, what to do first, and what not to read into it.</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What this is telling you</h2>
+    <span class="btn small ghost">Read this again</span>
+  </div>
+  <div class="card-b">
+    <div class="notice warn" style="margin-bottom:12px"><b>The pool has changed since this was read.</b>Read 9 Sept 2026 from 4 firms and 22 reviews; the page now shows 5 firms and 31 reviews. Read it again before acting on it.</div>
+    <div class="reading faded">
+      <p><b>What stands out.</b> …the earlier reading, greyed, still legible…<span class="ex">example</span></p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What this is telling you</h2>
+    <span class="btn small dim">Reading…</span>
+  </div>
+  <div class="card-b">
+    <p style="font-size:13.5px;color:var(--rs-muted);margin:0">A few seconds.</p>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Empty pool.</b> When the page itself is in its empty state ("Nothing to show yet…"), the card
+  is not shown at all — there is nothing to read, and a button that could only say so is noise. If
+  the model cannot be reached the card says <i>"The reading could not be made. The numbers above are
+  still right; try again in a minute."</i> — the page never fails because the reading did.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — the Logic-Lab Report with the same two things</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Mentor Hub</div>
+  <div class="hub-h1">Logic Lab Report</div>
+  <div class="hub-sub">What every firm pushed back about the decision configuration</div>
+</div>
+
+<div class="guide">
+  <h3>How to use this page</h3>
+  <p style="margin:0">A firm manager who disagrees with one of your defaults can change it in their own
+  Logic Lab and push that change back up. This page rolls those pushed changes up to you, grouped where
+  several firms made the same one.</p>
+  <ol>
+    <li><b>Read the feed first, not the counts.</b> Each pushed edit shows the sentence the manager
+    probed, what the engine did with it, the template they expected, and the change they chose. That is
+    what a firm was trying to achieve, and what they had to do to get there.</li>
+    <li><b>One firm is a preference. Several firms making the same change is a default of yours that
+    needed fixing.</b> The grouping does this arithmetic for you; the label on each group says which.</li>
+    <li><b>Act at the top.</b> When a group says platform gap, change the default once in the logic
+    tables so the correction cascades to everyone and the workarounds stop.</li>
+    <li><b>This page is about rules firms changed, not results clients got.</b> Outcome Learning is the
+    page for what actually landed.</li>
+  </ol>
+  <div class="foot">
+    <span>Shown open the first time; Got it closes it and it stays closed on this browser.</span>
+    <span class="btn small ghost">Got it</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What this is telling you</h2>
+    <span class="btn small ghost">Read this for me</span>
+  </div>
+  <div class="card-b">
+    <div class="reading">
+      <p><b>What stands out.</b> Three of your seven sharing firms have steered the same cash-flow
+      situation away from the platform's default and towards the same template. That is the clearest
+      signal on the page.<span class="ex">example</span></p>
+      <p><b>What to do first.</b> Open that group and read the three probed sentences. If they describe
+      the same situation, the default is pointing at the wrong template and the fix belongs in the logic
+      tables, once, at the platform level.</p>
+      <p><b>What not to read into it yet.</b> The other five groups are single firms. A single firm shaping
+      its own configuration says nothing about your baseline; leave them until a second firm agrees.</p>
+      <div class="when">Read 11 Sept 2026, 15:42 · from 7 firms, 11 pushed edits · the reading is the model's, from the groups on this page and nothing else</div>
+      <div class="caveat">Advice about the evidence, not a decision. Nothing here changes a default; that is done in the logic tables.</div>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>What the Logic-Lab Report sends.</b> The grouped feed as the page already holds it: domain,
+  the template steered to, how many firms and edits per group, the group's own label (platform gap,
+  watch, preference), and the probed sentences. The probed sentence is the one thing that is text a
+  person wrote — it is a manager's test sentence about a made-up situation, already read across firms
+  on this page today and guarded by the page's personal-field check, which throws rather than
+  filters. The origin path (which firm) is <b>not</b> sent: the model does not need to know which firm
+  to say what the pattern means.</p>
+  <p><b>This page exists at three tiers</b> — mentor and the two middle tiers, reading the level below
+  each. The panel and the reading go with the page to all three, because the page is one component and
+  the reading reads whatever level that viewer sees. Outcome Learning is the mentor's alone (its own
+  ruling, FR-014), so its panel and reading are too.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every new word on these pages — proposed, for Mike to rule</div>
+
+<div class="card">
+  <div class="card-b">
+    <div class="tw">
+    <table style="min-width:0">
+      <thead><tr><th>Where</th><th>Proposed wording</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Panel title, both pages</td><td>How to use this page</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Panel close button</td><td>Got it</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Panel body, Outcome Learning</td><td>The four numbered points on Screen A, as drawn</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Panel body, Logic-Lab Report</td><td>The four numbered points on Screen C, as drawn</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Reading card heading</td><td>What this is telling you</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Reading buttons</td><td>Read this for me · Read this again · Reading…</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>The three fixed headings inside a reading</td><td>What stands out. · What to do first. · What not to read into it yet.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Date line</td><td>Read {date} · from {firms} firms, {reviews} reviews, {live} live adjustment(s) · the reading is the model's, from the numbers on this page and nothing else</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Caveat, Outcome Learning</td><td>Advice about the evidence, not a decision. Nothing changes a recommendation until you press Accept.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Caveat, Logic-Lab Report</td><td>Advice about the evidence, not a decision. Nothing here changes a default; that is done in the logic tables.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Before the first reading</td><td>Nothing has been read yet. Press Read this for me and the model will say what stands out, what to do first, and what not to read into it.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Stale reading</td><td>The pool has changed since this was read. Read {date} from {firms} firms and {reviews} reviews; the page now shows {firms} firms and {reviews} reviews. Read it again before acting on it.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Model unreachable</td><td>The reading could not be made. The numbers above are still right; try again in a minute.</td><td><span class="pill wait">Proposed</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Four questions, one recommendation each — put to Mike one at a time</div>
+
+<div class="q">
+  <h3>1 · Is the reading made on a button, or every time the page opens?</h3>
+  <p>The client reports make their reading as part of producing the report. These pages recompute on
+  every open, and a mentor may open Outcome Learning several times in a sitting.</p>
+  <p class="rec">Recommended: on the button, kept with its date and counts, and marked stale when the
+  pool has changed. One call per press, none per open, and the mentor always knows which numbers a
+  reading was made from. Against: a mentor who never presses it never sees it — the empty card's
+  sentence exists to invite the press.</p>
+</div>
+
+<div class="q">
+  <h3>2 · Does the panel close for good, or reopen every visit?</h3>
+  <p>Screen A shows it open with a Got it button.</p>
+  <p class="rec">Recommended: open on the first visit, closed after Got it, remembered on that browser;
+  the title stays on the page so it can be opened again in one click. Against: a mentor on a new
+  machine sees it open once more — which is the right outcome.</p>
+</div>
+
+<div class="q">
+  <h3>3 · May the reading name a template and say what to do with it?</h3>
+  <p>The example on Screen A says the live hold-back on Break-Even is the right call and that its twin
+  row should be held.</p>
+  <p class="rec">Recommended: yes — a reading that will not name anything is a horoscope. The caveat
+  line under every reading says it is advice, the buttons are still the mentor's, and the backend
+  refuses a reply that does not carry the three headings. Against: a mentor may take the advice
+  uncritically; the honesty line and the counts beside every row are the counterweight, and the same
+  trust is already extended to the client reports.</p>
+</div>
+
+<div class="q">
+  <h3>4 · Which tiers?</h3>
+  <p>Outcome Learning is the mentor's alone by its own ruling. The Logic-Lab Report exists at the mentor
+  and both middle tiers.</p>
+  <p class="rec">Recommended: the panel and the reading go wherever the page goes — mentor alone for
+  Outcome Learning, all three tiers for the Logic-Lab Report, because it is one component reading the
+  level below each viewer. Against: none found; building it for one tier of a three-tier page would
+  be a stated judgement with no reason behind it.</p>
+</div>
+
+<div class="notice warn" style="margin-top:20px">
+  <b>What this drawing does not decide</b>
+  The exact prompt wording is a backend text on the AI Prompts tab, where every prompt already lives
+  and can be changed without a build. The model and its cost are the platform's existing OpenAI
+  route; one reading is one short call.
+</div>
+
+</div>
+</body>
+</html>
