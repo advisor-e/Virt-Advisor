@@ -63,8 +63,8 @@ replace the old sentence rather than adding a new one beneath it.
 > removed), which is how a specification turns into a diary. `ACTIONS.md` had reached 7,448
 > lines and is now frozen. **85 session-notes files** totalling 11,990 lines had accumulated
 > that no checklist ever asked for, and they were not working: on 2026-08-23 two open
-> questions for Mike went into one and reached no list. Meanwhile the full test suite —
-> 6,255 tests — runs in **30 seconds**, so the tests were never the cost.
+> questions for Mike went into one and reached no list. Meanwhile the full test suite runs in
+> **well under a minute**, so the tests were never the cost.
 
 ---
 
