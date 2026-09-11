@@ -185,6 +185,40 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.81 — The forecast's tax rates were New Zealand's, hardcoded, for every country.**
+✅ Closed 2026-09-11 on the laptop by Mike. Built in five slices on 2026-09-09, verified against
+the running app the day it closed.
+
+- **Why it mattered:** every forecast for an overseas client was wrong on tax whether or not it
+  owned a single asset — **wider than the depreciation item** it was filed beside. An advisor could
+  type over two of the figures but was never told they were New Zealand's, and the filing cycle
+  they could not change at all, though it decides which months the money leaves the bank. The
+  statements balanced perfectly, which is how it would have reached a lender.
+- **Four figures, not two.** The drawing found the GST section also fixes the **filing cycle** and
+  the **accounting basis**, both silently New Zealand's. **The engine's three hardcoded cycles
+  became one formula**, so Australia's quarterly BAS can be expressed at all — and the 3,385 golden
+  workbook cells pass unchanged.
+- **What was done:** [`taxRates.js`](../../server/utils/taxRates.js) and its route, a Tax Rates tab
+  at all four tiers in [`FirmTaxRates.vue`](../../components/firm/FirmTaxRates.vue), the cascade,
+  and the advisor's side — a country field on the intake and a provenance badge on every figure.
+  The engine's `0.28` and `0.15` are now **defaults in a defaults object**, overridden by input
+  (`pick(i.gstRate, d.gstRate)`), not constants applied to everyone.
+- **Mike's own words when the gap was first reported as something he had not asked for:** *"of
+  course i want the tax rate made contry aware - i literally asked for that!"* He had.
+- 🔴 **DELIBERATELY NOT BUILT, and this is the part not to lose: loading a tax PDF for the AI to
+  read.** It was Mike's own question, and the Brief argues against it in its own words — a tax
+  document publishes **four figures** where a depreciation schedule publishes about 2,800, so an
+  extraction here *"saves the typing and none of the checking"*. A manager types four numbers and
+  their source by hand, and checks four numbers either way. **It is genuinely open and it is Mike's
+  to revive**; it is off the list so that it stops reading as owed work, not because it was
+  refused. See [`tax-rates.md`](tax-rates.md) §5 and its history §5.
+- **What proves it:** the golden workbook, unchanged at 3,385 cells, plus the suite. **And then the
+  running app on 2026-09-11:** the manager route answers 200 at mentor, global-group and firm
+  tiers, and the advisor-facing resolve returns all four figures with `originTier: null` — correctly
+  labelled as app defaults on a machine where nobody has approved a table.
+- ⚠ **Not yet exercised with a real APPROVED table**, so no manager-set rate has reached a forecast.
+  That is UAT's, and by Mike's rule it does not hold the item open.
+
 **4.83 — Compliance pages in the four manager hubs.**
 ✅ Closed 2026-09-11 on the laptop by Mike. **It was already built; the item's `waitingOn` field
 said "Us" and was simply out of date** — the highest-scoring item on the list, mis-filed as open.

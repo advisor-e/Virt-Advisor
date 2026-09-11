@@ -81,7 +81,7 @@
     },
     {
       "ref": "4.58",
-      "name": "Meeting Review — the advisor's side is complete; §4 remains",
+      "name": "Meeting Review — three non-coding gates before a first real recording",
       "rankedByMike": false,
       "kind": "feature",
       "score": 3,
@@ -89,8 +89,8 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports; the advisor's half is built and the manager's half is still a design.",
-      "risk": "The code can now record a client, and the non-coding items in Brief §4 gate a first real recording: staff consultation, the provider's written audio terms, and a lawyer per market. The impact assessment is written. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start a recording.",
+      "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports. It is built, advisor and manager both. What remains is three things only he or a lawyer can do.",
+      "risk": "NO CODE IS OUTSTANDING. Three non-coding gates stand before a first real recording: staff consultation, a lawyer per market, and the OpenAI audio-terms letter - whose answers on training, retention and human review can falsify the spoken consent line. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
@@ -118,29 +118,8 @@
         "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
       },
       "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
-      "note": "NOTHING READS AN UNAPPROVED TABLE, structurally rather than by a flag: a proposal lives in its own store. THE MANAGER'S SIDE IS COMPLETE, slices 1 to 3b. SLICES 4 AND 5 ARE THE ADVISOR'S HALF: each rate badges its origin; an approved table is OFFERED, filling only rates still on defaults so a typed rate survives; and an advisor may LOAD a document while approval stays manager-only. ⚠ THE AI-CALL EXPOSURE THAT WIDENING CREATED IS ITEM 4.82, not a warning here. NOT BUILT: the dated purchase list with the first-year deduction - item 4.77, closed here. No document has been read in earnest; that needs UAT. Detail is in the Brief; rulings in depreciation-rates-history.md.",
+      "note": "NOTHING READS AN UNAPPROVED TABLE, structurally rather than by a flag: a proposal lives in its own store. BUILT: the manager's side (1-3b) and the advisor's (4-5) - each rate badges its origin, an approved table is OFFERED filling only rates still on defaults, and an advisor may LOAD while approval stays manager-only. NOT BUILT: the dated purchase list with the first-year deduction - item 4.77, closed here. THIS READER HAS NEVER PROPOSED A RATE FROM A REAL DOCUMENT: its two real attempts on 2026-09-11 came back named and dated proposing nothing, which NOTHING_READ now refuses. PROVING IT NEEDS A SHORT PUBLISHED DOCUMENT, NOT IR265 - a different test from 4.92's, never attempted. Rulings in depreciation-rates-history.md.",
       "comment": "2026-09-08 - raised by Mike and filed on his instruction. The recommendation was AGAINST it and he overturned it; the concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers. 2026-09-09 - the manager's side built, slices 1 to 3b, after Mike caught the build conflating a tax rate with a depreciation rate and the feature was renamed. Spec Kit produced eleven rulings, Investment Boost among them. Slices 4 and 5 built the same day on his yes: the advisor sees where each rate came from, is offered their country's table, and may load a document their manager decides on. 44 new tests."
-    },
-    {
-      "ref": "4.81",
-      "name": "The forecast's tax rates are New Zealand's, hardcoded, for every country",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The forecast applies New Zealand's company tax rate, GST rate and filing cycle to every client in every country, with nothing on screen saying so and no manager able to change it.",
-      "risk": "Every forecast for an overseas client is wrong on tax whether or not it owns a single asset, so this is WIDER than 4.78. An advisor can type over the two rates but is never told they are New Zealand's; the filing cycle they cannot change at all, and it decides which months the money leaves the bank. The statements balance perfectly, which is how it reaches a lender.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' The same request 4.78 was filed under."
-      },
-      "touches": "server/utils/taxRates.js and sourcedFigure.js, server/routes/taxRates.js, the Tax Rates tab in components/firm/FirmTaxRates.vue at all four tiers, the GST filing cycle in server/report/threeWayForecastModel.js, and the country field and tax card in components/ThreeWayForecastIntake.vue.",
-      "note": "BUILT, SLICES 1-5, AND A SEPARATE TAB FROM DEPRECIATION RATES ON MIKE'S APPROVAL: the country table, the cascade, the routes, the manager's screen, the engine and the advisor's side. FOUR FIGURES, NOT TWO - the drawing found the GST section also fixes the filing cycle and the accounting basis, both New Zealand's. THE ENGINE'S THREE HARDCODED CYCLES BECAME ONE FORMULA, so Australia's quarterly BAS can be expressed at all; the 3,385 golden workbook cells pass unchanged. NOT BUILT: loading a tax PDF for the AI to read, drawn in §4 - today a manager types each figure and its source by hand. Company tax stays ONE flat rate with a free-text line naming which entities it reaches.",
-      "comment": "2026-09-09 - Mike's own words when the gap was reported as something he had not asked for: 'of course i want the tax rate made contry aware - i literally asked for that!' He had. Drawing approved the same day, then built in five slices on the laptop. The item's own wording was corrected in the build: both rates WERE already editable by an advisor, so the fault was never 'nothing can change them' but 'they are silently New Zealand's and no manager can set them'. The country field was built here on his explicit yes - it is 4.78's approved addendum and nothing here resolves without it."
     },
     {
       "ref": "4.86",
