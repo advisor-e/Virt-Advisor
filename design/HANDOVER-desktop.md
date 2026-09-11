@@ -9,31 +9,28 @@
 
 ---
 
-## 2026-09-11 (fourth session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-12 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**4.87 Outcome Learning is complete in code**: the two benches built (`39e4c0d`), and "Run the
-benches" pressed on the production build against local MySQL — figures, "Last run" line and a
-new version in history. The fixed bench's expected answer is the engine's own unadjusted one
-(Mike's yes); on the seed the outcome bench reads 0% both ways because nothing reviewed is what
-the engine recommends. **Left on 4.87: the polish tasks T043–T047** (a final `npm run build`,
-coverage floors, tasks.md tidy). `activeOn` stays desktop.
+**4.87 Outcome Learning is finished on our side and handed to UAT** (`b252e1e`): all 47 tasks
+ticked, `activeOn` cleared, waiting on Mike. The quickstart was walked on the production build
+against local MySQL: consent, a pooled row with no free text, the mentor's decisions and both
+refusals, restore, both benches, the advisor's notice. Story 3 found **4.94 — "Why this?" named
+the wrong hold-back and could hide one — fixed the same hour** (`02c1f5a`, closed on
+done-and-parked §2). Not shown locally: withdrawal taking an adjustment below the floor, and a
+second firm.
 
-**4.93 "Read this for me" BUILT (`c5461c2`)** from `mockups/hub-page-guidance.html`, approved
-2026-09-11: a "How to use this page" panel and an AI reading card on Outcome Learning and the
-Logic-Lab Report. Seen on the built app, failure message included. **The model refused every
-reading: "no credits remaining" on the OpenAI account — Mike's to top up**; no real reading
-exists yet, and nothing in code waits.
+**Two things still with Mike:** the OpenAI top-up so a real "Read this for me" reading exists
+(4.93), and whether the Break-Even-in-education acceptance at 15:42 on 2026-09-11 was his.
 
-**To confirm with Mike:** a second adjustment (Break-Even in education) was Accepted at 15:42
-by the dev mentor login while he had the page open; the browser driver posts no decisions.
+**Running the app:** `OUTCOME_POOL_SECRET` is still not in `.env`. Each session that picks a new
+value leaves the previous seed's 31 rows in the pool under tokens nobody can withdraw; the pool
+now holds 62 rows from two secrets. Put one value in `.env` and re-seed with `--reset` before
+eyeballing Story 2 step 5.
 
-**Running the app:** `OUTCOME_POOL_SECRET` is not in `.env` — pass the same value to the seed
-and the backend. `NODE_EXTRA_CA_CERTS` is set machine-wide to the Avast root and verifies.
-
-Suite green: 499 suites, 10,377 tests. Tree clean, 50 ahead of master, 0 behind.
+Suite green: 499 suites, 10,331 tests. Tree clean, 56 ahead of master, 0 behind, pushed.
 
 **LAPTOP:** none of your files touched. Shared files that changed under you:
-`server/restify-server.js` (three mounts), `server/routes/mentor.js` (the Logic-Lab report body
-moved into `_logicLabReportFor` plus a reading route), `data/ai-prompts.json` (one document),
-`locales/en.json`, `tests/unit/aiPrompts*.test.js` (prompt-list pins). Merge master before you
+`server/utils/templateResolver.js` (the pooled block and the scoring log),
+`server/utils/outcomeLearningSession.js`, `design/features/to-do-items.json` (4.87 only),
+`design/features/to-do-done-and-parked.md` (4.94 at the top of §2). Merge master before you
 touch any.
