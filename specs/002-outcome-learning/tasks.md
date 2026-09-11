@@ -144,11 +144,11 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `pages
 
 ## Phase 7: Polish & cross-cutting
 
-- [ ] T043 Lay each built screen beside its drawing and name every difference on the drawing itself and in `design/ARTEFACTS.md` (Save-the-Artefact rule)
-- [ ] T044 [P] Update `design/features/outcome-learning.md` §8 "For the coder" to name the built files, and replace "Nothing is built" with the state as built; update `design/features/README.md` if the Handbook needs the page re-grouped
-- [ ] T045 [P] Update `design/features/to-do-items.json` 4.87: note, `waitingOn`, and clear `activeOn` when the desktop's work is done
-- [ ] T046 Run the whole of quickstart.md on the desktop against MySQL; `npm run lint`, `npm test` with thresholds, `npm run build`
-- [ ] T047 Confirm `server/utils/` and `server/routes/` coverage did not fall below their floors, and `guardContribution` / `computeAdjustments` report 100%
+- [x] T043 Lay each built screen beside its drawing and name every difference on the drawing itself and in `design/ARTEFACTS.md` (Save-the-Artefact rule) — 2026-09-12, `ec873b7`
+- [x] T044 [P] Update `design/features/outcome-learning.md` §8 "For the coder" to name the built files, and replace "Nothing is built" with the state as built; update `design/features/README.md` if the Handbook needs the page re-grouped — §8 names every file; the page is grouped under The AI engine
+- [x] T045 [P] Update `design/features/to-do-items.json` 4.87: note, `waitingOn`, and clear `activeOn` when the desktop's work is done — 2026-09-12, handed to UAT
+- [x] T046 Run the whole of quickstart.md on the desktop against MySQL; `npm run lint`, `npm test` with thresholds, `npm run build` — 2026-09-12: lint 0 errors, 10,331 tests green with thresholds, build succeeds. Stories 1–4 walked; Story 3 found item 4.94 (fixed, `02c1f5a`). Not shown locally: Story 2 step 5 (yesterday's pool rows sit under a lost secret) and firm B (one dev sign-in); Story 3 step 4 proven at engine level rather than by stopping MySQL
+- [x] T047 Confirm `server/utils/` and `server/routes/` coverage did not fall below their floors, and `guardContribution` / `computeAdjustments` report 100% — floors held at the push gate; both functions and the whole of `outcomeLearning.js` at 100% on every metric
 
 ---
 

@@ -125,16 +125,12 @@
       "ref": "4.87",
       "name": "Learning from outcomes across consenting firms - the platform gets smarter with use",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-10"
-      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Case reviews already record how each template landed, and the engine reads that back for the same client only. Pooled across firms that consent, anonymised, it can adjust recommendations for everyone.",
       "risk": "Without it the product cannot honestly claim to get smarter with use beyond one client. The counter-risk is privacy: identifiers or client words leaving a firm, or a firm that never consented being changed by others' outcomes - both refused by the spec.",
       "askedBy": {
@@ -143,8 +139,8 @@
         "detail": "2026-09-10 - 'build a prompt to develop the task to enable real machine learning - such that it does, indeed, get smarter with use. Not just from one firm, but from all those who consent to help develop the model by sharing anonymised data'."
       },
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
-      "note": "SPEC KIT FEATURE, specs/002-outcome-learning. ALL BUILT (2026-09-11): the pool, guard and routes, the review hook, the capped hold-back in the resolver beneath the advisor's own words, the trace and the Learned-from-outcomes panel, the firm's Outcome Sharing tab, the advisor's one-line notice, the mentor's page (accept, hold, reject, restore), the dev seed, industry suggestions on the intake, and the two benches with Run the benches on the mentor's page. Seen running against local MySQL, the bench button included. Every word on both screens is ruled, on the drawings. Brief §8 says what stands where.",
-      "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T037 on the desktop, each approved and pushed; both hub screens built from their ruled wording rows; the dev seed; industry suggestions on the intake from drawing 4; then the benches (T038 to T042) on Mike's yes, with his ruling that the fixed bench's expected answer is the engine's own unadjusted one. Pressed on the running app the same evening. NEXT: the polish tasks T043 to T047."
+      "note": "SPEC KIT FEATURE, specs/002-outcome-learning. ALL BUILT AND POLISHED (2026-09-12): T001 to T047 ticked. The quickstart was walked on the desktop against local MySQL: consent, a pooled row with no free text, the mentor's decisions and both refusals, restore, both benches and the advisor's notice, all seen. It found and closed 4.94 (the trace named the wrong hold-back and could hide one). NOT SHOWN LOCALLY: a withdrawal taking an adjustment below the floor (yesterday's rows sit under a lost secret) and a second firm (one dev sign-in). Every word on both screens is ruled, on the drawings. Brief §8 says what stands where. WHAT REMAINS IS UAT.",
+      "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T042 on the desktop: both hub screens from their ruled wording rows, the seed, industry suggestions, then the benches on Mike's yes, pressed on the running app. 2026-09-12 - T043 to T047: differences on the drawings, lint, suite and build green, the quickstart walked; 4.94 found and fixed the same hour. Handed to UAT."
     },
     {
       "ref": "4.93",
