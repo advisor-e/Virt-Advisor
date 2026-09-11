@@ -540,11 +540,17 @@ async function loadDocument (req, res) {
     loadFirmConfig: readScopeConfig
   })
 
-  // A document the model could not read, or answered about in a shape we cannot use, is
-  // RECORDED as unreadable rather than dropped: a manager who loaded three files has to be
-  // able to see which one failed. Everything else — a network fault, a prompt that could not
-  // be assembled — is not the document's fault and records nothing.
-  if (!result.ok && result.code !== 'UNREADABLE' && result.code !== 'MALFORMED') {
+  // A document the model could not read, answered about in a shape we cannot use, or read and
+  // then found nothing in, is RECORDED as unreadable rather than dropped: a manager who loaded
+  // three files has to be able to see which one failed. Everything else — a network fault, a
+  // prompt that could not be assembled — is not the document's fault and records nothing.
+  //
+  // ⚠ `NOTHING_READ` IS RECORDED THE SAME WAY DELIBERATELY (item 4.91). It is a failure of this
+  // document, so it belongs in the list beside the two above — and `unreadable` is the one
+  // status a manager may delete once they have read it (item 4.88), which a row carrying
+  // nothing should be. It is NOT `pending`: that is the whole fault being fixed.
+  const RECORDED = ['UNREADABLE', 'MALFORMED', 'NOTHING_READ']
+  if (!result.ok && !RECORDED.includes(result.code)) {
     const status = result.code === 'COUNTRY_MISMATCH' || result.code === 'INVALID_COUNTRY' ? 400 : 502
     return sendError(res, status, result.code, result.message)
   }

@@ -117,6 +117,29 @@ const UNREADABLE_MESSAGE = 'This document could not be read reliably — nothing
   'from it. No rates have been proposed and nothing has changed. Try downloading it again ' +
   'from the tax authority\'s website, or load a different edition.'
 
+/**
+ * What a person is told when a document WAS opened and named, and nothing at all came out of
+ * it — no rate for any of the six, and no class for the picker either.
+ *
+ * 🔴 ITEM 4.91, AND IT IS THE COUNTRY READER'S RULE APPLIED ON THIS SIDE. On 2026-09-11 the
+ * real IR265 came back readable, correctly named and dated, flagging three genuine
+ * contradictions in Inland Revenue's own schedule — and offering no rates and no classes at
+ * all. `refusedRows` was 0, so nothing was rejected here: the model sent empty lists. That was
+ * stored as `pending`, which a manager reads as *"Needs your approval · 0 of 6 categories
+ * read"* — an approval that can never be given, on a row that cannot even be deleted, because
+ * only an `unreadable` one may be (item 4.88). `countryScheduleRead` already refuses its own
+ * version of this (`NOTHING_READ`); the two readers now agree.
+ *
+ * ⚠ DELIBERATELY THE COUNTRY READER'S SENTENCE, with only the words that must differ changed —
+ * it stores nothing, this keeps a failed row. A manager who loads a whole schedule and one who
+ * loads a single document have had the same thing happen to them, and two wordings for one
+ * event is how a screen starts sounding like two different products. Approved by Mike
+ * 2026-09-11.
+ */
+const NOTHING_READ_MESSAGE = 'This document was opened and named, but nothing could be read ' +
+  'from it — no rates and no classes. Nothing has been proposed. Try downloading it again ' +
+  'from the tax authority\'s website, or load a different edition.'
+
 /** A finite number, or null. Mirrors the store's own reader so the two cannot disagree. */
 function num (v) {
   if (v === null || v === undefined || v === '') { return null }
@@ -288,7 +311,7 @@ function cleanRow (row, source) {
 /**
  * Validates a whole reading: the document it names, and every row in it.
  *
- * Three ways a read is refused outright, and each is a different sentence to the manager:
+ * Four ways a read is refused outright, and each is a different sentence to the manager:
  *   - `UNREADABLE`      — the model said so. Nothing is proposed (FR-047).
  *   - `MALFORMED`       — the answer is not the shape section 8 asked for, or names no
  *                         document, or no date we can rank. Believing half of it is worse
@@ -298,10 +321,15 @@ function cleanRow (row, source) {
  *                         a New Zealand table out of an Australian schedule would defeat that
  *                         at the first step, and it is far likelier to be a manager picking
  *                         the wrong file than the model misreading a masthead.
+ *   - `NOTHING_READ`    — it was opened and named, and then offered no rate for any of the six
+ *                         AND no class for the picker. There is nothing in it to approve
+ *                         (item 4.91).
  *
- * A read that survives may still propose NOTHING — every row refused, or none offered. That
- * is a success with six gaps, not a failure: the categories are named on screen and each
- * keeps the figure it already had (FR-032).
+ * A read that survives may still propose no RATES — every row refused, or none offered — and
+ * that is a success with six gaps rather than a failure: the categories are named on screen
+ * and each keeps the figure it already had (FR-032). What is refused is the read with nothing
+ * in it AT ALL, which is a different thing: a manager can act on a class list that matched
+ * none of the six, and cannot act on an empty document.
  *
  * @param {*} raw - the parsed model answer
  * @param {object} opts
@@ -427,6 +455,20 @@ function validateReading (raw, opts) {
     })
   })
 
+  // 🔴 NOTHING TO APPROVE IS NOT A PROPOSAL (item 4.91). Everything above has run, so this is
+  // the last thing checked rather than the first: a read is refused here only once we know
+  // that neither list survived it.
+  //
+  // ⚠ BOTH LISTS, NEVER EITHER ONE. A document matching none of the six but publishing a
+  // hundred classes is entirely actionable — the manager picks from it, which is what the
+  // picker is for (FR-027) — so an empty `categories` alone is a success with six gaps, not
+  // a failure. And `unresolved` does not count towards either: nothing is ever taken from it,
+  // so a read carrying only the contradictions it could not settle still leaves a manager
+  // with nothing they can approve. IR265 returned exactly that.
+  if (Object.keys(categories).length === 0 && classes.length === 0) {
+    return { ok: false, code: 'NOTHING_READ', message: NOTHING_READ_MESSAGE, reading: null }
+  }
+
   return {
     ok: true,
     code: null,
@@ -538,10 +580,14 @@ async function readDocument (opts) {
   // of the prompt says so and the route sends nothing else.
   // ⚠ AND A SUCCESS IS LOGGED TOO, which is the half this did not have. On 2026-09-11 IR265
   // came back readable, correctly named and dated, flagging three real contradictions in the
-  // schedule — and proposing NO RATES AND NO CLASSES AT ALL. That is a `pending` document with
-  // nothing on it to approve, and it is indistinguishable from a healthy read in every record
-  // we keep. `refusedRows` was 0, so nothing was rejected on our side; beyond that we could
-  // only guess. WHAT THE MODEL OFFERED, BEFORE ANY CLEANING, IS THE ONE FACT THAT SETTLES IT.
+  // schedule — and proposing NO RATES AND NO CLASSES AT ALL. `refusedRows` was 0, so nothing
+  // was rejected on our side; beyond that we could only guess. WHAT THE MODEL OFFERED, BEFORE
+  // ANY CLEANING, IS THE ONE FACT THAT SETTLES IT.
+  //
+  // ⚠ THE OFFERED COUNTS FOLLOW `NOTHING_READ` INTO THE REFUSAL BRANCH, and that is the whole
+  // reason they are built before the branch rather than inside it. That case is now refused
+  // rather than stored (item 4.91) — logging it as a bare refusal would throw away the exact
+  // measurement this line was added to take, one day after it was added.
   const parsed = parseModelJson(answer)
   const offered = (parsed && typeof parsed === 'object') ? parsed : {}
   const countOf = v => (Array.isArray(v) ? v.length : -1)
@@ -551,6 +597,11 @@ async function readDocument (opts) {
       '[depreciation-read] refused as ' + result.code +
       ' · response status=' + (completed.status || 'unknown') +
       ' · answer length=' + answer.length +
+      (result.code === 'NOTHING_READ'
+        ? ' · the model OFFERED rates=' + countOf(offered.rates) +
+          ' classes=' + countOf(offered.classes) +
+          ' unresolved=' + countOf(offered.unresolved)
+        : '') +
       (result.detail ? ' · the model said: ' + JSON.stringify(result.detail) : '') +
       ' · answer began: ' + JSON.stringify(answer.slice(0, 400))
     )
@@ -568,7 +619,10 @@ async function readDocument (opts) {
       ' classes=' + result.reading.classes.length +
       ' unresolved=' + result.reading.unresolved.length +
       ' refused=' + result.reading.refusedRows +
-      (countOf(offered.rates) < 1 ? ' · NO RATES WERE OFFERED — item 4.91' : '')
+      // Not item 4.91 any more: a read with no rates but a class list is a legitimate success
+      // with six gaps (FR-032), and the both-empty case never reaches this branch. It is still
+      // worth seeing, because a document that matches none of the six is worth a look.
+      (Object.keys(result.reading.categories).length === 0 ? ' · NO CATEGORY WAS MATCHED' : '')
     )
   }
 
@@ -585,6 +639,7 @@ module.exports = {
   MAX_CLASSES,
   MAX_UNRESOLVED,
   UNREADABLE_MESSAGE,
+  NOTHING_READ_MESSAGE,
   oneLine,
   buildRequest,
   textFromResponse,

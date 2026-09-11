@@ -185,6 +185,41 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.91 — A read could succeed and propose nothing at all.**
+✅ Closed 2026-09-11 on the laptop — the narrow fix, chosen by Mike over porting the page-range
+passes.
+
+- **Why it mattered:** on 2026-09-11 the real IR265 came back readable, correctly named, correctly
+  dated, flagging three genuine contradictions in Inland Revenue's own schedule — and offering no
+  rates and no classes. `refusedRows` was 0, so nothing was rejected on our side; the model sent
+  empty lists. That was stored as `pending`, which a manager reads as **"Needs your approval · 0 of
+  6 categories read"** — an approval that can never be given, on a row that **could not be deleted
+  either**, because only a failed row may be (4.88). None of it is visible in UAT: the screen looks
+  exactly like a document waiting its turn.
+- **What was done:** a fourth refusal, `NOTHING_READ`, in
+  [`depreciationExtract.js`](../../server/utils/depreciationExtract.js) — refused only when the
+  rates list **and** the class list are both empty — and `NOTHING_READ` added to the codes the
+  route **records** rather than errors, so the document appears as a failed row a manager can
+  clear. Brief: [`depreciation-rates.md`](depreciation-rates.md) **P15**. No screen change was
+  needed; the banner already renders the message, and the manager's and advisor's loads share one
+  handler.
+- **Mike's two decisions:** the page-range passes of P13 were **not** ported to the per-document
+  read — the country schedule already reads a national document at the tier P12 puts it at, with
+  its own allowance, and per-document passes would spend seven or more of a firm's twenty daily
+  readings on one file. And the sentence a manager sees is the country reader's own, with only the
+  words that must differ changed, so one event does not get two wordings.
+- **What proves it:** 11 tests, including the whole IR265 shape end to end — readable, named,
+  dated, three contradictions and nothing else — now coming back refused. Both lists are tested in
+  each direction: a class list with no category match still succeeds, a category match with no
+  class list still succeeds, and contradictions alone do not. An unreadable document is still
+  `UNREADABLE` and a foreign one still `COUNTRY_MISMATCH`, so the new check cannot swallow either.
+  **Two existing tests asserted the old rule and were rewritten, not deleted** — the truth inside
+  them (FR-032: no category match is a success with six gaps) survives and is still pinned.
+  The diagnostic added the day before was **moved so it follows this case into the refusal**;
+  logging it as a bare refusal would have discarded the one measurement that settles it.
+- **What UAT still has to see:** a real document read through the fixed path. Nothing here has
+  read one in earnest — that was true of the feature before this change and is unchanged by it.
+
 **4.88 — A failed document load could never be cleared from the screen.**
 ✅ Closed 2026-09-11 on the laptop — proved, built, and then used on the running app the same
 day. Commits `07b7ea5`, `be5c350`.

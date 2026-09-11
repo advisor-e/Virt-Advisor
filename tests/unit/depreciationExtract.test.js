@@ -39,6 +39,23 @@ function goodAnswer (over) {
   }, over || {})
 }
 
+/**
+ * One entry of the model's `classes` list — a published class for the manager's picker.
+ *
+ * Top-level because a class list is now what separates a read with six gaps from a read with
+ * nothing in it (item 4.91), so the emptiness tests need it as much as the class-list ones do.
+ */
+function aClass (over) {
+  return Object.assign({
+    class: 'Engineering (heavy) — plant and machinery',
+    method: 'dv',
+    dvRate: 0.13,
+    slRate: 0.085,
+    lifeYears: 15.5,
+    page: '9'
+  }, over || {})
+}
+
 describe('the prompt and the code agree on what the six categories are', () => {
   // A category the model is never told about can never be proposed, and nothing on any
   // screen would say why. This is the seam between code truth and prompt prose.
@@ -266,20 +283,103 @@ describe('a row that cannot be trusted becomes a named gap, never a half-filled 
     expect(out.reading.refusedRows).toBe(1)
   })
 
-  test('a reading proposing nothing is a success with six gaps, not a failure', () => {
+  test('a reading proposing no RATES is a success with six gaps, not a failure', () => {
     // FR-032: where no published class is a plausible match, the system proposes none. Each
-    // category keeps the figure it already had, and the screen names it.
-    const out = ex.validateReading(goodAnswer({ rates: [] }), { country: 'NZ' })
+    // category keeps the figure it already had, and the screen names it. The class list is
+    // what makes this actionable — the manager picks from it — and it is why this is a
+    // success where the both-empty case below is not (item 4.91).
+    const out = ex.validateReading(
+      goodAnswer({ rates: [], classes: [aClass()] }),
+      { country: 'NZ' }
+    )
     expect(out.ok).toBe(true)
     expect(out.reading.unmatched).toEqual(CATEGORY_KEYS)
     expect(Object.keys(out.reading.categories)).toEqual([])
+    expect(out.reading.classes).toHaveLength(1)
   })
 
   test('rates arriving as something other than an array propose nothing and refuse nothing', () => {
-    const out = ex.validateReading(goodAnswer({ rates: { vehicles: 0.5 } }), { country: 'NZ' })
+    const out = ex.validateReading(
+      goodAnswer({ rates: { vehicles: 0.5 }, classes: [aClass()] }),
+      { country: 'NZ' }
+    )
     expect(out.ok).toBe(true)
     expect(out.reading.refusedRows).toBe(0)
     expect(out.reading.unmatched).toEqual(CATEGORY_KEYS)
+  })
+})
+
+describe('a read that found NOTHING is refused, not filed for approval (item 4.91)', () => {
+  // 🔴 THE REAL FAULT, MEASURED. On 2026-09-11 IR265 came back readable, correctly named and
+  // dated, flagging three genuine contradictions — and offering no rates and no classes. It
+  // was stored as `pending`: a row reading "Needs your approval · 0 of 6 categories read"
+  // that no approval could empty and that could not be deleted either, because only an
+  // `unreadable` row may be (item 4.88). None of that is visible in UAT — the screen looks
+  // exactly like a document waiting its turn.
+
+  test('no rates and no classes is refused outright', () => {
+    const out = ex.validateReading(goodAnswer({ rates: [], classes: [] }), { country: 'NZ' })
+    expect(out.ok).toBe(false)
+    expect(out.code).toBe('NOTHING_READ')
+    expect(out.reading).toBeNull()
+    // The constant, not a copy of its words: this asserts the wiring, and leaves the sentence
+    // free to be reworded in the one place it lives.
+    expect(out.message).toBe(ex.NOTHING_READ_MESSAGE)
+  })
+
+  test('the lists absent entirely is the same refusal as the lists empty', () => {
+    const bare = goodAnswer()
+    delete bare.rates
+    expect(ex.validateReading(bare, { country: 'NZ' }).code).toBe('NOTHING_READ')
+  })
+
+  test('a class list with no category match survives — the manager can still pick', () => {
+    const out = ex.validateReading(goodAnswer({ rates: [], classes: [aClass()] }), { country: 'NZ' })
+    expect(out.ok).toBe(true)
+  })
+
+  test('a category match with no class list survives — there is a rate to approve', () => {
+    const out = ex.validateReading(goodAnswer({ classes: [] }), { country: 'NZ' })
+    expect(out.ok).toBe(true)
+  })
+
+  test('every rate row refused and no classes is refused, not a table of six gaps', () => {
+    // The rows were offered and thrown away HERE, which is the case `refusedRows` counts. It
+    // still leaves a manager with nothing, so it is refused like any other empty read.
+    const out = ex.validateReading(goodAnswer({
+      rates: [{ category: 'vehicles', class: 'Motor vehicles', method: 'dv', dvRate: 22, page: '61' }],
+      classes: []
+    }), { country: 'NZ' })
+    expect(out.code).toBe('NOTHING_READ')
+  })
+
+  test('contradictions alone are not something to approve', () => {
+    // `unresolved` carries no rate and no category and nothing is ever taken from it, so a
+    // read carrying only the entries it could not settle is still an empty read. This is
+    // precisely the shape IR265 came back in.
+    const out = ex.validateReading(goodAnswer({
+      rates: [],
+      classes: [],
+      unresolved: [{ class: 'Southern Cross Cable', pages: '39, 40', differs: 'two rates' }]
+    }), { country: 'NZ' })
+    expect(out.code).toBe('NOTHING_READ')
+    expect(out.reading).toBeNull()
+  })
+
+  test('an unreadable document is still UNREADABLE, not NOTHING_READ', () => {
+    // Both propose nothing; they are different events and the manager is told different
+    // things. The order of the two checks is what keeps them apart.
+    const out = ex.validateReading(goodAnswer({ readable: false, rates: [], classes: [] }), { country: 'NZ' })
+    expect(out.code).toBe('UNREADABLE')
+  })
+
+  test('a document from the wrong country is refused before emptiness is considered', () => {
+    const out = ex.validateReading(goodAnswer({
+      document: { name: 'TR 2024/1', published: '2024-06', country: 'AU' },
+      rates: [],
+      classes: []
+    }), { country: 'NZ' })
+    expect(out.code).toBe('COUNTRY_MISMATCH')
   })
 })
 
@@ -504,6 +604,28 @@ loadFirmConfig: noConfig
     expect(out.message).toBe(ex.UNREADABLE_MESSAGE)
   })
 
+  test('the whole IR265 shape — named, dated, and empty — comes back refused', async () => {
+    // Item 4.91, end to end, in the shape the real document actually returned on 2026-09-11:
+    // readable, correctly named and dated, three genuine contradictions flagged, and not one
+    // rate or class. Before this it reached the store as a document awaiting approval.
+    ex._setClientFactory(clientYielding(JSON.stringify(goodAnswer({
+      rates: [],
+      classes: [],
+      unresolved: [{ class: 'Southern Cross Cable', pages: '39, 40', differs: 'two rates' }]
+    }))))
+    const out = await ex.readDocument({
+      scopeId: 'firm-1',
+      country: 'NZ',
+      filename: 'ir265.pdf',
+      buffer: Buffer.from('%PDF-1.4'),
+      loadFirmConfig: noConfig
+    })
+    expect(out.ok).toBe(false)
+    expect(out.code).toBe('NOTHING_READ')
+    expect(out.reading).toBeNull()
+    expect(out.message).toBe(ex.NOTHING_READ_MESSAGE)
+  })
+
   test('a prompt whose settings are unfilled stops the work rather than reading anyway', async () => {
     const aiPrompts = require('../../server/utils/aiPrompts')
     const spy = jest.spyOn(aiPrompts, 'assemblePrompt').mockReturnValue({ text: '', variables: [], blocked: true })
@@ -552,16 +674,8 @@ loadFirmConfig: noConfig
 })
 
 describe('the document\'s own class list — what a manager picks from when the match is wrong', () => {
-  function cls (over) {
-    return Object.assign({
-      class: 'Engineering (heavy) — plant and machinery',
-      method: 'dv',
-      dvRate: 0.13,
-      slRate: 0.085,
-      lifeYears: 15.5,
-      page: '9'
-    }, over || {})
-  }
+  /** The shared class helper, under this block's own name. */
+  const cls = aClass
 
   test('a published class survives in the same shape a proposed rate does', () => {
     // Identical shapes on purpose: a class a manager PICKS is written to the approved table,

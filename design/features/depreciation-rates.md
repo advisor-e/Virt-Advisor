@@ -168,6 +168,26 @@ failures would still push a firm's real documents off the end. *Ignore this and 
 cannot clear four dead rows loses the record of the documents their approved rates came from —
 the rates themselves survive in their own store; the provenance does not.*
 
+**P15 · A read that found NOTHING is refused, not filed for approval** (item 4.91, Mike's
+ruling of 2026-09-11). A document opened, named and dated that then offers no rate for any of
+the six **and** no class for the picker was stored as `pending` — a row reading *"Needs your
+approval · 0 of 6 categories read"*, which no approval could ever empty and which P14 would not
+let a manager delete, because only a failed row may be deleted. IR265 came back in exactly that
+shape on 2026-09-11. **Both lists, never either one:** a document matching none of the six but
+publishing a hundred classes is entirely actionable under P10, so an empty gaps list alone is a
+success; and the unsettled entries of P8 do not count either, because nothing is ever taken
+from them. **The whole-schedule reader of P13 already refused its own version of this**, and the
+two now share one wording — a manager who loads a schedule and one who loads a single document
+have had the same thing happen to them. *Ignore this and a manager is asked to approve an empty
+document, and cannot clear it off the screen either.*
+
+⚠ **THE PAGE-RANGE PASSES OF P13 WERE DELIBERATELY NOT PORTED HERE**, and that is the rest of
+4.91's answer. The country schedule reads a national document properly, at the tier P12 puts it
+at, with its own reading allowance; per-document passes would spend seven or more of a firm's
+twenty daily readings (P11) on one file, to build a class list the picker already reaches
+through P12. A 52-page national schedule loaded here now fails **visibly** instead of quietly,
+which is the correct answer: its home is the country schedule screen.
+
 ---
 
 ## 3. Design considerations
