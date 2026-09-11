@@ -57,9 +57,9 @@
 > ✅ **§4 ITEM 3 IS CLOSED (2026-09-10) — the impact assessment is written**, against all fourteen
 > NZ information privacy principles: [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md).
 > **Four remain**, and two of them are now somebody's rather than nobody's: the letter to OpenAI
-> is written and waits on Mike to send (item 5), and **item 4.83 turns the banner into a real
-> gate** — a firm declares it understands the law where it operates, or Meeting Review does not
-> open for it. ⚠ **The staff consultation (item 4) is untouched by all of this and still stands.**
+> **was SENT 2026-09-12** and waits on their written reply (item 5), and **item 4.83 turns the
+> banner into a real gate** — a firm declares it understands the law where it operates, or Meeting
+> Review does not open for it. ⚠ **The staff consultation (item 4) is untouched by all of this and still stands.**
 >
 > **The screens are drawn in [`../mockups/meeting-review.html`](../mockups/meeting-review.html)**
 > — seven of them, from the pre-set through to the manager's aggregate, registered in
@@ -356,8 +356,8 @@ their own client. It is worth building as a visible setting rather than a buried
 4. **Staff consultation.** Recording employees and generating performance findings about them is
    monitoring in employment-law terms, whoever owns the report. P2 makes the position defensible;
    it does not remove the obligation.
-5. 📧 **The transcription terms, for audio specifically — the letter is ready to send as it
-   stands and waits only on Mike:
+5. 📧 **The transcription terms, for audio specifically — the letter was SENT 2026-09-12 and the
+   item now waits on OpenAI's written reply:
    [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)** (drafted 2026-09-07,
    rewritten 2026-09-10 on his instruction to be sendable). **It asks five things and nothing
    else**, and the page names where to send it. ⚠ **The item closes on a written reply that names
