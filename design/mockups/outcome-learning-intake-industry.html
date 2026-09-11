@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outcome Learning — industry suggestions on the intake</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Outcome Learning, item 4.87 — drawing 4: the industry question on the
+   Virtual Advisor intake offers suggestions as the advisor types (task T022a).
+   Drawn 2026-09-11. Nothing is built.
+
+   MIKE'S RULING THIS DRAWING IS BUILT FROM (on drawing 2, 2026-09-10):
+     "start typing - it makes suggestions - if no match - doesnt save"
+
+   WHAT THE CODE SAYS TODAY, checked 2026-09-11:
+     - Industry is not a form field. The intake is a conversation; the engine asks
+       "What industry is the client in?" (server/advisorEngine.js, the 'industry'
+       question) and the advisor types the answer into the chat box.
+     - The engine sends every question as text only, so the screen does not know
+       which question is live. That is the first thing the build changes.
+     - The pool keeps an industry ONLY when the whole typed answer equals one word
+       of the engine's vocabulary — every word over three letters in every
+       template title and tag, 1,050 words today (server/utils/outcomeContribute.js
+       industryVocabulary). Real industries (cafe, plumber, dentist) sit beside
+       words that are not industries (accountability, spaghetti). That rule is
+       already built and is not changed here.
+     - The recommendation engine itself matches more loosely (a four-letter
+       prefix, so "cafes" finds the Cafe model). Untouched.
+
+   The chat look is COPIED from components/VirtualAdvisor.vue — the message
+   bubbles, the box, the Send button, the hint line. Nothing here is a new look.
+   No dark mode, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-good:#4ca52d; --rs-warn:#ff9900;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+
+/* the chat — copied from VirtualAdvisor.vue */
+.chat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:var(--rs-shadow);
+  max-width:820px;margin-bottom:16px;overflow:hidden;font-weight:400}
+.msgs{padding:20px 24px;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;align-items:flex-start}
+.row.user{justify-content:flex-end}
+.avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:11px;flex-shrink:0;background:#1e40af;color:#fff}
+.bubble{max-width:75%;padding:14px 18px;border-radius:12px;font-size:15px;line-height:1.6}
+.bubble.adv{max-width:88%;background:#f9fafb;border:1px solid #e5e7eb;color:#111827;border-radius:4px 12px 12px 12px}
+.bubble.usr{background:#1e40af;color:#fff;border-radius:12px 4px 12px 12px}
+.input-area{border-top:1px solid #e5e7eb;padding:16px 24px;background:#fff}
+.input-inner{display:flex;gap:10px;align-items:flex-end}
+.message-input{flex:1;border:1px solid #d1d5db;border-radius:10px;padding:12px 16px;font-size:14px;
+  font-family:inherit;color:#111827;line-height:1.5;min-height:74px;background:#fff}
+.message-input.focus{border-color:#1e40af;box-shadow:0 0 0 3px rgba(30,64,175,.1)}
+.message-input.ready{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.08)}
+.message-input .ph{color:#9ca3af}
+.caret::after{content:"";display:inline-block;width:1px;height:16px;background:#111827;vertical-align:-3px;margin-left:1px}
+.send-btn{background:#1e40af;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;white-space:nowrap}
+.send-btn.off{background:#9ca3af}
+.input-hint{font-size:11px;color:#9ca3af;margin-top:8px;text-align:center}
+
+/* NEW — the suggestion row. The only thing on this page that is not built today. */
+.suggest{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 10px;font-size:12.5px;color:#6b7280}
+.suggest .lbl{flex:none}
+.sug{font-size:13px;padding:5px 12px;border-radius:999px;border:1px solid #1e40af;color:#1e40af;background:#fff;font-weight:600}
+.sug.hover{background:#1e40af;color:#fff}
+
+/* tables, notices, questions — the shared drawing chrome */
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line)}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code,.q code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Outcome Learning, drawing 4 — industry suggestions on the intake (task T022a). Drawn
+  2026-09-11. Nothing is built.</b> This is the artefact the build is checked against, saved before
+  approval as CLAUDE.md requires. It exists because Mike's ruling on drawing 2 reaches the intake
+  screen, and no drawing showed that screen.</p>
+  <p><b>What this change is for, in one sentence:</b> when the engine asks what industry the client
+  is in, the advisor sees the engine's own words for that industry as they type, so the answer that
+  reaches the pool is one the engine can learn from.</p>
+  <p>🔴 <b>THREE THINGS THIS DOES NOT CHANGE.</b> The advisor may still type anything, and it still
+  saves to their own case exactly as today. The pool's rule — a whole answer that equals one
+  vocabulary word, or no industry at all — is already built and is not touched. Nothing here alters
+  how templates are recommended.</p>
+  <p>Words in the chat marked <span class="ex">example</span> are one advisor's typing. The question
+  text is the engine's own. The suggestion words are the vocabulary's own, as it stands today.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — the industry question is live; three letters typed; matches shown</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row user"><div class="bubble usr">Owner says the margins have gone and he can't see why. <span class="ex" style="color:#fff;background:#ffffff22;border-color:#fff8">example</span></div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">What industry is the client in?</div></div>
+  </div>
+  <div class="input-area">
+    <div class="suggest">
+      <span class="lbl">Pick one, or keep typing:</span>
+      <span class="sug">plugins</span><span class="sug hover">plumber</span><span class="sug">plus</span>
+    </div>
+    <div class="input-inner">
+      <div class="message-input focus"><span>plu</span><span class="caret"></span></div>
+      <div class="send-btn">Send</div>
+    </div>
+    <div class="input-hint">Press Enter to send · Shift+Enter for a new line</div>
+  </div>
+</div>
+
+<div class="notice info">
+  <b>What is happening on Screen A</b>
+  The engine's closing event for this question now carries the field name (<code>industry</code>),
+  so the screen knows this is the one question where suggestions apply. Once three or more letters
+  are typed, up to eight vocabulary words that <i>start with</i> the typed text appear as chips, in
+  alphabetical order. The vocabulary is fetched once from a new backend route when the question
+  arrives — it is the same list the pool checks against, so every chip is a word the pool accepts.
+  ⚠ <b>The noise is deliberate and shown honestly:</b> "plugins" and "plus" are in the vocabulary
+  because they are template-title words. Question 1 below is whether to narrow the list.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — a chip was clicked; the answer is one vocabulary word, ready to send</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">What industry is the client in?</div></div>
+  </div>
+  <div class="input-area">
+    <div class="input-inner">
+      <div class="message-input ready"><span>plumber</span><span class="caret"></span></div>
+      <div class="send-btn">Send</div>
+    </div>
+    <div class="input-hint">Press Enter to send · Shift+Enter for a new line</div>
+  </div>
+</div>
+
+<div class="notice good">
+  <b>Clicking a chip replaces the whole answer with that word</b>
+  Not the last word only. The pool keeps an industry only when the <i>whole</i> answer equals one
+  vocabulary word, so "car yard plumber" would save to the case but never to the pool. Replacing
+  the whole box makes the chip mean what it looks like it means. The advisor can still edit after
+  clicking; the chips disappear once the text no longer matches. Send works exactly as today.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — no match: nothing is offered, and the answer still sends</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">What industry is the client in?</div></div>
+  </div>
+  <div class="input-area">
+    <div class="input-inner">
+      <div class="message-input ready"><span>car yard</span><span class="caret"></span> <span class="ex">example</span></div>
+      <div class="send-btn">Send</div>
+    </div>
+    <div class="input-hint">Press Enter to send · Shift+Enter for a new line</div>
+  </div>
+</div>
+
+<div class="notice warn">
+  <b>"If no match — doesn't save": what that means on this screen</b>
+  No chip row appears, and nothing says "no match" — the advisor is answering a question, not
+  filling a form, and a warning here would read as the engine refusing their answer. "car yard"
+  sends, the engine records it on the case, the recommendation engine still uses it (its own looser
+  match finds nothing for "yard" either, as today), and when the case review is later pooled the
+  industry is left blank on that one row. The review still contributes on domain, signal and
+  engagement type. All of that is built; this screen only shows what it looks like.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen D — the confirm form of the question, when a saved client already has an industry</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">Is the industry still cafe?</div></div>
+  </div>
+  <div class="input-area">
+    <div class="input-inner">
+      <div class="message-input ready"><span>yes</span><span class="caret"></span></div>
+      <div class="send-btn">Send</div>
+    </div>
+    <div class="input-hint">Press Enter to send · Shift+Enter for a new line</div>
+  </div>
+</div>
+
+<div class="notice info">
+  <b>Same field, same rule, nothing extra</b>
+  For a returning client the engine asks whether the saved industry still stands. That is still the
+  <code>industry</code> question, so the chips are armed — but "yes", "no" and "same" start no
+  vocabulary word, so nothing appears and the answer flows as today. If the advisor types a new
+  industry instead ("now a bak…"), the chips appear for the text as typed, and the engine's existing
+  answer-cleaning ("it's now a bakery" → "bakery") is unchanged.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every new word on this screen — proposed, none ruled yet</div>
+
+<div class="card">
+  <div class="card-h"><h2>Wording — one new string</h2></div>
+  <div class="card-b">
+    <table>
+      <thead><tr><th>Where</th><th>Proposed</th><th>State</th></tr></thead>
+      <tbody>
+        <tr><td>Label before the chips</td><td>Pick one, or keep typing:</td><td><span class="pill wait">Proposed</span></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:10px 0 0">The question text and the hint under
+    the box are the engine's and the screen's own today and are not changed. The chip words are the
+    vocabulary's own and are not authored.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">What the build touches</div>
+
+<div class="card"><div class="card-b">
+  <table>
+    <thead><tr><th>Piece</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><td><code>server/advisorEngine.js</code></td><td>The question sender adds <code>field</code> to its closing event. One argument; every other event is untouched.</td></tr>
+      <tr><td><code>server/routes/</code> + <code>restify-server.js</code></td><td>One new read-only route, the vocabulary as a sorted list, behind the same firm sign-in as the rest of the advisor's routes. Served from the platform library, cached the way the library already is.</td></tr>
+      <tr><td><code>nuxt.config.js</code></td><td>One proxy line for that route, placed above the SSE entry as <code>/api/advisor/staircase</code> already is — a plain GET under <code>/api/advisor</code> falls through to a 404 otherwise. The third time this fault family has been named this week.</td></tr>
+      <tr><td><code>components/VirtualAdvisor.vue</code></td><td>Remembers the live field from the closing event; fetches the vocabulary once when it is <code>industry</code>; shows the chip row under the conditions above; a click replaces the box. Nothing else on the chat changes.</td></tr>
+      <tr><td>Tests</td><td>The route (valid, empty library, unauthenticated); the closing event carries the field; the chip filter (three-letter floor, prefix, eight cap, whole-answer replace). No test asserts the label's wording.</td></tr>
+    </tbody>
+  </table>
+</div></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Questions for Mike — each carries one recommendation; put one at a time</div>
+
+<div class="q">
+  <h3>1. Suggest from the whole vocabulary, or from an industry-only list?</h3>
+  <p><span class="rec">Recommended: the whole vocabulary, filtered by what is typed.</span> It is exactly
+  the list the pool accepts, so a chip can never offer a word the pool would then drop; the typed
+  prefix removes most of the noise ("caf" offers only "cafe"); and there is no second list for
+  anyone to maintain. The cost is Screen A: "plugins" and "plus" beside "plumber".</p>
+  <p><i>Against:</i> the 89 Revenue &amp; Feasibility models are "named by industry" and would give a
+  cleaner list — but that list holds Assumptions, Break-Even and Quick Position too, so it is not an
+  industry list either, and a word offered from it that the pool then rejected would be worse than
+  a noisy chip.</p>
+</div>
+
+<div class="q">
+  <h3>2. Three letters before anything is offered, and eight chips at most?</h3>
+  <p><span class="rec">Recommended: yes to both.</span> One or two letters would offer dozens of words for
+  "pl"; three narrows it to a row. Eight fits one line under the box at the widths the chat runs at.
+  Both are numbers, so they are asked rather than assumed.</p>
+</div>
+
+<div class="q">
+  <h3>3. A click replaces the whole answer, not just the word being typed?</h3>
+  <p><span class="rec">Recommended: the whole answer</span> — Screen B's reasoning. The pool keeps a whole
+  answer that equals one word; a chip that only patched the last word would let "car yard plumber"
+  look chosen and never pool.</p>
+  <p><i>Against:</i> an advisor who has typed a longer description loses it on the click. They can see
+  it happen and retype; the alternative fails silently.</p>
+</div>
+
+<div class="q">
+  <h3>4. The label reads "Pick one, or keep typing:" ?</h3>
+  <p><span class="rec">Recommended: yes.</span> It says the chips are optional in six words. Wording is
+  Mike's call and is asked, never assumed.</p>
+</div>
+
+</div>
+</body>
+</html>
