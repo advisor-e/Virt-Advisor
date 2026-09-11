@@ -26,6 +26,7 @@ const { listPrompts, PROTECTION_PANEL } = require('../../server/utils/aiPrompts'
 const CASHFLOW = 'cashflow-forecast'
 const SECURITY = 'ai-audit-security'
 const REVIEW = 'prompt-review' // item 4.31 — mentor only
+const HUB_READING = 'hub-reading' // "Read this for me" (2026-09-11) — mentor and the two middle tiers
 const ECONOMIC = 'economic-analysis' // item 4.66 — all four tiers
 const NEXT_STEPS = 'next-steps-draft'
 const DEPRECIATION = 'depreciation-read' // item 4.78 slice 3 — all four tiers, like the two above
@@ -153,7 +154,7 @@ describe('what the mentor additionally sees', () => {
   it('gets every mentor document and therefore a picker', async () => {
     const wrapper = await mountTab('mentor')
 
-    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
     expect(wrapper.vm.hasPicker).toBe(true)
     // One card per document. The count follows the list rather than being pinned to a
     // number, so adding a fourth document is a data change and not a test change.

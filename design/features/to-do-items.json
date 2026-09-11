@@ -292,6 +292,31 @@
       "touches": "A new store beside the approved tables, the reading route and prompt in depreciationExtract.js and data/ai-prompts.json, the tier chain and the global-group scope in tierChain.js, a screen at the global group manager tier in FirmManagerHub.vue, and the class picker in DepreciationDocumentReview.vue.",
       "note": "🔴 MIKE'S RULING, 2026-09-11: IT LOADS AT THE GLOBAL GROUP MANAGER TIER. One person loads the schedules for every country their brand operates in, each table tagged with its country; group managers and firms inherit the one matching their client and load nothing. This OVERRIDES the default-is-mentor-alone rule for this feature. PER COUNTRY, NOT PER DOCUMENT: each row names the document and page it came from. BUILT 2026-09-11, ALL FIVE SLICES: the store, the sectioned read, six routes with their own 10-a-day allowance, the global group manager's screen, and the firm's class picker searching the whole table. Drawing: design/mockups/depreciation-rates-country-schedules.html. NO REAL SCHEDULE HAS BEEN READ THROUGH IT - that needs UAT.",
       "comment": "2026-09-11 - raised by Mike while the IR265 read was being diagnosed, and filed at shutdown on his yes. THE COST HE SHOULD MEET AT THE START: once we store a country's table, keeping it current is ours - when the next edition is published, every firm inheriting it holds last year's rates until someone loads the new one, so every rate must show which edition it came from. Drawn, ruled and BUILT 2026-09-11 - three decisions plus the allowance number and the limit wording, each asked one at a time. A defect was found and fixed mid-build: an unreachable store read as 'no schedule loaded'."
+    },
+    {
+      "ref": "4.93",
+      "name": "Read this for me - plain guidance and an AI reading on the mentor's pages",
+      "rankedByMike": false,
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-11"
+      },
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike opened Outcome Learning and could not tell how to use it or what it was telling him; the client reports carry an AI reading and the hub pages carried none.",
+      "risk": "A mentor who cannot read the page takes no decision on it, and the learning the platform gathered changes nothing. The counter-risk is a reading taken as a verdict, which the caveat under every reading and the backend's shape check answer.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-11 - 'I have no idea how I, as a mentor, am supposed to use this function and what I'm learning from it ... I'm not seeing any AI interpretation of what's in front of me. Is that possible we could create that?'"
+      },
+      "touches": "components/shared/HubGuidePanel.vue and HubReadingCard.vue, both mentor pages, server/utils/hubReading.js, the two reading routes, the hub-reading document on the AI Prompts tab, locales.",
+      "note": "BUILT 2026-09-11 from design/mockups/hub-page-guidance.html, approved the same day. Both pages open with How to use this page (Got it closes it, remembered per browser) and carry What this is telling you: on the button, never on open; the model is sent only what the page shows; a reply without the three fixed headings, or carrying a link or a name, is dropped whole; stored with the counts it was read from and marked stale when they move. It never accepts, holds or rejects anything. SEEN on the built app, failure message included: the model refused with 'no credits remaining' on the OpenAI account, Mike's to top up, so no real reading exists yet.",
+      "comment": "2026-09-11 - raised by Mike on the running app after pressing Run the benches, drawn the same evening, ruled and built on his yes."
     }
   ]
 }

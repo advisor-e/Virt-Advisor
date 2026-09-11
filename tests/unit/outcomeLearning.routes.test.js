@@ -412,7 +412,7 @@ describe('runBench and benchJob (T039)', () => {
     const res = makeRes()
     const pending = routes.runBench(req(), res)
     // Let the store reads settle, then pass the budget.
-    await Promise.resolve(); await Promise.resolve(); await Promise.resolve()
+    for (let i = 0; i < 16; i++) { await Promise.resolve() }
     jest.advanceTimersByTime(routes.SYNC_BUDGET_MS + 1)
     await pending
     expect(res._status).toBe(202)
@@ -442,7 +442,7 @@ describe('runBench and benchJob (T039)', () => {
     stubRun(() => new Promise((_resolve, reject) => { fail = reject }))
     const res = makeRes()
     const pending = routes.runBench(req(), res)
-    await Promise.resolve(); await Promise.resolve(); await Promise.resolve()
+    for (let i = 0; i < 16; i++) { await Promise.resolve() }
     jest.advanceTimersByTime(routes.SYNC_BUDGET_MS + 1)
     await pending
     expect(res._status).toBe(202)

@@ -72,6 +72,7 @@ Those are different questions and different screens.
 | The personal-field guard | `assertNoPersonalFields`, in the same module |
 | Origin path | `server/utils/tierChain.js` — `originPathOf` |
 | Hub tab | rendered by `components/FirmManagerHub.vue` |
+| How to use this page, and What this is telling you | Item 4.93 (Mike, 2026-09-11). `components/shared/HubGuidePanel.vue` and `HubReadingCard.vue` under the lede; `POST /api/mentor/logic-lab-report/reading` sends the model the grouped feed **without its origin path** through `server/utils/hubReading.js`, which runs the payload through `assertNoPersonalFields` too, and stores the reading at the **viewer's** scope (`logic-lab-reading`) because each tier reads a different report. Drawing: [`hub-page-guidance.html`](../mockups/hub-page-guidance.html). It decides nothing |
 | **The artefact** | `design/mockups/mentor-logic-lab-report-mockup.html` — approved 2026-08-04 |
 
 **Traps.** The guard throwing is deliberate. The origin path is a **path**, ordered from the

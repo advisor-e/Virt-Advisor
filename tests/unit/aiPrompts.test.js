@@ -24,6 +24,9 @@ const SECURITY = 'ai-audit-security'
 // Added by item 4.31: the words the reviewer is given, on the mentor's tab so they can
 // be read rather than found in code (CLAUDE.md -> AI FIXES SURFACE ON A HUB PAGE).
 const REVIEW = 'prompt-review'
+// "Read this for me" (Mike, 2026-09-11) — the mentor and the two middle tiers, because the
+// Logic-Lab Report exists at all three and a firm never sees either page.
+const HUB_READING = 'hub-reading'
 // Added by item 4.66: the market research a forecast can attach to a funding request.
 // All four tiers, like the cash flow document — a firm may need to change how research
 // is conducted for its own market (design/ECONOMIC-ANALYSIS-PROMPT.md §2).
@@ -305,7 +308,7 @@ describe('listPrompts — what a screen is given', () => {
 
 describe('which documents a tier is shown', () => {
   test('the mentor gets every document', () => {
-    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 
   test('every tier below the mentor gets the client-facing documents ONLY', () => {
@@ -313,9 +316,11 @@ describe('which documents a tier is shown', () => {
     // 7 of the 19 sections a firm manager read, in a different profession's language.
     // The two mentor-only documents are about how WE work; the cash flow and economic
     // analysis documents are about how a firm's own client work is done, so both cascade.
-    ;['global', 'group', 'firm'].forEach((tier) => {
-      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    // The hub-reading document goes where its two pages go: the middle tiers, never a firm.
+    ;['global', 'group'].forEach((tier) => {
+      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
     })
+    expect(ap.promptsForTier('firm').map(p => p.id)).toEqual([CASHFLOW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 
   test('NO TIER LOSES A CONTROL BY THIS — the hidden document has none to lose', () => {
@@ -327,8 +332,8 @@ describe('which documents a tier is shown', () => {
   })
 
   test('asking for no tier at all returns everything, so the send path is unaffected', () => {
-    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
-    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 
   test('a prompt that declares no tiers is shown everywhere, not nowhere', () => {

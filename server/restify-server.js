@@ -900,6 +900,7 @@ server.post('/api/mentor/outcome-learning/restore', ...mentorGuard, outcomeLearn
 server.get('/api/mentor/outcome-learning/export', ...mentorGuard, outcomeLearningRoute.exportLive)
 server.post('/api/mentor/outcome-learning/bench', ...mentorGuard, outcomeLearningRoute.runBench)
 server.get('/api/mentor/outcome-learning/bench/:jobId', ...mentorGuard, outcomeLearningRoute.benchJob)
+server.post('/api/mentor/outcome-learning/reading', ...mentorGuard, outcomeLearningRoute.reading)
 
 // ── Master template library (MENTOR ONLY — the upload doorway) ──
 // SEARCH-CONTENT-CASCADE-PLAN.md Phase 1: the mentor uploads the Advisor-e master
@@ -946,6 +947,9 @@ server.del('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRout
 // boundary by mentorLogicLabReport.assertNoPersonalFields, which throws rather
 // than filtering. Artefact: design/mockups/mentor-logic-lab-report-mockup.html.
 server.get('/api/mentor/logic-lab-report', firmAuth, requireManagingTier, mentorRoute.getLogicLabReport)
+// "Read this for me" (Mike, 2026-09-11; design/mockups/hub-page-guidance.html): the model
+// reads the grouped feed without its origin path and the reading is stored at the viewer's scope.
+server.post('/api/mentor/logic-lab-report/reading', firmAuth, requireManagingTier, mentorRoute.getLogicLabReading)
 
 // ── Collaborate: template catalogue + people layer ──
 // Merged in 2026-08-01 from the standalone Collaborate app, which ran its OWN

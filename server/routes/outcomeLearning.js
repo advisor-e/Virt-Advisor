@@ -36,6 +36,8 @@ const { PLATFORM_SCOPE } = require('../utils/platformScope')
 const { sendError } = require('../utils/sendError')
 const { loadEffectiveTemplates } = require('../utils/templateLibrary')
 const outcomeBench = require('../utils/outcomeBench')
+const hubReading = require('../utils/hubReading')
+const { createLimiter } = require('../utils/rateLimit')
 const SEED_TEMPLATES = require('../../data/templates.json')
 const SCENARIOS = require('../../scripts/scenario-lab-cases.json')
 const {
@@ -54,6 +56,13 @@ const SYNC_BUDGET_MS = 1500
 const JOB_TTL_MS = 10 * 60 * 1000
 /** Running and finished bench jobs, by id. In memory on purpose — see the header. */
 const _jobs = new Map()
+/**
+ * "Read this for me" — the stored reading lives on its OWN row, never the decisions row,
+ * so a reading never pushes a decision out of the history FR-009 promises.
+ */
+const READING_KEY = 'outcome-reading'
+/** Six readings a minute per address: a person reads one; anything faster is not reading. */
+const readingLimiter = createLimiter(6)
 
 /**
  * The platform's template library now: the mentor's uploaded library when there is one,
@@ -88,17 +97,19 @@ async function _decisionsRow () {
  *   that go on to write or to replay
  */
 async function recompute () {
-  const [rows, library, row] = await Promise.all([
+  const [rows, library, row, storedReading] = await Promise.all([
     overlay.loadFirmConfigsByPrefix(PLATFORM_SCOPE, POOL_PREFIX),
     _library(),
-    _decisionsRow()
+    _decisionsRow(),
+    // A reading that cannot be read is no reading; the page must still load.
+    Promise.resolve().then(() => overlay.loadFirmConfig(PLATFORM_SCOPE, READING_KEY)).catch(() => null)
   ])
   const titles = library.map(t => t && t.title).filter(t => typeof t === 'string' && t.trim())
   const keys = Object.keys(rows || {})
   // Firms are distinct tokens parsed from the keys — the only place a firm is counted.
   const tokens = new Set(keys.map(k => k.split(':')[0]).filter(Boolean))
   const computed = computeAdjustments(rows, row.decisions, titles)
-  return {
+  const result = {
     firms: tokens.size,
     cases: keys.length,
     lastRecomputeAt: row.lastRecomputeAt,
@@ -112,6 +123,9 @@ async function recompute () {
     library,
     row
   }
+  result.reading = hubReading.readStoredReading(storedReading)
+  result.readingStale = hubReading.isStale(result.reading, hubReading.stampOf(hubReading.outcomeLearningPayload(result)))
+  return result
 }
 
 /**
@@ -143,7 +157,9 @@ function _payload (result) {
     capMax: result.capMax,
     adjustments: result.adjustments,
     orphaned: result.orphaned,
-    benches: result.benches
+    benches: result.benches,
+    reading: result.reading,
+    readingStale: result.readingStale
   }
 }
 
@@ -365,6 +381,35 @@ function benchJob (req, res, next) {
   return next()
 }
 
+/**
+ * POST /api/mentor/outcome-learning/reading — "Read this for me". Sends the model exactly
+ * what the page shows, stores the reading on its own row with the counts it was read
+ * from, and returns it. A reading that fails is a 502, never an empty reading.
+ * @route POST /api/mentor/outcome-learning/reading
+ * @returns {200} { success, reading, readingStale: false } · {502} READING_FAILED · {500} DB_ERROR
+ */
+async function reading (req, res) {
+  if (readingLimiter(req, res) === false) { return }
+  let payload
+  try {
+    payload = hubReading.outcomeLearningPayload(await recompute())
+  } catch (err) {
+    console.error('[outcome-learning] reading could not read the pool:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not read the outcome pool')
+  }
+  const made = await hubReading.makeReading(payload)
+  if (!made.ok) {
+    return sendError(res, 502, 'READING_FAILED', 'The reading could not be made. The numbers above are still right; try again in a minute.')
+  }
+  try {
+    await overlay.saveFirmConfig(PLATFORM_SCOPE, READING_KEY, made.reading, req.userEmail)
+    res.send(200, { success: true, reading: hubReading.readStoredReading(made.reading), readingStale: false })
+  } catch (err) {
+    console.error('[outcome-learning] reading could not be saved:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not save the reading')
+  }
+}
+
 /** For tests: forget every job. */
 function _clearJobs () { _jobs.clear() }
 
@@ -377,6 +422,8 @@ module.exports = {
   exportLive,
   runBench,
   benchJob,
+  reading,
+  READING_KEY,
   recompute,
   recomputeAndPersist,
   SYNC_BUDGET_MS,

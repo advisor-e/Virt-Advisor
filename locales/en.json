@@ -3504,6 +3504,15 @@
   "logicLabReport": {
     "tab": "Logic Lab Report",
     "title": "Logic Lab Report",
+    "guide": {
+      "intro": "A firm manager who disagrees with one of your defaults can change it in their own Logic Lab and push that change back up. This page rolls those pushed changes up to you, grouped where several firms made the same one.",
+      "p1": "Read the feed first, not the counts. Each pushed edit shows the sentence the manager probed, what the engine did with it, the template they expected, and the change they chose. That is what a firm was trying to achieve, and what they had to do to get there.",
+      "p2": "One firm is a preference. Several firms making the same change is a default of yours that needed fixing. The grouping does this arithmetic for you; the label on each group says which.",
+      "p3": "Act at the top. When a group says platform gap, change the default once in the logic tables so the correction cascades to everyone and the workarounds stop.",
+      "p4": "This page is about rules firms changed, not results clients got. Outcome Learning is the page for what actually landed."
+    },
+    "readingFrom": "from {firms} firms, {edits} pushed edit | from {firms} firms, {edits} pushed edits",
+    "readingCaveat": "Advice about the evidence, not a decision. Nothing here changes a default; that is done in the logic tables.",
     "privacy": "This page is mentor-only. It reads configuration and counts from every firm's hub: no client name, no advisor name and no session text can appear here.",
     "lede": "The heart of this page is the pushed-edit feed: every time a firm manager ran a Logic-Lab diagnosis and accepted the fix it offered, that acceptance was logged — the sentence they probed, what the engine did with it, the template they expected, and the change they chose. Where many firms push the same fix, that is a platform gap for you to close, so the correction cascades down to everyone.",
     "pushed": {
@@ -4600,8 +4609,37 @@
     "failed": "That could not be done.",
     "advisorNotice": "Your firm shares how each template went, without names or notes, to improve recommendations across Advisor-e. Nothing you type below leaves the firm."
   },
+  "hubGuide": {
+    "title": "How to use this page",
+    "gotIt": "Got it"
+  },
+  "hubReading": {
+    "heading": "What this is telling you",
+    "read": "Read this for me",
+    "readAgain": "Read this again",
+    "reading": "Reading…",
+    "wait": "A few seconds.",
+    "none": "Nothing has been read yet. Press Read this for me and the model will say what stands out, what to do first, and what not to read into it.",
+    "standsOut": "What stands out.",
+    "doFirst": "What to do first.",
+    "notYet": "What not to read into it yet.",
+    "when": "Read {when} · {from} · the reading is the model's, from the numbers on this page and nothing else",
+    "staleHead": "The pool has changed since this was read.",
+    "staleBody": "Read {when} {then}; the page now shows {now}. Read it again before acting on it.",
+    "failed": "The reading could not be made. The numbers above are still right; try again in a minute.",
+    "unreachable": "The server could not be reached. Check the connection and try again."
+  },
   "outcomeLearning": {
     "tab": "Outcome Learning",
+    "guide": {
+      "intro": "Every time an advisor finishes a case, they tick how each recommended template went. Firms that share send those ticks here with no names attached. This page is where you read them and decide whether the engine should act on them.",
+      "p1": "Each row is one template in one kind of situation. Delivered is how often it was used; Didn't land is how often the advisor said it fell flat. The hold-back is how much the engine proposes to recommend it less readily — never removed, and never over what an advisor said about their own client today.",
+      "p2": "Accept makes the hold-back live at every sharing firm within a minute. Hold parks it. Reject refuses it and asks you why. A row below the floor cannot be accepted yet: it says how many more firms and cases it needs.",
+      "p3": "The top of the table is where to look. A template that keeps being delivered and keeps not landing is the platform telling you where the content or the logic tables need attention.",
+      "p4": "Press Run the benches after you decide. The bottom card then says whether your decisions made recommendations better, before and after."
+    },
+    "readingFrom": "from {firms} firms, {reviews} reviews, {live} live adjustment | from {firms} firms, {reviews} reviews, {live} live adjustments",
+    "readingCaveat": "Advice about the evidence, not a decision. Nothing changes a recommendation until you press Accept.",
     "header": "Advisor-e platform · pooled from every firm that shares",
     "tileFirms": "Firms sharing",
     "tileReviews": "Reviews in the pool",

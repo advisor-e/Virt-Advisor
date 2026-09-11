@@ -34,6 +34,7 @@ const { PROTOCOL_BLOCK } = require('../../server/utils/aiPrompts')
 const CASHFLOW = 'cashflow-forecast'
 const SECURITY = 'ai-audit-security'
 const REVIEW = 'prompt-review' // item 4.31 — mentor only
+const HUB_READING = 'hub-reading' // "Read this for me" (2026-09-11) — mentor and the two middle tiers
 const ECONOMIC = 'economic-analysis' // item 4.66 — all four tiers, like the cash flow document
 const NEXT_STEPS = 'next-steps-draft'
 const DEPRECIATION = 'depreciation-read' // item 4.78 slice 3 — all four tiers, like the two above
@@ -116,7 +117,7 @@ describe('what a tier is given when it opens the tab', () => {
     await routes.getForManager(makeReq({ firmId: '__platform__' }), res)
 
     expect(res._body.tier).toBe('mentor')
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
   })
 
   test('the two middle tiers resolve correctly, unexercised though they are today', async () => {

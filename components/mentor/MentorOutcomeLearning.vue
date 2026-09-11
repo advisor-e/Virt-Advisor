@@ -8,6 +8,9 @@
   b-message(v-else-if="loadError" type="is-danger" size="is-small") {{ loadError }}
 
   template(v-else)
+    //- ── How to use this page (Mike, 2026-09-11; hub-page-guidance.html) ─────
+    hub-guide-panel(storage-key="outcome-learning" :intro="$t('outcomeLearning.guide.intro')" :points="guidePoints")
+
     //- ── The summary strip ────────────────────────────────────────────────────
     .columns.is-multiline.mb-2
       .column.is-3
@@ -34,6 +37,12 @@
             | {{ $t('outcomeLearning.recomputeNow') }}
 
     b-message(v-if="actionError" type="is-danger" size="is-small") {{ actionError }}
+
+    //- ── What this is telling you (Mike, 2026-09-11) ───────────────────────────
+    //- The model reads the rows and figures on this page and nothing else; the
+    //- backend stores the reading with the counts it was read from. Not shown on an
+    //- empty pool — there is nothing to read. It decides nothing.
+    hub-reading-card(v-if="!isEmpty" :reading="page.reading" :stale="page.readingStale" :loading="readingLoading" :error="readingError" :from-now="readingFromNow" :from-then="readingFromThen" :caveat="$t('outcomeLearning.readingCaveat')" @read="readPage")
 
     //- ── The empty page ───────────────────────────────────────────────────────
     //- Spec FR-013: a young pool is said in the two numbers that explain it, never
@@ -218,6 +227,8 @@
 
 import DOMAINS from '~/data/domains.json'
 import ENGAGEMENT from '~/data/engagement-types.json'
+import HubGuidePanel from '~/components/shared/HubGuidePanel.vue'
+import HubReadingCard from '~/components/shared/HubReadingCard.vue'
 
 const DOMAIN_LABELS = {}
 DOMAINS.forEach((d) => { if (d && d.id) { DOMAIN_LABELS[d.id] = d.label || d.id } })
@@ -229,6 +240,8 @@ const BASE = '/api/mentor/outcome-learning'
 export default {
   name: 'MentorOutcomeLearning',
 
+  components: { HubGuidePanel, HubReadingCard },
+
   props: {
     apiToken: { type: String, required: true }
   },
@@ -238,7 +251,9 @@ export default {
       loading: true,
       loadError: '',
       /** The route's payload, shaped so the template never reads an undefined list. */
-      page: { firms: 0, cases: 0, lastRecomputeAt: null, floor: { minFirms: 0, minCases: 0 }, capMax: 0, adjustments: [], orphaned: [], benches: null },
+      page: { firms: 0, cases: 0, lastRecomputeAt: null, floor: { minFirms: 0, minCases: 0 }, capMax: 0, adjustments: [], orphaned: [], benches: null, reading: null, readingStale: false },
+      readingLoading: false,
+      readingError: '',
       /** The decisions row's saved versions, newest first. */
       versions: [],
       recomputing: false,
@@ -283,6 +298,23 @@ export default {
     benchOutcome () {
       const b = this.page.benches
       return b && b.outcome && typeof b.outcome === 'object' ? b.outcome : null
+    },
+
+    /** @returns {string[]} the four points of "How to use this page" */
+    guidePoints () {
+      return ['p1', 'p2', 'p3', 'p4'].map(k => this.$t('outcomeLearning.guide.' + k))
+    },
+
+    /** @returns {string} "from 5 firms, 31 reviews, 1 live adjustment", as the page stands */
+    readingFromNow () {
+      return this.$tc('outcomeLearning.readingFrom', this.counts.live, { firms: this.page.firms, reviews: this.page.cases, live: this.counts.live })
+    },
+
+    /** @returns {string} the same, for the counts the stored reading was made from */
+    readingFromThen () {
+      const f = this.page.reading && this.page.reading.from
+      if (!f) { return '' }
+      return this.$tc('outcomeLearning.readingFrom', f.live || 0, { firms: f.firms || 0, reviews: f.cases || 0, live: f.live || 0 })
     },
 
     /** @returns {string|null} when the benches last ran — both carry the same stamp */
@@ -440,8 +472,28 @@ export default {
         capMax: Number.isInteger(data.capMax) ? data.capMax : 0,
         adjustments: Array.isArray(data.adjustments) ? data.adjustments : [],
         orphaned: Array.isArray(data.orphaned) ? data.orphaned : [],
-        benches: data.benches && typeof data.benches === 'object' ? data.benches : null
+        benches: data.benches && typeof data.benches === 'object' ? data.benches : null,
+        reading: data.reading && typeof data.reading === 'object' ? data.reading : null,
+        readingStale: data.readingStale === true
       }
+    },
+
+    /**
+     * "Read this for me". One call; the backend sends the model what this page shows and
+     * stores the reading. A failure is a message under the button, never an empty reading.
+     * @route POST /api/mentor/outcome-learning/reading
+     * @returns {Promise<void>}
+     */
+    async readPage () {
+      this.readingError = ''
+      this.readingLoading = true
+      try {
+        const data = await this.api('POST', BASE + '/reading')
+        this.page = Object.assign({}, this.page, { reading: data.reading || null, readingStale: false })
+      } catch (e) {
+        this.readingError = e.status === 502 ? this.$t('hubReading.failed') : e.message
+      }
+      this.readingLoading = false
     },
 
     /**

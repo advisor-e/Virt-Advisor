@@ -17,6 +17,8 @@ const {
 const { runTemplateCheck } = require('../utils/templateCheck')
 const { buildTemplateCheckPatch } = require('../utils/templateCheckPatch')
 const { buildMentorLogicLabReport } = require('../utils/mentorLogicLabReport')
+const hubReading = require('../utils/hubReading')
+const { createLimiter } = require('../utils/rateLimit')
 const activityStore = require('../utils/activityStore')
 const { listFirms } = require('../utils/firmsDirectory')
 const { buildAdoptionView, mergeActivityRows } = require('../utils/mentorAdoption')
@@ -405,59 +407,117 @@ const LEVER_KEYS = {
  * reading, the template expected, the change made. The rollup re-checks that at
  * the boundary and throws rather than publishing anything personal.
  *
+ * `getLogicLabReport` below is the route; `_logicLabReportFor` is the report itself, shared
+ * with the reading so the two never read different data.
+ */
+
+/**
+ * "Read this for me" on the Logic-Lab Report: the reading is stored at the VIEWER'S scope
+ * (`req.firmId`, the verified scope from the token), because each tier reads the level
+ * below itself and so reads a different report. Its own row, never the report's data.
+ */
+const LOGIC_LAB_READING_KEY = 'logic-lab-reading'
+const logicLabReadingLimiter = createLimiter(6)
+
+/**
+ * The report for the caller's tier, exactly as `getLogicLabReport` sends it, minus the
+ * response. Shared by the page load and the reading so the two never read different data.
+ * @param {string} scopeId - the verified caller scope
+ * @returns {Promise<Object>}
+ */
+async function _logicLabReportFor (scopeId) {
+  // Which firms hold anything at all, per lever.
+  const firmsByLever = {}
+  for (const lever of Object.keys(LEVER_KEYS)) {
+    firmsByLever[lever] = await safeFirmIds(LEVER_KEYS[lever])
+  }
+
+  // Beneath THIS caller only. The mentor's scope matches every firm, so its
+  // report is unchanged; a middle tier sees its own channel and nothing else
+  // (owner's ruling 2026-08-11). The filter is applied to the firm list rather
+  // than to each lever, so a firm cannot survive in one lever's count while
+  // being absent from the rows.
+  const allFirmIds = [...new Set(Object.values(firmsByLever).flat())]
+    .filter(firmId => isWithinScope(firmId, scopeId))
+    .sort()
+
+  const firms = []
+  for (const firmId of allFirmIds) {
+    const entries = await safeConfig(firmId, LEVER_KEYS.logicLab, [])
+    const distinctions = await safeConfig(firmId, LEVER_KEYS.distinctions, [])
+    const tables = await safeConfig(firmId, LEVER_KEYS.logicTableTriggers, {})
+    firms.push({
+      firmId,
+      // The id IS the name the mentor sees on this page. Named rather than faked
+      // — the artefact's rows show firm names, and inventing display names would
+      // be the one thing on this page that is not real.
+      //
+      // ⚠ CORRECTED 2026-08-09: this used to say "no firm-name table is reachable
+      // from here yet", and that is no longer true — server/utils/firmsDirectory.js
+      // now reads it for the adoption page. This page has NOT been moved onto it,
+      // which is a deliberate limit of that change rather than an oversight, and
+      // is recorded as such so the comment does not quietly become a lie.
+      firmName: firmId,
+      entries: Array.isArray(entries) ? entries : [],
+      levers: {
+        distinctions: { firmOwn: Array.isArray(distinctions) ? distinctions.length : 0 },
+        logicTables: { edited: tables && typeof tables === 'object' ? Object.keys(tables).length : 0 },
+        quizBanks: { edited: firmsByLever.quizBanks.includes(firmId) ? 1 : 0 },
+        domainSupport: { edited: firmsByLever.domainSupport.includes(firmId) ? 1 : 0 }
+      },
+      lastActivity: latestStamp(entries)
+    })
+  }
+
+  const report = buildMentorLogicLabReport({ firms, rolledUpAt: new Date().toISOString() })
+  // Set after the builder rather than passed into it: the builder asserts that no
+  // personal field reaches the payload and knows nothing about tiers. Keeping the
+  // flag outside its shape leaves that assertion reading exactly what it did.
+  report.awaitingFirms = isAwaitingFirms(scopeId)
+  return report
+}
+
+/**
+ * POST /api/mentor/logic-lab-report/reading — "Read this for me". The grouped feed goes
+ * to the model without its origin path; the reading is stored at the viewer's scope.
+ * @route POST /api/mentor/logic-lab-report/reading
+ * @returns {200} { success, reading, readingStale: false } · {502} READING_FAILED · {500} DB_ERROR
+ */
+async function getLogicLabReading (req, res) {
+  if (logicLabReadingLimiter(req, res) === false) { return }
+  let payload
+  try {
+    payload = hubReading.logicLabPayload(await _logicLabReportFor(req.firmId))
+  } catch (err) {
+    console.error('[mentor] logic-lab reading could not build the report:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not build the Logic Lab Report')
+  }
+  const made = await hubReading.makeReading(payload)
+  if (!made.ok) {
+    return sendError(res, 502, 'READING_FAILED', 'The reading could not be made. The numbers above are still right; try again in a minute.')
+  }
+  try {
+    await overlay.saveFirmConfig(req.firmId, LOGIC_LAB_READING_KEY, made.reading, req.userEmail)
+    res.send(200, { success: true, reading: hubReading.readStoredReading(made.reading), readingStale: false })
+  } catch (err) {
+    console.error('[mentor] logic-lab reading could not be saved:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not save the reading')
+  }
+}
+
+/**
  * @route GET /api/mentor/logic-lab-report
- * @returns {object} { success, report } — the four sections of the artefact.
+ * @returns {object} { success, report } — the four sections of the artefact, plus the
+ *   stored reading and whether the report has moved on since it was made.
  */
 async function getLogicLabReport (req, res) {
   try {
-    // Which firms hold anything at all, per lever.
-    const firmsByLever = {}
-    for (const lever of Object.keys(LEVER_KEYS)) {
-      firmsByLever[lever] = await safeFirmIds(LEVER_KEYS[lever])
-    }
-
-    // Beneath THIS caller only. The mentor's scope matches every firm, so its
-    // report is unchanged; a middle tier sees its own channel and nothing else
-    // (owner's ruling 2026-08-11). The filter is applied to the firm list rather
-    // than to each lever, so a firm cannot survive in one lever's count while
-    // being absent from the rows.
-    const allFirmIds = [...new Set(Object.values(firmsByLever).flat())]
-      .filter(firmId => isWithinScope(firmId, req.firmId))
-      .sort()
-
-    const firms = []
-    for (const firmId of allFirmIds) {
-      const entries = await safeConfig(firmId, LEVER_KEYS.logicLab, [])
-      const distinctions = await safeConfig(firmId, LEVER_KEYS.distinctions, [])
-      const tables = await safeConfig(firmId, LEVER_KEYS.logicTableTriggers, {})
-      firms.push({
-        firmId,
-        // The id IS the name the mentor sees on this page. Named rather than faked
-        // — the artefact's rows show firm names, and inventing display names would
-        // be the one thing on this page that is not real.
-        //
-        // ⚠ CORRECTED 2026-08-09: this used to say "no firm-name table is reachable
-        // from here yet", and that is no longer true — server/utils/firmsDirectory.js
-        // now reads it for the adoption page. This page has NOT been moved onto it,
-        // which is a deliberate limit of that change rather than an oversight, and
-        // is recorded as such so the comment does not quietly become a lie.
-        firmName: firmId,
-        entries: Array.isArray(entries) ? entries : [],
-        levers: {
-          distinctions: { firmOwn: Array.isArray(distinctions) ? distinctions.length : 0 },
-          logicTables: { edited: tables && typeof tables === 'object' ? Object.keys(tables).length : 0 },
-          quizBanks: { edited: firmsByLever.quizBanks.includes(firmId) ? 1 : 0 },
-          domainSupport: { edited: firmsByLever.domainSupport.includes(firmId) ? 1 : 0 }
-        },
-        lastActivity: latestStamp(entries)
-      })
-    }
-
-    const report = buildMentorLogicLabReport({ firms, rolledUpAt: new Date().toISOString() })
-    // Set after the builder rather than passed into it: the builder asserts that no
-    // personal field reaches the payload and knows nothing about tiers. Keeping the
-    // flag outside its shape leaves that assertion reading exactly what it did.
-    report.awaitingFirms = isAwaitingFirms(req.firmId)
+    const report = await _logicLabReportFor(req.firmId)
+    // The stored reading rides on the report so the page needs no second call. A reading
+    // that cannot be read is no reading; the report still loads.
+    const stored = await Promise.resolve().then(() => overlay.loadFirmConfig(req.firmId, LOGIC_LAB_READING_KEY)).catch(() => null)
+    report.reading = hubReading.readStoredReading(stored)
+    report.readingStale = hubReading.isStale(report.reading, hubReading.stampOf(hubReading.logicLabPayload(report)))
     res.send(200, { success: true, report })
   } catch (err) {
     console.error('[mentor] getLogicLabReport failed:', err.message)
@@ -746,6 +806,8 @@ module.exports = {
   saveTemplateCheckRuling,
   deleteTemplateCheckRuling,
   getLogicLabReport,
+  getLogicLabReading,
+  LOGIC_LAB_READING_KEY,
   getPlatformTemplates,
   importPlatformTemplates,
   restorePlatformTemplates
