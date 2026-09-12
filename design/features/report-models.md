@@ -1178,10 +1178,28 @@ the nine populated lines in his own workbook are flat, so the common case is one
 arithmetic stays **actual minus budget** on both halves of the table with the **colour**
 carrying the meaning, so nothing ever disagrees with the client's own Variances sheet.
 
-⚠ **Two oddities in the workbook's GST block are ported exactly and are NOT ruled**, recorded
-in the model's header: `GST Related Deposits` includes Interest Received, an exempt supply
-here; and the block extracts GST as if the figures were GST-inclusive in one row and adds it
-back as if they were exclusive in another. Neither changes what an owner reads on this screen.
+🔴 **TWO FURTHER RULED DEVIATIONS, both in the GST block** (Mike, 2026-09-12, item 4.89 —
+raised as questions during the 4.88 port and settled the same day, one at a time).
+
+**Interest Received is out of the GST base.** The source's `GST Related Deposits` (row 58) is
+`D9+D11+D13`; interest is an **exempt financial supply** in New Zealand and bears no GST, so
+including it computed output tax on income that never carried any. The base is Sales and Other.
+**It moves no figure in the sample** — Interest Received is empty on both sides — which is the
+point: it was only ever wrong for a client who actually earns interest.
+
+**The entered figures are GST-INCLUSIVE, and the GST block no longer touches the bank.** The
+source could not decide: row 63 extracts GST from a figure that already contains it, and row 69
+then adds that same GST back on top, which is only right if the figure had been exclusive. The
+withdrawals side settles it — an owner budgeting *"Car: 500 a month"* means 500 leaving the bank,
+GST and all — so the extraction is right and rows 66, 69 and 71 were counting GST twice. Those
+rows are now the subtotals alone, and the GST survives as a **reading**: `gstHeld`, the money in
+the account that belongs to Inland Revenue, printed at the foot of the result table. The return
+itself is entered as a withdrawal when it is paid. **This one moves real figures, listed against
+the workbook's own cached values in the golden test:** the sample year's budgeted closing balance
+falls from **192,426 to 151,300** and the actual from **143,565 to 109,300** — the source
+overstated the year-end cash position by the whole net GST, about **27%**. The test proves the
+arithmetic rather than asserting it: the gap between the workbook's closing balance and ours is
+checked to equal `gstHeld` exactly.
 
 🔴 **NO FILE INTAKE, AND THE READERS WE ALREADY HAVE MUST NOT BE WIRED IN.** Every other
 Report-class model here loads the client's accounts, so this one looks like an oversight. It is

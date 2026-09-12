@@ -145,27 +145,6 @@
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
       "note": "SPEC KIT FEATURE, specs/002-outcome-learning. Explainable code, not a black-box model: pooled verdicts become capped score adjustments through the same seam as distinction boosts, published only above a firm-and-case floor and only after the mentor accepts each one; every applied adjustment shows on the decision trace with its evidence. Nothing leaves a firm that has not opted in. Three drawings come before any code.",
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
-    },
-    {
-      "ref": "4.89",
-      "name": "Two GST oddities in the High Level Budget workbook, ported exactly and unruled",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The workbook's GST block does two things that cannot both be right, and the port reproduces them faithfully because changing a client's figures is not ours to decide.",
-      "risk": "Both reach a real bank balance. Interest Received sits in the GST base though interest is an exempt supply here, overstating GST collected. And the block extracts GST as if figures were GST-inclusive in one row, then adds it back as if they were exclusive in another - so the closing balance is wrong by the GST on every deposit, either way round. An advisor cannot see either from the screen.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-12 - found while porting the workbook for 4.88, recorded in the model header, and filed on Mike's yes at shutdown so a question for him is not left in a code comment."
-      },
-      "touches": "server/report/highLevelBudgetModel.js (the GST block and its fidelity notes), tests/unit/highLevelBudgetModel.test.js, and the closing bank balance on every High Level Budget screen.",
-      "note": "NOTHING IS TO BE CHANGED WITHOUT MIKE'S RULING - these are his workbook's figures and a silent correction would be the fault 4.88 exists to fix, committed in the other direction. Two questions, one at a time: (1) does Interest Received belong in the GST base, given interest is an exempt supply in New Zealand; (2) are the entered figures GST-inclusive or GST-exclusive - row 63 extracts GST as if inclusive and row 69 adds it back as if exclusive, and only one can be right. Detail in the model's header.",
-      "comment": "2026-09-12 - found during the 4.88 port and filed at shutdown. A defect we found ourselves, not a feature: the rule that an open question for Mike is an item on this list, never a line in a note."
     }
   ]
 }

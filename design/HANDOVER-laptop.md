@@ -11,11 +11,11 @@
 
 ## 2026-09-12 (twenty-third session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,065 green** (485 suites), lint 0 errors, tree clean, 5 ahead / 0 behind `master`.
-**Item 4.88 built, walked in a browser and CLOSED** — Mike asked for a model from the
+Suite **10,058 green** (485 suites), lint 0 errors, tree clean, 7 ahead / 0 behind `master`.
+**Items 4.88 AND 4.89 built, walked in a browser and CLOSED** — Mike asked for a model from the
 performance reports that had never been built and chose the **High Level Budget**. Model,
-route, page, screen, locales, catalogue card live, all four report guards. Closure on
-[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **Four live items now.**
+route, page, screen, locales, catalogue card live, all four report guards. Closures on
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **Three live items now.**
 
 🔴 **HIS SOURCE WORKBOOK IS WRONG, AND THE FIX IS RULED.** `High Level Budget.xlsx` adds its two
 subtotal rows three different ways across three sheets; the Actuals sheet drops **Wages and
@@ -34,12 +34,18 @@ why, and ruled **leave it for now**: it is a cash budget and a P&L is accrual, t
 are balance-sheet movements absent from a P&L, and a P&L carries depreciation. It is recorded in
 both homes; it is not a gap and not to be re-raised as one.
 
-**New item 4.89** — the workbook's two GST oddities, ported exactly and **waiting on Mike**:
-whether Interest Received belongs in the GST base, and whether the entered figures are
-GST-inclusive or exclusive. Two questions, one at a time, and nothing is changed without his word.
+🔴 **4.89 FILED AND CLOSED THE SAME EVENING — and it moved the headline figures.** The workbook's
+two GST oddities, both ruled by Mike one at a time. **Interest Received is out of the GST base**
+(an exempt supply bears no GST; moves nothing in the sample, everything for a client with interest
+income). **The entered figures are GST-INCLUSIVE**, so rows 66/69/71 were counting GST twice: the
+budgeted closing balance falls **192,426 → 151,300** and the actual **143,565 → 109,300**, the
+workbook overstating year-end cash by the whole net GST, **41,126, about 27%**. The GST is now a
+reading at the foot of the result table. The test **proves** it — the gap between the workbook's
+closing balance and ours is checked to equal `gstHeld` exactly. Closure on
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
 
-**Also waiting on Mike, unchanged:** 4.58's OpenAI reply (letter sent 2026-09-12), 4.15's eighteen
-template names, and whether 4.89 and the other three get ranked.
+**Waiting on Mike, unchanged:** 4.58's OpenAI reply (letter sent 2026-09-12), 4.15's eighteen
+template names, and whether the three unranked items get placed.
 
 **DESKTOP:** none of your files were touched and 4.87 was left alone. Changed here:
 `utils/reportModelCatalogue.js`, `server/routes/report.js`, `server/restify-server.js`,

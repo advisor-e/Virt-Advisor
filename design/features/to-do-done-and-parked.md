@@ -232,8 +232,38 @@ than to last year.
   the accounts readers we already have must not be wired in: this is a cash budget and a Profit and
   Loss is accrual, three of its lines are balance-sheet movements absent from a P&L, and a P&L
   carries depreciation, which no cash budget should. Mike raised this himself, was shown the
-  reasoning, and ruled **leave it for now**. The remaining open questions are his own workbook's two
-  GST oddities, which carry their own item.
+  reasoning, and ruled **leave it for now**. Its two GST questions were filed as 4.89 and settled
+  the same evening — see immediately below. **Nothing on 4.88 is outstanding.**
+
+**4.89 — Two GST oddities in the High Level Budget workbook.**
+✅ Closed 2026-09-12 on the laptop, filed and settled the same evening. Found while porting the
+workbook for 4.88, recorded in the model's header, and filed at shutdown because **an open question
+for Mike is an item on the list, never a line in a code comment** — closing 4.88 without it would
+have lost both. Mike asked for them *"1 at a time"* and ruled each as recommended.
+
+- **1 · Interest Received is OUT of the GST base.** The source's `GST Related Deposits` (row 58) is
+  `D9+D11+D13` — it rightly excludes Tax Rebates and Capital Introduced, but interest is an
+  **exempt financial supply** in New Zealand and bears no GST, so including it computed output tax
+  on income that never carried any. **It moves no figure in the sample**, where the line is empty on
+  both sides — which is the whole point: it was only ever wrong for a client who actually earns
+  interest, and invisible until then.
+
+- 🔴 **2 · The entered figures are GST-INCLUSIVE, and the GST block no longer touches the bank.**
+  The source could not decide. Row 63 **extracts** GST from a figure that already contains it
+  (`D58-(D58/(1+rate))`); row 69 then **adds** that same GST back on top, which is only right if the
+  figure had been GST-exclusive, in which case the GST would have been `D58*rate`. Both cannot be
+  true. **The withdrawals side settles it** — an owner budgeting *"Car: 500 a month"* means 500
+  leaving the bank, GST and all, and nobody budgets vehicle costs excluding GST. So the extraction is
+  the right formula and rows 66, 69 and 71 were counting the GST twice.
+
+- **What it moved, and the proof.** The budgeted closing balance falls from the workbook's
+  **192,426 to 151,300**, and the actual from **143,565 to 109,300** — the source overstating the
+  year-end cash position by the whole net GST, **41,126, about 27%**. Every moved figure is listed
+  against its cached value in the golden test, and the arithmetic is **proved rather than asserted**:
+  the test checks that the gap between the workbook's closing balance and ours equals `gstHeld`
+  exactly. The GST survives as a reading at the foot of the result table — *"you would be holding
+  $41,126 of GST that belongs to Inland Revenue"* — and the return itself is entered as a withdrawal
+  when it is paid, like any other payment. Walked in a running app the same evening.
 
 **4.92 — A country's whole rate schedule, stored as a searchable table.**
 ✅ Closed 2026-09-11 on the laptop by Mike, **after the whole chain was run end to end against the

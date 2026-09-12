@@ -43,21 +43,38 @@
  * alone that was dropping them.
  * ─────────────────────────────────────────────────────────────────────────────────────────────
  *
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * 🔴 TWO FURTHER RULED DEVIATIONS — Mike, 2026-09-12 (item 4.89), both in the GST block.
+ *
+ * **1 · Interest Received is NOT in the GST base.** The source's `GST Related Deposits` (row 58)
+ * is `D9+D11+D13` — Sales, Interest Received and Other. It rightly leaves out Tax Rebates and
+ * Capital Introduced, but interest is an **exempt financial supply** in New Zealand and carries
+ * no GST, so including it computes output tax on income that never bore any. The base is now
+ * Sales and Other. **This moves no figure in the sample**, where Interest Received is empty on
+ * both sides — it bites only for a client who actually has interest income, which is exactly
+ * when the source was wrong.
+ *
+ * **2 · The entered figures are GST-INCLUSIVE, and the GST block no longer feeds the bank.**
+ * The source could not decide: `Output (Income Related)` (row 63) extracts GST from a figure that
+ * already contains it (`D58-(D58/(1+rate))`), and then `Add Total (Net) Deposits` (row 69) ADDS
+ * that same GST on top — which is only right if the figure had been GST-exclusive, in which case
+ * the GST would be `D58*rate`. Both cannot be true. The withdrawals side settles it: an owner
+ * budgeting "Car: 500 a month" means 500 leaving the bank, GST and all. So the extraction is the
+ * right formula and rows 66, 69 and 71 were counting the GST a second time.
+ *
+ * Rows 69 and 71 are now the subtotals alone, and `NET CHANGE IN BANK BALANCE` (row 66) is simply
+ * deposits less withdrawals. The GST rows survive as a **reading** — `gstHeld` is the GST
+ * collected less the GST paid, the money sitting in the bank that belongs to Inland Revenue — and
+ * the GST return itself is entered as a withdrawal when it is paid, like any other payment.
+ *
+ * **This one moves real figures**, and they are listed against the workbook's own cached values
+ * in the golden test: on the sample year the budgeted closing balance falls from **192,426 to
+ * 151,300** and the actual from **143,565 to 109,300**, the source having overstated the year-end
+ * cash position by the whole of the net GST — about 27%.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ *
  * FIDELITY NOTES — reproduced exactly as the source has them, NOT "corrected":
  *
- *   - **`GST Related Deposits` (row 58) is `D9+D11+D13`** — Sales, Interest Received and Other.
- *     It correctly leaves out Tax Rebates and Capital Introduced, but it includes Interest
- *     Received, which is an exempt financial supply in New Zealand and carries no GST. Ported as
- *     the source has it; whether that line belongs in the GST base is a question for Mike.
- *   - **The GST block treats the same figures as inclusive in one place and exclusive in another.**
- *     `Output (Income Related)` (row 63) extracts GST from a GST-INCLUSIVE figure
- *     (`D58-(D58/(1+rate))`), but `Add Total (Net) Deposits` (row 69) then ADDS that GST on top of
- *     the subtotal — which is only right if the entered figures were GST-exclusive, in which case
- *     the GST would be `D58*rate`, not the amount extracted. The same pattern runs through rows 62
- *     and 71 on the withdrawals side. The two treatments cannot both be right. Reproduced exactly,
- *     because the bank roll-forward and the `NET CHANGE IN BANK BALANCE` row are algebraically
- *     consistent with each other under it — see the golden test's reconciliation case. **This is
- *     an open question for Mike and is not ours to decide.**
  *   - **The source's own spellings** — "Stationary & Supplies", "Travelling & Accomodation",
  *     "Principle Loan Repayments" — are recorded here for provenance only. Screen wording is
  *     Mike's to rule and lives in `locales/`, never here.
@@ -112,13 +129,14 @@ function total (arr) {
 /**
  * Deposit lines — `Budget Figures` rows 9 to 14.
  *
- * `gst` marks the three rows the source's `GST Related Deposits` formula (row 58, `D9+D11+D13`)
- * picks up. See the fidelity note above on Interest Received.
+ * `gst` marks the rows that carry GST. The source's `GST Related Deposits` (row 58) is
+ * `D9+D11+D13`; row 11, Interest Received, is excluded here on Mike's ruling of 2026-09-12 —
+ * interest is an exempt financial supply and bears no GST. See the header.
  */
 const DEPOSIT_LINES = [
   { key: 'sales', row: 9, gst: true }, //              Sales
   { key: 'taxRebates', row: 10, gst: false }, //       Tax Rebates
-  { key: 'interestReceived', row: 11, gst: true }, //  Interest Received
+  { key: 'interestReceived', row: 11, gst: false }, // Interest Received — exempt supply (4.89)
   { key: 'capitalIntroduced', row: 12, gst: false }, // Capital Introduced
   { key: 'other', row: 13, gst: true }, //             Other
   { key: 'nonGstSales', row: 14, gst: false } //       Non GST Related Sales
@@ -297,6 +315,7 @@ function computeSide (side, gstRate) {
   const gstInput = [] //                row 62 — D59-(D59/(1+rate))
   const gstOutput = [] //               row 63 — D58-(D58/(1+rate))
   const netCashRelatedToGst = [] //     row 64 — D62-D63
+  const gstHeld = [] //                 not a source row — GST collected less GST paid (4.89)
   const netChangeInBank = [] //         row 66 — D16-(D56+D64)
   const openingBankBalance = [] //      row 68 — typed, then the prior month's closing
   const addTotalNetDeposits = [] //     row 69 — D16+D63
@@ -312,16 +331,20 @@ function computeSide (side, gstRate) {
     const gstDeposits = sumLines(gstDepositLines, m)
     const gstWithdrawals = sumLines(GST_EXPENSE_LINES, m)
 
-    // The source extracts GST from a GST-INCLUSIVE figure. See the fidelity note in the header:
-    // rows 69 and 71 then treat the same figures as exclusive. Reproduced, not repaired.
+    // The entered figures are GST-INCLUSIVE (Mike, 2026-09-12), so extraction is the right
+    // formula — this is the GST already sitting inside the figures above, not an addition to
+    // them. It is a reading; it does NOT move the bank. See the header.
     const input = gstWithdrawals - (gstWithdrawals / (1 + rate))
     const output = gstDeposits - (gstDeposits / (1 + rate))
     const netGst = input - output
 
     const opening = m === 0 ? openingBalance : closingBankBalance[m - 1]
-    const added = deposits + output
+    // Rows 69 and 71 are the subtotals alone. The source added `output` here and `input` below,
+    // counting GST a second time when it was already inside the figures — which overstated the
+    // sample year's closing balance by 41,126 (about 27%).
+    const added = deposits
     const available = opening + added
-    const taken = withdrawals + input
+    const taken = withdrawals
 
     subtotalDeposits.push(deposits)
     subtotalWithdrawals.push(withdrawals)
@@ -330,7 +353,10 @@ function computeSide (side, gstRate) {
     gstInput.push(input)
     gstOutput.push(output)
     netCashRelatedToGst.push(netGst)
-    netChangeInBank.push(deposits - (withdrawals + netGst))
+    // The GST collected less the GST paid: money in the bank that belongs to Inland Revenue.
+    // A reading, not a movement — the return itself is entered as a withdrawal when it is paid.
+    gstHeld.push(output - input)
+    netChangeInBank.push(deposits - withdrawals)
     openingBankBalance.push(opening)
     addTotalNetDeposits.push(added)
     fundsAvailable.push(available)
@@ -346,6 +372,7 @@ function computeSide (side, gstRate) {
     gstInput: total(gstInput),
     gstOutput: total(gstOutput),
     netCashRelatedToGst: total(netCashRelatedToGst),
+    gstHeld: total(gstHeld),
     netChangeInBank: total(netChangeInBank),
     lines: {}
   }
@@ -362,6 +389,7 @@ function computeSide (side, gstRate) {
     gstInput,
     gstOutput,
     netCashRelatedToGst,
+    gstHeld,
     netChangeInBank,
     openingBankBalance,
     addTotalNetDeposits,
@@ -432,6 +460,7 @@ function computeVariance (budget, actual) {
     gstInput: diff(actual.gstInput, budget.gstInput),
     gstOutput: diff(actual.gstOutput, budget.gstOutput),
     netCashRelatedToGst: diff(actual.netCashRelatedToGst, budget.netCashRelatedToGst),
+    gstHeld: diff(actual.gstHeld, budget.gstHeld),
     netChangeInBank: diff(actual.netChangeInBank, budget.netChangeInBank),
     openingBankBalance: diff(actual.openingBankBalance, budget.openingBankBalance),
     addTotalNetDeposits: diff(actual.addTotalNetDeposits, budget.addTotalNetDeposits),

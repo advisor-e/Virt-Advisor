@@ -219,7 +219,11 @@
                 td.r.num {{ money(block.actual) }}
                 td.r.num(:class="block.tone") {{ varianceFigure(block.variance) }}
                 td
-        .hlb-card-f {{ $t('report.highLevelBudget.result.emptyLinesOmitted') }}
+        .hlb-card-f
+          span {{ $t('report.highLevelBudget.result.emptyLinesOmitted') }}
+          //- The GST block is a reading, not a bank movement (Mike, 2026-09-12, item 4.89).
+          //- Shown only once there is GST to report, so an empty budget says nothing about it.
+          span.hlb-gst(v-if="gstHeld") {{ $t('report.highLevelBudget.result.gstHeld', { amount: money(gstHeld) }) }}
 
   .hlb-nav
     b-button(v-if="step > 1" size="is-small" @click="goTo(step - 1)") {{ $t('report.highLevelBudget.nav.back') }}
@@ -406,6 +410,12 @@ export default {
     actualWithdrawals () { return this.yearOf('actual', 'subtotalWithdrawals') },
     budgetClosing () { return this.data ? this.data.budget.closingBalance : 0 },
     actualClosing () { return this.data ? this.data.actual.closingBalance : 0 },
+
+    /**
+     * The GST sitting in the bank that belongs to Inland Revenue — collected less paid, on the
+     * budget. A reading only: it moves no balance on this screen (Mike, 2026-09-12, item 4.89).
+     */
+    gstHeld () { return this.data ? this.data.budget.yearToDate.gstHeld : 0 },
 
     /** Variances taken from the model's own variance side, not by subtracting the subtotals. */
     depositsVariance () { return this.varianceYear('subtotalDeposits') },
@@ -789,5 +799,7 @@ export default {
 .hlb-legend i.is-actual { background: var(--rs-accent-bright); }
 .hlb-legend i.is-actual-line { background: var(--rs-crit); }
 
+.hlb-card-f { flex-direction: column; align-items: flex-start; gap: 8px; display: flex; }
+.hlb-gst { color: var(--rs-ink); }
 .hlb-nav { display: flex; gap: 10px; justify-content: flex-end; }
 </style>

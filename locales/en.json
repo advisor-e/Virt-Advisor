@@ -1503,6 +1503,7 @@
         "spentLess": "Spent less",
         "notBudgeted": "Not budgeted at all",
         "emptyLinesOmitted": "Only lines with a budget or an actual are listed. The rest are empty on both sides and are left off.",
+        "gstHeld": "The figures above include GST. On the budget this year you would be holding {amount} of GST that belongs to Inland Revenue — it sits in the bank until the return is paid, and the payment goes in as a withdrawal like any other.",
         "nothingYet": "Nothing has been entered yet. Fill in the budget at step 2."
       },
       "lines": {

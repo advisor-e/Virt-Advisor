@@ -74,10 +74,26 @@ describe('High Level Budget — golden values from High Level Budget.xlsx', () =
       })
     })
 
-    it('takes GST on deposits from rows 9, 11 and 13 only — the source\'s D9+D11+D13', () => {
-      // Row 58. Interest Received (row 11) is in the source's GST base even though interest is
-      // an exempt supply in New Zealand. Ported as the source has it — an open question for Mike.
-      expect(DEPOSIT_LINES.filter(l => l.gst).map(l => l.row)).toEqual([9, 11, 13])
+    it('🔴 takes GST on deposits from rows 9 and 13 ONLY — interest is an exempt supply', () => {
+      // Row 58 is `D9+D11+D13` in the source. Row 11, Interest Received, is out on Mike's
+      // ruling of 2026-09-12 (4.89): interest bears no GST here, so including it computed
+      // output tax on income that never carried any.
+      expect(DEPOSIT_LINES.filter(l => l.gst).map(l => l.row)).toEqual([9, 13])
+      // Tax Rebates and Capital Introduced were already out, and stay out.
+      expect(DEPOSIT_LINES.filter(l => !l.gst).map(l => l.row)).toEqual([10, 11, 12, 14])
+    })
+
+    it('moves no figure in the sample by taking interest out of the GST base', () => {
+      // Interest Received is empty on both sides of the workbook's own year, so this ruling
+      // changes nothing here — it bites only for a client who actually earns interest.
+      const withInterest = computeSide({
+        openingBalance: 0,
+        lines: { sales: [1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], interestReceived: [500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+      }, 0.15)
+      // The interest is banked in full and none of it is treated as carrying GST.
+      expect(withInterest.subtotalDeposits[APR]).toBeCloseTo(1500, P)
+      expect(withInterest.gstRelatedDeposits[APR]).toBeCloseTo(1000, P)
+      expect(withInterest.gstOutput[APR]).toBeCloseTo(1000 - (1000 / 1.15), P)
     })
   })
 
@@ -99,26 +115,29 @@ describe('High Level Budget — golden values from High Level Budget.xlsx', () =
     })
 
     it('computes the net change in the bank balance', () => {
-      expect(budget.netChangeInBank[APR]).toBeCloseTo(10652.17391, 5) //  D66
+      // D66 — workbook 10,652.17391, which added the GST a second time. See the 4.89 block.
+      expect(budget.netChangeInBank[APR]).toBeCloseTo(7750, P)
     })
 
     it('rolls the bank balance forward', () => {
       expect(budget.openingBankBalance[APR]).toBeCloseTo(10000, P) //     D68
-      expect(budget.addTotalNetDeposits[APR]).toBeCloseTo(28510.86957, 5) // D69
-      expect(budget.fundsAvailable[APR]).toBeCloseTo(38510.86957, 5) //   D70
-      expect(budget.lessTotalNetWithdrawals[APR]).toBeCloseTo(17858.69565, 5) // D71
-      expect(budget.closingBankBalance[APR]).toBeCloseTo(20652.17391, 5) // D72
+      // D69/D70/D71/D72 — workbook 28,510.86957 / 38,510.86957 / 17,858.69565 / 20,652.17391.
+      expect(budget.addTotalNetDeposits[APR]).toBeCloseTo(25250, P) //    D69
+      expect(budget.fundsAvailable[APR]).toBeCloseTo(35250, P) //         D70
+      expect(budget.lessTotalNetWithdrawals[APR]).toBeCloseTo(17500, P) // D71
+      expect(budget.closingBankBalance[APR]).toBeCloseTo(17750, P) //     D72
     })
 
     it('carries each month\'s closing balance into the next month\'s opening', () => {
-      expect(budget.openingBankBalance[1]).toBeCloseTo(20652.17391, 5) // E68 = D72
-      expect(budget.closingBankBalance[1]).toBeCloseTo(42608.69565, 5) // E72
-      expect(budget.openingBankBalance[MAR]).toBeCloseTo(169565.2174, 4) // O68
+      expect(budget.openingBankBalance[1]).toBeCloseTo(17750, P) //       E68 = D72
+      expect(budget.closingBankBalance[1]).toBeCloseTo(35500, P) //       E72
+      expect(budget.openingBankBalance[MAR]).toBeCloseTo(132750, P) //    O68
     })
 
-    it('closes the year where the sheet closes it', () => {
-      expect(budget.closingBankBalance[MAR]).toBeCloseTo(192426.087, 3) // O72
-      expect(budget.closingBalance).toBeCloseTo(192426.087, 3) //         O72
+    it('closes the year on the ruled figure, not the workbook\'s', () => {
+      // O72 — workbook 192,426.087. The difference is the whole year's net GST, 41,126.09.
+      expect(budget.closingBankBalance[MAR]).toBeCloseTo(151300, P)
+      expect(budget.closingBalance).toBeCloseTo(151300, P)
     })
 
     it('totals the year in column Q', () => {
@@ -131,7 +150,8 @@ describe('High Level Budget — golden values from High Level Budget.xlsx', () =
       expect(budget.yearToDate.gstInput).toBeCloseTo(4304.347826, P) //   Q62
       expect(budget.yearToDate.gstOutput).toBeCloseTo(45430.43478, 5) //  Q63
       expect(budget.yearToDate.netCashRelatedToGst).toBeCloseTo(-41126.08696, 5) // Q64
-      expect(budget.yearToDate.netChangeInBank).toBeCloseTo(182426.087, 3) // Q66
+      // Q66 — workbook 182,426.087, which is this figure plus the year's net GST.
+      expect(budget.yearToDate.netChangeInBank).toBeCloseTo(141300, P)
     })
 
     it('reconciles: opening plus the year\'s net change equals the closing balance', () => {
@@ -172,8 +192,9 @@ describe('High Level Budget — golden values from High Level Budget.xlsx', () =
 
     it('opens the year on the sheet\'s own opening balance', () => {
       expect(actual.openingBankBalance[APR]).toBeCloseTo(6500, P) //      D68
-      expect(actual.addTotalNetDeposits[APR]).toBeCloseTo(16956.52174, 5) // D69
-      expect(actual.fundsAvailable[APR]).toBeCloseTo(23456.52174, 5) //   D70
+      // D69/D70 — workbook 16,956.52174 / 23,456.52174, both carrying the double-counted GST.
+      expect(actual.addTotalNetDeposits[APR]).toBeCloseTo(15000, P) //    D69
+      expect(actual.fundsAvailable[APR]).toBeCloseTo(21500, P) //         D70
     })
   })
 
@@ -249,16 +270,17 @@ describe('High Level Budget — golden values from High Level Budget.xlsx', () =
     })
 
     it('carries the correction through the actual bank roll-forward', () => {
+      // These figures carry BOTH rulings — the wages correction (4.88) and the GST one (4.89).
       // D71 — workbook 3,419.565217.
-      expect(actual.lessTotalNetWithdrawals[APR]).toBeCloseTo(16744.56522, 5)
+      expect(actual.lessTotalNetWithdrawals[APR]).toBeCloseTo(16350, P)
       // D66 — workbook 13,536.95652. The sheet had the bank rising by 13,537 in a month the
-      // business paid 12,500 of wages it never counted.
-      expect(actual.netChangeInBank[APR]).toBeCloseTo(211.9565217, 5)
+      // business paid 12,500 of wages it never counted and banked GST it did not own.
+      expect(actual.netChangeInBank[APR]).toBeCloseTo(-1350, P)
       // D72 — workbook 20,036.95652.
-      expect(actual.closingBankBalance[APR]).toBeCloseTo(6711.956522, 5)
+      expect(actual.closingBankBalance[APR]).toBeCloseTo(5150, P)
       // Q66 — workbook 296,965.2174.
-      expect(actual.yearToDate.netChangeInBank).toBeCloseTo(137065.2174, 4)
-      expect(actual.closingBalance).toBeCloseTo(143565.2174, 4)
+      expect(actual.yearToDate.netChangeInBank).toBeCloseTo(102800, P)
+      expect(actual.closingBalance).toBeCloseTo(109300, P)
     })
 
     it('reconciles the actual side on its own terms, as the budget side does', () => {
@@ -272,6 +294,27 @@ describe('High Level Budget — golden values from High Level Budget.xlsx', () =
       const budgetYear = budget.yearToDate.subtotalWithdrawals
       const actualYear = actual.yearToDate.subtotalWithdrawals
       expect(budgetYear - actualYear).toBeCloseTo(13800, P)
+    })
+
+    it('🔴 treats the entered figures as GST-INCLUSIVE and keeps GST out of the bank', () => {
+      // Mike's second ruling of 2026-09-12 (4.89). The source extracted GST as if the figures
+      // were inclusive (row 63) and then added it back as if they were exclusive (row 69),
+      // counting it twice. The bank now moves by deposits less withdrawals and nothing else.
+      for (const m of [APR, 5, MAR]) {
+        expect(budget.netChangeInBank[m])
+          .toBeCloseTo(budget.subtotalDeposits[m] - budget.subtotalWithdrawals[m], P)
+        expect(budget.addTotalNetDeposits[m]).toBeCloseTo(budget.subtotalDeposits[m], P)
+        expect(budget.lessTotalNetWithdrawals[m]).toBeCloseTo(budget.subtotalWithdrawals[m], P)
+      }
+    })
+
+    it('reports the GST being held as a reading, rather than banking it', () => {
+      // The money in the account that belongs to Inland Revenue. April: 3,260.87 collected less
+      // 358.70 paid. Over the year it is 41,126.09 — exactly what the source added to the bank.
+      expect(budget.gstHeld[APR]).toBeCloseTo(2902.173913, 5)
+      expect(budget.yearToDate.gstHeld).toBeCloseTo(41126.08696, 5)
+      // And that is precisely the gap between the workbook's closing balance and ours.
+      expect(192426.087 - budget.closingBalance).toBeCloseTo(budget.yearToDate.gstHeld, 3)
     })
 
     it('leaves the variance subtotals exactly as the workbook had them', () => {
