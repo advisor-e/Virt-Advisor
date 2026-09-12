@@ -100,7 +100,11 @@ export const MODELS = [
   { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Whether a rental portfolio is worth buying — up to five properties, ten years of cash, tax and equity.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/multiple-property' },
   { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },
-  { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  // Item 4.88. CLASS_REPORT per design/MODEL-CLASSIFICATION.md — "actuals and variances" — so
+  // no "Illustrative" badge: these are a client's own budget and their own bank balance.
+  // Entry is typed rather than read from a file: a budget is a forecast, so there is nothing
+  // to import, and no accounts reader produces a monthly cash figure on these 32 lines.
+  { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/high-level-budget' },
   { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   // CLASS_REPORT stands per design/MODEL-CLASSIFICATION.md, which lists this model under
   // Report (9) — "variance analysis on real figures". Entry is typed until the by-month

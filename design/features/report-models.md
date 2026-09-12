@@ -205,11 +205,14 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Five** models —
-  8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator and Dashboard Reports —
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Six** models —
+  8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator, Dashboard Reports and the
+  High-Level Budget —
   carry explanatory notes and verdict rules instead, and the screen heads them differently
   (Dashboard Reports is the client's own document; its reading is the health score and the
-  advisor's words on its pages). Claiming a Coach panel that is not there describes a screen
+  advisor's words on its pages. The High-Level Budget's reading is the variance table itself —
+  every line says *Better* or *Worse* beside its own figure, which is where a coach panel's
+  sentence would have gone). Claiming a Coach panel that is not there describes a screen
   the reader will not find.
   ⚠ *[`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) reads
   this very sentence and fails if it stops matching the data.*
@@ -1143,6 +1146,97 @@ three findings above, because they are properties of the export, not of any one 
 The forecast shows how a model borrows the series without owning it: it does the join in
 its own route, seeds the sales boxes from the last twelve values, and keeps the **whole
 run** — up to 24 months — for the volatility read on step 3.
+
+---
+
+### The High Level Budget (4.88, built 2026-09-12)
+
+The first model here that compares this year to **the plan** rather than to last year. Four
+steps because the source workbook has four sheets — set up the year, the budget, what actually
+happened, how it went — on the stepped pattern Quick Position and EBITDA-DCF already use.
+Drawn first at [`../mockups/high-level-budget.html`](../mockups/high-level-budget.html),
+approved by Mike 2026-09-12 with all four of its questions ruled beforehand.
+
+**Built:** [`server/report/highLevelBudgetModel.js`](../../server/report/highLevelBudgetModel.js)
+(all four sheets, pinned cell by cell in `tests/unit/highLevelBudgetModel.test.js`),
+`POST /api/report/high-level-budget`, [`pages/high-level-budget.vue`](../../pages/high-level-budget.vue)
+and [`components/HighLevelBudget.vue`](../../components/HighLevelBudget.vue).
+
+🔴 **ONE RULED DEVIATION FROM THE SOURCE WORKBOOK** (Mike, 2026-09-12). It adds its two
+subtotal rows three different ways across its three sheets, and the Actuals sheet's
+`SUM(D20:D46)` drops Wages and Interest Only Loan Payments — 159,900 a year in the sample —
+from every total *including the bank balance*, so its Reports sheet charts a 173,700 saving
+where the true variance is 13,800. All three sides now use the Budget sheet's full ranges.
+Every figure this moves is listed against the workbook's own cached value in the golden test,
+and reverting it outside the repo reproduced all six of those cached figures exactly — which
+is what proves the port is faithful everywhere else.
+
+**Three things the screen does that follow from Mike's rulings, not from the code's convenience:**
+entry is **one figure per line applied to every month** with a vary-by-month opener (eight of
+the nine populated lines in his own workbook are flat, so the common case is one number); a
+**blank actual means "not yet", never "nothing"**, while a typed zero is a real zero; and the
+arithmetic stays **actual minus budget** on both halves of the table with the **colour**
+carrying the meaning, so nothing ever disagrees with the client's own Variances sheet.
+
+🔴 **TWO FURTHER RULED DEVIATIONS, both in the GST block** (Mike, 2026-09-12, item 4.89 —
+raised as questions during the 4.88 port and settled the same day, one at a time).
+
+**Interest Received is out of the GST base.** The source's `GST Related Deposits` (row 58) is
+`D9+D11+D13`; interest is an **exempt financial supply** in New Zealand and bears no GST, so
+including it computed output tax on income that never carried any. The base is Sales and Other.
+**It moves no figure in the sample** — Interest Received is empty on both sides — which is the
+point: it was only ever wrong for a client who actually earns interest.
+
+**The entered figures are GST-INCLUSIVE, and the GST block no longer touches the bank.** The
+source could not decide: row 63 extracts GST from a figure that already contains it, and row 69
+then adds that same GST back on top, which is only right if the figure had been exclusive. The
+withdrawals side settles it — an owner budgeting *"Car: 500 a month"* means 500 leaving the bank,
+GST and all — so the extraction is right and rows 66, 69 and 71 were counting GST twice. Those
+rows are now the subtotals alone, and the GST survives as a **reading**: `gstHeld`, the money in
+the account that belongs to Inland Revenue, printed at the foot of the result table. The return
+itself is entered as a withdrawal when it is paid. **This one moves real figures, listed against
+the workbook's own cached values in the golden test:** the sample year's budgeted closing balance
+falls from **192,426 to 151,300** and the actual from **143,565 to 109,300** — the source
+overstated the year-end cash position by the whole net GST, about **27%**. The test proves the
+arithmetic rather than asserting it: the gap between the workbook's closing balance and ours is
+checked to equal `gstHeld` exactly.
+
+🔴 **NO FILE INTAKE, AND THE READERS WE ALREADY HAVE MUST NOT BE WIRED IN.** Every other
+Report-class model here loads the client's accounts, so this one looks like an oversight. It is
+not. A budget is a forecast, so there is nothing to import on the budget side at all — and the
+actuals, which are the tempting half, are **cash** where a Profit and Loss is **accrual**. A P&L
+counts a sale the day it is invoiced; this model counts it the day the money reaches the bank,
+different by the whole debtor movement. **Drawings**, **Principal loan repayments** and **Plant
+& equipment** are not on a P&L at all, being balance-sheet movements, and a P&L carries
+**depreciation**, which must never appear in a cash budget because no cash moves. Wiring
+`xeroReportParser` or `monthlySalesParser` into the actuals would put a cash budget column beside
+an accrual actual column, looking identical and reconciling to nothing — **the same
+not-like-for-like fault this model exists to correct.** The right file is a cash-basis export
+(Xero's Cash Summary); none has ever been seen here, so a reader for it would be a guess, and
+4.60's rule is that a reader is `verified` only against a real export. **Mike raised this himself
+on 2026-09-12** — *"should we have built the ability to load a balance sheet and p&L to help with
+the 'fast data load'"* — was shown the above, and ruled **leave it for now.** It is not filed, it
+is not a gap, and it is not to be re-raised as one.
+
+**Six differences between the drawing and the build, named as this page's §5 requires.**
+(a) The 22 unused expense lines render as individual rows; the drawing folded them into one
+summary row, but its own words say they *"stay on screen so nothing has to be remembered"*, so
+the build follows the words and the fold was drawing shorthand. (b) **Back and Next buttons
+were added** — the drawing navigates by step chip alone, which is not obvious enough on a
+four-step screen. (c) The GST field shows `15`, not `15%`: a number input cannot carry a
+symbol, and the label above it says *GST rate*. (d) 🔴 **The entry boxes were three times the
+drawn width** on the first run, because Buefy's control fills its cell — corrected to 118px,
+and across 38 rows that is the difference between a table that scans and one that does not.
+(e) 🔴 **A zero was displayed as a signed change** in two places — a green `+$0` in the
+headline before anything was typed, and `+$0` against every line that came in exactly on
+budget — both now plain. (f) There is **no Coach panel**: the variance table reads itself, each
+line saying *Better* or *Worse* beside its own figure, which is where a coach sentence would
+have gone. §2's `coachIsNotAPanel` list carries it.
+
+**(d) and (e) were found by opening the screen in a running app, with 10,062 tests green.**
+Neither was visible to any assertion in this suite, and (e) is the fault twice over — fixed in
+the headline, then found again in the table underneath it on the next look. This is the whole
+argument for §5's last line.
 
 ---
 

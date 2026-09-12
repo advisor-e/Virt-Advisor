@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>High Level Budget — the four steps, and the variance read</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.88 — High Level Budget. Drawn for approval 2026-09-12. THE SCREEN IS
+   NOT BUILT; the backend behind it is (commit 2da6144).
+
+   WHAT CREATED IT. Mike, 2026-09-12: "pick a model thats in the performance
+   reports yet to be built", then "high level budget - lets go". Five models in
+   the Model Library have never been built; this is the one he chose.
+
+   WHAT IS ALREADY REAL. Every figure on this page is the sample in
+   design/report-source-models/High Level Budget.xlsx, run through the model that
+   now exists (server/report/highLevelBudgetModel.js) and pinned by its golden
+   test. Nothing here is invented to fill a box.
+
+   THE ONE RULED DEVIATION, already in the code (Mike, 2026-09-12). The workbook
+   adds its two subtotal rows three different ways across its three sheets, and
+   the Actuals sheet dropped Wages and Interest Only Loan Payments from every
+   total including the bank balance. All three sides now use the Budget sheet's
+   full ranges. That is why actual expenses read 196,200 here and 36,300 in the
+   spreadsheet.
+
+   FOUR STEPS BECAUSE THERE ARE FOUR SHEETS. Budget Figures, Actual Figures,
+   Cashflow Variances, Reports. The stepped shape is already the house pattern on
+   Quick Position, EBITDA-DCF and the Loan Estimator.
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner ruling
+   of 2026-07-23 — 1120px column, 360px input column, 16px gaps, 14px card radius,
+   no card top edge (RULED 2026-08-31). No dark mode: one light look, RULED
+   2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+/* A decision Mike has ruled. The recommendation and its reasoning are LEFT IN PLACE
+   underneath — the record of what was put to him is the point, not tidiness. */
+.mock.ruled{background:#eefaea;border-color:#4ca52d66;color:#1f4a12}
+.mock.ruled .stepmark,.mock.ruled h3{color:#2f6b1c}
+.mock.ruled .q{border-color:#4ca52d66}
+.ruledtag{display:inline-block;background:#4ca52d;color:#fff;font-size:10px;font-weight:700;
+  letter-spacing:.06em;border-radius:4px;padding:2px 7px;margin-left:8px;vertical-align:1px}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.q{background:#fff;border:1px solid #ffd666;border-radius:7px;padding:9px 11px;margin:8px 0 0}
+
+/* [B] header */
+.rs-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:16px;display:flex;justify-content:space-between;
+  align-items:flex-end;gap:18px;flex-wrap:wrap}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+.rs-back{font-size:12.5px;color:#00b1e0;font-weight:600}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] banner */
+.hero{background:#002b64;border-radius:var(--rs-radius);padding:20px;box-shadow:0 12px 32px -12px #002b6455;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:16px}
+.hero .cell{color:#fff}
+.hero .lab{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:#9dc2e8;font-weight:600}
+.hero .val{font-size:25px;font-weight:300;margin-top:5px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hero .sub{font-size:11.5px;color:#9dc2e8;margin-top:3px}
+.hero .val.good{color:#9be07c}.hero .val.crit{color:#ff9c9c}
+
+/* [D] two columns */
+.layout{display:grid;grid-template-columns:360px 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.hero{grid-template-columns:repeat(2,1fr)}}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card:last-child{margin-bottom:0}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-f{padding:13px 18px;border-top:1px solid var(--rs-line);background:var(--rs-panel-2);
+  border-radius:0 0 var(--rs-radius) var(--rs-radius);display:flex;justify-content:space-between;
+  align-items:center;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--rs-muted)}
+.col{display:flex;flex-direction:column;gap:16px}
+
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+input[type=text],select{font:inherit;font-size:14px;font-weight:600;color:var(--rs-ink);background:#fff;
+  border:1px solid var(--rs-line);border-radius:8px;padding:8px 11px;width:100%;
+  font-variant-numeric:tabular-nums}
+.hint{font-size:12px;color:var(--rs-muted);margin-top:6px;line-height:1.45}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 10px 9px 0;border-bottom:1px solid var(--rs-line)}
+th.r,td.r{text-align:right}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--rs-line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+tr.grp td{background:var(--rs-panel-2);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:700;padding:8px 10px 8px 0}
+tr.sub td{border-top:2px solid var(--rs-ink);font-weight:700;background:#fff}
+tr.sub td.num{font-size:14.5px}
+
+.ed{background:#fff;border:1px solid var(--rs-accent);border-radius:7px;padding:5px 9px;
+  display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;color:var(--rs-ink);
+  min-width:82px;text-align:right;font-size:13px}
+.ed.empty{border-color:var(--rs-line);color:#b7c4d3}
+.ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;padding:5px 9px;
+  display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;color:var(--rs-muted);
+  min-width:82px;text-align:right;font-size:13px}
+.vary{font-size:11.5px;color:var(--rs-accent);font-weight:600;white-space:nowrap}
+.blank{color:#b7c4d3;font-weight:400}
+
+.good{color:var(--rs-good)}
+.crit{color:var(--rs-crit)}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;border-radius:5px;
+  padding:2px 6px;margin-left:7px;vertical-align:1px}
+.pill.g{background:var(--rs-good-soft);color:var(--rs-good)}
+.pill.c{background:var(--rs-crit-soft);color:var(--rs-crit)}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;border-radius:5px;
+  padding:2px 7px;background:var(--rs-accent-soft);color:var(--rs-accent);text-transform:uppercase}
+.badge.typed{background:var(--rs-warn-soft);color:#a06000}
+
+/* month strip (vary-by-month opened) */
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin-top:9px;
+  padding:11px;background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:9px}
+.months .m{text-align:center}
+.months .mh{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin-bottom:4px}
+.months input{padding:5px 3px;font-size:11.5px;text-align:right;border-radius:6px}
+@media(max-width:860px){.months{grid-template-columns:repeat(4,1fr)}}
+
+/* charts */
+.chart{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;align-items:end;height:186px;
+  padding-top:6px}
+.chart .slot{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:2px}
+.pair{display:flex;gap:3px;align-items:flex-end;height:100%}
+.bar{flex:1;border-radius:4px 4px 0 0;min-height:2px}
+.bar.b{background:linear-gradient(180deg,#4a9fd8,#0070c0)}
+.bar.a{background:linear-gradient(180deg,#00c5f5,#00b1e0)}
+.bar.a.over{background:linear-gradient(180deg,#ff9c9c,#e00000)}
+.xlab{font-size:9.5px;color:var(--rs-muted);text-align:center;margin-top:6px;font-weight:600}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--rs-muted);margin-top:12px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* bank line */
+.linewrap{position:relative;height:170px;margin-top:4px}
+.linewrap svg{width:100%;height:100%;overflow:visible}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock ruled">
+  <h3>✅ Approved and BUILT — 2026-09-12 <span class="ruledtag">Built the same day</span></h3>
+  <p><b>Mike approved this drawing to build from on 2026-09-12 and the screen was built from it
+  the same day</b> — <code>pages/high-level-budget.vue</code>,
+  <code>components/HighLevelBudget.vue</code>, every label in <code>locales/en.json</code>, and the
+  Model Library card flipped from "coming soon" to live. Suite 10,065 green, lint 0 errors.</p>
+  <p><b>SIX DIFFERENCES BETWEEN THIS DRAWING AND THE BUILD</b>, named here rather than left to be
+  found. The full record is in
+  <a href="../features/report-models.md">features/report-models.md</a> §4:</p>
+  <ul>
+    <li><b>The 22 unused expense lines are individual rows</b>, where this page folds them into
+    one summary row. The build follows this page's own words — <i>"they stay on screen so nothing
+    has to be remembered"</i> — and treats the fold as drawing shorthand.</li>
+    <li><b>Back and Next buttons were added.</b> This page navigates by step chip alone, which is
+    not obvious enough on a four-step screen.</li>
+    <li><b>The GST field shows <code>15</code>, not <code>15%</code></b> — a number input cannot
+    carry a symbol. The label above it says <i>GST rate</i>.</li>
+    <li>🔴 <b>The entry boxes came out three times this page's width</b> on the first run, because
+    Buefy's control fills its cell. Corrected to 118px. Across 38 rows that is the difference
+    between a table that scans and one that does not.</li>
+    <li>🔴 <b>A zero was displayed as a signed change in two places</b> — a green <code>+$0</code>
+    in the headline before anything was typed, and <code>+$0</code> against every line that landed
+    exactly on budget. Both now read as a plain zero.</li>
+    <li><b>There is no Coach panel</b>, as drawn — the variance table reads itself, every line
+    saying <i>Better</i> or <i>Worse</i> beside its own figure.</li>
+  </ul>
+  <p>🔴 <b>The last two were found by opening the screen in a running app, with 10,062 tests
+  green</b> — and the zero fault had to be found twice, once in the headline and again in the
+  table underneath it on the next look. No assertion in this suite could have seen either.</p>
+</div>
+
+<div class="mock">
+  <h3>What this is</h3>
+  <p><b>Item 4.88 — the High Level Budget screen, drawn for approval on 2026-09-12. THE SCREEN IS
+  NOT BUILT.</b> The maths behind it is: <code>server/report/highLevelBudgetModel.js</code>, its
+  golden test and the route <code>POST /api/report/high-level-budget</code> were committed as
+  <code>2da6144</code> and pushed the same day.</p>
+  <p><b>Every number on this page is real.</b> It is the sample year in your own
+  <code>High Level Budget.xlsx</code> — April 2021 to March 2022 — put through that model. Nothing
+  is invented to fill a space.</p>
+  <p><b>The Model Library card still says "coming soon" on purpose.</b> Turning it on is what pulls
+  the report into the frame guard, which then requires this page to exist. It flips when this is built.</p>
+  <p class="q"><b>Four steps because the workbook has four sheets</b> — Budget Figures, Actual
+  Figures, Cashflow Variances, Reports. The stepped shape is already how Quick Position, EBITDA-DCF
+  and the Loan Estimator work, so this is the house pattern, not a new one.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Step 1 of 4 — Set up the year</div>
+
+<div class="rs-top">
+  <div>
+    <div class="rs-eyebrow">Model Library · Budgeting</div>
+    <h1 class="rs-h1">High Level Budget</h1>
+    <div class="rs-client">Prepared for Kinetic Planning (2007) Limited</div>
+  </div>
+  <div class="rs-back">← Back to the Model Library</div>
+</div>
+
+<div class="chips">
+  <div class="chip now"><span class="n">1</span> Set up the year</div>
+  <div class="chip todo"><span class="n">2</span> The budget</div>
+  <div class="chip todo"><span class="n">3</span> What actually happened</div>
+  <div class="chip todo"><span class="n">4</span> How it went</div>
+</div>
+
+<div class="layout">
+  <aside class="col">
+    <div class="card">
+      <div class="card-h"><h2>The year</h2></div>
+      <div class="card-b">
+        <div class="field">
+          <label>First month of the year</label>
+          <select><option>April 2021</option></select>
+          <div class="hint">Twelve months run from here. The workbook's own sample year is
+            April 2021 to March 2022.</div>
+        </div>
+        <div class="field">
+          <label>GST rate</label>
+          <input type="text" value="15%">
+          <div class="hint">One rate for the year, as the workbook has it (cell V3).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Opening bank balance</h2></div>
+      <div class="card-b">
+        <div class="field">
+          <label>Budgeted at the start of the year</label>
+          <input type="text" value="10,000">
+        </div>
+        <div class="field">
+          <label>Actually held at the start of the year</label>
+          <input type="text" value="6,500">
+        </div>
+        <div class="hint">Both balances roll forward month by month. The budget's opening balance
+          is what the forecast assumed; the actual is what was really in the bank.</div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="col">
+    <div class="card">
+      <div class="card-h"><h2>What this model answers</h2></div>
+      <div class="card-b">
+        <p style="margin:0 0 12px">Every other page in the performance report compares this year to
+        last year. This one compares this year to <b>the plan</b> — line by line, month by month,
+        and on the bank balance.</p>
+        <table>
+          <tr><td style="width:34%"><b>Step 2</b></td><td>The forecast: what you expected to come in and go out, each month.</td></tr>
+          <tr><td><b>Step 3</b></td><td>The actuals: what really happened. Months you have not reached yet stay empty.</td></tr>
+          <tr><td><b>Step 4</b></td><td>The difference, and what it did to the bank balance.</td></tr>
+        </table>
+      </div>
+      <div class="card-f"><span>Nothing is saved until you save the report at step 4.</span></div>
+    </div>
+
+    <div class="mock ruled" style="margin:0">
+      <h3>Decision 1 of 3 — how the figures get entered <span class="ruledtag">Ruled by Mike 2026-09-12</span></h3>
+      <p><b>✅ RULED AS RECOMMENDED.</b> One figure per line applied to every month, with a
+      "vary by month" opener. The recommendation as it was put to him is left below, because the
+      record of what was asked is the point.</p>
+      <p><b>There are 32 lines and 12 months. Typed as a raw grid that is 384 boxes per side, 768
+      in total, and nobody will do it.</b></p>
+      <p><span class="rec">Recommended, and drawn below:</span> <b>one figure per line, applied to
+      every month, with a "vary by month" opener</b> for the lines that are not flat.</p>
+      <p><b>This is read off your own workbook, not invented.</b> Of the nine budget lines you
+      filled in, <b>eight are identical in all twelve months</b> — only Sales varies. The actuals
+      are the same: eight flat, Sales varying. So the common case is one number per line, and
+      opening up a line is the exception.</p>
+      <p>That turns 768 boxes into about 40 for a typical budget, and it still holds every month
+      separately underneath — the model already stores twelve figures per line either way.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Step 2 of 4 — The budget</div>
+
+<div class="chips">
+  <div class="chip done"><span class="n">✓</span> Set up the year</div>
+  <div class="chip now"><span class="n">2</span> The budget</div>
+  <div class="chip todo"><span class="n">3</span> What actually happened</div>
+  <div class="chip todo"><span class="n">4</span> How it went</div>
+</div>
+
+<div class="hero">
+  <div class="cell"><div class="lab">Money in, budgeted</div><div class="val">351,300</div><div class="sub">For the year</div></div>
+  <div class="cell"><div class="lab">Money out, budgeted</div><div class="val">210,000</div><div class="sub">For the year</div></div>
+  <div class="cell"><div class="lab">Change in the bank</div><div class="val good">+182,426</div><div class="sub">Across the year</div></div>
+  <div class="cell"><div class="lab">Closing bank balance</div><div class="val">192,426</div><div class="sub">Budgeted, at March 2022</div></div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Money in</h2>
+    <span class="badge typed">Entered by your advisor</span>
+  </div>
+  <div class="card-b" style="padding-top:6px">
+    <table>
+      <tr><th style="width:38%">Line</th><th class="r" style="width:20%">Per month</th><th class="r" style="width:20%">For the year</th><th style="width:22%"></th></tr>
+      <tr>
+        <td><b>Sales</b><div class="hint" style="margin-top:2px">Varies — twelve months entered</div></td>
+        <td class="r"><span class="ro">varies</span></td>
+        <td class="r"><span class="ro">348,300</span></td>
+        <td><span class="vary">▾ Close months</span></td>
+      </tr>
+      <tr><td colspan="4" style="padding-top:0">
+        <div class="months">
+          <div class="m"><div class="mh">Apr</div><input type="text" value="25,000"></div>
+          <div class="m"><div class="mh">May</div><input type="text" value="35,000"></div>
+          <div class="m"><div class="mh">Jun</div><input type="text" value="45,000"></div>
+          <div class="m"><div class="mh">Jul</div><input type="text" value="15,000"></div>
+          <div class="m"><div class="mh">Aug</div><input type="text" value="25,000"></div>
+          <div class="m"><div class="mh">Sep</div><input type="text" value="30,000"></div>
+          <div class="m"><div class="mh">Oct</div><input type="text" value="12,500"></div>
+          <div class="m"><div class="mh">Nov</div><input type="text" value="25,000"></div>
+          <div class="m"><div class="mh">Dec</div><input type="text" value="35,000"></div>
+          <div class="m"><div class="mh">Jan</div><input type="text" value="40,000"></div>
+          <div class="m"><div class="mh">Feb</div><input type="text" value="25,000"></div>
+          <div class="m"><div class="mh">Mar</div><input type="text" value="35,800"></div>
+        </div>
+      </td></tr>
+      <tr><td>Tax rebates</td><td class="r"><span class="ed empty">—</span></td><td class="r"><span class="ro">—</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Interest received</td><td class="r"><span class="ed empty">—</span></td><td class="r"><span class="ro">—</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Capital introduced</td><td class="r"><span class="ed empty">—</span></td><td class="r"><span class="ro">—</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Other</td><td class="r"><span class="ed empty">—</span></td><td class="r"><span class="ro">—</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Sales with no GST<div class="hint" style="margin-top:2px">Stays out of the GST calculation</div></td><td class="r"><span class="ed">250</span></td><td class="r"><span class="ro">3,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr class="sub"><td>Money in</td><td class="r num">—</td><td class="r num">351,300</td><td></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Money out</h2></div>
+  <div class="card-b" style="padding-top:6px">
+    <table>
+      <tr><th style="width:38%">Line</th><th class="r" style="width:20%">Per month</th><th class="r" style="width:20%">For the year</th><th style="width:22%"></th></tr>
+      <tr class="grp"><td colspan="4">With GST</td></tr>
+      <tr><td>Car</td><td class="r"><span class="ed">500</span></td><td class="r"><span class="ro">6,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Entertainment</td><td class="r"><span class="ed">150</span></td><td class="r"><span class="ro">1,800</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Vehicle leases</td><td class="r"><span class="ed">1,000</span></td><td class="r"><span class="ro">12,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Accounting</td><td class="r"><span class="ed">600</span></td><td class="r"><span class="ro">7,200</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Principal loan repayments</td><td class="r"><span class="ed">500</span></td><td class="r"><span class="ro">6,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td class="blank">Bank fees · Credit card charges · Computer · General expenses · Printing ·
+        Stationery &amp; supplies · Telephone · Cell phone · Travel &amp; accommodation · Insurance ·
+        Provision for taxation · Fringe benefit tax · Legal · Low-cost assets · Plant &amp; equipment ·
+        Drawings · Other 1–6<div class="hint" style="margin-top:3px">22 more lines, all empty in this
+        budget. They stay on screen so nothing has to be remembered.</div></td>
+        <td class="r"><span class="ed empty">—</span></td><td class="r"><span class="ro">—</span></td><td></td></tr>
+      <tr class="grp"><td colspan="4">Without GST</td></tr>
+      <tr><td>Wages</td><td class="r"><span class="ed">14,000</span></td><td class="r"><span class="ro">168,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Interest-only loan payments</td><td class="r"><span class="ed">750</span></td><td class="r"><span class="ro">9,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td class="blank">Other 1–3<div class="hint" style="margin-top:3px">Empty in this budget.</div></td><td class="r"><span class="ed empty">—</span></td><td class="r"><span class="ro">—</span></td><td></td></tr>
+      <tr class="sub"><td>Money out</td><td class="r num">17,500</td><td class="r num">210,000</td><td></td></tr>
+    </table>
+  </div>
+  <div class="card-f">
+    <span><b>Money out counts every line above, with GST and without.</b> That is the correction you
+    ruled on 2026-09-12 — the spreadsheet's actuals column left wages out of this total.</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Step 3 of 4 — What actually happened</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Money out — actual</h2>
+    <span class="badge typed">Entered by your advisor</span>
+  </div>
+  <div class="card-b" style="padding-top:6px">
+    <table>
+      <tr><th style="width:30%">Line</th><th class="r" style="width:17%">Budget, per month</th><th class="r" style="width:17%">Actual, per month</th><th class="r" style="width:18%">Actual, for the year</th><th style="width:18%"></th></tr>
+      <tr class="grp"><td colspan="5">With GST</td></tr>
+      <tr><td>Car</td><td class="r"><span class="ro">500</span></td><td class="r"><span class="ed">450</span></td><td class="r"><span class="ro">5,400</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Entertainment</td><td class="r"><span class="ro">150</span></td><td class="r"><span class="ed">250</span></td><td class="r"><span class="ro">3,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Printing</td><td class="r"><span class="ro">—</span></td><td class="r"><span class="ed">175</span></td><td class="r"><span class="ro">2,100</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Vehicle leases</td><td class="r"><span class="ro">1,000</span></td><td class="r"><span class="ed">1,050</span></td><td class="r"><span class="ro">12,600</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Accounting</td><td class="r"><span class="ro">600</span></td><td class="r"><span class="ed">600</span></td><td class="r"><span class="ro">7,200</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Principal loan repayments</td><td class="r"><span class="ro">500</span></td><td class="r"><span class="ed">500</span></td><td class="r"><span class="ro">6,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr class="grp"><td colspan="5">Without GST</td></tr>
+      <tr><td>Wages</td><td class="r"><span class="ro">14,000</span></td><td class="r"><span class="ed">12,500</span></td><td class="r"><span class="ro">150,000</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr><td>Interest-only loan payments</td><td class="r"><span class="ro">750</span></td><td class="r"><span class="ed">825</span></td><td class="r"><span class="ro">9,900</span></td><td><span class="vary">▸ Vary by month</span></td></tr>
+      <tr class="sub"><td>Money out</td><td class="r num">17,500</td><td class="r num">16,350</td><td class="r num">196,200</td><td></td></tr>
+    </table>
+  </div>
+  <div class="card-f">
+    <span>The budget column is shown beside each line so a figure can be checked as it is typed.
+    It is read-only here.</span>
+  </div>
+</div>
+
+<div class="mock ruled">
+  <h3>Decision 2 of 3 — a month nobody has reached yet <span class="ruledtag">Ruled by Mike 2026-09-12</span></h3>
+  <p><b>✅ RULED AS RECOMMENDED.</b> A blank actual means "not yet", never "nothing"; a typed zero
+  is a real zero and does produce a variance. The recommendation as it was put to him is left below.</p>
+  <p><b>A blank actual means "not yet", not "nothing".</b> Your Cashflow Variances sheet already
+  works this way — <code>IF(actual&lt;&gt;"", actual−budget, "")</code> — and the model keeps it: an
+  empty month produces a blank variance, never the whole budget shown as a shortfall.</p>
+  <p><span class="rec">Drawn as:</span> an empty box, and the variance row at step 4 reads
+  <b>"not entered"</b> rather than a number. <b>A typed zero is a real zero</b> and does produce a
+  variance — so "we spent nothing on printing" and "we have not checked printing yet" are different
+  things on screen, as they are in your spreadsheet.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Step 4 of 4 — How it went</div>
+
+<div class="chips">
+  <div class="chip done"><span class="n">✓</span> Set up the year</div>
+  <div class="chip done"><span class="n">✓</span> The budget</div>
+  <div class="chip done"><span class="n">✓</span> What actually happened</div>
+  <div class="chip now"><span class="n">4</span> How it went</div>
+</div>
+
+<div class="hero">
+  <div class="cell"><div class="lab">Money in, against budget</div><div class="val crit">−49,300</div><div class="sub">299,000 against 348,300</div></div>
+  <div class="cell"><div class="lab">Money out, against budget</div><div class="val good">−13,800</div><div class="sub">196,200 against 210,000</div></div>
+  <div class="cell"><div class="lab">Closing bank, budgeted</div><div class="val">192,426</div><div class="sub">At March 2022</div></div>
+  <div class="cell"><div class="lab">Closing bank, actual</div><div class="val crit">143,565</div><div class="sub">48,861 below the plan</div></div>
+</div>
+
+<div class="layout">
+  <section class="col" style="grid-column:1 / -1">
+
+    <div class="card">
+      <div class="card-h"><h2>Money in — budget against actual</h2></div>
+      <div class="card-b">
+        <div class="chart">
+          <div class="slot"><div class="pair"><div class="bar b" style="height:56%"></div><div class="bar a" style="height:33%"></div></div><div class="xlab">Apr</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:78%"></div><div class="bar a" style="height:40%"></div></div><div class="xlab">May</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:100%"></div><div class="bar a" style="height:44%"></div></div><div class="xlab">Jun</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:34%"></div><div class="bar a" style="height:31%"></div></div><div class="xlab">Jul</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:56%"></div><div class="bar a" style="height:55%"></div></div><div class="xlab">Aug</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:67%"></div><div class="bar a" style="height:57%"></div></div><div class="xlab">Sep</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:28%"></div><div class="bar a" style="height:60%"></div></div><div class="xlab">Oct</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:56%"></div><div class="bar a" style="height:62%"></div></div><div class="xlab">Nov</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:78%"></div><div class="bar a" style="height:66%"></div></div><div class="xlab">Dec</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:89%"></div><div class="bar a" style="height:69%"></div></div><div class="xlab">Jan</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:56%"></div><div class="bar a" style="height:71%"></div></div><div class="xlab">Feb</div></div>
+          <div class="slot"><div class="pair"><div class="bar b" style="height:80%"></div><div class="bar a" style="height:73%"></div></div><div class="xlab">Mar</div></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#0070c0"></i>Budget</span>
+          <span><i style="background:#00b1e0"></i>Actual</span>
+        </div>
+        <p class="hint" style="margin-top:12px">Sales opened well below plan and closed close to it —
+        the shortfall is the first half of the year, not the whole of it. This is the first of the two
+        charts your Reports sheet draws.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>The bank balance, month by month</h2></div>
+      <div class="card-b">
+        <div class="linewrap">
+          <svg viewBox="0 0 660 160" preserveAspectRatio="none">
+            <polyline fill="none" stroke="#0070c0" stroke-width="2.5" stroke-linejoin="round"
+              points="0,152 55,144 110,125 165,97 220,98 275,89 330,75 385,78 440,69 495,51 550,28 605,19 660,0"/>
+            <polyline fill="none" stroke="#e00000" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="0"
+              points="0,155 55,154 110,148 165,142 220,143 275,132 330,122 385,111 440,99 495,85 550,71 605,55 660,40"/>
+          </svg>
+        </div>
+        <div class="legend">
+          <span><i style="background:#0070c0"></i>Budgeted closing balance</span>
+          <span><i style="background:#e00000"></i>Actual closing balance</span>
+        </div>
+        <p class="hint" style="margin-top:12px">Both lines rise all year — the business is not in
+        trouble. It is simply <b>48,861 behind the plan</b> by March, and the gap opens early and never
+        closes.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Every line, against budget</h2><span style="font-size:12px;color:var(--rs-muted)">For the year</span></div>
+      <div class="card-b" style="padding-top:6px">
+        <table>
+          <tr><th style="width:34%">Line</th><th class="r">Budget</th><th class="r">Actual</th><th class="r">Difference</th><th style="width:24%">What it means</th></tr>
+          <tr class="grp"><td colspan="5">Money in</td></tr>
+          <tr><td>Sales</td><td class="r num">348,300</td><td class="r num">299,000</td><td class="r num crit">−49,300</td><td>Below plan<span class="pill c">Worse</span></td></tr>
+          <tr><td>Sales with no GST</td><td class="r num">3,000</td><td class="r num blank">not entered</td><td class="r num blank">—</td><td class="blank">Nothing to compare yet</td></tr>
+          <tr class="sub"><td>Money in</td><td class="r num">348,300</td><td class="r num">299,000</td><td class="r num crit">−49,300</td><td></td></tr>
+          <tr class="grp"><td colspan="5">Money out</td></tr>
+          <tr><td>Car</td><td class="r num">6,000</td><td class="r num">5,400</td><td class="r num good">−600</td><td>Spent less<span class="pill g">Better</span></td></tr>
+          <tr><td>Entertainment</td><td class="r num">1,800</td><td class="r num">3,000</td><td class="r num crit">+1,200</td><td>Spent more<span class="pill c">Worse</span></td></tr>
+          <tr><td>Printing</td><td class="r num">—</td><td class="r num">2,100</td><td class="r num crit">+2,100</td><td>Not budgeted at all<span class="pill c">Worse</span></td></tr>
+          <tr><td>Vehicle leases</td><td class="r num">12,000</td><td class="r num">12,600</td><td class="r num crit">+600</td><td>Spent more<span class="pill c">Worse</span></td></tr>
+          <tr><td>Accounting</td><td class="r num">7,200</td><td class="r num">7,200</td><td class="r num">0</td><td>On budget</td></tr>
+          <tr><td>Principal loan repayments</td><td class="r num">6,000</td><td class="r num">6,000</td><td class="r num">0</td><td>On budget</td></tr>
+          <tr><td>Wages</td><td class="r num">168,000</td><td class="r num">150,000</td><td class="r num good">−18,000</td><td>Spent less<span class="pill g">Better</span></td></tr>
+          <tr><td>Interest-only loan payments</td><td class="r num">9,000</td><td class="r num">9,900</td><td class="r num crit">+900</td><td>Spent more<span class="pill c">Worse</span></td></tr>
+          <tr class="sub"><td>Money out</td><td class="r num">210,000</td><td class="r num">196,200</td><td class="r num good">−13,800</td><td></td></tr>
+        </table>
+      </div>
+      <div class="card-f">
+        <span>Only lines with a budget or an actual are listed. The other 24 are empty on both sides
+        and are left off rather than printed as rows of dashes.</span>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<div class="mock ruled">
+  <h3>Decision 3 of 3 — which way is "good" <span class="ruledtag">Ruled by Mike 2026-09-12</span></h3>
+  <p><b>✅ RULED AS RECOMMENDED.</b> The arithmetic stays actual minus budget, exactly as the
+  workbook has it, and the colour carries the meaning with a plain <b>Better</b> or <b>Worse</b>
+  beside it. The recommendation as it was put to him is left below.</p>
+  <p><b>The same sign means opposite things on the two halves of this table.</b> Spending 1,200 more
+  than budget is bad; earning 1,200 more than budget is good. Your spreadsheet computes
+  actual − budget for both and leaves the reader to work it out.</p>
+  <p><span class="rec">Recommended, and drawn above:</span> <b>keep the arithmetic exactly as your
+  spreadsheet has it — always actual minus budget — and colour by what it means, not by its sign,</b>
+  with a plain word beside it: <b>Better</b> or <b>Worse</b>. So on the money-out lines a green
+  −18,000 reads "spent 18,000 less than planned".</p>
+  <p>The alternative is flipping the sign on expenses so green is always positive. That makes the
+  colour easy and the number wrong: it would no longer match the figure in your own Cashflow
+  Variances sheet, and someone checking one against the other would find them disagreeing.</p>
+</div>
+
+<div class="mock ruled">
+  <h3>The wording — every label on this page <span class="ruledtag">Ruled by Mike 2026-09-12</span></h3>
+  <p><b>✅ APPROVED AS DRAWN.</b> Every label below is the built wording: the three corrected
+  spellings, the three plainer headings, the four step names and the four headline figures. What
+  was put to him is left exactly as it was asked.</p>
+  <p><b>Three of your spreadsheet's labels are misspelled</b>, and I have corrected them in the
+  drawing rather than carrying the spelling into the app. Say the word and they go back exactly as
+  the workbook has them:</p>
+  <table style="font-size:12.5px;margin-top:6px">
+    <tr><th style="width:40%">In the workbook</th><th>Drawn as</th></tr>
+    <tr><td>Stationary &amp; Supplies</td><td>Stationery &amp; supplies</td></tr>
+    <tr><td>Travelling &amp; Accomodation</td><td>Travel &amp; accommodation</td></tr>
+    <tr><td>Principle Loan Repayments</td><td>Principal loan repayments</td></tr>
+  </table>
+  <p style="margin-top:12px"><b>Three headings are plainer than the workbook's</b>, because a business
+  owner reads this page:</p>
+  <table style="font-size:12.5px;margin-top:6px">
+    <tr><th style="width:40%">In the workbook</th><th>Drawn as</th></tr>
+    <tr><td>DEPOSITS / SUBTOTAL DEPOSITS</td><td>Money in</td></tr>
+    <tr><td>WITHDRAWALS (Expenses) / SUBTOTAL WITHDRAWALS</td><td>Money out</td></tr>
+    <tr><td>Non GST Related Sales</td><td>Sales with no GST</td></tr>
+  </table>
+  <p style="margin-top:12px"><b>The four step names</b> — "Set up the year", "The budget", "What
+  actually happened", "How it went". <b>The four headline figures</b> — "Money in, against budget",
+  "Money out, against budget", "Closing bank, budgeted", "Closing bank, actual".</p>
+  <p>Every other line keeps the workbook's own name. Nothing here is settled until you say so.</p>
+</div>
+
+<div class="mock">
+  <h3>What is NOT on this page, and why</h3>
+  <ul>
+    <li><b>The GST movements rows.</b> The model computes them and they drive the bank balance, but
+    they are plumbing, not a finding. They would be four more rows of arithmetic an owner does not
+    read. <span class="rec">Say if you want them shown.</span></li>
+    <li><b>A "print" button.</b> Every other model in this section is a screen an advisor drives,
+    not a document a client takes away — printing belongs to the Business Performance Report. This
+    model could feed an optional page there later; that is a separate decision and not this build.</li>
+    <li>🔴 <b>Anything read from a file — and the accounts readers we already have CANNOT do it.</b>
+    Half of this is easy: a budget is a forecast, so there is nothing to import on the budget side at
+    all. The actuals are the tempting half, and the trap. <b>This is a CASH budget; a Profit and Loss
+    is accrual.</b> A P&amp;L counts a sale the day it is invoiced and this model counts it the day the
+    money reaches the bank — different by the whole debtor movement. Three of these lines
+    (<i>Drawings</i>, <i>Principal loan repayments</i>, <i>Plant &amp; equipment</i>) are not on a
+    P&amp;L at all, being balance-sheet movements, and a P&amp;L carries <i>depreciation</i>, which
+    must never appear in a cash budget because no cash moves. <b>Wiring the existing readers in would
+    put a cash budget column beside an accrual actual column, looking identical — the same
+    not-like-for-like fault this model was built to correct.</b> The right file is a cash-basis export
+    (Xero's Cash Summary); we have never seen one, so a reader for it would be a guess. <b>Mike raised
+    this himself on 2026-09-12</b> — <i>"should we have built the ability to load a balance sheet and
+    p&amp;L to help with the 'fast data load'"</i> — was shown the above, and ruled <b>leave it for
+    now</b>. Everything here is typed, and badged as typed.
+    <br><i>This replaces a sentence written earlier the same day saying the actuals "could one day
+    come from the accounts readers that already exist". That was wrong, and left standing it invited
+    exactly the build this note now refuses.</i></li>
+    <li>✅ <b>The two GST oddities are RULED and applied (2026-09-12, item 4.89)</b> — this bullet
+    used to say they were open. Interest Received is out of the GST base (an exempt supply bears no
+    GST), and the entered figures are <b>GST-inclusive</b>, so the GST block no longer feeds the bank
+    balance — it is a reading at the foot of the result table instead. <b>The second moved real
+    figures:</b> the sample year's budgeted closing balance falls from 192,426 to <b>151,300</b> and
+    the actual from 143,565 to <b>109,300</b>, the workbook having counted the GST twice. Every moved
+    figure is listed against its cached value in the golden test.
+    <br><i>Superseded text, kept so the record is not a paraphrase:</i> they were recorded in the
+    model's header and ported
+    exactly as your spreadsheet has them. They change nothing an owner sees on this page, so they
+    are not a blocker — I will bring them on their own.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

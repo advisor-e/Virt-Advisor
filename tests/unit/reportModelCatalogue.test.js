@@ -63,6 +63,7 @@ describe('report model catalogue', () => {
         '/debtor-drag',
         '/ebitda-dcf',
         '/eight-levers',
+        '/high-level-budget',
         '/lease-vs-buy',
         '/loan-estimator',
         '/margin-breakeven',
@@ -130,7 +131,11 @@ describe('report model catalogue', () => {
       // figures". Entry is typed until the by-month accounts upload lands — that changes
       // where the figures come from, not whose they are, and neither class carries a badge.
       // Dashboard Reports (4.70) is the client's own document from their accounts — Report class.
-      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports']
+      // The High-Level Budget (4.88, built 2026-09-12) is the sixth Report-class build:
+      // MODEL-CLASSIFICATION.md lists it under Report, "actuals and variances". Entry is typed
+      // because a budget is a forecast and there is nothing to import — which changes where the
+      // figures come from, not whose they are, so no Illustrative badge.
+      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports', 'High-Level Budget']
       const DECISION_BUILDS = [
         'The Loan Estimator',
         'Lease vs Buy',
@@ -138,7 +143,7 @@ describe('report model catalogue', () => {
         'Multiple Property Assessment'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(13)
+      expect(built).toHaveLength(14)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -290,7 +295,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(13)
+      expect(readyCount(MODELS)).toBe(14)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

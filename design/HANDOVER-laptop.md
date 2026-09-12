@@ -9,45 +9,47 @@
 
 ---
 
-## 2026-09-12 (twenty-second session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-12 (twenty-third session) · Laptop · branch `feat/advisor-progress`
 
-Suite **9,977 green** (482 suites), lint 0, tree clean, level with `master`. **PR #88 merged**
-— 3 commits, documentation only, no application code touched. Four live items; **none is
-workable on this machine.**
+Suite **10,058 green** (485 suites), lint 0 errors, tree clean, 7 ahead / 0 behind `master`.
+**Items 4.88 AND 4.89 built, walked in a browser and CLOSED** — Mike asked for a model from the
+performance reports that had never been built and chose the **High Level Budget**. Model,
+route, page, screen, locales, catalogue card live, all four report guards. Closures on
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **FOUR live items** — 4.15,
+4.58, 4.86 and 4.87. *(This line and commit `f04ffcc`'s message both said three; the commit is
+pushed and cannot be corrected, so trust this file and the JSON, not that message.)*
 
-🔴 **4.58 GATE 1 IS SENT — AND THE STRONGEST POINT IS IN NEITHER LETTER.** Both went
-2026-09-12 and both are recorded in full, not paraphrased:
-[`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md) §2 (the live sales enquiry) and
-§3 (the first letter). **The point to press is §1.1 D** — the DPA's Schedule 1 says *"no
-sensitive data is intended to be transferred unless the user includes it unexpectedly in
-unstructured data"*, and Meeting Review transfers it **by design**. Verified against three
-published versions. It goes to `privacy@openai.com` in the reply thread, never to support.
+🔴 **HIS SOURCE WORKBOOK IS WRONG, AND THE FIX IS RULED.** `High Level Budget.xlsx` adds its two
+subtotal rows three different ways across three sheets; the Actuals sheet drops **Wages and
+Interest Only Loan Payments — 159,900 a year** — from every total *including the bank balance*,
+charting a **173,700** saving where the truth is **13,800**. All three sides now use the Budget
+sheet's full ranges. **Proved by reverting it outside the repo and reproducing all six of the
+workbook's cached figures exactly**, which is what shows the rest of the port is faithful.
 
-**Routing, so nobody re-derives it.** `privacy@openai.com` is the DPA's own **Data Protection
-Officer** address — correct, but it auto-triages into the consumer queue and answers about
-ChatGPT accounts. The account controls (Zero Data Retention, Eyes Off, a named region) are
-granted by **sales**, and OpenAI publishes **no sales email address**: it is the form at
-`openai.com/contact-sales`, in two steps. Both routes are live and they carry different things.
+🔴 **TWO FAULTS SURVIVED 10,062 PASSING TESTS AND WERE FOUND BY LOOKING** — entry boxes three
+times the approved width, and a zero rendered as a signed change. **The second had to be found
+twice**, in the headline and then in the table beneath it. `npm run go`, open the screen, and
+count. Six drawing-vs-build differences are named on the drawing and in `report-models.md` §4.
 
-🔴 **AN AI READ THAT FAILS SILENTLY — CHECK LOADS AGAINST RECORDS.** Mike reported the IRD PDF
-taking "a massive amount of time". It was not slow: two of three reads **failed** before
-`bec650b` (the discarded-refusal fix), each still spending one of the 20 daily readings, and the
-one after it took **18 seconds**. The tell is `data/dev-ai-load-budget.json` against the
-proposals store — **loads consumed vs records written**. Three loads, one document. A service
-failure records nothing by design, so the screen shows no row and the budget is the only trace.
+**⛔ DO NOT WIRE THE ACCOUNTS READERS INTO 4.88's ACTUALS.** Mike raised it himself, was shown
+why, and ruled **leave it for now**: it is a cash budget and a P&L is accrual, three of its lines
+are balance-sheet movements absent from a P&L, and a P&L carries depreciation. It is recorded in
+both homes; it is not a gap and not to be re-raised as one.
 
-**Three records corrected, each proven by running the code rather than reading a note:**
-`CLAUDE.md` was telling every session the stack was out of compliance (`engine-strict` has been
-ON since 2026-08-24 — verify any time with `npm run check:engines`); `/startup` claimed step 3
-writes nothing to the repository; and a typed "6,255 tests" was dropped rather than reset.
+🔴 **4.89 FILED AND CLOSED THE SAME EVENING — and it moved the headline figures.** The workbook's
+two GST oddities, both ruled by Mike one at a time. **Interest Received is out of the GST base**
+(an exempt supply bears no GST; moves nothing in the sample, everything for a client with interest
+income). **The entered figures are GST-INCLUSIVE**, so rows 66/69/71 were counting GST twice: the
+budgeted closing balance falls **192,426 → 151,300** and the actual **143,565 → 109,300**, the
+workbook overstating year-end cash by the whole net GST, **41,126, about 27%**. The GST is now a
+reading at the foot of the result table. The test **proves** it — the gap between the workbook's
+closing balance and ours is checked to equal `gstHeld` exactly. Closure on
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
 
-⚠ **BOTH MACHINES:** `npm run handbook` **regenerates `design/CODE-SIZE.md`**. The tree comes
-back dirty from the startup checklist, and the pre-commit hook refuses any commit that leaves a
-modified tracked file behind. Expect it; put it to Mike with the session's other changes.
+**Waiting on Mike, unchanged:** 4.58's OpenAI reply (letter sent 2026-09-12), 4.15's eighteen
+template names, and whether the three unranked items get placed.
 
-**Waiting on Mike:** OpenAI's written reply (gate 1), the lawyer per market (gate 2, held
-deliberately behind that reply because it can change the wording), the staff consultation (gate
-3, waiting on neither) — and whether that OpenAI account had credit on 11 September.
-
-**DESKTOP:** none of your files were touched. `CLAUDE.md`, `WORKING-AGREEMENT.md` and
-`.claude/commands/startup.md` changed — merge `master` in at startup.
+**DESKTOP:** none of your files were touched and 4.87 was left alone. Changed here:
+`utils/reportModelCatalogue.js`, `server/routes/report.js`, `server/restify-server.js`,
+`locales/en.json`, `data/report-model-summaries.json`, four report guards, and the usual records —
+merge `master` in at startup once this lands.

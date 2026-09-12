@@ -42,6 +42,10 @@ const RENDERED_BY = {
   '/cost-of-capital': { component: 'components/CostOfCapital.vue' },
   '/multiple-property': { component: 'components/MultiplePropertyAssessment.vue' },
   '/volatility': { component: 'components/VolatilityReport.vue' },
+  // The High Level Budget (4.88) keeps its header in the COMPONENT, above its own step
+  // chips — unlike Quick Position, it is one component with nothing to coordinate, so the
+  // page is the shell and nothing else. Report class: no "Illustrative" badge.
+  '/high-level-budget': { component: 'components/HighLevelBudget.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
   // 🔴 The Three-Way Forecast MOVED into this group on 2026-09-05. Its component had been
   // rendering a second ReportHeader under the page's own, so the screen drew its title
