@@ -14,6 +14,7 @@ const { computeWorkingCapitalCycle } = require('../report/workingCapitalCycleMod
 const { computeDebtorCashflow } = require('../report/debtorDragModel')
 const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/marginBreakevenModel')
 const { computeEightLevers } = require('../report/eightLeversModel')
+const { computeHighLevelBudget } = require('../report/highLevelBudgetModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
@@ -159,6 +160,38 @@ function eightLevers (req, res, next) {
   } catch (err) {
     console.error('[report] eight-levers compute failed:', err)
     res.send(400, { success: false, error: { code: 'EIGHT_LEVERS_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/high-level-budget
+ *
+ * The High Level Budget (item 4.88): a forecast monthly cashflow, the actuals entered against
+ * it, the line-by-line variances, and the two budget-vs-actual comparisons the workbook charts.
+ * Calc-only and therefore anonymous, like every other calc route here — numbers in, numbers out,
+ * nothing stored.
+ *
+ * NB the model carries ONE ruled deviation from the source workbook (Mike, 2026-09-12): the two
+ * subtotal rows are computed on the Budget sheet's full ranges on every side, because the
+ * Actuals sheet's own range dropped wages and interest-only loan payments from every total. See
+ * the header of `server/report/highLevelBudgetModel.js`.
+ *
+ * @route POST /api/report/high-level-budget
+ * @param {object} req.body - partial inputs merged over the source-model defaults:
+ *   `{ gstRate, months, budget: { openingBalance, lines }, actual: { openingBalance, lines } }`,
+ *   where `lines` maps a line key to twelve monthly figures and a null means "not entered yet".
+ * @returns {object} { success, data, timestamp } — `{ gstRate, months, budget, actual, variance,
+ *   reports }`.
+ */
+function highLevelBudget (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeHighLevelBudget(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] high-level-budget compute failed:', err)
+    res.send(400, { success: false, error: { code: 'HIGH_LEVEL_BUDGET_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
 }
@@ -1346,4 +1379,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
