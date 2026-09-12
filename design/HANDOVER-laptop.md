@@ -15,7 +15,9 @@ Suite **10,058 green** (485 suites), lint 0 errors, tree clean, 7 ahead / 0 behi
 **Items 4.88 AND 4.89 built, walked in a browser and CLOSED** — Mike asked for a model from the
 performance reports that had never been built and chose the **High Level Budget**. Model,
 route, page, screen, locales, catalogue card live, all four report guards. Closures on
-[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **Three live items now.**
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **FOUR live items** — 4.15,
+4.58, 4.86 and 4.87. *(This line and commit `f04ffcc`'s message both said three; the commit is
+pushed and cannot be corrected, so trust this file and the JSON, not that message.)*
 
 🔴 **HIS SOURCE WORKBOOK IS WRONG, AND THE FIX IS RULED.** `High Level Budget.xlsx` adds its two
 subtotal rows three different ways across three sheets; the Actuals sheet drops **Wages and
