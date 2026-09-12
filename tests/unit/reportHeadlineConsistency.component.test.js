@@ -18,6 +18,7 @@ const MultiplePropertyAssessment = require('~/components/MultiplePropertyAssessm
 const VolatilityReport = require('~/components/VolatilityReport.vue').default
 const ThreeWayForecastReport = require('~/components/ThreeWayForecastReport.vue').default
 const DashboardReportsWorkbench = require('~/components/DashboardReportsWorkbench.vue').default
+const HighLevelBudget = require('~/components/HighLevelBudget.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -32,6 +33,7 @@ const { computeMultiplePropertyPortfolio } = require('~/server/report/multiplePr
 const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('~/server/report/volatilityModel')
 const { computeThreeYearForecast } = require('~/server/report/threeWayForecastModel')
 const { computeReportPages } = require('~/server/report/dashboardReportPagesModel')
+const { computeHighLevelBudget, DEFAULT_INPUTS: HLB_DEFAULTS } = require('~/server/report/highLevelBudgetModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -95,7 +97,11 @@ const SCREENS = [
   // The Business Performance Report's advisor screen (4.70). The client's printed document
   // below it deliberately has no strip (P6, the deck's look); the strip is the advisor's,
   // and it carries the step's own figures from the first step, before any file is dropped.
-  { name: 'Dashboard Reports', component: DashboardReportsWorkbench, result: () => computeReportPages({}) }
+  { name: 'Dashboard Reports', component: DashboardReportsWorkbench, result: () => computeReportPages({}) },
+  // The High Level Budget (4.88). The screen opens EMPTY — Report class, so it never seeds
+  // itself from the workbook sample — but the guard needs figures in the strip, so the mocked
+  // backend answers with the sample the way a filled-in budget would.
+  { name: 'High Level Budget', component: HighLevelBudget, result: () => computeHighLevelBudget(HLB_DEFAULTS) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

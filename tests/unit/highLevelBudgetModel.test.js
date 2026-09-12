@@ -59,6 +59,21 @@ describe('High Level Budget — golden values from High Level Budget.xlsx', () =
       expect(NON_GST_EXPENSE_LINES.map(l => l.row)).toEqual([50, 51, 52, 53, 54])
     })
 
+    it('rides the line list on the response, so the screen holds no second copy', () => {
+      // A screen that re-declared these 32 keys would be free to drift from the model with
+      // nothing to catch it. The list travels with the figures instead.
+      expect(model.lineOrder).toHaveLength(38) // 6 deposits + 27 GST expenses + 5 non-GST
+      expect(model.lineOrder[0]).toEqual({ key: 'sales', row: 9, group: 'deposit' })
+      expect(model.lineOrder.filter(l => l.group === 'deposit')).toHaveLength(6)
+      expect(model.lineOrder.filter(l => l.group === 'gstExpense')).toHaveLength(27)
+      expect(model.lineOrder.filter(l => l.group === 'nonGstExpense')).toHaveLength(5)
+      // Every line it names is a line the model actually returns figures for.
+      model.lineOrder.forEach((l) => {
+        expect(Array.isArray(model.budget.lines[l.key])).toBe(true)
+        expect(model.budget.lines[l.key]).toHaveLength(12)
+      })
+    })
+
     it('takes GST on deposits from rows 9, 11 and 13 only — the source\'s D9+D11+D13', () => {
       // Row 58. Interest Received (row 11) is in the source's GST base even though interest is
       // an exempt supply in New Zealand. Ported as the source has it — an open question for Mike.

@@ -187,6 +187,37 @@ tr.sub td.num{font-size:14.5px}
 <body>
 <div class="shell">
 
+<div class="mock ruled">
+  <h3>✅ Approved and BUILT — 2026-09-12 <span class="ruledtag">Built the same day</span></h3>
+  <p><b>Mike approved this drawing to build from on 2026-09-12 and the screen was built from it
+  the same day</b> — <code>pages/high-level-budget.vue</code>,
+  <code>components/HighLevelBudget.vue</code>, every label in <code>locales/en.json</code>, and the
+  Model Library card flipped from "coming soon" to live. Suite 10,065 green, lint 0 errors.</p>
+  <p><b>SIX DIFFERENCES BETWEEN THIS DRAWING AND THE BUILD</b>, named here rather than left to be
+  found. The full record is in
+  <a href="../features/report-models.md">features/report-models.md</a> §4:</p>
+  <ul>
+    <li><b>The 22 unused expense lines are individual rows</b>, where this page folds them into
+    one summary row. The build follows this page's own words — <i>"they stay on screen so nothing
+    has to be remembered"</i> — and treats the fold as drawing shorthand.</li>
+    <li><b>Back and Next buttons were added.</b> This page navigates by step chip alone, which is
+    not obvious enough on a four-step screen.</li>
+    <li><b>The GST field shows <code>15</code>, not <code>15%</code></b> — a number input cannot
+    carry a symbol. The label above it says <i>GST rate</i>.</li>
+    <li>🔴 <b>The entry boxes came out three times this page's width</b> on the first run, because
+    Buefy's control fills its cell. Corrected to 118px. Across 38 rows that is the difference
+    between a table that scans and one that does not.</li>
+    <li>🔴 <b>A zero was displayed as a signed change in two places</b> — a green <code>+$0</code>
+    in the headline before anything was typed, and <code>+$0</code> against every line that landed
+    exactly on budget. Both now read as a plain zero.</li>
+    <li><b>There is no Coach panel</b>, as drawn — the variance table reads itself, every line
+    saying <i>Better</i> or <i>Worse</i> beside its own figure.</li>
+  </ul>
+  <p>🔴 <b>The last two were found by opening the screen in a running app, with 10,062 tests
+  green</b> — and the zero fault had to be found twice, once in the headline and again in the
+  table underneath it on the next look. No assertion in this suite could have seen either.</p>
+</div>
+
 <div class="mock">
   <h3>What this is</h3>
   <p><b>Item 4.88 — the High Level Budget screen, drawn for approval on 2026-09-12. THE SCREEN IS

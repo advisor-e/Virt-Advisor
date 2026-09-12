@@ -734,6 +734,57 @@
         "bank report",
         "benchmarks"
       ]
+    },
+    {
+      "route": "/high-level-budget",
+      "name": "High-Level Budget",
+      "category": "Budgeting",
+      "modelClass": "report",
+      "answers": "Whether the business is hitting its budget. A forecast monthly cashflow is entered line by line, the actuals are entered against it, and the model shows the difference on every line, on every month, and on the bank balance — so an owner can see not just that they are behind, but which lines and which months put them there.",
+      "keyOutputs": [
+        "Money in and money out against budget, for the year and month by month",
+        "The variance on every line, with the colour saying whether it is better or worse",
+        "The budgeted closing bank balance against the actual one",
+        "The month the gap opened, from the two bank-balance lines"
+      ],
+      "inputsNeeded": "Typed, not read from a file — a budget is a forecast, so there is nothing to import. The first month of the year, the GST rate, the opening bank balance on both the budgeted and the actual side, and then each line's figure: six money-in lines and thirty-two money-out lines, entered once per line and applied to every month, with any line that genuinely varies opened out into twelve.",
+      "useWhen": "The client set a budget and wants to know whether they are meeting it — a monthly or quarterly check-in, a board or bank report, or the conversation about why the bank balance is lower than the plan said it would be. It is the only model here that compares this year to the PLAN; every other one compares this year to last year.",
+      "limits": "It is a CASH budget, not a profit and loss: it tracks money in and out of the bank, so it says nothing about accruals, depreciation or stock movement. Everything is typed, so the actuals are only as current as the last time someone entered them — a month nobody has reached yet stays blank and is never counted as a shortfall. GST is one rate for the whole year. It takes the client's real budget and their real bank balance, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Money in, against budget",
+          "sub": "the year's actual against the year's plan"
+        },
+        {
+          "label": "Money out, against budget",
+          "sub": "every line counted, wages included"
+        },
+        {
+          "label": "Closing bank, budgeted",
+          "sub": "where the plan said the year would end"
+        },
+        {
+          "label": "Closing bank, actual",
+          "sub": "and how far that is from the plan"
+        }
+      ],
+      "alsoOnScreen": "Four steps: the year, the GST rate and the two opening balances; the budget; the actuals, each line shown beside its budgeted figure; and the result — a budget-against-actual chart by month, the two bank-balance lines on one scale, and a table of every line that carries a figure on either side.",
+      "coach": [
+        "A line where nothing has been entered reads 'not entered', never zero. A typed zero is a real zero and does produce a variance — so 'we spent nothing' and 'we have not checked' are different things on the screen.",
+        "The difference is always the actual less the budget, on both halves of the table. On money in a positive figure is good news; on money out the same positive figure is bad news, which is why the colour and the word beside it carry the meaning rather than the sign."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "budget",
+        "high level budget",
+        "budget vs actual",
+        "variance",
+        "cashflow forecast",
+        "are we on track",
+        "bank balance",
+        "overspend",
+        "monthly cashflow"
+      ]
     }
   ]
 }

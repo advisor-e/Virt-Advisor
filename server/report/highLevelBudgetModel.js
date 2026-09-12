@@ -179,6 +179,18 @@ const EXPENSE_LINES = GST_EXPENSE_LINES.concat(NON_GST_EXPENSE_LINES)
 const ALL_LINES = DEPOSIT_LINES.concat(EXPENSE_LINES)
 
 /**
+ * The line list as the SCREEN consumes it — key, sheet row, and which block it belongs to.
+ *
+ * It rides on the response rather than being re-declared in the component, so there is exactly
+ * one list of these 32 lines in the codebase. A second copy in the screen would be free to drift
+ * from this one with nothing to catch it, which is the fault `single-source-wiring` exists to
+ * prevent. `group` is what the screen draws its three sub-headings from.
+ */
+const LINE_ORDER = DEPOSIT_LINES.map(l => ({ key: l.key, row: l.row, group: 'deposit' }))
+  .concat(GST_EXPENSE_LINES.map(l => ({ key: l.key, row: l.row, group: 'gstExpense' })))
+  .concat(NON_GST_EXPENSE_LINES.map(l => ({ key: l.key, row: l.row, group: 'nonGstExpense' })))
+
+/**
  * The sample year, `Budget Figures` D6:O6 — Excel serials 44287 to 44621, which is the first of
  * each month from April 2021 to March 2022. Held as ISO dates so nothing downstream has to know
  * about Excel's epoch.
@@ -459,6 +471,8 @@ function computeHighLevelBudget (input) {
   return {
     gstRate,
     months,
+    // The 32 lines in sheet order, so the screen never holds a second copy of this list.
+    lineOrder: LINE_ORDER.map(l => ({ key: l.key, row: l.row, group: l.group })),
     budget,
     actual,
     variance,
@@ -479,6 +493,7 @@ module.exports = {
   NON_GST_EXPENSE_LINES,
   EXPENSE_LINES,
   ALL_LINES,
+  LINE_ORDER,
   DEFAULT_MONTHS,
   DEFAULT_INPUTS,
   computeSide,
