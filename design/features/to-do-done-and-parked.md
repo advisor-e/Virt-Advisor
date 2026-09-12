@@ -185,6 +185,56 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.88 — High Level Budget: budget against actual, the model nobody had built.**
+✅ Closed 2026-09-12 on the laptop, built and walked in a running app the same day Mike asked for
+it. His words: *"pick a model thats in the performance reports yet to be built"*, then
+*"high level budget - lets go"*. Five of the Model Library's cards had never been built; this is
+the one he chose, and it is the first model here that compares this year to **the plan** rather
+than to last year.
+
+- **What shipped.** [`server/report/highLevelBudgetModel.js`](../../server/report/highLevelBudgetModel.js)
+  (all four workbook sheets), `POST /api/report/high-level-budget`,
+  [`pages/high-level-budget.vue`](../../pages/high-level-budget.vue),
+  [`components/HighLevelBudget.vue`](../../components/HighLevelBudget.vue), every label in
+  `locales/en.json`, the catalogue card flipped to `STATUS_READY`, and entries in all four report
+  guards. Suite 10,065 green, lint 0 errors. Commits `2da6144`, `e749e9f`, `81b235c`, `0fdee54`,
+  `33c626c`.
+
+- 🔴 **WHAT PROVED IT — the source workbook was wrong, and the proof is a reversal, not a claim.**
+  `High Level Budget.xlsx` adds its two subtotal rows **three different ways across its three
+  sheets**, and the Actuals sheet's `SUM(D20:D46)` drops **Wages (150,000 a year) and Interest Only
+  Loan Payments (9,900)** from every total *including the bank balance* — so its own Reports sheet
+  charts a **173,700** saving where the true variance is **13,800**, and its actual bank balance
+  rises by 13,537 in a month the business paid 12,500 of wages it never counted. Mike ruled the
+  correction the same day: all three sides now use the Budget sheet's full ranges. **Reverting that
+  one change on a copy outside the repo reproduced the workbook's own cached values exactly —
+  3025 · 36300 · 13536.95652 · 3419.565217 · 20036.95652 · 296965.2174** — which is what proves the
+  port is faithful everywhere else and the only difference is the ruled one. The variance sheet was
+  never affected: it already summed the wages and interest rows.
+
+- **Four questions, each put to him on its own and each ruled as recommended**, recorded on
+  [`../mockups/high-level-budget.html`](../mockups/high-level-budget.html) with the recommendation
+  left in place beneath each: entry is one figure per line with a vary-by-month opener (eight of
+  the nine populated lines in his own workbook are flat); a blank actual means *not yet*, never
+  *nothing*, while a typed zero is a real zero; the arithmetic stays actual minus budget and the
+  **colour** carries the meaning, so nothing disagrees with his own Variances sheet; and the wording
+  is approved as drawn, including three spellings his workbook gets wrong (*Stationery*,
+  *Accommodation*, *Principal loan repayments*).
+
+- 🔴 **TWO FAULTS SURVIVED 10,062 PASSING TESTS AND WERE FOUND BY OPENING THE SCREEN** — the entry
+  boxes rendered three times the approved width, and a zero was displayed as a signed change. **The
+  second had to be found twice**, once in the headline band and again in the table underneath it on
+  the next look. Neither was visible to any assertion in this suite. This is the clearest evidence
+  yet for the walk in `ADDING-A-REPORT.md`; the six differences between drawing and build are named
+  on the drawing and in [`report-models.md`](report-models.md) §4.
+
+- **What is NOT outstanding, so nobody reopens it.** There is deliberately **no file intake**, and
+  the accounts readers we already have must not be wired in: this is a cash budget and a Profit and
+  Loss is accrual, three of its lines are balance-sheet movements absent from a P&L, and a P&L
+  carries depreciation, which no cash budget should. Mike raised this himself, was shown the
+  reasoning, and ruled **leave it for now**. The remaining open questions are his own workbook's two
+  GST oddities, which carry their own item.
+
 **4.92 — A country's whole rate schedule, stored as a searchable table.**
 ✅ Closed 2026-09-11 on the laptop by Mike, **after the whole chain was run end to end against the
 real IR265** — held open deliberately until then, because this is the feature that had been built,
