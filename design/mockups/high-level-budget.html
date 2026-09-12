@@ -57,6 +57,13 @@ strong,b{font-weight:600}
 .mock p{margin:0 0 8px}.mock p:last-child{margin:0}
 .mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
 .mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+/* A decision Mike has ruled. The recommendation and its reasoning are LEFT IN PLACE
+   underneath — the record of what was put to him is the point, not tidiness. */
+.mock.ruled{background:#eefaea;border-color:#4ca52d66;color:#1f4a12}
+.mock.ruled .stepmark,.mock.ruled h3{color:#2f6b1c}
+.mock.ruled .q{border-color:#4ca52d66}
+.ruledtag{display:inline-block;background:#4ca52d;color:#fff;font-size:10px;font-weight:700;
+  letter-spacing:.06em;border-radius:4px;padding:2px 7px;margin-left:8px;vertical-align:1px}
 .stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
   color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
 .rec{color:#0070c0;font-weight:600}
@@ -267,8 +274,11 @@ tr.sub td.num{font-size:14.5px}
       <div class="card-f"><span>Nothing is saved until you save the report at step 4.</span></div>
     </div>
 
-    <div class="mock" style="margin:0">
-      <h3>Decision 1 of 3 — how the figures get entered</h3>
+    <div class="mock ruled" style="margin:0">
+      <h3>Decision 1 of 3 — how the figures get entered <span class="ruledtag">Ruled by Mike 2026-09-12</span></h3>
+      <p><b>✅ RULED AS RECOMMENDED.</b> One figure per line applied to every month, with a
+      "vary by month" opener. The recommendation as it was put to him is left below, because the
+      record of what was asked is the point.</p>
       <p><b>There are 32 lines and 12 months. Typed as a raw grid that is 384 boxes per side, 768
       in total, and nobody will do it.</b></p>
       <p><span class="rec">Recommended, and drawn below:</span> <b>one figure per line, applied to
@@ -400,8 +410,10 @@ tr.sub td.num{font-size:14.5px}
   </div>
 </div>
 
-<div class="mock">
-  <h3>Decision 2 of 3 — a month nobody has reached yet</h3>
+<div class="mock ruled">
+  <h3>Decision 2 of 3 — a month nobody has reached yet <span class="ruledtag">Ruled by Mike 2026-09-12</span></h3>
+  <p><b>✅ RULED AS RECOMMENDED.</b> A blank actual means "not yet", never "nothing"; a typed zero
+  is a real zero and does produce a variance. The recommendation as it was put to him is left below.</p>
   <p><b>A blank actual means "not yet", not "nothing".</b> Your Cashflow Variances sheet already
   works this way — <code>IF(actual&lt;&gt;"", actual−budget, "")</code> — and the model keeps it: an
   empty month produces a blank variance, never the whole budget shown as a shortfall.</p>
@@ -509,8 +521,11 @@ tr.sub td.num{font-size:14.5px}
   </section>
 </div>
 
-<div class="mock">
-  <h3>Decision 3 of 3 — which way is "good"</h3>
+<div class="mock ruled">
+  <h3>Decision 3 of 3 — which way is "good" <span class="ruledtag">Ruled by Mike 2026-09-12</span></h3>
+  <p><b>✅ RULED AS RECOMMENDED.</b> The arithmetic stays actual minus budget, exactly as the
+  workbook has it, and the colour carries the meaning with a plain <b>Better</b> or <b>Worse</b>
+  beside it. The recommendation as it was put to him is left below.</p>
   <p><b>The same sign means opposite things on the two halves of this table.</b> Spending 1,200 more
   than budget is bad; earning 1,200 more than budget is good. Your spreadsheet computes
   actual − budget for both and leaves the reader to work it out.</p>
@@ -523,8 +538,11 @@ tr.sub td.num{font-size:14.5px}
   Variances sheet, and someone checking one against the other would find them disagreeing.</p>
 </div>
 
-<div class="mock">
-  <h3>The wording — every label on this page, for you to rule</h3>
+<div class="mock ruled">
+  <h3>The wording — every label on this page <span class="ruledtag">Ruled by Mike 2026-09-12</span></h3>
+  <p><b>✅ APPROVED AS DRAWN.</b> Every label below is the built wording: the three corrected
+  spellings, the three plainer headings, the four step names and the four headline figures. What
+  was put to him is left exactly as it was asked.</p>
   <p><b>Three of your spreadsheet's labels are misspelled</b>, and I have corrected them in the
   drawing rather than carrying the spelling into the app. Say the word and they go back exactly as
   the workbook has them:</p>

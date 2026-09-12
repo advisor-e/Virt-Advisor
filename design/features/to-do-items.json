@@ -169,7 +169,7 @@
       },
       "touches": "server/report/highLevelBudgetModel.js and its golden test, a route in server/routes/report.js, the catalogue row in utils/reportModelCatalogue.js, a page and screen component, locales/en.json, and the SCREENS list in tests/unit/reportHeadlineConsistency.component.test.js.",
       "note": "PORTED WITH ONE RULED DEVIATION (Mike, 2026-09-12). The workbook computes its two subtotal rows three different ways across its three sheets; the Actuals sheet drops rows 50-54 from every total including the bank balance. All three sides now use the Budget sheet's full ranges, and every figure that moves is listed against the workbook's own cached value in the golden test. Proven by reverting the change outside the repo: the model then reproduces all six of the workbook's cached figures exactly. Two further oddities in the GST block are recorded in the model header and not yet ruled.",
-      "comment": "2026-09-12 - Mike asked for a model in the performance reports yet to be built and chose this one. Workbook read and the subtotal fault proven before any code was written; model and golden test built the same day."
+      "comment": "2026-09-12 - Mike asked for a model in the performance reports yet to be built and chose this one. Workbook read and the subtotal fault proven before any code was written; model, golden test and route built the same day. The screen was drawn before it was approved and all four of the drawing's questions were ruled as recommended, one at a time."
     }
   ]
 }
