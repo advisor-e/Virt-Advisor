@@ -606,9 +606,23 @@ tr.sub td.num{font-size:14.5px}
     <li><b>A "print" button.</b> Every other model in this section is a screen an advisor drives,
     not a document a client takes away — printing belongs to the Business Performance Report. This
     model could feed an optional page there later; that is a separate decision and not this build.</li>
-    <li><b>Anything read from a file.</b> A budget is a forecast, so there is nothing to import; the
-    actuals could one day come from the accounts readers that already exist, but no reader produces
-    a monthly cash figure on these 32 lines today. Everything here is typed, and badged as typed.</li>
+    <li>🔴 <b>Anything read from a file — and the accounts readers we already have CANNOT do it.</b>
+    Half of this is easy: a budget is a forecast, so there is nothing to import on the budget side at
+    all. The actuals are the tempting half, and the trap. <b>This is a CASH budget; a Profit and Loss
+    is accrual.</b> A P&amp;L counts a sale the day it is invoiced and this model counts it the day the
+    money reaches the bank — different by the whole debtor movement. Three of these lines
+    (<i>Drawings</i>, <i>Principal loan repayments</i>, <i>Plant &amp; equipment</i>) are not on a
+    P&amp;L at all, being balance-sheet movements, and a P&amp;L carries <i>depreciation</i>, which
+    must never appear in a cash budget because no cash moves. <b>Wiring the existing readers in would
+    put a cash budget column beside an accrual actual column, looking identical — the same
+    not-like-for-like fault this model was built to correct.</b> The right file is a cash-basis export
+    (Xero's Cash Summary); we have never seen one, so a reader for it would be a guess. <b>Mike raised
+    this himself on 2026-09-12</b> — <i>"should we have built the ability to load a balance sheet and
+    p&amp;L to help with the 'fast data load'"</i> — was shown the above, and ruled <b>leave it for
+    now</b>. Everything here is typed, and badged as typed.
+    <br><i>This replaces a sentence written earlier the same day saying the actuals "could one day
+    come from the accounts readers that already exist". That was wrong, and left standing it invited
+    exactly the build this note now refuses.</i></li>
     <li><b>The two unruled GST oddities.</b> They are recorded in the model's header and ported
     exactly as your spreadsheet has them. They change nothing an owner sees on this page, so they
     are not a blocker — I will bring them on their own.</li>

@@ -1183,6 +1183,23 @@ in the model's header: `GST Related Deposits` includes Interest Received, an exe
 here; and the block extracts GST as if the figures were GST-inclusive in one row and adds it
 back as if they were exclusive in another. Neither changes what an owner reads on this screen.
 
+🔴 **NO FILE INTAKE, AND THE READERS WE ALREADY HAVE MUST NOT BE WIRED IN.** Every other
+Report-class model here loads the client's accounts, so this one looks like an oversight. It is
+not. A budget is a forecast, so there is nothing to import on the budget side at all — and the
+actuals, which are the tempting half, are **cash** where a Profit and Loss is **accrual**. A P&L
+counts a sale the day it is invoiced; this model counts it the day the money reaches the bank,
+different by the whole debtor movement. **Drawings**, **Principal loan repayments** and **Plant
+& equipment** are not on a P&L at all, being balance-sheet movements, and a P&L carries
+**depreciation**, which must never appear in a cash budget because no cash moves. Wiring
+`xeroReportParser` or `monthlySalesParser` into the actuals would put a cash budget column beside
+an accrual actual column, looking identical and reconciling to nothing — **the same
+not-like-for-like fault this model exists to correct.** The right file is a cash-basis export
+(Xero's Cash Summary); none has ever been seen here, so a reader for it would be a guess, and
+4.60's rule is that a reader is `verified` only against a real export. **Mike raised this himself
+on 2026-09-12** — *"should we have built the ability to load a balance sheet and p&L to help with
+the 'fast data load'"* — was shown the above, and ruled **leave it for now.** It is not filed, it
+is not a gap, and it is not to be re-raised as one.
+
 **Six differences between the drawing and the build, named as this page's §5 requires.**
 (a) The 22 unused expense lines render as individual rows; the drawing folded them into one
 summary row, but its own words say they *"stay on screen so nothing has to be remembered"*, so
