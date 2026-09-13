@@ -10,7 +10,7 @@ report-shell
     .step(:class="{ active: step === 1, done: step > 1 }" @click="goTo(1)")
       span.n 1
       | {{ $t('report.wagesReview.step1') }}
-    .step.pending
+    .step(:class="{ active: step === 2, done: step > 2, pending: !team }" @click="goTo(2)")
       span.n 2
       | {{ $t('report.wagesReview.step2') }}
     .step.pending
@@ -23,11 +23,12 @@ report-shell
       span.n 5
       | {{ $t('report.wagesReview.step5') }}
 
-  wages-team(:restore="team" @confirmed="onTeamConfirmed")
+  wages-team(v-if="step === 1" :restore="team" @confirmed="onTeamConfirmed")
+  wages-work(v-else :restore="work" @confirmed="onWorkConfirmed" @back="step = 1")
 
-  //- Steps 2-5 are not built. Saying so on the screen is the honest alternative to a
+  //- Steps 3-5 are not built. Saying so on the screen is the honest alternative to a
   //- Continue button that appears to do nothing.
-  .wr-pending(v-if="team")
+  .wr-pending(v-if="work")
     | {{ $t('report.wagesReview.stepsPending') }}
 </template>
 
@@ -57,37 +58,51 @@ report-shell
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import ReportShell from '~/components/base/ReportShell.vue'
 import WagesTeam from '~/components/WagesTeam.vue'
+import WagesWork from '~/components/WagesWork.vue'
 
 export default {
   name: 'WagesReviewPage',
 
-  components: { ReportShell, ReportHeader, WagesTeam },
+  components: { ReportShell, ReportHeader, WagesTeam, WagesWork },
 
   data () {
     return {
       step: 1,
       /** Step 1's confirmed payload; null until the advisor presses Continue. */
-      team: null
+      team: null,
+      /** Step 2's confirmed payload; null until the advisor presses Continue. */
+      work: null
     }
   },
 
   methods: {
     /**
-     * Stepper navigation. Only step 1 exists, so this is the seam the later steps
-     * plug into rather than working navigation today.
+     * Stepper navigation. Backwards always; forward only when the step being left has
+     * been confirmed, the same rule as the Loan Estimator. Steps 3-5 do not exist yet,
+     * so nothing above 2 is reachable.
      * @param {number} n the step to move to
      */
     goTo (n) {
-      if (n === this.step || n > 1) { return }
+      if (n === this.step || n > 2) { return }
+      if (n > this.step && !this.team) { return }
       this.step = n
     },
 
     /**
-     * The team screen hands over its confirmed figures.
+     * The team screen hands over its confirmed figures; how the work happens is next.
      * @param {object} payload { people: [...] } in the shape `computeWages` reads
      */
     onTeamConfirmed (payload) {
       this.team = payload
+      this.step = 2
+    },
+
+    /**
+     * The work screen hands over the basis, the season names and the settings.
+     * @param {object} payload { basis, seasonNames, settings }
+     */
+    onWorkConfirmed (payload) {
+      this.work = payload
     }
   }
 }

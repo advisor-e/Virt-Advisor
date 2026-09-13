@@ -3755,7 +3755,7 @@
       "step3": "The year ahead",
       "step4": "What actually happened",
       "step5": "Wages/Salary Review report",
-      "stepsPending": "Steps 2 to 5 are not built yet. The team you have entered is held on this page only.",
+      "stepsPending": "Steps 3 to 5 are not built yet. What you have entered is held on this page only.",
       "team": {
         "title": "The team",
         "intro": "Every person, their pay and their charge-out rate. The division decides how each person is costed.",
@@ -3786,6 +3786,32 @@
           "leaveDays": "Annual + sick leave days",
           "tools": "Weekly tools allowance"
         }
+      },
+      "work": {
+        "heroBasis": "Basis",
+        "heroFieldHours": "Std season field hours / month",
+        "heroSwing": "Hours swing, best to worst season",
+        "basisTitle": "Which basis the firm runs on",
+        "basisNote": "One or the other, never a blend: revenue and cost both swap sides with this switch.",
+        "basisSeasonal": "Seasonal Assumptions",
+        "basisShutdown": "Shutdown Assumptions (Pdctn Days)",
+        "seasonsTitle": "(Field Team Assumptions Only)",
+        "seasonsNote": "Every figure here is typed in the workbook, including the season names — rename them to whatever your client's people call them.",
+        "seasonName": "The season's name",
+        "hoursPerDay": "Average Working Hrs per Day (incl Travel)",
+        "daysPerWeek": "Average Working Days per Week",
+        "daysLost": "Wet Days or Heat Days Lost per Month",
+        "onceTitle": "Set once for the whole model",
+        "onceNote": "Small in number, large in effect — every one of these moves the entire year.",
+        "paidLostDays": "Field Team Paid for 'Lost' Days",
+        "partTimeHours": "Avg (normal) Part Time Hrs Per Day",
+        "statDays": "Number of Statutory Holiday (days)",
+        "officeHours": "Mang't, Admin & Sales Hrs per Day",
+        "officeDays": "Days Worked",
+        "yes": "Yes",
+        "no": "No",
+        "back": "Back",
+        "continue": "Continue"
       }
     }
   },

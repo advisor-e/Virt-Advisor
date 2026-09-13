@@ -1647,16 +1647,24 @@ resolved differently, and **one control Mike ruled**:
 
 | Drawn field | What the workbook holds | What step 1 does |
 |---|---|---|
-| Weekly base hours | **Calculated** — `Std Hrs`, col N | no control; derived from the season settings |
+| Weekly base hours | **Typed but read by NOTHING** — `Std Hrs`, col N, 0 readers | no control |
+| Annual salary | **Typed but read by NOTHING** — col G, 0 readers | no control |
+| On salary? (Yes/No) | **Typed but read by NOTHING** — col F, 0 readers | **Division**, Mike's ruling 2026-09-14 |
 | Weekly overtime hours | **Calculated** — `Extra Hrs Wkd`, BV/BX/BZ | no control |
-| Overtime pay rate | **Calculated**; what is typed is the *uplift* | the uplift is the control |
-| Annual salary | **Typed but read by NOTHING** — no formula in the six sheets references `Seasonal Inputs` G | no control |
-| On salary? (Yes/No) | the engine needs a three-way basis | **Division**, Mike's ruling 2026-09-14 |
+| Overtime pay rate | the typed cell is the *uplift*; the workbook's header calls it `Overtime Pay Rate (%)`, holding 0.5 | the uplift is the control |
 | *(absent from the drawing)* | `toolsWeekly` — `CH7 = (Z7*52)/12` | a control was added |
 
-**Omitting the three calculated fields honours Mike's rule rather than breaking it.** *Every typed
-cell reachable, nothing quietly fixed as a constant* guards against removing an advisor's control; a
-box over a calculated cell is the opposite fault — the advisor types a figure the engine overwrites.
+**Neither a calculated cell nor a typed one that nothing reads earns a control.** *Every typed cell
+reachable, nothing quietly fixed as a constant* guards against removing a control the model gives; a
+box the engine overwrites — or one wired to nothing at all — is the opposite fault.
+
+⚠ **THE COLUMN MAP IS NOT WHAT IT LOOKS LIKE, and a first reading of it was wrong.** `Seasonal
+Inputs` uses 1.25-wide **spacer columns** (I, K, Q, S), so any reading that skips empty cells shifts
+every field one to the left. The table above is the corrected reading, taken from the sheet's own
+header row: **D** name · **E** full/part time · **F** On Salary · **G** Annual Salary · **H** charge
+rate · **J** pay rate · **M** efficiency · **N** Std Hrs · **P** retirement · **R** overtime uplift ·
+**T** leave days. The build was unaffected — the same ten controls are right either way — but the
+first record of *why* said "Std Hrs is calculated", and it is typed-and-unread instead.
 
 **Division drives the basis** (Mike, 2026-09-14). The workbook is laid out in blocks and the mapping
 is exact across all 29 sample rows: Admin and Sales are costed as salary, Production as production,
@@ -1667,6 +1675,41 @@ SampleNotice** — the house pattern (Loan Estimator does the same) rather than 
 "never pre-filled"; the sample is the workbook's own, badged as sample, and the copy is pinned
 against the engine's `DEFAULT_INPUTS` so it cannot drift. And the **three unnamed rows are kept**, so
 a confirmed payload reproduces the golden figures exactly.
+
+**The grid groups itself by division** — Mike, testing step 1, added an Admin person and found them
+at the foot of the page below Management. A **stable partition**, not a sort: people keep their order
+within their block, so a row moves only when its own division changes. Chosen over an Add button per
+role because a per-role button fixes only insertion, and Division is the control that gets *changed*
+on existing rows. Rows carry a per-row id rather than an index key, and remove takes the person by
+identity — both forced by rows that move. Safe because the engine's figures do not depend on row
+order: reversing the whole team moves the year margin by 1.7e-10, IEEE-754 addition order, pinned by
+a test.
+
+#### Step 2 — How the work happens
+
+[`components/WagesWork.vue`](../../components/WagesWork.vue), with
+`tests/unit/wagesWork.component.test.js`. The seasonal/shutdown basis (a two-button switch, Mike's
+decision 3 — never a blend), the three seasons as a matrix, and the figures set once for the whole
+model. **Every control is a typed cell**, verified in the stored XML, which is what the drawing's own
+warning about this block — *"six of these ten would have been shipped as constants"* — was for.
+
+🔴 **LABELS ARE THE WORKBOOK'S OWN WORDS** (Mike's ruling, 2026-09-14), because the drawing names only
+ten of these and the model already has a vocabulary: *"Average Working Hrs per Day (incl Travel)"*,
+*"Wet Days or Heat Days Lost per Month"*, *"Field Team Paid for 'Lost' Days"*, *"Mang't, Admin & Sales
+Hrs per Day"*, *"Days Worked"*.
+
+**Three findings against the drawing's list of ten:**
+
+1. **"Days Worked" (`Seasonal Inputs` W45) is missing from the drawing** — the office week, which the
+   engine reads for every non-production person. A control was added.
+2. **The overnight allowance is NOT a setting, and step 1 has no control for it.** `1,400` is
+   `CF40 = CF16+CF34+CF39+CF11`, a sum of **per-person typed cells** — 350 each on the production
+   block. The engine flattens it to one `allowances.seasonal` total, so honouring it properly means
+   changing the engine's input shape and its golden test. **Open, not guessed at.**
+3. **The global overtime flag (`Seasonal Inputs` J4) has no control.** Read by 12 formulas, blank in
+   the sample, and **blank is a third state** — not the same as No. Nothing in the workbook or the
+   drawing names it, so the field was left out rather than invented and `overtimeSuppressed` is
+   carried through untouched. **Wording is Mike's.**
 
 **Two operating bases, one switch** (Decision 3). A firm runs *either* a seasonal basis, where
 weather decides how many productive days a month holds, *or* a shutdown basis planned around

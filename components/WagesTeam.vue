@@ -85,20 +85,27 @@
  * formula actually reads — settled five of the drawn fields differently. Mike ruled
  * the division control on 2026-09-14; the other four follow from the workbook itself:
  *
- *   - Weekly base hours    — CALCULATED ('Std Hrs', col N). Derived from the season
- *                            settings: hours/day x days/week x 4.33.
+ *   - Weekly base hours    — TYPED BUT READ BY NOTHING ('Std Hrs', col N). 0 readers.
+ *   - Annual salary        — TYPED BUT READ BY NOTHING (col G). 0 readers.
+ *   - On salary? (Yes/No)  — TYPED BUT READ BY NOTHING (col F), AND replaced by DIVISION
+ *                            per Mike's ruling: the engine needs a three-way basis and
+ *                            Yes/No cannot carry it.
  *   - Weekly overtime hrs  — CALCULATED ('Extra Hrs Wkd', BV/BX/BZ).
- *   - Overtime pay rate    — CALCULATED. What is typed is the UPLIFT (0.5 = time and
- *                            a half), which is the control kept here.
- *   - Annual salary        — TYPED BUT READ BY NOTHING. No formula in the six sheets
- *                            references `Seasonal Inputs` column G. A reference column.
- *   - On salary? (Yes/No)  — replaced by DIVISION, per Mike's ruling. The engine needs
- *                            a three-way basis and Yes/No cannot carry it.
+ *   - Overtime pay rate    — the typed cell is the UPLIFT, and the workbook's own header
+ *                            calls it "Overtime Pay Rate (%)" holding 0.5. That is the
+ *                            control kept here; the drawing's "34.50" was the computed
+ *                            figure, not the input.
  *
- * Putting a control on a calculated cell is not neutral: the advisor would type a
- * figure the engine then overwrites. Mike's rule of the same day — every typed cell
- * reachable, nothing quietly fixed as a constant — is about the opposite case, and
- * omitting these honours it rather than breaking it.
+ * ⚠ THE COLUMN MAP IS NOT WHAT IT LOOKS LIKE. `Seasonal Inputs` uses 1.25-wide SPACER
+ * columns (I, K, Q, S), so a reading that skips empty cells shifts every field one to the
+ * left and answers the wrong question. Corrected 2026-09-14 against the sheet's own header
+ * row: D name · E full/part time · F On Salary · G Annual Salary · H charge rate ·
+ * J pay rate · M efficiency · N Std Hrs · P retirement · R overtime uplift · T leave days.
+ *
+ * Neither a calculated cell nor a typed one nothing reads earns a control. Mike's rule of
+ * the same day — every typed cell reachable, nothing quietly fixed as a constant — guards
+ * against removing a control the model gives; a box the engine overwrites, or one wired to
+ * nothing at all, is the opposite fault.
  *
  * DIVISION DRIVES THE BASIS (Mike, 2026-09-14). The workbook is laid out in blocks and
  * the mapping is exact across all 29 sample rows: Admin and Sales are costed as salary,
