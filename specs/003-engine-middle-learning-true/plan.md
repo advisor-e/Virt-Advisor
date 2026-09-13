@@ -162,11 +162,11 @@ Unchanged. The design added no dependency, no schema change, no frontend logic b
 | Eleven hardcoded model names moved into one role map | The fallback must carry its own model names; a role map is the only way both providers can be configured without touching call sites twice. | Leaving literals and mapping at the seam (two places to keep in step). |
 | `caseStore.countReviewStatus(firmId)` | Story 5 needs a count; the store has none and its lists cap at 500 rows. | Counting rows in JS (caps, and rows leave the store for a number). |
 
-## Decisions the plan puts to Mike (one yes/no each, at tasks time)
+## Decisions the plan put to Mike — all three ruled 2026-09-14, one at a time
 
-1. The class of the four advisor-conversation calls (research R8, rows 7-10): treated as not personal, per his 2026-09-06 ruling on the economic brief. Yes to that class?
-2. The consequence in R3: with every evidence kind protected, pooled evidence re-orders only templates the advisor's words did not reach. Yes to that reading of FR-005?
-3. The load pack and `.env.example` change from "optional" to "required once any firm shares". Yes?
+1. **The four advisor-conversation calls are not personal data** (research R8, rows 7-10), on the same reasoning as his 2026-09-06 ruling on the economic brief; the fallback may answer them. **Yes.**
+2. **The long-tail reading of FR-005**: with every advisor-evidence kind protected, pooled evidence re-orders only templates the advisor's words did not reach. **Yes.**
+3. **The load pack and `.env.example` are rewritten**: the secret is optional until any firm switches sharing on, required from then, and never changed once set. **Yes.**
 
 ## What is deliberately not in this plan
 
