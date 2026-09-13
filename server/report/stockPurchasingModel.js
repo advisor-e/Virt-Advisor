@@ -269,7 +269,14 @@ function daysOnHandOf (entryDate, saleDate) {
  *   O  avg unit cost   = cost / quantity
  *   N  days on hand    = sale date − entry date
  *
- * @param {Object} line  { code, quantity, sales, cost, entryDate, saleDate, shareOfStock }
+ * 🔴 `avgUnitCost` MAY BE SUPPLIED DIRECTLY, and a stock-on-hand export is why. That file prints a
+ * unit cost per line and has no units-sold figure to divide by, so deriving it would be dividing
+ * by the wrong quantity. A supplied value wins; otherwise it is derived as above. Crucially
+ * `quantity` STILL MEANS UNITS SOLD and a stock import leaves it null — letting stock held stand
+ * in for it would score a full warehouse as though it had all walked out of the door.
+ *
+ * @param {Object} line  { code, quantity, sales, cost, entryDate, saleDate, shareOfStock,
+ *   avgUnitCost }
  * @returns {Object} the line, its derived figures, its five scores and its total
  */
 function scoreLine (line) {
@@ -278,11 +285,13 @@ function scoreLine (line) {
   const sales = numberOrNull(src.sales)
   const cost = numberOrNull(src.cost)
   const shareOfStock = numberOrNull(src.shareOfStock)
+  const suppliedUnitCost = numberOrNull(src.avgUnitCost)
 
   const grossProfit = sales === null || cost === null ? null : sales - cost
   const margin = sales === null || sales === 0 || grossProfit === null ? null : grossProfit / sales
   const avgUnitSale = sales === null || quantity === null || quantity === 0 ? null : sales / quantity
-  const avgUnitCost = cost === null || quantity === null || quantity === 0 ? null : cost / quantity
+  const derivedUnitCost = cost === null || quantity === null || quantity === 0 ? null : cost / quantity
+  const avgUnitCost = suppliedUnitCost === null ? derivedUnitCost : suppliedUnitCost
   const daysOnHand = daysOnHandOf(src.entryDate, src.saleDate)
 
   const scores = {
