@@ -5,15 +5,15 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-13 at commit `6db74684`.**
+> **Measured 2026-09-13 at commit `b13ed171`.**
 
-**Working code: 88,054 lines** across 430 files — blank lines and
+**Working code: 88,474 lines** across 431 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
 | Screens and components (`components`) | 143 | 43,255 | 13,385 |
-| The Restify backend (`server`) | 199 | 39,558 | 28,837 |
+| The Restify backend (`server`) | 200 | 39,978 | 29,105 |
 | Front-end helpers (`utils`) | 28 | 2,065 | 1,714 |
 | Pages (`pages`) | 37 | 1,653 | 805 |
 | Mixins (`mixins`) | 11 | 1,021 | 351 |
@@ -22,17 +22,17 @@ comment lines stripped; tests, design documents, data, scripts and locale string
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Configuration (`config`) | 1 | 74 | 135 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **430** | **88,054** | **45,489** |
+| **Total working code** | **431** | **88,474** | **45,757** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
-| JavaScript | 248 | 43,127 |
+| JavaScript | 249 | 43,547 |
 | Vue screens and components | 182 | 44,927 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 45,489 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 495 files, 84,401 lines of test code.
+- **Comments and documentation** inside those same files: 45,757 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 496 files, 84,802 lines of test code.
 - **Locale strings**: 5,216 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 

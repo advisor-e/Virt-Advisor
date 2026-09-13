@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retirement Review — the four steps, and the twenty-year read</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.90 — Retirement Review. Drawn for approval 2026-09-13. THE SCREEN IS
+   NOT BUILT; the maths and the route behind it are.
+
+   WHAT CREATED IT. Mike, 2026-09-13: "build the retirement planning model in
+   perf reports section". Its card has sat in the Model Library marked coming
+   soon, and the workbook behind it is the largest in the library.
+
+   WHAT IS ALREADY REAL. Every figure on this page is the sample in
+   Exposure.Retirement.Review (1).xlsx, run through the model that now exists
+   (server/report/retirementReviewModel.js), pinned by its golden test and
+   returned by POST /api/report/retirement-review. Nothing here is invented to
+   fill a box.
+
+   THE PORT WAS PROVED EXACT BEFORE ANY CORRECTION WAS APPLIED — every cached
+   value on all six sheets, all twenty years of all twelve series. The three
+   ruled deviations are drawn on step 4, where the adviser can read them.
+
+   FOUR STEPS. The workbook has four visible sheets and they fall into four
+   conversations. The stepped shape is already the house pattern on Quick
+   Position, EBITDA-DCF, the Loan Estimator and the High Level Budget.
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner
+   ruling of 2026-07-23 — 1120px column, 360px input column, 16px gaps, 14px
+   card radius, no card top edge (RULED 2026-08-31). No dark mode: one light
+   look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.mock code{background:#fff;border:1px solid #ffd666;border-radius:4px;padding:1px 4px;font-size:11.5px}
+.mock.ruled{background:#eefaea;border-color:#4ca52d66;color:#1f4a12}
+.mock.ruled .stepmark,.mock.ruled h3{color:#2f6b1c}
+.mock.ruled .q{border-color:#4ca52d66}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.q{background:#fff;border:1px solid #ffd666;border-radius:7px;padding:9px 11px;margin:8px 0 0}
+
+/* [B] header */
+.rs-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:16px;display:flex;justify-content:space-between;
+  align-items:flex-end;gap:18px;flex-wrap:wrap}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+.rs-back{font-size:12.5px;color:#00b1e0;font-weight:600}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] banner */
+.hero{background:#002b64;border-radius:var(--rs-radius);padding:20px;box-shadow:0 12px 32px -12px #002b6455;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:16px}
+.hero .cell{color:#fff}
+.hero .lab{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:#9dc2e8;font-weight:600}
+.hero .val{font-size:25px;font-weight:300;margin-top:5px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hero .sub{font-size:11.5px;color:#9dc2e8;margin-top:3px}
+.hero .val.good{color:#9be07c}.hero .val.crit{color:#ff9c9c}
+
+/* [D] two columns */
+.layout{display:grid;grid-template-columns:360px 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.hero{grid-template-columns:repeat(2,1fr)}}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card:last-child{margin-bottom:0}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-f{padding:13px 18px;border-top:1px solid var(--rs-line);background:var(--rs-panel-2);
+  border-radius:0 0 var(--rs-radius) var(--rs-radius);display:flex;justify-content:space-between;
+  align-items:center;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--rs-muted)}
+.col{display:flex;flex-direction:column;gap:16px}
+
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+input[type=text],select,textarea{font:inherit;font-size:14px;font-weight:600;color:var(--rs-ink);
+  background:#fff;border:1px solid var(--rs-line);border-radius:8px;padding:8px 11px;width:100%;
+  font-variant-numeric:tabular-nums}
+textarea{font-weight:400;font-size:13px;resize:none}
+.hint{font-size:12px;color:var(--rs-muted);margin-top:6px;line-height:1.45}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 10px 9px 0;border-bottom:1px solid var(--rs-line)}
+th.r,td.r{text-align:right}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--rs-line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+tr.grp td{background:var(--rs-panel-2);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:700;padding:8px 10px 8px 0}
+tr.sub td{border-top:2px solid var(--rs-ink);font-weight:700;background:#fff}
+tr.sub td.num{font-size:14.5px}
+.scroll{overflow-x:auto}
+.scroll table{min-width:620px}
+
+.good{color:var(--rs-good)}
+.crit{color:var(--rs-crit)}
+.muted{color:var(--rs-muted)}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;border-radius:4px;
+  padding:2px 7px;text-transform:uppercase}
+.tag.io{background:#0070c018;color:#0070c0}
+.tag.tb{background:#4ca52d1a;color:#3d8523}
+.tag.rd{background:#ff99001a;color:#a86a00}
+.tag.sell{background:#002b6412;color:#002b64}
+
+/* the verdict panel — the one model-specific accent on this screen */
+.verdict{border-radius:var(--rs-radius);padding:18px 20px;box-shadow:var(--rs-shadow);
+  border:1px solid #4ca52d55;background:linear-gradient(180deg,#f2fbef,#ffffff)}
+.verdict.short{border-color:#ff990066;background:linear-gradient(180deg,#fff8ec,#ffffff)}
+.verdict h3{margin:0 0 6px;font-size:19px;font-weight:600;letter-spacing:-.01em}
+.verdict p{margin:0;font-size:13.5px;color:var(--rs-muted);max-width:70ch}
+.verdict .line{margin-top:12px;padding-top:12px;border-top:1px solid var(--rs-line);
+  display:flex;gap:26px;flex-wrap:wrap}
+.verdict .line div{font-size:12.5px}
+.verdict .line b{display:block;font-size:19px;font-weight:300;font-variant-numeric:tabular-nums;
+  color:var(--rs-ink);margin-top:2px}
+
+/* the twenty-year chart */
+.chart{position:relative;height:210px;display:flex;align-items:flex-end;gap:3px;padding-top:8px}
+.chart .bar{flex:1;position:relative;display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.chart .up{background:linear-gradient(180deg,#4ca52d,#7cc95c);border-radius:2px 2px 0 0}
+.chart .dn{background:linear-gradient(180deg,#ffb84d,#ff9900);border-radius:0 0 2px 2px}
+.chart .yr{position:absolute;bottom:-17px;left:0;right:0;text-align:center;font-size:9px;color:var(--rs-muted)}
+.zero{border-top:1px dashed var(--rs-line)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--rs-muted);margin-top:26px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+.corr{font-size:12.5px}
+.corr li{margin:9px 0}
+.corr b{color:var(--rs-ink)}
+.corr .cells{font-size:11.5px;color:var(--rs-muted);display:block;margin-top:2px}
+
+.btn{font:inherit;font-size:13.5px;font-weight:600;border-radius:10px;padding:11px 18px;
+  border:1px solid var(--rs-accent);background:var(--rs-accent);color:#fff;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--rs-accent)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <h3>What this is</h3>
+  <p><b>Item 4.90 — the Retirement Review screen, drawn for approval on 2026-09-13. THE SCREEN IS
+  NOT BUILT.</b> What is built and pushed: the maths
+  (<code>server/report/retirementReviewModel.js</code>), its golden test — 47 cases, eight
+  mutations run and all eight caught — and the route
+  <code>POST /api/report/retirement-review</code>.</p>
+  <p><b>Every number on this page is real.</b> It is the sample in your own
+  <code>Exposure.Retirement.Review (1).xlsx</code> put through that model. Nothing is invented to
+  fill a space. Where a figure differs from the spreadsheet, step 4 says so on the screen itself.</p>
+  <p><b>The Model Library card still says "coming soon" on purpose.</b> Turning it on is what pulls
+  the report into the frame guard, which then requires this page to exist. It flips when this
+  is built.</p>
+  <p class="q"><b>The look is not a question for you.</b> Colours, spacing, cards, the dark banner
+  and the step chips are read straight off Quick Position, the Loan Estimator and the High Level
+  Budget, per your ruling of 2026-07-23. <b>What is a question is every word</b> — the step names,
+  the field labels and, above all, the verdict sentence on step 4. Those are marked as you go.</p>
+</div>
+
+<div class="mock">
+  <h3>Why four steps</h3>
+  <p>The workbook has four visible sheets and two hidden mortgage sheets. The four fall into four
+  different conversations, which is what the steps follow:</p>
+  <ul>
+    <li><b>Step 1 — the conversation.</b> The <i>Quick Calculator</i> sheet. Ten questions about
+    what the client wants retirement to be, and the savings gap that answers them.</li>
+    <li><b>Step 2 — what they have.</b> Income, cash, superannuation, the government pension,
+    other investments, the business.</li>
+    <li><b>Step 3 — the properties.</b> Up to six, each with its mortgage, its growth and the year
+    it is sold, if it is.</li>
+    <li><b>Step 4 — the next twenty years.</b> The projection and the verdict.</li>
+  </ul>
+  <p class="q"><b>Step 1 stands alone, and that is deliberate.</b> The Quick Calculator shares no
+  figure with the other three — the workbook keeps it on its own sheet for the same reason. An
+  adviser can run step 1 in a first meeting, before a single balance is known, and stop there.
+  <span class="rec">Recommended: keep it as step 1 rather than a separate model,</span> so one card
+  in the library covers the whole conversation.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Step 1 of 4 — The conversation</div>
+
+<div class="rs-top">
+  <div>
+    <div class="rs-eyebrow">Model Library · Valuation</div>
+    <h1 class="rs-h1">Retirement Review</h1>
+    <div class="rs-client">Prepared for Kinetic Planning (2007) Limited</div>
+  </div>
+  <div class="rs-back">← Back to the Model Library</div>
+</div>
+
+<div class="chips">
+  <div class="chip now"><span class="n">1</span> The conversation</div>
+  <div class="chip todo"><span class="n">2</span> What they have</div>
+  <div class="chip todo"><span class="n">3</span> The properties</div>
+  <div class="chip todo"><span class="n">4</span> The next twenty years</div>
+</div>
+
+<div class="hero">
+  <div class="cell"><div class="lab">Income wanted, monthly</div><div class="val">$7,500</div>
+    <div class="sub">After tax, in today's money</div></div>
+  <div class="cell"><div class="lab">Lump sum needed at 65</div><div class="val">$1,532,871</div>
+    <div class="sub">To pay it for 20 years</div></div>
+  <div class="cell"><div class="lab">Must save, monthly</div><div class="val">$15,687</div>
+    <div class="sub">For the next 7 years</div></div>
+  <div class="cell"><div class="lab">Saving now, monthly</div><div class="val crit">$1,000</div>
+    <div class="sub">$14,687 a month short</div></div>
+</div>
+
+<div class="layout">
+  <aside class="col">
+    <div class="card">
+      <div class="card-h"><h2>What retirement means</h2></div>
+      <div class="card-b">
+        <div class="field">
+          <label>What does retirement mean to you?</label>
+          <textarea rows="2">Freedom</textarea>
+        </div>
+        <div class="field">
+          <label>What would you hate to have to give up?</label>
+          <textarea rows="2">Sleep</textarea>
+        </div>
+        <div class="field">
+          <label>What are you most looking forward to?</label>
+          <textarea rows="2">Golf</textarea>
+        </div>
+        <div class="field">
+          <label>Is there anything already in place that removes the need to save?</label>
+          <textarea rows="2">No</textarea>
+        </div>
+        <div class="hint">These four change no figure on this screen. They are the conversation,
+          and the workbook prints them beside the numbers, so they travel with the model and
+          appear on the report.</div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="col">
+    <div class="card">
+      <div class="card-h"><h2>The numbers behind the answer</h2></div>
+      <div class="card-b">
+        <table>
+          <tr><td style="width:58%">Age you want to retire</td><td class="num r">65</td></tr>
+          <tr><td>Household income now, monthly after tax</td><td class="num r">$12,000</td></tr>
+          <tr><td>Saving each month now</td><td class="num r">$1,000</td></tr>
+          <tr><td>The bare minimum you could live on, monthly</td><td class="num r">$6,000</td></tr>
+          <tr><td>The income you actually want, monthly</td><td class="num r">$7,500</td></tr>
+          <tr><td>Assets you would sell to fund it, net</td><td class="num r">$10,000</td></tr>
+          <tr class="grp"><td colspan="2">Assumptions</td></tr>
+          <tr><td>Years of income required</td><td class="num r">20</td></tr>
+          <tr><td>Return in retirement, after inflation, tax and fees</td><td class="num r">1.70%</td></tr>
+          <tr><td>Lump sum to leave behind</td><td class="num r">$8,000</td></tr>
+          <tr><td>Years before you retire</td><td class="num r">7</td></tr>
+          <tr><td>Return while still saving</td><td class="num r">4.00%</td></tr>
+          <tr><td>Lump sum already in hand</td><td class="num r">$50</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="verdict short">
+      <h3>The gap is $14,687 a month</h3>
+      <p>To draw $7,500 a month for twenty years and still leave $8,000 behind needs
+      <b>$1,532,871</b> in hand at 65. Less the $10,000 of assets they would sell, that is
+      <b>$1,522,871</b> to find in seven years — <b>$15,687 a month</b>, against the
+      <b>$1,000</b> a month they save today.</p>
+      <div class="line">
+        <div>Needed at retirement<b>$1,532,871</b></div>
+        <div>To save each month<b>$15,687</b></div>
+        <div>Saving today<b>$1,000</b></div>
+        <div>Short by<b class="crit">$14,687</b></div>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn">Next — what they have</button>
+      <button class="btn ghost">Finish here</button>
+    </div>
+  </section>
+</div>
+
+<div class="mock">
+  <h3>Step 1 — the wording to settle</h3>
+  <p><b>The four free-text questions are the workbook's own, shortened.</b> Its wording is
+  <i>"What does retirement mean to you?"</i>, <i>"What would you hate to have to give up?"</i>,
+  <i>"What are you most looking forward to?"</i> and <i>"Do you have provisions in place that
+  remove the need for this?"</i> — the fourth is the only one reworded here, because the original
+  does not say what "this" is.</p>
+  <p class="q"><b>The headline sentence is the decision on this step.</b> Drawn as
+  <i>"The gap is $14,687 a month"</i>. <span class="rec">Recommended</span> because it is the one
+  number the client will remember and the sheet exists to produce it. The alternative reading —
+  <i>"You need $1,532,871 at 65"</i> — is the same fact from the other end.</p>
+  <p><b>"Finish here" ends the model at step 1</b> and produces a one-page result. That is the
+  point of the sheet standing alone; without the button, an adviser who only wanted the gap has
+  to abandon the screen.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Step 2 of 4 — What they have</div>
+
+<div class="chips">
+  <div class="chip done"><span class="n">✓</span> The conversation</div>
+  <div class="chip now"><span class="n">2</span> What they have</div>
+  <div class="chip todo"><span class="n">3</span> The properties</div>
+  <div class="chip todo"><span class="n">4</span> The next twenty years</div>
+</div>
+
+<div class="hero">
+  <div class="cell"><div class="lab">Needed each week</div><div class="val">$1,700</div>
+    <div class="sub">Today, before inflation</div></div>
+  <div class="cell"><div class="lab">Total assets</div><div class="val">$3,763,500</div>
+    <div class="sub">Property, cash and investments</div></div>
+  <div class="cell"><div class="lab">Total debt</div><div class="val">$1,425,456</div>
+    <div class="sub">Across six mortgages</div></div>
+  <div class="cell"><div class="lab">Net worth</div><div class="val good">$2,338,044</div>
+    <div class="sub">Assets less debt</div></div>
+</div>
+
+<div class="layout">
+  <aside class="col">
+    <div class="card">
+      <div class="card-h"><h2>What they need</h2></div>
+      <div class="card-b">
+        <div class="field">
+          <label>Income required each week, today</label>
+          <input type="text" value="1,700">
+          <div class="hint">This is lifted by inflation every year of the projection.</div>
+        </div>
+        <div class="field">
+          <label>Inflation, next four years</label>
+          <div class="two">
+            <input type="text" value="12%"><input type="text" value="9%">
+            <input type="text" value="11%"><input type="text" value="3%">
+          </div>
+          <div class="hint">The fourth rate carries on for years 5 to 20.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>The business</h2></div>
+      <div class="card-b">
+        <div class="field">
+          <label>Income drawn each month, before tax</label>
+          <input type="text" value="1,500">
+        </div>
+        <div class="field">
+          <label>Years it will keep paying</label>
+          <input type="text" value="6">
+          <div class="hint">After that it stops and the projection carries no business income.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>The government pension</h2></div>
+      <div class="card-b">
+        <div class="field">
+          <label>Do they qualify?</label>
+          <select><option>Yes</option><option>No</option></select>
+        </div>
+        <div class="field">
+          <label>Amount each week, before tax</label>
+          <input type="text" value="712">
+        </div>
+        <div class="two">
+          <div class="field"><label>Annual increase</label><input type="text" value="3%"></div>
+          <div class="field"><label>Tax rate</label><input type="text" value="14%"></div>
+        </div>
+        <div class="hint">Counted after tax — $612.32 a week — for all twenty years. See step 4.</div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="col">
+    <div class="card">
+      <div class="card-h"><h2>Savings and investments</h2>
+        <span class="muted" style="font-size:12px">Each is drawn down to an end balance over its term</span></div>
+      <div class="card-b scroll">
+        <table>
+          <thead><tr>
+            <th>Account</th><th class="r">Balance now</th><th class="r">Return</th>
+            <th class="r">Over</th><th class="r">Left at the end</th><th class="r">Drawn monthly</th>
+          </tr></thead>
+          <tr><td>Cash</td><td class="num r">$35,000</td><td class="num r">4.50%</td>
+            <td class="num r">3 yrs</td><td class="num r">$5,000</td><td class="num r muted">$911</td></tr>
+          <tr><td>Superannuation</td><td class="num r">$265,000</td><td class="num r">4.50%</td>
+            <td class="num r">10 yrs</td><td class="num r">$15,000</td><td class="num r">$2,647</td></tr>
+          <tr><td>Other investments</td><td class="num r">$27,500</td><td class="num r">4.50%</td>
+            <td class="num r">3 yrs</td><td class="num r">$7,500</td><td class="num r">$623</td></tr>
+        </table>
+      </div>
+      <div class="card-f"><span>Cash is the exception: only its <b>balance</b> enters the
+        projection, because the cash account is what absorbs every surplus and shortfall. Its
+        monthly figure is shown for the conversation, greyed because nothing downstream reads it.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Income in year one</h2></div>
+      <div class="card-b">
+        <table>
+          <tr><td style="width:62%">The business, after tax</td><td class="num r">$15,735</td></tr>
+          <tr><td>Superannuation drawdown</td><td class="num r">$31,767</td></tr>
+          <tr><td>Government pension, after tax</td><td class="num r">$31,841</td></tr>
+          <tr><td>Other investments</td><td class="num r">$7,477</td></tr>
+          <tr><td>Rent, after tax and mortgages</td><td class="num r crit">−$2,431</td></tr>
+          <tr class="sub"><td>Generated in year one</td><td class="num r">$84,388</td></tr>
+          <tr><td>Needed in year one</td><td class="num r">$88,400</td></tr>
+          <tr class="sub"><td>Short by</td><td class="num r crit">−$4,012</td></tr>
+        </table>
+        <div class="hint">Per week: <b>$1,623</b> generated against <b>$1,700</b> needed — short by
+          <b class="crit">$77</b>.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>The tax rate everything else uses</h2></div>
+      <div class="card-b">
+        <table>
+          <tr><td style="width:62%">Client 1 — business income and half the rental surplus</td>
+            <td class="num r">$25,297</td></tr>
+          <tr><td>Spouse — the other half of the rental surplus</td><td class="num r">$7,297</td></tr>
+          <tr class="sub"><td>Combined income</td><td class="num r">$32,595</td></tr>
+          <tr><td>Tax on it</td><td class="num r">$4,101</td></tr>
+          <tr class="sub"><td>Average rate</td><td class="num r">12.58%</td></tr>
+        </table>
+        <div class="hint">New Zealand, 2026–27 (rates unchanged since 1 April 2025). One rate is
+          worked out in year one and held for the whole twenty years — the workbook's own choice,
+          not a shortcut here.</div>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn ghost">Back</button>
+      <button class="btn">Next — the properties</button>
+    </div>
+  </section>
+</div>
+
+<div class="mock">
+  <h3>Step 2 — the wording to settle</h3>
+  <p class="q"><b>"What they have" is the step name drawn here.</b>
+  <span class="rec">Recommended</span> over <i>"The position"</i>, which is the workbook's own
+  phrase (<i>Use of Assets in Retirement</i>) but says nothing to a client reading over the
+  adviser's shoulder.</p>
+  <p><b>Two labels are ours, not the workbook's</b>, because it has no label at all for them:
+  <i>"Income required each week, today"</i> (cell F4, unlabelled) and <i>"Years it will keep
+  paying"</i> (L13, labelled only <i>Years</i>).</p>
+  <p><b>The greyed cash figure is a deliberate choice</b>, not a styling accident. The workbook
+  computes it and then never uses it. Hiding it would lose a figure the adviser can see in the
+  spreadsheet; showing it black would imply the projection spends it.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Step 3 of 4 — The properties</div>
+
+<div class="chips">
+  <div class="chip done"><span class="n">✓</span> The conversation</div>
+  <div class="chip done"><span class="n">✓</span> What they have</div>
+  <div class="chip now"><span class="n">3</span> The properties</div>
+  <div class="chip todo"><span class="n">4</span> The next twenty years</div>
+</div>
+
+<div class="hero">
+  <div class="cell"><div class="lab">Six properties, worth</div><div class="val">$3,436,000</div>
+    <div class="sub">Today</div></div>
+  <div class="cell"><div class="lab">Owing on them</div><div class="val">$1,425,456</div>
+    <div class="sub">Across six mortgages</div></div>
+  <div class="cell"><div class="lab">Rent, monthly</div><div class="val">$11,650</div>
+    <div class="sub">Before tax and mortgages</div></div>
+  <div class="cell"><div class="lab">Left after mortgages</div><div class="val good">$1,216</div>
+    <div class="sub">A month, before tax</div></div>
+</div>
+
+<div class="layout">
+  <aside class="col">
+    <div class="card">
+      <div class="card-h"><h2>Home 3</h2><span class="tag rd">Reducing</span></div>
+      <div class="card-b">
+        <div class="field"><label>What it is worth</label><input type="text" value="725,000"></div>
+        <div class="field"><label>Owing</label><input type="text" value="285,000"></div>
+        <div class="two">
+          <div class="field"><label>Interest rate</label><input type="text" value="6.05%"></div>
+          <div class="field"><label>Years left</label><input type="text" value="14"></div>
+        </div>
+        <div class="field">
+          <label>Mortgage type</label>
+          <select><option>Reducing</option><option>Table</option><option>Interest only</option></select>
+        </div>
+        <div class="field"><label>Rent each month</label><input type="text" value="2,400"></div>
+        <div class="two">
+          <div class="field"><label>Value growth</label><input type="text" value="6.00%"></div>
+          <div class="field"><label>Rent growth</label><input type="text" value="6.00%"></div>
+        </div>
+        <div class="field">
+          <label>Sold in year</label>
+          <select><option>Not sold</option><option>Year 1</option><option>Year 2</option></select>
+          <div class="hint">On sale the whole net proceeds go into the cash account in that year.</div>
+        </div>
+      </div>
+    </div>
+    <div class="hint" style="padding:0 4px">One card for each property, up to six. The card above is
+      shown open; the other five collapse to a single line.</div>
+  </aside>
+
+  <section class="col">
+    <div class="card">
+      <div class="card-h"><h2>The six today</h2></div>
+      <div class="card-b scroll">
+        <table>
+          <thead><tr>
+            <th>Property</th><th class="r">Worth</th><th class="r">Owing</th><th>Mortgage</th>
+            <th class="r">Rent</th><th class="r">Mortgage cost</th><th class="r">Left over</th><th>Sold</th>
+          </tr></thead>
+          <tr><td>Home 1</td><td class="num r">$375,000</td><td class="num r">$300,000</td>
+            <td><span class="tag io">Interest only</span></td><td class="num r">$1,650</td>
+            <td class="num r">$1,250</td><td class="num r good">$400</td><td class="muted">—</td></tr>
+          <tr><td>Home 2</td><td class="num r">$650,000</td><td class="num r">$312,000</td>
+            <td><span class="tag tb">Table</span></td><td class="num r">$2,200</td>
+            <td class="num r">$2,525</td><td class="num r crit">−$325</td>
+            <td><span class="tag sell">Year 4</span></td></tr>
+          <tr><td>Home 3</td><td class="num r">$725,000</td><td class="num r">$285,000</td>
+            <td><span class="tag rd">Reducing</span></td><td class="num r">$2,400</td>
+            <td class="num r">$3,133</td><td class="num r crit">−$733</td><td class="muted">—</td></tr>
+          <tr><td>Home 4</td><td class="num r">$489,000</td><td class="num r">$65,000</td>
+            <td><span class="tag io">Interest only</span></td><td class="num r">$1,650</td>
+            <td class="num r">$306</td><td class="num r good">$1,344</td><td class="muted">—</td></tr>
+          <tr><td>Home 5</td><td class="num r">$562,000</td><td class="num r">$250,000</td>
+            <td><span class="tag tb">Table</span></td><td class="num r">$1,900</td>
+            <td class="num r">$1,758</td><td class="num r good">$142</td>
+            <td><span class="tag sell">Year 15</span></td></tr>
+          <tr><td>Home 6</td><td class="num r">$635,000</td><td class="num r">$213,456</td>
+            <td><span class="tag tb">Table</span></td><td class="num r">$1,850</td>
+            <td class="num r">$1,462</td><td class="num r good">$388</td>
+            <td><span class="tag sell">Year 17</span></td></tr>
+          <tr class="sub"><td>Six properties</td><td class="num r">$3,436,000</td>
+            <td class="num r">$1,425,456</td><td></td><td class="num r">$11,650</td>
+            <td class="num r">$10,434</td><td class="num r good">$1,216</td><td></td></tr>
+        </table>
+      </div>
+      <div class="card-f"><span><b>Left over</b> is rent less the mortgage payment, before tax.
+        Three of the six cost more than they bring in today.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>What the three mortgage types do</h2></div>
+      <div class="card-b">
+        <table>
+          <tr><td style="width:22%"><span class="tag io">Interest only</span></td>
+            <td>The payment is interest alone. The debt is still there at the end of the term.</td></tr>
+          <tr><td><span class="tag tb">Table</span></td>
+            <td>One level payment covers interest and principal. The debt reaches zero at the end.</td></tr>
+          <tr><td><span class="tag rd">Reducing</span></td>
+            <td>The principal is repaid in equal slices, so the payment starts high and falls.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn ghost">Back</button>
+      <button class="btn">See the next twenty years</button>
+    </div>
+  </section>
+</div>
+
+<div class="mock">
+  <h3>Step 3 — the wording to settle</h3>
+  <p class="q"><b>Plain words are used for the mortgage columns</b> — <i>Worth</i>, <i>Owing</i>,
+  <i>Mortgage cost</i>, <i>Left over</i> — rather than <i>Value</i>, <i>Debt</i>,
+  <i>Servicing</i>, <i>Surplus</i>. <span class="rec">Recommended</span> because this screen is
+  shown to the client, not just the adviser. The workbook's own headings are the second set.</p>
+  <p><b>The three mortgage types keep the workbook's names</b> — Table, Reducing, Interest Only —
+  because a client with a mortgage already knows them from their bank.</p>
+  <p><b>"Sold in year" replaces a per-year Sell/Retain dropdown.</b> The workbook has twenty of
+  them per property, one for each year, and only one can ever be used. One field says the same
+  thing and cannot contradict itself.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Step 4 of 4 — The next twenty years</div>
+
+<div class="chips">
+  <div class="chip done"><span class="n">✓</span> The conversation</div>
+  <div class="chip done"><span class="n">✓</span> What they have</div>
+  <div class="chip done"><span class="n">✓</span> The properties</div>
+  <div class="chip now"><span class="n">4</span> The next twenty years</div>
+</div>
+
+<div class="hero">
+  <div class="cell"><div class="lab">Cash at year 20</div><div class="val good">$2,590,883</div>
+    <div class="sub">Never runs out</div></div>
+  <div class="cell"><div class="lab">Years spending more than they earn</div><div class="val crit">14</div>
+    <div class="sub">Of the twenty</div></div>
+  <div class="cell"><div class="lab">Lowest the cash gets</div><div class="val">$16,692</div>
+    <div class="sub">In year 3</div></div>
+  <div class="cell"><div class="lab">Property sold</div><div class="val">$2,602,711</div>
+    <div class="sub">Years 4, 15 and 17</div></div>
+</div>
+
+<div class="layout">
+  <aside class="col">
+    <div class="card">
+      <div class="card-h"><h2>Year one, at a glance</h2></div>
+      <div class="card-b">
+        <table>
+          <tr><td>Needed each week</td><td class="num r">$1,700</td></tr>
+          <tr><td>Generated each week</td><td class="num r">$1,623</td></tr>
+          <tr class="sub"><td>Short each week</td><td class="num r crit">−$77</td></tr>
+          <tr><td>Cash at the start</td><td class="num r">$35,000</td></tr>
+          <tr class="sub"><td>Cash at year end</td><td class="num r">$30,988</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Where the twenty years bite</h2></div>
+      <div class="card-b">
+        <table>
+          <tr><td>Year 3</td><td class="num r">$16,692</td></tr>
+          <tr><td>Year 4 — Home 2 sold</td><td class="num r good">$477,968</td></tr>
+          <tr><td>Year 10</td><td class="num r">$425,444</td></tr>
+          <tr><td>Year 15 — Home 5 sold</td><td class="num r good">$1,349,578</td></tr>
+          <tr><td>Year 17 — Home 6 sold</td><td class="num r good">$2,539,694</td></tr>
+          <tr class="sub"><td>Year 20</td><td class="num r">$2,590,883</td></tr>
+        </table>
+        <div class="hint">Cash at the end of each year. The three sales are what carry the plan.</div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="col">
+    <div class="verdict">
+      <h3>The plan holds — but it leans on selling three properties</h3>
+      <p>The cash never runs out, and by year 20 there is <b>$2,590,883</b> in it. But
+      <b>fourteen of the twenty years</b> spend more than they bring in, and the cash falls to
+      <b>$16,692</b> in year 3 before the first property is sold. Without those three sales the
+      plan does not hold.</p>
+      <div class="line">
+        <div>Cash at year 20<b>$2,590,883</b></div>
+        <div>Years in deficit<b class="crit">14 of 20</b></div>
+        <div>Lowest point<b>$16,692 · year 3</b></div>
+        <div>Runs out<b class="good">Never</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Surplus and shortfall, year by year</h2></div>
+      <div class="card-b">
+        <div class="chart">
+          <div class="bar"><div class="dn" style="height:14%"></div><span class="yr">1</span></div>
+          <div class="bar"><div class="dn" style="height:24%"></div><span class="yr">2</span></div>
+          <div class="bar"><div class="dn" style="height:26%"></div><span class="yr">3</span></div>
+          <div class="bar"><div class="dn" style="height:64%"></div><span class="yr">4</span></div>
+          <div class="bar"><div class="dn" style="height:34%"></div><span class="yr">5</span></div>
+          <div class="bar"><div class="dn" style="height:19%"></div><span class="yr">6</span></div>
+          <div class="bar"><div class="dn" style="height:58%"></div><span class="yr">7</span></div>
+          <div class="bar"><div class="dn" style="height:41%"></div><span class="yr">8</span></div>
+          <div class="bar"><div class="dn" style="height:24%"></div><span class="yr">9</span></div>
+          <div class="bar"><div class="dn" style="height:6%"></div><span class="yr">10</span></div>
+          <div class="bar"><div class="dn" style="height:97%"></div><span class="yr">11</span></div>
+          <div class="bar"><div class="dn" style="height:77%"></div><span class="yr">12</span></div>
+          <div class="bar"><div class="dn" style="height:55%"></div><span class="yr">13</span></div>
+          <div class="bar"><div class="dn" style="height:33%"></div><span class="yr">14</span></div>
+          <div class="bar"><div class="up" style="height:60%"></div><span class="yr">15</span></div>
+          <div class="bar"><div class="up" style="height:71%"></div><span class="yr">16</span></div>
+          <div class="bar"><div class="up" style="height:100%"></div><span class="yr">17</span></div>
+          <div class="bar"><div class="up" style="height:46%"></div><span class="yr">18</span></div>
+          <div class="bar"><div class="up" style="height:59%"></div><span class="yr">19</span></div>
+          <div class="bar"><div class="up" style="height:73%"></div><span class="yr">20</span></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#ff9900"></i>Spending more than they earn — 14 years</span>
+          <span><i style="background:#4ca52d"></i>Earning more than they spend — 6 years</span>
+        </div>
+      </div>
+      <div class="card-f"><span>The worst year is <b>year 11</b>, at <b class="crit">−$27,818</b>,
+        once the business income and the superannuation drawdown have both run out. The turn comes
+        in <b>year 15</b>, when Home 5 is sold and its mortgage stops. Nothing before then closes
+        the gap. Bars are to scale against the largest year, $28,716.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>The twenty years</h2>
+        <span class="muted" style="font-size:12px">Weekly figures, cash at year end</span></div>
+      <div class="card-b scroll">
+        <table>
+          <thead><tr>
+            <th>Year</th><th class="r">Needed</th><th class="r">Generated</th>
+            <th class="r">Difference</th><th class="r">Over the year</th><th class="r">Cash at year end</th>
+          </tr></thead>
+          <tr><td>1</td><td class="num r">$1,700</td><td class="num r">$1,623</td>
+            <td class="num r crit">−$77</td><td class="num r crit">−$4,012</td><td class="num r">$30,988</td></tr>
+          <tr><td>2</td><td class="num r">$1,904</td><td class="num r">$1,774</td>
+            <td class="num r crit">−$130</td><td class="num r crit">−$6,769</td><td class="num r">$24,219</td></tr>
+          <tr><td>3</td><td class="num r">$2,075</td><td class="num r">$1,931</td>
+            <td class="num r crit">−$145</td><td class="num r crit">−$7,527</td><td class="num r">$16,692</td></tr>
+          <tr><td>4 <span class="tag sell">Home 2 sold</span></td><td class="num r">$2,304</td>
+            <td class="num r">$1,950</td><td class="num r crit">−$354</td>
+            <td class="num r crit">−$18,406</td><td class="num r good">$477,968</td></tr>
+          <tr><td>5</td><td class="num r">$2,373</td><td class="num r">$2,182</td>
+            <td class="num r crit">−$190</td><td class="num r crit">−$9,905</td><td class="num r">$468,063</td></tr>
+          <tr><td>7 <span class="tag sell">Business stops</span></td><td class="num r">$2,517</td>
+            <td class="num r">$2,196</td><td class="num r crit">−$321</td>
+            <td class="num r crit">−$16,702</td><td class="num r">$445,821</td></tr>
+          <tr><td>10</td><td class="num r">$2,751</td><td class="num r">$2,720</td>
+            <td class="num r crit">−$31</td><td class="num r crit">−$1,596</td><td class="num r">$425,444</td></tr>
+          <tr><td>11 <span class="tag sell">Super runs out</span></td><td class="num r">$2,833</td>
+            <td class="num r">$2,298</td><td class="num r crit">−$535</td>
+            <td class="num r crit">−$27,818</td><td class="num r">$397,625</td></tr>
+          <tr><td>15 <span class="tag sell">Home 5 sold</span></td><td class="num r">$3,189</td>
+            <td class="num r">$3,518</td><td class="num r good">$329</td>
+            <td class="num r good">$17,116</td><td class="num r good">$1,349,578</td></tr>
+          <tr><td>17 <span class="tag sell">Home 6 sold</span></td><td class="num r">$3,383</td>
+            <td class="num r">$3,935</td><td class="num r good">$552</td>
+            <td class="num r good">$28,716</td><td class="num r good">$2,539,694</td></tr>
+          <tr class="sub"><td>20</td><td class="num r">$3,697</td><td class="num r">$4,099</td>
+            <td class="num r good">$402</td><td class="num r good">$20,924</td>
+            <td class="num r">$2,590,883</td></tr>
+        </table>
+      </div>
+      <div class="card-f"><span>Abridged on this drawing. <b>The screen shows all twenty rows.</b></span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Where this differs from the spreadsheet</h2></div>
+      <div class="card-b">
+        <p style="margin:0 0 10px;font-size:13px">Three figures deliberately differ from
+        <code>Exposure.Retirement.Review (1).xlsx</code>. They are on the screen because the
+        adviser may have that spreadsheet open beside this page, and a difference nobody can
+        account for is worse than no difference at all.</p>
+        <ul class="corr">
+          <li><b>Tax is charged on today's rates.</b> The workbook carries superseded thresholds.
+            The average rate falls from 12.926% to 12.582%.
+            <span class="cells">'Use of Assets in Retirement' AJ8:AJ11 and AL8:AL12 · ruled by Mike, 2026-09-13</span></li>
+          <li><b>The government pension is counted after tax</b> across all twenty years. The
+            workbook took it after tax on its summary sheet and before tax in its projection — a
+            difference of $99.68 a week in year one.
+            <span class="cells">'Asset &amp; Cash Transactions' G26 · ruled by Mike, 2026-09-13</span></li>
+          <li><b>The sixth property earns from year one</b>, like the other five. In the workbook
+            its rows sat four years out, so it earned nothing for four years and, when sold,
+            credited the client with nothing at all.
+            <span class="cells">'Asset &amp; Cash Transactions' rows 97–104 · ruled by Mike, 2026-09-13</span></li>
+        </ul>
+        <p style="margin:10px 0 0;font-size:12.5px;color:var(--rs-muted)">The first two make the
+        plan look worse and the third makes it look better. They are listed separately and never
+        netted off against each other.</p>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn ghost">Back</button>
+      <button class="btn">Print the review</button>
+    </div>
+  </section>
+</div>
+
+<div class="mock">
+  <h3>Step 4 — the decision that matters most</h3>
+  <p class="q">🔴 <b>The verdict sentence.</b> Drawn as <i>"The plan holds — but it leans on
+  selling three properties."</i> <span class="rec">Recommended</span> because it is the honest
+  reading of these numbers: the cash never hits zero, and the only reason it never hits zero is
+  three property sales. A sentence that said only <i>"The plan holds"</i> would be true and
+  misleading in the same breath.</p>
+  <p><b>The model itself draws no conclusion.</b> The workbook prints the series and leaves the
+  adviser to read them. Two readings are named in the code — whether the cash ever runs out, and
+  how many years fall short — precisely so the screen is not inventing a judgement of its own.
+  Everything else in the panel is arithmetic.</p>
+  <p><b>The banner says "Years spending more than they earn", not "Years in deficit".</b> The
+  second is what the code calls it; the first is what it means to somebody who does not work in
+  finance.</p>
+  <p><b>What this screen does NOT do:</b> it stores nothing, and it sends nothing to an AI. A
+  household's income, pension, superannuation and six properties reach the calculation and are
+  forgotten. There is no "Illustrative" badge on this report — these are the client's real
+  numbers, and the badge would say the opposite.</p>
+</div>
+
+<div class="mock">
+  <h3>What is NOT drawn here, and why</h3>
+  <ul>
+    <li><b>No file upload.</b> Nothing produces a retirement position as an export, so every
+    figure is typed. That is also why this is a Decision model and not a Report one.</li>
+    <li><b>No sliders.</b> Four of the nine live screens have them; this one has ninety-odd inputs
+    across three steps, and a slider per input would be unusable. Typed fields throughout, as on
+    Lease vs Buy and the Loan Estimator.</li>
+    <li><b>No coach panel.</b> The verdict panel and the differences card already say what an
+    adviser would say. Adding a third block of prose would repeat them.</li>
+    <li><b>No second currency or country picker on the screen.</b> Country comes from the firm,
+    as it does everywhere else, and it is named under the tax table on step 2.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

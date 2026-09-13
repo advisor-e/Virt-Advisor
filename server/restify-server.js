@@ -234,6 +234,9 @@ server.post('/api/report/loan-estimator', reportRoute.loanEstimator)
 server.post('/api/report/lease-vs-buy', reportRoute.leaseVsBuy)
 server.post('/api/report/cost-of-capital', reportRoute.costOfCapital)
 server.post('/api/report/multiple-property', reportRoute.multipleProperty)
+// The Retirement Review (item 4.90) — calc-only, anonymous. It carries more of a real
+// household than any other model here, which is the reason it stores nothing.
+server.post('/api/report/retirement-review', reportRoute.retirementReview)
 server.post('/api/report/volatility', reportRoute.volatility)
 // The Import & Retail shipment calculator (item 4.64 slice 2). Anonymous like the
 // volatility read beside it — dates and numbers in, dates and numbers out. It is a route

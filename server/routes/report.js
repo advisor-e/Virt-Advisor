@@ -20,6 +20,7 @@ const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
+const { computeRetirementReview } = require('../report/retirementReviewModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
 const { computeImportShipments } = require('../report/importShipmentModel')
@@ -946,6 +947,60 @@ function multipleProperty (req, res, next) {
 }
 
 /**
+ * POST /api/report/retirement-review
+ *
+ * @param {object} req.body - partial `DEFAULT_INPUTS` of the Retirement Review model,
+ *   merged over the workbook's own sample so a partial body always computes a coherent
+ *   scenario. Three groups:
+ *
+ *   `country` — which tax table the average rate is read from (`data/tax-bands.json`).
+ *
+ *   `quickCalculator` — the ten retirement-philosophy answers (four of them free text
+ *   that feed no calculation and travel with the model because the workbook prints them
+ *   beside the numbers), plus the six savings-gap assumptions. Self-contained: it shares
+ *   no figure with the projection, so an adviser can run it in a first meeting before any
+ *   of the position is known.
+ *
+ *   `position` — the household: the weekly income required and the four inflation rates,
+ *   the business, cash, superannuation, other investments and pension, the rental tax
+ *   split, and up to six properties (each with its mortgage type, term, growth rates and
+ *   the year it is sold, if it is).
+ * @returns {object} `{ success, data, timestamp }` — data = { country, taxYearLabel,
+ *   taxBandsEffectiveFrom, workbookCorrections[], quickCalculator{}, position{}, tax{},
+ *   years[], projection{}, verdict{} }. Every projection series is twenty long,
+ *   index 0 = year 1.
+ *
+ *   🔴 `workbookCorrections` IS NOT OPTIONAL FOR A CALLER TO RENDER. Three figures in this
+ *   model deliberately differ from the source workbook — current tax bands, the pension
+ *   taxed in the projection, and the sixth property realigned to year one — each ruled by
+ *   the owner on 2026-09-13. They pull in opposite directions and are reported separately,
+ *   never netted. A screen that drops them shows an advisor numbers that do not match the
+ *   spreadsheet on their own desk, with nothing on the page to say why.
+ *
+ *   `verdict` is the only thing the workbook does not itself state: whether the plan ever
+ *   runs the client out of cash, in which year, and how many of the twenty years fall
+ *   short. They are readings an adviser takes off the chart, named rather than left to the
+ *   eye.
+ *
+ * Anonymous, like every other calc route: numbers in, numbers out. It reads no database,
+ * writes nothing, calls no third party and sends nothing to an LLM. This model holds more
+ * of a real household than any other in the library — two incomes, a pension, a
+ * superannuation balance and six properties — so none of it is stored, and none of it
+ * reaches a log line either.
+ */
+function retirementReview (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeRetirementReview(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] retirement-review compute failed:', err)
+    res.send(400, { success: false, error: { code: 'RETIREMENT_REVIEW_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
  * POST /api/report/volatility
  *
  * @param {object} req.body - `{ sales: number[], window: 12|18|24, forecast?: number[] }`.
@@ -1379,4 +1434,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

@@ -2,6 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const util = require('util')
 const { multipleProperty } = require('../../server/routes/report')
 
 /**
@@ -17,6 +18,24 @@ const { multipleProperty } = require('../../server/routes/report')
  * It also pins the one thing this report can leak that the others cannot: a client's real
  * property address is an input, and it must not reach a log line.
  */
+
+/**
+ * Everything the handler actually wrote to the log, as text a regex can search.
+ *
+ * `util.inspect`, NOT `String()`: an object argument stringifies to "[object Object]", so
+ * an assertion built with String() passes while the whole request body — five real
+ * addresses among them — sits in the log line beside it. Corrected 2026-09-13 after a
+ * mutation check on the Retirement Review route caught the same pattern doing nothing; a
+ * handler that logs `req.body` now fails these two tests and did not before.
+ *
+ * @param {object} spy a jest spy on console.error
+ * @returns {string}
+ */
+function loggedText (spy) {
+  return spy.mock.calls
+    .map(c => c.map(a => util.inspect(a, { depth: null })).join(' '))
+    .join('\n')
+}
 
 /** Minimal Restify res double capturing what the handler sends. */
 function makeRes () {
@@ -122,7 +141,7 @@ describe('POST /api/report/multiple-property', () => {
       const route = require('../../server/routes/report')
       route.multipleProperty({ body: { address: '14 Real Client Road, Actualtown' } }, makeRes(), jest.fn())
 
-      const logged = spy.mock.calls.map(c => c.map(String).join(' ')).join('\n')
+      const logged = loggedText(spy)
       expect(logged).not.toMatch(/Real Client Road|Actualtown/)
     } finally {
       spy.mockRestore()
@@ -236,7 +255,7 @@ describe('POST /api/report/multiple-property', () => {
         }
       }, makeRes(), jest.fn())
 
-      const logged = spy.mock.calls.map(c => c.map(String).join(' ')).join(' ')
+      const logged = loggedText(spy)
       const addresses = /Alpha Street|Onetown|Bravo Road|Twotown|Charlie Lane|Threetown|Delta Drive|Fourtown|Echo Avenue|Fivetown/
       expect(logged).not.toMatch(addresses)
     } finally {
