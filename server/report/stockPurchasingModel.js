@@ -267,12 +267,22 @@ function toStep (v, step) {
 }
 
 /**
- * The owner's four boundaries for one criterion, validated.
+ * The owner's four boundaries for one criterion, made usable.
  *
- * Anything that is not four ascending finite numbers falls back to the workbook's own, because a
- * half-typed ladder must never silently rescore a client's whole range. A boundary that is not
- * above the one below it is the case worth refusing outright: it makes a rung no value can ever
- * reach, and the screen would show a ladder with an unreachable middle.
+ * Two different problems, and they deserve different answers:
+ *
+ *   - **The wrong shape** — not four values, or one of them not a number — is a half-typed ladder,
+ *     and the workbook's own is used instead. Silently rescoring a client's whole range against a
+ *     ladder nobody finished would be worse than ignoring it.
+ *   - **Boundaries that cross** get PUSHED APART rather than refused (Mike, 2026-09-13). Each is
+ *     raised to at least one step above the one below it, left to right. Refusing them was the
+ *     first build, and it produced the worst outcome available: the screen went on showing the
+ *     number the owner typed while the model quietly scored against the defaults.
+ *
+ * 🔴 This is the SAFETY NET, not the mechanism. The screen pushes as the owner types, outward from
+ * the box they touched, so they see it happen; `tests/unit/stockPurchasing.component.test.js`
+ * pins that what the screen sends is already normal, so this changes nothing on that path. It is
+ * here because the route is a boundary, and no caller should be able to make a rung unreachable.
  *
  * @param {string} criterion @param {*} cuts
  * @returns {Array<number>} four ascending numbers
@@ -283,9 +293,13 @@ function cutsFor (criterion, cuts) {
   const clean = cuts.map(numberOrNull)
   for (let i = 0; i < clean.length; i++) {
     if (clean[i] === null) { return ladder.defaultCuts.slice() }
-    if (i > 0 && clean[i] <= clean[i - 1]) { return ladder.defaultCuts.slice() }
   }
-  return clean
+  const out = [clean[0]]
+  for (let i = 1; i < clean.length; i++) {
+    const floor = toStep(out[i - 1] + ladder.step, ladder.step)
+    out.push(clean[i] < floor ? floor : clean[i])
+  }
+  return out
 }
 
 /**

@@ -1418,6 +1418,21 @@ type 25% and the next rung starts at 25.1% — days and units by **1**, money by
 workbook uses a whole point and a whole dollar, so this is finer in two places and identical in
 three.
 
+🔴 **A BOUNDARY TYPED ACROSS ITS NEIGHBOUR PUSHES THE OTHERS OUT OF THE WAY** (Mike,
+2026-09-13), rather than being refused. Refusing it was the first build and produced the worst
+outcome available — found by driving the screen: the box went on showing the 60% the owner typed
+while the model quietly scored against the defaults, and nothing on screen said so. Setting
+Minor's top to 60% now moves Moderate to 60.1%, and the push runs OUTWARD from the edited box, so
+lowering a high boundary pulls the ones beneath it down instead. The screen does it as they type;
+`cutsFor` normalises left to right as a safety net because the route is a boundary, and a test
+pins that whatever the screen sends the model has nothing left to correct.
+
+⚠ **Squeezing four boundaries into a narrow span leaves a rung one step wide, and that is correct
+rather than a fault.** Setting Minor's top to 60% when Fruitful still tops out at 100% shows
+*Moderate 60.1% – 60.1%* — a rung spanning a single value. The alternative is to spread the
+remaining rungs evenly, which would invent numbers the owner did not choose. The ladder is telling
+them they have squeezed it; widening Moderate is theirs to do.
+
 🔴 **TWO RULED DEVIATIONS, both mutation-verified outside the repo.** (5) The boundary between two
 rungs is ONE shared number, so **a gap cannot exist** rather than being patched: the rung below
 ends at the owner's figure, the rung above starts one step past it, and the scoring cut is that

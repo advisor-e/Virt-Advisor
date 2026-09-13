@@ -6,7 +6,7 @@
 const { mountWithBuefy } = require('../helpers/mountComponent')
 
 const StockPurchasing = require('~/components/StockPurchasing.vue').default
-const { computeStockPurchasing, DEFAULT_INPUTS, CRITERIA: CRITERIA_KEYS } = require('~/server/report/stockPurchasingModel')
+const { computeStockPurchasing, DEFAULT_INPUTS, CRITERIA: CRITERIA_KEYS, cutsFor } = require('~/server/report/stockPurchasingModel')
 
 /**
  * Stock Purchasing — the screen (item 4.94).
@@ -171,6 +171,57 @@ describe('Stock Purchasing screen', () => {
       wrapper.vm.setCut('margin', 0, '30')
       expect(wrapper.vm.ladders.margin[0]).toBeCloseTo(0.3, 6)
       expect(wrapper.vm.recomputeRequest().body.ladders.margin[0]).toBeCloseTo(0.3, 6)
+    })
+
+    it('🔴 pushes the boundaries above out of the way, rather than refusing the one typed', async () => {
+      // Mike, 2026-09-13. Refusing it was the first build and produced the worst outcome
+      // available: the box showed 60 while the model scored against the defaults, with nothing on
+      // screen saying so. Setting Minor's top to 60% means it, so Moderate shifts up to 60.1%.
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      wrapper.vm.setCut('margin', 0, '60')
+      const cuts = wrapper.vm.ladders.margin
+      expect(cuts[0]).toBeCloseTo(0.6, 6)
+      expect(cuts[1]).toBeCloseTo(0.601, 6)
+      expect(cuts[2]).toBeCloseTo(0.8, 6) // already clear; not disturbed
+      expect(cuts[3]).toBeCloseTo(1, 6)
+    })
+
+    it('pulls the boundaries BELOW down when a low one is set under them', async () => {
+      // The mirror case, and the reason the push runs outward from the edited box rather than
+      // left to right: lowering the TOP boundary must move what is beneath it, not itself.
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      wrapper.vm.setCut('daysOnHand', 3, '10')
+      const cuts = wrapper.vm.ladders.daysOnHand
+      expect(cuts[3]).toBe(10)
+      expect(cuts[2]).toBe(9)
+      expect(cuts[1]).toBe(8)
+      expect(cuts[0]).toBe(7)
+    })
+
+    it('stops at the ladder\'s floor rather than pushing a boundary below zero', async () => {
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      wrapper.vm.setCut('daysOnHand', 0, '1')
+      const cuts = wrapper.vm.ladders.daysOnHand
+      expect(cuts[0]).toBe(1)
+      expect(cuts.every((c, i) => i === 0 || c > cuts[i - 1])).toBe(true)
+    })
+
+    it('🔴 sends a ladder the model has nothing left to correct', async () => {
+      // The push exists in two places — here for immediacy, and in the model because the route is
+      // a boundary. This pins them equal: whatever the screen sends, `cutsFor` returns unchanged.
+      // If they ever drift, the boxes would show one ladder and the scoring use another.
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      const cases = [
+        ['margin', 0, '60'], ['margin', 3, '10'], ['sold', 0, '40'],
+        ['unitCostRisk', 1, '5'], ['daysOnHand', 3, '2'], ['shareOfStock', 0, '90']
+      ]
+      cases.forEach(([criterion, i, value]) => {
+        wrapper.vm.resetLadders()
+        wrapper.vm.applyResult(computeStockPurchasing(DEFAULT_INPUTS))
+        wrapper.vm.setCut(criterion, i, value)
+        const sent = wrapper.vm.ladders[criterion]
+        expect(cutsFor(criterion, sent)).toEqual(sent)
+      })
     })
 
     it('steps each measure the way Mike ruled — a tenth of a point, a day, a cent', async () => {

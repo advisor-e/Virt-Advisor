@@ -609,8 +609,54 @@ export default {
     setCut (criterion, i, value) {
       const shape = this.ladderShape(criterion)
       const next = (this.ladders[criterion] || []).slice()
-      next[i] = value === '' || value === null ? null : Number(value) / shape.scale
-      this.$set(this.ladders, criterion, next)
+      if (value === '' || value === null) {
+        next[i] = null
+        this.$set(this.ladders, criterion, next)
+        return
+      }
+      next[i] = Number(value) / shape.scale
+      this.$set(this.ladders, criterion, this.pushApart(criterion, next, i))
+    },
+
+    /**
+     * 🔴 Make room for the boundary the owner just set, by moving the others OUT OF ITS WAY.
+     *
+     * Mike, 2026-09-13. The first build refused a boundary that crossed its neighbour, which was
+     * the worst outcome available: the box went on showing the number they typed while the model
+     * scored against the defaults, and nothing on screen said so. A person setting Minor's top to
+     * 60% means it, so everything above simply shifts up to make room.
+     *
+     * It pushes OUTWARD FROM THE EDITED BOX — up above it, down below it — because only the screen
+     * knows which one was touched. The model normalises left to right as a safety net, and on
+     * anything this returns it has nothing left to do.
+     *
+     * A boundary pushed below the ladder's floor stops at the floor; the one above it then keeps
+     * its own minimum gap, so the ladder stays walkable even when an owner squeezes the bottom.
+     *
+     * @param {string} criterion @param {Array<number|null>} cuts @param {number} edited
+     * @returns {Array<number|null>}
+     */
+    pushApart (criterion, cuts, edited) {
+      const meta = ((this.data && this.data.ladders) || {})[criterion] || { step: 1, floor: 0 }
+      const step = meta.step
+      const round = v => Number(v.toFixed(Math.max(0, Math.round(-Math.log10(step)))))
+      const out = cuts.slice()
+
+      for (let i = edited + 1; i < out.length; i++) {
+        const floor = round(out[i - 1] + step)
+        if (out[i] === null || out[i] < floor) { out[i] = floor }
+      }
+      for (let i = edited - 1; i >= 0; i--) {
+        const ceiling = round(out[i + 1] - step)
+        if (out[i] === null || out[i] > ceiling) { out[i] = Math.max(meta.floor, ceiling) }
+      }
+      // Squeezing the bottom against the floor can leave two boundaries level; one more pass
+      // upward from the floor restores the gap without undoing what was typed above.
+      for (let i = 1; i < out.length; i++) {
+        const floor = round(out[i - 1] + step)
+        if (out[i] < floor) { out[i] = floor }
+      }
+      return out
     },
 
     /** Put every ladder back to the workbook's own numbers. */
