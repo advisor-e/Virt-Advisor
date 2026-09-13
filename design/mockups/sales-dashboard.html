@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Dashboard — one table, one cut at a time, and the three faults in the workbook</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Sales Dashboard. Drawn for approval 2026-09-13.
+   NOTHING IS BUILT — not the screen, not the backend. This drawing comes first.
+
+   WHAT CREATED IT. Mike, 2026-09-13: "sales dashboard in perf report", in answer
+   to what he wanted to work on, then "yes" to drawing the screen before any
+   code. It is the LAST of the three Model Library cards that said "coming soon"
+   and opened nothing — Mid-Level Budget and Stock Purchasing were built earlier
+   the same day.
+
+   WHERE THE NUMBERS COME FROM. Every figure below is read out of
+   design/report-source-models/Sales Dashboard.xlsx — its own sample data, its
+   own cached results, read out of the workbook's hidden calculation sheet.
+   NOTHING HERE IS INVENTED TO FILL A BOX. As with Stock Purchasing there is no
+   model of ours behind this drawing yet, so these are the spreadsheet's numbers
+   rather than ours; the golden test is what will later pin them.
+
+   WHAT THE WORKBOOK IS. Six sheets. A 140-row transaction list on "Sales Data
+   Input" (brand, product, category, revenue, cost, margin, region, salesperson),
+   a "Report" sheet holding one table — the Sales Ranges Breakdown — and two
+   sheets that hold NO DATA AT ALL: "Pie Graph Options" and "Other Chart
+   Options" are canvases carrying 25 charts. Those 25 are 20 unique views drawn
+   twice over: FIVE DIMENSIONS x THREE MEASURES as doughnuts, plus one bar chart
+   per dimension. That grid is what Decision 5 turns into one control.
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner
+   ruling of 2026-07-23 — 1120px column, 16px gaps, 14px card radius, no card
+   top edge (RULED 2026-08-31). No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;padding:1px 4px}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+
+/* A decision still open. Numbered so it can be referred to in one line. */
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:0 10px 10px 0;padding:12px 14px;font-size:12.5px;color:#123a5c;margin:0 0 16px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask table{margin:8px 0 4px;font-size:12px}
+.ask th{font-size:9.5px;padding-bottom:6px}
+.ask td{padding:4px 10px 4px 0;border-bottom:1px solid #d8ecfa}
+/* A decision that changes behaviour rather than wording. */
+.ask.behaviour{background:#fff6ec;border-color:#f3c893;border-left-color:var(--rs-warn)}
+.ask.behaviour h3{color:#a06000}
+/* A decision that DEVIATES FROM THE WORKBOOK because the workbook is wrong. */
+.ask.defect{background:#fdf0f0;border-color:#f0b8b8;border-left-color:var(--rs-crit)}
+.ask.defect h3{color:#a81c1c}
+
+.sect{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin:34px 0 12px;padding-top:20px;border-top:2px solid var(--rs-line)}
+
+/* ---- the report frame, read off the shipped screens ---- */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;
+  flex-wrap:wrap;margin:0}
+.rs-back{font-size:12.5px;color:var(--rs-accent);font-weight:600}
+.rs-eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);font-weight:700;margin-bottom:4px}
+.rs-title{font-size:29px;font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.15}
+.rs-client{font-size:12px;color:var(--rs-muted);text-align:right}
+
+.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rs-line);
+  border:1px solid var(--rs-line);border-radius:var(--rs-radius);overflow:hidden;margin:16px 0 0}
+.hf{background:#002b64;padding:17px 18px;color:#fff}
+.hf .l{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#9dc2e8;
+  font-weight:600;margin-bottom:7px}
+.hf .v{font-size:25px;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.hf .s{font-size:11.5px;color:#9dc2e8;margin-top:5px}
+
+.wide{display:flex;flex-direction:column;gap:16px;min-width:0;margin-top:16px}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px;min-width:0}
+.card h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;margin:0 0 12px}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0 0 12px}
+.card-f{margin:12px -16px -16px;padding:13px 16px;border-top:1px solid var(--rs-line);
+  background:var(--rs-panel-2);border-radius:0 0 var(--rs-radius) var(--rs-radius);
+  font-size:12.5px;color:var(--rs-muted);display:flex;flex-direction:column;gap:8px}
+.note{font-size:11.5px;color:var(--rs-muted);margin:8px 0 0;font-weight:300}
+.lead{font-size:13.5px;margin:0 0 12px}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 10px 9px 0;border-bottom:1px solid var(--rs-line)}
+th.r,td.r{text-align:right}
+th.c,td.c{text-align:center}
+td{padding:7px 10px 7px 0;border-bottom:1px solid var(--rs-bg);vertical-align:middle}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+td.muted{color:var(--rs-muted);font-weight:400}
+.name{font-weight:600;color:var(--rs-ink);min-width:120px}
+tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:700;
+  color:var(--rs-ink);padding-top:10px}
+tr.empty td{color:var(--rs-muted);font-weight:400}
+.tablewrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+.inp{width:100%;border:1px solid var(--rs-line);border-radius:7px;padding:5px 8px;
+  font:inherit;font-size:13px;background:#fff;color:var(--rs-ink)}
+.inp.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;max-width:92px}
+.ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;
+  padding:5px 9px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-muted);min-width:82px;text-align:right;font-size:13px}
+.band-lo{font-variant-numeric:tabular-nums;color:var(--rs-muted);font-size:12.5px;
+  white-space:nowrap}
+
+/* ---- the mix: one cut at a time ---- */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{font-size:12.5px;font-weight:600;color:var(--rs-muted);background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:999px;padding:6px 13px}
+.tab.on{color:#fff;background:var(--rs-accent);border-color:var(--rs-accent)}
+.tab.priv::after{content:"·";margin-left:6px;color:var(--rs-warn);font-weight:700}
+.measures{display:flex;gap:6px;flex-wrap:wrap}
+.meas{font-size:11.5px;font-weight:600;color:var(--rs-muted);background:#fff;
+  border:1px solid var(--rs-line);border-radius:7px;padding:5px 11px}
+.meas.on{color:var(--rs-ink);background:var(--rs-accent-soft);border-color:var(--rs-accent)}
+
+.mix{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start;margin-top:4px}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+/* Segments run in the TABLE'S order (largest first), not the workbook's, so a
+   colour means the same brand in the ring and in the row beside it. Each angle
+   is that brand's share of $269,683 x 3.6. */
+.ring{width:236px;height:236px;border-radius:50%;position:relative;flex:none;
+  background:conic-gradient(
+    #002b64 0deg 79.4deg,      /* Smith    22.1% */
+    #0070c0 79.4deg 153.1deg,  /* Toyota   20.5% */
+    #00b1e0 153.1deg 187.1deg, /* Dulux     9.4% */
+    #4ca52d 187.1deg 218.5deg, /* Apple     8.7% */
+    #ff9900 218.5deg 247.7deg, /* Jones     8.1% */
+    #7a5ea8 247.7deg 276.5deg, /* Seiko     8.0% */
+    #0f8a8a 276.5deg 304.5deg, /* Honda     7.8% */
+    #c85a54 304.5deg 331.6deg, /* Wessen    7.5% */
+    #5b6f8a 331.6deg 350.1deg, /* Shimano   5.1% */
+    #8fbf3f 350.1deg 360deg)}  /* Samsung   2.7% */
+.ring::after{content:"";position:absolute;inset:31%;border-radius:50%;background:var(--rs-panel)}
+.ring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;z-index:1}
+.ring-c .v{font-size:21px;font-weight:300;font-variant-numeric:tabular-nums}
+.ring-c .l{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;margin-top:2px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;
+  vertical-align:-1px;flex:none}
+.bar{height:7px;border-radius:4px;background:var(--rs-line);min-width:110px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--rs-accent)}
+
+.nav{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.btn{font:inherit;font-size:12.5px;font-weight:600;border-radius:8px;padding:7px 15px;
+  border:1px solid var(--rs-line);background:#fff;color:var(--rs-ink)}
+.btn.p{background:var(--rs-accent);border-color:var(--rs-accent);color:#fff}
+
+@media(max-width:860px){
+  .hero{grid-template-columns:repeat(2,1fr)}
+  .mix{grid-template-columns:1fr}
+  .ring{width:200px;height:200px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <h3>⚠ A drawing. EIGHT DECISIONS, NONE RULED YET — nothing is built</h3>
+  <p><b>What created it.</b> Mike, 2026-09-13: <i>“sales dashboard in perf report”</i>, then
+  <i>“yes”</i> to drawing the screen before any code is written. It is the <b>last of the three
+  Model Library cards that said “coming soon” and opened nothing</b> — the Mid-Level Budget and
+  Stock Purchasing were built earlier the same day.</p>
+  <p><b>Every number on this page is the workbook's own</b>, read out of
+  <code>design/report-source-models/Sales Dashboard.xlsx</code> — its sample data and its own cached
+  results, taken from the hidden calculation sheet behind its 25 charts. Nothing is invented to fill
+  a box. <b>There is no model of ours behind this drawing yet</b>, so these figures are still the
+  spreadsheet's rather than ours; the golden test is what will pin them.</p>
+  <p>🔴 <b>Three of the eight decisions are DEVIATIONS FROM THE WORKBOOK, because the workbook is
+  wrong</b> — Decisions 3, 4 and 7, each set out with the exact formula that breaks. Each would be
+  pinned in the golden test against the workbook's own cached figure, with <b>both numbers recorded
+  and which one we chose</b>, the way the Mid-Level Budget's three were. None of the three is
+  visible in the sample data, which is precisely why they need settling here rather than at build
+  time.</p>
+  <p><b>One thing that looks like a fault and is not.</b> <i>Products</i> and <i>Salesperson</i>
+  return identical figures all the way down — Coco and Billy both $38,185, Zoco and Bobby both
+  $29,485, and so on. That is the <b>sample data</b>, which walks the ten products and the ten
+  salespeople in lockstep down all 140 rows. The formulas are independent and correct. Real data
+  would separate them.</p>
+</div>
+
+<div class="rs-top">
+  <div>
+    <div class="rs-back">← Model Library</div>
+    <div class="rs-eyebrow">Growth · Report</div>
+    <h1 class="rs-title">Sales Dashboard</h1>
+  </div>
+  <div class="rs-client">Sample data<br>140 sales</div>
+</div>
+
+<div class="hero">
+  <div class="hf"><div class="l">Sales value</div><div class="v">$269,683</div><div class="s">140 sales</div></div>
+  <div class="hf"><div class="l">Sales margin</div><div class="v">$130,289</div><div class="s">48.3% of sales</div></div>
+  <div class="hf"><div class="l">Average sale</div><div class="v">$1,926</div><div class="s">value per sale</div></div>
+  <div class="hf"><div class="l">Average margin</div><div class="v">$931</div><div class="s">per sale</div></div>
+</div>
+
+<div class="ask">
+  <h3>Decision 1 — the library card says this model does something it cannot</h3>
+  <p>The Model Library advertises Sales Dashboard as <i>“Sales mix, trends and the products carrying
+  the margin.”</i> <b>There are no trends in this workbook.</b> Not one of its six sheets holds a
+  date, a month or a period column; the 140-row transaction list has brand, product, category,
+  revenue, cost, region and salesperson, and nothing that puts a sale in time. An advisor picking
+  this off the shelf to show a client a trend would open something that cannot draw one.</p>
+  <p>This is the same fault caught on Stock Purchasing's Decision 8 earlier today, in the same
+  catalogue file — a summary describing a model nobody had built yet.</p>
+  <p class="rec">Recommended: rewrite the card to <b>“Where the sales and the margin actually come
+  from — by brand, product, region and salesperson.”</b> It describes the model that exists, and it
+  names the cuts, which is what an advisor is choosing between.</p>
+</div>
+
+<div class="wide">
+
+<div class="card">
+  <div class="card-h">
+    <h2>Sales ranges breakdown</h2>
+    <div class="measures"><span class="meas on">$ bands are yours to set</span></div>
+  </div>
+  <p class="lead">Every sale sorted into a value band, so the owner can see where the money and the
+  margin are really made — the big-ticket sales, or the volume underneath them.</p>
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr>
+        <th>$ Range</th><th class="r">Up to</th><th class="r">Transactions</th>
+        <th class="r">Sales value</th><th class="r">Sales margin</th><th class="r">Margin %</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="band-lo">1 —</td><td class="r"><input class="inp r" value="250"></td>
+          <td class="r num">13</td><td class="r num">$2,369</td><td class="r num">$1,129</td><td class="r num muted">47.7%</td></tr>
+      <tr><td class="band-lo">251 —</td><td class="r"><input class="inp r" value="500"></td>
+          <td class="r num">7</td><td class="r num">$2,534</td><td class="r num">$1,309</td><td class="r num muted">51.7%</td></tr>
+      <tr><td class="band-lo">501 —</td><td class="r"><input class="inp r" value="1,000"></td>
+          <td class="r num">36</td><td class="r num">$27,630</td><td class="r num">$14,326</td><td class="r num muted">51.8%</td></tr>
+      <tr><td class="band-lo">1,001 —</td><td class="r"><input class="inp r" value="1,500"></td>
+          <td class="r num">13</td><td class="r num">$17,550</td><td class="r num">$8,107</td><td class="r num muted">46.2%</td></tr>
+      <tr><td class="band-lo">1,501 —</td><td class="r"><input class="inp r" value="2,500"></td>
+          <td class="r num">40</td><td class="r num">$83,000</td><td class="r num">$42,305</td><td class="r num muted">51.0%</td></tr>
+      <tr><td class="band-lo">2,501 —</td><td class="r"><input class="inp r" value="5,000"></td>
+          <td class="r num">25</td><td class="r num">$86,700</td><td class="r num">$41,007</td><td class="r num muted">47.3%</td></tr>
+      <tr><td class="band-lo">5,001 —</td><td class="r"><input class="inp r" value="7,500"></td>
+          <td class="r num">3</td><td class="r num">$18,100</td><td class="r num">$7,223</td><td class="r num muted">39.9%</td></tr>
+      <tr><td class="band-lo">7,501 —</td><td class="r"><input class="inp r" value="10,000"></td>
+          <td class="r num">2</td><td class="r num">$16,550</td><td class="r num">$6,483</td><td class="r num muted">39.2%</td></tr>
+      <tr class="empty"><td class="band-lo">10,001 —</td><td class="r"><input class="inp r" value="15,000"></td>
+          <td class="r num">0</td><td class="r num">$0</td><td class="r num">$0</td><td class="r num">—</td></tr>
+      <tr><td class="band-lo">Greater than 15,000</td><td class="r"><span class="ro">—</span></td>
+          <td class="r num">1</td><td class="r num">$15,250</td><td class="r num">$8,400</td><td class="r num muted">55.1%</td></tr>
+      <tr class="subtotal"><td>Total</td><td></td>
+          <td class="r num">140</td><td class="r num">$269,683</td><td class="r num">$130,289</td><td class="r num">48.3%</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="card-f">
+    <div><b>Nine ceilings, typed.</b> The band a sale lands in is decided by the nine figures in the
+    <i>Up to</i> column. Everything else on the row is calculated. The bottom band starts at 1 and
+    the top band is everything above the last ceiling, so there is no gap and no overlap.</div>
+    <div><b>Margin % is ours, not the workbook's.</b> The spreadsheet shows a margin percentage for
+    the page as a whole (48.3%) but not per band, and the per-band figure is the one that answers
+    “which size of sale is actually worth having”. Recorded here as an addition rather than slipped
+    in.</div>
+  </div>
+</div>
+
+<div class="ask behaviour">
+  <h3>Decision 2 — the bands are the owner's to set, not ours to fix</h3>
+  <p>The nine ceilings above (250 · 500 · 1,000 · 1,500 · 2,500 · 5,000 · 7,500 · 10,000 · 15,000)
+  are <b>typed cells in the workbook</b>, not constants buried in a formula. A jeweller and a
+  dairy do not share a set of sales bands, and a $250 top band is meaningless to one and the whole
+  business to the other.</p>
+  <p>This is <b>the correction Mike made on Stock Purchasing earlier today</b> — <i>“the whole point
+  of the model is to allow a business owner to quantify their expectations — therefore, all the
+  rankings need to be variables”</i> — applied here from the start rather than after the fact.</p>
+  <p class="rec">Recommended: <b>the nine ceilings are typed on screen and recalculate the table, and
+  a ceiling that crosses its neighbour pushes the neighbour aside rather than being refused</b> —
+  the same behaviour built for Stock Purchasing's ladders, so the two models behave alike.</p>
+</div>
+
+<div class="ask defect">
+  <h3>Decision 3 — DEVIATION · the workbook counts a sale into one band and banks its money in another</h3>
+  <p>The band totals and the band counts <b>do not use the same test</b>. For the $1,501–$2,500
+  band the money is summed with <code>SUMIFS(… "&gt;="&amp;1501, … "&lt;="&amp;2500)</code> but the
+  transactions are counted with <code>COUNTIFS(… "&gt;="&amp;1501, … "&lt;"&amp;2500)</code>. The
+  next band up is worse: it sums from <code>"&gt;="&amp;2501</code> but counts from
+  <code>"&gt;"&amp;2501</code>.</p>
+  <p><b>What that does to a real client.</b> A sale of exactly <b>$2,500</b> adds its value and its
+  margin to the band but is counted in no band at all. So does a sale of exactly <b>$2,501</b>, and
+  so does one of exactly <b>$5,000</b>. The transactions column then disagrees with the money beside
+  it, and the Total line disagrees with the sum of the rows — with nothing on screen to say why.</p>
+  <p><b>It is invisible in the sample data</b>, which happens to contain no sale on any of those
+  three figures, so all ten bands add to 140 and the sheet looks perfectly healthy. Round numbers
+  like $2,500 and $5,000 are exactly the amounts real invoices land on.</p>
+  <p class="rec">Recommended: <b>every band is “at least the floor, at most the ceiling” for the
+  count and the money alike</b>, so a sale falls in exactly one band and the columns always
+  reconcile. Pinned in the golden test with the workbook's own figure recorded beside ours.</p>
+</div>
+
+<div class="ask defect">
+  <h3>Decision 4 — DEVIATION · “Total # of Sales” reads a shorter list than everything else</h3>
+  <p>The headline sales count comes from <code>COUNTIF(E18:E508,"&gt;=1")</code>. Every other
+  formula on the sheet reads further down the same column — the band sums reach row 535, the
+  dimension totals reach 529, the revenue total reaches 518. <b>Four different end points for one
+  list.</b></p>
+  <p><b>What that does to a real client.</b> Nothing at 140 rows. At roughly 491 sales the count
+  quietly stops rising while the money keeps going, so the average sale value — which is the money
+  divided by that count — starts climbing for no reason. It is a wrong number that looks entirely
+  plausible, which is the kind UAT cannot catch.</p>
+  <p class="rec">Recommended: <b>one list, read once, however long it is</b>, with the count, the
+  value and the margin all taken from the same rows. Pinned in the golden test.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Where the sales come from</h2>
+    <div class="measures">
+      <span class="meas on">Sales value</span>
+      <span class="meas">Sales margin</span>
+      <span class="meas">Transactions</span>
+    </div>
+  </div>
+  <div class="tabs" style="margin-bottom:14px">
+    <span class="tab on">Brand</span>
+    <span class="tab">Product</span>
+    <span class="tab">Product category</span>
+    <span class="tab">Region</span>
+    <span class="tab priv">Salesperson</span>
+  </div>
+
+  <div class="mix">
+    <div class="ring-wrap">
+      <div class="ring"><div class="ring-c"><div class="v">$269,683</div><div class="l">Sales value</div></div></div>
+      <div class="note" style="text-align:center">Ten brands. Two of them carry 43% of the money.</div>
+    </div>
+
+    <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>Brand</th><th class="r">Transactions</th><th class="r">Sales value</th>
+            <th class="r">Share</th><th>&nbsp;</th><th class="r">Sales margin</th><th class="r">Margin %</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="name"><span class="sw" style="background:#002b64"></span>Smith</td>
+            <td class="r num">8</td><td class="r num">$59,500</td><td class="r num muted">22.1%</td>
+            <td><div class="bar"><i style="width:100%"></i></div></td>
+            <td class="r num">$26,570</td><td class="r num muted">44.7%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#0070c0"></span>Toyota</td>
+            <td class="r num">72</td><td class="r num">$55,183</td><td class="r num muted">20.5%</td>
+            <td><div class="bar"><i style="width:93%"></i></div></td>
+            <td class="r num">$27,997</td><td class="r num muted">50.7%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#00b1e0"></span>Dulux</td>
+            <td class="r num">14</td><td class="r num">$25,450</td><td class="r num muted">9.4%</td>
+            <td><div class="bar"><i style="width:43%"></i></div></td>
+            <td class="r num">$12,619</td><td class="r num muted">49.6%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#4ca52d"></span>Apple</td>
+            <td class="r num">8</td><td class="r num">$23,500</td><td class="r num muted">8.7%</td>
+            <td><div class="bar"><i style="width:39%"></i></div></td>
+            <td class="r num">$11,369</td><td class="r num muted">48.4%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#ff9900"></span>Jones</td>
+            <td class="r num">5</td><td class="r num">$21,900</td><td class="r num muted">8.1%</td>
+            <td><div class="bar"><i style="width:37%"></i></div></td>
+            <td class="r num">$8,673</td><td class="r num muted">39.6%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#7a5ea8"></span>Seiko</td>
+            <td class="r num">9</td><td class="r num">$21,600</td><td class="r num muted">8.0%</td>
+            <td><div class="bar"><i style="width:36%"></i></div></td>
+            <td class="r num">$10,800</td><td class="r num muted">50.0%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#0f8a8a"></span>Honda</td>
+            <td class="r num">8</td><td class="r num">$21,000</td><td class="r num muted">7.8%</td>
+            <td><div class="bar"><i style="width:35%"></i></div></td>
+            <td class="r num">$12,437</td><td class="r num muted">59.2%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#c85a54"></span>Wessen</td>
+            <td class="r num">6</td><td class="r num">$20,300</td><td class="r num muted">7.5%</td>
+            <td><div class="bar"><i style="width:34%"></i></div></td>
+            <td class="r num">$9,509</td><td class="r num muted">46.8%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#5b6f8a"></span>Shimano</td>
+            <td class="r num">6</td><td class="r num">$13,850</td><td class="r num muted">5.1%</td>
+            <td><div class="bar"><i style="width:23%"></i></div></td>
+            <td class="r num">$6,863</td><td class="r num muted">49.6%</td></tr>
+        <tr><td class="name"><span class="sw" style="background:#8fbf3f"></span>Samsung</td>
+            <td class="r num">4</td><td class="r num">$7,400</td><td class="r num muted">2.7%</td>
+            <td><div class="bar"><i style="width:12%"></i></div></td>
+            <td class="r num">$3,452</td><td class="r num muted">46.6%</td></tr>
+        <tr class="subtotal"><td>Total</td><td class="r num">140</td><td class="r num">$269,683</td>
+            <td class="r num">100%</td><td></td><td class="r num">$130,289</td><td class="r num">48.3%</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card-f">
+    <div><b>The conversation this card is for.</b> Toyota takes 72 of the 140 sales — over half the
+    work — for slightly less money than Smith makes on 8. That is the whole point of putting
+    transactions beside value and margin, and it is the single most useful thing on the screen.</div>
+    <div><b>Margin % is ours here too</b>, calculated from the two columns beside it. The workbook
+    charts value and margin separately and never divides one by the other.</div>
+  </div>
+</div>
+
+<div class="ask">
+  <h3>Decision 5 — twenty charts become one chart with two controls</h3>
+  <p>The workbook carries <b>25 charts across two sheets</b> — and they are <b>20 unique views drawn
+  twice over</b>: five dimensions (brand, product, category, region, salesperson) times three
+  measures (transactions, value, margin) as doughnuts, plus one bar chart per dimension. The two
+  sheets are literally named <i>“Pie Graph Options”</i> and <i>“Other Chart Options”</i>: they are
+  a menu, laid out as a wall of charts, because a spreadsheet has no other way to offer a choice.</p>
+  <p>A web page does. The card above is <b>one chart and one table</b> with a row of dimensions and a
+  row of measures — every one of the twenty views, one click apart, and the ranked table beside it
+  that a doughnut alone cannot give you. It also drops the 3-D bars, which distort the very
+  comparison they are drawn to make.</p>
+  <p class="rec">Recommended: <b>one card, five dimensions, three measures</b> — as drawn. Reusing
+  the existing <code>DoughnutChart</code> and <code>HBarChart</code> components, so no new charting
+  library and no bundle growth.</p>
+</div>
+
+<div class="ask behaviour">
+  <h3>Decision 6 — the salesperson cut ranks named employees, and that is a decision for you</h3>
+  <p>One of the five dimensions is <b>Sales Person</b>, by name — Billy, Bobby, Betty and the rest.
+  Choosing it turns this screen into a <b>staff performance ranking</b>: who sold the most, who
+  earned the least margin, ordered best to worst. Every other cut ranks a product or a place.</p>
+  <p>This is the client's own data about their own staff, held in their own spreadsheet today, and
+  an advisor talking to an owner about where the margin goes will reasonably want it. It is also
+  the kind of data that, on a screen rather than in a private workbook, gets shared further than
+  intended.</p>
+  <p class="rec">Recommended: <b>keep the cut, with three limits stated in the build rather than
+  assumed</b> — it is never sent to the model, it never leaves the firm, and it is the only cut
+  whose column may be left out of the import without the screen losing anything else. Marked on the
+  tab above with a small amber dot, so nobody opens it by accident in front of a room.</p>
+  <p>Say no and the tab simply goes; the other four cuts are untouched and nothing else on the
+  screen changes.</p>
+</div>
+
+<div class="ask defect">
+  <h3>Decision 7 — DEVIATION · the last salesperson's transaction count points at the wrong person</h3>
+  <p>On the workbook's calculation sheet, Shaun's transaction count is <code>=Z9</code> — which is
+  <b>Sue's</b> count. It should be <code>=AA9</code>. Every one of the other nineteen cells in that
+  block points where it should.</p>
+  <p><b>It is invisible in the sample data</b>, because the lockstep sample gives all ten
+  salespeople exactly 14 sales each, so Sue's number and Shaun's number are the same number. On real
+  data the last name in the list would silently show someone else's sales count beside its own money
+  — and it would still add up to the right total, because the total is calculated separately.</p>
+  <p class="rec">Recommended: <b>count each name from its own column</b>. There is nothing to weigh
+  up here; it is a typo in a spreadsheet. Recorded as a decision only so that the golden test says
+  why our figure and the workbook's would differ on a real file.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision 8 — where the data comes from, and what happens when a column is missing</h3>
+  <p>The workbook is <b>typed in by hand</b>: someone keys 140 rows onto the <i>Sales Data Input</i>
+  sheet. We already have the other half of this — <code>server/report/intake/salesSheetReader.js</code>,
+  built for Stock Purchasing earlier today, which reads a sales report and already takes product,
+  revenue, cost and margin.</p>
+  <p>What it does not yet read is the four columns that make the cuts: <b>brand, product category,
+  region and salesperson</b>. And a real firm will be missing some — plenty of businesses have no
+  regions and no brands.</p>
+  <p class="rec">Recommended: <b>reuse that reader, and let each cut appear only if its column is
+  really in the file</b> — a firm with no region column simply does not see a Region tab, rather
+  than seeing an empty one or a fabricated one. The bands table and the headline figures need only
+  revenue and cost, so the screen always works even on the barest file.</p>
+  <p>The alternative — typing it in, as the workbook does — stays available for a firm without an
+  export, exactly as the Mid-Level Budget is typed.</p>
+</div>
+
+<div class="nav">
+  <button class="btn">Back to Model Library</button>
+  <button class="btn p">Print for the client</button>
+</div>
+
+</div>
+</div>
+</body>
+</html>
