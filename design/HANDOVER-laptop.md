@@ -16,9 +16,17 @@ Suite **10,507 green** (500 suites), lint 0 errors. 🔴 **MERGED TO `master` �
 `master`, 0 ahead / 0 behind**; nothing is waiting here. **FIVE live items** — 4.15, 4.58, 4.86,
 4.87 and the new **4.96**. **Nothing is active on this machine.**
 
-**`npm run build` was run before the merge and succeeded** (`Ready to run nuxt start`) — Integration
-step 2, and the only thing on our side that ever builds the app. **No tag has been cut**, so
-today's four features are a tag away from anything the master team can pull. That is Mike's call.
+🔴 **`v0.12.0` IS CUT AND PUSHED** — on `14546d8f`, the merge commit of
+[PR #92](https://github.com/advisor-e/Virt-Advisor/pull/92), confirmed on `origin`. Ledger row
+written and backfilled; notes at [`RELEASE-NOTES-v0.12.0.md`](RELEASE-NOTES-v0.12.0.md).
+**92 commits since v0.11.1; 18 of 18 Model Library cards now open something.** No `npm install`,
+no schema change. **Awaiting pull — telling the master team is Mike's lane.**
+
+**Verified ON THE TAGGED COMMIT, not on a branch that resembled it:** 10,507 tests green, lint 0,
+audit PASS, `nuxt build` exit 0, **the backend started and seen listening on 127.0.0.1:4000**, and
+two live routes answered — `/api/report/sales-dashboard` returned the workbook's own $269,683
+across 140 sales, and `/api/report/model-guide` returned 18 models. The start-and-call checks are
+there because `v0.11.0` passed every other gate and would not boot.
 
 **4.95 Sales Dashboard is BUILT AND CLOSED** on Mike's *"build sales dasboard"*. The last of the
 three Model Library cards that opened nothing; all three are now live. Closure on
