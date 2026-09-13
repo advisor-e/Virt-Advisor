@@ -26,9 +26,11 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 - [x] T003 [P] Draw `design/mockups/outcome-learning-trace-lift.html` — the Learned from outcomes panel: a lifted line (+n), a held-back line (−n), an outweighed line naming the evidence kind (distinction / primary issue / industry / signal), and the *Answered by* provider line; style from `components/VirtualAdvisor.vue`'s existing trace
 - [x] T004 [P] Draw `design/mockups/template-profiles.html` — the Template Profiles tab: every template with its source (authored / generated / keyword-only / reviewed / none), the thin flag with its reason, the row editor with signal ticks and 1–10 weights (default 5 when first ticked), the summary's indicators read-only beside them, history and restore per row, the thin count in the header; real titles and real signal names from `server/utils/signals.js`
 - [x] T005 Register the four drawings as rows in `design/ARTEFACTS.md`, each linking its file and `to-do-items.json` 4.97
-- [ ] T006 Put every question on the four drawings to Mike one at a time, one yes/no each; record each ruling on the drawing beside its recommendation; then ask him to approve each drawing itself as its own question and record that on the drawing and in `design/ARTEFACTS.md`
+- [x] T006 Put every question on the four drawings to Mike one at a time, one yes/no each; record each ruling on the drawing beside its recommendation; then ask him to approve each drawing itself as its own question and record that on the drawing and in `design/ARTEFACTS.md`. *(Done 2026-09-14: sixteen questions, sixteen rulings, four approvals. 🔴 **MIKE CAUGHT A WRONG SUBJECT IN DRAWING 4** — it listed 199 templates and he asked "199 seems light - i thought we had close to 290? check to be sure". It was drawn from the profile FILE, not the library: 291 templates, 220 client-facing. Redrawn the same hour; the thin count rose from 49 to 61 of 220, and two further questions came out of the recount. Two consequences were put to him outside the question list and approved with their drawings: a re-size may flip a LIVE row's direction without re-acceptance (drawing 2), and "Answered by" shows at every firm, sharing or not (drawing 3).)*
 
-**Checkpoint**: four approved drawings, every question ruled. Code may start.
+**Checkpoint**: ✅ reached 2026-09-14 — four approved drawings, every question ruled. Code may start.
+
+> 🔴 **ONE BUILD TASK CAME OUT OF THE RULINGS AND BELONGS BEFORE US9's SCREEN**: run `node scripts/build-semantic-profiles.js` once, so any tool whose summary was written after the last build gets a compiled profile; the remainder are authored on the screen. Ruled by Mike 2026-09-14. It is T060a below.
 
 ---
 
@@ -187,7 +189,7 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 ### Tests for User Story 9
 
-- [ ] T054 [P] [US9] Write `tests/unit/semanticProfiles.test.js` — `loadEffectiveProfiles()` merges authored rows over the compiled file by page; TTL 60 s; `isThin(entry)` on the three rules; `validateProfile(body, signalTypes, library)` at **100%** (unknown signal, weight 0 / 11 / non-integer, unknown page, empty profile valid, note cap); `scripts/build-semantic-profiles.js` output never contains an authored page's row (the store is the source, not the file)
+- [ ] T054 [P] [US9] Write `tests/unit/semanticProfiles.test.js` — `loadEffectiveProfiles()` merges authored rows over the compiled file by page and covers every client-facing tool in the library, including the 7 with no compiled entry; TTL 60 s; `isThin(entry)` on the four rules (no entry, empty, weights below 4, keyword-only); `validateProfile(body, signalTypes, library)` at **100%** (unknown signal, weight 0 / 11 / non-integer, unknown page, empty profile valid, note cap); `scripts/build-semantic-profiles.js` output never contains an authored page's row (the store is the source, not the file)
 - [ ] T055 [P] [US9] Write `tests/unit/semanticProfiles.routes.test.js` — list returns every library template with `effective`, `source`, `thin`, `thinReason`, `indicators`; PUT writes `semantic-profile:<page>` at `PLATFORM_SCOPE` with `req.userEmail`, refuses on validation; history and restore call the store with that key; safe error shape on store failure
 
 ### Implementation for User Story 9
@@ -196,7 +198,8 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 - [ ] T057 [US9] Create `server/routes/semanticProfiles.js` (contracts §New routes) and register the four routes in `server/restify-server.js` under `mentorGuard`
 - [ ] T058 [US9] In `server/advisorEngine.js` load `loadEffectiveProfiles()` beside the pooled read and pass `options.profileMap` into both resolver passes; `server/utils/outcomeBench.js` and `scripts/scenario-lab.js` do the same so the benches score what the engine scores
 - [ ] T059 [US9] Create `components/mentor/MentorSemanticProfiles.vue` from the approved drawing (Options API, Pug, Buefy, `$t('semanticProfiles.*')`), modelled on `MentorTemplateLibrary.vue`; register it in `components/FirmManagerHub.vue` with `TAB_TIERS.semanticProfiles = ['mentor']`, a `NAV_GROUPS` item appended to *Your AI coach*, a panel, and the tier judgement as a comment; add `semanticProfiles` to `MENTOR_ADDED_SINCE` in `tests/unit/hubTabTiers.test.js` with the ruling; `locales/en.json` namespace
-- [ ] T060 [US9] `scripts/scenario-lab.js` prints "Templates with a thin effective profile: n/199" and marks each case's top card with whether a `semantic:` reason carried it; `scripts/build-semantic-profiles.js` header comment says authored rows live in the store and this file is the seed
+- [ ] T060a [US9] Run `node scripts/build-semantic-profiles.js` once and commit the result before the screen ships (Mike's ruling 2026-09-14): it compiles any tool whose summary was written after the last build. Report the before and after counts — today 199 entries cover 220 client tools, 7 have no entry at all and 61 are thin. Whatever remains uncompiled is authored on the screen, because the compiler cannot invent a profile for a tool with no summary
+- [ ] T060 [US9] `scripts/scenario-lab.js` prints "Templates with a thin effective profile: n/220" and marks each case's top card with whether a `semantic:` reason carried it; `scripts/build-semantic-profiles.js` header comment says authored rows live in the store and this file is the seed
 
 **Checkpoint**: quickstart Story 9 passes; a compiler re-run leaves the authored row untouched.
 

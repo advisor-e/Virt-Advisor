@@ -7,7 +7,7 @@ Scope always comes from the verified token (`req.firmId`, `req.userEmail`), neve
 
 | Route | Body / params | Returns |
 |---|---|---|
-| `GET /api/mentor/semantic-profiles` | — | `{ success, templates: [{ page, title, subSection, effective: {signal: weight}, source: 'authored'\|'auto'\|'keyword'\|'reviewed'\|'none', thin: boolean, thinReason: string\|null, indicators: string\|null, authoredBy, authoredAt }], signals: [signalType], thinCount, total }` |
+| `GET /api/mentor/semantic-profiles` | — | `{ success, templates: [{ page, title, subSection, effective: {signal: weight}, source: 'authored'\|'auto'\|'keyword'\|'reviewed'\|'none', thin: boolean, thinReason: string\|null, indicators: string\|null, authoredBy, authoredAt }], signals: [signalType], thinCount, total }` — the list is **every `do-the-job` template in the library** (220 today), never the profile file alone; a tool with no compiled entry appears with `source: 'none'` and `thinReason: 'no_entry'` (Mike's ruling 2026-09-14) |
 | `PUT /api/mentor/semantic-profiles/:page` | `{ profile: {signal: 1..10}, note? }` | `{ success, version }`; `400 INVALID_PROFILE` on an unknown signal, a weight outside 1..10, or a page not in the library |
 | `GET /api/mentor/semantic-profiles/:page/history` | — | `{ success, history: [{ id, version, is_active, saved_by, created_at }] }` |
 | `POST /api/mentor/semantic-profiles/:page/restore` | `{ versionId }` | `{ success, version }` |
