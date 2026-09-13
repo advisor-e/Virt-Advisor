@@ -11,38 +11,43 @@
 
 ## 2026-09-13 (twenty-seventh session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,240 green** (491 suites), lint 0 errors, tree clean, 13 ahead / 0 behind
-`master`. One commit, pushed: `cdb936a8`. **FOUR live items** — 4.15, 4.58, 4.86, 4.87.
-**Nothing is active on this machine.**
+Suite **10,249 green** (492 suites), lint 0 errors, tree clean, 15 ahead / 0 behind
+`master`. Two commits pushed — `cdb936a8`, `461c1fdf` — plus this note. **FOUR live
+items** — 4.15, 4.58, 4.86, 4.87. **Nothing is active on this machine.**
 
-**4.93's Mid-Level Budget was opened and looked at** — the thing the last handover named as
-unchecked. The shelf card is correct (Budgeting row, beside its twin, live, *18 of 18 · 16
-ready*), all five steps open with no page errors, and **the four faults fixed last session
-are confirmed fixed on screen**: the budget-only headline, the dashed subtotals, neither
-chart drawing an absent actual, and *Still owed at year end* below its table.
+**4.93's Mid-Level Budget was opened and looked at**, which the last handover named as
+unchecked. Shelf card correct; all five steps open; last session's four fixes confirmed
+on screen. **Three faults came out of looking, none visible to any assertion.**
 
-🔴 **One fault found, and only by looking.** Step 4's help line — *"Enter the money that
-actually reached the bank, not what you invoiced"*, Decision 6 on the drawing — was rendered
-above **Stock and Materials** as well as Money In, where it points the money the wrong way:
-stock leaves the bank, and the supplier does the invoicing. That card now reads *"Enter what
-you actually paid suppliers, not what they invoiced you"* (Mike's wording). Each block names
-its own note; Money Out still has none. **No assertion could have caught it** — both
-sentences are correct English on a correct screen; only the placement was wrong.
+1. **Step 4's help line sat on the wrong card.** *"Enter the money that actually reached
+   the bank, not what you invoiced"* — Decision 6 on the drawing — was rendered above
+   **Stock and Materials** as well as Money In, where it points the money the wrong way.
+   That card now reads *"Enter what you actually paid suppliers, not what they invoiced
+   you"* (Mike's wording).
+2. **Both budget screens opened in April 2021**, the sample workbook's year — five years
+   stale, every month label wrong. Now derived from `utils/financialYearStart.js`
+   (April of the current NZ tax year), shared by both, rolling over on its own. Nine tests.
+3. 🔴 **THE HIGH LEVEL BUDGET HAD NEVER RECEIVED ANY OF 4.93's EMPTY-STATE FIXES.** Found
+   while correcting the same chart heading on both. From step 3 it showed a variance
+   headline against an empty actuals side, drew twelve nulls as zeroes in both charts —
+   a flat line pinned across the bank chart reading *"the actual beat the budget all
+   year"* — listed *Actual* in both legends, and totalled `$0` under a column of *not
+   entered*. `hasActuals` is ported across and governs all of it. **Verified on screen in
+   both directions:** everything returns the moment one actual is entered. No calculation
+   changed.
 
-**Both records carry it, not a paraphrase:** the drawing's green box lists a **seventh**
-difference and supersedes Decision 6 on that one card; the Brief's now-wrong sentence was
-replaced rather than appended to.
+**Both drawings carry every difference** — High Level six → eight, Mid-Level seven → nine
+— and the Mid-Level's *"one nit left deliberately"* paragraph is replaced; it was the
+thread that led to the older screen. Brief updated in both sections.
 
-**Not actioned, not filed — both Mike's call:** a fresh budget opens at **April 2021**
-(`monthsStart: '2021-04'`, and the High-Level Budget does the same, confirmed by opening it,
-so it is pre-existing rather than 4.93's); and the money-in chart still reads *"budget against
-actual"* while only the budget is drawn. Also still true: the `add-a-report` skill tells
-sessions to record work in `ACTIONS.md`, frozen since 2026-08-24.
+**Still open, Mike's call:** the `add-a-report` skill tells sessions to record work in
+`ACTIONS.md`, frozen since 2026-08-24.
 
 **Waiting on Mike, unchanged:** 4.58's OpenAI reply, 4.15's eighteen template names, and
 whether the four unranked items get placed.
 
 **DESKTOP:** 4.87 untouched. Shared files this session touched and has FINISHED with:
-`components/MidLevelBudget.vue`, `locales/en.json`, `design/features/report-models.md`,
-`design/mockups/mid-level-budget.html`, `design/CODE-SIZE.md`. ⚠ **Your note is still dated
-2026-09-10 while your branch has a commit from 2026-09-12** — flagged last session, still true.
+`components/MidLevelBudget.vue`, `components/HighLevelBudget.vue`, `locales/en.json`,
+`utils/financialYearStart.js`, `design/features/report-models.md`, both budget mockups,
+`design/CODE-SIZE.md`. ⚠ **Your note is still dated 2026-09-10 while your branch has a
+commit from 2026-09-12** — flagged last session, still true.
