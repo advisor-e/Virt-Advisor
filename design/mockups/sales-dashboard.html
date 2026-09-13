@@ -222,7 +222,13 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
 <div class="shell">
 
 <div class="mock">
-  <h3>⚠ A drawing. NINE DECISIONS, TWO RULED — nothing is built</h3>
+  <h3>⚠ A drawing. ALL NINE DECISIONS RULED BY MIKE 2026-09-13 — nothing is built yet</h3>
+  <p>🔴 <b>Every one of the nine was put to him on its own, and all nine were ruled as
+  recommended.</b> Each ruling is recorded in its own box below <b>with the recommendation and its
+  reasoning left in place beneath it</b>, so the record shows what was put to him and not only what
+  came back. <b>Decision 1 was ruled, then overtaken by his own Decision 9, and its revised wording
+  was put back to him and ruled separately</b> rather than quietly amended. <b>Ruling the nine is
+  not the same as approving the drawing to build from</b>, which is asked separately.</p>
   <p><b>What created it.</b> Mike, 2026-09-13: <i>“sales dashboard in perf report”</i>, then
   <i>“yes”</i> to drawing the screen before any code is written. It is the <b>last of the three
   Model Library cards that said “coming soon” and opened nothing</b> — the Mid-Level Budget and
@@ -271,13 +277,13 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
 
 <div class="ask ruled">
   <h3>Decision 1 — RULED BY MIKE 2026-09-13 — the library card, and then dates</h3>
-  <p class="ruling">✓ Ruled as recommended — <b>and immediately overtaken by Mike's own question in
-  the same breath: <i>“yes but good idea, can we add dates”</i></b>, ruled yes. See Decision 9. The
-  card therefore reads <b>“Where the sales and the margin come from, and how they move — by brand,
-  product, region and salesperson.”</b> The approved line was <i>“Where the sales and the margin
-  actually come from — by brand, product, region and salesperson”</i>; <b>“and how they move”</b>
-  earns its place only because the trend card below now exists. <b>This is the revised line coming
-  back for confirmation, not a quiet edit to what was signed off.</b></p>
+  <p class="ruling">✓ Ruled as recommended — <b>then overtaken by Mike's own question in the same
+  breath: <i>“yes but good idea, can we add dates”</i></b>, ruled yes (Decision 9). The revised line
+  was therefore <b>put back to him and RULED SEPARATELY, 2026-09-13</b>, rather than quietly edited.
+  The card reads <b>“Where the sales and the margin come from, and how they move — by brand,
+  product, region and salesperson.”</b> The first approved line was <i>“Where the sales and the
+  margin actually come from — by brand, product, region and salesperson”</i>; <b>“and how they
+  move”</b> earns its place only because the trend card below now exists.</p>
   <p>The Model Library advertises Sales Dashboard as <i>“Sales mix, trends and the products carrying
   the margin.”</i> <b>There are no trends in this workbook.</b> Not one of its six sheets holds a
   date, a month or a period column; the 140-row transaction list has brand, product, category,
@@ -409,8 +415,12 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   </div>
 </div>
 
-<div class="ask behaviour">
-  <h3>Decision 2 — the bands are the owner's to set, not ours to fix</h3>
+<div class="ask behaviour ruled">
+  <h3>Decision 2 — RULED BY MIKE 2026-09-13 — the bands are the owner's to set</h3>
+  <p class="ruling">✓ Ruled as recommended. The nine ceilings are <b>typed on screen and recalculate
+  the table</b>, and <b>a ceiling moved past its neighbour pushes the neighbour aside rather than
+  being refused</b> — the same behaviour built for Stock Purchasing's ladders earlier the same day,
+  so the two models behave alike and nobody learns two habits.</p>
   <p>The nine ceilings above (250 · 500 · 1,000 · 1,500 · 2,500 · 5,000 · 7,500 · 10,000 · 15,000)
   are <b>typed cells in the workbook</b>, not constants buried in a formula. A jeweller and a
   dairy do not share a set of sales bands, and a $250 top band is meaningless to one and the whole
@@ -423,8 +433,12 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   the same behaviour built for Stock Purchasing's ladders, so the two models behave alike.</p>
 </div>
 
-<div class="ask defect">
-  <h3>Decision 3 — DEVIATION · the workbook counts a sale into one band and banks its money in another</h3>
+<div class="ask defect ruled">
+  <h3>Decision 3 — RULED BY MIKE 2026-09-13 — DEVIATION · a sale counted in no band at all</h3>
+  <p class="ruling">✓ Ruled as recommended. <b>Every band is “at least the floor, at most the
+  ceiling” for the count and the money alike</b>, so a sale falls in exactly one band and the
+  columns always reconcile. Pinned in the golden test with the workbook's own cached figure recorded
+  beside ours.</p>
   <p>The band totals and the band counts <b>do not use the same test</b>. For the $1,501–$2,500
   band the money is summed with <code>SUMIFS(… "&gt;="&amp;1501, … "&lt;="&amp;2500)</code> but the
   transactions are counted with <code>COUNTIFS(… "&gt;="&amp;1501, … "&lt;"&amp;2500)</code>. The
@@ -442,8 +456,11 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   reconcile. Pinned in the golden test with the workbook's own figure recorded beside ours.</p>
 </div>
 
-<div class="ask defect">
-  <h3>Decision 4 — DEVIATION · “Total # of Sales” reads a shorter list than everything else</h3>
+<div class="ask defect ruled">
+  <h3>Decision 4 — RULED BY MIKE 2026-09-13 — DEVIATION · one list, read once</h3>
+  <p class="ruling">✓ Ruled as recommended. <b>One list, read once, however long it is</b> — the
+  count, the value and the margin all taken from exactly the same rows. Pinned in the golden test
+  with the workbook's own cached figure recorded beside ours.</p>
   <p>The headline sales count comes from <code>COUNTIF(E18:E508,"&gt;=1")</code>. Every other
   formula on the sheet reads further down the same column — the band sums reach row 535, the
   dimension totals reach 529, the revenue total reaches 518. <b>Four different end points for one
@@ -542,8 +559,11 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   </div>
 </div>
 
-<div class="ask">
-  <h3>Decision 5 — twenty charts become one chart with two controls</h3>
+<div class="ask ruled">
+  <h3>Decision 5 — RULED BY MIKE 2026-09-13 — twenty chart views become one card</h3>
+  <p class="ruling">✓ Ruled as recommended. <b>One card, five dimension tabs, three measures</b>, as
+  drawn — reusing the existing <code>DoughnutChart</code> and <code>HBarChart</code> components, so
+  no new charting library and no bundle growth. The workbook's 3-D bars are dropped.</p>
   <p>The workbook carries <b>25 charts across two sheets</b> — and they are <b>20 unique views drawn
   twice over</b>: five dimensions (brand, product, category, region, salesperson) times three
   measures (transactions, value, margin) as doughnuts, plus one bar chart per dimension. The two
@@ -558,8 +578,14 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   library and no bundle growth.</p>
 </div>
 
-<div class="ask behaviour">
-  <h3>Decision 6 — the salesperson cut ranks named employees, and that is a decision for you</h3>
+<div class="ask behaviour ruled">
+  <h3>Decision 6 — RULED BY MIKE 2026-09-13 — the salesperson cut stays, on three stated limits</h3>
+  <p class="ruling">✓ Ruled as recommended — <b>kept</b>, with the three limits <b>written into the
+  build rather than assumed</b>: it is <b>never sent to the model</b>, it <b>never leaves the
+  firm</b> (excluded from anything pooled or shared upward), and <b>its column is optional</b>, so a
+  firm that does not want it simply does not supply it and the tab never appears. The amber marker
+  stays on the tab. 🔴 <b>This is a scoped ruling about ONE cut on ONE screen and is not
+  precedent</b> — another feature ranking named people is a fresh decision for Mike.</p>
   <p>One of the five dimensions is <b>Sales Person</b>, by name — Billy, Bobby, Betty and the rest.
   Choosing it turns this screen into a <b>staff performance ranking</b>: who sold the most, who
   earned the least margin, ordered best to worst. Every other cut ranks a product or a place.</p>
@@ -575,8 +601,11 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   screen changes.</p>
 </div>
 
-<div class="ask defect">
-  <h3>Decision 7 — DEVIATION · the last salesperson's transaction count points at the wrong person</h3>
+<div class="ask defect ruled">
+  <h3>Decision 7 — RULED BY MIKE 2026-09-13 — DEVIATION · each name counted from its own column</h3>
+  <p class="ruling">✓ Ruled as recommended. <b>Each name is counted from its own column.</b> Nothing
+  to weigh up — a typo in a spreadsheet. Recorded as a decision only so the golden test says why our
+  figure and the workbook's differ on a real file.</p>
   <p>On the workbook's calculation sheet, Shaun's transaction count is <code>=Z9</code> — which is
   <b>Sue's</b> count. It should be <code>=AA9</code>. Every one of the other nineteen cells in that
   block points where it should.</p>
@@ -589,8 +618,13 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   why our figure and the workbook's would differ on a real file.</p>
 </div>
 
-<div class="ask">
-  <h3>Decision 8 — where the data comes from, and what happens when a column is missing</h3>
+<div class="ask ruled">
+  <h3>Decision 8 — RULED BY MIKE 2026-09-13 — reuse the reader, and a cut appears only if its column is real</h3>
+  <p class="ruling">✓ Ruled as recommended. <b>Reuse <code>salesSheetReader.js</code>, and each cut
+  appears only if its column is genuinely in the file</b> — no empty tab, and never a fabricated
+  one. The bands table and the four headline figures need only revenue and cost, so the screen works
+  on the barest file. <b>Typing the data in stays available</b> for a firm with no export, as the
+  Mid-Level Budget is typed. Carries the per-model required-columns fix.</p>
   <p>The workbook is <b>typed in by hand</b>: someone keys 140 rows onto the <i>Sales Data Input</i>
   sheet. We already have the other half of this — <code>server/report/intake/salesSheetReader.js</code>,
   built for Stock Purchasing earlier today, which reads a sales report and already takes product,
