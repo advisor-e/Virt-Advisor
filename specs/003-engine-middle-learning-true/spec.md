@@ -165,15 +165,15 @@ Every AI call on the backend goes through one provider seam. When the first prov
 
 ### User Story 9 - The mentor authors each template's profile and signals (Priority: P3)
 
-A Mentor Hub screen lists every template with its semantic profile and signals, flags the templates with no signals and those with purpose-only profiles, and lets the mentor author them with version history and restore. The engine reads the authored profile. The Scenario Lab reports how many templates remain thin.
+A Mentor Hub screen lists every template with its semantic profile and signals, flags the thin ones (an empty profile, weights summing below the compiler's own high-confidence line, or a profile matched by keyword only), and lets the mentor author them with version history and restore. The engine reads the authored profile. The Scenario Lab reports how many templates remain thin.
 
-**Why this priority**: The profiles are the dominant scoring input and 111 of them are thin; they are Mike's content, and today nothing on any screen shows or edits them.
+**Why this priority**: The profiles are the dominant scoring input. Of 199 entries today, 46 are empty (38 because the template has no summary), 149 were generated automatically and never reviewed, and 1 has been reviewed by a person (counts read from the file on 2026-09-14; the audit's earlier 23/88 figures reproduce from nothing in the repository and are withdrawn). They are Mike's content, and today nothing on any screen shows or edits them.
 
-**Independent Test**: Open the screen: 23 templates are flagged as having no signals and 88 as purpose-only. Author signals on one; the next recommendation's scoring log shows them matched; the lab's count of thin templates falls by one.
+**Independent Test**: Open the screen: the thin count matches the Scenario Lab's line. Author signals on one thin template; the next recommendation's scoring log shows them matched; the lab's count of thin templates falls by one.
 
 **Acceptance Scenarios**:
 
-1. **Given** the mentor on the screen, **When** it loads, **Then** every template is listed with its profile, and thin ones are flagged with the reason.
+1. **Given** the mentor on the screen, **When** it loads, **Then** every template is listed with its effective profile and its source (authored, generated, keyword-only, reviewed, none), and thin ones are flagged with the reason.
 2. **Given** an authored change, **When** it is saved, **Then** it is versioned, restorable, and read by the next recommendation.
 3. **Given** a firm, **When** it opens its hub, **Then** it sees no profile screen in this release; the judgement is stated on the brief (the profile is platform content, and a firm's vocabulary already reaches scoring through Advisory Distinctions).
 
