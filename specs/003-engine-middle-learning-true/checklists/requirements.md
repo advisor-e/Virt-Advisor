@@ -31,8 +31,10 @@
 
 ## Notes
 
-- Written 2026-09-14 on the desktop from the prompt Mike approved. `/speckit-clarify` is the
-  next step, and it waits for his yes.
+- Written 2026-09-14 on the desktop from the prompt Mike approved. `/speckit-clarify` ran the
+  same day: three questions, three answers from Mike (net-balance sizing, one open question
+  before skipping a primary issue, weights beside ticked signals), recorded under the spec's
+  Clarifications heading. `/speckit-plan` is the next step, and it waits for his yes.
 - Per the project's own rules, the four drawings come before any plan is executed, and every
   on-screen word is approved by Mike before it reaches code.
 - The one item the plan must settle with Mike before code: the list of AI call sites and which

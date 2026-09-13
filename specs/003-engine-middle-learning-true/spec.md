@@ -22,6 +22,14 @@
 - **Template profiles get a screen**: yes to a Mentor Hub screen for authoring each template's profile and signals.
 - **Routing groups stay dead**: the System Registry (2026-06-09) removed them; the Advisory Engine brief's line "designed, not in code" is stale and is corrected. The engine's middle means the primary-issue step, not routing groups.
 
+## Clarifications
+
+### Session 2026-09-14
+
+- Q: When a template has both "landed well" and "went less well" verdicts in one situation, should its adjustment be sized from the net balance of the two, so that one pairing is always either a lift or a hold-back, never both? → A: Option A. Net balance: size = cap × (landed well − went less well) ÷ delivered; positive is a lift, negative a hold-back. Existing hold-backs are re-sized under the same rule.
+- Q: When the advisor's cause words match none of the authored primary issues for the confirmed domain, should the engine skip the proposal silently and continue, rather than asking the advisor anyway? → A: Option B. Ask one open question ("what is the single biggest driver?") and try once more to map the answer; skip, log the miss and say so on the trace if it still matches nothing. Never a list.
+- Q: On the new screen, should the mentor set each template's signals with a visible weight number, rather than only ticking which signals apply? → A: Option A. Tick a signal and see its weight; the weight is editable and defaults to a standard value when first ticked. Confirmed after two checks Mike asked for: (1) a profile is the template's own fingerprint the scorer reads, which Advisory Distinctions (phrase → tools) and the Logic-Lab Report (pushed edits rolled up) do not show; (2) it is downstream of the search-content export (the library, edited only in Advisor-e, carries no signals) and of the content summaries (this app's per-template prose, from which the profile is compiled). The screen shows the summary's indicators read-only beside the weights, never edits the export, and an authored profile survives a compiler re-run and a fresh export.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - The advisor confirms the primary issue the engine proposes (Priority: P1)
@@ -38,8 +46,9 @@ After the cause-first domain check-in, the engine proposes the single most likel
 2. **Given** a proposed issue, **When** the advisor confirms, **Then** the case carries that authored label, the trace names it as advisor-confirmed, and the next recommendation's scoring reads it.
 3. **Given** a proposed issue, **When** the advisor reframes in their own words, **Then** the engine maps the words to an authored label where one matches, proposes it once more for confirmation, and otherwise stores no issue and says so.
 4. **Given** a context domain (Conflict Meetings, End of Year Meetings, Due Diligence), **When** the check-in completes, **Then** no primary issue is proposed, because those domains produce none by design.
-5. **Given** a case reviewed at a consenting firm with a confirmed issue, **When** it is pooled, **Then** the pooled row carries that label and the primary-issue dimension can meet the floor.
-6. **Given** the Scenario Lab, **When** it runs, **Then** its report states how many of the 51 cases proposed an issue and how many would have been confirmed as proposed.
+5. **Given** cause words that match none of the domain's authored issues, **When** the check-in completes, **Then** the engine asks one open question for the single biggest driver, maps the answer once more, and if it still matches nothing continues without an issue, logs the miss for the signal dictionary, and the trace says no issue was proposed. It never offers a list (clarified 2026-09-14).
+6. **Given** a case reviewed at a consenting firm with a confirmed issue, **When** it is pooled, **Then** the pooled row carries that label and the primary-issue dimension can meet the floor.
+7. **Given** the Scenario Lab, **When** it runs, **Then** its report states how many of the 51 cases proposed an issue and how many would have been confirmed as proposed.
 
 ---
 
@@ -200,7 +209,8 @@ The Advisory Engine brief's pipeline table and "designed, not built" paragraph s
 - **FR-001**: After the domain check-in, for every non-context domain, the engine MUST propose exactly one primary issue from the authored labels for that domain, with a one-line reason, and ask the advisor to confirm or reframe, conversationally and without a menu.
 - **FR-002**: The confirmed primary issue MUST be stored on the case as an authored label, named on the decision trace as advisor-confirmed, read by scoring, and carried into the pooled outcome row.
 - **FR-003**: A reframe that maps to no authored label MUST store no issue and say so; a reframe that maps to one MUST be proposed once more for confirmation.
-- **FR-004**: Pooled evidence MUST produce a lift where "landed well" outweighs "went less well" for a template in a situation, and a hold-back where the reverse holds, each sized from the share and capped, under the same floor (5 firms, 25 cases) and the same mentor accept, hold, reject, history and restore as today.
+- **FR-003a**: Where the cause words match no authored label at the proposal step, the engine MUST ask one open question for the single biggest driver and attempt the mapping once more; if it still matches nothing it MUST continue without an issue, log the miss for the signal dictionary, and state on the trace that no issue was proposed. It MUST NOT offer a list of issues (clarified 2026-09-14).
+- **FR-004**: Pooled evidence MUST produce one adjustment per template-and-situation pairing, sized from the net balance: cap × (landed well − went less well) ÷ delivered, rounded to the unit; a positive result is a lift and a negative result a hold-back, never both on one pairing. Existing hold-backs are re-sized under this rule. The floor (5 firms, 25 cases) and the mentor accept, hold, reject, history and restore are unchanged (clarified 2026-09-14).
 - **FR-005**: The cap MUST hold for every kind of the advisor's own evidence: a distinction, the confirmed primary issue, the industry, or a fired signal. A template matched by any of them MUST receive no pooled adjustment, and the trace MUST name which evidence outweighed it.
 - **FR-006**: The fixed bench MUST report the count of cases where a pooled adjustment re-ordered a template against the advisor's own evidence, and that count MUST be zero.
 - **FR-007**: A typed industry MUST enter the pool only as the vocabulary word the engine's own matcher resolves it to; nothing typed and nothing outside the vocabulary MUST enter.
@@ -211,6 +221,7 @@ The Advisory Engine brief's pipeline table and "designed, not built" paragraph s
 - **FR-012**: A call carrying personal data MUST be routed only to a provider cleared for it in configuration; the fallback MUST NOT be tried for such a call unless cleared; with no cleared provider able to answer, the feature MUST report failure as it does today.
 - **FR-013**: Every provider's reply MUST pass the same validators as today's; no provider's output MUST be trusted as data.
 - **FR-014**: A Mentor Hub screen MUST list every template's profile and signals, flag those with no signals and those that are purpose-only with the reason, and let the mentor author them with version history and restore; the engine MUST read the authored profile.
+- **FR-014a**: On that screen a signal is ticked and carries a visible, editable weight that defaults to a standard value when first ticked; the template's summary indicators are shown read-only beside the weights; the screen MUST NOT edit the search-content export; an authored profile MUST survive a re-run of the profile compiler and a fresh library export (clarified 2026-09-14).
 - **FR-015**: The profile screen is built at the mentor tier alone in this release; the judgement is stated on the brief.
 - **FR-016**: The Scenario Lab MUST report how many cases proposed a primary issue and how many templates remain thin.
 - **FR-017**: The Advisory Engine brief MUST state that routing groups were removed by the registry's ruling; the registry is unchanged.
@@ -227,7 +238,7 @@ The Advisory Engine brief's pipeline table and "designed, not built" paragraph s
 - **Bench result**: as today, plus an out-of-sample run with its cut-off, count tested, and figure.
 - **Provider record**: on every AI log line and trace entry, which configured provider answered.
 - **Provider clearance**: configuration naming which providers may receive personal data.
-- **Template profile**: the signals and weights the engine scores a template by, authored at the platform tier, versioned and restorable.
+- **Template profile**: the signals and weights the engine scores a template by, authored at the platform tier, versioned and restorable; distinct from the library export (title, page, description, edited only in Advisor-e) and from the content summary (this app's per-template prose) it was first compiled from.
 
 ## Success Criteria *(mandatory)*
 
@@ -247,7 +258,7 @@ The Advisory Engine brief's pipeline table and "designed, not built" paragraph s
 
 - The authored primary-issue labels in Mike's Workshop 1 list are the only values a confirmed issue may take; the propose step maps cause words to them with the same signal vocabulary the engine already uses, and never invents a label.
 - Context domains produce no primary issue by design; the propose step does not run for them.
-- A lift's size follows the same share arithmetic as a hold-back, mirrored; the cap of 10 applies to the net of everything matched; no new floor is introduced.
+- The cap of 10 applies to the net of everything matched in a session; no new floor is introduced. (Per-pairing sizing is the net-balance rule in FR-004.)
 - "The advisor's own evidence" means the four kinds the resolver already records as reasons: distinction, primary issue, industry, signal. Domain priors alone are not advisor evidence.
 - The reviewed/unreviewed counts read the existing case records at each firm; no new record is created.
 - The out-of-sample cut-off is the start of the latest month in the pool, so the test set is the newest month; no scheduling is added.
