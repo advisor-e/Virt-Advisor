@@ -1472,9 +1472,8 @@ screen with the suite green (10,354 tests):
   headline directly above that card already reads *80.0%*, and a ladder saying *0.81* beside it
   made the advisor do the conversion.
 
-⚠ **One nit left deliberately, because it is Mike's call and not a silent rewrite:** step 3 uses
-*"Cash you are willing to commit to stock"* twice — as the input label and again as a row in the
-result table, where the drawing had the shorter *"Cash committed to stock"*.
+**Step 3's result row reads "Cash committed to stock"**, the drawing's own shorter wording, rather
+than repeating the input's longer *"Cash you are willing to commit to stock"* (Mike, 2026-09-13).
 
 **The sales import** (Mike, same day) is the other half, and reads a period's sales one row per
 product: `server/report/intake/salesSheetReader.js`, `POST /api/report/stock-purchasing/sales-intake`.

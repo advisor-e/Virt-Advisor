@@ -122,31 +122,6 @@
       "comment": "2026-09-10 - filed on Mike's yes after the wiring was proposed and then stopped on the evidence above. Numbered after the laptop's 4.85 (3492421); renumber here if the laptop files a 4.86 the same day."
     },
     {
-      "ref": "4.94",
-      "name": "Stock Purchasing - the third model nobody had built",
-      "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-13"
-      },
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike asked for it by name. It scores every product line out of 25 on margin, volume, unit cost, speed and shelf share, ranks them, then asks whether the client can afford the order.",
-      "risk": "Its Model Library card has promised 'smarter reorder points' to advisors for months for a model that has none, and the workbook it ports scores some lines 0 on criteria they should pass.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-13 - \"stock purchasing\", asked when the startup checklist put the open work to him, then \"yes\" to drawing the screen before any code."
-      },
-      "touches": "design/mockups/stock-purchasing.html drawing, server/report/stockPurchasingModel.js and its golden test, data/stock-purchasing-sample.json, tests/fixtures/stock-purchasing-workbook-cached.json, stockSheetAssembler.js, POST /api/report/stock-purchasing and its /intake, reportModelCatalogue.js, pages/ and components/, locales/en.json, the report guards.",
-      "note": "DRAWN, ALL EIGHT DECISIONS RULED AND BUILT 2026-09-13. Backend, both imports and the screen are done, walked end to end in a running app. 919 of the workbook sample's 969 lines reproduce exactly; all 50 that move are a workbook zero becoming a real score. TWO RULED DEVIATIONS, mutation-verified outside the repo. Opening the screen found the one fault the suite could not: every ladder rung printed its ceiling one unit too high. Record: design/features/report-models.md and design/ARTEFACTS.md.",
-      "comment": "2026-09-13 - filed when the build began, after the drawing was approved. Passed over on 2026-09-12 when Mike chose the Mid-Level Budget over this and the Sales Dashboard. A STOCK SHEET CARRIES ONLY TWO OF THE FIVE CRITERIA - margin, how many sold and days on hand are in a sales report, not a stock-on-hand export - so the sales import is a separate question still to put to Mike."
-    },
-    {
       "ref": "4.87",
       "name": "Learning from outcomes across consenting firms - the platform gets smarter with use",
       "rankedByMike": false,

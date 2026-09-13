@@ -185,6 +185,52 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.94 — Stock Purchasing: the third of the three cards nobody had built.**
+✅ Closed 2026-09-13 on the laptop. Asked for by Mike in his own words — *"stock purchasing"* —
+when the startup checklist put the open work to him, then *"yes"* to drawing the screen before any
+code. Drawn at [`../mockups/stock-purchasing.html`](../mockups/stock-purchasing.html), **all eight
+of its decisions ruled**, and the drawing approved to build from, in that order. Step 3's name,
+*"Assess your stock exposure"*, is his own wording. **CLASS_REPORT, so no "Illustrative" badge.**
+
+- **What shipped.** [`server/report/stockPurchasingModel.js`](../../server/report/stockPurchasingModel.js)
+  and its golden test, `data/stock-purchasing-sample.json`,
+  `tests/fixtures/stock-purchasing-workbook-cached.json`, **two intake readers**
+  (`stockSheetAssembler.js`, `salesSheetReader.js`), `POST /api/report/stock-purchasing` and both
+  `/intake` routes with their tests, [`pages/stock-purchasing.vue`](../../pages/stock-purchasing.vue),
+  [`components/StockPurchasing.vue`](../../components/StockPurchasing.vue) and its 25-case screen
+  test, its labels in `locales/en.json`, the catalogue card flipped to `STATUS_READY` with its
+  summary rewritten, its Model Guide entry, and entries in both report guards. Suite **10,393
+  green**, lint 0 errors.
+
+- 🔴 **THE LADDERS ARE THE OWNER'S, and that is the point of the model.** Mike, after the first
+  build: *"the whole point of the model is to allow a business owner to quantify their expectations
+  — therefore, all the rankings need to be variables … if you check original model you will see the
+  ranges were seperate columns of editable cells"*. He was right and the workbook proves it in its
+  own formulas (`F6 = G5+1%`, `G24 = F23-1`). Four boundaries per criterion, typed on the ladder
+  itself; the step is per measure on his ruling — **0.1 of a point for percentages**, 1 for days and
+  units, 1 cent for money — and **a boundary typed across its neighbour pushes the others aside**
+  rather than being refused.
+
+- **Two ruled deviations**, both mutation-verified outside the repo, and **919 of the workbook
+  sample's 969 lines reproduced exactly** with every one of the 50 that move being a workbook zero
+  becoming a real score.
+
+- 🔴 **THREE FAULTS FOUND BY OPENING IT, none visible to any assertion**: the screen had no
+  start-up hook and would have shown nothing at all; every one of the 25 ladder rungs printed its
+  ceiling one unit too high so adjacent rungs overlapped; and a boundary typed across its neighbour
+  was silently ignored while the box went on showing it. **A fourth was found by a test before the
+  browser** — `lines.map(scoreLine)` hands the array index in as the ladder set.
+
+- **Two corrections to what we had written**, both recorded in the Brief: those band "gaps" were
+  reported as sloppiness and are the workbook's deliberate ±1 step; and Widget 3 scores **4**, not
+  5, because a value above the owner's ceiling belongs to the rung above — rounding down had handed
+  a line the BEST score for exceeding a limit on the two inverted ladders.
+
+- **What a stock sheet cannot say.** A Cin7/Unleashed stock-on-hand export carries two of the five
+  criteria and a sales report the other four; the screen prints which, and an unscored criterion
+  shows **"—", never 0**, so a low total reads as a missing file rather than a bad product. Record:
+  [`report-models.md`](report-models.md), [`../ARTEFACTS.md`](../ARTEFACTS.md).
+
 **4.93 — Mid-Level Budget: the second of the three cards nobody had built.**
 ✅ Closed 2026-09-13 on the laptop, on Mike's instruction of the same day: *"build another model
 that is pending in the perf report section"*, then his *"yes"* to the recommendation of this model

@@ -614,14 +614,17 @@ tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:70
   the golden test against the workbook's own cached figure with both numbers recorded. The
   <i>Sales Report</i> side already scores 0 and is unchanged. The wrong-cell reference in the "how
   many sold" formula is fixed to use the quantity, as its four siblings do.</p>
-  <p class="ruling" style="border-bottom:0;padding-bottom:0">🔴 <b>Widget 9 ends at 11, not 9 —
-  corrected 2026-09-13 while writing the model.</b> Decisions 5 and 6 were ruled separately but they
-  land on the same cell, and this box first recorded 6 as though 5 had not happened. With the gaps
-  closed, Widget 9's share of stock of <b>0.13 falls inside Trickle</b> (0.06–0.125, now extended to
-  0.135) and scores <b>2</b> — it is no longer in a gap at all, so rule 6 never fires on it. Its
-  four other criteria gave 1 + 2 + 2 + 4 = 9, so the total is <b>9.13 → 11</b>. Decision 6 still
-  changes behaviour; it is simply the safety net under Decision 5 rather than the thing that moves
-  this line.</p>
+  <p class="ruling" style="border-bottom:0;padding-bottom:0">🔴 <b>SUPERSEDED THE SAME DAY, and
+  Decision 5 with it — see the Brief for how the model works now.</b> Mike: <i>"the whole point of
+  the model is to allow a business owner to quantify their expectations — therefore, all the
+  rankings need to be variables … the ranges were seperate columns of editable cells"</i>. He is
+  right, and it changes what Decisions 5 and 6 mean. <b>Those "gaps" are not a fault</b> — they are
+  the deliberate ±1 step the workbook keeps between a rung's max and the next rung's min, and they
+  bite only on a measure with decimals. The owner now types ONE boundary that both rungs read, so a
+  gap cannot exist rather than being patched, and <b>a value above their boundary belongs to the
+  rung ABOVE</b>: Widget 3 scores 4, not 5. Decision 6 survives as the safety net beneath it.
+  <b>The figures quoted in the two boxes above are the workbook's own and still stand</b>; what
+  changed is our answer to them.</p>
   <p>The same five criteria are scored on two sheets, and <b>the two sheets disagree about what a
   gap means.</b> Neither is right, and they are wrong in opposite directions.</p>
   <table>
