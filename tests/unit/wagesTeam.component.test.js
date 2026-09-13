@@ -259,6 +259,93 @@ describe('WagesTeam — the grid groups itself by division', () => {
   })
 })
 
+describe('WagesTeam — the overnight allowance follows the team', () => {
+  // The defect this control exists for: the engine takes `allowances.seasonal` as ONE
+  // fixed total, so before step 1 owned it, adding ten people or deleting twenty left
+  // the allowance at 1,400 a month. A wrong figure produced by using the screen exactly
+  // as intended, with nothing on screen to say so.
+  //
+  // In the workbook it is two typed cells per person — V "Overnight/ Meals + Accom'
+  // Allowance" (175) times X "Avg Number of Nights/ Meals" (2) — summed by CF40.
+
+  it('reproduces the workbook\'s 1,400 from the sample team', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    expect(wrapper.vm.allowanceTotal).toBe(1400)
+  })
+
+  it('takes it from four people at 175 x 2, not from a constant', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    const paid = wrapper.vm.people.filter(p => Number(p.allowanceRate) > 0)
+    expect(paid.length).toBe(4)
+    paid.forEach((p) => {
+      expect(p.allowanceRate).toBe(175)
+      expect(p.allowanceNights).toBe(2)
+    })
+  })
+
+  it('RISES when a person who gets the allowance is added', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.addPerson()
+    const added = wrapper.vm.people[wrapper.vm.people.length - 1]
+    added.allowanceRate = 175
+    added.allowanceNights = 2
+    expect(wrapper.vm.allowanceTotal).toBe(1750)
+  })
+
+  it('FALLS when one of them is removed', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    const paid = wrapper.vm.people.find(p => Number(p.allowanceRate) > 0)
+    wrapper.vm.removePerson(paid)
+    expect(wrapper.vm.allowanceTotal).toBe(1050)
+  })
+
+  it('moves when a rate or a night count is edited', () => {
+    // The trap the workbook carries: three of its four allowance cells have the formula
+    // overtyped with a literal 350, so changing the rate there moves nothing. Deriving
+    // the total removes that.
+    const wrapper = mountWithBuefy(WagesTeam)
+    const paid = wrapper.vm.people.find(p => Number(p.allowanceRate) > 0)
+    paid.allowanceNights = 4
+    expect(wrapper.vm.allowanceTotal).toBe(1750)
+  })
+
+  it('emits the total beside the people, as the engine\'s single figure', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.confirm()
+    const out = wrapper.emitted('confirmed')[0][0]
+    expect(out.allowances.seasonal).toBe(1400)
+  })
+
+  it('does not invent a shutdown allowance it could not read', () => {
+    // The workbook's shutdown column interleaves label text with its formulas and this
+    // file stores some strings without the usual type marker, so it could not be read
+    // with confidence. Supplying a guess would be a made-up money figure; the report
+    // step has to settle it deliberately.
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.confirm()
+    const out = wrapper.emitted('confirmed')[0][0]
+    expect(out.allowances.shutdown).toBeUndefined()
+  })
+
+  it('carries both allowance cells per person, and survives a round trip', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.confirm()
+    const payload = wrapper.emitted('confirmed')[0][0]
+    const paid = payload.people.find(p => p.allowanceRate > 0)
+    expect([paid.allowanceRate, paid.allowanceNights]).toEqual([175, 2])
+
+    const back = mountWithBuefy(WagesTeam, { propsData: { restore: payload } })
+    expect(back.vm.allowanceTotal).toBe(1400)
+  })
+
+  it('treats a blank allowance as nothing rather than NaN', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.addPerson()
+    expect(wrapper.vm.allowanceTotal).toBe(1400)
+    expect(isNaN(wrapper.vm.allowanceTotal)).toBe(false)
+  })
+})
+
 describe('WagesTeam — re-ordering rows is safe to do at all', () => {
   it('leaves the engine\'s figures unchanged when the team is re-ordered', () => {
     // The check that made grouping a safe change rather than a risky one. If row order

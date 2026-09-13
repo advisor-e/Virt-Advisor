@@ -1702,10 +1702,25 @@ Hrs per Day"*, *"Days Worked"*.
 
 1. **"Days Worked" (`Seasonal Inputs` W45) is missing from the drawing** — the office week, which the
    engine reads for every non-production person. A control was added.
-2. **The overnight allowance is NOT a setting, and step 1 has no control for it.** `1,400` is
-   `CF40 = CF16+CF34+CF39+CF11`, a sum of **per-person typed cells** — 350 each on the production
-   block. The engine flattens it to one `allowances.seasonal` total, so honouring it properly means
-   changing the engine's input shape and its golden test. **Open, not guessed at.**
+2. ✅ **The overnight allowance is NOT a setting — CLOSED on Mike's ruling, in step 1.** It is **two
+   typed cells per person**: V *"Overnight/ Meals + Accom' Allowance"* (175) × X *"Avg Number of
+   Nights/ Meals per Month"* (2) = that person's 350, summed by `CF40` to 1,400.
+
+   🔴 **The defect this fixed.** The engine takes `allowances.seasonal` as one **fixed total**, so
+   the figure did not follow the team: adding ten people or deleting twenty left it at 1,400 a
+   month. A wrong number produced by using step 1 exactly as intended, with nothing on screen
+   saying so. Step 1 now carries both cells per person, derives the total (`allowanceTotal`) and
+   emits it — **the engine's input shape and golden test are untouched**, and the sample still
+   gives exactly 1,400.
+
+   ⚠ In the workbook three of the four allowance cells have their **formula overtyped with a
+   literal 350**. Harmless there (175 × 2 = 350 either way) but it means changing the rate on those
+   rows moves nothing. Deriving the total removes that trap.
+
+   🔴 **SHUTDOWN IS NOT SUPPLIED AND MUST NOT BE GUESSED.** Its column interleaves label text with
+   its formulas, and this file stores some strings without the usual type marker, so text could not
+   be told from number with confidence. `confirm` emits `allowances.seasonal` only; the report step
+   has to settle shutdown deliberately rather than inherit a silent zero. Pinned by a test.
 3. **The global overtime flag (`Seasonal Inputs` J4) has no control.** Read by 12 formulas, blank in
    the sample, and **blank is a third state** — not the same as No. Nothing in the workbook or the
    drawing names it, so the field was left out rather than invented and `overtimeSuppressed` is

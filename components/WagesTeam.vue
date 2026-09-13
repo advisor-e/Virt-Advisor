@@ -32,6 +32,8 @@
             th {{ $t('report.wagesReview.team.col.overtime') }}
             th {{ $t('report.wagesReview.team.col.leaveDays') }}
             th {{ $t('report.wagesReview.team.col.tools') }}
+            th {{ $t('report.wagesReview.team.col.allowanceRate') }}
+            th {{ $t('report.wagesReview.team.col.allowanceNights') }}
             th.wt-act
         tbody
           //- Keyed on the person's own id, never the index: the rows re-order when a
@@ -60,6 +62,10 @@
               b-input(v-model.number="person.leaveDays" type="number" step="any" size="is-small")
             td
               b-input(v-model.number="person.toolsWeekly" type="number" step="any" size="is-small")
+            td
+              b-input(v-model.number="person.allowanceRate" type="number" step="any" size="is-small")
+            td
+              b-input(v-model.number="person.allowanceNights" type="number" step="any" size="is-small")
             td.wt-act
               b-button(
                 size="is-small"
@@ -69,6 +75,12 @@
               ) ×
     .wt-foot
       b-button(size="is-small" @click="addPerson") {{ $t('report.wagesReview.team.addPerson') }}
+      //- The team's monthly overnight allowance, shown because it FOLLOWS the team:
+      //- before this control existed the engine held it as a fixed total, so adding or
+      //- removing people left it untouched.
+      span.wt-total
+        | {{ $t('report.wagesReview.team.allowanceTotal') }}
+        b  {{ money(allowanceTotal) }}
 
   .wt-actions
     b-button(type="is-primary" @click="confirm") {{ $t('report.wagesReview.team.continue') }}
@@ -107,6 +119,23 @@
  * against removing a control the model gives; a box the engine overwrites, or one wired to
  * nothing at all, is the opposite fault.
  *
+ * THREE CONTROLS THE DRAWING NEVER SHOWED WERE ADDED, all typed cells the model reads:
+ *   - `toolsWeekly` — `CH7 = (Z7*52)/12`, the weekly tools allowance;
+ *   - the OVERNIGHT ALLOWANCE, which is TWO cells per person rather than one setting:
+ *     V "Overnight/ Meals + Accom' Allowance" (175) x X "Avg Number of Nights/ Meals per
+ *     month" (2) = that person's 350. `CF40` sums them to the 1,400 the engine holds.
+ *
+ * 🔴 WHY THE ALLOWANCE BELONGS HERE. The engine takes `allowances.seasonal` as one FIXED
+ * total, so before this control the figure did not follow the team: adding ten people or
+ * deleting twenty left it at 1,400 a month. That is a wrong number produced by using step
+ * 1 exactly as intended, with nothing on screen to say so. `allowanceTotal` now derives it
+ * from the rows and `confirm` emits it, which leaves the engine's input shape and its
+ * golden test untouched.
+ *
+ * ⚠ In the workbook three of the four allowance cells have their FORMULA OVERTYPED with a
+ * literal 350. Harmless there — 175 x 2 is 350 either way — but changing the rate on those
+ * rows would not move the allowance. Computing it here removes that trap.
+ *
  * DIVISION DRIVES THE BASIS (Mike, 2026-09-14). The workbook is laid out in blocks and
  * the mapping is exact across all 29 sample rows: Admin and Sales are costed as salary,
  * the Production block as production, the Management block as management. The advisor
@@ -124,6 +153,7 @@
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
+import currencyMixin from '~/mixins/currencyMixin'
 
 /**
  * Division -> wage basis. The workbook's blocks, and the whole reason step 1 asks one
@@ -178,7 +208,7 @@ function pctOut (v) {
  * @returns {Array<Object>} one row per person, in the workbook's order
  */
 function samplePeople () {
-  const mk = (name, division, employment, chargeRate, payRate, efficiencyPct, toolsWeekly) => ({
+  const mk = (name, division, employment, chargeRate, payRate, efficiencyPct, toolsWeekly, rate, nights) => ({
     id: newId(),
     name,
     division,
@@ -189,7 +219,11 @@ function samplePeople () {
     retirementPct: 3,
     overtimePct: 50,
     leaveDays: 30,
-    toolsWeekly
+    toolsWeekly,
+    // `Seasonal Inputs` V (the rate) and X (the count). Only the first four production
+    // rows carry them in the sample: 175 x 2 = 350 each, 1,400 for the team.
+    allowanceRate: rate || 0,
+    allowanceNights: nights || 0
   })
   return [
     mk('Mary G', 'Admin', 'Part Time', 0, 19, 0, 0),
@@ -200,10 +234,10 @@ function samplePeople () {
     mk('Alex', 'Sales', 'Full Time', 0, 23, 0, 0),
     mk('Joe', 'Sales', 'Full Time', 0, 23, 0, 0),
     mk('Sean', 'Sales', 'Full Time', 0, 23, 0, 0),
-    mk('Billy Ray', 'Production', 'Full Time', 55, 35, 92, 15),
-    mk('Bob', 'Production', 'Full Time', 52, 32, 85, 15),
-    mk('Barry', 'Production', 'Full Time', 65, 35, 92, 15),
-    mk('Bruce', 'Production', 'Full Time', 60, 38, 85, 15),
+    mk('Billy Ray', 'Production', 'Full Time', 55, 35, 92, 15, 175, 2),
+    mk('Bob', 'Production', 'Full Time', 52, 32, 85, 15, 175, 2),
+    mk('Barry', 'Production', 'Full Time', 65, 35, 92, 15, 175, 2),
+    mk('Bruce', 'Production', 'Full Time', 60, 38, 85, 15, 175, 2),
     mk('Brian', 'Production', 'Full Time', 60, 37, 85, 15),
     mk('Butch', 'Production', 'Part Time', 50, 26, 85, 15),
     mk('Bono', 'Production', 'Full Time', 50, 26, 85, 15),
@@ -237,7 +271,9 @@ function blankPerson () {
     retirementPct: null,
     overtimePct: null,
     leaveDays: null,
-    toolsWeekly: null
+    toolsWeekly: null,
+    allowanceRate: null,
+    allowanceNights: null
   }
 }
 
@@ -245,6 +281,8 @@ export default {
   name: 'WagesTeam',
 
   components: { SampleNotice, HeroStrip, HeroFigure },
+
+  mixins: [currencyMixin],
 
   props: {
     /** A previously confirmed payload (stepping back from a later chip); null on first entry. */
@@ -307,6 +345,21 @@ export default {
      */
     overheadPeople () {
       return this.namedPeople - this.chargingPeople
+    },
+    /**
+     * The team's monthly overnight allowance — each person's rate times their nights,
+     * added up. `Seasonal Inputs` CF40 = CF16+CF34+CF39+CF11, which sums the same
+     * per-person cells; the sample's four production staff give 1,400.
+     *
+     * Computed here rather than typed because the engine takes ONE total, and a total
+     * that does not follow the team is wrong the moment the team is edited — which is
+     * what step 1 is for.
+     * @returns {number}
+     */
+    allowanceTotal () {
+      return this.people.reduce(
+        (sum, p) => sum + (num(p.allowanceRate) * num(p.allowanceNights)), 0
+      )
     }
   },
 
@@ -336,7 +389,9 @@ export default {
         retirementPct: pctOut(p.retirementPct),
         overtimePct: pctOut(p.overtimePct),
         leaveDays: p.leaveDays,
-        toolsWeekly: p.toolsWeekly
+        toolsWeekly: p.toolsWeekly,
+        allowanceRate: p.allowanceRate,
+        allowanceNights: p.allowanceNights
       }))
     },
 
@@ -363,12 +418,19 @@ export default {
      * Hand the team to the page in the shape `computeWages` reads: percentages as
      * decimals, and `wageBasis` derived from the division.
      *
-     * Emits `confirmed` with { people: [...] } — one entry per row, in the order shown
-     * on screen (grouped by division), so returning to the step shows what was left.
-     * The row id is display machinery and deliberately does not travel.
+     * Emits `confirmed` with { people, allowances } — one entry per row, in the order
+     * shown on screen (grouped by division), so returning to the step shows what was
+     * left. The row id is display machinery and deliberately does not travel.
+     *
+     * `allowances.seasonal` is the team's total, derived here because the engine takes
+     * one figure. SHUTDOWN IS NOT SUPPLIED: its column in the workbook interleaves label
+     * text with its formulas and this file stores some strings without the usual type
+     * marker, so it could not be read with confidence. The report step must settle it
+     * deliberately rather than inherit a silent zero — see report-models.md.
      */
     confirm () {
       this.$emit('confirmed', {
+        allowances: { seasonal: this.allowanceTotal },
         people: this.orderedPeople.map(p => ({
           name: String(p.name || ''),
           division: p.division,
@@ -380,7 +442,9 @@ export default {
           retirementPct: pctIn(p.retirementPct),
           overtimePct: pctIn(p.overtimePct),
           leaveDays: num(p.leaveDays),
-          toolsWeekly: num(p.toolsWeekly)
+          toolsWeekly: num(p.toolsWeekly),
+          allowanceRate: num(p.allowanceRate),
+          allowanceNights: num(p.allowanceNights)
         }))
       })
     }
@@ -410,7 +474,7 @@ export default {
    116, and the longest option is what sizes this column. */
 .wt-grid th:nth-child(2), .wt-grid td:nth-child(2) { width: 128px; }
 .wt-grid th:nth-child(3), .wt-grid td:nth-child(3) { width: 100px; }
-.wt-grid th:nth-child(11), .wt-grid td:nth-child(11) { width: 28px; }
+.wt-grid th:nth-child(13), .wt-grid td:nth-child(13) { width: 28px; }
 /* Headers WRAP rather than nowrap. With ten controls plus a remove button, holding
    "Daily production efficiency %" on one line pushed the last two columns off the
    right edge of the card — on a screen where every field is one the advisor must
@@ -427,7 +491,9 @@ export default {
 .wt-grid td ::v-deep input,
 .wt-grid td ::v-deep select { width: 100%; min-width: 0; }
 .wt-act { width: 32px; text-align: right; }
-.wt-foot { margin-top: 12px; }
+.wt-foot { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.wt-total { font-size: 12px; color: var(--rs-muted); }
+.wt-total b { color: var(--rs-ink); }
 .wt-actions { display: flex; justify-content: flex-end; }
 @media print { .wt-actions, .wt-foot { display: none !important; } }
 </style>

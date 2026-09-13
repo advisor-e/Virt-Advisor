@@ -3784,8 +3784,11 @@
           "retirement": "Employer retirement %",
           "overtime": "Overtime uplift %",
           "leaveDays": "Annual + sick leave days",
-          "tools": "Weekly tools allowance"
-        }
+          "tools": "Weekly tools allowance",
+          "allowanceRate": "Overnight/ Meals + Accom' Allowance",
+          "allowanceNights": "Avg Number of Nights/ Meals per Month"
+        },
+        "allowanceTotal": "Team overnight allowance, monthly: "
       },
       "work": {
         "heroBasis": "Basis",
