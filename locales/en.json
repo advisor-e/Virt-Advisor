@@ -3598,7 +3598,10 @@
         "choose": "Choose a file",
         "columns": "Needs Product Code, Quantity, Sales, Cost, Entry Date and Sale Date. Product Group and % of Stock Units are read if they are there.",
         "readNote": "Read {lines} product lines",
-        "uploadFailed": "That file could not be read. Please export again and try once more."
+        "uploadFailed": "That file could not be read. Please export again and try once more.",
+        "yourThresholds": "These boundaries are yours to set. Type what you consider the top of a rung and the one above it moves to match — so the model scores against your expectations, not ours.",
+        "boundaryFor": "Top of the {rating} range",
+        "resetLadders": "Put the ladders back to the standard ranges"
       },
       "step2": {
         "dropTitle": "Import a stock sheet",

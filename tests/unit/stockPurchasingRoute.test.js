@@ -57,7 +57,7 @@ describe('POST /api/report/stock-purchasing', () => {
     expect(res.body.data.ranked[0].total).toBe(17)
     // The ruled deviations, reachable through the route.
     const widget3 = res.body.data.ranked.find(l => l.code === 'Widget 3')
-    expect(widget3.total).toBe(11) // the workbook caches 6
+    expect(widget3.total).toBe(10) // the workbook caches 6
   })
 
   it('🔴 does not send `lines` — it is `ranked` again in another order, and doubles the payload', () => {
@@ -68,7 +68,7 @@ describe('POST /api/report/stock-purchasing', () => {
     expect(res.body.data.ranked).toHaveLength(969)
     // Everything the screen needs is still there.
     expect(Object.keys(res.body.data).sort())
-      .toEqual(['affordability', 'bands', 'criteria', 'maxScore', 'ranked', 'shelf', 'totals'])
+      .toEqual(['affordability', 'bands', 'criteria', 'cuts', 'ladders', 'maxScore', 'ranked', 'shelf', 'totals'])
   })
 
   it('passes a caller\'s own product list, shelf and financial position through to the model', () => {
@@ -101,6 +101,36 @@ describe('POST /api/report/stock-purchasing', () => {
     expect(res.body.data.shelf.alreadyCommitted).toBe(530)
     expect(res.body.data.affordability.quickRatio).toBeCloseTo(1.210526, 6)
     expect(res.body.data.affordability.carries).toBe(false)
+  })
+
+  it('🔴 scores against the OWNER\'S OWN thresholds when they send them', () => {
+    // The point of the model (Mike, 2026-09-13). The same product scores differently for a jeweller
+    // and a grocer, because what counts as a good margin is not ours to decide.
+    const line = { code: 'X', quantity: 40, sales: 1000, cost: 700, entryDate: '2026-01-01', saleDate: '2026-01-10', shareOfStock: 0.2 }
+    const res = fakeRes()
+    // 30% margin is Moderate on the workbook's ladder (26–40%).
+    reportRoute.stockPurchasing({ body: { lines: [line] } }, res, jest.fn())
+    expect(res.body.data.ranked[0].scores.margin.rating).toBe('Moderate')
+
+    // An owner who expects little scores the same 30% at the top of their range.
+    const strict = fakeRes()
+    reportRoute.stockPurchasing({
+      body: { lines: [line], ladders: { margin: [0.05, 0.1, 0.2, 0.3] } }
+    }, strict, jest.fn())
+    expect(strict.body.data.ranked[0].scores.margin.rating).toBe('Fruitful')
+    expect(strict.body.data.cuts.margin).toEqual([0.05, 0.1, 0.2, 0.3])
+    // And the next rung starts one step past the boundary they typed — the auto-advance.
+    expect(strict.body.data.bands.margin[1].from).toBe(0.051)
+  })
+
+  it('falls back to the workbook\'s ladder rather than scoring against a half-typed one', () => {
+    // A ladder whose boundaries do not ascend has a rung no value can reach. Silently scoring a
+    // client's whole range against it would be worse than ignoring it.
+    const res = fakeRes()
+    reportRoute.stockPurchasing({
+      body: { lines: [], ladders: { margin: [0.5, 0.2, null, 0.9] } }
+    }, res, jest.fn())
+    expect(res.body.data.cuts.margin).toEqual([0.25, 0.4, 0.8, 1])
   })
 
   it('treats a non-object body as no body, never as a crash and never as the sample', () => {

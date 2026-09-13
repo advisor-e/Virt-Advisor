@@ -1404,13 +1404,36 @@ excluded here, because a line with no name cannot go on a buy list, so the sampl
 values for every row in `tests/fixtures/stock-purchasing-workbook-cached.json`. All 50 that move
 are a workbook zero becoming a real score.
 
-🔴 **TWO RULED DEVIATIONS, both mutation-verified outside the repo.** (5) Every gap between the
-scoring rungs is closed — *Widget 3*'s $25.22 unit cost had fallen in the `$25–26` gap and cached
-**0**; it scores 5. (6) A criterion matching no band scores 0, the same way on both sheets —
-`Sales Report` yielded Excel `FALSE` and `Product Ratings` returned **the measurement itself**, so
+🔴 **THE LADDERS ARE THE OWNER'S TO SET, AND THAT IS THE POINT OF THE MODEL.** Mike, 2026-09-13:
+*"the whole point of the model is to allow a business owner to quantify their expectations —
+therefore, all the rankings need to be variables … if you check original model you will see the
+ranges were separate columns of editable cells"*. He is right, and the workbook proves it in its
+own formulas: every criterion has a min AND a max column, and one is computed from the other
+(`F6 = G5+1%`, `F15 = G14+1`, `G24 = F23-1`), so typing a boundary moves the neighbouring rung.
+Expressed once rather than twice that is **four boundaries per criterion**, which is what the
+screen now offers and what `ladders` carries into the model.
+
+**THE STEP IS PER MEASURE** (his ruling, same day): percentages advance by **0.1 of a point** —
+type 25% and the next rung starts at 25.1% — days and units by **1**, money by **1 cent**. The
+workbook uses a whole point and a whole dollar, so this is finer in two places and identical in
+three.
+
+🔴 **TWO RULED DEVIATIONS, both mutation-verified outside the repo.** (5) The boundary between two
+rungs is ONE shared number, so **a gap cannot exist** rather than being patched: the rung below
+ends at the owner's figure, the rung above starts one step past it, and the scoring cut is that
+same figure. (6) A criterion matching no band scores 0, the same way on both sheets — `Sales
+Report` yielded Excel `FALSE` and `Product Ratings` returned **the measurement itself**, so
 *Widget 9* cached **9.13 out of 25**. A third fault needed no ruling and is fixed: the
 "how many sold" chain tests the ENTRY DATE in its middle branch where its four siblings test the
 quantity.
+
+⚠ **TWO THINGS IN THIS SECTION WERE WRITTEN WRONG EARLIER AND ARE CORRECTED HERE.** First, those
+band "gaps" were reported as sloppiness in the workbook; they are the deliberate ±1 step between a
+max and the next min, and only bite where the measure is continuous. Second, *Widget 3* was
+recorded as scoring **5 (Minor)** — rounding down to the rung below a printed ceiling. It scores
+**4 (Low)**: $25.22 is above the owner's stated $25 ceiling for Minor. Rounding down was
+defensible while the ladder was ours; once the ceiling is the owner's own number it is not, and on
+the two INVERTED ladders it handed a line the BEST score for exceeding a limit.
 
 **The stock-sheet import** (Mike, same day: *"we need to be able to import a stock sheet"*) reads
 a Cin7 Core or Unleashed stock-on-hand export through the reader built for 4.70 stage 4.

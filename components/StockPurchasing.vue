@@ -113,6 +113,8 @@
           p.sp-lead {{ $t('report.stockPurchasing.step1.criteriaLead', { max: maxScore }) }}
           //- 🔴 The one thing an advisor reading a column of 5s will otherwise get backwards.
           p.sp-warn {{ $t('report.stockPurchasing.step1.inverted') }}
+          //- 🔴 THE BOUNDARIES ARE THE OWNER'S, not ours. Typing one moves the rung above it.
+          p.sp-lead {{ $t('report.stockPurchasing.step1.yourThresholds') }}
           .sp-ladders
             .sp-ladder(v-for="c in criteria" :key="c")
               h3.sp-ladder-h {{ $t('report.stockPurchasing.criterion.' + c) }}
@@ -120,7 +122,19 @@
                 .sp-band(v-for="band in laddersDescending[c]" :key="band.id")
                   span.p {{ band.points }}
                   span.w {{ band.id }}
-                  span.rg {{ rangeLabel(c, band) }}
+                  //- The top rung has no boundary to set: it is whatever is left above the one
+                  //- below it, which is the owner's last number rather than a sixth.
+                  span.rg(v-if="band.cutIndex === null") {{ rangeLabel(c, band) }}
+                  span.rg(v-else)
+                    | {{ rangeEdges(c, band).from }} –
+                    input.sp-cut(
+                      type="number"
+                      :step="stepFor(c)"
+                      :value="cutValue(c, band.cutIndex)"
+                      :aria-label="$t('report.stockPurchasing.step1.boundaryFor', { rating: band.id })"
+                      @input="e => setCut(c, band.cutIndex, e.target.value)")
+                    span.sp-unit(v-if="unitFor(c)") {{ unitFor(c) }}
+          b-button.sp-add(size="is-small" @click="resetLadders") {{ $t('report.stockPurchasing.step1.resetLadders') }}
 
   //- ══════════════════════════════════════════════════════════════════════════
   //- STEP 2 — what's on the shelf
@@ -338,6 +352,13 @@ export default {
       stockFile: null,
       uploading: false,
       uploadError: '',
+      /**
+       * 🔴 THE OWNER'S OWN BOUNDARIES — four per criterion, and the point of the whole model.
+       * Seeded ONCE from the first answer (`laddersSeeded`), so the screen never keeps a second
+       * copy of the workbook's numbers and a reload cannot quietly drift from the backend.
+       */
+      ladders: {},
+      laddersSeeded: false,
       /** What the last sales-report upload read, or null. */
       salesFile: null,
       uploadingSales: false,
@@ -392,7 +413,14 @@ export default {
       const bands = (this.data && this.data.bands) || {}
       const out = {}
       Object.keys(bands).forEach((key) => {
-        out[key] = bands[key].slice().sort((a, b) => b.points - a.points)
+        // `cutIndex` is the rung's position in the OWNER'S four boundaries, carried before the
+        // sort so the entry box still knows which number it is editing once the ladder is
+        // reversed for display. The top rung has none — it is whatever is left above the last
+        // boundary, not a sixth number to type.
+        const withIndex = bands[key].map((band, i) => Object.assign({}, band, {
+          cutIndex: band.cut === undefined ? null : i
+        }))
+        out[key] = withIndex.sort((a, b) => b.points - a.points)
       })
       return out
     },
@@ -442,7 +470,8 @@ export default {
   watch: {
     // Every entry box, the shelf and the exposure figures live under `form`, so one deep watcher
     // covers the screen. The mixin debounces, so a typed figure does not flood the backend.
-    form: { deep: true, handler () { this.queueRecompute() } }
+    form: { deep: true, handler () { this.queueRecompute() } },
+    ladders: { deep: true, handler () { this.queueRecompute() } }
   },
 
   mounted () {
@@ -504,9 +533,18 @@ export default {
       // speaks in percent too — a ladder reading "0.81" beside a hero reading "80.0%" makes the
       // advisor do the conversion. Share of stock stays a ratio, which is how the workbook prints
       // it; the rest are whole units of days, money or stock.
+      // A percentage now needs ONE DECIMAL PLACE, because the step is a tenth of a point: an
+      // owner who types 25% must see the next rung start at 25.1%, not at 25%. Whole percentages
+      // still read whole — 80%, never 80.0% — so the decimal only appears where it means
+      // something. Found by opening the screen: rounding to whole percent showed 40% as the floor
+      // of a rung whose real floor is 40.1%, which is the rung below's ceiling and reads as an
+      // overlap.
+      const pct = (v) => {
+        const n = Math.round(v * 1000) / 10
+        return (Number.isInteger(n) ? String(n) : n.toFixed(1)) + '%'
+      }
       let show = v => this.num(v)
-      if (criterion === 'margin') { show = v => Math.round(v * 100) + '%' }
-      if (criterion === 'shareOfStock') { show = v => String(v) }
+      if (criterion === 'margin' || criterion === 'shareOfStock') { show = pct }
       return {
         from: show(band.from),
         to: band.printedTo === undefined ? null : show(band.printedTo)
@@ -525,6 +563,61 @@ export default {
         return this.$t('report.stockPurchasing.range.andUp', { from: edges.from })
       }
       return this.$t('report.stockPurchasing.range.fromTo', edges)
+    },
+
+    /**
+     * A criterion's boundaries as the owner types them.
+     *
+     * A percentage is typed as 25, not 0.25 — nobody thinks in ratios — so the two percentage
+     * ladders are scaled on the way in and out. `kind` and `step` come from the model with the
+     * answer, so the precision of each measure lives in one place.
+     *
+     * @param {string} criterion @returns {{kind: string, step: number, scale: number}}
+     */
+    ladderShape (criterion) {
+      const meta = ((this.data && this.data.ladders) || {})[criterion] || { kind: 'count', step: 1 }
+      return { kind: meta.kind, step: meta.step, scale: meta.kind === 'percent' ? 100 : 1 }
+    },
+
+    /** The step an entry box moves in, in the units the owner types. @param {string} criterion */
+    stepFor (criterion) {
+      const shape = this.ladderShape(criterion)
+      return Number((shape.step * shape.scale).toFixed(4))
+    },
+
+    /** The symbol shown after a boundary box, or ''. @param {string} criterion */
+    unitFor (criterion) {
+      return this.ladderShape(criterion).kind === 'percent' ? '%' : ''
+    },
+
+    /**
+     * One boundary, in the owner's units.
+     * @param {string} criterion @param {number} i 0-3 @returns {number|string}
+     */
+    cutValue (criterion, i) {
+      const cuts = this.ladders[criterion]
+      if (!cuts || cuts[i] === null || cuts[i] === undefined) { return '' }
+      const shape = this.ladderShape(criterion)
+      return Number((cuts[i] * shape.scale).toFixed(4))
+    },
+
+    /**
+     * Set one boundary. Everything else — the rung above's floor, the scoring, the ranking —
+     * follows from the backend on the next recompute.
+     * @param {string} criterion @param {number} i 0-3 @param {*} value
+     */
+    setCut (criterion, i, value) {
+      const shape = this.ladderShape(criterion)
+      const next = (this.ladders[criterion] || []).slice()
+      next[i] = value === '' || value === null ? null : Number(value) / shape.scale
+      this.$set(this.ladders, criterion, next)
+    },
+
+    /** Put every ladder back to the workbook's own numbers. */
+    resetLadders () {
+      this.ladders = {}
+      this.laddersSeeded = false
+      this.recompute()
     },
 
     /** @param {number|null} v @returns {string} a ratio to 2dp, or the not-entered dash. */
@@ -676,7 +769,10 @@ export default {
             currentAssetsExStock: numOrNull(this.form.exposure.currentAssetsExStock),
             currentLiabilities: numOrNull(this.form.exposure.currentLiabilities),
             cashCommitted: numOrNull(this.form.exposure.cashCommitted)
-          }
+          },
+          // The owner's own thresholds. Empty until they touch one, and the model then falls back
+          // to the workbook's per criterion.
+          ladders: this.ladders
         }
       }
     },
@@ -684,6 +780,13 @@ export default {
     /** Apply a successful recompute — consumed by the reportRecompute mixin. */
     applyResult (data) {
       this.data = data
+      // Seed the boundary boxes from the boundaries the model ACTUALLY SCORED AGAINST, once. Any
+      // later write is the owner's, so this never overwrites what they typed — and a ladder the
+      // model rejected shows them the numbers in force rather than the ones they half-typed.
+      if (!this.laddersSeeded && data && data.cuts) {
+        this.ladders = JSON.parse(JSON.stringify(data.cuts))
+        this.laddersSeeded = true
+      }
     }
   }
 }
@@ -755,7 +858,16 @@ export default {
   font-weight: 700; font-size: 11px;
 }
 .sp-band .w { font-weight: 600; }
-.sp-band .rg { font-size: 11.5px; color: var(--rs-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sp-band .rg { font-size: 11.5px; color: var(--rs-muted); font-variant-numeric: tabular-nums; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+/* The owner's own boundary. Sized to the four digits a threshold ever needs, so a ladder of five
+   rungs still reads as a ladder rather than as a form. */
+.sp-cut {
+  width: 62px; font: inherit; font-size: 12px; font-variant-numeric: tabular-nums;
+  text-align: right; font-weight: 600; color: var(--rs-ink);
+  border: 1px solid var(--rs-line); border-radius: 6px; padding: 2px 5px; background: #fff;
+}
+.sp-cut:focus { outline: 2px solid var(--rs-accent-bright); outline-offset: 1px; }
+.sp-band .sp-unit { color: var(--rs-muted); }
 
 .sp-drop { border: 2px dashed #7fd3f1; border-radius: 12px; padding: 16px; background: var(--rs-panel); text-align: center; }
 .sp-drop.loaded { border-color: var(--rs-good); }

@@ -6,7 +6,7 @@
 const { mountWithBuefy } = require('../helpers/mountComponent')
 
 const StockPurchasing = require('~/components/StockPurchasing.vue').default
-const { computeStockPurchasing, DEFAULT_INPUTS } = require('~/server/report/stockPurchasingModel')
+const { computeStockPurchasing, DEFAULT_INPUTS, CRITERIA: CRITERIA_KEYS } = require('~/server/report/stockPurchasingModel')
 
 /**
  * Stock Purchasing — the screen (item 4.94).
@@ -144,11 +144,72 @@ describe('Stock Purchasing screen', () => {
       expect(wrapper.vm.rangeEdges('daysOnHand', days[1])).toEqual({ from: '14', to: '27' })
       // A rung the workbook leaves open-ended has no ceiling to print.
       expect(wrapper.vm.rangeEdges('daysOnHand', days[4])).toEqual({ from: '75', to: null })
+      // 🔴 Major starts at 40.1%, a TENTH of a point above Moderate's 40% ceiling — the step Mike
+      // asked for. A whole percentage still reads whole, so the decimal appears only where it
+      // carries meaning.
       const margin = wrapper.vm.laddersDescending.margin
-      expect(wrapper.vm.rangeEdges('margin', margin[2])).toEqual({ from: '41%', to: '80%' })
-      expect(wrapper.vm.rangeEdges('margin', margin[0])).toEqual({ from: '101%', to: null })
+      expect(wrapper.vm.rangeEdges('margin', margin[2])).toEqual({ from: '40.1%', to: '80%' })
+      expect(wrapper.vm.rangeEdges('margin', margin[3])).toEqual({ from: '25.1%', to: '40%' })
+      expect(wrapper.vm.rangeEdges('margin', margin[4])).toEqual({ from: '0%', to: '25%' })
+      expect(wrapper.vm.rangeEdges('margin', margin[0])).toEqual({ from: '100.1%', to: null })
+      // Share of stock now reads as a percentage too, and to one decimal place where the step
+      // shows: Flowing's floor is 12.6%, one tenth above Trickle's 12.5% ceiling.
       const share = wrapper.vm.laddersDescending.shareOfStock
-      expect(wrapper.vm.rangeEdges('shareOfStock', share[0])).toEqual({ from: '0.59', to: '1' })
+      expect(wrapper.vm.rangeEdges('shareOfStock', share[0])).toEqual({ from: '58.1%', to: '100%' })
+      expect(wrapper.vm.rangeEdges('shareOfStock', share[2])).toEqual({ from: '12.6%', to: '33%' })
+    })
+
+    it('🔴 lets the owner set the boundaries, and sends them back as ratios', async () => {
+      // The point of the model (Mike, 2026-09-13). A percentage is typed as 25, never as 0.25 —
+      // nobody thinks in ratios — so the two percentage ladders are scaled on the way in and out.
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      expect(wrapper.vm.laddersSeeded).toBe(true)
+      expect(wrapper.vm.cutValue('margin', 0)).toBe(25)
+      expect(wrapper.vm.cutValue('unitCostRisk', 0)).toBe(25)
+      expect(wrapper.vm.cutValue('daysOnHand', 0)).toBe(13)
+
+      wrapper.vm.setCut('margin', 0, '30')
+      expect(wrapper.vm.ladders.margin[0]).toBeCloseTo(0.3, 6)
+      expect(wrapper.vm.recomputeRequest().body.ladders.margin[0]).toBeCloseTo(0.3, 6)
+    })
+
+    it('steps each measure the way Mike ruled — a tenth of a point, a day, a cent', async () => {
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      expect(wrapper.vm.stepFor('margin')).toBe(0.1)
+      expect(wrapper.vm.stepFor('shareOfStock')).toBe(0.1)
+      expect(wrapper.vm.stepFor('daysOnHand')).toBe(1)
+      expect(wrapper.vm.stepFor('sold')).toBe(1)
+      expect(wrapper.vm.stepFor('unitCostRisk')).toBe(0.01)
+      expect(wrapper.vm.unitFor('margin')).toBe('%')
+      expect(wrapper.vm.unitFor('daysOnHand')).toBe('')
+    })
+
+    it('gives the top rung no box, because it is what is left above the last boundary', async () => {
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      CRITERIA_KEYS.forEach((c) => {
+        const rungs = wrapper.vm.laddersDescending[c]
+        const editable = rungs.filter(r => r.cutIndex !== null)
+        expect(editable).toHaveLength(4)
+        // And each box still knows which of the four it edits once the ladder is reversed.
+        expect(editable.map(r => r.cutIndex).sort()).toEqual([0, 1, 2, 3])
+      })
+    })
+
+    it('🔴 seeds the boxes ONCE, and never overwrites what the owner typed', async () => {
+      // applyResult runs on every recompute. Re-seeding would wipe a boundary the moment the
+      // backend answered — the owner would watch their own number vanish as they typed.
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      wrapper.vm.setCut('margin', 0, '30')
+      wrapper.vm.applyResult(computeStockPurchasing(DEFAULT_INPUTS))
+      expect(wrapper.vm.cutValue('margin', 0)).toBe(30)
+    })
+
+    it('puts every ladder back on request', async () => {
+      const wrapper = await mount(computeStockPurchasing(DEFAULT_INPUTS))
+      wrapper.vm.setCut('margin', 0, '30')
+      wrapper.vm.resetLadders()
+      expect(wrapper.vm.ladders).toEqual({})
+      expect(wrapper.vm.laddersSeeded).toBe(false)
     })
 
     it('shows each ladder best-rung-first without reordering the model\'s own array', async () => {

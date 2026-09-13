@@ -277,6 +277,10 @@ function stockPurchasing (req, res, next) {
       shelf: model.shelf,
       affordability: model.affordability,
       bands: model.bands,
+      // The boundaries actually used and the shape of each ladder, so the screen's entry boxes
+      // are filled from what the model scored against rather than from what the screen sent.
+      cuts: model.cuts,
+      ladders: model.ladders,
       criteria: model.criteria,
       maxScore: model.maxScore
     }

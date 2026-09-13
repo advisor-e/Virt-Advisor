@@ -34,30 +34,33 @@
  *
  * The consequence is visible and must not be mistaken for a fault: the workbook's own sample has
  * entry and sale dates running one day apart down the whole sheet, so **every line in it comes out
- * at 36 days on hand** and scores 3 there. Totals therefore span **7–17** here (6–17 as the sheet
- * itself caches them, the floor rising because closing the gaps lifts its two 6s) rather than the
+ * at 36 days on hand** and scores 3 there. Totals therefore span the low teens here rather than the
  * 22s on the Weighted Data Sort tab, which ranks the hand-entered sheet where days on hand varies.
- * That is the sample, not the method.
+ * That is the sample, not the method — and it moves the moment an owner sets their own ladders.
  * ═════════════════════════════════════════════════════════════════════════════════════════════
  *
  * ─────────────────────────────────────────────────────────────────────────────────────────────
  * 🔴 TWO RULED DEVIATIONS FROM THE SOURCE — Mike, 2026-09-13, on the drawing.
  *
- * **1 · Every gap between the scoring rungs is closed.** (Decision 5.)
+ * **1 · The owner's boundary is a shared edge, so nothing can fall between two rungs.**
+ * (Decision 5, and then rebuilt on his correction of the same day.)
  *
- * The workbook writes each ladder as a list of closed ranges typed edge by edge, and the ranges do
- * not meet. Unit cost risk runs `1–25`, `26–40`, `41–75`, `76–175`, `176+`; share of stock runs
- * `0.01–0.05`, `0.06–0.125`, `0.135–0.33`, `0.34–0.58`, `0.59–1.00`. A value landing between two
- * rungs matches no branch of the `IF` chain.
+ * The workbook keeps a min AND a max for every rung and steps between them — `1–25`, `26–40`,
+ * `41–75` — so a continuous measure can land in the step. It fires in the workbook's own third
+ * row: **Widget 3**'s average unit cost is **$25.2184**, which is in the `$25–26` step, and
+ * `Sales Report` T9 caches **0** — a cheap, low-risk line scored as though the criterion did not
+ * exist.
  *
- * It is not theoretical — it fires in the workbook's own third row. **Widget 3**'s average unit
- * cost is **$25.2184**, which falls in the `$25–26` gap, and `Sales Report` T9 caches **0**: a
- * cheap, low-risk line scored as though the criterion did not exist.
+ * This was first built as "close the gaps in our fixed ladder". It is now something better: the
+ * owner types ONE boundary and both rungs read it — the rung below ends there, the rung above
+ * starts one step past it, and the scoring cut is that same number. **A gap cannot exist rather
+ * than being patched after the fact**, and the ladder is theirs. See `LADDERS` below.
  *
- * Each band now runs up to the start of the one above it (`BANDS` below, `upTo` exclusive), and
- * the lowest band reaches down to zero. Reaching to zero is required by Decision 6's own ruling —
- * that 0 is possible only on a blank or a negative — because otherwise a value beneath the lowest
- * rung, which is neither, would still score 0 and the fault would survive in miniature.
+ * 🔴 **A value AT a boundary belongs to that rung; anything above it belongs to the next.** So
+ * Widget 3 scores **Low (4)**, not Minor. An earlier build scored it Minor by rounding down to
+ * the rung below a printed ceiling — defensible while the ladder was ours, untenable once the
+ * ceiling became the owner's own number, and on the two INVERTED ladders it handed a line the
+ * BEST score for exceeding a limit.
  *
  * **2 · A criterion with no band scores 0, and it scores 0 the same way on both sheets.**
  * (Decision 6.)
@@ -71,15 +74,12 @@
  *     **9.13 out of 25**, the `.13` being its share of stock. It is also why a score can arrive
  *     with decimal places where every rung is a whole number.
  *
- * One rule now: no band, no points. With deviation 1 in force this can only be reached by a blank,
+ * One rule now: no band, no points. With deviation 1 in force this is reachable only by a blank,
  * a negative or a non-number, where 0 is the honest answer.
  *
- * 🔴 **HOW THE TWO INTERACT, because they were ruled separately and land on the same cell.**
- * Deviation 1 fires first and mostly disarms deviation 2. Widget 9's share of 0.13 is no longer in
- * a gap — it sits inside Trickle, whose top edge moved from 0.125 to 0.135 — so it scores **2**
- * and its total goes **9.13 → 11**, not to 9. Deviation 2 is the net beneath deviation 1, not the
- * thing that moves that line. Both are pinned in the golden test against the workbook's own cached
- * values.
+ * **WHAT THE TWO MOVE, on the workbook's own sample: 919 of its 969 lines are reproduced
+ * EXACTLY**, and every one of the 50 scores that move is a workbook zero becoming a real score.
+ * A difference of any other shape is a porting error, and the golden test fails on it.
  *
  * **A third fault of the same family is fixed and needed no ruling**: the "how many sold" chain on
  * `Sales Report` (S7) tests `I7`, the entry date, in its middle branch where its four siblings all
@@ -121,79 +121,213 @@
  */
 const SAMPLE_LINES = require('../../data/stock-purchasing-sample.json')
 
-/**
- * The five ladders, read off `Product Categories`.
- *
- * 🔴 EACH BAND CARRIES TWO UPPER EDGES, AND CONFUSING THEM PUTS A WRONG LADDER ON SCREEN.
- *
- *   - `upTo` is the SCORING edge, EXCLUSIVE, and is the lower edge of the band above it. This is
- *     ruled deviation 1, closing the gaps the workbook typed between its rungs. The last band in
- *     each list carries none and is open-ended.
- *   - `printedTo` is what the WORKBOOK PRINTS, and is for the screen and for provenance. It is
- *     never used to match — matching on the printed edges is what created the gaps.
- *
- * They differ by design: days on hand scores `< 14` and prints `1 – 13`. Rendering `upTo` as the
- * caption put every one of the 25 rungs one unit too high and made adjacent rungs overlap —
- * *Hot Cakes! 1–14* sitting directly above *Quick Shifter 14–28* — found on 2026-09-13 by opening
- * the screen with the suite green. A band whose workbook cell reads "(Greater Than)" has no
- * `printedTo` and the screen says "and up".
- *
- * `from` is likewise the workbook's own printed lower edge. `id` is its rating word, `points` what
- * the rung is worth.
- */
-const BANDS = {
-  /** `Product Categories` B4:G9 — margin achieved, as a ratio of sales. Printed as percentages. */
-  margin: [
-    { id: 'Minor', points: 1, from: 0, upTo: 0.26, printedTo: 0.25 },
-    { id: 'Moderate', points: 2, from: 0.26, upTo: 0.41, printedTo: 0.4 },
-    { id: 'Major', points: 3, from: 0.41, upTo: 0.81, printedTo: 0.8 },
-    { id: 'Fruitful', points: 4, from: 0.81, upTo: 1.01, printedTo: 1 },
-    { id: 'Awesome!', points: 5, from: 1.01 }
-  ],
-  /** `Product Categories` B13:G18 — units shifted in the period. */
-  sold: [
-    { id: 'Rare', points: 1, from: 1, upTo: 6, printedTo: 5 },
-    { id: 'Occasional', points: 2, from: 6, upTo: 11, printedTo: 10 },
-    { id: 'Regular', points: 3, from: 11, upTo: 16, printedTo: 15 },
-    { id: 'Frequent', points: 4, from: 16, upTo: 26, printedTo: 25 },
-    { id: 'Often', points: 5, from: 26 }
-  ],
-  /**
-   * `Product Categories` B31:G36 — average unit cost, in the firm's currency.
-   * INVERTED: cheap is 5, expensive is 1. Listed cheapest-first so every ladder here reads in the
-   * same direction; `points` carries the inversion rather than the order.
-   */
-  unitCostRisk: [
-    { id: 'Minor', points: 5, from: 1, upTo: 26, printedTo: 25 },
-    { id: 'Low', points: 4, from: 26, upTo: 41, printedTo: 40 },
-    { id: 'Acceptable', points: 3, from: 41, upTo: 76, printedTo: 75 },
-    { id: 'Stressful', points: 2, from: 76, upTo: 176, printedTo: 175 },
-    { id: 'Waking Nights', points: 1, from: 176 }
-  ],
-  /** `Product Categories` B22:G27 — days between arriving and selling. INVERTED: fast is 5. */
-  daysOnHand: [
-    { id: 'Hot Cakes!', points: 5, from: 1, upTo: 14, printedTo: 13 },
-    { id: 'Quick Shifter', points: 4, from: 14, upTo: 28, printedTo: 27 },
-    { id: 'Come n Go', points: 3, from: 28, upTo: 45, printedTo: 44 },
-    { id: 'Sleepy', points: 2, from: 45, upTo: 75, printedTo: 74 },
-    { id: 'Dead Wood', points: 1, from: 75 }
-  ],
-  /**
-   * `Product Categories` K13:O18 — the line's share of stock units held.
-   * Torrent is the one band with a printed ceiling but no scoring one: the workbook stops it at
-   * 1.00, a whole shelf, and anything above that is not a share.
-   */
-  shareOfStock: [
-    { id: 'Drip', points: 1, from: 0.01, upTo: 0.06, printedTo: 0.05 },
-    { id: 'Trickle', points: 2, from: 0.06, upTo: 0.135, printedTo: 0.125 },
-    { id: 'Flowing', points: 3, from: 0.135, upTo: 0.34, printedTo: 0.33 },
-    { id: 'Flood', points: 4, from: 0.34, upTo: 0.59, printedTo: 0.58 },
-    { id: 'Torrent', points: 5, from: 0.59, printedTo: 1 }
-  ]
-}
-
 /** The five criteria, in the order they are shown and summed. */
 const CRITERIA = ['margin', 'sold', 'unitCostRisk', 'daysOnHand', 'shareOfStock']
+
+/**
+ * THE FIVE LADDERS — and they are the OWNER'S to set, not ours.
+ *
+ * 🔴 **THIS IS THE POINT OF THE MODEL.** Mike, 2026-09-13: *"the whole point of the model is to
+ * allow a business owner to quantify their expectations - therefore, all the rankings need to be
+ * variables ... if you check original model you will see the ranges were separate columns of
+ * editable cells"*. A fixed ladder turns a tool for the owner's judgement into a tool that tells
+ * them what to think. What counts as a good margin depends on the trade.
+ *
+ * The workbook says so in its own formulas. Every criterion on `Product Categories` has two
+ * columns — a min and a max — and **one of them is computed from the other**, so typing a
+ * boundary moves the neighbouring rung:
+ *
+ *   Margin achieved      G5:G8   typed      F6:F9   = `G5+1%`   (next rung starts a point higher)
+ *   How many sold        G14:G17 typed      F15:F18 = `G14+1`
+ *   Unit cost risk       G32:G35 typed      F33:F36 = `G32+1`
+ *   Share of stock held  O14:O17 typed      N15:N18 = `O14+1%`
+ *   Days on hand         F23:F26 typed      G24:G27 = `F23-1`   (this one runs downward)
+ *
+ * Expressed once rather than twice, that is **four cut points per criterion** — the printed top of
+ * rungs 1 to 4 — plus a floor. `defaultCuts` below are the workbook's own; an owner sends their
+ * own in `ladders` and everything on the screen and in the scoring follows.
+ *
+ * 🔴 **THE STEP IS PER MEASURE (Mike, 2026-09-13).** He asked that typing 25% advance the next rung
+ * to 25.1%. That suits a percentage and suits nothing else — there is no such thing as 5.1 units
+ * sold or 13.1 days on a shelf. So percentages step by **0.1 of a point**, days and units by **1**,
+ * money by **1 cent**. The workbook uses a whole point and a whole dollar, so this is finer than it
+ * in two places and identical in the other three.
+ *
+ * HOW A VALUE IS SCORED, and why that is not the same as what is printed:
+ *
+ *   - **`cut` is the owner's own number, and it is the scoring boundary.** A value AT a cut belongs
+ *     to that rung; anything above it belongs to the next. That is what a threshold means, and it
+ *     leaves no gap by construction — ruled deviation 1, now reached through the owner's own
+ *     boundaries rather than by patching ours.
+ *   - **`printedTo` is that same number, and `from` is the rung below's cut plus one step.** So the
+ *     ladder on screen reads the way the workbook reads it, while nothing falls between rungs.
+ *
+ * The LOWEST rung reaches down to zero, below its printed floor. Decision 6 rules that 0 points is
+ * possible only on a blank or a negative, and a 50-cent unit is neither.
+ *
+ * `points` carries the inversion: unit cost risk and days on hand are best-first, because a cheap
+ * unit and a fast sale are good. Every ladder is listed lowest-VALUE-first regardless.
+ */
+const LADDERS = {
+  /** `Product Categories` B4:G9 — margin achieved, as a ratio of sales. Printed as percentages. */
+  margin: {
+    kind: 'percent',
+    step: 0.001,
+    floor: 0,
+    defaultCuts: [0.25, 0.4, 0.8, 1],
+    rungs: [
+      { id: 'Minor', points: 1 },
+      { id: 'Moderate', points: 2 },
+      { id: 'Major', points: 3 },
+      { id: 'Fruitful', points: 4 },
+      { id: 'Awesome!', points: 5 }
+    ]
+  },
+  /** `Product Categories` B13:G18 — units shifted in the period. */
+  sold: {
+    kind: 'count',
+    step: 1,
+    floor: 1,
+    defaultCuts: [5, 10, 15, 25],
+    rungs: [
+      { id: 'Rare', points: 1 },
+      { id: 'Occasional', points: 2 },
+      { id: 'Regular', points: 3 },
+      { id: 'Frequent', points: 4 },
+      { id: 'Often', points: 5 }
+    ]
+  },
+  /**
+   * `Product Categories` B31:G36 — average unit cost, in the firm's currency.
+   * INVERTED: cheap is 5 and expensive is 1, because the question is how much cash one unit locks
+   * up. It is the only measure of the five where a big number is bad.
+   */
+  unitCostRisk: {
+    kind: 'money',
+    step: 0.01,
+    floor: 1,
+    defaultCuts: [25, 40, 75, 175],
+    rungs: [
+      { id: 'Minor', points: 5 },
+      { id: 'Low', points: 4 },
+      { id: 'Acceptable', points: 3 },
+      { id: 'Stressful', points: 2 },
+      { id: 'Waking Nights', points: 1 }
+    ]
+  },
+  /** `Product Categories` B22:G27 — days between arriving and selling. INVERTED: fast is 5. */
+  daysOnHand: {
+    kind: 'count',
+    step: 1,
+    floor: 1,
+    defaultCuts: [13, 27, 44, 74],
+    rungs: [
+      { id: 'Hot Cakes!', points: 5 },
+      { id: 'Quick Shifter', points: 4 },
+      { id: 'Come n Go', points: 3 },
+      { id: 'Sleepy', points: 2 },
+      { id: 'Dead Wood', points: 1 }
+    ]
+  },
+  /**
+   * `Product Categories` K13:O18 — the line's share of stock units held.
+   * `topPrinted` is the one printed ceiling that is NOT an owner's choice: a share cannot exceed
+   * the whole shelf, so the top rung reads "… – 100%" where the other four read "and up".
+   */
+  shareOfStock: {
+    kind: 'percent',
+    step: 0.001,
+    floor: 0.01,
+    topPrinted: 1,
+    defaultCuts: [0.05, 0.125, 0.33, 0.58],
+    rungs: [
+      { id: 'Drip', points: 1 },
+      { id: 'Trickle', points: 2 },
+      { id: 'Flowing', points: 3 },
+      { id: 'Flood', points: 4 },
+      { id: 'Torrent', points: 5 }
+    ]
+  }
+}
+
+/** How many boundaries an owner sets per criterion: the printed top of rungs 1 to 4. */
+const CUTS_PER_LADDER = 4
+
+/**
+ * Round to the ladder's own precision.
+ *
+ * In binary floating point `0.25 + 0.001` is 0.25100000000000006, and an owner who typed 25%
+ * should be shown 25.1%, not 25.1000000000000006%. The step decides the precision: 0.001 → 3dp.
+ *
+ * @param {number} v @param {number} step @returns {number}
+ */
+function toStep (v, step) {
+  const places = Math.max(0, Math.round(-Math.log10(step)))
+  return Number(v.toFixed(places))
+}
+
+/**
+ * The owner's four boundaries for one criterion, validated.
+ *
+ * Anything that is not four ascending finite numbers falls back to the workbook's own, because a
+ * half-typed ladder must never silently rescore a client's whole range. A boundary that is not
+ * above the one below it is the case worth refusing outright: it makes a rung no value can ever
+ * reach, and the screen would show a ladder with an unreachable middle.
+ *
+ * @param {string} criterion @param {*} cuts
+ * @returns {Array<number>} four ascending numbers
+ */
+function cutsFor (criterion, cuts) {
+  const ladder = LADDERS[criterion]
+  if (!Array.isArray(cuts) || cuts.length !== CUTS_PER_LADDER) { return ladder.defaultCuts.slice() }
+  const clean = cuts.map(numberOrNull)
+  for (let i = 0; i < clean.length; i++) {
+    if (clean[i] === null) { return ladder.defaultCuts.slice() }
+    if (i > 0 && clean[i] <= clean[i - 1]) { return ladder.defaultCuts.slice() }
+  }
+  return clean
+}
+
+/**
+ * Build one criterion's five bands from four boundaries.
+ *
+ * @param {string} criterion @param {Array<number>} [cuts] the owner's own, or the workbook's
+ * @returns {Array<{id: string, points: number, from: number, cut: (number|undefined),
+ *   printedTo: (number|undefined)}>}
+ */
+function bandsFor (criterion, cuts) {
+  const ladder = LADDERS[criterion]
+  const edges = cutsFor(criterion, cuts)
+  return ladder.rungs.map(function (rung, i) {
+    const isTop = i === ladder.rungs.length - 1
+    return {
+      id: rung.id,
+      points: rung.points,
+      // The rung above starts one step past the owner's boundary — the workbook's own `G5+1%`.
+      from: i === 0 ? ladder.floor : toStep(edges[i - 1] + ladder.step, ladder.step),
+      // The scoring boundary IS the owner's number. The top rung has none and is open-ended.
+      cut: isTop ? undefined : edges[i],
+      printedTo: isTop ? ladder.topPrinted : edges[i]
+    }
+  })
+}
+
+/**
+ * Every ladder, from one set of the owner's boundaries.
+ * @param {Object} [ladders] criterion → four boundaries
+ * @returns {Object<string, Array<Object>>}
+ */
+function bandsFrom (ladders) {
+  const src = ladders && typeof ladders === 'object' ? ladders : {}
+  const out = {}
+  for (let i = 0; i < CRITERIA.length; i++) {
+    out[CRITERIA[i]] = bandsFor(CRITERIA[i], src[CRITERIA[i]])
+  }
+  return out
+}
+
+/** The workbook's own ladders, which is what an owner who sets nothing is scored against. */
+const BANDS = bandsFrom(null)
 
 /** The best a line can score: five criteria, five points each. */
 const MAX_SCORE = CRITERIA.length * 5
@@ -217,19 +351,22 @@ function numberOrNull (v) {
 /**
  * The band a value falls in, or null if it falls outside every one of them.
  *
- * Bands are ordered and `upTo` is exclusive, so this is a walk rather than a search: the first
- * band whose ceiling the value is under wins, and the last band catches everything above. A
- * negative or a null matches nothing — which, with the gaps closed, is the only way to reach null.
+ * Bands are ordered lowest-value-first and `cut` is the owner's own boundary, INCLUSIVE: a value
+ * AT a cut belongs to that rung, and anything above it to the next. So this is a walk rather than
+ * a search, the last band catches everything above the highest cut, and **there is no gap by
+ * construction** — the boundaries are shared edges, not two numbers that have to be kept in step.
+ *
+ * A negative or a null matches nothing, which is the only way to reach null.
  *
  * @param {number|null} value
- * @param {Array<{id: string, points: number, from: number, upTo: (number|undefined)}>} bands
- * @returns {{id: string, points: number, from: number, upTo: (number|undefined)}|null}
+ * @param {Array<{id: string, points: number, from: number, cut: (number|undefined)}>} bands
+ * @returns {{id: string, points: number, from: number, cut: (number|undefined)}|null}
  */
 function bandFor (value, bands) {
   if (value === null || value < 0) { return null }
   for (let i = 0; i < bands.length; i++) {
     const band = bands[i]
-    if (band.upTo === undefined || value < band.upTo) { return band }
+    if (band.cut === undefined || value <= band.cut) { return band }
   }
   return null
 }
@@ -239,10 +376,11 @@ function bandFor (value, bands) {
  *
  * @param {number|null} value
  * @param {string} criterion  one of CRITERIA
+ * @param {Object<string, Array<Object>>} [bands] the owner's ladders; the workbook's if omitted
  * @returns {{value: (number|null), points: number, rating: (string|null), scored: boolean}}
  */
-function scoreOne (value, criterion) {
-  const band = bandFor(value, BANDS[criterion])
+function scoreOne (value, criterion, bands) {
+  const band = bandFor(value, (bands || BANDS)[criterion])
   return {
     value,
     points: band ? band.points : 0,
@@ -290,9 +428,10 @@ function daysOnHandOf (entryDate, saleDate) {
  *
  * @param {Object} line  { code, quantity, sales, cost, entryDate, saleDate, shareOfStock,
  *   avgUnitCost }
+ * @param {Object<string, Array<Object>>} [bands] the owner's ladders; the workbook's if omitted
  * @returns {Object} the line, its derived figures, its five scores and its total
  */
-function scoreLine (line) {
+function scoreLine (line, bands) {
   const src = line || {}
   const quantity = numberOrNull(src.quantity)
   const sales = numberOrNull(src.sales)
@@ -307,14 +446,18 @@ function scoreLine (line) {
   const avgUnitCost = suppliedUnitCost === null ? derivedUnitCost : suppliedUnitCost
   const daysOnHand = daysOnHandOf(src.entryDate, src.saleDate)
 
+  // Only an object is taken as a ladder set. `lines.map(scoreLine)` is the natural thing to write
+  // and hands this the ARRAY INDEX as its second argument — which would then be indexed for a
+  // criterion, yielding undefined, and every line after the first would throw.
+  const ladders = bands && typeof bands === 'object' ? bands : BANDS
   const scores = {
-    margin: scoreOne(margin, 'margin'),
+    margin: scoreOne(margin, 'margin', ladders),
     // Ruled fix: the quantity is tested here. The sheet's own S7 tests the ENTRY DATE in its
     // middle branch, where its four siblings all test D7.
-    sold: scoreOne(quantity, 'sold'),
-    unitCostRisk: scoreOne(avgUnitCost, 'unitCostRisk'),
-    daysOnHand: scoreOne(daysOnHand, 'daysOnHand'),
-    shareOfStock: scoreOne(shareOfStock, 'shareOfStock')
+    sold: scoreOne(quantity, 'sold', ladders),
+    unitCostRisk: scoreOne(avgUnitCost, 'unitCostRisk', ladders),
+    daysOnHand: scoreOne(daysOnHand, 'daysOnHand', ladders),
+    shareOfStock: scoreOne(shareOfStock, 'shareOfStock', ladders)
   }
 
   let total = 0
@@ -450,13 +593,25 @@ const DEFAULT_INPUTS = {
 /**
  * Run the whole model.
  *
- * @param {Object} inputs  { lines, shelf, exposure }
- * @returns {Object} { totals, lines, ranked, shelf, affordability, bands, maxScore }
+ * @param {Object} inputs  { lines, shelf, exposure, ladders } — `ladders` is the OWNER'S four
+ *   boundaries per criterion, and is what makes this a tool for their judgement rather than ours.
+ *   Anything missing or malformed falls back to the workbook's own, per criterion.
+ * @returns {Object} { totals, lines, ranked, shelf, affordability, bands, ladders, cuts,
+ *   criteria, maxScore }
  */
 function computeStockPurchasing (inputs) {
   const src = inputs || {}
   const lines = Array.isArray(src.lines) ? src.lines : []
-  const scored = lines.map(scoreLine)
+  const bands = bandsFrom(src.ladders)
+  const scored = lines.map(line => scoreLine(line, bands))
+
+  // The boundaries actually used, echoed back. The screen fills its boxes from these rather than
+  // from what it sent, so a rejected ladder shows the owner the figures they are really scored
+  // against instead of the ones they half-typed.
+  const cuts = {}
+  for (let i = 0; i < CRITERIA.length; i++) {
+    cuts[CRITERIA[i]] = cutsFor(CRITERIA[i], src.ladders && src.ladders[CRITERIA[i]])
+  }
 
   return {
     totals: totalsOf(scored),
@@ -466,7 +621,11 @@ function computeStockPurchasing (inputs) {
     affordability: affordability(src.exposure),
     // The ladders travel with the answer so the screen renders the rating words and their ranges
     // from the single source rather than keeping a second copy in a component.
-    bands: BANDS,
+    bands,
+    cuts,
+    // The shape of each ladder — its step, its floor and how to format it — so the screen's entry
+    // boxes are driven by the model too, and a criterion's precision lives in one place.
+    ladders: LADDERS,
     criteria: CRITERIA,
     maxScore: MAX_SCORE
   }
@@ -474,11 +633,17 @@ function computeStockPurchasing (inputs) {
 
 module.exports = {
   BANDS,
+  LADDERS,
+  CUTS_PER_LADDER,
   CRITERIA,
   MAX_SCORE,
   SAMPLE_LINES,
   DEFAULT_INPUTS,
   numberOrNull,
+  toStep,
+  cutsFor,
+  bandsFor,
+  bandsFrom,
   bandFor,
   scoreOne,
   daysOnHandOf,

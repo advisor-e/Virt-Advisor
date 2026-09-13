@@ -29,7 +29,9 @@ const WORKBOOK = require('../fixtures/stock-purchasing-workbook-cached.json')
  *
  * 🔴 THE TWO RULED DEVIATIONS — Mike, 2026-09-13, on `design/mockups/stock-purchasing.html`:
  *
- *   1. Every gap between the scoring rungs is closed (Decision 5).
+ *   1. The boundary between two rungs is ONE shared number, so nothing can fall between them
+ *      (Decision 5, rebuilt on his correction of the same day that the ladders are the OWNER'S
+ *      to set — see `LADDERS` in the model).
  *   2. A criterion matching no band scores 0, the same way on both of the workbook's sheets
  *      (Decision 6).
  *
@@ -158,15 +160,18 @@ describe('Stock Purchasing — the five ladders', () => {
     // makes them doubt the score beside it.
     expect(BANDS.daysOnHand.map(b => [b.from, b.printedTo]))
       .toEqual([[1, 13], [14, 27], [28, 44], [45, 74], [75, undefined]])
+    // The step per measure (Mike, 2026-09-13): days advance by 1, so 13 → 14.
     expect(BANDS.sold.map(b => [b.from, b.printedTo]))
       .toEqual([[1, 5], [6, 10], [11, 15], [16, 25], [26, undefined]])
-    expect(BANDS.unitCostRisk.map(b => [b.from, b.printedTo]))
-      .toEqual([[1, 25], [26, 40], [41, 75], [76, 175], [176, undefined]])
-    expect(BANDS.margin.map(b => [b.from, b.printedTo]))
-      .toEqual([[0, 0.25], [0.26, 0.4], [0.41, 0.8], [0.81, 1], [1.01, undefined]])
-    // Torrent is the one band with a printed ceiling and no scoring one.
+    expect(BANDS.unitCostRisk.map(b => b.printedTo)).toEqual([25, 40, 75, 175, undefined])
+    expect(BANDS.margin.map(b => b.printedTo)).toEqual([0.25, 0.4, 0.8, 1, undefined])
+    // 🔴 The `from` of each rung is now the rung below's boundary PLUS ONE STEP, and the step is
+    // per measure — 0.1 of a point for the two percentages, 1 cent for money. So share reads
+    // 5.1% where the workbook read 6%, and unit cost $25.01 where the workbook read $26.
     expect(BANDS.shareOfStock.map(b => [b.from, b.printedTo]))
-      .toEqual([[0.01, 0.05], [0.06, 0.125], [0.135, 0.33], [0.34, 0.58], [0.59, 1]])
+      .toEqual([[0.01, 0.05], [0.051, 0.125], [0.126, 0.33], [0.331, 0.58], [0.581, 1]])
+    expect(BANDS.unitCostRisk.map(b => b.from)).toEqual([1, 25.01, 40.01, 75.01, 175.01])
+    expect(BANDS.margin.map(b => b.from)).toEqual([0, 0.251, 0.401, 0.801, 1.001])
   })
 
   it('🔴 prints no two rungs that overlap, on any ladder', () => {
@@ -181,12 +186,18 @@ describe('Stock Purchasing — the five ladders', () => {
     })
   })
 
-  it('scores ABOVE each printed ceiling, which is the whole of ruled deviation 1', () => {
-    // The printed ladder and the scoring rule are allowed to differ, and here is where they do:
-    // a value in the gap the workbook left scores in the rung below its printed ceiling.
-    expect(scoreOne(13.5, 'daysOnHand').rating).toBe('Hot Cakes!') // printed 1–13
-    expect(scoreOne(25.5, 'unitCostRisk').rating).toBe('Minor') //    printed $1–25
-    expect(scoreOne(0.255, 'margin').rating).toBe('Minor') //         printed 0–25%
+  it('🔴 treats the owner\'s number as the TOP of its rung — above it is the next rung', () => {
+    // This SUPERSEDES the earlier rule, which scored a value above a printed ceiling in the rung
+    // BELOW it. That was defensible while the ladder was ours and its gaps were a fault to patch.
+    // It stopped being defensible the moment the boundaries became the owner's own (Mike,
+    // 2026-09-13): if they say Minor tops out at $25, $25.22 is not Minor. It also read the wrong
+    // way round on the two inverted ladders, where the rung below is the BETTER score.
+    expect(scoreOne(25, 'unitCostRisk').rating).toBe('Minor') //          at the boundary
+    expect(scoreOne(25.01, 'unitCostRisk').rating).toBe('Low') //         a cent above it
+    expect(scoreOne(13, 'daysOnHand').rating).toBe('Hot Cakes!')
+    expect(scoreOne(13.5, 'daysOnHand').rating).toBe('Quick Shifter')
+    expect(scoreOne(0.25, 'margin').rating).toBe('Minor')
+    expect(scoreOne(0.255, 'margin').rating).toBe('Moderate')
   })
 
   it('inverts unit cost risk — a cheap unit is worth 5 and an expensive one 1', () => {
@@ -257,21 +268,24 @@ describe('Stock Purchasing — the five ladders', () => {
 })
 
 describe('Stock Purchasing — deviation 1, the gaps are closed (Mike, Decision 5)', () => {
-  it('scores every value the workbook dropped between two rungs', () => {
-    // Each of these matches NO branch of the workbook's IF chain and caches FALSE or the raw
-    // value. Each now lands in the rung below, which is the conservative direction.
-    expect(scoreOne(0.255, 'margin').points).toBe(1) // wb: 0.25–0.26 gap
-    expect(scoreOne(0.405, 'margin').points).toBe(2) // wb: 0.40–0.41 gap
-    expect(scoreOne(0.805, 'margin').points).toBe(3) // wb: 0.80–0.81 gap
-    expect(scoreOne(1.005, 'margin').points).toBe(4) // wb: 1.00–1.01 gap
-    expect(scoreOne(25.5, 'unitCostRisk').points).toBe(5) // wb: $25–26 gap
-    expect(scoreOne(40.5, 'unitCostRisk').points).toBe(4) // wb: $40–41 gap
-    expect(scoreOne(75.5, 'unitCostRisk').points).toBe(3) // wb: $75–76 gap
-    expect(scoreOne(175.5, 'unitCostRisk').points).toBe(2) // wb: $175–176 gap
-    expect(scoreOne(0.055, 'shareOfStock').points).toBe(1) // wb: 0.05–0.06 gap
-    expect(scoreOne(0.13, 'shareOfStock').points).toBe(2) // wb: 0.125–0.135 gap
-    expect(scoreOne(0.335, 'shareOfStock').points).toBe(3) // wb: 0.33–0.34 gap
-    expect(scoreOne(0.585, 'shareOfStock').points).toBe(4) // wb: 0.58–0.59 gap
+  it('has NO gap to fall into, because the boundaries are shared edges', () => {
+    // This SUPERSEDES the original framing of Decision 5. The workbook keeps a min AND a max per
+    // rung and steps between them, so a continuous measure could land in the step — $25.22 in the
+    // $25–26 one. Now the owner types ONE boundary and both rungs read it: the rung below ends
+    // there, the rung above starts one step past it, and the scoring cut is that same number. A
+    // gap cannot exist, rather than being patched after the fact.
+    const edges = [
+      ['margin', 0.25], ['sold', 5], ['unitCostRisk', 25], ['daysOnHand', 13], ['shareOfStock', 0.05]
+    ]
+    edges.forEach(([criterion, cut]) => {
+      const bands = BANDS[criterion]
+      expect(bands[0].cut).toBe(cut)
+      expect(bands[0].printedTo).toBe(cut)
+      // Nothing between the two rungs: the next one's floor is one step past the shared edge.
+      expect(bands[1].from).toBeGreaterThan(cut)
+      expect(scoreOne(cut, criterion).scored).toBe(true)
+      expect(scoreOne(bands[1].from, criterion).rating).toBe(bands[1].id)
+    })
   })
 
   it('reaches down to zero, below the workbook\'s own lowest rung', () => {
@@ -381,29 +395,37 @@ describe('Stock Purchasing — deviations from the workbook, line by line', () =
   })
 
   it('pins Widget 3 — the case named in the ruling', () => {
-    // `Sales Report` row 9. Average unit cost $25.2184 falls in the $25–26 gap, so T9 caches 0 and
-    // W9 caches 6. Ours scores the rung below, Minor.
+    // `Sales Report` row 9. Average unit cost $25.2184 falls in the $25–26 step the workbook keeps
+    // between its rungs, so T9 caches 0 and W9 caches 6.
+    //
+    // 🔴 IT SCORES **LOW**, NOT MINOR, and an earlier build had this the other way. $25.22 is above
+    // the owner's stated ceiling of $25 for Minor, so it belongs to the rung above. Rounding down
+    // to the rung below a printed ceiling was defensible while the ladder was ours; once the
+    // ceiling became the owner's own number it was not — and on this inverted ladder it handed the
+    // line the BEST score for exceeding a limit.
     const line = byCode['Widget 3']
     expect(line.avgUnitCost).toBeCloseTo(25.2184, P)
     expect(WORKBOOK[2].pCost).toBe(0) // the workbook
     expect(WORKBOOK[2].total).toBe(6) // the workbook
-    expect(line.scores.unitCostRisk.points).toBe(5)
-    expect(line.scores.unitCostRisk.rating).toBe('Minor')
-    expect(line.total).toBe(11)
+    expect(line.scores.unitCostRisk.points).toBe(4)
+    expect(line.scores.unitCostRisk.rating).toBe('Low')
+    expect(line.total).toBe(10)
   })
 
   it('pins Widget 9 — the other case named in the ruling', () => {
     // `Sales Report` row 15 caches V15 = 0 and W15 = 6: its 0.13 share falls in the 0.125–0.135
-    // gap. 🔴 The 9.13 quoted in the ruling is the SAME PRODUCT ON `Product Ratings` row 23, the
+    // step. 🔴 The 9.13 quoted in the ruling is the SAME PRODUCT ON `Product Ratings` row 23, the
     // sheet this model does not port — that sheet returns the raw 0.13 where this one returns 0.
-    // Both are the same fault; only this one is in the port, and here the line moves 6 → 8.
+    // Both are the same fault; only this one is in the port, and here the line moves 6 → 9.
+    //
+    // FLOWING, because 0.13 is above the owner's 0.125 ceiling for Trickle.
     const line = byCode['Widget 9']
     expect(line.shareOfStock).toBeCloseTo(0.13, P)
     expect(WORKBOOK[8].pShare).toBe(0) // the workbook
     expect(WORKBOOK[8].total).toBe(6) // the workbook
-    expect(line.scores.shareOfStock.points).toBe(2)
-    expect(line.scores.shareOfStock.rating).toBe('Trickle')
-    expect(line.total).toBe(8)
+    expect(line.scores.shareOfStock.points).toBe(3)
+    expect(line.scores.shareOfStock.rating).toBe('Flowing')
+    expect(line.total).toBe(9)
   })
 })
 
@@ -550,7 +572,7 @@ describe('Stock Purchasing — asked for nothing', () => {
   })
 
   it('carries the ladders out with the answer, so no component keeps a second copy', () => {
-    expect(model.bands).toBe(BANDS)
+    expect(model.bands).toEqual(BANDS)
     expect(model.criteria).toEqual(CRITERIA)
     expect(model.maxScore).toBe(25)
   })
