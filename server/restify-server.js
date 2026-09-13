@@ -225,6 +225,17 @@ server.post('/api/report/working-capital-cycle', reportRoute.workingCapitalCycle
 server.post('/api/report/debtor-drag', reportRoute.debtorDrag)
 server.post('/api/report/margin-breakeven', reportRoute.marginBreakeven)
 server.post('/api/report/eight-levers', reportRoute.eightLevers)
+// The High Level Budget (item 4.88) — calc-only, anonymous: a budget, its actuals and the
+// variances between them, numbers in and numbers out.
+server.post('/api/report/high-level-budget', reportRoute.highLevelBudget)
+server.post('/api/report/mid-level-budget', reportRoute.midLevelBudget)
+server.post('/api/report/stock-purchasing', reportRoute.stockPurchasing)
+server.post('/api/report/stock-purchasing/intake', firmAuth, reportRoute.stockPurchasingIntake)
+server.post('/api/report/stock-purchasing/sales-intake', firmAuth, reportRoute.stockPurchasingSalesIntake)
+// The Sales Dashboard (item 4.95) — calc-only, anonymous. Its intake carries firmAuth because it
+// accepts an upload, like both of Stock Purchasing's above.
+server.post('/api/report/sales-dashboard', reportRoute.salesDashboard)
+server.post('/api/report/sales-dashboard/intake', firmAuth, reportRoute.salesDashboardIntake)
 // The Business Performance Report's ratio hub (item 4.70, stage 1) — calc-only, anonymous.
 server.post('/api/report/dashboard-reports', reportRoute.dashboardReports)
 // The report's pages (stage 2). Guarded, unlike the hub above, because the cash drivers and
@@ -237,6 +248,9 @@ server.post('/api/report/loan-estimator', reportRoute.loanEstimator)
 server.post('/api/report/lease-vs-buy', reportRoute.leaseVsBuy)
 server.post('/api/report/cost-of-capital', reportRoute.costOfCapital)
 server.post('/api/report/multiple-property', reportRoute.multipleProperty)
+// The Retirement Review (item 4.90) — calc-only, anonymous. It carries more of a real
+// household than any other model here, which is the reason it stores nothing.
+server.post('/api/report/retirement-review', reportRoute.retirementReview)
 server.post('/api/report/volatility', reportRoute.volatility)
 // The Import & Retail shipment calculator (item 4.64 slice 2). Anonymous like the
 // volatility read beside it — dates and numbers in, dates and numbers out. It is a route

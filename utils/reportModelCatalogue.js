@@ -92,16 +92,38 @@ export const MODELS = [
   // advertised a built model as "coming soon". Removed 2026-07-13 with the owner's approval.
   { name: 'Margin · Mark-up · Break-even', category: 'Profitability', summary: 'The pricing trio every quote depends on, in one calculator.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/margin-breakeven' },
   { name: '8 Levers Model', category: 'Profitability', summary: 'The eight levers that move profit, and which one to pull first.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/eight-levers' },
-  { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Smarter reorder points and buying to free cash without stock-outs.', status: STATUS_SOON, modelClass: CLASS_REPORT },
-  { name: 'Sales Dashboard', category: 'Growth', summary: 'Sales mix, trends and the products carrying the margin.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  // The summary was "Smarter reorder points and buying to free cash without stock-outs" until
+  // 2026-09-13. There are no reorder points anywhere in the source workbook and nothing in it
+  // detects a stock-out; an advisor picking from the library on that description would open
+  // something other than what they expected. Rewritten on Mike's ruling (Decision 8 on the
+  // drawing) to describe the model that exists.
+  { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Ranks what to buy by margin, speed and cash tied up — then checks the client can afford it.', scope: 'Scores and ranks a product list, and imports a Cin7 Core or Unleashed stock-on-hand export. A stock sheet carries two of the five criteria; margin, units sold and days on hand come from a sales report, whose import is a later stage.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/stock-purchasing' },
+  // Item 4.95. The summary was "Sales mix, trends and the products carrying the margin" until
+  // 2026-09-13 — and there are no trends in the source workbook: not one of its six sheets holds a
+  // date, a month or a period column. An advisor picking this off the shelf to show a client a
+  // trend would have opened something that could not draw one. Rewritten on Mike's Decision 1, and
+  // then revised again by his own Decision 9 — "can we add dates" — which is what earns "and how
+  // they move" its place. CLASS_REPORT: a client's real sales list, so no "Illustrative" badge.
+  { name: 'Sales Dashboard', category: 'Growth', summary: 'Where the sales and the margin come from, and how they move — by brand, product, region and salesperson.', scope: 'Bands every sale by value and cuts the same sales five ways. The trend card appears only when the imported file carries a sale date — the source workbook holds none.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/sales-dashboard' },
   { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/cost-of-capital' },
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/lease-vs-buy' },
   { name: 'The Loan Estimator', category: 'Valuation', summary: 'What lenders would lend against, whether the household can service it, and the repayments.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/loan-estimator' },
   { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Whether a rental portfolio is worth buying — up to five properties, ten years of cash, tax and equity.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/multiple-property' },
-  { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  // Item 4.90. CLASS_DECISION — a household's real income, pension, superannuation and up to
+  // six properties, typed in — so NO "Illustrative" badge, and the route stores nothing.
+  { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/retirement-review' },
   { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },
-  { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON, modelClass: CLASS_REPORT },
-  { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  // Item 4.88. CLASS_REPORT per design/MODEL-CLASSIFICATION.md — "actuals and variances" — so
+  // no "Illustrative" badge: these are a client's own budget and their own bank balance.
+  // Entry is typed rather than read from a file: a budget is a forecast, so there is nothing
+  // to import, and no accounts reader produces a monthly cash figure on these 32 lines.
+  { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/high-level-budget' },
+  // Item 4.93. CLASS_REPORT, exactly as its High-Level sibling above — a client's own budget and
+  // their own bank balance — so no "Illustrative" badge. What it adds is the TIMING: an
+  // Assumptions profile spreading each month's sales, and each month's purchases, across up to
+  // five months. Entry is typed for the same reason as the High-Level: a budget is a forecast,
+  // so there is nothing to import.
+  { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/mid-level-budget' },
   // CLASS_REPORT stands per design/MODEL-CLASSIFICATION.md, which lists this model under
   // Report (9) — "variance analysis on real figures". Entry is typed until the by-month
   // accounts upload lands (Mike, 2026-08-31: "typed now, upload next"); that changes where

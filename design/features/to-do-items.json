@@ -162,6 +162,27 @@
       "touches": "components/shared/HubGuidePanel.vue and HubReadingCard.vue, both mentor pages, server/utils/hubReading.js, the two reading routes, the hub-reading document on the AI Prompts tab, locales.",
       "note": "BUILT 2026-09-11 from design/mockups/hub-page-guidance.html, approved the same day. Both pages open with How to use this page (Got it closes it, remembered per browser) and carry What this is telling you: on the button, never on open; the model is sent only what the page shows; a reply without the three fixed headings, or carrying a link or a name, is dropped whole; stored with the counts it was read from and marked stale when they move. It never accepts, holds or rejects anything. SEEN on the built app, failure message included: the model refused with 'no credits remaining' on the OpenAI account, Mike's to top up, so no real reading exists yet.",
       "comment": "2026-09-11 - raised by Mike on the running app after pressing Run the benches, drawn the same evening, ruled and built on his yes."
+    },
+    {
+      "ref": "4.96",
+      "name": "The add-a-report skill still points sessions at the frozen ACTIONS.md",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 1,
+      "scoreReason": "internal only",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The skill that governs every new report tells sessions to record their work in design/ACTIONS.md, frozen since 2026-08-24. A session following it writes into an archive nobody reads.",
+      "risk": "A report's record lands where no checklist looks, so it is lost. Worse, a skill is read as an instruction: CLAUDE.md warns that an AI-written line taken as one produced two pieces of unrequested work, and this line is read by every session that builds a report.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-13 - found while building the Sales Dashboard and ignored in favour of the live list. Carried in laptop handovers since at least 2026-09-11 without ever becoming an item. Filed on Mike's yes at shutdown."
+      },
+      "touches": ".claude/skills/add-a-report/SKILL.md, its 'Record & commit' section. design/ADDING-A-REPORT.md is already correct and needs no change.",
+      "note": "ONE SENTENCE IN ONE FILE. The skill's 'Record & commit' section reads 'Add the report's line to design/ACTIONS.md (no silent parking)'. It should name design/features/to-do-items.json, which is where the deviation-logging rule has written since ACTIONS.md was frozen. The deployment-row sentence beside it is still right and stays.",
+      "comment": "2026-09-13 - filed at shutdown on Mike's yes, after three sessions of it living in a handover note instead. That is the failure the shutdown checklist names: an open question for Mike is an item on this list, never a line in a note."
     }
   ]
 }

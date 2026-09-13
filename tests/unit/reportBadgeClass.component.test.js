@@ -42,6 +42,22 @@ const RENDERED_BY = {
   '/cost-of-capital': { component: 'components/CostOfCapital.vue' },
   '/multiple-property': { component: 'components/MultiplePropertyAssessment.vue' },
   '/volatility': { component: 'components/VolatilityReport.vue' },
+  // The High Level Budget (4.88) keeps its header in the COMPONENT, above its own step
+  // chips — unlike Quick Position, it is one component with nothing to coordinate, so the
+  // page is the shell and nothing else. Report class: no "Illustrative" badge.
+  '/high-level-budget': { component: 'components/HighLevelBudget.vue' },
+  '/mid-level-budget': { component: 'components/MidLevelBudget.vue' },
+  // Stock Purchasing (4.94) follows the two budgets: one component, header above its own four
+  // step chips, page is the shell and nothing else. Report class — a real client's product
+  // list — so no "Illustrative" badge.
+  '/stock-purchasing': { component: 'components/StockPurchasing.vue' },
+  // The Sales Dashboard (4.95): one component, header above its own cards, page is the shell and
+  // nothing else. Report class — a client's real sales list — so no "Illustrative" badge, even
+  // though it opens on the workbook's sample. The SampleNotice is what says so, not the badge:
+  // the badge is a claim about the MODEL, and this one runs on real figures the moment a file
+  // lands on it.
+  '/sales-dashboard': { component: 'components/SalesDashboard.vue' },
+  '/retirement-review': { component: 'components/RetirementReview.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
   // 🔴 The Three-Way Forecast MOVED into this group on 2026-09-05. Its component had been
   // rendering a second ReportHeader under the page's own, so the screen drew its title

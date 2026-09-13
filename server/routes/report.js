@@ -14,11 +14,18 @@ const { computeWorkingCapitalCycle } = require('../report/workingCapitalCycleMod
 const { computeDebtorCashflow } = require('../report/debtorDragModel')
 const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/marginBreakevenModel')
 const { computeEightLevers } = require('../report/eightLeversModel')
+const { computeHighLevelBudget } = require('../report/highLevelBudgetModel')
+const { computeMidLevelBudget } = require('../report/midLevelBudgetModel')
+const { computeStockPurchasing } = require('../report/stockPurchasingModel')
+const { computeSalesDashboard, DEFAULT_INPUTS: SALES_DASHBOARD_DEFAULTS } = require('../report/salesDashboardModel')
+const { readStockSheet } = require('../report/intake/stockSheetAssembler')
+const { readSalesSheet, REQUIRED_BY_MODEL } = require('../report/intake/salesSheetReader')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
+const { computeRetirementReview } = require('../report/retirementReviewModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
 const { computeImportShipments } = require('../report/importShipmentModel')
@@ -161,6 +168,402 @@ function eightLevers (req, res, next) {
     res.send(400, { success: false, error: { code: 'EIGHT_LEVERS_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
+}
+
+/**
+ * POST /api/report/high-level-budget
+ *
+ * The High Level Budget (item 4.88): a forecast monthly cashflow, the actuals entered against
+ * it, the line-by-line variances, and the two budget-vs-actual comparisons the workbook charts.
+ * Calc-only and therefore anonymous, like every other calc route here — numbers in, numbers out,
+ * nothing stored.
+ *
+ * NB the model carries ONE ruled deviation from the source workbook (Mike, 2026-09-12): the two
+ * subtotal rows are computed on the Budget sheet's full ranges on every side, because the
+ * Actuals sheet's own range dropped wages and interest-only loan payments from every total. See
+ * the header of `server/report/highLevelBudgetModel.js`.
+ *
+ * @route POST /api/report/high-level-budget
+ * @param {object} req.body - partial inputs merged over the source-model defaults:
+ *   `{ gstRate, months, budget: { openingBalance, lines }, actual: { openingBalance, lines } }`,
+ *   where `lines` maps a line key to twelve monthly figures and a null means "not entered yet".
+ * @returns {object} { success, data, timestamp } — `{ gstRate, months, budget, actual, variance,
+ *   reports }`.
+ */
+function highLevelBudget (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeHighLevelBudget(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] high-level-budget compute failed:', err)
+    res.send(400, { success: false, error: { code: 'HIGH_LEVEL_BUDGET_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/mid-level-budget
+ *
+ * The Mid Level Budget (item 4.93): the High Level Budget's line set plus the cash TIMING that
+ * gives this model its name — an `Assumptions` profile spreading each month's sales, and each
+ * month's supplier purchases, across up to five months — together with the Material/Product
+ * Purchases line and the gross profit struck above the expense block. Calc-only and therefore
+ * anonymous, like every other calc route here — numbers in, numbers out, nothing stored.
+ *
+ * NB the model carries THREE ruled deviations from the source workbook (Mike, 2026-09-13): the
+ * fourth-month collection bucket applies in every month it reaches rather than only the first,
+ * the entered figures are treated as GST-inclusive so the GST block never moves the bank, and
+ * Tax Rebates, Interest Received and Capital Introduced are out of the GST base. Each is set out
+ * in the header of `server/report/midLevelBudgetModel.js`.
+ *
+ * @route POST /api/report/mid-level-budget
+ * @param {object} req.body - the client's own figures; NOTHING defaults except the GST rate and
+ *   the month labels: `{ gstRate, months, assumptions: { debtors, creditors },
+ *   budget: { openingBalance, lines }, actual: { openingBalance, lines } }`, where each profile
+ *   is up to five fractions, `lines` maps a line key to twelve monthly figures, and a null means
+ *   "not entered yet". On the BUDGET side `sales` and `materialPurchases` are what was invoiced;
+ *   on the ACTUAL side they are the cash actually received and paid.
+ * @returns {object} { success, data, timestamp } — `{ gstRate, months, lineOrder, assumptions,
+ *   budget, actual, variance, reports }`.
+ */
+function midLevelBudget (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeMidLevelBudget(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] mid-level-budget compute failed:', err)
+    res.send(400, { success: false, error: { code: 'MID_LEVEL_BUDGET_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/stock-purchasing
+ *
+ * Stock Purchasing (Growth Pro): scores every product line 1–5 on five criteria — margin achieved,
+ * how many sold, unit cost risk, days on hand and share of stock held — adds them for a mark out
+ * of 25, and ranks the lines best first. Steps 2 and 3 add what is already on the shelf (including
+ * units in transit) and whether committing the cash would take the quick ratio under 1. Calc-only
+ * and therefore anonymous, like every other calc route here — numbers in, numbers out, nothing
+ * stored.
+ *
+ * NB the model carries TWO ruled deviations from the source workbook (Mike, 2026-09-13): every gap
+ * between the scoring rungs is closed, and a criterion matching no band scores 0 rather than
+ * yielding Excel's FALSE or — on the workbook's other sheet — the raw measurement. 919 of the
+ * sample's 969 lines are reproduced exactly; all 50 that move are a workbook zero becoming a real
+ * score. Both are set out in the header of `server/report/stockPurchasingModel.js`.
+ *
+ * 🔴 `lines` is deliberately NOT sent. It is the same 969 objects as `ranked` in a different
+ * order, so returning both doubles a payload the screen reads only in rank order. It stays on the
+ * model for the golden test, which pairs it index-for-index with the workbook's cached rows.
+ *
+ * @route POST /api/report/stock-purchasing
+ * @param {object} req.body - `{ lines, shelf, exposure }`. `lines` is the client's own sales
+ *   export: `{ code, quantity, sales, cost, entryDate, saleDate, shareOfStock }` per row, dates
+ *   ISO yyyy-mm-dd, and days on hand is DERIVED from them rather than entered. `shelf` is
+ *   `{ onHand, inTransit }`; `exposure` is `{ currentAssetsExStock, currentLiabilities,
+ *   cashCommitted }`. Called with no `lines` the model computes nothing rather than failing.
+ * @returns {object} { success, data, timestamp } — `{ totals, ranked, shelf, affordability, bands,
+ *   criteria, maxScore }`.
+ */
+function stockPurchasing (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const model = computeStockPurchasing(inputs)
+    const data = {
+      totals: model.totals,
+      ranked: model.ranked,
+      shelf: model.shelf,
+      affordability: model.affordability,
+      bands: model.bands,
+      // The boundaries actually used and the shape of each ladder, so the screen's entry boxes
+      // are filled from what the model scored against rather than from what the screen sent.
+      cuts: model.cuts,
+      ladders: model.ladders,
+      criteria: model.criteria,
+      maxScore: model.maxScore
+    }
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] stock-purchasing compute failed:', err)
+    res.send(400, { success: false, error: { code: 'STOCK_PURCHASING_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/stock-purchasing/intake
+ *
+ * Reads an uploaded stock-on-hand export — Cin7 Core or Unleashed — and returns it as Stock
+ * Purchasing inputs, ready to post straight back to the calc route. Mike asked for this on
+ * 2026-09-13: "we need to be able to import a stock sheet".
+ *
+ * 🔴 A STOCK SHEET CARRIES TWO OF THE FIVE CRITERIA and the response says so rather than leaving
+ * the screen to guess: `carries` is unit cost risk and share of stock held; `missing` is margin,
+ * how many sold and days on hand, none of which exists in a stock-on-hand export — neither
+ * package exports a date or a sale price. Those three come from a sales report, which is what the
+ * workbook's own step 1 reads. `quantity` comes back null on every line for the same reason: the
+ * model reads it as units SOLD, and this file holds units HELD (`unitsHeld`).
+ *
+ * 🔴 THIS ROUTE CARRIES `firmAuth` BECAUSE IT ACCEPTS AN UPLOAD. The calc route beside it is
+ * anonymous by design — numbers in, numbers out. Only file intakes are authenticated.
+ *
+ * Nothing is stored: the file is read, assembled and deleted in `finally`. The log records the
+ * stable error code alone — never the filename, the product names or the contents, because a
+ * client's stock list is a list of everything they sell and what it cost them.
+ *
+ * @route POST /api/report/stock-purchasing/intake
+ * @param {object} req - multipart form with ONE file in a `file` field, 5 MB maximum
+ * @returns {object} { success, data, timestamp } — `{ lines, shelf, package, costBasis,
+ *   hasOnOrder, carries, missing, unitsTotal, valueTotal }`.
+ */
+async function stockPurchasingIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a stock-on-hand export should be well under 1 MB. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the stock export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > 1) {
+      const e = new Error('This step reads one stock-on-hand export — ' + uploaded.length + ' files were sent. Please drop the one export.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const data = readStockSheet(fs.readFileSync(uploaded[0].filepath))
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, product names or content.
+    console.error('[report] stock-purchasing intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a stock-on-hand export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/stock-purchasing/sales-intake
+ *
+ * Reads an uploaded sales report — a period's sales, one row per product — and returns the lines
+ * the Stock Purchasing model scores. The other half of the stock-sheet import Mike asked for on
+ * 2026-09-13: a stock-on-hand export carries two of the five criteria, and margin, how many sold
+ * and days on hand live here.
+ *
+ * 🔴 THE TARGET LAYOUT IS THE SOURCE WORKBOOK'S OWN `Sales Report` SHEET, not a named accounting
+ * package. No published sales layout has been supplied for any package, and inventing one would
+ * produce a reader that looks finished and fails on the first real file. The header of
+ * `server/report/intake/salesSheetReader.js` states this in full.
+ *
+ * 🔴 THIS ROUTE CARRIES `firmAuth` BECAUSE IT ACCEPTS AN UPLOAD, like its stock sibling. The calc
+ * route is anonymous by design — numbers in, numbers out.
+ *
+ * Nothing is stored: the file is read and deleted in `finally`. The log records the stable error
+ * code alone — never the filename, the product names or the contents, because a sales report is a
+ * list of everything a client sells, what it cost them and what they got for it.
+ *
+ * @route POST /api/report/stock-purchasing/sales-intake
+ * @param {object} req - multipart form with ONE file in a `file` field, 5 MB maximum
+ * @returns {object} { success, data, timestamp } — `{ lines, layout, confidence, linesRead,
+ *   carries, missing, hasShareOfStock }`.
+ */
+async function stockPurchasingSalesIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a sales report should be well under 1 MB. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the sales report in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > 1) {
+      const e = new Error('This step reads one sales report — ' + uploaded.length + ' files were sent. Please drop the one export.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const data = readSalesSheet(fs.readFileSync(uploaded[0].filepath))
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, product names or content.
+    console.error('[report] stock-purchasing sales intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a sales report.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/sales-dashboard
+ *
+ * Where the sales and the margin actually come from, and how they move (item 4.95). Calc-only and
+ * therefore anonymous, like every other calc route here — numbers in, numbers out, nothing stored.
+ *
+ * 🔴 NOTHING HERE REACHES A MODEL. The Sales Dashboard is arithmetic end to end: no LLM call, no
+ * prompt, no persistence. That is the first of Decision 6's three limits on the salesperson cut
+ * (Mike, 2026-09-13) — the cut names real staff, so it is never sent to the model and never leaves
+ * the firm. It holds by construction rather than by promise, which is why there is nothing to
+ * strip here.
+ *
+ * NB the model carries THREE ruled deviations from the source workbook, none of them visible in
+ * its own sample data: a sale of exactly $2,500, $2,501 or $5,000 banks its money in a band and is
+ * counted in none; the headline sales count reads a list 21 rows shorter than the money does; and
+ * the last salesperson's transaction count reads the previous person's cell. All three are set out
+ * in the header of `server/report/salesDashboardModel.js` and pinned in its golden test with the
+ * workbook's own figure beside ours.
+ *
+ * @route POST /api/report/sales-dashboard
+ * @param {object} req.body - `{ sales, ceilings, focus }`. `sales` is one row per transaction:
+ *   `{ brand, product, category, region, salesperson, revenue, cost, date }`, of which only
+ *   `revenue` is required and `date` is ISO yyyy-mm-dd. `ceilings` is the owner's own nine band
+ *   ceilings; `focus` is `{ dimension, value }` and narrows the TREND alone. Called with no
+ *   `sales` the model computes nothing rather than failing.
+ * @returns {object} { success, data, timestamp } — `{ totals, bands, unbanded, ceilings,
+ *   dimensions, available, trend, hasDates, focus, transactionsRead }`.
+ */
+function salesDashboard (req, res, next) {
+  try {
+    const body = (req.body && typeof req.body === 'object') ? req.body : {}
+    // 🔴 NO `sales` MEANS "the workbook's own sample", which is how the screen opens — the
+    // drawing Mike approved shows it that way, with a SampleNotice saying so. An EMPTY ARRAY is
+    // not the same thing and is left alone: a caller that sent rows and had none read must see
+    // an empty page, never the sample wearing their client's name.
+    const inputs = Object.assign({}, body, {
+      sales: Array.isArray(body.sales) ? body.sales : SALES_DASHBOARD_DEFAULTS.sales
+    })
+    const data = computeSalesDashboard(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] sales-dashboard compute failed:', err)
+    res.send(400, { success: false, error: { code: 'SALES_DASHBOARD_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/sales-dashboard/intake
+ *
+ * Reads an uploaded sales report and returns it as Sales Dashboard rows. Decision 8, Mike
+ * 2026-09-13: reuse `salesSheetReader.js` rather than write a second reader, and let each cut
+ * appear only if its column is genuinely in the file.
+ *
+ * 🔴 IT ASKS FOR LESS THAN STOCK PURCHASING DOES, and that is the point. The shared reader's
+ * required list is per model (`REQUIRED_BY_MODEL`): this one needs revenue and cost, nothing more.
+ * Demanding `Entry Date` — which this model never uses — would reject a perfectly good file for a
+ * missing column nothing here reads, which is the cost Decision 9 named rather than discovered.
+ *
+ * 🔴 THIS ROUTE CARRIES `firmAuth` BECAUSE IT ACCEPTS AN UPLOAD. The calc route beside it is
+ * anonymous by design.
+ *
+ * Nothing is stored: the file is read and deleted in `finally`. The log records the stable error
+ * code alone — never the filename or the contents, because a sales report names a client's staff,
+ * their customers' regions and what every line earned.
+ *
+ * @route POST /api/report/sales-dashboard/intake
+ * @param {object} req - multipart form with ONE file in a `file` field, 5 MB maximum
+ * @returns {object} { success, data, timestamp } — `{ sales, linesRead, dimensions, hasDates }`.
+ */
+async function salesDashboardIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a sales report should be well under 1 MB. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the sales report in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > 1) {
+      const e = new Error('This screen reads one sales report — ' + uploaded.length + ' files were sent. Please drop the one export.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const read = readSalesSheet(fs.readFileSync(uploaded[0].filepath), {
+      required: REQUIRED_BY_MODEL.salesDashboard
+    })
+    // The reader speaks Stock Purchasing's vocabulary; this model speaks the workbook's own. Mapped
+    // here, at the one seam between them, rather than teaching either side the other's names.
+    const sales = read.lines.map(line => ({
+      brand: line.brand,
+      product: line.code,
+      category: line.category,
+      region: line.region,
+      salesperson: line.salesperson,
+      revenue: line.sales,
+      cost: line.cost,
+      // Only the SALE date matters here. The entry date is Stock Purchasing's, and reading it
+      // would put a stock arrival on a sales trend.
+      date: line.saleDate
+    }))
+    const data = {
+      sales,
+      linesRead: read.linesRead,
+      // Which cuts the file genuinely supports, in this model's own names — Decision 8.
+      dimensions: read.dimensions.map(d => (d === 'code' ? 'product' : d)),
+      hasDates: sales.some(s => s.date !== null)
+    }
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, the staff names or the content.
+    console.error('[report] sales-dashboard intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a sales report.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
 }
 
 /**
@@ -913,6 +1316,60 @@ function multipleProperty (req, res, next) {
 }
 
 /**
+ * POST /api/report/retirement-review
+ *
+ * @param {object} req.body - partial `DEFAULT_INPUTS` of the Retirement Review model,
+ *   merged over the workbook's own sample so a partial body always computes a coherent
+ *   scenario. Three groups:
+ *
+ *   `country` — which tax table the average rate is read from (`data/tax-bands.json`).
+ *
+ *   `quickCalculator` — the ten retirement-philosophy answers (four of them free text
+ *   that feed no calculation and travel with the model because the workbook prints them
+ *   beside the numbers), plus the six savings-gap assumptions. Self-contained: it shares
+ *   no figure with the projection, so an adviser can run it in a first meeting before any
+ *   of the position is known.
+ *
+ *   `position` — the household: the weekly income required and the four inflation rates,
+ *   the business, cash, superannuation, other investments and pension, the rental tax
+ *   split, and up to six properties (each with its mortgage type, term, growth rates and
+ *   the year it is sold, if it is).
+ * @returns {object} `{ success, data, timestamp }` — data = { country, taxYearLabel,
+ *   taxBandsEffectiveFrom, workbookCorrections[], quickCalculator{}, position{}, tax{},
+ *   years[], projection{}, verdict{} }. Every projection series is twenty long,
+ *   index 0 = year 1.
+ *
+ *   🔴 `workbookCorrections` IS NOT OPTIONAL FOR A CALLER TO RENDER. Three figures in this
+ *   model deliberately differ from the source workbook — current tax bands, the pension
+ *   taxed in the projection, and the sixth property realigned to year one — each ruled by
+ *   the owner on 2026-09-13. They pull in opposite directions and are reported separately,
+ *   never netted. A screen that drops them shows an advisor numbers that do not match the
+ *   spreadsheet on their own desk, with nothing on the page to say why.
+ *
+ *   `verdict` is the only thing the workbook does not itself state: whether the plan ever
+ *   runs the client out of cash, in which year, and how many of the twenty years fall
+ *   short. They are readings an adviser takes off the chart, named rather than left to the
+ *   eye.
+ *
+ * Anonymous, like every other calc route: numbers in, numbers out. It reads no database,
+ * writes nothing, calls no third party and sends nothing to an LLM. This model holds more
+ * of a real household than any other in the library — two incomes, a pension, a
+ * superannuation balance and six properties — so none of it is stored, and none of it
+ * reaches a log line either.
+ */
+function retirementReview (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeRetirementReview(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] retirement-review compute failed:', err)
+    res.send(400, { success: false, error: { code: 'RETIREMENT_REVIEW_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
  * POST /api/report/volatility
  *
  * @param {object} req.body - `{ sales: number[], window: 12|18|24, forecast?: number[] }`.
@@ -1346,4 +1803,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, stockPurchasingSalesIntake, salesDashboard, salesDashboardIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

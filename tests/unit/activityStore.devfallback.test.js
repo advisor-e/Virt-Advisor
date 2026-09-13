@@ -36,6 +36,30 @@ const activityStore = require('../../server/utils/activityStore')
 
 function clean () { try { fs.unlinkSync(DEV_FILE) } catch (e) { /* not there — fine */ } }
 
+/**
+ * Reset between tests by EMPTYING the file, never by deleting it.
+ *
+ * Windows leaves a just-unlinked file "delete pending" while any handle is still
+ * open on it — an indexer or scanner is enough — and `readFileSync` then reports
+ * **EPERM, not ENOENT**. `activityStore._devReadAll` treats anything but ENOENT as a
+ * real fault and throws, by design (a broken store must never look like a new
+ * advisor). Deleting this file before every test therefore made the suite
+ * intermittently fail, which cost a rejected `git push` on 2026-09-13.
+ *
+ * `existsSync` is no help: it already reports false during that window, so waiting
+ * for the delete to land cannot close the race. Keeping a valid empty file on disk
+ * closes it completely — `{}` is a legitimate empty store, because `_devReadAll`
+ * defaults every array it does not find.
+ *
+ * Nothing in the suite body deletes this file, deliberately: a delete-pending path
+ * refuses WRITES with EPERM too, so a single `unlinkSync` anywhere would re-arm the
+ * same race for whatever ran next. Only `afterAll` deletes, and nothing reads after.
+ */
+function reset () { fs.writeFileSync(DEV_FILE, '{}') }
+
+/** The untouched file, exactly as `reset` left it — see the production-mode test. */
+const EMPTY_STORE = '{}'
+
 const course = over => Object.assign({
   advisorId: 'a1',
   advisorName: 'Jordan Reeve',
@@ -52,7 +76,7 @@ const course = over => Object.assign({
 
 let warnSpy
 beforeEach(() => {
-  clean()
+  reset()
   // The fallback warns on every use by design; silence it so the run stays readable.
   warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
 })
@@ -255,6 +279,9 @@ describe('production never touches the fallback', () => {
     } finally {
       process.env.NODE_ENV = previous
     }
-    expect(fs.existsSync(DEV_FILE)).toBe(false)
+    // The file `reset` left is still byte-for-byte empty. That is the same
+    // guarantee the old `existsSync(...) === false` gave — production wrote
+    // nothing — without deleting the file and re-arming the EPERM race above.
+    expect(fs.readFileSync(DEV_FILE, 'utf8')).toBe(EMPTY_STORE)
   })
 })

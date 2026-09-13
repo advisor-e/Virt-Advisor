@@ -165,8 +165,19 @@ describe('every summary carries what an advisor needs before being sent to a mod
     expect(bullet).not.toBe('')
     // The count, written as a word the way the Briefs write counts.
     // Five since 2026-09-08: Dashboard Reports (4.70) is a client-read document with no Coach panel.
-    expect(bullet).toMatch(/\*\*Five\*\*|\bFive\b/)
-    expect(noPanel).toHaveLength(5)
+    // Six since 2026-09-12: the High-Level Budget (4.88) reads itself — every line of its
+    // variance table says Better or Worse beside its own figure.
+    // Seven since 2026-09-13: the Retirement Review (4.90) reads itself too — its verdict
+    // panel and its workbook-differences card say what a coach panel would have said.
+    // Eight since 2026-09-13: the Mid-Level Budget (4.93) carries the same variance table as
+    // its High-Level sibling, and states its own finding twice over besides.
+    // Nine since 2026-09-13: Stock Purchasing (4.94) reads itself — the ranked table IS the
+    // finding, every line carrying its rating word on each of the five criteria, and step 3
+    // states its own verdict in a sentence.
+    // Ten since 2026-09-13: the Sales Dashboard (4.95) carries its reading in the footnote
+    // under each card, which is where the approved drawing puts it.
+    expect(bullet).toMatch(/\*\*Ten\*\*|\bTen\b/)
+    expect(noPanel).toHaveLength(10)
     // And every one of them named, so a new one cannot be added silently.
     //
     // Matched on the name's identifying stem rather than in full, because prose calls

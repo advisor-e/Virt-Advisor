@@ -734,6 +734,274 @@
         "bank report",
         "benchmarks"
       ]
+    },
+    {
+      "route": "/retirement-review",
+      "name": "Retirement Review",
+      "category": "Valuation",
+      "modelClass": "decision",
+      "answers": "Whether a household's plan actually funds the retirement they want. Two halves that share no figure: a savings-gap calculator that can be run in a first meeting before any balance is known, and a twenty-year projection of every income stream, six properties and their mortgages, against the income the household needs — ending on whether the cash ever runs out.",
+      "keyOutputs": [
+        "The monthly savings gap between what they must save and what they do",
+        "Whether the cash ever runs out, and in which year",
+        "How many of the twenty years spend more than they bring in",
+        "The cash left at year twenty, and the lowest point before it"
+      ],
+      "inputsNeeded": "Typed, not read from a file — nothing exports a retirement position. Ten answers about what retirement should be and cost; the income required each week and the inflation on it; the business drawings and how long they last; cash, superannuation and other investments with their drawdown terms; the government pension; and up to six properties, each with its mortgage type, rate, term, growth and the year it is sold, if it is.",
+      "useWhen": "An owner is deciding when they can stop, or whether the properties they hold will carry them. Also for the first meeting on its own: the savings-gap half needs only what they want to live on and what they save today.",
+      "limits": "It is a CASH projection, not a tax return: one average tax rate is worked out in year one and held for all twenty years, which is the source workbook's own choice. It assumes every property sells at its projected value in the year named, and it models no market fall, no vacancy and no health event. Three figures deliberately differ from the source workbook and the screen names each one with the cells it changes. It takes the client's real household, so it is never illustrative — and it is not a substitute for regulated financial advice.",
+      "heroFigures": [
+        {
+          "label": "Cash at year twenty",
+          "sub": "and whether it ever runs out before then"
+        },
+        {
+          "label": "Years spending more than they earn",
+          "sub": "of the twenty"
+        },
+        {
+          "label": "Lowest the cash gets",
+          "sub": "and the year it happens"
+        },
+        {
+          "label": "Property sold",
+          "sub": "the proceeds, and the years they land"
+        }
+      ],
+      "alsoOnScreen": "Four steps: the conversation, which produces the savings gap and can be finished on its own; what they have, with year one's income stream by stream and the tax rate everything else uses; the properties, each with what it costs against what it brings in; and the next twenty years — a surplus-and-shortfall chart, every year in a table, and a card naming where the figures differ from the spreadsheet.",
+      "coach": [
+        "The verdict says whether the plan holds AND what it holds on: where the cash survives only because properties are sold, it says so rather than reporting a comfortable closing balance. On the sample, taking the three sales away runs the cash out in year four.",
+        "A shallow year is not a safe one. The deficits narrow as rents grow and then jump when an income stream ends — the business stopping, or the superannuation running dry — so the worst year is usually years after the one that looks worst at the start.",
+        "The government pension is counted after tax throughout, and the rental income after both tax and mortgage payments. A plan that looks fundable on gross figures often is not."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "retirement",
+        "retire",
+        "pension",
+        "superannuation",
+        "when can I stop",
+        "nest egg",
+        "savings gap",
+        "how much do I need",
+        "drawdown",
+        "rental properties in retirement"
+      ]
+    },
+    {
+      "route": "/high-level-budget",
+      "name": "High-Level Budget",
+      "category": "Budgeting",
+      "modelClass": "report",
+      "answers": "Whether the business is hitting its budget. A forecast monthly cashflow is entered line by line, the actuals are entered against it, and the model shows the difference on every line, on every month, and on the bank balance — so an owner can see not just that they are behind, but which lines and which months put them there.",
+      "keyOutputs": [
+        "Money in and money out against budget, for the year and month by month",
+        "The variance on every line, with the colour saying whether it is better or worse",
+        "The budgeted closing bank balance against the actual one",
+        "The month the gap opened, from the two bank-balance lines"
+      ],
+      "inputsNeeded": "Typed, not read from a file — a budget is a forecast, so there is nothing to import. The first month of the year, the GST rate, the opening bank balance on both the budgeted and the actual side, and then each line's figure: six money-in lines and thirty-two money-out lines, entered once per line and applied to every month, with any line that genuinely varies opened out into twelve.",
+      "useWhen": "The client set a budget and wants to know whether they are meeting it — a monthly or quarterly check-in, a board or bank report, or the conversation about why the bank balance is lower than the plan said it would be. It is the only model here that compares this year to the PLAN; every other one compares this year to last year.",
+      "limits": "It is a CASH budget, not a profit and loss: it tracks money in and out of the bank, so it says nothing about accruals, depreciation or stock movement. Everything is typed, so the actuals are only as current as the last time someone entered them — a month nobody has reached yet stays blank and is never counted as a shortfall. GST is one rate for the whole year. It takes the client's real budget and their real bank balance, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Money in, against budget",
+          "sub": "the year's actual against the year's plan"
+        },
+        {
+          "label": "Money out, against budget",
+          "sub": "every line counted, wages included"
+        },
+        {
+          "label": "Closing bank, budgeted",
+          "sub": "where the plan said the year would end"
+        },
+        {
+          "label": "Closing bank, actual",
+          "sub": "and how far that is from the plan"
+        }
+      ],
+      "alsoOnScreen": "Four steps: the year, the GST rate and the two opening balances; the budget; the actuals, each line shown beside its budgeted figure; and the result — a budget-against-actual chart by month, the two bank-balance lines on one scale, and a table of every line that carries a figure on either side.",
+      "coach": [
+        "A line where nothing has been entered reads 'not entered', never zero. A typed zero is a real zero and does produce a variance — so 'we spent nothing' and 'we have not checked' are different things on the screen.",
+        "The difference is always the actual less the budget, on both halves of the table. On money in a positive figure is good news; on money out the same positive figure is bad news, which is why the colour and the word beside it carry the meaning rather than the sign."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "budget",
+        "high level budget",
+        "budget vs actual",
+        "variance",
+        "cashflow forecast",
+        "are we on track",
+        "bank balance",
+        "overspend",
+        "monthly cashflow"
+      ]
+    },
+    {
+      "route": "/mid-level-budget",
+      "name": "Mid-Level Budget",
+      "category": "Budgeting",
+      "modelClass": "report",
+      "answers": "The same question as the High-Level Budget, plus the one that usually matters more: WHEN the money moves. The advisor sets, with the client, what share of a month's sales is collected that month and over the next four, and what share of a month's stock purchases is paid over the same span. The budget is then built on cash actually collected rather than sales invoiced — which is how a business that is profitable on paper can still run out of money.",
+      "keyOutputs": [
+        "Cash collected each month against sales invoiced, and what is still owed at year end",
+        "One month's sale broken into the instalments it arrives in",
+        "Gross profit struck on cash collected less cash paid to suppliers",
+        "The budgeted closing bank balance against the actual one, month by month"
+      ],
+      "inputsNeeded": "Typed, not read from a file — a budget is a forecast, so there is nothing to import. The first month of the year, the GST rate, the opening bank balance on both sides, the two timing profiles, and then each line's figure: six money-in lines, the stock and materials line, and thirty-two money-out lines, entered once per line and applied to every month, with any line that genuinely varies opened out into twelve.",
+      "useWhen": "The client's problem is timing rather than margin — they are busy and profitable but short of cash, they are carrying slow-paying customers, or they are deciding whether they can afford to grow. Use the High-Level Budget instead when the client is paid on the spot and the only question is whether they are hitting their numbers.",
+      "limits": "It is a CASH budget, not a profit and loss: no accruals, no depreciation, no stock movement. The timing profile is one pattern applied to every month and every customer, so a single large late payer is not modelled separately. Cash collected after the twelfth month falls outside the year and is reported rather than carried. Everything is typed, so the actuals are only as current as the last entry. GST is one rate for the whole year. It takes the client's real budget and their real bank balance, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Money in, against budget",
+          "sub": "cash collected, not sales invoiced"
+        },
+        {
+          "label": "Money out, against budget",
+          "sub": "suppliers paid, plus every expense line"
+        },
+        {
+          "label": "Closing bank, budgeted",
+          "sub": "where the plan said the year would end"
+        },
+        {
+          "label": "Closing bank, actual",
+          "sub": "and how far that is from the plan"
+        }
+      ],
+      "alsoOnScreen": "Five steps: the year, the GST rate and the two opening balances; when the money moves, with both timing profiles and a picture of one month's sale arriving in instalments; the budget; the actuals, each line shown beside its budgeted figure; and the result — a budget-against-actual chart by month, the two bank-balance lines on one scale, and a table of every line that carries a figure on either side.",
+      "coach": [
+        "The two sides mean different things by the same line name, and this is the workbook's own design. On the budget, 'Sales' is what was invoiced and the model works out when the cash lands. On the actuals there is no timing at all, so what is entered there is the money that actually reached the bank. The screen says so at the top of that step.",
+        "If a timing profile does not add to 100%, the shortfall is money the budget never collects at all. The screen names the missing share rather than quietly banking the rest.",
+        "A negative closing balance on a profitable budget is the finding, not a fault. It is the gap between invoicing and being paid, and it is the whole reason to run this model instead of the High-Level Budget."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "mid level budget",
+        "cash timing",
+        "debtor days",
+        "when do we get paid",
+        "collection profile",
+        "creditors",
+        "paying suppliers",
+        "profitable but no cash",
+        "working capital budget",
+        "cashflow timing"
+      ]
+    },
+    {
+      "route": "/stock-purchasing",
+      "name": "Stock Purchasing (Growth Pro)",
+      "category": "Growth",
+      "modelClass": "report",
+      "answers": "Which products are worth buying more of, and whether the client can afford the order. Every product line is scored 1 to 5 on five things — how much of the sale is profit, how many sold, how much cash a single unit ties up, how long it sat on the shelf before it sold, and how much of the shelf it is — and the five are added for a mark out of 25. The point is to pull a trader's buying toward the lines that actually carry the profit without replacing their instinct, and then to stop an order that would leave the business short.",
+      "keyOutputs": [
+        "Every product line ranked best first, out of 25, with its score on each of the five criteria",
+        "The rating each line earned on each criterion, in the workbook's own words — Hot Cakes!, Dead Wood, Torrent, Drip",
+        "What is already on the shelf, including units ordered and still in transit",
+        "The quick ratio before and after committing the cash, and whether the order is safe to place"
+      ],
+      "inputsNeeded": "A stock-on-hand export can be imported — Cin7 Core or Unleashed — and fills what is on the shelf plus two of the five criteria, unit cost risk and share of stock held. The other three (margin, how many sold, days on hand) are not in that kind of file and are typed per line, or come from a sales report: quantity sold, sales, cost, and the dates the stock arrived and sold, from which days on hand works itself out. Step 3 needs three figures from the balance sheet: current assets excluding stock, current liabilities, and the cash the client is willing to commit.",
+      "useWhen": "The client buys stock to resell and is guessing at what to reorder, or their cash is sitting on shelves. It is at its best where the buying is done on instinct and nobody has ever put the range side by side on the same measures.",
+      "limits": "A stock-on-hand export alone scores two of the five criteria, and a line shows \"—\" on the three it cannot fill rather than zero — a low total on an imported-only list is a missing file, not a bad product. The ranking is an argument, not a verdict: a one-off imported item will always score badly on how many sold and can still be the most profitable thing in the shop, which the source workbook says in its own note. It reads what sold, not what was returned, and it holds one period with no trend. Share of stock is taken as given and is never rescaled. It takes a real client's product list and real figures, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Sales reviewed",
+          "sub": "across the period"
+        },
+        {
+          "label": "Gross profit",
+          "sub": "on those sales"
+        },
+        {
+          "label": "Average margin",
+          "sub": "weighted, not the mean of the lines"
+        },
+        {
+          "label": "Lines reviewed",
+          "sub": "products scored"
+        }
+      ],
+      "alsoOnScreen": "Four steps, from the workbook's own method: what sold, with the five scoring ladders and every rung's range shown; what is on the shelf, where the stock sheet is imported and the screen says which criteria the file could and could not fill; assess your stock exposure, the quick ratio before and after; and what to buy, the ranked list.",
+      "coach": [
+        "Unit cost risk runs the other way round from the rest. A cheap unit scores 5 and an expensive one 1, because the question is how much cash a single unit locks up. It is the only one of the five where a big number is bad, and an advisor reading a column of 5s will otherwise assume it means best.",
+        "Days on hand is the sale date less the entry date, so it comes free from two dates the client's system already holds. It is usually the criterion that surprises the client most.",
+        "A perfect score is not a buying instruction. Step 3 exists because the workbook says, in its own words, do not approve purchases that compromise short-term liquidity — a client who orders the whole top of the list and cannot pay the power bill has used the model backwards."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "stock purchasing",
+        "what to buy",
+        "reorder",
+        "inventory",
+        "what to stock",
+        "dead stock",
+        "slow moving stock",
+        "stock ranking",
+        "buying decision",
+        "too much stock",
+        "cash tied up in stock",
+        "product ranking"
+      ]
+    },
+    {
+      "route": "/sales-dashboard",
+      "name": "Sales Dashboard",
+      "category": "Growth",
+      "modelClass": "report",
+      "answers": "Where the sales and the margin actually come from, and how they move. Every sale is sorted into a value band the owner sets, so the client can see whether the money is made on the big-ticket sales or on the volume underneath them. The same sales are then totalled five ways — by brand, by product, by product category, by region and by salesperson — with transactions, sales value and sales margin side by side on every row, which is what separates the name that does the most work from the name that earns the most money.",
+      "keyOutputs": [
+        "Total sales value and total sales margin across every transaction read",
+        "The margin as a percentage of sales, for the page and for every band and every row",
+        "The average sale value and the average sale margin, over the same count as the money",
+        "Every sale banded by value, with the transactions, money and margin in each band reconciling to the total"
+      ],
+      "inputsNeeded": "A sales report with one row per transaction. Only two columns are needed — Sales Revenue and Product Cost — and everything else is optional and adds something: Product Brand, Product Name, Product Category, Region and Sales Person each add one cut, and Sale Date adds the trend. A firm with no regions simply sees no Region tab. The nine band ceilings are typed on the screen and recalculate the whole table.",
+      "useWhen": "The client knows their total sales and has no idea which part of the business produces them, or believes their biggest customer, brand or salesperson is their best one. It is also the fastest way to show an owner that the work and the money are in different places — a brand taking half the transactions for less money than one taking eight.",
+      "limits": "It describes what happened and forecasts nothing. The trend card appears only when the file really carries a sale date; the source workbook holds none, so there is no month-by-month figure to read out of it and none is invented. It reads sales, not returns, and a credit note falls outside every band and is shown on its own line rather than being folded into one. The salesperson cut names real staff: it is never sent to the model, never leaves the firm, and its column may simply be left out. Per-band and per-row margin percentages are ours — the source workbook gives a margin percentage for the page as a whole and none beneath it. It takes a real client's sales list, so it is never illustrative; it opens on the source workbook's sample, labelled as the sample until a file replaces it.",
+      "heroFigures": [
+        {
+          "label": "Sales value",
+          "sub": "the number of sales read"
+        },
+        {
+          "label": "Sales margin",
+          "sub": "as a percentage of sales"
+        },
+        {
+          "label": "Average sale",
+          "sub": "value per sale"
+        },
+        {
+          "label": "Average margin",
+          "sub": "per sale"
+        }
+      ],
+      "alsoOnScreen": "Four cards on one page: the sales report import, which says which cuts the file supports and which it does not; sales over time, when the file carries dates, with the period it covers stated and a click on any row following that one name through the months; the sales ranges breakdown, the workbook's own table with its nine ceilings typed; and where the sales come from, one ring and one ranked table with five dimension tabs and three measures.",
+      "coach": [
+        "Put transactions beside value and margin and read them together — that is the whole point of the card. On the source workbook's own sample one brand takes 72 of the 140 sales, more than half the work, for slightly less money than another makes on 8. Neither number says that on its own.",
+        "The bands are the owner's to set and they should be. A $250 top band is meaningless to a jeweller and the whole business to a dairy, so a client who says the table tells them nothing usually needs the nine ceilings moved rather than a different model.",
+        "The trend answers a different question from the rest of the screen: not who is biggest, but who is sliding. A name can be top of the table all year and still be the one falling, which no ranked list will ever show."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "sales dashboard",
+        "sales mix",
+        "where the sales come from",
+        "sales by brand",
+        "sales by region",
+        "sales by salesperson",
+        "sales by product",
+        "best selling",
+        "sales bands",
+        "average sale value",
+        "margin by product",
+        "sales over time",
+        "sales trend"
+      ]
     }
   ]
 }

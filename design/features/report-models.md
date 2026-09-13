@@ -205,12 +205,22 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Five** models —
-  8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator and Dashboard Reports —
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Ten** models —
+  8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator, Dashboard Reports, the
+  High-Level Budget, the Mid-Level Budget, the Retirement Review, Stock Purchasing and the
+  Sales Dashboard —
   carry explanatory notes and verdict rules instead, and the screen heads them differently
   (Dashboard Reports is the client's own document; its reading is the health score and the
-  advisor's words on its pages). Claiming a Coach panel that is not there describes a screen
-  the reader will not find.
+  advisor's words on its pages. The High-Level Budget's reading is the variance table itself —
+  every line says *Better* or *Worse* beside its own figure, which is where a coach panel's
+  sentence would have gone. The Mid-Level Budget carries that same table, and its own finding
+  is already on the screen twice over — the cash-collected row against the sales invoiced, and
+  the still-owed figure under it. The Retirement Review's reading is its verdict panel and the
+  card naming where its figures differ from the spreadsheet; a third block of prose beneath
+  them would repeat both. The Sales Dashboard's reading is written under each card on the
+  approved drawing — the footnote that puts transactions beside value and margin, and the one
+  that says what the trend answers that the ranking cannot). Claiming a Coach panel that is
+  not there describes a screen the reader will not find.
   ⚠ *[`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) reads
   this very sentence and fails if it stops matching the data.*
 
@@ -349,7 +359,7 @@ judgement changes.
 match is worse than a miss, because the advisor takes the suggestion into a client meeting.
 The cost is that an unanticipated word still misses — the fix is a word on the model's list.
 
-🔴 **A MODEL WITH NO PAGE IS NEVER NAMED.** Eight catalogued models are `STATUS_SOON` with
+🔴 **A MODEL WITH NO PAGE IS NEVER NAMED.** Three catalogued models are `STATUS_SOON` with
 no route. `tests/unit/reportModelSummaries.test.js` holds the file to the catalogue **both
 ways** — a summary for a model that is not ready fails, and a ready model with no summary
 fails. So the day a `SOON` model goes live the build says it needs an entry, rather than
@@ -417,7 +427,7 @@ Eight steps, with copy-paste templates:
 |---|---|
 | `reportShellFrame.test.js` | a live report's page does not wrap its screen in `<report-shell>` |
 | `reportHeadlineConsistency.component.test.js` | a screen hand-rolls its headline, nests the banner in a column, or leaves stale figures bright |
-| `reportHeaderFullWidth.test.js` | a screen renders the header itself without resetting its margin |
+| `reportHeaderFullWidth.test.js` | a screen renders the header itself without resetting its margin — **it DISCOVERS its screens by reading `components/`** (since 2026-09-13; see trap 1) |
 | `reportBadgeClass.component.test.js` | the badge does not match `modelClass` — **a shipped report absent from the map is a failure, not a skip** |
 | `reportModelSummaries.test.js` | a live model has no summary for the AI, a summary names a model with no page, a summary omits its limits, or the block stops reaching the assembled prompt |
 
@@ -425,13 +435,24 @@ All five are mutation-verified.
 
 ### Traps that have actually bitten
 
-1. 🔴 **The consistency guard's `SCREENS` list is manual.** It is the one step in the whole
+1. 🔴 **The consistency guard's `SCREENS` list is manual.** It is now the ONLY list in the
    recipe that nothing checks. Skip it and your screen ships unprotected and green.
-   *(The frame guard is automatic — it reads the catalogue's ready routes.)*
+   *(The frame guard reads the catalogue's ready routes; the header-width guard reads
+   `components/`. Both discover their subjects and cannot go stale.)*
+
+   ⚠ **A hand-typed guard list HAS failed, and it is why the other one was changed.** The
+   header-width guard carried nine filenames that stopped growing after Cost of Capital,
+   while the app reached **thirteen** screens rendering the header inside themselves. It was
+   checking **six of thirteen** and calling itself live, because its floor asked only for
+   "at least five". **Mike found the consequence by looking at the screen on 2026-09-13**:
+   Stock Purchasing's header band rendered **364px wide inside a 1076px column**, marooned in
+   the middle while everything beneath it spanned the page, with a 38px gap under it where
+   every other report has 16px. Nothing had ever told this recipe to add a file to that list,
+   so seven screens were written and none of them added. It now reads the directory.
 2. **The header margin reset is mandatory** when the header is rendered inside the screen:
    `.<root> ::v-deep .rs-top { margin: 0 }`. The shared header carries `margin: 0 auto 22px`;
    inside a flex column that auto margin shrinks it below full width *and* stacks 22px onto
-   the gap.
+   the gap. **Twelve screens had it and one did not** — see trap 1.
 3. **`error` is a boolean, not a message.** Never render it. Rendering it put the literal
    word "true" in front of advisors for a day.
 4. **Delete the local `money()` you were about to write** — and the local debounce, and the
@@ -1143,6 +1164,456 @@ three findings above, because they are properties of the export, not of any one 
 The forecast shows how a model borrows the series without owning it: it does the join in
 its own route, seeds the sales boxes from the last twelve values, and keeps the **whole
 run** — up to 24 months — for the volatility read on step 3.
+
+---
+
+### The High Level Budget (4.88, built 2026-09-12)
+
+The first model here that compares this year to **the plan** rather than to last year. Four
+steps because the source workbook has four sheets — set up the year, the budget, what actually
+happened, how it went — on the stepped pattern Quick Position and EBITDA-DCF already use.
+Drawn first at [`../mockups/high-level-budget.html`](../mockups/high-level-budget.html),
+approved by Mike 2026-09-12 with all four of its questions ruled beforehand.
+
+**Built:** [`server/report/highLevelBudgetModel.js`](../../server/report/highLevelBudgetModel.js)
+(all four sheets, pinned cell by cell in `tests/unit/highLevelBudgetModel.test.js`),
+`POST /api/report/high-level-budget`, [`pages/high-level-budget.vue`](../../pages/high-level-budget.vue)
+and [`components/HighLevelBudget.vue`](../../components/HighLevelBudget.vue).
+
+🔴 **ONE RULED DEVIATION FROM THE SOURCE WORKBOOK** (Mike, 2026-09-12). It adds its two
+subtotal rows three different ways across its three sheets, and the Actuals sheet's
+`SUM(D20:D46)` drops Wages and Interest Only Loan Payments — 159,900 a year in the sample —
+from every total *including the bank balance*, so its Reports sheet charts a 173,700 saving
+where the true variance is 13,800. All three sides now use the Budget sheet's full ranges.
+Every figure this moves is listed against the workbook's own cached value in the golden test,
+and reverting it outside the repo reproduced all six of those cached figures exactly — which
+is what proves the port is faithful everywhere else.
+
+**Three things the screen does that follow from Mike's rulings, not from the code's convenience:**
+entry is **one figure per line applied to every month** with a vary-by-month opener (eight of
+the nine populated lines in his own workbook are flat, so the common case is one number); a
+**blank actual means "not yet", never "nothing"**, while a typed zero is a real zero; and the
+arithmetic stays **actual minus budget** on both halves of the table with the **colour**
+carrying the meaning, so nothing ever disagrees with the client's own Variances sheet.
+
+🔴 **NOTHING ON THE RESULT STEP CLAIMS AN ACTUAL THAT WAS NEVER ENTERED** (Mike, 2026-09-13).
+`hasActuals` reads the model's own nulls — a variance line is `null` until an actual is entered
+against it — and until one is, the headline stays the **budget's own** figures, neither chart
+draws its actual series or lists one in the legend, the subtotal row reads *not entered* and an
+em dash like the rows above it, and the money-in chart is headed **"Money in — budget"**. It all
+returns the moment an actual exists. Before this the screen compared against an empty actuals
+side from step 3 on, and drew twelve nulls as zeroes: a flat line pinned across the bank chart,
+reading as *"the actual beat the budget all year"*. **The Mid-Level Budget carries the same flag
+for the same reason** — it was fixed there first, on 2026-09-13, and ported back here the same day.
+
+**A new budget opens on the financial year it is being written in** — April of the current NZ tax
+year, derived by [`utils/financialYearStart.js`](../../utils/financialYearStart.js) and shared
+with the Mid-Level Budget. Both screens were hardcoded to the sample workbook's `'2021-04'`, so a
+2026 client budget opened five years stale with every month label wrong. Deriving it rather than
+typing a fresh year is what stops it going stale again each April; the 1 April turnover is the
+helper's own test, because it is the one day a year the answer changes and nobody is watching.
+
+🔴 **TWO FURTHER RULED DEVIATIONS, both in the GST block** (Mike, 2026-09-12, item 4.89 —
+raised as questions during the 4.88 port and settled the same day, one at a time).
+
+**Interest Received is out of the GST base.** The source's `GST Related Deposits` (row 58) is
+`D9+D11+D13`; interest is an **exempt financial supply** in New Zealand and bears no GST, so
+including it computed output tax on income that never carried any. The base is Sales and Other.
+**It moves no figure in the sample** — Interest Received is empty on both sides — which is the
+point: it was only ever wrong for a client who actually earns interest.
+
+**The entered figures are GST-INCLUSIVE, and the GST block no longer touches the bank.** The
+source could not decide: row 63 extracts GST from a figure that already contains it, and row 69
+then adds that same GST back on top, which is only right if the figure had been exclusive. The
+withdrawals side settles it — an owner budgeting *"Car: 500 a month"* means 500 leaving the bank,
+GST and all — so the extraction is right and rows 66, 69 and 71 were counting GST twice. Those
+rows are now the subtotals alone, and the GST survives as a **reading**: `gstHeld`, the money in
+the account that belongs to Inland Revenue, printed at the foot of the result table. The return
+itself is entered as a withdrawal when it is paid. **This one moves real figures, listed against
+the workbook's own cached values in the golden test:** the sample year's budgeted closing balance
+falls from **192,426 to 151,300** and the actual from **143,565 to 109,300** — the source
+overstated the year-end cash position by the whole net GST, about **27%**. The test proves the
+arithmetic rather than asserting it: the gap between the workbook's closing balance and ours is
+checked to equal `gstHeld` exactly.
+
+🔴 **NO FILE INTAKE, AND THE READERS WE ALREADY HAVE MUST NOT BE WIRED IN.** Every other
+Report-class model here loads the client's accounts, so this one looks like an oversight. It is
+not. A budget is a forecast, so there is nothing to import on the budget side at all — and the
+actuals, which are the tempting half, are **cash** where a Profit and Loss is **accrual**. A P&L
+counts a sale the day it is invoiced; this model counts it the day the money reaches the bank,
+different by the whole debtor movement. **Drawings**, **Principal loan repayments** and **Plant
+& equipment** are not on a P&L at all, being balance-sheet movements, and a P&L carries
+**depreciation**, which must never appear in a cash budget because no cash moves. Wiring
+`xeroReportParser` or `monthlySalesParser` into the actuals would put a cash budget column beside
+an accrual actual column, looking identical and reconciling to nothing — **the same
+not-like-for-like fault this model exists to correct.** The right file is a cash-basis export
+(Xero's Cash Summary); none has ever been seen here, so a reader for it would be a guess, and
+4.60's rule is that a reader is `verified` only against a real export. **Mike raised this himself
+on 2026-09-12** — *"should we have built the ability to load a balance sheet and p&L to help with
+the 'fast data load'"* — was shown the above, and ruled **leave it for now.** It is not filed, it
+is not a gap, and it is not to be re-raised as one.
+
+**Six differences between the drawing and the build, named as this page's §5 requires.**
+(a) The 22 unused expense lines render as individual rows; the drawing folded them into one
+summary row, but its own words say they *"stay on screen so nothing has to be remembered"*, so
+the build follows the words and the fold was drawing shorthand. (b) **Back and Next buttons
+were added** — the drawing navigates by step chip alone, which is not obvious enough on a
+four-step screen. (c) The GST field shows `15`, not `15%`: a number input cannot carry a
+symbol, and the label above it says *GST rate*. (d) 🔴 **The entry boxes were three times the
+drawn width** on the first run, because Buefy's control fills its cell — corrected to 118px,
+and across 38 rows that is the difference between a table that scans and one that does not.
+(e) 🔴 **A zero was displayed as a signed change** in two places — a green `+$0` in the
+headline before anything was typed, and `+$0` against every line that came in exactly on
+budget — both now plain. (f) There is **no Coach panel**: the variance table reads itself, each
+line saying *Better* or *Worse* beside its own figure, which is where a coach sentence would
+have gone. §2's `coachIsNotAPanel` list carries it.
+
+**(d) and (e) were found by opening the screen in a running app, with 10,062 tests green.**
+Neither was visible to any assertion in this suite, and (e) is the fault twice over — fixed in
+the headline, then found again in the table underneath it on the next look. This is the whole
+argument for §5's last line.
+
+### The Retirement Review (4.90, built 2026-09-13)
+
+The largest workbook in the library — four visible sheets plus two hidden mortgage sheets, six
+properties, three mortgage types, twenty years — and the only model here that holds a whole
+household at once: two incomes, a pension, a superannuation balance and six properties. **It is
+`CLASS_DECISION`, never badged Illustrative, and its route stores nothing.** Four steps, on the
+same stepped pattern as Quick Position and the High Level Budget: the conversation, what they
+have, the properties, the next twenty years. Drawn first at
+[`../mockups/retirement-review.html`](../mockups/retirement-review.html).
+
+**Built:** [`server/report/retirementReviewModel.js`](../../server/report/retirementReviewModel.js),
+`POST /api/report/retirement-review`,
+[`pages/retirement-review.vue`](../../pages/retirement-review.vue) and
+[`components/RetirementReview.vue`](../../components/RetirementReview.vue).
+
+🔴 **THE PORT WAS PROVED EXACT BEFORE ANY CORRECTION WAS APPLIED** — every cached value on all six
+sheets, all twenty years of all twelve series. **That ordering IS the proof and cannot be redone
+later:** once the output differs from the spreadsheet, no comparison can establish fidelity.
+
+🔴 **THREE RULED DEVIATIONS** (Mike, 2026-09-13), and they are **on the screen**, not only in the
+code — `workbookCorrections` carries each one's cells and its ruling out to the result, because an
+adviser may have the spreadsheet open beside the page. Current tax bands from `data/tax-bands.json`
+(the average rate falls 12.926% → 12.582%); the government pension taxed across all twenty years,
+where the workbook taxed it on its summary sheet and not in its projection; and the sixth property
+running from year one, where the workbook's rows sat four years out so it earned nothing for four
+years and, when sold, credited the client with nothing at all. **The first two make the plan look
+worse and the third makes it look better; they are listed separately and never netted.**
+
+**Step 1 stands alone** (Mike, 2026-09-13). The Quick Calculator shares no figure with the
+projection — the workbook keeps it on its own sheet for the same reason — so the step carries a
+*Finish here* button and an adviser can run it in a first meeting before a single balance is known.
+
+🔴 **The verdict names what the plan leans on, never just that it holds.** The model draws no
+conclusion; only two readings come from the code (does the cash ever run out, how many years fall
+short) and the rest is arithmetic. Where the cash survives only because properties are sold, the
+sentence says so — *"the plan holds"* alone would be true and misleading in the same breath. On the
+sample that is not rhetoric: **take the three sales away and the cash runs out in year 4**, which is
+pinned in `tests/unit/retirementReviewScreen.component.test.js`.
+
+**Two faults were found by opening the screen, with 10,149 tests green**, and neither was visible to
+any assertion here: the verdict panel's warning figures rendered **navy instead of red** (the tone
+class correctly applied, beaten on CSS specificity — so the two figures the panel exists to flag
+were the two it did not), and step 3's six expanding property cards had **no expander symbol and no
+close control at all**. Mike found the second himself. It is now the list-and-one-open shape he
+approved on Multiple Property on 2026-08-21, so the two property reports behave identically.
+
+### The Mid Level Budget (4.93, built 2026-09-13)
+
+`POST /api/report/mid-level-budget` · [`pages/mid-level-budget.vue`](../../pages/mid-level-budget.vue) ·
+[`components/MidLevelBudget.vue`](../../components/MidLevelBudget.vue) ·
+[`server/report/midLevelBudgetModel.js`](../../server/report/midLevelBudgetModel.js) ·
+drawn at [`mockups/mid-level-budget.html`](../mockups/mid-level-budget.html).
+
+**The High Level Budget's line set, plus the timing.** The two workbooks are near-twins — same six
+deposit lines, same twenty-seven GST-bearing expenses, same five non-GST lines, 813 formulas against
+814. What Mid Level adds is the `Assumptions` sheet: what share of a month's sales is collected that
+month and over the next four, and what share of a month's stock purchases is paid over the same
+span. The budget is then built on **cash collected** rather than sales invoiced, and a Material /
+Product Purchases line with its own timed *Paid to suppliers* lets gross profit be struck above the
+expense block. **Five steps for five sheets**; four of them are the High Level Budget's screen
+unchanged, and step 2 is the whole difference between the models.
+
+**Why it earns its place beside its sibling.** On the workbook's own sample the client invoices
+348,300 and is profitable on paper, and the budget still runs the bank to **−54,040** by March —
+purely because the money arrives later than the wages go out. That is visible on the first screen.
+
+🔴 **THE TWO SIDES MEAN DIFFERENT THINGS BY THE SAME LINE NAME, and it is the source's own design.**
+On the budget, `Sales` is what was **invoiced** and the model works out when the cash lands. The
+actuals sheet applies no timing at all (`sum(D9:D14)`, `=D20`), so what is entered there **is the
+cash**. **Step 4's two entry cards each say so in their own words** (Mike, 2026-09-13) — Money In
+*"Enter the money that actually reached the bank, not what you invoiced"*, Stock and Materials
+*"Enter what you actually paid suppliers, not what they invoiced you"*. One sentence cannot point
+the money both ways: stock **leaves** the bank, and the supplier does the invoicing. Money Out
+carries none. Without them an advisor types invoiced sales into step 4, gets a comparison that
+means nothing, and nothing else on screen would tell them.
+
+**Three ruled deviations from the workbook (Mike, 2026-09-13), each named in the model's header and
+pinned in the golden test against the workbook's own cached figure:**
+
+1. 🔴 **The fourth-month collection bucket applies in every month it reaches, not only the first.**
+   `Assumptions` row 12 is the one timing row using a relative reference (`M6*L12`) where its four
+   siblings and all five creditor rows are absolute; expanded across Q12:X12 it points at empty
+   cells. A client collecting 10% four months late should see **21,250** across the sample year and
+   the sheet finds **2,500** — 18,750 lost, 5.4% of revenue, while the sheet's own balance check
+   still reports the profile complete.
+2. **GST is a reading and never moves the bank** — the 2026-09-12 High Level ruling, same rows, same
+   formulas. Budgeted closing falls from −39,697 to **−54,040** and actual from −15,009 to
+   **−32,200**, each gap exactly the year's net GST held for Inland Revenue.
+3. **Tax Rebates, Interest Received and Capital Introduced are out of the GST base.** None bears
+   GST; capital introduced is not a supply at all.
+
+Deviations 1 and 3 move no figure in the sample, so both are proved on constructed cases as well.
+All three were **mutation-verified outside the repo** — each reverted to the workbook's behaviour
+and confirmed to fail the golden test.
+
+🔴 **FOUR FAULTS WERE FOUND BY OPENING THE SCREEN, with the whole suite green, and none was visible
+to any assertion.** All four had one cause: the screen compared against an actuals side that was
+entirely empty. The headline reported, **in green**, that the client had spent 375,950 less than
+budget and closed 64,040 above plan — while every line in the table beneath it correctly read *not
+entered*. The three subtotal rows gave three different answers to the same empty state (−311,910
+red, −165,950 **green**, and 0). The bank chart drew twelve zeroes as a flat line pinned to the top
+of its scale. And on step 2, *Still owed at year end* — the card's whole point — sat in the
+thirteenth column of a table that scrolls, so it rendered as a blank row.
+
+`hasActuals` now reads the model's own nulls and governs the whole of step 5: the budget's own
+headline stands until an actual exists, subtotals read `—` exactly as their lines do, neither chart
+draws a series with nothing behind it, **the money-in chart is headed "Money in — budget"** until
+there is one to compare against, and the year's owed figure sits below the scroll rather than
+inside it. **No calculation changed.** The fix is mutation-verified three ways.
+
+**Both of those last two went further than this screen.** The heading was left as the one open nit
+on the approved drawing rather than silently rewritten; Mike ruled it on 2026-09-13, and fixing the
+identical heading on the **High Level Budget** found that the older screen had never received any
+of this — it still compared against an empty actuals side and drew a flat line across its bank
+chart. The flag was ported there the same day (§4). The screen also opens on **the financial year
+it is being written in** rather than the workbook's `'2021-04'`, from the shared helper described
+in that section.
+
+### Stock Purchasing (4.94, built 2026-09-13)
+
+**What it does.** Scores every product line 1–5 on five criteria — margin achieved, how many
+sold, unit cost risk, days on hand, share of stock held — and adds them for a mark out of **25**.
+Ranks best first, then asks whether the client can carry the order. Drawn first at
+[`../mockups/stock-purchasing.html`](../mockups/stock-purchasing.html); **all eight of its
+decisions were ruled by Mike on 2026-09-13** and the drawing approved to build from the same day.
+Step 3's name, *"Assess your stock exposure"*, is his own wording replacing the recommended
+*"What you can afford"*.
+
+**Days on hand is the mechanic worth knowing** — the sale date less the entry date, so how long
+stock sat on a shelf falls out of two dates the client's system already holds.
+
+🔴 **The workbook has FIVE sheets and TWO parallel datasets, and we port the first.** `Sales
+Report` is the real intake — seven columns from the client's system, everything else derived.
+`Product Ratings` is a hand-entered second copy with no cost column and days-on-hand typed in,
+and `Weighted Data Sort` ranks *that* one. We rank `Sales Report` ourselves. Two consequences a
+reader will otherwise mistake for faults: the sample's entry and sale dates run one day apart down
+the whole sheet, so **every line comes out at 36 days on hand**; and 1,335 of its rows carry
+figures with **no product code at all**, which the sheet's own grand totals include — they are
+excluded here, because a line with no name cannot go on a buy list, so the sample totals
+**274,953.59** against the cached **776,359.60**.
+
+**919 of the sample's 969 lines are reproduced exactly**, pinned against the workbook's own cached
+values for every row in `tests/fixtures/stock-purchasing-workbook-cached.json`. All 50 that move
+are a workbook zero becoming a real score.
+
+🔴 **THE LADDERS ARE THE OWNER'S TO SET, AND THAT IS THE POINT OF THE MODEL.** Mike, 2026-09-13:
+*"the whole point of the model is to allow a business owner to quantify their expectations —
+therefore, all the rankings need to be variables … if you check original model you will see the
+ranges were separate columns of editable cells"*. He is right, and the workbook proves it in its
+own formulas: every criterion has a min AND a max column, and one is computed from the other
+(`F6 = G5+1%`, `F15 = G14+1`, `G24 = F23-1`), so typing a boundary moves the neighbouring rung.
+Expressed once rather than twice that is **four boundaries per criterion**, which is what the
+screen now offers and what `ladders` carries into the model.
+
+**THE STEP IS PER MEASURE** (his ruling, same day): percentages advance by **0.1 of a point** —
+type 25% and the next rung starts at 25.1% — days and units by **1**, money by **1 cent**. The
+workbook uses a whole point and a whole dollar, so this is finer in two places and identical in
+three.
+
+🔴 **A BOUNDARY TYPED ACROSS ITS NEIGHBOUR PUSHES THE OTHERS OUT OF THE WAY** (Mike,
+2026-09-13), rather than being refused. Refusing it was the first build and produced the worst
+outcome available — found by driving the screen: the box went on showing the 60% the owner typed
+while the model quietly scored against the defaults, and nothing on screen said so. Setting
+Minor's top to 60% now moves Moderate to 60.1%, and the push runs OUTWARD from the edited box, so
+lowering a high boundary pulls the ones beneath it down instead. The screen does it as they type;
+`cutsFor` normalises left to right as a safety net because the route is a boundary, and a test
+pins that whatever the screen sends the model has nothing left to correct.
+
+⚠ **Squeezing four boundaries into a narrow span leaves a rung one step wide, and that is correct
+rather than a fault.** Setting Minor's top to 60% when Fruitful still tops out at 100% shows
+*Moderate 60.1% – 60.1%* — a rung spanning a single value. The alternative is to spread the
+remaining rungs evenly, which would invent numbers the owner did not choose. The ladder is telling
+them they have squeezed it; widening Moderate is theirs to do.
+
+🔴 **TWO RULED DEVIATIONS, both mutation-verified outside the repo.** (5) The boundary between two
+rungs is ONE shared number, so **a gap cannot exist** rather than being patched: the rung below
+ends at the owner's figure, the rung above starts one step past it, and the scoring cut is that
+same figure. (6) A criterion matching no band scores 0, the same way on both sheets — `Sales
+Report` yielded Excel `FALSE` and `Product Ratings` returned **the measurement itself**, so
+*Widget 9* cached **9.13 out of 25**. A third fault needed no ruling and is fixed: the
+"how many sold" chain tests the ENTRY DATE in its middle branch where its four siblings test the
+quantity.
+
+⚠ **TWO THINGS IN THIS SECTION WERE WRITTEN WRONG EARLIER AND ARE CORRECTED HERE.** First, those
+band "gaps" were reported as sloppiness in the workbook; they are the deliberate ±1 step between a
+max and the next min, and only bite where the measure is continuous. Second, *Widget 3* was
+recorded as scoring **5 (Minor)** — rounding down to the rung below a printed ceiling. It scores
+**4 (Low)**: $25.22 is above the owner's stated $25 ceiling for Minor. Rounding down was
+defensible while the ladder was ours; once the ceiling is the owner's own number it is not, and on
+the two INVERTED ladders it handed a line the BEST score for exceeding a limit.
+
+**The stock-sheet import** (Mike, same day: *"we need to be able to import a stock sheet"*) reads
+a Cin7 Core or Unleashed stock-on-hand export through the reader built for 4.70 stage 4.
+🔴 **A stock sheet carries TWO of the five criteria** — unit cost risk and share of stock held —
+and none of margin, how many sold or days on hand, because there is no sale price and no date in
+that kind of file. The response says which, and the screen prints both lists rather than deciding
+for itself; a criterion it could not fill shows **"—", never 0**, so a low total reads as a missing
+file and not as a bad product. **`quantity` comes back null on every imported line**: the model
+reads it as units SOLD and a stock export's `onHand` is units HELD, and 300 plates on a shelf
+scored as "Often" would recommend buying more of what nobody is buying.
+
+**TWO DIFFERENCES BETWEEN THE DRAWING AND THE BUILD**, both corrections found by opening the
+screen with the suite green (10,354 tests):
+
+- 🔴 **Every one of the 25 ladder rungs printed its ceiling one unit too high, and adjacent rungs
+  overlapped** — *Hot Cakes! 1–14* sat directly above *Quick Shifter 14–28*. The caption was
+  rendering `upTo`, the **exclusive scoring edge** that closes the gaps under ruling 5, where it
+  should render what the workbook prints. Bands now carry **both**: `upTo` scores, `printedTo`
+  is captioned. Nothing was ever scored wrongly; the caption disagreed with the score beside it.
+- **Margin is captioned as a percentage** (*41% – 80%*), not the raw ratio the drawing showed. The
+  headline directly above that card already reads *80.0%*, and a ladder saying *0.81* beside it
+  made the advisor do the conversion.
+
+**Step 3's result row reads "Cash committed to stock"**, the drawing's own shorter wording, rather
+than repeating the input's longer *"Cash you are willing to commit to stock"* (Mike, 2026-09-13).
+
+**The sales import** (Mike, same day) is the other half, and reads a period's sales one row per
+product: `server/report/intake/salesSheetReader.js`, `POST /api/report/stock-purchasing/sales-intake`.
+It carries **four** of the five — margin, how many sold, unit cost risk and days on hand — and
+claims the fifth only when the optional `% of Stock Units` column is really present, because share
+of stock is a stock question.
+
+🔴 **ITS TARGET LAYOUT IS THE WORKBOOK'S OWN `Sales Report` SHEET, NOT A NAMED PACKAGE.** Mike
+supplied published stock-on-hand layouts for Cin7 Core and Unleashed on 2026-09-07; **no
+equivalent has ever been supplied for a sales export, and none is invented**. Guessing a vendor's
+column names produces a reader that looks finished and fails on the first real file — the same
+honesty rule that keeps both stock packages marked `expected` rather than `verified`. A named
+package's sales layout is added beside this one the day it arrives.
+
+🔴 **THE DATE COLUMN IS THE PART THAT NEEDED CARE.** Days on hand is the sale date less the entry
+date, and it is the criterion an advisor can least sanity-check by eye. The reader takes an Excel
+serial, a Date the spreadsheet already parsed, and an ISO string — and **refuses everything else
+rather than guessing**: `03/04/2021` is 3 April or 4 March depending where you live, and the guess
+decides a score. A number below 20000 is refused too, so a stray `5` never becomes 1900-01-04 and
+invents an arrival date. An unreadable date leaves days on hand **unscored**, not scored 5.
+
+**A sales import never touches the shelf.** It says what LEFT the business; the shelf is what is
+still on it, and comes from the stock sheet or the two boxes at step 2. Zeroing it would make an
+already-stocked line look like one the client has none of. Pinned by a screen test.
+
+---
+
+### The Sales Dashboard (4.95, built 2026-09-13)
+
+**What it does.** Answers one question in five cuts: where the sales and the margin actually come
+from. Every sale is sorted into a value band **the owner sets**, and the same rows are then
+totalled by brand, product, product category, region and salesperson — with transactions, sales
+value and sales margin side by side, which is what separates the name doing the most work from the
+name earning the most money. Drawn first at
+[`../mockups/sales-dashboard.html`](../mockups/sales-dashboard.html); **all nine of its decisions
+were ruled by Mike on 2026-09-13** and he approved the build the same day. It was the last of the
+three Model Library cards that said *"coming soon"* and opened nothing.
+
+**One page, four cards** — the sales report, sales over time, the sales ranges breakdown, and
+where the sales come from. No steps: unlike Stock Purchasing there is no sequence to walk, because
+every card answers the same rows a different way.
+
+🔴 **THE WORKBOOK HAS SIX SHEETS AND ONLY TWO HOLD ANYTHING.** `Sales Data Input` is the intake —
+140 transactions, and **no date column anywhere**. `Report` holds the one table. `Sheet1` is the
+hidden calculation sheet everything reads. **`Pie Graph Options` and `Other Chart Options` hold no
+data at all**: they are canvases carrying **25 charts, which are 20 unique views drawn twice over**
+— five dimensions × three measures — laid out as a wall because a spreadsheet has no other way to
+offer a choice. Decision 5 turns that wall into one card with five tabs and three measures.
+
+🔴 **THREE RULED DEVIATIONS, AND NOT ONE IS VISIBLE IN THE WORKBOOK'S OWN SAMPLE.** That is why
+they were settled on the drawing rather than found at build time. Each is pinned in
+`tests/unit/salesDashboardModel.test.js` **on data that shows it**, with the workbook's own
+arithmetic reproduced beside ours:
+
+- **A sale counted in no band at all** (Decision 3). `Sheet1` row 16 sums every band inclusively,
+  but row 17 counts two of them with strict inequalities — `L17` counts `<2500` where the money is
+  `<=2500`, and `N17` counts `>2501` and `<5000` where the money is `>=2501` and `<=5000`. So a
+  sale of exactly **$2,500, $2,501 or $5,000** banks its money in a band and is counted in none;
+  the transactions column then disagrees with the money beside it and the Total with the sum of
+  the rows. Here **one boundary decides both**, so a sale falls in exactly one band and the columns
+  always reconcile. Round numbers are exactly what real invoices land on.
+- **One list, read once** (Decision 4). The workbook reads its single list to **five different end
+  points** — `E14` counts to row 508, `E13` sums to 518, the dimension totals reach 529, the band
+  money 535, the band counts 537. Nothing shows at 140 rows; at roughly 491 the count stops rising
+  while the money does not, so the average sale value climbs for no reason. A plausible-looking
+  wrong number is the kind UAT cannot catch.
+- **Each name counted from its own column** (Decision 7). `Sheet1` **S35** — Shaun's transaction
+  count — reads `=Z9`, which is **Sue's**; its two neighbours are right. Invisible because the
+  lockstep sample gives all ten salespeople exactly 14 sales each.
+
+🔴 **THE TREND CARD IS MIKE'S OWN AND IT IS THE ONE THING BEYOND THE WORKBOOK** (Decision 9). Told
+the workbook holds no date and therefore no trends, he asked for them: *"yes but good idea, can we
+add dates"*. **It appears only when the data really carries a sale date** — the sample carries
+none, so on the sample there is no card, not an empty chart and never a fabricated month. Clicking
+any row in a cut narrows **the trend alone**, which is the question the spreadsheet cannot answer:
+not who is biggest, but who is sliding.
+
+⚠ **Its one real cost was named on the drawing rather than discovered mid-build: the shared
+reader's required-columns list had to become per model.** `salesSheetReader.js` was written for
+Stock Purchasing, which needs `Entry Date` AND `Sale Date` because the gap between them IS days on
+hand. This model uses neither to decide anything and needs revenue and cost alone. Shared
+unchanged the reader would have **refused a perfectly good file for a missing column nothing here
+reads**, so `REQUIRED_BY_MODEL` now carries one list per model and a refusal names what *that*
+model lacks. The reader also gained the four cut columns and **header aliases**, because the two
+workbooks spell the same column differently — `Sales`/`Cost` against `Sales Revenue`/`Product
+Cost` — and without them it would have refused the very workbook this model ports.
+
+**The nine band ceilings are the owner's** (Decision 2), exactly as they are typed cells in the
+workbook (`Report!H6:H14`) rather than constants in a formula — a $250 top band is meaningless to a
+jeweller and the whole business to a dairy. A ceiling typed across its neighbour **pushes it
+aside** rather than being refused, the same behaviour built for Stock Purchasing's ladders the same
+day, so the two models behave alike and nobody learns two habits.
+
+🔴 **THE SALESPERSON CUT CARRIES THREE STATED LIMITS** (Decision 6), and it is **scoped to this one
+cut on this one screen — it is not precedent.** It is **never sent to the model**: this model is
+arithmetic end to end and its route calls no LLM and stores nothing, so the limit holds by
+construction rather than by promise. It **never leaves the firm** — nothing here is pooled or
+shared upward. And its **column is optional**: a firm that does not supply it has no tab, which
+falls out of the model's `available` list rather than being special-cased. The tab carries an amber
+marker and a line of its own, so nobody opens it by accident in front of a room.
+
+**Report class, and it opens on the workbook's sample with a `SampleNotice` saying so** — the
+drawing shows it that way and Quick Position and the Volatility Report are the same precedent. The
+header's client line reads *"Sample data · 140 sales"* until a file replaces it. **No "Illustrative"
+badge**: the badge is a claim about the model, and this one runs on real figures the moment a file
+lands on it.
+
+**Two additions are recorded as additions, not slipped in:** the per-band and per-row **margin %**
+columns are ours. The workbook gives a margin percentage for the page as a whole (`Report!K21`) and
+never divides the two columns beneath it.
+
+⚠ **One thing that looks like a fault and is not:** *Products* and *Salesperson* return identical
+figures all the way down the sample, because it walks the ten products and the ten salespeople in
+lockstep across all 140 rows. The groupings are independent and correct; real data separates them.
+
+⚠ **Two faults were found by opening the screen, and neither was visible to any assertion** — the
+argument for §5's last line, again. The ring's centre rendered **"$140"** above the word
+TRANSACTIONS, because all three measures went through `money()`; and the line beneath it said
+*"of the money"* about a count of sales. Both are fixed and pinned.
+
+⚠ **`UNRECOGNISED_SALES` was missing from the intake allowlist** in `server/report/intakeError.js`,
+so the reader's authored refusal — *"It has no Entry Date column"* — was replaced by the route's
+generic sentence and reached nobody, for **Stock Purchasing too**, from the day that reader was
+written. Same fault recorded for `TOO_MANY_MONTHLY_FILES` in that file's own comments. It matters
+more now that the required columns are per model: the whole point is that a file is refused by
+what *this* model needs, and a generic sentence cannot say that. Added 2026-09-13.
 
 ---
 
