@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wages Model — what the team costs, what it earns, and the one page that only opens in a due-diligence project</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Wages Model. Drawn for approval 2026-09-14.
+   NOTHING IS BUILT — not the screen, not the backend. This drawing comes first.
+
+   WHAT CREATED IT. Mike, 2026-09-14: "buile the wages model into the perf report
+   section", then — told the workbook was not in the repository — "look in here -
+   C:\Documents\Visual Code Projects\Perf Report and you will see a model named
+   'wages'". Then "yes" to copying the workbook in and drawing the screen before
+   any code.
+
+   AND ONE THING HE TOLD US THAT THE WORKBOOK DOES NOT SAY. On being shown the
+   staff-rating sheet and the privacy risk in it, Mike, 2026-09-14: "the page that
+   describes dispensible etc relates to a due diligence process in the case of a
+   company merging or acquring ... it is not for 'general application' so this
+   page could be 'turned on' only in the cases of a firm being in a due diligence
+   project?" DECISION 6 is that ruling turned into a screen. It is the reason the
+   sixth sheet is drawn dark and switched off, and it changes the model's whole
+   privacy position — see the box at the top of the page.
+
+   WHERE THE NUMBERS COME FROM. Every figure below is read out of
+   design/report-source-models/Wages Model.xlsx — its own sample data and its own
+   cached results, read out of the workbook's six sheets and its stored formulas.
+   NOTHING HERE IS INVENTED TO FILL A BOX. There is no model of ours behind this
+   drawing yet, so these are the spreadsheet's numbers rather than ours; the
+   golden test is what will later pin them.
+
+   FOUR OF ITS CELLS ARE ALREADY REPRODUCED EXACTLY, by hand, from the stored
+   formulas — the two tax figures, the net-to-gross bonus, and the labour-margin
+   identity. They are marked ✓ where they appear. That is the standard the golden
+   test will hold the whole port to.
+
+   WHAT THE WORKBOOK IS. Six sheets, ~10,500 filled cells — the largest source
+   model in the library by some distance. Per-person pay and charge-out rates,
+   a month-by-month hiring plan and pay-rise schedule, TWO alternative operating
+   bases (seasonal weather, or shutdown-and-overtime), a twelve-month labour
+   margin report, and a staff register built for due diligence.
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner
+   ruling of 2026-07-23 — 1120px column, 16px gaps, 14px card radius, no card
+   top edge (RULED 2026-08-31). No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;padding:1px 4px}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+
+.privacy{background:#fdf0f0;border:1px solid #f0b8b8;border-left:4px solid var(--rs-crit);
+  border-radius:0 10px 10px 0;padding:14px 16px;font-size:12.5px;color:#5c1414;
+  line-height:1.6;margin:0 0 16px}
+.privacy h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:700;color:#a81c1c}
+.privacy p{margin:0 0 8px}.privacy p:last-child{margin:0}
+.privacy ul{margin:6px 0 8px;padding-left:18px}.privacy li{margin:5px 0}
+
+/* A decision still open. Numbered so it can be referred to in one line. */
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:0 10px 10px 0;padding:12px 14px;font-size:12.5px;color:#123a5c;margin:0 0 16px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask table{margin:8px 0 4px;font-size:12px;width:100%;border-collapse:collapse}
+.ask th{font-size:9.5px;padding-bottom:6px;text-align:left;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--rs-muted)}
+.ask td{padding:4px 10px 4px 0;border-bottom:1px solid #d8ecfa;vertical-align:top}
+/* A decision Mike has ruled. The recommendation and its reasoning are LEFT IN
+   PLACE beneath the ruling, so the record shows what was put to him, not only
+   what came back. */
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px dashed #a8dcb4}
+/* A decision that changes behaviour rather than wording. */
+.ask.behaviour{background:#fff6ec;border-color:#f3c893;border-left-color:var(--rs-warn)}
+.ask.behaviour h3{color:#a06000}
+.ask.behaviour.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.behaviour.ruled h3{color:var(--rs-good)}
+/* A decision that DEVIATES FROM THE WORKBOOK because the workbook is wrong. */
+.ask.defect{background:#fdf0f0;border-color:#f0b8b8;border-left-color:var(--rs-crit)}
+.ask.defect h3{color:#a81c1c}
+
+.sect{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin:34px 0 12px;padding-top:20px;border-top:2px solid var(--rs-line)}
+
+/* ---- the report frame, read off the shipped screens ---- */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;
+  flex-wrap:wrap;margin:0}
+.rs-back{font-size:12.5px;color:var(--rs-accent);font-weight:600}
+.rs-eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);font-weight:700;margin-bottom:4px}
+.rs-title{font-size:29px;font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.15}
+.rs-client{font-size:12px;color:var(--rs-muted);text-align:right}
+
+.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rs-line);
+  border:1px solid var(--rs-line);border-radius:var(--rs-radius);overflow:hidden;margin:16px 0 0}
+.hf{background:#002b64;padding:17px 18px;color:#fff}
+.hf .l{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#9dc2e8;
+  font-weight:600;margin-bottom:7px}
+.hf .v{font-size:25px;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.hf .s{font-size:11.5px;color:#9dc2e8;margin-top:5px}
+.hf.crit .v{color:#ffb4b4}
+.hf.good .v{color:#b9e8a4}
+
+.wide{display:flex;flex-direction:column;gap:16px;min-width:0;margin-top:16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:840px){.two{grid-template-columns:1fr}.hero{grid-template-columns:repeat(2,1fr)}}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:18px 20px;box-shadow:var(--rs-shadow)}
+.card h4{margin:0 0 3px;font-size:15.5px;font-weight:600}
+.card .sub{font-size:12px;color:var(--rs-muted);margin:0 0 14px}
+.card .foot{font-size:11.5px;color:var(--rs-muted);margin:12px 0 0;padding-top:11px;
+  border-top:1px solid var(--rs-line)}
+
+table.data{width:100%;border-collapse:collapse;font-size:13px;
+  font-variant-numeric:tabular-nums}
+table.data th{text-align:right;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:700;padding:0 0 8px 10px;border-bottom:1px solid var(--rs-line)}
+table.data th:first-child{text-align:left;padding-left:0}
+table.data td{text-align:right;padding:7px 0 7px 10px;border-bottom:1px solid var(--rs-panel-2)}
+table.data td:first-child{text-align:left;padding-left:0;font-weight:400}
+table.data tr.tot td{border-top:2px solid var(--rs-line);border-bottom:0;font-weight:600;
+  padding-top:9px}
+table.data tr.crunch td{background:var(--rs-crit-soft)}
+.neg{color:var(--rs-crit)}
+.pos{color:var(--rs-good)}
+
+/* the twelve-month bar pair */
+.bars{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;align-items:end;
+  height:160px;margin:6px 0 0}
+.bcol{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:2px}
+.bpair{display:flex;gap:2px;align-items:flex-end;height:100%}
+.bp{flex:1;border-radius:3px 3px 0 0;min-height:2px}
+.bp.proj{background:var(--rs-accent)}
+.bp.act{background:var(--rs-accent-bright);opacity:.55}
+.blab{font-size:9.5px;color:var(--rs-muted);text-align:center;margin-top:5px;font-weight:600}
+.key{display:flex;gap:16px;font-size:11.5px;color:var(--rs-muted);margin:12px 0 0;flex-wrap:wrap}
+.key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;
+  vertical-align:-1px;font-style:normal}
+
+.switch{display:flex;gap:0;border:1px solid var(--rs-line);border-radius:9px;overflow:hidden;
+  font-size:12.5px;width:fit-content;margin:0 0 14px}
+.switch span{padding:7px 15px;background:var(--rs-panel);color:var(--rs-muted);font-weight:600;
+  border-right:1px solid var(--rs-line)}
+.switch span:last-child{border-right:0}
+.switch span.on{background:var(--rs-accent);color:#fff}
+
+.pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:3px 9px;border-radius:999px;vertical-align:1px}
+.pill.vital{background:#fdeaea;color:#a81c1c;border:1px solid #f0b8b8}
+.pill.ben{background:#fff4e2;color:#a06000;border:1px solid #f3c893}
+.pill.disp{background:#eef2f7;color:#5b6f8a;border:1px solid var(--rs-line)}
+.pill.off{background:#eef2f7;color:#5b6f8a;border:1px solid var(--rs-line)}
+.pill.on{background:var(--rs-good-soft);color:#2c6b18;border:1px solid #a8dcb4}
+
+/* the gated sheet, drawn locked */
+.locked{position:relative;border:1px dashed #b56200;background:#fffaf2;
+  border-radius:var(--rs-radius);padding:18px 20px}
+.locked h4{margin:0 0 3px;font-size:15.5px;font-weight:600;color:#7a4400}
+.locked .sub{font-size:12px;color:#a06000;margin:0 0 14px}
+.lockbar{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #f3c893;
+  border-radius:9px;padding:11px 13px;font-size:12.5px;color:#7a4400;margin:0 0 14px}
+.lockbar b{color:#5c3200}
+.dim{opacity:.42;pointer-events:none;filter:grayscale(.35)}
+
+.note{font-size:11.5px;color:var(--rs-muted);margin:10px 0 0;line-height:1.55}
+.cell{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:10.5px;
+  color:var(--rs-muted)}
+.tick{color:var(--rs-good);font-weight:700}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+<h3>⚠ A drawing. Nothing is built — not the screen, not the backend</h3>
+<p>Drawn <b>2026-09-14</b> for approval, on Mike's <i>"buile the wages model into the perf report
+section"</i> and his <b>yes</b> to drawing it first. The workbook was copied into
+<code>design/report-source-models/Wages Model.xlsx</code> in the same change that saved this file.</p>
+<p><b>Every number on this page is the workbook's own</b>, read out of its six sheets and its stored
+formulas. Nothing is invented to fill a box. Where a figure has already been reproduced by hand from
+the workbook's formula it carries a <span class="tick">✓</span>; those four are the standard the
+golden test will hold the whole port to.</p>
+<p><b>There are eight decisions below and one of them is Mike's already</b> — Decision 6, the
+due-diligence gate, which is his ruling of 2026-09-14 turned into a screen. The other seven are open.</p>
+</div>
+
+<div class="privacy">
+<h3>🔴 Read this before the screens — what makes this model different</h3>
+<p><b>This is the only model in the library that would hold data about identifiable people rather
+than about a company.</b> The workbook's sixth sheet lists a client's employees by name with their
+pay rate, sick leave taken, accrued leave, date of birth, age, and a rating of each one as
+<b>Vital</b>, <b>Beneficial</b> or <b>Dispensable</b>. Those people are not the client, they have
+consented to nothing, and they will never see the screen.</p>
+<p><b>Mike's ruling of 2026-09-14 changes the position substantially, and it is worth stating why.</b>
+In his words: <i>"the page that describes dispensible etc relates to a due diligence process in the
+case of a company merging or acquring. Whilst the incoming owner must have regard for existing
+staff, the re structure may require tough decisions in places of 'role double up' so at some point,
+someone has to decide who stays and who goes. it is not for 'general application'."</i></p>
+<ul>
+<li><b>A time-boxed judgement inside a transaction is defensible in a way a standing opinion is
+not.</b> The same words — "this role is dispensable" — mean one thing in a dated restructure
+analysis prepared for an acquisition, and something quite different sitting permanently on a screen
+a manager can open on a Tuesday.</li>
+<li><b>So the sheet is OFF by default and cannot be switched on at will</b> — Decision 6. It opens
+only for a client whose case is in the app's existing <code>due-diligence</code> domain, and it
+carries the date and the transaction it was prepared for on its own face.</li>
+<li><b>It is never sent to the AI.</b> This whole model is arithmetic — its route calls no language
+model at all — so that holds by construction rather than by promise. The standing rule strips
+personal data before anything reaches a model, and the single exception ever granted is Meeting
+Review.</li>
+<li><b>The rating is the advisor's, and the screen says so.</b> Whatever it is finally called, it is
+recorded as a named person's judgement on a named date, not as a fact about an employee.</li>
+</ul>
+<p>Decisions 6, 7 and 8 are where this is settled. Nothing about the other five sheets raises any of
+it — they are pay rates, hours and margins, and they are ordinary.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">The decisions</div>
+
+<div class="ask">
+<h3>Decision 1 — what it is called, and where it sits on the shelf</h3>
+<p>The workbook is <code>Wages Model.xlsx</code>, but "wages" undersells it: the screen's answer is
+<b>labour margin</b> — whether the team bills more than it costs — not a payroll total.</p>
+<p class="rec">Recommended: name it <b>Wages &amp; Labour Margin</b>, category <b>Profitability</b>,
+class <b>Report</b>.</p>
+<p><b>Why Profitability.</b> Its output is a margin and it sits naturally beside <i>Margin · Mark-up
+· Break-even</i> and <i>8 Levers</i>. <b>Why Report class</b> — and this matters on screen: Report
+and Decision classes never carry the "Illustrative" badge, because the figures are a real client's.
+Getting this wrong would tell an advisor, in front of their client, that the client's own payroll is
+dummy data.</p>
+<p><b>The card's summary line, for your wording:</b> <i>"What the team costs against what it bills,
+month by month — with the hiring plan and pay rises that move it."</i></p>
+</div>
+
+<div class="ask behaviour">
+<h3>Decision 2 — the workbook has TWO businesses in it, and they do not reconcile</h3>
+<p>This is the largest finding of reading it, and it is a real fork.</p>
+<table>
+<tr><th>Sheet 1 — <i>Hrly Rate &amp; Tax Calculator</i></th><th>Sheets 2–6 — the rest</th></tr>
+<tr>
+<td><b>15 people in 7 ROLES</b> — Director, Consultant, Associate, Senior, Manager, Senior Tech,
+Junior Tech. A professional-services firm billing by job type. Nobody is named.</td>
+<td><b>24 people in 4 DIVISIONS</b> — Admin, Sales, Production, Management. A field-and-production
+business. Everybody is named.</td>
+</tr>
+<tr>
+<td>Charge-out rates of $130–$375/hr across seven job types, with a mix percentage per role.</td>
+<td>Charge-out rates of $35–$65/hr, pay rates of $19–$77/hr.</td>
+</tr>
+<tr>
+<td>Feeds nothing. No other sheet reads a single cell from it.</td>
+<td>Sheets 2, 3 and 4 all feed sheet 5, the Cash Report.</td>
+</tr>
+</table>
+<p>They are two different companies. Sheet 1 is a <b>self-contained calculator</b> that happens to
+share a workbook with the model; nothing links them.</p>
+<p class="rec">Recommended: build both, as <b>two tabs on one screen</b> — "Labour margin" (sheets
+2–6) and "Rates &amp; tax" (sheet 1) — and say plainly on the second tab that its figures are its
+own and do not feed the first.</p>
+<p><b>Why not split them into two library cards.</b> Two cards means two entries, two routes, two
+sets of tests and a second thing for an advisor to find; and the rates calculator is too small to
+carry a card of its own. <b>Why not drop sheet 1.</b> The standing rule is never to remove an
+element of a source model without asking — and its tax and bonus maths is the most immediately
+useful thing in the workbook for an advisor sitting with a client.</p>
+</div>
+
+<div class="ask behaviour">
+<h3>Decision 3 — two operating bases, one switch</h3>
+<p>The workbook computes the whole year <b>twice</b>, on two different theories of what limits the
+work, and a Yes/No cell at <code>Cash Report!C7</code> picks which one the report shows.</p>
+<table>
+<tr><th>Seasonal</th><th>Shutdown</th></tr>
+<tr>
+<td><b>The weather decides the hours.</b> Three seasons — <i>Dry n Light</i>, <i>Std Season</i>,
+<i>Wet n Dark</i> — each with its own hours per day, days per week and days lost per month. A field
+team paid for lost days.</td>
+<td><b>The calendar decides the hours.</b> Production days per month, with an explicit Christmas
+shutdown (December drops to 11 days, January to 10), and overtime switched on month by month.</td>
+</tr>
+<tr><td>Year's revenue: <b>$1,362,740</b></td><td>Year's revenue: <b>$972,334</b></td></tr>
+</table>
+<p class="rec">Recommended: <b>one model, one screen, a two-button switch at the top</b> — the same
+control style already on the shipped screens — defaulting to whichever basis the advisor used last
+for that client.</p>
+<p><b>Why not two models.</b> They share every input: the same staff, the same hiring plan, the same
+pay rises. Splitting them would duplicate all of it and let the two drift apart.</p>
+</div>
+
+<div class="ask">
+<h3>Decision 4 — the figures are typed, not imported</h3>
+<p>Nothing in a Balance Sheet or a Profit and Loss export carries a pay rate, a charge-out rate or a
+hiring plan. Those come from the client's payroll and from the advisor's conversation with them.</p>
+<p class="rec">Recommended: <b>typed entry, exactly like High-Level and Mid-Level Budget</b>, with no
+file import in this first build.</p>
+<p>A payroll import is a real future stage and a large one — every payroll system exports a different
+shape. It is worth doing later on its own merits, and it is not worth holding this model behind.</p>
+</div>
+
+<div class="ask behaviour">
+<h3>Decision 5 — the tax bands should come from the Tax Rates screen, not from the workbook</h3>
+<p>Sheet 1 hardcodes the five New Zealand income-tax bands — 10.5% to $14,000, 17.5% to $48,000, 30%
+to $70,000, 33% to $180,000, 39% above. They are correct today. They will not be correct forever,
+and they are wrong in every other country.</p>
+<p><b>The app already solves this.</b> There is a Tax Rates screen, and country rate schedules load
+at global group manager — one person loads every country their brand operates in.</p>
+<p class="rec">Recommended: <b>read the bands from the existing country tax-rate tables</b>, and where
+a country's bands have not been loaded, say so on the screen and withhold the tax figure rather than
+computing a New Zealand answer for an Australian client.</p>
+<p>This is the one place the model should <i>not</i> be a faithful port. A hardcoded 2026 NZ band
+table inside a model screen is a wrong number waiting to happen, and a wrong tax number is the kind
+of thing UAT cannot catch — it looks perfectly plausible.</p>
+</div>
+
+<div class="ask ruled">
+<h3>Decision 6 — RULED BY MIKE 2026-09-14 — the staff register opens only in a due-diligence project</h3>
+<p class="ruling">Mike, 2026-09-14: <i>"it is not for 'general application' so this page could be
+'turned on' only in the cases of a firm being in a due diligence project?"</i> — and the reason:
+<i>"the re structure may require tough decisions in places of 'role double up' so at some point,
+someone has to decide who stays and who goes."</i></p>
+<p><b>There is already a hook for this and it needs nothing new invented.</b>
+<code>data/domains.json</code> carries a <code>due-diligence</code> domain — keywords
+<i>acquisition</i>, <i>merger</i>, <i>buying a business</i> — with three questions the Virtual
+Advisor already asks, including <code>dueDiligenceScenario</code> and
+<code>dueDiligenceTimeline</code>.</p>
+<p class="rec">Recommended shape, drawn below: <b>two conditions, both required.</b></p>
+<table>
+<tr><th>Condition</th><th>Why both</th></tr>
+<tr><td><b>1. The client's case is in the <code>due-diligence</code> domain.</b></td>
+<td>This is the app's own record that a transaction is under way. It cannot be set by opening the
+wages screen.</td></tr>
+<tr><td><b>2. The advisor switches the register on, and it records who and when.</b></td>
+<td>An automatic reveal is not a decision anyone made. The switch is what makes it a dated,
+attributable act — which is exactly what makes it defensible.</td></tr>
+</table>
+<p><b>When the case leaves the due-diligence domain the register closes again</b> and what was
+entered is not shown. It is not a permanent property of the client.</p>
+<p><b>One thing this does NOT do, and should not:</b> it does not stop an advisor writing the same
+judgement in a document of their own. It is not a control on the advisor. It is a refusal by our app
+to hold that material as ordinary standing data about a person.</p>
+</div>
+
+<div class="ask">
+<h3>Decision 7 — the words on the register, which are the workbook's and may not be yours</h3>
+<p>The workbook's three ratings are <b>Vital</b>, <b>Beneficial</b>, <b>Dispensable</b>, with its own
+definitions — <i>"Immediate financial loss could be attributed to them leaving"</i>, <i>"Financial
+loss could (indirectly) be attributed"</i>, <i>"No (or very little) financial loss"</i>.</p>
+<p>Note what those definitions actually say: <b>every one of them is about financial loss to the
+business, not about the person.</b> The words drifted from the definitions — "Dispensable" reads as
+a verdict on someone, where the definition underneath it is a measurement of revenue at risk.</p>
+<p class="rec">Recommended: keep the workbook's three <b>bands</b> exactly as they are, and put the
+definition on the screen beside each one — but <b>ask you for the three labels</b> rather than
+shipping "Dispensable". A label like <b>Revenue at risk: High / Indirect / Low</b> says the same
+thing the definitions say.</p>
+<p><b>This is your call and I have not assumed it.</b> The drawing below shows the workbook's own
+words so you can see what the port would say if nothing changes.</p>
+</div>
+
+<div class="ask behaviour">
+<h3>Decision 8 — what is stored, and the one number worth keeping</h3>
+<p>The register's whole content is personal data. The rest of the model is not.</p>
+<p class="rec">Recommended: <b>the register is held for the life of the due-diligence project and
+then deleted</b>, on the same pattern Meeting Review already uses for transcripts — a promised
+period, and the data goes when it expires. The other five sheets store normally.</p>
+<p><b>One figure should outlive it, and it belongs to the company rather than to anyone in it:</b>
+the <b>accrued annual leave liability</b>, $63,154 in the sample. That is a real balance-sheet
+number an acquirer is buying, it is already in the client's own accounts, and it names nobody. It
+carries forward as a total; the names it was built from do not.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">The screen — tab 1 of 2, "Labour margin"</div>
+
+<div class="rs-top">
+  <div>
+    <div class="rs-back">‹ Model Library</div>
+    <div class="rs-eyebrow">Profitability · Report</div>
+    <h1 class="rs-title">Wages &amp; Labour Margin</h1>
+  </div>
+  <div class="rs-client">Kinetic Planning (2007) Limited<br>Year to 31 March 2027 · projected</div>
+</div>
+
+<div class="hero">
+  <div class="hf"><div class="l">Team cost, year</div><div class="v">$1,012,620</div>
+    <div class="s">10 people in April, 22 in March</div></div>
+  <div class="hf"><div class="l">Billed by the team</div><div class="v">$1,362,740</div>
+    <div class="s">Seasonal basis</div></div>
+  <div class="hf good"><div class="l">Labour margin, planned</div><div class="v">$350,121</div>
+    <div class="s">25.7% of what the team bills <span class="tick">✓</span></div></div>
+  <div class="hf crit"><div class="l">Labour margin, actual</div><div class="v">$97,946</div>
+    <div class="s">$252,175 behind the plan</div></div>
+</div>
+
+<div class="wide">
+<div class="card">
+  <h4>The year, month by month</h4>
+  <p class="sub">Planned labour margin against what the team actually delivered. Every figure read
+  from <code>Cash Report</code> rows 15–24.</p>
+
+  <div class="switch">
+    <span class="on">Seasonal</span><span>Shutdown</span>
+  </div>
+
+  <div class="bars">
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:57%"></div><div class="bp act" style="height:10%"></div></div><div class="blab">Apr</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:93%"></div><div class="bp act" style="height:53%"></div></div><div class="blab">May</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:42%"></div><div class="bp act" style="height:5%"></div></div><div class="blab">Jun</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:2%"></div><div class="bp act" style="height:2%;background:var(--rs-crit);opacity:.6"></div></div><div class="blab">Jul</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:41%"></div><div class="bp act" style="height:22%"></div></div><div class="blab">Aug</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:99%"></div><div class="bp act" style="height:32%"></div></div><div class="blab">Sep</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:35%"></div><div class="bp act" style="height:3%"></div></div><div class="blab">Oct</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:89%"></div><div class="bp act" style="height:2%"></div></div><div class="blab">Nov</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:35%"></div><div class="bp act" style="height:24%"></div></div><div class="blab">Dec</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:100%"></div><div class="bp act" style="height:22%"></div></div><div class="blab">Jan</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:42%"></div><div class="bp act" style="height:5%"></div></div><div class="blab">Feb</div></div>
+    <div class="bcol"><div class="bpair"><div class="bp proj" style="height:42%"></div><div class="bp act" style="height:20%"></div></div><div class="blab">Mar</div></div>
+  </div>
+  <div class="key">
+    <span><i style="background:var(--rs-accent)"></i>Planned labour margin</span>
+    <span><i style="background:var(--rs-accent-bright);opacity:.55"></i>Actual</span>
+    <span><i style="background:var(--rs-crit);opacity:.6"></i>Actual, negative</span>
+  </div>
+  <p class="foot"><b>July is the month to talk about.</b> The plan itself has the team billing
+  $81,166 and costing $80,986 — a planned margin of <b>$181</b> for the month. That is not a bad
+  result against plan; the plan is the problem. It is the <i>Wet n Dark</i> season, where the field
+  team is paid for days it cannot work.</p>
+</div>
+
+<div class="card">
+  <h4>Every month, in figures</h4>
+  <p class="sub">Seasonal basis. Team size from the hiring plan; revenue, cost and margin from the
+  Cash Report.</p>
+  <table class="data">
+    <thead><tr><th>Month</th><th>Season</th><th>Team</th><th>Billed</th><th>Team cost</th>
+      <th>Margin, planned</th><th>Actual</th></tr></thead>
+    <tbody>
+      <tr><td>Apr</td><td style="text-align:left">Std</td><td>10</td><td>80,423</td><td>51,014</td><td>29,409</td><td>5,000</td></tr>
+      <tr><td>May</td><td style="text-align:left">Dry n Light</td><td>11</td><td>111,013</td><td>62,711</td><td>48,302</td><td>27,500</td></tr>
+      <tr><td>Jun</td><td style="text-align:left">Std</td><td>13</td><td>82,737</td><td>61,162</td><td>21,575</td><td>2,500</td></tr>
+      <tr class="crunch"><td>Jul</td><td style="text-align:left">Wet n Dark</td><td>16</td><td>81,166</td><td>80,986</td><td><b>181</b></td><td class="neg">−5,000</td></tr>
+      <tr><td>Aug</td><td style="text-align:left">Std</td><td>19</td><td>105,068</td><td>83,823</td><td>21,245</td><td>11,450</td></tr>
+      <tr><td>Sep</td><td style="text-align:left">Dry n Light</td><td>22</td><td>154,011</td><td>102,724</td><td>51,287</td><td>16,750</td></tr>
+      <tr><td>Oct</td><td style="text-align:left">Std</td><td>21</td><td>107,437</td><td>89,300</td><td>18,136</td><td>1,500</td></tr>
+      <tr><td>Nov</td><td style="text-align:left">Dry n Light</td><td>21</td><td>143,142</td><td>96,875</td><td>46,267</td><td>1,250</td></tr>
+      <tr><td>Dec</td><td style="text-align:left">Std</td><td>21</td><td>107,437</td><td>89,300</td><td>18,136</td><td>12,568</td></tr>
+      <tr><td>Jan</td><td style="text-align:left">Dry n Light</td><td>23</td><td>157,383</td><td>105,597</td><td>51,787</td><td>11,450</td></tr>
+      <tr><td>Feb</td><td style="text-align:left">Std</td><td>22</td><td>116,462</td><td>94,630</td><td>21,832</td><td>2,500</td></tr>
+      <tr><td>Mar</td><td style="text-align:left">Std</td><td>22</td><td>116,462</td><td>94,497</td><td>21,964</td><td>10,478</td></tr>
+      <tr class="tot"><td>Year</td><td></td><td></td><td>1,362,740</td><td>1,012,620</td><td>350,121</td><td>97,946</td></tr>
+    </tbody>
+  </table>
+  <p class="foot"><span class="tick">✓</span> <b>Reproduced by hand from the workbook's own
+  formula.</b> <code>Cash Report!E22</code> is
+  <code>if($C$7="Yes", E15−E20, E17−E20)</code> — margin is billings less team cost on whichever
+  basis is switched on. $1,362,740 − $1,012,620 = $350,121 across the year, and the workbook's own
+  cached total agrees to the cent.</p>
+</div>
+
+<div class="card">
+  <h4>The team through the year</h4>
+  <p class="sub">Who is on the payroll in which month, from <code>Annual Hiring Plan</code>. The
+  divisions are the same four the Business Performance Report already names in its <i>Division
+  Wages %</i> discussion.</p>
+  <table class="data">
+    <thead><tr><th>Division</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th>
+      <th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th></tr></thead>
+    <tbody>
+      <tr><td>Admin</td><td>1</td><td>1</td><td>2</td><td>2</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>2</td><td>2</td></tr>
+      <tr><td>Sales</td><td>0</td><td>0</td><td>2</td><td>2</td><td>2</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td></tr>
+      <tr><td>Production</td><td>7</td><td>8</td><td>7</td><td>10</td><td>12</td><td>14</td><td>13</td><td>13</td><td>13</td><td>15</td><td>15</td><td>15</td></tr>
+      <tr><td>Management</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td></tr>
+      <tr class="tot"><td>Total</td><td>10</td><td>11</td><td>13</td><td>16</td><td>19</td><td>22</td><td>21</td><td>21</td><td>21</td><td>23</td><td>22</td><td>22</td></tr>
+    </tbody>
+  </table>
+  <p class="foot">The same sheet carries a <b>pay-rise schedule</b> — a percentage against a named
+  person from a named month, so a 5% rise for one person from August flows through every later
+  month's cost. Eight of the twenty-four have one in the sample.</p>
+</div>
+
+<div class="two">
+<div class="card">
+  <h4>What the two bases assume</h4>
+  <p class="sub">The switch at the top of the screen chooses between these.</p>
+  <table class="data">
+    <thead><tr><th></th><th>Seasonal</th><th>Shutdown</th></tr></thead>
+    <tbody>
+      <tr><td>Hours/day</td><td>7–10 by season</td><td>Base 40/wk + overtime</td></tr>
+      <tr><td>Days/week</td><td>5–6 by season</td><td>Production days/month</td></tr>
+      <tr><td>Days lost</td><td>0–4 per month</td><td>—</td></tr>
+      <tr><td>Christmas</td><td>no change</td><td>Dec 11 days, Jan 10</td></tr>
+      <tr><td>Overtime</td><td>—</td><td>on/off per month</td></tr>
+      <tr class="tot"><td>Year billed</td><td>1,362,740</td><td>972,334</td></tr>
+    </tbody>
+  </table>
+  <p class="foot">The seasonal basis also adds an <b>overnight allowance</b> of $1,400 in months it
+  applies — seven of the twelve in the sample. <code>Cash Report!E20</code> switches on it.</p>
+</div>
+
+<div class="card">
+  <h4>Leave liability</h4>
+  <p class="sub">Accrued annual leave the business owes, from the staff register. A balance-sheet
+  figure that names nobody.</p>
+  <table class="data">
+    <thead><tr><th>Band</th><th>People</th><th>Liability</th><th>Avg years</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill vital">Vital</span></td><td>9</td><td>29,191</td><td>3.7</td></tr>
+      <tr><td><span class="pill ben">Beneficial</span></td><td>10</td><td>20,189</td><td>5.8</td></tr>
+      <tr><td><span class="pill disp">Dispensable</span></td><td>9</td><td>13,773</td><td>5.3</td></tr>
+      <tr class="tot"><td>Total</td><td>28</td><td>63,154</td><td></td></tr>
+    </tbody>
+  </table>
+  <p class="foot"><b>Worth an advisor's attention, and it is the workbook's own data:</b> the people
+  rated least essential have been there <i>longer</i> on average than the people rated vital — 5.3
+  years against 3.7. In a restructure, length of service is exactly what makes someone expensive and
+  legally awkward to let go. <b>This total is the one figure Decision 8 keeps</b> once the register
+  itself is gone.</p>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">The gated sheet — off unless a due-diligence project is open</div>
+
+<div class="lockbar">
+  <span class="pill off">Closed</span>
+  <div><b>The staff register is not available for this client.</b> It opens only while a
+  due-diligence project is open on the case — Mike's ruling, 2026-09-14. This client's case is in the
+  <i>profitability and feasibility</i> domain.</div>
+</div>
+
+<div class="locked">
+  <h4>Staff register — due diligence</h4>
+  <p class="sub">Drawn here so the decision can be seen. On the real screen this is not rendered at
+  all when the gate is closed — it is absent, not greyed.</p>
+  <div class="dim">
+  <table class="data">
+    <thead><tr><th>Name</th><th>Division</th><th>Pay rate</th><th>Accrued leave</th>
+      <th>Liability</th><th>Years</th><th>Revenue at risk</th></tr></thead>
+    <tbody>
+      <tr><td>Mary G</td><td style="text-align:left">Admin</td><td>19.95</td><td>12 d</td><td>1,915</td><td>3</td><td><span class="pill vital">Vital</span></td></tr>
+      <tr><td>Agatha</td><td style="text-align:left">Admin</td><td>19.00</td><td>13 d</td><td>1,976</td><td>4</td><td><span class="pill ben">Beneficial</span></td></tr>
+      <tr><td>Judy</td><td style="text-align:left">Admin</td><td>19.00</td><td>15 d</td><td>2,280</td><td>5</td><td><span class="pill disp">Dispensable</span></td></tr>
+      <tr><td>Max</td><td style="text-align:left">Sales</td><td>23.69</td><td>9 d</td><td>1,706</td><td>4</td><td><span class="pill vital">Vital</span></td></tr>
+      <tr><td>Billy Ray</td><td style="text-align:left">Production</td><td>35.00</td><td>22 d</td><td>6,160</td><td>2</td><td><span class="pill vital">Vital</span></td></tr>
+      <tr><td>Bruce</td><td style="text-align:left">Production</td><td>40.28</td><td>16 d</td><td>5,156</td><td>5</td><td><span class="pill vital">Vital</span></td></tr>
+      <tr><td>Stevie</td><td style="text-align:left">Management</td><td>76.96</td><td>4 d</td><td>2,463</td><td>4</td><td><span class="pill vital">Vital</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="foot"><b>Three things on this drawing are deliberate and are what Decisions 6–8 settle.</b>
+  The column is headed <b>Revenue at risk</b>, not "Team dependance" — Decision 7, and your call.
+  <b>Date of birth and age are not on it</b>: the workbook carries both, neither changes a single
+  calculation, and an acquirer does not need an employee's birthday to price a business. And the
+  screen would carry a line naming the transaction it was prepared for, the advisor who prepared it
+  and the date — which is what makes it a due-diligence document rather than a standing opinion.</p>
+</div>
+
+<p class="note"><b>What the header would say when the gate is open:</b> &nbsp;
+<span class="pill on">Open</span> &nbsp; <i>Prepared for the acquisition of Kinetic Planning (2007)
+Limited · by M. Bartlett · 14 September 2026 · closes when the project closes.</i></p>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">The screen — tab 2 of 2, "Rates &amp; tax"</div>
+
+<div class="mock" style="margin-bottom:16px">
+<p><b>This is sheet 1, and Decision 2 is about it.</b> It is a self-contained calculator for a
+professional-services firm — seven roles, no names, charge-out rates by job type. <b>It shares no
+figure with tab 1</b> and the screen says so.</p>
+</div>
+
+<div class="wide">
+<div class="card">
+  <h4>What each role costs and what it earns</h4>
+  <p class="sub">Charge-out rate after the job mix, against the hourly cost of the person doing it.
+  From <code>Hrly Rate &amp; Tax Calculator</code> rows 25 and 41.</p>
+  <table class="data">
+    <thead><tr><th>Role</th><th>People</th><th>Salary</th><th>Cost/hr</th><th>Bills/hr</th>
+      <th>Recovery</th></tr></thead>
+    <tbody>
+      <tr><td>Director</td><td>2</td><td>145,000</td><td>74.36</td><td>323.75</td><td>4.4×</td></tr>
+      <tr><td>Consultant</td><td>1</td><td>125,000</td><td>64.10</td><td>321.50</td><td>5.0×</td></tr>
+      <tr><td>Associate</td><td>1</td><td>105,000</td><td>50.48</td><td>260.00</td><td>5.2×</td></tr>
+      <tr><td>Senior</td><td>4</td><td>95,000</td><td>48.72</td><td>241.25</td><td>5.0×</td></tr>
+      <tr><td>Manager</td><td>3</td><td>75,000</td><td>36.06</td><td>218.50</td><td><b>6.1×</b></td></tr>
+      <tr><td>Senior Tech</td><td>2</td><td>60,000</td><td>30.77</td><td>143.50</td><td>4.7×</td></tr>
+      <tr><td>Junior Tech</td><td>2</td><td>48,000</td><td>24.62</td><td>130.75</td><td>5.3×</td></tr>
+      <tr class="tot"><td>Team</td><td>15</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  <p class="foot"><b>The conversation this starts:</b> the Director recovers <b>4.4×</b> their cost
+  and the Manager <b>6.1×</b>. The most expensive person in the firm is the least profitable hour it
+  sells — because the job mix puts 35% of the Director's time on the top job type and 40% on the
+  fifth. That is the model's point, and it is visible in one row.</p>
+</div>
+
+<div class="two">
+<div class="card">
+  <h4>Income tax</h4>
+  <p class="sub">With a spouse split — two incomes taxed separately, shown as one household.</p>
+  <table class="data">
+    <tbody>
+      <tr><td>Annual income</td><td>145,000</td></tr>
+      <tr><td>Spouse split</td><td>25,000</td></tr>
+      <tr><td>Tax to pay</td><td><b>42,165</b> <span class="tick">✓</span></td></tr>
+      <tr class="tot"><td>Net annual pay</td><td>127,835</td></tr>
+      <tr><td style="color:var(--rs-muted)">Monthly</td><td style="color:var(--rs-muted)">10,652.92</td></tr>
+    </tbody>
+  </table>
+  <p class="foot"><span class="tick">✓</span> <b>Reproduced by hand:</b> on $145,000 —
+  14,000×10.5% + 34,000×17.5% + 22,000×30% + 75,000×33% = <b>38,770</b>. On $25,000 —
+  1,470 + 11,000×17.5% = <b>3,395</b>. Together <b>42,165</b>, matching the workbook's cached value
+  exactly. <b>Decision 5 is that these bands must come from the Tax Rates screen, not from here.</b></p>
+</div>
+
+<div class="card">
+  <h4>Bonus — what to pay to land a number</h4>
+  <p class="sub">An advisor's most-used cell in the workbook: the client says "I want them to get
+  $500", and this is what payroll must process.</p>
+  <table class="data">
+    <tbody>
+      <tr><td>Net bonus wanted</td><td>500.00</td></tr>
+      <tr><td>Tax rate applied</td><td>30%</td></tr>
+      <tr><td>Superannuation</td><td>7%</td></tr>
+      <tr class="tot"><td>Gross to process</td><td><b>793.65</b> <span class="tick">✓</span></td></tr>
+      <tr><td style="color:var(--rs-muted)">— tax</td><td style="color:var(--rs-muted)">238.10</td></tr>
+      <tr><td style="color:var(--rs-muted)">— super</td><td style="color:var(--rs-muted)">55.56</td></tr>
+    </tbody>
+  </table>
+  <p class="foot"><span class="tick">✓</span> <b>Reproduced by hand:</b> 500 ÷ (1 − 0.30 − 0.07) =
+  793.6508. <br><b>⚠ One thing to confirm before this is ported.</b> Deducting the 7% from the
+  employee's gross treats it as <i>their</i> contribution. The Seasonal sheet separately carries an
+  <i>"Employer Retirement Contribution %"</i> of 3%, which is the employer's. If the 7% here is meant
+  to be the employer's too, the gross is 714.29 and the employer pays 50.00 on top — a different
+  answer. <b>Not a defect until you say which it is.</b></p>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">What building it involves</div>
+
+<div class="card">
+<h4>Honest sizing</h4>
+<p class="sub">So the scope is agreed before it starts, not discovered halfway.</p>
+<table class="data">
+  <thead><tr><th>Piece</th><th style="text-align:left">What it is</th></tr></thead>
+  <tbody>
+    <tr><td style="white-space:nowrap">Maths engine</td><td style="text-align:left">Pure backend module, Node 14 CommonJS. Two bases, per-person costing, hiring plan, rise schedule.</td></tr>
+    <tr><td style="white-space:nowrap">Golden test</td><td style="text-align:left">Every expected figure carries its source cell. Written <i>with</i> the engine, never after.</td></tr>
+    <tr><td style="white-space:nowrap">Route</td><td style="text-align:left">One calc route — numbers in, numbers out, no AI, nothing stored.</td></tr>
+    <tr><td style="white-space:nowrap">Catalogue + page</td><td style="text-align:left">Model 19, the shared report blocks, no new ones.</td></tr>
+    <tr><td style="white-space:nowrap">The gate</td><td style="text-align:left">Decision 6 — the only genuinely new mechanism in the whole model.</td></tr>
+  </tbody>
+</table>
+<p class="foot"><b>This is several sessions, not one.</b> Six sheets and ~10,500 filled cells make it
+the largest port in the library — for comparison, the Sales Dashboard built in a day had 140 rows and
+one output table. A sensible order is: the labour-margin engine and its golden test first, because
+everything else depends on those numbers being right; then the screen; then the rates tab; then the
+gate and the register last, once its three decisions are settled.</p>
+</div>
+
+<p class="note" style="margin-top:22px">Drawn 2026-09-14 · the workbook is
+<code>design/report-source-models/Wages Model.xlsx</code> · nothing in this drawing is built.</p>
+
+</div>
+</body>
+</html>
