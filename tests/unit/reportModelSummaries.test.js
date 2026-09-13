@@ -169,8 +169,10 @@ describe('every summary carries what an advisor needs before being sent to a mod
     // variance table says Better or Worse beside its own figure.
     // Seven since 2026-09-13: the Retirement Review (4.90) reads itself too — its verdict
     // panel and its workbook-differences card say what a coach panel would have said.
-    expect(bullet).toMatch(/\*\*Seven\*\*|\bSeven\b/)
-    expect(noPanel).toHaveLength(7)
+    // Eight since 2026-09-13: the Mid-Level Budget (4.93) carries the same variance table as
+    // its High-Level sibling, and states its own finding twice over besides.
+    expect(bullet).toMatch(/\*\*Eight\*\*|\bEight\b/)
+    expect(noPanel).toHaveLength(8)
     // And every one of them named, so a new one cannot be added silently.
     //
     // Matched on the name's identifying stem rather than in full, because prose calls

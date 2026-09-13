@@ -19,6 +19,7 @@ const VolatilityReport = require('~/components/VolatilityReport.vue').default
 const ThreeWayForecastReport = require('~/components/ThreeWayForecastReport.vue').default
 const DashboardReportsWorkbench = require('~/components/DashboardReportsWorkbench.vue').default
 const HighLevelBudget = require('~/components/HighLevelBudget.vue').default
+const MidLevelBudget = require('~/components/MidLevelBudget.vue').default
 const RetirementReview = require('~/components/RetirementReview.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
@@ -35,6 +36,7 @@ const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('~/server/re
 const { computeThreeYearForecast } = require('~/server/report/threeWayForecastModel')
 const { computeReportPages } = require('~/server/report/dashboardReportPagesModel')
 const { computeHighLevelBudget, DEFAULT_INPUTS: HLB_DEFAULTS } = require('~/server/report/highLevelBudgetModel')
+const { computeMidLevelBudget, DEFAULT_INPUTS: MLB_DEFAULTS } = require('~/server/report/midLevelBudgetModel')
 const { computeRetirementReview } = require('~/server/report/retirementReviewModel')
 
 /**
@@ -104,6 +106,7 @@ const SCREENS = [
   // itself from the workbook sample — but the guard needs figures in the strip, so the mocked
   // backend answers with the sample the way a filled-in budget would.
   { name: 'High Level Budget', component: HighLevelBudget, result: () => computeHighLevelBudget(HLB_DEFAULTS) },
+  { name: 'Mid Level Budget', component: MidLevelBudget, result: () => computeMidLevelBudget(MLB_DEFAULTS) },
   { name: 'Retirement Review', component: RetirementReview, result: () => computeRetirementReview() }
 ]
 

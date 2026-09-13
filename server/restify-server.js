@@ -222,6 +222,7 @@ server.post('/api/report/eight-levers', reportRoute.eightLevers)
 // The High Level Budget (item 4.88) — calc-only, anonymous: a budget, its actuals and the
 // variances between them, numbers in and numbers out.
 server.post('/api/report/high-level-budget', reportRoute.highLevelBudget)
+server.post('/api/report/mid-level-budget', reportRoute.midLevelBudget)
 // The Business Performance Report's ratio hub (item 4.70, stage 1) — calc-only, anonymous.
 server.post('/api/report/dashboard-reports', reportRoute.dashboardReports)
 // The report's pages (stage 2). Guarded, unlike the hub above, because the cash drivers and

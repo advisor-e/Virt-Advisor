@@ -185,6 +185,58 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.93 — Mid-Level Budget: the second of the three cards nobody had built.**
+✅ Closed 2026-09-13 on the laptop, on Mike's instruction of the same day: *"build another model
+that is pending in the perf report section"*, then his *"yes"* to the recommendation of this model
+over Sales Dashboard and Stock Purchasing. Chosen because it is the High Level Budget's near-twin —
+same line set, 813 formulas against 814 — so most of the screen was the one he approved on
+2026-09-12. **CLASS_REPORT, so no "Illustrative" badge**; the route stores nothing.
+
+- **What shipped.** [`server/report/midLevelBudgetModel.js`](../../server/report/midLevelBudgetModel.js)
+  and its golden test (59 cases), `POST /api/report/mid-level-budget` and its route test,
+  [`pages/mid-level-budget.vue`](../../pages/mid-level-budget.vue),
+  [`components/MidLevelBudget.vue`](../../components/MidLevelBudget.vue) and its 27-case screen
+  test, its labels in `locales/en.json`, the catalogue card flipped to `STATUS_READY`, its Model
+  Guide entry (read by the AI as well as the screen) and entries in the report guards. Suite
+  **10,240 green**, lint 0 errors. Drawn first at
+  [`../mockups/mid-level-budget.html`](../mockups/mid-level-budget.html).
+
+- **What the model adds.** The `Assumptions` sheet — what share of a month's sales is collected that
+  month and over the next four, and the same for paying suppliers. The budget is then built on cash
+  **collected**, not sales invoiced. On the workbook's own sample the client invoices 348,300, is
+  profitable on paper, and still runs the bank to **−54,040** by March.
+
+- **SEVEN WORDING DECISIONS, each put to Mike alone and each ruled as recommended**, recorded on the
+  drawing with the recommendation left in place beneath every ruling. The one that shapes behaviour:
+  🔴 **step 4 carries a warning**, because the budget side means *invoiced* by "Sales" and the
+  actuals side must mean *cash received* — the workbook's own design, and an advisor who types
+  invoiced sales there gets a comparison that means nothing.
+
+- 🔴 **THREE RULED DEVIATIONS FROM THE WORKBOOK, all Mike 2026-09-13**, settled before any maths was
+  written and each pinned in the golden test against the workbook's own cached figure: the
+  **fourth-month collection bucket** (one relative reference where nine siblings are absolute —
+  21,250 of cash across the sample year computed as 2,500, while the sheet's own balance check still
+  reports the profile complete); **GST counted twice in the bank**, carried from the 2026-09-12 High
+  Level ruling, which moves budgeted closing from −39,697 to −54,040 and actual from −15,009 to
+  −32,200; and **income that bears no GST out of the GST base**. Two of the three move no figure in
+  the sample, so both are proved on constructed cases as well. **All three were mutation-verified
+  outside the repo** — reverted to the workbook's behaviour and confirmed to fail.
+
+- 🔴 **FOUR FAULTS WERE FOUND BY OPENING THE SCREEN, with 10,234 tests green**, and none was visible
+  to any assertion. One cause: the screen compared against an actuals side that was entirely empty.
+  The headline reported **in green** that the client had spent 375,950 less than budget and closed
+  64,040 above plan, while every line below it correctly read *not entered*; the three subtotals gave
+  three different answers to that same empty state; the bank chart drew twelve zeroes as a flat line
+  at the top of its scale; and step 2's *Still owed at year end* sat in the thirteenth column of a
+  scrolling table, rendering as a blank row. Fixed, **no calculation changed**, and the fix itself
+  mutation-verified three ways. Detail in [`report-models.md`](report-models.md) §4.93.
+
+- **Worth carrying forward:** the route test's privacy assertion renders logged arguments with
+  `util.inspect`, not `String()`. `String({})` is `"[object Object]"`, so a handler logging the whole
+  request body sails past a `String()`-based check — the dead alarm found in
+  `multiplePropertyRoute.test.js` on 2026-09-13. Both behaviours were proved in a scratch harness:
+  the new form fires on a leaked body, the old form does not.
+
 **4.90 — Retirement Review: the Model Library card nobody had built.**
 ✅ Closed 2026-09-13 on the laptop, on Mike's instruction of the same day: *"build the retirement
 planning model in perf reports section"*. The largest workbook in the library — four visible

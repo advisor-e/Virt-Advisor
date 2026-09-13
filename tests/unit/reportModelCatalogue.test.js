@@ -67,6 +67,7 @@ describe('report model catalogue', () => {
         '/lease-vs-buy',
         '/loan-estimator',
         '/margin-breakeven',
+        '/mid-level-budget',
         '/multiple-property',
         '/quick-position',
         '/retirement-review',
@@ -136,7 +137,7 @@ describe('report model catalogue', () => {
       // MODEL-CLASSIFICATION.md lists it under Report, "actuals and variances". Entry is typed
       // because a budget is a forecast and there is nothing to import — which changes where the
       // figures come from, not whose they are, so no Illustrative badge.
-      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports', 'High-Level Budget']
+      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports', 'High-Level Budget', 'Mid-Level Budget']
       // The Retirement Review (4.90, built 2026-09-13) is the fifth Decision-class build: a
       // household's real income, pension, superannuation and up to six properties, all typed
       // in. No file to import, and no Illustrative badge — the figures are the client's own.
@@ -148,7 +149,7 @@ describe('report model catalogue', () => {
         'Retirement Review'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(15)
+      expect(built).toHaveLength(16)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -300,7 +301,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(15)
+      expect(readyCount(MODELS)).toBe(16)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

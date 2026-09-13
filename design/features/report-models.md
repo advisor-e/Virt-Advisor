@@ -205,16 +205,18 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Seven** models —
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Eight** models —
   8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator, Dashboard Reports, the
-  High-Level Budget and the Retirement Review —
+  High-Level Budget, the Mid-Level Budget and the Retirement Review —
   carry explanatory notes and verdict rules instead, and the screen heads them differently
   (Dashboard Reports is the client's own document; its reading is the health score and the
   advisor's words on its pages. The High-Level Budget's reading is the variance table itself —
   every line says *Better* or *Worse* beside its own figure, which is where a coach panel's
-  sentence would have gone. The Retirement Review's reading is its verdict panel and the card
-  naming where its figures differ from the spreadsheet; a third block of prose beneath them
-  would repeat both). Claiming a Coach panel that is not there describes a screen
+  sentence would have gone. The Mid-Level Budget carries that same table, and its own finding
+  is already on the screen twice over — the cash-collected row against the sales invoiced, and
+  the still-owed figure under it. The Retirement Review's reading is its verdict panel and the
+  card naming where its figures differ from the spreadsheet; a third block of prose beneath
+  them would repeat both). Claiming a Coach panel that is not there describes a screen
   the reader will not find.
   ⚠ *[`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) reads
   this very sentence and fails if it stops matching the data.*
@@ -1285,6 +1287,66 @@ class correctly applied, beaten on CSS specificity — so the two figures the pa
 were the two it did not), and step 3's six expanding property cards had **no expander symbol and no
 close control at all**. Mike found the second himself. It is now the list-and-one-open shape he
 approved on Multiple Property on 2026-08-21, so the two property reports behave identically.
+
+### The Mid Level Budget (4.93, built 2026-09-13)
+
+`POST /api/report/mid-level-budget` · [`pages/mid-level-budget.vue`](../../pages/mid-level-budget.vue) ·
+[`components/MidLevelBudget.vue`](../../components/MidLevelBudget.vue) ·
+[`server/report/midLevelBudgetModel.js`](../../server/report/midLevelBudgetModel.js) ·
+drawn at [`mockups/mid-level-budget.html`](../mockups/mid-level-budget.html).
+
+**The High Level Budget's line set, plus the timing.** The two workbooks are near-twins — same six
+deposit lines, same twenty-seven GST-bearing expenses, same five non-GST lines, 813 formulas against
+814. What Mid Level adds is the `Assumptions` sheet: what share of a month's sales is collected that
+month and over the next four, and what share of a month's stock purchases is paid over the same
+span. The budget is then built on **cash collected** rather than sales invoiced, and a Material /
+Product Purchases line with its own timed *Paid to suppliers* lets gross profit be struck above the
+expense block. **Five steps for five sheets**; four of them are the High Level Budget's screen
+unchanged, and step 2 is the whole difference between the models.
+
+**Why it earns its place beside its sibling.** On the workbook's own sample the client invoices
+348,300 and is profitable on paper, and the budget still runs the bank to **−54,040** by March —
+purely because the money arrives later than the wages go out. That is visible on the first screen.
+
+🔴 **THE TWO SIDES MEAN DIFFERENT THINGS BY THE SAME LINE NAME, and it is the source's own design.**
+On the budget, `Sales` is what was **invoiced** and the model works out when the cash lands. The
+actuals sheet applies no timing at all (`sum(D9:D14)`, `=D20`), so what is entered there **is the
+cash**. Step 4 says so in a line under its heading — Mike's ruling of 2026-09-13 — because an
+advisor who types invoiced sales there gets a comparison that means nothing and nothing else on
+screen would tell them.
+
+**Three ruled deviations from the workbook (Mike, 2026-09-13), each named in the model's header and
+pinned in the golden test against the workbook's own cached figure:**
+
+1. 🔴 **The fourth-month collection bucket applies in every month it reaches, not only the first.**
+   `Assumptions` row 12 is the one timing row using a relative reference (`M6*L12`) where its four
+   siblings and all five creditor rows are absolute; expanded across Q12:X12 it points at empty
+   cells. A client collecting 10% four months late should see **21,250** across the sample year and
+   the sheet finds **2,500** — 18,750 lost, 5.4% of revenue, while the sheet's own balance check
+   still reports the profile complete.
+2. **GST is a reading and never moves the bank** — the 2026-09-12 High Level ruling, same rows, same
+   formulas. Budgeted closing falls from −39,697 to **−54,040** and actual from −15,009 to
+   **−32,200**, each gap exactly the year's net GST held for Inland Revenue.
+3. **Tax Rebates, Interest Received and Capital Introduced are out of the GST base.** None bears
+   GST; capital introduced is not a supply at all.
+
+Deviations 1 and 3 move no figure in the sample, so both are proved on constructed cases as well.
+All three were **mutation-verified outside the repo** — each reverted to the workbook's behaviour
+and confirmed to fail the golden test.
+
+🔴 **FOUR FAULTS WERE FOUND BY OPENING THE SCREEN, with the whole suite green, and none was visible
+to any assertion.** All four had one cause: the screen compared against an actuals side that was
+entirely empty. The headline reported, **in green**, that the client had spent 375,950 less than
+budget and closed 64,040 above plan — while every line in the table beneath it correctly read *not
+entered*. The three subtotal rows gave three different answers to the same empty state (−311,910
+red, −165,950 **green**, and 0). The bank chart drew twelve zeroes as a flat line pinned to the top
+of its scale. And on step 2, *Still owed at year end* — the card's whole point — sat in the
+thirteenth column of a table that scrolls, so it rendered as a blank row.
+
+`hasActuals` now reads the model's own nulls and governs the whole of step 5: the budget's own
+headline stands until an actual exists, subtotals read `—` exactly as their lines do, neither chart
+draws a series with nothing behind it, and the year's owed figure sits below the scroll rather than
+inside it. **No calculation changed.** The fix is mutation-verified three ways.
 
 ---
 

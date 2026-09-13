@@ -15,6 +15,7 @@ const { computeDebtorCashflow } = require('../report/debtorDragModel')
 const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/marginBreakevenModel')
 const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeHighLevelBudget } = require('../report/highLevelBudgetModel')
+const { computeMidLevelBudget } = require('../report/midLevelBudgetModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
@@ -193,6 +194,43 @@ function highLevelBudget (req, res, next) {
   } catch (err) {
     console.error('[report] high-level-budget compute failed:', err)
     res.send(400, { success: false, error: { code: 'HIGH_LEVEL_BUDGET_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/mid-level-budget
+ *
+ * The Mid Level Budget (item 4.93): the High Level Budget's line set plus the cash TIMING that
+ * gives this model its name — an `Assumptions` profile spreading each month's sales, and each
+ * month's supplier purchases, across up to five months — together with the Material/Product
+ * Purchases line and the gross profit struck above the expense block. Calc-only and therefore
+ * anonymous, like every other calc route here — numbers in, numbers out, nothing stored.
+ *
+ * NB the model carries THREE ruled deviations from the source workbook (Mike, 2026-09-13): the
+ * fourth-month collection bucket applies in every month it reaches rather than only the first,
+ * the entered figures are treated as GST-inclusive so the GST block never moves the bank, and
+ * Tax Rebates, Interest Received and Capital Introduced are out of the GST base. Each is set out
+ * in the header of `server/report/midLevelBudgetModel.js`.
+ *
+ * @route POST /api/report/mid-level-budget
+ * @param {object} req.body - the client's own figures; NOTHING defaults except the GST rate and
+ *   the month labels: `{ gstRate, months, assumptions: { debtors, creditors },
+ *   budget: { openingBalance, lines }, actual: { openingBalance, lines } }`, where each profile
+ *   is up to five fractions, `lines` maps a line key to twelve monthly figures, and a null means
+ *   "not entered yet". On the BUDGET side `sales` and `materialPurchases` are what was invoiced;
+ *   on the ACTUAL side they are the cash actually received and paid.
+ * @returns {object} { success, data, timestamp } — `{ gstRate, months, lineOrder, assumptions,
+ *   budget, actual, variance, reports }`.
+ */
+function midLevelBudget (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeMidLevelBudget(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] mid-level-budget compute failed:', err)
+    res.send(400, { success: false, error: { code: 'MID_LEVEL_BUDGET_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
 }
@@ -1434,4 +1472,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

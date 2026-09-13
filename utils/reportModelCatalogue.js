@@ -107,7 +107,12 @@ export const MODELS = [
   // Entry is typed rather than read from a file: a budget is a forecast, so there is nothing
   // to import, and no accounts reader produces a monthly cash figure on these 32 lines.
   { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/high-level-budget' },
-  { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  // Item 4.93. CLASS_REPORT, exactly as its High-Level sibling above — a client's own budget and
+  // their own bank balance — so no "Illustrative" badge. What it adds is the TIMING: an
+  // Assumptions profile spreading each month's sales, and each month's purchases, across up to
+  // five months. Entry is typed for the same reason as the High-Level: a budget is a forecast,
+  // so there is nothing to import.
+  { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/mid-level-budget' },
   // CLASS_REPORT stands per design/MODEL-CLASSIFICATION.md, which lists this model under
   // Report (9) — "variance analysis on real figures". Entry is typed until the by-month
   // accounts upload lands (Mike, 2026-08-31: "typed now, upload next"); that changes where
