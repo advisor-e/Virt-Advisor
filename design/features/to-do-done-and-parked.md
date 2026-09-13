@@ -185,6 +185,56 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.90 — Retirement Review: the Model Library card nobody had built.**
+✅ Closed 2026-09-13 on the laptop, on Mike's instruction of the same day: *"build the retirement
+planning model in perf reports section"*. The largest workbook in the library — four visible
+sheets plus two hidden mortgage sheets, six properties, three mortgage types, twenty years — and
+the only model here that holds a whole household's income, pension, superannuation and property
+at once. **CLASS_DECISION, so no "Illustrative" badge**, and its route stores nothing.
+
+- **What shipped.** [`server/report/retirementReviewModel.js`](../../server/report/retirementReviewModel.js)
+  and its golden test (47 cases, eight mutations run and all eight caught),
+  `POST /api/report/retirement-review`,
+  [`pages/retirement-review.vue`](../../pages/retirement-review.vue),
+  [`components/RetirementReview.vue`](../../components/RetirementReview.vue), ~180 labels in
+  `locales/en.json`, the catalogue card flipped to `STATUS_READY`, its Model Guide entry (read by
+  the AI as well as the screen) and entries in the report guards. Suite 10,149 green, lint 0
+  errors. Commits `dd7542d7`, `5f9daa59`, `0528dba2`, `beb35492`.
+
+- 🔴 **WHAT PROVED THE PORT — the ordering is the proof and it cannot be redone later.** Every
+  cached value on all six sheets, all twenty years of all twelve series, was reproduced **before
+  any correction was applied**. Once the output differs from the spreadsheet no comparison can
+  establish fidelity, so this had to happen first. Everything the corrections do not touch stays
+  pinned to the workbook, and the structural correction is pinned to the workbook's own numbers.
+
+- 🔴 **THREE RULED DEVIATIONS, all Mike 2026-09-13**, carried out to the screen as
+  `workbookCorrections` with the cells they change, so an adviser with the spreadsheet open beside
+  the page can account for every difference: current tax bands from `data/tax-bands.json`
+  (12.926% → 12.582%); the pension taxed in the projection; and the sixth property realigned to
+  year one. The last two were **4.91, filed and closed the same day**. **They pull in opposite
+  directions and are reported separately, never netted.**
+
+- **Six wording decisions, each put to him on its own with its alternatives, each ruled as
+  recommended**, recorded on [`../mockups/retirement-review.html`](../mockups/retirement-review.html)
+  with the recommendation and the case against it left in place: the verdict sentence
+  (*"The plan holds — but it leans on selling three properties"*), the step-1 headline (*"The gap
+  is $14,687 a month"*), the four step names, the plain property columns over the workbook's, step
+  1 staying inside this model with a *Finish here* button, and the banner tile reading *"Years
+  spending more than they earn"* rather than the code's own *deficit*.
+
+- 🔴 **THE SCREEN WAS OPENED IN A RUNNING BROWSER AND PUT BESIDE THE DRAWING. Six differences**,
+  all named on the drawing. **Two were faults no test in this suite could have caught:** the
+  verdict panel's warning figures shipped **navy rather than red** — the tone class correctly
+  applied and beaten on CSS specificity, so the two figures the panel exists to flag were the two
+  it did not flag; and **step 3's six expanding property cards had no expander symbol and no close
+  control at all**, which Mike found himself — *"i have no idea how im supposed to compact it
+  afterwards"*. The second is now the list-and-one-open shape he approved on Multiple Property on
+  2026-08-21, so the two property reports behave identically. A third difference was in the
+  drawing, not the code: it says three properties cost more than they bring in, and it is two.
+
+- **What is NOT claimed.** Nothing was tested against a real database — there is no MySQL on this
+  machine — and no client has used it. It is UAT's to judge, which is what UAT is for.
+
 **4.92 — An intermittent test failure that rejected a push and blamed the wrong code.**
 ✅ Filed and closed 2026-09-13 on the laptop, on Mike's yes. Two dev-fallback suites
 ([`activityStore.devfallback`](../../tests/unit/activityStore.devfallback.test.js) and

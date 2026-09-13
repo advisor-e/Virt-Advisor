@@ -354,7 +354,7 @@ judgement changes.
 match is worse than a miss, because the advisor takes the suggestion into a client meeting.
 The cost is that an unanticipated word still misses — the fix is a word on the model's list.
 
-🔴 **A MODEL WITH NO PAGE IS NEVER NAMED.** Eight catalogued models are `STATUS_SOON` with
+🔴 **A MODEL WITH NO PAGE IS NEVER NAMED.** Three catalogued models are `STATUS_SOON` with
 no route. `tests/unit/reportModelSummaries.test.js` holds the file to the catalogue **both
 ways** — a summary for a model that is not ready fails, and a ready model with no summary
 fails. So the day a `SOON` model goes live the build says it needs an entry, rather than
@@ -1239,6 +1239,52 @@ have gone. §2's `coachIsNotAPanel` list carries it.
 Neither was visible to any assertion in this suite, and (e) is the fault twice over — fixed in
 the headline, then found again in the table underneath it on the next look. This is the whole
 argument for §5's last line.
+
+### The Retirement Review (4.90, built 2026-09-13)
+
+The largest workbook in the library — four visible sheets plus two hidden mortgage sheets, six
+properties, three mortgage types, twenty years — and the only model here that holds a whole
+household at once: two incomes, a pension, a superannuation balance and six properties. **It is
+`CLASS_DECISION`, never badged Illustrative, and its route stores nothing.** Four steps, on the
+same stepped pattern as Quick Position and the High Level Budget: the conversation, what they
+have, the properties, the next twenty years. Drawn first at
+[`../mockups/retirement-review.html`](../mockups/retirement-review.html).
+
+**Built:** [`server/report/retirementReviewModel.js`](../../server/report/retirementReviewModel.js),
+`POST /api/report/retirement-review`,
+[`pages/retirement-review.vue`](../../pages/retirement-review.vue) and
+[`components/RetirementReview.vue`](../../components/RetirementReview.vue).
+
+🔴 **THE PORT WAS PROVED EXACT BEFORE ANY CORRECTION WAS APPLIED** — every cached value on all six
+sheets, all twenty years of all twelve series. **That ordering IS the proof and cannot be redone
+later:** once the output differs from the spreadsheet, no comparison can establish fidelity.
+
+🔴 **THREE RULED DEVIATIONS** (Mike, 2026-09-13), and they are **on the screen**, not only in the
+code — `workbookCorrections` carries each one's cells and its ruling out to the result, because an
+adviser may have the spreadsheet open beside the page. Current tax bands from `data/tax-bands.json`
+(the average rate falls 12.926% → 12.582%); the government pension taxed across all twenty years,
+where the workbook taxed it on its summary sheet and not in its projection; and the sixth property
+running from year one, where the workbook's rows sat four years out so it earned nothing for four
+years and, when sold, credited the client with nothing at all. **The first two make the plan look
+worse and the third makes it look better; they are listed separately and never netted.**
+
+**Step 1 stands alone** (Mike, 2026-09-13). The Quick Calculator shares no figure with the
+projection — the workbook keeps it on its own sheet for the same reason — so the step carries a
+*Finish here* button and an adviser can run it in a first meeting before a single balance is known.
+
+🔴 **The verdict names what the plan leans on, never just that it holds.** The model draws no
+conclusion; only two readings come from the code (does the cash ever run out, how many years fall
+short) and the rest is arithmetic. Where the cash survives only because properties are sold, the
+sentence says so — *"the plan holds"* alone would be true and misleading in the same breath. On the
+sample that is not rhetoric: **take the three sales away and the cash runs out in year 4**, which is
+pinned in `tests/unit/retirementReviewScreen.component.test.js`.
+
+**Two faults were found by opening the screen, with 10,149 tests green**, and neither was visible to
+any assertion here: the verdict panel's warning figures rendered **navy instead of red** (the tone
+class correctly applied, beaten on CSS specificity — so the two figures the panel exists to flag
+were the two it did not), and step 3's six expanding property cards had **no expander symbol and no
+close control at all**. Mike found the second himself. It is now the list-and-one-open shape he
+approved on Multiple Property on 2026-08-21, so the two property reports behave identically.
 
 ---
 

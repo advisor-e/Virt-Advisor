@@ -39,9 +39,8 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.58** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 4 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
-| 5 | **4.90** Retirement Review - the Model Library card nobody has built ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-13 |
 
-**Five live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Four live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
