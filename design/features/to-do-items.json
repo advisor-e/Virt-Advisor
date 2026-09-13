@@ -168,7 +168,7 @@
       "comment": "2026-09-13 - filed at shutdown on Mike's yes, after three sessions of it living in a handover note instead. That is the failure the shutdown checklist names: an open question for Mike is an item on this list, never a line in a note."
     },
     {
-      "ref": "4.97",
+      "ref": "4.100",
       "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,
       "activeOn": {
@@ -190,11 +190,11 @@
       },
       "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
       "note": "ENGINE BUILT 2026-09-14 on Mike's go-ahead: server/report/wagesModel.js, its golden test, POST /api/report/wages-review and a route test. NO SCREEN YET - the five input steps, the report screen, the rates tab, the gated register, the payroll reader and the Tax Rates fifth figure remain, and each carries wording only Mike settles. TWO WORKBOOK FIGURES CORRECTED on his rulings, both mutation-verified and pinned beside the workbook's own: the row-offset base-wage defect, and the season card dropping employer retirement. Year margin 350,121 to 288,935; July 181 to -132, no longer breaking even. Billings unchanged. MIKE STILL SENDS A REAL PAYROLL EXPORT. Record: the drawing's header and ARTEFACTS.md.",
-      "comment": "2026-09-14 - filed, all nine decisions ruled, then the engine built the same day. Two rulings reversed our recommendation: the payroll import, and retention. Two more came at build time, when the workbook itself proved wrong - 'fix it - always' and 'NEVER allow a mistake to remain' - so the port corrects a base-wage formula reading the wrong employee's row, and a season card counting cost two different ways. The plan is 61,185 worse than the spreadsheet claimed."
+      "comment": "2026-09-14 - filed, all nine decisions ruled, then the engine built the same day. Two rulings reversed our recommendation: the payroll import, and retention. Two more came at build time, when the workbook itself proved wrong - 'fix it - always' and 'NEVER allow a mistake to remain' - so the port corrects a base-wage formula reading the wrong employee's row, and a season card counting cost two different ways. The plan is 61,185 worse than the spreadsheet claimed. Renumbered from 4.97 on Mike's yes: the desktop had filed a different 4.97 the same day."
     },
     {
-      "ref": "4.98",
-      "name": "Startup reads the other machine's handover from the wrong branch",
+      "ref": "4.101",
+      "name": "Startup is blind to the other machine's branch - the handover, and the numbers",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -202,16 +202,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Step 4 of /startup reads the other machine's handover from the reader's own branch, so it is only ever as fresh as the last merge to master, and nothing on screen says so.",
-      "risk": "A session reports the other division as idle or silent when it is neither. This has now happened more than once: on 2026-09-14 the desktop was reported stale since 2026-09-10 when its note was written 2026-09-12 and sitting on its own branch. The file exists and parses, so no check can notice. It quietly damages the one signal the two machines have about each other.",
+      "why": "Two faults, one cause: a session reads the other machine's branch for nothing it needs. The handover comes from the reader's own branch, and item numbers were guessed from it.",
+      "risk": "A session reports the other division as idle when it is not: on 2026-09-14 the desktop was called stale since 2026-09-10 when its note was two days newer and sitting on its own branch. The same blindness gave two different items one number, eight times. The files exist and parse, so no check can notice.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-09-14 - found at shutdown when the desktop's branch was read directly and its note turned out to be two days newer than the copy startup had read. Filed on Mike's yes. A defect we found, not a feature nobody asked for."
       },
-      "touches": ".claude/commands/startup.md step 4, design/WORKING-AGREEMENT.md where the same instruction lives, and scripts/check-branch-state.js, which already fetches the other branch and is the natural place to read the note from.",
-      "note": "ONE FIX, AND THE MACHINERY IS ALREADY THERE. check:branch already fetches the other machine's branch to print its ahead/behind counts, so it can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date beside them. Startup then reads a current note instead of a stale copy. Until it is fixed, a session comparing handover dates must read the other machine's branch directly rather than the working tree.",
-      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it."
+      "touches": "scripts/ref-ceiling.js and tests/unit/refCeiling.test.js (built), the ceilingReport in scripts/check-branch-state.js, and for the half still open, .claude/commands/startup.md step 4 and design/WORKING-AGREEMENT.md, where the same instruction lives.",
+      "note": "THE NUMBERING HALF IS BUILT 2026-09-14 on Mike's yes: check:branch now reads the live list and the archive from every machine's branch and prints the next free number, so allocating one is a read rather than a guess. THE HANDOVER HALF REMAINS - the same script can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date, and startup would then read a current note instead of a stale copy. Until it does, a session comparing handover dates must read the other machine's branch directly, not the working tree.",
+      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it. Renumbered from 4.98 on Mike's yes: the desktop had filed a different 4.98 the same day. Widened the same day, on his yes, to cover the numbering blindness that caused the renumber, and its half built."
     }
   ]
 }

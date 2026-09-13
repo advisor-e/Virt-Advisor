@@ -1,0 +1,212 @@
+'use strict'
+
+const {
+  refsIn,
+  compareRefs,
+  highest,
+  nextAfter,
+  describeCeiling,
+  highestOn,
+  ceilingLines
+} = require('../../scripts/ref-ceiling')
+
+const { isCandidate } = require('../../scripts/branch-survey')
+
+/**
+ * The item-number ceiling (item 4.101).
+ *
+ * Each machine allocated the next to-do number from its own branch, blind to the other's,
+ * so both filed different work under the same number. It happened EIGHT times before
+ * anyone noticed, because `toDoItems.test.js` guards uniqueness on the live list alone and
+ * a collision disappears from view the moment both items close into the archive.
+ *
+ * The cases that matter are the ones that made the bug invisible: the archive counts as
+ * much as the live list, and '4.100' is higher than '4.99' even though the string is not.
+ */
+describe('ref-ceiling — reading the numbers in use', () => {
+  it('reads live refs out of the list JSON', () => {
+    const json = '{"items":[{"ref": "4.15","name":"x"},{"ref": "4.100","name":"y"}]}'
+    expect(refsIn(json, '')).toEqual(['4.15', '4.100'])
+  })
+
+  it('reads closed refs out of the archive, whichever separator the entry used', () => {
+    // Three years of entries, three separators. Matching on the separator would have
+    // silently dropped whole eras of the archive and under-reported the ceiling.
+    const md = [
+      '**4.41 · A package the Constitution bans by name.** ✅ Closed',
+      '**4.95 — the Sales Dashboard: the last card that said "coming soon".**',
+      '**4.88 - High Level Budget.** ✅ Closed',
+      'Some prose that mentions 4.99 but is not an entry.'
+    ].join('\n')
+    expect(refsIn('', md)).toEqual(['4.41', '4.95', '4.88'])
+  })
+
+  it('counts the archive as well as the live list — a closed number is spent for good', () => {
+    // The half that was missed. Closed numbers are quoted in report.js, ARTEFACTS.md and
+    // the mockups; handing one out again would point two things at one name.
+    const json = '{"items":[{"ref": "4.15"}]}'
+    const md = '**4.95 — the Sales Dashboard.**'
+    expect(highest(refsIn(json, md))).toBe('4.95')
+  })
+
+  it('ignores anything that is not a bare major.minor ref', () => {
+    expect(highest(['4.1', 'v0.12.0', '', null, 'master'])).toBe('4.1')
+  })
+
+  it('returns null when there is nothing to read', () => {
+    expect(highest([])).toBeNull()
+    expect(refsIn('', '')).toEqual([])
+  })
+})
+
+describe('ref-ceiling — ordering', () => {
+  it('puts 4.100 above 4.99, which string sorting does not', () => {
+    // The whole reason this compares integers. Alphabetically '4.100' < '4.99', so a
+    // naive sort would offer 4.100 as free on the very day it was allocated.
+    expect(compareRefs('4.100', '4.99')).toBeGreaterThan(0)
+    expect(highest(['4.99', '4.100', '4.15'])).toBe('4.100')
+  })
+
+  it('orders by the major part first', () => {
+    expect(compareRefs('5.1', '4.100')).toBeGreaterThan(0)
+    expect(highest(['4.100', '5.1'])).toBe('5.1')
+  })
+
+  it('treats equal refs as equal', () => {
+    expect(compareRefs('4.97', '4.97')).toBe(0)
+  })
+
+  it('hands out the next number in the same series', () => {
+    expect(nextAfter('4.99')).toBe('4.100')
+    expect(nextAfter('4.100')).toBe('4.101')
+  })
+})
+
+describe('ref-ceiling — what it prints', () => {
+  const rows = [
+    { label: 'this branch (feat/advisor-progress)', highest: '4.101' },
+    { label: 'origin/feat/firm-quiz-builder-ui', highest: '4.99' }
+  ]
+
+  it('names the next free number as the highest across ALL branches', () => {
+    // 4.101 here and 4.99 there means 4.102, not 4.100 and not 4.102-on-one-branch-only.
+    expect(describeCeiling(rows)[0]).toBe('THE NEXT FREE ITEM NUMBER IS 4.102.')
+  })
+
+  it('takes the ceiling from the other machine when that one is higher', () => {
+    const other = [
+      { label: 'this branch (feat/advisor-progress)', highest: '4.90' },
+      { label: 'origin/feat/firm-quiz-builder-ui', highest: '4.99' }
+    ]
+    expect(describeCeiling(other)[0]).toBe('THE NEXT FREE ITEM NUMBER IS 4.100.')
+  })
+
+  it('shows every branch it managed to read, so the number can be checked', () => {
+    const printed = describeCeiling(rows).join('\n')
+    expect(printed).toContain('origin/feat/firm-quiz-builder-ui')
+    expect(printed).toContain('4.99')
+  })
+
+  it('says nothing at all when no branch could be read', () => {
+    // Silence beats a confident wrong ceiling: a report nobody can trust gets ignored,
+    // and this one only has to be wrong once to hand out a taken number.
+    expect(describeCeiling([])).toBeNull()
+    expect(describeCeiling([{ label: 'x', highest: null }])).toBeNull()
+  })
+})
+
+describe('ref-ceiling — reading a branch through git', () => {
+  /**
+   * A git runner standing in for a two-machine repo.
+   * @param {object} files map of `<ref>:<path>` to contents
+   * @returns {function(string[]): (string|null)} a non-throwing runner
+   */
+  function runner (files) {
+    return function (args) {
+      if (args[0] === 'show') { return Object.prototype.hasOwnProperty.call(files, args[1]) ? files[args[1]] : null }
+      if (args[0] === 'for-each-ref') { return files.__refs === undefined ? null : files.__refs }
+      return null
+    }
+  }
+
+  const LIVE = ':design/features/to-do-items.json'
+  const ARCH = ':design/features/to-do-done-and-parked.md'
+
+  it('reads both files from a branch and returns its highest', () => {
+    const git = runner({
+      ['origin/feat/other' + LIVE]: '{"items":[{"ref": "4.93"}]}',
+      ['origin/feat/other' + ARCH]: '**4.99 — something closed.**'
+    })
+    expect(highestOn(git, 'origin/feat/other')).toBe('4.99')
+  })
+
+  it('returns null for a branch whose files cannot be read', () => {
+    expect(highestOn(runner({}), 'origin/feat/missing')).toBeNull()
+  })
+
+  it('survives a branch holding only one of the two files', () => {
+    const git = runner({ ['origin/feat/half' + LIVE]: '{"items":[{"ref": "4.7"}]}' })
+    expect(highestOn(git, 'origin/feat/half')).toBe('4.7')
+  })
+
+  it('reports this branch from the WORKING TREE, not from HEAD', () => {
+    // A session that has just filed an item has not committed it. Reading HEAD would
+    // offer that session back the very number it is already using.
+    const git = runner({
+      __refs: '',
+      ['HEAD' + LIVE]: '{"items":[{"ref": "4.99"}]}',
+      ['HEAD' + ARCH]: ''
+    })
+    const printed = ceilingLines(git, 'feat/advisor-progress', isCandidate, {
+      live: '{"items":[{"ref": "4.101"}]}',
+      archive: ''
+    }).join('\n')
+    expect(printed).toContain('THE NEXT FREE ITEM NUMBER IS 4.102.')
+  })
+
+  it('takes in the other machine\'s branch and skips master and release snapshots', () => {
+    // Borrowing branch-survey's filter is the point: the two reports must agree on what
+    // counts as another machine's list. A release/* snapshot is a frozen copy, not work.
+    const git = runner({
+      __refs: ['origin/master', 'origin/HEAD', 'origin/release/frozen-2026-08-02', 'origin/feat/other'].join('\n'),
+      ['origin/master' + LIVE]: '{"items":[{"ref": "4.200"}]}',
+      ['origin/release/frozen-2026-08-02' + LIVE]: '{"items":[{"ref": "4.300"}]}',
+      ['origin/feat/other' + LIVE]: '{"items":[{"ref": "4.99"}]}'
+    })
+    const printed = ceilingLines(git, 'feat/advisor-progress', isCandidate, {
+      live: '{"items":[{"ref": "4.101"}]}',
+      archive: ''
+    }).join('\n')
+
+    expect(printed).toContain('THE NEXT FREE ITEM NUMBER IS 4.102.')
+    expect(printed).toContain('origin/feat/other')
+    expect(printed).not.toContain('origin/master')
+    expect(printed).not.toContain('release/frozen')
+  })
+
+  it('still reports this branch when git can tell it nothing about the others', () => {
+    // Offline, or a fresh clone with no remotes. Half a ceiling beats none.
+    const git = runner({})
+    const printed = ceilingLines(git, 'feat/advisor-progress', isCandidate, {
+      live: '{"items":[{"ref": "4.101"}]}',
+      archive: ''
+    }).join('\n')
+    expect(printed).toContain('THE NEXT FREE ITEM NUMBER IS 4.102.')
+  })
+})
+
+describe('ref-ceiling — it can never block a push', () => {
+  it('claims nothing when every git call fails', () => {
+    // A failing git must produce silence, not a wrong ceiling and not an exception.
+    const failing = () => null
+    expect(ceilingLines(failing, 'feat/x', isCandidate, { live: '', archive: '' })).toBeNull()
+  })
+
+  it('leaves a THROWING git to the caller, which is where the guarantee lives', () => {
+    // Deliberate: this module does not swallow errors, because a silent catch here
+    // would hide a broken git from every other check too. check-branch-state.js wraps
+    // the call in its own try/catch — the same shape as survey() and activeReport().
+    const exploding = () => { throw new Error('git is not available') }
+    expect(() => ceilingLines(exploding, 'feat/x', isCandidate, { live: '', archive: '' })).toThrow()
+  })
+})

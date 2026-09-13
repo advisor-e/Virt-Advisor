@@ -12,10 +12,24 @@
 ## 2026-09-14 (thirty-second session) · Laptop · branch `feat/advisor-progress`
 
 Suite **10,568 green** (502 suites), lint 0 errors, audit PASS. Tree clean, **everything committed
-and pushed**, 10 ahead of `master`, 0 behind. **Seven live items. 4.97 IS STILL ACTIVE ON THIS
+and pushed**, 10 ahead of `master`, 0 behind. **Seven live items. 4.100 IS STILL ACTIVE ON THIS
 MACHINE** — the screens are the next slice and they touch the same files.
 
-**4.97 — THE WAGES ENGINE IS BUILT** on Mike's *"build the wages/salary review model"*:
+🔴 **THIS MACHINE'S TWO NEWEST ITEMS WERE RENUMBERED 2026-09-14 on Mike's yes: 4.97 → 4.100 and
+4.98 → 4.101.** Both machines allocate the next number from their own branch, so both had filed a
+different 4.97 and a different 4.98 the same day. Your 4.93, 4.97, 4.98 and 4.99 keep their numbers;
+nothing of yours was touched. This has fired eight times: 4.88–4.92 and 4.94 are already duplicated
+inside `to-do-done-and-parked.md`, where the uniqueness guard does not reach, and your live 4.93
+clashes with our closed one.
+
+**YOU NO LONGER HAVE TO KNOW ANY OF THAT — `npm run check:branch` NOW PRINTS THE NEXT FREE NUMBER**
+(item 4.101, widened and half-built on Mike's yes). It reads the live list *and* the archive from
+every machine's branch, so the ceiling is a read, not a guess. New: `scripts/ref-ceiling.js`,
+`tests/unit/refCeiling.test.js` (21 cases), and a `ceilingReport` in `scripts/check-branch-state.js`.
+Report-only — it cannot block a push. **The handover half of 4.101 is still open**, so keep reading
+the other machine's note from `origin/<their branch>`.
+
+**4.100 — THE WAGES ENGINE IS BUILT** on Mike's *"build the wages/salary review model"*:
 `server/report/wagesModel.js`, `tests/unit/wagesModel.test.js`, `POST /api/report/wages-review`
 and its route test. **NO SCREEN EXISTS.** Full record in
 [`features/report-models.md`](features/report-models.md) § *Wages/Salary Review*.
@@ -41,6 +55,6 @@ question. Recorded in the Brief.
 **DESKTOP:** 4.87 untouched — none of its files opened. Changed under you: `server/routes/report.js`
 and `server/restify-server.js` (one route each, additive), plus `features/report-models.md`,
 `ARTEFACTS.md`, `features/to-do-items.json`, `mockups/wages-model.html` and generated `CODE-SIZE.md`.
-Your note of **2026-09-12** was read on your own branch and is current. **4.98 is still open** —
-until it is fixed, read the other machine's handover from `origin/<their branch>`, not the working
-tree.
+Your note of **2026-09-14** was read on your own branch and is current. **4.101 (was 4.98) is still
+open** — until it is fixed, read the other machine's handover from `origin/<their branch>`, not the
+working tree.

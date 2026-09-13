@@ -246,7 +246,7 @@ server.post('/api/report/multiple-property', reportRoute.multipleProperty)
 // household than any other model here, which is the reason it stores nothing.
 server.post('/api/report/retirement-review', reportRoute.retirementReview)
 server.post('/api/report/volatility', reportRoute.volatility)
-// Wages/Salary Review (item 4.97) — calc-only, anonymous. Pay rates and hours in, labour
+// Wages/Salary Review (item 4.100) — calc-only, anonymous. Pay rates and hours in, labour
 // margin out. The staff register that makes this model unusual is NOT part of it: that is
 // gated behind a due-diligence project (Mike's decision 6, 2026-09-14) and has its own seam.
 server.post('/api/report/wages-review', reportRoute.wagesReview)
