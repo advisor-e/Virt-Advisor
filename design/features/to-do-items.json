@@ -169,7 +169,7 @@
     },
     {
       "ref": "4.97",
-      "name": "Wages Model - labour margin, and a staff register gated on due diligence",
+      "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,
       "activeOn": {
         "machine": "laptop",
@@ -189,8 +189,8 @@
         "detail": "2026-09-14 - 'buile the wages model into the perf report section', then 'look in here - C:\\Documents\\Visual Code Projects\\Perf Report and you will see a model named wages' when told it was not in the repository, then yes to drawing it before any code."
       },
       "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
-      "note": "DRAWN AND COMMITTED, NOTHING BUILT. Nine decisions on the drawing, eight open. Decision 6 is Mike's ruling: the staff register is absent unless the client's case is in the existing due-diligence domain AND the advisor switches it on. Revised the same day on his correction that input cells run throughout - 1,778 typed against 8,714 calculated, which re-sizes the job: the engine is the smaller half. Build order: labour-margin engine and golden test, then the input steps, then the report screen, then the rates tab, then the gated register last. Do not build the report screen first; its figures are worthless until the inputs behind them are the client's.",
-      "comment": "2026-09-14 - filed on Mike's instruction after the drawing was committed (6b2871a8) and corrected (9527a22d). The workbook was not in the repository; he supplied its location. His correction on input cells produced Decision 9 and a saved rule for every future workbook port. The drawing's real headline is the workbook's own: a Wet n Dark month loses 10,356 while a Dry n Light month makes 55,921 - same team, same pay, a 66,000 swing on weather."
+      "note": "DRAWN AND ALL NINE DECISIONS RULED 2026-09-14, one at a time. NOTHING BUILT; approval to build the drawing is a separate question not yet asked. FOUR rulings went against or changed the recommendation - the name and section (Decision tools, not Profitability/Report), a payroll import pre-filling the team screen, income tax bands as a fifth Tax Rates figure never withheld, and the register kept on a retention dial rather than deleted at deal-end. Two standing requirements: people addable per role with no ceiling, and a payroll report loadable. Blocked on a real payroll export from Mike before that reader can be called supported. Build order: engine and golden test first, the gated register last.",
+      "comment": "2026-09-14 - filed, then all nine decisions ruled the same day. His correction - 'profitability isnt a section... do your homework - read the code, dont guess' - fixed both the name and the section; MODEL-CLASSIFICATION.md turns the class on how the data arrives, and nothing here comes from an accounts export. He named it Wages/Salary Review himself. Two rulings reversed our recommendation: the payroll import he asked for, and retention, where deleting at deal-end would destroy the firm's own evidence of why a role was cut."
     }
   ]
 }

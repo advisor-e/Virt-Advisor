@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wages Model — what the team costs, what it earns, and the one page that only opens in a due-diligence project</title>
+<title>Wages/Salary Review — what the team costs, what it earns, and the one page that only opens in a due-diligence project</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
 <style>
 /* ============================================================================
@@ -240,8 +240,11 @@ section"</i> and his <b>yes</b> to drawing it first. The workbook was copied int
 formulas. Nothing is invented to fill a box. Where a figure has already been reproduced by hand from
 the workbook's formula it carries a <span class="tick">✓</span>; those four are the standard the
 golden test will hold the whole port to.</p>
-<p><b>There are nine decisions below and one of them is Mike's already</b> — Decision 6, the
-due-diligence gate, which is his ruling of 2026-09-14 turned into a screen. The other eight are open.</p>
+<p>🔴 <b>ALL NINE DECISIONS ARE NOW RULED BY MIKE — 2026-09-14, asked one at a time, each with a
+recommendation and its reasoning.</b> Every ruling is recorded in its own box below with the
+recommendation <b>left in place beneath it</b>, so the record shows what was put to him and not only
+what came back. <b>Four of the nine went against the recommendation or changed it</b>, and those are
+the ones a later session must read rather than build from the recommendation.</p>
 <p>🔴 <b>This page was revised the same day on Mike's correction</b> — <i>"don't assume that things
 like 'wet n dark' days are a set figure"</i>. Every cell has since been classified as typed or
 calculated. <b>1,778 of them are typed</b>, and what that changed is listed in the file's own header
@@ -280,10 +283,56 @@ it — they are pay rates, hours and margins, and they are ordinary.</p>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
-<div class="sect">The decisions</div>
+<div class="sect">The nine rulings — 2026-09-14</div>
 
-<div class="ask">
-<h3>Decision 1 — what it is called, and where it sits on the shelf</h3>
+<div class="card" style="border-left:3px solid var(--rs-good)">
+<h4>What Mike ruled, in one place</h4>
+<p class="sub">Each is recorded in full in its own box below, with the recommendation kept beneath
+it. <b>Read this table before building anything.</b></p>
+<table class="data">
+  <thead><tr><th>#</th><th style="text-align:left">Ruled</th><th style="text-align:left">Against the recommendation?</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td style="text-align:left"><b>Wages/Salary Review</b>, his own name. Section: <b>Decision tools</b>.</td>
+      <td style="text-align:left">🔴 <b>Yes, twice.</b> Recommended <i>Wages &amp; Labour Margin</i> under <i>Profitability / Client reports</i>. Both wrong.</td></tr>
+    <tr><td>2</td><td style="text-align:left">The rates sheet stays, <b>as a salary ⇄ hourly-rate converter</b>, modified to be that.</td>
+      <td style="text-align:left">Kept as recommended, <b>but reframed</b> — it is not a second model of a business.</td></tr>
+    <tr><td>3</td><td style="text-align:left">One model, <b>two-button switch</b> between Seasonal and Shutdown.</td><td style="text-align:left">As recommended.</td></tr>
+    <tr><td>4</td><td style="text-align:left"><b>Payroll import pre-fills the team screen</b>; advisor adds charge-out rate and efficiency.</td>
+      <td style="text-align:left">🔴 <b>Extended.</b> The drawing said typed only, no import. He asked for the import.</td></tr>
+    <tr><td>5</td><td style="text-align:left">Income tax bands become a <b>fifth figure in Tax Rates</b>, NZ badged <code>app default</code>.</td>
+      <td style="text-align:left">🔴 <b>Corrected.</b> The drawing said <i>withhold</i> where a country is unloaded — against his own "never block the advisor".</td></tr>
+    <tr><td>6</td><td style="text-align:left">The register opens <b>only in a due-diligence project</b>, and only when the advisor switches it on.</td>
+      <td style="text-align:left">His own ruling from the outset.</td></tr>
+    <tr><td>7</td><td style="text-align:left">Column <b>Key person risk</b>; bands <b>Direct loss / Indirect loss / No material loss</b>.</td><td style="text-align:left">As recommended.</td></tr>
+    <tr><td>8</td><td style="text-align:left">The register is kept on the firm's <b>retention dial</b>, not deleted at deal-end.</td>
+      <td style="text-align:left">🔴 <b>Reversed.</b> The drawing said delete when the project ends.</td></tr>
+    <tr><td>9</td><td style="text-align:left"><b>Five steps</b>: The team · How the work happens · The year ahead · What actually happened · the report.</td><td style="text-align:left">As recommended.</td></tr>
+  </tbody>
+</table>
+<p class="foot">🔴 <b>TWO STANDING REQUIREMENTS HE ADDED THAT ARE NOT DECISIONS AND APPLY EVERYWHERE.</b>
+<b>(a) People can be added, per role, with no fixed ceiling</b> — the workbook has fixed blocks with a
+few spare rows and the screen must not. <b>(b) A payroll report can be loaded</b> to fill the team in.
+Both are in his own words of 2026-09-14: <i>"lets explore having the ability to load a payroll report
+to speed up the process of loading data on the team and of course, we need to be able to introduce
+more people if required, per role - so make sure thats a design consideration also"</i>.</p>
+</div>
+
+<div class="sect">The decisions, each with its ruling</div>
+
+<div class="ask ruled">
+<h3>Decision 1 — RULED BY MIKE 2026-09-14 — Wages/Salary Review, under Decision tools</h3>
+<p class="ruling">🔴 <b>He named it himself: "Wages/Salary Review"</b> — pinned, and no session rewords
+it. <b>And he corrected the section twice:</b> <i>"profitability isnt a section in the perf report
+section. education, decision and reporting - do your homework - read the code, dont guess!"</i>
+<br><b>Reading the code settled it and the recommendation below was wrong on both counts.</b> The
+Model Library's three sections are the CLASSES, rendered as shelf headings from
+<code>locales/en.json</code> — <b>Teaching tools</b>, <b>Decision tools</b>, <b>Client reports</b>.
+<i>Profitability</i> is a filter chip and a card tag, never a section. And
+<code>design/MODEL-CLASSIFICATION.md</code>, his own classification of 2026-07-13, decides the class
+on one test — <b>how the data arrives</b>: typed in by the advisor is a <b>Decision tool</b>; from
+the accounts is a <b>Report</b>. Nothing in this model comes from an accounts export, so it is a
+<b>Decision tool</b>. The "Illustrative" badge is forbidden on Decision tools and Reports alike, so
+that part of the reasoning held.</p>
 <p>The workbook is <code>Wages Model.xlsx</code>, but "wages" undersells it: the screen's answer is
 <b>labour margin</b> — whether the team bills more than it costs — not a payroll total.</p>
 <p class="rec">Recommended: name it <b>Wages &amp; Labour Margin</b>, category <b>Profitability</b>,
@@ -297,8 +346,19 @@ dummy data.</p>
 month by month — with the hiring plan and pay rises that move it."</i></p>
 </div>
 
-<div class="ask behaviour">
-<h3>Decision 2 — the workbook has TWO businesses in it, and they do not reconcile</h3>
+<div class="ask behaviour ruled">
+<h3>Decision 2 — RULED BY MIKE 2026-09-14 — it stays, as a converter, modified to be one</h3>
+<p class="ruling">🔴 <b>He supplied what the sheet is FOR, which the workbook never says:</b>
+<i>"as the name suggests, its just a way that people can quickly calculate between salary and hrly
+rate. its not supposed to reflect the entire business, modify it as required."</i>
+<br><b>So it is kept as a second tab and it is NOT a port.</b> It stops describing a 15-person firm
+with its own headcounts and job-mix, and becomes a <b>salary ⇄ hourly-rate converter</b> pointed at
+any role, with the tax and bonus calculators beside it. His <i>"modify it as required"</i> is the
+permission the standing rule needs — never remove an element of a source model without asking.
+<br>⚠ <b>The isolation below was PROVEN, not assumed</b>, by counting cross-sheet references in both
+directions: the rates sheet is referenced <b>0</b> times by any other sheet and references <b>0</b>
+itself, while the Annual Hiring Plan alone reads Seasonal Inputs 2,849 times and Shutdown Inputs
+1,457 times.</p>
 <p>This is the largest finding of reading it, and it is a real fork.</p>
 <table>
 <tr><th>Sheet 1 — <i>Hrly Rate &amp; Tax Calculator</i></th><th>Sheets 2–6 — the rest</th></tr>
@@ -329,8 +389,13 @@ element of a source model without asking — and its tax and bonus maths is the 
 useful thing in the workbook for an advisor sitting with a client.</p>
 </div>
 
-<div class="ask behaviour">
-<h3>Decision 3 — two operating bases, one switch</h3>
+<div class="ask behaviour ruled">
+<h3>Decision 3 — RULED BY MIKE 2026-09-14 — one model, a two-button switch</h3>
+<p class="ruling">Ruled as recommended. ⚠ <b>Verified from the workbook's own formulas before it was
+put to him</b>, because the drawing had asserted it: <code>E22 = if($C$7="Yes", E15−E20, E17−E20)</code>
+for the margin and <code>E20 = if(and($C$7="Yes", E11="Yes"), AL11+$AG$7, … AL8)</code> for the wage
+cost. <b>Both the revenue and the cost swap sides</b> — it is a complete either/or, and
+<code>C7</code>, the switch itself, is a typed cell.</p>
 <p>The workbook computes the whole year <b>twice</b>, on two different theories of what limits the
 work, and a Yes/No cell at <code>Cash Report!C7</code> picks which one the report shows.</p>
 <table>
@@ -356,18 +421,59 @@ pay rises. Splitting them would duplicate all of it and let the two drift apart.
 on the sheet, which is what Decision 9 has to solve.</p>
 </div>
 
-<div class="ask">
-<h3>Decision 4 — the figures are typed, not imported</h3>
+<div class="ask behaviour ruled">
+<h3>Decision 4 — RULED AND EXTENDED BY MIKE 2026-09-14 — a payroll import pre-fills the team</h3>
+<p class="ruling">🔴 <b>The recommendation below said typed only, no import. He asked for the
+import:</b> <i>"lets explore having the ability to load a payroll report to speed up the process of
+loading data on the team"</i> — and then ruled its shape as recommended after the exploration:
+<b>the payroll report PRE-FILLS the team screen; the advisor adds charge-out rate and efficiency on
+top.</b> Not an alternative route in.
+<br>🔴 <b>WHY IT CANNOT BE AN ALTERNATIVE ROUTE, and this is the finding that shaped it.</b> A
+payroll report knows what a person <b>costs</b> — salary, hourly rate, base hours, overtime rate,
+employer KiwiSaver, leave balances. <b>It can never know the hourly CHARGE-OUT rate or the daily
+production efficiency</b>, and the margin is precisely charge rate minus pay rate. So an import that
+stood alone would finish and leave a model that cannot compute its own answer. As a pre-fill, the
+team screen stays the single place the team lives, a firm with no payroll export still has a working
+model on day one, and the import simply saves 24 people × 9 fields of typing.
+<br>🔴 <b>A PRIVACY RULE COMES WITH IT.</b> A payroll export carries IRD numbers, bank account
+numbers, home addresses and dates of birth. <b>None is needed.</b> The reader takes the columns it
+wants and discards the rest at the door; the file is never stored.
+<br>⚠ <b>It cannot be called supported until a real payroll export is read.</b>
+<code>server/report/intake/supportedPackages.js</code> only allows <code>verified</code> once a REAL
+export from a package has been read — <i>"do not promote on the strength of more
+reconstructions"</i>. No payroll reader exists today; "payroll" appears in the codebase only as an
+account label on a balance sheet. <b>A real payroll export is needed from Mike.</b></p>
 <p>Nothing in a Balance Sheet or a Profit and Loss export carries a pay rate, a charge-out rate or a
 hiring plan. Those come from the client's payroll and from the advisor's conversation with them.</p>
-<p class="rec">Recommended: <b>typed entry, exactly like High-Level and Mid-Level Budget</b>, with no
-file import in this first build.</p>
+<p class="rec">Recommended, and superseded above: <b>typed entry, exactly like High-Level and
+Mid-Level Budget</b>, with no file import in this first build.</p>
 <p>A payroll import is a real future stage and a large one — every payroll system exports a different
 shape. It is worth doing later on its own merits, and it is not worth holding this model behind.</p>
 </div>
 
-<div class="ask behaviour">
-<h3>Decision 5 — the tax bands are the advisor's to type, and that is the argument for taking them off him</h3>
+<div class="ask behaviour ruled">
+<h3>Decision 5 — RULED BY MIKE 2026-09-14 — a fifth figure in Tax Rates, never withheld</h3>
+<p class="ruling">Ruled: <b>income tax bands become a fifth figure in the existing Tax Rates
+feature</b>, with New Zealand's as the <code>app default</code> badge, exactly like the other four.
+<br>🔴 <b>READING THE CODE CORRECTED THE RECOMMENDATION BELOW TWICE.</b> (1) The Tax Rates store does
+<b>not</b> hold income tax bands and never did — <code>FIGURE_KEYS</code> in
+<code>server/utils/taxRates.js</code> is <code>['companyTax', 'gst', 'filing', 'basis']</code>, four
+figures, none of them personal. So this is a <b>change to a shipped feature</b> the Three-Way
+Forecast depends on, not a read from a table that exists. Bands are a five-row table where the other
+four are single values, so the store's validation and the manager's screen both take a new shape.
+(2) The recommendation said to <b>withhold</b> the tax figure where a country is not loaded. <b>That
+is against Mike's own ruling of 2026-09-08 — "Never block the advisor"</b> — which that feature
+already implements: an unloaded country falls back to the app's own figures, badged, and the advisor
+is never stopped.
+<br><b>Why there and not a new store:</b> his own test, used to split Tax Rates from Depreciation
+Rates on 2026-09-09 — <i>a tax rate turns something into tax owed; a depreciation rate writes an
+asset's book value down.</i> Income tax turns something into tax owed.
+<br>✅ <b>His follow-up — "perhaps the income tax bands should be in the firm manager page 'tax
+rates'?" — needs nothing built.</b> <code>TAB_TIERS.taxRates</code> is already
+<code>['mentor', 'global', 'group', 'firm']</code>, on his ruling of 2026-09-08: <i>"the firm owns it
+and it cant be reliant on the group manager"</i>. The bands inherit all four tiers with the other
+figures. <i>(The global-manager-only rule is the sibling tab, Country Rate Schedules — a different
+feature.)</i></p>
 <p>⚠ <b>Corrected 2026-09-14.</b> This box previously said sheet 1 <i>"hardcodes the five New Zealand
 income-tax bands"</i>. <b>It does not, and the truth makes the case stronger rather than weaker.</b></p>
 <p><b>What is actually there.</b> Every ceiling and every rate is a <b>typed cell</b> — $14,000 at
@@ -418,8 +524,17 @@ judgement in a document of their own. It is not a control on the advisor. It is 
 to hold that material as ordinary standing data about a person.</p>
 </div>
 
-<div class="ask">
-<h3>Decision 7 — the words on the register, which are the workbook's and may not be yours</h3>
+<div class="ask ruled">
+<h3>Decision 7 — RULED BY MIKE 2026-09-14 — Key person risk, and nobody is called dispensable</h3>
+<p class="ruling">Ruled as recommended. The column is headed <b>Key person risk</b> and the three
+bands read <b>Direct loss</b> · <b>Indirect loss</b> · <b>No material loss</b>. The three bands
+themselves are unchanged — this is the workbook's own definitions said in the workbook's own terms,
+since all three measure financial loss to the business and none is about the person. <b>The words
+drifted from what they measure; the measurement did not move.</b>
+<br>Why it matters more here than on an ordinary screen: this document exists because a transaction
+is under way and may be read later by a lawyer, an acquirer, or an employment tribunal. <i>"No
+material loss"</i> is a financial assessment of a role; <i>"Dispensable"</i> is a character judgement
+of a person. Same restructure decision, very different document.</p>
 <p>The workbook's three ratings are <b>Vital</b>, <b>Beneficial</b>, <b>Dispensable</b>, with its own
 definitions — <i>"Immediate financial loss could be attributed to them leaving"</i>, <i>"Financial
 loss could (indirectly) be attributed"</i>, <i>"No (or very little) financial loss"</i>.</p>
@@ -434,8 +549,24 @@ thing the definitions say.</p>
 words so you can see what the port would say if nothing changes.</p>
 </div>
 
-<div class="ask behaviour">
-<h3>Decision 9 — 1,778 typed cells, and how many of them reach a screen</h3>
+<div class="ask behaviour ruled">
+<h3>Decision 9 — RULED BY MIKE 2026-09-14 — five steps, the report last</h3>
+<p class="ruling">Ruled as recommended, in this order, <b>and the step names are his to change:</b>
+<b>1 The team</b> — every person, their pay and charge-out rates; <b>the payroll import pre-fills
+here and new people are added here</b> · <b>2 How the work happens</b> — the Seasonal/Shutdown switch
+and its settings · <b>3 The year ahead</b> — who is on the payroll each month, and the pay rises ·
+<b>4 What actually happened</b> — the twelve actual labour-margin figures · <b>5 Wages/Salary Review
+report</b>.
+<br><b>The order follows the workbook's own dependency chain</b>, counted rather than assumed: the
+Annual Hiring Plan reads the two input sheets <b>4,306</b> times and the Cash Report reads the Hiring
+Plan <b>80</b> times, so each step asks only for what the one before it established. Steps 1, 3 and 4
+also mirror the Budget models' <i>Set up the year → The budget → What actually happened</i>, a shape
+advisors already know, and the report-last shape is the house pattern throughout — Loan Estimator, a
+Decision tool with four typed steps and no import at all, is the closest precedent.
+<br><b>Two rules ride with it.</b> Every typed cell is reachable — nothing quietly fixed as a
+constant, which is Mike's correction of the same day. And <b>no invented defaults</b>: where the
+workbook has no house value the field starts empty, never pre-filled with the sample company's
+number. <b>The rates converter sits outside the steps entirely</b>, as the second tab.</p>
 <p>⚠ <b>Added 2026-09-14 on Mike's correction</b>, which is what this decision exists to answer:
 <i>"don't assume that things like 'wet n dark' days are a set figure - you will see this throughout
 the entire xisting model."</i></p>
@@ -463,12 +594,29 @@ numbers on it are worthless until the inputs behind them are the client's, and a
 sample company's figures is how a demo becomes a wrong answer in front of a real client.</p>
 </div>
 
-<div class="ask behaviour">
-<h3>Decision 8 — what is stored, and the one number worth keeping</h3>
+<div class="ask behaviour ruled">
+<h3>Decision 8 — RULED BY MIKE 2026-09-14 — kept on a retention dial, NOT deleted at deal-end</h3>
+<p class="ruling">🔴 <b>THE RECOMMENDATION BELOW WAS REVERSED, and the reversal was put to him with
+its reasoning rather than discovered later.</b> Ruled: <b>the register is kept on the firm's own
+retention dial</b> — the mechanism <code>server/utils/meetingRetention.js</code> already provides, a
+firm-set period cascading through <code>firmOverlay</code> with version history free, purged by
+<code>meetingPurge.js</code> — <b>and is not deleted when the due-diligence project ends.</b>
+<br><b>Why the original recommendation was wrong.</b> The register is the document showing <i>why</i>
+a restructure decision was made — that a role was cut because the business would lose no material
+revenue, not because of who held it. <b>Deleting it at deal-close destroys the firm's own evidence at
+exactly the moment a dispute is most likely</b>, and it protects both sides: the firm can show the
+reasoning was financial, and a former employee can see what was actually recorded about their role.
+Deals also go quiet and restart, and auto-deletion would throw away real work with no way back.
+<br><b>What this does NOT change: the gate.</b> Decision 6 stands untouched. Retention is how long
+the data exists; the gate is who may ever see it. Keeping it longer widens the audience by nobody.
+<br>⚠ <b>The cost, accepted with its eyes open:</b> personal data about people who consented to
+nothing, held longer than the bare minimum. Against it — a visible clock the firm sets, never
+indefinite, and this app was never the only copy, the workbook already being in the firm's files.</p>
 <p>The register's whole content is personal data. The rest of the model is not.</p>
-<p class="rec">Recommended: <b>the register is held for the life of the due-diligence project and
-then deleted</b>, on the same pattern Meeting Review already uses for transcripts — a promised
-period, and the data goes when it expires. The other five sheets store normally.</p>
+<p class="rec">Recommended, and REVERSED above: the register is held for the life of the
+due-diligence project and then deleted, on the same pattern Meeting Review already uses for
+transcripts — a promised period, and the data goes when it expires. The other five sheets store
+normally.</p>
 <p><b>One figure should outlive it, and it belongs to the company rather than to anyone in it:</b>
 the <b>accrued annual leave liability</b>, $63,154 in the sample. That is a real balance-sheet
 number an acquirer is buying, it is already in the client's own accounts, and it names nobody. It
@@ -481,8 +629,8 @@ carries forward as a total; the names it was built from do not.</p>
 <div class="rs-top">
   <div>
     <div class="rs-back">‹ Model Library</div>
-    <div class="rs-eyebrow">Profitability · Report</div>
-    <h1 class="rs-title">Wages &amp; Labour Margin</h1>
+    <div class="rs-eyebrow">Decision tools</div>
+    <h1 class="rs-title">Wages/Salary Review</h1>
   </div>
   <div class="rs-client">Kinetic Planning (2007) Limited<br>Year to 31 March 2027 · projected</div>
 </div>
@@ -844,7 +992,9 @@ nothing here may be ported as one.</b></p>
     <tr><td style="white-space:nowrap">Route</td><td style="text-align:left">One calc route — numbers in, numbers out, no AI, nothing stored.</td></tr>
     <tr><td style="white-space:nowrap">Catalogue + page</td><td style="text-align:left">Model 19, the shared report blocks, no new ones.</td></tr>
     <tr><td style="white-space:nowrap">The gate</td><td style="text-align:left">Decision 6 — the only genuinely new mechanism in the whole model.</td></tr>
-    <tr><td style="white-space:nowrap">The input screens</td><td style="text-align:left">🔴 Decision 9 — <b>1,778 typed cells</b> reachable across a step per sheet. Added after Mike's correction; the first cut of this table did not have this row, which is how a model gets estimated at half its size.</td></tr>
+    <tr><td style="white-space:nowrap">The input screens</td><td style="text-align:left">🔴 Decision 9 — <b>1,778 typed cells</b> reachable across five steps. Added after Mike's correction; the first cut of this table did not have this row, which is how a model gets estimated at half its size.</td></tr>
+    <tr><td style="white-space:nowrap">Payroll reader</td><td style="text-align:left">🔴 Decision 4 — a new intake reader pre-filling step 1, discarding IRD numbers, bank accounts and addresses at the door. <b>Blocked on a real payroll export from Mike</b>, per the <code>supportedPackages</code> rule.</td></tr>
+    <tr><td style="white-space:nowrap">Tax Rates, fifth figure</td><td style="text-align:left">🔴 Decision 5 — income tax bands into a <b>shipped feature the Three-Way Forecast depends on</b>. A five-row table where the other four figures are single values. Careful work on something that currently works.</td></tr>
   </tbody>
 </table>
 <p class="foot"><b>This is several sessions, not one</b> — and more of them than the first cut of this
