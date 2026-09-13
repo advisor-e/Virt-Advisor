@@ -11,9 +11,14 @@
 
 ## 2026-09-13 (thirtieth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,497 green** (500 suites), lint 0 errors, **34 ahead / 0 behind** `master`, everything
-committed and pushed. **FIVE live items** — 4.15, 4.58, 4.86, 4.87 and the new **4.96**.
-**Nothing is active on this machine.**
+Suite **10,507 green** (500 suites), lint 0 errors. 🔴 **MERGED TO `master` — PR #91, merge commit
+`62975f65`** — on Mike's instruction at the end of the session. This branch is **level with
+`master`, 0 ahead / 0 behind**; nothing is waiting here. **FIVE live items** — 4.15, 4.58, 4.86,
+4.87 and the new **4.96**. **Nothing is active on this machine.**
+
+**`npm run build` was run before the merge and succeeded** (`Ready to run nuxt start`) — Integration
+step 2, and the only thing on our side that ever builds the app. **No tag has been cut**, so
+today's four features are a tag away from anything the master team can pull. That is Mike's call.
 
 **4.95 Sales Dashboard is BUILT AND CLOSED** on Mike's *"build sales dasboard"*. The last of the
 three Model Library cards that opened nothing; all three are now live. Closure on
