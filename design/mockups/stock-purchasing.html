@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Purchasing — the four steps, and the five things that decide what to buy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Stock Purchasing (Growth Pro). Drawn for approval 2026-09-13.
+   NOTHING IS BUILT — not the screen, not the backend. This drawing comes first.
+
+   WHAT CREATED IT. Mike, 2026-09-13: "stock purchasing", in answer to what he
+   wanted to work on, then "yes" to drawing the screen before any code. It is
+   one of the two models passed over on that same day when he chose the
+   Mid-Level Budget over this and the Sales Dashboard.
+
+   WHERE THE NUMBERS COME FROM. Every figure below is read out of
+   design/report-source-models/Growth Pro.1a.Stock Purchasing.xlsx — its own
+   sample data, its own cached results. NOTHING HERE IS INVENTED TO FILL A BOX.
+   Unlike the two budgets, there is no model behind this drawing yet, so these
+   are the workbook's numbers rather than ours; the golden test is what will
+   later pin them.
+
+   FOUR STEPS BECAUSE THE WORKBOOK HAS FOUR. Its "Process" sheet sets them out:
+   review past sales, stock check, financial check, order stock. This is NOT
+   the sheet-per-step mapping the two budgets use — see Decision 7, which is the
+   one decision on this page that changes how much gets built.
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner
+   ruling of 2026-07-23 — 1120px column, 360px input column, 16px gaps, 14px
+   card radius, no card top edge (RULED 2026-08-31). No dark mode: one light
+   look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+
+/* A decision still open. Numbered so it can be referred to in one line. */
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:0 10px 10px 0;padding:12px 14px;font-size:12.5px;color:#123a5c;margin:0 0 16px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask table{margin:8px 0 4px;font-size:12px}
+.ask th{font-size:9.5px;padding-bottom:6px}
+.ask td{padding:4px 10px 4px 0;border-bottom:1px solid #d8ecfa}
+/* A decision Mike has ruled. The recommendation and its reasoning are LEFT IN
+   PLACE beneath the ruling, so the record shows what was put to him, not only
+   what came back. */
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px dashed #a8dcb4}
+/* A decision that changes behaviour rather than wording. */
+.ask.behaviour{background:#fff6ec;border-color:#f3c893;border-left-color:var(--rs-warn)}
+.ask.behaviour h3{color:#a06000}
+
+.sect{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin:34px 0 12px;padding-top:20px;border-top:2px solid var(--rs-line)}
+
+/* ---- the report frame, read off the shipped screens ---- */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;
+  flex-wrap:wrap;margin:0}
+.rs-back{font-size:12.5px;color:var(--rs-accent);font-weight:600}
+.rs-eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);font-weight:700;margin-bottom:4px}
+.rs-title{font-size:29px;font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.15}
+.rs-client{font-size:12px;color:var(--rs-muted);text-align:right}
+
+.steps{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 0}
+.step{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;
+  color:var(--rs-muted);background:var(--rs-panel);border:1px solid var(--rs-line);
+  border-radius:999px;padding:7px 14px}
+.step .n{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border-radius:50%;background:var(--rs-line);color:var(--rs-ink);font-size:11px}
+.step.active{color:#fff;background:var(--rs-accent);border-color:var(--rs-accent)}
+.step.active .n{background:#ffffff30;color:#fff}
+.step.done{color:var(--rs-good)}
+.step.done .n{background:var(--rs-good-soft);color:var(--rs-good)}
+
+.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rs-line);
+  border:1px solid var(--rs-line);border-radius:var(--rs-radius);overflow:hidden;margin:16px 0 0}
+.hf{background:#002b64;padding:17px 18px;color:#fff}
+.hf .l{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#9dc2e8;
+  font-weight:600;margin-bottom:7px}
+.hf .v{font-size:25px;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.hf .s{font-size:11.5px;color:#9dc2e8;margin-top:5px}
+.hf .v.good{color:#8fe06a}.hf .v.crit{color:#ff9a9a}
+
+.layout{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start;margin-top:16px}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.wide{display:flex;flex-direction:column;gap:16px;min-width:0;margin-top:16px}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px;min-width:0}
+.card h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;margin:0 0 12px}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0 0 12px}
+.card-f{margin:12px -16px -16px;padding:13px 16px;border-top:1px solid var(--rs-line);
+  background:var(--rs-panel-2);border-radius:0 0 var(--rs-radius) var(--rs-radius);
+  font-size:12.5px;color:var(--rs-muted);display:flex;flex-direction:column;gap:8px}
+.note{font-size:11.5px;color:var(--rs-muted);margin:8px 0 0;font-weight:300}
+.lead{font-size:13.5px;margin:0 0 12px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  border-radius:5px;padding:2px 7px;background:var(--rs-warn-soft);color:#a06000}
+
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.inp{width:100%;border:1px solid var(--rs-line);border-radius:7px;padding:6px 9px;
+  font:inherit;font-size:13px;background:#fff;color:var(--rs-ink)}
+.inp.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 10px 9px 0;border-bottom:1px solid var(--rs-line)}
+th.r,td.r{text-align:right}
+th.c,td.c{text-align:center}
+td{padding:7px 10px 7px 0;border-bottom:1px solid var(--rs-bg);vertical-align:middle}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+td.good{color:var(--rs-good)}td.crit{color:var(--rs-crit)}
+.name{font-weight:600;color:var(--rs-ink);min-width:120px}
+tr.grouprow td{background:var(--rs-panel-2);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--rs-muted);font-weight:700;padding:8px 10px}
+tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:700;
+  color:var(--rs-ink);padding-top:10px}
+.ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;
+  padding:5px 9px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-muted);min-width:82px;text-align:right;font-size:13px}
+.is-blank{color:var(--rs-muted);font-weight:400}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;border-radius:5px;
+  padding:2px 6px;margin-left:7px}
+.pill.good{background:var(--rs-good-soft);color:var(--rs-good)}
+.pill.crit{background:var(--rs-crit-soft);color:var(--rs-crit)}
+.sub{font-size:11.5px;color:var(--rs-muted);font-weight:400;display:block;margin-top:2px}
+.tablewrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+
+/* ---- the score, the one thing this model actually produces ---- */
+.score{display:inline-flex;align-items:baseline;gap:2px;font-variant-numeric:tabular-nums;
+  font-weight:700;font-size:15px;color:var(--rs-ink)}
+.score .of{font-size:11px;color:var(--rs-muted);font-weight:600}
+/* one criterion's points, 1-5, as five cells so the shape is readable at a glance */
+.dots{display:inline-flex;gap:2px}
+.dots i{width:8px;height:16px;border-radius:2px;background:var(--rs-line);font-style:normal}
+.dots i.on{background:var(--rs-accent)}
+.dots.w i.on{background:var(--rs-warn)}
+.dots.g i.on{background:var(--rs-good)}
+
+/* the five scoring bands, shown as the ladder they are */
+.bands{display:flex;flex-direction:column;gap:1px;background:var(--rs-line);
+  border:1px solid var(--rs-line);border-radius:9px;overflow:hidden}
+.band{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;
+  background:#fff;padding:7px 11px;font-size:12.5px}
+.band .p{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border-radius:5px;background:var(--rs-accent-soft);color:var(--rs-accent);
+  font-weight:700;font-size:11px}
+.band .w{font-weight:600}
+.band .rg{font-size:11.5px;color:var(--rs-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.band.top .p{background:var(--rs-good-soft);color:var(--rs-good)}
+.band.bot .p{background:var(--rs-crit-soft);color:var(--rs-crit)}
+/* a gap between two bands — nothing scores here, and that is the fault */
+.gap{background:var(--rs-warn-soft);color:#a06000;font-size:11px;font-weight:600;
+  padding:4px 11px;display:flex;justify-content:space-between;gap:10px}
+
+.crit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:860px){.crit-grid{grid-template-columns:1fr}}
+
+.nav{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.btn{font:inherit;font-size:12.5px;font-weight:600;border-radius:8px;padding:7px 15px;
+  border:1px solid var(--rs-line);background:#fff;color:var(--rs-ink)}
+.btn.p{background:var(--rs-accent);border-color:var(--rs-accent);color:#fff}
+
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .hero{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <h3>⚠ A drawing, for approval. Nothing is built — not this screen, and not the model behind it</h3>
+  <p><b>What created it.</b> Mike, 2026-09-13: <i>“stock purchasing”</i>, then <i>“yes”</i> to drawing
+  the screen before any code is written. This is one of the two models passed over earlier the same
+  day, when he chose the Mid-Level Budget over this and the Sales Dashboard.</p>
+  <p><b>Every number on this page is the workbook's own</b>, read out of
+  <code>design/report-source-models/Growth Pro.1a.Stock Purchasing.xlsx</code> — its sample data and
+  its own cached results. Nothing is invented to fill a box. It differs from the two budget drawings
+  in one way that matters: <b>there is no model of ours behind this one yet</b>, so these figures are
+  still the spreadsheet's rather than ours. The golden test is what will pin them.</p>
+  <p>🔴 <b>Eight decisions are open, numbered below.</b> Five are wording, one is scope.
+  <b>Two are behaviour</b> — Decisions 5 and 6 — and they are faults in the spreadsheet itself, set
+  out with the evidence where they occur. They are the same family as the three ruled deviations on
+  the Mid-Level Budget: better settled now, on the drawing, than argued at build time.</p>
+</div>
+
+<div class="rs-top">
+  <div>
+    <div class="rs-back">← Model Library</div>
+    <div class="rs-eyebrow">Growth · Report</div>
+    <h1 class="rs-title">Stock Purchasing</h1>
+  </div>
+  <div class="rs-client">Sample data<br>Growth Pro 1a</div>
+</div>
+
+<div class="steps">
+  <div class="step active"><span class="n">1</span>What sold</div>
+  <div class="step"><span class="n">2</span>What's on the shelf</div>
+  <div class="step"><span class="n">3</span>What you can afford</div>
+  <div class="step"><span class="n">4</span>What to buy</div>
+</div>
+
+<div class="ask">
+  <h3>Decision 1 — the four step names</h3>
+  <p>The workbook's <i>Process</i> sheet names them <b>“Review Past Sales Reports / Collate Into
+  Matrix” · “Stock Check” · “Financial Check” · “Order Stock”</b>. The first is a filing instruction
+  rather than a step name, and the other three are fine but flat.</p>
+  <p class="rec">Recommended: <b>“What sold” · “What's on the shelf” · “What you can afford” ·
+  “What to buy”</b> — four questions in the client's own language, each answered by its step, and
+  reading as a sentence when the advisor walks the client through them.</p>
+</div>
+
+<div class="hero">
+  <div class="hf"><div class="l">Sales reviewed</div><div class="v">$776,360</div><div class="s">across the period</div></div>
+  <div class="hf"><div class="l">Gross profit</div><div class="v">$298,726</div><div class="s">on those sales</div></div>
+  <div class="hf"><div class="l">Average margin</div><div class="v">38.5%</div><div class="s">across every line</div></div>
+  <div class="hf"><div class="l">Lines reviewed</div><div class="v">969</div><div class="s">products scored</div></div>
+</div>
+
+<div class="ask">
+  <h3>Decision 2 — the four headline figures</h3>
+  <p>Every model in this section opens with four. These are the four that exist without the advisor
+  answering anything: they are the totals of what was pasted in at step 1.</p>
+  <p class="rec">Recommended: <b>Sales reviewed · Gross profit · Average margin · Lines reviewed</b>.
+  The alternative is to headline the <i>answer</i> — how many lines score well enough to buy — but
+  that number does not exist until step 4, and a headline that reads “—” for three steps out of four
+  is worse than one that is true throughout.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">Step 1 — what sold, and what each line earned</div>
+
+<div class="mock">
+  <p><b>This is the only step the spreadsheet actually computes.</b> The advisor pastes a past sales
+  report; everything to the right of the paste is worked out. <b>Days on Hand is the nicest mechanic
+  in the model</b> — it is simply the sale date minus the entry date, so how long the money sat on a
+  shelf falls out of two dates the client's system already holds.</p>
+</div>
+
+<div class="layout">
+  <div class="col">
+    <div class="card">
+      <div class="card-h">
+        <h2>The sales report</h2>
+        <span class="badge">Paste it in</span>
+      </div>
+      <p class="lead">Seven columns, all of them out of the client's own system. Nothing here is a
+      judgement.</p>
+      <table>
+        <tbody>
+          <tr><td class="name">Product group</td><td class="r"><span class="ro is-blank">—</span></td></tr>
+          <tr><td class="name">Product code</td><td class="r"><span class="ro is-blank">Widget 1</span></td></tr>
+          <tr><td class="name">Quantity sold</td><td class="r"><span class="ro">1</span></td></tr>
+          <tr><td class="name">Sales</td><td class="r"><span class="ro">$60.00</span></td></tr>
+          <tr><td class="name">Cost</td><td class="r"><span class="ro">$53.40</span></td></tr>
+          <tr><td class="name">Entry date<span class="sub">when it arrived</span></td><td class="r"><span class="ro is-blank">08 Jun</span></td></tr>
+          <tr><td class="name">Sale date<span class="sub">when it left</span></td><td class="r"><span class="ro is-blank">14 Jul</span></td></tr>
+        </tbody>
+      </table>
+      <div class="card-f">
+        <span><b>The workbook's formulas stretch to 2,396 of these rows, and its sample fills
+        969.</b> A client with a real product list will fill a good part of that, which is why this
+        step is a paste and not a form.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What that gives you, per line</h2>
+      <table>
+        <tbody>
+          <tr><td class="name">Gross profit</td><td class="r num">$6.60</td></tr>
+          <tr><td class="name">Margin</td><td class="r num">11%</td></tr>
+          <tr><td class="name">Average unit sale</td><td class="r num">$60.00</td></tr>
+          <tr><td class="name">Average unit cost</td><td class="r num">$53.40</td></tr>
+          <tr><td class="name">Days on hand<span class="sub">sale date − entry date</span></td><td class="r num">36</td></tr>
+          <tr><td class="name">Share of stock held</td><td class="r num">0.03</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Widget 1 — the workbook's first sample line, and a poor one: it scores
+      <b>9 out of 25</b>. One unit sold, 11% margin, five weeks on the shelf.</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h2>The five things that decide what to buy</h2>
+      <p class="lead">Each line is scored <b>1 to 5</b> on five criteria, and the five scores are
+      added. <b>25 is a perfect line</b> — high margin, sells often, shifts fast, cheap enough not to
+      hurt, and already a real part of the shelf.</p>
+      <div class="tablewrap">
+      <table>
+        <thead><tr><th>Criterion</th><th>What it asks</th><th>Widget 1 scores</th><th class="r"></th></tr></thead>
+        <tbody>
+          <tr><td class="name">Margin achieved</td><td>How much of the sale is profit</td><td>Minor <span class="sub">11%</span></td><td class="r"><span class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></span></td></tr>
+          <tr><td class="name">How many sold</td><td>Units shifted in the period</td><td>Rare <span class="sub">1 unit</span></td><td class="r"><span class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></span></td></tr>
+          <tr><td class="name">Unit cost risk</td><td>What one unit ties up — <b>lower is better</b></td><td>Acceptable <span class="sub">$53.40</span></td><td class="r"><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td></tr>
+          <tr><td class="name">Days on hand</td><td>How long it sat before it sold</td><td>Come n Go <span class="sub">36 days</span></td><td class="r"><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td></tr>
+          <tr><td class="name">Share of stock held</td><td>How much of the shelf it is</td><td>Drip <span class="sub">0.03</span></td><td class="r"><span class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></span></td></tr>
+          <tr class="subtotal"><td>Total</td><td></td><td></td><td class="r"><span class="score">9<span class="of"> / 25</span></span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="card-f">
+        <span>🔴 <b>Unit cost risk runs the other way and that is deliberate.</b> A cheap unit scores
+        5 and an expensive one scores 1, because the question is how much cash one unit locks up. It
+        is the only criterion of the five where a big number is bad — worth a word on screen, because
+        an advisor reading a column of 5s will otherwise assume it means “best”.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The bands, and the words the workbook gives them</h2>
+      <p class="lead">Each criterion is a five-rung ladder. These are the workbook's own rungs,
+      unchanged — the ranges and the words.</p>
+      <div class="crit-grid">
+        <div>
+          <h2 style="margin-bottom:7px">How many sold</h2>
+          <div class="bands">
+            <div class="band top"><span class="p">5</span><span class="w">Often</span><span class="rg">26+ units</span></div>
+            <div class="band"><span class="p">4</span><span class="w">Frequent</span><span class="rg">16 – 25</span></div>
+            <div class="band"><span class="p">3</span><span class="w">Regular</span><span class="rg">11 – 15</span></div>
+            <div class="band"><span class="p">2</span><span class="w">Occassional</span><span class="rg">6 – 10</span></div>
+            <div class="band bot"><span class="p">1</span><span class="w">Rare</span><span class="rg">1 – 5</span></div>
+          </div>
+        </div>
+        <div>
+          <h2 style="margin-bottom:7px">Days on hand</h2>
+          <div class="bands">
+            <div class="band top"><span class="p">5</span><span class="w">Hot Cakes!</span><span class="rg">1 – 13 days</span></div>
+            <div class="band"><span class="p">4</span><span class="w">Quick Shifter</span><span class="rg">14 – 27</span></div>
+            <div class="band"><span class="p">3</span><span class="w">Come n Go</span><span class="rg">28 – 44</span></div>
+            <div class="band"><span class="p">2</span><span class="w">Sleepy</span><span class="rg">45 – 74</span></div>
+            <div class="band bot"><span class="p">1</span><span class="w">Dead Wood</span><span class="rg">75+</span></div>
+          </div>
+        </div>
+        <div>
+          <h2 style="margin-bottom:7px">Unit cost risk</h2>
+          <div class="bands">
+            <div class="band top"><span class="p">5</span><span class="w">Minor</span><span class="rg">$1 – 25</span></div>
+            <div class="band"><span class="p">4</span><span class="w">Low</span><span class="rg">$26 – 40</span></div>
+            <div class="band"><span class="p">3</span><span class="w">Acceptable</span><span class="rg">$41 – 75</span></div>
+            <div class="band"><span class="p">2</span><span class="w">Stressful</span><span class="rg">$76 – 175</span></div>
+            <div class="band bot"><span class="p">1</span><span class="w">Waking Nites</span><span class="rg">$176+</span></div>
+          </div>
+        </div>
+        <div>
+          <h2 style="margin-bottom:7px">Share of stock held</h2>
+          <div class="bands">
+            <div class="band top"><span class="p">5</span><span class="w">Torrent</span><span class="rg">0.59 – 1.00</span></div>
+            <div class="band"><span class="p">4</span><span class="w">Flood</span><span class="rg">0.34 – 0.58</span></div>
+            <div class="band"><span class="p">3</span><span class="w">Flowing</span><span class="rg">0.135 – 0.33</span></div>
+            <div class="band"><span class="p">2</span><span class="w">Trickle</span><span class="rg">0.06 – 0.125</span></div>
+            <div class="band bot"><span class="p">1</span><span class="w">Drip</span><span class="rg">0.01 – 0.05</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="note">The fifth, <b>Margin achieved</b>, runs Minor · Moderate · Major · Fruitful ·
+      Awesome! across 0–25% · 26–40% · 41–80% · 81–100% · 101%+.</p>
+    </div>
+  </div>
+</div>
+
+<div class="ask">
+  <h3>Decision 3 — the five criterion names</h3>
+  <p>The workbook calls them <b>Margin Achieved · Sales by Volume (per days) · Days on Hand · Unit
+  Cost Risk · % of Stock Units</b>. Three are already plain. Two are not: <i>“Sales by Volume (per
+  days)”</i> is doing two jobs in one label, and <i>“% of Stock Units”</i> reads like a column
+  header rather than a question.</p>
+  <p class="rec">Recommended: keep <b>Margin achieved · Days on hand · Unit cost risk</b> exactly as
+  they are, and change the other two to <b>“How many sold”</b> and <b>“Share of stock held”</b>.
+  Three of five untouched, and the two that change are the two nobody could read aloud to a client.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision 4 — the rating words: keep your voice, or flatten it?</h3>
+  <p>The ladders above use <b>Hot Cakes! · Dead Wood · Waking Nites · Torrent · Drip · Awesome!</b>
+  These are the workbook's own, and they are unmistakably a voice rather than a vocabulary — no other
+  model in the library talks like this.</p>
+  <p class="rec">Recommended: <b>keep every one of them.</b> They are the most memorable thing in the
+  model, a client will repeat “Dead Wood” back at the next meeting, and flattening them to
+  “Slow / Fast” would cost the model its character for nothing. <b>Two exceptions, both spelling
+  only:</b> <i>“Occassional”</i> → <b>Occasional</b>, and <i>“Waking Nites”</i> → <b>Waking
+  Nights</b>. If “Nites” is deliberate, say so and it stays.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">Steps 2 and 3 — the shelf, and the bank</div>
+
+<div class="mock">
+  <p>🔴 <b>Neither of these steps has a spreadsheet behind it.</b> The workbook's <i>Process</i>
+  sheet describes them in two sentences each and then stops — there are no cells, no formulas and no
+  sample data anywhere in the file for either. <b>Everything drawn below is therefore a proposal,
+  not a port</b>, which is what Decision 7 is about. It is drawn so the decision is made against
+  something rather than in the abstract.</p>
+</div>
+
+<div class="layout">
+  <div class="col">
+    <div class="card">
+      <div class="card-h">
+        <h2>What's already on the shelf</h2>
+        <span class="badge">Ask the client</span>
+      </div>
+      <p class="lead">The workbook: <i>“compare the weighted average results against your current
+      stock holdings; which do you have plenty of already? (including incoming units in transit)”</i></p>
+      <div class="field">
+        <label>Units on hand</label>
+        <input class="inp r" value="410">
+      </div>
+      <div class="field">
+        <label>Units already in transit</label>
+        <input class="inp r" value="120">
+      </div>
+      <div class="card-f">
+        <span><b>In transit is the half everyone forgets</b>, and it is the half that causes the
+        double-order. The workbook calls it out explicitly, so the screen should too.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <h2>What you can afford</h2>
+        <span class="badge">Ask the client</span>
+      </div>
+      <p class="lead">The workbook: <i>“review your financial position to determine your Quick Ratio
+      (Liquidity) and assess your total financial exposure to stock.”</i></p>
+      <div class="field">
+        <label>Current assets, excluding stock</label>
+        <input class="inp r" value="184,000">
+      </div>
+      <div class="field">
+        <label>Current liabilities</label>
+        <input class="inp r" value="152,000">
+      </div>
+      <div class="field">
+        <label>Cash you are willing to commit to stock</label>
+        <input class="inp r" value="60,000">
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h2>Whether the business can carry the order</h2>
+      <p class="lead">Three numbers, all of them worked out from the two cards at left. This is the
+      whole of step 3 as the workbook describes it.</p>
+      <table>
+        <tbody>
+          <tr><td class="name">Quick ratio<span class="sub">assets you could turn to cash, against what you owe</span></td><td class="r num good">1.21<span class="pill good">Healthy</span></td></tr>
+          <tr><td class="name">Cash committed to stock</td><td class="r num">$60,000</td></tr>
+          <tr><td class="name">After the order, quick ratio</td><td class="r num crit">0.82<span class="pill crit">Tight</span></td></tr>
+        </tbody>
+      </table>
+      <div class="card-f">
+        <span>🔴 <b>This is the conversation the model exists to force.</b> The workbook's own words
+        are blunter than anything we would write: <i>“do not approve purchases that compromise
+        short-term liquidity.”</i> A client who orders the perfect 22-point product list and cannot
+        pay the power bill in March has used the model backwards.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>And where the ranking is only half the answer</h2>
+      <p class="lead">The workbook attaches one warning to the whole method, on the same sheet:</p>
+      <p style="font-size:13px;padding:11px 13px;background:var(--rs-panel-2);border-radius:9px;margin:0">
+        <i>“In some cases you may find that stock items are more singular by nature — imported exotic
+        items as an example — in which case you may choose to ignore the volume ratings.”</i></p>
+      <p class="note">A one-off imported item will always score badly on “how many sold” and can
+      still be the most profitable thing in the shop. The ranking is an argument, not a verdict.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">Step 4 — what to buy</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Ranked by total score, best first</h2>
+    <span class="badge">The answer</span>
+  </div>
+  <p class="lead">The workbook's own ranked output, top fourteen of 969. <b>Nothing here is
+  invented</b> — these are its cached results, product codes and all.</p>
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th><th class="r">Qty</th><th class="r">Sales</th><th class="r">Gross profit</th>
+        <th class="r">Margin</th><th class="r">Days on hand</th>
+        <th class="c">Mgn</th><th class="c">Sold</th><th class="c">Cost</th><th class="c">Days</th><th class="c">Share</th>
+        <th class="r">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="name">Widget 34</td><td class="r num">150</td><td class="r num">$510.64</td><td class="r num">$399.84</td><td class="r num">53.4%</td><td class="r num">18</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 152</td><td class="r num">50</td><td class="r num">$124.31</td><td class="r num">$86.91</td><td class="r num">53.4%</td><td class="r num">15</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 229</td><td class="r num">139</td><td class="r num">$773.72</td><td class="r num">$519.85</td><td class="r num">53.4%</td><td class="r num">26</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 271</td><td class="r num">30</td><td class="r num">$182.61</td><td class="r num">$121.18</td><td class="r num">53.4%</td><td class="r num">16</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 359</td><td class="r num">26</td><td class="r num">$798.98</td><td class="r num">$512.42</td><td class="r num">53.4%</td><td class="r num">16</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 441</td><td class="r num">43</td><td class="r num">$186.96</td><td class="r num">$117.76</td><td class="r num">53.4%</td><td class="r num">21</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 444</td><td class="r num">32</td><td class="r num">$528.69</td><td class="r num">$332.85</td><td class="r num">53.4%</td><td class="r num">24</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 519</td><td class="r num">28</td><td class="r num">$109.56</td><td class="r num">$67.33</td><td class="r num">53.4%</td><td class="r num">25</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 589</td><td class="r num">32</td><td class="r num">$322.77</td><td class="r num">$193.64</td><td class="r num">53.4%</td><td class="r num">25</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 677</td><td class="r num">57</td><td class="r num">$308.96</td><td class="r num">$180.50</td><td class="r num">53.4%</td><td class="r num">16</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">22<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 144</td><td class="r num">33</td><td class="r num">$82.83</td><td class="r num">$58.15</td><td class="r num">53.4%</td><td class="r num">14</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">4</td><td class="c num">4</td><td class="r"><span class="score">21<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 281</td><td class="r num">20</td><td class="r num">$125.86</td><td class="r num">$83.20</td><td class="r num">53.4%</td><td class="r num">25</td><td class="c num">3</td><td class="c num">4</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">21<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 288</td><td class="r num">58</td><td class="r num">$302.61</td><td class="r num">$198.78</td><td class="r num">53.4%</td><td class="r num">41</td><td class="c num">3</td><td class="c num">5</td><td class="c num">5</td><td class="c num">3</td><td class="c num">5</td><td class="r"><span class="score">21<span class="of"> / 25</span></span></td></tr>
+      <tr><td class="name">Widget 587</td><td class="r num">18</td><td class="r num">$64.17</td><td class="r num">$38.56</td><td class="r num">53.4%</td><td class="r num">21</td><td class="c num">3</td><td class="c num">4</td><td class="c num">5</td><td class="c num">4</td><td class="c num">5</td><td class="r"><span class="score">21<span class="of"> / 25</span></span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="card-f">
+    <span>🔴 <b>Every margin in the visible top of the list reads 53.4% — and that is the ranking
+    working, not a bug.</b> Margins vary widely across the sample (866 different values), but 53.4%
+    scores 3, and a line needs the other four criteria at or near full marks to reach 21 or 22. So
+    <b>margin is not what separates the top of the list</b>; speed, volume and low unit cost are.
+    Worth knowing before the golden test is written — a test drawn only from the top of this ranking
+    would prove very little about the margin criterion, so it needs its own cases further down.</span>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="btn">Back</button>
+  <button class="btn p">Print the buy list</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">The two behaviour decisions — faults in the spreadsheet</div>
+
+<div class="ask behaviour">
+  <h3>Decision 5 — the bands have gaps, and a line that lands in one scores nothing</h3>
+  <p><b>The evidence.</b> Every ladder is a list of closed ranges, and the ranges do not meet. On
+  <b>share of stock held</b>, Trickle ends at <b>0.125</b> and Flowing starts at <b>0.135</b> — a
+  line at 0.13 belongs to neither. <b>Every one of the five has gaps</b>; they only stay hidden on
+  the two criteria that happen to be counted in whole numbers.</p>
+  <table>
+    <thead><tr><th>Criterion</th><th>Gaps where nothing scores</th><th>Does it bite?</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Share of stock held</td><td>below 0.01 · 0.05–0.06 · 0.125–0.135 · 0.33–0.34 · 0.58–0.59</td><td><b>Yes</b> — a ratio</td></tr>
+      <tr><td class="name">Margin achieved</td><td>0.25–0.26 · 0.40–0.41 · 0.80–0.81 · 1.00–1.01</td><td><b>Yes</b> — a ratio</td></tr>
+      <tr><td class="name">Unit cost risk</td><td>$25–26 · $40–41 · $75–76 · $175–176</td><td><b>Yes</b> — money has cents</td></tr>
+      <tr><td class="name">Days on hand</td><td>13–14 · 27–28 · 44–45 · 74–75</td><td>No — whole days</td></tr>
+      <tr><td class="name">How many sold</td><td>5–6 · 10–11 · 15–16 · 25–26</td><td>No — whole units, unless sold by weight</td></tr>
+    </tbody>
+  </table>
+  <p>🔴 <b>And it bites in the workbook's own first three rows.</b> <b>Widget 3</b>'s average unit
+  cost is <b>$25.22</b>, which falls in the $25–26 gap. It scores <b>0</b> for unit cost risk —
+  a cheap, low-risk item, marked as though the criterion did not exist.</p>
+  <p class="rec">Recommended: <b>close every gap, so each ladder runs continuously from the bottom of
+  the lowest rung to the top of the highest.</b> Widget 3 would then score 5. This changes no score
+  that is currently right, and it is the smallest change that makes the ladder mean what it appears
+  to mean. The alternative — port the gaps faithfully — reproduces a fault we would then have to
+  explain to every advisor who hit it.</p>
+</div>
+
+<div class="ask behaviour">
+  <h3>Decision 6 — what happens in a gap, which the workbook answers two different ways</h3>
+  <p>The same five criteria are scored on two sheets, and <b>the two sheets disagree about what a
+  gap means.</b> Neither is right, and they are wrong in opposite directions.</p>
+  <table>
+    <thead><tr><th>Sheet</th><th>How its formula ends</th><th>So a gap gives…</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Sales Report</td><td><code>IF(x&gt;=lastBand, points)</code> — no else</td><td>Excel <code>FALSE</code>, which <code>SUM</code> reads as <b>0</b></td></tr>
+      <tr><td class="name">Product Ratings</td><td><code>IF(x="",0,x)</code></td><td><b>the measurement itself</b>, added as though it were points</td></tr>
+    </tbody>
+  </table>
+  <p>🔴 <b>Both are visible in the sample.</b> <b>Widget 3</b> scores <b>0</b> for unit cost risk
+  (above). And on the other sheet <b>Widget 9 scores
+  <span style="font-variant-numeric:tabular-nums">9.13</span> out of 25</b> — its share of stock is
+  0.13, lands in the 0.125–0.135 gap, and <b>0.13 is added to its total as 0.13 of a point.</b> Four
+  criteria gave it 9; the fifth gave it a fraction of a percent.</p>
+  <p>The second is the reason a score can arrive with decimal places on a screen where every rung is
+  a whole number out of 25.</p>
+  <p class="rec">Recommended: <b>one rule, on both — a criterion with no band scores 0.</b> Once
+  Decision 5 closes the gaps this can only happen on a blank or a negative, where 0 is the honest
+  answer. The two decisions work together: 5 stops lines falling through, 6 makes the fall harmless
+  when it does.</p>
+  <p><b>One more of the same family, found while checking the above and not worth its own
+  decision.</b> The “how many sold” formula on <i>Sales Report</i> tests the wrong cell in its middle
+  branch — <code>I7</code>, the entry date, where every sibling uses <code>D7</code>, the quantity.
+  It is harmless while an entry date is present, and a line of 11–15 units <i>without</i> one scores
+  0 instead of 3. The fix is to use the quantity, as the other four branches do.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">Two decisions about what this model is</div>
+
+<div class="ask">
+  <h3>Decision 7 — how much of steps 2, 3 and 4 gets built</h3>
+  <p><b>The whole of the spreadsheet is step 1.</b> Its <i>Process</i> sheet describes steps 2, 3 and
+  4 in nine sentences and provides not one cell for them. So the ranking is a port; everything
+  drawn above under “the shelf, and the bank” is a proposal.</p>
+  <p class="rec">Recommended: <b>build all four steps, as drawn.</b> Steps 2 and 3 are five inputs
+  and one ratio between them — perhaps thirty lines of maths — and without them the model answers
+  “what is worth buying” while saying nothing about whether the client can pay for it. The
+  workbook's own instruction is <i>“do not approve purchases that compromise short-term
+  liquidity”</i>, so a port that stops at the ranking stops one step before the point.</p>
+  <p>The honest alternative is to build step 1 alone and leave the ranking as the whole model. It is
+  less work and it is defensible — but it ships the half that is fun without the half that is
+  prudent.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision 8 — the Model Library card describes a different model</h3>
+  <p>The “coming soon” tile on the Model Library reads today:
+  <i>“Smarter reorder points and buying to free cash without stock-outs.”</i> <b>There are no reorder
+  points anywhere in this workbook</b>, and nothing in it detects a stock-out. It ranks what to buy
+  by five measures and then asks whether the client can afford it.</p>
+  <p class="rec">Recommended: <b>“Ranks what to buy by margin, speed and cash tied up — then checks
+  the client can afford it.”</b> One sentence, and it describes the model that exists rather than
+  the one the card currently promises.</p>
+</div>
+
+<div class="mock" style="margin-top:24px">
+  <h3>What happens after these eight are ruled</h3>
+  <p>Backend first, outward: the maths model and its golden test written together against the
+  workbook's cached figures, then the route, then the catalogue row, then this screen, then the
+  consistency guard. That is the order the <code>add-a-report</code> procedure sets and it is not
+  negotiable — a golden test written after the model tends to encode what the code does rather than
+  what the workbook says.</p>
+  <p><b>One thing to settle at the same time as Decision 5 and 6:</b> those two rulings are
+  deviations from the workbook, so each one gets pinned in the golden test <i>against the workbook's
+  own cached figure</i>, the way the Mid-Level Budget's three were. The test records both numbers and
+  says which one we chose and why.</p>
+  <p><b>Two things in the workbook that need no decision, recorded so they are not re-found.</b>
+  Its margin column divides gross profit by sales with no guard, so a line that sold nothing gives
+  <code>#DIV/0!</code> — 33 of them sit in the workbook today, all in blank rows, but a real client
+  can have a zero-sales line and ours must score it rather than break. And the file carries 3,190
+  <code>#REF!</code> cells, every one below row 1850 in the unused template region, none in a live
+  calculation. <b>Neither is a fault in the method</b>; both are things a faithful port would
+  otherwise inherit.</p>
+</div>
+
+</div>
+</body>
+</html>
