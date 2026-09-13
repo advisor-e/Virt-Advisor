@@ -610,11 +610,18 @@ tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:70
 <div class="ask ruled">
   <h3>Decision 6 — RULED BY MIKE 2026-09-13 — what happens in a gap, which the workbook answers two different ways</h3>
   <p class="ruling">✓ Ruled as recommended. <b>One rule on both sheets: a criterion with no band
-  scores 0.</b> <b>A DEVIATION FROM THE WORKBOOK</b> on the <i>Product Ratings</i> side — Widget 9's
-  total goes from 9.13 to 9 — pinned in the golden test against the workbook's own cached figure,
-  with both numbers recorded. The <i>Sales Report</i> side already scores 0 and is unchanged. The
-  wrong-cell reference in the "how many sold" formula is fixed to use the quantity, as its four
-  siblings do.</p>
+  scores 0.</b> <b>A DEVIATION FROM THE WORKBOOK</b> on the <i>Product Ratings</i> side, pinned in
+  the golden test against the workbook's own cached figure with both numbers recorded. The
+  <i>Sales Report</i> side already scores 0 and is unchanged. The wrong-cell reference in the "how
+  many sold" formula is fixed to use the quantity, as its four siblings do.</p>
+  <p class="ruling" style="border-bottom:0;padding-bottom:0">🔴 <b>Widget 9 ends at 11, not 9 —
+  corrected 2026-09-13 while writing the model.</b> Decisions 5 and 6 were ruled separately but they
+  land on the same cell, and this box first recorded 6 as though 5 had not happened. With the gaps
+  closed, Widget 9's share of stock of <b>0.13 falls inside Trickle</b> (0.06–0.125, now extended to
+  0.135) and scores <b>2</b> — it is no longer in a gap at all, so rule 6 never fires on it. Its
+  four other criteria gave 1 + 2 + 2 + 4 = 9, so the total is <b>9.13 → 11</b>. Decision 6 still
+  changes behaviour; it is simply the safety net under Decision 5 rather than the thing that moves
+  this line.</p>
   <p>The same five criteria are scored on two sheets, and <b>the two sheets disagree about what a
   gap means.</b> Neither is right, and they are wrong in opposite directions.</p>
   <table>

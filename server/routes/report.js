@@ -16,6 +16,7 @@ const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/m
 const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeHighLevelBudget } = require('../report/highLevelBudgetModel')
 const { computeMidLevelBudget } = require('../report/midLevelBudgetModel')
+const { computeStockPurchasing } = require('../report/stockPurchasingModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
@@ -231,6 +232,56 @@ function midLevelBudget (req, res, next) {
   } catch (err) {
     console.error('[report] mid-level-budget compute failed:', err)
     res.send(400, { success: false, error: { code: 'MID_LEVEL_BUDGET_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/stock-purchasing
+ *
+ * Stock Purchasing (Growth Pro): scores every product line 1–5 on five criteria — margin achieved,
+ * how many sold, unit cost risk, days on hand and share of stock held — adds them for a mark out
+ * of 25, and ranks the lines best first. Steps 2 and 3 add what is already on the shelf (including
+ * units in transit) and whether committing the cash would take the quick ratio under 1. Calc-only
+ * and therefore anonymous, like every other calc route here — numbers in, numbers out, nothing
+ * stored.
+ *
+ * NB the model carries TWO ruled deviations from the source workbook (Mike, 2026-09-13): every gap
+ * between the scoring rungs is closed, and a criterion matching no band scores 0 rather than
+ * yielding Excel's FALSE or — on the workbook's other sheet — the raw measurement. 919 of the
+ * sample's 969 lines are reproduced exactly; all 50 that move are a workbook zero becoming a real
+ * score. Both are set out in the header of `server/report/stockPurchasingModel.js`.
+ *
+ * 🔴 `lines` is deliberately NOT sent. It is the same 969 objects as `ranked` in a different
+ * order, so returning both doubles a payload the screen reads only in rank order. It stays on the
+ * model for the golden test, which pairs it index-for-index with the workbook's cached rows.
+ *
+ * @route POST /api/report/stock-purchasing
+ * @param {object} req.body - `{ lines, shelf, exposure }`. `lines` is the client's own sales
+ *   export: `{ code, quantity, sales, cost, entryDate, saleDate, shareOfStock }` per row, dates
+ *   ISO yyyy-mm-dd, and days on hand is DERIVED from them rather than entered. `shelf` is
+ *   `{ onHand, inTransit }`; `exposure` is `{ currentAssetsExStock, currentLiabilities,
+ *   cashCommitted }`. Called with no `lines` the model computes nothing rather than failing.
+ * @returns {object} { success, data, timestamp } — `{ totals, ranked, shelf, affordability, bands,
+ *   criteria, maxScore }`.
+ */
+function stockPurchasing (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const model = computeStockPurchasing(inputs)
+    const data = {
+      totals: model.totals,
+      ranked: model.ranked,
+      shelf: model.shelf,
+      affordability: model.affordability,
+      bands: model.bands,
+      criteria: model.criteria,
+      maxScore: model.maxScore
+    }
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] stock-purchasing compute failed:', err)
+    res.send(400, { success: false, error: { code: 'STOCK_PURCHASING_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
 }
@@ -1472,4 +1523,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
