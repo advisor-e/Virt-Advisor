@@ -1698,6 +1698,33 @@ ten of these and the model already has a vocabulary: *"Average Working Hrs per D
 *"Wet Days or Heat Days Lost per Month"*, *"Field Team Paid for 'Lost' Days"*, *"Mang't, Admin & Sales
 Hrs per Day"*, *"Days Worked"*.
 
+#### Step 3 — The year ahead
+
+[`components/WagesYear.vue`](../../components/WagesYear.vue), with
+`tests/unit/wagesYear.component.test.js`. **The largest step**, because the Annual Hiring Plan carries
+453 typed cells. **Three grids, not one** — the twelve months, who is on the payroll in each, and each
+person's pay rises — because they answer three different questions and ~750 controls in one table
+would be unreadable.
+
+**Where each grid's cells live**, all verified typed in the stored XML: the months are the **Cash
+Report's** rows 9 / 7 / 5 / 11 (name, season, production days, allowances apply), which the Hiring
+Plan only *mirrors* in calculated cells; on-payroll is `Annual Hiring Plan` F..Q on each person's row;
+pay rises are F..Q on the *"Team Wage/ Salary %"* block from row 46. The **opening and adjusted pay
+rates are calculated**, so neither gets a control — the opening rate is shown read-only because a rise
+means nothing without it.
+
+**Seasons are stored by key and sent by name.** The engine matches a month to a season on the firm's
+own wording, so the picker's options come from **step 2**, not a list here — a hardcoded list would
+send every month to the standard-season fallback the moment a firm renamed a season, silently,
+because that is a real season. Restoring maps the name back to its key.
+
+⚠ **`actualMargin` is deliberately not set here** — it is step 4's. A month arriving with an invented
+actual would be judged against it on the report, and the variance is what the model exists to show.
+
+⚠ Column S of the rises block carries **stray text from an overlapping table** (*"Pdctn' Hrs"*,
+*"Federal Taxes"*, *"Band 1"*) on rows with no adjusted rate. Not read here — and it is the same
+interleaving that made the shutdown allowance unreadable.
+
 **Three findings against the drawing's list of ten:**
 
 1. **"Days Worked" (`Seasonal Inputs` W45) is missing from the drawing** — the office week, which the
