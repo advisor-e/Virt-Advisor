@@ -3746,6 +3746,47 @@
         "marginPct": "Margin %",
         "share": "Share"
       }
+    },
+    "wagesReview": {
+      "title": "Wages/Salary Review",
+      "eyebrowClass": "Profitability",
+      "step1": "The team",
+      "step2": "How the work happens",
+      "step3": "The year ahead",
+      "step4": "What actually happened",
+      "step5": "Wages/Salary Review report",
+      "stepsPending": "Steps 2 to 5 are not built yet. The team you have entered is held on this page only.",
+      "team": {
+        "title": "The team",
+        "intro": "Every person, their pay and their charge-out rate. The division decides how each person is costed.",
+        "namePlaceholder": "Name",
+        "addPerson": "Add person",
+        "remove": "Remove this person",
+        "continue": "Continue",
+        "fullTime": "Full Time",
+        "partTime": "Part Time",
+        "heroPeople": "People",
+        "heroCharging": "Charging",
+        "heroOverhead": "Overhead",
+        "division": {
+          "admin": "Admin",
+          "sales": "Sales",
+          "production": "Production",
+          "management": "Management"
+        },
+        "col": {
+          "name": "Name",
+          "division": "Division",
+          "employment": "Full time / part time",
+          "chargeRate": "Hourly charge rate",
+          "payRate": "Hourly pay rate",
+          "efficiency": "Daily production efficiency %",
+          "retirement": "Employer retirement %",
+          "overtime": "Overtime uplift %",
+          "leaveDays": "Annual + sick leave days",
+          "tools": "Weekly tools allowance"
+        }
+      }
     }
   },
   "modelGuide": {

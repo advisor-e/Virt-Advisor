@@ -1617,7 +1617,7 @@ what *this* model needs, and a generic sentence cannot say that. Added 2026-09-1
 
 ---
 
-### Wages/Salary Review (4.97, engine built 2026-09-14 — no screen yet)
+### Wages/Salary Review (4.100, engine + step 1 built 2026-09-14)
 
 **What it does.** Answers whether the team bills more than it costs, month by month, against
 twelve actuals the advisor types in. Not a payroll total — the word "wages" undersells it. Drawn
@@ -1626,12 +1626,47 @@ ruled by Mike on 2026-09-14**, four of them against the recommendation, and he a
 the same day. Source: `../report-source-models/Wages Model.xlsx`, **six sheets and 10,456 filled
 cells — the largest port in the library**, against the Sales Dashboard's 140 rows.
 
-🔴 **THE ENGINE IS BUILT AND NOTHING IS ON A SCREEN.** `server/report/wagesModel.js`, its golden
-test, and `POST /api/report/wages-review` (anonymous, like every calculation route). **Still to
-come:** the five input steps, the report screen, the rates converter tab, the gated register, the
-payroll reader, and income tax bands as a fifth Tax Rates figure. Every one carries wording that is
-Mike's to settle, which is where the next session starts. **A real payroll export is owed by Mike** —
-per `intake/supportedPackages.js` no reader is called supported until one has been read.
+**Built so far:** `server/report/wagesModel.js`, its golden test, `POST /api/report/wages-review`
+(anonymous, like every calculation route), and **step 1 of the five, "The team"** —
+[`components/WagesTeam.vue`](../../components/WagesTeam.vue) on
+[`pages/wages-review.vue`](../../pages/wages-review.vue), with
+`tests/unit/wagesTeam.component.test.js`. **Still to come:** steps 2–5, the report screen, the rates
+converter tab, the gated register, the payroll reader, and income tax bands as a fifth Tax Rates
+figure. **A real payroll export is owed by Mike** — per `intake/supportedPackages.js` no reader is
+called supported until one has been read.
+
+⚠ **NOT IN THE MODEL LIBRARY, deliberately.** No catalogue row until the five steps and the report
+exist: the frame guard reads ready routes, and a card opening onto one fifth of a model is a promise
+the screen cannot keep. Reached at `/wages-review` directly. No per-client saving yet (4.62's
+mechanism) — with four steps missing there is no complete set of figures to save.
+
+🔴 **STEP 1 HAS TEN CONTROLS WHERE THE DRAWING LISTED TWELVE — every difference named, per §5.** The
+drawing's inventory was a hand reading of which cells are typed; building it was checked against the
+workbook's stored XML (does the cell carry an `<f>`, and does any formula read it). Five fields
+resolved differently, and **one control Mike ruled**:
+
+| Drawn field | What the workbook holds | What step 1 does |
+|---|---|---|
+| Weekly base hours | **Calculated** — `Std Hrs`, col N | no control; derived from the season settings |
+| Weekly overtime hours | **Calculated** — `Extra Hrs Wkd`, BV/BX/BZ | no control |
+| Overtime pay rate | **Calculated**; what is typed is the *uplift* | the uplift is the control |
+| Annual salary | **Typed but read by NOTHING** — no formula in the six sheets references `Seasonal Inputs` G | no control |
+| On salary? (Yes/No) | the engine needs a three-way basis | **Division**, Mike's ruling 2026-09-14 |
+| *(absent from the drawing)* | `toolsWeekly` — `CH7 = (Z7*52)/12` | a control was added |
+
+**Omitting the three calculated fields honours Mike's rule rather than breaking it.** *Every typed
+cell reachable, nothing quietly fixed as a constant* guards against removing an advisor's control; a
+box over a calculated cell is the opposite fault — the advisor types a figure the engine overwrites.
+
+**Division drives the basis** (Mike, 2026-09-14). The workbook is laid out in blocks and the mapping
+is exact across all 29 sample rows: Admin and Sales are costed as salary, Production as production,
+Management as management. One question to the advisor, not two.
+
+**Two further deviations, both deliberate.** The screen **opens on the workbook's sample team behind a
+SampleNotice** — the house pattern (Loan Estimator does the same) rather than the drawing's stricter
+"never pre-filled"; the sample is the workbook's own, badged as sample, and the copy is pinned
+against the engine's `DEFAULT_INPUTS` so it cannot drift. And the **three unnamed rows are kept**, so
+a confirmed payload reproduces the golden figures exactly.
 
 **Two operating bases, one switch** (Decision 3). A firm runs *either* a seasonal basis, where
 weather decides how many productive days a month holds, *or* a shutdown basis planned around

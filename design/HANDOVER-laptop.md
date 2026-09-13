@@ -29,15 +29,23 @@ every machine's branch, so the ceiling is a read, not a guess. New: `scripts/ref
 Report-only — it cannot block a push. **The handover half of 4.101 is still open**, so keep reading
 the other machine's note from `origin/<their branch>`.
 
-**4.100 — THE WAGES ENGINE IS BUILT** on Mike's *"build the wages/salary review model"*:
-`server/report/wagesModel.js`, `tests/unit/wagesModel.test.js`, `POST /api/report/wages-review`
-and its route test. **NO SCREEN EXISTS.** Full record in
+**4.100 — THE WAGES ENGINE AND STEP 1 ARE BUILT.** `server/report/wagesModel.js` and its golden
+test, `POST /api/report/wages-review`, and now **step 1 of five, "The team"** —
+`components/WagesTeam.vue` on `pages/wages-review.vue`, 13 component tests. Seen in a browser at
+`http://[::1]:3000/wages-review`, not just in tests. Full record in
 [`features/report-models.md`](features/report-models.md) § *Wages/Salary Review*.
 
-🔴 **THE NEXT THING IS THE FIVE INPUT STEPS, AND THEY NEED MIKE'S WORDING FIRST.** Do not invent
-labels. Also still to come: the report screen, the rates converter tab, the gated register, the
-payroll reader, the Tax Rates fifth figure. **Do not add the catalogue row until a page exists** —
-the frame guard reads ready routes and would fail.
+🔴 **THE DRAWING'S FIELD LIST IS NOT SAFE TO BUILD FROM WITHOUT CHECKING THE WORKBOOK.** Step 1 has
+**ten controls, not the drawing's twelve**, and the whole table of differences is in the Brief.
+Three drawn fields are **calculated** in the workbook (`Std Hrs`, `Extra Hrs Wkd`, the overtime
+rate), one is **typed but read by nothing** (`Seasonal Inputs` col G, Annual Salary), and *On
+salary? Yes/No* became **Division** on Mike's ruling — the engine needs a three-way basis. The
+drawing's inventory was a hand reading of typed cells; the stored XML settles it. **Do the same
+check before steps 2–5.**
+
+**Still to come:** steps 2–5, the report screen, the rates converter tab, the gated register, the
+payroll reader, the Tax Rates fifth figure. **No catalogue row until they exist** — the frame guard
+reads ready routes, and a card opening onto one fifth of a model is a promise the screen cannot keep.
 
 🔴 **MIKE STILL OWES A REAL PAYROLL EXPORT.** No reader may be called supported until one is read.
 
