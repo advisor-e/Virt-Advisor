@@ -145,6 +145,31 @@
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
       "note": "SPEC KIT FEATURE, specs/002-outcome-learning. Explainable code, not a black-box model: pooled verdicts become capped score adjustments through the same seam as distinction boosts, published only above a firm-and-case floor and only after the mentor accepts each one; every applied adjustment shows on the decision trace with its evidence. Nothing leaves a firm that has not opted in. Three drawings come before any code.",
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
+    },
+    {
+      "ref": "4.90",
+      "name": "Retirement Review - the Model Library card nobody has built",
+      "rankedByMike": false,
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-13"
+      },
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike asked for the retirement planning model. Its card has sat in the Model Library marked coming soon, and the workbook behind it is the largest in the library.",
+      "risk": "Without it the library advertises a retirement tool it cannot open. The build carries a real privacy weight: this is the only model holding a household's income, pension, superannuation and six properties at once, so it is CLASS_DECISION, never badged Illustrative, and its route stores nothing.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-13 - \"build the retirement planning model in perf reports section\". He also ruled the tax bands the same day."
+      },
+      "touches": "server/report/retirementReviewModel.js and its golden test, server/routes/report.js, server/restify-server.js, utils/reportModelCatalogue.js, a page and a screen, locales/en.json, and the four report guards.",
+      "note": "BUILT SO FAR: the maths engine and its golden test - 47 cases, eight mutations run, all caught. The port was proved to reproduce the workbook EXACTLY on all twenty years of all twelve series BEFORE any correction was applied; that ordering is the proof. THREE RULED DEVIATIONS, all Mike 2026-09-13: current tax bands from data/tax-bands.json, the pension taxed in the projection, and the sixth property realigned to year one - the last two were 4.91, now closed. STILL TO BUILD: route, catalogue row, entry steps, result screen.",
+      "comment": "2026-09-13 - filed on Mike's instruction and started the same day. Source workbook Exposure.Retirement.Review (1).xlsx: four visible sheets plus two hidden mortgage sheets, six properties, three mortgage types, twenty years. It is the largest model in the library."
     }
   ]
 }

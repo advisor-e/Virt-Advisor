@@ -185,6 +185,49 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.91 — Two defects in the retirement workbook, both costing the client money.**
+✅ Closed 2026-09-13 on the laptop, filed and settled the same day. Found while porting
+`Exposure.Retirement.Review (1).xlsx` for 4.90, filed as its own item on the 4.89 precedent —
+**an open question for Mike is an item on the list, never a line in a code comment** — and ruled
+by him in three words: *"fix them both"*. Both corrections are in
+[`server/report/retirementReviewModel.js`](../../server/report/retirementReviewModel.js) and
+carried on every result as `workbookCorrections`, so a screen can say why its figures differ from a
+spreadsheet the adviser may have open beside it.
+
+- **The pension was counted twice over, differently.** The summary sheet took the government
+  pension *after* tax (612.32 a week, `Use of Assets` N19); the twenty-year engine took it *before*
+  tax (712, `Asset & Cash Transactions` G26 = `F19*52`). One workbook, two answers, **99.68 a week
+  apart in year one**, and the engine's figure then compounded at CPI for twenty years — reaching
+  64,921 where the taxed figure reaches 55,832. It is now taxed throughout, agreeing with the
+  workbook's own summary sheet rather than contradicting it.
+
+- 🔴 **The sixth property's whole block sat four columns out, and the client lost the house.** Its
+  rows started at column K (year 5) where the other five start at column G. Three consequences from
+  one slip: it earned no rent and paid no mortgage in years 1–4; its whole series ran four years
+  late; and — worst — the `Value Realised` row carried the same shift, so **selling it in year 17
+  read year 21, past the end of the sheet, and credited the client with nothing at all.** The
+  property simply dropped out of the projection. It now pays **1,140,879**. That the author never
+  intended this is provable on the same sheet: the house-asset line (G37) reaches across to `K97`
+  specifically to pick the property up at year 1, and the year-1 tax rate already counted its rent.
+
+- 🔴 **WHAT PROVED IT — the port was proved faithful BEFORE either correction was applied.** Every
+  cached value on all six sheets, **all twenty years of all twelve series**, matched the workbook
+  exactly; the two corrections were then applied on Mike's ruling. That ordering is the whole proof,
+  because once the output differs from the spreadsheet no later comparison can establish it. It is
+  preserved in two ways that still run: everything the corrections do not touch is still pinned to
+  the workbook, and **the structural correction is pinned to the workbook's own numbers** — moving
+  the sixth property back four columns must reproduce its cached rows 97–100 read four columns
+  earlier, thirteen years of the workbook's own values, which a correction that changed anything
+  else would fail. **Eight mutations were run against a copy outside the repo, including a reversion
+  of each correction, and all eight were caught.**
+
+- **What it moved.** Closing cash after twenty years **1,522,255 → 2,590,883**; years in deficit
+  **13 → 14**. The two pull in opposite directions and the test says so: taxing the pension costs
+  income in *every* year, recovering the property adds a little over a million at the end. Neither
+  is netted off — an adviser asked why will be asked about one of them, not the average.
+
+---
+
 **4.88 — High Level Budget: budget against actual, the model nobody had built.**
 ✅ Closed 2026-09-12 on the laptop, built and walked in a running app the same day Mike asked for
 it. His words: *"pick a model thats in the performance reports yet to be built"*, then
