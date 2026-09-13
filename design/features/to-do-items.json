@@ -191,6 +191,27 @@
       "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
       "note": "DRAWN AND ALL NINE DECISIONS RULED 2026-09-14. NOTHING BUILT. FOUR rulings went against or changed the recommendation - the name and section (Decision tools, not Profitability/Report), a payroll import pre-filling the team screen, income tax bands as a fifth Tax Rates figure never withheld, and the register kept on a retention dial rather than deleted at deal-end. Two standing requirements: people addable per role with no ceiling, and a payroll report loadable. MIKE SENDS A REAL PAYROLL EXPORT - no reader may be called supported until one is read. ASK MIKE TO APPROVE BUILDING FROM THE DRAWING; ruling its nine questions is not that approval. Build order: engine and golden test first, the gated register last.",
       "comment": "2026-09-14 - filed, then all nine decisions ruled the same day. His correction - 'profitability isnt a section... do your homework - read the code, dont guess' - fixed both the name and the section; MODEL-CLASSIFICATION.md turns the class on how the data arrives, and nothing here comes from an accounts export. He named it Wages/Salary Review himself. Two rulings reversed our recommendation: the payroll import he asked for, and retention, where deleting at deal-end would destroy the firm's own evidence of why a role was cut."
+    },
+    {
+      "ref": "4.98",
+      "name": "Startup reads the other machine's handover from the wrong branch",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Step 4 of /startup reads the other machine's handover from the reader's own branch, so it is only ever as fresh as the last merge to master, and nothing on screen says so.",
+      "risk": "A session reports the other division as idle or silent when it is neither. This has now happened more than once: on 2026-09-14 the desktop was reported stale since 2026-09-10 when its note was written 2026-09-12 and sitting on its own branch. The file exists and parses, so no check can notice. It quietly damages the one signal the two machines have about each other.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-14 - found at shutdown when the desktop's branch was read directly and its note turned out to be two days newer than the copy startup had read. Filed on Mike's yes. A defect we found, not a feature nobody asked for."
+      },
+      "touches": ".claude/commands/startup.md step 4, design/WORKING-AGREEMENT.md where the same instruction lives, and scripts/check-branch-state.js, which already fetches the other branch and is the natural place to read the note from.",
+      "note": "ONE FIX, AND THE MACHINERY IS ALREADY THERE. check:branch already fetches the other machine's branch to print its ahead/behind counts, so it can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date beside them. Startup then reads a current note instead of a stale copy. Until it is fixed, a session comparing handover dates must read the other machine's branch directly rather than the working tree.",
+      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it."
     }
   ]
 }

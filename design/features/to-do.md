@@ -41,8 +41,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 4 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
 | 5 | **4.96** The add-a-report skill still points sessions at the frozen ACTIONS.md ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 6 | **4.97** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-14 |
+| 7 | **4.98** Startup reads the other machine's handover from the wrong branch ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Six live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Seven live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
