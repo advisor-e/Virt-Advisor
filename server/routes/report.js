@@ -18,6 +18,7 @@ const { computeHighLevelBudget } = require('../report/highLevelBudgetModel')
 const { computeMidLevelBudget } = require('../report/midLevelBudgetModel')
 const { computeStockPurchasing } = require('../report/stockPurchasingModel')
 const { computeSalesDashboard, DEFAULT_INPUTS: SALES_DASHBOARD_DEFAULTS } = require('../report/salesDashboardModel')
+const { computeWages, DEFAULT_INPUTS: WAGES_DEFAULTS } = require('../report/wagesModel')
 const { readStockSheet } = require('../report/intake/stockSheetAssembler')
 const { readSalesSheet, REQUIRED_BY_MODEL } = require('../report/intake/salesSheetReader')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
@@ -1803,4 +1804,39 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, stockPurchasingSalesIntake, salesDashboard, salesDashboardIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+/**
+ * POST /api/report/wages-review
+ *
+ * Wages/Salary Review — twelve months of labour margin on whichever operating basis the firm
+ * runs, against the twelve actuals the advisor types in.
+ *
+ * 🔴 NO `people` MEANS "the workbook's own sample", matching every other model's opening
+ * state. An EMPTY ARRAY is left alone and returns an empty year: a caller who sent a team and
+ * had none read must see nothing, never the sample company wearing their client's name.
+ *
+ * ⚠ NOTHING PERSONAL REACHES THIS ROUTE BY DESIGN. It takes pay rates, charge-out rates and
+ * hours — not the staff register, which is gated behind a due-diligence project (decision 6)
+ * and is not part of this calculation at all. No model call anywhere in the chain.
+ *
+ * Anonymous, like every other calculation route: numbers in, numbers out, nothing stored.
+ *
+ * @returns {object} { success, data, timestamp } — `{ basis, months, totals, seasons,
+ *   headcount, headline }`.
+ */
+function wagesReview (req, res, next) {
+  try {
+    const body = (req.body && typeof req.body === 'object') ? req.body : {}
+    const inputs = Object.assign({}, WAGES_DEFAULTS, body, {
+      people: Array.isArray(body.people) ? body.people : WAGES_DEFAULTS.people,
+      months: Array.isArray(body.months) ? body.months : WAGES_DEFAULTS.months
+    })
+    const data = computeWages(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] wages-review compute failed:', err)
+    res.send(400, { success: false, error: { code: 'WAGES_REVIEW_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, stockPurchasingSalesIntake, salesDashboard, salesDashboardIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, wagesReview, modelGuide }

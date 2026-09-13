@@ -231,8 +231,46 @@ table.data tr.crunch td{background:var(--rs-crit-soft)}
 <body>
 <div class="shell">
 
+<div class="mock" style="background:#eefaf0;border-color:#a8dcb4;color:#14532d">
+<h3>✅ THE ENGINE IS BUILT — 2026-09-14 — AND TWO OF THE WORKBOOK'S OWN FIGURES ARE CORRECTED</h3>
+<p>Built on Mike's <b>"build the wages/salary review model"</b>:
+<code>server/report/wagesModel.js</code>, its golden test
+<code>tests/unit/wagesModel.test.js</code>, the route <code>POST /api/report/wages-review</code> and
+its test. <b>No screen yet</b> — the five input steps, the report screen, the rates tab, the gated
+register, the payroll reader and the Tax Rates fifth figure are all still to come.</p>
+<p>🔴 <b>TWO CORRECTIONS TO THE WORKBOOK, BOTH RULED BY MIKE THE SAME DAY</b> — <i>"fix it - always.
+we want it right in the end"</i>, then <i>"if it needs to be fixed - fix it - NEVER allow a mistake
+to remain"</i>. <b>Figures on THIS page that the build supersedes are listed below.</b> Neither is
+drift: each is pinned in the golden test with the workbook's own cached figure beside ours, and each
+is mutation-verified.</p>
+<p><b>1 · The row-offset defect.</b> <code>Seasonal Inputs</code> BN7/BN12/BN35 decide whether a
+salaried person is costed full-time or part-time by reading a row <b>ten below</b> the person being
+costed — a shared formula, so whole blocks inherit it. Four people, in both directions. The
+production block reads its own row and is untouched; so do the management block's wet and dry
+figures, and those are reproduced exactly.</p>
+<p><b>2 · Two answers to one question.</b> The per-season card's cost line dropped the employer
+retirement contribution that the model's own monthly cost includes.</p>
+<table class="data" style="margin-top:10px">
+  <thead><tr><th style="text-align:left">Figure on this page</th><th>This page says</th><th>The build says</th></tr></thead>
+  <tbody>
+    <tr><td style="text-align:left">Year labour margin (plan)</td><td>350,121</td><td><b>288,935</b></td></tr>
+    <tr><td style="text-align:left">Year wage cost</td><td>1,012,620</td><td><b>1,073,805</b></td></tr>
+    <tr><td style="text-align:left">July planned margin</td><td>181</td><td><b>−132</b></td></tr>
+    <tr><td style="text-align:left">A <i>Wet n Dark</i> month</td><td>−10,356</td><td><b>−13,972</b></td></tr>
+    <tr><td style="text-align:left">A <i>Std Season</i> month</td><td>18,090</td><td><b>6,137</b></td></tr>
+    <tr><td style="text-align:left">A <i>Dry n Light</i> month</td><td>55,921</td><td><b>52,270</b></td></tr>
+    <tr><td style="text-align:left">Year billings</td><td>1,362,740</td><td>1,362,740 — unchanged</td></tr>
+  </tbody>
+</table>
+<p style="margin-top:8px"><b>Billings are untouched and match the workbook on all 87 person-seasons</b>,
+which is what makes the whole difference attributable to the two corrections. And with the defects put
+back, the engine reproduces the workbook to the cent — 1,012,619.59, 350,120.64, July 180.61 — so it is
+a faithful port, not a different model. <b>July no longer breaks even</b>, which is the most
+consequential single change on this page.</p>
+</div>
+
 <div class="mock">
-<h3>⚠ A drawing. Nothing is built — not the screen, not the backend</h3>
+<h3>⚠ The drawing as approved. The screens below are still not built</h3>
 <p>Drawn <b>2026-09-14</b> for approval, on Mike's <i>"buile the wages model into the perf report
 section"</i> and his <b>yes</b> to drawing it first. The workbook was copied into
 <code>design/report-source-models/Wages Model.xlsx</code> in the same change that saved this file.</p>
