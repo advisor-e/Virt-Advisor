@@ -205,9 +205,10 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Nine** models —
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Ten** models —
   8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator, Dashboard Reports, the
-  High-Level Budget, the Mid-Level Budget, the Retirement Review and Stock Purchasing —
+  High-Level Budget, the Mid-Level Budget, the Retirement Review, Stock Purchasing and the
+  Sales Dashboard —
   carry explanatory notes and verdict rules instead, and the screen heads them differently
   (Dashboard Reports is the client's own document; its reading is the health score and the
   advisor's words on its pages. The High-Level Budget's reading is the variance table itself —
@@ -216,8 +217,10 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   is already on the screen twice over — the cash-collected row against the sales invoiced, and
   the still-owed figure under it. The Retirement Review's reading is its verdict panel and the
   card naming where its figures differ from the spreadsheet; a third block of prose beneath
-  them would repeat both). Claiming a Coach panel that is not there describes a screen
-  the reader will not find.
+  them would repeat both. The Sales Dashboard's reading is written under each card on the
+  approved drawing — the footnote that puts transactions beside value and margin, and the one
+  that says what the trend answers that the ranking cannot). Claiming a Coach panel that is
+  not there describes a screen the reader will not find.
   ⚠ *[`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) reads
   this very sentence and fails if it stops matching the data.*
 
@@ -424,7 +427,7 @@ Eight steps, with copy-paste templates:
 |---|---|
 | `reportShellFrame.test.js` | a live report's page does not wrap its screen in `<report-shell>` |
 | `reportHeadlineConsistency.component.test.js` | a screen hand-rolls its headline, nests the banner in a column, or leaves stale figures bright |
-| `reportHeaderFullWidth.test.js` | a screen renders the header itself without resetting its margin |
+| `reportHeaderFullWidth.test.js` | a screen renders the header itself without resetting its margin — **it DISCOVERS its screens by reading `components/`** (since 2026-09-13; see trap 1) |
 | `reportBadgeClass.component.test.js` | the badge does not match `modelClass` — **a shipped report absent from the map is a failure, not a skip** |
 | `reportModelSummaries.test.js` | a live model has no summary for the AI, a summary names a model with no page, a summary omits its limits, or the block stops reaching the assembled prompt |
 
@@ -432,13 +435,24 @@ All five are mutation-verified.
 
 ### Traps that have actually bitten
 
-1. 🔴 **The consistency guard's `SCREENS` list is manual.** It is the one step in the whole
+1. 🔴 **The consistency guard's `SCREENS` list is manual.** It is now the ONLY list in the
    recipe that nothing checks. Skip it and your screen ships unprotected and green.
-   *(The frame guard is automatic — it reads the catalogue's ready routes.)*
+   *(The frame guard reads the catalogue's ready routes; the header-width guard reads
+   `components/`. Both discover their subjects and cannot go stale.)*
+
+   ⚠ **A hand-typed guard list HAS failed, and it is why the other one was changed.** The
+   header-width guard carried nine filenames that stopped growing after Cost of Capital,
+   while the app reached **thirteen** screens rendering the header inside themselves. It was
+   checking **six of thirteen** and calling itself live, because its floor asked only for
+   "at least five". **Mike found the consequence by looking at the screen on 2026-09-13**:
+   Stock Purchasing's header band rendered **364px wide inside a 1076px column**, marooned in
+   the middle while everything beneath it spanned the page, with a 38px gap under it where
+   every other report has 16px. Nothing had ever told this recipe to add a file to that list,
+   so seven screens were written and none of them added. It now reads the directory.
 2. **The header margin reset is mandatory** when the header is rendered inside the screen:
    `.<root> ::v-deep .rs-top { margin: 0 }`. The shared header carries `margin: 0 auto 22px`;
    inside a flex column that auto margin shrinks it below full width *and* stacks 22px onto
-   the gap.
+   the gap. **Twelve screens had it and one did not** — see trap 1.
 3. **`error` is a boolean, not a message.** Never render it. Rendering it put the literal
    word "true" in front of advisors for a day.
 4. **Delete the local `money()` you were about to write** — and the local debounce, and the
@@ -1498,6 +1512,108 @@ invents an arrival date. An unreadable date leaves days on hand **unscored**, no
 **A sales import never touches the shelf.** It says what LEFT the business; the shelf is what is
 still on it, and comes from the stock sheet or the two boxes at step 2. Zeroing it would make an
 already-stocked line look like one the client has none of. Pinned by a screen test.
+
+---
+
+### The Sales Dashboard (4.95, built 2026-09-13)
+
+**What it does.** Answers one question in five cuts: where the sales and the margin actually come
+from. Every sale is sorted into a value band **the owner sets**, and the same rows are then
+totalled by brand, product, product category, region and salesperson — with transactions, sales
+value and sales margin side by side, which is what separates the name doing the most work from the
+name earning the most money. Drawn first at
+[`../mockups/sales-dashboard.html`](../mockups/sales-dashboard.html); **all nine of its decisions
+were ruled by Mike on 2026-09-13** and he approved the build the same day. It was the last of the
+three Model Library cards that said *"coming soon"* and opened nothing.
+
+**One page, four cards** — the sales report, sales over time, the sales ranges breakdown, and
+where the sales come from. No steps: unlike Stock Purchasing there is no sequence to walk, because
+every card answers the same rows a different way.
+
+🔴 **THE WORKBOOK HAS SIX SHEETS AND ONLY TWO HOLD ANYTHING.** `Sales Data Input` is the intake —
+140 transactions, and **no date column anywhere**. `Report` holds the one table. `Sheet1` is the
+hidden calculation sheet everything reads. **`Pie Graph Options` and `Other Chart Options` hold no
+data at all**: they are canvases carrying **25 charts, which are 20 unique views drawn twice over**
+— five dimensions × three measures — laid out as a wall because a spreadsheet has no other way to
+offer a choice. Decision 5 turns that wall into one card with five tabs and three measures.
+
+🔴 **THREE RULED DEVIATIONS, AND NOT ONE IS VISIBLE IN THE WORKBOOK'S OWN SAMPLE.** That is why
+they were settled on the drawing rather than found at build time. Each is pinned in
+`tests/unit/salesDashboardModel.test.js` **on data that shows it**, with the workbook's own
+arithmetic reproduced beside ours:
+
+- **A sale counted in no band at all** (Decision 3). `Sheet1` row 16 sums every band inclusively,
+  but row 17 counts two of them with strict inequalities — `L17` counts `<2500` where the money is
+  `<=2500`, and `N17` counts `>2501` and `<5000` where the money is `>=2501` and `<=5000`. So a
+  sale of exactly **$2,500, $2,501 or $5,000** banks its money in a band and is counted in none;
+  the transactions column then disagrees with the money beside it and the Total with the sum of
+  the rows. Here **one boundary decides both**, so a sale falls in exactly one band and the columns
+  always reconcile. Round numbers are exactly what real invoices land on.
+- **One list, read once** (Decision 4). The workbook reads its single list to **five different end
+  points** — `E14` counts to row 508, `E13` sums to 518, the dimension totals reach 529, the band
+  money 535, the band counts 537. Nothing shows at 140 rows; at roughly 491 the count stops rising
+  while the money does not, so the average sale value climbs for no reason. A plausible-looking
+  wrong number is the kind UAT cannot catch.
+- **Each name counted from its own column** (Decision 7). `Sheet1` **S35** — Shaun's transaction
+  count — reads `=Z9`, which is **Sue's**; its two neighbours are right. Invisible because the
+  lockstep sample gives all ten salespeople exactly 14 sales each.
+
+🔴 **THE TREND CARD IS MIKE'S OWN AND IT IS THE ONE THING BEYOND THE WORKBOOK** (Decision 9). Told
+the workbook holds no date and therefore no trends, he asked for them: *"yes but good idea, can we
+add dates"*. **It appears only when the data really carries a sale date** — the sample carries
+none, so on the sample there is no card, not an empty chart and never a fabricated month. Clicking
+any row in a cut narrows **the trend alone**, which is the question the spreadsheet cannot answer:
+not who is biggest, but who is sliding.
+
+⚠ **Its one real cost was named on the drawing rather than discovered mid-build: the shared
+reader's required-columns list had to become per model.** `salesSheetReader.js` was written for
+Stock Purchasing, which needs `Entry Date` AND `Sale Date` because the gap between them IS days on
+hand. This model uses neither to decide anything and needs revenue and cost alone. Shared
+unchanged the reader would have **refused a perfectly good file for a missing column nothing here
+reads**, so `REQUIRED_BY_MODEL` now carries one list per model and a refusal names what *that*
+model lacks. The reader also gained the four cut columns and **header aliases**, because the two
+workbooks spell the same column differently — `Sales`/`Cost` against `Sales Revenue`/`Product
+Cost` — and without them it would have refused the very workbook this model ports.
+
+**The nine band ceilings are the owner's** (Decision 2), exactly as they are typed cells in the
+workbook (`Report!H6:H14`) rather than constants in a formula — a $250 top band is meaningless to a
+jeweller and the whole business to a dairy. A ceiling typed across its neighbour **pushes it
+aside** rather than being refused, the same behaviour built for Stock Purchasing's ladders the same
+day, so the two models behave alike and nobody learns two habits.
+
+🔴 **THE SALESPERSON CUT CARRIES THREE STATED LIMITS** (Decision 6), and it is **scoped to this one
+cut on this one screen — it is not precedent.** It is **never sent to the model**: this model is
+arithmetic end to end and its route calls no LLM and stores nothing, so the limit holds by
+construction rather than by promise. It **never leaves the firm** — nothing here is pooled or
+shared upward. And its **column is optional**: a firm that does not supply it has no tab, which
+falls out of the model's `available` list rather than being special-cased. The tab carries an amber
+marker and a line of its own, so nobody opens it by accident in front of a room.
+
+**Report class, and it opens on the workbook's sample with a `SampleNotice` saying so** — the
+drawing shows it that way and Quick Position and the Volatility Report are the same precedent. The
+header's client line reads *"Sample data · 140 sales"* until a file replaces it. **No "Illustrative"
+badge**: the badge is a claim about the model, and this one runs on real figures the moment a file
+lands on it.
+
+**Two additions are recorded as additions, not slipped in:** the per-band and per-row **margin %**
+columns are ours. The workbook gives a margin percentage for the page as a whole (`Report!K21`) and
+never divides the two columns beneath it.
+
+⚠ **One thing that looks like a fault and is not:** *Products* and *Salesperson* return identical
+figures all the way down the sample, because it walks the ten products and the ten salespeople in
+lockstep across all 140 rows. The groupings are independent and correct; real data separates them.
+
+⚠ **Two faults were found by opening the screen, and neither was visible to any assertion** — the
+argument for §5's last line, again. The ring's centre rendered **"$140"** above the word
+TRANSACTIONS, because all three measures went through `money()`; and the line beneath it said
+*"of the money"* about a count of sales. Both are fixed and pinned.
+
+⚠ **`UNRECOGNISED_SALES` was missing from the intake allowlist** in `server/report/intakeError.js`,
+so the reader's authored refusal — *"It has no Entry Date column"* — was replaced by the route's
+generic sentence and reached nobody, for **Stock Purchasing too**, from the day that reader was
+written. Same fault recorded for `TOO_MANY_MONTHLY_FILES` in that file's own comments. It matters
+more now that the required columns are per model: the whole point is that a file is refused by
+what *this* model needs, and a generic sentence cannot say that. Added 2026-09-13.
 
 ---
 

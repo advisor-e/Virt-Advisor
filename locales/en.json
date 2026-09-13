@@ -3647,6 +3647,105 @@
         "empty": "Nothing to rank yet. Enter product lines at step 1, or import a stock sheet at step 2.",
         "showAll": "Show all {total} lines"
       }
+    },
+    "salesDashboard": {
+      "title": "Sales Dashboard",
+      "eyebrowClass": "Growth",
+      "sampleClient": "Sample data",
+      "sampleCount": "{count} sales",
+      "sampleFigures": "These are the source workbook's own sample figures, not your client's. Import a sales report to replace them.",
+      "notEntered": "not entered",
+      "print": "Print for the client",
+      "hero": {
+        "salesValue": "Sales value",
+        "salesValueSub": "{count} sales",
+        "salesMargin": "Sales margin",
+        "salesMarginSub": "{pct} of sales",
+        "averageSale": "Average sale",
+        "averageSaleSub": "value per sale",
+        "averageMargin": "Average margin",
+        "averageMarginSub": "per sale"
+      },
+      "import": {
+        "title": "Import a sales report",
+        "zoneTitle": "Drop the sales report here",
+        "zoneHow": "Or choose a file. One report, .xlsx or .csv.",
+        "choose": "Choose a file",
+        "columns": "Needs Sales Revenue and Product Cost. Product Brand, Product Name, Product Category, Region, Sales Person and Sale Date are read if they are there — each one adds a cut, and the sale date adds the trend.",
+        "readNote": "Read {lines} sales",
+        "uploadFailed": "That file could not be read. Please export again and try once more.",
+        "cutsTitle": "What this file can be cut by",
+        "cutsNone": "This file names none of the five cuts, so the bands table and the four figures above are what it can show. That is by design — they need only revenue and cost.",
+        "noDates": "This file carries no sale date, so there is no trend to draw. Nothing is invented in its place.",
+        "usingSample": "Showing the source workbook's sample."
+      },
+      "trend": {
+        "title": "Sales over time",
+        "allBrands": "All sales",
+        "focused": "{value} only",
+        "clearFocus": "Show all sales",
+        "span": "{from} to {to}",
+        "summary": "{count} sales · {value}",
+        "legendValue": "Sales value",
+        "legendMargin": "Sales margin",
+        "periodNote": "The period is stated, always. Three months of sales and eighteen months of sales draw the same shaped chart, and only one of them means anything.",
+        "clickNote": "Click any row in the table below and this chart follows it — one brand, one product, one region or one salesperson, over time. That is the question the spreadsheet cannot answer at all: not “who is biggest” but “who is sliding”.",
+        "undated": "{count} sales carry no date and are not in this chart. They are still in every other figure on the page."
+      },
+      "bands": {
+        "title": "Sales ranges breakdown",
+        "yoursToSet": "$ bands are yours to set",
+        "lead": "Every sale sorted into a value band, so the owner can see where the money and the margin are really made — the big-ticket sales, or the volume underneath them.",
+        "range": "$ Range",
+        "upTo": "Up to",
+        "greaterThan": "Greater than {from}",
+        "from": "{from} —",
+        "total": "Total",
+        "unbanded": "Refunds and credits",
+        "ceilingFor": "Top of the {from} range",
+        "reset": "Put the bands back to the standard ranges",
+        "ceilingsNote": "Nine ceilings, typed. The band a sale lands in is decided by the nine figures in the Up to column. Everything else on the row is calculated. The bottom band starts at 1 and the top band is everything above the last ceiling, so there is no gap and no overlap.",
+        "marginNote": "Margin % is ours, not the workbook's. The spreadsheet shows a margin percentage for the page as a whole but not per band, and the per-band figure is the one that answers “which size of sale is actually worth having”."
+      },
+      "mix": {
+        "title": "Where the sales come from",
+        "ringLabel": "Sales value share by {dimension}",
+        "lead": {
+          "salesValue": "{count} {dimension}. The top two carry {pct} of the money.",
+          "salesMargin": "{count} {dimension}. The top two carry {pct} of the margin.",
+          "transactions": "{count} {dimension}. The top two carry {pct} of the sales."
+        },
+        "privacyNote": "Names staff. Never sent to the model, and never leaves the firm.",
+        "empty": "This file names none of the five cuts, so there is nothing to break down. The bands table above needs only revenue and cost.",
+        "conversationNote": "The conversation this card is for. Put transactions beside value and margin and read them together — one name can take more than half the work for less money than another makes on a handful of sales. Neither number says that on its own.",
+        "marginNote": "Margin % is ours here too, calculated from the two columns beside it. The workbook charts value and margin separately and never divides one by the other."
+      },
+      "dimension": {
+        "brand": "Brand",
+        "product": "Product",
+        "category": "Product category",
+        "region": "Region",
+        "salesperson": "Salesperson"
+      },
+      "dimensionPlural": {
+        "brand": "brands",
+        "product": "products",
+        "category": "categories",
+        "region": "regions",
+        "salesperson": "salespeople"
+      },
+      "measure": {
+        "salesValue": "Sales value",
+        "salesMargin": "Sales margin",
+        "transactions": "Transactions"
+      },
+      "col": {
+        "transactions": "Transactions",
+        "salesValue": "Sales value",
+        "salesMargin": "Sales margin",
+        "marginPct": "Margin %",
+        "share": "Share"
+      }
     }
   },
   "modelGuide": {

@@ -226,6 +226,10 @@ server.post('/api/report/mid-level-budget', reportRoute.midLevelBudget)
 server.post('/api/report/stock-purchasing', reportRoute.stockPurchasing)
 server.post('/api/report/stock-purchasing/intake', firmAuth, reportRoute.stockPurchasingIntake)
 server.post('/api/report/stock-purchasing/sales-intake', firmAuth, reportRoute.stockPurchasingSalesIntake)
+// The Sales Dashboard (item 4.95) — calc-only, anonymous. Its intake carries firmAuth because it
+// accepts an upload, like both of Stock Purchasing's above.
+server.post('/api/report/sales-dashboard', reportRoute.salesDashboard)
+server.post('/api/report/sales-dashboard/intake', firmAuth, reportRoute.salesDashboardIntake)
 // The Business Performance Report's ratio hub (item 4.70, stage 1) — calc-only, anonymous.
 server.post('/api/report/dashboard-reports', reportRoute.dashboardReports)
 // The report's pages (stage 2). Guarded, unlike the hub above, because the cash drivers and

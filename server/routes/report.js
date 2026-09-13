@@ -17,8 +17,9 @@ const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeHighLevelBudget } = require('../report/highLevelBudgetModel')
 const { computeMidLevelBudget } = require('../report/midLevelBudgetModel')
 const { computeStockPurchasing } = require('../report/stockPurchasingModel')
+const { computeSalesDashboard, DEFAULT_INPUTS: SALES_DASHBOARD_DEFAULTS } = require('../report/salesDashboardModel')
 const { readStockSheet } = require('../report/intake/stockSheetAssembler')
-const { readSalesSheet } = require('../report/intake/salesSheetReader')
+const { readSalesSheet, REQUIRED_BY_MODEL } = require('../report/intake/salesSheetReader')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
@@ -420,6 +421,142 @@ async function stockPurchasingSalesIntake (req, res) {
   } catch (err) {
     // Log the stable code only — never the filename, product names or content.
     console.error('[report] stock-purchasing sales intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a sales report.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/sales-dashboard
+ *
+ * Where the sales and the margin actually come from, and how they move (item 4.95). Calc-only and
+ * therefore anonymous, like every other calc route here — numbers in, numbers out, nothing stored.
+ *
+ * 🔴 NOTHING HERE REACHES A MODEL. The Sales Dashboard is arithmetic end to end: no LLM call, no
+ * prompt, no persistence. That is the first of Decision 6's three limits on the salesperson cut
+ * (Mike, 2026-09-13) — the cut names real staff, so it is never sent to the model and never leaves
+ * the firm. It holds by construction rather than by promise, which is why there is nothing to
+ * strip here.
+ *
+ * NB the model carries THREE ruled deviations from the source workbook, none of them visible in
+ * its own sample data: a sale of exactly $2,500, $2,501 or $5,000 banks its money in a band and is
+ * counted in none; the headline sales count reads a list 21 rows shorter than the money does; and
+ * the last salesperson's transaction count reads the previous person's cell. All three are set out
+ * in the header of `server/report/salesDashboardModel.js` and pinned in its golden test with the
+ * workbook's own figure beside ours.
+ *
+ * @route POST /api/report/sales-dashboard
+ * @param {object} req.body - `{ sales, ceilings, focus }`. `sales` is one row per transaction:
+ *   `{ brand, product, category, region, salesperson, revenue, cost, date }`, of which only
+ *   `revenue` is required and `date` is ISO yyyy-mm-dd. `ceilings` is the owner's own nine band
+ *   ceilings; `focus` is `{ dimension, value }` and narrows the TREND alone. Called with no
+ *   `sales` the model computes nothing rather than failing.
+ * @returns {object} { success, data, timestamp } — `{ totals, bands, unbanded, ceilings,
+ *   dimensions, available, trend, hasDates, focus, transactionsRead }`.
+ */
+function salesDashboard (req, res, next) {
+  try {
+    const body = (req.body && typeof req.body === 'object') ? req.body : {}
+    // 🔴 NO `sales` MEANS "the workbook's own sample", which is how the screen opens — the
+    // drawing Mike approved shows it that way, with a SampleNotice saying so. An EMPTY ARRAY is
+    // not the same thing and is left alone: a caller that sent rows and had none read must see
+    // an empty page, never the sample wearing their client's name.
+    const inputs = Object.assign({}, body, {
+      sales: Array.isArray(body.sales) ? body.sales : SALES_DASHBOARD_DEFAULTS.sales
+    })
+    const data = computeSalesDashboard(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] sales-dashboard compute failed:', err)
+    res.send(400, { success: false, error: { code: 'SALES_DASHBOARD_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/sales-dashboard/intake
+ *
+ * Reads an uploaded sales report and returns it as Sales Dashboard rows. Decision 8, Mike
+ * 2026-09-13: reuse `salesSheetReader.js` rather than write a second reader, and let each cut
+ * appear only if its column is genuinely in the file.
+ *
+ * 🔴 IT ASKS FOR LESS THAN STOCK PURCHASING DOES, and that is the point. The shared reader's
+ * required list is per model (`REQUIRED_BY_MODEL`): this one needs revenue and cost, nothing more.
+ * Demanding `Entry Date` — which this model never uses — would reject a perfectly good file for a
+ * missing column nothing here reads, which is the cost Decision 9 named rather than discovered.
+ *
+ * 🔴 THIS ROUTE CARRIES `firmAuth` BECAUSE IT ACCEPTS AN UPLOAD. The calc route beside it is
+ * anonymous by design.
+ *
+ * Nothing is stored: the file is read and deleted in `finally`. The log records the stable error
+ * code alone — never the filename or the contents, because a sales report names a client's staff,
+ * their customers' regions and what every line earned.
+ *
+ * @route POST /api/report/sales-dashboard/intake
+ * @param {object} req - multipart form with ONE file in a `file` field, 5 MB maximum
+ * @returns {object} { success, data, timestamp } — `{ sales, linesRead, dimensions, hasDates }`.
+ */
+async function salesDashboardIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a sales report should be well under 1 MB. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the sales report in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > 1) {
+      const e = new Error('This screen reads one sales report — ' + uploaded.length + ' files were sent. Please drop the one export.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const read = readSalesSheet(fs.readFileSync(uploaded[0].filepath), {
+      required: REQUIRED_BY_MODEL.salesDashboard
+    })
+    // The reader speaks Stock Purchasing's vocabulary; this model speaks the workbook's own. Mapped
+    // here, at the one seam between them, rather than teaching either side the other's names.
+    const sales = read.lines.map(line => ({
+      brand: line.brand,
+      product: line.code,
+      category: line.category,
+      region: line.region,
+      salesperson: line.salesperson,
+      revenue: line.sales,
+      cost: line.cost,
+      // Only the SALE date matters here. The entry date is Stock Purchasing's, and reading it
+      // would put a stock arrival on a sales trend.
+      date: line.saleDate
+    }))
+    const data = {
+      sales,
+      linesRead: read.linesRead,
+      // Which cuts the file genuinely supports, in this model's own names — Decision 8.
+      dimensions: read.dimensions.map(d => (d === 'code' ? 'product' : d)),
+      hasDates: sales.some(s => s.date !== null)
+    }
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, the staff names or the content.
+    console.error('[report] sales-dashboard intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
     const safe = intakeErrorResponse(err, 'The file could not be read as a sales report.')
     res.send(safe.status, safe.body)
   } finally {
@@ -1666,4 +1803,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, stockPurchasingSalesIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, stockPurchasingSalesIntake, salesDashboard, salesDashboardIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

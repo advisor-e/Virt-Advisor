@@ -145,31 +145,6 @@
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
       "note": "SPEC KIT FEATURE, specs/002-outcome-learning. Explainable code, not a black-box model: pooled verdicts become capped score adjustments through the same seam as distinction boosts, published only above a firm-and-case floor and only after the mentor accepts each one; every applied adjustment shows on the decision trace with its evidence. Nothing leaves a firm that has not opted in. Three drawings come before any code.",
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
-    },
-    {
-      "ref": "4.95",
-      "name": "Sales Dashboard - drawn and ruled, waiting on the yes to build",
-      "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-13"
-      },
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The Model Library advertises a Sales Dashboard card that opens nothing. The screen is drawn and all nine decisions are ruled; only the yes to build is outstanding.",
-      "risk": "Until it is built the card still says coming soon and opens nothing. The drawing also carries three faults found in the source workbook - a sale counted in no band, a truncated sales count, and a salesperson count reading the wrong cell - none visible in its sample data, so they stay unfixed while this waits.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-13 - 'sales dashboard in perf report', when the startup checklist put the open work to him, then 'yes' to drawing the screen before any code. The dates are his too."
-      },
-      "touches": "design/mockups/sales-dashboard.html, utils/reportModelCatalogue.js, a new server/report model and its golden test, a Restify route, a page and screen component, server/report/intake/salesSheetReader.js, and the report headline consistency guard.",
-      "note": "ALL NINE DECISIONS RULED 2026-09-13, each put to him alone and each as recommended; the drawing records every recommendation beneath its ruling. THREE ARE DEVIATIONS because the workbook is wrong, and none is visible in its sample data: a sale of exactly $2,500, $2,501 or $5,000 banks its money in a band and is counted in none; the sales count reads a shorter list than every other formula; the last salesperson's count reads the previous person's cell. Decision 9 is Mike's own - dates, and the trend card - the only part that goes beyond the workbook. Approval to build is the one thing outstanding.",
-      "comment": "2026-09-13 - drawn, all nine ruled, and stopped at the approval to build. Numbered after 4.94, closed the same day. The trend card's twelve bars are an illustrative shape marked in red on the drawing, because the workbook holds no date to read; its totals are the real $269,683 and $130,289."
     }
   ]
 }

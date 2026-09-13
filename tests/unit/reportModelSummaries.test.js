@@ -174,8 +174,10 @@ describe('every summary carries what an advisor needs before being sent to a mod
     // Nine since 2026-09-13: Stock Purchasing (4.94) reads itself — the ranked table IS the
     // finding, every line carrying its rating word on each of the five criteria, and step 3
     // states its own verdict in a sentence.
-    expect(bullet).toMatch(/\*\*Nine\*\*|\bNine\b/)
-    expect(noPanel).toHaveLength(9)
+    // Ten since 2026-09-13: the Sales Dashboard (4.95) carries its reading in the footnote
+    // under each card, which is where the approved drawing puts it.
+    expect(bullet).toMatch(/\*\*Ten\*\*|\bTen\b/)
+    expect(noPanel).toHaveLength(10)
     // And every one of them named, so a new one cannot be added silently.
     //
     // Matched on the name's identifying stem rather than in full, because prose calls

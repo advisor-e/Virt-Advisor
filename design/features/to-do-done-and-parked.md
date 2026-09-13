@@ -185,6 +185,53 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.95 — the Sales Dashboard: the last card that said "coming soon" and opened nothing.**
+✅ Closed 2026-09-13 on the laptop. Asked for by Mike in his own words — *"sales dashboard in perf
+report"* — when the startup checklist put the open work to him, then *"yes"* to drawing the screen
+before any code, then all nine decisions ruled, then **"build sales dasboard"**. Drawn at
+[`../mockups/sales-dashboard.html`](../mockups/sales-dashboard.html), and the build was put beside
+that drawing with **every difference named** in [`../ARTEFACTS.md`](../ARTEFACTS.md).
+**CLASS_REPORT, so no "Illustrative" badge** — it opens on the workbook's sample with a
+`SampleNotice` saying so, as Quick Position and the Volatility Report do.
+
+- **What shipped.** [`server/report/salesDashboardModel.js`](../../server/report/salesDashboardModel.js)
+  and its 48-case golden test, `data/sales-dashboard-sample.json` (the workbook's own 140
+  transactions), `POST /api/report/sales-dashboard` and `/intake` with their tests,
+  [`pages/sales-dashboard.vue`](../../pages/sales-dashboard.vue),
+  [`components/SalesDashboard.vue`](../../components/SalesDashboard.vue) and its 26-case screen
+  test, its labels in `locales/en.json`, the catalogue card flipped to `STATUS_READY` with its
+  summary rewritten on Decision 1, its Model Guide entry, and entries in both report guards.
+  Suite **10,499 green** across 500 suites, lint 0 errors.
+
+- 🔴 **THREE RULED DEVIATIONS, AND NOT ONE IS VISIBLE IN THE WORKBOOK'S OWN SAMPLE** — which is
+  exactly why they were settled on the drawing rather than found at build time. A sale of exactly
+  **$2,500, $2,501 or $5,000** banks its money in a band and is counted in none, because the band
+  money is summed inclusively and two of the band counts are not. The headline sales count reads a
+  list **21 rows shorter** than the money does — five end points for one list — so at roughly 491
+  sales the average sale value starts climbing for no reason. And the last salesperson's
+  transaction count reads **the previous person's cell**. Each is pinned in the golden test on data
+  that shows it, with the workbook's own arithmetic reproduced beside ours.
+
+- 🔴 **DECISION 9 IS MIKE'S OWN AND IT IS THE ONE THING BEYOND THE WORKBOOK** — *"yes but good
+  idea, can we add dates"*. **The trend card appears only when the data really carries a sale
+  date.** The workbook holds none, so on the sample there is no card: not an empty chart, and never
+  a fabricated month. Its one real cost was named on the drawing and paid here — the shared
+  reader's required-columns list is now **per model**, so a file is refused by what *that* model
+  lacks rather than by Stock Purchasing's `Entry Date`, which this model never reads.
+
+- 🔴 **TWO FAULTS FOUND BY OPENING IT, neither visible to any assertion**: the ring's centre
+  rendered **"$140"** above the word TRANSACTIONS, because all three measures went through
+  `money()`; and the line beneath it said *"of the money"* about a count of sales. Both fixed and
+  pinned. **Three more gaps against the drawing were found the same way** — unformatted band
+  ceilings (`15000` beside a floor reading `10,001 —`), the mix card's two missing footnotes, and
+  the missing bottom nav — and all three were closed.
+
+- ⚠ **One fault outside this item's scope, fixed because Decision 9 depends on it.**
+  `UNRECOGNISED_SALES` was missing from the allowlist in `server/report/intakeError.js`, so the
+  reader's authored refusal naming the missing column was replaced by the route's generic sentence
+  and **reached nobody — for Stock Purchasing too**, since the day that reader was written. The
+  same fault that file's own comments record for `TOO_MANY_MONTHLY_FILES`.
+
 **4.94 — Stock Purchasing: the third of the three cards nobody had built.**
 ✅ Closed 2026-09-13 on the laptop. Asked for by Mike in his own words — *"stock purchasing"* —
 when the startup checklist put the open work to him, then *"yes"* to drawing the screen before any

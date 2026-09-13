@@ -21,6 +21,7 @@ const DashboardReportsWorkbench = require('~/components/DashboardReportsWorkbenc
 const HighLevelBudget = require('~/components/HighLevelBudget.vue').default
 const MidLevelBudget = require('~/components/MidLevelBudget.vue').default
 const StockPurchasing = require('~/components/StockPurchasing.vue').default
+const SalesDashboard = require('~/components/SalesDashboard.vue').default
 const RetirementReview = require('~/components/RetirementReview.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
@@ -39,6 +40,7 @@ const { computeReportPages } = require('~/server/report/dashboardReportPagesMode
 const { computeHighLevelBudget, DEFAULT_INPUTS: HLB_DEFAULTS } = require('~/server/report/highLevelBudgetModel')
 const { computeMidLevelBudget, DEFAULT_INPUTS: MLB_DEFAULTS } = require('~/server/report/midLevelBudgetModel')
 const { computeStockPurchasing, DEFAULT_INPUTS: SP_DEFAULTS } = require('~/server/report/stockPurchasingModel')
+const { computeSalesDashboard, DEFAULT_INPUTS: SD_DEFAULTS } = require('~/server/report/salesDashboardModel')
 const { computeRetirementReview } = require('~/server/report/retirementReviewModel')
 
 /**
@@ -112,6 +114,10 @@ const SCREENS = [
   // Stock Purchasing (4.94). Like the two budgets it opens EMPTY — Report class — so the mocked
   // backend answers with the workbook sample the way an imported product list would.
   { name: 'Stock Purchasing', component: StockPurchasing, result: () => computeStockPurchasing(SP_DEFAULTS) },
+  // The Sales Dashboard (4.95). Unlike the two budgets and Stock Purchasing it opens ON the
+  // workbook's sample with a SampleNotice saying so — the drawing Mike approved shows it that
+  // way, and Quick Position and the Volatility Report are the same Report-class precedent.
+  { name: 'Sales Dashboard', component: SalesDashboard, result: () => computeSalesDashboard(SD_DEFAULTS) },
   { name: 'Retirement Review', component: RetirementReview, result: () => computeRetirementReview() }
 ]
 

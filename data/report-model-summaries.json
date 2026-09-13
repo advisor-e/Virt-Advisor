@@ -946,6 +946,62 @@
         "cash tied up in stock",
         "product ranking"
       ]
+    },
+    {
+      "route": "/sales-dashboard",
+      "name": "Sales Dashboard",
+      "category": "Growth",
+      "modelClass": "report",
+      "answers": "Where the sales and the margin actually come from, and how they move. Every sale is sorted into a value band the owner sets, so the client can see whether the money is made on the big-ticket sales or on the volume underneath them. The same sales are then totalled five ways — by brand, by product, by product category, by region and by salesperson — with transactions, sales value and sales margin side by side on every row, which is what separates the name that does the most work from the name that earns the most money.",
+      "keyOutputs": [
+        "Total sales value and total sales margin across every transaction read",
+        "The margin as a percentage of sales, for the page and for every band and every row",
+        "The average sale value and the average sale margin, over the same count as the money",
+        "Every sale banded by value, with the transactions, money and margin in each band reconciling to the total"
+      ],
+      "inputsNeeded": "A sales report with one row per transaction. Only two columns are needed — Sales Revenue and Product Cost — and everything else is optional and adds something: Product Brand, Product Name, Product Category, Region and Sales Person each add one cut, and Sale Date adds the trend. A firm with no regions simply sees no Region tab. The nine band ceilings are typed on the screen and recalculate the whole table.",
+      "useWhen": "The client knows their total sales and has no idea which part of the business produces them, or believes their biggest customer, brand or salesperson is their best one. It is also the fastest way to show an owner that the work and the money are in different places — a brand taking half the transactions for less money than one taking eight.",
+      "limits": "It describes what happened and forecasts nothing. The trend card appears only when the file really carries a sale date; the source workbook holds none, so there is no month-by-month figure to read out of it and none is invented. It reads sales, not returns, and a credit note falls outside every band and is shown on its own line rather than being folded into one. The salesperson cut names real staff: it is never sent to the model, never leaves the firm, and its column may simply be left out. Per-band and per-row margin percentages are ours — the source workbook gives a margin percentage for the page as a whole and none beneath it. It takes a real client's sales list, so it is never illustrative; it opens on the source workbook's sample, labelled as the sample until a file replaces it.",
+      "heroFigures": [
+        {
+          "label": "Sales value",
+          "sub": "the number of sales read"
+        },
+        {
+          "label": "Sales margin",
+          "sub": "as a percentage of sales"
+        },
+        {
+          "label": "Average sale",
+          "sub": "value per sale"
+        },
+        {
+          "label": "Average margin",
+          "sub": "per sale"
+        }
+      ],
+      "alsoOnScreen": "Four cards on one page: the sales report import, which says which cuts the file supports and which it does not; sales over time, when the file carries dates, with the period it covers stated and a click on any row following that one name through the months; the sales ranges breakdown, the workbook's own table with its nine ceilings typed; and where the sales come from, one ring and one ranked table with five dimension tabs and three measures.",
+      "coach": [
+        "Put transactions beside value and margin and read them together — that is the whole point of the card. On the source workbook's own sample one brand takes 72 of the 140 sales, more than half the work, for slightly less money than another makes on 8. Neither number says that on its own.",
+        "The bands are the owner's to set and they should be. A $250 top band is meaningless to a jeweller and the whole business to a dairy, so a client who says the table tells them nothing usually needs the nine ceilings moved rather than a different model.",
+        "The trend answers a different question from the rest of the screen: not who is biggest, but who is sliding. A name can be top of the table all year and still be the one falling, which no ranked list will ever show."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "sales dashboard",
+        "sales mix",
+        "where the sales come from",
+        "sales by brand",
+        "sales by region",
+        "sales by salesperson",
+        "sales by product",
+        "best selling",
+        "sales bands",
+        "average sale value",
+        "margin by product",
+        "sales over time",
+        "sales trend"
+      ]
     }
   ]
 }

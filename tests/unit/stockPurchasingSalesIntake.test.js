@@ -77,7 +77,14 @@ describe('the sales-sheet reader — the target layout', () => {
       cost: 800,
       entryDate: '2026-01-01',
       saleDate: '2026-01-06',
-      shareOfStock: null
+      shareOfStock: null,
+      // The four cuts the Sales Dashboard groups by, added 2026-09-13 with that model (4.95).
+      // They are optional for every model and null here because this file names none of them —
+      // Stock Purchasing reads none of them either way.
+      brand: null,
+      category: null,
+      region: null,
+      salesperson: null
     })
   })
 

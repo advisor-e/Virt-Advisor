@@ -841,6 +841,13 @@ export default {
 <style scoped>
 /* [A] Root: one gap value, so every vertical gap is identical (RULED 2026-07-27). */
 .sp-root { display: flex; flex-direction: column; gap: 16px; }
+/* MANDATORY when report-header is inside the screen: reset its `margin: 0 auto 22px`. In a flex
+   column those AUTO side margins beat `align-items: stretch`, so the header stops filling the page
+   and shrinks to its own text — and its 22px bottom margin stacks on the 16px gap besides.
+   🔴 Missing here until 2026-09-13, when Mike saw it: the band rendered 364px wide in a 1076px
+   column, marooned in the middle while the step chips and the hero strip beneath it spanned the
+   full width, with a 38px gap under it where every other report has 16px. */
+.sp-root ::v-deep .rs-top { margin: 0; }
 
 .sp-steps { display: flex; gap: 10px; flex-wrap: wrap; }
 .sp-step {

@@ -98,7 +98,13 @@ export const MODELS = [
   // something other than what they expected. Rewritten on Mike's ruling (Decision 8 on the
   // drawing) to describe the model that exists.
   { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Ranks what to buy by margin, speed and cash tied up — then checks the client can afford it.', scope: 'Scores and ranks a product list, and imports a Cin7 Core or Unleashed stock-on-hand export. A stock sheet carries two of the five criteria; margin, units sold and days on hand come from a sales report, whose import is a later stage.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/stock-purchasing' },
-  { name: 'Sales Dashboard', category: 'Growth', summary: 'Sales mix, trends and the products carrying the margin.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  // Item 4.95. The summary was "Sales mix, trends and the products carrying the margin" until
+  // 2026-09-13 — and there are no trends in the source workbook: not one of its six sheets holds a
+  // date, a month or a period column. An advisor picking this off the shelf to show a client a
+  // trend would have opened something that could not draw one. Rewritten on Mike's Decision 1, and
+  // then revised again by his own Decision 9 — "can we add dates" — which is what earns "and how
+  // they move" its place. CLASS_REPORT: a client's real sales list, so no "Illustrative" badge.
+  { name: 'Sales Dashboard', category: 'Growth', summary: 'Where the sales and the margin come from, and how they move — by brand, product, region and salesperson.', scope: 'Bands every sale by value and cuts the same sales five ways. The trend card appears only when the imported file carries a sale date — the source workbook holds none.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/sales-dashboard' },
   { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/cost-of-capital' },
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/lease-vs-buy' },
   { name: 'The Loan Estimator', category: 'Valuation', summary: 'What lenders would lend against, whether the household can service it, and the repayments.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/loan-estimator' },
