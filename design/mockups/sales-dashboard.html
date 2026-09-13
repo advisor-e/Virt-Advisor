@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sales Dashboard — one table, one cut at a time, and the three faults in the workbook</title>
+<title>Sales Dashboard — sales over time, one cut at a time, and the three faults in the workbook</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
 <style>
 /* ============================================================================
@@ -30,6 +30,15 @@
    Options" are canvases carrying 25 charts. Those 25 are 20 unique views drawn
    twice over: FIVE DIMENSIONS x THREE MEASURES as doughnuts, plus one bar chart
    per dimension. That grid is what Decision 5 turns into one control.
+
+   ONE CARD GOES BEYOND THE WORKBOOK, AND IT IS MIKE'S. Told the workbook holds
+   no date anywhere and therefore no trends, he asked for them: "yes but good
+   idea, can we add dates" (2026-09-13). "Sales over time" is the result —
+   Decision 9. It is THE ONE CARD WHOSE SHAPE IS NOT READ OUT OF THE
+   SPREADSHEET, because there is nothing in the spreadsheet to read; its twelve
+   bars are an illustrative shape and the card says so in red on its own face.
+   Its TOTALS are real and reconcile to the rest of the page. Everything else
+   here is still the workbook's own arithmetic.
 
    Colours, spacing and type are READ OFF the shipped screens per the owner
    ruling of 2026-07-23 — 1120px column, 16px gaps, 14px card radius, no card
@@ -69,9 +78,19 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
 .ask table{margin:8px 0 4px;font-size:12px}
 .ask th{font-size:9.5px;padding-bottom:6px}
 .ask td{padding:4px 10px 4px 0;border-bottom:1px solid #d8ecfa}
+/* A decision Mike has ruled. The recommendation and its reasoning are LEFT IN
+   PLACE beneath the ruling, so the record shows what was put to him, not only
+   what came back. */
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px dashed #a8dcb4}
 /* A decision that changes behaviour rather than wording. */
 .ask.behaviour{background:#fff6ec;border-color:#f3c893;border-left-color:var(--rs-warn)}
 .ask.behaviour h3{color:#a06000}
+/* A ruled decision keeps the green frame; only its heading colour follows. */
+.ask.behaviour.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.behaviour.ruled h3{color:var(--rs-good)}
 /* A decision that DEVIATES FROM THE WORKBOOK because the workbook is wrong. */
 .ask.defect{background:#fdf0f0;border-color:#f0b8b8;border-left-color:var(--rs-crit)}
 .ask.defect h3{color:#a81c1c}
@@ -171,6 +190,22 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
 .bar{height:7px;border-radius:4px;background:var(--rs-line);min-width:110px;overflow:hidden}
 .bar i{display:block;height:100%;border-radius:4px;background:var(--rs-accent)}
 
+/* ---- the trend. THE ONE CARD WHOSE SHAPE IS NOT THE WORKBOOK'S, because the
+   workbook holds no date anywhere. Marked as such on the card itself. ---- */
+.trend{display:flex;align-items:flex-end;gap:10px;height:190px;padding:0 2px;
+  border-bottom:1px solid var(--rs-line)}
+.mo{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
+  gap:3px;height:100%;min-width:0}
+.mo .pair{display:flex;align-items:flex-end;gap:2px;width:100%;height:100%;justify-content:center}
+.mo .v,.mo .m{width:43%;border-radius:3px 3px 0 0;min-width:6px}
+.mo .v{background:var(--rs-accent)}
+.mo .m{background:var(--rs-accent-bright)}
+.mo .lbl{font-size:10px;color:var(--rs-muted);font-weight:600;white-space:nowrap}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--rs-muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center}
+.illus{background:var(--rs-crit-soft);border:1px solid #f0b8b8;border-radius:8px;
+  padding:9px 12px;font-size:12px;color:#a81c1c;margin:0 0 12px}
+
 .nav{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
 .btn{font:inherit;font-size:12.5px;font-weight:600;border-radius:8px;padding:7px 15px;
   border:1px solid var(--rs-line);background:#fff;color:var(--rs-ink)}
@@ -187,11 +222,19 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
 <div class="shell">
 
 <div class="mock">
-  <h3>⚠ A drawing. EIGHT DECISIONS, NONE RULED YET — nothing is built</h3>
+  <h3>⚠ A drawing. NINE DECISIONS, TWO RULED — nothing is built</h3>
   <p><b>What created it.</b> Mike, 2026-09-13: <i>“sales dashboard in perf report”</i>, then
   <i>“yes”</i> to drawing the screen before any code is written. It is the <b>last of the three
   Model Library cards that said “coming soon” and opened nothing</b> — the Mid-Level Budget and
   Stock Purchasing were built earlier the same day.</p>
+  <p>🔴 <b>DECISION 9 CAME FROM MIKE AND CHANGED THE PAGE.</b> Told that the workbook has no dates
+  and therefore no trends, he asked for them: <i>“yes but good idea, can we add dates”</i>. The
+  <b>Sales over time</b> card is his, and it is the first thing here that goes <b>beyond</b> the
+  workbook rather than reproducing it. It is also <b>the one card whose shape is not the workbook's
+  and cannot be</b>, which the card says in red on its own face — its twelve bars are an
+  illustrative shape whose totals are the real $269,683 and $130,289. Everything else on this page
+  is still the spreadsheet's own arithmetic. His ruling on Decision 1 is <b>revised in consequence
+  and brought back to him</b>, not quietly amended.</p>
   <p><b>Every number on this page is the workbook's own</b>, read out of
   <code>design/report-source-models/Sales Dashboard.xlsx</code> — its sample data and its own cached
   results, taken from the hidden calculation sheet behind its 25 charts. Nothing is invented to fill
@@ -226,8 +269,15 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   <div class="hf"><div class="l">Average margin</div><div class="v">$931</div><div class="s">per sale</div></div>
 </div>
 
-<div class="ask">
-  <h3>Decision 1 — the library card says this model does something it cannot</h3>
+<div class="ask ruled">
+  <h3>Decision 1 — RULED BY MIKE 2026-09-13 — the library card, and then dates</h3>
+  <p class="ruling">✓ Ruled as recommended — <b>and immediately overtaken by Mike's own question in
+  the same breath: <i>“yes but good idea, can we add dates”</i></b>, ruled yes. See Decision 9. The
+  card therefore reads <b>“Where the sales and the margin come from, and how they move — by brand,
+  product, region and salesperson.”</b> The approved line was <i>“Where the sales and the margin
+  actually come from — by brand, product, region and salesperson”</i>; <b>“and how they move”</b>
+  earns its place only because the trend card below now exists. <b>This is the revised line coming
+  back for confirmation, not a quiet edit to what was signed off.</b></p>
   <p>The Model Library advertises Sales Dashboard as <i>“Sales mix, trends and the products carrying
   the margin.”</i> <b>There are no trends in this workbook.</b> Not one of its six sheets holds a
   date, a month or a period column; the 140-row transaction list has brand, product, category,
@@ -241,6 +291,71 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
 </div>
 
 <div class="wide">
+
+<div class="card">
+  <div class="card-h">
+    <h2>Sales over time</h2>
+    <div class="measures"><span class="meas on">All brands</span></div>
+  </div>
+  <div class="illus">
+    🔴 <b>THE ONLY CARD ON THIS PAGE WHOSE SHAPE IS NOT THE WORKBOOK'S.</b> The workbook holds no
+    date anywhere, so there is no month-by-month figure to read out of it and none is pretended.
+    <b>The twelve bars below are an illustrative shape</b> — they exist to show what the card looks
+    like, nothing more. <b>Their totals are real</b>: the twelve months add to exactly $269,683 and
+    $130,289, the workbook's own figures, so the card can be checked against the rest of the page.
+    On a real file every bar is the client's own.
+  </div>
+  <div class="trend">
+    <div class="mo"><div class="pair"><div class="v" style="height:58%"></div><div class="m" style="height:28%"></div></div><div class="lbl">Apr</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:62%"></div><div class="m" style="height:30%"></div></div><div class="lbl">May</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:71%"></div><div class="m" style="height:35%"></div></div><div class="lbl">Jun</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:66%"></div><div class="m" style="height:31%"></div></div><div class="lbl">Jul</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:76%"></div><div class="m" style="height:38%"></div></div><div class="lbl">Aug</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:68%"></div><div class="m" style="height:33%"></div></div><div class="lbl">Sep</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:80%"></div><div class="m" style="height:39%"></div></div><div class="lbl">Oct</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:85%"></div><div class="m" style="height:42%"></div></div><div class="lbl">Nov</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:100%"></div><div class="m" style="height:46%"></div></div><div class="lbl">Dec</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:56%"></div><div class="m" style="height:26%"></div></div><div class="lbl">Jan</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:65%"></div><div class="m" style="height:31%"></div></div><div class="lbl">Feb</div></div>
+    <div class="mo"><div class="pair"><div class="v" style="height:77%"></div><div class="m" style="height:38%"></div></div><div class="lbl">Mar</div></div>
+  </div>
+  <div class="legend">
+    <span><span class="sw" style="background:#0070c0"></span>Sales value</span>
+    <span><span class="sw" style="background:#00b1e0"></span>Sales margin</span>
+    <span style="margin-left:auto"><b style="color:var(--rs-ink)">12 months to March</b> · 140 sales · $269,683</span>
+  </div>
+  <div class="card-f">
+    <div><b>The period is stated, always.</b> Three months of sales and eighteen months of sales
+    draw the same shaped chart, and only one of them means anything. The card names the span it
+    covers and how many sales are in it, so a short run cannot be read as a year.</div>
+    <div><b>Click any row in the table below and this chart follows it</b> — one brand, one product,
+    one region or one salesperson, over time. That is the question the spreadsheet cannot answer at
+    all: not <i>“who is biggest”</i> but <i>“who is sliding”</i>.</div>
+  </div>
+</div>
+
+<div class="ask behaviour">
+  <h3>Decision 9 — RULED BY MIKE 2026-09-13 — add dates, and what that costs</h3>
+  <p class="ruling">✓ Ruled yes, in his own words on being told the workbook has no dates:
+  <i>“yes but good idea, can we add dates”</i>. <b>This is a deliberate extension BEYOND the
+  workbook</b> — the first thing on this page that the spreadsheet does not contain in some form —
+  and it is recorded as his request rather than inferred from the gap.</p>
+  <p><b>Most of it is already built.</b> <code>server/report/intake/salesSheetReader.js</code>, written
+  for Stock Purchasing earlier the same day, already reads a <b>Sale Date</b> column and already
+  handles the three ways a date arrives: an Excel serial, a real date cell, and a text date. It
+  <b>refuses to guess</b> — <code>"03/04/2021"</code> is 3 April or 4 March depending where you live,
+  so the ambiguous form is rejected rather than silently resolved, and a stray number below a sane
+  threshold never becomes 4 January 1900.</p>
+  <p>⚠ <b>The one real cost, named rather than discovered mid-build.</b> That reader demands
+  <b>both</b> <code>Sale Date</code> and <code>Entry Date</code>, because Stock Purchasing needs the
+  gap between them for days-on-hand. This screen needs only the sale date. Shared unchanged, the
+  reader would <b>reject a perfectly good file for missing a column this model never uses</b>. The
+  required-columns list has to become per-model rather than one fixed list.</p>
+  <p class="rec">Built as: <b>one trend card, fed by a Sale Date column, shown only when the file
+  really has one.</b> A firm whose export carries no dates sees the screen exactly as it is without
+  this card — not an empty chart, and never a fabricated date. Reuses the existing
+  <code>LineChart</code> component.</p>
+</div>
 
 <div class="card">
   <div class="card-h">
@@ -483,10 +598,15 @@ tr.empty td{color:var(--rs-muted);font-weight:400}
   <p>What it does not yet read is the four columns that make the cuts: <b>brand, product category,
   region and salesperson</b>. And a real firm will be missing some — plenty of businesses have no
   regions and no brands.</p>
+  <p>⚠ <b>Decision 9 adds a fifth optional column and one real change to that reader.</b> Its
+  required-columns list is a single fixed set demanding <code>Entry Date</code>, which this model
+  never uses; it has to become <b>per-model</b>, or a good file gets rejected for a missing column
+  nothing here reads.</p>
   <p class="rec">Recommended: <b>reuse that reader, and let each cut appear only if its column is
   really in the file</b> — a firm with no region column simply does not see a Region tab, rather
-  than seeing an empty one or a fabricated one. The bands table and the headline figures need only
-  revenue and cost, so the screen always works even on the barest file.</p>
+  than seeing an empty one or a fabricated one, and a file with no Sale Date simply has no trend
+  card. The bands table and the headline figures need only revenue and cost, so the screen always
+  works even on the barest file.</p>
   <p>The alternative — typing it in, as the workbook does — stays available for a firm without an
   export, exactly as the Mid-Level Budget is typed.</p>
 </div>
