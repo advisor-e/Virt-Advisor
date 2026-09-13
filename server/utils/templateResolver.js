@@ -245,8 +245,14 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 
   // Primary issue keyword hints — used to add a scoring boost for templates whose
   // tags or purpose closely match the advisor-confirmed primary issue.
+  // The same stop-word filter the industry matcher applies, for the same reason (item 4.97
+  // T013): Mike's authored labels are sentences — "Sales Revenue — low volume, revenue is the
+  // constraint" — so without it words like "revenue" and "business" boost every template
+  // carrying them in its tags. The label's own separator set includes the em-dash it uses.
   const _primaryIssueKeywords = primaryIssue
-    ? primaryIssue.toLowerCase().split(/[\s—\-,]+/).filter(w => w.length > 4)
+    ? primaryIssue.toLowerCase()
+      .split(/[\s—\-,/&]+/)
+      .filter(w => w.length > 4 && !STOP_WORDS.has(w) && !INDUSTRY_STOPWORDS.has(w))
     : []
 
   // Industry keyword hints — the client's stated industry (e.g. "cafe") is a key
@@ -302,8 +308,12 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   }
   const engagementPreferred = ENGAGEMENT_SUBSECTION_PREFERENCE[engagementType] || []
 
-  // Prepare semantic scoring inputs once (not inside the map loop)
-  const _profileMap = getProfileMap()
+  // Prepare semantic scoring inputs once (not inside the map loop).
+  // `options.profileMap` is the EFFECTIVE profile map — the mentor's authored rows merged
+  // over the compiled file (item 4.97 US9). The caller loads it because the store is async
+  // and this function is not; with nothing supplied the compiled file is read as before, so
+  // the benches, the labs and any caller that has not been updated behave exactly as today.
+  const _profileMap = (options && options.profileMap instanceof Map) ? options.profileMap : getProfileMap()
   const _problemSignals = caseState.problemSignals || {}
   const _activeSignalEntries = Object.entries(_problemSignals)
     .filter(([sig, n]) => sig !== 'modeling_rejected' && n > 0)
@@ -327,9 +337,12 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     }
 
     // Primary issue keyword boost — advisor confirmed the specific problem,
-    // so templates whose tags or purpose echo those keywords score higher.
+    // so templates whose title, tags or purpose echo those keywords score higher.
+    // The TITLE joins the text searched (item 4.97 T013): Mike's authored labels name tools as
+    // often as problems — "Break-Even", "Asset utilisation" — and until the issue was a real
+    // field this branch had never run against live data to show that.
     if (_primaryIssueKeywords.length > 0) {
-      const _allText = [...tagsLower, purposeLower].join(' ')
+      const _allText = [(t.title || '').toLowerCase(), ...tagsLower, purposeLower].join(' ')
       const _matches = _primaryIssueKeywords.filter(kw => _allText.includes(kw)).length
       if (_matches >= 2) {
         score += 3
@@ -717,7 +730,10 @@ function resolveTemplatesWithOutlier (caseState, strategyDecision, templates, op
     treeHintNames: opts.treeHintNames,
     priorHoldback: opts.priorHoldback,
     pooledAdjustments: opts.pooledAdjustments,
-    pooledSignalTypes: opts.pooledSignalTypes
+    pooledSignalTypes: opts.pooledSignalTypes,
+    // Both passes must score against the same profiles, or the stretch option and the
+    // in-range list would disagree about what a template answers (item 4.97 US9).
+    profileMap: opts.profileMap
   }
   const primary = resolveTemplates(caseState, strategyDecision, templates, Object.assign({ ignoreCeiling: true }, _passOpts))
   const withinRange = resolveTemplates(caseState, strategyDecision, templates, _passOpts)
@@ -779,4 +795,68 @@ function buildDisplaySet (resolvedResult, budget) {
 // value instead of carrying a copy that is free to disagree with it.
 // INDUSTRY_STOPWORDS is exported so Outcome Learning's industry vocabulary is built with the
 // SAME filter this matcher applies (specs/002-outcome-learning research §9) — one list, not two.
-module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION, TREE_HINT_BOOST, INDUSTRY_STOPWORDS, POOLED_HOLDBACK_MAX }
+/**
+ * The kinds of scoring reason that come from THE ADVISOR'S OWN WORDS in this session, in the
+ * order they are reported. Item 4.97 US3, Mike's ruling of 2026-09-14: pooled evidence may
+ * never move a template that any of these reached — "the advisor's own words win" holds
+ * against every kind, not only a distinction as it did when 4.87 shipped. The consequence he
+ * approved: learning re-orders the long tail of a recommendation, never its head.
+ *
+ * `semantic:` and `purpose_fallback:` are both the problem signals heard in the advisor's
+ * description, so both report as `signal`.
+ */
+const ADVISOR_EVIDENCE = [
+  { prefix: 'distinction:', kind: 'distinction' },
+  { prefix: 'primary_issue:', kind: 'primary_issue' },
+  { prefix: 'industry:title_match', kind: 'industry' },
+  { prefix: 'industry:tag_match', kind: 'industry' },
+  { prefix: 'semantic:', kind: 'signal' },
+  { prefix: 'purpose_fallback:', kind: 'signal' }
+]
+
+/**
+ * Which kind of the advisor's own evidence matched a template, or null.
+ * @param {string[]} reasons - a scoring log entry's matchReasons
+ * @returns {string|null} 'distinction' | 'primary_issue' | 'industry' | 'signal' | null
+ */
+function advisorEvidenceKind (reasons) {
+  const list = Array.isArray(reasons) ? reasons : []
+  for (const e of ADVISOR_EVIDENCE) {
+    if (list.some(r => typeof r === 'string' && r.indexOf(e.prefix) === 0)) { return e.kind }
+  }
+  return null
+}
+
+/**
+ * The vocabulary word a typed industry resolves to, or null (item 4.97 US4).
+ *
+ * The pool may hold only a word the engine itself recognises, and it must be the SAME word
+ * the scorer would match — so this runs the matcher's own splitter, stop-word filters and
+ * stem rule rather than a second copy of them. "cafes" resolves to "cafe"; "business" is a
+ * stop word and resolves to nothing.
+ *
+ * @param {string} typed - the advisor's free-text industry
+ * @param {Iterable<string>} vocabulary - the words the engine recognises
+ * @returns {string|null} the vocabulary word, lowercase
+ */
+function resolveIndustryWord (typed, vocabulary) {
+  if (typeof typed !== 'string' || !typed.trim()) { return null }
+  const words = Array.from(vocabulary || [], s => String(s).trim().toLowerCase()).filter(Boolean)
+  if (words.length === 0) { return null }
+  const keywords = typed.toLowerCase()
+    .split(/[\s—\-,/&]+/)
+    .filter(w => w.length > 3 && !STOP_WORDS.has(w) && !INDUSTRY_STOPWORDS.has(w))
+  const matches = (a, b) => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a)))
+  for (const kw of keywords) {
+    const hit = words.find(w => matches(kw, w))
+    if (hit) { return hit }
+  }
+  return null
+}
+
+// TREE_HINT_BOOST is exported for the Logic-Lab page, which states the number to
+// firm managers as fact. Exporting it means the screen reads the engine's own
+// value instead of carrying a copy that is free to disagree with it.
+// INDUSTRY_STOPWORDS is exported so Outcome Learning's industry vocabulary is built with the
+// SAME filter this matcher applies (specs/002-outcome-learning research §9) — one list, not two.
+module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION, TREE_HINT_BOOST, INDUSTRY_STOPWORDS, POOLED_HOLDBACK_MAX, ADVISOR_EVIDENCE, advisorEvidenceKind, resolveIndustryWord }
