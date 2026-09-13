@@ -191,7 +191,9 @@
         //- budget's Sales is invoiced and the model times the cash, while the actuals side has
         //- no timing at all, so what is entered there IS the cash. Without this line an advisor
         //- types invoiced sales into step 4 and the comparison means nothing.
-        p.mlb-warn(v-if="step === 4 && block.cashNote") {{ $t('report.midLevelBudget.entry.cashNotInvoiced') }}
+        //- Each block names its own note: money in is received, stock is paid out, and one
+        //- sentence cannot point the money both ways.
+        p.mlb-warn(v-if="step === 4 && block.cashNote") {{ $t('report.midLevelBudget.entry.' + block.cashNote) }}
         table.mlb-grid
           thead
             tr
@@ -552,12 +554,12 @@ export default {
       })
 
       return [
-        { key: 'in', title: this.$t(t + 'moneyIn'), rows: deposits, cashNote: true },
+        { key: 'in', title: this.$t(t + 'moneyIn'), rows: deposits, cashNote: 'cashNotInvoiced' },
         {
           key: 'stock',
           title: this.$t(t + 'stock'),
           rows: stock,
-          cashNote: true,
+          cashNote: 'cashNotInvoicedSuppliers',
           foot: this.$t(t + 'grossProfitFoot')
         },
         {

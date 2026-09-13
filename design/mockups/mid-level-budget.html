@@ -201,10 +201,11 @@ tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:70
 <div class="shell">
 
 <div class="mock" style="background:#eefaf0;border-color:#a8dcb4;color:#1d4a28">
-  <h3>✅ Approved and built — 2026-09-13. Six differences between this drawing and the build</h3>
-  <p><b>Four of them are corrections to faults this drawing could not have shown</b>, all found by
-  opening the screen in a running app with 10,234 tests green. Each is named here because a
-  deliberate deviation is fine and an unrecorded one is not.</p>
+  <h3>✅ Approved and built — 2026-09-13. Seven differences between this drawing and the build</h3>
+  <p><b>Five of them are corrections to faults this drawing could not have shown</b>, every one
+  found by opening the screen in a running app with the suite green — four with 10,234 tests
+  passing, the fifth in a later session with 10,240. Each is named here because a deliberate
+  deviation is fine and an unrecorded one is not.</p>
   <ul>
     <li>🔴 <b>Step 5 keeps the budget's own headline until an actual is entered.</b> As drawn it
     showed the comparison — which, on an empty actuals side, reported <b>in green</b> that the
@@ -219,6 +220,14 @@ tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:70
     thirteenth column it was off the right edge at every practical width and rendered as a blank
     row. <b>This drawing is where that came from</b> — it drew four months, and the screen has
     twelve.</li>
+    <li>🔴 <b>Stock and Materials carries its own note, in different words — this SUPERSEDES
+    Decision 6 on that one card.</b> That decision's single sentence, <i>“Enter the money that
+    actually reached the bank, not what you invoiced”</i>, was applied to both the Money In and the
+    Stock and Materials cards, and on the supplier side it pointed the money the wrong way: stock
+    <b>leaves</b> the bank, and it is the supplier who invoices the client. That card now reads
+    <b>“Enter what you actually paid suppliers, not what they invoiced you.”</b> Money In is
+    unchanged and Money Out still carries no note. <b>Ruled by Mike 2026-09-13</b>, after the build,
+    when opening step 4 showed it.</li>
     <li>The buttons are Buefy purple, not the blue drawn here, matching every other live screen.</li>
     <li>Entry boxes carry no <code>%</code> or thousands separator inside the field, because a
     number input cannot.</li>
@@ -475,6 +484,9 @@ tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:70
   <h3>Decision 6 — RULED BY MIKE 2026-09-13 — the warning on step 4</h3>
   <p class="ruling">✓ Ruled as recommended. Step 4 carries the line <b>“Enter the money that
   actually reached the bank, not what you invoiced”</b> under its heading.</p>
+  <p class="ruling">⚠ <b>Superseded on the Stock and Materials card only</b> — it says
+  <b>“Enter what you actually paid suppliers, not what they invoiced you”</b>. Money In keeps the
+  sentence ruled here. The fifth bullet in the green box at the top of this page says why.</p>
   <p><b>The two sides of this model mean different things by the same word, and that is the
   spreadsheet's own design.</b> On the budget, “Sales” is what was invoiced and the model works
   out the cash. On the actuals there is no timing at all — so “Sales” there has to be the money

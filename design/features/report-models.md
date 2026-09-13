@@ -1311,9 +1311,12 @@ purely because the money arrives later than the wages go out. That is visible on
 🔴 **THE TWO SIDES MEAN DIFFERENT THINGS BY THE SAME LINE NAME, and it is the source's own design.**
 On the budget, `Sales` is what was **invoiced** and the model works out when the cash lands. The
 actuals sheet applies no timing at all (`sum(D9:D14)`, `=D20`), so what is entered there **is the
-cash**. Step 4 says so in a line under its heading — Mike's ruling of 2026-09-13 — because an
-advisor who types invoiced sales there gets a comparison that means nothing and nothing else on
-screen would tell them.
+cash**. **Step 4's two entry cards each say so in their own words** (Mike, 2026-09-13) — Money In
+*"Enter the money that actually reached the bank, not what you invoiced"*, Stock and Materials
+*"Enter what you actually paid suppliers, not what they invoiced you"*. One sentence cannot point
+the money both ways: stock **leaves** the bank, and the supplier does the invoicing. Money Out
+carries none. Without them an advisor types invoiced sales into step 4, gets a comparison that
+means nothing, and nothing else on screen would tell them.
 
 **Three ruled deviations from the workbook (Mike, 2026-09-13), each named in the model's header and
 pinned in the golden test against the workbook's own cached figure:**

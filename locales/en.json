@@ -1642,6 +1642,7 @@
         "variesHelp": "Varies — twelve months entered",
         "enteredByAdvisor": "Entered by your advisor",
         "cashNotInvoiced": "Enter the money that actually reached the bank, not what you invoiced.",
+        "cashNotInvoicedSuppliers": "Enter what you actually paid suppliers, not what they invoiced you.",
         "paidToSuppliersSub": "worked out from the timing at step 2 — not entered",
         "paidToSuppliersActualSub": "what you actually paid suppliers",
         "grossProfitFoot": "Gross profit here is cash collected less cash paid to suppliers, which is the workbook's own definition. It is not the gross profit an accountant would report — that one uses invoiced sales, not collected cash.",
