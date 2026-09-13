@@ -134,7 +134,7 @@
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Mike asked for it by name. It scores every product line out of 25 on margin, volume, unit cost, speed and shelf share, ranks them, then asks whether the client can afford the order.",
       "risk": "Its Model Library card has promised 'smarter reorder points' to advisors for months for a model that has none, and the workbook it ports scores some lines 0 on criteria they should pass.",
       "askedBy": {
@@ -143,7 +143,7 @@
         "detail": "2026-09-13 - \"stock purchasing\", asked when the startup checklist put the open work to him, then \"yes\" to drawing the screen before any code."
       },
       "touches": "design/mockups/stock-purchasing.html drawing, server/report/stockPurchasingModel.js and its golden test, data/stock-purchasing-sample.json, tests/fixtures/stock-purchasing-workbook-cached.json, stockSheetAssembler.js, POST /api/report/stock-purchasing and its /intake, reportModelCatalogue.js, pages/ and components/, locales/en.json, the report guards.",
-      "note": "DRAWN AND ALL EIGHT DECISIONS RULED 2026-09-13, drawing approved to build from the same day. Backend BUILT: 919 of the sample's 969 lines reproduce the workbook exactly and all 50 that move are a workbook zero becoming a real score. TWO RULED DEVIATIONS - every gap between the scoring rungs closed, and no band scores 0 - both mutation-verified outside the repo. THE STOCK-SHEET IMPORT IS BUILT on the existing Cin7/Unleashed reader (Mike, same day). SCREEN BUILT AND WALKED IN A RUNNING APP, which found the one fault the suite could not: every ladder rung printed its ceiling one unit too high and adjacent rungs overlapped. Record: design/features/report-models.md and design/ARTEFACTS.md. Outstanding: the sales-history import, and one wording nit for Mike.",
+      "note": "DRAWN, ALL EIGHT DECISIONS RULED AND BUILT 2026-09-13. Backend, both imports and the screen are done, walked end to end in a running app. 919 of the workbook sample's 969 lines reproduce exactly; all 50 that move are a workbook zero becoming a real score. TWO RULED DEVIATIONS, mutation-verified outside the repo. Opening the screen found the one fault the suite could not: every ladder rung printed its ceiling one unit too high. Record: design/features/report-models.md and design/ARTEFACTS.md.",
       "comment": "2026-09-13 - filed when the build began, after the drawing was approved. Passed over on 2026-09-12 when Mike chose the Mid-Level Budget over this and the Sales Dashboard. A STOCK SHEET CARRIES ONLY TWO OF THE FIVE CRITERIA - margin, how many sold and days on hand are in a sales report, not a stock-on-hand export - so the sales import is a separate question still to put to Mike."
     },
     {

@@ -3591,7 +3591,14 @@
         "linesTitle": "Product lines",
         "criteriaTitle": "The five things that decide what to buy",
         "criteriaLead": "Each line is scored 1 to 5 on five criteria, and the five are added. {max} is a perfect line — high margin, sells often, shifts fast, cheap enough not to hurt, and already a real part of the shelf.",
-        "inverted": "Unit cost risk runs the other way, and that is deliberate: a cheap unit scores 5 and an expensive one 1, because the question is how much cash one unit locks up."
+        "inverted": "Unit cost risk runs the other way, and that is deliberate: a cheap unit scores 5 and an expensive one 1, because the question is how much cash one unit locks up.",
+        "importTitle": "Import a sales report",
+        "zoneTitle": "Drop the sales report here",
+        "zoneHow": "Or choose a file. One report, .xlsx or .csv.",
+        "choose": "Choose a file",
+        "columns": "Needs Product Code, Quantity, Sales, Cost, Entry Date and Sale Date. Product Group and % of Stock Units are read if they are there.",
+        "readNote": "Read {lines} product lines",
+        "uploadFailed": "That file could not be read. Please export again and try once more."
       },
       "step2": {
         "dropTitle": "Import a stock sheet",
@@ -3628,7 +3635,8 @@
         "afterTheOrder": "After the order",
         "carries": "The business can carry this order.",
         "doesNotCarry": "This order would take the quick ratio under 1 — the point at which current liabilities stop being covered.",
-        "liquidityRule": "The workbook's own instruction: do not approve purchases that compromise short-term liquidity."
+        "liquidityRule": "The workbook's own instruction: do not approve purchases that compromise short-term liquidity.",
+        "cashCommittedRow": "Cash committed to stock"
       },
       "step4": {
         "title": "Ranked by total score, best first",

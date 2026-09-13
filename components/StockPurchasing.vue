@@ -50,6 +50,19 @@
       .sp-group
         .sp-glabel
           span.sp-dot
+          h2.sp-h2 {{ $t('report.stockPurchasing.step1.importTitle') }}
+        .sp-drop(:class="{ loaded: !!salesFile }" @dragover.prevent @drop.prevent="onDrop($event, 'sales')")
+          .sp-drop-title {{ $t('report.stockPurchasing.step1.zoneTitle') }}
+          .sp-drop-how {{ $t('report.stockPurchasing.step1.zoneHow') }}
+          b-button(size="is-small" :loading="uploadingSales" @click="pickFile('salesSheet')") {{ $t('report.stockPurchasing.step1.choose') }}
+          input(ref="salesSheet" type="file" accept=".xlsx,.csv" hidden @change="onFileChosen($event, 'sales')")
+          p.sp-file-note(v-if="salesFile") ✓ {{ salesReadNote }}
+        p.sp-hint {{ $t('report.stockPurchasing.step1.columns') }}
+        p.sp-file-error(v-if="salesError") {{ salesError }}
+
+      .sp-group
+        .sp-glabel
+          span.sp-dot
           h2.sp-h2 {{ $t('report.stockPurchasing.step1.entryTitle') }}
         p.sp-hint {{ $t('report.stockPurchasing.step1.entryHint') }}
         b-button.sp-add(size="is-small" icon-left="plus" @click="addLine") {{ $t('report.stockPurchasing.step1.addLine') }}
@@ -213,7 +226,7 @@
                   span.sub {{ $t('report.stockPurchasing.step3.quickRatioSub') }}
                 td.r.num {{ ratio(affordability.quickRatio) }}
               tr
-                td {{ $t('report.stockPurchasing.step3.cashCommitted') }}
+                td {{ $t('report.stockPurchasing.step3.cashCommittedRow') }}
                 td.r.num {{ affordability.cashCommitted ? money(affordability.cashCommitted) : notEntered }}
               tr.subtotal
                 td {{ $t('report.stockPurchasing.step3.afterTheOrder') }}
@@ -325,6 +338,10 @@ export default {
       stockFile: null,
       uploading: false,
       uploadError: '',
+      /** What the last sales-report upload read, or null. */
+      salesFile: null,
+      uploadingSales: false,
+      salesError: '',
       showAll: false,
       data: null
       // `error` (the stale flag) comes from the reportRecompute mixin.
@@ -407,6 +424,12 @@ export default {
     },
 
     /** One line naming the file that was read. */
+    /** One line naming the sales report that was read. */
+    salesReadNote () {
+      if (!this.salesFile) { return '' }
+      return this.$t('report.stockPurchasing.step1.readNote', { lines: this.salesFile.linesRead })
+    },
+
     readNote () {
       if (!this.stockFile) { return '' }
       return this.$t('report.stockPurchasing.step2.readNote', {
@@ -514,21 +537,23 @@ export default {
       return v === null || v === undefined ? this.notEntered : (v * 100).toFixed(1) + '%'
     },
 
-    pickFile () {
-      if (this.$refs.stockSheet) { this.$refs.stockSheet.click() }
+    /** @param {string} ref  'salesSheet' or 'stockSheet' */
+    pickFile (ref) {
+      const input = this.$refs[ref || 'stockSheet']
+      if (input) { input.click() }
     },
 
-    /** @param {Event} e */
-    onFileChosen (e) {
+    /** @param {Event} e @param {string} [kind] 'sales', default 'stock' */
+    onFileChosen (e, kind) {
       const file = e.target.files && e.target.files[0]
-      if (file) { this.receive(file) }
+      if (file) { this.receive(file, kind) }
       e.target.value = ''
     },
 
-    /** @param {DragEvent} e */
-    onDrop (e) {
+    /** @param {DragEvent} e @param {string} [kind] 'sales', default 'stock' */
+    onDrop (e, kind) {
       const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]
-      if (file) { this.receive(file) }
+      if (file) { this.receive(file, kind) }
     },
 
     /**
@@ -541,16 +566,20 @@ export default {
       return null
     },
 
-    /** @param {File} file */
-    receive (file) {
+    /** @param {File} file @param {string} [kind] 'sales', default 'stock' */
+    receive (file, kind) {
+      const sales = kind === 'sales'
       const err = this.fileCheckError(file)
-      if (err) { this.uploadError = err; return Promise.resolve() }
-      return this.upload(file)
+      if (err) {
+        if (sales) { this.salesError = err } else { this.uploadError = err }
+        return Promise.resolve()
+      }
+      return sales ? this.uploadSales(file) : this.upload(file)
     },
 
     /**
-     * Send the one file. What comes back REPLACES the typed lines and the typed shelf, because
-     * an import is the advisor saying "use this file" — but it is never merged silently into
+     * Send the one stock sheet. What comes back REPLACES the lines and the shelf, because an
+     * import is the advisor saying "use this file" — but it is never merged silently into
      * half-typed figures, and the read is shown beside the result so they can see what landed.
      *
      * @param {File} file
@@ -559,14 +588,7 @@ export default {
       this.uploadError = ''
       this.uploading = true
       try {
-        const body = new FormData()
-        body.append('file', file)
-        const res = await fetch('/api/report/stock-purchasing/intake', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${this.apiToken}` },
-          body
-        })
-        const json = await res.json()
+        const json = await this.postFile('/api/report/stock-purchasing/intake', file)
         if (!json.success) {
           this.uploadError = (json.error && json.error.message) ||
             this.$t('report.stockPurchasing.step2.uploadFailed')
@@ -584,6 +606,50 @@ export default {
       } finally {
         this.uploading = false
       }
+    },
+
+    /**
+     * Send the one sales report — the other half of the import.
+     *
+     * 🔴 IT DOES NOT TOUCH THE SHELF. A sales report says what LEFT the business; the shelf is
+     * what is still on it, and comes from the stock sheet or from the two boxes at step 2. A
+     * sales import that quietly zeroed the shelf would make an already-stocked line look like one
+     * the client has none of.
+     *
+     * @param {File} file
+     */
+    async uploadSales (file) {
+      this.salesError = ''
+      this.uploadingSales = true
+      try {
+        const json = await this.postFile('/api/report/stock-purchasing/sales-intake', file)
+        if (!json.success) {
+          this.salesError = (json.error && json.error.message) ||
+            this.$t('report.stockPurchasing.step1.uploadFailed')
+          return
+        }
+        this.salesFile = json.data
+        this.form.lines = json.data.lines
+        this.recompute()
+      } catch (e) {
+        this.salesError = this.$t('report.stockPurchasing.step1.uploadFailed')
+      } finally {
+        this.uploadingSales = false
+      }
+    },
+
+    /**
+     * POST one file to an intake route. Both intakes carry firmAuth, unlike the calc route.
+     * @param {string} url @param {File} file @returns {Promise<Object>} the parsed envelope
+     */
+    postFile (url, file) {
+      const body = new FormData()
+      body.append('file', file)
+      return fetch(url, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${this.apiToken}` },
+        body
+      }).then(res => res.json())
     },
 
     /** The POST this screen recomputes with — consumed by the reportRecompute mixin. */

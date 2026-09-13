@@ -18,6 +18,7 @@ const { computeHighLevelBudget } = require('../report/highLevelBudgetModel')
 const { computeMidLevelBudget } = require('../report/midLevelBudgetModel')
 const { computeStockPurchasing } = require('../report/stockPurchasingModel')
 const { readStockSheet } = require('../report/intake/stockSheetAssembler')
+const { readSalesSheet } = require('../report/intake/salesSheetReader')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
@@ -348,6 +349,74 @@ async function stockPurchasingIntake (req, res) {
     // Log the stable code only — never the filename, product names or content.
     console.error('[report] stock-purchasing intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
     const safe = intakeErrorResponse(err, 'The file could not be read as a stock-on-hand export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/stock-purchasing/sales-intake
+ *
+ * Reads an uploaded sales report — a period's sales, one row per product — and returns the lines
+ * the Stock Purchasing model scores. The other half of the stock-sheet import Mike asked for on
+ * 2026-09-13: a stock-on-hand export carries two of the five criteria, and margin, how many sold
+ * and days on hand live here.
+ *
+ * 🔴 THE TARGET LAYOUT IS THE SOURCE WORKBOOK'S OWN `Sales Report` SHEET, not a named accounting
+ * package. No published sales layout has been supplied for any package, and inventing one would
+ * produce a reader that looks finished and fails on the first real file. The header of
+ * `server/report/intake/salesSheetReader.js` states this in full.
+ *
+ * 🔴 THIS ROUTE CARRIES `firmAuth` BECAUSE IT ACCEPTS AN UPLOAD, like its stock sibling. The calc
+ * route is anonymous by design — numbers in, numbers out.
+ *
+ * Nothing is stored: the file is read and deleted in `finally`. The log records the stable error
+ * code alone — never the filename, the product names or the contents, because a sales report is a
+ * list of everything a client sells, what it cost them and what they got for it.
+ *
+ * @route POST /api/report/stock-purchasing/sales-intake
+ * @param {object} req - multipart form with ONE file in a `file` field, 5 MB maximum
+ * @returns {object} { success, data, timestamp } — `{ lines, layout, confidence, linesRead,
+ *   carries, missing, hasShareOfStock }`.
+ */
+async function stockPurchasingSalesIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a sales report should be well under 1 MB. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the sales report in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > 1) {
+      const e = new Error('This step reads one sales report — ' + uploaded.length + ' files were sent. Please drop the one export.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const data = readSalesSheet(fs.readFileSync(uploaded[0].filepath))
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, product names or content.
+    console.error('[report] stock-purchasing sales intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a sales report.')
     res.send(safe.status, safe.body)
   } finally {
     for (const f of uploaded) {
@@ -1593,4 +1662,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, stockPurchasingSalesIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

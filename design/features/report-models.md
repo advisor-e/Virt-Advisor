@@ -1438,9 +1438,29 @@ screen with the suite green (10,354 tests):
 *"Cash you are willing to commit to stock"* twice — as the input label and again as a row in the
 result table, where the drawing had the shorter *"Cash committed to stock"*.
 
-**What is NOT built:** the sales-history import. Margin, how many sold and days on hand live in a
-sales report, and the workbook always assumed two files without ever saying so. It is a separate
-question, not folded in.
+**The sales import** (Mike, same day) is the other half, and reads a period's sales one row per
+product: `server/report/intake/salesSheetReader.js`, `POST /api/report/stock-purchasing/sales-intake`.
+It carries **four** of the five — margin, how many sold, unit cost risk and days on hand — and
+claims the fifth only when the optional `% of Stock Units` column is really present, because share
+of stock is a stock question.
+
+🔴 **ITS TARGET LAYOUT IS THE WORKBOOK'S OWN `Sales Report` SHEET, NOT A NAMED PACKAGE.** Mike
+supplied published stock-on-hand layouts for Cin7 Core and Unleashed on 2026-09-07; **no
+equivalent has ever been supplied for a sales export, and none is invented**. Guessing a vendor's
+column names produces a reader that looks finished and fails on the first real file — the same
+honesty rule that keeps both stock packages marked `expected` rather than `verified`. A named
+package's sales layout is added beside this one the day it arrives.
+
+🔴 **THE DATE COLUMN IS THE PART THAT NEEDED CARE.** Days on hand is the sale date less the entry
+date, and it is the criterion an advisor can least sanity-check by eye. The reader takes an Excel
+serial, a Date the spreadsheet already parsed, and an ISO string — and **refuses everything else
+rather than guessing**: `03/04/2021` is 3 April or 4 March depending where you live, and the guess
+decides a score. A number below 20000 is refused too, so a stray `5` never becomes 1900-01-04 and
+invents an arrival date. An unreadable date leaves days on hand **unscored**, not scored 5.
+
+**A sales import never touches the shelf.** It says what LEFT the business; the shelf is what is
+still on it, and comes from the stock sheet or the two boxes at step 2. Zeroing it would make an
+already-stocked line look like one the client has none of. Pinned by a screen test.
 
 ---
 

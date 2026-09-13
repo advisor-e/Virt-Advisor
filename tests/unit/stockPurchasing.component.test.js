@@ -245,6 +245,40 @@ describe('Stock Purchasing screen', () => {
       expect(wrapper.vm.uploadError).toBeTruthy()
     })
 
+    it('🔴 a SALES import never touches the shelf — it says what left, not what is still there', async () => {
+      // A sales report says what LEFT the business; the shelf is what is still on it, and comes
+      // from the stock sheet or the two boxes at step 2. A sales import that zeroed the shelf
+      // would make an already-stocked line look like one the client has none of.
+      const wrapper = await mount(computeStockPurchasing())
+      wrapper.vm.form.shelf = { onHand: 400, inTransit: 50 }
+      global.fetch = jest.fn(() => Promise.resolve({
+        json: () => Promise.resolve({
+          success: true,
+          data: {
+            linesRead: 1,
+            lines: [{ code: 'KB-100', quantity: 40, sales: 4000, cost: 800, entryDate: '2026-01-01', saleDate: '2026-01-06', shareOfStock: null }],
+            carries: ['margin', 'sold', 'unitCostRisk', 'daysOnHand'],
+            missing: ['shareOfStock']
+          }
+        })
+      }))
+      await wrapper.vm.uploadSales(new File(['x'], 'sales.csv'))
+      expect(wrapper.vm.form.lines).toHaveLength(1)
+      expect(wrapper.vm.form.shelf).toEqual({ onHand: 400, inTransit: 50 })
+      expect(wrapper.vm.salesFile.linesRead).toBe(1)
+    })
+
+    it('keeps the two uploads\' errors apart, so one failure does not accuse the other file', async () => {
+      const wrapper = await mount(computeStockPurchasing())
+      global.fetch = jest.fn(() => Promise.resolve({
+        json: () => Promise.resolve({ success: false, error: { code: 'X', message: 'Not a sales report.' } })
+      }))
+      await wrapper.vm.uploadSales(new File(['x'], 'sales.csv'))
+      expect(wrapper.vm.salesError).toBe('Not a sales report.')
+      expect(wrapper.vm.uploadError).toBe('')
+      expect(wrapper.vm.uploadingSales).toBe(false)
+    })
+
     it('refuses a file of the wrong type before it reaches the network', async () => {
       const wrapper = await mount(computeStockPurchasing())
       global.fetch = jest.fn()

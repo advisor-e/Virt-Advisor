@@ -225,6 +225,7 @@ server.post('/api/report/high-level-budget', reportRoute.highLevelBudget)
 server.post('/api/report/mid-level-budget', reportRoute.midLevelBudget)
 server.post('/api/report/stock-purchasing', reportRoute.stockPurchasing)
 server.post('/api/report/stock-purchasing/intake', firmAuth, reportRoute.stockPurchasingIntake)
+server.post('/api/report/stock-purchasing/sales-intake', firmAuth, reportRoute.stockPurchasingSalesIntake)
 // The Business Performance Report's ratio hub (item 4.70, stage 1) — calc-only, anonymous.
 server.post('/api/report/dashboard-reports', reportRoute.dashboardReports)
 // The report's pages (stage 2). Guarded, unlike the hub above, because the cash drivers and
