@@ -52,9 +52,22 @@ the app reads, grouped by whether you need it, with the consequences of leaving 
 in [`HANDOFF.md`](HANDOFF.md) and appears only in a side note there. Without it the backend
 treats the condition as fatal.
 
-`OUTCOME_POOL_SECRET` (optional, item 4.87) keys the anonymous tokens in the Outcome Learning
-pool. Set it once to a long random string and keep it; unset, consenting firms' reviews are
-logged and not pooled, and nothing else is affected.
+`OUTCOME_POOL_SECRET` (item 4.87) keys the anonymous tokens in the Outcome Learning pool.
+**Optional until the first firm switches sharing on; required from that moment, and never
+changed once set** (Mike's ruling, 2026-09-14 — item 4.97 makes the backend refuse to start
+when a firm is sharing and this is missing, because rows written under a lost value can never
+be withdrawn and the consent screen promises they can). Set it once to a long random string
+and keep it. With no firm sharing and no secret the app runs normally, and the Outcome Sharing
+tab refuses to switch on rather than pooling under a value nobody can reproduce.
+
+**A second AI provider (optional, item 4.97).** `AI_FALLBACK_NAME`, `AI_FALLBACK_HOST` and
+`AI_FALLBACK_KEY` name a backup that answers when the first provider is down, out of credit or
+rate-limited — the situation that stopped every AI feature on 11 September 2026. Leave them
+unset and nothing changes. 🔴 **`AI_FALLBACK_PERSONAL_DATA_CLEARED` must be exactly `true`
+before a meeting transcript or a client's words may reach the backup**; unset, those calls fail
+as they do today rather than routing personal data to a provider nobody has cleared. Four calls
+can have no backup at all — the economic analysis, the two PDF schedule readers and the meeting
+transcription — because no second provider offers the features they use. See `.env.example`.
 
 ## 4. Database
 
