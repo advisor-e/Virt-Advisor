@@ -185,6 +185,40 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.92 — An intermittent test failure that rejected a push and blamed the wrong code.**
+✅ Filed and closed 2026-09-13 on the laptop, on Mike's yes. Two dev-fallback suites
+([`activityStore.devfallback`](../../tests/unit/activityStore.devfallback.test.js) and
+[`activityStore.cpd.devfallback`](../../tests/unit/activityStore.cpd.devfallback.test.js)) failed
+with `EPERM` during a pre-push run, blocking the 4.90 commit. They had nothing to do with it.
+Score 2 — robustness; nobody sees it until it fires, and then it decides how bad the break is.
+
+- 🔴 **WHY IT MATTERS MORE THAN ITS SIZE.** It fails *intermittently*, in the **pre-push gate**, on
+  files unrelated to whatever is being pushed. The danger was never the lost minutes — it is that
+  the next session reads a red gate as a real failure and either debugs the wrong code or reaches
+  for `--no-verify`. A flaky gate teaches people to ignore the gate.
+
+- **The mechanism, proved rather than guessed.** On Windows a file that has been unlinked while any
+  handle is still open on it stays *delete pending*, and `readFileSync` on that path reports
+  **`EPERM`, not `ENOENT`**. Both suites deleted their temp store in `beforeEach` and read it
+  immediately after. [`activityStore._devReadAll`](../../server/utils/activityStore.js) treats
+  anything but `ENOENT` as a real fault and **throws — correctly, and by explicit design**: its own
+  comment records that a broken store must never look like a new advisor. **The store is right and
+  was not touched.** Proved with a three-line probe: open a handle, unlink, read → `EPERM`.
+
+- **Two things ruled out the obvious fixes.** `existsSync` reports **false** during that window, so
+  "wait until it is really gone" cannot close the race — it exits immediately. And a delete-pending
+  path refuses **writes** with `EPERM` too, so a single `unlinkSync` anywhere in a suite re-arms the
+  race for whatever runs next. Both were probed, not assumed.
+
+- **The fix.** Nothing in either suite body deletes the file any more; `beforeEach` **empties** it
+  instead (`{}` is a valid empty store — `_devReadAll` defaults every array it does not find), and
+  only `afterAll` deletes, when nothing reads afterwards. The two production-mode tests asserted
+  `existsSync === false`; they now assert the file is still **byte-for-byte `{}`**, which is the
+  same guarantee — production wrote nothing — and a stricter one, since it also proves the content
+  did not change. 41 tests still pass, lint clean.
+
+---
+
 **4.91 — Two defects in the retirement workbook, both costing the client money.**
 ✅ Closed 2026-09-13 on the laptop, filed and settled the same day. Found while porting
 `Exposure.Retirement.Review (1).xlsx` for 4.90, filed as its own item on the 4.89 precedent —

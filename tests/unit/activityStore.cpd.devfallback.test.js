@@ -31,6 +31,21 @@ const activityStore = require('../../server/utils/activityStore')
 function clean () { try { fs.unlinkSync(DEV_FILE) } catch (e) { /* not there — fine */ } }
 function readFile () { return JSON.parse(fs.readFileSync(DEV_FILE, 'utf8')) }
 
+/**
+ * Reset between tests by EMPTYING the file, never by deleting it — see the same
+ * helper in the sibling `activityStore.devfallback` suite for why. In short:
+ * Windows reports EPERM rather than ENOENT when reading a file that has just been
+ * unlinked while a handle lingers, `_devReadAll` correctly treats that as a fault
+ * and throws, and `existsSync` cannot detect the window. An empty `{}` is a valid
+ * empty store, so keeping one on disk removes the race outright. Nothing in the
+ * suite body deletes the file — a delete-pending path refuses writes with EPERM
+ * too, so one `unlinkSync` would re-arm the race for whatever ran next.
+ */
+function reset () { fs.writeFileSync(DEV_FILE, '{}') }
+
+/** The untouched file, exactly as `reset` left it — see the production-mode test. */
+const EMPTY_STORE = '{}'
+
 const claim = over => Object.assign({
   advisorId: 'a1',
   advisorName: 'Jordan Reeve',
@@ -45,7 +60,7 @@ const claim = over => Object.assign({
 
 let warn
 beforeEach(() => {
-  clean()
+  reset()
   warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
 })
 afterEach(() => warn.mockRestore())
@@ -275,6 +290,9 @@ describe('in production', () => {
     await expect(activityStore.recordCpdClaim(claim())).rejects.toThrow('no db in this test')
     await expect(activityStore.readAdvisorClaims('a1', 'f1')).rejects.toThrow('no db in this test')
     await expect(activityStore.withdrawCpdClaim(1, 'a1', 'f1')).rejects.toThrow('no db in this test')
-    expect(fs.existsSync(DEV_FILE)).toBe(false)
+    // The file `reset` left is still byte-for-byte empty. Same guarantee as the
+    // old `existsSync(...) === false` — production wrote nothing — without
+    // deleting the file and re-arming the EPERM race described above.
+    expect(fs.readFileSync(DEV_FILE, 'utf8')).toBe(EMPTY_STORE)
   })
 })
