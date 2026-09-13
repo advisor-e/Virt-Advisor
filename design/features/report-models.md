@@ -1617,6 +1617,81 @@ what *this* model needs, and a generic sentence cannot say that. Added 2026-09-1
 
 ---
 
+### Wages/Salary Review (4.97, engine built 2026-09-14 — no screen yet)
+
+**What it does.** Answers whether the team bills more than it costs, month by month, against
+twelve actuals the advisor types in. Not a payroll total — the word "wages" undersells it. Drawn
+first at [`../mockups/wages-model.html`](../mockups/wages-model.html); **all nine decisions were
+ruled by Mike on 2026-09-14**, four of them against the recommendation, and he approved the build
+the same day. Source: `../report-source-models/Wages Model.xlsx`, **six sheets and 10,456 filled
+cells — the largest port in the library**, against the Sales Dashboard's 140 rows.
+
+🔴 **THE ENGINE IS BUILT AND NOTHING IS ON A SCREEN.** `server/report/wagesModel.js`, its golden
+test, and `POST /api/report/wages-review` (anonymous, like every calculation route). **Still to
+come:** the five input steps, the report screen, the rates converter tab, the gated register, the
+payroll reader, and income tax bands as a fifth Tax Rates figure. Every one carries wording that is
+Mike's to settle, which is where the next session starts. **A real payroll export is owed by Mike** —
+per `intake/supportedPackages.js` no reader is called supported until one has been read.
+
+**Two operating bases, one switch** (Decision 3). A firm runs *either* a seasonal basis, where
+weather decides how many productive days a month holds, *or* a shutdown basis planned around
+production days and overtime. **Both revenue and cost swap sides together**, verified from the
+formulas, which is why it is an either/or and never a blend.
+
+**The real headline is the per-season card, not the year.** The same team on the same pay: a
+*Wet n Dark* month **loses 13,972** while a *Dry n Light* month makes **52,270** — a swing of more
+than 66,000 on the weather alone, because a field team is paid its contracted hours whatever the
+sky does. That is the finding an advisor opens the conversation with.
+
+🔴 **TWO RULED DEVIATIONS, BOTH FOUND AT BUILD TIME AND BOTH RULED THE SAME DAY** — *"fix it -
+always. we want it right in the end"*, then, when the second was put as a definitional choice
+rather than a defect, *"if it needs to be fixed - fix it - NEVER allow a mistake to remain."* Each
+is pinned in `tests/unit/wagesModel.test.js` with the workbook's own cached figure beside ours, and
+each is **mutation-verified**:
+
+- **A wage costed against another employee's row.** `Seasonal Inputs` BN7 tests `E17`, BN12 tests
+  `E22`, BN35 tests `E45` — a row **ten below** the person being costed, and `E45` is blank
+  entirely. It is a **shared** formula (ref BN7:BN10, BN12:BN15, BN35:BN38) so whole blocks inherit
+  it, and it runs **both ways**: Mary G is costed 1,440.83/month too dear, Max 1,744.17 too cheap,
+  Stevie 5,611.67 and Natalie 2,654.17 too cheap. Ours tests each person's own employment type.
+- **Two answers to one question.** The per-season card's cost line dropped the employer retirement
+  contribution that the same model's monthly cost includes, so the card flattered every season. It
+  now uses the monthly measure, and the card and the months agree.
+
+**What moved, and it is named on the drawing's own header too:** year labour margin
+**350,121 → 288,935**, year wage cost **1,012,620 → 1,073,805**, and **July's planned margin
+181 → −132 — the tightest month of the plan no longer breaks even**, which is the single most
+consequential figure on the screen when there is one. The three per-season months went
+−10,356 → −13,972, 18,090 → 6,137, 55,921 → 52,270, those moving for both corrections together.
+
+✅ **The port is proven faithful, which is what makes the corrections attributable.** Year billings
+are **unchanged at 1,362,740** and match the workbook on **all 87 person-seasons**. With both
+defects deliberately restored on a copy outside the repo, the engine reproduces the workbook **to
+the cent** — 1,012,619.59 (R20), 350,120.64 (R22), July 180.61 (H22).
+
+⚠ **A third fault was in OUR code and the golden test caught it before it shipped:** the engine was
+inventing overtime for two managers. The workbook measures overtime against paid-hours cells that
+are **empty on every salaried row**, so its own test can never fire there — salaried people are not
+paid by the hour. The lesson generalises past this model: when a workbook appears to do nothing in
+a case, check whether the cells it reads exist at all before deciding it forgot to.
+
+⚠ **Two things reproduced deliberately rather than tidied.** The management block's *wet* and *dry*
+wages read their own row and are correct — only its standard-season figure carries the defect, and
+an earlier cut of this port reclassified the whole block and silently moved four more figures; a
+test now pins that shut. And the workbook's overtime gate is asymmetric (two columns suppressed
+when the global flag reads "Yes", the third paid only when it reads "No"); with the flag blank, as
+the sample leaves it, every season returns nothing.
+
+🔴 **The staff register is NOT part of this engine and never travels through its route.** Decision 6
+is Mike's own ruling: the register opens only when the client's case is in the `due-diligence`
+domain *and* the advisor switches it on, and it is kept on the firm's retention dial rather than
+deleted at deal-end (Decision 8, reversed from the recommendation) because it is the firm's evidence
+of *why* a role was cut. A route test pins that no named-employee field can reach the calculation.
+**The model calls no language model anywhere**, so "personal data never reaches the AI" holds by
+construction rather than by promise.
+
+---
+
 ## 5. Before you ship
 
 Work the checklist at the end of [`../ADDING-A-REPORT.md`](../ADDING-A-REPORT.md), then:
