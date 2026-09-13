@@ -185,6 +185,278 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.95 — the Sales Dashboard: the last card that said "coming soon" and opened nothing.**
+✅ Closed 2026-09-13 on the laptop. Asked for by Mike in his own words — *"sales dashboard in perf
+report"* — when the startup checklist put the open work to him, then *"yes"* to drawing the screen
+before any code, then all nine decisions ruled, then **"build sales dasboard"**. Drawn at
+[`../mockups/sales-dashboard.html`](../mockups/sales-dashboard.html), and the build was put beside
+that drawing with **every difference named** in [`../ARTEFACTS.md`](../ARTEFACTS.md).
+**CLASS_REPORT, so no "Illustrative" badge** — it opens on the workbook's sample with a
+`SampleNotice` saying so, as Quick Position and the Volatility Report do.
+
+- **What shipped.** [`server/report/salesDashboardModel.js`](../../server/report/salesDashboardModel.js)
+  and its 48-case golden test, `data/sales-dashboard-sample.json` (the workbook's own 140
+  transactions), `POST /api/report/sales-dashboard` and `/intake` with their tests,
+  [`pages/sales-dashboard.vue`](../../pages/sales-dashboard.vue),
+  [`components/SalesDashboard.vue`](../../components/SalesDashboard.vue) and its 26-case screen
+  test, its labels in `locales/en.json`, the catalogue card flipped to `STATUS_READY` with its
+  summary rewritten on Decision 1, its Model Guide entry, and entries in both report guards.
+  Suite **10,499 green** across 500 suites, lint 0 errors.
+
+- 🔴 **THREE RULED DEVIATIONS, AND NOT ONE IS VISIBLE IN THE WORKBOOK'S OWN SAMPLE** — which is
+  exactly why they were settled on the drawing rather than found at build time. A sale of exactly
+  **$2,500, $2,501 or $5,000** banks its money in a band and is counted in none, because the band
+  money is summed inclusively and two of the band counts are not. The headline sales count reads a
+  list **21 rows shorter** than the money does — five end points for one list — so at roughly 491
+  sales the average sale value starts climbing for no reason. And the last salesperson's
+  transaction count reads **the previous person's cell**. Each is pinned in the golden test on data
+  that shows it, with the workbook's own arithmetic reproduced beside ours.
+
+- 🔴 **DECISION 9 IS MIKE'S OWN AND IT IS THE ONE THING BEYOND THE WORKBOOK** — *"yes but good
+  idea, can we add dates"*. **The trend card appears only when the data really carries a sale
+  date.** The workbook holds none, so on the sample there is no card: not an empty chart, and never
+  a fabricated month. Its one real cost was named on the drawing and paid here — the shared
+  reader's required-columns list is now **per model**, so a file is refused by what *that* model
+  lacks rather than by Stock Purchasing's `Entry Date`, which this model never reads.
+
+- 🔴 **TWO FAULTS FOUND BY OPENING IT, neither visible to any assertion**: the ring's centre
+  rendered **"$140"** above the word TRANSACTIONS, because all three measures went through
+  `money()`; and the line beneath it said *"of the money"* about a count of sales. Both fixed and
+  pinned. **Three more gaps against the drawing were found the same way** — unformatted band
+  ceilings (`15000` beside a floor reading `10,001 —`), the mix card's two missing footnotes, and
+  the missing bottom nav — and all three were closed.
+
+- ⚠ **One fault outside this item's scope, fixed because Decision 9 depends on it.**
+  `UNRECOGNISED_SALES` was missing from the allowlist in `server/report/intakeError.js`, so the
+  reader's authored refusal naming the missing column was replaced by the route's generic sentence
+  and **reached nobody — for Stock Purchasing too**, since the day that reader was written. The
+  same fault that file's own comments record for `TOO_MANY_MONTHLY_FILES`.
+
+**4.94 — Stock Purchasing: the third of the three cards nobody had built.**
+✅ Closed 2026-09-13 on the laptop. Asked for by Mike in his own words — *"stock purchasing"* —
+when the startup checklist put the open work to him, then *"yes"* to drawing the screen before any
+code. Drawn at [`../mockups/stock-purchasing.html`](../mockups/stock-purchasing.html), **all eight
+of its decisions ruled**, and the drawing approved to build from, in that order. Step 3's name,
+*"Assess your stock exposure"*, is his own wording. **CLASS_REPORT, so no "Illustrative" badge.**
+
+- **What shipped.** [`server/report/stockPurchasingModel.js`](../../server/report/stockPurchasingModel.js)
+  and its golden test, `data/stock-purchasing-sample.json`,
+  `tests/fixtures/stock-purchasing-workbook-cached.json`, **two intake readers**
+  (`stockSheetAssembler.js`, `salesSheetReader.js`), `POST /api/report/stock-purchasing` and both
+  `/intake` routes with their tests, [`pages/stock-purchasing.vue`](../../pages/stock-purchasing.vue),
+  [`components/StockPurchasing.vue`](../../components/StockPurchasing.vue) and its 25-case screen
+  test, its labels in `locales/en.json`, the catalogue card flipped to `STATUS_READY` with its
+  summary rewritten, its Model Guide entry, and entries in both report guards. Suite **10,393
+  green**, lint 0 errors.
+
+- 🔴 **THE LADDERS ARE THE OWNER'S, and that is the point of the model.** Mike, after the first
+  build: *"the whole point of the model is to allow a business owner to quantify their expectations
+  — therefore, all the rankings need to be variables … if you check original model you will see the
+  ranges were seperate columns of editable cells"*. He was right and the workbook proves it in its
+  own formulas (`F6 = G5+1%`, `G24 = F23-1`). Four boundaries per criterion, typed on the ladder
+  itself; the step is per measure on his ruling — **0.1 of a point for percentages**, 1 for days and
+  units, 1 cent for money — and **a boundary typed across its neighbour pushes the others aside**
+  rather than being refused.
+
+- **Two ruled deviations**, both mutation-verified outside the repo, and **919 of the workbook
+  sample's 969 lines reproduced exactly** with every one of the 50 that move being a workbook zero
+  becoming a real score.
+
+- 🔴 **THREE FAULTS FOUND BY OPENING IT, none visible to any assertion**: the screen had no
+  start-up hook and would have shown nothing at all; every one of the 25 ladder rungs printed its
+  ceiling one unit too high so adjacent rungs overlapped; and a boundary typed across its neighbour
+  was silently ignored while the box went on showing it. **A fourth was found by a test before the
+  browser** — `lines.map(scoreLine)` hands the array index in as the ladder set.
+
+- **Two corrections to what we had written**, both recorded in the Brief: those band "gaps" were
+  reported as sloppiness and are the workbook's deliberate ±1 step; and Widget 3 scores **4**, not
+  5, because a value above the owner's ceiling belongs to the rung above — rounding down had handed
+  a line the BEST score for exceeding a limit on the two inverted ladders.
+
+- **What a stock sheet cannot say.** A Cin7/Unleashed stock-on-hand export carries two of the five
+  criteria and a sales report the other four; the screen prints which, and an unscored criterion
+  shows **"—", never 0**, so a low total reads as a missing file rather than a bad product. Record:
+  [`report-models.md`](report-models.md), [`../ARTEFACTS.md`](../ARTEFACTS.md).
+
+**4.93 — Mid-Level Budget: the second of the three cards nobody had built.**
+✅ Closed 2026-09-13 on the laptop, on Mike's instruction of the same day: *"build another model
+that is pending in the perf report section"*, then his *"yes"* to the recommendation of this model
+over Sales Dashboard and Stock Purchasing. Chosen because it is the High Level Budget's near-twin —
+same line set, 813 formulas against 814 — so most of the screen was the one he approved on
+2026-09-12. **CLASS_REPORT, so no "Illustrative" badge**; the route stores nothing.
+
+- **What shipped.** [`server/report/midLevelBudgetModel.js`](../../server/report/midLevelBudgetModel.js)
+  and its golden test (59 cases), `POST /api/report/mid-level-budget` and its route test,
+  [`pages/mid-level-budget.vue`](../../pages/mid-level-budget.vue),
+  [`components/MidLevelBudget.vue`](../../components/MidLevelBudget.vue) and its 27-case screen
+  test, its labels in `locales/en.json`, the catalogue card flipped to `STATUS_READY`, its Model
+  Guide entry (read by the AI as well as the screen) and entries in the report guards. Suite
+  **10,240 green**, lint 0 errors. Drawn first at
+  [`../mockups/mid-level-budget.html`](../mockups/mid-level-budget.html).
+
+- **What the model adds.** The `Assumptions` sheet — what share of a month's sales is collected that
+  month and over the next four, and the same for paying suppliers. The budget is then built on cash
+  **collected**, not sales invoiced. On the workbook's own sample the client invoices 348,300, is
+  profitable on paper, and still runs the bank to **−54,040** by March.
+
+- **SEVEN WORDING DECISIONS, each put to Mike alone and each ruled as recommended**, recorded on the
+  drawing with the recommendation left in place beneath every ruling. The one that shapes behaviour:
+  🔴 **step 4 carries a warning**, because the budget side means *invoiced* by "Sales" and the
+  actuals side must mean *cash received* — the workbook's own design, and an advisor who types
+  invoiced sales there gets a comparison that means nothing.
+
+- 🔴 **THREE RULED DEVIATIONS FROM THE WORKBOOK, all Mike 2026-09-13**, settled before any maths was
+  written and each pinned in the golden test against the workbook's own cached figure: the
+  **fourth-month collection bucket** (one relative reference where nine siblings are absolute —
+  21,250 of cash across the sample year computed as 2,500, while the sheet's own balance check still
+  reports the profile complete); **GST counted twice in the bank**, carried from the 2026-09-12 High
+  Level ruling, which moves budgeted closing from −39,697 to −54,040 and actual from −15,009 to
+  −32,200; and **income that bears no GST out of the GST base**. Two of the three move no figure in
+  the sample, so both are proved on constructed cases as well. **All three were mutation-verified
+  outside the repo** — reverted to the workbook's behaviour and confirmed to fail.
+
+- 🔴 **FOUR FAULTS WERE FOUND BY OPENING THE SCREEN, with 10,234 tests green**, and none was visible
+  to any assertion. One cause: the screen compared against an actuals side that was entirely empty.
+  The headline reported **in green** that the client had spent 375,950 less than budget and closed
+  64,040 above plan, while every line below it correctly read *not entered*; the three subtotals gave
+  three different answers to that same empty state; the bank chart drew twelve zeroes as a flat line
+  at the top of its scale; and step 2's *Still owed at year end* sat in the thirteenth column of a
+  scrolling table, rendering as a blank row. Fixed, **no calculation changed**, and the fix itself
+  mutation-verified three ways. Detail in [`report-models.md`](report-models.md) §4.93.
+
+- **Worth carrying forward:** the route test's privacy assertion renders logged arguments with
+  `util.inspect`, not `String()`. `String({})` is `"[object Object]"`, so a handler logging the whole
+  request body sails past a `String()`-based check — the dead alarm found in
+  `multiplePropertyRoute.test.js` on 2026-09-13. Both behaviours were proved in a scratch harness:
+  the new form fires on a leaked body, the old form does not.
+
+**4.90 — Retirement Review: the Model Library card nobody had built.**
+✅ Closed 2026-09-13 on the laptop, on Mike's instruction of the same day: *"build the retirement
+planning model in perf reports section"*. The largest workbook in the library — four visible
+sheets plus two hidden mortgage sheets, six properties, three mortgage types, twenty years — and
+the only model here that holds a whole household's income, pension, superannuation and property
+at once. **CLASS_DECISION, so no "Illustrative" badge**, and its route stores nothing.
+
+- **What shipped.** [`server/report/retirementReviewModel.js`](../../server/report/retirementReviewModel.js)
+  and its golden test (47 cases, eight mutations run and all eight caught),
+  `POST /api/report/retirement-review`,
+  [`pages/retirement-review.vue`](../../pages/retirement-review.vue),
+  [`components/RetirementReview.vue`](../../components/RetirementReview.vue), ~180 labels in
+  `locales/en.json`, the catalogue card flipped to `STATUS_READY`, its Model Guide entry (read by
+  the AI as well as the screen) and entries in the report guards. Suite 10,149 green, lint 0
+  errors. Commits `dd7542d7`, `5f9daa59`, `0528dba2`, `beb35492`.
+
+- 🔴 **WHAT PROVED THE PORT — the ordering is the proof and it cannot be redone later.** Every
+  cached value on all six sheets, all twenty years of all twelve series, was reproduced **before
+  any correction was applied**. Once the output differs from the spreadsheet no comparison can
+  establish fidelity, so this had to happen first. Everything the corrections do not touch stays
+  pinned to the workbook, and the structural correction is pinned to the workbook's own numbers.
+
+- 🔴 **THREE RULED DEVIATIONS, all Mike 2026-09-13**, carried out to the screen as
+  `workbookCorrections` with the cells they change, so an adviser with the spreadsheet open beside
+  the page can account for every difference: current tax bands from `data/tax-bands.json`
+  (12.926% → 12.582%); the pension taxed in the projection; and the sixth property realigned to
+  year one. The last two were **4.91, filed and closed the same day**. **They pull in opposite
+  directions and are reported separately, never netted.**
+
+- **Six wording decisions, each put to him on its own with its alternatives, each ruled as
+  recommended**, recorded on [`../mockups/retirement-review.html`](../mockups/retirement-review.html)
+  with the recommendation and the case against it left in place: the verdict sentence
+  (*"The plan holds — but it leans on selling three properties"*), the step-1 headline (*"The gap
+  is $14,687 a month"*), the four step names, the plain property columns over the workbook's, step
+  1 staying inside this model with a *Finish here* button, and the banner tile reading *"Years
+  spending more than they earn"* rather than the code's own *deficit*.
+
+- 🔴 **THE SCREEN WAS OPENED IN A RUNNING BROWSER AND PUT BESIDE THE DRAWING. Six differences**,
+  all named on the drawing. **Two were faults no test in this suite could have caught:** the
+  verdict panel's warning figures shipped **navy rather than red** — the tone class correctly
+  applied and beaten on CSS specificity, so the two figures the panel exists to flag were the two
+  it did not flag; and **step 3's six expanding property cards had no expander symbol and no close
+  control at all**, which Mike found himself — *"i have no idea how im supposed to compact it
+  afterwards"*. The second is now the list-and-one-open shape he approved on Multiple Property on
+  2026-08-21, so the two property reports behave identically. A third difference was in the
+  drawing, not the code: it says three properties cost more than they bring in, and it is two.
+
+- **What is NOT claimed.** Nothing was tested against a real database — there is no MySQL on this
+  machine — and no client has used it. It is UAT's to judge, which is what UAT is for.
+
+**4.92 — An intermittent test failure that rejected a push and blamed the wrong code.**
+✅ Filed and closed 2026-09-13 on the laptop, on Mike's yes. Two dev-fallback suites
+([`activityStore.devfallback`](../../tests/unit/activityStore.devfallback.test.js) and
+[`activityStore.cpd.devfallback`](../../tests/unit/activityStore.cpd.devfallback.test.js)) failed
+with `EPERM` during a pre-push run, blocking the 4.90 commit. They had nothing to do with it.
+Score 2 — robustness; nobody sees it until it fires, and then it decides how bad the break is.
+
+- 🔴 **WHY IT MATTERS MORE THAN ITS SIZE.** It fails *intermittently*, in the **pre-push gate**, on
+  files unrelated to whatever is being pushed. The danger was never the lost minutes — it is that
+  the next session reads a red gate as a real failure and either debugs the wrong code or reaches
+  for `--no-verify`. A flaky gate teaches people to ignore the gate.
+
+- **The mechanism, proved rather than guessed.** On Windows a file that has been unlinked while any
+  handle is still open on it stays *delete pending*, and `readFileSync` on that path reports
+  **`EPERM`, not `ENOENT`**. Both suites deleted their temp store in `beforeEach` and read it
+  immediately after. [`activityStore._devReadAll`](../../server/utils/activityStore.js) treats
+  anything but `ENOENT` as a real fault and **throws — correctly, and by explicit design**: its own
+  comment records that a broken store must never look like a new advisor. **The store is right and
+  was not touched.** Proved with a three-line probe: open a handle, unlink, read → `EPERM`.
+
+- **Two things ruled out the obvious fixes.** `existsSync` reports **false** during that window, so
+  "wait until it is really gone" cannot close the race — it exits immediately. And a delete-pending
+  path refuses **writes** with `EPERM` too, so a single `unlinkSync` anywhere in a suite re-arms the
+  race for whatever runs next. Both were probed, not assumed.
+
+- **The fix.** Nothing in either suite body deletes the file any more; `beforeEach` **empties** it
+  instead (`{}` is a valid empty store — `_devReadAll` defaults every array it does not find), and
+  only `afterAll` deletes, when nothing reads afterwards. The two production-mode tests asserted
+  `existsSync === false`; they now assert the file is still **byte-for-byte `{}`**, which is the
+  same guarantee — production wrote nothing — and a stricter one, since it also proves the content
+  did not change. 41 tests still pass, lint clean.
+
+---
+
+**4.91 — Two defects in the retirement workbook, both costing the client money.**
+✅ Closed 2026-09-13 on the laptop, filed and settled the same day. Found while porting
+`Exposure.Retirement.Review (1).xlsx` for 4.90, filed as its own item on the 4.89 precedent —
+**an open question for Mike is an item on the list, never a line in a code comment** — and ruled
+by him in three words: *"fix them both"*. Both corrections are in
+[`server/report/retirementReviewModel.js`](../../server/report/retirementReviewModel.js) and
+carried on every result as `workbookCorrections`, so a screen can say why its figures differ from a
+spreadsheet the adviser may have open beside it.
+
+- **The pension was counted twice over, differently.** The summary sheet took the government
+  pension *after* tax (612.32 a week, `Use of Assets` N19); the twenty-year engine took it *before*
+  tax (712, `Asset & Cash Transactions` G26 = `F19*52`). One workbook, two answers, **99.68 a week
+  apart in year one**, and the engine's figure then compounded at CPI for twenty years — reaching
+  64,921 where the taxed figure reaches 55,832. It is now taxed throughout, agreeing with the
+  workbook's own summary sheet rather than contradicting it.
+
+- 🔴 **The sixth property's whole block sat four columns out, and the client lost the house.** Its
+  rows started at column K (year 5) where the other five start at column G. Three consequences from
+  one slip: it earned no rent and paid no mortgage in years 1–4; its whole series ran four years
+  late; and — worst — the `Value Realised` row carried the same shift, so **selling it in year 17
+  read year 21, past the end of the sheet, and credited the client with nothing at all.** The
+  property simply dropped out of the projection. It now pays **1,140,879**. That the author never
+  intended this is provable on the same sheet: the house-asset line (G37) reaches across to `K97`
+  specifically to pick the property up at year 1, and the year-1 tax rate already counted its rent.
+
+- 🔴 **WHAT PROVED IT — the port was proved faithful BEFORE either correction was applied.** Every
+  cached value on all six sheets, **all twenty years of all twelve series**, matched the workbook
+  exactly; the two corrections were then applied on Mike's ruling. That ordering is the whole proof,
+  because once the output differs from the spreadsheet no later comparison can establish it. It is
+  preserved in two ways that still run: everything the corrections do not touch is still pinned to
+  the workbook, and **the structural correction is pinned to the workbook's own numbers** — moving
+  the sixth property back four columns must reproduce its cached rows 97–100 read four columns
+  earlier, thirteen years of the workbook's own values, which a correction that changed anything
+  else would fail. **Eight mutations were run against a copy outside the repo, including a reversion
+  of each correction, and all eight were caught.**
+
+- **What it moved.** Closing cash after twenty years **1,522,255 → 2,590,883**; years in deficit
+  **13 → 14**. The two pull in opposite directions and the test says so: taxing the pension costs
+  income in *every* year, recovering the property adds a little over a million at the end. Neither
+  is netted off — an adviser asked why will be asked about one of them, not the average.
+
+---
+
 **4.88 — High Level Budget: budget against actual, the model nobody had built.**
 ✅ Closed 2026-09-12 on the laptop, built and walked in a running app the same day Mike asked for
 it. His words: *"pick a model thats in the performance reports yet to be built"*, then

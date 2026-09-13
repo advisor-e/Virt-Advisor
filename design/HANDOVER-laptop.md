@@ -9,47 +9,33 @@
 
 ---
 
-## 2026-09-12 (twenty-third session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-13 (thirtieth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,058 green** (485 suites), lint 0 errors, tree clean, 7 ahead / 0 behind `master`.
-**Items 4.88 AND 4.89 built, walked in a browser and CLOSED** — Mike asked for a model from the
-performance reports that had never been built and chose the **High Level Budget**. Model,
-route, page, screen, locales, catalogue card live, all four report guards. Closures on
-[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **FOUR live items** — 4.15,
-4.58, 4.86 and 4.87. *(This line and commit `f04ffcc`'s message both said three; the commit is
-pushed and cannot be corrected, so trust this file and the JSON, not that message.)*
+Suite **10,497 green** (500 suites), lint 0 errors, **34 ahead / 0 behind** `master`, everything
+committed and pushed. **FIVE live items** — 4.15, 4.58, 4.86, 4.87 and the new **4.96**.
+**Nothing is active on this machine.**
 
-🔴 **HIS SOURCE WORKBOOK IS WRONG, AND THE FIX IS RULED.** `High Level Budget.xlsx` adds its two
-subtotal rows three different ways across three sheets; the Actuals sheet drops **Wages and
-Interest Only Loan Payments — 159,900 a year** — from every total *including the bank balance*,
-charting a **173,700** saving where the truth is **13,800**. All three sides now use the Budget
-sheet's full ranges. **Proved by reverting it outside the repo and reproducing all six of the
-workbook's cached figures exactly**, which is what shows the rest of the port is faithful.
+**4.95 Sales Dashboard is BUILT AND CLOSED** on Mike's *"build sales dasboard"*. The last of the
+three Model Library cards that opened nothing; all three are now live. Closure on
+[`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2, the full account in
+[`features/report-models.md`](features/report-models.md), and every build-vs-drawing difference
+named in [`ARTEFACTS.md`](ARTEFACTS.md). Nothing about it is outstanding.
 
-🔴 **TWO FAULTS SURVIVED 10,062 PASSING TESTS AND WERE FOUND BY LOOKING** — entry boxes three
-times the approved width, and a zero rendered as a signed change. **The second had to be found
-twice**, in the headline and then in the table beneath it. `npm run go`, open the screen, and
-count. Six drawing-vs-build differences are named on the drawing and in `report-models.md` §4.
+🔴 **A GUARD WAS CHECKING SIX OF THIRTEEN SCREENS.** Mike saw Stock Purchasing's header band
+rendering **364px wide in a 1076px column**; it was missing the one-line margin reset that the
+other twelve carry. `reportHeaderFullWidth.test.js` existed to stop exactly that and had a
+hand-typed list that stopped growing after Cost of Capital. **It now reads `components/`** and
+finds every screen. Fixed, mutation-verified, and the recipe and Brief both record why.
+**The Sales Dashboard sat in the same blind spot** — correct by luck, not by checking.
 
-**⛔ DO NOT WIRE THE ACCOUNTS READERS INTO 4.88's ACTUALS.** Mike raised it himself, was shown
-why, and ruled **leave it for now**: it is a cash budget and a P&L is accrual, three of its lines
-are balance-sheet movements absent from a P&L, and a P&L carries depreciation. It is recorded in
-both homes; it is not a gap and not to be re-raised as one.
+⚠ **The shared sales reader changed and Stock Purchasing shares it.** `REQUIRED_BY_MODEL` in
+`salesSheetReader.js` now holds one required-columns list per model, plus four optional cut
+columns and header aliases. Stock Purchasing's list is untouched and a test pins that it still
+refuses a file the Sales Dashboard accepts.
 
-🔴 **4.89 FILED AND CLOSED THE SAME EVENING — and it moved the headline figures.** The workbook's
-two GST oddities, both ruled by Mike one at a time. **Interest Received is out of the GST base**
-(an exempt supply bears no GST; moves nothing in the sample, everything for a client with interest
-income). **The entered figures are GST-INCLUSIVE**, so rows 66/69/71 were counting GST twice: the
-budgeted closing balance falls **192,426 → 151,300** and the actual **143,565 → 109,300**, the
-workbook overstating year-end cash by the whole net GST, **41,126, about 27%**. The GST is now a
-reading at the foot of the result table. The test **proves** it — the gap between the workbook's
-closing balance and ours is checked to equal `gstHeld` exactly. Closure on
-[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
-
-**Waiting on Mike, unchanged:** 4.58's OpenAI reply (letter sent 2026-09-12), 4.15's eighteen
-template names, and whether the three unranked items get placed.
-
-**DESKTOP:** none of your files were touched and 4.87 was left alone. Changed here:
-`utils/reportModelCatalogue.js`, `server/routes/report.js`, `server/restify-server.js`,
-`locales/en.json`, `data/report-model-summaries.json`, four report guards, and the usual records —
-merge `master` in at startup once this lands.
+**DESKTOP:** 4.87 untouched — none of its files were opened. Shared files touched:
+`server/routes/report.js`, `server/restify-server.js`, `utils/reportModelCatalogue.js`,
+`locales/en.json`, `components/base/DoughnutChart.vue` (one additive prop, default unchanged),
+`components/StockPurchasing.vue` (one CSS line) and four report guard tests. ⚠ **Your note is
+still dated 2026-09-10 while your branch has a commit from 2026-09-12** — flagged four sessions
+running.

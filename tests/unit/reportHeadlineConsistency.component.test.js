@@ -19,6 +19,10 @@ const VolatilityReport = require('~/components/VolatilityReport.vue').default
 const ThreeWayForecastReport = require('~/components/ThreeWayForecastReport.vue').default
 const DashboardReportsWorkbench = require('~/components/DashboardReportsWorkbench.vue').default
 const HighLevelBudget = require('~/components/HighLevelBudget.vue').default
+const MidLevelBudget = require('~/components/MidLevelBudget.vue').default
+const StockPurchasing = require('~/components/StockPurchasing.vue').default
+const SalesDashboard = require('~/components/SalesDashboard.vue').default
+const RetirementReview = require('~/components/RetirementReview.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -34,6 +38,10 @@ const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('~/server/re
 const { computeThreeYearForecast } = require('~/server/report/threeWayForecastModel')
 const { computeReportPages } = require('~/server/report/dashboardReportPagesModel')
 const { computeHighLevelBudget, DEFAULT_INPUTS: HLB_DEFAULTS } = require('~/server/report/highLevelBudgetModel')
+const { computeMidLevelBudget, DEFAULT_INPUTS: MLB_DEFAULTS } = require('~/server/report/midLevelBudgetModel')
+const { computeStockPurchasing, DEFAULT_INPUTS: SP_DEFAULTS } = require('~/server/report/stockPurchasingModel')
+const { computeSalesDashboard, DEFAULT_INPUTS: SD_DEFAULTS } = require('~/server/report/salesDashboardModel')
+const { computeRetirementReview } = require('~/server/report/retirementReviewModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -101,7 +109,16 @@ const SCREENS = [
   // The High Level Budget (4.88). The screen opens EMPTY — Report class, so it never seeds
   // itself from the workbook sample — but the guard needs figures in the strip, so the mocked
   // backend answers with the sample the way a filled-in budget would.
-  { name: 'High Level Budget', component: HighLevelBudget, result: () => computeHighLevelBudget(HLB_DEFAULTS) }
+  { name: 'High Level Budget', component: HighLevelBudget, result: () => computeHighLevelBudget(HLB_DEFAULTS) },
+  { name: 'Mid Level Budget', component: MidLevelBudget, result: () => computeMidLevelBudget(MLB_DEFAULTS) },
+  // Stock Purchasing (4.94). Like the two budgets it opens EMPTY — Report class — so the mocked
+  // backend answers with the workbook sample the way an imported product list would.
+  { name: 'Stock Purchasing', component: StockPurchasing, result: () => computeStockPurchasing(SP_DEFAULTS) },
+  // The Sales Dashboard (4.95). Unlike the two budgets and Stock Purchasing it opens ON the
+  // workbook's sample with a SampleNotice saying so — the drawing Mike approved shows it that
+  // way, and Quick Position and the Volatility Report are the same Report-class precedent.
+  { name: 'Sales Dashboard', component: SalesDashboard, result: () => computeSalesDashboard(SD_DEFAULTS) },
+  { name: 'Retirement Review', component: RetirementReview, result: () => computeRetirementReview() }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

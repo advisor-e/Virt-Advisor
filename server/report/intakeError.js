@@ -40,7 +40,17 @@ const INTAKE_STATUS = Object.assign(Object.create(null), {
   // the columns it lacks; and an Unleashed file whose Base Currency Code is not the firm's.
   // Both messages name packages, columns and currency codes only.
   UNRECOGNISED_INVENTORY: 422,
-  INVENTORY_CURRENCY_MISMATCH: 422
+  INVENTORY_CURRENCY_MISMATCH: 422,
+  // salesSheetReader: a file matching no sales layout, refused BY THE COLUMNS IT LACKS. Same
+  // authored shape as UNRECOGNISED_INVENTORY above — it names column headings and nothing else.
+  //
+  // 🔴 Added 2026-09-13 with the Sales Dashboard (4.95), and it was missing since the reader was
+  // written the same day: the sentence "It has no Entry Date column" was authored, raised, and
+  // then replaced by the route's generic one before it reached anybody. That is the identical
+  // fault recorded for TOO_MANY_MONTHLY_FILES above. It matters more here than it did, because
+  // the required columns are now PER MODEL — the whole point of Decision 9 is that a file is
+  // refused by what THIS model needs, and a generic sentence cannot say that.
+  UNRECOGNISED_SALES: 422
 })
 
 /**

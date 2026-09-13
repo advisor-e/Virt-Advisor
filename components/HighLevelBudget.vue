@@ -160,18 +160,20 @@
       p.hlb-note {{ $t('report.loading') }}
     template(v-else)
       .hlb-card
-        h2 {{ $t('report.highLevelBudget.result.moneyInChart') }}
+        //- The heading names what is actually drawn, and nothing below it draws a series
+        //- nobody entered — twelve nulls read as twelve zeroes and the chart said so.
+        h2 {{ $t(hasActuals ? 'report.highLevelBudget.result.moneyInChart' : 'report.highLevelBudget.result.moneyInChartBudgetOnly') }}
         .hlb-chart
           .hlb-slot(v-for="(label, i) in monthLabels" :key="i")
             .hlb-pair
               .hlb-bar.is-budget(:style="{ height: barHeight(data.budget.subtotalDeposits[i], depositsPeak) }")
-              .hlb-bar.is-actual(:style="{ height: barHeight(data.actual.subtotalDeposits[i], depositsPeak) }")
+              .hlb-bar.is-actual(v-if="hasActuals" :style="{ height: barHeight(data.actual.subtotalDeposits[i], depositsPeak) }")
             .hlb-xlab {{ label }}
         .hlb-legend
           span
             i.is-budget
             | {{ $t('report.highLevelBudget.result.legendBudget') }}
-          span
+          span(v-if="hasActuals")
             i.is-actual
             | {{ $t('report.highLevelBudget.result.legendActual') }}
 
@@ -180,12 +182,14 @@
         .hlb-linewrap
           svg(viewBox="0 0 660 160" preserveAspectRatio="none")
             polyline.is-budget(:points="bankLine(data.budget.closingBankBalance)")
-            polyline.is-actual(:points="bankLine(data.actual.closingBankBalance)")
+            //- A flat line pinned across the scale read as "the actual beat the budget all
+            //- year". There was no actual.
+            polyline.is-actual(v-if="hasActuals" :points="bankLine(data.actual.closingBankBalance)")
         .hlb-legend
           span
             i.is-budget
             | {{ $t('report.highLevelBudget.result.legendBudgetedBalance') }}
-          span
+          span(v-if="hasActuals")
             i.is-actual-line
             | {{ $t('report.highLevelBudget.result.legendActualBalance') }}
 
@@ -213,11 +217,14 @@
                 td
                   span(:class="{ 'is-blank': row.variance === null }") {{ row.meaning }}
                   span.hlb-pill(v-if="row.pill" :class="row.tone") {{ row.pill }}
+              //- The subtotal answers the empty state the same way the rows above it do. It
+              //- used to total nulls as zeroes and report "$0" under a column of "not
+              //- entered", with a toned variance beside it.
               tr.hlb-subtotal(:key="block.key + '-t'")
                 td {{ block.title }}
                 td.r.num {{ money(block.budget) }}
-                td.r.num {{ money(block.actual) }}
-                td.r.num(:class="block.tone") {{ varianceFigure(block.variance) }}
+                td.r.num(:class="{ 'is-blank': !hasActuals }") {{ hasActuals ? money(block.actual) : $t('report.highLevelBudget.result.notEntered') }}
+                td.r.num(:class="hasActuals ? block.tone : ''") {{ hasActuals ? varianceFigure(block.variance) : '—' }}
                 td
         .hlb-card-f
           span {{ $t('report.highLevelBudget.result.emptyLinesOmitted') }}
@@ -237,6 +244,11 @@ import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+
+const { financialYearStart } = require('~/utils/financialYearStart')
+
+// The NZ tax year, which both budget workbooks run on: 1 April to 31 March.
+const FY_START_MONTH = 4
 
 /** The model's own month count. One financial year, as the workbook has it. */
 const MONTHS = 12
@@ -285,7 +297,9 @@ export default {
       // Report class: the screen opens empty and stays empty until the advisor types. There
       // is deliberately no seeding from the workbook sample.
       form: {
-        monthsStart: '2021-04',
+        // The financial year we are in, never a typed year — a hardcoded '2021-04' had a
+        // 2026 client budget opening five years out of date on every month label.
+        monthsStart: financialYearStart(new Date(), FY_START_MONTH),
         gstRatePct: 15,
         budget: { openingBalance: null, lines: {} },
         actual: { openingBalance: null, lines: {} }
@@ -312,8 +326,25 @@ export default {
     /** Which side of the model the entry steps are editing. */
     side () { return this.step === 3 ? 'actual' : 'budget' },
 
-    /** The variance figures headline steps 3 and 4; the budget's own headline steps 1 and 2. */
-    showResultHero () { return this.step >= 3 },
+    /**
+     * Has ANY actual been entered? Read off the model's own nulls — no arithmetic here. A
+     * variance line is `null` until an actual is entered against it, so "has anything been
+     * entered" is already answered.
+     *
+     * Ported from the Mid-Level Budget 2026-09-13, where opening the screen showed what no
+     * assertion had: on an empty actuals side the comparison was drawn anyway, and it was
+     * drawn confidently. This screen is the older of the two and had the same fault.
+     *
+     * The comparison is only ever a comparison once there is something to compare.
+     */
+    hasActuals () {
+      if (!this.data) { return false }
+      const lines = this.data.variance.yearToDate.lines
+      return Object.keys(lines).some(k => lines[k] !== null)
+    },
+
+    /** The variance headline once there is something to compare; the budget's own until then. */
+    showResultHero () { return this.step >= 3 && this.hasActuals },
 
     /** The twelve ISO month starts the model is asked for, derived from the chosen start. */
     months () {

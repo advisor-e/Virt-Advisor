@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mid Level Budget — the five steps, and the timing that gives the model its name</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.93 — Mid Level Budget. Drawn for approval 2026-09-13. THE SCREEN IS
+   NOT BUILT; the backend behind it is.
+
+   WHAT CREATED IT. Mike, 2026-09-13: "build another model that is pending in
+   the perf report section", then "yes" to the recommendation of this one of the
+   three. Three models in the Model Library have never been built; this is the
+   one chosen, because it is the High Level Budget's near-twin and most of the
+   screen below already exists and is already approved.
+
+   WHAT IS ALREADY REAL. Every figure on this page is the sample in
+   design/report-source-models/Mid Level Budget.xlsx, run through the model that
+   now exists (server/report/midLevelBudgetModel.js) and pinned by its golden
+   test, tests/unit/midLevelBudgetModel.test.js. Nothing here is invented to
+   fill a box.
+
+   FIVE STEPS BECAUSE THERE ARE FIVE SHEETS. Assumptions, Budget Figures, Actual
+   Figures, Cashflow Variances, Reports. The High Level Budget has four steps for
+   its four sheets; this adds ONE — the Assumptions — and that step is the whole
+   difference between the two models.
+
+   THE THREE RULED DEVIATIONS, already in the code (Mike, 2026-09-13), are set
+   out in the box at the foot of this page.
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner ruling
+   of 2026-07-23 — 1120px column, 360px input column, 16px gaps, 14px card radius,
+   no card top edge (RULED 2026-08-31). No dark mode: one light look, RULED
+   2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+
+/* A decision still open. Numbered so it can be referred to in one line. */
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:0 10px 10px 0;padding:12px 14px;font-size:12.5px;color:#123a5c;margin:0 0 16px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+/* A decision Mike has ruled. The recommendation and its reasoning are LEFT IN PLACE
+   beneath the ruling, so the record shows what was put to him, not only what came back. */
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px dashed #a8dcb4}
+
+.sect{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin:34px 0 12px;padding-top:20px;border-top:2px solid var(--rs-line)}
+
+/* ---- the report frame, read off the shipped screens ---- */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;
+  flex-wrap:wrap;margin:0}
+.rs-back{font-size:12.5px;color:var(--rs-accent);font-weight:600}
+.rs-eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);font-weight:700;margin-bottom:4px}
+.rs-title{font-size:29px;font-weight:300;letter-spacing:-.01em;margin:0;line-height:1.15}
+.rs-client{font-size:12px;color:var(--rs-muted);text-align:right}
+
+.steps{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 0}
+.step{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;
+  color:var(--rs-muted);background:var(--rs-panel);border:1px solid var(--rs-line);
+  border-radius:999px;padding:7px 14px}
+.step .n{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border-radius:50%;background:var(--rs-line);color:var(--rs-ink);font-size:11px}
+.step.active{color:#fff;background:var(--rs-accent);border-color:var(--rs-accent)}
+.step.active .n{background:#ffffff30;color:#fff}
+.step.done{color:var(--rs-good)}
+.step.done .n{background:var(--rs-good-soft);color:var(--rs-good)}
+
+.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rs-line);
+  border:1px solid var(--rs-line);border-radius:var(--rs-radius);overflow:hidden;margin:16px 0 0}
+.hf{background:#002b64;padding:17px 18px;color:#fff}
+.hf .l{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#9dc2e8;
+  font-weight:600;margin-bottom:7px}
+.hf .v{font-size:25px;font-weight:300;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.hf .s{font-size:11.5px;color:#9dc2e8;margin-top:5px}
+.hf .v.good{color:#8fe06a}.hf .v.crit{color:#ff9a9a}
+
+.layout{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start;margin-top:16px}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.wide{display:flex;flex-direction:column;gap:16px;min-width:0;margin-top:16px}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px;min-width:0}
+.card h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;margin:0 0 12px}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0 0 12px}
+.card-f{margin:12px -16px -16px;padding:13px 16px;border-top:1px solid var(--rs-line);
+  background:var(--rs-panel-2);border-radius:0 0 var(--rs-radius) var(--rs-radius);
+  font-size:12.5px;color:var(--rs-muted);display:flex;flex-direction:column;gap:8px}
+.note{font-size:11.5px;color:var(--rs-muted);margin:8px 0 0;font-weight:300}
+.lead{font-size:13.5px;margin:0 0 12px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  border-radius:5px;padding:2px 7px;background:var(--rs-warn-soft);color:#a06000}
+
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.inp{width:100%;border:1px solid var(--rs-line);border-radius:7px;padding:6px 9px;
+  font:inherit;font-size:13px;background:#fff;color:var(--rs-ink)}
+.inp.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 10px 9px 0;border-bottom:1px solid var(--rs-line)}
+th.r,td.r{text-align:right}
+td{padding:7px 10px 7px 0;border-bottom:1px solid var(--rs-bg);vertical-align:middle}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+td.good{color:var(--rs-good)}td.crit{color:var(--rs-crit)}
+.name{font-weight:600;color:var(--rs-ink);min-width:180px}
+tr.grouprow td{background:var(--rs-panel-2);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--rs-muted);font-weight:700;padding:8px 10px}
+tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:700;
+  color:var(--rs-ink);padding-top:10px}
+.ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;
+  padding:5px 9px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-muted);min-width:82px;text-align:right;font-size:13px}
+.vary{color:var(--rs-accent);font-weight:600;font-size:11.5px;white-space:nowrap}
+.is-blank{color:var(--rs-muted);font-weight:400}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;border-radius:5px;
+  padding:2px 6px;margin-left:7px}
+.pill.good{background:var(--rs-good-soft);color:var(--rs-good)}
+.pill.crit{background:var(--rs-crit-soft);color:var(--rs-crit)}
+.sub{font-size:11.5px;color:var(--rs-muted);font-weight:400;display:block;margin-top:2px}
+
+/* ---- the assumptions step: the one genuinely new screen ---- */
+.prof{display:grid;grid-template-columns:1fr 108px;gap:10px 14px;align-items:center}
+.prof .lab{font-size:13px}
+.prof .pc{position:relative}
+.prof .pc input{width:100%;border:1px solid var(--rs-line);border-radius:7px;padding:6px 26px 6px 9px;
+  font:inherit;font-size:13px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.prof .pc span{position:absolute;right:9px;top:50%;transform:translateY(-50%);
+  font-size:12px;color:var(--rs-muted)}
+.balance{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  margin-top:12px;padding:9px 12px;border-radius:9px;font-size:12.5px;font-weight:600}
+.balance.ok{background:var(--rs-good-soft);color:var(--rs-good)}
+.balance.off{background:var(--rs-warn-soft);color:#a06000}
+
+/* the little waterfall showing one month's sale turning into cash */
+.spread{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:6px}
+.sp{text-align:center}
+.sp .bar{background:linear-gradient(180deg,#4a9fd8,var(--rs-accent));border-radius:5px 5px 0 0;
+  margin:0 auto;width:100%}
+.sp .bwrap{height:92px;display:flex;align-items:flex-end}
+.sp .t{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin-top:6px}
+.sp .a{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px}
+
+.chart{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;align-items:end;height:186px}
+.slot{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.pair{display:flex;gap:3px;align-items:flex-end;height:100%}
+.bar2{flex:1;border-radius:4px 4px 0 0;min-height:2px}
+.bar2.b{background:linear-gradient(180deg,#4a9fd8,var(--rs-accent))}
+.bar2.a{background:linear-gradient(180deg,#00c5f5,var(--rs-accent-bright))}
+.xlab{font-size:9.5px;color:var(--rs-muted);text-align:center;margin-top:6px;font-weight:600}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--rs-muted);margin-top:12px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;
+  vertical-align:-1px;font-style:normal}
+.legend i.b{background:var(--rs-accent)}.legend i.a{background:var(--rs-accent-bright)}
+.legend i.l{background:var(--rs-crit)}
+
+.nav{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.btn{font:inherit;font-size:12.5px;font-weight:600;border-radius:8px;padding:7px 15px;
+  border:1px solid var(--rs-line);background:#fff;color:var(--rs-ink)}
+.btn.p{background:var(--rs-accent);border-color:var(--rs-accent);color:#fff}
+
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .hero{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock" style="background:#eefaf0;border-color:#a8dcb4;color:#1d4a28">
+  <h3>✅ Approved and built — 2026-09-13. Nine differences between this drawing and the build</h3>
+  <p><b>Seven of them are corrections to faults this drawing could not have shown</b>, every one
+  found by opening the screen in a running app with the suite green — four with 10,234 tests
+  passing, three more in a later session with 10,240. Each is named here because a deliberate
+  deviation is fine and an unrecorded one is not.</p>
+  <ul>
+    <li>🔴 <b>Step 5 keeps the budget's own headline until an actual is entered.</b> As drawn it
+    showed the comparison — which, on an empty actuals side, reported <b>in green</b> that the
+    client had spent $375,950 less than budget and closed $64,040 above plan, while every line
+    beneath it correctly read <i>not entered</i>.</li>
+    <li>🔴 <b>The three result subtotals read “—” for that same empty state.</b> They had given
+    three different answers to it: −$311,910 in red, −$165,950 in <b>green</b>, and $0.</li>
+    <li>🔴 <b>Neither chart draws a series with nothing behind it.</b> Twelve zeroes had drawn a
+    flat line pinned to the top of the bank chart, reading as “the actual beat the budget all
+    year”.</li>
+    <li>🔴 <b>“Still owed at year end” sits BELOW the collection table, not inside it.</b> As a
+    thirteenth column it was off the right edge at every practical width and rendered as a blank
+    row. <b>This drawing is where that came from</b> — it drew four months, and the screen has
+    twelve.</li>
+    <li>🔴 <b>Stock and Materials carries its own note, in different words — this SUPERSEDES
+    Decision 6 on that one card.</b> That decision's single sentence, <i>“Enter the money that
+    actually reached the bank, not what you invoiced”</i>, was applied to both the Money In and the
+    Stock and Materials cards, and on the supplier side it pointed the money the wrong way: stock
+    <b>leaves</b> the bank, and it is the supplier who invoices the client. That card now reads
+    <b>“Enter what you actually paid suppliers, not what they invoiced you.”</b> Money In is
+    unchanged and Money Out still carries no note. <b>Ruled by Mike 2026-09-13</b>, after the build,
+    when opening step 4 showed it.</li>
+    <li>🔴 <b>The money-in chart is headed “Money in — budget” until an actual is entered</b>,
+    not this page's <i>“budget against actual”</i>. The chart already refused to draw a series
+    nobody had entered; only the heading still promised the comparison. <b>Ruled by Mike
+    2026-09-13</b> — and the same correction was carried across to the High Level Budget, which
+    had never had any of this fixed.</li>
+    <li>🔴 <b>Step 1 opens on the financial year we are in, not the workbook's April 2021.</b>
+    The build took the sample year literally, so in 2026 a new client budget opened five years
+    stale with every month label wrong. It is now derived (April of the current NZ tax year,
+    <code>utils/financialYearStart.js</code>) and rolls over on its own each April. <b>Ruled by
+    Mike 2026-09-13.</b></li>
+    <li>The buttons are Buefy purple, not the blue drawn here, matching every other live screen.</li>
+    <li>Entry boxes carry no <code>%</code> or thousands separator inside the field, because a
+    number input cannot.</li>
+  </ul>
+  <p>The fix for the first four is one flag read off the model's own nulls. <b>No calculation
+  changed</b>, and the fix is itself mutation-verified three ways.</p>
+  <p>✅ The money-in chart heading, left open here for Mike's call rather than silently rewritten,
+  was ruled the same day: it reads <i>“Money in — budget”</i> until there is an actual. Opening
+  the older High Level Budget to fix the same heading is what found that it had never received
+  any of the empty-state corrections above — see that page's own list.</p>
+</div>
+
+<div class="mock">
+  <h3>This is a drawing, not the app</h3>
+  <p><b>Item 4.93 · Mid Level Budget · drawn 2026-09-13 for approval.</b> The maths behind it is
+  built and tested; this page is what the screen would look like. Nothing here is live.</p>
+  <p><b>Every number on this page is real.</b> They are the sample figures in the source workbook
+  <code>Mid Level Budget.xlsx</code>, put through the model that now exists and pinned by its golden
+  test. Where a figure differs from the spreadsheet, it is one of the three corrections in the box
+  at the foot of this page — never a typo and never a guess.</p>
+  <p><b>ALL SEVEN WORDING DECISIONS WERE RULED BY MIKE ON 2026-09-13</b>, each put to him on its
+  own and each ruled as recommended. They are the green boxes through the page; the recommendation
+  and its reasoning are left in place beneath every ruling, so the record shows what was put to him
+  and not only what came back.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">The frame — identical to the High Level Budget, with one extra step</div>
+
+<div class="rs-top">
+  <div>
+    <div class="rs-back">← Back to the Model Library</div>
+    <div class="rs-eyebrow" style="margin-top:10px">Business Performance Report · Budgeting</div>
+    <h1 class="rs-title">Mid-Level Budget</h1>
+  </div>
+  <div class="rs-client">Prepared for the client</div>
+</div>
+
+<div class="steps">
+  <div class="step done"><span class="n">✓</span>Set up the year</div>
+  <div class="step active"><span class="n">2</span>When the money moves</div>
+  <div class="step"><span class="n">3</span>The budget</div>
+  <div class="step"><span class="n">4</span>What actually happened</div>
+  <div class="step"><span class="n">5</span>How it went</div>
+</div>
+
+<div class="ask ruled">
+  <h3>Decision 1 — RULED BY MIKE 2026-09-13 — the five step names</h3>
+  <p class="ruling">✓ Ruled as recommended. The five steps are <b>Set up the year · When the money
+  moves · The budget · What actually happened · How it went</b>.</p>
+  <p>The High Level Budget uses four: <i>Set up the year · The budget · What actually happened ·
+  How it went.</i> This model adds one step, and it needs a name a non-accountant understands.</p>
+  <p class="rec">Recommended: <b>“When the money moves”</b> — because that is literally what the
+  step sets, and “Assumptions” (the spreadsheet's own word) tells a client nothing.</p>
+</div>
+
+<div class="hero">
+  <div class="hf"><div class="l">Money in</div><div class="v">$311,910</div><div class="s">collected across the year</div></div>
+  <div class="hf"><div class="l">Money out</div><div class="v">$375,950</div><div class="s">paid across the year</div></div>
+  <div class="hf"><div class="l">Change in the bank</div><div class="v crit">−$64,040</div><div class="s">across the year</div></div>
+  <div class="hf"><div class="l">Closing bank</div><div class="v crit">−$54,040</div><div class="s">at Mar</div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">Step 2 — the one genuinely new screen</div>
+
+<div class="mock">
+  <p><b>This step is the whole difference between this model and the High Level Budget.</b> The
+  High Level Budget banks a sale in the month it is made. Here the advisor sets, with the client,
+  how long the money actually takes to arrive — and how long they take to pay their own suppliers.
+  Everything else in this model is the screen you already approved on 2026-09-12.</p>
+</div>
+
+<div class="layout">
+  <div class="col">
+    <div class="card">
+      <div class="card-h">
+        <h2>Getting paid by customers</h2>
+        <span class="badge">Ask the client</span>
+      </div>
+      <p class="lead">Of every $100 of sales, how much arrives when?</p>
+      <div class="prof">
+        <div class="lab">In the same month as the sale</div>
+        <div class="pc"><input value="20"><span>%</span></div>
+        <div class="lab">1 month later</div>
+        <div class="pc"><input value="45"><span>%</span></div>
+        <div class="lab">2 months later</div>
+        <div class="pc"><input value="30"><span>%</span></div>
+        <div class="lab">3 months later</div>
+        <div class="pc"><input value="5"><span>%</span></div>
+        <div class="lab">4 months later</div>
+        <div class="pc"><input value=""><span>%</span></div>
+      </div>
+      <div class="balance ok"><span>Adds up to 100%</span><span>✓</span></div>
+      <p class="note">The spreadsheet calls this “collection of debtors”. It is the single most
+      useful conversation in the model — and the one the client, not the advisor, has to answer.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <h2>Paying suppliers</h2>
+        <span class="badge">Ask the client</span>
+      </div>
+      <p class="lead">Of every $100 of stock and materials bought, how much is paid when?</p>
+      <div class="prof">
+        <div class="lab">In the same month as the invoice</div>
+        <div class="pc"><input value="30"><span>%</span></div>
+        <div class="lab">1 month later</div>
+        <div class="pc"><input value="65"><span>%</span></div>
+        <div class="lab">2 months later</div>
+        <div class="pc"><input value="5"><span>%</span></div>
+        <div class="lab">3 months later</div>
+        <div class="pc"><input value=""><span>%</span></div>
+        <div class="lab">4 months later</div>
+        <div class="pc"><input value=""><span>%</span></div>
+      </div>
+      <div class="balance ok"><span>Adds up to 100%</span><span>✓</span></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h2>What that means for one month's sales</h2>
+      <p class="lead">April's sales are <b>$25,000</b>. On the percentages at left, here is when
+      that $25,000 actually reaches the bank.</p>
+      <div class="spread">
+        <div class="sp"><div class="bwrap"><div class="bar" style="height:44%"></div></div><div class="t">Apr</div><div class="a">$5,000</div></div>
+        <div class="sp"><div class="bwrap"><div class="bar" style="height:100%"></div></div><div class="t">May</div><div class="a">$11,250</div></div>
+        <div class="sp"><div class="bwrap"><div class="bar" style="height:67%"></div></div><div class="t">Jun</div><div class="a">$7,500</div></div>
+        <div class="sp"><div class="bwrap"><div class="bar" style="height:11%"></div></div><div class="t">Jul</div><div class="a">$1,250</div></div>
+        <div class="sp"><div class="bwrap"><div class="bar" style="height:2%"></div></div><div class="t">Aug</div><div class="a">—</div></div>
+      </div>
+      <div class="card-f">
+        <span><b>Only $5,000 of April's $25,000 is in the bank in April.</b> That gap is what this
+        model exists to show, and it is why the closing balance below goes negative on a business
+        that is profitable on paper.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Cash collected, month by month</h2>
+      <table>
+        <thead><tr><th>Line</th><th class="r">Apr</th><th class="r">May</th><th class="r">Jun</th><th class="r">Jul</th><th class="r">For the year</th></tr></thead>
+        <tbody>
+          <tr><td class="name">Sales invoiced</td><td class="r num">$25,000</td><td class="r num">$35,000</td><td class="r num">$45,000</td><td class="r num">$15,000</td><td class="r num">$348,300</td></tr>
+          <tr><td class="name">Cash collected<span class="sub">after the timing above</span></td><td class="r num">$5,000</td><td class="r num">$18,250</td><td class="r num">$32,250</td><td class="r num">$35,000</td><td class="r num">$308,910</td></tr>
+          <tr class="subtotal"><td>Still owed at year end</td><td class="r num"></td><td class="r num"></td><td class="r num"></td><td class="r num"></td><td class="r num crit">$39,390</td></tr>
+        </tbody>
+      </table>
+      <div class="card-f">
+        <span>$39,390 of the year's sales are collected after the year ends. The spreadsheet drops
+        them off the edge of its twelve columns and so does this — but it says so, which the
+        spreadsheet does not.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ask ruled">
+  <h3>Decision 2 — RULED BY MIKE 2026-09-13 — the two block headings on this step</h3>
+  <p class="ruling">✓ Ruled as recommended. <b>“Getting paid by customers”</b> and <b>“Paying
+  suppliers”</b>.</p>
+  <p>The spreadsheet says <i>“Collection of debtors”</i> and <i>“Payment of inventory purchases,
+  creditors”</i>. Both are accountant's language.</p>
+  <p class="rec">Recommended: <b>“Getting paid by customers”</b> and <b>“Paying suppliers”</b>.</p>
+</div>
+
+<div class="ask ruled">
+  <h3>Decision 3 — RULED BY MIKE 2026-09-13 — the five timing rows</h3>
+  <p class="ruling">✓ Ruled as recommended. <b>“In the same month as the sale” · “1 month later” ·
+  “2 months later” · “3 months later” · “4 months later”</b>, with the suppliers card reading
+  <b>“In the same month as the invoice”</b> on its first row.</p>
+  <p>The spreadsheet spells each one out: <i>“Debtors collected in the first month following
+  sale”</i>, and so on down to the fourth.</p>
+  <p class="rec">Recommended: <b>“In the same month as the sale”, “1 month later”, “2 months
+  later”, “3 months later”, “4 months later”</b> — short enough to scan down, and the heading
+  above already says what is being collected.</p>
+</div>
+
+<div class="ask ruled">
+  <h3>Decision 4 — RULED BY MIKE 2026-09-13 — the out-of-balance warning</h3>
+  <p class="ruling">✓ Ruled as recommended. In amber, where the green “Adds up to 100%” sits:
+  <b>“5% of sales unaccounted for — that money is never collected in this budget”</b>, and on the
+  suppliers card <b>“…that money is never paid in this budget”</b>. It names the consequence, not
+  the arithmetic — which is the blind spot that hid the fourth-month fault.</p>
+  <p>The spreadsheet shows a bare number in a cell marked “balance”, and nothing else. A client
+  who enters 20/45/30 and stops is quietly banking only 95% of their sales.</p>
+  <p class="rec">Recommended: <b>“5% of sales unaccounted for — that money is never collected in
+  this budget”</b>, in amber, sitting where the green “Adds up to 100%” sits above. It states the
+  consequence rather than the arithmetic.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">Steps 3 and 4 — unchanged from the High Level Budget, plus two rows</div>
+
+<div class="mock">
+  <p><b>This step is the one you approved on 2026-09-12</b> — one figure per line applied to all
+  twelve months, with a “vary by month” opener for lines that genuinely change. Only the rows
+  below the first heading are new.</p>
+</div>
+
+<div class="wide">
+  <div class="card">
+    <div class="card-h">
+      <h2>Money in</h2>
+      <span class="badge">Entered by the advisor</span>
+    </div>
+    <table>
+      <thead><tr><th>Line</th><th class="r">Per month</th><th class="r">For the year</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="name">Sales</td><td class="r"><span class="ro">varies</span></td><td class="r num">$348,300</td><td class="vary">▾ Close the months</td></tr>
+        <tr><td class="name">Tax rebates</td><td class="r"><input class="inp r" style="width:118px;margin-left:auto;display:block" value=""></td><td class="r num">—</td><td class="vary">▸ Vary by month</td></tr>
+        <tr><td class="name">Interest received</td><td class="r"><input class="inp r" style="width:118px;margin-left:auto;display:block" value=""></td><td class="r num">—</td><td class="vary">▸ Vary by month</td></tr>
+        <tr><td class="name">Capital introduced</td><td class="r"><input class="inp r" style="width:118px;margin-left:auto;display:block" value=""></td><td class="r num">—</td><td class="vary">▸ Vary by month</td></tr>
+        <tr><td class="name">Other</td><td class="r"><input class="inp r" style="width:118px;margin-left:auto;display:block" value=""></td><td class="r num">—</td><td class="vary">▸ Vary by month</td></tr>
+        <tr><td class="name">Sales with no GST on them</td><td class="r"><input class="inp r" style="width:118px;margin-left:auto;display:block" value="250"></td><td class="r num">$3,000</td><td class="vary">▸ Vary by month</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-h">
+      <h2>Stock and materials</h2>
+      <span class="badge">Entered by the advisor</span>
+    </div>
+    <table>
+      <thead><tr><th>Line</th><th class="r">Per month</th><th class="r">For the year</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="name">Stock and materials bought</td><td class="r"><span class="ro">varies</span></td><td class="r num">$180,600</td><td class="vary">▾ Close the months</td></tr>
+        <tr><td class="name is-blank">Paid to suppliers<span class="sub">worked out from the timing on step 2 — not entered</span></td><td class="r"><span class="ro">—</span></td><td class="r num">$165,950</td><td></td></tr>
+        <tr class="subtotal"><td>Gross profit</td><td class="r num"></td><td class="r num">$145,960</td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="card-f">
+      <span>Gross profit here is <b>cash collected less cash paid to suppliers</b>, which is the
+      spreadsheet's own definition. It is not the gross profit an accountant would report — that
+      one uses invoiced sales, not collected cash.</span>
+    </div>
+  </div>
+</div>
+
+<div class="ask ruled">
+  <h3>Decision 5 — RULED BY MIKE 2026-09-13 — the three new line names</h3>
+  <p class="ruling">✓ Ruled as recommended. <b>“Stock and materials bought”</b>, <b>“Paid to
+  suppliers”</b> and <b>“Gross profit”</b>, with the footnote saying that gross profit here is
+  cash collected less cash paid to suppliers — the spreadsheet's own definition, not an
+  accountant's.</p>
+  <p>The spreadsheet calls them <i>“Material/Product Purchases”</i>, <i>“PAYMENTS MADE”</i> and
+  <i>“GROSS PROFIT”</i>.</p>
+  <p class="rec">Recommended: <b>“Stock and materials bought”</b>, <b>“Paid to suppliers”</b> and
+  <b>“Gross profit”</b>.</p>
+</div>
+
+<div class="ask ruled">
+  <h3>Decision 6 — RULED BY MIKE 2026-09-13 — the warning on step 4</h3>
+  <p class="ruling">✓ Ruled as recommended. Step 4 carries the line <b>“Enter the money that
+  actually reached the bank, not what you invoiced”</b> under its heading.</p>
+  <p class="ruling">⚠ <b>Superseded on the Stock and Materials card only</b> — it says
+  <b>“Enter what you actually paid suppliers, not what they invoiced you”</b>. Money In keeps the
+  sentence ruled here. The fifth bullet in the green box at the top of this page says why.</p>
+  <p><b>The two sides of this model mean different things by the same word, and that is the
+  spreadsheet's own design.</b> On the budget, “Sales” is what was invoiced and the model works
+  out the cash. On the actuals there is no timing at all — so “Sales” there has to be the money
+  that actually landed in the bank. An advisor who types invoiced sales into step 4 gets a
+  comparison that means nothing, and nothing on screen would tell them.</p>
+  <p class="rec">Recommended: a line under the step 4 heading reading <b>“Enter the money that
+  actually reached the bank, not what you invoiced”</b>.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">Step 5 — how it went</div>
+
+<div class="hero">
+  <div class="hf"><div class="l">Money in against budget</div><div class="v good">+$39,390</div><div class="s">$351,300 against $311,910</div></div>
+  <div class="hf"><div class="l">Money out against budget</div><div class="v crit">+$17,550</div><div class="s">$393,500 against $375,950</div></div>
+  <div class="hf"><div class="l">Closing bank, budgeted</div><div class="v">−$54,040</div><div class="s">at Mar</div></div>
+  <div class="hf"><div class="l">Closing bank, actual</div><div class="v good">−$32,200</div><div class="s">$21,840 above plan</div></div>
+</div>
+
+<div class="wide">
+  <div class="card">
+    <h2>Money in — budget against actual</h2>
+    <div class="chart">
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:12%"></div><div class="bar2 a" style="height:56%"></div></div><div class="xlab">Apr</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:41%"></div><div class="bar2 a" style="height:78%"></div></div><div class="xlab">May</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:72%"></div><div class="bar2 a" style="height:100%"></div></div><div class="xlab">Jun</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:78%"></div><div class="bar2 a" style="height:34%"></div></div><div class="xlab">Jul</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:60%"></div><div class="bar2 a" style="height:56%"></div></div><div class="xlab">Aug</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:54%"></div><div class="bar2 a" style="height:67%"></div></div><div class="xlab">Sep</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:54%"></div><div class="bar2 a" style="height:28%"></div></div><div class="xlab">Oct</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:47%"></div><div class="bar2 a" style="height:56%"></div></div><div class="xlab">Nov</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:52%"></div><div class="bar2 a" style="height:78%"></div></div><div class="xlab">Dec</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:71%"></div><div class="bar2 a" style="height:89%"></div></div><div class="xlab">Jan</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:77%"></div><div class="bar2 a" style="height:56%"></div></div><div class="xlab">Feb</div></div>
+      <div class="slot"><div class="pair"><div class="bar2 b" style="height:72%"></div><div class="bar2 a" style="height:80%"></div></div><div class="xlab">Mar</div></div>
+    </div>
+    <div class="legend"><span><i class="b"></i>Budgeted</span><span><i class="a"></i>Actual</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">
+      <h2>Line by line, for the year</h2>
+      <span class="sub">Lines with nothing budgeted and nothing entered are left out</span>
+    </div>
+    <table>
+      <thead><tr><th>Line</th><th class="r">Budget</th><th class="r">Actual</th><th class="r">Difference</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr class="grouprow"><td colspan="5">Money in</td></tr>
+        <tr><td class="name">Sales</td><td class="r num">$348,300</td><td class="r num">$348,300</td><td class="r num">$0</td><td>On budget</td></tr>
+        <tr><td class="name">Sales with no GST on them</td><td class="r num">$3,000</td><td class="r num">$3,000</td><td class="r num">$0</td><td>On budget</td></tr>
+        <tr class="subtotal"><td>Money in</td><td class="r num">$311,910</td><td class="r num">$351,300</td><td class="r num good">+$39,390</td><td></td></tr>
+
+        <tr class="grouprow"><td colspan="5">Stock and materials</td></tr>
+        <tr><td class="name">Stock and materials bought</td><td class="r num">$180,600</td><td class="r num">$180,600</td><td class="r num">$0</td><td>On budget</td></tr>
+        <tr class="subtotal"><td>Paid to suppliers</td><td class="r num">$165,950</td><td class="r num">$180,600</td><td class="r num crit">+$14,650</td><td></td></tr>
+
+        <tr class="grouprow"><td colspan="5">Money out</td></tr>
+        <tr><td class="name">Car</td><td class="r num">$6,000</td><td class="r num">$7,600</td><td class="r num crit">+$1,600</td><td>Spent more<span class="pill crit">Worse</span></td></tr>
+        <tr><td class="name">Entertainment</td><td class="r num">$1,800</td><td class="r num">$2,350</td><td class="r num crit">+$550</td><td>Spent more<span class="pill crit">Worse</span></td></tr>
+        <tr><td class="name">Vehicle leases</td><td class="r num">$12,000</td><td class="r num">$12,000</td><td class="r num">$0</td><td>On budget</td></tr>
+        <tr><td class="name">Accounting</td><td class="r num">$7,200</td><td class="r num">$7,200</td><td class="r num">$0</td><td>On budget</td></tr>
+        <tr><td class="name">Loan repayments</td><td class="r num">$6,000</td><td class="r num">$6,750</td><td class="r num crit">+$750</td><td>Spent more<span class="pill crit">Worse</span></td></tr>
+        <tr><td class="name">Wages</td><td class="r num">$168,000</td><td class="r num">$168,000</td><td class="r num">$0</td><td>On budget</td></tr>
+        <tr><td class="name">Interest-only loan payments</td><td class="r num">$9,000</td><td class="r num">$9,000</td><td class="r num">$0</td><td>On budget</td></tr>
+        <tr class="subtotal"><td>Money out</td><td class="r num">$210,000</td><td class="r num">$212,900</td><td class="r num crit">+$2,900</td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="card-f">
+      <span>GST of <b>$14,343</b> is sitting in the bank on the budget. It belongs to Inland
+      Revenue and is not the business's money — it moves no balance on this screen.</span>
+    </div>
+  </div>
+</div>
+
+<div class="ask ruled">
+  <h3>Decision 7 — RULED BY MIKE 2026-09-13 — the name at the top of the screen</h3>
+  <p class="ruling">✓ Ruled as recommended. The name stays <b>“Mid-Level Budget”</b>, unchanged
+  from the Model Library card.</p>
+  <p>The Model Library card says <b>“Mid-Level Budget”</b> and has since the library was built.
+  It is the spreadsheet's own name, and it describes the model's detail level rather than what it
+  does for the client.</p>
+  <p class="rec">Recommended: <b>leave it exactly as it is.</b> It is already on the card an
+  advisor clicks, its sibling on the shelf is “High-Level Budget”, and renaming one of a pair
+  makes the shelf harder to read, not easier.</p>
+</div>
+
+<div class="nav">
+  <button class="btn">Back</button>
+  <button class="btn p">Next</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">The three corrections to the spreadsheet</div>
+
+<div class="mock">
+  <h3>Ruled by Mike, 2026-09-13 — why some figures here differ from the workbook</h3>
+  <p><b>1 · The “4 months later” collection slot only ever worked once.</b> Every other timing row
+  in the spreadsheet locks its percentage in place; that one does not, so it collects in its first
+  month and is ignored for the rest of the year. On this sample a client collecting 10% four months
+  later should see <b>$21,250</b> across the year; the spreadsheet finds <b>$2,500</b>. The other
+  <b>$18,750</b> is 5.4% of the year's revenue — and the “balance” check still reads 100%
+  throughout, so nothing warns them.</p>
+  <p><b>2 · GST was counted twice in the bank balance.</b> Your ruling of 2026-09-12 on the High
+  Level Budget, and these are the same rows with the same formulas. The closing balance here is
+  <b>−$54,040</b> where the spreadsheet shows −$39,697; the difference is exactly the GST held for
+  Inland Revenue, which was being treated as the business's own cash.</p>
+  <p><b>3 · Income that carries no GST was being taxed.</b> The spreadsheet's GST base swept in
+  tax rebates, interest received and capital introduced. None of the three bears GST — capital
+  introduced is not even a sale. This moves no figure on this sample, where all three are empty.</p>
+  <p style="margin-top:10px"><b>Everything else is the spreadsheet, line for line.</b> Each
+  correction is named in the model's header and pinned in the golden test against the workbook's
+  own figure, so any of them can be checked by hand.</p>
+</div>
+
+<div class="mock">
+  <h3>What the sample shows, and why it is worth seeing</h3>
+  <p>This client invoices <b>$348,300</b> and is profitable on paper — yet the budget runs the bank
+  down to <b>−$54,040</b> by March. Nothing is wrong with the business; the money simply arrives
+  later than the wages go out. <b>That is the entire argument for this model over the High Level
+  Budget</b>, and it is visible on the first screen.</p>
+</div>
+
+</div>
+</body>
+</html>

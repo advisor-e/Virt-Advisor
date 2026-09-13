@@ -67,8 +67,12 @@ describe('report model catalogue', () => {
         '/lease-vs-buy',
         '/loan-estimator',
         '/margin-breakeven',
+        '/mid-level-budget',
         '/multiple-property',
         '/quick-position',
+        '/retirement-review',
+        '/sales-dashboard',
+        '/stock-purchasing',
         '/three-way-forecast',
         '/volatility'
       ])
@@ -135,15 +139,27 @@ describe('report model catalogue', () => {
       // MODEL-CLASSIFICATION.md lists it under Report, "actuals and variances". Entry is typed
       // because a budget is a forecast and there is nothing to import — which changes where the
       // figures come from, not whose they are, so no Illustrative badge.
-      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports', 'High-Level Budget']
+      // Stock Purchasing (4.94, built 2026-09-13) is the eighth Report-class build:
+      // MODEL-CLASSIFICATION.md lists it under Report, "reorder points are only actionable on
+      // real stock data". Its lines are a real client's product list, imported from their stock
+      // system or typed — so no Illustrative badge.
+      // The Sales Dashboard (4.95, built 2026-09-13) is the ninth Report-class build: a real
+      // client's sales list, imported or typed. It opens on the source workbook's sample and
+      // says so with a SampleNotice — the badge is a claim about the MODEL, and this one runs on
+      // real figures the moment a file lands on it.
+      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports', 'High-Level Budget', 'Mid-Level Budget', 'Stock Purchasing (Growth Pro)', 'Sales Dashboard']
+      // The Retirement Review (4.90, built 2026-09-13) is the fifth Decision-class build: a
+      // household's real income, pension, superannuation and up to six properties, all typed
+      // in. No file to import, and no Illustrative badge — the figures are the client's own.
       const DECISION_BUILDS = [
         'The Loan Estimator',
         'Lease vs Buy',
         'Cost of Capital (WACC)',
-        'Multiple Property Assessment'
+        'Multiple Property Assessment',
+        'Retirement Review'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(14)
+      expect(built).toHaveLength(18)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -295,7 +311,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(14)
+      expect(readyCount(MODELS)).toBe(18)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

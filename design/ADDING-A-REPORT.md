@@ -290,7 +290,13 @@ their expectations from real sources, so they cannot drift from the thing they c
 - [`tests/unit/reportHeaderFullWidth.test.js`](../tests/unit/reportHeaderFullWidth.test.js)
   — a screen that renders `report-header` inside itself must reset the header margin
   (`::v-deep .rs-top { margin: 0 }`), so the header can never shrink below full width in the
-  flex-column root. Closes the 2026-07-27 regression that shipped a narrow header.
+  flex-column root. Closes the 2026-07-27 regression that shipped a narrow header. **You do
+  not add your screen to it: it reads `components/` and finds every screen that renders the
+  header.** *(It did not always. It carried a hand-typed list of nine that stopped growing,
+  checked six of thirteen screens, and let the same narrow-header regression ship again on
+  Stock Purchasing — found by Mike looking at the screen, 2026-09-13, at 364px in a 1076px
+  column. Nothing in this recipe had ever told anyone to add a file to it. Changed to
+  discovery the same day.)*
 
 All four are mutation-verified: badging Quick Position "Illustrative" fails the first,
 tucking a banner into a column (or hand-rolling a headline) fails the second, swapping a
