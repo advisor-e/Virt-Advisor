@@ -226,6 +226,27 @@
       "touches": "The provider seam 4.97 builds, the narrative and hub-reading call sites, the advisor's screen where two answers would show, the provider clearance in config.",
       "note": "NOT PART OF 4.97. Needs a design decision first: which calls get two answers, what the advisor sees when they disagree, and which provider is cleared for which data. DeepSeek's China hosting and training terms are the privacy question to answer before it carries anything personal.",
       "comment": "2026-09-14 - filed on Mike's yes so the idea is on the list and not in a chat."
+    },
+    {
+      "ref": "4.99",
+      "name": "No AI-backed script can run on the desktop",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The certificate path in the desktop's .env points at a bundle that does not work there, so every OpenAI call from a script fails and the Scenario Lab cannot measure the AI layers.",
+      "risk": "A lab run here silently reports the engine WITHOUT its AI layers and overwrites the report measured with them - score separation reads 2.3 against the real 5.7. Nothing says the layers were off unless someone reads the line that says so.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-14 - hit while measuring the resolver change for 4.97. A defect we found, not a feature nobody asked for; Mike said yes to filing it."
+      },
+      "touches": ".env on the desktop only (NODE_EXTRA_CA_CERTS), and scripts/scenario-lab.js which overwrites design/SCENARIO-LAB-REPORT.md whether or not the AI layers ran.",
+      "note": "TWO PARTS. The environment half is known and recorded in memory: export the Avast Web Shield root and point NODE_EXTRA_CA_CERTS at it; certs/digicert-bundle.pem does NOT work on this machine and TLS is never disabled. The code half is ours and is the one that matters: the lab should REFUSE to overwrite the report when the AI layers did not run, or write to a clearly marked file, so a partial measurement cannot replace a full one.",
+      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after a lab run without the key replaced a real report and was caught by the pre-commit hook rather than by anything in the lab itself."
     }
   ]
 }
