@@ -166,6 +166,31 @@
       "touches": ".claude/skills/add-a-report/SKILL.md, its 'Record & commit' section. design/ADDING-A-REPORT.md is already correct and needs no change.",
       "note": "ONE SENTENCE IN ONE FILE. The skill's 'Record & commit' section reads 'Add the report's line to design/ACTIONS.md (no silent parking)'. It should name design/features/to-do-items.json, which is where the deviation-logging rule has written since ACTIONS.md was frozen. The deployment-row sentence beside it is still right and stays.",
       "comment": "2026-09-13 - filed at shutdown on Mike's yes, after three sessions of it living in a handover note instead. That is the failure the shutdown checklist names: an open question for Mike is an item on this list, never a line in a note."
+    },
+    {
+      "ref": "4.97",
+      "name": "Wages Model - labour margin, and a staff register gated on due diligence",
+      "rankedByMike": false,
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-14"
+      },
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Mike asked for the wages workbook built into the performance-report section. It is the largest source model in the library: two operating bases, a hiring plan, and twelve months of labour margin projected against actual.",
+      "risk": "Nine decisions stand before any code and eight are Mike's. The register holds a client's named employees with pay, leave and service, so it is the only model touching identifiable people - built ungated it becomes a standing rating of someone's colleagues. And 1,778 of the workbook's cells are typed: any shipped as a constant silently removes the control the model exists to give.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-14 - 'buile the wages model into the perf report section', then 'look in here - C:\\Documents\\Visual Code Projects\\Perf Report and you will see a model named wages' when told it was not in the repository, then yes to drawing it before any code."
+      },
+      "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
+      "note": "DRAWN AND COMMITTED, NOTHING BUILT. Nine decisions on the drawing, eight open. Decision 6 is Mike's ruling: the staff register is absent unless the client's case is in the existing due-diligence domain AND the advisor switches it on. Revised the same day on his correction that input cells run throughout - 1,778 typed against 8,714 calculated, which re-sizes the job: the engine is the smaller half. Build order: labour-margin engine and golden test, then the input steps, then the report screen, then the rates tab, then the gated register last. Do not build the report screen first; its figures are worthless until the inputs behind them are the client's.",
+      "comment": "2026-09-14 - filed on Mike's instruction after the drawing was committed (6b2871a8) and corrected (9527a22d). The workbook was not in the repository; he supplied its location. His correction on input cells produced Decision 9 and a saved rule for every future workbook port. The drawing's real headline is the workbook's own: a Wet n Dark month loses 10,356 while a Dry n Light month makes 55,921 - same team, same pay, a 66,000 swing on weather."
     }
   ]
 }
