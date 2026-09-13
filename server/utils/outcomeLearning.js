@@ -188,7 +188,13 @@ function buildContribution (caseRow, libraryTitles, signalTypes, industryVocabul
 
   const trace = caseRow.decisionTrace && typeof caseRow.decisionTrace === 'object' ? caseRow.decisionTrace : {}
   const lenses = trace.lenses && typeof trace.lenses === 'object' ? trace.lenses : {}
-  const situation = trace.situation && typeof trace.situation === 'object' ? trace.situation : {}
+  // 🔴 THE PRIMARY ISSUE AND THE INDUSTRY COME FROM THEIR OWN TRACE KEYS, NEVER FROM
+  // `trace.situation`. Found 2026-09-14 (item 4.97): `situation` is the newline-joined STRING
+  // of the advisor's intake answers, so the object test this code used to apply was false on
+  // every live trace and both fields pooled as null — in UAT included. The unit tests passed
+  // throughout because they built `situation` as an object the engine has never produced.
+  // `advisorEngine.js` now writes `trace.primaryIssue` and `trace.industry` as typed keys.
+  const issue = trace.primaryIssue && typeof trace.primaryIssue === 'object' ? trace.primaryIssue : {}
 
   const domain = typeof caseRow.domain === 'string' && caseRow.domain
     ? caseRow.domain
@@ -202,11 +208,11 @@ function buildContribution (caseRow, libraryTitles, signalTypes, industryVocabul
     : parsed.toISOString().slice(0, 7)
 
   const labels = domain ? PRIMARY_ISSUE_LABELS.get(domain) : null
-  const typedIssue = typeof situation.primaryIssue === 'string' ? situation.primaryIssue.trim() : ''
+  const typedIssue = typeof issue.label === 'string' ? issue.label.trim() : ''
   const primaryIssue = labels && labels.has(typedIssue) ? typedIssue : null
 
   const vocabulary = new Set(Array.from(industryVocabulary || [], s => String(s).trim().toLowerCase()))
-  const typedIndustry = typeof situation.industry === 'string' ? situation.industry.trim().toLowerCase() : ''
+  const typedIndustry = typeof trace.industry === 'string' ? trace.industry.trim().toLowerCase() : ''
   const industry = typedIndustry && vocabulary.has(typedIndustry) ? typedIndustry : null
 
   const known = new Set(Array.isArray(signalTypes) ? signalTypes : [])

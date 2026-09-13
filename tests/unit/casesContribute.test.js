@@ -64,8 +64,13 @@ const caseRow = (over = {}) => ({
   updatedAt: '2026-09-04T00:00:00Z',
   review: { reviewedAt: '2026-09-04T03:00:00Z', wentWell: 'Bob loved it' },
   templateOutcomes: [{ title: 'break-even analysis', used: 'full', outcome: 'well' }],
+  // The trace as the engine builds it: `situation` a string, the issue and the industry
+  // their own typed keys (item 4.97, 2026-09-14 — the object form this fixture used to carry
+  // is a shape the engine has never produced, and it hid a live fault).
   decisionTrace: {
-    situation: { industry: 'Cafe', primaryIssue: 'Cost of sales has increased', clientName: 'Bob' },
+    situation: 'What the client raised: margins are down\nIndustry: Cafe',
+    primaryIssue: { label: 'Cost of sales has increased', how: 'confirmed', reason: 'supplier prices' },
+    industry: 'Cafe',
     lenses: { engagementType: 'advice', signalTypes: ['client_awareness'] }
   },
   ...over
@@ -136,7 +141,7 @@ describe('reviewCase with consent on', () => {
   })
 
   test('a guard refusal is logged with the case id and the review response is unchanged', async () => {
-    caseStore.getVisibleCase.mockResolvedValue(caseRow({ decisionTrace: { situation: {}, lenses: { engagementType: 'get', signalTypes: [] } } }))
+    caseStore.getVisibleCase.mockResolvedValue(caseRow({ decisionTrace: { situation: '', lenses: { engagementType: 'get', signalTypes: [] } } }))
     const res = makeRes()
     await reviewCase(req(), res)
     expect(res._status).toBe(200)

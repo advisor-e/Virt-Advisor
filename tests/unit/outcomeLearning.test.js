@@ -143,8 +143,16 @@ describe('buildContribution', () => {
       { title: 'break-even analysis', used: 'full', outcome: 'well' },
       { title: 'Cashflow Forecast', used: 'partial', outcome: 'less' }
     ],
+    // 🔴 THE TRACE IS BUILT AS THE ENGINE BUILDS IT, and this fixture is the guard on that.
+    // `situation` is the newline-joined STRING of the advisor's intake answers; the primary
+    // issue and the industry are their own typed keys. Until 2026-09-14 this fixture made
+    // `situation` an object carrying both, so these tests passed while every live pooled row
+    // had a null primary issue and a null industry (item 4.97). A fixture that describes a
+    // shape the engine never produces proves nothing.
     decisionTrace: {
-      situation: { primaryIssue: PROFIT_ISSUE, industry: 'Cafe', clientName: 'Bob' },
+      situation: 'What the client raised: margins are down\nIndustry: Cafe\nOwner: Bob',
+      primaryIssue: { label: PROFIT_ISSUE, how: 'confirmed', reason: 'your cause answer points at supplier prices' },
+      industry: 'Cafe',
       lenses: { engagementType: 'advice', signalTypes: ['sales_volume', 'sales_volume', 'unknown_signal'] }
     },
     ...over
@@ -172,10 +180,28 @@ describe('buildContribution', () => {
   test('pools industry only on a vocabulary match, primary issue only on an authored label', () => {
     const out = buildContribution(caseRow(), LIB, SIGNALS, ['plumber'])
     expect(out.industry).toBeNull()
-    const typed = buildContribution(caseRow({ decisionTrace: { situation: { primaryIssue: 'Bob is unhappy' }, lenses: {} } }), LIB, SIGNALS, [])
+    const typed = buildContribution(caseRow({ decisionTrace: { situation: 'anything', primaryIssue: { label: 'Bob is unhappy', how: 'reframed', reason: null }, lenses: {} } }), LIB, SIGNALS, [])
     expect(typed.primaryIssue).toBeNull()
     expect(typed.engagementType).toBeNull()
     expect(typed.signals).toEqual([])
+  })
+
+  // The regression that closed item 4.97's first finding. A trace whose `situation` is the
+  // engine's own STRING must still pool both fields, because they are read from their own keys.
+  test('pools the issue and the industry from a trace whose situation is the engine string', () => {
+    const out = buildContribution(caseRow(), LIB, SIGNALS, ['cafe'])
+    expect(typeof caseRow().decisionTrace.situation).toBe('string')
+    expect(out.primaryIssue).toBe(PROFIT_ISSUE)
+    expect(out.industry).toBe('cafe')
+  })
+
+  // A trace written before 4.97 carries neither key. It must pool cleanly with both null
+  // rather than throwing, so old cases reviewed after this ships still contribute.
+  test('an older trace with no typed keys pools with both fields null', () => {
+    const old = buildContribution(caseRow({ decisionTrace: { situation: 'Industry: Cafe', lenses: { engagementType: 'advice', signalTypes: [] } } }), LIB, SIGNALS, ['cafe'])
+    expect(old.primaryIssue).toBeNull()
+    expect(old.industry).toBeNull()
+    expect(guardContribution(old, VOCAB)).toBe(old)
   })
 
   test('returns null when there is nothing to pool', () => {

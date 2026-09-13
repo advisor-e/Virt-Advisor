@@ -3289,6 +3289,10 @@ async function handleQuery (rawBody, res, identity) {
     // recommendation below and intended to be stored on a saved case study.
     const _savedClientAudit = buildSavedClientTraceAudit(state.savedClientContext, state.savedClientContextUsage)
     const _continuityAudit = buildContinuityTraceAudit(_continuityAllowed, _priorSummary)
+    // Which provider answered this session's recommendation call (item 4.97 US8). The seam
+    // that sets it does not exist yet, so it reads as the primary until T011 lands; the trace
+    // carries the key from today so a saved case never has to be read two ways.
+    const _aiProvider = state.aiProvider || null
 
     const _decisionTrace = {
       session: sessionId || null,
@@ -3298,7 +3302,31 @@ async function handleQuery (rawBody, res, identity) {
       // the auditability "tag each saved case with the active version" goal).
       scoringVersion: SCORING_VERSION,
       // The advisor's own words for the situation (their intake answers).
+      // 🔴 THIS IS A STRING, not an object — `collectedAnswers` is a newline-joined list of
+      // labelled lines (see its build above) and `resolveSavedClientContext` reads it as text
+      // with `extractLabeledLine`. Anything needing a FIELD off this trace reads one of the
+      // typed keys below, never a property of this string. Item 4.97, 2026-09-14: Outcome
+      // Learning's `buildContribution` tested `typeof situation === 'object'` and so pooled a
+      // null primary issue and a null industry on EVERY live row, while its unit tests passed
+      // because they built `situation` as an object the engine has never produced.
       situation: collectedAnswers || {},
+      // The confirmed primary issue (item 4.97 US1). `label` is one of Mike's authored labels
+      // for this domain (data/primary-issues.json) or null; `how` says whether the advisor
+      // confirmed the engine's proposal, reframed it to another authored label, or nothing
+      // matched; `reason` is the one line shown with the proposal. Context domains and domains
+      // with no authored labels never propose, and carry `how: 'none'`.
+      primaryIssue: {
+        label: (state.primaryIssue && state.primaryIssue !== 'pending' && state.primaryIssue !== 'skipped') ? state.primaryIssue : null,
+        how: state.primaryIssueHow || 'none',
+        reason: state.primaryIssueReason || null
+      },
+      // The client's industry as the advisor typed it (item 4.97 US4). A TYPED FIELD, because
+      // the pool resolves it against the engine's own vocabulary and cannot read the string
+      // above. The sentinels are mapped to null exactly as `caseState.js` does.
+      industry: (state.industry && state.industry !== 'pending' && state.industry !== 'skipped') ? state.industry : null,
+      // Which AI provider answered the recommendation call (item 4.97 US8). Filled by the
+      // provider seam; until it exists every call is the primary.
+      ai: { provider: _aiProvider || 'openai' },
       domain: {
         id: state.detectedDomain || null,
         label: (DOMAINS.find(d => d.id === state.detectedDomain) || {}).label || null
