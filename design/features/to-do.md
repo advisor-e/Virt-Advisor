@@ -41,8 +41,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 4 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 5 | **4.93** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 6 | **4.96** The add-a-report skill still points sessions at the frozen ACTIONS.md ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
+| 7 | **4.97** The engine's middle, and the learning loop made true ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **desktop**, since 2026-09-14 |
+| 8 | **4.98** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**Six live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Eight live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
