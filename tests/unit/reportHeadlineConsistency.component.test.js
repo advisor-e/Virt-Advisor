@@ -19,6 +19,7 @@ const VolatilityReport = require('~/components/VolatilityReport.vue').default
 const ThreeWayForecastReport = require('~/components/ThreeWayForecastReport.vue').default
 const DashboardReportsWorkbench = require('~/components/DashboardReportsWorkbench.vue').default
 const HighLevelBudget = require('~/components/HighLevelBudget.vue').default
+const RetirementReview = require('~/components/RetirementReview.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -34,6 +35,7 @@ const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('~/server/re
 const { computeThreeYearForecast } = require('~/server/report/threeWayForecastModel')
 const { computeReportPages } = require('~/server/report/dashboardReportPagesModel')
 const { computeHighLevelBudget, DEFAULT_INPUTS: HLB_DEFAULTS } = require('~/server/report/highLevelBudgetModel')
+const { computeRetirementReview } = require('~/server/report/retirementReviewModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -101,7 +103,8 @@ const SCREENS = [
   // The High Level Budget (4.88). The screen opens EMPTY — Report class, so it never seeds
   // itself from the workbook sample — but the guard needs figures in the strip, so the mocked
   // backend answers with the sample the way a filled-in budget would.
-  { name: 'High Level Budget', component: HighLevelBudget, result: () => computeHighLevelBudget(HLB_DEFAULTS) }
+  { name: 'High Level Budget', component: HighLevelBudget, result: () => computeHighLevelBudget(HLB_DEFAULTS) },
+  { name: 'Retirement Review', component: RetirementReview, result: () => computeRetirementReview() }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

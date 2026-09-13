@@ -46,6 +46,7 @@ const RENDERED_BY = {
   // chips — unlike Quick Position, it is one component with nothing to coordinate, so the
   // page is the shell and nothing else. Report class: no "Illustrative" badge.
   '/high-level-budget': { component: 'components/HighLevelBudget.vue' },
+  '/retirement-review': { component: 'components/RetirementReview.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
   // 🔴 The Three-Way Forecast MOVED into this group on 2026-09-05. Its component had been
   // rendering a second ReportHeader under the page's own, so the screen drew its title

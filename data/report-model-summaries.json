@@ -736,6 +736,59 @@
       ]
     },
     {
+      "route": "/retirement-review",
+      "name": "Retirement Review",
+      "category": "Valuation",
+      "modelClass": "decision",
+      "answers": "Whether a household's plan actually funds the retirement they want. Two halves that share no figure: a savings-gap calculator that can be run in a first meeting before any balance is known, and a twenty-year projection of every income stream, six properties and their mortgages, against the income the household needs — ending on whether the cash ever runs out.",
+      "keyOutputs": [
+        "The monthly savings gap between what they must save and what they do",
+        "Whether the cash ever runs out, and in which year",
+        "How many of the twenty years spend more than they bring in",
+        "The cash left at year twenty, and the lowest point before it"
+      ],
+      "inputsNeeded": "Typed, not read from a file — nothing exports a retirement position. Ten answers about what retirement should be and cost; the income required each week and the inflation on it; the business drawings and how long they last; cash, superannuation and other investments with their drawdown terms; the government pension; and up to six properties, each with its mortgage type, rate, term, growth and the year it is sold, if it is.",
+      "useWhen": "An owner is deciding when they can stop, or whether the properties they hold will carry them. Also for the first meeting on its own: the savings-gap half needs only what they want to live on and what they save today.",
+      "limits": "It is a CASH projection, not a tax return: one average tax rate is worked out in year one and held for all twenty years, which is the source workbook's own choice. It assumes every property sells at its projected value in the year named, and it models no market fall, no vacancy and no health event. Three figures deliberately differ from the source workbook and the screen names each one with the cells it changes. It takes the client's real household, so it is never illustrative — and it is not a substitute for regulated financial advice.",
+      "heroFigures": [
+        {
+          "label": "Cash at year twenty",
+          "sub": "and whether it ever runs out before then"
+        },
+        {
+          "label": "Years spending more than they earn",
+          "sub": "of the twenty"
+        },
+        {
+          "label": "Lowest the cash gets",
+          "sub": "and the year it happens"
+        },
+        {
+          "label": "Property sold",
+          "sub": "the proceeds, and the years they land"
+        }
+      ],
+      "alsoOnScreen": "Four steps: the conversation, which produces the savings gap and can be finished on its own; what they have, with year one's income stream by stream and the tax rate everything else uses; the properties, each with what it costs against what it brings in; and the next twenty years — a surplus-and-shortfall chart, every year in a table, and a card naming where the figures differ from the spreadsheet.",
+      "coach": [
+        "The verdict says whether the plan holds AND what it holds on: where the cash survives only because properties are sold, it says so rather than reporting a comfortable closing balance. On the sample, taking the three sales away runs the cash out in year four.",
+        "A shallow year is not a safe one. The deficits narrow as rents grow and then jump when an income stream ends — the business stopping, or the superannuation running dry — so the worst year is usually years after the one that looks worst at the start.",
+        "The government pension is counted after tax throughout, and the rental income after both tax and mortgage payments. A plan that looks fundable on gross figures often is not."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "retirement",
+        "retire",
+        "pension",
+        "superannuation",
+        "when can I stop",
+        "nest egg",
+        "savings gap",
+        "how much do I need",
+        "drawdown",
+        "rental properties in retirement"
+      ]
+    },
+    {
       "route": "/high-level-budget",
       "name": "High-Level Budget",
       "category": "Budgeting",

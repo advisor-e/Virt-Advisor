@@ -167,8 +167,10 @@ describe('every summary carries what an advisor needs before being sent to a mod
     // Five since 2026-09-08: Dashboard Reports (4.70) is a client-read document with no Coach panel.
     // Six since 2026-09-12: the High-Level Budget (4.88) reads itself — every line of its
     // variance table says Better or Worse beside its own figure.
-    expect(bullet).toMatch(/\*\*Six\*\*|\bSix\b/)
-    expect(noPanel).toHaveLength(6)
+    // Seven since 2026-09-13: the Retirement Review (4.90) reads itself too — its verdict
+    // panel and its workbook-differences card say what a coach panel would have said.
+    expect(bullet).toMatch(/\*\*Seven\*\*|\bSeven\b/)
+    expect(noPanel).toHaveLength(7)
     // And every one of them named, so a new one cannot be added silently.
     //
     // Matched on the name's identifying stem rather than in full, because prose calls

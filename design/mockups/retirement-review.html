@@ -59,6 +59,8 @@ strong,b{font-weight:600}
 .mock.ruled{background:#eefaea;border-color:#4ca52d66;color:#1f4a12}
 .mock.ruled .stepmark,.mock.ruled h3{color:#2f6b1c}
 .mock.ruled .q{border-color:#4ca52d66}
+.ruledtag{display:inline-block;background:#4ca52d;color:#fff;font-size:10px;font-weight:700;
+  letter-spacing:.06em;border-radius:4px;padding:2px 7px;margin-left:8px;vertical-align:1px}
 .stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
   color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
 .rec{color:#0070c0;font-weight:600}
@@ -181,6 +183,63 @@ tr.sub td.num{font-size:14.5px}
 <body>
 <div class="shell">
 
+<div class="mock ruled">
+  <h3>✅ Built from this drawing — 2026-09-13 <span class="ruledtag">Built the same day</span></h3>
+  <p><b>Mike ruled the six wording decisions below and the screen was built from this page the
+  same day</b> — <code>pages/retirement-review.vue</code>,
+  <code>components/RetirementReview.vue</code>, every label in <code>locales/en.json</code>, the
+  Model Guide entry, and the Model Library card flipped from "coming soon" to live. Suite 10,149
+  green, lint 0 errors.</p>
+  <p><b>FIVE DIFFERENCES BETWEEN THIS DRAWING AND THE BUILD</b>, named here rather than left to
+  be found:</p>
+  <ul>
+    <li>🔴 <b>THIS PAGE SAYS "Three of the six" properties cost more than they bring in. It is
+    TWO</b> — Homes 2 and 3. The drawing was wrong; the screen computes the count, so it is
+    right. Nothing in the build was changed for this.</li>
+    <li>🔴 <b>The verdict panel's warning figures shipped NAVY, not red.</b> The tone class was
+    correctly applied and lost on CSS specificity to the panel's own colour, so the shortfall on
+    step 1 and the deficit count on step 4 — the two figures the panel exists to flag — were the
+    two it did not flag. <b>Found by opening the screen, with 10,149 tests green</b>; the class
+    was present, so any assertion looking for it would have passed. Fixed.</li>
+    <li><b>The buttons are purple, not the blue drawn here.</b> Checked against the shipped High
+    Level Budget: identical. The build is the one consistent with every other live screen, which
+    is what the 2026-07-23 ruling asks for, so the drawing is the odd one out and stands
+    uncorrected as the record of what was shown.</li>
+    <li><b>Percentages and money in the entry boxes carry no symbol or separator</b> —
+    <code>1.7</code> and <code>12000</code>, not <code>1.70%</code> and <code>12,000</code>. A
+    number input cannot carry either; the same fact is already recorded on the High Level
+    Budget.</li>
+    <li><b>Counts render as numerals</b> — "The 6 today", "selling 3 properties" — where this page
+    writes them as words. The count adapts to however many properties a client actually has, and
+    spelling it would need a number-to-word table for very little.</li>
+  </ul>
+</div>
+
+<div class="mock ruled">
+  <h3>✅ Six wording decisions — RULED BY MIKE, 2026-09-13 <span class="ruledtag">All as drawn</span></h3>
+  <p><b>Every one was put to him on its own, with the recommendation and the alternatives beside
+  it, and every one came back on the recommendation.</b> They are recorded here rather than in a
+  chat window so the build can be held against them later:</p>
+  <ul>
+    <li><b>The verdict sentence (step 4):</b> <i>"The plan holds — but it leans on selling three
+    properties."</i> Chosen over leading with the fourteen short years, and over a bare <i>"The
+    plan holds"</i>.</li>
+    <li><b>The step-1 headline:</b> <i>"The gap is $14,687 a month."</i> Chosen over leading with
+    the $1,532,871 target, and over showing the two monthly figures side by side.</li>
+    <li><b>The four step names:</b> <i>The conversation · What they have · The properties · The
+    next twenty years.</i> Chosen over <i>Your goals / Your position / Your properties / Your
+    future</i>, and over the workbook's own sheet names.</li>
+    <li><b>The property columns (step 3):</b> <i>Worth · Owing · Mortgage cost · Left over.</i>
+    Chosen over the workbook's <i>Value / Debt / Servicing / Surplus</i>.</li>
+    <li><b>Step 1 stays inside this model</b>, with its <i>Finish here</i> button, rather than
+    becoming a second card in the Model Library.</li>
+    <li><b>The step-4 banner tile</b> reads <i>"Years spending more than they earn"</i>, not
+    <i>"Years in deficit"</i> — which is what the code calls it.</li>
+  </ul>
+  <p><b>The recommendations and the arguments against them are LEFT IN PLACE below</b>, in the
+  yellow blocks, rather than tidied away. The record of what was put to him is the point.</p>
+</div>
+
 <div class="mock">
   <h3>What this is</h3>
   <p><b>Item 4.90 — the Retirement Review screen, drawn for approval on 2026-09-13. THE SCREEN IS
@@ -196,8 +255,9 @@ tr.sub td.num{font-size:14.5px}
   is built.</p>
   <p class="q"><b>The look is not a question for you.</b> Colours, spacing, cards, the dark banner
   and the step chips are read straight off Quick Position, the Loan Estimator and the High Level
-  Budget, per your ruling of 2026-07-23. <b>What is a question is every word</b> — the step names,
-  the field labels and, above all, the verdict sentence on step 4. Those are marked as you go.</p>
+  Budget, per your ruling of 2026-07-23. <b>The words were the question, and the six that mattered
+  are now ruled</b> — see the green block above. The yellow blocks below still carry each
+  recommendation and the case against it, which is how the decision stays checkable.</p>
 </div>
 
 <div class="mock">

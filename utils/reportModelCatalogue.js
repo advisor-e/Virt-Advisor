@@ -98,7 +98,9 @@ export const MODELS = [
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/lease-vs-buy' },
   { name: 'The Loan Estimator', category: 'Valuation', summary: 'What lenders would lend against, whether the household can service it, and the repayments.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/loan-estimator' },
   { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Whether a rental portfolio is worth buying — up to five properties, ten years of cash, tax and equity.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/multiple-property' },
-  { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  // Item 4.90. CLASS_DECISION — a household's real income, pension, superannuation and up to
+  // six properties, typed in — so NO "Illustrative" badge, and the route stores nothing.
+  { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/retirement-review' },
   { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },
   // Item 4.88. CLASS_REPORT per design/MODEL-CLASSIFICATION.md — "actuals and variances" — so
   // no "Illustrative" badge: these are a client's own budget and their own bank balance.
