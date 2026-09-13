@@ -37,6 +37,38 @@
    identity. They are marked ✓ where they appear. That is the standard the golden
    test will hold the whole port to.
 
+   🔴 REVISED 2026-09-14, ON MIKE'S CORRECTION, AND IT CHANGED THE DRAWING.
+   His words: "remember to check the original model for input cells - don't assume
+   that things like 'wet n dark' days are a set figure - you will see this
+   throughout the entire xisting model." He is right, and the first cut of this
+   page was wrong in three places and incomplete in two more.
+
+   Every cell has now been classified by reading the stored XML: a cell carrying
+   an <f> element is CALCULATED, one without is TYPED. THE WORKBOOK HOLDS 1,778
+   TYPED CELLS against 8,714 calculated — 17% of it is the advisor's to set, and
+   the proportion runs from 11% on the Hiring Plan to 63% on the rate sheet.
+   Section "What the advisor sets" below is the inventory; it did not exist in the
+   first cut, which is the omission Mike caught.
+
+   WHAT WAS WRONG, kept here rather than quietly corrected:
+   - The "two bases" card printed "Hours/day 7-10 by season, Days/week 5-6, Days
+     lost 0-4" as if the model stated them. All nine are typed, AND SO ARE THE
+     THREE SEASON NAMES — a firm can rename "Wet n Dark" to whatever its own
+     people call it.
+   - Decision 5 said sheet 1 "hardcodes the five NZ tax bands". It does not. Every
+     ceiling and every rate is typed, the sheet carries TWO SPARE CUSTOM BAND
+     TABLES ("Custm 1", "Custm 2"), and it has a State Taxes column headed "Scroll
+     right to view combined (concurrent) State & Federal Taxes". The workbook
+     already anticipated other countries. The recommendation survives; the reason
+     given for it was wrong.
+   - The bonus sheet's 7% superannuation was raised as a possible defect. It is a
+     typed field sitting beside a typed tax rate — the advisor's own input, not a
+     buried constant. What remains is a labelling question, not a maths one.
+   - The shutdown year total read $972,334. The workbook's own R17 says
+     $973,328.42. That was my arithmetic, not the spreadsheet's.
+   - A whole computed card was missed: the per-season comparison at Seasonal
+     Inputs AB40:AD45, which is a stronger finding than anything in the first cut.
+
    WHAT THE WORKBOOK IS. Six sheets, ~10,500 filled cells — the largest source
    model in the library by some distance. Per-person pay and charge-out rates,
    a month-by-month hiring plan and pay-rise schedule, TWO alternative operating
@@ -208,8 +240,12 @@ section"</i> and his <b>yes</b> to drawing it first. The workbook was copied int
 formulas. Nothing is invented to fill a box. Where a figure has already been reproduced by hand from
 the workbook's formula it carries a <span class="tick">✓</span>; those four are the standard the
 golden test will hold the whole port to.</p>
-<p><b>There are eight decisions below and one of them is Mike's already</b> — Decision 6, the
-due-diligence gate, which is his ruling of 2026-09-14 turned into a screen. The other seven are open.</p>
+<p><b>There are nine decisions below and one of them is Mike's already</b> — Decision 6, the
+due-diligence gate, which is his ruling of 2026-09-14 turned into a screen. The other eight are open.</p>
+<p>🔴 <b>This page was revised the same day on Mike's correction</b> — <i>"don't assume that things
+like 'wet n dark' days are a set figure"</i>. Every cell has since been classified as typed or
+calculated. <b>1,778 of them are typed</b>, and what that changed is listed in the file's own header
+and inventoried under <b>What the advisor sets</b>.</p>
 </div>
 
 <div class="privacy">
@@ -300,19 +336,24 @@ work, and a Yes/No cell at <code>Cash Report!C7</code> picks which one the repor
 <table>
 <tr><th>Seasonal</th><th>Shutdown</th></tr>
 <tr>
-<td><b>The weather decides the hours.</b> Three seasons — <i>Dry n Light</i>, <i>Std Season</i>,
-<i>Wet n Dark</i> — each with its own hours per day, days per week and days lost per month. A field
-team paid for lost days.</td>
-<td><b>The calendar decides the hours.</b> Production days per month, with an explicit Christmas
-shutdown (December drops to 11 days, January to 10), and overtime switched on month by month.</td>
+<td><b>The weather decides the hours.</b> Three seasons — named <i>Dry n Light</i>, <i>Std
+Season</i> and <i>Wet n Dark</i> <b>in this workbook only</b>, because the three names are typed —
+each with its own hours per day, days per week and days lost per month. A field team paid for lost
+days, or not.</td>
+<td><b>The calendar decides the hours.</b> Production days entered month by month — 11 in December
+and 10 in January in this sample, which is <b>this client's shutdown, not a rule</b> — and overtime
+switched on or off per month.</td>
 </tr>
-<tr><td>Year's revenue: <b>$1,362,740</b></td><td>Year's revenue: <b>$972,334</b></td></tr>
+<tr><td>Year's revenue: <b>$1,362,740</b> <span class="cell">R15</span></td>
+    <td>Year's revenue: <b>$973,328</b> <span class="cell">R17</span></td></tr>
 </table>
 <p class="rec">Recommended: <b>one model, one screen, a two-button switch at the top</b> — the same
 control style already on the shipped screens — defaulting to whichever basis the advisor used last
 for that client.</p>
 <p><b>Why not two models.</b> They share every input: the same staff, the same hiring plan, the same
 pay rises. Splitting them would duplicate all of it and let the two drift apart.</p>
+<p>⚠ <b>Not one of the figures in the two columns above is a house constant.</b> Every one is typed
+on the sheet, which is what Decision 9 has to solve.</p>
 </div>
 
 <div class="ask">
@@ -326,18 +367,27 @@ shape. It is worth doing later on its own merits, and it is not worth holding th
 </div>
 
 <div class="ask behaviour">
-<h3>Decision 5 — the tax bands should come from the Tax Rates screen, not from the workbook</h3>
-<p>Sheet 1 hardcodes the five New Zealand income-tax bands — 10.5% to $14,000, 17.5% to $48,000, 30%
-to $70,000, 33% to $180,000, 39% above. They are correct today. They will not be correct forever,
-and they are wrong in every other country.</p>
-<p><b>The app already solves this.</b> There is a Tax Rates screen, and country rate schedules load
-at global group manager — one person loads every country their brand operates in.</p>
-<p class="rec">Recommended: <b>read the bands from the existing country tax-rate tables</b>, and where
-a country's bands have not been loaded, say so on the screen and withhold the tax figure rather than
-computing a New Zealand answer for an Australian client.</p>
-<p>This is the one place the model should <i>not</i> be a faithful port. A hardcoded 2026 NZ band
-table inside a model screen is a wrong number waiting to happen, and a wrong tax number is the kind
-of thing UAT cannot catch — it looks perfectly plausible.</p>
+<h3>Decision 5 — the tax bands are the advisor's to type, and that is the argument for taking them off him</h3>
+<p>⚠ <b>Corrected 2026-09-14.</b> This box previously said sheet 1 <i>"hardcodes the five New Zealand
+income-tax bands"</i>. <b>It does not, and the truth makes the case stronger rather than weaker.</b></p>
+<p><b>What is actually there.</b> Every ceiling and every rate is a <b>typed cell</b> — $14,000 at
+10.5%, $48,000 at 17.5%, $70,000 at 30%, $180,000 at 33%, 39% above. Only the band <i>floors</i> are
+calculated, each being the one below it plus a dollar. Beside them sit <b>two spare custom band
+tables</b>, labelled <i>Custm 1</i> and <i>Custm 2</i>, and a <b>State Taxes</b> column under the
+note <i>"Scroll right to view combined (concurrent) State &amp; Federal Taxes"</i>.</p>
+<p><b>So the workbook already anticipated this model crossing borders</b>, and its answer was to let
+whoever opens it retype the bands. That is the problem, not the solution: it puts a tax table in
+every advisor's hands with nothing checking it, and a stale band is invisible — the arithmetic stays
+perfect while the answer goes wrong.</p>
+<p><b>The app already solves it properly.</b> There is a Tax Rates screen, and country rate schedules
+load at global group manager — one person loads every country their brand operates in, once.</p>
+<p class="rec">Recommended: <b>read the bands from the existing country tax-rate tables</b>, keep the
+workbook's ability to override them for a one-off case, and where a country's bands have not been
+loaded <b>say so and withhold the tax figure</b> rather than computing a New Zealand answer for an
+Australian client.</p>
+<p>This is the one place the model should <i>not</i> be a faithful port — and note what the
+recommendation keeps: the override survives, because the workbook's two custom tables prove somebody
+needed one. A wrong tax figure is exactly what UAT cannot catch; it looks perfectly plausible.</p>
 </div>
 
 <div class="ask ruled">
@@ -382,6 +432,35 @@ shipping "Dispensable". A label like <b>Revenue at risk: High / Indirect / Low</
 thing the definitions say.</p>
 <p><b>This is your call and I have not assumed it.</b> The drawing below shows the workbook's own
 words so you can see what the port would say if nothing changes.</p>
+</div>
+
+<div class="ask behaviour">
+<h3>Decision 9 — 1,778 typed cells, and how many of them reach a screen</h3>
+<p>⚠ <b>Added 2026-09-14 on Mike's correction</b>, which is what this decision exists to answer:
+<i>"don't assume that things like 'wet n dark' days are a set figure - you will see this throughout
+the entire xisting model."</i></p>
+<p>Classifying every cell gives the size of the problem. <b>1,778 typed against 8,714 calculated</b>
+— and the typed ones are not evenly spread:</p>
+<table>
+<tr><th>Sheet</th><th>Typed</th><th>Calculated</th><th>What the advisor is doing there</th></tr>
+<tr><td>Hrly Rate &amp; Tax</td><td><b>225</b></td><td>131</td><td>63% typed — it is a calculator, almost all input</td></tr>
+<tr><td>Seasonal Inputs</td><td><b>444</b></td><td>2,201</td><td>per person, plus the three seasons' settings</td></tr>
+<tr><td>Shutdown Inputs</td><td><b>408</b></td><td>2,504</td><td>per person: base hours, overtime rate, overtime hours, leave</td></tr>
+<tr><td>Annual Hiring Plan</td><td><b>453</b></td><td>3,502</td><td>who is on, month by month, and every pay rise</td></tr>
+<tr><td>Cash Report</td><td><b>89</b></td><td>233</td><td>the basis switch, the month settings, and the actuals</td></tr>
+<tr><td>DD Considerations</td><td><b>159</b></td><td>143</td><td>leave, service, and the rating</td></tr>
+</table>
+<p><b>A single form cannot carry that, and a faithful port that tried would be unusable.</b> Equally,
+quietly fixing any of them as a constant removes the control the model exists to give — which is
+precisely the fault Stock Purchasing hit, where five score ladders looked like fixed bands and were
+the owner's editable columns.</p>
+<p class="rec">Recommended: <b>a step per sheet, in the workbook's own order</b> — People, Seasons or
+Shutdown, Hiring plan, then the report — with <b>every typed cell reachable and none invented as a
+default we made up</b>. Where a figure is genuinely the same for everyone, it is entered once at the
+top of its step rather than repeated per person.</p>
+<p><b>The one thing not to do</b> is ship the report screen first and add the inputs later. The
+numbers on it are worthless until the inputs behind them are the client's, and a screen showing the
+sample company's figures is how a demo becomes a wrong answer in front of a real client.</p>
 </div>
 
 <div class="ask behaviour">
@@ -507,21 +586,23 @@ carries forward as a total; the names it was built from do not.</p>
 
 <div class="two">
 <div class="card">
-  <h4>What the two bases assume</h4>
-  <p class="sub">The switch at the top of the screen chooses between these.</p>
+  <h4>The three seasons, and what each one is worth</h4>
+  <p class="sub">A month run entirely on each season's own settings. Computed by the workbook at
+  <code>Seasonal Inputs AB40:AD45</code> — <b>a card the first cut of this drawing missed.</b></p>
   <table class="data">
-    <thead><tr><th></th><th>Seasonal</th><th>Shutdown</th></tr></thead>
+    <thead><tr><th>Per month</th><th>Wet n Dark</th><th>Std Season</th><th>Dry n Light</th></tr></thead>
     <tbody>
-      <tr><td>Hours/day</td><td>7–10 by season</td><td>Base 40/wk + overtime</td></tr>
-      <tr><td>Days/week</td><td>5–6 by season</td><td>Production days/month</td></tr>
-      <tr><td>Days lost</td><td>0–4 per month</td><td>—</td></tr>
-      <tr><td>Christmas</td><td>no change</td><td>Dec 11 days, Jan 10</td></tr>
-      <tr><td>Overtime</td><td>—</td><td>on/off per month</td></tr>
-      <tr class="tot"><td>Year billed</td><td>1,362,740</td><td>972,334</td></tr>
+      <tr><td>Hours available</td><td>1,401</td><td>1,862</td><td>2,781</td></tr>
+      <tr><td>Revenue</td><td>100,795</td><td>123,350</td><td>168,252</td></tr>
+      <tr><td>Wages</td><td>111,151</td><td>105,260</td><td>112,331</td></tr>
+      <tr class="tot"><td>Gross profit</td><td class="neg">−10,356</td><td class="pos">18,090</td><td class="pos">55,921</td></tr>
     </tbody>
   </table>
-  <p class="foot">The seasonal basis also adds an <b>overnight allowance</b> of $1,400 in months it
-  applies — seven of the twelve in the sample. <code>Cash Report!E20</code> switches on it.</p>
+  <p class="foot">🔴 <b>This is the model's real headline and it is sharper than the July figure.</b>
+  A <i>Wet n Dark</i> month does not merely earn less — <b>it loses $10,356</b>, because the wage
+  bill barely moves while the billable hours collapse by half. A <i>Dry n Light</i> month makes
+  $55,921. <b>The same team, the same pay, a $66,000 swing.</b> That is the conversation, and the
+  client chooses how many of each month they plan for.</p>
 </div>
 
 <div class="card">
@@ -655,12 +736,97 @@ figure with tab 1</b> and the screen says so.</p>
     </tbody>
   </table>
   <p class="foot"><span class="tick">✓</span> <b>Reproduced by hand:</b> 500 ÷ (1 − 0.30 − 0.07) =
-  793.6508. <br><b>⚠ One thing to confirm before this is ported.</b> Deducting the 7% from the
-  employee's gross treats it as <i>their</i> contribution. The Seasonal sheet separately carries an
-  <i>"Employer Retirement Contribution %"</i> of 3%, which is the employer's. If the 7% here is meant
-  to be the employer's too, the gross is 714.29 and the employer pays 50.00 on top — a different
-  answer. <b>Not a defect until you say which it is.</b></p>
+  793.6508. <b>All three of the figures above the line are typed</b> — the bonus, the tax rate and
+  the superannuation percentage are the advisor's own, set per client and per employee, so none is a
+  constant to be ported. <br>⚠ <b>What remains is a labelling question, not a maths one.</b>
+  Deducting the 7% from gross treats it as the <i>employee's</i> contribution, while the Seasonal
+  sheet separately carries an <i>"Employer Retirement Contribution %"</i> of 3%, which is the
+  employer's. The same screen would then hold two retirement percentages meaning opposite things.
+  <b>The field needs a label that says which — that is the whole of it.</b></p>
 </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="sect">What the advisor sets — the inventory the first cut was missing</div>
+
+<div class="mock" style="margin-bottom:16px">
+<p><b>This section exists because of Mike's correction of 2026-09-14</b> — <i>"remember to check the
+original model for input cells"</i>. Every cell below carries no formula in the workbook: it is
+typed, and it therefore needs a control on the screen. <b>Nothing here is a house constant and
+nothing here may be ported as one.</b></p>
+</div>
+
+<div class="two">
+<div class="card">
+  <h4>Per person — once each</h4>
+  <p class="sub">Twenty-four people in the sample, across four divisions.</p>
+  <table class="data">
+    <thead><tr><th>Field</th><th style="text-align:left">Sample</th></tr></thead>
+    <tbody>
+      <tr><td>Name and division</td><td style="text-align:left">Mary G · Admin</td></tr>
+      <tr><td>Full time / part time</td><td style="text-align:left">Part Time</td></tr>
+      <tr><td>On salary?</td><td style="text-align:left">No</td></tr>
+      <tr><td>Annual salary</td><td style="text-align:left">45,000 — if on salary</td></tr>
+      <tr><td>Hourly charge rate</td><td style="text-align:left">55.00</td></tr>
+      <tr><td>Hourly pay rate</td><td style="text-align:left">19.00</td></tr>
+      <tr><td>Daily production efficiency</td><td style="text-align:left">92%</td></tr>
+      <tr><td>Employer retirement %</td><td style="text-align:left">3%</td></tr>
+      <tr><td>Weekly base hours</td><td style="text-align:left">40</td></tr>
+      <tr><td>Overtime pay rate</td><td style="text-align:left">34.50</td></tr>
+      <tr><td>Weekly overtime hours</td><td style="text-align:left">10</td></tr>
+      <tr><td>Annual + sick leave days</td><td style="text-align:left">20</td></tr>
+    </tbody>
+  </table>
+  <p class="foot"><b>Wage cost %, standard hours and wage margin % are NOT in this list</b> — those
+  three are the only per-person figures the workbook calculates. Everything else on the row is typed.</p>
+</div>
+
+<div class="card">
+  <h4>Per month — twelve times each</h4>
+  <p class="sub">And per person for the first two.</p>
+  <table class="data">
+    <thead><tr><th>Field</th><th style="text-align:left">Sample</th></tr></thead>
+    <tbody>
+      <tr><td>On the payroll?</td><td style="text-align:left">1 or 0, per person</td></tr>
+      <tr><td>Pay rise %</td><td style="text-align:left">5% from August, per person</td></tr>
+      <tr><td>Which season</td><td style="text-align:left">Jul = <i>Wet n Dark</i></td></tr>
+      <tr><td>Production days</td><td style="text-align:left">Dec = 11, Jan = 10</td></tr>
+      <tr><td>Overtime applies?</td><td style="text-align:left">Apr Yes, Jun No</td></tr>
+      <tr><td>Allowances apply?</td><td style="text-align:left">Yes / No</td></tr>
+      <tr><td><b>Actual labour margin</b></td><td style="text-align:left">Jul = −5,000</td></tr>
+    </tbody>
+  </table>
+  <p class="foot">🔴 <b>The last row is how actuals get in, and the first cut of this drawing never
+  showed it.</b> The "actual" line the whole report is judged against is <b>twelve typed cells</b> —
+  the advisor enters what really happened, month by month. Nothing imports it.</p>
+</div>
+</div>
+
+<div class="wide">
+<div class="card">
+  <h4>Set once for the whole model</h4>
+  <p class="sub">Small in number, large in effect — every one of these moves the entire year.</p>
+  <table class="data">
+    <thead><tr><th>Setting</th><th>Dry n Light</th><th>Std Season</th><th>Wet n Dark</th>
+      <th style="text-align:left">Note</th></tr></thead>
+    <tbody>
+      <tr><td><b>The season's name</b></td><td>"Dry n Light"</td><td>"Std Season"</td><td>"Wet n Dark"</td>
+        <td style="text-align:left">🔴 typed — a firm renames these to its own words</td></tr>
+      <tr><td>Working hours per day</td><td>10</td><td>7.5</td><td>7</td><td style="text-align:left">including travel</td></tr>
+      <tr><td>Working days per week</td><td>6</td><td>5</td><td>5</td><td style="text-align:left"></td></tr>
+      <tr><td>Days lost per month</td><td>1</td><td>0</td><td>4</td><td style="text-align:left">wet days or heat days</td></tr>
+      <tr><td>Paid for lost days?</td><td colspan="3">Yes</td><td style="text-align:left">field team only</td></tr>
+      <tr><td>Part-time hours per day</td><td colspan="3">4.5</td><td style="text-align:left"></td></tr>
+      <tr><td>Statutory holidays</td><td colspan="3">12 days</td><td style="text-align:left">a year</td></tr>
+      <tr><td>Mgmt / Admin / Sales hours per day</td><td colspan="3">8</td><td style="text-align:left">the non-field team</td></tr>
+      <tr><td>Standard working day</td><td colspan="3">8 hours</td><td style="text-align:left">used for leave liability</td></tr>
+      <tr><td>Which basis</td><td colspan="3">Seasonal</td><td style="text-align:left">the switch itself is typed</td></tr>
+    </tbody>
+  </table>
+  <p class="foot"><b>Six of these ten would have been shipped as constants</b> had the first cut of
+  this drawing been built from. The season names are the sharpest case: a horticultural client's
+  three seasons are not a builder's three, and the model was written so they could differ.</p>
 </div>
 </div>
 
@@ -678,13 +844,17 @@ figure with tab 1</b> and the screen says so.</p>
     <tr><td style="white-space:nowrap">Route</td><td style="text-align:left">One calc route — numbers in, numbers out, no AI, nothing stored.</td></tr>
     <tr><td style="white-space:nowrap">Catalogue + page</td><td style="text-align:left">Model 19, the shared report blocks, no new ones.</td></tr>
     <tr><td style="white-space:nowrap">The gate</td><td style="text-align:left">Decision 6 — the only genuinely new mechanism in the whole model.</td></tr>
+    <tr><td style="white-space:nowrap">The input screens</td><td style="text-align:left">🔴 Decision 9 — <b>1,778 typed cells</b> reachable across a step per sheet. Added after Mike's correction; the first cut of this table did not have this row, which is how a model gets estimated at half its size.</td></tr>
   </tbody>
 </table>
-<p class="foot"><b>This is several sessions, not one.</b> Six sheets and ~10,500 filled cells make it
-the largest port in the library — for comparison, the Sales Dashboard built in a day had 140 rows and
-one output table. A sensible order is: the labour-margin engine and its golden test first, because
-everything else depends on those numbers being right; then the screen; then the rates tab; then the
-gate and the register last, once its three decisions are settled.</p>
+<p class="foot"><b>This is several sessions, not one</b> — and more of them than the first cut of this
+page implied. Six sheets and ~10,500 filled cells make it the largest port in the library; for
+comparison, the Sales Dashboard built in a day had 140 rows and one output table. <b>The correction
+about input cells moves the weight of the work</b>: the engine is the smaller half, and getting
+1,778 typed figures onto screens an advisor can actually work through is the larger one. A sensible
+order is the labour-margin engine and its golden test first, because everything else depends on those
+numbers being right; then the input steps; then the report screen; then the rates tab; and the gated
+register last, once its three decisions are settled.</p>
 </div>
 
 <p class="note" style="margin-top:22px">Drawn 2026-09-14 · the workbook is
