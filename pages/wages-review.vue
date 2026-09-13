@@ -16,7 +16,7 @@ report-shell
     .step(:class="{ active: step === 3, done: step > 3, pending: !work }" @click="goTo(3)")
       span.n 3
       | {{ $t('report.wagesReview.step3') }}
-    .step.pending
+    .step(:class="{ active: step === 4, done: step > 4, pending: !year }" @click="goTo(4)")
       span.n 4
       | {{ $t('report.wagesReview.step4') }}
     .step.pending
@@ -26,17 +26,24 @@ report-shell
   wages-team(v-if="step === 1" :restore="team" @confirmed="onTeamConfirmed")
   wages-work(v-else-if="step === 2" :restore="work" @confirmed="onWorkConfirmed" @back="step = 1")
   wages-year(
-    v-else
+    v-else-if="step === 3"
     :people="team ? team.people : []"
     :season-names="work ? work.seasonNames : null"
     :restore="year"
     @confirmed="onYearConfirmed"
     @back="step = 2"
   )
+  wages-actual(
+    v-else
+    :months="year ? year.months : []"
+    :restore="actual"
+    @confirmed="onActualConfirmed"
+    @back="step = 3"
+  )
 
-  //- Steps 4-5 are not built. Saying so on the screen is the honest alternative to a
-  //- Continue button that appears to do nothing.
-  .wr-pending(v-if="year")
+  //- Step 5, the report itself, is not built. Saying so on the screen is the honest
+  //- alternative to a Continue button that appears to do nothing.
+  .wr-pending(v-if="actual")
     | {{ $t('report.wagesReview.stepsPending') }}
 </template>
 
@@ -50,7 +57,7 @@ report-shell
  * Hiring Plan reads the two input sheets 4,306 times, so each step asks only for what
  * the one before it established.
  *
- * 🔴 STEPS 1-3 ARE BUILT. Steps 4 and 5 have chips and no screens; their chips are inert
+ * 🔴 STEPS 1-4 ARE BUILT. Step 5, the report, has a chip and no screen; its chip is inert
  * rather than hidden, so the shape of the work is visible and nobody builds the report
  * first. That order is the drawing's own warning: the numbers on the report are
  * worthless until the inputs behind them are the client's, and a screen showing the
@@ -64,19 +71,21 @@ report-shell
  * steps and the report exist — the frame guard reads ready routes, and a card that
  * opens onto one fifth of a model is a promise the screen cannot keep.
  *
- * No saving per client yet (item 4.62's mechanism): with four steps missing there is
- * no complete set of figures to save.
+ * No saving per client yet (item 4.62's mechanism): the four input steps now hold a
+ * complete set of figures, so this becomes worth doing once the report exists to save
+ * them alongside.
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import ReportShell from '~/components/base/ReportShell.vue'
 import WagesTeam from '~/components/WagesTeam.vue'
 import WagesWork from '~/components/WagesWork.vue'
 import WagesYear from '~/components/WagesYear.vue'
+import WagesActual from '~/components/WagesActual.vue'
 
 export default {
   name: 'WagesReviewPage',
 
-  components: { ReportShell, ReportHeader, WagesTeam, WagesWork, WagesYear },
+  components: { ReportShell, ReportHeader, WagesTeam, WagesWork, WagesYear, WagesActual },
 
   data () {
     return {
@@ -86,22 +95,25 @@ export default {
       /** Step 2's confirmed payload; null until the advisor presses Continue. */
       work: null,
       /** Step 3's confirmed payload; null until the advisor presses Continue. */
-      year: null
+      year: null,
+      /** Step 4's confirmed payload; null until the advisor presses Continue. */
+      actual: null
     }
   },
 
   methods: {
     /**
      * Stepper navigation. Backwards always; forward only when the step being left has
-     * been confirmed, the same rule as the Loan Estimator. Steps 4-5 do not exist yet,
-     * so nothing above 3 is reachable.
+     * been confirmed, the same rule as the Loan Estimator. Step 5, the report, does not
+     * exist yet, so nothing above 4 is reachable.
      * @param {number} n the step to move to
      */
     goTo (n) {
-      if (n === this.step || n > 3) { return }
+      if (n === this.step || n > 4) { return }
       if (n > this.step) {
         if (n === 2 && !this.team) { return }
         if (n === 3 && !(this.team && this.work)) { return }
+        if (n === 4 && !(this.team && this.work && this.year)) { return }
       }
       this.step = n
     },
@@ -130,6 +142,15 @@ export default {
      */
     onYearConfirmed (payload) {
       this.year = payload
+      this.step = 4
+    },
+
+    /**
+     * The actuals screen hands the twelve months back carrying `actualMargin`.
+     * @param {object} payload { months }
+     */
+    onActualConfirmed (payload) {
+      this.actual = payload
     }
   }
 }

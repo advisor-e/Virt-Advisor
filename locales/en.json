@@ -3755,7 +3755,7 @@
       "step3": "The year ahead",
       "step4": "What actually happened",
       "step5": "Wages/Salary Review report",
-      "stepsPending": "Steps 4 and 5 are not built yet. What you have entered is held on this page only.",
+      "stepsPending": "The report itself (step 5) is not built yet. What you have entered is held on this page only.",
       "team": {
         "title": "The team",
         "intro": "Every person, their pay and their charge-out rate. The division decides how each person is costed.",
@@ -3840,6 +3840,17 @@
         },
         "yes": "Yes",
         "no": "No",
+        "back": "Back",
+        "continue": "Continue"
+      },
+      "actual": {
+        "heroYear": "Actual labour margin, year",
+        "heroEntered": "Months entered",
+        "heroWorst": "Worst month",
+        "title": "Actual Labour Margin",
+        "note": "What really happened, month by month. Nothing imports this — it is the figure the whole plan is judged against.",
+        "total": "Year to date: ",
+        "unnamedMonth": "Month",
         "back": "Back",
         "continue": "Continue"
       }

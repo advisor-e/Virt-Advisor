@@ -1725,6 +1725,27 @@ actual would be judged against it on the report, and the variance is what the mo
 *"Federal Taxes"*, *"Band 1"*) on rows with no adjusted rate. Not read here — and it is the same
 interleaving that made the shutdown allowance unreadable.
 
+#### Step 4 — What actually happened
+
+[`components/WagesActual.vue`](../../components/WagesActual.vue), with
+`tests/unit/wagesActual.component.test.js`. **The smallest step, and the one the model is judged by:**
+twelve typed cells, `Cash Report` row 24, labelled by the workbook itself *"Actual Labour Margin"* and
+sitting directly under row 22's calculated *"Projected Labour Margin"*. **Nothing imports them** — the
+drawing's first cut left this row out altogether, which is how the model nearly shipped with no way to
+judge the plan against reality.
+
+**Month names come from step 3.** A firm whose year starts in July would otherwise type its actuals
+against somebody else's calendar.
+
+⚠ **No plan is shown beside the actuals, deliberately.** The projected margin is the *engine's* figure
+(row 22 is calculated), so showing it here would mean either a second backend call from an input step
+or — far worse — re-implementing the maths in the browser. Plan against actual, and the variance, is
+the **report's** job; `computeWages` already returns `totals.variance` for it.
+
+**A blank month is not a zero month.** Both reach the engine as 0, because that is what the workbook's
+own blank cell does, but the headline counts what has actually been filled in — an advisor four months
+into the year can see which is which.
+
 **Three findings against the drawing's list of ten:**
 
 1. **"Days Worked" (`Seasonal Inputs` W45) is missing from the drawing** — the office week, which the
