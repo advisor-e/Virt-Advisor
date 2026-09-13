@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Template Profiles — the Mentor Hub tab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.97, spec 003-engine-middle-learning-true — drawing 4 of 4: the
+   Template Profiles tab on the Mentor Hub. Every template with its signals and
+   weights, where the profile came from, which ones are thin and why, and a row
+   editor with ticks, weights, the summary's own words beside them, and history.
+   Drawn 2026-09-14 (tasks.md T004). Nothing is built.
+
+   Colours, spacing and type are COPIED from design/mockups/outcome-learning-mentor.html
+   (approved 2026-09-10). No dark mode, RULED 2026-07-27.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-14):
+     - "yes" to "a screen on the Mentor Hub to author and review each template's
+       signals and profile, with the lab showing which templates are still thin".
+     - Clarification Q3, Option A: "Tick a signal and see its weight; the weight
+       is editable and defaults to a standard value when first ticked."
+     - His two checks, answered: this is NOT Advisory Distinctions (a phrase an
+       advisor says -> the tools it points to) and NOT the Logic-Lab Report
+       (edits pushed from the lab). It sits DOWNSTREAM of the search-content
+       export (edited only in Advisor-e; carries no signals) and of the content
+       summaries (this app's per-template prose the profile was compiled from).
+
+   HIS RULINGS ALREADY GIVEN, applied here and not re-asked:
+     - the weight sits beside each ticked signal;
+     - the summary's "indicators" prose is shown read-only beside the weights;
+     - the export is never edited from this screen, or anywhere in this app;
+     - an authored profile survives a compiler re-run and a fresh export
+       (research R9: it lives in the overlay store, one row per template);
+     - mentor tier alone.
+
+   THE CONTENT IS REAL, read from the files on 2026-09-14:
+     data/semantic-profiles.json  199 entries. Empty profiles 46 (38 with no
+       summary at all, 8 whose summary matched no keyword). Confidence high 150,
+       medium 3, low 46. Source: auto 149, keyword 11, reviewed 1, none 38.
+     Thin = empty, or weights summing below 4, or keyword-only: 49 templates
+       (38 no summary + 8 no signals matched + 3 weak match). All 11 keyword
+       rows are thin - 8 empty and 3 with one weak signal.
+     data/content-summaries.json  the "indicators" sentence per template.
+     data/signal-dictionary.json  the 15 problem signals and their descriptions.
+   Every figure marked "example" is invented (dates, names, the authored row).
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+/* tab strip */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+/* cards */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+.btn{display:inline-block;margin-top:12px;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.danger{background:transparent;color:#b01212;border:1px solid #e0000045}
+.btn.small{padding:5px 11px;font-size:12.5px;margin-top:0}
+.btn.dim{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.bad{background:var(--rs-crit-soft);color:#b01212;border:1px solid #e0000045}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+.pill.off{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+/* summary strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media (max-width:760px){.strip{grid-template-columns:1fr 1fr}}
+.stat{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px;
+  box-shadow:var(--rs-shadow)}
+.stat .l{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.stat .v{font-size:26px;font-weight:300;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .s{font-size:12px;color:var(--rs-muted);margin-top:4px}
+
+/* tables */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:900px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line);white-space:nowrap}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+.tt{font-weight:600}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.acts .btn{margin-top:0}
+
+/* notices */
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+
+/* history */
+.hist{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--rs-line);font-size:13px}
+.hist:last-child{border-bottom:0}
+.hist .when{color:var(--rs-muted);font-size:12px;width:150px;flex:none}
+.hist .who{flex:1}
+
+/* questions */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+
+/* this drawing only: signal chips, the filter row, the editor */
+.chip{display:inline-block;font-size:12px;padding:2px 8px;border-radius:6px;margin:0 4px 4px 0;
+  background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055;white-space:nowrap}
+.chip b{font-variant-numeric:tabular-nums;margin-left:4px}
+.chip.none{background:var(--rs-panel-2);color:var(--rs-muted);border-color:var(--rs-line);font-style:italic}
+.filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filters .btn{margin-top:0}
+tr.open td{background:var(--rs-panel-2)}
+.editor{display:grid;grid-template-columns:1fr 1.3fr;gap:18px}
+@media (max-width:720px){.editor{grid-template-columns:1fr}}
+.lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted);font-weight:600;margin-bottom:6px}
+.says{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;padding:12px 14px;
+  font-size:13px;color:var(--rs-muted);font-style:italic}
+.says .who{font-style:normal;font-size:11.5px;margin-top:8px}
+.tick{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--rs-line);font-size:13px}
+.tick:last-child{border-bottom:0}
+.box{width:16px;height:16px;border:1.5px solid var(--rs-muted);border-radius:4px;flex:none;text-align:center;
+  font-size:11px;line-height:13px;font-weight:700;color:#fff}
+.box.on{background:var(--rs-accent);border-color:var(--rs-accent)}
+.tick .nm{flex:1}
+.tick .nm small{display:block;color:var(--rs-muted);font-size:11.5px}
+.w{width:44px;border:1px solid var(--rs-line);border-radius:6px;padding:3px 6px;text-align:center;
+  font-weight:600;font-variant-numeric:tabular-nums;background:#fff;flex:none}
+.w.off{color:var(--rs-line);border-style:dashed;background:transparent}
+.ta{border:1px solid var(--rs-line);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--rs-muted);
+  background:#fff;min-height:44px;margin:6px 0 12px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Template Profiles, drawing 4 of 4 — the Mentor Hub tab. Drawn 2026-09-14 for Mike's
+  approval. Nothing is built.</b> Drawings 1–3 (the advisor's primary-issue question, the lift on
+  the Outcome Learning page, and the trace line) are separate files.</p>
+  <p><b>What this page is for, in one sentence:</b> the engine ranks templates by matching each
+  one's <i>profile</i> — the list of client problems it answers, each with a weight — against the
+  problems it hears in the case; today that list was generated by a script from the content
+  summaries, nobody can see it, and 49 of the 199 templates have a list too thin to be found. This
+  tab shows every profile, flags the thin ones with the reason, and lets the mentor tick the problems
+  a tool answers and set how strongly.</p>
+  <p><b>What it is NOT (Mike's two checks, answered).</b> It is not <b>Advisory Distinctions</b>,
+  which starts from a phrase an advisor says and names the tools it points to; this starts from a
+  tool and names the problems it answers. It is not the <b>Logic-Lab Report</b>, which pushes edits
+  out of the lab. And it never touches the <b>search-content export</b>, which is edited only in
+  Advisor-e and carries no signals at all: the profile is a layer this app keeps on top of it.</p>
+  <p><b>Every title, section, signal, weight and summary sentence is real, read from the data files
+  on 2026-09-14.</b> Everything marked <span class="ex">example</span> is invented: the dates, the
+  mentor's name, and the one authored row (there are none yet).</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — the Template Profiles tab on the Mentor Hub</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Mentor Hub</div>
+  <h1 class="hub-h1">Template Profiles</h1>
+  <div class="hub-sub">Advisor-e platform</div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Advisory Distinctions</div>
+  <div class="tab">Domain Support</div>
+  <div class="tab">Logic Tables</div>
+  <div class="tab">Template Library</div>
+  <div class="tab on">Template Profiles</div>
+  <div class="tab">Outcome Learning</div>
+</div>
+
+<div class="mock">
+  <p><b>WHERE IT SITS.</b> Beside <b>Template Library</b> in the Mentor Hub's left-hand menu,
+  because it is the same object seen from the engine's side: the library is what a template
+  <i>is</i>; the profile is what it <i>answers</i>. <b>Mentor tier alone</b> — the judgement is
+  stated at the foot of this page. The four tiles are the real counts today.</p>
+</div>
+
+<div class="strip">
+  <div class="stat"><div class="l">Templates</div><div class="v">199</div><div class="s">every template the engine scores</div></div>
+  <div class="stat"><div class="l">Thin</div><div class="v">49</div><div class="s">38 no summary · 8 no signals matched · 3 weak match</div></div>
+  <div class="stat"><div class="l">Authored by you</div><div class="v">0</div><div class="s">none yet — the Break-Even row below is an example</div></div>
+  <div class="stat"><div class="l">Generated, never reviewed</div><div class="v">149</div><div class="s">compiled from the summaries by script</div></div>
+</div>
+
+<div class="mock">
+  <p><b>How "Thin" is counted (research R9, data-model §6 — a rule, not a stored flag):</b> the
+  profile is empty, <i>or</i> its weights add up to fewer than 4 (the compiler's own line for a
+  confident match), <i>or</i> it was matched by keyword only. Today that is 38 + 8 + 3 = <b>49</b>. The
+  Scenario Lab will print the same number — "Templates with a thin effective profile: 49/199" —
+  so the tile and the lab can be checked against each other. <b>Generated, never reviewed</b> is the
+  149 profiles the script wrote with high confidence; they are probably right, and nobody has
+  looked.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Every template and what it answers</h2>
+    <span class="pill inh">Weights 1–10 · a higher weight makes the match count for more</span>
+  </div>
+  <div class="card-b">
+    <div class="filters">
+      <span class="btn small">All (199)</span>
+      <span class="btn small dim">Thin only (49)</span>
+      <span class="btn small dim">Authored (0)</span>
+    </div>
+    <div class="tw">
+    <table>
+      <thead><tr>
+        <th>Template</th><th>Section</th><th>Signals</th><th>Source</th><th>Thin?</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tt">EOY Quiz</span></td>
+          <td>EOY Notes &amp; Docs</td>
+          <td><span class="chip">cash flow gap<b>10</b></span><span class="chip">sales volume<b>5</b></span><span class="chip">data quality<b>5</b></span></td>
+          <td><span class="pill inh">Generated</span></td>
+          <td></td>
+          <td><div class="acts"><span class="btn small ghost">Edit</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">5 Layers Questionnaire</span></td>
+          <td>Client On Boarding</td>
+          <td><span class="chip">strategy needed<b>10</b></span><span class="chip">succession issue<b>10</b></span><span class="chip">marketing gap<b>10</b></span><span class="chip">revenue modelling<b>5</b></span></td>
+          <td><span class="pill inh">Generated</span></td>
+          <td></td>
+          <td><div class="acts"><span class="btn small ghost">Edit</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">People vs. Process</span></td>
+          <td>General Tools</td>
+          <td><span class="chip">staff problem<b>10</b></span><span class="chip">governance too early<b>4</b></span><span class="chip">systems gap<b>3</b></span></td>
+          <td><span class="pill ok">Reviewed</span></td>
+          <td></td>
+          <td><div class="acts"><span class="btn small ghost">Edit</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">Break-Even</span> <span class="ex">example</span></td>
+          <td>Revenue &amp; Feasibility Models</td>
+          <td><span class="chip">revenue modelling<b>8</b></span><span class="chip">strategy needed<b>5</b></span><span class="chip">pricing issue<b>5</b></span><div class="src">was: strategy needed 10 (generated)</div></td>
+          <td><span class="pill ok">Authored</span><div class="src">14 Sep 2026 · Rewi Tapsell</div></td>
+          <td></td>
+          <td><div class="acts"><span class="btn small ghost">Edit</span></div></td>
+        </tr>
+        <tr class="open">
+          <td><span class="tt">Demings Volatility</span></td>
+          <td>General Tools</td>
+          <td><span class="chip">data quality<b>3</b></span></td>
+          <td><span class="pill wait">Keyword only</span></td>
+          <td><span class="pill wait">Weak match</span><div class="src">weights add up to 3</div></td>
+          <td><div class="acts"><span class="btn small">Editing…</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">8 Profit Levers</span></td>
+          <td>General Tools</td>
+          <td><span class="chip none">none</span></td>
+          <td><span class="pill wait">Keyword only</span></td>
+          <td><span class="pill bad">No signals matched</span></td>
+          <td><div class="acts"><span class="btn small ghost">Edit</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">Cost of Capital</span></td>
+          <td>External Advisors</td>
+          <td><span class="chip none">none</span></td>
+          <td><span class="pill off">None</span></td>
+          <td><span class="pill bad">No summary</span></td>
+          <td><div class="acts"><span class="btn small ghost">Edit</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">Insurance</span></td>
+          <td>External Advisors</td>
+          <td><span class="chip none">none</span></td>
+          <td><span class="pill off">None</span></td>
+          <td><span class="pill bad">No summary</span></td>
+          <td><div class="acts"><span class="btn small ghost">Edit</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">
+      Showing 8 of 199. Sorted by section, then title; "Thin only" puts the 49 at the top.
+    </p>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Reading the table.</b> <b>Signals</b> are the profile as the engine reads it today: the
+  problem, then its weight. <b>Source</b> says where that came from — <b>Generated</b> (the script
+  matched the summary with confidence), <b>Keyword only</b> (a shallow word match — never trusted),
+  <b>Reviewed</b> (a person checked the generated map; one exists), <b>Authored</b> (saved on this
+  screen), <b>None</b> (the template has no summary, so nothing to generate from).
+  <b>Thin?</b> is blank when the profile is usable and carries the reason when it is not.</p>
+  <p><b>The Break-Even row is the invented one.</b> It shows what an authored row looks like: the
+  mentor's signals, with the generated ones it replaced in small print underneath, and who saved
+  it. Its real profile today is <i>strategy needed 10</i> alone — which, for a break-even model, is
+  the kind of thing a mentor would want to see and change.</p>
+  <p><b>8 Profit Levers and Demings Volatility are both real "Keyword only" rows</b> — all 11
+  keyword rows are thin: 8 matched nothing, 3 matched one word weakly. <b>Cost of Capital and
+  Insurance</b> are two of the 38 with no summary at all; most of those 38 are External Advisors,
+  Firm Manager Access, Help and Programme pages — templates the engine scores but that may never
+  be meant as a client-facing answer (question 4).</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — the row editor, opened under Demings Volatility</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Demings Volatility · General Tools</h2>
+    <span class="pill wait">Weak match · weights add up to 3</span>
+  </div>
+  <div class="card-b">
+    <div class="editor">
+      <div>
+        <div class="lbl">What the summary says this tool is for</div>
+        <div class="says">
+          "The client has a highly seasonal business, or frequently panics over month-to-month sales
+          fluctuations."
+          <div class="who">From this app's content summary for the template. Read-only here — it is the
+          text the generated profile was compiled from, kept beside the ticks so you can judge them.</div>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">The problems this tool answers — tick, then set a weight from 1 to 10</div>
+        <div class="tick"><span class="box"></span><span class="nm">capital raising<small>Raising capital or funding an acquisition</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">cash flow gap<small>Cash flow problems, working capital, can't pay bills</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box on">✓</span><span class="nm">data quality<small>Data integrity, chart of accounts, financial systems accuracy</small></span><span class="w">3</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">governance gap<small>Governance structure, accountability, or board issues</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">governance too early<small>Not yet ready for governance — no clear objectives, failure accepted as normal</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">marketing gap<small>Marketing, brand awareness, or digital presence gaps</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">modelling rejected<small>Advisor said a revenue model is not the answer — a penalty signal, never a match</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">pricing issue<small>Pricing problems, price rises, or margin pressure from pricing</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">revenue modelling<small>Wants a revenue or feasibility model; doesn't understand their cost base</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box on">✓</span><span class="nm">sales volume<small>Insufficient sales volume, customer acquisition, or foot traffic</small></span><span class="w">5</span><span class="ex">just ticked → 5</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">staff problem<small>Staff, team, HR, or leadership issues</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">stock management<small>Overstocking, stockouts, slow stock turn, supply chain disruption</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">strategy needed<small>Strategic direction, planning, or pivot required</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">succession issue<small>Succession planning, exit, or ownership transition</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">systems gap<small>Business systems, process, or technology gaps</small></span><span class="w off">–</span></div>
+      </div>
+    </div>
+    <div class="lbl" style="margin-top:16px">Why (optional)</div>
+    <div class="ta">The summary is about sales swinging month to month — that is a sales-volume worry, not a data-quality one. <span class="ex">example</span></div>
+    <div class="acts"><span class="btn small">Save</span><span class="btn small ghost">Cancel</span></div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">
+      Saved profiles are yours: rebuilding the generated file or loading a new library export never
+      changes them.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>History — Demings Volatility</h2><span class="pill inh">Every save, restorable</span></div>
+  <div class="card-b">
+    <div class="hist"><span class="when">14 Sep 2026 <span class="ex">example</span></span><span class="who">Saved — data quality 3 · sales volume 5 — Rewi Tapsell — "…a sales-volume worry, not a data-quality one."</span><span class="pill ok">Current</span></div>
+    <div class="hist"><span class="when">—</span><span class="who">Generated — data quality 3 — by the compiler, keyword match, never reviewed</span><span class="btn small ghost">Restore to here</span></div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Option A, as Mike clarified it (Q3).</b> Tick a signal and the weight box beside it wakes up
+  showing <b>5</b>; type over it to change it, 1 to 10; untick and the box goes grey. The one signal
+  already ticked (data quality 3) is the generated value, shown so the mentor edits what the engine
+  actually reads rather than starting blank. The 15 names are the signal dictionary's own keys in
+  plain English with its description in small print — the same 15 the intake listens for, so a tick
+  here is a promise the engine can keep. <b>Modelling rejected</b> is listed because it is a real
+  signal, with its own warning: it only ever counts <i>against</i> a template.</p>
+  <p><b>The left panel is read-only on purpose</b> (ruled): it is the summary the profile was
+  compiled from, kept in view so the mentor can judge the ticks against the words. Changing that
+  text is a different job on a different file.</p>
+  <p><b>History is per template</b> (research R9 — one row per template in the overlay store, so
+  each carries its own versions). "Restore to here" on the Generated line puts the compiled profile
+  back — the mentor can always return to what the script wrote. <b>Saving an empty tick list is
+  allowed</b> and means "authored as none" (data-model §6): a deliberate "this tool answers no
+  client problem" that stays thin but is no longer <i>unreviewed</i>.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — the same editor for a template with no summary (Cost of Capital)</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Cost of Capital · External Advisors</h2>
+    <span class="pill bad">No summary</span>
+  </div>
+  <div class="card-b">
+    <div class="editor">
+      <div>
+        <div class="lbl">What the summary says this tool is for</div>
+        <div class="says">
+          No summary exists for this template, so nothing was generated. Tick the problems this tool
+          answers.
+          <div class="who">38 templates are in this state. The summary file is a separate job; this
+          screen does not create one.</div>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">The problems this tool answers — tick, then set a weight from 1 to 10</div>
+        <div class="tick"><span class="box"></span><span class="nm">capital raising<small>Raising capital or funding an acquisition</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">cash flow gap<small>Cash flow problems, working capital, can't pay bills</small></span><span class="w off">–</span></div>
+        <div class="tick"><span class="box"></span><span class="nm">data quality<small>Data integrity, chart of accounts, financial systems accuracy</small></span><span class="w off">–</span></div>
+        <div class="tick" style="border-bottom:0"><span class="nm" style="color:var(--rs-muted);font-size:12px">… the same 15 signals, all unticked, all weight boxes grey …</span></div>
+      </div>
+    </div>
+    <div class="lbl" style="margin-top:16px">Why (optional)</div>
+    <div class="ta"></div>
+    <div class="acts"><span class="btn small">Save</span><span class="btn small ghost">Cancel</span></div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">
+      Saved profiles are yours: rebuilding the generated file or loading a new library export never
+      changes them.
+    </p>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>The only difference from Screen B is the left panel.</b> Same ticks, same weights, same
+  Save. The history card for this row would start empty — there is no generated version to
+  restore to, so the first save is the first line.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every new word on this page — all proposed, none yet ruled</div>
+
+<div class="card">
+  <div class="card-b">
+    <div class="tw">
+    <table style="min-width:0">
+      <thead><tr><th>Where</th><th>Proposed wording</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Hub tab and page title</td><td>Template Profiles</td><td><span class="pill wait">Proposed — question 1</span></td></tr>
+        <tr><td>Header line</td><td>Advisor-e platform</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Summary tiles</td><td>Templates · Thin · Authored by you · Generated, never reviewed</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Tile sub-lines</td><td>every template the engine scores · 38 no summary · 8 no signals matched · 3 weak match · compiled from the summaries by script</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Table heading and pill</td><td>Every template and what it answers · Weights 1–10 · a higher weight makes the match count for more</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Filter row</td><td>All · Thin only · Authored</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Column headings</td><td>Template · Section · Signals · Source · Thin?</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Source pills</td><td>Generated · Keyword only · Reviewed · Authored · None</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Thin reasons</td><td>No summary · No signals matched · Weak match (with "weights add up to 3" beneath)</td><td><span class="pill wait">Proposed — question 2</span></td></tr>
+        <tr><td>Row action</td><td>Edit · Editing…</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Editor, left panel</td><td>What the summary says this tool is for</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Editor, no summary</td><td>No summary exists for this template, so nothing was generated. Tick the problems this tool answers.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Editor, right panel</td><td>The problems this tool answers — tick, then set a weight from 1 to 10</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Signal names</td><td>The 15 dictionary keys in plain English (capital raising … systems gap), with each description in small print</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Note box</td><td>Why (optional)</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Buttons</td><td>Save · Cancel · Restore to here</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Under the editor</td><td>Saved profiles are yours: rebuilding the generated file or loading a new library export never changes them.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>History rows</td><td>Saved — … — who — "reason" · Generated — … — by the compiler, keyword match, never reviewed · Current</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Scenario Lab line</td><td>Templates with a thin effective profile: 49/199</td><td><span class="pill wait">Proposed</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Rulings already given — applied here, not re-asked</div>
+
+<div class="notice good">
+  <b>Ruled by Mike, 2026-09-14</b>
+  A screen on the Mentor Hub to author and review each template's signals and profile ("yes") ·
+  Option A: tick a signal and see its weight, editable, standard value on first tick · the weight
+  sits beside each ticked signal · the summary's indicators are shown read-only beside the weights ·
+  the search-content export is never edited · an authored profile survives a compiler re-run and a
+  new export · mentor tier alone · the Scenario Lab reports how many templates remain thin.
+</div>
+
+<div class="notice info">
+  <b>What this drawing does not decide</b>
+  How the profile is stored and merged (research R9 and data-model §6 — the overlay store, one row
+  per template, merged over the compiled file at read time) and the four routes (contracts §New
+  routes) are the plan's, already written. This drawing decides only what the mentor sees.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Open questions — four, one recommendation each</div>
+
+<div class="q">
+  <h3>1 · Is the tab called "Template Profiles"?</h3>
+  <p>"Profile" is the engine's word for the list of problems a template answers, and the spec, plan
+  and tasks all use it. The alternative is plainer: <b>"What each tool answers"</b>.</p>
+  <p class="rec">Recommended: "Template Profiles". It sits beside "Template Library" and reads as
+  its pair, and it is the word every document and log line already uses, so a mentor reading a
+  scoring trace finds the same word on the screen. Against: "profile" means nothing to a mentor on
+  day one, and "What each tool answers" says what the screen does — but it is long for a tab and
+  would leave the trace and the tab speaking different languages.</p>
+</div>
+
+<div class="q">
+  <h3>2 · Are the three thin reasons right as worded?</h3>
+  <p>Drawn as <b>No summary</b> (38 — nothing to generate from), <b>No signals matched</b> (8 — a
+  summary exists but the script found no problem in it), <b>Weak match</b> (3 — one signal, weights
+  adding up to under 4, shown beneath as "weights add up to 3").</p>
+  <p class="rec">Recommended: keep the three as drawn. Each names what the mentor must do next: write
+  a summary elsewhere, tick from the summary, or raise a weight. Against: "Weak match" and "No
+  signals matched" are both really "the script could not do it", and one word — "Needs you" —
+  would be simpler; kept as three because the fix for each is different.</p>
+</div>
+
+<div class="q">
+  <h3>3 · Does a freshly ticked signal start at 5?</h3>
+  <p>Screen B: ticking "sales volume" shows 5. The generated profiles use 10 for the main problem
+  and 1–7 for the rest; the engine multiplies the weight in, so 10 is twice the pull of 5.</p>
+  <p class="rec">Recommended: 5. A tick is "this tool answers that problem"; how strongly is the
+  second decision, and a middle value makes the mentor take it rather than inherit it. Against: 10
+  makes a tick decisive on its own and matches what the script gives the main problem — a mentor
+  who ticks and never touches the box gets a template that ranks like the generated ones. Ruled by
+  Mike as "a standard value"; 5 or 10 is the choice.</p>
+</div>
+
+<div class="q">
+  <h3>4 · Does the table list all 199, or only the client-facing tools?</h3>
+  <p>The profile file holds 199 entries and the engine scores every one, including External
+  Advisors, Firm Manager Access, Help and Programme pages — 38 of which have no summary because
+  they were never written as answers to a client's problem.</p>
+  <p class="rec">Recommended: all 199 — they are the entries the engine scores, and a page the
+  engine can recommend but the mentor cannot see is the gap this screen exists to close. The "Thin
+  only" filter and the section column keep the odd ones together. Against: a mentor scrolling past
+  Insurance and PDF Storage may reasonably ask why they are on a list of advisory tools; the honest
+  answer is that they are scored today, and "authored as none" is how a mentor says so.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which tiers get this, and why</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin-top:0"><b>The mentor tier alone</b> (a stated judgement under the hub-page
+    rule's default, and spec story 9 scenario 3). The profile is platform content: it describes what
+    a template <i>is for</i>, and that does not change from firm to firm. A firm's own vocabulary —
+    the words its advisors use — already reaches scoring through <b>Advisory Distinctions</b>, which
+    every tier has. Cascading becomes mandatory the day a firm has a real reason to hold a different
+    fingerprint for the same template; none has one today, and the store this plan uses (one
+    overlay row per template, scoped) can carry a firm's row without a schema change when that day
+    comes.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

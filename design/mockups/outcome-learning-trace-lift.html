@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outcome Learning — the trace line, with lifts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Outcome Learning, item 4.97 — drawing 3 of 4: the "Learned from outcomes"
+   section on an advisor's decision trace, REVISED for lifts, for the wider
+   cap, and for the "Answered by" provider row. Drawn 2026-09-14 from
+   specs/003-engine-middle-learning-true (spec stories 2, 3, 8; research R2,
+   R3, R8; contracts/api.md "Reason codes" and "Trace block"; tasks T003).
+   NOT YET BUILT. Nothing here is code.
+
+   This is a REVISION of design/mockups/outcome-learning-trace.html, approved
+   2026-09-10 and BUILT 2026-09-11. Its CSS and its trace-panel markup are
+   reused verbatim; its built strings are quoted exactly as locales/en.json
+   ships them today, including the one deviation that drawing records —
+   "in {where}" for every dimension. Only the dashed-outlined parts are new.
+   Colours and type follow compliance-pages.html. No dark mode, RULED 2026-07-27.
+
+   RULINGS ALREADY GIVEN BY MIKE 2026-09-14, applied here and not re-asked:
+     - learning lifts as well as holds back (spec story 2);
+     - one net balance sizes each adjustment — Option A; no separate lift cap
+       (research R2);
+     - the cap now holds against EVERY kind of the advisor's own evidence — a
+       distinction, the confirmed main issue, the client's industry, or a
+       problem signal heard in the cause answer — not only a distinction. His
+       "long-tail reading": pooled evidence only moves a template none of
+       those reached (research R3);
+     - a provider fallback exists, and the trace records which provider
+       answered (spec story 8);
+     - the four advisor-conversation calls are not personal data (research R8).
+
+   THREE QUESTIONS, at the foot, each one recommendation and one yes/no.
+   Then the drawing itself is asked for approval as its own question.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+.new{outline:2px dashed #ff9900;outline-offset:4px;border-radius:6px}
+
+/* cards, pills, notices, tables, questions — as the other drawings */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.tw{overflow-x:auto}
+table.w{border-collapse:collapse;width:100%;font-size:13.5px}
+table.w th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+table.w td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.w tr:last-child td{border-bottom:0}
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+
+/* the shipped trace panel, redrawn */
+.va{max-width:760px;background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);padding:18px 20px;margin-bottom:16px}
+.va .reco{font-size:14px;line-height:1.6;margin:0 0 14px}
+.va .reco b{display:block;margin-bottom:4px}
+.trace-toggle{font:inherit;font-size:13px;font-weight:600;color:var(--rs-accent);background:none;border:0;padding:0;cursor:default}
+.trace-body{margin-top:10px;border-top:1px solid var(--rs-line);padding-top:10px;font-size:13px}
+.trace-row{display:flex;gap:10px;padding:4px 0}
+.trace-label{color:var(--rs-muted);min-width:170px;flex:none}
+.trace-value{color:var(--rs-ink)}
+.trace-section{margin-top:12px}
+.trace-section-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600;margin-bottom:4px}
+.trace-note{color:var(--rs-muted);margin:2px 0;font-size:12.5px}
+.trace-boost{display:inline-block;margin-left:8px;font-weight:600}
+.trace-line{margin:3px 0;font-size:13px}
+.trace-line .cnt{color:var(--rs-muted);font-size:12px;margin-left:6px}
+.trace-line .hb{display:inline-block;font-weight:700;font-variant-numeric:tabular-nums;border-radius:6px;
+  padding:0 6px;background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059;margin-right:6px}
+.trace-line .ow{display:inline-block;font-weight:700;border-radius:6px;padding:0 6px;
+  background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line);margin-right:6px}
+/* NEW — the lifted badge: the hold-back badge's shape in the good-soft green */
+.trace-line .lift{display:inline-block;font-weight:700;font-variant-numeric:tabular-nums;border-radius:6px;
+  padding:0 6px;background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55;margin-right:6px}
+.trace-fault{color:#8a5a00}
+table.trace-scores{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:4px}
+table.trace-scores th{text-align:left;font-weight:600;color:var(--rs-muted);padding:4px 8px 4px 0;border-bottom:1px solid var(--rs-line);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+table.trace-scores td{padding:5px 8px 5px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.trace-scores tr:last-child td{border-bottom:0}
+table.trace-scores td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.trace-reasons{color:var(--rs-muted)}
+.trace-reasons .hl{color:#8a5a00;font-weight:600}
+.trace-reasons .hl.up{color:#2f7d32}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Outcome Learning, item 4.97 — drawing 3 of 4: the trace line, revised. Drawn 2026-09-14. NOT
+  YET APPROVED, NOT YET BUILT.</b> It revises the approved and built drawing
+  <code>outcome-learning-trace.html</code> (2026-09-10/11). Everything without a dashed outline is what
+  ships today, quoted from <code>locales/en.json</code>.</p>
+  <p><b>What changes on this screen, in one sentence:</b> learning can now <b>lift</b> a template as
+  well as hold it back; when it is set aside the panel says <b>which of the advisor's own evidence</b>
+  set it aside; and one new row near the top says <b>which AI service answered</b>, so that a reader
+  knows when the backup did.</p>
+  <p><b>Rulings already given</b> (2026-09-14, in the header comment) are applied and not re-asked.
+  Template titles are the export's; the firm, the counts and the provider names are
+  <span class="ex">example</span>.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — "Why this recommendation", at a sharing firm: one lift, one hold-back, one outweighed</div>
+
+<div class="va">
+  <p class="reco"><b>Recommended for this session</b>
+    Start with <b>7 Cash Drivers</b> to show where the cash is going, then <b>Break-Even</b> once
+    the owner can see the drivers. Hold <b>Price Rise</b> for a later session…</p>
+
+  <button class="trace-toggle">▾ Why this recommendation</button>
+  <div class="trace-body">
+    <div class="trace-row"><span class="trace-label">Area I focused on</span><span class="trace-value">profitability and feasibility</span></div>
+    <div class="trace-row"><span class="trace-label">What shaped the advice</span><span class="trace-value">advice engagement · step 2 ceiling · budget 3 · 2 signals</span></div>
+    <div class="trace-row new"><span class="trace-label">Answered by</span><span class="trace-value">OpenAI <span class="ex">example</span></span></div>
+
+    <div class="trace-section">
+      <div class="trace-section-title">Distinctions</div>
+      <p class="trace-value">Boosted here: <span class="trace-boost">7 Cash Drivers (+5)</span></p>
+    </div>
+
+    <div class="trace-section">
+      <div class="trace-section-title">Learned from outcomes</div>
+      <p class="trace-line new"><span class="lift">+2</span><b>Break-Even</b> — lifted in profitability and feasibility<span class="cnt">6 firms · 31 cases <span class="ex">example</span></span></p>
+      <p class="trace-line"><span class="hb">−4</span><b>Price Rise</b> — held back in profitability and feasibility<span class="cnt">4 firms · 22 cases</span></p>
+      <p class="trace-line new"><span class="ow">0</span><b>7 Cash Drivers</b> — a hold-back of 3 in cash flow gap was outweighed by what I heard in your description<span class="cnt">5 firms · 28 cases</span></p>
+      <p class="trace-note">Pooled from firms that share outcomes. It never outranks what you told me today.</p>
+    </div>
+
+    <div class="trace-section">
+      <div class="trace-section-title">How the templates scored</div>
+      <table class="trace-scores">
+        <tr><th>Template</th><th>Score</th><th>Why</th></tr>
+        <tr><td>7 Cash Drivers</td><td class="n">31</td><td class="trace-reasons">core to this area, matches the signals in this conversation, firm distinction +5, <span class="hl">outcome learning weighed and outweighed</span></td></tr>
+        <tr><td>Break-Even</td><td class="n">26</td><td class="trace-reasons">core to this area, <span class="hl up new">learned from outcomes +2</span></td></tr>
+        <tr><td>Price Rise</td><td class="n">15</td><td class="trace-reasons">in a related part of this area, fits this engagement type, <span class="hl">learned from outcomes −4</span></td></tr>
+        <tr><td>Margin vs Markup</td><td class="n">14</td><td class="trace-reasons">in a related part of this area</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Reading it.</b> Break-Even was <b>lifted</b> 2 points: across 6 sharing firms and 31
+  profitability cases it landed well more often than not, and the mentor accepted the lift. Price Rise
+  was held back 4, exactly as the built line reads today. 7 Cash Drivers had a live hold-back of 3
+  under the cash-flow-gap signal, but this advisor's cause answer carried that very signal — so the
+  hold-back was weighed and set aside, and the line now says <b>which</b> of the advisor's evidence
+  did the setting aside. Under the built rule only a distinction could do that; under the ruling of
+  2026-09-14 any of four kinds can, and each has its own phrase (the four are in the wording table).</p>
+  <p><b>Why Break-Even can be lifted at all.</b> Its Why column carries only "core to this area" — the
+  domain prior, none of the advisor's four evidence kinds. That is the long-tail reading: a lift or
+  hold-back only ever moves a template the advisor's own words did not reach. Had Break-Even also
+  matched the confirmed main issue, the lift would have been outweighed too.</p>
+  <p><b>One net balance.</b> A lift and a hold-back matching the same template are summed and the net
+  is capped at ±10 (research R2). The line shows the net; the counts are the evidence behind it, as
+  Mike's task text asks ("with the evidence count behind it").</p>
+  <p><b>The lift badge</b> is the hold-back badge's shape in the panel's existing green — the same
+  colour the Outcome Learning tab already uses for "Landed well". No new colour enters the app.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — the "Answered by" row, both states</div>
+
+<div class="va">
+  <div class="trace-body" style="border-top:0;padding-top:0">
+    <div class="trace-row"><span class="trace-label">Area I focused on</span><span class="trace-value">profitability and feasibility</span></div>
+    <div class="trace-row"><span class="trace-label">What shaped the advice</span><span class="trace-value">advice engagement · step 2 ceiling · budget 3 · 2 signals</span></div>
+    <div class="trace-row new"><span class="trace-label">Answered by</span><span class="trace-value">OpenAI <span class="ex">example</span></span></div>
+  </div>
+</div>
+<div class="mock"><p><b>B1 — the usual service answered.</b> One word, third row, in the same label-and-value
+shape as the two rows above it. The name is whatever the platform is configured with; no service is
+named in code (research R8: <code>AI_PRIMARY_*</code> / <code>AI_FALLBACK_*</code>).</p></div>
+
+<div class="va">
+  <div class="trace-body" style="border-top:0;padding-top:0">
+    <div class="trace-row"><span class="trace-label">Area I focused on</span><span class="trace-value">profitability and feasibility</span></div>
+    <div class="trace-row"><span class="trace-label">What shaped the advice</span><span class="trace-value">advice engagement · step 2 ceiling · budget 3 · 2 signals</span></div>
+    <div class="trace-row new"><span class="trace-label">Answered by</span><span class="trace-value">Mistral — the usual service did not answer, so the backup did <span class="ex">example</span></span></div>
+  </div>
+</div>
+<div class="mock"><p><b>B2 — the backup answered.</b> Same row, the name of the backup, and one plain clause
+saying why. Nothing else on the panel changes: the backup's reply passes the same checks as the usual
+one (spec story 8, scenario 4), so the scoring above and below this row is the same scoring. The four
+advisor-conversation calls this panel reports on are not personal data (ruled), so the backup is
+allowed to answer them.</p></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — the quiet states, as built, unchanged</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin:0 0 8px;font-size:13.5px">Listed for completeness; not redrawn. All three ship today and none changes:</p>
+    <ul style="margin:0;padding-left:18px;font-size:13.5px">
+      <li><b>Nothing matched</b> (sharing firm): <i>Nothing learned from other firms applies to this situation yet.</i></li>
+      <li><b>Could not be read</b>: <i>What other firms have learned could not be read for this session. The advice was built without it.</i></li>
+      <li><b>A firm that does not share</b>: no section at all, no score changes (spec FR-012).</li>
+    </ul>
+    <p style="margin:10px 0 0;font-size:12.5px;color:var(--rs-muted)">The "Answered by" row is not part
+    of the outcome section, so it appears in all three states — including at a firm that does not
+    share. Which AI service answered is true of every session, not only sharing ones.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every word on this panel — built strings unchanged, new strings proposed</div>
+
+<div class="card">
+  <div class="card-b">
+    <div class="tw">
+    <table class="w">
+      <thead><tr><th>Where</th><th>Wording</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Section title</td><td>Learned from outcomes</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+        <tr><td><b>Lifted line</b></td><td>+2 <b>Break-Even</b> — lifted in {where} · {firms} firms · {cases} cases</td><td><span class="pill wait">Proposed</span> — question 2</td></tr>
+        <tr><td>Held-back line</td><td>−4 <b>Price Rise</b> — held back in {where} · {firms} firms · {cases} cases</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+        <tr><td>Outweighed line, by a distinction</td><td>0 <b>{template}</b> — a hold-back of {n} in {where} was outweighed by your firm’s distinction</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+        <tr><td><b>Outweighed, by the main issue</b></td><td>… was outweighed by the main issue you confirmed</td><td><span class="pill wait">Proposed</span> — question 1</td></tr>
+        <tr><td><b>Outweighed, by the industry</b></td><td>… was outweighed by the client’s industry</td><td><span class="pill wait">Proposed</span> — question 1</td></tr>
+        <tr><td><b>Outweighed, by a signal</b></td><td>… was outweighed by what I heard in your description</td><td><span class="pill wait">Proposed</span> — question 1</td></tr>
+        <tr><td><b>Outweighed, a lift set aside</b></td><td>… a <b>lift</b> of {n} in {where} was outweighed by … <span style="color:var(--rs-muted)">(the same four endings)</span></td><td><span class="pill wait">Proposed</span> — follows question 1</td></tr>
+        <tr><td>Counts</td><td>{firms} firms · {cases} cases</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+        <tr><td>Note under the section</td><td>Pooled from firms that share outcomes. It never outranks what you told me today.</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+        <tr><td><b>Why column, lifted</b></td><td>learned from outcomes +{n}</td><td><span class="pill wait">Proposed</span> — the built hold-back phrase with the sign flipped</td></tr>
+        <tr><td>Why column, held back</td><td>learned from outcomes −{n}</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+        <tr><td>Why column, outweighed</td><td>outcome learning weighed and outweighed</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+        <tr><td><b>Answered by — label</b></td><td>Answered by</td><td><span class="pill wait">Proposed</span> — question 3</td></tr>
+        <tr><td><b>Answered by — usual</b></td><td>{provider}</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td><b>Answered by — backup</b></td><td>{provider} — the usual service did not answer, so the backup did</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Nothing matched</td><td>Nothing learned from other firms applies to this situation yet.</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+        <tr><td>Could not be read</td><td>What other firms have learned could not be read for this session. The advice was built without it.</td><td><span class="pill ok">Built — unchanged</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">The lifted Why-column phrase
+    joins <code>design/WORDING-TRACE-REASONS.md</code> beside the built hold-back phrase once approved;
+    every proposed string goes into all eight locale files. "{where}" keeps the built deviation: the
+    area's name for an area match, else the matched value.</p>
+  </div>
+</div>
+
+<div class="notice good">
+  <b>Rulings already given — 2026-09-14, applied here, not re-asked</b>
+  Lift and hold-back both exist. One net balance sizes each adjustment (Option A), capped at ±10 with
+  no separate lift cap. The cap holds against every kind of the advisor's own evidence — a distinction,
+  the confirmed main issue, the client's industry, or a problem signal heard in the cause answer —
+  so pooled evidence only ever moves a template none of those reached. A provider fallback exists and
+  the trace records which provider answered. The four advisor-conversation calls are not personal data.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Three questions — one recommendation each, one yes/no each</div>
+
+<div class="q">
+  <h3>1 · The four "outweighed by" phrasings, as drawn?</h3>
+  <p>The built line ends <i>"…outweighed by your firm’s distinction"</i>. Three new endings join it,
+  one per evidence kind: <b>"by the main issue you confirmed"</b>, <b>"by the client’s industry"</b>,
+  <b>"by what I heard in your description"</b>. Each names the thing the advisor did or said in the
+  advisor's own terms, in the panel's first-person voice ("what you told me today").</p>
+  <p class="rec">Recommended: yes, as drawn. The trace already names every reason in the advisor's
+  language, and "which evidence outweighed it" is the one fact story 3 says the trace must carry.
+  Against: four phrasings are four strings in eight languages, and "what I heard in your description"
+  is the vaguest of the four — but it is honest, because a signal is heard from the cause answer
+  rather than picked from a list, and naming the signal's internal label would mean nothing to an
+  advisor.</p>
+</div>
+
+<div class="q">
+  <h3>2 · The lifted line, as drawn: "+2 Break-Even — lifted in {where} · 6 firms · 31 cases"?</h3>
+  <p>The built hold-back line with one word changed: "held back" becomes "lifted", the badge turns
+  green, the sign turns plus. Same counts, same place, same note beneath.</p>
+  <p class="rec">Recommended: yes, as drawn. A lift is the same thing as a hold-back pointing the other
+  way — one balance, one cap, one mentor decision — so the line should be the same line with the
+  direction changed; an advisor who has learned to read one reads the other unasked. Against:
+  "lifted" alone does not say <i>why</i> (it landed well); but neither does "held back" today, and
+  the mentor's page is where the why lives.</p>
+</div>
+
+<div class="q">
+  <h3>3 · Does "Answered by" show on every trace, or only when the backup answered?</h3>
+  <p>Screen B1 is the everyday case: one word, "OpenAI". Screen B2 is the rare case: the backup's
+  name and the reason.</p>
+  <p class="rec">Recommended: always show it — one word on the everyday trace. A row that only appears
+  when something went wrong cannot be trusted by its absence: an advisor cannot tell "the usual
+  service answered" from "the row was not there". Seen every day, its change on the day the backup
+  answers is unmissable, and a saved case read months later still says which service wrote it.
+  Against: one more row on a panel that is already long, carrying the same word almost every time.</p>
+</div>
+
+<div class="notice warn" style="margin-top:20px">
+  <b>What this drawing does not decide</b>
+  The mentor's page listing lifts beside hold-backs is drawing 2's revision. The reason codes' internal
+  names (<code>pooled:lifted-&lt;n&gt;</code>, <code>pooled:outweighed-&lt;kind&gt;</code>), the
+  resolver's ordering, the provider seam and the trace block's shape are the plan's, pinned by tests,
+  not by this screen.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which tiers get this, and why</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin:0"><b>The advisor, on their own trace</b> — and the firm manager, who already sees
+    the same panel on a saved case in the hub (<code>FirmManagerHub.vue</code> renders the same table
+    through the same mixin), so the lifted line, the four outweighed endings and the "Answered by" row
+    appear there with no second build. No tier above the firm sees an individual advisor's trace today,
+    and this changes nothing about that.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

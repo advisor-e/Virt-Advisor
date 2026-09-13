@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outcome Learning — lifts, reach and the honest bench</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.97, drawing 2 of 4: the Outcome Learning page REVISED — lifts as well
+   as hold-backs, the loop's reach, an out-of-sample bench — and the firm's
+   Outcome Sharing tab with its own reach pair and the secret-missing refusal.
+   Drawn 2026-09-14 for Mike's approval BEFORE any code (spec FR-020, tasks T002).
+
+   This is a REVISION of two approved and BUILT drawings:
+     design/mockups/outcome-learning-mentor.html   (Mentor Hub page, built 2026-09-11)
+     design/mockups/outcome-learning-consent.html  (firm's Outcome Sharing tab, built 2026-09-11)
+   Head CSS, card, table and tile markup are copied from them verbatim so this
+   reads as the same page with changes. ONLY THE CHANGED PARTS carry the dashed
+   blue outline (.new). Every unchanged string is quoted exactly from those two
+   drawings' wording tables and locales/en.json. No dark mode, RULED 2026-07-27.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-14):
+     - "the point of the advisor distinctions is to 'lift' a template so yes -
+       there should be BOTH lift and hold back mechanisms"
+     - "transfer your improvement suggestions (all of them) into fixes"
+     - "if in doubt about having it - ask me questions 1 at a time!"
+
+   HIS RULINGS ALREADY GIVEN (2026-09-14), applied here and NOT re-asked:
+     - lift AND hold-back both exist, same floor, same cap, same mentor gate;
+     - Option A, net balance: size = 10 x (landed well - didn't land) / delivered,
+       rounded; positive lifts, negative holds back; ONE number per pairing;
+       existing hold-backs are re-sized under the same rule;
+     - the pool secret becomes REQUIRED once any firm shares (the UAT load pack
+       and .env.example are rewritten to say so - ruled);
+     - the long-tail reading of the cap: a template the advisor's own words
+       reached (distinction, primary issue, industry, signal) is never moved by
+       the pool; learning re-orders the long tail, never the head (research R3).
+   Also unchanged and not re-asked: floor 5 firms / 25 cases; no free text;
+   one situation dimension per row; recompute on open, never on a schedule.
+
+   THE ARITHMETIC (spec FR-004, research R2, data-model §3):
+     delivered   = outcomes where the template was Used fully or Partly used
+     landed well = of those, marked Landed well;  didn't land = marked Didn't land
+     adjustment  = round(10 x (landed well - didn't land) / delivered)   -10..+10
+     publishable when firms >= 5 and cases >= 25 (cases = delivered)
+   Template titles are the app's own (data/templates.json). Every COUNT is
+   invented and marked example.
+
+   QUESTIONS FOR MIKE (four, at the foot, one recommendation each):
+     1 one "Adjustment" column with a direction pill, or two columns
+     2 one reach tile, or two
+     3 the three-sentence honesty line as drawn
+     4 the refusal wording on the firm's tab as drawn
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+/* the one addition to the house style: what is CHANGED on this revision */
+.new{outline:2px dashed var(--rs-accent);outline-offset:3px;border-radius:6px}
+.newtag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--rs-accent);
+  border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;font-weight:700}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+/* tab strip */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+/* cards */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+.btn{display:inline-block;margin-top:12px;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.danger{background:transparent;color:#b01212;border:1px solid #e0000045}
+.btn.small{padding:5px 11px;font-size:12.5px;margin-top:0}
+.btn.dim{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.pill.bad{background:var(--rs-crit-soft);color:#b01212;border:1px solid #e0000045}
+.pill.inh{background:var(--rs-accent-soft);color:#0058a0;border:1px solid #0070c055}
+.pill.off{background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line)}
+
+/* summary strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.strip.five{grid-template-columns:repeat(5,1fr)}
+@media (max-width:760px){.strip,.strip.five{grid-template-columns:1fr 1fr}}
+.stat{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px;
+  box-shadow:var(--rs-shadow)}
+.stat .l{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.stat .v{font-size:26px;font-weight:300;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .s{font-size:12px;color:var(--rs-muted);margin-top:4px}
+
+/* tables */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:900px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line);white-space:nowrap}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+.tt{font-weight:600}
+.sit{font-size:12.5px;color:var(--rs-muted)}
+.sit b{color:var(--rs-ink);font-weight:600}
+/* the signed adjustment with its direction pill — replaces .hb */
+.adj{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.adj .n{display:inline-block;min-width:34px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;
+  border-radius:6px;padding:2px 7px;border:1px solid var(--rs-line);background:var(--rs-panel-2);color:var(--rs-muted)}
+.adj.lift .n{background:var(--rs-good-soft);color:#2f7d32;border-color:#4ca52d55}
+.adj.hold .n{background:var(--rs-warn-soft);color:#8a5a00;border-color:#ff990059}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.acts .btn{margin-top:0}
+tr.dim td{opacity:.6}
+
+/* notices */
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.crit{background:var(--rs-crit-soft);border:1px solid #e0000045;border-left:3px solid var(--rs-crit)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+
+/* benches — three columns on this revision */
+.bench{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media (max-width:860px){.bench{grid-template-columns:1fr}}
+.bcard{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px}
+.bcard h3{margin:0 0 4px;font-size:13.5px;font-weight:600}
+.bcard .d{font-size:12px;color:var(--rs-muted);margin-bottom:10px}
+.bfig{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap}
+.bfig .n{font-size:24px;font-weight:300;font-variant-numeric:tabular-nums}
+.bfig .n small{font-size:12px;color:var(--rs-muted);display:block}
+.bfig .arrow{color:var(--rs-muted)}
+
+/* the switch card (copied from the consent drawing) */
+.ack{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:16px 18px}
+.ack .line{display:flex;gap:11px;align-items:flex-start;font-size:13.5px;margin-bottom:12px}
+.ack .box{flex:none;width:17px;height:17px;border:2px solid var(--rs-accent);border-radius:4px;
+  margin-top:2px;background:#fff}
+.ack .box.on{background:var(--rs-accent);position:relative}
+.ack .box.on::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:12px;
+  display:grid;place-items:center;font-weight:700}
+
+/* questions */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Item 4.97, drawing 2 of 4 — the Outcome Learning page revised for lifts, reach and the
+  honest bench, and the firm's Outcome Sharing tab with its reach pair and the secret-missing
+  refusal. Drawn 2026-09-14. NOT YET APPROVED. Nothing here is built.</b> It revises two drawings
+  Mike approved and that were built on 2026-09-11 (outcome-learning-mentor.html,
+  outcome-learning-consent.html). Everything without a dashed blue outline is exactly as built today.</p>
+  <p><b>What changes, in one sentence:</b> the pool can now say a template keeps <i>landing well</i>
+  as well as keeps <i>not landing</i>, so each row carries one signed number — a lift or a
+  hold-back — and the page also says how far the loop reaches and tests the benches on a month
+  the adjustments never saw.</p>
+  <p>🔴 <b>Still true: NOTHING CHANGES A RECOMMENDATION UNTIL THE MENTOR PRESSES ACCEPT.</b> A lift is
+  gated, capped and traced exactly as a hold-back is, and neither ever moves a template the advisor's
+  own words reached (the long-tail reading, ruled).</p>
+  <p><b>Template titles are the app's own. Every count marked <span class="ex">example</span> is invented.</b></p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — the Mentor Hub page: one reach tile, and a signed Adjustment column</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Mentor Hub</div>
+  <h1 class="hub-h1">Outcome Learning</h1>
+  <div class="hub-sub">Advisor-e platform · pooled from every firm that shares</div>
+</div>
+
+<div class="strip five">
+  <div class="stat"><div class="l">Firms sharing</div><div class="v">7 <span class="ex">example</span></div></div>
+  <div class="stat"><div class="l">Reviews in the pool</div><div class="v">212 <span class="ex">example</span></div></div>
+  <div class="stat new"><div class="l">Loop reach<span class="newtag">new</span></div><div class="v">41 of 118 <span class="ex">example</span></div><div class="s">35% of delivered cases reviewed · read 14 Sep 09:12</div></div>
+  <div class="stat"><div class="l">Live adjustments</div><div class="v">2</div><div class="s">1 proposed · 1 held · 1 below the floor</div></div>
+  <div class="stat"><div class="l">Last recomputed</div><div class="v" style="font-size:16px;margin-top:8px">Just now</div><div class="s"><span class="btn small ghost">Recompute now</span></div></div>
+</div>
+
+<div class="mock">
+  <p><b>The reach tile — question 2.</b> One tile, <i>Loop reach</i>, reads "41 of 118": of the 118
+  cases delivered at sharing firms, 41 have a review; the other 77 are cases the loop cannot learn
+  from. The sub-line gives the share and when the counts were read (they are cached for a minute,
+  so the time is honest — spec FR-008, data-model §5). The two-tile alternative — <i>Reviews
+  recorded</i> 41 of 118 and <i>Not yet reviewed</i> 77 — says the same thing in two boxes; the
+  question is at the foot. The four existing tiles keep their ruled names.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>What the pool has learned</h2>
+    <span class="pill inh">Floor: 5 firms and 25 cases</span>
+  </div>
+  <div class="card-b">
+    <div class="tw">
+    <table>
+      <thead><tr>
+        <th>Template</th><th>In this situation</th><th>Delivered</th>
+        <th class="new">Landed well<span class="newtag">new</span></th><th>Didn't land</th>
+        <th class="new">Adjustment<span class="newtag">renamed</span></th><th>Firms</th><th>State</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tt">Break-Even</span><div class="src">Revenue &amp; Feasibility Models</div></td>
+          <td class="sit">Domain: <b>profitability and feasibility</b></td>
+          <td class="num">31</td>
+          <td class="num new">19 <div class="src" style="font-weight:300">61%</div></td>
+          <td class="num">12 <div class="src" style="font-weight:300">39%</div></td>
+          <td><span class="adj lift new"><span class="n">+2</span><span class="pill ok">lift</span></span></td>
+          <td class="num">6</td>
+          <td><span class="pill ok">Live</span><div class="src">Accepted 3 Nov · Rewi Tapsell</div></td>
+          <td><div class="acts"><span class="btn small dim">Hold</span><span class="btn small danger">Reject</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">Margin vs Markup</span><div class="src">Revenue &amp; Feasibility Models</div></td>
+          <td class="sit">Domain: <b>profitability and feasibility</b></td>
+          <td class="num">28</td>
+          <td class="num new">25 <div class="src" style="font-weight:300">89%</div></td>
+          <td class="num">3 <div class="src" style="font-weight:300">11%</div></td>
+          <td><span class="adj lift new"><span class="n">+8</span><span class="pill ok">lift</span></span></td>
+          <td class="num">5</td>
+          <td><span class="pill wait">Proposed</span></td>
+          <td><div class="acts"><span class="btn small">Accept</span><span class="btn small dim">Hold</span><span class="btn small danger">Reject</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">Stock Policies</span><div class="src">Specialist Tools</div></td>
+          <td class="sit">Industry: <b>cafe</b></td>
+          <td class="num">27</td>
+          <td class="num new">6 <div class="src" style="font-weight:300">22%</div></td>
+          <td class="num">17 <div class="src" style="font-weight:300">63%</div></td>
+          <td><span class="adj hold new"><span class="n">−4</span><span class="pill wait">hold-back</span></span></td>
+          <td class="num">5</td>
+          <td><span class="pill off">Held</span><div class="src">Held 12 Nov · Rewi Tapsell — "wait for a second industry"</div></td>
+          <td><div class="acts"><span class="btn small">Accept</span><span class="btn small danger">Reject</span></div></td>
+        </tr>
+        <tr>
+          <td><span class="tt">Price Rise</span><div class="src">General Tools</div></td>
+          <td class="sit">Engagement type: <b>education</b></td>
+          <td class="num">26</td>
+          <td class="num new">13 <div class="src" style="font-weight:300">50%</div></td>
+          <td class="num">13 <div class="src" style="font-weight:300">50%</div></td>
+          <td><span class="adj new"><span class="n">0</span></span></td>
+          <td class="num">5</td>
+          <td><span class="pill ok">Live</span><div class="src new">Nothing to adjust</div></td>
+          <td><div class="acts"><span class="btn small dim">Hold</span><span class="btn small danger">Reject</span></div></td>
+        </tr>
+        <tr class="dim">
+          <td><span class="tt">7 Cash Drivers</span><div class="src">General Tools</div></td>
+          <td class="sit">Signal: <b>cash flow gap</b></td>
+          <td class="num">22</td>
+          <td class="num new">8 <div class="src" style="font-weight:300">36%</div></td>
+          <td class="num">13 <div class="src" style="font-weight:300">59%</div></td>
+          <td><span class="adj hold new"><span class="n">−2</span><span class="pill wait">hold-back</span></span></td>
+          <td class="num">4</td>
+          <td><span class="pill off">Below the floor</span><div class="src">Needs 1 more firm and 3 more cases</div></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="new" style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0;padding:4px 6px">
+      <b>How to check a row by hand:</b> adjustment = 10 × (landed well − didn't land) ÷ delivered,
+      rounded. Positive lifts the template, negative holds it back. Break-Even: 10 × (19 − 12) ÷ 31 =
+      2.3 → +2. Only templates that were <i>Used fully</i> or <i>Partly used</i> count as delivered;
+      <i>Didn't use it</i> is neutral. Cases = delivered. All counts marked example.
+    </p>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>Reading the table — question 1.</b> One row is still one template in one situation with one
+  number. The "Hold-back" column becomes <b>Adjustment</b> and carries a signed size with a direction
+  pill: <b>+2 lift</b> (green), <b>−4 hold-back</b> (amber), or <b>0</b> with no pill. A new
+  <b>Landed well</b> column sits beside <b>Didn't land</b>, because the number is now computed from
+  both counts and a person must be able to check it from the row (spec SC-009).</p>
+  <p><b>The Break-Even row shows the re-sizing ruling.</b> On the built page it is a live −4
+  hold-back (12 of 31 didn't land). Counting the 19 that landed well, the net is +7 of 31, so the
+  same live row becomes a <b>+2 lift</b> the moment this ships — existing hold-backs re-sized under
+  the same rule, as ruled. The mentor's accept on 3 November still stands; only the size and sign
+  moved, and the trace line (drawing 3) says which way.</p>
+  <p><b>The Price Rise row</b> was "Nothing to hold back" at 0. Under the net rule 0 means the two
+  counts balance, so its sub-line becomes <b>"Nothing to adjust"</b> — a wording row below. It stays
+  listed, as ruled 2026-09-10.</p>
+  <p><b>Margin vs Markup</b> (Revenue &amp; Feasibility Models, data/templates.json) is the row the
+  ruling was for: 25 of 28 landed well, so it is proposed as a <b>+8 lift</b> in the profitability
+  domain and waits for the mentor exactly as a hold-back does. Accept, Hold, Reject and history are
+  unchanged.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — the bench card gains an out-of-sample column and a cap-breach line</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Is it smarter? The number</h2>
+    <span class="btn small ghost">Run the benches</span>
+  </div>
+  <div class="card-b">
+    <div class="bench">
+      <div class="bcard">
+        <h3>Fixed bench — the Scenario Lab</h3>
+        <div class="d">50 invented cases across 14 domains, unchanged since June. Share whose top recommendation is the one the case expects.</div>
+        <div class="bfig">
+          <span class="n">100%<small>without adjustments</small></span>
+          <span class="arrow">→</span>
+          <span class="n">96%<small>with the 2 live adjustments</small></span>
+        </div>
+        <div class="src new" style="margin-top:10px;padding:3px 5px"><b>Cap breaches on the fixed bench: 0 of 51</b> — cases where the pool moved a template past one the advisor's own words had reached. Anything but 0 is a fault, not a finding.</div>
+      </div>
+      <div class="bcard">
+        <h3>Outcome bench — the pool itself</h3>
+        <div class="d">Every pooled review replayed through the engine. Share whose top recommendation that review marked "Landed well".</div>
+        <div class="bfig">
+          <span class="n">58%<small>without adjustments</small></span>
+          <span class="arrow">→</span>
+          <span class="n">63%<small>with the 2 live adjustments</small></span>
+        </div>
+      </div>
+      <div class="bcard new">
+        <h3>Out-of-sample — trained on July–August, tested on September<span class="newtag">new</span></h3>
+        <div class="d">Adjustments recomputed from the earlier months only, your live decisions kept, then scored on the latest month's reviews — ones the adjustments never saw.</div>
+        <div class="bfig">
+          <span class="n">57%<small>without adjustments</small></span>
+          <span class="arrow">→</span>
+          <span class="n">60%<small>with the 2 live adjustments</small></span>
+        </div>
+        <div class="src" style="margin-top:6px">38 reviews trained · 21 tested <span class="ex">example</span></div>
+      </div>
+    </div>
+    <p class="new" style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0;padding:4px 6px">
+      Last run today, 9:14am, with 2 live adjustments. The outcome bench scores the adjustments on the
+      same reviews that produced them, so it flatters them. The out-of-sample bench is trained on the
+      earlier months and tested on the latest, so it cannot see its own answers. Read the fixed bench
+      as a guard, and the out-of-sample figure as the honest number.
+    </p>
+  </div>
+</div>
+
+<div class="bcard new" style="max-width:360px;margin-top:-2px">
+  <h3>Out-of-sample<span class="newtag">insufficient state</span></h3>
+  <p style="margin:0;font-size:13px">Not yet a later month to test on — the pool has reviews from one month only.</p>
+</div>
+
+<div class="mock" style="margin-top:14px">
+  <p><b>Why a third column — question 3.</b> The built honesty line already admits the outcome bench
+  is in-sample. This column is the fix: the cut-off is the start of the latest month in the pool
+  (spec assumption), the adjustments are recomputed from everything before it, only the ids the
+  mentor has marked live are applied, and the score is taken on the latest month alone (research
+  R7). The heading names the months so the mentor never has to work out which is which. When the
+  test month holds fewer than 25 reviews the column shows the sentence in the small card and no
+  figure (spec edge case). The fixed bench's "before" is always 100%, as built and ruled 2026-09-11.</p>
+  <p><b>The cap-breach line</b> is spec FR-006 made visible: the count of cases where a pooled
+  adjustment re-ordered a template against the advisor's own evidence. It is expected to read 0 on
+  every run; a mentor who sees any other number is looking at a bug, and the line says so.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — the firm's Outcome Sharing tab: its own reach pair, and the refusal</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Firm Manager Hub</div>
+  <h1 class="hub-h1">Outcome Sharing</h1>
+  <div class="hub-sub">Apex Auto &amp; Engineering Ltd · New Zealand</div>
+</div>
+
+<div class="card new">
+  <div class="card-h"><h2>Your firm's reviews<span class="newtag">new card</span></h2></div>
+  <div class="card-b">
+    <p style="font-size:14.5px;margin:0 0 4px"><b>12 of 30 delivered cases have a review</b> <span class="ex">example</span></p>
+    <p style="font-size:13px;color:var(--rs-muted);margin:0">Only reviewed cases teach the pool — a case without a review contributes nothing, whether or not your firm is sharing.</p>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>The firm's own pair, nothing else</b> (spec FR-008: "its own two counts only"). It sits above
+  <i>Your firm's choice</i> because it is true whether the switch is on or off, and it is the one
+  number a firm manager can act on — an advisor who delivers and never reviews is invisible to the
+  loop. It never mentions other firms or the platform figure.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Your firm's choice</h2>
+    <span class="pill off">Not sharing</span>
+  </div>
+  <div class="card-b">
+    <p style="font-size:13px;color:var(--rs-muted);margin:0 0 12px">… the opening sentence, the two columns and the "What you get back" notice, exactly as built …</p>
+    <div class="ack">
+      <div class="line">
+        <span class="box on"></span>
+        <span><b>I act for and on behalf of my firm when I choose to share our anonymised template
+        outcomes with Advisor-e to improve recommendations for every participating firm. I understand
+        what leaves our firm and what never does, as set out above, and that I can stop sharing at
+        any time.</b></span>
+      </div>
+      <p style="font-size:12.5px;color:var(--rs-muted);margin:0 0 12px">
+        Stopping is immediate and needs no reason. What was already shared stays in the pool unless
+        you also ask for it to be withdrawn — that is a separate step, and it is always available.</p>
+      <div class="btn">Start sharing</div>
+      <div class="notice crit new" style="margin:14px 0 0">
+        <b>Sharing can't be switched on yet — the platform's outcome pool isn't configured.</b>
+        Ask Advisor-e to set it. Nothing has been changed.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>The refusal — question 4.</b> The manager ticked the sentence and pressed <i>Start sharing</i>
+  on a server with no pool secret. The backend answers 503 POOL_UNAVAILABLE and writes nothing
+  (spec FR-009, data-model §8); the tab shows this red notice under the button and the switch stays
+  off. The built page already shows the softer amber line <i>"The outcome pool is not configured on
+  this server, so nothing is being shared yet."</i> when it loads; this is the harder sentence for
+  the moment of pressing. <b>The consent sentence in the box is Mike's own, pinned — untouched.</b></p>
+  <p><b>Ruled, not asked:</b> once any firm has sharing on, the backend refuses to start without the
+  secret, and the UAT load pack and <code>.env.example</code> are rewritten from "optional" to
+  "required once the first firm shares, and never changed after". That reverses a line Mike approved
+  on 4.87 and is named here so it is not a surprise.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every new or changed word on these screens — all proposed, none ruled</div>
+
+<div class="mock">
+  <p><b>Unchanged strings are not listed.</b> Every word without a dashed outline — the tab names,
+  header line, the four existing tiles, the table heading and floor pill, the columns Template ·
+  In this situation · Delivered · Didn't land · Firms · State, the situation labels, the five
+  states and their sub-lines, the buttons, the reject dialog, the two existing bench headings and
+  descriptions, the history and orphan rows, the empty state, and everything on the firm's tab
+  including the pinned consent sentence — is as ruled on the two approved drawings and in
+  locales/en.json today.</p>
+</div>
+
+<div class="card">
+  <div class="card-b">
+    <div class="tw">
+    <table style="min-width:0">
+      <thead><tr><th>Where</th><th>Proposed wording</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Reach tile (mentor)</td><td>Loop reach · 41 of 118 · 35% of delivered cases reviewed · read 14 Sep 09:12</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Column heading, renamed</td><td>Adjustment <i>(was Hold-back)</i></td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Column heading, added</td><td>Landed well</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Direction pills</td><td>lift · hold-back <i>(none at 0)</i></td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>State sub-line at 0</td><td>Nothing to adjust <i>(was Nothing to hold back)</i></td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Under the table</td><td>How to check a row by hand: adjustment = 10 × (landed well − didn't land) ÷ delivered, rounded. Positive lifts the template, negative holds it back. Only templates that were Used fully or Partly used count as delivered; Didn't use it is neutral. Cases = delivered.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Third bench heading</td><td>Out-of-sample — trained on July–August, tested on September</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Third bench description</td><td>Adjustments recomputed from the earlier months only, your live decisions kept, then scored on the latest month's reviews — ones the adjustments never saw.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Third bench counts</td><td>38 reviews trained · 21 tested</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Third bench, insufficient</td><td>Not yet a later month to test on — the pool has reviews from one month only.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Cap-breach line</td><td>Cap breaches on the fixed bench: 0 of 51 — cases where the pool moved a template past one the advisor's own words had reached. Anything but 0 is a fault, not a finding.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Bench honesty line</td><td>The outcome bench scores the adjustments on the same reviews that produced them, so it flatters them. The out-of-sample bench is trained on the earlier months and tested on the latest, so it cannot see its own answers. Read the fixed bench as a guard, and the out-of-sample figure as the honest number.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Firm card heading</td><td>Your firm's reviews</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Firm card body</td><td>12 of 30 delivered cases have a review · Only reviewed cases teach the pool — a case without a review contributes nothing, whether or not your firm is sharing.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Refusal on Start sharing</td><td>Sharing can't be switched on yet — the platform's outcome pool isn't configured. Ask Advisor-e to set it. Nothing has been changed.</td><td><span class="pill wait">Proposed</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<div class="notice good">
+  <b>Rulings already given (2026-09-14) — applied above, not re-asked</b>
+  Lift and hold-back both exist. Option A net balance: 10 × (landed well − didn't land) ÷ delivered,
+  rounded; positive lifts, negative holds back; one number per pairing; existing hold-backs re-sized.
+  The pool secret becomes required once any firm shares, and the load pack is rewritten to say so.
+  The long-tail reading of the cap: the pool never moves a template the advisor's own words reached.
+  From 4.87: the floor, no free text, one dimension per row, recompute on open, the tab names, the
+  pinned consent sentence.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Open questions — four, one recommendation each, yes or no</div>
+
+<div class="q">
+  <h3>1 · One "Adjustment" column with a direction pill — or two columns, "Lift" and "Hold-back"?</h3>
+  <p>Drawn as one column: a signed number and a small green or amber word beside it. The alternative
+  is two columns where every row has one empty cell.</p>
+  <p class="rec">Recommended: one column, as drawn. The ruling is one number per pairing, and one
+  column says so; the pill makes the sign readable without a minus sign doing all the work. Against:
+  "+2" and "−4" in one column can be misread as a scale rather than a direction, which is what the
+  pill is there to prevent — and sorting by size then mixes lifts and hold-backs, so the column sorts
+  by absolute size, biggest effect first.</p>
+</div>
+
+<div class="q">
+  <h3>2 · One reach tile, "Loop reach: 41 of 118" — or two, "Reviews recorded" and "Not yet reviewed"?</h3>
+  <p>Drawn as one tile with the share and the read time on its sub-line. Two tiles would give the 77
+  unreviewed cases a box of their own.</p>
+  <p class="rec">Recommended: one tile, as drawn. The strip already has four tiles; five fit, six wrap
+  on a laptop, and 41 of 118 says both numbers. Against: 77 is the number that should nag — the cases
+  the loop cannot learn from — and a tile of its own would nag harder. It is one subtraction away.</p>
+</div>
+
+<div class="q">
+  <h3>3 · Is the three-sentence honesty line right?</h3>
+  <p><i>"The outcome bench scores the adjustments on the same reviews that produced them, so it
+  flatters them. The out-of-sample bench is trained on the earlier months and tested on the latest,
+  so it cannot see its own answers. Read the fixed bench as a guard, and the out-of-sample figure as
+  the honest number."</i></p>
+  <p class="rec">Recommended: approve as drawn. Each sentence names one bench and what to make of it;
+  "the honest number" is the phrase a mentor will repeat to a buyer. Against: three sentences under
+  three figures is a lot of small text; a shorter line would have to drop either what "in-sample"
+  means or which figure to trust, and the built line already showed that dropping one leaves the
+  reader guessing.</p>
+</div>
+
+<div class="q">
+  <h3>4 · Is the refusal wording on the firm's tab right?</h3>
+  <p><i>"Sharing can't be switched on yet — the platform's outcome pool isn't configured. Ask
+  Advisor-e to set it. Nothing has been changed."</i> Shown in red under the Start sharing button.</p>
+  <p class="rec">Recommended: approve as drawn. It says what happened, whose job it is, and that the
+  press did nothing — the three things a manager needs before walking away. Against: "outcome pool"
+  is our term and a firm manager has not met it; but the amber line already on the page uses the
+  same words, and naming the thing is what lets Advisor-e find it.</p>
+</div>
+
+<div class="notice warn" style="margin-top:20px">
+  <b>What this drawing does not decide</b>
+  How a lift, a hold-back and an outweighed adjustment read on the advisor's "Why this?" panel, and
+  the "Answered by" provider line, are drawing 3. The primary-issue proposal in the conversation is
+  drawing 1; the Template Profiles screen is drawing 4. The size of the cap (10) and the floor are
+  rulings already.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which tiers get this, and why</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin-top:0"><b>The mentor page: mentor tier alone — the judgement is unchanged</b>
+    (spec FR-014 on 4.87, restated here as the hub-page rule requires). A lift is the same kind of
+    thing as a hold-back: one platform-wide finding, one mentor decision. A global group manager or
+    group manager would see the same rows, the same reach figure and the same three benches, and
+    could take no different decision on any of them. Nothing here gives a lower tier a value of its
+    own.</p>
+    <p><b>The firm tab: firm tier alone — unchanged.</b> The reach pair is the firm's own two counts
+    and nothing about anyone else; the refusal is shown to the person pressing the switch, who is
+    the firm manager. <b>No middle tier gets either screen.</b> They contribute no reviews, receive
+    no adjustment, and flip no switch; cascading becomes mandatory the day one of them has a real
+    reason to hold a different value, and none has one today.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
