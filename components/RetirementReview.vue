@@ -293,45 +293,64 @@
   template(v-else-if="step === 3")
     .rr-layout
       aside.rr-inputs
-        .rr-card(v-for="(p, i) in form.position.properties" :key="'prop' + i")
-          .rr-card-h
-            h2 {{ p.name }}
+        //- THE PROPERTY LIST — the reader chooses which one to open. The same shape Mike
+        //- approved on Multiple Property (2026-08-21) for the same problem: six properties
+        //- drawn flat is a wall of boxes, and six cards that expand and collapse gave no
+        //- sign they opened and no way to close them (his own finding, 2026-09-13).
+        .rr-card
+          h2
+            | {{ $t('report.retirementReview.properties.listTitle') }}
+            span.rr-h2sub {{ $t('report.retirementReview.properties.listSub') }}
+          .rr-prow(
+            v-for="(p, i) in form.position.properties"
+            :key="'prow' + i"
+            :class="{ 'is-sel': i === openProperty }"
+            @click="openProperty = i")
+            span.rr-pn {{ i + 1 }}
+            span.rr-pa {{ p.name }}
+            span.rr-pv {{ money(p.value) }}
             span.rr-tag(:class="typeClass(p.mortgageType)") {{ typeLabel(p.mortgageType) }}
-          template(v-if="openProperty === i")
+          p.rr-note {{ $t('report.retirementReview.properties.listNote') }}
+
+        //- The open property's own figures. Always present, so there is nothing to expand
+        //- and nothing to collapse.
+        .rr-card(v-if="openProp")
+          .rr-card-h
+            h2 {{ openProp.name }}
+            span.rr-tag(:class="typeClass(openProp.mortgageType)") {{ typeLabel(openProp.mortgageType) }}
+          .rr-field
+            label {{ $t('report.retirementReview.properties.worth') }}
+            b-input(v-model.number="openProp.value" type="number" step="any" size="is-small")
+          .rr-field
+            label {{ $t('report.retirementReview.properties.owing') }}
+            b-input(v-model.number="openProp.debt" type="number" step="any" size="is-small")
+          .rr-pair
             .rr-field
-              label {{ $t('report.retirementReview.properties.worth') }}
-              b-input(v-model.number="p.value" type="number" step="any" size="is-small")
+              label {{ $t('report.retirementReview.properties.rate') }}
+              b-input(v-model.number="openProp.ratePct" type="number" step="any" size="is-small")
             .rr-field
-              label {{ $t('report.retirementReview.properties.owing') }}
-              b-input(v-model.number="p.debt" type="number" step="any" size="is-small")
-            .rr-pair
-              .rr-field
-                label {{ $t('report.retirementReview.properties.rate') }}
-                b-input(v-model.number="p.ratePct" type="number" step="any" size="is-small")
-              .rr-field
-                label {{ $t('report.retirementReview.properties.termYears') }}
-                b-input(v-model.number="p.termYears" type="number" step="any" size="is-small")
+              label {{ $t('report.retirementReview.properties.termYears') }}
+              b-input(v-model.number="openProp.termYears" type="number" step="any" size="is-small")
+          .rr-field
+            label {{ $t('report.retirementReview.properties.mortgageType') }}
+            b-select(v-model="openProp.mortgageType" size="is-small" expanded)
+              option(v-for="t in mortgageTypes" :key="t" :value="t") {{ typeLabel(t) }}
+          .rr-field
+            label {{ $t('report.retirementReview.properties.monthlyRent') }}
+            b-input(v-model.number="openProp.monthlyRent" type="number" step="any" size="is-small")
+          .rr-pair
             .rr-field
-              label {{ $t('report.retirementReview.properties.mortgageType') }}
-              b-select(v-model="p.mortgageType" size="is-small" expanded)
-                option(v-for="t in mortgageTypes" :key="t" :value="t") {{ typeLabel(t) }}
+              label {{ $t('report.retirementReview.properties.growth') }}
+              b-input(v-model.number="openProp.growthRatePct" type="number" step="any" size="is-small")
             .rr-field
-              label {{ $t('report.retirementReview.properties.monthlyRent') }}
-              b-input(v-model.number="p.monthlyRent" type="number" step="any" size="is-small")
-            .rr-pair
-              .rr-field
-                label {{ $t('report.retirementReview.properties.growth') }}
-                b-input(v-model.number="p.growthRatePct" type="number" step="any" size="is-small")
-              .rr-field
-                label {{ $t('report.retirementReview.properties.rentGrowth') }}
-                b-input(v-model.number="p.rentGrowthRatePct" type="number" step="any" size="is-small")
-            .rr-field
-              label {{ $t('report.retirementReview.properties.soldInYear') }}
-              b-select(v-model="p.sellInYear" size="is-small" expanded)
-                option(:value="null") {{ $t('report.retirementReview.properties.notSold') }}
-                option(v-for="y in yearCount" :key="'y' + y" :value="y") {{ $t('report.retirementReview.properties.yearN', { n: y }) }}
-              p.rr-note {{ $t('report.retirementReview.properties.soldHelp') }}
-          a.rr-toggle(v-else @click="openProperty = i") {{ propertySummary(i) }}
+              label {{ $t('report.retirementReview.properties.rentGrowth') }}
+              b-input(v-model.number="openProp.rentGrowthRatePct" type="number" step="any" size="is-small")
+          .rr-field
+            label {{ $t('report.retirementReview.properties.soldInYear') }}
+            b-select(v-model="openProp.sellInYear" size="is-small" expanded)
+              option(:value="null") {{ $t('report.retirementReview.properties.notSold') }}
+              option(v-for="y in yearCount" :key="'y' + y" :value="y") {{ $t('report.retirementReview.properties.yearN', { n: y }) }}
+            p.rr-note {{ $t('report.retirementReview.properties.soldHelp') }}
 
       section.rr-results
         .rr-card
@@ -608,6 +627,15 @@ export default {
     /** The three mortgage types, for the picker. */
     mortgageTypes () {
       return [MORTGAGE_TABLE, MORTGAGE_REDUCING, MORTGAGE_INTEREST_ONLY]
+    },
+
+    /**
+     * The open property's FORM object, bound directly so its fields are editable.
+     * Never null once the form exists: `openProperty` is clamped to the list.
+     */
+    openProp () {
+      const list = this.form.position.properties
+      return list[this.openProperty] || list[0] || null
     },
 
     /** The Quick Calculator half of the response, or null before the first result lands. */
@@ -1001,12 +1029,6 @@ export default {
         .map(p => p.name)
     },
 
-    /** The one-line summary shown on a collapsed property card. */
-    propertySummary (i) {
-      const p = this.form.position.properties[i]
-      return this.money(p.value) + ' · ' + this.money(p.monthlyRent) + ' · ' + this.typeLabel(p.mortgageType)
-    },
-
     /**
      * Hand the review to the browser's own print dialogue. Client-only: `window` does not
      * exist during server-side render, and this runs from a click, never at setup.
@@ -1073,7 +1095,28 @@ export default {
 .rr-field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; }
 .rr-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .rr-quad { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.rr-toggle { display: block; font-size: 12.5px; color: var(--rs-accent); cursor: pointer; }
+
+/* The property list. Read off Multiple Property's `.mpa-prow`, which solves the same
+   problem on the report next door — one row per property, the open one marked, and no
+   expand/collapse concept at all. */
+.rr-h2sub {
+  display: block; margin-top: 4px; font-size: 11.5px; font-weight: 400;
+  letter-spacing: 0; text-transform: none; color: var(--rs-muted);
+}
+.rr-prow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 8px; border-radius: 9px; cursor: pointer;
+  border: 1px solid transparent;
+}
+.rr-prow + .rr-prow { margin-top: 2px; }
+.rr-prow .rr-pn { font-size: 11px; font-weight: 600; color: var(--rs-muted); min-width: 14px; }
+.rr-prow .rr-pa {
+  flex: 1; font-size: 12.5px; color: var(--rs-ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rr-prow .rr-pv { font-size: 12.5px; color: var(--rs-muted); font-variant-numeric: tabular-nums; }
+.rr-prow.is-sel { background: var(--rs-panel-2); border-color: var(--rs-card-border); }
+.rr-prow.is-sel .rr-pn, .rr-prow.is-sel .rr-pa { color: var(--rs-ink); font-weight: 600; }
 
 /* Entry boxes are sized to their content. Left to fill their cell they came out three times
    this width on the High Level Budget, and across many rows that is the difference between a

@@ -1686,6 +1686,9 @@
         "taxHelp": "{country}, {taxYear}. One rate is worked out in year one and held for the whole twenty years — the workbook's own choice, not a shortcut here."
       },
       "properties": {
+        "listTitle": "The properties",
+        "listSub": "Six is the most the model takes. Open one to see and change its own figures.",
+        "listNote": "Opening a property changes only the card below this one. The table of all six, and everything on the next step, never moves when you open one.",
         "cardTitle": "Property {n}",
         "worth": "What it is worth",
         "owing": "Owing",
