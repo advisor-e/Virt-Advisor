@@ -9,42 +9,39 @@
 
 ---
 
-## 2026-09-13 (twenty-fourth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-13 (twenty-fifth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,115 green** (486 suites), lint 0 errors, tree clean, 2 ahead / 0 behind `master`.
-Two commits, both pushed: `dd7542d7`, `43ac2983`. **FIVE live items** — 4.15, 4.58, 4.86, 4.87,
-and the new 4.90.
+Suite **10,139 green** (488 suites), lint 0 errors, tree clean, 9 ahead / 0 behind `master`.
+Four commits, all pushed: `5f9daa59`, `0528dba2`, `beb35492`, `e8439527`.
+**FOUR live items** — 4.15, 4.58, 4.86, 4.87. **Nothing is active on this machine.**
 
-**4.90 Retirement Review — STARTED, AND IT IS ACTIVE ON THIS MACHINE.** Mike asked for it:
-*"build the retirement planning model in perf reports section"*. The maths engine and its golden
-test are done — [`server/report/retirementReviewModel.js`](../server/report/retirementReviewModel.js)
-and its test, 47 cases, eight mutations run and all eight caught. **Nothing user-facing yet:**
-route, catalogue row, entry steps and result screen still to build. It is the largest workbook in
-the library — six properties, three mortgage types, twenty years, two hidden amortisation sheets.
+**4.90 Retirement Review — BUILT AND CLOSED.** Maths, route, the four-step screen, the live
+Model Library card, the Model Guide entry and the guards. Closure on
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2; the model's own section is
+in [`features/report-models.md`](features/report-models.md). Drawn first at
+[`mockups/retirement-review.html`](mockups/retirement-review.html) — **six wording decisions
+ruled by Mike**, each put to him alone, and **six differences between drawing and build** named
+on the drawing itself.
 
-🔴 **THE PORT WAS PROVED EXACT BEFORE ANY CORRECTION WAS APPLIED** — every cached value on all six
-sheets, all twenty years of all twelve series. **That ordering IS the proof and cannot be redone
-later:** once the output differs from the spreadsheet, no comparison can establish fidelity. What
-still runs in its place: everything the corrections do not touch stays pinned to the workbook, and
-the structural correction is pinned to the workbook's *own* numbers.
+🔴 **TWO FAULTS WERE FOUND BY OPENING THE SCREEN, WITH THE WHOLE SUITE GREEN**, and neither was
+visible to any assertion: the verdict panel's warning figures rendered **navy rather than red**
+(the tone class applied, beaten on CSS specificity), and step 3's six expanding property cards
+had **no expander symbol and no close control at all** — Mike found that one himself. It is now
+the list-and-one-open shape he approved on Multiple Property, so the two property reports match.
 
-🔴 **THREE RULED DEVIATIONS, all Mike 2026-09-13**, on every result as `workbookCorrections`:
-current tax bands from `data/tax-bands.json` (12.926% → 12.582%); the pension taxed in the
-projection; the sixth property realigned to year one. The last two were **4.91, filed and closed
-the same day** — its block sat four columns out, so it earned nothing for four years and, when
-sold, **credited the client with nothing at all**. Closing cash **1,522,255 → 2,590,883**, years in
-deficit 13 → 14. The two pull opposite ways and are reported separately, never netted.
+**Also fixed, found while mutation-checking the new route's privacy test:** both assertions in
+`multiplePropertyRoute.test.js` guarding five real client addresses used `String()` on
+`console.error`'s arguments, which renders an object as `[object Object]` — so a handler logging
+the whole request body would have passed. Proved by mutation. **The routes were never leaking;
+only the alarm was dead.** Worth knowing: the same pattern may exist elsewhere.
 
-**4.92 closed** — the intermittent `EPERM` that rejected a push and blamed unrelated code. Windows
-reports EPERM, not ENOENT, for a file unlinked while a handle lingers; `existsSync` cannot see that
-window and a delete-pending path refuses writes too. The two `activityStore` dev-fallback suites no
-longer delete their temp file mid-run. **`activityStore.js` itself is correct and was not touched.**
+**Also corrected:** `report-models.md` claimed eight catalogued models are `STATUS_SOON`. It is
+**three**. Stale before today.
 
 **Waiting on Mike, unchanged:** 4.58's OpenAI reply (letter sent 2026-09-12), 4.15's eighteen
 template names, and whether the four unranked items get placed.
 
-**DESKTOP:** none of your files were touched and 4.87 was left alone. New here:
-`server/report/retirementReviewModel.js` and its test. Changed: the two `activityStore`
-dev-fallback tests and the usual records. ⚠ **4.90 will next touch
-`utils/reportModelCatalogue.js` and `server/routes/report.js`** — shared files, so leave them to
-this machine. Merge `master` in at startup once this lands.
+**DESKTOP:** none of your files were touched and 4.87 was left alone. Shared files this session
+touched and has now FINISHED with: `utils/reportModelCatalogue.js`, `server/routes/report.js`,
+`server/restify-server.js`, `locales/en.json`, and the report guards. Merge `master` in at
+startup once this lands.
