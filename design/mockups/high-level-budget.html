@@ -193,7 +193,7 @@ tr.sub td.num{font-size:14.5px}
   the same day</b> — <code>pages/high-level-budget.vue</code>,
   <code>components/HighLevelBudget.vue</code>, every label in <code>locales/en.json</code>, and the
   Model Library card flipped from "coming soon" to live. Suite 10,065 green, lint 0 errors.</p>
-  <p><b>SIX DIFFERENCES BETWEEN THIS DRAWING AND THE BUILD</b>, named here rather than left to be
+  <p><b>EIGHT DIFFERENCES BETWEEN THIS DRAWING AND THE BUILD</b>, named here rather than left to be
   found. The full record is in
   <a href="../features/report-models.md">features/report-models.md</a> §4:</p>
   <ul>
@@ -212,10 +212,27 @@ tr.sub td.num{font-size:14.5px}
     exactly on budget. Both now read as a plain zero.</li>
     <li><b>There is no Coach panel</b>, as drawn — the variance table reads itself, every line
     saying <i>Better</i> or <i>Worse</i> beside its own figure.</li>
+    <li>🔴 <b>NOTHING ON THE RESULT STEP CLAIMS AN ACTUAL THAT WAS NEVER ENTERED.</b> Built from
+    this drawing, the screen compared against an empty actuals side from step 3 on: the variance
+    headline, a bank chart drawing twelve nulls as zeroes — a flat line pinned across the scale,
+    reading as <i>“the actual beat the budget all year”</i> — an <i>Actual</i> entry in both
+    legends, and a subtotal reporting <code>$0</code> under a column of <i>not entered</i>. Until
+    one actual is entered the headline is the budget's own, neither chart draws its actual series
+    or lists one, the subtotal reads <i>not entered</i> and <b>—</b>, and the money-in chart is
+    headed <b>“Money in — budget”</b> rather than this page's <i>“budget against actual”</i>.
+    Everything returns the moment an actual exists. Ported from the Mid-Level Budget, which had
+    the same fault fixed first; <b>ruled by Mike 2026-09-13</b>.</li>
+    <li>🔴 <b>Step 1 opens on the financial year we are in, not this page's April 2021.</b> That
+    is the sample workbook's year and the build took it literally, so in 2026 a new client budget
+    opened five years stale with every month label wrong. It is now derived (April of the current
+    NZ tax year, <code>utils/financialYearStart.js</code>), so it rolls over on its own each April
+    rather than needing a fresh year typed in. <b>Ruled by Mike 2026-09-13.</b></li>
   </ul>
-  <p>🔴 <b>The last two were found by opening the screen in a running app, with 10,062 tests
-  green</b> — and the zero fault had to be found twice, once in the headline and again in the
-  table underneath it on the next look. No assertion in this suite could have seen either.</p>
+  <p>🔴 <b>Four of these were found by opening the screen in a running app</b> — the entry-box
+  width and the signed zero with 10,062 tests green, the empty-state comparison and the stale year
+  with 10,240. The zero fault had to be found twice, once in the headline and again in the table
+  underneath it on the next look. <b>No assertion in this suite could have seen any of them</b>,
+  which is why the screen gets opened and looked at.</p>
 </div>
 
 <div class="mock">

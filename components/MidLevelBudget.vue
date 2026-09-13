@@ -251,7 +251,9 @@
       p.mlb-note {{ $t('report.loading') }}
     template(v-else)
       .mlb-card
-        h2 {{ $t('report.midLevelBudget.result.moneyInChart') }}
+        //- The heading names what is actually drawn. It promised a comparison while the
+        //- chart below it correctly refused to draw one.
+        h2 {{ $t(hasActuals ? 'report.midLevelBudget.result.moneyInChart' : 'report.midLevelBudget.result.moneyInChartBudgetOnly') }}
         .mlb-chart
           .mlb-slot(v-for="(label, i) in monthLabels" :key="i")
             .mlb-pair
@@ -338,6 +340,11 @@ import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
+const { financialYearStart } = require('~/utils/financialYearStart')
+
+// The NZ tax year, which both budget workbooks run on: 1 April to 31 March.
+const FY_START_MONTH = 4
+
 /** The model's own month count. One financial year, as the workbook has it. */
 const MONTHS = 12
 
@@ -385,7 +392,9 @@ export default {
       // is deliberately no seeding from the workbook sample — including the timing profiles,
       // which are the client's own answer and never a default.
       form: {
-        monthsStart: '2021-04',
+        // The financial year we are in, never a typed year — a hardcoded '2021-04' had a
+        // 2026 client budget opening five years out of date on every month label.
+        monthsStart: financialYearStart(new Date(), FY_START_MONTH),
         gstRatePct: 15,
         assumptions: {
           debtors: new Array(BUCKETS).fill(null),

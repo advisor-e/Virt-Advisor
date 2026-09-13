@@ -201,10 +201,10 @@ tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:70
 <div class="shell">
 
 <div class="mock" style="background:#eefaf0;border-color:#a8dcb4;color:#1d4a28">
-  <h3>✅ Approved and built — 2026-09-13. Seven differences between this drawing and the build</h3>
-  <p><b>Five of them are corrections to faults this drawing could not have shown</b>, every one
+  <h3>✅ Approved and built — 2026-09-13. Nine differences between this drawing and the build</h3>
+  <p><b>Seven of them are corrections to faults this drawing could not have shown</b>, every one
   found by opening the screen in a running app with the suite green — four with 10,234 tests
-  passing, the fifth in a later session with 10,240. Each is named here because a deliberate
+  passing, three more in a later session with 10,240. Each is named here because a deliberate
   deviation is fine and an unrecorded one is not.</p>
   <ul>
     <li>🔴 <b>Step 5 keeps the budget's own headline until an actual is entered.</b> As drawn it
@@ -228,15 +228,26 @@ tr.subtotal td{border-top:2px solid var(--rs-ink);border-bottom:0;font-weight:70
     <b>“Enter what you actually paid suppliers, not what they invoiced you.”</b> Money In is
     unchanged and Money Out still carries no note. <b>Ruled by Mike 2026-09-13</b>, after the build,
     when opening step 4 showed it.</li>
+    <li>🔴 <b>The money-in chart is headed “Money in — budget” until an actual is entered</b>,
+    not this page's <i>“budget against actual”</i>. The chart already refused to draw a series
+    nobody had entered; only the heading still promised the comparison. <b>Ruled by Mike
+    2026-09-13</b> — and the same correction was carried across to the High Level Budget, which
+    had never had any of this fixed.</li>
+    <li>🔴 <b>Step 1 opens on the financial year we are in, not the workbook's April 2021.</b>
+    The build took the sample year literally, so in 2026 a new client budget opened five years
+    stale with every month label wrong. It is now derived (April of the current NZ tax year,
+    <code>utils/financialYearStart.js</code>) and rolls over on its own each April. <b>Ruled by
+    Mike 2026-09-13.</b></li>
     <li>The buttons are Buefy purple, not the blue drawn here, matching every other live screen.</li>
     <li>Entry boxes carry no <code>%</code> or thousands separator inside the field, because a
     number input cannot.</li>
   </ul>
   <p>The fix for the first four is one flag read off the model's own nulls. <b>No calculation
   changed</b>, and the fix is itself mutation-verified three ways.</p>
-  <p>⚠ One nit left deliberately: the money-in chart still reads <i>“budget against actual”</i>
-  while only the budget is drawn. A person sees that in five seconds, so it is Mike's call rather
-  than a silent rewrite.</p>
+  <p>✅ The money-in chart heading, left open here for Mike's call rather than silently rewritten,
+  was ruled the same day: it reads <i>“Money in — budget”</i> until there is an actual. Opening
+  the older High Level Budget to fix the same heading is what found that it had never received
+  any of the empty-state corrections above — see that page's own list.</p>
 </div>
 
 <div class="mock">

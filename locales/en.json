@@ -1481,6 +1481,7 @@
       },
       "result": {
         "moneyInChart": "Money in — budget against actual",
+        "moneyInChartBudgetOnly": "Money in — budget",
         "bankChart": "The bank balance, month by month",
         "tableTitle": "Every line, against budget",
         "tableSub": "For the year",
@@ -1650,6 +1651,7 @@
       },
       "result": {
         "moneyInChart": "Money in — budget against actual",
+        "moneyInChartBudgetOnly": "Money in — budget",
         "bankChart": "The bank balance, month by month",
         "tableTitle": "Every line, against budget",
         "tableSub": "For the year",

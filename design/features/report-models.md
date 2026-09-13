@@ -1182,6 +1182,23 @@ the nine populated lines in his own workbook are flat, so the common case is one
 arithmetic stays **actual minus budget** on both halves of the table with the **colour**
 carrying the meaning, so nothing ever disagrees with the client's own Variances sheet.
 
+🔴 **NOTHING ON THE RESULT STEP CLAIMS AN ACTUAL THAT WAS NEVER ENTERED** (Mike, 2026-09-13).
+`hasActuals` reads the model's own nulls — a variance line is `null` until an actual is entered
+against it — and until one is, the headline stays the **budget's own** figures, neither chart
+draws its actual series or lists one in the legend, the subtotal row reads *not entered* and an
+em dash like the rows above it, and the money-in chart is headed **"Money in — budget"**. It all
+returns the moment an actual exists. Before this the screen compared against an empty actuals
+side from step 3 on, and drew twelve nulls as zeroes: a flat line pinned across the bank chart,
+reading as *"the actual beat the budget all year"*. **The Mid-Level Budget carries the same flag
+for the same reason** — it was fixed there first, on 2026-09-13, and ported back here the same day.
+
+**A new budget opens on the financial year it is being written in** — April of the current NZ tax
+year, derived by [`utils/financialYearStart.js`](../../utils/financialYearStart.js) and shared
+with the Mid-Level Budget. Both screens were hardcoded to the sample workbook's `'2021-04'`, so a
+2026 client budget opened five years stale with every month label wrong. Deriving it rather than
+typing a fresh year is what stops it going stale again each April; the 1 April turnover is the
+helper's own test, because it is the one day a year the answer changes and nobody is watching.
+
 🔴 **TWO FURTHER RULED DEVIATIONS, both in the GST block** (Mike, 2026-09-12, item 4.89 —
 raised as questions during the 4.88 port and settled the same day, one at a time).
 
@@ -1348,8 +1365,17 @@ thirteenth column of a table that scrolls, so it rendered as a blank row.
 
 `hasActuals` now reads the model's own nulls and governs the whole of step 5: the budget's own
 headline stands until an actual exists, subtotals read `—` exactly as their lines do, neither chart
-draws a series with nothing behind it, and the year's owed figure sits below the scroll rather than
+draws a series with nothing behind it, **the money-in chart is headed "Money in — budget"** until
+there is one to compare against, and the year's owed figure sits below the scroll rather than
 inside it. **No calculation changed.** The fix is mutation-verified three ways.
+
+**Both of those last two went further than this screen.** The heading was left as the one open nit
+on the approved drawing rather than silently rewritten; Mike ruled it on 2026-09-13, and fixing the
+identical heading on the **High Level Budget** found that the older screen had never received any
+of this — it still compared against an empty actuals side and drew a flat line across its bank
+chart. The flag was ported there the same day (§4). The screen also opens on **the financial year
+it is being written in** rather than the workbook's `'2021-04'`, from the shared helper described
+in that section.
 
 ---
 
