@@ -20,6 +20,7 @@ const ThreeWayForecastReport = require('~/components/ThreeWayForecastReport.vue'
 const DashboardReportsWorkbench = require('~/components/DashboardReportsWorkbench.vue').default
 const HighLevelBudget = require('~/components/HighLevelBudget.vue').default
 const MidLevelBudget = require('~/components/MidLevelBudget.vue').default
+const StockPurchasing = require('~/components/StockPurchasing.vue').default
 const RetirementReview = require('~/components/RetirementReview.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
@@ -37,6 +38,7 @@ const { computeThreeYearForecast } = require('~/server/report/threeWayForecastMo
 const { computeReportPages } = require('~/server/report/dashboardReportPagesModel')
 const { computeHighLevelBudget, DEFAULT_INPUTS: HLB_DEFAULTS } = require('~/server/report/highLevelBudgetModel')
 const { computeMidLevelBudget, DEFAULT_INPUTS: MLB_DEFAULTS } = require('~/server/report/midLevelBudgetModel')
+const { computeStockPurchasing, DEFAULT_INPUTS: SP_DEFAULTS } = require('~/server/report/stockPurchasingModel')
 const { computeRetirementReview } = require('~/server/report/retirementReviewModel')
 
 /**
@@ -107,6 +109,9 @@ const SCREENS = [
   // backend answers with the sample the way a filled-in budget would.
   { name: 'High Level Budget', component: HighLevelBudget, result: () => computeHighLevelBudget(HLB_DEFAULTS) },
   { name: 'Mid Level Budget', component: MidLevelBudget, result: () => computeMidLevelBudget(MLB_DEFAULTS) },
+  // Stock Purchasing (4.94). Like the two budgets it opens EMPTY — Report class — so the mocked
+  // backend answers with the workbook sample the way an imported product list would.
+  { name: 'Stock Purchasing', component: StockPurchasing, result: () => computeStockPurchasing(SP_DEFAULTS) },
   { name: 'Retirement Review', component: RetirementReview, result: () => computeRetirementReview() }
 ]
 

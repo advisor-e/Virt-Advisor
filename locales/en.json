@@ -3527,6 +3527,115 @@
         "transitBalance": "Balance on stock already paid for",
         "transitGst": "GST at the border on that stock"
       }
+    },
+    "stockPurchasing": {
+      "title": "Stock Purchasing",
+      "eyebrowClass": "Growth",
+      "notEntered": "not entered",
+      "nav": {
+        "back": "Back",
+        "next": "Next"
+      },
+      "steps": {
+        "sold": "What sold",
+        "shelf": "What's on the shelf",
+        "exposure": "Assess your stock exposure",
+        "buy": "What to buy"
+      },
+      "hero": {
+        "salesReviewed": "Sales reviewed",
+        "acrossThePeriod": "across the period",
+        "grossProfit": "Gross profit",
+        "onThoseSales": "on those sales",
+        "averageMargin": "Average margin",
+        "acrossEveryLine": "across every line",
+        "linesReviewed": "Lines reviewed",
+        "productsScored": "products scored"
+      },
+      "criterion": {
+        "margin": "Margin achieved",
+        "sold": "How many sold",
+        "unitCostRisk": "Unit cost risk",
+        "daysOnHand": "Days on hand",
+        "shareOfStock": "Share of stock held"
+      },
+      "short": {
+        "margin": "Mgn",
+        "sold": "Sold",
+        "unitCostRisk": "Cost",
+        "daysOnHand": "Days",
+        "shareOfStock": "Share"
+      },
+      "col": {
+        "code": "Product",
+        "quantity": "Qty",
+        "sales": "Sales",
+        "cost": "Cost",
+        "grossProfit": "Gross profit",
+        "margin": "Margin",
+        "daysOnHand": "Days on hand",
+        "entryDate": "Entry date",
+        "saleDate": "Sale date",
+        "shareOfStock": "Share of stock",
+        "total": "Total"
+      },
+      "range": {
+        "fromTo": "{from} – {to}",
+        "andUp": "{from} and up"
+      },
+      "step1": {
+        "entryTitle": "The sales report",
+        "entryHint": "One line per product, from the client's own system. Days on hand works itself out from the two dates.",
+        "addLine": "Add a product line",
+        "empty": "Nothing entered yet. Add a line here, or import a stock sheet at the next step.",
+        "linesTitle": "Product lines",
+        "criteriaTitle": "The five things that decide what to buy",
+        "criteriaLead": "Each line is scored 1 to 5 on five criteria, and the five are added. {max} is a perfect line — high margin, sells often, shifts fast, cheap enough not to hurt, and already a real part of the shelf.",
+        "inverted": "Unit cost risk runs the other way, and that is deliberate: a cheap unit scores 5 and an expensive one 1, because the question is how much cash one unit locks up."
+      },
+      "step2": {
+        "dropTitle": "Import a stock sheet",
+        "zoneTitle": "Drop the stock-on-hand export here",
+        "zoneHow": "Or choose a file. One export, .xlsx or .csv.",
+        "choose": "Choose a file",
+        "supported": "Reads a Cin7 Core or Unleashed stock-on-hand export.",
+        "uploadFailed": "That file could not be read. Please export again and try once more.",
+        "readNote": "Read {lines} lines from a {package} export",
+        "readTitle": "What the file gave us",
+        "readPackage": "Export from",
+        "readLines": "Product lines read",
+        "readUnits": "Units on hand",
+        "readValue": "Stock value",
+        "carriesTitle": "What a stock sheet can and cannot score",
+        "missingWhy": "The three it cannot are not in a stock-on-hand export — there is no sale price and no date in one. They come from a sales report.",
+        "noOnOrder": "This export carries no on-order column, so nothing in transit was read. Type it below if there is stock on its way.",
+        "orTypeIt": "Or type it in",
+        "onHand": "Units on hand",
+        "inTransit": "Units already in transit",
+        "inTransitHint": "In transit is the half that causes the double-order, which is why it is asked for separately.",
+        "shelfTitle": "Already committed",
+        "alreadyCommitted": "On the shelf or on its way"
+      },
+      "step3": {
+        "entryTitle": "The financial position",
+        "currentAssets": "Current assets, excluding stock",
+        "currentLiabilities": "Current liabilities",
+        "cashCommitted": "Cash you are willing to commit to stock",
+        "exStockHint": "Stock is excluded on purpose: the question is what could be turned into cash without selling the very thing being bought.",
+        "resultTitle": "Whether the business can carry the order",
+        "quickRatio": "Quick ratio",
+        "quickRatioSub": "assets you could turn to cash, against what you owe",
+        "afterTheOrder": "After the order",
+        "carries": "The business can carry this order.",
+        "doesNotCarry": "This order would take the quick ratio under 1 — the point at which current liabilities stop being covered.",
+        "liquidityRule": "The workbook's own instruction: do not approve purchases that compromise short-term liquidity."
+      },
+      "step4": {
+        "title": "Ranked by total score, best first",
+        "lead": "Showing {shown} of {total} lines, scored out of {max}.",
+        "empty": "Nothing to rank yet. Enter product lines at step 1, or import a stock sheet at step 2.",
+        "showAll": "Show all {total} lines"
+      }
     }
   },
   "modelGuide": {

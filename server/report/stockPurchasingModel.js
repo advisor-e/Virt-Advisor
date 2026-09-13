@@ -124,29 +124,38 @@ const SAMPLE_LINES = require('../../data/stock-purchasing-sample.json')
 /**
  * The five ladders, read off `Product Categories`.
  *
- * Each band's `upTo` is EXCLUSIVE and is the lower edge of the band above it — this is ruled
- * deviation 1, closing the gaps the workbook typed between its rungs. The final band in each list
- * carries no `upTo` and is open-ended. `from` records the workbook's own printed lower edge for
- * provenance and for the screen; it is deliberately NOT used to match, because matching on it is
- * what created the gaps.
+ * 🔴 EACH BAND CARRIES TWO UPPER EDGES, AND CONFUSING THEM PUTS A WRONG LADDER ON SCREEN.
  *
- * `id` is the workbook's rating word. `points` is what the rung is worth.
+ *   - `upTo` is the SCORING edge, EXCLUSIVE, and is the lower edge of the band above it. This is
+ *     ruled deviation 1, closing the gaps the workbook typed between its rungs. The last band in
+ *     each list carries none and is open-ended.
+ *   - `printedTo` is what the WORKBOOK PRINTS, and is for the screen and for provenance. It is
+ *     never used to match — matching on the printed edges is what created the gaps.
+ *
+ * They differ by design: days on hand scores `< 14` and prints `1 – 13`. Rendering `upTo` as the
+ * caption put every one of the 25 rungs one unit too high and made adjacent rungs overlap —
+ * *Hot Cakes! 1–14* sitting directly above *Quick Shifter 14–28* — found on 2026-09-13 by opening
+ * the screen with the suite green. A band whose workbook cell reads "(Greater Than)" has no
+ * `printedTo` and the screen says "and up".
+ *
+ * `from` is likewise the workbook's own printed lower edge. `id` is its rating word, `points` what
+ * the rung is worth.
  */
 const BANDS = {
-  /** `Product Categories` B4:G9 — margin achieved, as a ratio of sales. */
+  /** `Product Categories` B4:G9 — margin achieved, as a ratio of sales. Printed as percentages. */
   margin: [
-    { id: 'Minor', points: 1, from: 0, upTo: 0.26 },
-    { id: 'Moderate', points: 2, from: 0.26, upTo: 0.41 },
-    { id: 'Major', points: 3, from: 0.41, upTo: 0.81 },
-    { id: 'Fruitful', points: 4, from: 0.81, upTo: 1.01 },
+    { id: 'Minor', points: 1, from: 0, upTo: 0.26, printedTo: 0.25 },
+    { id: 'Moderate', points: 2, from: 0.26, upTo: 0.41, printedTo: 0.4 },
+    { id: 'Major', points: 3, from: 0.41, upTo: 0.81, printedTo: 0.8 },
+    { id: 'Fruitful', points: 4, from: 0.81, upTo: 1.01, printedTo: 1 },
     { id: 'Awesome!', points: 5, from: 1.01 }
   ],
   /** `Product Categories` B13:G18 — units shifted in the period. */
   sold: [
-    { id: 'Rare', points: 1, from: 1, upTo: 6 },
-    { id: 'Occasional', points: 2, from: 6, upTo: 11 },
-    { id: 'Regular', points: 3, from: 11, upTo: 16 },
-    { id: 'Frequent', points: 4, from: 16, upTo: 26 },
+    { id: 'Rare', points: 1, from: 1, upTo: 6, printedTo: 5 },
+    { id: 'Occasional', points: 2, from: 6, upTo: 11, printedTo: 10 },
+    { id: 'Regular', points: 3, from: 11, upTo: 16, printedTo: 15 },
+    { id: 'Frequent', points: 4, from: 16, upTo: 26, printedTo: 25 },
     { id: 'Often', points: 5, from: 26 }
   ],
   /**
@@ -155,27 +164,31 @@ const BANDS = {
    * same direction; `points` carries the inversion rather than the order.
    */
   unitCostRisk: [
-    { id: 'Minor', points: 5, from: 1, upTo: 26 },
-    { id: 'Low', points: 4, from: 26, upTo: 41 },
-    { id: 'Acceptable', points: 3, from: 41, upTo: 76 },
-    { id: 'Stressful', points: 2, from: 76, upTo: 176 },
+    { id: 'Minor', points: 5, from: 1, upTo: 26, printedTo: 25 },
+    { id: 'Low', points: 4, from: 26, upTo: 41, printedTo: 40 },
+    { id: 'Acceptable', points: 3, from: 41, upTo: 76, printedTo: 75 },
+    { id: 'Stressful', points: 2, from: 76, upTo: 176, printedTo: 175 },
     { id: 'Waking Nights', points: 1, from: 176 }
   ],
   /** `Product Categories` B22:G27 — days between arriving and selling. INVERTED: fast is 5. */
   daysOnHand: [
-    { id: 'Hot Cakes!', points: 5, from: 1, upTo: 14 },
-    { id: 'Quick Shifter', points: 4, from: 14, upTo: 28 },
-    { id: 'Come n Go', points: 3, from: 28, upTo: 45 },
-    { id: 'Sleepy', points: 2, from: 45, upTo: 75 },
+    { id: 'Hot Cakes!', points: 5, from: 1, upTo: 14, printedTo: 13 },
+    { id: 'Quick Shifter', points: 4, from: 14, upTo: 28, printedTo: 27 },
+    { id: 'Come n Go', points: 3, from: 28, upTo: 45, printedTo: 44 },
+    { id: 'Sleepy', points: 2, from: 45, upTo: 75, printedTo: 74 },
     { id: 'Dead Wood', points: 1, from: 75 }
   ],
-  /** `Product Categories` K13:O18 — the line's share of stock units held. */
+  /**
+   * `Product Categories` K13:O18 — the line's share of stock units held.
+   * Torrent is the one band with a printed ceiling but no scoring one: the workbook stops it at
+   * 1.00, a whole shelf, and anything above that is not a share.
+   */
   shareOfStock: [
-    { id: 'Drip', points: 1, from: 0.01, upTo: 0.06 },
-    { id: 'Trickle', points: 2, from: 0.06, upTo: 0.135 },
-    { id: 'Flowing', points: 3, from: 0.135, upTo: 0.34 },
-    { id: 'Flood', points: 4, from: 0.34, upTo: 0.59 },
-    { id: 'Torrent', points: 5, from: 0.59 }
+    { id: 'Drip', points: 1, from: 0.01, upTo: 0.06, printedTo: 0.05 },
+    { id: 'Trickle', points: 2, from: 0.06, upTo: 0.135, printedTo: 0.125 },
+    { id: 'Flowing', points: 3, from: 0.135, upTo: 0.34, printedTo: 0.33 },
+    { id: 'Flood', points: 4, from: 0.34, upTo: 0.59, printedTo: 0.58 },
+    { id: 'Torrent', points: 5, from: 0.59, printedTo: 1 }
   ]
 }
 

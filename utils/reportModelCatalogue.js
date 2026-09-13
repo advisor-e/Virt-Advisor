@@ -92,7 +92,12 @@ export const MODELS = [
   // advertised a built model as "coming soon". Removed 2026-07-13 with the owner's approval.
   { name: 'Margin · Mark-up · Break-even', category: 'Profitability', summary: 'The pricing trio every quote depends on, in one calculator.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/margin-breakeven' },
   { name: '8 Levers Model', category: 'Profitability', summary: 'The eight levers that move profit, and which one to pull first.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/eight-levers' },
-  { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Smarter reorder points and buying to free cash without stock-outs.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  // The summary was "Smarter reorder points and buying to free cash without stock-outs" until
+  // 2026-09-13. There are no reorder points anywhere in the source workbook and nothing in it
+  // detects a stock-out; an advisor picking from the library on that description would open
+  // something other than what they expected. Rewritten on Mike's ruling (Decision 8 on the
+  // drawing) to describe the model that exists.
+  { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Ranks what to buy by margin, speed and cash tied up — then checks the client can afford it.', scope: 'Scores and ranks a product list, and imports a Cin7 Core or Unleashed stock-on-hand export. A stock sheet carries two of the five criteria; margin, units sold and days on hand come from a sales report, whose import is a later stage.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/stock-purchasing' },
   { name: 'Sales Dashboard', category: 'Growth', summary: 'Sales mix, trends and the products carrying the margin.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/cost-of-capital' },
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/lease-vs-buy' },

@@ -147,6 +147,48 @@ describe('Stock Purchasing — the five ladders', () => {
       .toEqual(['Minor', 'Low', 'Acceptable', 'Stressful', 'Waking Nights'])
   })
 
+  it('🔴 prints the ladder the workbook prints, which is NOT where it scores', () => {
+    // Found 2026-09-13 by opening the screen with the suite green. The screen was captioning each
+    // rung with `upTo` — the exclusive SCORING edge, which is the next rung's floor — so every one
+    // of the 25 rungs read one unit too high and adjacent rungs overlapped: "Hot Cakes! 1–14" sat
+    // directly above "Quick Shifter 14–28". Nothing was scored wrongly; the caption lied.
+    //
+    // These are the workbook's own printed ceilings, `Product Categories`. They are load-bearing:
+    // an advisor recognises this ladder from the spreadsheet, and a rung that disagrees with it
+    // makes them doubt the score beside it.
+    expect(BANDS.daysOnHand.map(b => [b.from, b.printedTo]))
+      .toEqual([[1, 13], [14, 27], [28, 44], [45, 74], [75, undefined]])
+    expect(BANDS.sold.map(b => [b.from, b.printedTo]))
+      .toEqual([[1, 5], [6, 10], [11, 15], [16, 25], [26, undefined]])
+    expect(BANDS.unitCostRisk.map(b => [b.from, b.printedTo]))
+      .toEqual([[1, 25], [26, 40], [41, 75], [76, 175], [176, undefined]])
+    expect(BANDS.margin.map(b => [b.from, b.printedTo]))
+      .toEqual([[0, 0.25], [0.26, 0.4], [0.41, 0.8], [0.81, 1], [1.01, undefined]])
+    // Torrent is the one band with a printed ceiling and no scoring one.
+    expect(BANDS.shareOfStock.map(b => [b.from, b.printedTo]))
+      .toEqual([[0.01, 0.05], [0.06, 0.125], [0.135, 0.33], [0.34, 0.58], [0.59, 1]])
+  })
+
+  it('🔴 prints no two rungs that overlap, on any ladder', () => {
+    // The visible symptom of the fault above, asserted as a property so a future edit to one
+    // number cannot reintroduce it quietly.
+    CRITERIA.forEach((c) => {
+      BANDS[c].forEach((band, i) => {
+        const next = BANDS[c][i + 1]
+        if (!next || band.printedTo === undefined) { return }
+        expect(band.printedTo).toBeLessThan(next.from)
+      })
+    })
+  })
+
+  it('scores ABOVE each printed ceiling, which is the whole of ruled deviation 1', () => {
+    // The printed ladder and the scoring rule are allowed to differ, and here is where they do:
+    // a value in the gap the workbook left scores in the rung below its printed ceiling.
+    expect(scoreOne(13.5, 'daysOnHand').rating).toBe('Hot Cakes!') // printed 1–13
+    expect(scoreOne(25.5, 'unitCostRisk').rating).toBe('Minor') //    printed $1–25
+    expect(scoreOne(0.255, 'margin').rating).toBe('Minor') //         printed 0–25%
+  })
+
   it('inverts unit cost risk — a cheap unit is worth 5 and an expensive one 1', () => {
     expect(scoreOne(10, 'unitCostRisk').points).toBe(5)
     expect(scoreOne(500, 'unitCostRisk').points).toBe(1)

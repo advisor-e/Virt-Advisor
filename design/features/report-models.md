@@ -205,9 +205,9 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Eight** models —
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Nine** models —
   8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator, Dashboard Reports, the
-  High-Level Budget, the Mid-Level Budget and the Retirement Review —
+  High-Level Budget, the Mid-Level Budget, the Retirement Review and Stock Purchasing —
   carry explanatory notes and verdict rules instead, and the screen heads them differently
   (Dashboard Reports is the client's own document; its reading is the health score and the
   advisor's words on its pages. The High-Level Budget's reading is the variance table itself —
@@ -1376,6 +1376,71 @@ of this — it still compared against an empty actuals side and drew a flat line
 chart. The flag was ported there the same day (§4). The screen also opens on **the financial year
 it is being written in** rather than the workbook's `'2021-04'`, from the shared helper described
 in that section.
+
+### Stock Purchasing (4.94, built 2026-09-13)
+
+**What it does.** Scores every product line 1–5 on five criteria — margin achieved, how many
+sold, unit cost risk, days on hand, share of stock held — and adds them for a mark out of **25**.
+Ranks best first, then asks whether the client can carry the order. Drawn first at
+[`../mockups/stock-purchasing.html`](../mockups/stock-purchasing.html); **all eight of its
+decisions were ruled by Mike on 2026-09-13** and the drawing approved to build from the same day.
+Step 3's name, *"Assess your stock exposure"*, is his own wording replacing the recommended
+*"What you can afford"*.
+
+**Days on hand is the mechanic worth knowing** — the sale date less the entry date, so how long
+stock sat on a shelf falls out of two dates the client's system already holds.
+
+🔴 **The workbook has FIVE sheets and TWO parallel datasets, and we port the first.** `Sales
+Report` is the real intake — seven columns from the client's system, everything else derived.
+`Product Ratings` is a hand-entered second copy with no cost column and days-on-hand typed in,
+and `Weighted Data Sort` ranks *that* one. We rank `Sales Report` ourselves. Two consequences a
+reader will otherwise mistake for faults: the sample's entry and sale dates run one day apart down
+the whole sheet, so **every line comes out at 36 days on hand**; and 1,335 of its rows carry
+figures with **no product code at all**, which the sheet's own grand totals include — they are
+excluded here, because a line with no name cannot go on a buy list, so the sample totals
+**274,953.59** against the cached **776,359.60**.
+
+**919 of the sample's 969 lines are reproduced exactly**, pinned against the workbook's own cached
+values for every row in `tests/fixtures/stock-purchasing-workbook-cached.json`. All 50 that move
+are a workbook zero becoming a real score.
+
+🔴 **TWO RULED DEVIATIONS, both mutation-verified outside the repo.** (5) Every gap between the
+scoring rungs is closed — *Widget 3*'s $25.22 unit cost had fallen in the `$25–26` gap and cached
+**0**; it scores 5. (6) A criterion matching no band scores 0, the same way on both sheets —
+`Sales Report` yielded Excel `FALSE` and `Product Ratings` returned **the measurement itself**, so
+*Widget 9* cached **9.13 out of 25**. A third fault needed no ruling and is fixed: the
+"how many sold" chain tests the ENTRY DATE in its middle branch where its four siblings test the
+quantity.
+
+**The stock-sheet import** (Mike, same day: *"we need to be able to import a stock sheet"*) reads
+a Cin7 Core or Unleashed stock-on-hand export through the reader built for 4.70 stage 4.
+🔴 **A stock sheet carries TWO of the five criteria** — unit cost risk and share of stock held —
+and none of margin, how many sold or days on hand, because there is no sale price and no date in
+that kind of file. The response says which, and the screen prints both lists rather than deciding
+for itself; a criterion it could not fill shows **"—", never 0**, so a low total reads as a missing
+file and not as a bad product. **`quantity` comes back null on every imported line**: the model
+reads it as units SOLD and a stock export's `onHand` is units HELD, and 300 plates on a shelf
+scored as "Often" would recommend buying more of what nobody is buying.
+
+**TWO DIFFERENCES BETWEEN THE DRAWING AND THE BUILD**, both corrections found by opening the
+screen with the suite green (10,354 tests):
+
+- 🔴 **Every one of the 25 ladder rungs printed its ceiling one unit too high, and adjacent rungs
+  overlapped** — *Hot Cakes! 1–14* sat directly above *Quick Shifter 14–28*. The caption was
+  rendering `upTo`, the **exclusive scoring edge** that closes the gaps under ruling 5, where it
+  should render what the workbook prints. Bands now carry **both**: `upTo` scores, `printedTo`
+  is captioned. Nothing was ever scored wrongly; the caption disagreed with the score beside it.
+- **Margin is captioned as a percentage** (*41% – 80%*), not the raw ratio the drawing showed. The
+  headline directly above that card already reads *80.0%*, and a ladder saying *0.81* beside it
+  made the advisor do the conversion.
+
+⚠ **One nit left deliberately, because it is Mike's call and not a silent rewrite:** step 3 uses
+*"Cash you are willing to commit to stock"* twice — as the input label and again as a row in the
+result table, where the drawing had the shorter *"Cash committed to stock"*.
+
+**What is NOT built:** the sales-history import. Margin, how many sold and days on hand live in a
+sales report, and the workbook always assumed two files without ever saying so. It is a separate
+question, not folded in.
 
 ---
 

@@ -171,8 +171,11 @@ describe('every summary carries what an advisor needs before being sent to a mod
     // panel and its workbook-differences card say what a coach panel would have said.
     // Eight since 2026-09-13: the Mid-Level Budget (4.93) carries the same variance table as
     // its High-Level sibling, and states its own finding twice over besides.
-    expect(bullet).toMatch(/\*\*Eight\*\*|\bEight\b/)
-    expect(noPanel).toHaveLength(8)
+    // Nine since 2026-09-13: Stock Purchasing (4.94) reads itself — the ranked table IS the
+    // finding, every line carrying its rating word on each of the five criteria, and step 3
+    // states its own verdict in a sentence.
+    expect(bullet).toMatch(/\*\*Nine\*\*|\bNine\b/)
+    expect(noPanel).toHaveLength(9)
     // And every one of them named, so a new one cannot be added silently.
     //
     // Matched on the name's identifying stem rather than in full, because prose calls

@@ -47,6 +47,10 @@ const RENDERED_BY = {
   // page is the shell and nothing else. Report class: no "Illustrative" badge.
   '/high-level-budget': { component: 'components/HighLevelBudget.vue' },
   '/mid-level-budget': { component: 'components/MidLevelBudget.vue' },
+  // Stock Purchasing (4.94) follows the two budgets: one component, header above its own four
+  // step chips, page is the shell and nothing else. Report class — a real client's product
+  // list — so no "Illustrative" badge.
+  '/stock-purchasing': { component: 'components/StockPurchasing.vue' },
   '/retirement-review': { component: 'components/RetirementReview.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
   // 🔴 The Three-Way Forecast MOVED into this group on 2026-09-05. Its component had been

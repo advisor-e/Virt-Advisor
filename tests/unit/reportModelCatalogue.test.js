@@ -71,6 +71,7 @@ describe('report model catalogue', () => {
         '/multiple-property',
         '/quick-position',
         '/retirement-review',
+        '/stock-purchasing',
         '/three-way-forecast',
         '/volatility'
       ])
@@ -137,7 +138,11 @@ describe('report model catalogue', () => {
       // MODEL-CLASSIFICATION.md lists it under Report, "actuals and variances". Entry is typed
       // because a budget is a forecast and there is nothing to import — which changes where the
       // figures come from, not whose they are, so no Illustrative badge.
-      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports', 'High-Level Budget', 'Mid-Level Budget']
+      // Stock Purchasing (4.94, built 2026-09-13) is the eighth Report-class build:
+      // MODEL-CLASSIFICATION.md lists it under Report, "reorder points are only actionable on
+      // real stock data". Its lines are a real client's product list, imported from their stock
+      // system or typed — so no Illustrative badge.
+      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports', 'High-Level Budget', 'Mid-Level Budget', 'Stock Purchasing (Growth Pro)']
       // The Retirement Review (4.90, built 2026-09-13) is the fifth Decision-class build: a
       // household's real income, pension, superannuation and up to six properties, all typed
       // in. No file to import, and no Illustrative badge — the figures are the client's own.
@@ -149,7 +154,7 @@ describe('report model catalogue', () => {
         'Retirement Review'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(16)
+      expect(built).toHaveLength(17)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -301,7 +306,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(16)
+      expect(readyCount(MODELS)).toBe(17)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

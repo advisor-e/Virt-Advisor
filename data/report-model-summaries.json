@@ -891,6 +891,61 @@
         "working capital budget",
         "cashflow timing"
       ]
+    },
+    {
+      "route": "/stock-purchasing",
+      "name": "Stock Purchasing (Growth Pro)",
+      "category": "Growth",
+      "modelClass": "report",
+      "answers": "Which products are worth buying more of, and whether the client can afford the order. Every product line is scored 1 to 5 on five things — how much of the sale is profit, how many sold, how much cash a single unit ties up, how long it sat on the shelf before it sold, and how much of the shelf it is — and the five are added for a mark out of 25. The point is to pull a trader's buying toward the lines that actually carry the profit without replacing their instinct, and then to stop an order that would leave the business short.",
+      "keyOutputs": [
+        "Every product line ranked best first, out of 25, with its score on each of the five criteria",
+        "The rating each line earned on each criterion, in the workbook's own words — Hot Cakes!, Dead Wood, Torrent, Drip",
+        "What is already on the shelf, including units ordered and still in transit",
+        "The quick ratio before and after committing the cash, and whether the order is safe to place"
+      ],
+      "inputsNeeded": "A stock-on-hand export can be imported — Cin7 Core or Unleashed — and fills what is on the shelf plus two of the five criteria, unit cost risk and share of stock held. The other three (margin, how many sold, days on hand) are not in that kind of file and are typed per line, or come from a sales report: quantity sold, sales, cost, and the dates the stock arrived and sold, from which days on hand works itself out. Step 3 needs three figures from the balance sheet: current assets excluding stock, current liabilities, and the cash the client is willing to commit.",
+      "useWhen": "The client buys stock to resell and is guessing at what to reorder, or their cash is sitting on shelves. It is at its best where the buying is done on instinct and nobody has ever put the range side by side on the same measures.",
+      "limits": "A stock-on-hand export alone scores two of the five criteria, and a line shows \"—\" on the three it cannot fill rather than zero — a low total on an imported-only list is a missing file, not a bad product. The ranking is an argument, not a verdict: a one-off imported item will always score badly on how many sold and can still be the most profitable thing in the shop, which the source workbook says in its own note. It reads what sold, not what was returned, and it holds one period with no trend. Share of stock is taken as given and is never rescaled. It takes a real client's product list and real figures, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Sales reviewed",
+          "sub": "across the period"
+        },
+        {
+          "label": "Gross profit",
+          "sub": "on those sales"
+        },
+        {
+          "label": "Average margin",
+          "sub": "weighted, not the mean of the lines"
+        },
+        {
+          "label": "Lines reviewed",
+          "sub": "products scored"
+        }
+      ],
+      "alsoOnScreen": "Four steps, from the workbook's own method: what sold, with the five scoring ladders and every rung's range shown; what is on the shelf, where the stock sheet is imported and the screen says which criteria the file could and could not fill; assess your stock exposure, the quick ratio before and after; and what to buy, the ranked list.",
+      "coach": [
+        "Unit cost risk runs the other way round from the rest. A cheap unit scores 5 and an expensive one 1, because the question is how much cash a single unit locks up. It is the only one of the five where a big number is bad, and an advisor reading a column of 5s will otherwise assume it means best.",
+        "Days on hand is the sale date less the entry date, so it comes free from two dates the client's system already holds. It is usually the criterion that surprises the client most.",
+        "A perfect score is not a buying instruction. Step 3 exists because the workbook says, in its own words, do not approve purchases that compromise short-term liquidity — a client who orders the whole top of the list and cannot pay the power bill has used the model backwards."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "stock purchasing",
+        "what to buy",
+        "reorder",
+        "inventory",
+        "what to stock",
+        "dead stock",
+        "slow moving stock",
+        "stock ranking",
+        "buying decision",
+        "too much stock",
+        "cash tied up in stock",
+        "product ranking"
+      ]
     }
   ]
 }
