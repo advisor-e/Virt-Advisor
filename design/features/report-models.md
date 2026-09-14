@@ -1664,6 +1664,17 @@ of its questions ruled the same day, one at a time. The sheet is
 employee data is put in the DOM behind CSS. The people come from step 1 and are not typed twice;
 the register adds three typed fields per person and derives the liability.
 
+💰 **LEAVE IS VALUED AT THE RATE INCLUDING PAY RISES** (Mike, 2026-09-15), not step 1's base
+rate — leave is paid at the rate in force when it is taken, so the base rate understates a real
+liability, and understating what is owed on a document an acquirer prices a business from is the
+wrong direction to err. The workbook's own definition is reproduced exactly: `Annual Hiring Plan`
+S49 is `(E49*R49)+E49` with `R49 = max(F49:Q49)` — **the base rate lifted by the largest rise in
+the twelve months**, not the last one and not a compounding of them. 19 × 1.05 = 19.95. The rises
+live on step 3, so `registerTeam` prefers step 3's people over step 1's; until step 3 is
+confirmed leave is valued at the base rate, which is correct because no rise has been recorded
+yet. The screen carries a line saying so, because the figure will not match step 1's for anyone
+with a rise and an unexplained difference between two screens reads as a fault.
+
 **The pieces.** [`server/utils/wagesRegisterMaths.js`](../../server/utils/wagesRegisterMaths.js) is
 pure and holds the arithmetic (38 tests, the golden one below).
 [`wagesRegisterStore.js`](../../server/utils/wagesRegisterStore.js) stores it as **one
