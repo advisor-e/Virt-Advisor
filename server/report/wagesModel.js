@@ -258,16 +258,37 @@ function baseWageBySeason (person, settings) {
  * Overtime pay per season — hours worked beyond the contracted month, at the overtime
  * uplift. `Seasonal Inputs` BU/BW/BY, gated on BV/BX/BZ.
  *
- * ⚠ THE WORKBOOK'S OWN GATE IS ASYMMETRIC and is reproduced exactly rather than tidied:
- * the wet and standard columns are suppressed when the global overtime flag reads "Yes",
- * while the dry column is only paid when it reads "No". With the flag blank — as it is in
- * the sample — every season returns nothing, which is why the sample carries no overtime
- * at all. Changing this alters a figure nobody has asked us to change.
+ * 🔴 WHAT THE GATE IS ASKING — MIKE, 2026-09-14. It is a declaration about employment
+ * terms, not a calculation toggle: **are staff paid overtime for the extra hours a longer
+ * season demands?** In his words: *"we do NOT assume that just because they agree to work
+ * more, they should do so without overtime (which is against the law). There MAY be times
+ * however, that overtime is NOT paid if they receive time off in lieu during the Wet n Dark
+ * season — that's an owner's decision, that's what that cell is asking them to declare."*
+ *
+ * So the answer is the owner's and it is **Yes or No, never absent**, which is why
+ * `settings.overtimePaid` is required rather than defaulted — see `computeWages`.
+ *
+ * ⚠ THE WORKBOOK'S OWN GATE WAS ASYMMETRIC AND SILENTLY REFUSED ALL OVERTIME, and that is
+ * NOT reproduced. `Seasonal Inputs` J4 is one unlabelled cell: BU/BY (wet, standard) pay
+ * unless it reads "Yes", while BW (dry) pays ONLY when it reads literally "No". The cell is
+ * **blank**. On the sample's settings the dry season is the only one with hours to pay for —
+ * wet is 10.8 hours SHORTER than standard and standard is the baseline — so the one live
+ * gate was the inverted one, and every production worker had 97.425 hours a month of
+ * overtime calculated and none of it paid. Nothing on any screen said so, and switching it
+ * on meant typing the word "No" into an unlabelled box.
+ *
+ * All three seasons now read the one declaration the same way. Wet and standard still pay
+ * nothing on these settings — not by a special case, but because a season demanding no extra
+ * hours has no overtime to pay. That is the same arithmetic, honestly arrived at.
+ *
+ * ⚠ THE SAMPLE DECLARES `false` and every seasonal figure is unmoved — 1,362,740 / 288,935 /
+ * July −132 — because "no overtime paid" is what the blank cell amounted to. The change is
+ * that it is now a stated choice an owner can see and reverse, not an empty box.
  *
  * @param {Object} person @param {Object} settings @returns {Object} { wet, std, dry }
  */
 function overtimeBySeason (person, settings) {
-  const flag = settings.overtimeSuppressed
+  const paid = settings.overtimePaid === true
   const rate = num(person.payRate) * (1 + num(person.overtimePct))
   const contracted = paidHours(person, settings, 'std')
   const prod = settings.production || {}
@@ -293,11 +314,9 @@ function overtimeBySeason (person, settings) {
   for (let i = 0; i < SEASON_KEYS.length; i++) {
     const k = SEASON_KEYS[i]
     const excess = excessFor(k)
-    if (k === 'dry') {
-      out[k] = (flag === 'No') ? excess * rate : 0
-    } else {
-      out[k] = (flag === 'Yes' || excess <= 0) ? 0 : excess * rate
-    }
+    // One rule for all three seasons: extra hours are paid if the owner declared they are.
+    // A season with no extra hours pays nothing without needing to be named.
+    out[k] = (paid && excess > 0) ? excess * rate : 0
   }
   return out
 }
@@ -461,18 +480,20 @@ function shutdownFigures (person, settings) {
  * A person's ANNUAL employer retirement contribution on the shutdown basis.
  * `Shutdown Inputs` CI7 = `(U7+AG7)*AE7`, where AG7 mirrors CC7 (annualised overtime wages).
  *
- * CC7 is itself gated: `if($G$5="No",$BY$5*BW7*M7,0)` — `G5` is the sheet's global overtime
- * suppressor and reads "No" in the sample, so the overtime wages DO count here.
+ * CC7 is itself gated: `if($G$5="No",$BY$5*BW7*M7,0)`. `G5` is this sheet's own copy of the
+ * overtime declaration and reads "No" — which on THIS sheet means overtime wages DO count,
+ * the opposite polarity to the seasonal sheet's J4. Both now read one honest boolean,
+ * `settings.overtimePaid`, so the two sheets can no longer disagree about what the owner
+ * said. See `overtimeBySeason` for what the declaration means.
  *
  * @param {Object} person @param {Object} settings @param {Object} figures from shutdownFigures
  * @param {number} overtimeDays `BY5` — production days in the months where overtime applies
  * @returns {number}
  */
 function shutdownRetirement (person, settings, figures, overtimeDays) {
-  const suppressed = (settings || {}).overtimeSuppressed
-  const annualOvertimeWages = suppressed === 'Yes'
-    ? 0
-    : overtimeDays * figures.perDayOvertime * figures.overtimePayRate // CC7
+  const annualOvertimeWages = (settings || {}).overtimePaid === true
+    ? overtimeDays * figures.perDayOvertime * figures.overtimePayRate // CC7
+    : 0
   return (figures.annualBaseWages + annualOvertimeWages) * num(person.retirementPct) // CI7
 }
 
@@ -664,8 +685,11 @@ function computeWages (inputs) {
  * now, which is what item 4.102 was. Only the sample ever had those arrays, so a real team
  * arrived with neither and billed zero.)*
  *
- * `overtimeSuppressed` is the workbook's global overtime flag (`Seasonal Inputs` J4),
- * blank in the sample — see `overtimeBySeason` for what blank means.
+ * `overtimePaid: false` is the owner's declaration that staff are NOT paid overtime for the
+ * extra hours a longer season demands — because they take the time back in lieu during the
+ * short season. It is `false` here because that is what the workbook's blank `Seasonal
+ * Inputs` J4 amounted to, so every seasonal figure is unmoved. It is now a stated choice
+ * rather than an empty box; see `overtimeBySeason`.
  */
 const DEFAULT_INPUTS = {
   basis: 'seasonal',
@@ -675,7 +699,7 @@ const DEFAULT_INPUTS = {
 hoursPerDayPartTime: 4.5,
     daysPerWeek: 5,
 statDays: 12,
-    overtimeSuppressed: null,
+    overtimePaid: false,
     production: {
       wet: { hoursPerDay: 7, daysPerWeek: 5, daysLost: 4 },
       std: { hoursPerDay: 7.5, daysPerWeek: 5, daysLost: 0 },
@@ -1169,7 +1193,12 @@ const SHUTDOWN_SAMPLE = {
   settings: {
     statDays: 11,
     sickDays: 10,
-    overtimeSuppressed: 'No',
+    // 🔴 TRUE HERE, FALSE ON THE SEASONAL SAMPLE — the two sheets declare DIFFERENTLY and
+    // that is the workbook's own answer, not an inconsistency of ours. `Shutdown Inputs` G5
+    // reads "No", which on that sheet means the overtime wages DO count; `Seasonal Inputs`
+    // J4 is blank, which amounted to none being paid. They are two models of one firm on
+    // different terms, exactly as they hold different pay rates for the same people.
+    overtimePaid: true,
     overtimeChargeMonths: 0
   },
   allowances: { seasonal: 0 },

@@ -1823,10 +1823,36 @@ has failed is worse than one showing the sample.
    corrected in the engine (CORRECTION 3, `server/report/wagesModel.js`). `confirm` emits
    `allowances.seasonal` only, and that is now the right shape rather than a deferral. Pinned by a
    test.
-3. **The global overtime flag (`Seasonal Inputs` J4) has no control.** Read by 12 formulas, blank in
-   the sample, and **blank is a third state** — not the same as No. Nothing in the workbook or the
-   drawing names it, so the field was left out rather than invented and `overtimeSuppressed` is
-   carried through untouched. **Wording is Mike's.**
+3. ✅ **The global overtime flag is now THE OVERTIME DECLARATION, on step 2 — Mike, 2026-09-14.**
+   It had no control while nobody could say what it meant. He said what it means, and it is not a
+   calculation toggle: *"I want an advisor to have the option to click yes — 'my staff get paid
+   overtime in Dry n Light season' — even though that season already has long hours, BECAUSE we do
+   NOT assume that just because they agree to work more, they should do so without overtime (which
+   is against the law). There MAY be times however that overtime is NOT paid if they receive time
+   off in lieu during the Wet n Dark season. That's an owner's decision, that's what that cell is
+   asking them to declare."*
+
+   🔴 **THE OLD CELL FAILED SILENTLY, AND EXPENSIVELY.** `Seasonal Inputs` J4 was one unlabelled
+   cell with an **asymmetric** gate: the wet and standard columns paid unless it read "Yes", while
+   the dry column paid ONLY when it read literally "No". It was **blank**. On these settings the dry
+   season is the only one with extra hours to pay for — wet is 10.8 hours *shorter* than standard,
+   and standard is the baseline — so the single live gate was the inverted one. Every production
+   worker had **97.425 hours a month** of overtime calculated and none of it paid, nothing on any
+   screen said so, and switching it on meant typing the word **"No"**.
+
+   **What replaced it.** One required Yes/No on step 2: *"Are staff paid overtime for the extra
+   hours a longer season demands?"* — **Yes**, they are paid; **No**, they take the time back in
+   lieu during the shorter season. All three seasons now read it the same way, and a season with no
+   extra hours pays nothing without needing a special case. **It has no default and Continue is
+   refused until it is answered** — a question that costs somebody their overtime when nobody
+   answers it cannot have one.
+
+   ⚠ **It is a large number.** On the workbook's own team, declaring overtime paid costs
+   **172,194 a year** and takes the planned margin from **288,935 to 116,742**. The sample declares
+   *not paid*, which is what the blank cell amounted to, so every pinned seasonal figure is unmoved.
+   The two sheets declare **differently** and that is the workbook's own answer: `Shutdown Inputs`
+   G5 reads "No", which on that sheet means overtime wages *do* count, so `SHUTDOWN_SAMPLE` carries
+   `overtimePaid: true`.
 
 **Two operating bases, one switch** (Decision 3). A firm runs *either* a seasonal basis, where
 weather decides how many productive days a month holds, *or* a shutdown basis planned around

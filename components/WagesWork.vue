@@ -49,6 +49,22 @@
             td(v-for="k in seasonKeys" :key="k")
               b-input(v-model.number="production[k].daysLost" type="number" step="any" size="is-small")
 
+  //- THE OVERTIME DECLARATION — Mike, 2026-09-14. Its own card, not a field among the
+  //- settings, because it is the owner declaring employment terms rather than tuning a
+  //- number, and because leaving it unanswered used to cost every production worker their
+  //- overtime in silence. `null` until answered and Continue is refused until it is.
+  .ww-card
+    h3.ww-title {{ $t('report.wagesReview.work.overtimeTitle') }}
+    p.ww-note {{ $t('report.wagesReview.work.overtimeNote') }}
+    .ww-fields
+      .ww-field.ww-wide
+        label {{ $t('report.wagesReview.work.overtimePaid') }}
+        b-select(v-model="overtimePaid" size="is-small")
+          option(:value="null") {{ $t('report.wagesReview.work.overtimeUnanswered') }}
+          option(:value="true") {{ $t('report.wagesReview.work.overtimePaidYes') }}
+          option(:value="false") {{ $t('report.wagesReview.work.overtimePaidNo') }}
+    p.ww-warn(v-if="overtimePaid === null") {{ $t('report.wagesReview.work.overtimeRequired') }}
+
   .ww-card
     h3.ww-title {{ $t('report.wagesReview.work.onceTitle') }}
     p.ww-note {{ $t('report.wagesReview.work.onceNote') }}
@@ -101,11 +117,23 @@
  *     the team, not here, and the engine currently flattens it to one total — recorded as
  *     its own finding rather than guessed at.
  *
- * ⚠ ONE CONTROL IS DELIBERATELY ABSENT: the global overtime flag (`Seasonal Inputs` J4),
- * read by 12 formulas and blank in the sample. Blank is a THIRD state — not the same as
- * No — and nothing in the workbook or the drawing gives it a name. Wording is Mike's, so
- * the field is left out rather than invented, and `overtimeSuppressed` is passed through
- * untouched from whatever the step was given.
+ * 🔴 THE OVERTIME DECLARATION — added 2026-09-14, and it is not a settings field. In Mike's
+ * words: *"I want an advisor to have the option to click yes — 'my staff get paid overtime
+ * in Dry n Light season' — even though that season already has long hours, BECAUSE we do NOT
+ * assume that just because they agree to work more, they should do so without overtime
+ * (which is against the law). There MAY be times however that overtime is NOT paid if they
+ * receive time off in lieu during the Wet n Dark season. That's an owner's decision, that's
+ * what that cell is asking them to declare."*
+ *
+ * **It is REQUIRED — `null` until answered, and Continue is refused.** That is the whole
+ * point. The workbook's version was one unlabelled cell (`Seasonal Inputs` J4), blank, whose
+ * emptiness silently refused every production worker 97.425 hours a month of overtime the
+ * model had already calculated; switching it on meant typing the word "No". A question that
+ * costs somebody their overtime when nobody answers it cannot have a default.
+ *
+ * ⚠ **It is a large number, not a detail.** On the workbook's own team, declaring overtime
+ * paid costs 172,194 a year and takes the planned margin from 288,935 to 116,742. The card
+ * sits on its own for that reason.
  *
  * The basis is a two-button switch, never two models — Mike's decision 3 of 2026-09-14.
  * Both revenue and cost swap sides together, which is why it is an either/or.
@@ -165,10 +193,10 @@ export default {
       daysPerWeek: s.daysPerWeek,
       seasonKeys: SEASON_KEYS,
       /**
-       * The global overtime flag, carried through untouched. No control names it yet —
-       * see the header. Null is the workbook's own blank, and blank has its own meaning.
+       * The owner's overtime declaration — see the header. `null` means UNANSWERED, which is
+       * not an answer and not a default: `confirm` refuses until it is true or false.
        */
-      overtimeSuppressed: null,
+      overtimePaid: null,
       showSample: true
     }
   },
@@ -233,8 +261,7 @@ export default {
       if (s.statDays !== undefined) { this.statDays = s.statDays }
       if (s.hoursPerDayFullTime !== undefined) { this.hoursPerDayFullTime = s.hoursPerDayFullTime }
       if (s.daysPerWeek !== undefined) { this.daysPerWeek = s.daysPerWeek }
-      // Carried, never edited here — the control that would name it does not exist yet.
-      if (s.overtimeSuppressed !== undefined) { this.overtimeSuppressed = s.overtimeSuppressed }
+      if (typeof s.overtimePaid === 'boolean') { this.overtimePaid = s.overtimePaid }
     },
 
     /**
@@ -242,8 +269,13 @@ export default {
      *
      * Emits `confirmed` with { basis, seasonNames, settings } — `settings.production`
      * carries the three seasons plus `daysLostApply`, exactly as the engine nests them.
+     *
+     * 🔴 REFUSES while the overtime declaration is unanswered, and emits nothing. It is the
+     * one control here that decides whether somebody is paid, so an unanswered question must
+     * not become a silent "no" the way the workbook's blank cell did.
      */
     confirm () {
+      if (this.overtimePaid !== true && this.overtimePaid !== false) { return }
       this.$emit('confirmed', {
         // Normalised here, not just trusted to the engine's own guard: the payload is
         // also what a saved report would carry, and an unknown basis stored is a wrong
@@ -259,7 +291,7 @@ export default {
           hoursPerDayPartTime: num(this.hoursPerDayPartTime),
           daysPerWeek: num(this.daysPerWeek),
           statDays: num(this.statDays),
-          overtimeSuppressed: this.overtimeSuppressed,
+          overtimePaid: this.overtimePaid === true,
           production: {
             wet: season(this.production.wet),
             std: season(this.production.std),
@@ -315,6 +347,12 @@ function season (s) {
    read as a different kind of control from the four above it. */
 .ww-field { display: flex; flex-direction: column; gap: 3px; min-width: 200px; max-width: 270px; flex: 1 1 200px; }
 .ww-field label { font-size: 11px; font-weight: 600; color: var(--rs-muted); }
+/* The declaration is a sentence, not a two-word label, so its row gets the full width. */
+.ww-field.ww-wide { max-width: none; flex: 1 1 100%; }
+.ww-warn {
+  font-size: 12px; color: var(--rs-warn); background: var(--rs-warn-soft);
+  border-radius: 6px; padding: 8px 10px; margin: 10px 0 0;
+}
 .ww-actions { display: flex; justify-content: space-between; gap: 8px; }
 @media print { .ww-actions, .ww-switch { display: none !important; } }
 </style>
