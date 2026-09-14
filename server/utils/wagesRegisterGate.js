@@ -62,7 +62,23 @@
  * Node 14, CommonJS.
  */
 
+const fs = require('fs')
+const path = require('path')
 const overlay = require('./firmOverlay')
+const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
+
+/**
+ * Dev-only stand-in, used when there is no MySQL — the same affordance `clientStore`,
+ * `caseStore` and `copyRequestDeadline` all carry.
+ *
+ * 🔴 FOUND BY OPENING THE APP, NOT BY A TEST (2026-09-15). Without this, the gate answered
+ * `closed` perfectly and 500'd on every other state, because the closed path never reads
+ * the switch and the other two do. Every unit test mocks `firmOverlay`, so the real one was
+ * never called and the fault was invisible to all 10,819 of them.
+ *
+ * @type {string}
+ */
+const DEV_FILE = 'data/dev-wages-register.json'
 
 /**
  * The domain id in `data/domains.json` that opens condition 1. Not a label — the stored
@@ -197,6 +213,55 @@ function noClientGate () {
   }
 }
 
+/** Dev-only: the whole `{ firmId: { clientId: row } }` map. */
+function _readDevMap () {
+  try {
+    return JSON.parse(fs.readFileSync(path.resolve(process.cwd(), DEV_FILE), 'utf8'))
+  } catch (_e) {
+    return {}
+  }
+}
+
+/** Dev-only: one client's stored switch, or null. */
+function _readDev (firmId, clientId) {
+  const firm = _readDevMap()[firmId]
+  return (firm && Object.prototype.hasOwnProperty.call(firm, clientId)) ? firm[clientId] : null
+}
+
+/** Dev-only: write one client's switch. */
+function _writeDev (firmId, clientId, row) {
+  const all = _readDevMap()
+  if (!all[firmId]) { all[firmId] = {} }
+  all[firmId][clientId] = row
+  fs.writeFileSync(path.resolve(process.cwd(), DEV_FILE), JSON.stringify(all, null, 2))
+}
+
+/**
+ * Write the switch, falling back to the dev file when nothing answered.
+ *
+ * 🔴 THE FALLBACK IS DEV-ONLY AND `dbFailure` IS WHAT MAKES THAT SAFE: it refuses when a
+ * live server REFUSED the statement, so a rejected write can never land in a scratch file
+ * and be reported as a register that was opened. For this gate that matters more than for
+ * most — a false "opened" is a record saying someone decided to show a client's named staff
+ * when no such record exists.
+ *
+ * ⚠ `configKey` IS CALLED OUTSIDE THE TRY, deliberately. It throws `BAD_CLIENT` for an id
+ * that cannot safely be keyed, and that error carries no `sqlState` — so inside the try the
+ * fallback would accept it as "nothing answered" and write the row to the dev file under
+ * the very id it just refused.
+ *
+ * @param {string} firmId @param {string} clientId @param {object} row @param {string|null} savedBy
+ */
+async function _save (firmId, clientId, row, savedBy) {
+  const key = configKey(clientId)
+  try {
+    await overlay.saveFirmConfig(firmId, key, row, savedBy)
+  } catch (err) {
+    if (!IS_DEV(err)) { throw err }
+    _writeDev(firmId, clientId, row)
+  }
+}
+
 /**
  * Read the stored switch for one client. Null when the register has never been opened.
  *
@@ -209,7 +274,16 @@ function noClientGate () {
  * @returns {Promise<{openedBy: object, openedAt: string, closedBy: object|null, closedAt: string|null}|null>}
  */
 async function readSwitch (firmId, clientId) {
-  const stored = await overlay.loadFirmConfig(firmId, configKey(clientId))
+  // Outside the try for the same reason as in `_save`: a BAD_CLIENT must not be read as
+  // "nothing answered".
+  const key = configKey(clientId)
+  let stored
+  try {
+    stored = await overlay.loadFirmConfig(firmId, key)
+  } catch (err) {
+    if (!IS_DEV(err)) { throw err }
+    stored = _readDev(firmId, clientId)
+  }
   if (!stored || typeof stored !== 'object' || !stored.openedAt) { return null }
   return stored
 }
@@ -253,7 +327,7 @@ async function openRegister (firmId, clientId, who) {
     closedBy: null,
     closedAt: null
   }
-  await overlay.saveFirmConfig(firmId, configKey(clientId), row, (who && who.email) || null)
+  await _save(firmId, clientId, row, (who && who.email) || null)
   return row
 }
 
@@ -279,12 +353,13 @@ async function closeRegister (firmId, clientId, who) {
     closedBy: recordOf(who),
     closedAt: new Date().toISOString()
   })
-  await overlay.saveFirmConfig(firmId, configKey(clientId), row, (who && who.email) || null)
+  await _save(firmId, clientId, row, (who && who.email) || null)
   return row
 }
 
 module.exports = {
   DUE_DILIGENCE_DOMAIN,
+  DEV_FILE,
   KEY_PREFIX,
   STATE_OPEN,
   STATE_AVAILABLE,

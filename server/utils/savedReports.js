@@ -33,10 +33,21 @@
  * into shape.
  */
 
+const fs = require('fs')
+const path = require('path')
 const overlay = require('./firmOverlay')
 const access = require('./clientReportAccess')
+const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
 
 const KEY_PREFIX = 'client-report:'
+
+/**
+ * Dev-only stand-in, used when there is no MySQL — the affordance this file was missing,
+ * alongside `clientReportAccess` (both found 2026-09-15). Without it the Save button on
+ * every report failed on a developer machine, with the switch beside it failing too.
+ * @type {string}
+ */
+const DEV_FILE = 'data/dev-client-report-saved.json'
 const TIER_ADVISOR = 'advisor'
 const TIER_CLIENT = 'business_entity'
 
@@ -156,13 +167,39 @@ function changedKeys (row) {
  * @returns {Promise<object|null>}
  */
 async function load (firmId, clientId, route) {
-  const stored = await overlay.loadFirmConfig(firmId, configKey(clientId, route))
+  // Outside the try: `configKey` throws BAD_ROUTE/BAD_CLIENT, and those carry no `sqlState`,
+  // so inside it the dev fallback would read a refusal as "nothing answered".
+  const key = configKey(clientId, route)
+  let stored
+  try {
+    stored = await overlay.loadFirmConfig(firmId, key)
+  } catch (err) {
+    if (!IS_DEV(err)) { throw err }
+    stored = _readDevMap()[firmId + '/' + key] || null
+  }
   if (!stored || typeof stored !== 'object' || !stored.inputs || typeof stored.inputs !== 'object') { return null }
   return stored
 }
 
+/** Dev-only: the whole `{ "<firmId>/<configKey>": row }` map. */
+function _readDevMap () {
+  try {
+    return JSON.parse(fs.readFileSync(path.resolve(process.cwd(), DEV_FILE), 'utf8'))
+  } catch (_e) {
+    return {}
+  }
+}
+
 async function _write (firmId, clientId, route, row, savedBy) {
-  await overlay.saveFirmConfig(firmId, configKey(clientId, route), row, savedBy)
+  const key = configKey(clientId, route)
+  try {
+    await overlay.saveFirmConfig(firmId, key, row, savedBy)
+  } catch (err) {
+    if (!IS_DEV(err)) { throw err }
+    const all = _readDevMap()
+    all[firmId + '/' + key] = row
+    fs.writeFileSync(path.resolve(process.cwd(), DEV_FILE), JSON.stringify(all, null, 2))
+  }
   return row
 }
 

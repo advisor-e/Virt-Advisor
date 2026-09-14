@@ -109,3 +109,58 @@ describe('clientReportAccess — writing', () => {
     expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
   })
 })
+
+describe('the no-database fallback — dev only, and never on a refusal', () => {
+  const fs = require('fs')
+  const path = require('path')
+  const access2 = require('../../server/utils/clientReportAccess')
+  const DEV_PATH = path.resolve(process.cwd(), 'data/dev-client-report-access.json')
+
+  /** A connection-level failure: mysql2 gives a `code` and NO `sqlState`. */
+  function noServer () {
+    const e = new Error('connect ECONNREFUSED 127.0.0.1:3306')
+    e.code = 'ECONNREFUSED'
+    return e
+  }
+
+  /** A live server that REFUSED the statement: always carries a `sqlState`. */
+  function refused () {
+    const e = new Error('Cannot add or update a child row')
+    e.code = 'ER_NO_REFERENCED_ROW_2'
+    e.sqlState = '23000'
+    return e
+  }
+
+  afterEach(() => { try { fs.unlinkSync(DEV_PATH) } catch (_e) { /* not written */ } })
+
+  it('🔴 a read with no database answers "nothing open" instead of throwing', async () => {
+    // This is the whole defect: it threw, the route turned it into a 500, and every report
+    // page showed a red error under the client picker.
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    await expect(access2.listForClient('firm-1', 'c-1')).resolves.toEqual({})
+  })
+
+  it('a state saved with no database is read back', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    overlay.saveFirmConfig.mockRejectedValue(noServer())
+    await access2.setState('firm-1', 'c-1', '/volatility', 'open', 'adv@firm')
+    const open = await access2.listForClient('firm-1', 'c-1')
+    expect(open['/volatility'].state).toBe('open')
+    // And another firm's table is not this one's.
+    await expect(access2.listForClient('firm-2', 'c-1')).resolves.toEqual({})
+  })
+
+  it('🔴 A SERVER THAT REFUSED THE WRITE NEVER FALLS BACK', async () => {
+    // A refused write must not land in a scratch file and be reported as a model opened to
+    // a client who cannot actually see it.
+    overlay.loadFirmConfig.mockResolvedValue(null)
+    overlay.saveFirmConfig.mockRejectedValue(refused())
+    await expect(access2.setState('firm-1', 'c-1', '/volatility', 'open', 'adv@firm')).rejects.toThrow(/child row/)
+    expect(fs.existsSync(DEV_PATH)).toBe(false)
+  })
+
+  it('🔴 A SERVER THAT REFUSED THE READ NEVER FALLS BACK EITHER', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(refused())
+    await expect(access2.listForClient('firm-1', 'c-1')).rejects.toThrow(/child row/)
+  })
+})

@@ -24,9 +24,26 @@
  * client register itself.
  */
 
+const fs = require('fs')
+const path = require('path')
 const overlay = require('./firmOverlay')
+const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
 
 const CONFIG_KEY = 'client-report-access'
+
+/**
+ * Dev-only stand-in, used when there is no MySQL — the same affordance `clientStore`,
+ * `caseStore` and `copyRequestDeadline` carry, and which this file was missing.
+ *
+ * 🔴 FOUND BY OPENING THE APP (2026-09-15, while walking the wages register's gate). Every
+ * load of a report page put `The change could not be saved. Please try again.` under the
+ * client picker, because both calls below went straight to `firmOverlay` and it has no
+ * fallback of its own. It works wherever there IS a database, so UAT never saw it — but no
+ * developer could look at this feature, or at any screen carrying its header.
+ *
+ * @type {string}
+ */
+const DEV_FILE = 'data/dev-client-report-access.json'
 const STATES = ['open', 'hidden']
 /** A catalogue route: one path segment, lowercase, digits and hyphens. */
 const ROUTE_SHAPE = /^\/[a-z0-9-]+$/
@@ -37,10 +54,45 @@ const ROUTE_SHAPE = /^\/[a-z0-9-]+$/
  * @returns {Promise<{clients: object}>}
  */
 async function loadTable (firmId) {
-  const stored = await overlay.loadFirmConfig(firmId, CONFIG_KEY)
+  let stored
+  try {
+    stored = await overlay.loadFirmConfig(firmId, CONFIG_KEY)
+  } catch (err) {
+    if (!IS_DEV(err)) { throw err }
+    stored = _readDevMap()[firmId] || null
+  }
   const table = stored && typeof stored === 'object' ? stored : {}
   if (!table.clients || typeof table.clients !== 'object') { table.clients = {} }
   return table
+}
+
+/** Dev-only: the whole `{ firmId: table }` map. */
+function _readDevMap () {
+  try {
+    return JSON.parse(fs.readFileSync(path.resolve(process.cwd(), DEV_FILE), 'utf8'))
+  } catch (_e) {
+    return {}
+  }
+}
+
+/**
+ * Write the firm's table, falling back to the dev file when nothing answered.
+ *
+ * 🔴 DEV-ONLY, AND `dbFailure` IS WHAT MAKES THAT SAFE: it refuses the fallback when a live
+ * server REFUSED the statement, so a rejected write can never land in a scratch file and be
+ * reported as a model opened to a client who cannot actually see it.
+ *
+ * @param {string} firmId @param {object} table @param {string} savedBy
+ */
+async function _saveTable (firmId, table, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, CONFIG_KEY, table, savedBy)
+  } catch (err) {
+    if (!IS_DEV(err)) { throw err }
+    const all = _readDevMap()
+    all[firmId] = table
+    fs.writeFileSync(path.resolve(process.cwd(), DEV_FILE), JSON.stringify(all, null, 2))
+  }
 }
 
 /**
@@ -99,7 +151,7 @@ async function setState (firmId, clientId, route, state, savedBy) {
     delete rows[route]
   }
   if (Object.keys(rows).length) { table.clients[clientId] = rows } else { delete table.clients[clientId] }
-  await overlay.saveFirmConfig(firmId, CONFIG_KEY, table, savedBy)
+  await _saveTable(firmId, table, savedBy)
   return { route, state }
 }
 

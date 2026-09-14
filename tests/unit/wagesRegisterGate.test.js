@@ -283,3 +283,78 @@ describe('closeRegister — the switch turns both ways', () => {
     expect(gate.resolveGate(DD_CASE, row).state).toBe(gate.STATE_AVAILABLE)
   })
 })
+
+describe('the no-database fallback — dev only, and never on a refusal', () => {
+  const fs = require('fs')
+  const path = require('path')
+  const DEV_PATH = path.resolve(process.cwd(), gate.DEV_FILE)
+
+  /** A connection-level failure: mysql2 gives a `code` and NO `sqlState`. */
+  function noServer () {
+    const e = new Error('connect ECONNREFUSED 127.0.0.1:3306')
+    e.code = 'ECONNREFUSED'
+    return e
+  }
+
+  /** A live server that REFUSED the statement: always carries a `sqlState`. */
+  function refused () {
+    const e = new Error('Cannot add or update a child row')
+    e.code = 'ER_NO_REFERENCED_ROW_2'
+    e.errno = 1452
+    e.sqlState = '23000'
+    return e
+  }
+
+  afterEach(() => { try { fs.unlinkSync(DEV_PATH) } catch (_e) { /* not written */ } })
+
+  it('opening with no database writes the dev file, and reads back from it', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    overlay.saveFirmConfig.mockRejectedValue(noServer())
+    const row = await gate.openRegister('firm-1', 'c-1', { name: 'M. Bartlett', email: 'mike@advisor-e.com' })
+    expect(row.openedAt).toBeTruthy()
+    // And the next read finds it, which is the half that was broken on screen.
+    await expect(gate.readSwitch('firm-1', 'c-1')).resolves.toEqual(row)
+  })
+
+  it('one firm\'s dev row is not another firm\'s', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    overlay.saveFirmConfig.mockRejectedValue(noServer())
+    await gate.openRegister('firm-1', 'c-1', { name: 'A', email: 'a@firm' })
+    await expect(gate.readSwitch('firm-2', 'c-1')).resolves.toBeNull()
+  })
+
+  it('closing with no database is kept too', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    overlay.saveFirmConfig.mockRejectedValue(noServer())
+    await gate.openRegister('firm-1', 'c-1', { name: 'A', email: 'a@firm' })
+    const closed = await gate.closeRegister('firm-1', 'c-1', { name: 'A', email: 'a@firm' })
+    expect(closed.closedAt).toBeTruthy()
+    expect(gate.resolveGate(DD_CASE, await gate.readSwitch('firm-1', 'c-1')).state).toBe(gate.STATE_AVAILABLE)
+  })
+
+  it('🔴 A SERVER THAT REFUSED THE WRITE NEVER FALLS BACK — it throws', async () => {
+    // The whole point of dbFailure: a refused write must not land in a scratch file and be
+    // reported as a register that was opened. A false "opened" is a record claiming someone
+    // decided to show a client's named staff when no such decision was ever stored.
+    overlay.loadFirmConfig.mockResolvedValue(null)
+    overlay.saveFirmConfig.mockRejectedValue(refused())
+    await expect(gate.openRegister('firm-1', 'c-1', { name: 'A', email: 'a@firm' })).rejects.toThrow(/child row/)
+    expect(fs.existsSync(DEV_PATH)).toBe(false)
+  })
+
+  it('🔴 A SERVER THAT REFUSED THE READ NEVER FALLS BACK EITHER', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(refused())
+    await expect(gate.readSwitch('firm-1', 'c-1')).rejects.toThrow(/child row/)
+  })
+
+  it('🔴 an unusable client id THROWS rather than being written to the dev file', async () => {
+    // BAD_CLIENT carries no sqlState, so inside the try the fallback would read it as
+    // "nothing answered" and write the row under the very id it just refused. The key is
+    // built before the try precisely to stop that.
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    overlay.saveFirmConfig.mockRejectedValue(noServer())
+    await expect(gate.openRegister('firm-1', 'c-1:evil', { name: 'A', email: 'a@firm' })).rejects.toThrow(/storage key/)
+    await expect(gate.readSwitch('firm-1', 'c-1:evil')).rejects.toThrow(/storage key/)
+    expect(fs.existsSync(DEV_PATH)).toBe(false)
+  })
+})
