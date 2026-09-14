@@ -153,6 +153,21 @@ ending is chosen by the kind:
 | `advisor:confidence_match` (+1) | Suits an adviser newer to this area | suits an adviser newer to this area |
 | `advisor:confidence_boost` (+1) | High confidence reported in an area that rewards it | you reported strong confidence here |
 
+### The mentor's bench — the cap-breach line
+
+**Ruled by Mike, 2026-09-14**, chosen from three wordings. Not on the trace drawing: the counter
+did not exist when that screen was drawn, so this is its record. It sits under the fixed bench on
+the Mentor Hub's Outcome Learning page (`outcomeLearning.benchCapBreaches`).
+
+His reason for this one over the alternatives: **it shows the figure even at zero**, so a mentor
+sees a number that was actually measured rather than a reassurance.
+
+| When | English |
+| --- | --- |
+| 0 breaches (expected) | No pooled adjustment outranked the adviser (0 of {cases}). `LIVE` |
+| 1 | 1 of {cases} cases put a pooled adjustment above the adviser's own words. `LIVE` |
+| more than 1 | {count} of {cases} cases put a pooled adjustment above the adviser's own words. `LIVE` |
+
 ---
 
 ## What is deliberately NOT decided here

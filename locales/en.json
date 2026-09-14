@@ -5460,7 +5460,7 @@
     "benchWithout": "without adjustments",
     "benchWith": "with the {n} live adjustment | with the {n} live adjustments",
     "benchHonesty": "The outcome bench scores the adjustments on the same reviews that produced them, so it flatters them a little; the fixed bench cannot be flattered because it never saw the pool. Read them together.",
-    "benchCapBreaches": "The adviser's own words won in every case. | 1 of {cases} cases put a pooled adjustment above the adviser's own words. | {count} of {cases} cases put a pooled adjustment above the adviser's own words.",
+    "benchCapBreaches": "No pooled adjustment outranked the adviser (0 of {cases}). | 1 of {cases} cases put a pooled adjustment above the adviser's own words. | {count} of {cases} cases put a pooled adjustment above the adviser's own words.",
     "benchNotRun": "The benches have not been run yet.",
     "benchRun": "Run the benches",
     "benchRunning": "Running…",
