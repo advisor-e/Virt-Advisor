@@ -1002,6 +1002,64 @@
         "sales over time",
         "sales trend"
       ]
+    },
+    {
+      "route": "/wages-review",
+      "name": "Wages/Salary Review",
+      "category": "Profitability",
+      "modelClass": "decision",
+      "answers": "Whether the team bills more than it costs, month by month, and how far the plan has drifted from what actually happened. Not a payroll total: the answer is labour margin — what the team earns less what the team costs — and the model's real finding is how much of that is decided by the weather rather than by anybody's effort. A firm runs on one of two bases, never a blend: a seasonal basis where the season decides how many productive days a month holds, or a shutdown basis planned around production days and overtime. Both revenue and cost swap sides together when the basis changes.",
+      "keyOutputs": [
+        "Planned labour margin for the year, and as a percentage of revenue",
+        "The actual labour margin the advisor entered, month by month",
+        "The variance between the plan and what actually happened",
+        "The tightest month of the plan, named, with its own margin and its season"
+      ],
+      "inputsNeeded": "Everything is typed by the advisor across four steps; no accounts export is read. Step 1 is the team — each person's division, whether they are full or part time, their hourly charge and pay rates, daily production efficiency, employer retirement percentage, overtime uplift, leave days, tools allowance and overnight allowance. Step 2 is how the work happens — the basis, the three seasons' names, hours per day, days per week and days lost, plus part-time hours, statutory holidays and the office team's day and week. Step 3 is the year ahead — which season each month is, its production days, whether allowances apply, who is on the payroll in each month and each person's pay rises. Step 4 is the twelve actual labour-margin figures.",
+      "useWhen": "The client's wage bill keeps rising and nobody can say whether the work is covering it, or a seasonal business wants to know what the weather costs them rather than what they feel it costs. It is also the model to reach for when a firm is deciding whether to hire: the hiring plan is month by month, so the cost of a start date can be seen before it is committed to.",
+      "limits": "It forecasts nothing and reads no accounts file. The actual figures are typed in — nothing imports them — so the variance is only as good as what the advisor enters. The staff register that would name individual employees is a separate, gated stage and is not part of this calculation; no personal detail reaches the model. The overnight allowance is currently carried for the seasonal basis only.",
+      "heroFigures": [
+        {
+          "label": "Planned labour margin",
+          "sub": "as a percentage of revenue"
+        },
+        {
+          "label": "Actual labour margin",
+          "sub": "what really happened"
+        },
+        {
+          "label": "Variance",
+          "sub": "actual against plan"
+        },
+        {
+          "label": "Tightest month",
+          "sub": "its margin and its season"
+        }
+      ],
+      "alsoOnScreen": "Two tables under the headline. The three seasons come first — revenue, cost, margin and productive hours for each — because that is where the finding is. The year month by month follows, with revenue, wage cost, planned margin, actual and variance on every row and the year totalled underneath. A line beneath names the basis in force, the headcount on the payroll and the year's overnight allowances.",
+      "coach": [
+        "Read the season table before the year total. On the source workbook's own sample the same team on the same pay loses 13,972 in a wet month and makes 52,270 in a dry one — a swing of more than 66,000 that no annual figure shows, and it happens because a field team is paid its contracted hours whatever the sky does.",
+        "The tightest month is the one to talk about. In the sample it is July, and the plan puts it at minus 132: the tightest month of the year does not break even, which is a different conversation from a year that looks healthy at 288,935.",
+        "A person with no charge-out rate costs and never bills — the model gives them zero working days. That is right for an office or sales role and wrong for anyone entered in a hurry, so the team screen counts them separately."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "wages",
+        "salary review",
+        "labour margin",
+        "wage cost",
+        "does the team pay for itself",
+        "staff costs",
+        "hiring plan",
+        "pay rises",
+        "seasonal labour",
+        "overtime",
+        "charge out rate",
+        "productive hours",
+        "team cost",
+        "payroll cost",
+        "wages against billings"
+      ]
     }
   ]
 }

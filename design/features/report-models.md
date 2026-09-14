@@ -205,10 +205,10 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Ten** models —
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Eleven** models —
   8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator, Dashboard Reports, the
-  High-Level Budget, the Mid-Level Budget, the Retirement Review, Stock Purchasing and the
-  Sales Dashboard —
+  High-Level Budget, the Mid-Level Budget, the Retirement Review, Stock Purchasing, the
+  Sales Dashboard and the Wages/Salary Review —
   carry explanatory notes and verdict rules instead, and the screen heads them differently
   (Dashboard Reports is the client's own document; its reading is the health score and the
   advisor's words on its pages. The High-Level Budget's reading is the variance table itself —

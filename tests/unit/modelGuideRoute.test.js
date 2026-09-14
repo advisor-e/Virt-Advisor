@@ -88,7 +88,16 @@ describe('GET /api/report/model-guide', () => {
     // Mike's "every time a new model is added, it gets updated and shown on this page":
     // the content guard forces the entry to exist, and nothing here has to be touched.
     const src = fs.readFileSync(path.resolve(__dirname, '../../server/routes/report.js'), 'utf8')
-    const handler = src.slice(src.indexOf('function modelGuide'))
+    // Bounded at the NEXT top-level function, not at the end of the file. Slicing to the
+    // end swept in every handler that happened to sit below `modelGuide`, so this failed
+    // the day the Wages/Salary Review route (4.100) was added underneath it — a true
+    // sentence about a function it was not reading. The intent is this handler alone.
+    const from = src.indexOf('function modelGuide')
+    const rest = src.slice(from)
+    // Its own closing brace: the first `}` in column 1. Stopping at the next `function`
+    // instead would still sweep in that function's doc comment, which names the model.
+    const end = rest.search(/\n\}/)
+    const handler = end === -1 ? rest : rest.slice(0, end + 2)
     READY.forEach((m) => {
       expect(handler).not.toContain(m.name)
       expect(handler).not.toContain(m.route)
