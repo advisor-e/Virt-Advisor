@@ -382,6 +382,14 @@
           .trace-row
             span.trace-label {{ $t('decisionTrace.areaFocused') }}
             span.trace-value {{ lastTrace.domain.label || lastTrace.domain.id || '—' }}
+          //- Main issue — directly under the area, because it is the next thing the advisor
+          //- confirmed. Hidden where no proposal was ever made (the context domains, which
+          //- name no structural problem by design): a row saying "none proposed" there would
+          //- report a gap that does not exist. Wording and the three states ruled by Mike on
+          //- design/mockups/primary-issue-proposal.html, Screen D, 2026-09-14.
+          .trace-row(v-if="traceMainIssue")
+            span.trace-label {{ $t('decisionTrace.mainIssue') }}
+            span.trace-value {{ traceMainIssue }}
           .trace-row
             span.trace-label {{ $t('decisionTrace.whatShaped') }}
             span.trace-value {{ traceLensSummary }}
@@ -1037,6 +1045,33 @@ export default {
       if (l.complexityCeiling) { parts.push(this.$t('decisionTrace.lensCeiling', { level: l.complexityCeiling })) }
       if (l.templateBudget !== null && l.templateBudget !== undefined) { parts.push(this.$t('decisionTrace.lensBudget', { budget: l.templateBudget })) }
       return parts.join(' · ')
+    },
+    /**
+     * The "Main issue" trace row (item 4.97 US1), in its three ruled states:
+     *   confirmed  →  "{issue} · confirmed by you"
+     *   reframed   →  "{issue} · reframed by you"
+     *   none       →  "none proposed — nothing in what you said matched a known issue"
+     *
+     * Returns '' where no proposal was ever put — a context domain, or a session that
+     * predates the step — so the row is hidden rather than reporting an absence as a miss.
+     * The three states are Mike's, ruled on the Screen D drawing 2026-09-14.
+     *
+     * @returns {string} the row's value, or '' to hide the row
+     */
+    traceMainIssue () {
+      const pi = this.lastTrace && this.lastTrace.primaryIssue
+      if (!pi) { return '' }
+      if (pi.label && pi.how === 'reframed') {
+        return this.$t('decisionTrace.issueReframed', { issue: pi.label })
+      }
+      if (pi.label) {
+        return this.$t('decisionTrace.issueConfirmed', { issue: pi.label })
+      }
+      // A label-less trace is only a MISS if the engine actually asked and got nothing.
+      // 'none' is also the resting value for a domain that never proposes, hence the row
+      // is hidden unless the step ran — `asked` is set by the engine when it put the
+      // question. Without it we would tell an EOY advisor their issue went unrecognised.
+      return pi.asked ? this.$t('decisionTrace.issueNone') : ''
     },
     traceBoostList () {
       const boosts = (this.lastTrace && this.lastTrace.distinctions && this.lastTrace.distinctions.boostsApplied) || {}

@@ -35,7 +35,7 @@ const {
   applyIssueDriverReply,
   causeTextOf
 } = require('../../server/advisorEngine')
-const { tooWeakToName, isDomainWord } = require('../../server/utils/primaryIssueProposer')
+const { tooWeakToName, isDomainWord, parseReply } = require('../../server/utils/primaryIssueProposer')
 
 // Real authored labels from data/primary-issues.json — the file is Mike's, so the fixtures
 // quote it rather than invent a label the engine would never propose.
@@ -201,6 +201,36 @@ describe('applyIssueReply — confirm, reframe, miss', () => {
     expect(s.primaryIssue).toBe(COST_OF_SALES)
     expect(s.primaryIssueHow).toBe('confirmed')
     expect(s.primaryIssueReason).toBeTruthy()
+  })
+
+  test('plain agreement is CONFIRMED, never recorded as a correction', async () => {
+    // 🔴 The 2026-09-14 live fault. `parseReply` re-ranked the reply for a possible reframe
+    // while passing the signals extracted from the ORIGINAL cause text — which fire whatever
+    // the advisor now types. "Yes that is right" scored on *Excessive discounting eroding
+    // margin* from the earlier pricing_issue signal alone, matching no word of the reply, and
+    // the engine recorded the advisor's agreement as a reframe. The trace then told an
+    // advisor who had said yes that they had corrected us.
+    //
+    // This case only appears when the cause text fires a signal pointing at a DIFFERENT
+    // label than the one proposed — invisible to a unit test that passes an empty signal map,
+    // and invisible in UAT, where both readings produce a sensible-looking screen.
+    const s = stateWith('Margins are down. The cost of sales has gone up because suppliers put their prices up.')
+    s.situationDiagnostic = 'Suppliers put their prices up and they never repriced, so the cost of sales has climbed'
+    await buildIssueProposal(s)
+    expect(s._issueProposed).toBe(COST_OF_SALES)
+
+    applyIssueReply('Yes that is right', s)
+    expect(s.primaryIssue).toBe(COST_OF_SALES)
+    expect(s.primaryIssueHow).toBe('confirmed')
+    expect(s._issueReproposed).toBe(false)
+    expect(s._forceAskField).toBeUndefined()
+  })
+
+  test('a real correction is still caught, even when it opens with "yes"', () => {
+    // The behaviour the fix must not break: the advisor's own words outrank a stock phrase.
+    const read = parseReply('yes, but it is really the discounting eroding our margin', COST_OF_SALES, 'profit')
+    expect(read.outcome).toBe('reframed')
+    expect(read.label).toBe(DISCOUNTING)
   })
 
   test('a reframe is proposed back once rather than stored on the spot', async () => {

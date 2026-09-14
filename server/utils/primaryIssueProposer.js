@@ -272,14 +272,13 @@ const MOVING_ON_LINE = 'Noted — I\'ll work from your own words on that rather 
  * @param {string} reply - what they typed
  * @param {string} proposed - the label that was put to them
  * @param {string} domainId - the confirmed domain, for re-ranking a reframe
- * @param {Object.<string, number>} [problemSignals] - to re-rank with the same evidence
  * @returns {{outcome: 'confirmed'|'reframed'|'rejected'|'unmatched', label: string|null, matched: string[]}}
  *   - confirmed: they agreed; the proposed label stands
  *   - reframed:  their words point at a DIFFERENT authored label, which is proposed once more
  *   - rejected:  they said no and named nothing — the driver question follows
  *   - unmatched: they said something that is neither agreement nor a label — same path
  */
-function parseReply (reply, proposed, domainId, problemSignals) {
+function parseReply (reply, proposed, domainId) {
   const text = typeof reply === 'string' ? reply.trim() : ''
   if (!text) { return { outcome: 'unmatched', label: null, matched: [] } }
   // 🔴 THERE IS NOTHING TO AGREE TO WITHOUT A PROPOSAL. Found by its own test, 2026-09-14: in
@@ -292,7 +291,19 @@ function parseReply (reply, proposed, domainId, problemSignals) {
   // A reply that names a different authored label is a reframe even if it opens with "yes",
   // because the advisor's own words outrank a stock phrase: "yes, but it's really the
   // discounting" is a correction, not agreement.
-  const ranked = rankLabels(domainId, text, problemSignals)
+  //
+  // 🔴 RANKED ON THE REPLY'S OWN WORDS ONLY — no signals. Found by walking the built step on
+  // a running server, 2026-09-14: the signals passed here are extracted from the ORIGINAL
+  // cause text, so they fire whatever the advisor now types. A plain "Yes that is right"
+  // scored 2 on *Excessive discounting eroding margin* on the earlier `pricing_issue` signal
+  // alone — matching NO word of the reply — beat the confirm check below, and the engine
+  // recorded the advisor's agreement as a correction. `how` then read "reframed by you" on
+  // the trace about an advisor who had simply said yes.
+  //
+  // A reframe is the advisor NAMING something else. That claim can only rest on words they
+  // actually just typed, which is what the empty signal map enforces. The cause signals keep
+  // their proper job — ranking the FIRST proposal, where the cause text is the evidence.
+  const ranked = rankLabels(domainId, text, {})
   if (ranked.top && ranked.top !== proposed) {
     return { outcome: 'reframed', label: ranked.top, matched: ranked.matched }
   }

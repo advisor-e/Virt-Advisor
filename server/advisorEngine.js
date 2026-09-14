@@ -1295,8 +1295,9 @@ async function buildIssueProposal (state) {
  */
 function applyIssueReply (answer, s) {
   const proposed = s._issueProposed || null
-  const signals = extractProblemSignals(causeTextOf(s))
-  const read = PROPOSER.parseReply(answer, proposed, s.detectedDomain, signals)
+  // No signals: a reframe must rest on words the advisor just typed, never on signals from
+  // the earlier cause text, which fire whatever they now say. See `parseReply`.
+  const read = PROPOSER.parseReply(answer, proposed, s.detectedDomain)
 
   if (read.outcome === 'confirmed') {
     // After a reframe the label came from the advisor's own correction, so it is recorded
@@ -3530,7 +3531,12 @@ async function handleQuery (rawBody, res, identity) {
       primaryIssue: {
         label: (state.primaryIssue && state.primaryIssue !== 'pending' && state.primaryIssue !== 'skipped') ? state.primaryIssue : null,
         how: state.primaryIssueHow || 'none',
-        reason: state.primaryIssueReason || null
+        reason: state.primaryIssueReason || null,
+        // Whether the engine actually PUT the question. A context domain proposes nothing by
+        // design and rests at how:'none' having asked nothing, which reads identically to a
+        // session where the advisor's words matched no label. The trace row needs to tell
+        // those apart: only the second is a miss worth reporting to the advisor.
+        asked: proposesIssue(state.detectedDomain)
       },
       // The client's industry as the advisor typed it (item 4.97 US4). A TYPED FIELD, because
       // the pool resolves it against the engine's own vocabulary and cannot read the string
