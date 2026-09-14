@@ -22,6 +22,30 @@ screen is work we do twice.
 product works *now* — when something changes, replace the old sentence rather than adding
 a new one beneath it.
 
+## 🔴 FIND IT → SAY IT → ASK → FIX IT. NEVER PARK IT. (Mike's ruling, 2026-09-14 — binding)
+
+In his words: *"you find a problem then ignore it and leave it for later — fucking bring it
+to me every time you find it, ask the question and get it fixed."*
+
+**The moment you find something wrong, it stops being an observation and becomes the next
+thing you do.** Not a line in the report at the end. Not "worth noting". Not a loose end
+listed under a Non-Coder Summary. Not "I've left it alone" — that sentence is the failure.
+
+1. **Say it, in one or two sentences**, as soon as you find it.
+2. **Ask the one question** you need answered to fix it — one recommendation, one yes/no.
+3. **Fix it on his yes**, then carry on with what you were doing.
+
+**This includes anything you find while doing something else** — a stale note, a wrong
+figure, a comment that contradicts the code, a claim in a Brief that is no longer true.
+Especially those: they are found by accident and lost the same way.
+
+**Why this is binding.** On 2026-09-14 a session reported that item 4.100's note still
+listed a question Mike had answered that morning, and then wrote *"I haven't touched it"*
+— in the same breath as naming it. The whole day had been spent removing exactly that kind
+of stale sentence from seven other places. **Reporting a defect is not handling it.** An
+observed problem that is written down and left is worse than one never found, because the
+record now says somebody looked.
+
 **Every decision point is one recommendation and one yes/no question** (Mike's ruling,
 2026-09-04). Say what you recommend, say why, ask one question a bare yes or no answers.
 Never two options. No exceptions.
