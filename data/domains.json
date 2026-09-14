@@ -31,7 +31,7 @@
     "distinctions": true,
     "engagementType": "facilitation",
     "label": "sales and marketing",
-    "keywords": "\\b(sales|marketing|messaging|advertising)\\b|drop in revenue|drop in sales|drop in income|low sales|media campaigns|brand awareness",
+    "keywords": "(?<!cost of )(?<!costs of )(?<!cost-of-)\\b(sales|marketing|messaging|advertising)\\b|drop in revenue|drop in sales|drop in income|low sales|media campaigns|brand awareness",
     "disambiguationKeywords": "sales|marketing|revenue|advertising|brand|conversion",
     "questions": []
   },
