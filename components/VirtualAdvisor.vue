@@ -431,7 +431,9 @@
             p.trace-note.trace-fault(v-if="lastTrace.outcomeLearning.available === false") {{ $t('decisionTrace.outcomeUnavailable') }}
             template(v-else-if="traceOutcomeLines.length")
               p.trace-line(v-for="line in traceOutcomeLines" :key="line.key")
-                span.trace-hb(:class="{ 'trace-ow': !line.applied }") {{ line.applied ? '−' + line.holdBack : '0' }}
+                //- The badge carries the direction: amber −n held back, green +n lifted, grey 0
+                //- outweighed. As drawn on outcome-learning-trace-lift.html (approved 2026-09-14).
+                span.trace-hb(:class="{ 'trace-ow': !line.applied, 'trace-lift': line.applied && line.size > 0 }") {{ line.badge }}
                 b {{ line.template }}
                 span  — {{ line.text }}
                 span.trace-count {{ $t('decisionTrace.outcomeCounts', { firms: line.firms, cases: line.cases }) }}
@@ -1087,24 +1089,35 @@ export default {
         if (e.dimension === 'domain') { return (this.lastTrace.domain && this.lastTrace.domain.label) || e.value || '' }
         return e.value || ''
       }
-      const applied = (ol.applied || []).map(e => ({
-        key: 'a:' + e.template,
-        applied: true,
-        template: e.template,
-        holdBack: e.holdBack,
-        text: this.$t('decisionTrace.outcomeApplied', { where: where(e) }),
-        firms: e.firms,
-        cases: e.cases
-      }))
-      const outweighed = (ol.outweighed || []).map(e => ({
-        key: 'o:' + e.template,
-        applied: false,
-        template: e.template,
-        holdBack: e.holdBack,
-        text: this.$t('decisionTrace.outcomeOutweighed', { n: e.holdBack, where: where(e) }),
-        firms: e.firms,
-        cases: e.cases
-      }))
+      // A trace saved before 4.97 US2 carries `holdBack` and no `size`; read it as the
+      // negative it always was, so an old case still renders rather than showing NaN.
+      const sizeOf = e => (typeof e.size === 'number' ? e.size : -(e.holdBack || 0))
+      const applied = (ol.applied || []).map((e) => {
+        const size = sizeOf(e)
+        return {
+          key: 'a:' + e.template,
+          applied: true,
+          template: e.template,
+          size,
+          badge: (size > 0 ? '+' : '−') + Math.abs(size),
+          text: this.$t(size > 0 ? 'decisionTrace.outcomeLifted' : 'decisionTrace.outcomeApplied', { where: where(e) }),
+          firms: e.firms,
+          cases: e.cases
+        }
+      })
+      const outweighed = (ol.outweighed || []).map((e) => {
+        const size = sizeOf(e)
+        return {
+          key: 'o:' + e.template,
+          applied: false,
+          size,
+          template: e.template,
+          badge: '0',
+          text: this.$t(size > 0 ? 'decisionTrace.outcomeOutweighedLift' : 'decisionTrace.outcomeOutweighed', { n: Math.abs(size), where: where(e) }),
+          firms: e.firms,
+          cases: e.cases
+        }
+      })
       return applied.concat(outweighed)
     },
     domainSelectorOptions () {
@@ -3017,6 +3030,10 @@ export default {
 .trace-line { margin: 3px 0; font-size: 12.5px; color: #374151; }
 .trace-hb { display: inline-block; min-width: 26px; font-weight: 700; color: #b91c1c; margin-right: 6px; }
 .trace-hb.trace-ow { color: #6b7280; }
+/* A lift reads green against the hold-back's red, as drawn (outcome-learning-trace-lift.html,
+   approved 2026-09-14). The drawing uses pill badges; this panel has always used plain
+   coloured numerals, so the colour carries the direction and the shape stays as built. */
+.trace-hb.trace-lift { color: #2f7d32; }
 .trace-count { color: #6b7280; font-size: 11.5px; margin-left: 8px; white-space: nowrap; }
 .trace-nearmiss { margin: 3px 0; padding: 4px 8px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 3px; }
 .trace-scores { width: 100%; border-collapse: collapse; margin-top: 4px; }

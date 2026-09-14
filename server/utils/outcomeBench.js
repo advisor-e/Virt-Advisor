@@ -36,6 +36,7 @@ const STAIRCASE = require('../../data/advisory-staircase.json')
 const { extractProblemSignals } = require('./problemSignals')
 const { staircaseToCeiling, DOMAIN_NATURAL_ENGAGEMENT } = require('./caseState')
 const { resolveTemplatesWithOutlier, buildDisplaySet } = require('./templateResolver')
+const { rankLabels } = require('./primaryIssueProposer')
 
 const YIELD_EVERY = 200
 
@@ -68,6 +69,15 @@ function topRecommendation (caseState, strategy, templates, adjustments, signalT
  * A Scenario Lab case as the engine sees it — the ONE builder the Scenario Lab script and the
  * fixed bench share, so the bench can never drift from the report (research §8 found the
  * reason mapping copied twice; the case shape is not copied a second time here).
+ * 🔴 THE CASE NOW CARRIES A PRIMARY ISSUE, because the live engine does (item 4.97 US1,
+ * T019). Until 2026-09-14 this was hardcoded to `''`, so both benches and the whole Scenario
+ * Lab report measured an engine in which the advisor had never named their problem — the exact
+ * state US1 replaced. The label is the proposer's own top rank on the same text and signals,
+ * which is what the advisor would be shown; a case the proposer withholds (no match, weak
+ * evidence, or a context domain) keeps `''`, which is what the engine stores when the advisor
+ * cannot name one either. Nothing is invented: `rankLabels` only ever returns one of Mike's
+ * authored labels for that domain.
+ *
  * @param {Object} sc - one entry of scripts/scenario-lab-cases.json
  * @returns {{caseState: Object, strategy: Object, signalTypes: string[]}}
  */
@@ -75,9 +85,10 @@ function scenarioToCase (sc) {
   // The CURRENT live engine input: what contributed plus the check-in answer.
   const text = [sc.situationDiagnostic, sc.domainConfirmed].filter(Boolean).join(' ')
   const problemSignals = extractProblemSignals(text)
+  const ranked = rankLabels(sc.domain, text, problemSignals)
   const caseState = {
     domain: sc.domain,
-    primaryIssue: '',
+    primaryIssue: ranked.top || '',
     industry: sc.industry || null,
     solutionCategories: [sc.domain],
     complexityCeiling: staircaseToCeiling(sc.staircase),

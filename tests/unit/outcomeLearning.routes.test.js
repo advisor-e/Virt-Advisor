@@ -90,7 +90,8 @@ describe('list', () => {
       benches: { fixed: { before: 0.6, after: 0.66 } },
       orphaned: []
     })
-    expect(res._body.adjustments.find(a => a.id === ID)).toMatchObject({ delivered: 31, less: 12, holdBack: 4, state: 'proposed' })
+    // 31 delivered, 12 less, 19 well nets to +2 — the signed adjustment (4.97 US2).
+    expect(res._body.adjustments.find(a => a.id === ID)).toMatchObject({ delivered: 31, less: 12, well: 19, size: 2, direction: 'lift', state: 'proposed' })
   })
 
   test('a page load never writes a version', async () => {
@@ -145,7 +146,7 @@ describe('list', () => {
     await routes.list(req(), res)
     expect(Date.now() - started).toBeLessThan(2000)
     expect(res._body).toMatchObject({ firms: 50, cases: 10000 })
-    expect(res._body.adjustments.find(a => a.id === ID)).toMatchObject({ delivered: 10000, less: 3000, holdBack: 3, meetsFloor: true })
+    expect(res._body.adjustments.find(a => a.id === ID)).toMatchObject({ delivered: 10000, less: 3000, well: 7000, size: 4, meetsFloor: true })
   })
 })
 
@@ -339,9 +340,10 @@ describe('exportLive', () => {
     await routes.exportLive(req(), res)
     expect(res._status).toBe(200)
     expect(res._body.adjustments).toEqual([
-      { id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', holdBack: expect.any(Number), firms: expect.any(Number), cases: expect.any(Number) }
+      { id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: expect.any(Number), firms: expect.any(Number), cases: expect.any(Number) }
     ])
-    expect(res._body.adjustments[0].holdBack).toBeGreaterThan(0)
+    // Signed, and never 0: a pairing that moves nothing is not exported (4.97 US2).
+    expect(res._body.adjustments[0].size).not.toBe(0)
   })
 
   test('a store failure returns the safe error shape', async () => {

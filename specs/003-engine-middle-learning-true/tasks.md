@@ -66,7 +66,7 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 - [ ] T017 [US1] Create `server/utils/primaryIssueProposer.js` — `rankLabels`, `parseReply`, `proposalLine(label, reason)` (wording from the approved drawing), `CONTEXT_DOMAINS`, and `tiebreakWithModel(client, domain, candidates, causeText)` through `aiProvider.getClient('classify')` with `{ personal: false }`, temperature 0, a validator that accepts only a listed label or `none`
 - [ ] T018 [US1] In `server/advisorEngine.js` add the `issueProposed` and `issueDriver` `QUESTIONS` entries after `domainConfirmed` (contracts §The advisor conversation); `onAnswer` per research R1; write `state.primaryIssue` and `trace.primaryIssue`; clear both on a course correction beside the existing reset; log `[signal-miss]` on a final miss; `logAI('issue-tiebreak', …)` on the model call
-- [ ] T019 [US1] In `server/utils/outcomeBench.js` `scenarioToCase`, set `primaryIssue` from `rankLabels` on the case's text (top label or `''`); in `scripts/scenario-lab.js` add the METRICS lines "Primary issue proposed: x/51" and "would confirm as proposed: y/51" and the *Issue* column on the at-a-glance table
+- [X] T019 [US1] In `server/utils/outcomeBench.js` `scenarioToCase`, set `primaryIssue` from `rankLabels` on the case's text (top label or `''`); in `scripts/scenario-lab.js` add the METRICS lines "Primary issue proposed: x/51" and "would confirm as proposed: y/51" and the *Issue* column on the at-a-glance table
 - [ ] T020 [US1] In `components/VirtualAdvisor.vue` render the trace's *Primary issue* line from `lastTrace.primaryIssue` (label and how) via `$t('decisionTrace.issue*')`; add the keys to `locales/en.json`; no new identifiers from the retired-selector ban list
 
 **Checkpoint**: quickstart Story 1 passes on the desktop against MySQL; a reviewed case at the consenting firm pools its label.
@@ -81,18 +81,18 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 ### Tests for User Story 2
 
-- [ ] T021 [P] [US2] Update `tests/unit/outcomeLearning.test.js` — net balance on hand-checked fixtures (31 delivered, 12 less, 19 well → size +2; 12 less, 0 well → −4; equal → 0 and `direction 'none'`), `holdBack === max(0, −size)`, `liveAdjustments` keeps `size !== 0` only, sort by absolute size
-- [ ] T022 [P] [US2] Update `tests/unit/pooledHoldback.test.js` — a lift raises the score by its size; a lift and a hold-back on one template net under the ±10 cap; the clamp at 1 holds; reasons `pooled:lifted-<n>` and `pooled:held_back-<n>`; a `size` of 0 or a malformed entry is dropped
-- [ ] T023 [P] [US2] Update `tests/unit/outcomeLearningTrace.test.js` — `applied[].direction` and `size` for both reasons; `outweighed[].size` signed
+- [X] T021 [P] [US2] Update `tests/unit/outcomeLearning.test.js` — net balance on hand-checked fixtures (31 delivered, 12 less, 19 well → size +2; 12 less, 0 well → −4; equal → 0 and `direction 'none'`), `holdBack === max(0, −size)`, `liveAdjustments` keeps `size !== 0` only, sort by absolute size
+- [X] T022 [P] [US2] Update `tests/unit/pooledHoldback.test.js` — a lift raises the score by its size; a lift and a hold-back on one template net under the ±10 cap; the clamp at 1 holds; reasons `pooled:lifted-<n>` and `pooled:held_back-<n>`; a `size` of 0 or a malformed entry is dropped
+- [X] T023 [P] [US2] Update `tests/unit/outcomeLearningTrace.test.js` — `applied[].direction` and `size` for both reasons; `outweighed[].size` signed
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] In `server/utils/outcomeLearning.js` `computeAdjustments` emit `size` and `direction` (data-model §3), keep `holdBack` derived, sort by `Math.abs(size)`; `liveAdjustments` returns `size`
-- [ ] T025 [US2] In `server/utils/templateResolver.js` normalise `size` (signed, non-zero), net the matched sizes, cap at ±`POOLED_HOLDBACK_MAX`, apply `score = Math.max(1, score + net)`, write the two reason codes; update the block comment
-- [ ] T026 [US2] In `server/utils/outcomeLearningSession.js` parse both reason codes, add `direction` and `size` to `applied`, signed `size` to `outweighed`
-- [ ] T027 [US2] In `utils/traceReasonCodes.js`, `locales/en.json` and `design/WORDING-TRACE-REASONS.md` add `pooled:lifted-<n>`; in `components/VirtualAdvisor.vue` render `+n` / `−n` from `direction` per the approved trace drawing
-- [ ] T028 [US2] In `components/mentor/MentorOutcomeLearning.vue` add the *Direction* column and signed size per the approved drawing; `locales/en.json` keys; in `scripts/dev/seed-outcome-pool.js` add a landed-well template across all five firms so a lift crosses the floor locally, and update `tests/unit/seedOutcomePool.test.js`
-- [ ] T029 [US2] In `server/routes/outcomeLearning.js` `decision` route, `live` on a `size === 0` pairing is allowed and applies nothing (spec edge case); export returns signed sizes; update `tests/unit/outcomeLearning.routes.test.js`
+- [X] T024 [US2] In `server/utils/outcomeLearning.js` `computeAdjustments` emit `size` and `direction` (data-model §3), keep `holdBack` derived, sort by `Math.abs(size)`; `liveAdjustments` returns `size`
+- [X] T025 [US2] In `server/utils/templateResolver.js` normalise `size` (signed, non-zero), net the matched sizes, cap at ±`POOLED_HOLDBACK_MAX`, apply `score = Math.max(1, score + net)`, write the two reason codes; update the block comment
+- [X] T026 [US2] In `server/utils/outcomeLearningSession.js` parse both reason codes, add `direction` and `size` to `applied`, signed `size` to `outweighed`
+- [X] T027 [US2] In `utils/traceReasonCodes.js`, `locales/en.json` and `design/WORDING-TRACE-REASONS.md` add `pooled:lifted-<n>`; in `components/VirtualAdvisor.vue` render `+n` / `−n` from `direction` per the approved trace drawing
+- [X] T028 [US2] In `components/mentor/MentorOutcomeLearning.vue` add the *Direction* column and signed size per the approved drawing; `locales/en.json` keys; in `scripts/dev/seed-outcome-pool.js` add a landed-well template across all five firms so a lift crosses the floor locally, and update `tests/unit/seedOutcomePool.test.js`
+- [X] T029 [US2] In `server/routes/outcomeLearning.js` `decision` route, `live` on a `size === 0` pairing is allowed and applies nothing (spec edge case); export returns signed sizes; update `tests/unit/outcomeLearning.routes.test.js`
 
 **Checkpoint**: quickstart Story 2 passes; the Scenario Lab with the export shows a `pooled:lifted` reason on a matching case.
 

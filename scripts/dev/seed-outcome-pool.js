@@ -57,6 +57,13 @@ const CASES = 31
 const ABOVE_LESS = 12
 const BELOW_CASES = 20
 const BELOW_LESS = 5
+// A template that plainly LANDED WELL, across all five firms and over the floor, so a lift is
+// visible locally and not merely inferable (4.97 US2 T028). Until the adjustment was signed
+// there was nothing for a good outcome to produce, so the seed had no reason to carry one.
+// 28 delivered, 3 less, 25 well → round(10 × 22 ÷ 28) = +8, the drawing's own lift row.
+const TEMPLATE_LIFT = 'Quick Fire Diagnosis'
+const LIFT_CASES = 28
+const LIFT_LESS = 3
 // An authored primary-issue label for the domain, on some rows, so the page shows one.
 const PRIMARY_ISSUE = 'Cost of sales has increased'
 const MONTHS = ['2026-07', '2026-08', '2026-09']
@@ -70,14 +77,18 @@ function buildSeedRows (libraryTitles) {
   const canonical = new Map(libraryTitles.map(t => [t.trim().toLowerCase(), t]))
   const above = canonical.get(TEMPLATE_ABOVE.toLowerCase())
   const below = canonical.get(TEMPLATE_BELOW.toLowerCase())
-  if (!above || !below) {
-    throw new Error(`seed-outcome-pool: the library does not hold "${TEMPLATE_ABOVE}" and "${TEMPLATE_BELOW}"; nothing written`)
+  const lift = canonical.get(TEMPLATE_LIFT.toLowerCase())
+  if (!above || !below || !lift) {
+    throw new Error(`seed-outcome-pool: the library does not hold "${TEMPLATE_ABOVE}", "${TEMPLATE_BELOW}" and "${TEMPLATE_LIFT}"; nothing written`)
   }
   const out = []
   for (let i = 0; i < CASES; i++) {
     const templates = [{ title: above, used: i % 3 === 0 ? 'partial' : 'full', outcome: i < ABOVE_LESS ? 'less' : 'well' }]
     if (i < BELOW_CASES) {
       templates.push({ title: below, used: 'full', outcome: i < BELOW_LESS ? 'less' : 'well' })
+    }
+    if (i < LIFT_CASES) {
+      templates.push({ title: lift, used: 'full', outcome: i < LIFT_LESS ? 'less' : 'well' })
     }
     out.push({
       firmId: SEED_FIRM_IDS[i % SEED_FIRM_IDS.length],

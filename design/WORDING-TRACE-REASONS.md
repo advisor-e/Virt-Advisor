@@ -132,6 +132,7 @@ held-back template is still in the list, still scored, just lower.
 | `penalty:reports_already_in_use` (−4) | The client already gets regular management reports | client already gets regular reports — held back |
 | `advisor:confidence_mismatch` (−1) | Low confidence reported, and this template needs experience | needs more experience than reported — held back |
 | `pooled:held_back-<n>` (−n, capped at 10) | Across consenting firms this template went less well in this situation; a mentor-accepted adjustment held it back (item 4.87) | learned from outcomes −{n} `LIVE` — Mike, 2026-09-11, from `mockups/outcome-learning-trace.html` |
+| `pooled:lifted-<n>` (+n, capped at 10) | Across consenting firms this template landed well in this situation; a mentor-accepted adjustment lifted it (item 4.97 US2). The code carries the capped NET, so one lift and one hold-back on the same template produce a single reason, not two | learned from outcomes +{n} `LIVE` — Mike, 2026-09-14, from `mockups/outcome-learning-trace-lift.html` |
 | `pooled:outweighed` | A pooled hold-back matched, but the adviser's own words matched a distinction for this template, and those win | outcome learning weighed and outweighed `LIVE` — Mike, 2026-09-11 |
 
 ### The adviser's own confidence

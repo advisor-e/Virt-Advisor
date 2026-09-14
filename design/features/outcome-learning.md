@@ -111,12 +111,16 @@ offers rather than overwrites. What does not exist is any loop that closes itsel
 
 ### What is missing, and it is the difference between "loops" and "learning"
 
-> - **The outcome loop now crosses firms on the backend, and is not yet on a screen or proven.**
->   Since 2026-09-11 a consenting firm's per-template verdicts are pooled anonymised at the
->   platform scope, turned into capped hold-backs that only a mentor-accepted decision can make
->   live, and applied in the resolver beneath the advisor's own words (part two). No hub screen
->   shows the pool or lets the mentor accept anything yet, and no real pool has crossed the
->   floor, so "learning across firms" is built and untested, not proven.
+> - **The outcome loop crosses firms and moves BOTH ways, and no real pool has yet crossed the
+>   floor.** A consenting firm's per-template verdicts are pooled anonymised at the platform
+>   scope, netted into one signed adjustment per pairing — positive where the template landed
+>   well, negative where it did not — capped at ±10, made live only by a mentor-accepted
+>   decision on the Outcome Learning hub page, and applied in the resolver beneath the
+>   advisor's own words, which outweigh it in either direction (part two). Until 2026-09-14 the
+>   good half of that evidence was counted and then discarded, so the platform could only ever
+>   become more cautious with use; it can now become better. What remains is evidence: no real
+>   pool has crossed the evidence floor, so "learning across firms" is built and seen on a
+>   developer's seed, not proven in use.
 > - **The review is optional and its uptake is unmeasured.** A case stays flagged "feedback
 >   pending" until the advisor returns to it. Nothing reports how many ever do, so the loop's
 >   reach is unknown.

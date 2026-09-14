@@ -42,7 +42,10 @@ function getProfileMap () {
 // Bump SCORING_VERSION whenever the algorithm changes so scoring logs are traceable.
 // 2.2.0 — Outcome Learning's pooled hold-back joined the formula (item 4.87). A saved trace
 // must say which formula produced it, so the version moves with the formula.
-const SCORING_VERSION = '2.2.0'
+// 2.3.0 — that hold-back became SIGNED (item 4.97 US2): pooled outcomes now lift a template
+// as well as hold it back, and the matched sizes net before the ±cap. A trace saved under
+// 2.2.0 could only ever have been held back, so the version is how a reader tells which.
+const SCORING_VERSION = '2.3.0'
 
 // Signal attenuation — out-of-domain signals are excluded entirely (weight 0).
 // Each domain's scope is defined in DOMAIN_SIGNAL_SCOPE. Signals outside the scope
@@ -218,9 +221,13 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   // pooled adjustments — mentor-accepted, above the evidence floor — each naming a template,
   // a dimension and a value. Normalised once here; a malformed entry is dropped rather than
   // guessed at. The fired signal types come in beside them because caseState carries none.
+  // 🔴 SIGNED SINCE 4.97 US2: `size` is positive to lift and negative to hold back. A pairing
+  // of 0 is dropped here because it would change nothing and put a reason on the trace saying
+  // so. `Math.trunc` rather than `floor`, so a negative size rounds toward zero like a
+  // positive one — `floor(-2.5)` would quietly make a hold-back bigger than the evidence.
   const _pooled = (Array.isArray(options && options.pooledAdjustments) ? options.pooledAdjustments : [])
     .filter(a => a && typeof a.template === 'string' && POOLED_DIMENSIONS.includes(a.dimension) &&
-      typeof a.value === 'string' && Number.isFinite(a.holdBack) && a.holdBack > 0)
+      typeof a.value === 'string' && Number.isFinite(a.size) && Math.trunc(a.size) !== 0)
     .map(a => ({
       // The id is kept so the scoring log can name WHICH adjustments matched this
       // session; the trace reads its evidence from those alone.
@@ -228,7 +235,7 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
       titleKey: a.template.trim().toLowerCase(),
       dimension: a.dimension,
       valueKey: a.value.trim().toLowerCase(),
-      holdBack: Math.floor(a.holdBack)
+      size: Math.trunc(a.size)
     }))
   const _pooledSignals = new Set(
     (Array.isArray(options && options.pooledSignalTypes) ? options.pooledSignalTypes : [])
@@ -603,14 +610,24 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     // not viable anyway (score<=0) are left untouched — no penalty, no reason.
     const _titleKey = (t.title || '').trim().toLowerCase()
 
-    // Outcome Learning hold-back (item 4.87) — after every boost, IMMEDIATELY BEFORE the
-    // client-history clamp below, and for the same reasons that clamp exists: a template
-    // is discouraged by what happened across consenting firms, never removed, and the
-    // hold-back is on the trace. Every matching live adjustment is summed and capped at
-    // POOLED_HOLDBACK_MAX. THE ADVISOR'S WORDS WIN: a template that already carries a
-    // `distinction:` reason was matched by this advisor's own description of this client,
-    // and pooled outcomes from other firms do not overrule that — it is marked
-    // `pooled:outweighed` and left alone (Mike's ruling on the trace drawing).
+    // Outcome Learning (item 4.87; SIGNED since 4.97 US2) — after every boost, IMMEDIATELY
+    // BEFORE the client-history clamp below, and for the same reasons that clamp exists: a
+    // template is nudged by what happened across consenting firms, never added or removed,
+    // and the nudge is on the trace.
+    //
+    // 🔴 IT NOW MOVES BOTH WAYS. A template consenting firms reported as landing WELL is
+    // lifted by exactly the machinery that used to only hold back — same floor, same mentor
+    // decision, same cap, same trace. The matched sizes are NETTED first and the net is
+    // capped at ±POOLED_HOLDBACK_MAX, so a lift on one dimension and a hold-back on another
+    // argue with each other before anything reaches the score, and neither can exceed the
+    // cap by arriving first.
+    //
+    // THE ADVISOR'S WORDS WIN: a template that already carries a `distinction:` reason was
+    // matched by this advisor's own description of this client, and pooled outcomes from
+    // other firms do not overrule that — it is marked `pooled:outweighed` and left alone
+    // (Mike's ruling on the trace drawing). That protection is deliberately kept for LIFTS
+    // as well as hold-backs: a lift that reorders the advisor's own evidence is the same
+    // overruling, in the flattering direction.
     // The ids of the adjustments that matched THIS session go on the log entry, so the
     // trace names the situation that actually matched. Without them the trace could only
     // group live adjustments by title, and on 2026-09-12 that put "in profit" on a line
@@ -623,9 +640,12 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
         if (reasons.some(r => r.indexOf('distinction:') === 0)) {
           reasons.push('pooled:outweighed')
         } else {
-          const _total = Math.min(POOLED_HOLDBACK_MAX, _matched.reduce((sum, a) => sum + a.holdBack, 0))
-          score = Math.max(1, score - _total)
-          reasons.push('pooled:held_back-' + _total)
+          const _sum = _matched.reduce((sum, a) => sum + a.size, 0)
+          const _net = Math.max(-POOLED_HOLDBACK_MAX, Math.min(POOLED_HOLDBACK_MAX, _sum))
+          if (_net !== 0) {
+            score = Math.max(1, score + _net)
+            reasons.push(_net > 0 ? 'pooled:lifted-' + _net : 'pooled:held_back-' + (-_net))
+          }
         }
       }
     }

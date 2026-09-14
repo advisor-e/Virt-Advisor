@@ -263,7 +263,18 @@ function _parseId (id) {
  * @param {Object} decisions - the `decisions` map from the DECISIONS_KEY row, or null
  * @param {string[]} libraryTitles - every title in the platform library now; an adjustment
  *   whose template is no longer there is `orphaned`
- * @returns {Array<Object>} data-model §3, sorted by hold-back then id
+ * @returns {Array<Object>} data-model §3, sorted by the SIZE of the adjustment then id
+ *
+ * 🔴 THE ADJUSTMENT IS SIGNED (item 4.97 US2). Until 2026-09-14 this counted both outcomes
+ * and then threw the good half away: `holdBack` read only `less`, so a template eleven firms
+ * reported as landing WELL was treated exactly like one nobody had ever delivered. The
+ * platform could only ever become more cautious with use, never better — which is half of
+ * what "gets smarter with use" claims. `size` is the net of the two, so a template that
+ * landed well more often than not is LIFTED by the same machinery, through the same floor,
+ * the same mentor decision, the same cap and the same trace.
+ *
+ * `holdBack` is kept one release as `max(0, -size)` for readers not yet moved to `size`
+ * (data-model §3); it is derived, never counted separately, so the two can never disagree.
  */
 function computeAdjustments (poolRows, decisions, libraryTitles) {
   const rows = poolRows && typeof poolRows === 'object' ? poolRows : {}
@@ -307,7 +318,10 @@ function computeAdjustments (poolRows, decisions, libraryTitles) {
     const firms = a.tokens.size
     const cases = a.delivered
     // `delivered` is at least 1 for anything in the map, so the ratio is always defined.
-    const holdBack = Math.round(POOLED_HOLDBACK_MAX * a.less / a.delivered)
+    // Signed: well pulls up, less pulls down, and a pairing they balance nets to nothing.
+    const size = Math.round(POOLED_HOLDBACK_MAX * (a.well - a.less) / a.delivered)
+    const direction = size > 0 ? 'lift' : (size < 0 ? 'holdBack' : 'none')
+    const holdBack = Math.max(0, -size)
     const meetsFloor = firms >= MIN_FIRMS && cases >= MIN_CASES
     const decision = decided[a.id]
     const inLibrary = titles.has(a.template.trim().toLowerCase())
@@ -331,6 +345,8 @@ function computeAdjustments (poolRows, decisions, libraryTitles) {
       well: a.well,
       firms,
       cases,
+      size,
+      direction,
       holdBack,
       meetsFloor,
       state,
@@ -356,6 +372,8 @@ function computeAdjustments (poolRows, decisions, libraryTitles) {
       well: 0,
       firms: 0,
       cases: 0,
+      size: 0,
+      direction: 'none',
       holdBack: 0,
       meetsFloor: false,
       state: inLibrary ? 'below_floor' : 'orphaned',
@@ -363,21 +381,26 @@ function computeAdjustments (poolRows, decisions, libraryTitles) {
     })
   })
 
-  // Ids are unique here (one map entry each), so two never compare equal.
-  out.sort((x, y) => (y.holdBack - x.holdBack) || (x.id < y.id ? -1 : 1))
+  // Biggest adjustment first REGARDLESS OF DIRECTION — a strong lift matters to the mentor
+  // exactly as much as a strong hold-back, so sorting on the signed value would bury every
+  // lift below every hold-back. Ids are unique here (one map entry each), so two never
+  // compare equal.
+  out.sort((x, y) => (Math.abs(y.size) - Math.abs(x.size)) || (x.id < y.id ? -1 : 1))
   return out
 }
 
 /**
- * The adjustments the resolver may apply: live, and holding something back.
- * A live adjustment with a hold-back of 0 is listed on the page and applies nothing.
+ * The adjustments the resolver may apply: live, and actually moving the score either way.
+ * A live pairing whose outcomes balance (`size === 0`) is listed on the page and applies
+ * nothing — the mentor accepted it, and the evidence simply says "no difference" (data-model
+ * §3 edge case).
  * @param {Array<Object>} computed - from computeAdjustments
- * @returns {Array<{id:string,template:string,dimension:string,value:string,holdBack:number,firms:number,cases:number}>}
+ * @returns {Array<{id:string,template:string,dimension:string,value:string,size:number,firms:number,cases:number}>}
  */
 function liveAdjustments (computed) {
   return (Array.isArray(computed) ? computed : [])
-    .filter(a => a && a.state === 'live' && a.holdBack > 0)
-    .map(a => ({ id: a.id, template: a.template, dimension: a.dimension, value: a.value, holdBack: a.holdBack, firms: a.firms, cases: a.cases }))
+    .filter(a => a && a.state === 'live' && a.size !== 0)
+    .map(a => ({ id: a.id, template: a.template, dimension: a.dimension, value: a.value, size: a.size, firms: a.firms, cases: a.cases }))
 }
 
 module.exports = {

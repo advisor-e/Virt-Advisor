@@ -71,8 +71,12 @@
               th {{ $t('outcomeLearning.colTemplate') }}
               th {{ $t('outcomeLearning.colSituation') }}
               th.has-text-right {{ $t('outcomeLearning.colDelivered') }}
+              //- Landed well sits BEFORE Didn't land, and Hold-back is renamed Adjustment,
+              //- as drawn on outcome-learning-lift-reach.html (approved 2026-09-14). The good
+              //- half of the evidence was counted all along and never shown.
+              th.has-text-right {{ $t('outcomeLearning.colLandedWell') }}
               th.has-text-right {{ $t('outcomeLearning.colDidntLand') }}
-              th {{ $t('outcomeLearning.colHoldBack') }}
+              th {{ $t('outcomeLearning.colAdjustment') }}
               th.has-text-right {{ $t('outcomeLearning.colFirms') }}
               th {{ $t('outcomeLearning.colState') }}
               th
@@ -85,10 +89,14 @@
                 b  {{ situationWords(a) }}
               td.has-text-right.mol-num {{ a.delivered }}
               td.has-text-right.mol-num
+                | {{ a.well }}
+                .mol-sub {{ percent(a.well, a.delivered) }}
+              td.has-text-right.mol-num
                 | {{ a.less }}
                 .mol-sub {{ percent(a.less, a.delivered) }}
               td
-                span.mol-hb(:class="{ 'is-zero': a.holdBack === 0 }") {{ a.holdBack === 0 ? '0' : '−' + a.holdBack }}
+                span.mol-hb(:class="{ 'is-zero': a.size === 0, 'is-lift': a.size > 0 }") {{ signedSize(a) }}
+                b-tag.mol-dir(v-if="a.size !== 0" :type="a.size > 0 ? 'is-success' : 'is-warning'" size="is-small") {{ $t('outcomeLearning.dir.' + a.direction) }}
               td.has-text-right.mol-num {{ a.firms }}
               td
                 b-tag(:type="stateType(a.state)" size="is-small") {{ $t('outcomeLearning.state.' + a.state) }}
@@ -621,6 +629,17 @@ export default {
     },
 
     /**
+     * The Adjustment cell's number, signed so the direction is visible before the pill is
+     * read: "+2", "−4", or a bare "0" where the outcomes balance (4.97 US2, as drawn).
+     * @param {object} a - one computed adjustment
+     * @returns {string}
+     */
+    signedSize (a) {
+      if (!a.size) { return '0' }
+      return (a.size > 0 ? '+' : '−') + Math.abs(a.size)
+    },
+
+    /**
      * The line under the state chip.
      * @param {object} a
      * @returns {string}
@@ -630,7 +649,7 @@ export default {
       if (a.state === 'live' && d) { return this.$t('outcomeLearning.subAccepted', { date: this.dateWords(d.at), by: d.by || this.$t('outcomeLearning.unnamed') }) }
       if (a.state === 'held' && d) { return this.$t('outcomeLearning.subHeld', { date: this.dateWords(d.at), by: d.by || this.$t('outcomeLearning.unnamed') }) + (d.reason ? ' — "' + d.reason + '"' : '') }
       if (a.state === 'rejected' && d) { return this.$t('outcomeLearning.subRejected', { date: this.dateWords(d.at), by: d.by || this.$t('outcomeLearning.unnamed') }) + (d.reason ? ' — "' + d.reason + '"' : '') }
-      if (a.state === 'proposed' && a.holdBack === 0) { return this.$t('outcomeLearning.subNothing') }
+      if (a.state === 'proposed' && a.size === 0) { return this.$t('outcomeLearning.subNothing') }
       if (a.state === 'below_floor') {
         const firms = Math.max(0, this.page.floor.minFirms - a.firms)
         const cases = Math.max(0, this.page.floor.minCases - a.cases)
@@ -740,6 +759,10 @@ export default {
   border: 1px solid rgba(255, 153, 0, 0.35);
 }
 .mol-hb.is-zero { background: #f1f6fb; color: #5b6f8a; border-color: #d5e1ee; }
+/* A lift: the hold-back badge's shape in green, as drawn (outcome-learning-lift-reach.html,
+   approved 2026-09-14). */
+.mol-hb.is-lift { background: rgba(76, 165, 45, 0.12); color: #2f7d32; border-color: rgba(76, 165, 45, 0.35); }
+.mol-dir { margin-left: 0.35rem; vertical-align: middle; }
 .mol-acts { flex-wrap: nowrap; margin-bottom: 0; }
 .mol-dim td { opacity: 0.6; }
 .mol-dlg { max-width: 40rem; background: #f1f6fb; }

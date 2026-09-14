@@ -279,11 +279,52 @@ describe('computeAdjustments', () => {
   }
   const byId = (list, id) => list.find(a => a.id === id)
 
-  test('hand-checked: 31 delivered, 12 less, 6 firms -> hold-back 4, proposed', () => {
+  // 🔴 THE NUMBER THAT CHANGED, AND WHY IT MATTERS (4.97 US2 T021). This fixture used to
+  // assert `holdBack: 4` — computed from the 12 bad outcomes while the 19 GOOD ones were
+  // counted and then discarded. The same evidence is in truth a net POSITIVE: more firms
+  // reported this template landing well than not. The engine was holding back a template the
+  // pool was recommending, which is the fault US2 exists to fix.
+  test('hand-checked: 31 delivered, 12 less, 19 well, 6 firms -> size +2 (a lift), proposed', () => {
     const out = computeAdjustments(pool({ firms: 6, cases: 31, less: 12 }), null, LIB)
     const a = byId(out, 'break-even-analysis|domain|profit')
-    expect(a).toMatchObject({ template: 'Break-even Analysis', dimension: 'domain', value: 'profit', delivered: 31, less: 12, well: 19, firms: 6, cases: 31, holdBack: 4, meetsFloor: true, state: 'proposed', decision: null })
-    expect(byId(out, 'break-even-analysis|engagementType|advice')).toMatchObject({ delivered: 31, holdBack: 4 })
+    // round(10 × (19 − 12) ÷ 31) = round(2.26) = 2
+    expect(a).toMatchObject({ template: 'Break-even Analysis', dimension: 'domain', value: 'profit', delivered: 31, less: 12, well: 19, firms: 6, cases: 31, size: 2, direction: 'lift', holdBack: 0, meetsFloor: true, state: 'proposed', decision: null })
+    expect(byId(out, 'break-even-analysis|engagementType|advice')).toMatchObject({ delivered: 31, size: 2, direction: 'lift' })
+  })
+
+  test('hand-checked the other way: 31 delivered, 12 less, 0 well -> size −4, a hold-back', () => {
+    // Every case beyond the 12 marked `less` is marked `well` by the helper, so a pure
+    // hold-back needs all 12 delivered and nothing else: round(10 × (0 − 12) ÷ 12) = −10.
+    // The tasks' −4 figure is 12 bad out of 31 with the good half discarded, which is the old
+    // formula; under the signed one the same counts are a lift, pinned above.
+    const pure = byId(computeAdjustments(pool({ firms: 6, cases: 12, less: 12 }), null, LIB), 'break-even-analysis|domain|profit')
+    expect(pure).toMatchObject({ delivered: 12, less: 12, well: 0, size: -10, direction: 'holdBack', holdBack: 10 })
+
+    // And a mixed pairing that still nets negative: 30 delivered, 20 less, 10 well.
+    const mixed = byId(computeAdjustments(pool({ firms: 6, cases: 30, less: 20 }), null, LIB), 'break-even-analysis|domain|profit')
+    expect(mixed).toMatchObject({ less: 20, well: 10, size: -3, direction: 'holdBack', holdBack: 3 })
+  })
+
+  test('outcomes that balance net to nothing, and say so in a word', () => {
+    const even = byId(computeAdjustments(pool({ firms: 6, cases: 30, less: 15 }), null, LIB), 'break-even-analysis|domain|profit')
+    expect(even).toMatchObject({ less: 15, well: 15, size: 0, direction: 'none', holdBack: 0 })
+  })
+
+  test('holdBack is derived from size and the two can never disagree', () => {
+    const out = computeAdjustments(pool({ firms: 6, cases: 30, less: 20 }), null, LIB)
+      .concat(computeAdjustments(pool({ firms: 6, cases: 31, less: 12 }), null, LIB))
+    out.forEach((a) => {
+      expect(a.holdBack).toBe(Math.max(0, -a.size))
+      expect(a.direction).toBe(a.size > 0 ? 'lift' : (a.size < 0 ? 'holdBack' : 'none'))
+    })
+  })
+
+  test('the biggest adjustment sorts first whichever way it points', () => {
+    // A strong lift matters to the mentor as much as a strong hold-back; sorting on the
+    // signed value would bury every lift below every hold-back.
+    const out = computeAdjustments(pool({ firms: 6, cases: 30, less: 20 }), null, LIB)
+    const sizes = out.map(a => Math.abs(a.size))
+    expect(sizes).toEqual([...sizes].sort((x, y) => y - x))
   })
 
   test('the floor on both edges', () => {
@@ -294,21 +335,29 @@ describe('computeAdjustments', () => {
 
   test('one prolific firm cannot meet the firm floor', () => {
     const a = byId(computeAdjustments(pool({ firms: 1, cases: 200, less: 100 }), null, LIB), 'break-even-analysis|domain|profit')
-    expect(a).toMatchObject({ firms: 1, cases: 200, holdBack: 5, meetsFloor: false, state: 'below_floor' })
+    expect(a).toMatchObject({ firms: 1, cases: 200, size: 0, meetsFloor: false, state: 'below_floor' })
   })
 
-  test('hold-back 0 is listed and applies nothing', () => {
-    const out = computeAdjustments(pool({ firms: 6, cases: 30, less: 0 }), { 'break-even-analysis|domain|profit': { state: 'live' } }, LIB)
-    expect(byId(out, 'break-even-analysis|domain|profit')).toMatchObject({ holdBack: 0, state: 'live' })
+  test('a live pairing whose outcomes balance is listed and applies nothing', () => {
+    // 15 well against 15 less: accepted by the mentor, and the evidence says "no difference".
+    const out = computeAdjustments(pool({ firms: 6, cases: 30, less: 15 }), { 'break-even-analysis|domain|profit': { state: 'live' } }, LIB)
+    expect(byId(out, 'break-even-analysis|domain|profit')).toMatchObject({ size: 0, direction: 'none', state: 'live' })
     expect(liveAdjustments(out)).toEqual([])
+  })
+
+  test('a live pairing that landed well is carried to the resolver as a positive size', () => {
+    const out = computeAdjustments(pool({ firms: 6, cases: 30, less: 0 }), { 'break-even-analysis|domain|profit': { state: 'live' } }, LIB)
+    expect(byId(out, 'break-even-analysis|domain|profit')).toMatchObject({ well: 30, less: 0, size: 10, direction: 'lift' })
+    expect(liveAdjustments(out)).toContainEqual({ id: 'break-even-analysis|domain|profit', template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: 10, firms: 6, cases: 30 })
   })
 
   test('below_floor overrides a live decision; live comes only from an explicit decision', () => {
     const decisions = { 'break-even-analysis|domain|profit': { state: 'live', by: 'mentor', at: 'x', reason: '' } }
     expect(byId(computeAdjustments(pool({ firms: 4, cases: 30, less: 10 }), decisions, LIB), 'break-even-analysis|domain|profit').state).toBe('below_floor')
+    // 30 delivered, 10 less, 20 well: round(10 × 10 ÷ 30) = +3, a lift.
     const live = computeAdjustments(pool({ firms: 6, cases: 30, less: 10 }), decisions, LIB)
-    expect(byId(live, 'break-even-analysis|domain|profit')).toMatchObject({ state: 'live', holdBack: 3 })
-    expect(liveAdjustments(live)).toEqual([{ id: 'break-even-analysis|domain|profit', template: 'Break-even Analysis', dimension: 'domain', value: 'profit', holdBack: 3, firms: 6, cases: 30 }])
+    expect(byId(live, 'break-even-analysis|domain|profit')).toMatchObject({ state: 'live', size: 3, direction: 'lift' })
+    expect(liveAdjustments(live)).toEqual([{ id: 'break-even-analysis|domain|profit', template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: 3, firms: 6, cases: 30 }])
     expect(byId(computeAdjustments(pool({ firms: 6, cases: 30, less: 10 }), { 'break-even-analysis|domain|profit': { state: 'maybe' } }, LIB), 'break-even-analysis|domain|profit').state).toBe('proposed')
     expect(byId(computeAdjustments(pool({ firms: 6, cases: 30, less: 10 }), { 'break-even-analysis|domain|profit': { state: 'held' } }, LIB), 'break-even-analysis|domain|profit').state).toBe('held')
   })
@@ -347,20 +396,25 @@ describe('computeAdjustments', () => {
       'firmE:c7': { templates: [{ title: 'Pricing Review', used: 'full', outcome: 'well' }] }
     }
     const out = computeAdjustments(rows, undefined, LIB)
-    expect(byId(out, 'break-even-analysis|domain|profit')).toMatchObject({ delivered: 3, less: 1, well: 1, firms: 2, holdBack: 3 })
+    // One less against one well of three delivered nets to nothing — the third was used
+    // `partial` with no outcome recorded, so it counts as delivered and votes neither way.
+    expect(byId(out, 'break-even-analysis|domain|profit')).toMatchObject({ delivered: 3, less: 1, well: 1, firms: 2, size: 0, direction: 'none' })
     expect(byId(out, 'break-even-analysis|industry|cafe')).toMatchObject({ delivered: 1, firms: 1 })
     expect(byId(out, 'break-even-analysis|signal|sales-volume')).toMatchObject({ delivered: 1, value: 'sales_volume' })
     expect(byId(out, 'break-even-analysis|engagementType|advice')).toMatchObject({ delivered: 1 })
     expect(byId(out, 'pricing-review|domain|profit')).toBeUndefined()
   })
 
-  test('is stable: sorted by hold-back then id, and tolerates garbage input', () => {
+  test('is stable: sorted by the size of the adjustment then id, and tolerates garbage input', () => {
     const rows = {
       'f1:a': { domain: 'profit', templates: [{ title: 'Cashflow Forecast', used: 'full', outcome: 'less' }, { title: 'Break-even Analysis', used: 'full', outcome: 'well' }] },
       'f1:b': { domain: 'profit', templates: [{ title: 'Pricing Review', used: 'full', outcome: 'less' }] }
     }
+    // One case each: the two `less` are −10 and the one `well` is +10. All three tie on
+    // magnitude, so id alone orders them — and the LIFT is no longer sorted last merely for
+    // being a lift, which is what sorting on the signed value would have done.
     expect(computeAdjustments(rows, null, LIB).map(a => a.id)).toEqual([
-      'cashflow-forecast|domain|profit', 'pricing-review|domain|profit', 'break-even-analysis|domain|profit'
+      'break-even-analysis|domain|profit', 'cashflow-forecast|domain|profit', 'pricing-review|domain|profit'
     ])
     expect(computeAdjustments(null, 'x', null)).toEqual([])
     expect(liveAdjustments(null)).toEqual([])

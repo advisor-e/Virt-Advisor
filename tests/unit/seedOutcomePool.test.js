@@ -65,7 +65,7 @@ describe('what the seed writes', () => {
     })
   })
 
-  test('the rows put Break-Even above the floor at hold-back 4 and 7 Cash Drivers below it', async () => {
+  test('the rows put Break-Even above the floor and 7 Cash Drivers below it', async () => {
     const { overlay, script } = load()
     await script.seed()
     const pool = {}
@@ -73,9 +73,26 @@ describe('what the seed writes', () => {
     const computed = computeAdjustments(pool, {}, SEED_TEMPLATES.map(t => t.title))
     const above = computed.find(a => a.id === 'break-even|domain|profit')
     const below = computed.find(a => a.id === '7-cash-drivers|domain|profit')
-    expect(above).toMatchObject({ firms: MIN_FIRMS, cases: 31, less: 12, holdBack: 4, meetsFloor: true, state: 'proposed' })
-    expect(below).toMatchObject({ cases: 20, less: 5, holdBack: 3, meetsFloor: false, state: 'below_floor' })
+    // 31 delivered, 12 less, 19 well nets to +2 — a small LIFT, not the hold-back of 4 this
+    // pinned before 4.97 US2 signed the adjustment. Same rows, same counts; the good half is
+    // no longer discarded.
+    expect(above).toMatchObject({ firms: MIN_FIRMS, cases: 31, less: 12, well: 19, size: 2, direction: 'lift', meetsFloor: true, state: 'proposed' })
+    expect(below).toMatchObject({ cases: 20, less: 5, size: 5, meetsFloor: false, state: 'below_floor' })
     expect(below.cases).toBeLessThan(MIN_CASES)
+  })
+
+  // 4.97 US2 T028. Without a plainly well-landed template the seed could not show a lift at
+  // all on a developer's machine, so the half of the feature US2 added would be invisible
+  // exactly where it is reviewed.
+  test('a clearly well-landed template crosses the floor, so a lift is visible locally', async () => {
+    const { overlay, script } = load()
+    await script.seed()
+    const pool = {}
+    overlay.saveFirmConfig.mock.calls.forEach(([, key, row]) => { pool[key.slice(POOL_PREFIX.length)] = row })
+    const computed = computeAdjustments(pool, {}, SEED_TEMPLATES.map(t => t.title))
+    const lift = computed.find(a => a.id === 'quick-fire-diagnosis|domain|profit')
+    // 28 delivered, 3 less, 25 well → round(10 × 22 ÷ 28) = +8, across all five seed firms.
+    expect(lift).toMatchObject({ firms: MIN_FIRMS, cases: 28, less: 3, well: 25, size: 8, direction: 'lift', meetsFloor: true, state: 'proposed' })
   })
 
   test('firm A is the dev firm, so its own withdrawal takes its rows out', async () => {

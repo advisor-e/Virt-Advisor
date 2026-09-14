@@ -36,6 +36,7 @@ const path = require('path')
 const { SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveTemplatesWithOutlier, buildDisplaySet } = require('../server/utils/templateResolver')
 const { scenarioToCase } = require('../server/utils/outcomeBench')
+const { rankLabels, proposesIssue, parseReply } = require('../server/utils/primaryIssueProposer')
 const templates = require('../data/templates.json')
 
 const SCENARIOS = require('./scenario-lab-cases.json')
@@ -120,6 +121,36 @@ const describeSignals = (s) => {
   return keys.map(n => `${SIGNAL_DESCRIPTIONS[n] || n} (×${s[n]})`).join(', ')
 }
 
+/**
+ * What the primary-issue step would do on this case (item 4.97 US1). The case's own
+ * `primaryIssue` is the proposer's top rank — `scenarioToCase` sets it — so the report only
+ * has to say WHY there is no label when there is none: a context domain that never proposes
+ * by design, evidence too thin to name one, or simply nothing matched.
+ * @param {Object} sc - one entry of scripts/scenario-lab-cases.json
+ * @param {Object} caseState - as the bench built it
+ * @returns {{label: string, outcome: 'proposed'|'context'|'weak'|'no-match'}}
+ */
+function issueOutcome (sc, caseState) {
+  if (caseState.primaryIssue) { return { label: caseState.primaryIssue, outcome: 'proposed' } }
+  if (!proposesIssue(sc.domain)) { return { label: '', outcome: 'context' } }
+  const text = [sc.situationDiagnostic, sc.domainConfirmed].filter(Boolean).join(' ')
+  const ranked = rankLabels(sc.domain, text, caseState.problemSignals)
+  return { label: '', outcome: ranked.weakEvidence ? 'weak' : 'no-match' }
+}
+
+/**
+ * The Issue cell. A withheld label says WHY in the same words the advisor's screen would —
+ * the engine asking rather than asserting is a result, not a blank.
+ * @param {{label: string, outcome: string}} issue
+ * @returns {string}
+ */
+function describeIssue (issue) {
+  if (issue.outcome === 'proposed') { return issue.label }
+  if (issue.outcome === 'weak') { return '_**asks** — evidence too thin_' }
+  if (issue.outcome === 'context') { return '_context domain — none by design_' }
+  return '_**asks** — nothing matched_'
+}
+
 function runScenario (sc, boosts, adjustments) {
   // The case shape is the fixed bench's own (outcomeBench.scenarioToCase), so the report
   // and the bench can never disagree about what a case is.
@@ -133,6 +164,7 @@ function runScenario (sc, boosts, adjustments) {
   const log = resolved.primary.scoringLog
   return {
     problemSignals: caseState.problemSignals,
+    issue: issueOutcome(sc, caseState),
     ceiling: caseState.complexityCeiling,
     engagement: strategy.engagementType,
     budget: strategy.templateBudget,
@@ -195,6 +227,22 @@ async function main () {
   metrics.push(adjustmentsFile
     ? `- **Outcome Learning:** ${adjustments.length} live adjustment${adjustments.length === 1 ? '' : 's'} applied from \`${adjustmentsFile}\`; the #1 card carries a pooled hold-back or outweigh in ${heldBackTops}/${n} cases.`
     : '- **Outcome Learning:** no adjustments applied — run again with `--adjustments <file>` to measure the fixed bench with the live ones.')
+  // Primary issue (4.97 US1): how often the engine NAMES the problem, and how often its
+  // proposal survives the advisor's own words unchanged. The invented cases carry no reply to
+  // a proposal, so "would confirm" replays the case's OWN description through parseReply —
+  // the same code the live step runs when an advisor restates the issue in their own words.
+  // It is a proxy and the report line says so; a real confirmation rate needs real advisors.
+  const proposed = results.filter(r => r.run.issue.outcome === 'proposed')
+  const wouldConfirm = proposed.filter((r) => {
+    const text = [r.sc.situationDiagnostic, r.sc.domainConfirmed].filter(Boolean).join(' ')
+    return parseReply(text, r.run.issue.label, r.sc.domain).outcome === 'confirmed'
+  }).length
+  const weakCount = results.filter(r => r.run.issue.outcome === 'weak').length
+  const contextCount = results.filter(r => r.run.issue.outcome === 'context').length
+  metrics.push(
+    `- **Primary issue proposed:** ${proposed.length}/${n} (${(proposed.length / n * 100).toFixed(0)}%) — the engine named one of Mike's authored labels. Of the rest: ${weakCount} had evidence too thin to name one (the open driver question is asked instead), ${contextCount} are context domains that never propose by design, and ${n - proposed.length - weakCount - contextCount} matched no label at all.`,
+    `- **Would confirm as proposed:** ${wouldConfirm}/${proposed.length}${proposed.length ? ` (${(wouldConfirm / proposed.length * 100).toFixed(0)}%)` : ''} — replaying each case's own description as the reply leaves the proposed label standing. A PROXY, not a confirmation rate: the invented cases have no advisor to answer, so this measures whether the proposal agrees with the words it was built from, never whether a real advisor would accept it.`
+  )
   const distinctionFailures = results.filter(r => r.aiFailed).length
   if (distinctionFailures > 0) {
     metrics.push(`- 🔴 **Distinction classifier FAILED on ${distinctionFailures}/${n} cases** — those sessions ran with no distinction lever at all, so every figure above understates it. This is a fault in the run, not a result: fix it and re-run before comparing anything.`)
@@ -213,14 +261,14 @@ async function main () {
   lines.push('')
   lines.push('## At a glance')
   lines.push('')
-  lines.push('| # | Domain | Top recommendation | Signal? | Content-driven? | Crisis? | Distress |')
-  lines.push('|--:|---|---|:--:|:--:|:--:|:--:|')
+  lines.push('| # | Domain | Issue | Top recommendation | Signal? | Content-driven? | Crisis? | Distress |')
+  lines.push('|--:|---|---|---|:--:|:--:|:--:|:--:|')
   results.forEach((r, i) => {
     const sig = Object.keys(r.run.problemSignals).length > 0 ? 'yes' : '**no**'
     const cd = (r.run.topReasons || []).some(isContentReason) ? 'yes' : '**no**'
     const top = r.run.cards[0] ? r.run.cards[0].title : '—'
     const dist = r.distress === null ? '–' : (r.distress ? '**TRUE**' : 'false')
-    lines.push(`| ${i + 1} | ${r.sc.domain} | ${top} | ${sig} | ${cd} | ${r.sc.isCrisis ? 'YES' : ''} | ${dist} |`)
+    lines.push(`| ${i + 1} | ${r.sc.domain} | ${describeIssue(r.run.issue)} | ${top} | ${sig} | ${cd} | ${r.sc.isCrisis ? 'YES' : ''} | ${dist} |`)
   })
   lines.push('')
   lines.push('---')
@@ -239,6 +287,7 @@ async function main () {
     lines.push('')
     lines.push('**What the engine decided:**')
     lines.push(`- **Domain:** ${sc.domain} · **Engagement:** ${run.engagement} · **Ceiling:** ${run.ceiling} · **Budget:** ${run.budget}`)
+    lines.push(`- **Main issue:** ${describeIssue(run.issue)}`)
     lines.push(`- **Problem signals read:** ${describeSignals(run.problemSignals)}`)
     if (HAS_AI) {
       const bk = Object.keys(boosts)

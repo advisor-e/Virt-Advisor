@@ -68,7 +68,8 @@ describe('loadPooledForSession', () => {
     expect(overlay.loadFirmConfigsByPrefix).toHaveBeenCalledWith(PLATFORM_SCOPE, POOL_PREFIX)
     expect(out.consented).toBe(true)
     expect(out.available).toBe(true)
-    expect(out.adjustments).toEqual([{ id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', holdBack: 4, firms: 6, cases: 30 }])
+    // 30 delivered, 12 less, 18 well: round(10 × 6 ÷ 30) = +2, so the session carries a LIFT.
+    expect(out.adjustments).toEqual([{ id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: 2, firms: 6, cases: 30 }])
   })
 
   test('no decisions row, or a malformed one, means nothing is live', async () => {
@@ -110,10 +111,11 @@ describe('loadPooledForSession', () => {
 })
 
 describe('buildOutcomeLearningTrace', () => {
+  // Signed since 4.97 US2: negative holds back, positive lifts.
   const adjustments = [
-    { id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', holdBack: 4, firms: 6, cases: 31 },
-    { id: 'break-even-analysis|industry|cafe', template: 'Break-even Analysis', dimension: 'industry', value: 'cafe', holdBack: 3, firms: 5, cases: 28 },
-    { id: '7-cash-drivers|signal|client-awareness', template: '7 Cash Drivers', dimension: 'signal', value: 'client_awareness', holdBack: 3, firms: 5, cases: 28 }
+    { id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: -4, firms: 6, cases: 31 },
+    { id: 'break-even-analysis|industry|cafe', template: 'Break-even Analysis', dimension: 'industry', value: 'cafe', size: -3, firms: 5, cases: 28 },
+    { id: '7-cash-drivers|signal|client-awareness', template: '7 Cash Drivers', dimension: 'signal', value: 'client_awareness', size: -3, firms: 5, cases: 28 }
   ]
   // The resolver names, by id, the adjustments that MATCHED the session (`pooledMatched`).
   // Here the domain one matched Break-even Analysis and the industry one did not, so the
@@ -129,27 +131,54 @@ describe('buildOutcomeLearningTrace', () => {
     { title: 'No Reasons' }
   ]
 
-  test('applied lists only held-back templates with the hold-back the resolver wrote, and the evidence of the adjustments that matched', () => {
+  test('applied lists only adjusted templates with the size the resolver wrote, and the evidence of the adjustments that matched', () => {
     const block = buildOutcomeLearningTrace(log, adjustments, { consented: true, available: true })
     expect(block).toEqual({
       consented: true,
       available: true,
-      applied: [{ template: 'Break-even Analysis', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 6, cases: 31 }],
-      outweighed: [{ template: '7 Cash Drivers', holdBack: 3, id: '7-cash-drivers|signal|client-awareness', dimension: 'signal', value: 'client_awareness', firms: 5, cases: 28, by: 'distinction' }]
+      applied: [{ template: 'Break-even Analysis', size: -7, direction: 'holdBack', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 6, cases: 31 }],
+      outweighed: [{ template: '7 Cash Drivers', size: -3, holdBack: 3, id: '7-cash-drivers|signal|client-awareness', dimension: 'signal', value: 'client_awareness', firms: 5, cases: 28, by: 'distinction' }]
     })
   })
 
-  test('when two adjustments matched, the weakest evidence is reported and the outweighed hold-back is their sum', () => {
+  // 4.97 US2 T023. The trace must say which WAY learning moved a template, and it must read
+  // that from the reason code the resolver actually wrote — never from the adjustment's own
+  // size, which is the uncapped input and may not be what reached the score.
+  test('a lifted template carries a positive size, the lift direction, and a hold-back of nothing', () => {
+    const lifted = [{ title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:lifted-5'], pooledMatched: [ID] }]
+    const block = buildOutcomeLearningTrace(lifted, adjustments, { consented: true, available: true })
+    expect(block.applied).toEqual([{ template: 'Break-even Analysis', size: 5, direction: 'lift', holdBack: 0, id: ID, dimension: 'domain', value: 'profit', firms: 6, cases: 31 }])
+  })
+
+  test('an outweighed lift reports the positive size that was set aside', () => {
+    const positives = [{ id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: 6, firms: 6, cases: 31 }]
+    const log2 = [{ title: 'Break-even Analysis', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: [ID] }]
+    const block = buildOutcomeLearningTrace(log2, positives, { consented: true, available: true })
+    expect(block.outweighed[0]).toMatchObject({ template: 'Break-even Analysis', size: 6, holdBack: 0, by: 'distinction' })
+  })
+
+  test('an outweighed sum beyond the cap reports the capped figure, never the raw total', () => {
+    // Three matched adjustments summing to −12 could only ever have applied −10, so the line
+    // the mentor reads must say −10: what was actually set aside, not a bigger number.
+    const big = [
+      { id: 'a|domain|profit', template: 'Big', dimension: 'domain', value: 'profit', size: -6, firms: 6, cases: 31 },
+      { id: 'b|industry|cafe', template: 'Big', dimension: 'industry', value: 'cafe', size: -6, firms: 6, cases: 31 }
+    ]
+    const log3 = [{ title: 'Big', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: ['a|domain|profit', 'b|industry|cafe'] }]
+    expect(buildOutcomeLearningTrace(log3, big, { consented: true }).outweighed[0]).toMatchObject({ size: -10, holdBack: 10 })
+  })
+
+  test('when two adjustments matched, the weakest evidence is reported and the outweighed size is their sum', () => {
     const both = [
       { title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:held_back-7'], pooledMatched: [ID, 'break-even-analysis|industry|cafe'] },
       { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: [ID, '7-cash-drivers|signal|client-awareness'] }
     ]
     const block = buildOutcomeLearningTrace(both, adjustments, { consented: true, available: true })
-    expect(block.applied).toEqual([{ template: 'Break-even Analysis', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 5, cases: 28 }])
-    expect(block.outweighed[0].holdBack).toBe(7)
+    expect(block.applied).toEqual([{ template: 'Break-even Analysis', size: -7, direction: 'holdBack', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 5, cases: 28 }])
+    expect(block.outweighed[0].size).toBe(-7)
     // An id the resolver names that no live adjustment carries contributes nothing.
     const stale = buildOutcomeLearningTrace([{ title: 'Break-even Analysis', matchReasons: ['pooled:held_back-4'], pooledMatched: ['gone|domain|x'] }], adjustments, { consented: true })
-    expect(stale.applied).toEqual([{ template: 'Break-even Analysis', holdBack: 4, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
+    expect(stale.applied).toEqual([{ template: 'Break-even Analysis', size: -4, direction: 'holdBack', holdBack: 4, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
   })
 
   test('consented false gives both lists empty whatever the log says', () => {
@@ -161,14 +190,14 @@ describe('buildOutcomeLearningTrace', () => {
     expect(buildOutcomeLearningTrace([], [], null)).toEqual({ consented: false, available: true, applied: [], outweighed: [] })
   })
 
-  test('a held-back template with no matching adjustment still shows, with no evidence', () => {
+  test('an adjusted template with no matching adjustment still shows, with no evidence', () => {
     const block = buildOutcomeLearningTrace([{ title: 'Mystery', matchReasons: ['pooled:held_back-2'] }], [null, { template: 5 }], { consented: true })
-    expect(block.applied).toEqual([{ template: 'Mystery', holdBack: 2, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
+    expect(block.applied).toEqual([{ template: 'Mystery', size: -2, direction: 'holdBack', holdBack: 2, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
     expect(buildOutcomeLearningTrace('nope', undefined, { consented: true }).applied).toEqual([])
-    // An outweighed template whose adjustment carries no numeric hold-back reports 0, not NaN.
+    // An outweighed template whose adjustment carries no numeric size reports 0, not NaN.
     const odd = buildOutcomeLearningTrace([{ title: 'Odd', matchReasons: ['pooled:outweighed'], pooledMatched: ['odd|domain|x'] }], [{ id: 'odd|domain|x', template: 'Odd', firms: 5, cases: 25 }], { consented: true })
-    expect(odd.outweighed).toEqual([{ template: 'Odd', holdBack: 0, id: 'odd|domain|x', dimension: null, value: null, firms: 5, cases: 25, by: 'distinction' }])
+    expect(odd.outweighed).toEqual([{ template: 'Odd', size: 0, holdBack: 0, id: 'odd|domain|x', dimension: null, value: null, firms: 5, cases: 25, by: 'distinction' }])
     const none = buildOutcomeLearningTrace([{ title: 'Nobody', matchReasons: ['pooled:outweighed'] }], [], { consented: true })
-    expect(none.outweighed).toEqual([{ template: 'Nobody', holdBack: 0, id: null, dimension: null, value: null, firms: 0, cases: 0, by: 'distinction' }])
+    expect(none.outweighed).toEqual([{ template: 'Nobody', size: 0, holdBack: 0, id: null, dimension: null, value: null, firms: 0, cases: 0, by: 'distinction' }])
   })
 })

@@ -66,10 +66,13 @@ export const REASON_RULES = [
   // Held back.
   { test: /^history:already_delivered$/, key: 'reasonDelivered' },
   { test: /^history:went_less_well$/, key: 'reasonWentLess' },
-  // Outcome Learning (item 4.87). The applied code carries the capped hold-back; the
-  // outweighed code carries nothing — the advisor's own words won. Mike's wording,
-  // 2026-09-11, from design/mockups/outcome-learning-trace.html.
+  // Outcome Learning (item 4.87; the lift added by 4.97 US2). The applied codes carry the
+  // capped NET, as a bare magnitude — the direction is which code it is, so a reader never
+  // has to read a sign. The outweighed code carries nothing: the advisor's own words won.
+  // Mike's wording, 2026-09-11 (design/mockups/outcome-learning-trace.html) and 2026-09-14
+  // (design/mockups/outcome-learning-trace-lift.html).
   { test: /^pooled:held_back-(\d+)$/, key: 'reasonPooledHeldBack', param: 'n' },
+  { test: /^pooled:lifted-(\d+)$/, key: 'reasonPooledLifted', param: 'n' },
   { test: /^pooled:outweighed$/, key: 'reasonPooledOutweighed' },
   { test: /^penalty:modeling_declined$/, key: 'reasonPenaltyModeling' },
   { test: /^penalty:reports_already_in_use$/, key: 'reasonPenaltyReports' },

@@ -24,7 +24,7 @@
 const overlay = require('./firmOverlay')
 const { PLATFORM_SCOPE } = require('./platformScope')
 const { CONFIG_KEY, contributionOpen } = require('./outcomeConsent')
-const { POOL_PREFIX, DECISIONS_KEY, computeAdjustments, liveAdjustments } = require('./outcomeLearning')
+const { POOL_PREFIX, DECISIONS_KEY, POOLED_HOLDBACK_MAX, computeAdjustments, liveAdjustments } = require('./outcomeLearning')
 const { platformTemplates } = require('./outcomeContribute')
 
 /**
@@ -72,12 +72,15 @@ async function loadPooledForSession (firmId) {
 }
 
 const HELD_BACK = /^pooled:held_back-(\d+)$/
+const LIFTED = /^pooled:lifted-(\d+)$/
 
 /**
- * The trace block, from what the resolver actually wrote. A template is `applied` only
- * when its scoring log carries a `pooled:held_back-<n>` reason, and the hold-back reported
- * is the one in that reason — the capped total the resolver applied, not the sum of the
- * adjustments. A template is `outweighed` only when it carries `pooled:outweighed`.
+ * The trace block, from what the resolver actually wrote. A template is `applied` only when
+ * its scoring log carries a `pooled:held_back-<n>` or `pooled:lifted-<n>` reason, and the
+ * size reported is the one in that reason — the capped NET the resolver applied, not the sum
+ * of the adjustments. `size` is signed (negative held back, positive lifted) and `direction`
+ * names it in a word, so a reader never has to infer meaning from a sign. A template is
+ * `outweighed` only when it carries `pooled:outweighed`.
  *
  * The evidence comes from the adjustments the resolver names on the entry as having
  * MATCHED this session (`pooledMatched`, their ids) — never from every live adjustment
@@ -87,7 +90,7 @@ const HELD_BACK = /^pooled:held_back-(\d+)$/
  * across them — the weakest evidence behind the line, so the panel never overstates it.
  *
  * @param {Array<{title: string, matchReasons: string[], pooledMatched?: string[]}>} scoringLog
- * @param {Array<{id: string, template: string, holdBack: number, firms: number, cases: number}>} adjustments
+ * @param {Array<{id: string, template: string, size: number, firms: number, cases: number}>} adjustments
  * @param {{consented: boolean, available: boolean}} status
  * @returns {{consented: boolean, available: boolean, applied: Array, outweighed: Array}}
  */
@@ -122,12 +125,25 @@ function buildOutcomeLearningTrace (scoringLog, adjustments, status) {
     if (!t || typeof t.title !== 'string') { return }
     const reasons = Array.isArray(t.matchReasons) ? t.matchReasons : []
     const held = reasons.map(r => HELD_BACK.exec(String(r))).find(Boolean)
-    if (held) {
-      block.applied.push(Object.assign({ template: t.title, holdBack: Number(held[1]) }, evidence(matchedFor(t))))
+    const lifted = reasons.map(r => LIFTED.exec(String(r))).find(Boolean)
+    if (held || lifted) {
+      // Signed for the reader: the reason code carries a bare magnitude, the direction is
+      // which code it was. `holdBack` stays beside it one release (data-model §3).
+      const size = held ? -Number(held[1]) : Number(lifted[1])
+      block.applied.push(Object.assign({
+        template: t.title,
+        size,
+        direction: size > 0 ? 'lift' : 'holdBack',
+        holdBack: Math.max(0, -size)
+      }, evidence(matchedFor(t))))
     } else if (reasons.includes('pooled:outweighed')) {
       const matched = matchedFor(t)
-      const holdBack = matched.reduce((sum, a) => sum + (Number(a.holdBack) || 0), 0)
-      block.outweighed.push(Object.assign({ template: t.title, holdBack }, evidence(matched), { by: 'distinction' }))
+      // The signed net that WOULD have applied had the advisor's own words not outweighed it,
+      // capped exactly as the resolver would have capped it — so the line the mentor reads
+      // says what was actually set aside, never a larger uncapped sum.
+      const sum = matched.reduce((total, a) => total + (Number(a.size) || 0), 0)
+      const size = Math.max(-POOLED_HOLDBACK_MAX, Math.min(POOLED_HOLDBACK_MAX, sum))
+      block.outweighed.push(Object.assign({ template: t.title, size, holdBack: Math.max(0, -size) }, evidence(matched), { by: 'distinction' }))
     }
   })
 

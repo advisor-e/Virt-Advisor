@@ -10,6 +10,7 @@ const templates = require('../../data/templates.json')
 const SCENARIOS = require('../../scripts/scenario-lab-cases.json')
 const bench = require('../../server/utils/outcomeBench')
 const { POOLED_HOLDBACK_MAX } = require('../../server/utils/templateResolver')
+const { labelsFor, proposesIssue } = require('../../server/utils/primaryIssueProposer')
 
 function row (over = {}) {
   return Object.assign({
@@ -29,7 +30,7 @@ function row (over = {}) {
 function plainAndHeld () {
   const { caseState, strategy, signalTypes } = bench.poolRowToCase(row())
   const plain = bench.topRecommendation(caseState, strategy, templates, [], signalTypes)
-  const hold = [{ id: 'x|domain|profit', template: plain, dimension: 'domain', value: 'profit', holdBack: POOLED_HOLDBACK_MAX, firms: 5, cases: 25 }]
+  const hold = [{ id: 'x|domain|profit', template: plain, dimension: 'domain', value: 'profit', size: -POOLED_HOLDBACK_MAX, firms: 5, cases: 25 }]
   const held = bench.topRecommendation(caseState, strategy, templates, hold, signalTypes)
   return { plain, held, hold }
 }
@@ -107,7 +108,7 @@ describe('outcomeBench — the pool replayed', () => {
   })
 
   test('a signal adjustment applies only to a review that fired that signal', async () => {
-    const signal = [{ id: 's|signal|financial_foundations_gap', template: plain, dimension: 'signal', value: 'financial_foundations_gap', holdBack: POOLED_HOLDBACK_MAX, firms: 5, cases: 25 }]
+    const signal = [{ id: 's|signal|financial_foundations_gap', template: plain, dimension: 'signal', value: 'financial_foundations_gap', size: -POOLED_HOLDBACK_MAX, firms: 5, cases: 25 }]
     const rows = {
       'tokA:c1': row({ templates: [{ title: plain, used: 'full', outcome: 'well' }], signals: ['financial_foundations_gap'] }),
       'tokB:c2': row({ templates: [{ title: plain, used: 'full', outcome: 'well' }], signals: [] })
@@ -143,7 +144,7 @@ describe('fixedBench — the Scenario Lab cases', () => {
   test('an adjustment in one domain leaves every case in another domain unchanged, and names the cases it moved', async () => {
     const { caseState, strategy, signalTypes } = bench.scenarioToCase(profit[0])
     const top = bench.topRecommendation(caseState, strategy, templates, [], signalTypes)
-    const hold = [{ id: 'p|domain|profit', template: top, dimension: 'domain', value: 'profit', holdBack: POOLED_HOLDBACK_MAX, firms: 5, cases: 25 }]
+    const hold = [{ id: 'p|domain|profit', template: top, dimension: 'domain', value: 'profit', size: -POOLED_HOLDBACK_MAX, firms: 5, cases: 25 }]
     const result = await bench.fixedBench(profit.concat(staff), templates, hold)
     expect(result.changed.length).toBeGreaterThan(0)
     result.changed.forEach((c) => {
@@ -165,6 +166,35 @@ describe('fixedBench — the Scenario Lab cases', () => {
     expect(typeof caseState.complexityCeiling).toBe('string')
     expect(strategy.templateBudget).toBe(profit[0].budget || 2)
     expect(typeof strategy.engagementType).toBe('string')
+  })
+
+  // 4.97 US1 T019. What UAT cannot see: the bench measuring an engine in which the advisor
+  // never named their problem. It was hardcoded to '' until 2026-09-14, so every figure in the
+  // report — and the fixed bench itself — scored against a blank primary issue while the live
+  // engine had already begun asking for one.
+  describe('the case carries the primary issue the live engine would propose', () => {
+    test('a case whose words match an authored label carries that label, not a blank', () => {
+      const { caseState } = bench.scenarioToCase(profit[0])
+      expect(caseState.primaryIssue).not.toBe('')
+      expect(labelsFor('profit')).toContain(caseState.primaryIssue)
+    })
+
+    test('nothing is ever invented: every label set is an authored label for that domain', () => {
+      SCENARIOS.forEach((sc) => {
+        const { caseState } = bench.scenarioToCase(sc)
+        if (caseState.primaryIssue) {
+          expect(labelsFor(sc.domain)).toContain(caseState.primaryIssue)
+        }
+      })
+    })
+
+    test('a context domain carries no label, because the engine proposes none there by design', () => {
+      const context = SCENARIOS.filter(s => !proposesIssue(s.domain))
+      expect(context.length).toBeGreaterThan(0)
+      context.forEach((sc) => {
+        expect(bench.scenarioToCase(sc).caseState.primaryIssue).toBe('')
+      })
+    })
   })
 })
 
