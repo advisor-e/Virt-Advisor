@@ -35,17 +35,17 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **4.15** The 14 branches that still name a page nobody can open | 4 | — | **Mike** | — |
-| 2 | **4.58** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 3 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
-| 4 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 5 | **4.93** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 6 | **4.96** The add-a-report skill still points sessions at the frozen ACTIONS.md ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
-| 7 | **4.97** The engine's middle, and the learning loop made true ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **desktop**, since 2026-09-14 |
+| 1 | **4.97** The engine's middle, and the learning loop made true ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-14 |
+| 2 | **4.15** The 14 branches that still name a page nobody can open | 4 | — | **Mike** | — |
+| 3 | **4.58** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 4 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
+| 5 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 6 | **4.93** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 7 | **4.96** The add-a-report skill still points sessions at the frozen ACTIONS.md ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 8 | **4.98** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 9 | **4.99** No AI-backed script can run on the desktop ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 9 | **4.99** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Nine live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Nine live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

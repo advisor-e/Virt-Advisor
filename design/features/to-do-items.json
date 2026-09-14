@@ -56,9 +56,34 @@
     "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
     "to justify itself."
   ],
-  "orderedByMikeOn": "2026-08-23",
-  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
+  "orderedByMikeOn": "2026-09-15",
+  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 4.97 from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
+    {
+      "ref": "4.97",
+      "name": "The engine's middle, and the learning loop made true",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-14"
+      },
+      "why": "The Founder's Claims Audit named ten improvements and Mike asked for every one to become work: the primary issue confirmed, lift as well as hold-back, the cap made true, an honest bench, a provider fallback, template profiles on a screen.",
+      "risk": "Marketing sentences the code only partly enforces: the advisor's words do not always win, learning cannot lift, the bench is in-sample, every pooled row has a blank primary issue, and one AI provider failing stops every AI feature.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-14 - 'transfer your improvement suggestions (all of them) into fixes' and 'if you spot an area of improvement ... get it in the tasks'. Lift, fallback and the profile screen each ruled yes the same day."
+      },
+      "touches": "advisorEngine.js intake, caseStore, templateResolver and its seam, outcomeLearning and the benches, openaiClient.js, the Mentor Hub (Outcome Learning page and a new template-profile tab), the trace, the Scenario Lab, advisory-engine.md.",
+      "note": "NEXT JOB IS T039 AND T040 (Mike, 2026-09-15): the route, then the reach tiles on the mentor's page and the firm's consent tab, per the approved drawing. countReviewStatus EXISTS and NOTHING CALLS IT, so the number is invisible - that is why US5 reads half built. SPEC KIT FEATURE, specs/003-engine-middle-learning-true; 36 of 67 tasks. US1 TO US4 COMPLETE: the engine proposes the primary issue and the Main issue row shows it; the pooled adjustment is SIGNED so learning lifts as well as holds back; the advisor's words win in ALL SIX ways their evidence reaches a template; a loosely typed industry reaches the pool. Routing groups stay dead (registry ruling 2026-06-09). DeepSeek second-opinion is 4.98.",
+      "comment": "2026-09-14 - filed on Mike's instruction; spec, clarify, plan, tasks, four drawings and sixteen rulings the same day. TWO FAULTS FOUND BY RUNNING IT, NOT BY TESTS: naming a problem from one category word, and recording plain agreement as a correction. US3 closed the same day: five of the six evidence families had never been protected. 2026-09-15 - T037's test was found written but T038's FUNCTION never was, left untracked so no gate saw it and the suite was red. A THIRD FAULT FOUND BY RUNNING IT: the function passed all ten tests and real MySQL REFUSED the statement - only_full_group_by needs SELECT and GROUP BY to carry the identical expression."
+    },
     {
       "ref": "4.15",
       "name": "The 14 branches that still name a page nobody can open",
@@ -151,7 +176,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "Mike opened Outcome Learning and could not tell how to use it or what it was telling him; the client reports carry an AI reading and the hub pages carried none.",
       "risk": "A mentor who cannot read the page takes no decision on it, and the learning the platform gathered changes nothing. The counter-risk is a reading taken as a verdict, which the caveat under every reading and the backend's shape check answer.",
       "askedBy": {
@@ -160,8 +185,8 @@
         "detail": "2026-09-11 - 'I have no idea how I, as a mentor, am supposed to use this function and what I'm learning from it ... I'm not seeing any AI interpretation of what's in front of me. Is that possible we could create that?'"
       },
       "touches": "components/shared/HubGuidePanel.vue and HubReadingCard.vue, both mentor pages, server/utils/hubReading.js, the two reading routes, the hub-reading document on the AI Prompts tab, locales.",
-      "note": "BUILT 2026-09-11 from design/mockups/hub-page-guidance.html, approved the same day. Both pages open with How to use this page (Got it closes it, remembered per browser) and carry What this is telling you: on the button, never on open; the model is sent only what the page shows; a reply without the three fixed headings, or carrying a link or a name, is dropped whole; stored with the counts it was read from and marked stale when they move. It never accepts, holds or rejects anything. SEEN on the built app, failure message included: the model refused with 'no credits remaining' on the OpenAI account, Mike's to top up, so no real reading exists yet.",
-      "comment": "2026-09-11 - raised by Mike on the running app after pressing Run the benches, drawn the same evening, ruled and built on his yes."
+      "note": "BUILT 2026-09-11 from hub-page-guidance.html, approved the same day. Both pages open with How to use this page and carry What this is telling you, on the button, never on open; the model is sent only what the page shows; a reply missing the three fixed headings, or carrying a link or a name, is dropped whole. It never accepts or rejects anything. NOTHING BLOCKS THIS: the OpenAI account HAS credit, proved 2026-09-15 by a real gpt-4o-mini call from this desktop that answered. What remains is to run a reading on the built app and look at it.",
+      "comment": "2026-09-11 - raised by Mike on the running app after pressing Run the benches, drawn the same evening, ruled and built on his yes. 2026-09-15 - the 'no credits' blocker was STALE and had been carried for four days: Mike said the account was fine, a real call proved it. Moved from waiting on Mike to ours."
     },
     {
       "ref": "4.96",
@@ -183,28 +208,6 @@
       "touches": ".claude/skills/add-a-report/SKILL.md, its 'Record & commit' section. design/ADDING-A-REPORT.md is already correct and needs no change.",
       "note": "ONE SENTENCE IN ONE FILE. The skill's 'Record & commit' section reads 'Add the report's line to design/ACTIONS.md (no silent parking)'. It should name design/features/to-do-items.json, which is where the deviation-logging rule has written since ACTIONS.md was frozen. The deployment-row sentence beside it is still right and stays.",
       "comment": "2026-09-13 - filed at shutdown on Mike's yes, after three sessions of it living in a handover note instead. That is the failure the shutdown checklist names: an open question for Mike is an item on this list, never a line in a note."
-    },
-    {
-      "ref": "4.97",
-      "name": "The engine's middle, and the learning loop made true",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "activeOn": { "machine": "desktop", "since": "2026-09-14" },
-      "why": "The Founder's Claims Audit named ten improvements and Mike asked for every one to become work: the primary issue confirmed, lift as well as hold-back, the cap made true, an honest bench, a provider fallback, template profiles on a screen.",
-      "risk": "Marketing sentences the code only partly enforces: the advisor's words do not always win, learning cannot lift, the bench is in-sample, every pooled row has a blank primary issue, and one AI provider failing stops every AI feature.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-14 - 'transfer your improvement suggestions (all of them) into fixes' and 'if you spot an area of improvement ... get it in the tasks'. Lift, fallback and the profile screen each ruled yes the same day."
-      },
-      "touches": "advisorEngine.js intake, caseStore, templateResolver and its seam, outcomeLearning and the benches, openaiClient.js, the Mentor Hub (Outcome Learning page and a new template-profile tab), the trace, the Scenario Lab, advisory-engine.md.",
-      "note": "SPEC KIT FEATURE, specs/003-engine-middle-learning-true. US1 TO US4 COMPLETE; US5 IS HALF BUILT. US1: the engine proposes the primary issue and the Main issue row shows what was recorded. US2: the pooled adjustment is SIGNED, so learning lifts as well as holds back. US3: the advisor's words win in ALL SIX ways their evidence reaches a template. US4: a loosely typed industry reaches the pool. US5: countReviewStatus EXISTS (T037/T038) and NOTHING CALLS IT - the route and the two screens (T039/T040) are the next step. 36 of 67 tasks. Routing groups stay dead (registry ruling 2026-06-09, Mike 2026-09-14). DeepSeek second-opinion mode is NOT here - it is 4.98.",
-      "comment": "2026-09-14 - filed on Mike's instruction; spec, clarify, plan, tasks, four drawings and sixteen rulings the same day. TWO FAULTS FOUND BY RUNNING IT, NOT BY TESTS: naming a problem from one category word, and recording plain agreement as a correction. US3 closed the same day: five of the six evidence families had never been protected. 2026-09-15 - T037's test was found written but T038's FUNCTION never was, left untracked so no gate saw it and the suite was red. A THIRD FAULT FOUND BY RUNNING IT: the function passed all ten tests and real MySQL REFUSED the statement - only_full_group_by needs SELECT and GROUP BY to carry the identical expression."
     },
     {
       "ref": "4.98",
@@ -229,7 +232,7 @@
     },
     {
       "ref": "4.99",
-      "name": "No AI-backed script can run on the desktop",
+      "name": "A part-measured lab run overwrites a full one",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -237,7 +240,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The certificate path in the desktop's .env points at a bundle that does not work there, so every OpenAI call from a script fails and the Scenario Lab cannot measure the AI layers.",
+      "why": "The Scenario Lab writes its report whether or not the AI layers ran, so a run that measured less of the engine silently replaces one that measured all of it.",
       "risk": "A lab run here silently reports the engine WITHOUT its AI layers and overwrites the report measured with them - score separation reads 2.3 against the real 5.7. Nothing says the layers were off unless someone reads the line that says so.",
       "askedBy": {
         "who": "us",
@@ -245,8 +248,8 @@
         "detail": "2026-09-14 - hit while measuring the resolver change for 4.97. A defect we found, not a feature nobody asked for; Mike said yes to filing it."
       },
       "touches": ".env on the desktop only (NODE_EXTRA_CA_CERTS), and scripts/scenario-lab.js which overwrites design/SCENARIO-LAB-REPORT.md whether or not the AI layers ran.",
-      "note": "TWO PARTS. The environment half is known and recorded in memory: export the Avast Web Shield root and point NODE_EXTRA_CA_CERTS at it; certs/digicert-bundle.pem does NOT work on this machine and TLS is never disabled. The code half is ours and is the one that matters: the lab should REFUSE to overwrite the report when the AI layers did not run, or write to a clearly marked file, so a partial measurement cannot replace a full one.",
-      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after a lab run without the key replaced a real report and was caught by the pre-commit hook rather than by anything in the lab itself."
+      "note": "THE ENVIRONMENT HALF IS DONE: NODE_EXTRA_CA_CERTS points at the Avast root and AI-backed scripts DO run here, proved 2026-09-15 by a real OpenAI call from a script on this desktop. ONLY THE CODE HALF IS LEFT, and it is the one that matters: the lab should REFUSE to overwrite the report when the AI layers did not run, or write to a clearly marked file, so a partial measurement cannot replace a full one. SEEN HAPPENING 2026-09-15 - an unrecognised flag made the lab run 0 cases with AI OFF and overwrite the real 51-session AI-ON report; restored from git. There is also no --help, so a wrong flag is read as a filter matching nothing.",
+      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after a lab run without the key replaced a real report and was caught by the pre-commit hook rather than by anything in the lab itself. 2026-09-15 - the environment half was found ALREADY FIXED (a real OpenAI call runs here), so the item is now the code half alone and was renamed to it. It fired again the same day from a mistyped flag, caught by eye."
     }
   ]
 }
