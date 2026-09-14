@@ -1656,22 +1656,60 @@ due-diligence case, being the safe direction.
 `CLASS_DECISION`, route `/wages-review`. Nothing arrives from an accounts export: every figure is
 typed or derived, which is what makes it a Decision tool rather than a report.
 
-**Still to come:** the **staff register table itself** — **drawn 2026-09-15 at
-[`../mockups/wages-register.html`](../mockups/wages-register.html), not yet approved and not
-built**, with four questions open on it (hours in a day's leave, what an unpriced person shows,
-whether sick leave is carried, where the retention dial lives). Its people come from step 1 and are
-not typed twice; it adds three typed fields per person and derives the liability; storage is one
-`firmOverlay` key per client, the gate's own seam, **so no new table**. 🔴 **Reading the workbook for
-it found three faults in column `H`, which is what the 63,154 leave-liability headline is summed
-from:** the one surviving formula `(E8*$D$5)*G8` points at a **blank** `D5` (the 8 is in `E4`) and
-evaluates to 0 behind a stale cached value; `H9:H39` are hand-typed constants that never move when
-pay or leave does; and **24 of the 29 people are priced from *sick leave consumed* rather than
-accrued annual leave**. The port prices from accrued leave only and reports **"not yet priced"**
-rather than reaching for the number to hand, so **it does not reproduce 63,154** — and the golden
-test pins the difference. Also still to come: the **payroll reader** (its own item, 4.103). **A real payroll export is owed
-by Mike** — per `intake/supportedPackages.js` no reader is called supported until one has been
-read. The five steps' figures are still not saved per client (4.62's mechanism); the page now knows
-which client it is for, because the register's gate is a property of that client's case.
+🔐 **THE STAFF REGISTER ITSELF IS BUILT (2026-09-15)** — drawn at
+[`../mockups/wages-register.html`](../mockups/wages-register.html), approved by Mike and all four
+of its questions ruled the same day, one at a time. The sheet is
+[`components/WagesRegister.vue`](../../components/WagesRegister.vue), rendered by
+`pages/wages-review.vue` **only while the gate says open** — `v-if`, never `v-show`, so no
+employee data is put in the DOM behind CSS. The people come from step 1 and are not typed twice;
+the register adds three typed fields per person and derives the liability.
+
+**The pieces.** [`server/utils/wagesRegisterMaths.js`](../../server/utils/wagesRegisterMaths.js) is
+pure and holds the arithmetic (38 tests, the golden one below).
+[`wagesRegisterStore.js`](../../server/utils/wagesRegisterStore.js) stores it as **one
+`firmOverlay` key per client** — the gate's own seam, so version history is free and **no new
+table**. `POST /api/wages-register/:clientId/view` and `PUT /api/wages-register/:clientId`, both
+`firmAuth`, **both re-resolve the gate from the live case before answering**: a case that leaves
+the due-diligence domain stops serving named employees at once, which is Decision 6's *"not a
+permanent property of the client"* enforced at the route rather than only on the screen.
+
+**The four rulings, each as recommended (2026-09-15).** (1) The register carries **its own typed
+"Hours in a day's leave", starting empty** — not step 2's average working day, which moves with
+the work, and not a hard-coded 8; until it is set nothing is priced. (2) An unpriced person reads
+**"not yet priced"** and the totals carry a **Priced** count beside People, so a partial total
+never presents itself as a whole one. (3) 🔴 **Sick leave is not carried at all** — his words,
+*"take it off"*; `sanitise` is an allow-list, and both the store's tests and the component's pin
+that it cannot arrive by being added to a body. (4) The register has **its own firm-level
+retention dial**, [`registerRetention.js`](../../server/utils/registerRetention.js), key
+`register-retention`, default 84 months — deliberately **not** `meeting-retention`, whose period
+is *spoken aloud to a client* in the consent wording; sharing one number would let a promise to a
+client silently change how long registers of named staff are kept.
+
+⚠ **ONE PIECE IS NOT BUILT, AND IT IS NOT A SCOPE CALL.** The Firm Manager **control** to change
+the retention period needs a tab in
+[`components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue), which is named in item
+4.87's `touches` and **active on the desktop** since 2026-09-10. Off limits from this machine. The
+backend, the cascade and the platform default are built and tested, and the register shows the
+resulting date; only the screen to change it waits. It is one component and one `TAB_TIERS` entry
+on the day 4.87 lands.
+
+🔴 **THE GOLDEN TEST PINS A DELIBERATE DISAGREEMENT WITH THE WORKBOOK**, which no other model in
+this library does. Reading sheet 6's stored XML found three faults in column `H` — what the
+63,154.16 headline is summed from: its one surviving formula `(E8*$D$5)*G8` points at a **blank**
+`D5` (the 8 is in `E4`) and evaluates to 0 behind a stale cached value; `H9:H39` are hand-typed
+constants that never move when pay or leave does; and **24 of the 29 people are priced from *sick
+leave consumed* (`F`) rather than accrued annual leave (`G`)**. Where a row carries both, `G` wins,
+so the intent is not in doubt. We price from accrued leave only: **10,115.84 across five people**,
+not 63,154.16 across twenty-nine. `tests/unit/wagesRegisterMaths.test.js` reconstructs the
+workbook's own figures from sick leave to prove the fault, and says in terms that a later session
+"fixing" the port to match will have restored a liability built on the wrong quantity.
+
+**Still to come:** the **payroll reader** (its own item, 4.103) and the Firm Manager control above.
+**A real payroll export is owed by Mike** — per `intake/supportedPackages.js` no reader is called
+supported until one has been read. The five steps' figures are still not saved per client (4.62's
+mechanism), which is also why the register matches its entries to people **by name**: that is the
+only identifier both halves share today, and renaming someone in step 1 separates them from their
+entry. Stated in `wagesRegisterStore.js` rather than hidden.
 
 > *Corrected 2026-09-14.* This block read **"step 1 of the five"** built, **"still to come: steps
 > 2–5, the report screen"**, and **"⚠ NOT IN THE MODEL LIBRARY, deliberately… a card opening onto

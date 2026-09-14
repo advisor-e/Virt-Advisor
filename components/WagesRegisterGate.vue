@@ -157,9 +157,15 @@ export default {
         const data = await getRegisterGate(this.clientId, this.token)
         this.gate = data.gate
         this.error = ''
+        // The gate as the server resolved it: { state, reason, case, openedBy, openedAt }.
+        // Emitted on every answer, not only on a switch, so the page can reveal or hide the
+        // register itself without keeping a second copy of the decision.
+        this.$emit('gate', data.gate)
       } catch (e) {
         this.gate = null
         this.error = this.$t('report.wagesReview.register.error')
+        // A failed check hides the register. The check failing is never a reason to show one.
+        this.$emit('gate', null)
       } finally {
         this.busy = false
       }
@@ -179,6 +185,7 @@ export default {
         this.error = ''
         // The register is now open for this client; payload is the gate the server returned.
         this.$emit('opened', data.gate)
+        this.$emit('gate', data.gate)
       } catch (e) {
         this.error = this.$t('report.wagesReview.register.error')
       } finally {
@@ -200,6 +207,7 @@ export default {
         this.error = ''
         // The register is closed again; payload is the gate the server returned.
         this.$emit('closed', data.gate)
+        this.$emit('gate', data.gate)
       } catch (e) {
         this.error = this.$t('report.wagesReview.register.error')
       } finally {

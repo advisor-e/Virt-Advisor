@@ -4,6 +4,10 @@ const { sendError } = require('../utils/sendError')
 const clientStore = require('../utils/clientStore')
 const caseStore = require('../utils/caseStore')
 const gate = require('../utils/wagesRegisterGate')
+const store = require('../utils/wagesRegisterStore')
+const maths = require('../utils/wagesRegisterMaths')
+const registerRetention = require('../utils/registerRetention')
+const overlay = require('../utils/firmOverlay')
 
 /**
  * /api/wages-register — the gate on the Wages/Salary Review's staff register.
@@ -145,4 +149,110 @@ async function closeGate (req, res) {
   }
 }
 
-module.exports = { getGate, openGate, closeGate }
+/**
+ * The gate, re-resolved from the live case and the stored switch.
+ *
+ * 🔴 EVERY CONTENTS ROUTE BELOW CALLS THIS FIRST, and that is not belt-and-braces. The gate
+ * is a property of the client's case RIGHT NOW, not of a flag: Decision 6 says that when the
+ * case leaves the due-diligence domain *"the register closes again and what was entered is
+ * not shown"*. A contents route that trusted the stored switch would keep serving named
+ * employees for the life of the client record.
+ *
+ * @param {object} req @param {object} client
+ * @returns {Promise<object>} the resolved gate
+ */
+async function resolveFor (req, client) {
+  const cases = await caseStore.listForClient(req.advisorId, req.firmId, client.id)
+  const ddCase = gate.findDueDiligenceCase(cases)
+  const stored = ddCase ? await gate.readSwitch(req.firmId, client.id) : null
+  return gate.resolveGate(ddCase, stored)
+}
+
+/**
+ * POST /api/wages-register/:clientId/view — the register as it stands, priced.
+ *
+ * A POST because it carries the team: step 1's people are not stored with the register (see
+ * `wagesRegisterStore`), so they come up with the request and the server lays the stored
+ * entries over them. **The arithmetic is here, not on the screen** — a liability is business
+ * logic and belongs on the backend, like every other figure in this app.
+ *
+ * @route POST /api/wages-register/:clientId/view
+ * @param {string} req.params.clientId - a client of the caller's firm
+ * @param {Array} req.body.team - step 1's people: { name, division, payRate }
+ * @returns {200} { success, gate, register, rows, summary, retention }
+ *   `rows` is one per person on the TEAM with their liability (null = not yet priced);
+ *   `summary` is the three bands with people/priced/liability/avgYears and the total;
+ *   `retention` is { months, source, keptUntil } — the date only, never the setting.
+ * @returns {403} NO_FIRM_IDENTITY | REGISTER_NOT_OPEN · {404} NOT_FOUND · {500} DB_ERROR
+ */
+async function viewRegister (req, res) {
+  const firmId = req.firmId
+  if (!firmId) { return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm') }
+  try {
+    const client = await clientStore.getById(req.params.clientId, firmId)
+    if (!client) { return sendError(res, 404, 'NOT_FOUND', 'Client not found') }
+    const resolved = await resolveFor(req, client)
+    if (resolved.state !== gate.STATE_OPEN) {
+      // Deliberately the same refusal whether the case is absent or the switch is off: the
+      // screen already knows which, from the gate route, and this one owes a caller nothing.
+      return sendError(res, 403, 'REGISTER_NOT_OPEN', 'The staff register is not open for this client')
+    }
+    const stored = await store.read(firmId, client.id)
+    const rows = store.merge(req.body && req.body.team, stored.people)
+    const retention = await registerRetention.loadResolvedRetention(firmId, overlay.loadFirmConfig)
+    res.send(200, {
+      success: true,
+      gate: resolved,
+      register: { hoursInLeaveDay: stored.hoursInLeaveDay, savedAt: stored.savedAt, savedBy: stored.savedBy },
+      rows: maths.priceAll(rows, stored.hoursInLeaveDay),
+      summary: maths.summarise(rows, stored.hoursInLeaveDay),
+      retention: {
+        months: retention.months,
+        source: retention.source,
+        keptUntil: registerRetention.keptUntil(resolved.openedAt, retention.months)
+      }
+    })
+  } catch (err) {
+    if (err.code === 'BAD_CLIENT') { return sendError(res, 400, err.code, err.message) }
+    console.error('[wages-register] viewRegister failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not read the staff register')
+  }
+}
+
+/**
+ * PUT /api/wages-register/:clientId — save what the advisor typed.
+ *
+ * Only the three typed fields and the firm's hours-in-a-leave-day survive the way in;
+ * `wagesRegisterStore.sanitise` is an allow-list, so a field nobody asked for — sick leave
+ * above all, which Mike ruled off on 2026-09-15 — cannot arrive by being added to a body.
+ *
+ * @route PUT /api/wages-register/:clientId
+ * @param {string} req.params.clientId - a client of the caller's firm
+ * @param {number|null} req.body.hoursInLeaveDay
+ * @param {Array} req.body.people - { name, accruedLeaveDays, yearsEmployed, band }
+ * @returns {200} { success, register: { hoursInLeaveDay, savedAt, savedBy } }
+ * @returns {403} NO_FIRM_IDENTITY | REGISTER_NOT_OPEN · {404} NOT_FOUND · {500} DB_ERROR
+ */
+async function saveRegister (req, res) {
+  const firmId = req.firmId
+  if (!firmId) { return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm') }
+  try {
+    const client = await clientStore.getById(req.params.clientId, firmId)
+    if (!client) { return sendError(res, 404, 'NOT_FOUND', 'Client not found') }
+    const resolved = await resolveFor(req, client)
+    if (resolved.state !== gate.STATE_OPEN) {
+      return sendError(res, 403, 'REGISTER_NOT_OPEN', 'The staff register is not open for this client')
+    }
+    const saved = await store.save(firmId, client.id, req.body, req.userEmail || null)
+    res.send(200, {
+      success: true,
+      register: { hoursInLeaveDay: saved.hoursInLeaveDay, savedAt: saved.savedAt, savedBy: saved.savedBy }
+    })
+  } catch (err) {
+    if (err.code === 'BAD_CLIENT') { return sendError(res, 400, err.code, err.message) }
+    console.error('[wages-register] saveRegister failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not save the staff register')
+  }
+}
+
+module.exports = { getGate, openGate, closeGate, viewRegister, saveRegister }

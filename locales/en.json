@@ -3770,7 +3770,42 @@
         "openTag": "Open",
         "openTitle": "Staff register — due diligence",
         "preparedFor": "Prepared for {project} · by {advisor} · {date} · closes when the project closes.",
-        "error": "The staff register could not be checked. Nothing has been opened."
+        "error": "The staff register could not be checked. Nothing has been opened.",
+        "sheet": {
+          "hours": "Hours in a day's leave",
+          "hoursPlaceholder": "Not set",
+          "hoursNote": "Applies to everyone on the register. Until it is set, nothing is priced.",
+          "notPriced": "not yet priced",
+          "bandNone": "Not rated",
+          "band": {
+            "direct-loss": "Direct loss",
+            "indirect-loss": "Indirect loss",
+            "no-material-loss": "No material loss"
+          },
+          "col": {
+            "name": "Name",
+            "division": "Division",
+            "payRate": "Pay rate",
+            "accrued": "Accrued annual leave (days)",
+            "liability": "Leave liability",
+            "years": "Years employed",
+            "band": "Key person risk",
+            "people": "People",
+            "priced": "Priced",
+            "avgYears": "Avg years"
+          },
+          "peopleCount": "{n} person | {n} people",
+          "pricedOf": "{priced} of {people} priced",
+          "total": "Total",
+          "save": "Save the register",
+          "saving": "Saving…",
+          "savedAt": "Saved {when}",
+          "keptUntil": "This register is kept until {date}. Your firm sets that period in Firm Manager.",
+          "summary": "Leave liability by key person risk",
+          "summaryNote": "A balance-sheet figure that names nobody.",
+          "error": "The staff register could not be read.",
+          "saveError": "The staff register could not be saved. Nothing has been changed."
+        }
       },
       "team": {
         "title": "The team",

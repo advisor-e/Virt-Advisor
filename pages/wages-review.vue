@@ -11,7 +11,11 @@ report-shell
   //- register is a due-diligence document about people, not a step in the labour-margin
   //- model, and Decision 9 ruled the model at five steps. It renders nothing at all until
   //- a client is chosen and the backend has answered.
-  wages-register-gate(:client-id="clientId")
+  wages-register-gate(:client-id="clientId" @gate="onGate")
+  //- The sheet itself, and ONLY while the gate says open. `v-if`, never `v-show`: a register
+  //- that is not open is absent, so no employee data is rendered into a page that is not
+  //- entitled to show it — the same choice the gate's own drawing makes.
+  wages-register(v-if="registerOpen" :client-id="clientId" :team="registerTeam")
   .steps
     .step(:class="{ active: step === 1, done: step > 1 }" @click="goTo(1)")
       span.n 1
@@ -84,11 +88,12 @@ import WagesYear from '~/components/WagesYear.vue'
 import WagesActual from '~/components/WagesActual.vue'
 import WagesReport from '~/components/WagesReport.vue'
 import WagesRegisterGate from '~/components/WagesRegisterGate.vue'
+import WagesRegister from '~/components/WagesRegister.vue'
 
 export default {
   name: 'WagesReviewPage',
 
-  components: { ReportShell, ReportHeader, WagesTeam, WagesWork, WagesYear, WagesActual, WagesReport, WagesRegisterGate },
+  components: { ReportShell, ReportHeader, WagesTeam, WagesWork, WagesYear, WagesActual, WagesReport, WagesRegisterGate, WagesRegister },
 
   data () {
     return {
@@ -106,11 +111,30 @@ export default {
       /** Step 3's confirmed payload; null until the advisor presses Continue. */
       year: null,
       /** Step 4's confirmed payload; null until the advisor presses Continue. */
-      actual: null
+      actual: null,
+      /**
+       * Whether the staff register is open for this client, as the BACKEND resolved it.
+       *
+       * Held here rather than inside the gate component because two components need the one
+       * answer, and a second copy of a decision about personal data is a second thing that
+       * can be wrong. It is never set from a click — only from what the server said.
+       */
+      registerOpen: false
     }
   },
 
   computed: {
+    /**
+     * Step 1's people, for the register to hang its three typed fields off.
+     *
+     * Empty until step 1 is confirmed, which is correct: with nobody on the team there is
+     * nobody to record leave or a key-person-risk band for.
+     * @returns {Array<{name: string, division: string, payRate: number}>}
+     */
+    registerTeam () {
+      return (this.team && this.team.people) ? this.team.people : []
+    },
+
     /**
      * The four steps assembled into the payload `computeWages` reads. This page is the
      * only place the steps meet, so it is the only place that can build it.
@@ -137,6 +161,18 @@ export default {
   },
 
   methods: {
+    /**
+     * The gate answered — on load, and again on every switch.
+     *
+     * 🔴 THE ONLY THING THAT REVEALS THE REGISTER, and it reads the server's own word for it.
+     * A null gate (the check failed) closes it, because a check that did not answer is never
+     * a reason to show a client's named employees.
+     * @param {{state: string}|null} gate - as the backend resolved it
+     */
+    onGate (gate) {
+      this.registerOpen = !!(gate && gate.state === 'open')
+    },
+
     /**
      * The header's picker chose the client this report is for. The five steps do not read
      * it — they are the workbook's own figures and belong to no client until item 4.62's

@@ -49,6 +49,30 @@ describe('the staff-register gate — reaching the backend', () => {
     // useless until the page listens to it. Wiring, not wording.
     const page = read('pages/wages-review.vue')
     expect(page).toMatch(/@client-change="onClientChange"/)
-    expect(page).toMatch(/wages-register-gate\(:client-id="clientId"\)/)
+    // The client is bound; the rest of the tag is free to grow. It did on 2026-09-15, when
+    // `@gate="onGate"` was added so the register itself knows whether to render — and a
+    // pattern ending in `)` failed on an addition it had no business guarding.
+    expect(page).toMatch(/wages-register-gate\(:client-id="clientId"/)
+  })
+
+  it('the register itself is bound to the gate, and to step 1\'s team', () => {
+    // 🔴 THE `v-if` IS THE WIRING THAT MATTERS. The register must be ABSENT unless the gate
+    // said open — not hidden, absent — so that no employee data is rendered into a page not
+    // entitled to show it. A `v-show` here would put names in the DOM behind CSS.
+    const page = read('pages/wages-review.vue')
+    expect(page).toMatch(/wages-register\(v-if="registerOpen"/)
+    expect(page).not.toMatch(/wages-register\(v-show=/)
+    expect(page).toMatch(/:team="registerTeam"/)
+    expect(page).toMatch(/@gate="onGate"/)
+  })
+
+  it('the register\'s own routes are firmAuth and re-check the gate', () => {
+    const server = read('server/restify-server.js')
+    expect(server).toMatch(/server\.post\('\/api\/wages-register\/:clientId\/view', firmAuth/)
+    expect(server).toMatch(/server\.put\('\/api\/wages-register\/:clientId', firmAuth/)
+    // Both handlers resolve the gate before answering; the route test proves the behaviour,
+    // this proves the seam exists at all.
+    const routes = read('server/routes/wagesRegister.js')
+    expect(routes).toMatch(/REGISTER_NOT_OPEN/)
   })
 })

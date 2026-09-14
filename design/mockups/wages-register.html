@@ -244,7 +244,7 @@ so the register can never disagree with the model about who works there.</p>
         </tr>
         <tr class="tot">
           <td>29 people</td><td></td><td></td><td></td>
-          <td class="num">10,672 <span class="derived" style="font-weight:400">of 29</span></td>
+          <td class="num">10,115.84 <span class="derived" style="font-weight:400">· 5 of 29 priced</span></td>
           <td></td><td></td>
         </tr>
       </tbody>
@@ -270,10 +270,10 @@ so the register can never disagree with the model about who works there.</p>
         <thead><tr><th>Band</th><th class="num">People</th><th class="num">Priced</th>
           <th class="num">Liability</th><th class="num">Avg years</th></tr></thead>
         <tbody>
-          <tr><td>Direct loss</td><td class="num">10</td><td class="num">2</td><td class="num">7,132</td><td class="num">3.7</td></tr>
-          <tr><td>Indirect loss</td><td class="num">10</td><td class="num">1</td><td class="num">1,976</td><td class="num">5.8</td></tr>
-          <tr><td>No material loss</td><td class="num">9</td><td class="num">2</td><td class="num">1,564</td><td class="num">5.3</td></tr>
-          <tr class="tot"><td>Total</td><td class="num">29</td><td class="num">5</td><td class="num">10,672</td><td class="num"></td></tr>
+          <tr><td>Direct loss</td><td class="num">10</td><td class="num">2</td><td class="num">5,859.84</td><td class="num">3.7</td></tr>
+          <tr><td>Indirect loss</td><td class="num">10</td><td class="num">2</td><td class="num">1,976.00</td><td class="num">5.8</td></tr>
+          <tr><td>No material loss</td><td class="num">9</td><td class="num">1</td><td class="num">2,280.00</td><td class="num">5.3</td></tr>
+          <tr class="tot"><td>Total</td><td class="num">29</td><td class="num">5</td><td class="num">10,115.84</td><td class="num"></td></tr>
         </tbody>
       </table>
       <p class="s" style="margin-top:8px"><b>Worth an advisor's attention, and it is the client's
@@ -332,8 +332,16 @@ liability an acquirer prices the business on is the last figure that should be c
 <p class="rec"><b>What the port does:</b> computes the liability from accrued annual leave only,
 every row, always — and where no accrued figure has been entered it says <b>“not yet priced”</b>
 rather than reaching for a number that is to hand. <b>It does not reproduce the workbook's
-63,154</b>, and it should not: on the sample data the honest figure is <b>10,672 across the five
-people who have a leave balance recorded</b>. The golden test pins the difference and says why.</p>
+63,154</b>, and it should not: on the sample data the honest figure is <b>10,115.84 across the five
+people who have a leave balance recorded</b> — rows <span class="cellref">9, 10, 21, 32</span> and
+<span class="cellref">38</span>. The golden test pins the difference and says why.</p>
+<p>⚠ <b>Corrected 2026-09-15, before a line was built on it.</b> This card first read
+<b>7,132 · 1,976 · 1,564, total 10,672</b>, with priced counts 2 · 1 · 2. <b>Those figures were
+never computed — they were filled in</b>, on a drawing whose whole subject is a total that was not
+computed either. Worked from the sheet: Direct loss is Bruce 5,155.84 + row 32's 704.00 =
+<b>5,859.84</b>; Indirect loss is Agatha 1,976.00 + row 38's 0.00 (a zero pay rate) =
+<b>1,976.00</b>, two people priced, not one; No material loss is Judy alone at
+<b>2,280.00</b>.</p>
 </div>
 
 <div class="fault">

@@ -60,3 +60,41 @@ export async function closeRegisterGate (clientId, token) {
   })
   return parse(res, 'Failed to close the staff register')
 }
+
+/**
+ * The register as it stands, priced.
+ *
+ * A POST because it carries step 1's team: the register stores only what is typed ON it, so
+ * the people come up with the request and the backend lays the stored entries over them.
+ * **The arithmetic is the backend's** — nothing here computes a liability.
+ *
+ * @param {string} clientId - a client of the advisor's own firm
+ * @param {Array<{name: string, division: string, payRate: number}>} team - step 1's people
+ * @param {string} token - Bearer token
+ * @returns {Promise<{gate: object, register: {hoursInLeaveDay: number|null, savedAt: string|null, savedBy: string|null}, rows: Array, summary: {bands: Array, total: object}, retention: {months: number, source: string, keptUntil: string|null}}>}
+ */
+export async function viewRegister (clientId, team, token) {
+  const res = await fetch(`/api/wages-register/${encodeURIComponent(clientId)}/view`, {
+    method: 'POST', headers: authHeaders(token), body: JSON.stringify({ team: team || [] })
+  })
+  return parse(res, 'Failed to read the staff register')
+}
+
+/**
+ * Save what the advisor typed on the register.
+ *
+ * Only the three typed fields travel, plus the firm's hours-in-a-leave-day. The backend's
+ * allow-list is what enforces that, not this function — but sending no more than is needed is
+ * the same rule read from the other end.
+ *
+ * @param {string} clientId
+ * @param {{hoursInLeaveDay: number|null, people: Array<{name: string, accruedLeaveDays: number|null, yearsEmployed: number|null, band: string|null}>}} payload
+ * @param {string} token
+ * @returns {Promise<{register: {hoursInLeaveDay: number|null, savedAt: string, savedBy: string|null}}>}
+ */
+export async function saveRegister (clientId, payload, token) {
+  const res = await fetch(`/api/wages-register/${encodeURIComponent(clientId)}`, {
+    method: 'PUT', headers: authHeaders(token), body: JSON.stringify(payload)
+  })
+  return parse(res, 'Failed to save the staff register')
+}

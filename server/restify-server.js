@@ -401,6 +401,13 @@ server.post('/api/wages-register/gate/:clientId/open', firmAuth, wagesRegisterRo
 // Closing needs no due-diligence case: it is the safe direction, and an advisor who opened
 // the register on the wrong client must always be able to shut it (Mike, 2026-09-15).
 server.post('/api/wages-register/gate/:clientId/close', firmAuth, wagesRegisterRoute.closeGate)
+// The register's CONTENTS. Both re-resolve the gate from the live case before answering, so
+// a case that has left the due-diligence domain stops serving named employees immediately
+// rather than when somebody remembers to switch it off. `view` is a POST because it carries
+// step 1's team, which is not stored with the register; the pricing happens here, on the
+// backend, because a liability is business logic.
+server.post('/api/wages-register/:clientId/view', firmAuth, wagesRegisterRoute.viewRegister)
+server.put('/api/wages-register/:clientId', firmAuth, wagesRegisterRoute.saveRegister)
 
 // ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
 // All firmAuth-guarded; identity from the verified JWT, never the body. An
