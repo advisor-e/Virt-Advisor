@@ -13,6 +13,10 @@ const {
   retirementBySeason,
   monthlyWageBySeason,
   seasonComparison,
+  shutdownFigures,
+  shutdownRetirement,
+  shutdownMonthlyWage,
+  SHUTDOWN_SAMPLE,
   computeWages
 } = require('../../server/report/wagesModel')
 
@@ -66,6 +70,10 @@ const P = 2
 
 const S = DEFAULT_INPUTS.settings
 const model = computeWages(DEFAULT_INPUTS)
+
+// The SHUTDOWN half of the workbook is its own sheet and its own sample — the two disagree
+// about the same people, so one team cannot reproduce both. See SHUTDOWN_SAMPLE's own note.
+const shutdownModel = computeWages(SHUTDOWN_SAMPLE)
 const person = name => DEFAULT_INPUTS.people.find(p => p.name === name)
 
 describe('Wages/Salary Review — the sample, against the workbook', () => {
@@ -223,8 +231,20 @@ describe('the twelve months, and the switch between the two bases', () => {
     expect(model.totals.seasonalRevenue).toBeCloseTo(1362740.231, P) // Cash Report R15
   })
 
-  it('carries the shutdown basis\'s own billings alongside', () => {
-    expect(model.totals.shutdownRevenue).toBeCloseTo(973328.4208, P) // Cash Report R17
+  it('bills the shutdown year exactly as the workbook does, DERIVED from typed inputs', () => {
+    // Item 4.102. This used to read two ready-made twelve-month arrays per person that only
+    // the sample ever carried, so a real team billed nothing at all. It is now computed from
+    // the ten typed cells of `Shutdown Inputs` — and still lands on the workbook's own R17.
+    expect(shutdownModel.totals.revenue).toBeCloseTo(973328.4208, P) // Cash Report R17
+  })
+
+  it('bills NOTHING if the seasonal sample is run on the shutdown basis', () => {
+    // Not a defect — a consequence of the workbook keeping two input sheets that disagree
+    // about the same people. The seasonal rows carry no `weeklyBaseHours` and no
+    // `productivity`; both are typed on the other sheet and read by nothing on this one.
+    // Pinned so nobody "reconciles" it by copying figures between the two samples.
+    const wrong = computeWages(Object.assign({}, DEFAULT_INPUTS, { basis: 'shutdown' }))
+    expect(wrong.totals.revenue).toBe(0)
   })
 
   it('adds the overnight allowance only in the months that claim it', () => {
@@ -236,10 +256,8 @@ describe('the twelve months, and the switch between the two bases', () => {
 
   it('switches both revenue AND cost sides together when the basis changes', () => {
     // Decision 3: a complete either/or, never a blend.
-    const shutdown = computeWages(Object.assign({}, DEFAULT_INPUTS, { basis: 'shutdown' }))
-    expect(shutdown.totals.revenue).toBeCloseTo(973328.4208, P)
-    expect(shutdown.totals.revenue).not.toBeCloseTo(model.totals.revenue, P)
-    expect(shutdown.totals.wageCost).not.toBeCloseTo(model.totals.wageCost, P)
+    expect(shutdownModel.totals.revenue).not.toBeCloseTo(model.totals.revenue, P)
+    expect(shutdownModel.totals.wageCost).not.toBeCloseTo(model.totals.wageCost, P)
   })
 
   it('judges the plan against the twelve typed actuals', () => {
@@ -364,18 +382,22 @@ describe('🔴 the ruled deviation — the allowance counted twice on the shutdo
    * allowance is already in it. April's AN82 caches 55,704.7515 and 3,031.00 of that is
    * allowance; AH7 then adds 2,600 on top of the whole team.
    */
-  const shutdown = computeWages(Object.assign({}, DEFAULT_INPUTS, { basis: 'shutdown' }))
+  const shutdown = shutdownModel
 
   it('charges no separate allowance on the shutdown basis, because the wage already holds it', () => {
     expect(shutdown.totals.allowance).toBe(0)
     expect(shutdown.months[0].allowance).toBe(0) // Apr, "Yes" — still nothing on top
   })
 
-  it('costs the shutdown year $15,600 LESS than the workbook, and lifts the margin by the same', () => {
+  it('costs the shutdown year $15,600 LESS than the workbook for this reason alone', () => {
     // Six ticked months (Cash Report row 11: Apr, May, Jul, Jan, Feb, Mar) at 2,600.
     expect(15600).toBe(6 * 2600)
-    expect(shutdown.totals.margin).toBeCloseTo(-81556.96, P)
-    expect(-97156.96 - shutdown.totals.margin).toBeCloseTo(-15600, 1) // the workbook's own
+    // The workbook's own year is −97,157 (Cash Report, shutdown basis). Ours is better by
+    // 15,600 here and by a further 712.25 for the row-28 defect below — so the two
+    // corrections are stated separately rather than as one unexplained gap.
+    expect(shutdown.totals.margin).toBeCloseTo(-80844.71, P)
+    expect(-97156.96 - shutdown.totals.margin).toBeCloseTo(-16312.25, 1)
+    expect(-16312.25).toBeCloseTo(-15600 - 712.25, 2)
     expect(shutdown.totals.revenue).toBeCloseTo(973328.4208, P) // Cash Report R17, unchanged
   })
 
@@ -390,10 +412,58 @@ describe('🔴 the ruled deviation — the allowance counted twice on the shutdo
   it('ignores a shutdown allowance even if one is supplied', () => {
     // Mutation guard. Step 1 emits only `allowances.seasonal`, but an old saved model or a
     // hand-built payload could still carry the workbook's 2,600. It must change nothing.
-    const withOld = JSON.parse(JSON.stringify(DEFAULT_INPUTS))
-    withOld.basis = 'shutdown'
+    const withOld = JSON.parse(JSON.stringify(SHUTDOWN_SAMPLE))
     withOld.allowances.shutdown = 2600
     expect(computeWages(withOld).totals.margin).toBeCloseTo(shutdown.totals.margin, P)
+  })
+})
+
+describe('🔴 the ruled deviation — one wage reading another month\'s cell', () => {
+  /**
+   * DEVIATION 4, and it is the row-offset defect's cousin: a RELATIVE reference inside a
+   * SHARED formula. `Shutdown Inputs` CL28 is shared across CL28:CW28 — the twelve months —
+   * and every other row writes `$CI$<row>` in both branches. Row 28 writes it once as
+   * `CI28`, unanchored, in the "Yes" branch alone:
+   *
+   *     CL28 = if(CL5="Yes", $CA$28*4.33+$CB$28*4.33+$CE$28*4.33+$CG$28+ CI28 /12,
+   *                          $CA$28*4.33+            $CE$28*4.33+$CG$28+$CI$28/12)
+   *
+   * So each month column shifts it one further right: May reads CJ28 (blank), July reads
+   * CL28 (April's own wage), January reads CR28 (October's). Instead of a twelfth of Bevis's
+   * employer retirement contribution, his wage picks up a twelfth of another month's total.
+   *
+   * Exactly one row of the 29 carries it, and only in the six months the switch ticks.
+   */
+  const bevis = SHUTDOWN_SAMPLE.people.find(p => p.name === 'Bevis')
+  const figures = shutdownFigures(bevis, SHUTDOWN_SAMPLE.settings)
+  const otDays = SHUTDOWN_SAMPLE.months
+    .reduce((a, m) => a + (m.allowanceApplies ? m.productionDays : 0), 0)
+  const retirement = shutdownRetirement(bevis, SHUTDOWN_SAMPLE.settings, figures, otDays)
+
+  it('costs Bevis his own retirement contribution, not a twelfth of another month', () => {
+    const ours = shutdownMonthlyWage(figures, retirement, true)
+    expect(ours).toBeCloseTo(5982.1585, P) // = the workbook's own CL28, the master cell
+    expect(retirement).toBeCloseTo(1639.302, P) // CI28
+
+    // January (CU28) caches 6,219.575708. The shift makes it read CR28 — October's wage,
+    // 4,488.3085 — where CI28 belongs, so a twelfth of the wrong number is substituted for a
+    // twelfth of the right one. The arithmetic is checkable by hand in one line:
+    expect(4488.3085 / 12 - 1639.302 / 12).toBeCloseTo(237.4172, P)
+    expect(6219.575708 - ours).toBeCloseTo(237.4172, P)
+  })
+
+  it('is confined to the six ticked months, and April is right because it is the master cell', () => {
+    // April holds the formula, so `CI28` there IS CI28. The drift starts at May.
+    expect(shutdownMonthlyWage(figures, retirement, true)).toBeCloseTo(5982.1585, P)
+    // A "No" month uses the other branch, which is anchored on every row including this one.
+    expect(shutdownMonthlyWage(figures, retirement, false)).toBeCloseTo(4488.3085, P)
+  })
+
+  it('costs the year $712.25 less than the workbook, and only for this one person', () => {
+    // Bevis joins in September, so only January, February and March of his six ticked months
+    // are ones he is actually paid for: 3 x 237.4172.
+    expect(bevis.onPayroll.filter(Boolean).length).toBe(7)
+    expect(712.25).toBeCloseTo(3 * 237.4172, 1)
   })
 })
 

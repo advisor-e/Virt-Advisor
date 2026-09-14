@@ -18,7 +18,7 @@ const { computeHighLevelBudget } = require('../report/highLevelBudgetModel')
 const { computeMidLevelBudget } = require('../report/midLevelBudgetModel')
 const { computeStockPurchasing } = require('../report/stockPurchasingModel')
 const { computeSalesDashboard, DEFAULT_INPUTS: SALES_DASHBOARD_DEFAULTS } = require('../report/salesDashboardModel')
-const { computeWages, DEFAULT_INPUTS: WAGES_DEFAULTS } = require('../report/wagesModel')
+const { computeWages, DEFAULT_INPUTS: WAGES_DEFAULTS, SHUTDOWN_SAMPLE: WAGES_SHUTDOWN_SAMPLE } = require('../report/wagesModel')
 const { readStockSheet } = require('../report/intake/stockSheetAssembler')
 const { readSalesSheet, REQUIRED_BY_MODEL } = require('../report/intake/salesSheetReader')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
@@ -1826,9 +1826,14 @@ function modelGuide (req, res, next) {
 function wagesReview (req, res, next) {
   try {
     const body = (req.body && typeof req.body === 'object') ? req.body : {}
-    const inputs = Object.assign({}, WAGES_DEFAULTS, body, {
-      people: Array.isArray(body.people) ? body.people : WAGES_DEFAULTS.people,
-      months: Array.isArray(body.months) ? body.months : WAGES_DEFAULTS.months
+    // 🔴 THE SAMPLE IS PER BASIS, because the workbook keeps one input sheet per basis and the
+    // two disagree about the same people (see SHUTDOWN_SAMPLE). Serving the seasonal team on
+    // the shutdown basis would bill zero — which is precisely the fault item 4.102 fixed, so
+    // reintroducing it here would undo the repair at the last step.
+    const sample = body.basis === 'shutdown' ? WAGES_SHUTDOWN_SAMPLE : WAGES_DEFAULTS
+    const inputs = Object.assign({}, sample, body, {
+      people: Array.isArray(body.people) ? body.people : sample.people,
+      months: Array.isArray(body.months) ? body.months : sample.months
     })
     const data = computeWages(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })

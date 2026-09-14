@@ -3783,6 +3783,9 @@
           "retirement": "Employer retirement %",
           "overtime": "Overtime uplift %",
           "leaveDays": "Annual + sick leave days",
+          "weeklyBaseHours": "Weekly base hours",
+          "weeklyOvertimeHours": "Weekly overtime hours",
+          "productivity": "Productivity (chargeable) %",
           "tools": "Weekly tools allowance",
           "allowanceRate": "Overnight/ Meals + Accom' Allowance",
           "allowanceNights": "Avg Number of Nights/ Meals per Month"

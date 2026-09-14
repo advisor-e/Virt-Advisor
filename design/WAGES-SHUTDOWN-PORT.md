@@ -200,11 +200,59 @@ text; an overtype carries neither.
 
 ---
 
-## 4. The build, in order
+## 4. The build — ✅ COMPLETE 2026-09-14
 
-1. ✅ **DONE 2026-09-14 — §3.1 settled and corrected.** The allowance was counted twice; the
-   engine now adds it on the seasonal basis only, pinned and mutation-verified.
+**All six steps are done and the fault is closed.** The durable record is the Brief,
+[`features/report-models.md`](features/report-models.md) § *Wages/Salary Review*; this page
+now exists only for the trace in §2 and §3 and can be deleted once that is no longer wanted.
+
+1. ✅ **§3.1 settled and corrected.** The allowance was counted twice; the engine adds it on
+   the seasonal basis only, pinned and mutation-verified.
 2. ~~**Correct §3.2**~~ — **STRUCK. There is no defect there** (§3.2). One step fewer.
+3. ✅ **Ported.** `shutdownFigures`, `shutdownRetirement`, `shutdownMonthlyWage` and
+   `shutdownMonthlyRevenue` derive wage and revenue per person per month from the ten typed
+   cells. The two pre-baked arrays are deleted. The reading was checked against **768 cached
+   cells first**: all 384 revenue cells exact, 379 of 384 wage cells — the five exceptions
+   being a fourth workbook defect (below).
+4. ✅ **Golden test.** `SHUTDOWN_SAMPLE` reproduces `Cash Report` R17 at **973,328.4208**, to
+   the cent. Seasonal unmoved at 1,362,740 / 288,935 / July −132.
+5. ✅ **Step 1 gained the three fields** — weekly base hours, weekly overtime hours,
+   productivity. Shown to everyone and starting empty, on Mike's yes: the basis is chosen on
+   step 2 and this is step 1 (his decision 9, not reordered), so the screen cannot know which
+   basis applies, and a column that appears only after a trip to step 2 and back is one
+   somebody fills in by accident or never finds.
+6. ✅ **Proved end to end**, and the guard is non-vacuous: one person with the three fields
+   filled bills **88,651.20**; the same person without them bills **0.00** — the original
+   fault, reproduced on demand.
+
+### 🔴 A FOURTH WORKBOOK DEFECT, found during step 3 and corrected
+
+`Shutdown Inputs` **CL28** is a shared formula across the twelve month columns. Every other
+row anchors the retirement contribution as `$CI$<row>` in **both** branches. Row 28 writes it
+as **`CI28` — unanchored — in the "Yes" branch alone**, so each month shifts it one column
+right: May reads `CJ28` (blank), July reads `CL28` (April's own wage), January reads `CR28`
+(October's). Bevis is charged a twelfth of another month's total instead of a twelfth of his
+retirement contribution — **237.42 a month dearer, 712.25 across the three ticked months he is
+actually employed for.** April is correct only because it holds the master cell.
+
+⚠ **This is correction 1's cousin**: both are shared formulas whose unanchored reference
+drifts as the block fills — down a column there, across a row here. **When checking this
+workbook, read what a formula ANCHORS, not only what it says.**
+
+### ⚠ The two sheets are not the same team
+
+Of the 29 rows the **pay rate differs on 24**, the leave split on 27 and the overnight
+allowance on 25; the seasonal sheet carries four production staff this one does not, and one
+manager is Natalie there and Shirley here. One team cannot reproduce both sheets, so the
+shutdown basis has **its own sample**, generated from the sheet rather than typed, and the
+route serves the sample matching the basis asked for. *(The leave difference is not a
+disagreement: seasonal writes 30 days, shutdown writes 20 with 10 as the sheet-level sick-day
+setting. 20 + 10 = 30.)*
+
+---
+
+### What each step was, as originally written
+
 3. **Port the shutdown model into `server/report/wagesModel.js`** — compute wage and revenue
    per person per month from the typed fields in §2.1, replacing the two pre-baked arrays.
    Keep `DEFAULT_INPUTS` reproducing the workbook.

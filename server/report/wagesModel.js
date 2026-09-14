@@ -17,10 +17,15 @@
  * around production days and overtime. Both revenue and cost swap sides together, which is
  * why this is an either/or rather than a blend.
  *
- * 🔴 THREE CORRECTIONS TO THE WORKBOOK, ON MIKE'S RULINGS OF 2026-09-14 — "fix it - always. we
+ * 🔴 FOUR CORRECTIONS TO THE WORKBOOK, ON MIKE'S RULINGS OF 2026-09-14 — "fix it - always. we
  * want it right in the end", and "if it needs to be fixed - fix it - NEVER allow a mistake to
- * remain". All three are pinned in `tests/unit/wagesModel.test.js` with the workbook's own
+ * remain". All four are pinned in `tests/unit/wagesModel.test.js` with the workbook's own
  * cached figure beside ours, so none is a silent departure.
+ *
+ * ⚠ TWO OF THE FOUR ARE THE SAME MISTAKE: a reference that does not point where the person
+ * reading it assumes. Corrections 1 and 4 are both shared formulas whose unanchored cell
+ * drifts as the block fills — down a column in one case, across a row in the other. When
+ * checking this workbook, read what a formula ANCHORS, not only what it says.
  *
  * CORRECTION 1 — THE ROW-OFFSET DEFECT. The workbook decides whether a salaried person is
  * costed at full-time or part-time hours by reading a row TEN BELOW the person being costed:
@@ -62,6 +67,15 @@
  * The shutdown figure is not a smaller number; it is not a separate line at all, which is
  * why `allowances` now carries one key rather than two, and why step 1 emits only
  * `allowances.seasonal` (`components/WagesTeam.vue`).
+ *
+ * CORRECTION 4 — ONE WAGE READING ANOTHER MONTH'S CELL. `Shutdown Inputs` CL28 is a shared
+ * formula across the twelve month columns, and every other row anchors the retirement
+ * contribution as `$CI$<row>` in both branches. Row 28 writes it as `CI28` — unanchored — in
+ * the "Yes" branch alone, so each month shifts it one column right: May reads CJ28 (blank),
+ * July reads CL28 (April's own wage), January reads CR28 (October's). Bevis is charged a
+ * twelfth of another month's total instead of a twelfth of his retirement contribution —
+ * 237.42 a month dearer, 712.25 across the three ticked months he is actually employed for.
+ * April is correct because it holds the master cell. `shutdownMonthlyWage` anchors it.
  *
  * ⚠ A related claim in `design/WAGES-SHUTDOWN-PORT.md` §3.2 — that five of the `CE` cells
  * have their formula "overtyped with stray label text" — is FALSE, and nothing was corrected
@@ -361,6 +375,144 @@ function seasonComparison (inputs) {
   })
 }
 
+/** Weeks in a month as the `Shutdown Inputs` sheet writes it (CL7's `*4.33`). */
+const SHUTDOWN_WEEKS_PER_MONTH = 4.33
+
+/**
+ * Everything the SHUTDOWN basis derives from one person's ten typed cells, computed once.
+ *
+ * `Shutdown Inputs` row 7 and across, in the sheet's own order. Every line carries its cell
+ * so it can be re-checked by hand:
+ *
+ *     M  = (G*$M$5)+G                    overtime pay rate
+ *     U  = G*K*52                        annualised base wages
+ *     BE = K*52                          annual base hours
+ *     BF = BE*S                          chargeable annual hours
+ *     BX = if(S=0,0,K/5*S)               chargeable base hours per day
+ *     BW = if(S=0,0,O/5*S)               chargeable overtime hours per day
+ *     BG = (Q+$Q$5+$U$5)*BX              hours lost to leave, stat days and sick days
+ *     BH = BF-BG                         net chargeable hours
+ *     BJ = BH*E                          annual charge-out
+ *     BL = BJ/$AC$50                     charge-out per production day
+ *     BN = O*52 · BO = BN*S · BP = (Q+$Q$5+$U$5)*BW · BQ = BO-BP    the overtime hours chain
+ *     CC = if($G$5="No",$BY$5*BW*M,0)    annualised overtime wages
+ *     CA = K*G · CB = O*M · CE = Y*AA · CG = (AC*52)/12 · CI = (U+CC)*AE
+ *
+ * ⚠ THE LEAVE FIELDS ARE SPLIT DIFFERENTLY FROM THE SEASONAL SHEET AND THAT IS NOT A
+ * CONTRADICTION. `Seasonal Inputs` T7 holds 30 days; `Shutdown Inputs` Q7 holds 20 with the
+ * other 10 as the sheet-level sick-day setting `U5`. 20 + 10 = 30. Anything comparing the two
+ * sheets' leave columns cell-for-cell will call them inconsistent; they are not.
+ *
+ * 🔴 OVERTIME ADDS NO REVENUE ON THIS BASIS, and that is the workbook's own state rather than
+ * an omission here. `BR7 = if($B$5=0,0,(BQ7*E7)/$BS$5)` and **`B5` is BLANK**, which Excel
+ * reads as 0, so `BR` — and therefore `BS` and `BT` — is 0 on every one of the 29 rows. The
+ * gate is reproduced rather than assumed: `settings.overtimeChargeMonths` is the `BS5` divisor
+ * and is absent by default exactly as `B5` is. The hours chain above is still computed, so
+ * supplying it is all that a firm needing overtime revenue would take.
+ *
+ * @param {Object} person @param {Object} settings @returns {Object} the derived figures
+ */
+function shutdownFigures (person, settings) {
+  const s = settings || {}
+  const chargeRate = num(person.chargeRate) // E
+  const payRate = num(person.payRate) // G
+  const baseHours = num(person.weeklyBaseHours) // K
+  const overtimeHours = num(person.weeklyOvertimeHours) // O
+  const leaveDays = num(person.leaveDays) // Q
+  const productivity = num(person.productivity) // S
+
+  // M5 is a sheet-level uplift in the workbook and every row carries the same 0.5. Read from
+  // the person so a firm can differ one contract without a second settings field.
+  const overtimePayRate = payRate * (1 + num(person.overtimePct)) // M
+  const annualBaseWages = payRate * baseHours * 52 // U
+  const daysOff = leaveDays + num(s.statDays) + num(s.sickDays) // Q + Q5 + U5
+
+  const perDayBase = productivity === 0 ? 0 : (baseHours / 5) * productivity // BX
+  const perDayOvertime = productivity === 0 ? 0 : (overtimeHours / 5) * productivity // BW
+
+  const chargeableHours = baseHours * 52 * productivity // BF (= BE*S)
+  const netChargeableHours = chargeableHours - (daysOff * perDayBase) // BH (= BF-BG)
+  const annualCharge = netChargeableHours * chargeRate // BJ
+
+  // The overtime hours chain — computed, then gated to zero revenue by the blank B5 above.
+  const overtimeBalanceHours = (overtimeHours * 52 * productivity) - (daysOff * perDayOvertime) // BQ
+  const overtimeChargeMonths = num(s.overtimeChargeMonths) // BS5
+  const annualOvertimeCharge = overtimeChargeMonths === 0
+    ? 0
+    : ((overtimeBalanceHours * chargeRate) / overtimeChargeMonths) * overtimeChargeMonths // BS
+
+  return {
+    perDayBase,
+    perDayOvertime,
+    annualCharge,
+    annualOvertimeCharge,
+    overtimeBalanceHours,
+    weeklyBaseWage: baseHours * payRate, // CA
+    weeklyOvertimeWage: overtimeHours * overtimePayRate, // CB
+    weeklyAllowance: num(person.allowanceRate) * num(person.allowanceNights), // CE
+    monthlyTools: (num(person.toolsWeekly) * 52) / 12, // CG
+    annualBaseWages,
+    overtimePayRate
+  }
+}
+
+/**
+ * A person's ANNUAL employer retirement contribution on the shutdown basis.
+ * `Shutdown Inputs` CI7 = `(U7+AG7)*AE7`, where AG7 mirrors CC7 (annualised overtime wages).
+ *
+ * CC7 is itself gated: `if($G$5="No",$BY$5*BW7*M7,0)` — `G5` is the sheet's global overtime
+ * suppressor and reads "No" in the sample, so the overtime wages DO count here.
+ *
+ * @param {Object} person @param {Object} settings @param {Object} figures from shutdownFigures
+ * @param {number} overtimeDays `BY5` — production days in the months where overtime applies
+ * @returns {number}
+ */
+function shutdownRetirement (person, settings, figures, overtimeDays) {
+  const suppressed = (settings || {}).overtimeSuppressed
+  const annualOvertimeWages = suppressed === 'Yes'
+    ? 0
+    : overtimeDays * figures.perDayOvertime * figures.overtimePayRate // CC7
+  return (figures.annualBaseWages + annualOvertimeWages) * num(person.retirementPct) // CI7
+}
+
+/**
+ * What a person COSTS in one month on the shutdown basis. `Shutdown Inputs` CL7:
+ *
+ *     if(switch="Yes", (CA+CB+CE)*4.33 + CG + CI/12,
+ *                      (CA   +CE)*4.33 + CG + CI/12)
+ *
+ * The month's switch gates the OVERTIME only. `CE` — the overnight allowance — sits in BOTH
+ * branches, so it is charged every month whatever the switch says. That is why the Cash
+ * Report adding it again is a double count (CORRECTION 3).
+ *
+ * @param {Object} figures @param {number} retirement @param {boolean} overtimeApplies
+ * @returns {number}
+ */
+function shutdownMonthlyWage (figures, retirement, overtimeApplies) {
+  const weekly = figures.weeklyBaseWage +
+    (overtimeApplies ? figures.weeklyOvertimeWage : 0) +
+    figures.weeklyAllowance
+  return (weekly * SHUTDOWN_WEEKS_PER_MONTH) + figures.monthlyTools + (retirement / 12)
+}
+
+/**
+ * What a person BILLS in one month on the shutdown basis. `Shutdown Inputs` DB7:
+ *
+ *     if(switch="Yes", days*BL + days*BT, days*BL)
+ *
+ * `BT` is 0 throughout this workbook (the blank `B5` above), so the switch changes nothing on
+ * the revenue side in the sample. It is implemented anyway rather than folded away, because
+ * folding it would hide the gate from anyone who later supplies it.
+ *
+ * @param {Object} figures @param {number} productionDays @param {number} totalProductionDays
+ * @param {number} overtimeDays @param {boolean} overtimeApplies @returns {number}
+ */
+function shutdownMonthlyRevenue (figures, productionDays, totalProductionDays, overtimeDays, overtimeApplies) {
+  const perDay = totalProductionDays === 0 ? 0 : figures.annualCharge / totalProductionDays // BL
+  const perOvertimeDay = overtimeDays === 0 ? 0 : figures.annualOvertimeCharge / overtimeDays // BT
+  return (productionDays * perDay) + (overtimeApplies ? productionDays * perOvertimeDay : 0)
+}
+
 /**
  * The whole model: twelve months of projected labour margin against the twelve typed
  * actuals, on whichever basis the firm runs.
@@ -386,12 +538,29 @@ function computeWages (inputs) {
   const monthsIn = Array.isArray(src.months) ? src.months : []
   const basis = src.basis === 'shutdown' ? 'shutdown' : 'seasonal'
 
-  // Each person's per-season figures, computed once rather than per month.
+  // `AC50` — the year's production days — and `BY5`, the production days in the months where
+  // overtime applies. Both are sums over the twelve months, so they are known before any
+  // person is costed and are computed once here rather than per person per month.
+  let totalProductionDays = 0
+  let overtimeDays = 0
+  monthsIn.forEach(function (m) {
+    const d = num(m.productionDays)
+    totalProductionDays += d
+    if (m.allowanceApplies) { overtimeDays += d }
+  })
+
+  // Each person's figures, computed once rather than per month. The shutdown block is derived
+  // from that basis's own ten typed cells — it used to be read from two ready-made twelve-month
+  // arrays that only the workbook's sample ever carried, so a team built on our own step 1
+  // billed nothing at all (item 4.102).
   const costed = people.map(function (p) {
+    const figures = shutdownFigures(p, settings)
     return {
       person: p,
       wage: monthlyWageBySeason(p, settings),
-      revenue: monthlyRevenueBySeason(p, settings)
+      revenue: monthlyRevenueBySeason(p, settings),
+      shutdown: figures,
+      shutdownRetirement: shutdownRetirement(p, settings, figures, overtimeDays)
     }
   })
 
@@ -408,10 +577,10 @@ function computeWages (inputs) {
       const rise = 1 + num(Array.isArray(c.person.payRise) ? c.person.payRise[idx] : 0)
       seasonalWages += c.wage[key] * rise
       seasonalRevenue += c.revenue[key]
-      const sw = Array.isArray(c.person.shutdownWage) ? num(c.person.shutdownWage[idx]) : 0
-      const sr = Array.isArray(c.person.shutdownRevenue) ? num(c.person.shutdownRevenue[idx]) : 0
-      shutdownWages += sw * rise
-      shutdownRevenue += sr
+      shutdownWages += shutdownMonthlyWage(c.shutdown, c.shutdownRetirement, !!m.allowanceApplies) * rise
+      shutdownRevenue += shutdownMonthlyRevenue(
+        c.shutdown, num(m.productionDays), totalProductionDays, overtimeDays, !!m.allowanceApplies
+      )
     })
 
     // 🔴 CORRECTION 3 — seasonal only. On the shutdown basis each person's allowance is
@@ -483,10 +652,16 @@ function computeWages (inputs) {
  * season settings and its hiring plan, read straight out of `Wages Model.xlsx` rather
  * than typed. Nothing here is invented to fill a box.
  *
- * `shutdownWage` and `shutdownRevenue` are each person's twelve monthly figures from the
- * `Shutdown Inputs` sheet, carried as supplied. Deriving them from that sheet's own
- * per-person inputs is the next slice of this port — the seasonal basis, which the sample
- * runs on, is derived in full above.
+ * 🔴 THIS IS THE **SEASONAL** SAMPLE — `Seasonal Inputs`. The shutdown basis has its own,
+ * `SHUTDOWN_SAMPLE` at the foot of this file, because the workbook's two input sheets do not
+ * agree about the same people. Running THIS sample on the shutdown basis is not meaningful
+ * and bills almost nothing: these rows carry no `weeklyBaseHours` or `productivity`, which
+ * are typed on the other sheet and read by nothing on this one.
+ *
+ * *(Each person used to carry `shutdownWage[12]` and `shutdownRevenue[12]` — the other
+ * sheet's figures, lifted whole. They are gone: the engine derives both from typed inputs
+ * now, which is what item 4.102 was. Only the sample ever had those arrays, so a real team
+ * arrived with neither and billed zero.)*
  *
  * `overtimeSuppressed` is the workbook's global overtime flag (`Seasonal Inputs` J4),
  * blank in the sample — see `overtimeBySeason` for what blank means.
@@ -538,9 +713,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
-      shutdownWage: [2711.68, 2711.68, 2711.68, 2711.68, 2711.68, 2711.68, 2711.68, 2711.68, 2711.68, 2711.68, 2711.68, 2711.68],
-      shutdownRevenue: [2336, 2229.818182, 2442.181818, 2442.181818, 2229.818182, 2017.454545, 2123.636364, 2229.818182, 1168, 1061.818182, 1911.272727, 2336]
+      payRise: [0, 0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
     },
     {
       name: 'Agatha',
@@ -555,9 +728,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, true, true, true, true, true, true, true, true, false, false],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [3211.2, 3211.2, 3211.2, 3211.2, 3211.2, 3211.2, 3211.2, 3211.2, 3211.2, 3211.2, 3211.2, 3211.2],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Judy',
@@ -572,9 +743,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, false, false, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [2203.24, 2203.24, 2203.24, 2203.24, 2203.24, 2203.24, 2203.24, 2203.24, 2203.24, 2203.24, 2203.24, 2203.24],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Stephen',
@@ -589,9 +758,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [3568, 3568, 3568, 3568, 3568, 3568, 3568, 3568, 3568, 3568, 3568, 3568],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Max',
@@ -606,9 +773,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03],
-      shutdownWage: [5680.866, 5680.866, 4511.766, 5680.866, 4511.766, 4511.766, 4511.766, 4511.766, 4511.766, 5680.866, 5680.866, 5680.866],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
     },
     {
       name: 'Alex',
@@ -623,9 +788,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5924.303, 5924.303, 4690.253, 5924.303, 4690.253, 4690.253, 4690.253, 4690.253, 4690.253, 5924.303, 5924.303, 5924.303],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Joe',
@@ -640,9 +803,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, false, false, false, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [6167.74, 6167.74, 4868.74, 6167.74, 4868.74, 4868.74, 4868.74, 4868.74, 4868.74, 6167.74, 6167.74, 6167.74],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Sean',
@@ -657,9 +818,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [6411.177, 6411.177, 5047.227, 6411.177, 5047.227, 5047.227, 5047.227, 5047.227, 5047.227, 6411.177, 6411.177, 6411.177],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Billy Ray',
@@ -674,9 +833,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [true, true, true, true, true, true, false, false, false, false, false, false],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5980.1575, 5980.1575, 4486.3075, 5980.1575, 4486.3075, 4486.3075, 4486.3075, 4486.3075, 4486.3075, 5980.1575, 5980.1575, 5980.1575],
-      shutdownRevenue: [6882.857143, 6570, 7195.714286, 7195.714286, 6570, 5944.285714, 6257.142857, 6570, 3441.428571, 3128.571429, 5631.428571, 6882.857143]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Bob',
@@ -691,9 +848,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
-      shutdownWage: [5982.1585, 5982.1585, 4488.3085, 5982.1585, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 5982.1585, 5982.1585, 5982.1585],
-      shutdownRevenue: [7375.085714, 7039.854545, 7710.316883, 7710.316883, 7039.854545, 6369.392208, 6704.623377, 7039.854545, 3687.542857, 3352.311688, 6034.161039, 7375.085714]
+      payRise: [0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
     },
     {
       name: 'Barry',
@@ -708,9 +863,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5982.1585, 5982.1585, 4488.3085, 5982.1585, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 5982.1585, 5982.1585, 5982.1585],
-      shutdownRevenue: [8509.714286, 8122.909091, 8896.519481, 8896.519481, 8122.909091, 7349.298701, 7736.103896, 8122.909091, 4254.857143, 3868.051948, 6962.493506, 8509.714286]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Bruce',
@@ -725,9 +878,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06],
-      shutdownWage: [5982.1585, 5982.1585, 4488.3085, 5982.1585, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 5982.1585, 5982.1585, 5982.1585],
-      shutdownRevenue: [8509.714286, 8122.909091, 8896.519481, 8896.519481, 8122.909091, 7349.298701, 7736.103896, 8122.909091, 4254.857143, 3868.051948, 6962.493506, 8509.714286]
+      payRise: [0, 0, 0, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
     },
     {
       name: 'Brian',
@@ -742,9 +893,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [6285.2585, 6285.2585, 4791.4085, 6285.2585, 4791.4085, 4791.4085, 4791.4085, 4791.4085, 4791.4085, 6285.2585, 6285.2585, 6285.2585],
-      shutdownRevenue: [8509.714286, 8122.909091, 8896.519481, 8896.519481, 8122.909091, 7349.298701, 7736.103896, 8122.909091, 4254.857143, 3868.051948, 6962.493506, 8509.714286]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Butch',
@@ -759,9 +908,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07],
-      shutdownWage: [5982.1585, 5982.1585, 4488.3085, 5982.1585, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 5982.1585, 5982.1585, 5982.1585],
-      shutdownRevenue: [7091.428571, 6769.090909, 7413.766234, 7413.766234, 6769.090909, 6124.415584, 6446.753247, 6769.090909, 3545.714286, 3223.376623, 5802.077922, 7091.428571]
+      payRise: [0, 0, 0, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07]
     },
     {
       name: 'Bono',
@@ -776,9 +923,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, false, false, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5679.0585, 5679.0585, 4185.2085, 5679.0585, 4185.2085, 4185.2085, 4185.2085, 4185.2085, 4185.2085, 5679.0585, 5679.0585, 5679.0585],
-      shutdownRevenue: [7091.428571, 6769.090909, 7413.766234, 7413.766234, 6769.090909, 6124.415584, 6446.753247, 6769.090909, 3545.714286, 3223.376623, 5802.077922, 7091.428571]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Boris',
@@ -793,9 +938,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, false, false, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5679.0585, 5679.0585, 4185.2085, 5679.0585, 4185.2085, 4185.2085, 4185.2085, 4185.2085, 4185.2085, 5679.0585, 5679.0585, 5679.0585],
-      shutdownRevenue: [5673.142857, 5415.272727, 5931.012987, 5931.012987, 5415.272727, 4899.532468, 5157.402597, 5415.272727, 2836.571429, 2578.701299, 4641.662338, 5673.142857]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Brad',
@@ -810,9 +953,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, false, false, false, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5982.1585, 5982.1585, 4488.3085, 5982.1585, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 5982.1585, 5982.1585, 5982.1585],
-      shutdownRevenue: [5389.485714, 5144.509091, 5634.462338, 5634.462338, 5144.509091, 4654.555844, 4899.532468, 5144.509091, 2694.742857, 2449.766234, 4409.579221, 5389.485714]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Bart',
@@ -827,9 +968,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, false, false, false, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5982.1585, 5982.1585, 4488.3085, 5982.1585, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 5982.1585, 5982.1585, 5982.1585],
-      shutdownRevenue: [4964, 4738.363636, 5189.636364, 5189.636364, 4738.363636, 4287.090909, 4512.727273, 4738.363636, 2482, 2256.363636, 4061.454545, 4964]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Ben',
@@ -844,9 +983,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, false, false, false, false, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5982.1585, 5982.1585, 4488.3085, 5982.1585, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 5982.1585, 5982.1585, 5982.1585],
-      shutdownRevenue: [7091.428571, 6769.090909, 7413.766234, 7413.766234, 6769.090909, 6124.415584, 6446.753247, 6769.090909, 3545.714286, 3223.376623, 5802.077922, 7091.428571]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Bevis',
@@ -861,9 +998,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, false, false, false, false, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5982.1585, 5845.55, 4488.3085, 6344.063208, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 6219.575708, 6219.575708, 6219.575708],
-      shutdownRevenue: [7091.428571, 6769.090909, 7413.766234, 7413.766234, 6769.090909, 6124.415584, 6446.753247, 6769.090909, 3545.714286, 3223.376623, 5802.077922, 7091.428571]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Butch',
@@ -878,9 +1013,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0],
-      shutdownWage: [5982.1585, 5982.1585, 4488.3085, 5982.1585, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 4488.3085, 5982.1585, 5982.1585, 5982.1585],
-      shutdownRevenue: [7091.428571, 6769.090909, 7413.766234, 7413.766234, 6769.090909, 6124.415584, 6446.753247, 6769.090909, 3545.714286, 3223.376623, 5802.077922, 7091.428571]
+      payRise: [0, 0, 0, 0, 0, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0]
     },
     {
       name: 'Bono',
@@ -895,9 +1028,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [true, true, false, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [5923.148, 5923.148, 4364.348, 5923.148, 4364.348, 4364.348, 4364.348, 4364.348, 4364.348, 5923.148, 5923.148, 5923.148],
-      shutdownRevenue: [7091.428571, 6769.090909, 7413.766234, 7413.766234, 6769.090909, 6124.415584, 6446.753247, 6769.090909, 3545.714286, 3223.376623, 5802.077922, 7091.428571]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Boris',
@@ -912,9 +1043,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, false, false, false, false, false, false, false, false, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Brad',
@@ -929,9 +1058,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 15,
       onPayroll: [false, false, false, false, false, false, false, false, false, true, true, true],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: '',
@@ -946,9 +1073,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
-      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      shutdownWage: [368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1, 368.1],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
     {
       name: 'Stevie',
@@ -963,9 +1088,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04],
-      shutdownWage: [6214.908, 6214.908, 5305.608, 6214.908, 5305.608, 5305.608, 5305.608, 5305.608, 5305.608, 6214.908, 6214.908, 6214.908],
-      shutdownRevenue: [6358.857143, 6069.818182, 6647.896104, 6647.896104, 6069.818182, 5491.74026, 5780.779221, 6069.818182, 3179.428571, 2890.38961, 5202.701299, 6358.857143]
+      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
     },
     {
       name: 'Natalie',
@@ -980,9 +1103,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
-      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04],
-      shutdownWage: [4660.9655, 4660.9655, 3719.1905, 4660.9655, 3719.1905, 3719.1905, 3719.1905, 3719.1905, 3719.1905, 4660.9655, 4660.9655, 4660.9655],
-      shutdownRevenue: [4451.2, 4248.872727, 4653.527273, 4653.527273, 4248.872727, 3844.218182, 4046.545455, 4248.872727, 2225.6, 2023.272727, 3641.890909, 4451.2]
+      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
     },
     {
       name: '',
@@ -997,9 +1118,7 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
-      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04],
-      shutdownWage: [303.1, 303.1, 303.1, 303.1, 303.1, 303.1, 303.1, 303.1, 303.1, 303.1, 303.1, 303.1],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
     },
     {
       name: '',
@@ -1014,9 +1133,539 @@ overtimePct: 0.5,
 leaveDays: 30,
 toolsWeekly: 0,
       onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
-      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04],
-      shutdownWage: [606.2, 606.2, 606.2, 606.2, 606.2, 606.2, 606.2, 606.2, 606.2, 606.2, 606.2, 606.2],
-      shutdownRevenue: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+    }
+  ]
+}
+
+/**
+ * THE WORKBOOK'S SECOND SHEET, as its own sample — `Shutdown Inputs`.
+ *
+ * 🔴 WHY THERE ARE TWO SAMPLES AND NOT ONE TEAM WITH TWO BASES. The workbook holds a separate
+ * input sheet per basis, and the two do NOT agree about the same people: of the 29 rows the pay
+ * rate differs on 24, the leave split on 27 and the overnight allowance on 25; the seasonal sheet
+ * carries four production staff this one does not, and one manager is Natalie there and Shirley
+ * here. They are one firm modelled twice, not one set of facts — so reproducing BOTH sheets from a
+ * single team is not possible, and pretending otherwise would mean inventing a figure the workbook
+ * never gives.
+ *
+ * A REAL FIRM STILL TYPES ONE SET. It runs one basis (decision 3), so it fills the fields its own
+ * basis reads and never sees the other’s. Three of the ten below — `weeklyBaseHours`,
+ * `weeklyOvertimeHours` and `productivity` — are read ONLY here; on `Seasonal Inputs` they are
+ * typed and read by nothing, which is why they were left out of step 1 originally.
+ *
+ * The hiring plan is SHARED: `onPayroll` and `payRise` are the same twelve-month arrays as the
+ * seasonal sample, matched row for row, because `Annual Hiring Plan` AN49:AN80 reads
+ * `Shutdown Inputs` CL7:CL38 through the same flags Y49:Y80 uses for the seasonal side.
+ *
+ * `settings` differs in two places and both are the sheet’s own: `statDays` is 11 (Q5, not the
+ * seasonal sheet's 12) and `sickDays` is 10 (U5), which the seasonal sheet folds into its
+ * 30-day leave figure instead. 20 + 10 = 30, so the two sheets agree about leave after all.
+ */
+const SHUTDOWN_SAMPLE = {
+  basis: 'shutdown',
+  seasonNames: DEFAULT_INPUTS.seasonNames,
+  settings: {
+    statDays: 11,
+    sickDays: 10,
+    overtimeSuppressed: 'No',
+    overtimeChargeMonths: 0
+  },
+  allowances: { seasonal: 0 },
+  months: DEFAULT_INPUTS.months,
+  people: [
+    {
+      name: 'Mary G',
+      division: 'Admin',
+      chargeRate: 35,
+      payRate: 19,
+      weeklyBaseHours: 32,
+      weeklyOvertimeHours: 0,
+      leaveDays: 20,
+      productivity: 0.5,
+      allowanceRate: 0,
+      allowanceNights: 0,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    },
+    {
+      name: 'Agatha',
+      division: 'Admin',
+      chargeRate: 0,
+      payRate: 18,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 0,
+      leaveDays: 20,
+      productivity: 0,
+      allowanceRate: 0,
+      allowanceNights: 0,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, true, true, true, true, true, true, true, true, false, false],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Judy',
+      division: 'Admin',
+      chargeRate: 0,
+      payRate: 19,
+      weeklyBaseHours: 26,
+      weeklyOvertimeHours: 0,
+      leaveDays: 20,
+      productivity: 0,
+      allowanceRate: 0,
+      allowanceNights: 0,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Stephen',
+      division: 'Admin',
+      chargeRate: 0,
+      payRate: 20,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 0,
+      leaveDays: 20,
+      productivity: 0,
+      allowanceRate: 0,
+      allowanceNights: 0,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Max',
+      division: 'Sales',
+      chargeRate: 0,
+      payRate: 18,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.1,
+      allowanceRate: 150,
+      allowanceNights: 2,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
+    },
+    {
+      name: 'Alex',
+      division: 'Sales',
+      chargeRate: 0,
+      payRate: 19,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.1,
+      allowanceRate: 150,
+      allowanceNights: 2,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Joe',
+      division: 'Sales',
+      chargeRate: 0,
+      payRate: 20,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.1,
+      allowanceRate: 150,
+      allowanceNights: 2,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Sean',
+      division: 'Sales',
+      chargeRate: 0,
+      payRate: 21,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.1,
+      allowanceRate: 150,
+      allowanceNights: 2,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Billy Ray',
+      division: 'Production',
+      chargeRate: 55,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.75,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, false, false, false, false, false, false],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Bob',
+      division: 'Production',
+      chargeRate: 52,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    },
+    {
+      name: 'Barry',
+      division: 'Production',
+      chargeRate: 60,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Bruce',
+      division: 'Production',
+      chargeRate: 60,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
+    },
+    {
+      name: 'Brian',
+      division: 'Production',
+      chargeRate: 60,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 4,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Butch',
+      division: 'Production',
+      chargeRate: 50,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07]
+    },
+    {
+      name: 'Bono',
+      division: 'Production',
+      chargeRate: 50,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 0,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Boris',
+      division: 'Production',
+      chargeRate: 40,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 0,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Brad',
+      division: 'Production',
+      chargeRate: 38,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Bart',
+      division: 'Production',
+      chargeRate: 35,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Ben',
+      division: 'Production',
+      chargeRate: 50,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Bevis',
+      division: 'Production',
+      chargeRate: 50,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Butch',
+      division: 'Production',
+      chargeRate: 50,
+      payRate: 23,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0]
+    },
+    {
+      name: 'Bono',
+      division: 'Production',
+      chargeRate: 50,
+      payRate: 24,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0.85,
+      allowanceRate: 35,
+      allowanceNights: 0,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, false, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: '',
+      division: 'Production',
+      chargeRate: 0,
+      payRate: 0,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 6,
+      leaveDays: 20,
+      productivity: 0,
+      allowanceRate: 35,
+      allowanceNights: 0,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, false, false, false, false, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: '',
+      division: 'Production',
+      chargeRate: 0,
+      payRate: 0,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, false, false, false, false, true, true, true],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: '',
+      division: 'Production',
+      chargeRate: 0,
+      payRate: 0,
+      weeklyBaseHours: 20,
+      weeklyOvertimeHours: 10,
+      leaveDays: 20,
+      productivity: 0,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 15,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
+      payRise: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      name: 'Stevie',
+      division: 'Management',
+      chargeRate: 65,
+      payRate: 28,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 5,
+      leaveDays: 25,
+      productivity: 0.6,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+    },
+    {
+      name: 'Shirley',
+      division: 'Management',
+      chargeRate: 65,
+      payRate: 29,
+      weeklyBaseHours: 24,
+      weeklyOvertimeHours: 5,
+      leaveDays: 25,
+      productivity: 0.7,
+      allowanceRate: 35,
+      allowanceNights: 4,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [true, true, true, true, true, true, true, true, true, true, true, true],
+      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+    },
+    {
+      name: '',
+      division: 'Management',
+      chargeRate: 0,
+      payRate: 0,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 5,
+      leaveDays: 30,
+      productivity: 0,
+      allowanceRate: 35,
+      allowanceNights: 2,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
+      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+    },
+    {
+      name: '',
+      division: 'Management',
+      chargeRate: 0,
+      payRate: 0,
+      weeklyBaseHours: 40,
+      weeklyOvertimeHours: 5,
+      leaveDays: 30,
+      productivity: 0,
+      allowanceRate: 35,
+      allowanceNights: 4,
+      toolsWeekly: 0,
+      retirementPct: 0.03,
+      overtimePct: 0.5,
+      onPayroll: [false, false, false, false, false, false, false, false, false, false, false, false],
+      payRise: [0, 0, 0, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
     }
   ]
 }
@@ -1037,5 +1686,11 @@ module.exports = {
   retirementBySeason,
   monthlyWageBySeason,
   seasonComparison,
+  shutdownFigures,
+  shutdownRetirement,
+  shutdownMonthlyWage,
+  shutdownMonthlyRevenue,
+  SHUTDOWN_SAMPLE,
+  SHUTDOWN_WEEKS_PER_MONTH,
   computeWages
 }

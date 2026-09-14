@@ -1816,12 +1816,49 @@ weather decides how many productive days a month holds, *or* a shutdown basis pl
 production days and overtime. **Both revenue and cost swap sides together**, verified from the
 formulas, which is why it is an either/or and never a blend.
 
+🔴 **THE SHUTDOWN BASIS IS DERIVED, NOT CARRIED — item 4.102, closed 2026-09-14.** Until that
+day the engine took each person's shutdown wage and revenue as **two ready-made twelve-month
+arrays**, used as given. Only the workbook's own sample ever carried them, so **a team built
+on our step 1 totalled zero revenue on that basis** — reachable in the app, with no warning.
+It now computes both from the ten typed cells of `Shutdown Inputs`, per person per month:
+
+| | |
+|---|---|
+| Wage (CL7) | `(base + overtime? + allowance) × 4.33 + tools + retirement ÷ 12` |
+| Revenue (DB7) | `days × (annual charge ÷ 231 production days)` |
+| The month's switch | gates the **overtime only** — the allowance is in both branches |
+
+The reading was checked against **768 cached cells before any code was written**: all 384
+revenue cells exact, 379 of 384 wage cells, the five exceptions being the row-28 defect below.
+`SHUTDOWN_SAMPLE` reproduces `Cash Report` R17 at **973,328.4208**, to the cent.
+
+**Step 1 gained the three fields the chain needs** — weekly base hours, weekly overtime hours,
+productivity — **shown to everyone and starting empty** (Mike's yes, 2026-09-14). The basis is
+chosen on step 2 and this is step 1, his own decision 9, so the screen cannot know which basis
+applies; a column appearing only after a trip to step 2 and back is one somebody fills in by
+accident or never finds. They are empty in the sample too, because the other sheet's figures
+belong to a different model of the same firm.
+
+⚠ **The two input sheets are not the same team, which is why there are TWO samples.** Of the
+29 rows the pay rate differs on 24, the leave split on 27 and the overnight allowance on 25;
+the seasonal sheet carries four production staff the other does not, and one manager is
+Natalie there and Shirley here. One team cannot reproduce both sheets, so each basis has its
+own sample and the route serves whichever the request asks for. *(Leave is not a real
+disagreement: seasonal writes 30 days; shutdown writes 20 with 10 as the sheet-level sick-day
+setting. 20 + 10 = 30.)*
+
+⚠ **Overtime adds no revenue on this basis, and that is the workbook's state, not an omission.**
+`BR7 = if($B$5=0,0,…)` and `B5` is **blank**, which Excel reads as 0, so the overtime charge is
+nil on all 29 rows. The hours chain is computed anyway and the gate is named
+(`settings.overtimeChargeMonths`), so a firm that needs it supplies one value rather than a
+rewrite.
+
 **The real headline is the per-season card, not the year.** The same team on the same pay: a
 *Wet n Dark* month **loses 13,972** while a *Dry n Light* month makes **52,270** — a swing of more
 than 66,000 on the weather alone, because a field team is paid its contracted hours whatever the
 sky does. That is the finding an advisor opens the conversation with.
 
-🔴 **THREE RULED DEVIATIONS, THE FIRST TWO FOUND AT BUILD TIME AND BOTH RULED THE SAME DAY** —
+🔴 **FOUR RULED DEVIATIONS, THE FIRST TWO FOUND AT BUILD TIME AND BOTH RULED THE SAME DAY** —
 *"fix it - always. we want it right in the end"*, then, when the second was put as a definitional
 choice rather than a defect, *"if it needs to be fixed - fix it - NEVER allow a mistake to remain."*
 Each is pinned in `tests/unit/wagesModel.test.js` with the workbook's own cached figure beside ours,
@@ -1835,6 +1872,17 @@ and each is **mutation-verified**:
 - **Two answers to one question.** The per-season card's cost line dropped the employer retirement
   contribution that the same model's monthly cost includes, so the card flattered every season. It
   now uses the monthly measure, and the card and the months agree.
+- **One wage reading another month's cell** *(added 2026-09-14, found while porting the
+  shutdown basis)*. `Shutdown Inputs` CL28 is a shared formula across the twelve month
+  columns. Every other row anchors the retirement contribution as `$CI$<row>` in **both**
+  branches; row 28 writes it as **`CI28`, unanchored, in the "Yes" branch alone**, so each
+  month shifts it one column right — May reads CJ28 (blank), July reads CL28 (April's own
+  wage), January reads CR28 (October's). Bevis is charged a twelfth of another month's total
+  instead of a twelfth of his retirement contribution: **237.42 a month dearer, 712.25 across
+  the three ticked months he is actually employed for.** April is correct only because it
+  holds the master cell. ⚠ **This is the first deviation's cousin** — both are shared formulas
+  whose unanchored reference drifts as the block fills, down a column there and across a row
+  here. When checking this workbook, read what a formula *anchors*, not only what it says.
 - **The overnight allowance, charged twice on the SHUTDOWN basis** *(added 2026-09-14, while
   settling the question that had to be answered before the shutdown port could start)*.
   `Seasonal Inputs` CM7 leaves the allowance out of each person's monthly wage; `Shutdown Inputs`

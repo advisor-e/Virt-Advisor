@@ -31,6 +31,13 @@
             th {{ $t('report.wagesReview.team.col.retirement') }}
             th {{ $t('report.wagesReview.team.col.overtime') }}
             th {{ $t('report.wagesReview.team.col.leaveDays') }}
+            //- The three the SHUTDOWN basis reads and the seasonal one does not. Shown to
+            //- everyone and starting empty, because step 2 is where the basis is chosen and
+            //- this is step 1 (Mike's decision 9) — a column that appeared only after a trip
+            //- to step 2 and back is a column somebody fills in by accident or not at all.
+            th {{ $t('report.wagesReview.team.col.weeklyBaseHours') }}
+            th {{ $t('report.wagesReview.team.col.weeklyOvertimeHours') }}
+            th {{ $t('report.wagesReview.team.col.productivity') }}
             th {{ $t('report.wagesReview.team.col.tools') }}
             th {{ $t('report.wagesReview.team.col.allowanceRate') }}
             th {{ $t('report.wagesReview.team.col.allowanceNights') }}
@@ -60,6 +67,12 @@
               b-input(v-model.number="person.overtimePct" type="number" step="any" size="is-small")
             td
               b-input(v-model.number="person.leaveDays" type="number" step="any" size="is-small")
+            td
+              b-input(v-model.number="person.weeklyBaseHours" type="number" step="any" size="is-small")
+            td
+              b-input(v-model.number="person.weeklyOvertimeHours" type="number" step="any" size="is-small")
+            td
+              b-input(v-model.number="person.productivity" type="number" step="any" size="is-small")
             td
               b-input(v-model.number="person.toolsWeekly" type="number" step="any" size="is-small")
             td
@@ -92,17 +105,37 @@
  * charge-out rate. Drawn at `design/mockups/wages-model.html` (decision 9, ruled by
  * Mike 2026-09-14: five steps, the report last).
  *
- * 🔴 TEN CONTROLS, NOT THE DRAWING'S TWELVE, AND THAT IS DELIBERATE. Reading the
- * workbook's stored XML — which cells carry an `<f>` element, and which cells any
- * formula actually reads — settled five of the drawn fields differently. Mike ruled
- * the division control on 2026-09-14; the other four follow from the workbook itself:
+ * 🔴 THIRTEEN CONTROLS. Ten serve the SEASONAL basis; the last three —
+ * `weeklyBaseHours`, `weeklyOvertimeHours` and `productivity` — serve the SHUTDOWN one and
+ * were added 2026-09-14 on Mike's yes (item 4.102).
  *
- *   - Weekly base hours    — TYPED BUT READ BY NOTHING ('Std Hrs', col N). 0 readers.
+ * **They are shown to everyone and start empty.** The basis is chosen on step 2 and this is
+ * step 1 — his own decision 9, which is not being reordered — so this screen cannot know
+ * which basis applies. A column that appeared only after a trip to step 2 and back is a
+ * column somebody fills in by accident, or never finds. A seasonal firm leaves them blank
+ * and the engine never reads them.
+ *
+ * ⚠ AND THEY ARE EMPTY IN THE SAMPLE TOO. `Shutdown Inputs` holds different figures for the
+ * same people — the pay rate differs on 24 of the 29 rows — so pre-filling these from that
+ * sheet would show an advisor a number belonging to a different model of the same firm.
+ *
+ * 🔴 THE TEN SEASONAL CONTROLS ARE NOT THE DRAWING'S TWELVE, AND THAT IS DELIBERATE.
+ * Reading the workbook's stored XML — which cells carry an `<f>` element, and which cells
+ * any formula actually reads — settled five of the drawn fields differently. Mike ruled the
+ * division control on 2026-09-14; the other four follow from the workbook itself:
+ *
+ *   - Weekly base hours    — on `Seasonal Inputs`, TYPED BUT READ BY NOTHING ('Std Hrs',
+ *                            col N). 0 readers. ⚠ On `Shutdown Inputs` (col K) it is a LIVE
+ *                            input and the whole wage chain runs off it, which is why it is
+ *                            now a control. The two sheets differ; this line was right about
+ *                            the seasonal one and was read as a statement about both.
  *   - Annual salary        — TYPED BUT READ BY NOTHING (col G). 0 readers.
  *   - On salary? (Yes/No)  — TYPED BUT READ BY NOTHING (col F), AND replaced by DIVISION
  *                            per Mike's ruling: the engine needs a three-way basis and
  *                            Yes/No cannot carry it.
- *   - Weekly overtime hrs  — CALCULATED ('Extra Hrs Wkd', BV/BX/BZ).
+ *   - Weekly overtime hrs  — on `Seasonal Inputs`, CALCULATED ('Extra Hrs Wkd', BV/BX/BZ).
+ *                            ⚠ On `Shutdown Inputs` (col O) it is typed and read. Same
+ *                            correction as weekly base hours above.
  *   - Overtime pay rate    — the typed cell is the UPLIFT, and the workbook's own header
  *                            calls it "Overtime Pay Rate (%)" holding 0.5. That is the
  *                            control kept here; the drawing's "34.50" was the computed
@@ -228,7 +261,15 @@ function samplePeople () {
     // `Seasonal Inputs` V (the rate) and X (the count). Only the first four production
     // rows carry them in the sample: 175 x 2 = 350 each, 1,400 for the team.
     allowanceRate: rate || 0,
-    allowanceNights: nights || 0
+    allowanceNights: nights || 0,
+    // 🔴 THE THREE THE SHUTDOWN BASIS READS, AND THEY START EMPTY EVEN HERE. This is the
+    // SEASONAL sample, and `Shutdown Inputs` holds different figures for the same people —
+    // different pay rates on 24 of 29 rows. Filling these with the other sheet's numbers
+    // would put a figure in front of an advisor that belongs to a different model of the
+    // same firm. Mike's rule of 2026-09-14: no invented defaults.
+    weeklyBaseHours: null,
+    weeklyOvertimeHours: null,
+    productivity: null
   })
   return [
     mk('Mary G', 'Admin', 'Part Time', 0, 19, 0, 0),
@@ -278,7 +319,10 @@ function blankPerson () {
     leaveDays: null,
     toolsWeekly: null,
     allowanceRate: null,
-    allowanceNights: null
+    allowanceNights: null,
+    weeklyBaseHours: null,
+    weeklyOvertimeHours: null,
+    productivity: null
   }
 }
 
@@ -396,7 +440,12 @@ export default {
         leaveDays: p.leaveDays,
         toolsWeekly: p.toolsWeekly,
         allowanceRate: p.allowanceRate,
-        allowanceNights: p.allowanceNights
+        allowanceNights: p.allowanceNights,
+        weeklyBaseHours: p.weeklyBaseHours,
+        weeklyOvertimeHours: p.weeklyOvertimeHours,
+        // The engine holds productivity as a decimal (`Shutdown Inputs` S7 = 0.5); the
+        // control shows it as a percentage, like every other rate on this screen.
+        productivity: pctOut(p.productivity)
       }))
     },
 
@@ -427,11 +476,11 @@ export default {
      * shown on screen (grouped by division), so returning to the step shows what was
      * left. The row id is display machinery and deliberately does not travel.
      *
-     * `allowances.seasonal` is the team's total, derived here because the engine takes
-     * one figure. SHUTDOWN IS NOT SUPPLIED: its column in the workbook interleaves label
-     * text with its formulas and this file stores some strings without the usual type
-     * marker, so it could not be read with confidence. The report step must settle it
-     * deliberately rather than inherit a silent zero — see report-models.md.
+     * `allowances.seasonal` is the team's total, derived here because the engine takes one
+     * figure. NO SHUTDOWN ALLOWANCE IS EMITTED, and that is now a settled answer rather than
+     * a deferral: on that basis the allowance sits INSIDE each person's monthly wage
+     * (`Shutdown Inputs` CL7), so a separate total would charge it twice. CORRECTION 3 in
+     * `server/report/wagesModel.js`.
      */
     confirm () {
       this.$emit('confirmed', {
@@ -449,7 +498,13 @@ export default {
           leaveDays: num(p.leaveDays),
           toolsWeekly: num(p.toolsWeekly),
           allowanceRate: num(p.allowanceRate),
-          allowanceNights: num(p.allowanceNights)
+          allowanceNights: num(p.allowanceNights),
+          // The three the SHUTDOWN basis reads (`Shutdown Inputs` K, O and S). They travel
+          // whatever the basis, because step 2 — where the basis is chosen — comes after
+          // this one. On the seasonal basis the engine never looks at them.
+          weeklyBaseHours: num(p.weeklyBaseHours),
+          weeklyOvertimeHours: num(p.weeklyOvertimeHours),
+          productivity: pctIn(p.productivity)
         }))
       })
     }

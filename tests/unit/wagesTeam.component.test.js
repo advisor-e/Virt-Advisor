@@ -5,7 +5,7 @@
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
 const WagesTeam = require('../../components/WagesTeam.vue').default
-const { DEFAULT_INPUTS } = require('../../server/report/wagesModel')
+const { DEFAULT_INPUTS, SHUTDOWN_SAMPLE, computeWages } = require('../../server/report/wagesModel')
 
 /**
  * WagesTeam — step 1 of the Wages/Salary Review (item 4.100).
@@ -315,6 +315,57 @@ describe('WagesTeam — the overnight allowance follows the team', () => {
     wrapper.vm.confirm()
     const out = wrapper.emitted('confirmed')[0][0]
     expect(out.allowances.seasonal).toBe(1400)
+  })
+
+  it('carries the three SHUTDOWN fields through, and starts them empty', () => {
+    // Item 4.102, build step 5. The engine derives the shutdown basis from ten typed cells;
+    // three of them had no control, so a team built here billed ZERO on that basis. They are
+    // shown to everyone because step 2 — where the basis is chosen — comes after this step.
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.people.forEach((p) => {
+      expect(p.weeklyBaseHours).toBeNull()
+      expect(p.weeklyOvertimeHours).toBeNull()
+      expect(p.productivity).toBeNull()
+    })
+    // Empty in the SAMPLE too: `Shutdown Inputs` holds different figures for these same
+    // people, so pre-filling would show a number from a different model of the same firm.
+    const paid = wrapper.vm.people.find(p => p.name === 'Billy Ray')
+    paid.weeklyBaseHours = 40
+    paid.weeklyOvertimeHours = 5
+    paid.productivity = 92 // the control is a percentage; the engine wants 0.92
+    wrapper.vm.confirm()
+    const out = wrapper.emitted('confirmed')[0][0]
+    const billy = out.people.find(p => p.name === 'Billy Ray')
+    expect(billy.weeklyBaseHours).toBe(40)
+    expect(billy.weeklyOvertimeHours).toBe(5)
+    expect(billy.productivity).toBeCloseTo(0.92, 6)
+  })
+
+  it('🔴 BILLS REAL MONEY on the shutdown basis — the fault item 4.102 was', () => {
+    // The end-to-end proof. Before this, a team built on THIS screen and run on the
+    // Shutdown basis totalled zero revenue, because the engine read two ready-made arrays
+    // that only the sample carried. One person with the three fields filled is enough to
+    // show the chain is connected; the exact figures are pinned in the golden test.
+    const wrapper = mountWithBuefy(WagesTeam)
+    const p = wrapper.vm.people.find(x => x.name === 'Billy Ray')
+    p.chargeRate = 55
+    p.weeklyBaseHours = 40
+    p.weeklyOvertimeHours = 0
+    p.productivity = 92
+    wrapper.vm.confirm()
+    const out = wrapper.emitted('confirmed')[0][0]
+
+    const model = computeWages({
+      basis: 'shutdown',
+      settings: { statDays: 11, sickDays: 10, overtimeSuppressed: 'No' },
+      allowances: { seasonal: 0 },
+      months: SHUTDOWN_SAMPLE.months,
+      people: out.people.map(x => Object.assign({}, x, {
+        onPayroll: new Array(12).fill(true),
+        payRise: new Array(12).fill(0)
+      }))
+    })
+    expect(model.totals.revenue).toBeGreaterThan(0)
   })
 
   it('emits no shutdown allowance, because there is no such line', () => {
