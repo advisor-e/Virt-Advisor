@@ -9,41 +9,34 @@
 
 ---
 
-## 2026-09-14 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-15 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**4.97 US3 IS COMPLETE** (`b15f0599`, `c773d4be`, both pushed). **34 of 67 tasks; US1, US2 and
-US3 all done.** US4 — the client's typed industry reaching the pool (T035/T036) — is next and is
-two small tasks.
+**4.100 IS CLOSED** (`883a6481`) and **4.97 US5 is half built** (`9be4fef7`). Both pushed.
+Nine live items. Suite **11,097 green** (524 suites), lint 0, coverage and audit gates passed.
 
-🔴 **FIVE OF THE SIX WAYS THE ADVISOR'S EVIDENCE REACHES A TEMPLATE WERE NEVER PROTECTED.** One
-line decided it — `reasons.some(r => r.indexOf('distinction:') === 0)` — so a firm distinction
-won and the confirmed main issue, the client's industry and the signals heard in the description
-were all silently overruled by pooled data. It now tests `ADVISOR_EVIDENCE`, and the reason code
-carries which kind won: **`pooled:outweighed-<kind>`**.
+🔴 **A FUNCTION PASSED ALL TEN OF ITS TESTS AND REAL MYSQL REFUSED IT.** `countReviewStatus`
+selected `NOT (reviewed_at IS NULL)` grouped by `reviewed_at IS NULL`; `only_full_group_by`
+does not see those as the same expression — `ER_WRONG_FIELD_WITH_GROUP`. The tests mock
+`db.execute`, so none of them could show it and UAT would have been the first to find out.
+**SELECT and GROUP BY now carry the identical `(reviewed_at IS NULL) = 0`, and a comment says
+why.** Proved end to end afterwards: three throwaway rows at a borrowed firm returned 3
+delivered / 1 reviewed, deleted by id. That is three faults in two days found by running
+things, not by the suite.
 
-**Anything reading the bare `pooled:outweighed` now wants the `-<kind>` suffix.** The trace-code
-rule matches with or without it, deliberately: a case saved before today would otherwise have
-shown an advisor the raw string `pooled:outweighed` on screen.
+⚠ **US5 IS NOT FINISHED — NOTHING CALLS `countReviewStatus`.** T037/T038 done; **T039 (the
+route) and T040 (the two screens) are the next step**, and the reach tiles are already drawn.
+36 of 67 tasks. `activeOn` still names this machine for 4.97.
 
-**The trace names which evidence won** — four endings, Mike's wording of 2026-09-14 from
-`mockups/outcome-learning-trace-lift.html`. `outweighed[].by` was the constant `'distinction'`
-until now, so the panel named the wrong evidence whenever another kind had actually won.
+**4.100 was one phrase, not the general fault.** `sales-marketing` no longer counts *sales*
+when *cost of* precedes it. Measuring it found worse than filed: *"our cost of sales keeps
+climbing"* scored profit 0 / sales 1 and routed **outright**, no question asked. A thin single
+keyword can still carry a conversation into the wrong area — recorded honestly in
+`advisory-engine.md` §4 rather than claimed closed.
 
-**The fixed bench counts CAP BREACHES and reports 0/51**, on the list route, the mentor's bench
-card and the Scenario Lab. A breach cannot be produced through the resolver, so the counter is
-proved on constructed display sets — otherwise "0 breaches" could be a counter that never counts.
+**4.99 still stands** — no AI-backed script runs here, so the Scenario Lab was not run.
+`npm run build` NOT run (nothing tagged). OpenAI top-up still with Mike (blocks 4.93).
 
-**WALKED ON THE RUNNING APP.** The bench line seen rendering under the fixed bench's 100% → 100%;
-all four endings rendered from the real locale strings; both engine paths proved against
-`data/templates.json`. ⚠ **Not reached through a live conversation** — the intake needs real
-advisor answers to drive to a pooled match.
-
-Suite **11,071 green** (522 suites), lint 0 errors, coverage and audit gates passed, tree clean,
-pushed. `npm run build` NOT run (nothing tagged). **4.99 still stands** — no AI-backed script runs
-here, so the Scenario Lab was not run.
-
-**LAPTOP:** you have moved 30 → **39 commits** ahead of master today; your note is still dated
-2026-09-13. None of your files touched. Shared files changed: `server/utils/templateResolver.js`,
-`outcomeLearningSession.js`, `outcomeBench.js` (new export `hasCapBreach`), `utils/traceReasonCodes.js`,
-`components/VirtualAdvisor.vue`, `components/mentor/MentorOutcomeLearning.vue`, `locales/en.json`,
-`scripts/scenario-lab.js` and four test files. Merge `master` before you touch any of them.
+**LAPTOP:** your note is dated 2026-09-13 while your branch had a commit on 2026-09-15 — two
+days stale, flagged at startup. You are 41 ahead of master. Shared files I touched:
+`data/domains.json` (one keyword pattern), `server/utils/caseStore.js` (one new function,
+nothing existing changed), `design/features/advisory-engine.md`. Merge `master` before those.

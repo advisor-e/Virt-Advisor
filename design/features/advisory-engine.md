@@ -222,9 +222,13 @@ unknown**.
 
 - The advisor's confirmed primary issue reaches the trace and the outcome pool, but nothing
   measures how often the proposal is right across the 51 Scenario Lab cases (4.97 T019).
-- The DOMAIN is misread on some cases, which the primary-issue step made visible: a
-  supplier-cost conversation routed to `sales-marketing` gets sales-and-marketing tools, and
-  the best issue available there is the wrong one. Upstream of everything above.
+- The DOMAIN is misread on some cases, which the primary-issue step made visible. Upstream of
+  everything above, because the area decides which templates are considered at all. **The
+  "cost of sales" case is closed** (4.100): `sales-marketing` no longer counts the word *sales*
+  when *cost of* precedes it, so a supplier-cost conversation stays in `profit` instead of being
+  offered sales-and-marketing tools. That fixed **one phrase, not the general fault** — a thin
+  single keyword can still carry a conversation into the wrong area, which is what the AI
+  backstop and the confirmation step exist to catch.
 - Routing groups are complete for one domain only.
 - Two templates have no semantic profile; 23 have a profile with no signals; 88 have thin
   purpose-only profiles. These affect scoring precision, not function.

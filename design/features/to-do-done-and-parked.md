@@ -185,6 +185,31 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.100 — a supplier-cost conversation was routed to sales and marketing.**
+✅ Closed 2026-09-15 on the desktop (`883a6481`), on Mike's yes. Filed at the previous shutdown
+after the 4.97 primary-issue step made it visible on the running app.
+
+- **The cause was one word inside a phrase.** `sales-marketing`'s keyword pattern hunted for
+  *sales* and found the one sitting inside **"cost of sales"** — the accounting term for the
+  direct cost of what you sell, which is a profit matter. The advisory area decides which
+  templates are considered at all, so everything downstream inherited it and looked correct
+  doing so: the templates, the primary issue, and the pooled row the platform learns from.
+- **Measuring it found a worse shape than the one filed.** The item's own reproduction sentence
+  (*"margins are down, the cost of sales has gone up"*) scores **profit 1, sales 1** — a tie, so
+  the advisor is asked. Nothing silently wrong, but the question was never genuine. Whereas
+  *"our cost of sales keeps climbing"* scores **profit 0, sales 1** — no tie, so it routes
+  **outright** to sales and marketing and the advisor is never told there was a choice.
+- **The fix.** One line in `data/domains.json`: the word *sales* still counts, unless *cost of*
+  precedes it. `server/advisorEngine.js` is untouched — its detection and tie logic were behaving
+  correctly throughout; the tie should never have existed.
+- **Proved three ways.** Lookbehind confirmed on the real Node 14.15.0 binary before the pattern
+  was changed. Mutation-verified: reverting the pattern fails 6 of `costOfSalesRouting.test.js`'s
+  13 assertions while the 7 guarding genuine sales wording stay green, so the guard cannot be
+  bought by deleting the domain. Six real sales/marketing sentences unchanged, none dragged into
+  profit.
+- **It fixed one phrase, not domain misreading in general** — recorded honestly in
+  [`advisory-engine.md`](advisory-engine.md) §4 rather than claimed as closed.
+
 **4.94 — "Why this?" named the wrong hold-back, and could hide one.**
 ✅ Found and closed 2026-09-12 on the desktop, filed and fixed on Mike's yes the same hour. A
 defect in 4.87 as built, found by walking `specs/002-outcome-learning/quickstart.md` Story 3 on

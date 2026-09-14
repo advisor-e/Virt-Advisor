@@ -134,8 +134,8 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 **Independent Test**: quickstart Story 5.
 
-- [ ] T037 [P] [US5] Write `tests/unit/caseStoreCounts.test.js` — `countReviewStatus(firmId)` issues one `COUNT` grouped on `reviewed_at IS NULL` scoped to `firm_id`, returns `{ delivered, reviewed }`, dev fallback counts the JSON file, a DB error surfaces
-- [ ] T038 [US5] Add `countReviewStatus(firmId)` to `server/utils/caseStore.js` with the dev-fallback branch (research R5)
+- [x] T037 [P] [US5] Write `tests/unit/caseStoreCounts.test.js` — `countReviewStatus(firmId)` issues one `COUNT` grouped on `reviewed_at IS NULL` scoped to `firm_id`, returns `{ delivered, reviewed }`, dev fallback counts the JSON file, a DB error surfaces
+- [x] T038 [US5] Add `countReviewStatus(firmId)` to `server/utils/caseStore.js` with the dev-fallback branch (research R5) — SELECT and GROUP BY must carry the IDENTICAL expression `(reviewed_at IS NULL) = 0`; MySQL's `only_full_group_by` rejects the statement otherwise, which no mocked test can show (found by running it against real MySQL)
 - [ ] T039 [US5] In `server/routes/outcomeLearning.js` `list` add `reach` summed over firms whose consent is on (via `listFirmIdsWithConfigKey(CONFIG_KEY)` + `contributionOpen`), cached 60 s beside the live list; in `server/routes/outcomeConsent.js` `read` add the firm's own pair; update both route tests
 - [ ] T040 [US5] Render the reach tiles in `components/mentor/MentorOutcomeLearning.vue` and the pair in `components/firm/FirmOutcomeConsent.vue` per the approved drawing; `locales/en.json` keys
 
