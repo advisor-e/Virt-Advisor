@@ -11,36 +11,38 @@
 
 ## 2026-09-14 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**4.97 US1 IS COMPLETE AND LIVE — the engine asks the advisor what the problem is.** It
-proposes one authored label with a reason, the advisor confirms or reframes it, and the
-**Main issue** row on the trace shows what was recorded and how (T018, T020). This is the
-first thing in 4.97 an advisor actually sees. 16 of 67 tasks; **T019** — the Scenario Lab
-measurement — is the remainder of US1 and the obvious next task.
+**4.97 US1 AND US2 ARE BOTH COMPLETE** (`ace4ea62`, pushed). 27 of 67 tasks. **US3 — the
+advisor's own words always win, across all six evidence families — is the obvious next
+task** (T030–T034); it reads the signed sizes US2 introduced, which is why the plan pairs
+them.
 
-**🔴 BOTH OF TODAY'S FAULTS WERE FOUND BY RUNNING THE APP, NOT BY THE SUITE.** Worth
-knowing before trusting a green run on this feature.
+**Outcome Learning now lifts as well as holds back.** One signed number per pairing:
+`size = round(10 × (well − less) ÷ delivered)`, `holdBack` derived from it, matched sizes
+NET before a ±10 cap. Same floor, same mentor decision, same trace. A net of zero applies
+nothing and writes NO reason. `SCORING_VERSION` → **2.3.0**.
 
-1. *Naming a problem from one category word* (`8eec6cea`). "Margins are down, the **cost of
-   sales** has gone up" proposed *Sales Execution — poor sales training*, on the word
-   "sales". Now withheld where the lone match is the domain's own name and the domain has
-   more than one label. Cost, measured on the 51 cases: 16 propose, 6 ask instead.
-2. *Plain agreement recorded as a correction* (`468ad92c`). `parseReply` re-ranked the
-   reply using signals from the ORIGINAL cause text, which fire whatever is typed next, so
-   "Yes that is right" came back `reframed` on a label matching **no word of the reply**.
-   A reframe now ranks on the reply's own words. No existing test could catch it — they all
-   passed an empty signal map.
+🔴 **THE SEED'S OWN DATA FLIPPED DIRECTION, AND THAT IS THE FAULT IN ONE LINE.** Break-Even
+— 31 delivered, 12 less, **19 well** — computed a hold-back of 4 and is in truth a lift of
++2. The engine was holding back a template the pool was recommending. Several test fixtures
+changed answer for the same reason; each says so in a comment.
 
-**⚠ NEW ITEM 4.100, AND IT IS THE BIGGER ONE.** The supplier-cost conversation is routed to
-`sales-marketing` at all. The area decides which templates are even considered, so the
-advisor gets sales-and-marketing tools for a margin problem. Reproduced twice. The
-primary-issue step is correct in both areas — it is what made this visible. Not fixed.
+**The advisor's words win in BOTH directions** — a lift that would reorder their own
+evidence is `pooled:outweighed` exactly as a hold-back is. Deliberate; do not "fix" it.
 
-**4.99 still stands: no AI-backed script runs here** (`NODE_EXTRA_CA_CERTS`), so the
-Scenario Lab cannot measure the AI layers on this machine — which T019 will want.
+**T019: the Scenario Lab measures the primary-issue step.** 25/51 propose (49%), 7 withheld
+as too thin, 9 context domains, 10 no match; 24/25 survive the case's own words — **a proxy,
+and the report line says so.** ⚠ **The lab itself was NOT run: 4.99 stands**, and a run here
+would overwrite a full report with one measured without the AI layers.
 
-Suite **11,027 green** (522 suites), lint 0, `npm run build` succeeds, tree clean, pushed.
+⚠ **T020's box in `tasks.md` is still unticked** though it shipped yesterday (`468ad92c`).
+Left alone rather than ticking another session's work — worth one word from Mike.
 
-**LAPTOP:** none of your files touched. Shared files changed: `server/advisorEngine.js`,
-`server/utils/primaryIssueProposer.js`, `components/VirtualAdvisor.vue` (one trace row),
-`locales/en.json` (four `decisionTrace.*` keys), `design/features/advisory-engine.md`, the
-to-do list (4.97, new 4.100). Merge `master` before you touch any of them.
+Suite **11,053 green** (522 suites), lint 0, tree clean, pushed. `npm run build` NOT run
+this session (nothing was tagged).
+
+**LAPTOP:** none of your files touched. Shared files changed: `server/utils/templateResolver.js`
+(the pooled block + version), `outcomeLearning.js`, `outcomeLearningSession.js`, `outcomeBench.js`,
+`components/VirtualAdvisor.vue` (trace line), `components/mentor/MentorOutcomeLearning.vue`,
+`locales/en.json`, `utils/traceReasonCodes.js`, the dev seed and six test files. **Anything
+reading `holdBack` off an adjustment now wants `size`.** Merge `master` before you touch any
+of them.
