@@ -26,7 +26,12 @@
    which is the lesson report-models.md records against this very model: a finding
    about one sheet was once written down as a finding about the workbook.
 
-   FOUR QUESTIONS ON THIS PAGE ARE OPEN. Each carries one recommendation.
+   FOUR QUESTIONS WERE PUT ON THIS PAGE, each with one recommendation.
+   THE SCREEN WAS APPROVED BY MIKE 2026-09-15 — the screen, not the answers.
+   ALL FOUR RULED BY MIKE 2026-09-15, each as recommended — though Q4's
+   recommendation was CORRECTED before it was put to him, once meetingRetention.js
+   was read and turned out to hold a transcript period, not a general one.
+   NOTHING IS BUILT.
    ============================================================================ */
 :root{
   --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
@@ -63,6 +68,10 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
   font-weight:700;color:var(--rs-accent)}
 .ask p{margin:0 0 7px}.ask p:last-child{margin:0}
 .ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px solid #cbe7d2}
 
 .fault{background:#fff4f4;border:1px solid #f3b9b9;border-left:4px solid var(--rs-crit);
   border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
@@ -167,6 +176,16 @@ so the register can never disagree with the model about who works there.</p>
       <button class="btn" type="button">Close the staff register</button>
     </div>
 
+    <div class="dial" style="margin-top:16px">
+      <div class="txt">
+        <p class="h">Hours in a day's leave &nbsp; <span class="inp">8</span></p>
+        <p class="s">Applies to everyone on the register, and it is what turns days owed into
+        money. <b>It starts empty</b> — until it is set, nothing is priced. Shown filled here
+        because the figures below need it; the workbook's own 8 is typed there <i>because</i> it
+        varies, so it is not assumed on your behalf.</p>
+      </div>
+    </div>
+
     <table class="g" style="margin-top:16px">
       <thead><tr>
         <th>Name</th>
@@ -237,9 +256,9 @@ so the register can never disagree with the model about who works there.</p>
     <div class="dial">
       <div class="txt">
         <p class="h">This register is kept until 15 September 2033</p>
-        <p class="s">Your firm's retention period for client records — <b>seven years</b> — set
-        once in Firm Manager and used by every feature that keeps something. It is not deleted
-        when the deal closes.</p>
+        <p class="s">Your firm's retention period <b>for staff registers</b> — seven years — set in
+        Firm Manager, beside the meeting-transcript period and <b>separate from it</b>. It is not
+        deleted when the deal closes.</p>
       </div>
       <button class="btn" type="button">Change in Firm Manager</button>
     </div>
@@ -276,7 +295,7 @@ reads earns no control.</b></p>
   <tbody>
     <tr><td>Name, division</td><td><span class="cellref">N</span> — pulled from <i>Annual Hiring Plan</i></td><td>from step 1, not typed again</td></tr>
     <tr><td>Current pay rate (incl rise)</td><td><span class="cellref">E</span> — <b>formula</b>, reads <i>Annual Hiring Plan</i></td><td>derived, shown, not editable</td></tr>
-    <tr><td>Sick leave consumed</td><td><span class="cellref">F</span> — typed, and <b>nothing reads it</b></td><td>🔴 <b>not carried</b> — see question 3</td></tr>
+    <tr><td>Sick leave consumed</td><td><span class="cellref">F</span> — typed, and <b>nothing reads it</b></td><td>🔴 <b>not carried</b> — ruled 2026-09-15, question 3</td></tr>
     <tr><td>Accrued annual leave (outstanding)</td><td><span class="cellref">G</span> — typed</td><td><b>typed here</b> — the one leave input</td></tr>
     <tr><td>Annual leave liability</td><td><span class="cellref">H</span> — see the faults below</td><td>derived: pay rate × hours in a leave day × days</td></tr>
     <tr><td>Yrs employed</td><td><span class="cellref">I</span> — typed, read by the averages</td><td><b>typed here</b></td></tr>
@@ -334,8 +353,13 @@ deal-end, which Decision 8 reversed.</p>
 
 <h2>The four open questions</h2>
 
-<div class="ask">
-<h3>Question 1 — how many hours are in a day's leave</h3>
+<div class="ask ruled">
+<h3>Question 1 — RULED BY MIKE 2026-09-15 — the register carries its own field</h3>
+<p class="ruling">Ruled as recommended: <b>a single typed field on the register, "Hours in a day's
+leave", starting empty and applying to everyone.</b> Until it is set nothing is priced — a firm
+that never sets it gets no figure, rather than a figure resting on an assumption of ours. It is
+drawn above the table, because a setting that changes every number on a sheet belongs on the face
+of it, not in a menu.</p>
 <p class="rec">Recommended: <b>a single typed field on the register</b>, "Hours in a day's leave",
 starting empty, applying to everyone. The liability stays blank until it is set.</p>
 <p><b>Why not take it from step 2.</b> Step 2 already asks for <i>"Average Working Hrs per Day
@@ -349,8 +373,12 @@ it varies, and hard-coding it is exactly the fault this model has already been c
 "every typed cell reachable, nothing quietly fixed as a constant".</p>
 </div>
 
-<div class="ask">
-<h3>Question 2 — what a person with no leave figure shows</h3>
+<div class="ask ruled">
+<h3>Question 2 — RULED BY MIKE 2026-09-15 — the gap shows on the document</h3>
+<p class="ruling">Ruled as recommended, and it is what is drawn above: an unpriced row reads
+<b>"not yet priced"</b>, and the totals carry a <b>Priced</b> count beside the People count —
+<i>5 of 29</i>. <b>A partial total never presents itself as a whole one</b>, and the count doubles
+as the advisor's list of whose figures to go and get.</p>
 <p class="rec">Recommended, and drawn above: the row reads <b>"not yet priced"</b>, and the totals
 carry a <b>Priced</b> count beside the People count — <i>5 of 29</i> — so the gap is on the face of
 the document.</p>
@@ -360,8 +388,12 @@ it. An acquirer reading 10,672 as the leave liability of a 29-person business wo
 figure that is technically correct.</p>
 </div>
 
-<div class="ask">
-<h3>Question 3 — whether sick leave is carried at all</h3>
+<div class="ask ruled">
+<h3>Question 3 — RULED BY MIKE 2026-09-15 — sick leave comes off</h3>
+<p class="ruling">Ruled as recommended, in his words: <i>"take it off"</i>. <b>Sick leave consumed
+is not carried at all</b> — not on the screen, not in the stored record, not read from the payroll
+import when that is built. The workbook's column <span class="cellref">F</span> is left where it
+is; nothing in the product reads it.</p>
 <p class="rec">Recommended: <b>no.</b> It is not on the screen drawn above.</p>
 <p><b>Two reasons, and either alone would do.</b> Once the liability is computed from the right
 column, <b>nothing reads it</b> — and this model's own rule is that a typed cell nothing reads
@@ -373,11 +405,24 @@ applies here with more force.</b></p>
 which is why it is a question rather than an omission.</p>
 </div>
 
-<div class="ask">
-<h3>Question 4 — where the retention dial lives</h3>
-<p class="rec">Recommended: <b>the firm's existing retention dial, not a new one</b> — the
-mechanism <code>server/utils/meetingRetention.js</code> already provides — with the register
-showing the resulting date in plain words, as drawn: <i>"kept until 15 September 2033"</i>.</p>
+<div class="ask ruled">
+<h3>Question 4 — RULED BY MIKE 2026-09-15 — its own dial, the same mechanism</h3>
+<p class="ruling">Ruled as recommended: <b>the staff register gets its own firm-level retention
+dial</b>, stored the way the meeting one is but under its own key, set in Firm Manager beside it.
+The register shows only the resulting date; changing it is a Firm Manager decision. <b>The
+recommendation was corrected before it was put</b> — see the warning below.</p>
+<p class="rec">Recommended: <b>the same mechanism, its own setting</b> — one firm-level dial for
+staff registers, stored exactly as the meeting one is (<code>firmOverlay</code>, cascading the tier
+chain, version history free) but under its own key, set in Firm Manager beside it. The register
+shows the resulting date in plain words, as drawn: <i>"kept until 15 September 2033"</i>.</p>
+<p>⚠ <b>This corrects what this page said first,</b> which was "the firm's existing retention dial"
+— reading <code>server/utils/meetingRetention.js</code> showed there is no general one. What exists
+is <code>meeting-retention</code>, and its own file says it is how long a firm keeps <b>a meeting
+transcript</b>. <b>Reusing that number would tie two unlike things together:</b> the transcript
+period is <i>spoken aloud to a client</i> in the recorded consent wording, so changing what a firm
+promises a client would silently change how long it keeps registers of named staff, and the
+reverse. One dial, two promises, is the kind of coupling nobody remembers at the moment they move
+it.</p>
 <p><b>Why not a dial per register.</b> Decision 8 settled that the register is kept rather than
 deleted at deal-end, and gave the reason: a restructure is challenged years later, and both sides
 need the record. A per-register dial would let one register be set to a shorter period than the
