@@ -15,7 +15,7 @@ Suite **10,833 green** (512 suites), lint 0 errors, audit PASS. Tree clean, ever
 **43 ahead of `master`, 0 behind**. **Seven live items**, unchanged — today finished work, it
 filed none.
 
-**4.100 — the staff register's GATE is built, both directions. The register TABLE is not.**
+**4.104 — the staff register's GATE is built, both directions. The register TABLE is not.**
 Three states, because Decision 6 states two conditions and each failing looks different:
 `closed` renders **no control at all**, `available` is the only state with a button, `open`
 carries the provenance line. Mike ruled the switch turns **both ways** — a close records who

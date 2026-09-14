@@ -90,7 +90,7 @@ describe('GET /api/report/model-guide', () => {
     const src = fs.readFileSync(path.resolve(__dirname, '../../server/routes/report.js'), 'utf8')
     // Bounded at the NEXT top-level function, not at the end of the file. Slicing to the
     // end swept in every handler that happened to sit below `modelGuide`, so this failed
-    // the day the Wages/Salary Review route (4.100) was added underneath it — a true
+    // the day the Wages/Salary Review route (4.104) was added underneath it — a true
     // sentence about a function it was not reading. The intent is this handler alone.
     const from = src.indexOf('function modelGuide')
     const rest = src.slice(from)

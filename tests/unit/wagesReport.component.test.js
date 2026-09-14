@@ -8,7 +8,7 @@ const WagesReport = require('../../components/WagesReport.vue').default
 const { computeWages, DEFAULT_INPUTS } = require('../../server/report/wagesModel')
 
 /**
- * WagesReport — step 5 of the Wages/Salary Review (item 4.100): the report.
+ * WagesReport — step 5 of the Wages/Salary Review (item 4.104): the report.
  *
  * The first screen of this model that calls the backend, so what it must not do is as
  * important as what it does: nothing here recalculates. That is why the four input steps

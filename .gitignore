@@ -191,7 +191,7 @@ data/dev-meeting-type-next-seq.json
 # platform default to be carried around in the repository.
 data/dev-meeting-retention.json
 
-# The Wages/Salary Review's staff-register switch (item 4.100, Decision 6) — who opened a
+# The Wages/Salary Review's staff-register switch (item 4.104, Decision 6) — who opened a
 # client's staff register and when. Ignored for a reason of its own: it is a record about a
 # named client of one firm, and the register it governs holds that client's named employees.
 # Nothing about it belongs in this repository.

@@ -69,7 +69,7 @@ const RENDERED_BY = {
   '/quick-position': { source: 'pages/quick-position.vue' },
   '/ebitda-dcf': { source: 'pages/ebitda-dcf.vue' },
   '/loan-estimator': { source: 'pages/loan-estimator.vue' },
-  // The Wages/Salary Review (4.100): the header is the page's, above five step chips, the
+  // The Wages/Salary Review (4.104): the header is the page's, above five step chips, the
   // same shape as the Loan Estimator. A DECISION TOOL — every figure is typed by the
   // advisor across four steps and nothing arrives from an accounts export — so no
   // "Illustrative" badge, which is forbidden on Decision tools and Reports alike.

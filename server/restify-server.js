@@ -247,7 +247,7 @@ server.post('/api/report/multiple-property', reportRoute.multipleProperty)
 // household than any other model here, which is the reason it stores nothing.
 server.post('/api/report/retirement-review', reportRoute.retirementReview)
 server.post('/api/report/volatility', reportRoute.volatility)
-// Wages/Salary Review (item 4.100) — calc-only, anonymous. Pay rates and hours in, labour
+// Wages/Salary Review (item 4.104) — calc-only, anonymous. Pay rates and hours in, labour
 // margin out. The staff register that makes this model unusual is NOT part of it: that is
 // gated behind a due-diligence project (Mike's decision 6, 2026-09-14) and has its own seam.
 server.post('/api/report/wages-review', reportRoute.wagesReview)
@@ -390,7 +390,7 @@ server.get('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.g
 server.put('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.putSaved)
 server.post('/api/client-reports/saved/:clientId/restore', firmAuth, clientReportsRoute.restoreSaved)
 
-// ── The Wages/Salary Review's staff register gate (item 4.100, Decision 6) ──
+// ── The Wages/Salary Review's staff register gate (item 4.104, Decision 6) ──
 // The register holds a client's NAMED employees, so it opens only while a due-diligence
 // case stands AND an advisor has switched it on, recorded with who and when. Both routes
 // are firmAuth: the firm and advisor come from the verified token, and the client id in

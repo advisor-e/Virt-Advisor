@@ -8,7 +8,7 @@ const WagesYear = require('../../components/WagesYear.vue').default
 const { computeWages, DEFAULT_INPUTS } = require('../../server/report/wagesModel')
 
 /**
- * WagesYear — step 3 of the Wages/Salary Review (item 4.100): the year ahead.
+ * WagesYear — step 3 of the Wages/Salary Review (item 4.104): the year ahead.
  *
  * The largest step, and the one where a quiet mistake is least visible: a hiring plan and
  * twelve months of pay rises look plausible on screen whatever they contain. What UAT

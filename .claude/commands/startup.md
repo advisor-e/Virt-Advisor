@@ -39,7 +39,7 @@ listed under a Non-Coder Summary. Not "I've left it alone" — that sentence is 
 figure, a comment that contradicts the code, a claim in a Brief that is no longer true.
 Especially those: they are found by accident and lost the same way.
 
-**Why this is binding.** On 2026-09-14 a session reported that item 4.100's note still
+**Why this is binding.** On 2026-09-14 a session reported that item 4.104's note still
 listed a question Mike had answered that morning, and then wrote *"I haven't touched it"*
 — in the same breath as naming it. The whole day had been spent removing exactly that kind
 of stale sentence from seven other places. **Reporting a defect is not handling it.** An

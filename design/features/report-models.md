@@ -1617,7 +1617,7 @@ what *this* model needs, and a generic sentence cannot say that. Added 2026-09-1
 
 ---
 
-### Wages/Salary Review (4.100 — five steps, the report and the catalogue row 2026-09-14; the staff register's gate 2026-09-15)
+### Wages/Salary Review (4.104 — five steps, the report and the catalogue row 2026-09-14; the staff register's gate 2026-09-15)
 
 **What it does.** Answers whether the team bills more than it costs, month by month, against
 twelve actuals the advisor types in. Not a payroll total — the word "wages" undersells it. Drawn

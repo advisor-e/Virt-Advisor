@@ -1,5 +1,5 @@
 /**
- * Staff-register gate API client — Wages/Salary Review, item 4.100, Decision 6
+ * Staff-register gate API client — Wages/Salary Review, item 4.104, Decision 6
  * (design/mockups/wages-register-gate.html, approved by Mike 2026-09-15).
  *
  * Identity is derived server-side from the Bearer token and is never sent in the body, the

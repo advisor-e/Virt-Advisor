@@ -147,7 +147,7 @@
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
     },
     {
-      "ref": "4.100",
+      "ref": "4.104",
       "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,
       "activeOn": {
@@ -169,7 +169,7 @@
       },
       "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
       "note": "THE REGISTER'S GATE IS BUILT 2026-09-15 - three states, both switches, artefact mockups/wages-register-gate.html approved the same day. STILL TO COME HERE: the register TABLE itself, its storage, and Decision 8's retention dial. THE PAYROLL READER IS ITS OWN ITEM, 4.103. Built 2026-09-14: all five steps, the report, the catalogue row, the overtime declaration, income tax bands as the FIFTH Tax Rates figure, and the two rate converters on step 1 after Mike dropped the tab. Record: report-models.md, tax-rates.md.",
-      "comment": "2026-09-14 - filed, all nine decisions ruled, the engine built, then all five steps, the report and the catalogue row in the same day. Two rulings reversed our recommendation: the payroll import, and retention. Mike found the added-person sort fault by testing it himself. Renumbered from 4.97. 2026-09-15 - the gate built and walked in a running app, which found what 10,819 tests could not: three stores reached firmOverlay with no dev fallback, so the gate was dead on any machine without MySQL and a shipped feature showed an error on every report page. Mike ruled the switch turns both ways."
+      "comment": "2026-09-14 - filed, all nine decisions ruled, the engine built, then all five steps, the report and the catalogue row in the same day. Two rulings reversed our recommendation: the payroll import, and retention. Mike found the added-person sort fault by testing it himself. Renumbered 4.97 to 4.100 to 4.104, the desktop having closed a different 4.100. 2026-09-15 - the gate built and walked in a running app, which found what 10,819 tests could not: three stores reached firmOverlay with no dev fallback, so the gate was dead on any machine without MySQL and a shipped feature showed an error on every report page. Mike ruled the switch turns both ways."
     },
     {
       "ref": "4.103",
@@ -189,8 +189,8 @@
         "detail": "2026-09-14 - 'lets explore having the ability to load a payroll report to speed up the process of loading data on the team', then ruled as decision 4. Kept as its own item on his instruction of 2026-09-14."
       },
       "touches": "server/report/intake/supportedPackages.js and a new reader beside it, components/WagesTeam.vue (the pre-fill target), and design/mockups/wages-model.html decision 4.",
-      "note": "A PRE-FILL INTO THE TYPED TEAM SCREEN, NEVER AN ALTERNATIVE ROUTE IN - Mike's decision 4, 2026-09-14. A payroll report knows what a person COSTS but can never know the charge-out rate or the daily production efficiency, and the margin is charge rate minus pay rate, so a standalone import would finish and leave a model that cannot compute its own answer. BLOCKED ON MIKE: per supportedPackages.js no package may be called supported until a REAL export has been read. Kept as its own item so it does not close with 4.100.",
-      "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 4.100 where it was a line in the note. An item that lives inside another item closes with it."
+      "note": "A PRE-FILL INTO THE TYPED TEAM SCREEN, NEVER AN ALTERNATIVE ROUTE IN - Mike's decision 4, 2026-09-14. A payroll report knows what a person COSTS but can never know the charge-out rate or the daily production efficiency, and the margin is charge rate minus pay rate, so a standalone import would finish and leave a model that cannot compute its own answer. BLOCKED ON MIKE: per supportedPackages.js no package may be called supported until a REAL export has been read. Kept as its own item so it does not close with 4.104.",
+      "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 4.104 where it was a line in the note. An item that lives inside another item closes with it."
     },
     {
       "ref": "4.101",

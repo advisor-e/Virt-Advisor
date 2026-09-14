@@ -8,7 +8,7 @@ const WagesActual = require('../../components/WagesActual.vue').default
 const { computeWages, DEFAULT_INPUTS } = require('../../server/report/wagesModel')
 
 /**
- * WagesActual — step 4 of the Wages/Salary Review (item 4.100): what actually happened.
+ * WagesActual — step 4 of the Wages/Salary Review (item 4.104): what actually happened.
  *
  * The smallest step and the one the whole model is judged by. `Cash Report` row 24 is
  * twelve typed cells the advisor fills in; nothing imports them. The drawing's first cut

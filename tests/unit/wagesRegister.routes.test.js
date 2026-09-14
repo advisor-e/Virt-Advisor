@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * /api/wages-register — the seam on the staff-register gate (item 4.100, Decision 6,
+ * /api/wages-register — the seam on the staff-register gate (item 4.104, Decision 6,
  * ruled by Mike 2026-09-14).
  *
  * WHAT UAT CANNOT SEE, AND THIS PINS. A tester drives the screen and never sees the route

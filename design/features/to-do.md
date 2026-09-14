@@ -39,7 +39,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.58** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 4 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
-| 5 | **4.100** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-14 |
+| 5 | **4.104** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-14 |
 | 6 | **4.103** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 7 | **4.101** Startup is blind to the other machine's branch - the handover, and the numbers ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 

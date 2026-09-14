@@ -51,7 +51,7 @@ report-shell
 
 <script>
 /**
- * /wages-review page — the Wages/Salary Review (item 4.100).
+ * /wages-review page — the Wages/Salary Review (item 4.104).
  *
  * Stepped flow per Mike's decision 9 of 2026-09-14, ruled as recommended: the team →
  * how the work happens → the year ahead → what actually happened → the report. The

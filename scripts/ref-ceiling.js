@@ -6,11 +6,15 @@
  * invisible until it reaches `master`. So both pick the same "next" number and file two
  * different pieces of work under it.
  *
- * It has happened EIGHT times. 4.88, 4.89, 4.90, 4.91, 4.92 and 4.94 each name two
+ * It has happened NINE times. 4.88, 4.89, 4.90, 4.91, 4.92 and 4.94 each name two
  * unrelated items inside `to-do-done-and-parked.md`; 4.97 and 4.98 collided live on
  * 2026-09-14 and this machine's two were renumbered to 4.100 / 4.101 on Mike's ruling.
+ * Then 4.100 collided in its turn — the desktop had filed its own on the same day, and
+ * closed it on 2026-09-15 — so this machine's became 4.104. Both numbers were allocated
+ * on 2026-09-14, BEFORE this script existed; it is not a case of the ceiling failing.
  * None of it was caught by a test: `toDoItems.test.js` guards uniqueness on the LIVE
- * list only, so every past collision slid through the moment both items closed.
+ * list only, so every past collision slid through the moment both items closed — the
+ * ninth was found by reading the other machine's branch by hand at startup.
  *
  * Printing the true ceiling at the top of every session turns the guess that caused all
  * eight into a read. It cannot fix a clash that already exists — it stops the next one.
