@@ -9,36 +9,48 @@
 
 ---
 
-## 2026-09-15 (thirty-fifth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-15 (thirty-sixth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,833 green** (512 suites), lint 0 errors, audit PASS. Tree clean, everything pushed,
-**43 ahead of `master`, 0 behind**. **Seven live items**, unchanged — today finished work, it
-filed none.
+Suite **10,993 green** (517 suites), lint 0 errors, audit PASS. Tree clean, all pushed,
+**51 ahead of `master`, 0 behind**. **Seven live items** — none filed, none closed.
 
-**4.104 — the staff register's GATE is built, both directions. The register TABLE is not.**
-Three states, because Decision 6 states two conditions and each failing looks different:
-`closed` renders **no control at all**, `available` is the only state with a button, `open`
-carries the provenance line. Mike ruled the switch turns **both ways** — a close records who
-and when and **keeps the opening it closed**. Artefact `mockups/wages-register-gate.html`,
-approved the same day. `caseStore.js` was **read, never edited**, so 4.87 is untouched.
+🔴 **MERGE PR #93 BEFORE THIS BRANCH, AND KNOW THAT NEITHER ORDER IS CLEAN.** #93
+(`fix/item-number-ceiling`, off `master`) is **seven files, not three**, and **three of them
+already exist here with different contents**: `scripts/ref-ceiling.js`,
+`tests/unit/refCeiling.test.js`, `scripts/check-branch-state.js`. The numbering half of 4.101
+was built twice — ours 2026-09-14, theirs the same week. **#93 supersedes ours** and carries
+Mike's parent-number scheme (`design/ITEM-NUMBERING.md`). Take #93's versions when `master`
+comes in; do **not** delete ours before it lands or `check:branch` breaks here. On 4.101.
 
-🔴 **RUNNING THE APP FOUND WHAT 10,819 TESTS COULD NOT — and the lesson generalises.**
-`wagesRegisterGate`, `clientReportAccess` and `savedReports` all reached `firmOverlay` with **no
-dev fallback**, so the gate was dead on any machine without MySQL and a *shipped* feature (4.62)
-put a red error under the client picker on **every report page**. Every unit test mocks
-`firmOverlay`, so the real one was never called. **If a store touches `firmOverlay` directly,
-check it has the `dbFailure` fallback before believing a green suite.**
+**4.100 IS NOW 4.104** (`a7b0f6f8`, 26 files). Two items held 4.100 — ours and a keyword fault
+the desktop closed the same day, both numbered 2026-09-14 before any ceiling existed. Found by
+reading the desktop's handover **from its own branch**, as 4.101's note says to.
 
-⚠ **`.claude/skills/run-the-app/SKILL.md` was wrong and is corrected.** The client picker renders
-on **no** report page locally, and the cause is the missing **token**, not the database. Seed
-`advisor_e_token` via `addInitScript` before the page loads; the fix is written into the skill.
+**4.104 — THE STAFF REGISTER IS BUILT.** Drawn, approved, four questions ruled, built, then
+walked in a running app. One `firmOverlay` key per client — **no new table**. Both contents
+routes re-resolve the gate from the live case. Leave is valued at the rate **including pay
+rises** (`max` of the year's rises — the workbook's own `S49`), so step 3 is preferred over
+step 1.
 
-**DESKTOP:** 4.87 untouched. Shared files changed: `server/utils/clientReportAccess.js`,
-`savedReports.js`, `server/restify-server.js`, `nuxt.config.js`, `locales/en.json`,
-`design/ARTEFACTS.md`, `features/report-models.md` + its history, and the `run-the-app` skill.
-Merge `master` before touching any.
+🔴 **WE DELIBERATELY DO NOT REPRODUCE THE WORKBOOK'S 63,154 LEAVE LIABILITY.** 24 of its 29
+people are priced from *sick leave consumed*; its one surviving formula points at a blank cell;
+the rest of the column is hand-typed. We price from accrued leave only — **10,115.84 across
+five**. The golden test pins the difference *and the reason*, so nobody "fixes" it back.
 
-**Found while writing this up, and fixed:** the Brief's *"Still to come"* for this model had listed
-the rates tab and the fifth Tax Rates figure since **the day both were built** (2026-09-14). Replaced,
-superseded text on `report-models-history.md` §5. Checking a line against the code *before* writing
-beside it is what caught it.
+🔴 **RUNNING IT FOUND THREE FAULTS 10,975 GREEN TESTS DID NOT.** The sample team carries four
+duplicated names and four nameless people: rows keyed by name updated the wrong person, and
+nameless rows were **silently discarded on save**. Identity is `division|name|occurrence` now.
+The footer also read "1 person" above twenty-nine.
+
+⚠ **THE API DOES NOT HOT-RELOAD.** The first browser walk tested the old backend while the
+frontend had rebuilt, and nearly read as a failed fix. Restart it before believing any walk
+that follows a backend change.
+
+**DESKTOP:** 4.87 untouched. **One piece of 4.104 is yours when 4.87 lands** — the Firm Manager
+control for the register's retention dial needs a tab in `FirmManagerHub.vue`; its backend,
+cascade and default are built and tested, and `4.104`'s `activeOn` is cleared so you can take
+it. Also: on your branch **`4.94` names two different closed items in the same file**, and
+`4.96` differs across branches — old numbers are frozen under #93's scheme, so that is a
+decision, not a renumber. Shared files I changed: `locales/en.json`, `nuxt.config.js`,
+`server/restify-server.js`, `.gitignore`, `design/ARTEFACTS.md`, `features/report-models.md`,
+`.claude/commands/startup.md`, `scripts/ref-ceiling.js`. Merge `master` before touching any.

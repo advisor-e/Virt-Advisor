@@ -150,10 +150,6 @@
       "ref": "4.104",
       "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-14"
-      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
@@ -210,8 +206,8 @@
         "detail": "2026-09-14 - found at shutdown when the desktop's branch was read directly and its note turned out to be two days newer than the copy startup had read. Filed on Mike's yes. A defect we found, not a feature nobody asked for."
       },
       "touches": "scripts/ref-ceiling.js and tests/unit/refCeiling.test.js (built), the ceilingReport in scripts/check-branch-state.js, and for the half still open, .claude/commands/startup.md step 4 and design/WORKING-AGREEMENT.md, where the same instruction lives.",
-      "note": "THE NUMBERING HALF IS BUILT 2026-09-14 on Mike's yes: check:branch now reads the live list and the archive from every machine's branch and prints the next free number, so allocating one is a read rather than a guess. THE HANDOVER HALF REMAINS - the same script can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date, and startup would then read a current note instead of a stale copy. Until it does, a session comparing handover dates must read the other machine's branch directly, not the working tree.",
-      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it. Renumbered from 4.98 on Mike's yes: the desktop had filed a different 4.98 the same day. Widened the same day, on his yes, to cover the numbering blindness that caused the renumber, and its half built."
+      "note": "THE NUMBERING HALF WAS BUILT TWICE - ours 2026-09-14, and again on PR #93 (fix/item-number-ceiling, off master), which supersedes it and carries Mike's parent-number scheme in design/ITEM-NUMBERING.md. scripts/ref-ceiling.js, tests/unit/refCeiling.test.js and scripts/check-branch-state.js all differ between the two branches, so EITHER merge order collides on all three: take #93's versions when master comes in, and do not delete ours before it lands or check:branch breaks here. THE HANDOVER HALF REMAINS - the same script can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date, and startup would then read a current note instead of a stale copy. Until it does, a session comparing handover dates must read the other machine's branch directly, not the working tree.",
+      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it. Renumbered from 4.98 on Mike's yes: the desktop had filed a different 4.98 the same day. Widened the same day, on his yes, to cover the numbering blindness that caused the renumber, and its half built. 2026-09-15 - found at shutdown that PR #93 had built the same half independently; recorded rather than resolved, since deleting ours before it lands breaks check:branch on this machine."
     }
   ]
 }
