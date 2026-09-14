@@ -108,11 +108,24 @@ describe('ranking a label against what the advisor said', () => {
   })
 
   test('a genuine tie is reported rather than picked at random', () => {
-    // Four data-systems labels share the word "data"; one word cannot separate them.
-    const r = rankLabels('data-systems', 'our data is wrong', { data_quality: 1 })
+    // Two staff labels tie on "practices" AND "weak" — real competing evidence, which is
+    // the one case the model is asked to settle.
+    const r = rankLabels('staff', 'weak practices here', {})
     expect(r.needsTiebreak).toBe(true)
     expect(r.candidates.length).toBeGreaterThan(1)
-    r.candidates.forEach(c => expect(labelsFor('data-systems')).toContain(c))
+    r.candidates.forEach(c => expect(labelsFor('staff')).toContain(c))
+  })
+
+  test('a tie on ONE category word is not a tie to break — it is nothing to propose', () => {
+    // Was the case above until 2026-09-14. Four data-systems labels share the word "data",
+    // so "our data is wrong" ranked a four-way tie and the model was asked to pick one. That
+    // is the same false confidence as the live sales-marketing failure, one layer along: the
+    // advisor's words chose the AREA, and no model reading those four labels can know which
+    // problem they meant. The step withholds and asks instead. See `tooWeakToName`.
+    const r = rankLabels('data-systems', 'our data is wrong', { data_quality: 1 })
+    expect(r.top).toBeNull()
+    expect(r.weakEvidence).toBe(true)
+    expect(r.needsTiebreak).toBe(false)
   })
 
   test('a malformed signal map is survived', () => {

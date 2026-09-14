@@ -25,7 +25,10 @@
  */
 
 const PRIMARY_ISSUES = require('../../data/primary-issues.json')
+const DOMAINS_FILE = require('../../data/domains.json')
 const { STOP_WORDS } = require('./stop-words')
+
+const DOMAIN_RECORDS = Array.isArray(DOMAINS_FILE) ? DOMAINS_FILE : (DOMAINS_FILE.domains || [])
 
 /**
  * Domains that produce no primary issue BY DESIGN — the advisory-engine brief's "context
@@ -118,6 +121,59 @@ const SIGNAL_WORDS = {
 }
 
 /**
+ * Whether a word is simply the NAME OF THE DOMAIN — "sales" in sales-marketing, "data" in
+ * data-systems, "risk" in risk. Read from the domain's own id, label and keyword pattern, so
+ * it follows Mike's domain file rather than a hand-kept list here.
+ *
+ * @param {string} domainId
+ * @param {string} word - already lowercased and stop-word filtered
+ * @returns {boolean}
+ */
+function isDomainWord (domainId, word) {
+  const d = DOMAIN_RECORDS.find(x => x.id === domainId)
+  if (!d || typeof word !== 'string' || !word) { return false }
+  if (String(domainId).split(/[-_]/).includes(word)) { return true }
+  if (keywords(d.label || '').includes(word)) { return true }
+  if (typeof d.keywords === 'string' && d.keywords) {
+    try { return new RegExp(d.keywords, 'i').test(word) } catch (_e) { return false }
+  }
+  return false
+}
+
+/**
+ * Whether the evidence is too thin to NAME one label with confidence.
+ *
+ * 🔴 THE FAULT THIS EXISTS TO STOP, found by running the built step on 2026-09-14. An advisor
+ * said "margins are down, the cost of sales has gone up because suppliers put their prices
+ * up". The case had been routed to `sales-marketing` upstream, and the only label there
+ * matching any of their words was *Sales Execution — no visible sales process or poor sales
+ * training*, on the single word "sales" — taken from "cost of **sales**". The engine told an
+ * advisor describing a supplier-cost problem that their sales training was poor.
+ *
+ * The ranker was not wrong: under `profit` the same words score 4 on *Cost of sales has
+ * increased*. What was wrong is CONFIDENCE. One word, and that word merely the name of the
+ * domain, says the advisor's words picked the AREA — never which problem inside it.
+ *
+ * Two qualifiers, both measured against the 51 Scenario Lab cases before this shipped:
+ * - Only a LONE match is ever withheld. Two matched words are a real overlap.
+ * - Only where the domain holds MORE THAN ONE label. Where there is nothing to choose
+ *   between (`risk` has one), the category word is the best evidence available and
+ *   withholding it would cost the advisor a question for no gain.
+ *
+ * Effect on the corpus: 16 cases still propose, 6 ask the open driver question instead.
+ *
+ * @param {string} domainId
+ * @param {string[]} matched - the label words the advisor actually used
+ * @returns {boolean} true when the step should ask rather than assert
+ */
+function tooWeakToName (domainId, matched) {
+  const words = Array.isArray(matched) ? matched : []
+  if (words.length !== 1) { return false }
+  if (labelsFor(domainId).length < 2) { return false }
+  return isDomainWord(domainId, words[0])
+}
+
+/**
  * Rank the domain's authored labels against what the advisor actually said.
  *
  * Two pieces of evidence, and both are the advisor's own: the words of their cause answer,
@@ -127,13 +183,16 @@ const SIGNAL_WORDS = {
  * @param {string} domainId - the CONFIRMED domain
  * @param {string} causeText - the advisor's cause answer plus their check-in reply
  * @param {Object.<string, number>} problemSignals - signal type → count, as the engine extracted
- * @returns {{top: string|null, score: number, matched: string[], needsTiebreak: boolean, candidates: string[]}}
+ * @returns {{top: string|null, score: number, matched: string[], needsTiebreak: boolean, candidates: string[], weakEvidence: boolean}}
  *   `needsTiebreak` when two or more labels tie at the top with a real score — the one case
  *   where the model is asked, because the advisor's words genuinely point two ways.
+ *   `weakEvidence` when a label DID rank but on evidence too thin to name it (see
+ *   `tooWeakToName`): `top` is null, and the caller asks the open driver question rather
+ *   than proposing.
  */
 function rankLabels (domainId, causeText, problemSignals) {
   const labels = labelsFor(domainId)
-  const empty = { top: null, score: 0, matched: [], needsTiebreak: false, candidates: [] }
+  const empty = { top: null, score: 0, matched: [], needsTiebreak: false, candidates: [], weakEvidence: false }
   if (!proposesIssue(domainId) || labels.length === 0) { return empty }
 
   const said = new Set(keywords(causeText))
@@ -153,12 +212,20 @@ function rankLabels (domainId, causeText, problemSignals) {
   const best = scored[0].score
   const tied = scored.filter(s => s.score === best)
 
+  // The advisor's words named the AREA, not the problem inside it. Return nothing to
+  // propose, and say why, so the caller asks the open driver question instead of asserting
+  // a label on one category word. See `tooWeakToName`.
+  if (tooWeakToName(domainId, tied[0].matched)) {
+    return Object.assign({}, empty, { weakEvidence: true, matched: tied[0].matched })
+  }
+
   return {
     top: tied[0].label,
     score: best,
     matched: tied[0].matched,
     needsTiebreak: tied.length > 1,
-    candidates: tied.map(s => s.label)
+    candidates: tied.map(s => s.label),
+    weakEvidence: false
   }
 }
 
@@ -291,6 +358,8 @@ module.exports = {
   keywords,
   labelsFor,
   proposesIssue,
+  isDomainWord,
+  tooWeakToName,
   rankLabels,
   reasonFrom,
   proposalLine,

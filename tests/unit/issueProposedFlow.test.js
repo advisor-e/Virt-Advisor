@@ -35,6 +35,7 @@ const {
   applyIssueDriverReply,
   causeTextOf
 } = require('../../server/advisorEngine')
+const { tooWeakToName, isDomainWord } = require('../../server/utils/primaryIssueProposer')
 
 // Real authored labels from data/primary-issues.json — the file is Mike's, so the fixtures
 // quote it rather than invent a label the engine would never propose.
@@ -130,6 +131,65 @@ describe('buildIssueProposal — what is put to the advisor', () => {
     const s = stateWith('sales margin discounting cost')
     await buildIssueProposal(s)
     expect([COST_OF_SALES, DISCOUNTING]).toContain(s._issueProposed)
+  })
+})
+
+describe('evidence too thin to name a label (the 2026-09-14 live failure)', () => {
+  // An advisor said "margins are down, the cost of sales has gone up because suppliers put
+  // their prices up". The case had been routed to sales-marketing upstream, and the engine
+  // proposed *Sales Execution — no visible sales process or poor sales training* on the single
+  // word "sales", taken from "cost of sales". UAT would see a fluent, plausible sentence; only
+  // an assertion catches that the label rests on one incidental category word.
+  const SUPPLIER_COSTS = 'Margins are down. The cost of sales has gone up because suppliers put their prices up.'
+
+  test('a lone match on the DOMAIN NAME proposes nothing, and says why', async () => {
+    const s = stateWith(SUPPLIER_COSTS, 'sales-marketing')
+    expect(await buildIssueProposal(s)).toBeNull()
+    expect(tooWeakToName('sales-marketing', ['sales'])).toBe(true)
+  })
+
+  test('the same words in the right domain still propose — the ranker was never wrong', async () => {
+    const s = stateWith(SUPPLIER_COSTS, 'profit')
+    const line = await buildIssueProposal(s)
+    expect(s._issueProposed).toBe(COST_OF_SALES)
+    expect(line).toContain(COST_OF_SALES)
+  })
+
+  test('two matched words are enough — only a LONE category word is withheld', () => {
+    expect(tooWeakToName('sales-marketing', ['sales', 'training'])).toBe(false)
+  })
+
+  test('a domain with ONE label still proposes on its category word', async () => {
+    // Nothing to choose between, so the category word is the best evidence there is and
+    // withholding it would cost the advisor a question for no gain.
+    expect(tooWeakToName('risk', ['risk'])).toBe(false)
+    const s = stateWith('we have no risk process at all', 'risk')
+    expect(await buildIssueProposal(s)).toContain('Risk Framework')
+  })
+
+  test('a specific word is never withheld, even alone', () => {
+    // "roles" names one staff label and is not the domain's category word.
+    expect(tooWeakToName('staff', ['roles'])).toBe(false)
+    expect(tooWeakToName('governance', ['decision'])).toBe(false)
+  })
+
+  test('isDomainWord reads Mike\'s domain file, not a list kept here', () => {
+    expect(isDomainWord('sales-marketing', 'sales')).toBe(true)
+    expect(isDomainWord('sales-marketing', 'marketing')).toBe(true)
+    expect(isDomainWord('data-systems', 'data')).toBe(true)
+    expect(isDomainWord('staff', 'roles')).toBe(false)
+    expect(isDomainWord('no-such-domain', 'sales')).toBe(false)
+  })
+
+  test('a withheld proposal still reaches the driver question, then an honest null', async () => {
+    // The whole point: withholding must not silently drop the step. The advisor gets the
+    // open question, and if that names nothing the trace says so rather than pinning a label.
+    const s = stateWith(SUPPLIER_COSTS, 'sales-marketing')
+    expect(await buildIssueProposal(s)).toBeNull()
+    s._issueNeedsDriver = true
+    applyIssueDriverReply('suppliers raised their prices and we never repriced', s)
+    expect(s.primaryIssueHow).toBe('none')
+    expect(s.primaryIssue).toBeNull()
   })
 })
 
