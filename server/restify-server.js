@@ -137,6 +137,7 @@ const hubTabsRoute = require('./routes/hubTabs')
 // `firmOrEntityAuth` in the guard list.
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 const clientReportsRoute = require('./routes/clientReports')
+const wagesRegisterRoute = require('./routes/wagesRegister')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
 // design/COLLABORATE-MERGE-PLAN.md. Its routes are registered below, under
@@ -388,6 +389,15 @@ server.put('/api/client-reports/mine/saved', entityAuth, clientReportsRoute.putM
 server.get('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.getSaved)
 server.put('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.putSaved)
 server.post('/api/client-reports/saved/:clientId/restore', firmAuth, clientReportsRoute.restoreSaved)
+
+// ── The Wages/Salary Review's staff register gate (item 4.100, Decision 6) ──
+// The register holds a client's NAMED employees, so it opens only while a due-diligence
+// case stands AND an advisor has switched it on, recorded with who and when. Both routes
+// are firmAuth: the firm and advisor come from the verified token, and the client id in
+// the path is checked to belong to that firm. The switch-on re-checks the case itself, so
+// the gate cannot be opened by calling the route directly.
+server.get('/api/wages-register/gate/:clientId', firmAuth, wagesRegisterRoute.getGate)
+server.post('/api/wages-register/gate/:clientId/open', firmAuth, wagesRegisterRoute.openGate)
 
 // ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
 // All firmAuth-guarded; identity from the verified JWT, never the body. An

@@ -5,7 +5,13 @@ report-shell
     :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.wagesReview.eyebrowClass')"
     :title="$t('report.wagesReview.title')"
     :client="$t('report.preparedFor')"
+    @client-change="onClientChange"
   )
+  //- The staff register's gate (Decision 6). Above the steps and not one of them: the
+  //- register is a due-diligence document about people, not a step in the labour-margin
+  //- model, and Decision 9 ruled the model at five steps. It renders nothing at all until
+  //- a client is chosen and the backend has answered.
+  wages-register-gate(:client-id="clientId")
   .steps
     .step(:class="{ active: step === 1, done: step > 1 }" @click="goTo(1)")
       span.n 1
@@ -77,15 +83,22 @@ import WagesWork from '~/components/WagesWork.vue'
 import WagesYear from '~/components/WagesYear.vue'
 import WagesActual from '~/components/WagesActual.vue'
 import WagesReport from '~/components/WagesReport.vue'
+import WagesRegisterGate from '~/components/WagesRegisterGate.vue'
 
 export default {
   name: 'WagesReviewPage',
 
-  components: { ReportShell, ReportHeader, WagesTeam, WagesWork, WagesYear, WagesActual, WagesReport },
+  components: { ReportShell, ReportHeader, WagesTeam, WagesWork, WagesYear, WagesActual, WagesReport, WagesRegisterGate },
 
   data () {
     return {
       step: 1,
+      /**
+       * The client the header's picker chose. '' until an advisor picks one — and while it
+       * is '' the staff register's gate renders nothing, because a register belongs to a
+       * client rather than to this screen.
+       */
+      clientId: '',
       /** Step 1's confirmed payload; null until the advisor presses Continue. */
       team: null,
       /** Step 2's confirmed payload; null until the advisor presses Continue. */
@@ -124,6 +137,17 @@ export default {
   },
 
   methods: {
+    /**
+     * The header's picker chose the client this report is for. The five steps do not read
+     * it — they are the workbook's own figures and belong to no client until item 4.62's
+     * saving reaches this model — but the staff register's gate is a property of the
+     * client's case, so it is the one thing on this page that needs to know.
+     * @param {{clientId: string, clientName: string}} payload
+     */
+    onClientChange (payload) {
+      this.clientId = (payload && payload.clientId) || ''
+    },
+
     /**
      * Stepper navigation. Backwards always; forward only when the step being left has
      * been confirmed, the same rule as the Loan Estimator. The report is reachable only

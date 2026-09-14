@@ -3755,6 +3755,21 @@
       "step3": "The year ahead",
       "step4": "What actually happened",
       "step5": "Wages/Salary Review report",
+      "register": {
+        "closedTag": "Closed",
+        "closedTitle": "The staff register is not available for this client.",
+        "closedNote": "It opens only while a due-diligence project is open on the case.",
+        "availableTag": "Available",
+        "availableTitle": "A due-diligence project is open on this client's case.",
+        "availableNote": "The staff register can be opened for {project}. It records the names, pay, leave and length of service of this client's staff, and who opened it is recorded with the date.",
+        "availableNoteUnnamed": "The staff register can be opened. It records the names, pay, leave and length of service of this client's staff, and who opened it is recorded with the date.",
+        "open": "Open the staff register",
+        "opening": "Opening…",
+        "openTag": "Open",
+        "openTitle": "Staff register — due diligence",
+        "preparedFor": "Prepared for {project} · by {advisor} · {date} · closes when the project closes.",
+        "error": "The staff register could not be checked. Nothing has been opened."
+      },
       "team": {
         "title": "The team",
         "intro": "Every person, their pay and their charge-out rate. The division decides how each person is costed.",

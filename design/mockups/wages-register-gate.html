@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff register — the gate, in its three states</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   THE STAFF-REGISTER GATE. Drawn 2026-09-15. THE BACKEND IS BUILT; NO SCREEN IS.
+
+   WHY IT EXISTS AS ITS OWN DRAWING. Decision 6 of wages-model.html was ruled by
+   Mike on 2026-09-14 and the drawing there shows TWO states — Closed, and Open
+   with its provenance line. Decision 6 states TWO CONDITIONS, and the state where
+   the first holds and the second does not was never drawn: a due-diligence case
+   stands, and the advisor has not yet switched the register on. That is the only
+   state carrying a control, so it is the one state that cannot be built from a
+   paraphrase.
+
+   WHAT IS ALREADY SETTLED AND IS NOT RE-ASKED HERE:
+     · the gate itself, its two conditions and its reasoning  — Decision 6
+     · the column heading "Key person risk" and the three bands
+       Direct loss / Indirect loss / No material loss          — Decision 7
+     · retention on the firm's dial, NOT deletion at deal-end  — Decision 8
+     · the register table's columns and the provenance line    — wages-model.html
+
+   THE ONE DECISION ON THIS PAGE is the wording of the middle state and its
+   button. Everything else below is drawn from the words already approved.
+   ============================================================================ */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+h1{font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-size:19px;margin:34px 0 10px;letter-spacing:-.01em}
+h3{font-size:15px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 8px}
+.lede{font-size:16px;color:var(--rs-muted);max-width:80ch}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px solid #cbe7d2}
+
+.screen{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden;margin:16px 0 8px}
+.rs-top{background:var(--rs-panel-2);border-bottom:1px solid var(--rs-line);padding:14px 18px}
+.rs-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rs-muted)}
+.rs-title{font-size:19px;font-weight:700;margin:2px 0 0}
+.body{padding:18px}
+
+/* ---------- the gate strip itself ---------- */
+.gate{display:flex;gap:13px;align-items:flex-start;border-radius:10px;padding:13px 15px;
+  border:1px solid var(--rs-line);background:var(--rs-panel-2)}
+.gate .txt{flex:1 1 260px;min-width:0}
+.gate .h{font-weight:700;font-size:14px;margin:0 0 3px}
+.gate .s{font-size:12.5px;color:var(--rs-muted);margin:0;max-width:72ch}
+.gate.closed{background:var(--rs-panel-2)}
+.gate.avail{background:#fff6ec;border-color:#f3c893}
+.gate.open{background:var(--rs-good-soft);border-color:#a8dcb4}
+
+.pill{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:3px 10px;white-space:nowrap;flex:0 0 auto;margin-top:2px}
+.pill.off{color:var(--rs-muted);background:var(--rs-panel);border:1px solid var(--rs-line)}
+.pill.wait{color:#a06000;background:#fff;border:1px solid #f3c893}
+.pill.on{color:var(--rs-good);background:#fff;border:1px solid #a8dcb4}
+
+.btn{font-family:inherit;font-size:13px;font-weight:600;border-radius:8px;padding:8px 15px;
+  border:1px solid var(--rs-accent);background:var(--rs-accent);color:#fff;cursor:default;
+  flex:0 0 auto;white-space:nowrap}
+.prov{font-size:12px;color:var(--rs-muted);margin:8px 0 0}
+
+table.g{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 0}
+table.g th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted);
+  text-align:left;padding:0 10px 6px 0;font-weight:700}
+table.g td{padding:5px 10px 5px 0;border-bottom:1px solid var(--rs-line)}
+table.g tr:last-child td{border-bottom:0}
+.absent{border:1px dashed var(--rs-line);border-radius:10px;padding:18px;text-align:center;
+  color:var(--rs-muted);font-size:12.5px;background:repeating-linear-gradient(45deg,
+  #f7fafd,#f7fafd 8px,#f1f6fb 8px,#f1f6fb 16px)}
+.foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--rs-line);
+  font-size:12px;color:var(--rs-muted)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<p class="eyebrow">Wages/Salary Review · item 4.100 · Decision 6</p>
+<h1>The staff register — the gate, in its three states</h1>
+<p class="lede">The register holds a client's named employees with their pay, accrued leave,
+length of service and what the business loses if they leave. This strip is what decides
+whether any of that is on screen at all.</p>
+
+<div class="mock">
+<h3>What is built, and what is not</h3>
+<p><b>Built today:</b> the whole gate behind the screen — the due-diligence check, the switch
+that records who opened it and when, and the refusal of a switch-on for a client with no
+due-diligence case. 39 tests, every branch covered.</p>
+<p><b>Not built:</b> anything on this page. The register table itself is the next stage and is
+drawn in <code>wages-model.html</code>, already approved.</p>
+</div>
+
+<h2>State 1 — Closed. No due-diligence project.</h2>
+<p>The client's case is in some other domain, so there is no transaction under way.
+<b>There is no switch here</b>, and that is the point: nothing on this screen can put a client
+into due diligence.</p>
+
+<div class="screen">
+  <div class="rs-top">
+    <div class="rs-eyebrow">Decision tool · Profitability</div>
+    <div class="rs-title">Wages/Salary Review</div>
+  </div>
+  <div class="body">
+    <div class="gate closed">
+      <span class="pill off">Closed</span>
+      <div class="txt">
+        <p class="h">The staff register is not available for this client.</p>
+        <p class="s">It opens only while a due-diligence project is open on the case. This
+        client's case is in the <i>profitability and feasibility</i> domain.</p>
+      </div>
+    </div>
+    <div class="absent" style="margin-top:14px">The register is <b>absent, not greyed</b> —
+    nothing of it is rendered, and no employee data is sent to this screen.</div>
+  </div>
+</div>
+
+<h2>State 2 — A due-diligence project stands. Not yet opened.</h2>
+<p><b>This is the state that was never drawn, and the one decision on this page.</b> The first
+of Decision 6's two conditions holds; the second is a decision the advisor has not taken yet.
+It is the only state that carries a control.</p>
+
+<div class="screen">
+  <div class="rs-top">
+    <div class="rs-eyebrow">Decision tool · Profitability</div>
+    <div class="rs-title">Wages/Salary Review</div>
+  </div>
+  <div class="body">
+    <div class="gate avail">
+      <span class="pill wait">Available</span>
+      <div class="txt">
+        <p class="h">A due-diligence project is open on this client's case.</p>
+        <p class="s">The staff register can be opened for <i>Acquisition of Kinetic Planning
+        (2007) Limited</i>. It records the names, pay, leave and length of service of this
+        client's staff, and who opened it is recorded with the date.</p>
+      </div>
+      <button class="btn" type="button">Open the staff register</button>
+    </div>
+  </div>
+</div>
+
+<div class="ask">
+<h3>The one decision — the wording of this middle state</h3>
+<p class="rec">Recommended, and drawn above: the pill reads <b>Available</b>, the heading
+<b>"A due-diligence project is open on this client's case."</b>, and the button
+<b>"Open the staff register"</b>.</p>
+<p><b>Why the sentence says what the register holds before it is opened.</b> The advisor is
+about to create a document listing named colleagues of their client with a rating attached.
+Saying so at the moment of the decision is what makes the switch a decision rather than a
+click — and Decision 6's whole reasoning is that the switch is <i>"what makes it a dated,
+attributable act, which is exactly what makes it defensible."</i></p>
+<p><b>Why "Available" rather than a second "Closed".</b> Closed and Available are different
+answers to the advisor: one says the app will not do this, the other says the app is waiting
+for you to decide. Drawing both as "Closed" would put a button on a strip that reads closed.</p>
+</div>
+
+<h2>State 3 — Open. Both conditions met.</h2>
+<p>Unchanged from <code>wages-model.html</code>, which you approved on 2026-09-14 — the
+provenance line naming the transaction, the advisor and the date is its wording, not a new one.</p>
+
+<div class="screen">
+  <div class="rs-top">
+    <div class="rs-eyebrow">Decision tool · Profitability</div>
+    <div class="rs-title">Wages/Salary Review</div>
+  </div>
+  <div class="body">
+    <div class="gate open">
+      <span class="pill on">Open</span>
+      <div class="txt">
+        <p class="h">Staff register — due diligence</p>
+        <p class="s">Prepared for the <i>Acquisition of Kinetic Planning (2007) Limited</i> ·
+        by M. Bartlett · 15 September 2026 · closes when the project closes.</p>
+      </div>
+    </div>
+    <table class="g" style="margin-top:14px">
+      <thead><tr><th>Name</th><th>Division</th><th>Pay rate</th><th>Accrued leave</th>
+        <th>Liability</th><th>Years</th><th>Key person risk</th></tr></thead>
+      <tbody>
+        <tr><td>Mary G</td><td>Admin</td><td>19.95</td><td>12 d</td><td>1,915</td><td>3</td><td>Direct loss</td></tr>
+        <tr><td>Judy</td><td>Admin</td><td>19.00</td><td>15 d</td><td>2,280</td><td>5</td><td>No material loss</td></tr>
+        <tr><td>Billy Ray</td><td>Production</td><td>35.00</td><td>22 d</td><td>6,160</td><td>2</td><td>Direct loss</td></tr>
+      </tbody>
+    </table>
+    <p class="prov">Three rows shown for shape only — the register table is the next stage.
+    <b>Note the column and the bands are Decision 7's, not the workbook's:</b> <i>Key person
+    risk</i>, with <i>Direct loss · Indirect loss · No material loss</i>.</p>
+  </div>
+</div>
+
+<div class="ask ruled">
+<h3>Two differences from the earlier drawing, named rather than discovered later</h3>
+<p class="ruling">The register table drawn in <code>wages-model.html</code> is headed
+<b>Revenue at risk</b> with bands <b>Vital / Beneficial / Dispensable</b>. That table was drawn
+deliberately as "what the port would say if nothing changes", to put Decision 7 to you. You then
+ruled: the column is <b>Key person risk</b> and the bands are <b>Direct loss · Indirect loss ·
+No material loss</b>. <b>The build follows your ruling</b>, which is what is drawn above.</p>
+<p>The same page's leave-liability note still reads <i>"the one figure Decision 8 keeps once the
+register itself is gone"</i> — written before Decision 8 was reversed. Nothing is deleted at
+deal-end now; the register is kept on the firm's own retention dial. <b>The ruling recorded
+directly above that note is the one that stands</b>, and it is what will be built.</p>
+</div>
+
+<h2>What the gate refuses, and where</h2>
+<table class="g">
+  <thead><tr><th>Attempt</th><th>What happens</th></tr></thead>
+  <tbody>
+    <tr><td>No client chosen on the screen</td><td>Nothing renders — no strip, no switch</td></tr>
+    <tr><td>Client's case is in another domain</td><td><b>Closed.</b> No switch offered</td></tr>
+    <tr><td>Calling the open route directly, no due-diligence case</td><td><b>Refused.</b> The case is re-checked on the server, not trusted from the screen</td></tr>
+    <tr><td>A colleague's <i>private</i> due-diligence case</td><td>Does not open it — the advisor's own cases plus the firm's shared ones, the app's existing boundary</td></tr>
+    <tr><td>The case later leaves the due-diligence domain</td><td><b>Closes again</b>, and the stored record of who opened it is not reported</td></tr>
+    <tr><td>A client of another firm</td><td>Reported as absent, not as forbidden</td></tr>
+  </tbody>
+</table>
+
+<p class="foot">Drawn 2026-09-15 · the gate behind these screens is built and tested; no screen
+is · the register table is <code>design/mockups/wages-model.html</code> · Decisions 6, 7 and 8
+were ruled by Mike on 2026-09-14.</p>
+
+</div>
+</body>
+</html>
