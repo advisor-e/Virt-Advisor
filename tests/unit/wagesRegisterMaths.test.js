@@ -160,7 +160,9 @@ describe('summarise — the bands, and the gap shown beside them', () => {
   it('always reports all three bands, even when empty', () => {
     const out = maths.summarise([], 8)
     expect(out.bands.map(b => b.band)).toEqual(['direct-loss', 'indirect-loss', 'no-material-loss'])
-    expect(out.total).toEqual({ people: 0, priced: 0, liability: 0 })
+    expect(out.total.people).toBe(0)
+    expect(out.total.priced).toBe(0)
+    expect(out.total.liability).toBe(0)
   })
 
   it('gives an empty band a null average rather than a zero', () => {
@@ -177,13 +179,32 @@ describe('summarise — the bands, and the gap shown beside them', () => {
     expect(out.bands[0].avgYears).toBe(4)
   })
 
-  it('leaves a person with an unknown band out of every band AND every total', () => {
+  it('🔴 counts an UNRATED person in the total — the total is the register, not the bands', () => {
+    // This test asserted the opposite until 2026-09-15, and it was wrong. Opening the screen
+    // showed "1 person" above twenty-nine people, because on a register nobody has rated yet
+    // every row is outside all three bands. A headcount that only counts the people somebody
+    // has got round to rating is not a headcount.
     const out = maths.summarise([
       { band: 'Vital', payRate: 10, accruedLeaveDays: 2 },
       { band: null, payRate: 10, accruedLeaveDays: 2 }
     ], 8)
-    expect(out.total.people).toBe(0)
-    expect(out.total.liability).toBe(0)
+    expect(out.total.people).toBe(2)
+    expect(out.total.priced).toBe(2)
+    expect(out.total.liability).toBe(320)
+    // 'Vital' is the workbook's word, not a band; both these people are unrated.
+    expect(out.bands.every(b => b.people === 0)).toBe(true)
+    expect(out.unrated.people).toBe(2)
+  })
+
+  it('reports the unrated separately so the bands and the total reconcile on screen', () => {
+    const out = maths.summarise([
+      { band: 'direct-loss', payRate: 10, accruedLeaveDays: 2, yearsEmployed: 4 },
+      { band: null, payRate: 10, accruedLeaveDays: 1 }
+    ], 8)
+    const banded = out.bands.reduce((n, b) => n + b.people, 0)
+    expect(banded + out.unrated.people).toBe(out.total.people)
+    expect(maths.toCents(out.bands.reduce((n, b) => n + b.liability, 0) + out.unrated.liability))
+      .toBe(out.total.liability)
   })
 
   it('survives anything that is not a list', () => {

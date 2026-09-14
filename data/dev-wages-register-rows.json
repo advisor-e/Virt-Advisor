@@ -1,0 +1,214 @@
+{
+  "dev-firm-001": {
+    "02b6b9c9-6b80-49e2-9cd7-978ad181b53e": {
+      "hoursInLeaveDay": 8,
+      "people": [
+        {
+          "key": "admin|mary g|1",
+          "name": "Mary G",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "admin|agatha|1",
+          "name": "Agatha",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "admin|judy|1",
+          "name": "Judy",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "admin|stephen|1",
+          "name": "Stephen",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "sales|max|1",
+          "name": "Max",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "sales|alex|1",
+          "name": "Alex",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "sales|joe|1",
+          "name": "Joe",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "sales|sean|1",
+          "name": "Sean",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|billy ray|1",
+          "name": "Billy Ray",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|bob|1",
+          "name": "Bob",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|barry|1",
+          "name": "Barry",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|bruce|1",
+          "name": "Bruce",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|brian|1",
+          "name": "Brian",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|butch|1",
+          "name": "Butch",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|bono|1",
+          "name": "Bono",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|boris|1",
+          "name": "Boris",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|brad|1",
+          "name": "Brad",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|bart|1",
+          "name": "Bart",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|ben|1",
+          "name": "Ben",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|bevis|1",
+          "name": "Bevis",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|butch|2",
+          "name": "Butch",
+          "accruedLeaveDays": 9,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|bono|2",
+          "name": "Bono",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|boris|2",
+          "name": "Boris",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production|brad|2",
+          "name": "Brad",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "production||1",
+          "name": "",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "management|stevie|1",
+          "name": "Stevie",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "management|natalie|1",
+          "name": "Natalie",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "management||1",
+          "name": "",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        },
+        {
+          "key": "management||2",
+          "name": "",
+          "accruedLeaveDays": null,
+          "yearsEmployed": null,
+          "band": null
+        }
+      ],
+      "savedBy": "dev@local",
+      "savedAt": "2026-09-14T23:26:05.470Z"
+    }
+  }
+}

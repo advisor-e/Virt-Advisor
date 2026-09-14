@@ -31,10 +31,10 @@
             th.num {{ $t('report.wagesReview.register.sheet.col.years') }}
             th {{ $t('report.wagesReview.register.sheet.col.band') }}
         tbody
-          //- Keyed by name, which is what the register matches entries on. Two people with
-          //- the same name share a row's identity here exactly as they would in storage —
-          //- a limitation stated in wagesRegisterStore rather than papered over.
-          tr(v-for="row in rows" :key="row.name")
+          //- 🔴 KEYED BY `row.key`, NEVER BY NAME. The workbook's own sample team has four
+          //- duplicated names and four people with no name at all, so a name key made Vue
+          //- update the wrong person's row as the advisor typed. See `personKey`.
+          tr(v-for="row in rows" :key="row.key")
             td.wrs-name {{ row.name }}
             td {{ row.division }}
             td.num.wrs-derived {{ money(row.payRate) }}
@@ -85,6 +85,15 @@
             td.num {{ b.priced }}
             td.num {{ money(b.liability) }}
             td.num {{ b.avgYears === null ? '—' : b.avgYears }}
+          //- Shown only when somebody has not been rated, so the three bands and the total
+          //- visibly reconcile. Without it the bands add up to less than the total and the
+          //- gap has no name on the page.
+          tr.wrs-unrated-row(v-if="summary.unrated && summary.unrated.people")
+            td {{ $t('report.wagesReview.register.sheet.bandNone') }}
+            td.num {{ summary.unrated.people }}
+            td.num {{ summary.unrated.priced }}
+            td.num {{ money(summary.unrated.liability) }}
+            td.num {{ summary.unrated.avgYears === null ? '—' : summary.unrated.avgYears }}
           tr.wrs-tot
             td {{ $t('report.wagesReview.register.sheet.total') }}
             td.num {{ summary.total.people }}
@@ -150,7 +159,11 @@ export default {
       error: '',
       /** Question 1's field. Null until the firm sets it; nothing is priced until then. */
       hoursInLeaveDay: null,
-      /** One row per person on the TEAM, with the stored entry laid over it. */
+      /**
+     * One row per person on the TEAM, with the stored entry laid over it. Each carries a
+     * `key` from the backend — the row's identity for both rendering and storage, because
+     * names in a real team are neither unique nor always present.
+     */
       rows: [],
       /** The three bands and the total, as the backend computed them. */
       summary: null,
@@ -262,6 +275,7 @@ export default {
         await saveRegister(this.clientId, {
           hoursInLeaveDay: this.hoursInLeaveDay === '' ? null : this.hoursInLeaveDay,
           people: this.rows.map(r => ({
+            key: r.key,
             name: r.name,
             accruedLeaveDays: r.accruedLeaveDays === '' ? null : r.accruedLeaveDays,
             yearsEmployed: r.yearsEmployed === '' ? null : r.yearsEmployed,

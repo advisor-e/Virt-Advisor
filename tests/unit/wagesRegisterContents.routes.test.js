@@ -90,7 +90,7 @@ describe('POST /api/wages-register/:clientId/view', () => {
     registerIsOpen()
     store.read.mockResolvedValue({
       hoursInLeaveDay: 8,
-      people: [{ name: 'Bruce', accruedLeaveDays: 16, yearsEmployed: 5, band: 'direct-loss' }],
+      people: [{ key: 'production|bruce|1', name: 'Bruce', accruedLeaveDays: 16, yearsEmployed: 5, band: 'direct-loss' }],
       savedAt: null,
       savedBy: null
     })
@@ -103,7 +103,10 @@ describe('POST /api/wages-register/:clientId/view', () => {
     // Mary G has no accrued balance: not yet priced, never a confident zero.
     expect(res._body.rows.find(r => r.name === 'Mary G').liability).toBeNull()
     expect(res._body.summary.total.priced).toBe(1)
-    expect(res._body.summary.total.people).toBe(1)
+    // The HEADCOUNT, not the number of people somebody has got round to rating. Mary G is
+    // unrated and is still a person on the register.
+    expect(res._body.summary.total.people).toBe(2)
+    expect(res._body.summary.unrated.people).toBe(1)
   })
 
   it('🔴 REFUSES when the case has left the due-diligence domain', async () => {

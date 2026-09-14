@@ -23,12 +23,13 @@
  * off"*. `sanitise` names the fields it keeps, so a field nobody asked for cannot arrive by
  * being added to a request body.
  *
- * ⚠ ENTRIES ARE MATCHED TO PEOPLE BY NAME, and that is a real limitation stated rather than
- * hidden. Step 1's team is not yet persisted per client (that is 4.62's mechanism, still to
- * come), so a name is the only identifier both halves share. Renaming someone in step 1
- * separates them from their register entry. The entry is NOT deleted when a name disappears —
- * silently destroying a record about a person is worse than keeping one nobody is looking at,
- * and Decision 8 governs how long it lives.
+ * ⚠ ENTRIES ARE MATCHED TO PEOPLE BY `personKey` — `division|name|occurrence` — NOT by name.
+ * Matching by name was the first build and it was wrong on the very first real data: see
+ * `personKey` for what opening the screen found. Step 1's team is not yet persisted per client
+ * (item 4.62), so the key is stable rather than permanent, and that limit is stated there.
+ * The entry is NOT deleted when somebody leaves the team — silently destroying a record about
+ * a person is worse than keeping one nobody is looking at, and Decision 8 governs how long it
+ * lives.
  *
  * Node 14, CommonJS.
  */
@@ -50,6 +51,9 @@ const MAX_CLIENT_ID = 64
 
 /** A person's name, trimmed to what the record sensibly holds. */
 const MAX_NAME = 128
+
+/** A person's key: two names and an occurrence number, with room to spare. */
+const MAX_KEY = 300
 
 /** More than any real team, and a bound on what one request can write. */
 const MAX_PEOPLE = 500
@@ -107,10 +111,15 @@ function sanitise (payload) {
   const people = []
   list.forEach((entry) => {
     if (!entry || typeof entry !== 'object') { return }
-    const name = String(entry.name || '').trim().slice(0, MAX_NAME)
-    if (!name) { return }
+    // 🔴 THE KEY IS WHAT IDENTIFIES AN ENTRY, NOT THE NAME. An entry with no key is dropped;
+    // an entry with no NAME is kept, because the workbook's own sample team has four people
+    // with no name at all and dropping them silently discarded whatever was typed against
+    // them. See `personKey`.
+    const key = String(entry.key || '').trim().slice(0, MAX_KEY)
+    if (!key) { return }
     people.push({
-      name,
+      key,
+      name: String(entry.name || '').trim().slice(0, MAX_NAME),
       accruedLeaveDays: boundedNum(entry.accruedLeaveDays, 0, 3650),
       yearsEmployed: boundedNum(entry.yearsEmployed, 0, 100),
       band: BANDS.includes(entry.band) ? entry.band : null
@@ -120,6 +129,36 @@ function sanitise (payload) {
     hoursInLeaveDay: boundedNum(body.hoursInLeaveDay, MIN_HOURS, MAX_HOURS),
     people
   }
+}
+
+/**
+ * A stable identity for one person on step 1's team: `division|name|occurrence`.
+ *
+ * 🔴 WHY NOT THE NAME, WHICH IS WHAT THIS USED TO BE. Opening the screen on 2026-09-15 found
+ * the workbook's own sample team carries **Butch, Bono, Boris and Brad TWICE each, and four
+ * people with no name at all**. Matching on name meant Vue rendered duplicate keys and
+ * updated the wrong person's row as an advisor typed, and the two Butches collapsed into one
+ * stored entry on save. On a register of named people that is the worst kind of wrong: the
+ * leave balance of a real person, recorded against somebody else.
+ *
+ * ⚠ IT IS STABLE, NOT PERMANENT, and the difference is worth stating. The occurrence number
+ * is counted over the team in its own order, so the key survives a reload and survives step
+ * 1's division regrouping — but renaming somebody, or moving them between divisions,
+ * separates them from their entry. A permanent identity needs step 1's team to be persisted
+ * per client, which is item 4.62 and is not built. Nothing here pretends otherwise.
+ *
+ * Lower-cased so a capitalisation change is not a different person.
+ *
+ * @param {{name: string, division: string}} person
+ * @param {Object<string, number>} seen - running occurrence tally, mutated
+ * @returns {string}
+ */
+function personKey (person, seen) {
+  const name = String((person && person.name) || '').trim().toLowerCase()
+  const division = String((person && person.division) || '').trim().toLowerCase()
+  const base = division + '|' + name
+  seen[base] = (seen[base] || 0) + 1
+  return (base + '|' + seen[base]).slice(0, MAX_KEY)
 }
 
 /** Dev-only: the whole `{ firmId: { clientId: row } }` map. */
@@ -218,15 +257,17 @@ async function save (firmId, clientId, payload, savedBy) {
  * @returns {Array<object>} one row per person on the TEAM, in the team's own order
  */
 function merge (team, stored) {
-  const byName = {}
+  const byKey = {}
   ;(Array.isArray(stored) ? stored : []).forEach((entry) => {
-    if (entry && entry.name) { byName[entry.name] = entry }
+    if (entry && entry.key) { byKey[entry.key] = entry }
   })
+  const seen = {}
   return (Array.isArray(team) ? team : []).map((person) => {
-    const name = String((person && person.name) || '').trim()
-    const entry = byName[name] || {}
+    const key = personKey(person, seen)
+    const entry = byKey[key] || {}
     return {
-      name,
+      key,
+      name: String((person && person.name) || '').trim(),
       division: (person && person.division) || '',
       payRate: (person && person.payRate) === undefined ? null : person.payRate,
       accruedLeaveDays: entry.accruedLeaveDays === undefined ? null : entry.accruedLeaveDays,
@@ -243,6 +284,7 @@ module.exports = {
   MAX_HOURS,
   MAX_PEOPLE,
   configKey,
+  personKey,
   sanitise,
   read,
   save,

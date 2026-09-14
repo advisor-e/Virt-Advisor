@@ -146,30 +146,34 @@ function toCents (n) {
  */
 function summarise (people, hoursInLeaveDay) {
   const rows = Array.isArray(people) ? people : []
-  const bands = BANDS.map((band) => {
-    const inBand = rows.filter(p => p && p.band === band)
-    const priced = inBand.map(p => priceRow(p, hoursInLeaveDay)).filter(v => v !== null)
-    const years = inBand.map(p => num(p.yearsEmployed)).filter(v => v !== null)
+  const tally = (group) => {
+    const priced = group.map(p => priceRow(p, hoursInLeaveDay)).filter(v => v !== null)
+    const years = group.map(p => num(p.yearsEmployed)).filter(v => v !== null)
     return {
-      band,
-      people: inBand.length,
+      people: group.length,
       priced: priced.length,
       liability: toCents(priced.reduce((sum, v) => sum + v, 0)),
       avgYears: years.length
         ? Math.round((years.reduce((sum, v) => sum + v, 0) / years.length) * 10) / 10
         : null
     }
-  })
-  // Summed from the bands rather than from `rows`, so the total can never disagree with the
-  // three figures printed above it. A person whose band is missing or misspelt is in no band
-  // and is in no total — and the `people` count says so.
+  }
+
+  const bands = BANDS.map(band => Object.assign({ band }, tally(rows.filter(p => p && p.band === band))))
+
+  // 🔴 THE TOTAL IS THE WHOLE REGISTER, NOT THE SUM OF THE THREE BANDS. This was the other way
+  // round until 2026-09-15, when opening the screen showed **"1 person"** above twenty-nine
+  // people — because on a register nobody has rated yet, every row is outside all three bands.
+  // A headcount that only counts the people somebody has got round to rating is not a
+  // headcount. Found by looking, not by a test; the test that pinned the old behaviour was
+  // itself wrong and was replaced.
+  const unratedRows = rows.filter(p => !p || !BANDS.includes(p.band))
   return {
     bands,
-    total: {
-      people: bands.reduce((n, b) => n + b.people, 0),
-      priced: bands.reduce((n, b) => n + b.priced, 0),
-      liability: toCents(bands.reduce((n, b) => n + b.liability, 0))
-    }
+    // Reported so the three bands and the total visibly reconcile. Without it the bands add up
+    // to less than the total and the gap has no name on screen.
+    unrated: Object.assign({ band: null }, tally(unratedRows)),
+    total: tally(rows)
   }
 }
 

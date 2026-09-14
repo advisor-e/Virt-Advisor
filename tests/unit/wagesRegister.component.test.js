@@ -30,8 +30,8 @@ const WagesRegister = require('../../components/WagesRegister.vue').default
  * are on screen for a person to read.
  */
 const ROWS = [
-  { name: 'Mary G', division: 'Admin', payRate: 19.95, accruedLeaveDays: null, yearsEmployed: 3, band: 'direct-loss', liability: null },
-  { name: 'Bruce', division: 'Production', payRate: 40.28, accruedLeaveDays: 16, yearsEmployed: 5, band: 'direct-loss', liability: 5155.84 }
+  { key: 'admin|mary g|1', name: 'Mary G', division: 'Admin', payRate: 19.95, accruedLeaveDays: null, yearsEmployed: 3, band: 'direct-loss', liability: null },
+  { key: 'production|bruce|1', name: 'Bruce', division: 'Production', payRate: 40.28, accruedLeaveDays: 16, yearsEmployed: 5, band: 'direct-loss', liability: 5155.84 }
 ]
 
 const SUMMARY = {
@@ -40,6 +40,7 @@ const SUMMARY = {
     { band: 'indirect-loss', people: 0, priced: 0, liability: 0, avgYears: null },
     { band: 'no-material-loss', people: 0, priced: 0, liability: 0, avgYears: null }
   ],
+  unrated: { band: null, people: 0, priced: 0, liability: 0, avgYears: null },
   total: { people: 2, priced: 1, liability: 5155.84 }
 }
 
@@ -108,6 +109,26 @@ describe('reading the register', () => {
     expect(wrapper.text()).toContain('99.99')
   })
 
+  it('🔴 renders two people of the same name as two rows', async () => {
+    // Found by opening the screen on 2026-09-15: the workbook's sample team has two Butches,
+    // and keying rows by name made Vue update the wrong person's as the advisor typed.
+    const rows = [
+      { key: 'production|butch|1', name: 'Butch', division: 'Production', payRate: 26, accruedLeaveDays: null, yearsEmployed: null, band: null, liability: null },
+      { key: 'production|butch|2', name: 'Butch', division: 'Production', payRate: 26, accruedLeaveDays: 9, yearsEmployed: null, band: null, liability: 1872 }
+    ]
+    const wrapper = await mountRegister({ rows })
+    const bodyRows = wrapper.findAll('.wrs-tablewrap tbody tr')
+    // Two people plus the total row.
+    expect(bodyRows.length).toBe(3)
+    expect(wrapper.text()).toContain('1,872')
+  })
+
+  it('renders a person with no name, rather than dropping the row', async () => {
+    const rows = [{ key: 'production||1', name: '', division: 'Production', payRate: 0, accruedLeaveDays: null, yearsEmployed: null, band: null, liability: null }]
+    const wrapper = await mountRegister({ rows })
+    expect(wrapper.findAll('.wrs-tablewrap tbody tr').length).toBe(2)
+  })
+
   it('renders nothing at all when the read fails, and says so', async () => {
     api.viewRegister.mockRejectedValue(new Error('nope'))
     const wrapper = mountWithBuefy(WagesRegister, { propsData: { clientId: 'c-1', team: TEAM } })
@@ -149,7 +170,7 @@ describe('saving', () => {
     const [, payload] = api.saveRegister.mock.calls[0]
     expect(Object.keys(payload).sort()).toEqual(['hoursInLeaveDay', 'people'])
     payload.people.forEach((p) => {
-      expect(Object.keys(p).sort()).toEqual(['accruedLeaveDays', 'band', 'name', 'yearsEmployed'])
+      expect(Object.keys(p).sort()).toEqual(['accruedLeaveDays', 'band', 'key', 'name', 'yearsEmployed'])
       // The two Mike ruled off, named so this fails loudly if either ever returns.
       expect(p).not.toHaveProperty('sickLeaveDays')
       expect(p).not.toHaveProperty('dob')
@@ -198,6 +219,22 @@ describe('saving', () => {
     expect(api.saveRegister).toHaveBeenCalledTimes(1)
     release({ register: { hoursInLeaveDay: 8, savedAt: 'x', savedBy: null } })
     await first
+  })
+})
+
+describe('the summary', () => {
+  it('🔴 shows a Not-rated line when somebody has not been rated, so the table reconciles', async () => {
+    const summary = Object.assign({}, SUMMARY, {
+      unrated: { band: null, people: 27, priced: 0, liability: 0, avgYears: null },
+      total: { people: 29, priced: 1, liability: 5155.84 }
+    })
+    const wrapper = await mountRegister({ summary })
+    expect(wrapper.find('.wrs-unrated-row').exists()).toBe(true)
+  })
+
+  it('hides that line when everybody is rated', async () => {
+    const wrapper = await mountRegister()
+    expect(wrapper.find('.wrs-unrated-row').exists()).toBe(false)
   })
 })
 

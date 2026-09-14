@@ -1707,9 +1707,24 @@ workbook's own figures from sick leave to prove the fault, and says in terms tha
 **Still to come:** the **payroll reader** (its own item, 4.103) and the Firm Manager control above.
 **A real payroll export is owed by Mike** — per `intake/supportedPackages.js` no reader is called
 supported until one has been read. The five steps' figures are still not saved per client (4.62's
-mechanism), which is also why the register matches its entries to people **by name**: that is the
-only identifier both halves share today, and renaming someone in step 1 separates them from their
-entry. Stated in `wagesRegisterStore.js` rather than hidden.
+mechanism), which is why the register matches its entries to people on `personKey` —
+**`division|name|occurrence`** — rather than on anything permanent. It is stable, not permanent:
+it survives a reload and step 1's division regrouping, but renaming someone, or moving them
+between divisions, separates them from their entry. Stated in `wagesRegisterStore.js`.
+
+🔴 **OPENING IT IN A BROWSER FOUND THREE FAULTS THAT 10,975 GREEN TESTS DID NOT** (2026-09-15) —
+all three invisible to a test because they need the workbook's own sample team to appear.
+**(1)** That team carries **Butch, Bono, Boris and Brad twice each and four people with no name at
+all**, and the first build keyed rows by name: Vue reported duplicate keys, the wrong person's row
+updated as the advisor typed, and the two Butches collapsed into one stored entry on save. Hence
+`personKey`. **(2)** Nameless rows were **silently discarded on save** — the allow-list dropped an
+entry with no name — so whatever was typed against four real rows vanished without a word. The key
+identifies an entry now; the name may be empty. **(3)** The footer read **"1 person"** above
+twenty-nine, because the total counted only people somebody had already rated; the total is the
+register's headcount, and a **Not rated** line now lets the three bands and the total reconcile on
+screen. *That third one had a test asserting the wrong behaviour, which was replaced.* Proved
+afterwards in the browser: typing 9 days against the **second** Butch, saving and reloading leaves
+the first blank and the second at 1,872.00.
 
 > *Corrected 2026-09-14.* This block read **"step 1 of the five"** built, **"still to come: steps
 > 2–5, the report screen"**, and **"⚠ NOT IN THE MODEL LIBRARY, deliberately… a card opening onto
