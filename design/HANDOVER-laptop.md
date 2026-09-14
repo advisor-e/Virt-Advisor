@@ -14,12 +14,14 @@
 Suite **10,701 green** (508 suites), lint 0, audit PASS. Tree clean, everything pushed,
 **20 ahead of `master`, 0 behind**. Eight live items.
 
-🔴 **START HERE: ITEM 4.102, AND THE PLAN IS ALREADY WRITTEN.**
-[`design/WAGES-SHUTDOWN-PORT.md`](WAGES-SHUTDOWN-PORT.md) is a cold-start build spec — the
-whole shutdown chain traced out of the workbook's stored XML, the two things to settle before
-any engine code, and the build order. **Read it first; do not re-derive it.** Mike ruled the
-fix himself: *"plan the fix properly then get it done."* **Its first task is a question to
-answer, not code**: is the overnight allowance counted twice on the shutdown basis?
+✅ **ITEM 4.102 IS CLOSED** — all six build steps, 2026-09-14. Both pre-code questions were
+answered from the workbook's XML: the overnight allowance **was** counted twice on the shutdown
+basis, and the "overtyped cells" defect **did not exist**. The build spec
+`design/WAGES-SHUTDOWN-PORT.md` was deleted with the item on Mike's yes; its durable parts are
+in [`features/report-models.md`](features/report-models.md), which says how the model works now.
+Closure on [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
+
+*(This note is otherwise from the start of that session and is replaced wholesale at shutdown.)*
 
 **The fault it fixes:** a team built on our own step 1 reports **zero revenue** on the
 Shutdown basis (the workbook gets 973,328). The engine reads two ready-made per-person
