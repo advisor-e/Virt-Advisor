@@ -23,6 +23,8 @@ const {
   BASIS_VALUES,
   MAX_SUPERSEDED,
   MAX_APPLIES_TO,
+  MAX_BANDS,
+  incomeTaxOn,
   validateTaxRates,
   pickNewer,
   loadResolvedTaxRates
@@ -33,7 +35,7 @@ function source (over) {
   return Object.assign({ document: 'ATO — Company tax rates', page: '1', published: '2025-07' }, over || {})
 }
 
-/** The four figures, each valid, as one approved Australian table would hold them. */
+/** The five figures, each valid, as one approved Australian table would hold them. */
 function figures (over) {
   return Object.assign({
     companyTax: { rate: 0.3, appliesTo: 'Base rate entities — turnover under $50m', source: source() },
@@ -41,7 +43,20 @@ function figures (over) {
     filing: { months: 3, label: 'Quarterly (BAS)', source: source({ page: '4' }) },
     // Australia's own word for the invoice basis — the canonical value with the country's
     // word beside it, which is the whole point of the pair.
-    basis: { basis: 'invoice', label: 'Accruals', source: source({ page: '4' }) }
+    basis: { basis: 'invoice', label: 'Accruals', source: source({ page: '4' }) },
+    // Australia's resident bands, and the tax-free threshold is written as an EXPLICIT 0%
+    // band rather than left as a hole below the first one — which is what the validator
+    // requires and why a gap cannot exist in a stored table.
+    incomeTax: {
+      bands: [
+        { from: 0, to: 18200, rate: 0 },
+        { from: 18201, to: 45000, rate: 0.16 },
+        { from: 45001, to: 135000, rate: 0.30 },
+        { from: 135001, to: 190000, rate: 0.37 },
+        { from: 190001, to: null, rate: 0.45 }
+      ],
+      source: source({ page: '5' })
+    }
   }, over || {})
 }
 
@@ -580,5 +595,165 @@ describe('resolving what one scope works to', () => {
   test('a stored value that is nonsense is ignored, not thrown', async () => {
     const out = await loadResolvedTaxRates('firm-a', 'AU', loaderFor({ 'firm-a': 'rubbish' }))
     expect(out.isDefault).toBe(true)
+  })
+})
+
+describe('🔴 the income tax bands — the fifth figure, and the only one that is a table', () => {
+  /**
+   * A band table goes wrong QUIETLY, which is the whole reason this block exists. A gap
+   * between two bands leaves a slice of income untaxed; an overlap taxes it twice; and both
+   * produce a total that looks entirely plausible on screen. Nobody re-adds a tax table by
+   * hand, so nobody catches it. UAT cannot see any of this — it is the definition of what a
+   * test has to earn its place by catching.
+   *
+   * Added 2026-09-14 with the figure itself (decision 5 of the Wages/Salary Review).
+   */
+  const nzBands = BASE_TAX_FIGURES.incomeTax.bands
+
+  /** One country table holding just the bands, valid but for whatever the case changes. */
+  function withBands (bands) {
+    return { AU: table({ figures: figures({ incomeTax: { bands, source: source({ page: '5' }) } }) }) }
+  }
+
+  describe('what it computes', () => {
+    // THE WORKBOOK'S OWN ANSWERS, from `Hrly Rate & Tax Calculator` AH8 and AH12. These are
+    // the figures the Rates tab will show, so they are pinned against the source model.
+    test('reproduces the workbook on the sample income', () => {
+      expect(incomeTaxOn(145000, nzBands)).toBeCloseTo(38770, 6)
+    })
+
+    test('reproduces the workbook on the spouse’s own or allocated income', () => {
+      expect(incomeTaxOn(25000, nzBands)).toBeCloseTo(3395, 6)
+      // Each is taxed on their own — Mike's ruling of 2026-09-14, "own or allocated income".
+      // There is nothing to subtract, so the household total is simply the two added.
+      expect(incomeTaxOn(145000, nzBands) + incomeTaxOn(25000, nzBands)).toBeCloseTo(42165, 6)
+    })
+
+    test('charges the band exactly at its ceiling, and nothing below the first dollar', () => {
+      expect(incomeTaxOn(14000, nzBands)).toBeCloseTo(1470, 6) // the whole of band 1
+      expect(incomeTaxOn(0, nzBands)).toBe(0)
+      expect(incomeTaxOn(-5000, nzBands)).toBe(0)
+    })
+
+    test('taxes income above every ceiling at the open-ended top band', () => {
+      // 145,000 owes 38,770; the next 55,000 is all band 5 at 39%.
+      expect(incomeTaxOn(200000, nzBands) - incomeTaxOn(180000, nzBands)).toBeCloseTo(20000 * 0.39, 6)
+    })
+
+    test('is progressive across the whole table, never a single rate on the lot', () => {
+      // The fault this guards: applying the top rate to all of it. On 145,000 that would be
+      // 47,850 rather than 38,770 — plausible, and 9,080 wrong.
+      expect(incomeTaxOn(145000, nzBands)).toBeLessThan(145000 * 0.33)
+      expect(incomeTaxOn(145000, nzBands)).not.toBeCloseTo(145000 * 0.33, 0)
+    })
+
+    test('returns nothing rather than throwing when the bands are missing', () => {
+      expect(incomeTaxOn(50000, null)).toBe(0)
+      expect(incomeTaxOn(50000, undefined)).toBe(0)
+    })
+  })
+
+  describe('what it refuses, because the wrong answer would look right', () => {
+    test('A GAP between two bands — income that would be silently untaxed', () => {
+      const { ok, errors } = validateTaxRates(withBands([
+        { from: 0, to: 14000, rate: 0.105 },
+        { from: 20000, to: null, rate: 0.30 } // 14,001–19,999 taxed at nothing
+      ]))
+      expect(ok).toBe(false)
+      expect(errors.join(' ')).toContain('14001')
+    })
+
+    test('AN OVERLAP between two bands — income that would be taxed twice', () => {
+      const { ok } = validateTaxRates(withBands([
+        { from: 0, to: 14000, rate: 0.105 },
+        { from: 12000, to: null, rate: 0.30 }
+      ]))
+      expect(ok).toBe(false)
+    })
+
+    test('A HOLE BELOW THE FIRST BAND — a tax-free threshold left implicit', () => {
+      // Australia's 18,200 must be written as an explicit 0% band, never as a missing floor.
+      const { ok, errors } = validateTaxRates(withBands([
+        { from: 18201, to: null, rate: 0.16 }
+      ]))
+      expect(ok).toBe(false)
+      expect(errors.join(' ')).toContain('0% band')
+    })
+
+    test('A CLOSED TOP BAND — income above the last ceiling taxed at nothing', () => {
+      const { ok, errors } = validateTaxRates(withBands([
+        { from: 0, to: 14000, rate: 0.105 },
+        { from: 14001, to: 180000, rate: 0.33 }
+      ]))
+      expect(ok).toBe(false)
+      expect(errors.join(' ')).toContain('taxed at nothing')
+    })
+
+    test('AN OPEN BAND IN THE MIDDLE, which would swallow every band after it', () => {
+      const { ok } = validateTaxRates(withBands([
+        { from: 0, to: null, rate: 0.105 },
+        { from: 14001, to: null, rate: 0.33 }
+      ]))
+      expect(ok).toBe(false)
+    })
+
+    test('A PERCENTAGE where the store’s convention is a decimal', () => {
+      // 39 instead of 0.39 would tax someone at 3,900%.
+      const { ok } = validateTaxRates(withBands([{ from: 0, to: null, rate: 39 }]))
+      expect(ok).toBe(false)
+    })
+
+    test('an empty table, and one longer than any real country’s', () => {
+      expect(validateTaxRates(withBands([])).ok).toBe(false)
+      const many = []
+      for (let i = 0; i < MAX_BANDS + 1; i++) {
+        many.push({ from: i === 0 ? 0 : i * 1000 + 1, to: i === MAX_BANDS ? null : (i + 1) * 1000, rate: 0.1 })
+      }
+      expect(validateTaxRates(withBands(many)).ok).toBe(false)
+    })
+
+    test('a band table with no source document, like every other approved figure', () => {
+      const { ok } = validateTaxRates({
+        AU: table({ figures: figures({ incomeTax: { bands: nzBands, source: null } }) })
+      })
+      expect(ok).toBe(false)
+    })
+  })
+
+  describe('what it deliberately ALLOWS, because it is not this app’s policy to decide', () => {
+    test('a flat or falling rate — legal somewhere, and not ours to refuse', () => {
+      // Contiguity is arithmetic; the direction of the rates is the country's business.
+      const { ok } = validateTaxRates(withBands([
+        { from: 0, to: 50000, rate: 0.30 },
+        { from: 50001, to: null, rate: 0.20 }
+      ]))
+      expect(ok).toBe(true)
+    })
+
+    test('a single band covering everything', () => {
+      expect(validateTaxRates(withBands([{ from: 0, to: null, rate: 0.2 }])).ok).toBe(true)
+    })
+  })
+
+  describe('it cascades and falls back like the other four', () => {
+    test('a country nobody has loaded gets the app’s own bands, badged as default', async () => {
+      const out = await loadResolvedTaxRates('firm-a', 'AU', loaderFor({}))
+      expect(out.isDefault).toBe(true)
+      expect(out.figures.incomeTax.bands).toEqual(nzBands)
+      // Mike, 2026-09-08: "Never block the advisor." A missing table gives a badged answer.
+      expect(out.figures.incomeTax.source).toBeNull()
+    })
+
+    test('an approved table overrides the app’s own, and says where it came from', async () => {
+      const out = await loadResolvedTaxRates('firm-a', 'AU', loaderFor({
+ 'firm-a': withBands([
+        { from: 0, to: 18200, rate: 0 },
+        { from: 18201, to: null, rate: 0.16 }
+      ])
+}))
+      expect(out.figures.incomeTax.bands[0].rate).toBe(0)
+      expect(out.figures.incomeTax.originTier).toBe('firm_manager')
+      expect(incomeTaxOn(50000, out.figures.incomeTax.bands)).toBeCloseTo((50000 - 18200) * 0.16, 6)
+    })
   })
 })

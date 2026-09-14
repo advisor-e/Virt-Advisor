@@ -45,10 +45,10 @@ should predict what is inside.
 
 ---
 
-## 3. The four figures, and why it is four
+## 3. The five figures
 
 The item was filed as *"the tax rate and the GST rate"*. Drawing the screen found the GST
-section fixes three things, not one:
+section fixes three things, not one. A fifth joined on 2026-09-14.
 
 | Figure | What it does | Was |
 |---|---|---|
@@ -56,10 +56,47 @@ section fixes three things, not one:
 | **GST / VAT rate** | Charged on sales, reclaimed on purchases | 15%, New Zealand's |
 | **Filing cycle** | Decides which months a return falls due | Two-monthly, New Zealand's |
 | **Accounting basis** | Whether GST follows the invoice or the payment | Invoice, New Zealand's |
+| **Income tax bands** | The progressive table a **person's** income is taxed through | *(new)* |
 
 🔴 **A right rate on a wrong filing cycle is still a wrong cash flow.** The cycle decides which
 months money actually leaves the bank; the year's total is unchanged. That is precisely the
 kind of error a balanced set of statements hides.
+
+### 3a. The fifth figure — income tax bands *(added 2026-09-14)*
+
+Decision 5 of the Wages/Salary Review, ruled by Mike: **a fifth figure here, New Zealand's
+badged `app default`, never withheld.** The first four serve the Three-Way Forecast, which
+taxes company profit; the fifth serves the Wages/Salary Review's rates tab, which taxes a
+person's income. They share this store because they share what matters — **one country table,
+one cascade, one approve-before-use gate** — not because they serve one screen.
+
+🔴 **IT IS THE ONLY FIGURE HERE THAT IS A TABLE, AND THAT CHANGES WHAT VALIDATION HAS TO DO.**
+The other four are single values: type one wrong and it looks wrong. A band table does not.
+**A gap between two bands leaves a slice of income untaxed; an overlap taxes it twice**; and
+either way the total looks entirely plausible to the manager approving it and to anyone in UAT
+reading the screen. Nobody re-adds a tax table by hand, so nobody catches it.
+
+So `cleanIncomeTax` checks the shape rather than trusting it:
+
+- at least one band, at most **12** — generous against reality, and a cap a malformed upload
+  cannot exceed;
+- every rate a decimal 0..1, the store's convention everywhere (39% is `0.39`, never `39`);
+- the **first band starts at 0 or 1**, so a tax-free threshold is written as an explicit **0%
+  band** rather than left as a silent hole below the first one;
+- each later band starts at the previous ceiling **plus one** — the convention every real table
+  uses, and what makes a gap or an overlap *impossible* rather than merely unlikely;
+- **exactly one open-ended band, and it is the last**, because income above the top ceiling has
+  to be taxed at something.
+
+⚠ **It does NOT require rates to rise.** A flat or falling band is legal somewhere, and refusing
+one would be this app inventing tax policy. Contiguity is arithmetic; the direction of the rates
+is the country's business.
+
+`incomeTaxOn(income, bands)` computes the tax and is pinned against the source workbook: on
+New Zealand's bands **145,000 owes 38,770** and a separate **25,000 owes 3,395** — the
+`Hrly Rate & Tax Calculator` sheet's own AH8 and AH12. The manager's screen shows the table in
+force as a **summary** (*"5 bands, 10.5% to 39%"*) and the whole table in the editor, because
+five rows would crush a row that holds four one-line figures beside it.
 
 ---
 
