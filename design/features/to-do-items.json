@@ -212,6 +212,31 @@
       "touches": "scripts/ref-ceiling.js and tests/unit/refCeiling.test.js (built), the ceilingReport in scripts/check-branch-state.js, and for the half still open, .claude/commands/startup.md step 4 and design/WORKING-AGREEMENT.md, where the same instruction lives.",
       "note": "THE NUMBERING HALF IS BUILT 2026-09-14 on Mike's yes: check:branch now reads the live list and the archive from every machine's branch and prints the next free number, so allocating one is a read rather than a guess. THE HANDOVER HALF REMAINS - the same script can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date, and startup would then read a current note instead of a stale copy. Until it does, a session comparing handover dates must read the other machine's branch directly, not the working tree.",
       "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it. Renumbered from 4.98 on Mike's yes: the desktop had filed a different 4.98 the same day. Widened the same day, on his yes, to cover the numbering blindness that caused the renumber, and its half built."
+    },
+    {
+      "ref": "4.102",
+      "name": "The Shutdown basis reports zero revenue for a real client",
+      "rankedByMike": false,
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-14"
+      },
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The engine takes each person's shutdown wage and revenue as two ready-made arrays. Step 1 never collects them, so a team built on our screens totals zero revenue on that basis.",
+      "risk": "A wrong figure in front of a client. The Shutdown button is live on step 2 and the model is in the Model Library, so an advisor can pick it today and get a report saying the business earned nothing, with no warning. The sample looks right only because its arrays were lifted from the workbook. Mike declined disabling the button: the port is the fix.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-14 - found while answering Mike's question about the overtime button, by testing a step-1 team on both bases. He ruled the fix: 'plan the fix properly then get it done'."
+      },
+      "touches": "design/WAGES-SHUTDOWN-PORT.md holds the traced chain and the build order. server/report/wagesModel.js and its golden test, components/WagesTeam.vue (three new typed fields), and tests/unit/wagesTeam.component.test.js.",
+      "note": "THE PLAN IS WRITTEN: design/WAGES-SHUTDOWN-PORT.md, traced from the workbook's stored XML so a fresh session can start cold. Port the Shutdown Inputs sheet - ten typed cells per person, three of them new (weekly base hours, weekly overtime hours, productivity) - computing wage and revenue per month instead of reading two pre-baked arrays. TWO THINGS COME FIRST: whether the overnight allowance is counted twice on that basis, and five cells whose allowance formula is OVERTYPED WITH LABEL TEXT - the same defect family as the two already corrected, and Mike's standing 'never allow a mistake to remain' covers it. The seasonal figures must not move.",
+      "comment": "2026-09-14 - found and traced the same day. It also answered two older questions: the 'button for overtime in summer' is the per-month switch on Cash Report row 11, and the shutdown allowance is not a separate total at all but a per-person figure inside each monthly wage. Weekly base hours and weekly overtime hours, dropped from step 1 as unread on the seasonal sheet, turn out to be live inputs on the shutdown one."
     }
   ]
 }
