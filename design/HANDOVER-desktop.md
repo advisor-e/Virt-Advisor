@@ -9,40 +9,41 @@
 
 ---
 
-## 2026-09-14 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-14 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**4.97 US1 AND US2 ARE BOTH COMPLETE** (`ace4ea62`, pushed). 27 of 67 tasks. **US3 — the
-advisor's own words always win, across all six evidence families — is the obvious next
-task** (T030–T034); it reads the signed sizes US2 introduced, which is why the plan pairs
-them.
+**4.97 US3 IS COMPLETE** (`b15f0599`, `c773d4be`, both pushed). **34 of 67 tasks; US1, US2 and
+US3 all done.** US4 — the client's typed industry reaching the pool (T035/T036) — is next and is
+two small tasks.
 
-**Outcome Learning now lifts as well as holds back.** One signed number per pairing:
-`size = round(10 × (well − less) ÷ delivered)`, `holdBack` derived from it, matched sizes
-NET before a ±10 cap. Same floor, same mentor decision, same trace. A net of zero applies
-nothing and writes NO reason. `SCORING_VERSION` → **2.3.0**.
+🔴 **FIVE OF THE SIX WAYS THE ADVISOR'S EVIDENCE REACHES A TEMPLATE WERE NEVER PROTECTED.** One
+line decided it — `reasons.some(r => r.indexOf('distinction:') === 0)` — so a firm distinction
+won and the confirmed main issue, the client's industry and the signals heard in the description
+were all silently overruled by pooled data. It now tests `ADVISOR_EVIDENCE`, and the reason code
+carries which kind won: **`pooled:outweighed-<kind>`**.
 
-🔴 **THE SEED'S OWN DATA FLIPPED DIRECTION, AND THAT IS THE FAULT IN ONE LINE.** Break-Even
-— 31 delivered, 12 less, **19 well** — computed a hold-back of 4 and is in truth a lift of
-+2. The engine was holding back a template the pool was recommending. Several test fixtures
-changed answer for the same reason; each says so in a comment.
+**Anything reading the bare `pooled:outweighed` now wants the `-<kind>` suffix.** The trace-code
+rule matches with or without it, deliberately: a case saved before today would otherwise have
+shown an advisor the raw string `pooled:outweighed` on screen.
 
-**The advisor's words win in BOTH directions** — a lift that would reorder their own
-evidence is `pooled:outweighed` exactly as a hold-back is. Deliberate; do not "fix" it.
+**The trace names which evidence won** — four endings, Mike's wording of 2026-09-14 from
+`mockups/outcome-learning-trace-lift.html`. `outweighed[].by` was the constant `'distinction'`
+until now, so the panel named the wrong evidence whenever another kind had actually won.
 
-**T019: the Scenario Lab measures the primary-issue step.** 25/51 propose (49%), 7 withheld
-as too thin, 9 context domains, 10 no match; 24/25 survive the case's own words — **a proxy,
-and the report line says so.** ⚠ **The lab itself was NOT run: 4.99 stands**, and a run here
-would overwrite a full report with one measured without the AI layers.
+**The fixed bench counts CAP BREACHES and reports 0/51**, on the list route, the mentor's bench
+card and the Scenario Lab. A breach cannot be produced through the resolver, so the counter is
+proved on constructed display sets — otherwise "0 breaches" could be a counter that never counts.
 
-⚠ **T020's box in `tasks.md` is still unticked** though it shipped yesterday (`468ad92c`).
-Left alone rather than ticking another session's work — worth one word from Mike.
+**WALKED ON THE RUNNING APP.** The bench line seen rendering under the fixed bench's 100% → 100%;
+all four endings rendered from the real locale strings; both engine paths proved against
+`data/templates.json`. ⚠ **Not reached through a live conversation** — the intake needs real
+advisor answers to drive to a pooled match.
 
-Suite **11,053 green** (522 suites), lint 0, tree clean, pushed. `npm run build` NOT run
-this session (nothing was tagged).
+Suite **11,071 green** (522 suites), lint 0 errors, coverage and audit gates passed, tree clean,
+pushed. `npm run build` NOT run (nothing tagged). **4.99 still stands** — no AI-backed script runs
+here, so the Scenario Lab was not run.
 
-**LAPTOP:** none of your files touched. Shared files changed: `server/utils/templateResolver.js`
-(the pooled block + version), `outcomeLearning.js`, `outcomeLearningSession.js`, `outcomeBench.js`,
-`components/VirtualAdvisor.vue` (trace line), `components/mentor/MentorOutcomeLearning.vue`,
-`locales/en.json`, `utils/traceReasonCodes.js`, the dev seed and six test files. **Anything
-reading `holdBack` off an adjustment now wants `size`.** Merge `master` before you touch any
-of them.
+**LAPTOP:** you have moved 30 → **39 commits** ahead of master today; your note is still dated
+2026-09-13. None of your files touched. Shared files changed: `server/utils/templateResolver.js`,
+`outcomeLearningSession.js`, `outcomeBench.js` (new export `hasCapBreach`), `utils/traceReasonCodes.js`,
+`components/VirtualAdvisor.vue`, `components/mentor/MentorOutcomeLearning.vue`, `locales/en.json`,
+`scripts/scenario-lab.js` and four test files. Merge `master` before you touch any of them.
