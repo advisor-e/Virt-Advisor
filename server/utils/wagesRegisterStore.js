@@ -38,7 +38,7 @@ const fs = require('fs')
 const path = require('path')
 const overlay = require('./firmOverlay')
 const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
-const { BANDS } = require('./wagesRegisterMaths')
+const { BANDS, currentPayRate } = require('./wagesRegisterMaths')
 
 /** Dev-only stand-in for a machine with no MySQL — the affordance every store here carries. */
 const DEV_FILE = 'data/dev-wages-register-rows.json'
@@ -269,7 +269,12 @@ function merge (team, stored) {
       key,
       name: String((person && person.name) || '').trim(),
       division: (person && person.division) || '',
-      payRate: (person && person.payRate) === undefined ? null : person.payRate,
+      // 🔴 THE RATE INCLUDING PAY RISES (Mike, 2026-09-15), not the base rate step 1 holds.
+      // `currentPayRate` carries the reasoning and the workbook cell it reproduces. The base
+      // is kept beside it so the screen can say where the number came from rather than
+      // silently disagreeing with step 1.
+      payRate: currentPayRate(person),
+      basePayRate: (person && person.payRate) === undefined ? null : person.payRate,
       accruedLeaveDays: entry.accruedLeaveDays === undefined ? null : entry.accruedLeaveDays,
       yearsEmployed: entry.yearsEmployed === undefined ? null : entry.yearsEmployed,
       band: entry.band === undefined ? null : entry.band

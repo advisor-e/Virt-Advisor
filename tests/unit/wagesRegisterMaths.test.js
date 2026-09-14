@@ -121,6 +121,43 @@ describe('priceRow — one person, and when they cannot be priced', () => {
   })
 })
 
+describe('currentPayRate — the rate leave is valued at', () => {
+  it('🔴 reproduces the workbook\'s own S49 exactly', () => {
+    // `Annual Hiring Plan` S49 = (E49*R49)+E49, R49 = max(F49:Q49). Mary G: 19 x 1.05.
+    // Her base rate on step 1 is 19.00 and the DD sheet shows 19.95; pricing leave at the
+    // base rate understated what the business owes her, which is what Mike ruled on
+    // 2026-09-15 after seeing the two side by side.
+    expect(maths.currentPayRate({ payRate: 19, payRise: [0, 0, 0.05, 0.05, 0.05] })).toBe(19.95)
+  })
+
+  it('takes the LARGEST rise, not the last one and not a compound of them', () => {
+    // max(F49:Q49), literally. Two rises in a year do not multiply.
+    expect(maths.currentPayRate({ payRate: 100, payRise: [0.1, 0.05, 0.05] })).toBe(110)
+  })
+
+  it('is the base rate for somebody with no rise recorded', () => {
+    // A person from step 1 alone has no payRise at all, and that is correct rather than
+    // missing: no rise has been recorded for them.
+    expect(maths.currentPayRate({ payRate: 40.28 })).toBe(40.28)
+    expect(maths.currentPayRate({ payRate: 40.28, payRise: [] })).toBe(40.28)
+    expect(maths.currentPayRate({ payRate: 40.28, payRise: [0, 0] })).toBe(40.28)
+  })
+
+  it('ignores rubbish in the rise list rather than failing the whole row', () => {
+    expect(maths.currentPayRate({ payRate: 100, payRise: [null, '', 'x', 0.02] })).toBe(102)
+    expect(maths.currentPayRate({ payRate: 100, payRise: 'not a list' })).toBe(100)
+  })
+
+  it('returns null when there is no base rate at all', () => {
+    expect(maths.currentPayRate({ payRate: null })).toBeNull()
+    expect(maths.currentPayRate(null)).toBeNull()
+  })
+
+  it('keeps a zero rate at zero — a known zero is not a missing figure', () => {
+    expect(maths.currentPayRate({ payRate: 0, payRise: [0.05] })).toBe(0)
+  })
+})
+
 describe('toCents', () => {
   it('kills the floating-point tail', () => {
     // 40.28 * 8 * 16 is 5155.839999999999 in IEEE-754.

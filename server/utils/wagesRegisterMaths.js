@@ -83,6 +83,38 @@ function num (value) {
 }
 
 /**
+ * The pay rate that values somebody's leave: their base rate lifted by their pay rise.
+ *
+ * 🔴 RULED BY MIKE 2026-09-15, after the first build priced leave from the BASE rate and
+ * opening the screen showed the gap: Mary G at 19.00 against the workbook's 19.95, Bruce at
+ * 38.00 against 40.28. Leave is paid at the rate in force when it is taken, not the rate it
+ * was earned at, so the base rate understates a real liability — and understating what is
+ * owed on a document an acquirer prices a business from is the wrong direction to be wrong.
+ *
+ * THE WORKBOOK'S OWN DEFINITION, and this reproduces it exactly. `Annual Hiring Plan` S49 is
+ * `(E49*R49)+E49`, and R49 is `max(F49:Q49)` — the base rate lifted by the LARGEST rise in
+ * the twelve months, not the last one and not a compounding of them. 19 × 1.05 = 19.95.
+ * *(Its S column has the same broken fill as the leave-liability column: only the first row
+ * carries the formula and the rest are typed. Here the typed values agree with it, because
+ * every one of them has no rise.)*
+ *
+ * The rises live on step 3, not step 1 — a person from step 1 alone has no `payRise` and is
+ * valued at their base rate, which is correct: no rise has been recorded for them yet.
+ *
+ * @param {{payRate: *, payRise: *}} person
+ * @returns {number|null} the rate to value leave at, or null when there is no base rate
+ */
+function currentPayRate (person) {
+  const base = num(person && person.payRate)
+  if (base === null) { return null }
+  const rises = Array.isArray(person && person.payRise)
+    ? person.payRise.map(num).filter(v => v !== null)
+    : []
+  const maxRise = rises.length ? Math.max.apply(null, rises) : 0
+  return toCents(base * (1 + maxRise))
+}
+
+/**
  * What one person's accrued leave is worth, or null when it cannot be known.
  *
  * 🔴 `null` IS A RESULT, NOT A FAILURE — it is Mike's ruling of 2026-09-15 (question 2),
@@ -195,6 +227,7 @@ function priceAll (people, hoursInLeaveDay) {
 module.exports = {
   BANDS,
   WORKBOOK_BANDS,
+  currentPayRate,
   priceRow,
   priceAll,
   summarise,

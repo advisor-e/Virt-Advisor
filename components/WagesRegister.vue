@@ -59,6 +59,10 @@
             td
             td
 
+    //- Says where the pay rate comes from, because it will not match step 1's for anyone who
+    //- has a rise recorded — and an unexplained difference between two screens reads as a bug.
+    p.wrs-note {{ $t('report.wagesReview.register.sheet.rateNote') }}
+
     .wrs-actions
       b-button.wrs-save(type="is-primary" size="is-small" :loading="saving" :disabled="saving" @click="save")
         | {{ saving ? $t('report.wagesReview.register.sheet.saving') : $t('report.wagesReview.register.sheet.save') }}
@@ -322,6 +326,7 @@ export default {
 
 .wrs-actions { display: flex; align-items: center; gap: 0.7rem; margin-top: 0.9rem; flex-wrap: wrap; }
 .wrs-saved { font-size: 0.78rem; color: #5b6f8a; }
+.wrs-note { font-size: 0.78rem; color: #5b6f8a; margin-top: 0.5rem; }
 .wrs-retention { font-size: 0.8rem; color: #5b6f8a; margin-top: 0.6rem; }
 
 .wrs-summary { margin-top: 1.2rem; border: 1px solid #d5e1ee; border-radius: 10px; padding: 0.8rem 0.9rem; background: #f1f6fb; }

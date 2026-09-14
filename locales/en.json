@@ -3776,6 +3776,7 @@
           "hoursPlaceholder": "Not set",
           "hoursNote": "Applies to everyone on the register. Until it is set, nothing is priced.",
           "notPriced": "not yet priced",
+          "rateNote": "Pay rate includes any pay rise recorded in step 3 — leave is paid at the rate in force, so it is valued on that rather than on the base rate in step 1.",
           "bandNone": "Not rated",
           "band": {
             "direct-loss": "Direct loss",

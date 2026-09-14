@@ -210,6 +210,15 @@ describe('merge — the team is who, the register is what was typed about them',
     { name: 'Bruce', division: 'Production', payRate: 40.28 }
   ]
 
+  it('🔴 values leave at the rate INCLUDING pay rises, keeping the base beside it', () => {
+    // Mike's ruling, 2026-09-15. Step 3 carries `payRise`; step 1 does not, so a person from
+    // step 1 alone is valued at their base rate.
+    const withRise = [{ name: 'Mary G', division: 'Admin', payRate: 19, payRise: [0, 0.05] }]
+    const out = store.merge(withRise, [])
+    expect(out[0].payRate).toBe(19.95)
+    expect(out[0].basePayRate).toBe(19)
+  })
+
   it('lays stored entries over the team, by key', () => {
     const out = store.merge(team, [{
       key: 'production|bruce|1', accruedLeaveDays: 16, yearsEmployed: 5, band: 'direct-loss'
@@ -219,6 +228,7 @@ describe('merge — the team is who, the register is what was typed about them',
       name: 'Bruce',
       division: 'Production',
       payRate: 40.28,
+      basePayRate: 40.28,
       accruedLeaveDays: 16,
       yearsEmployed: 5,
       band: 'direct-loss'

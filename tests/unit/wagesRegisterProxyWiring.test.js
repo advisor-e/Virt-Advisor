@@ -64,6 +64,10 @@ describe('the staff-register gate — reaching the backend', () => {
     expect(page).not.toMatch(/wages-register\(v-show=/)
     expect(page).toMatch(/:team="registerTeam"/)
     expect(page).toMatch(/@gate="onGate"/)
+    // 🔴 STEP 3 BEFORE STEP 1. Only step 3's people carry `payRise`, and leave is valued at
+    // the rate including rises (Mike, 2026-09-15). Reading step 1 first would quietly price
+    // every risen person at their old rate.
+    expect(page).toMatch(/this\.year && this\.year\.people/)
   })
 
   it('the register\'s own routes are firmAuth and re-check the gate', () => {

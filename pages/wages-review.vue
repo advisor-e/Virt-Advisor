@@ -132,6 +132,12 @@ export default {
      * @returns {Array<{name: string, division: string, payRate: number}>}
      */
     registerTeam () {
+      // 🔴 STEP 3 IN PREFERENCE TO STEP 1, because step 3's people carry `payRise` and step
+      // 1's do not — and Mike ruled on 2026-09-15 that leave is valued at the rate INCLUDING
+      // rises. Step 3 is step 1's people with the hiring plan added, so nobody is lost by
+      // preferring it; until it is confirmed the register values leave at the base rate,
+      // which is correct, because no rise has been recorded yet.
+      if (this.year && this.year.people) { return this.year.people }
       return (this.team && this.team.people) ? this.team.people : []
     },
 
