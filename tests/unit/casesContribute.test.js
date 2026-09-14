@@ -243,3 +243,44 @@ describe('industryVocabulary', () => {
     expect(industryVocabulary([null, 'x', { title: 7, tags: 'nope' }]).size).toBe(0)
   })
 })
+
+// ── The typed industry into the pool (item 4.97 US4) ──────────────────────────
+// The pool used to accept only a word typed EXACTLY as the vocabulary holds it, so a
+// plural pooled nothing while the scorer matched it happily. Both cases go through
+// reviewCase and then back through the guard, because a word the matcher returns that the
+// guard would refuse is a row lost at save time rather than a dimension filled.
+
+describe('a typed industry reaches the pool as the word the SCORER matched', () => {
+  const pooledRow = () => overlay.saveFirmConfig.mock.calls[0][2]
+  const guarded = row => guardContribution(row, { libraryTitles: LIB.map(t => t.title), signalTypes: Object.values(SIGNAL_TYPES) })
+
+  const reviewWith = async (industry) => {
+    caseStore.getVisibleCase.mockResolvedValue(caseRow({
+      decisionTrace: { ...caseRow().decisionTrace, industry }
+    }))
+    const res = makeRes()
+    await reviewCase(req({ body: { wentWell: 'great', templateOutcomes: [{ title: 'Break-even Analysis', used: 'full', outcome: 'well' }] } }), res)
+    expect(res._status).toBe(200)
+    return pooledRow()
+  }
+
+  test('a plural pools the vocabulary word, and the guard accepts it', async () => {
+    const row = await reviewWith('cafes')
+    expect(row.industry).toBe('cafe')
+    expect(guarded(row)).toBe(row)
+  })
+
+  test('a word outside the vocabulary pools nothing, and the guard accepts that too', async () => {
+    const row = await reviewWith('zzzz')
+    expect(row.industry).toBeNull()
+    expect(guarded(row)).toBe(row)
+  })
+
+  test('the advisor typed form is never what is pooled', async () => {
+    // What a real advisor types. Only the industry word may leave the firm — never the
+    // client's own name, which is the half of this line the guard cannot check.
+    const row = await reviewWith("Ferrari's cafes, family owned")
+    expect(row.industry).toBe('cafe')
+    expect(JSON.stringify(overlay.saveFirmConfig.mock.calls[0])).not.toContain('Ferrari')
+  })
+})

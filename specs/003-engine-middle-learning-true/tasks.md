@@ -123,8 +123,8 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 **Independent Test**: quickstart Story 4.
 
-- [ ] T035 [P] [US4] Extend `tests/unit/casesContribute.test.js` — a typed "cafes" pools the vocabulary word; "zzzz" pools null; the guard passes both
-- [ ] T036 [US4] In `server/utils/outcomeLearning.js` `buildContribution` pool `resolveIndustryWord(trace.industry, industryVocabulary)`; `server/utils/outcomeContribute.js` passes the vocabulary as today
+- [X] T035 [P] [US4] Extend `tests/unit/casesContribute.test.js` — a typed "cafes" pools the vocabulary word; "zzzz" pools null; the guard passes both
+- [X] T036 [US4] In `server/utils/outcomeLearning.js` `buildContribution` pool `resolveIndustryWord(trace.industry, industryVocabulary)`; `server/utils/outcomeContribute.js` passes the vocabulary as today
 
 **Checkpoint**: quickstart Story 4 passes.
 

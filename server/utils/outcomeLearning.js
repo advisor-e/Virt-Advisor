@@ -13,7 +13,8 @@
  * WHOLE row on any key, type, length, or content it does not expect. Nothing is trimmed or
  * dropped to make a row pass, because a row that needed trimming is a row whose source is
  * wrong. Free text never enters: primary issue is kept only when it equals one of Mike's
- * authored labels, industry only when the caller's vocabulary holds it.
+ * authored labels, industry only as a word the caller's vocabulary holds — the scorer's own
+ * matcher picks that word out of what was typed, so nothing the advisor wrote is carried.
  *
  * Nothing here touches the database or the model. The routes read and write.
  */
@@ -164,7 +165,8 @@ function guardContribution (obj, vocab) {
  * @param {string[]} libraryTitles - every title in the platform template library
  * @param {string[]} signalTypes - the known signal type ids
  * @param {Iterable<string>} industryVocabulary - the industries the engine recognises; a
- *   typed industry is pooled only on an exact, case-insensitive match
+ *   typed industry is pooled as the vocabulary word the SCORER matches it to, plural and
+ *   stem tolerant, so "cafes" pools as "cafe" and a company name pools as nothing
  * @returns {Object|null}
  */
 function buildContribution (caseRow, libraryTitles, signalTypes, industryVocabulary) {
@@ -211,9 +213,12 @@ function buildContribution (caseRow, libraryTitles, signalTypes, industryVocabul
   const typedIssue = typeof issue.label === 'string' ? issue.label.trim() : ''
   const primaryIssue = labels && labels.has(typedIssue) ? typedIssue : null
 
-  const vocabulary = new Set(Array.from(industryVocabulary || [], s => String(s).trim().toLowerCase()))
-  const typedIndustry = typeof trace.industry === 'string' ? trace.industry.trim().toLowerCase() : ''
-  const industry = typedIndustry && vocabulary.has(typedIndustry) ? typedIndustry : null
+  // ONE matcher, two callers: the scorer and the pool read a typed industry the same way,
+  // so a word that reaches a template can never disagree with the word that is learned from
+  // it. Required here rather than at the top because templateResolver requires THIS file —
+  // a top-level require would resolve to an unfinished module and read as undefined.
+  const { resolveIndustryWord } = require('./templateResolver')
+  const industry = resolveIndustryWord(trace.industry, industryVocabulary)
 
   const known = new Set(Array.isArray(signalTypes) ? signalTypes : [])
   const signals = Array.from(new Set((Array.isArray(lenses.signalTypes) ? lenses.signalTypes : []).filter(s => known.has(s))))
