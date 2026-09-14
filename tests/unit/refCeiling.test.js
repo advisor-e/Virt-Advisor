@@ -5,6 +5,7 @@ const {
   compareRefs,
   highest,
   nextAfter,
+  nextParent,
   describeCeiling,
   highestOn,
   ceilingLines
@@ -13,10 +14,14 @@ const {
 const { isCandidate } = require('../../scripts/branch-survey')
 
 /**
- * The item-number ceiling (item 4.101).
+ * The item-number ceiling (item 14.2, filed as 4.101 before the 2026-09-15 renumber).
+ *
+ * The 4.1xx values below are ARITHMETIC — fixtures proving the sort — not references to
+ * any item. They are deliberately left alone: renumbering them would change what the
+ * maths is being tested against. See design/ITEM-NUMBERING.md.
  *
  * Each machine allocated the next to-do number from its own branch, blind to the other's,
- * so both filed different work under the same number. It happened EIGHT times before
+ * so both filed different work under the same number. It happened ELEVEN times before
  * anyone noticed, because `toDoItems.test.js` guards uniqueness on the live list alone and
  * a collision disappears from view the moment both items close into the archive.
  *
@@ -80,6 +85,26 @@ describe('ref-ceiling — ordering', () => {
     expect(nextAfter('4.99')).toBe('4.100')
     expect(nextAfter('4.100')).toBe('4.101')
   })
+
+  // Mike's ruling, 2026-09-15: a whole number is a subject, its decimals are the jobs in
+  // it. The parent is the half that must never be guessed — two machines both inventing
+  // the same new subject is the original defect in a new scheme.
+  it('gives the next free PARENT for a subject that has none', () => {
+    expect(nextParent(['14.1', '9.2', '4.104'])).toBe(15)
+  })
+
+  it('counts the closed 4.x family like any other — 4 is spent', () => {
+    expect(nextParent(['4.104'])).toBe(5)
+  })
+
+  it('is not fooled by string order: 4.100 does not outrank 14.1', () => {
+    expect(nextParent(['4.100', '14.1'])).toBe(15)
+  })
+
+  it('survives a list with nothing usable in it', () => {
+    expect(nextParent([])).toBe(1)
+    expect(nextParent(null)).toBe(1)
+  })
 })
 
 describe('ref-ceiling — what it prints', () => {
@@ -88,9 +113,13 @@ describe('ref-ceiling — what it prints', () => {
     { label: 'origin/feat/firm-quiz-builder-ui', highest: '4.99' }
   ]
 
-  it('names the next free number as the highest across ALL branches', () => {
-    // 4.101 here and 4.99 there means 4.102, not 4.100 and not 4.102-on-one-branch-only.
-    expect(describeCeiling(rows)[0]).toBe('THE NEXT FREE ITEM NUMBER IS 4.102.')
+  it('leads with what a number MEANS, not with a serial to take', () => {
+    expect(describeCeiling(rows)[0]).toBe('A WHOLE NUMBER IS A SUBJECT; ITS DECIMALS ARE THE JOBS IN IT.')
+  })
+
+  it('names the next free parent from the highest across ALL branches', () => {
+    // 4.101 here and 4.99 there: the highest parent in use is 4, so a new subject is 5.
+    expect(describeCeiling(rows).join('\n')).toContain('5  — the next free parent')
   })
 
   it('takes the ceiling from the other machine when that one is higher', () => {
@@ -98,7 +127,7 @@ describe('ref-ceiling — what it prints', () => {
       { label: 'this branch (feat/advisor-progress)', highest: '4.90' },
       { label: 'origin/feat/firm-quiz-builder-ui', highest: '4.99' }
     ]
-    expect(describeCeiling(other)[0]).toBe('THE NEXT FREE ITEM NUMBER IS 4.100.')
+    expect(describeCeiling(other).join('\n')).toContain('5  — the next free parent')
   })
 
   it('shows every branch it managed to read, so the number can be checked', () => {
@@ -161,7 +190,7 @@ describe('ref-ceiling — reading a branch through git', () => {
       live: '{"items":[{"ref": "4.101"}]}',
       archive: ''
     }).join('\n')
-    expect(printed).toContain('THE NEXT FREE ITEM NUMBER IS 4.102.')
+    expect(printed).toContain('5  — the next free parent')
   })
 
   it('takes in the other machine\'s branch and skips master and release snapshots', () => {
@@ -178,7 +207,7 @@ describe('ref-ceiling — reading a branch through git', () => {
       archive: ''
     }).join('\n')
 
-    expect(printed).toContain('THE NEXT FREE ITEM NUMBER IS 4.102.')
+    expect(printed).toContain('5  — the next free parent')
     expect(printed).toContain('origin/feat/other')
     expect(printed).not.toContain('origin/master')
     expect(printed).not.toContain('release/frozen')
@@ -191,7 +220,7 @@ describe('ref-ceiling — reading a branch through git', () => {
       live: '{"items":[{"ref": "4.101"}]}',
       archive: ''
     }).join('\n')
-    expect(printed).toContain('THE NEXT FREE ITEM NUMBER IS 4.102.')
+    expect(printed).toContain('5  — the next free parent')
   })
 })
 
