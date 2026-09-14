@@ -19,7 +19,7 @@ report-shell
     .step(:class="{ active: step === 4, done: step > 4, pending: !year }" @click="goTo(4)")
       span.n 4
       | {{ $t('report.wagesReview.step4') }}
-    .step.pending
+    .step(:class="{ active: step === 5, pending: !actual }" @click="goTo(5)")
       span.n 5
       | {{ $t('report.wagesReview.step5') }}
 
@@ -34,17 +34,13 @@ report-shell
     @back="step = 2"
   )
   wages-actual(
-    v-else
+    v-else-if="step === 4"
     :months="year ? year.months : []"
     :restore="actual"
     @confirmed="onActualConfirmed"
     @back="step = 3"
   )
-
-  //- Step 5, the report itself, is not built. Saying so on the screen is the honest
-  //- alternative to a Continue button that appears to do nothing.
-  .wr-pending(v-if="actual")
-    | {{ $t('report.wagesReview.stepsPending') }}
+  wages-report(v-else :inputs="engineInputs" :using-sample="true" @back="step = 4")
 </template>
 
 <script>
@@ -57,11 +53,10 @@ report-shell
  * Hiring Plan reads the two input sheets 4,306 times, so each step asks only for what
  * the one before it established.
  *
- * 🔴 STEPS 1-4 ARE BUILT. Step 5, the report, has a chip and no screen; its chip is inert
- * rather than hidden, so the shape of the work is visible and nobody builds the report
- * first. That order is the drawing's own warning: the numbers on the report are
- * worthless until the inputs behind them are the client's, and a screen showing the
- * sample company's figures is how a demo becomes a wrong answer in front of a client.
+ * ALL FIVE STEPS ARE BUILT. The report was built LAST, which is the drawing's own
+ * warning: the numbers on it are worthless until the inputs behind them are the client's,
+ * and a screen showing the sample company's figures is how a demo becomes a wrong answer
+ * in front of a real client.
  *
  * Each step is handed what the ones before it settled — step 3 takes the team from step 1
  * and the season names from step 2 — which is the dependency chain decision 9 counted
@@ -81,11 +76,12 @@ import WagesTeam from '~/components/WagesTeam.vue'
 import WagesWork from '~/components/WagesWork.vue'
 import WagesYear from '~/components/WagesYear.vue'
 import WagesActual from '~/components/WagesActual.vue'
+import WagesReport from '~/components/WagesReport.vue'
 
 export default {
   name: 'WagesReviewPage',
 
-  components: { ReportShell, ReportHeader, WagesTeam, WagesWork, WagesYear, WagesActual },
+  components: { ReportShell, ReportHeader, WagesTeam, WagesWork, WagesYear, WagesActual, WagesReport },
 
   data () {
     return {
@@ -101,19 +97,46 @@ export default {
     }
   },
 
+  computed: {
+    /**
+     * The four steps assembled into the payload `computeWages` reads. This page is the
+     * only place the steps meet, so it is the only place that can build it.
+     *
+     * The PEOPLE come from step 3, not step 1: step 3 takes step 1's people and adds each
+     * one's hiring plan, so its copy is the complete one. The MONTHS come from step 4 for
+     * the same reason — step 3 settled what each month is, step 4 added what happened.
+     *
+     * Null until every step has been confirmed; the report shows nothing rather than
+     * recomputing against half a model.
+     * @returns {Object|null}
+     */
+    engineInputs () {
+      if (!(this.team && this.work && this.year && this.actual)) { return null }
+      return {
+        basis: this.work.basis,
+        seasonNames: this.work.seasonNames,
+        settings: this.work.settings,
+        allowances: this.team.allowances,
+        people: this.year.people,
+        months: this.actual.months
+      }
+    }
+  },
+
   methods: {
     /**
      * Stepper navigation. Backwards always; forward only when the step being left has
-     * been confirmed, the same rule as the Loan Estimator. Step 5, the report, does not
-     * exist yet, so nothing above 4 is reachable.
+     * been confirmed, the same rule as the Loan Estimator. The report is reachable only
+     * once every input step has been confirmed.
      * @param {number} n the step to move to
      */
     goTo (n) {
-      if (n === this.step || n > 4) { return }
+      if (n === this.step || n > 5) { return }
       if (n > this.step) {
         if (n === 2 && !this.team) { return }
         if (n === 3 && !(this.team && this.work)) { return }
         if (n === 4 && !(this.team && this.work && this.year)) { return }
+        if (n === 5 && !this.engineInputs) { return }
       }
       this.step = n
     },
@@ -151,6 +174,7 @@ export default {
      */
     onActualConfirmed (payload) {
       this.actual = payload
+      this.step = 5
     }
   }
 }
@@ -175,6 +199,5 @@ export default {
 .step.done { color: var(--rs-good); }
 .step.done .n { background: var(--rs-good-soft); color: var(--rs-good); }
 .step.pending { opacity: 0.5; cursor: default; }
-.wr-pending { font-size: 12px; color: var(--rs-muted); margin-top: 12px; }
-@media print { .steps, .wr-pending { display: none !important; } }
+@media print { .steps { display: none !important; } }
 </style>

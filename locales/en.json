@@ -3755,7 +3755,6 @@
       "step3": "The year ahead",
       "step4": "What actually happened",
       "step5": "Wages/Salary Review report",
-      "stepsPending": "The report itself (step 5) is not built yet. What you have entered is held on this page only.",
       "team": {
         "title": "The team",
         "intro": "Every person, their pay and their charge-out rate. The division decides how each person is costed.",
@@ -3853,6 +3852,37 @@
         "unnamedMonth": "Month",
         "back": "Back",
         "continue": "Continue"
+      },
+      "report": {
+        "hero": {
+          "planned": "Planned labour margin",
+          "plannedSub": "{pct} of revenue",
+          "actual": "Actual labour margin",
+          "actualSub": "What really happened",
+          "variance": "Variance",
+          "varianceSub": "Actual against plan",
+          "tightest": "Tightest month"
+        },
+        "seasonsTitle": "The three seasons, and what each one is worth",
+        "seasonsNote": "The same team on the same pay. This is the swing the weather causes, and it is what an advisor opens the conversation with.",
+        "monthsTitle": "The year, month by month",
+        "monthsNote": "Planned against actual, and the variance between them.",
+        "year": "Year",
+        "basisLine": "Basis: {basis} · {people} people on the payroll.",
+        "allowanceLine": "Overnight allowances for the year: {allowance}.",
+        "col": {
+          "season": "Season",
+          "month": "Month",
+          "revenue": "Revenue",
+          "cost": "Cost",
+          "wageCost": "Wage cost",
+          "margin": "Margin",
+          "planned": "Planned",
+          "actual": "Actual",
+          "variance": "Variance",
+          "hours": "Hours"
+        },
+        "back": "Back"
       }
     }
   },

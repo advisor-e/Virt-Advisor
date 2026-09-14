@@ -1746,6 +1746,35 @@ the **report's** job; `computeWages` already returns `totals.variance` for it.
 own blank cell does, but the headline counts what has actually been filled in — an advisor four months
 into the year can see which is which.
 
+#### Step 5 — The report
+
+[`components/WagesReport.vue`](../../components/WagesReport.vue), with
+`tests/unit/wagesReport.component.test.js`. **The first screen of this model that calls the backend,
+and it calculates nothing itself** — every figure is `computeWages`'s own output. That is exactly why
+the four input steps deliberately showed no planned figures: two implementations of one number is how
+they start to disagree.
+
+**The seasons come first, the months second.** The same team on the same pay makes **52,270** in a
+*Dry n Light* month and **loses 13,972** in a *Wet n Dark* one — a swing of more than 66,000 on the
+weather alone, because a field team is paid its contracted hours whatever the sky does. The year total
+hides that completely.
+
+**The tightest month is a headline figure** because of what the port found: correcting the workbook's
+two defects moved July's planned margin from **+181 to −132**. The tightest month of the plan no
+longer breaks even, and a year total of 288,935 says nothing about that. Pinned by a test, so a
+reverted correction shows up here.
+
+**In the consistency guard.** `reportHeadlineConsistency.component.test.js` carries *Wages/Salary
+Review* — the step the skill warns nothing reminds you about, and the one whose omission fails
+silently. Recompute is `reportRecompute` (debounce plus a monotonic request stamp), so a slow older
+response can never overwrite a newer one, and `error` is that mixin's **stale flag — a boolean, never
+a message**.
+
+⚠ **An empty body is sent deliberately when no step has been confirmed.** The route falls back to the
+workbook's sample, so the report shows the sample behind its notice rather than a blank screen —
+skipping the request would also leave the stale banner unreachable, and a report that cannot show it
+has failed is worse than one showing the sample.
+
 **Three findings against the drawing's list of ten:**
 
 1. **"Days Worked" (`Seasonal Inputs` W45) is missing from the drawing** — the office week, which the
