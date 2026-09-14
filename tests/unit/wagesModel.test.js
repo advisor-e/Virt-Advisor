@@ -24,8 +24,14 @@ const {
  * figure can be re-checked by hand — EXCEPT the one ruled deviation, which carries the
  * workbook's figure AND ours side by side.
  *
- * 🔴 THE TWO RULED DEVIATIONS — Mike, 2026-09-14: "fix it - always. we want it right in the
+ * 🔴 THE THREE RULED DEVIATIONS — Mike, 2026-09-14: "fix it - always. we want it right in the
  * end", and "if it needs to be fixed - fix it - NEVER allow a mistake to remain."
+ *
+ * DEVIATION 3 — THE OVERNIGHT ALLOWANCE, COUNTED TWICE ON THE SHUTDOWN BASIS. `Shutdown
+ * Inputs` CL7 puts each person's allowance (CE7) inside their monthly wage; `Seasonal Inputs`
+ * CM7 leaves it out. `Cash Report` row 20 adds one to both anyway, so the shutdown basis pays
+ * it twice. The block "The ruled deviation — the allowance counted twice" at the foot of this
+ * file carries the workbook's own margin beside ours.
  *
  * DEVIATION 2 is in the per-season comparison block above: the workbook's cost line there
  * drops the employer retirement contribution that its own monthly cost includes, so the same
@@ -229,11 +235,9 @@ describe('the twelve months, and the switch between the two bases', () => {
   })
 
   it('switches both revenue AND cost sides together when the basis changes', () => {
-    // Decision 3: a complete either/or, never a blend. The shutdown basis also swaps the
-    // allowance to $2,600 (Cash Report AH7).
+    // Decision 3: a complete either/or, never a blend.
     const shutdown = computeWages(Object.assign({}, DEFAULT_INPUTS, { basis: 'shutdown' }))
     expect(shutdown.totals.revenue).toBeCloseTo(973328.4208, P)
-    expect(shutdown.totals.allowance).toBe(15600) // six months at 2,600
     expect(shutdown.totals.revenue).not.toBeCloseTo(model.totals.revenue, P)
     expect(shutdown.totals.wageCost).not.toBeCloseTo(model.totals.wageCost, P)
   })
@@ -343,6 +347,53 @@ describe('🔴 the ruled deviation — the row-offset defect, corrected', () => 
     expect(july.margin).toBeCloseTo(-131.83, P)
     expect(july.margin).toBeLessThan(0)
     expect(model.headline.tightestMonth.name).toBe('Jul')
+  })
+})
+
+describe('🔴 the ruled deviation — the allowance counted twice on the shutdown basis', () => {
+  /**
+   * The proof, from the two sheets' own formulas:
+   *
+   *   Seasonal Inputs CM7 = BK7+BW7+CH7+CC7               base+overtime+tools+super, NO CF7
+   *   Shutdown Inputs CL7 = (CA7+CB7+CE7)*4.33+CG7+CI7/12 CE7 (the allowance) is INSIDE it
+   *   Cash Report     E20 = if(seasonal…, AL11+AG7,  AL8+AH7)
+   *                         AG7 = Seasonal Inputs CF40 = 1,400  ← seasonal's only count ✅
+   *                         AH7 = Shutdown Inputs CE40 = 2,600  ← shutdown's SECOND count ❌
+   *
+   * AL8 = Annual Hiring Plan AN82 = Σ CL over the people on that month's payroll, so the
+   * allowance is already in it. April's AN82 caches 55,704.7515 and 3,031.00 of that is
+   * allowance; AH7 then adds 2,600 on top of the whole team.
+   */
+  const shutdown = computeWages(Object.assign({}, DEFAULT_INPUTS, { basis: 'shutdown' }))
+
+  it('charges no separate allowance on the shutdown basis, because the wage already holds it', () => {
+    expect(shutdown.totals.allowance).toBe(0)
+    expect(shutdown.months[0].allowance).toBe(0) // Apr, "Yes" — still nothing on top
+  })
+
+  it('costs the shutdown year $15,600 LESS than the workbook, and lifts the margin by the same', () => {
+    // Six ticked months (Cash Report row 11: Apr, May, Jul, Jan, Feb, Mar) at 2,600.
+    expect(15600).toBe(6 * 2600)
+    expect(shutdown.totals.margin).toBeCloseTo(-81556.96, P)
+    expect(-97156.96 - shutdown.totals.margin).toBeCloseTo(-15600, 1) // the workbook's own
+    expect(shutdown.totals.revenue).toBeCloseTo(973328.4208, P) // Cash Report R17, unchanged
+  })
+
+  it('leaves the SEASONAL allowance exactly where the workbook puts it', () => {
+    // The correction is one-sided on purpose: seasonal counts it once, and correctly.
+    expect(model.totals.allowance).toBe(8400) // Cash Report R13 — six months at 1,400
+    expect(model.months[0].allowance).toBe(1400) // Apr, "Yes"
+    expect(model.months[2].allowance).toBe(0) // Jun, "No"
+    expect(model.totals.margin).toBeCloseTo(288935.26, P) // the pinned seasonal guard
+  })
+
+  it('ignores a shutdown allowance even if one is supplied', () => {
+    // Mutation guard. Step 1 emits only `allowances.seasonal`, but an old saved model or a
+    // hand-built payload could still carry the workbook's 2,600. It must change nothing.
+    const withOld = JSON.parse(JSON.stringify(DEFAULT_INPUTS))
+    withOld.basis = 'shutdown'
+    withOld.allowances.shutdown = 2600
+    expect(computeWages(withOld).totals.margin).toBeCloseTo(shutdown.totals.margin, P)
   })
 })
 

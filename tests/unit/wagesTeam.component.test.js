@@ -300,9 +300,10 @@ describe('WagesTeam — the overnight allowance follows the team', () => {
   })
 
   it('moves when a rate or a night count is edited', () => {
-    // The trap the workbook carries: three of its four allowance cells have the formula
-    // overtyped with a literal 350, so changing the rate there moves nothing. Deriving
-    // the total removes that.
+    // The total must follow the team: an edited rate or night count moves it. (An earlier
+    // comment here justified this by a workbook "trap" — three allowance cells with the
+    // formula overtyped — which was a misreading of shared formulas and is withdrawn.
+    // The behaviour is right regardless of why; see WagesTeam.vue.)
     const wrapper = mountWithBuefy(WagesTeam)
     const paid = wrapper.vm.people.find(p => Number(p.allowanceRate) > 0)
     paid.allowanceNights = 4
@@ -316,11 +317,13 @@ describe('WagesTeam — the overnight allowance follows the team', () => {
     expect(out.allowances.seasonal).toBe(1400)
   })
 
-  it('does not invent a shutdown allowance it could not read', () => {
-    // The workbook's shutdown column interleaves label text with its formulas and this
-    // file stores some strings without the usual type marker, so it could not be read
-    // with confidence. Supplying a guess would be a made-up money figure; the report
-    // step has to settle it deliberately.
+  it('emits no shutdown allowance, because there is no such line', () => {
+    // SETTLED 2026-09-14, and the reason has changed. This used to say the shutdown column
+    // "interleaves label text with its formulas" so it could not be read — a misreading of
+    // shared formulas; `CE7:CE38` is a clean `Y*AA` throughout. The real answer is better:
+    // on the shutdown basis the allowance sits INSIDE each person's monthly wage
+    // (`Shutdown Inputs` CL7), so there is no separate total to emit. Emitting one would
+    // charge it twice. CORRECTION 3 in `server/report/wagesModel.js`.
     const wrapper = mountWithBuefy(WagesTeam)
     wrapper.vm.confirm()
     const out = wrapper.emitted('confirmed')[0][0]

@@ -92,6 +92,30 @@ describe('WagesReport — it renders the engine\'s figures and computes nothing'
     expect(wrapper.vm.totals.revenue).toBeCloseTo(1362740.23, 1)
   })
 
+  it('drops the allowance line on the shutdown basis rather than reporting zero', async () => {
+    // CORRECTION 3. The shutdown basis carries each person's allowance INSIDE their monthly
+    // wage, so the engine's separate total is 0 there — correctly. Printing that as
+    // "Overnight allowances for the year: $0" would tell an advisor the team receives none.
+    // A figure that is right in the engine and false on the screen is exactly what UAT
+    // cannot catch: $0 looks plausible.
+    const shutdown = computeWages(Object.assign(
+      {}, JSON.parse(JSON.stringify(DEFAULT_INPUTS)), { basis: 'shutdown' }
+    ))
+    expect(shutdown.totals.allowance).toBe(0)
+    const off = await mountReport({}, shutdown)
+    expect(off.vm.showsAllowanceLine).toBe(false)
+    // Rendered, not just computed — so deleting the v-if fails this and not only the flag.
+    // The assertion is on the FIGURE, never on the sentence around it.
+    expect(off.find('.wr-basis').text()).not.toContain(off.vm.money(0))
+
+    // Seasonal keeps it: there the allowance is a real line of its own, and 8,400 is the
+    // workbook's own Cash Report R13.
+    const on = await mountReport({})
+    expect(on.vm.showsAllowanceLine).toBe(true)
+    expect(on.vm.totals.allowance).toBe(8400)
+    expect(on.find('.wr-basis').text()).toContain(on.vm.money(8400))
+  })
+
   it('names the tightest month as a headline figure, and marks it a loss', async () => {
     const wrapper = await mountReport({})
     expect(wrapper.vm.tightestName).toBe('Jul')

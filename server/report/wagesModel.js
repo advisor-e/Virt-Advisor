@@ -17,10 +17,10 @@
  * around production days and overtime. Both revenue and cost swap sides together, which is
  * why this is an either/or rather than a blend.
  *
- * 🔴 TWO CORRECTIONS TO THE WORKBOOK, ON MIKE'S RULINGS OF 2026-09-14 — "fix it - always. we
+ * 🔴 THREE CORRECTIONS TO THE WORKBOOK, ON MIKE'S RULINGS OF 2026-09-14 — "fix it - always. we
  * want it right in the end", and "if it needs to be fixed - fix it - NEVER allow a mistake to
- * remain". Both are pinned in `tests/unit/wagesModel.test.js` with the workbook's own cached
- * figure beside ours, so neither is a silent departure.
+ * remain". All three are pinned in `tests/unit/wagesModel.test.js` with the workbook's own
+ * cached figure beside ours, so none is a silent departure.
  *
  * CORRECTION 1 — THE ROW-OFFSET DEFECT. The workbook decides whether a salaried person is
  * costed at full-time or part-time hours by reading a row TEN BELOW the person being costed:
@@ -41,6 +41,33 @@
  * employer retirement contribution out of its cost line where the monthly figure put it in,
  * so the same model costed the same team two different ways and the card flattered every
  * season. `seasonComparison` now uses the monthly cost. See that function for the detail.
+ *
+ * CORRECTION 3 — THE OVERNIGHT ALLOWANCE, COUNTED TWICE ON THE SHUTDOWN BASIS. The two
+ * sheets build a person's monthly wage differently, and only one of them leaves the
+ * allowance out:
+ *
+ *     Seasonal Inputs CM7 = BK7+BW7+CH7+CC7                    ← CF7 (the allowance) absent
+ *     Shutdown Inputs CL7 = (CA7+CB7+CE7)*4.33+CG7+CI7/12      ← CE7 (the allowance) INSIDE
+ *
+ * `Cash Report` row 20 then adds an allowance to BOTH — 1,400 on the seasonal basis
+ * (`AG7` = `Seasonal Inputs` CF40), which is the only place seasonal counts it, and 2,600 on
+ * the shutdown basis (`AH7` = `Shutdown Inputs` CE40), which is the SECOND place shutdown
+ * counts it. The two shutdown additions are not even the same quantity: inside the wage it
+ * is each employed person's `Y*AA*4.33`; on the Cash Report it is the raw WEEKLY column
+ * total across the whole 28-row roster, employed or not, added as though it were monthly.
+ *
+ * Over the sample year that charges 15,600 of allowance the team never received — six
+ * ticked months at 2,600 — and drops the shutdown margin from −81,557 to the workbook's
+ * −97,157. `computeWages` below therefore adds the allowance on the SEASONAL basis only.
+ * The shutdown figure is not a smaller number; it is not a separate line at all, which is
+ * why `allowances` now carries one key rather than two, and why step 1 emits only
+ * `allowances.seasonal` (`components/WagesTeam.vue`).
+ *
+ * ⚠ A related claim in `design/WAGES-SHUTDOWN-PORT.md` §3.2 — that five of the `CE` cells
+ * have their formula "overtyped with stray label text" — is FALSE, and nothing was corrected
+ * for it. `CE` is a clean shared formula `Y*AA` on every row 7–38; rows 18–21 and 36 are
+ * shared-formula FOLLOWERS (`<f t="shared" si="144"/>`), which carry no formula text of
+ * their own and read as blank to anything that takes each cell's own `<f>`.
  *
  * Backend-only and pure — no I/O, no database, no model call anywhere in this file, so
  * "personal data never reaches the AI" holds by construction. CommonJS, Node 14.15.
@@ -339,8 +366,9 @@ function seasonComparison (inputs) {
  * actuals, on whichever basis the firm runs.
  *
  * `Cash Report` rows 15, 17, 20, 22 and 24, and their totals in column R. The basis switch
- * and the overnight allowance are that sheet's own logic:
+ * is that sheet's own logic; the allowance is NOT — see CORRECTION 3 in the file header:
  *   E20 = if(seasonal and allowance, seasonalWages + 1400, … shutdownWages + 2600 …)
+ *                                                           ↑ already inside shutdownWages
  *   E22 = if(seasonal, seasonalRevenue − wageCost, shutdownRevenue − wageCost)
  *
  * A pay rise lifts WAGES only, never billings — `Annual Hiring Plan` Y49 applies the rise,
@@ -353,7 +381,7 @@ function computeWages (inputs) {
   const src = inputs && typeof inputs === 'object' ? inputs : {}
   const settings = src.settings || DEFAULT_INPUTS.settings
   const seasonNames = src.seasonNames || DEFAULT_INPUTS.seasonNames
-  const allowances = src.allowances || { seasonal: 0, shutdown: 0 }
+  const allowances = src.allowances || { seasonal: 0 }
   const people = Array.isArray(src.people) ? src.people : []
   const monthsIn = Array.isArray(src.months) ? src.months : []
   const basis = src.basis === 'shutdown' ? 'shutdown' : 'seasonal'
@@ -386,7 +414,10 @@ function computeWages (inputs) {
       shutdownRevenue += sr
     })
 
-    const allowance = m.allowanceApplies ? num(allowances[basis]) : 0
+    // 🔴 CORRECTION 3 — seasonal only. On the shutdown basis each person's allowance is
+    // already inside their monthly wage (`Shutdown Inputs` CE7 sits within CL7), so adding
+    // `Cash Report` AH7 on top charges it twice. See the file header.
+    const allowance = basis === 'seasonal' && m.allowanceApplies ? num(allowances.seasonal) : 0
     const wageCost = (basis === 'seasonal' ? seasonalWages : shutdownWages) + allowance
     const revenue = basis === 'seasonal' ? seasonalRevenue : shutdownRevenue
     const margin = revenue - wageCost
@@ -476,7 +507,9 @@ statDays: 12,
       daysLostApply: true
     }
   },
-  allowances: { seasonal: 1400, shutdown: 2600 },
+  // One key, not two. The workbook's shutdown allowance (`Cash Report` AH7 = 2,600) is
+  // deliberately absent — CORRECTION 3 in the file header says why.
+  allowances: { seasonal: 1400 },
   months: [
     { name: 'Apr', season: 'Std Season', productionDays: 22, allowanceApplies: true, actualMargin: 5000 },
     { name: 'May', season: 'Dry n Light', productionDays: 21, allowanceApplies: true, actualMargin: 27500 },

@@ -15,10 +15,14 @@
 A firm runs on **one of two bases**, never a blend (Mike's decision 3). Seasonal is built
 and correct. Shutdown is not.
 
-| Basis | The workbook's own team | A team built on our step 1 |
-|---|---|---|
-| Seasonal | revenue 1,362,740 · margin 288,935 | **identical** ✅ |
-| **Shutdown** | revenue 973,328 · margin −97,157 | **revenue 0** · margin −15,600 |
+| Basis | The workbook's own team | Ours | A team built on our step 1 |
+|---|---|---|---|
+| Seasonal | revenue 1,362,740 · margin 288,935 | identical ✅ | **identical** ✅ |
+| **Shutdown** | revenue 973,328 · margin −97,157 | margin **−81,557** (§3.1) | **revenue 0 · margin 0** |
+
+*(The step-1 column read "margin −15,600" until 2026-09-14. That figure was the
+double-counted allowance of §3.1 and nothing else; with it removed the fault shows as the
+flat zero it actually is.)*
 
 **Why.** `computeWages` takes two ready-made twelve-month arrays per person —
 `shutdownWage[]` and `shutdownRevenue[]` — and uses them as given. The sample carries them
@@ -124,48 +128,83 @@ Applies"** on `Shutdown Inputs` row 52, which mirrors it. Exactly three formulas
 
 ⚠ **It means different things on each basis.** On **seasonal** it drives the allowance
 only — overtime there is gated by the separate global flag `Seasonal Inputs` J4. On
-**shutdown** it drives the allowance *and* the overtime. So step 3's row must keep the
-Cash Report's label; a rename to "Overtime & allowances apply" was proposed and **withdrawn**
-because it would be wrong for seasonal firms.
+**shutdown** it drives **the overtime only**. So step 3's row must keep the Cash Report's
+label; a rename to "Overtime & allowances apply" was proposed and **withdrawn** because it
+would be wrong for seasonal firms.
+
+🔴 **CORRECTED 2026-09-14.** This section used to say the switch drove "the allowance *and*
+the overtime" on the shutdown basis. It does not. `CE` appears in **both** branches of `CL7`,
+so each person's allowance is charged every month whatever the switch says; the only thing
+the tick gates on that basis is the flat `AH7` on the Cash Report — which is itself the
+double count settled in §3.1 and now removed from the engine.
 
 ---
 
-## 3. 🔴 Two things to settle BEFORE writing engine code
+## 3. ✅ Both settled, 2026-09-14 — no engine code was written before they were
 
-### 3.1 Is the allowance counted twice on the shutdown basis?
+### 3.1 Is the allowance counted twice on the shutdown basis? — **YES. Corrected.**
 
-`CE = Y*AA` sits **inside** each person's monthly wage (`CL`, ×4.33). The Cash Report then
-adds `$AH$7` (2,600) **again** on row 20 for any ticked month. Either the workbook
-double-counts, or `CE` and `AH7` are different things.
+The two sheets build a person's monthly wage differently, and only one leaves the allowance
+out:
 
-Our engine currently does `wageCost = shutdownWages + allowances.shutdown` — so if `CL`
-already contains the allowance, **we double-count it too**.
+```
+Seasonal Inputs CM7 = BK7+BW7+CH7+CC7                 ← CF7 (the allowance) is ABSENT
+Shutdown Inputs CL7 = (CA7+CB7+CE7)*4.33+CG7+CI7/12   ← CE7 (the allowance) is INSIDE
+```
 
-**Resolve this first.** It decides whether `allowances.shutdown` survives at all. The
-cheapest check: total `CL7:CL38` for one month against `Cash Report` row 20 with `C5="Yes"`.
+`Cash Report` row 20 adds one to both anyway — `AG7` (= `Seasonal Inputs` CF40 = 1,400),
+which is seasonal's **only** count, and `AH7` (= `Shutdown Inputs` CE40 = 2,600), which is
+shutdown's **second**. The two shutdown additions are not even the same quantity: inside the
+wage it is each employed person's `Y*AA*4.33`; on the Cash Report it is the raw **weekly**
+column total across the whole 28-row roster, employed or not, added as though monthly.
 
-### 3.2 The overtyped allowance cells — a real workbook defect
+Proof it is `CL` that row 20 sums: `AL8` = `Annual Hiring Plan` AN82 = `sum(AN49:AN80)`,
+each row `if(F<n>=True, ('Shutdown Inputs'!CL<n>*F<r>) + CL<n>, 0)`. April's AN82 caches
+**55,704.7515** — reproduced to the cent — and **3,031.00 of it is allowance** before `AH7`
+adds 2,600 on top.
 
-`CE` is a formula (`Y*AA`) on most rows. On **rows 18, 19, 20, 21 and 36** it has been
-**typed over with stray label text** — *"Cost of Leave, Sick Leave, Sta…"*, *"Custm 2"*. Those
-people's monthly wage therefore reads text where a number belongs.
+**Corrected.** `computeWages` adds the allowance on the seasonal basis only; `allowances`
+carries one key, not two. Over the sample year that removes **15,600** of allowance the team
+never received (six ticked months × 2,600) and lifts the shutdown margin from the workbook's
+**−97,157 to −81,557**. Pinned with the workbook's own figure beside ours and
+mutation-verified in `tests/unit/wagesModel.test.js` → *"the ruled deviation — the allowance
+counted twice on the shutdown basis"*. The report screen drops the allowance line entirely on
+that basis, because *"Overnight allowances for the year: $0"* would be false.
 
-This is the same defect family as the two already corrected in this port (the row-offset
-base wage, and the season card dropping employer retirement), and Mike's standing rulings
-cover it — *"fix it - always"* and *"NEVER allow a mistake to remain"*. **Correct it to
-`Y*AA` and pin it beside the workbook's own figure, mutation-verified**, exactly as the other
-two are in `tests/unit/wagesModel.test.js`.
+### 3.2 The overtyped allowance cells — **THERE IS NO SUCH DEFECT. Nothing was corrected.**
 
-⚠ This is also the true cause of the earlier finding that "the shutdown allowance column
-interleaves label text and cannot be read safely." It is not a labelling quirk. It is
-overtyped formulas.
+🔴 **This section was wrong and is withdrawn.** It claimed `CE` on rows 18, 19, 20, 21 and 36
+had been typed over with stray label text. It has not. `CE` is a clean shared formula `Y*AA`
+on **every** row 7–38:
+
+```xml
+CE17  <f t="shared" ref="CE17:CE33" si="144">Y17*AA17</f><v>70</v>
+CE18  <f t="shared" si="144"/><v>70</v>      ← a FOLLOWER, not a typed constant
+CE21  <f t="shared" si="144"/><v>140</v>     ← 35 × 4 nights, correct
+```
+
+**Excel stores a shared formula once, on the master cell, and leaves the followers empty.**
+A reader that takes each cell's own `<f>` text sees blanks and calls them typed constants.
+That is the whole of it — the same reading-artefact family as the spacer-column trap in §2,
+and it also produced the phantom "three of the four allowance cells are overtyped" note that
+stood in `components/WagesTeam.vue` and `tests/unit/wagesTeam.component.test.js` until the
+same day (the seasonal `CF17:CF20` block is shared too, and equally clean).
+
+⚠ **This section was also offered as the "true cause" of the earlier finding that the
+shutdown allowance column could not be read safely. It was not.** The real reason that column
+resisted reading is §3.1: there is no separate shutdown allowance to read, because it lives
+inside the wage.
+
+**Check a shared formula before calling a cell overtyped.** A follower carries `si` and no
+text; an overtype carries neither.
 
 ---
 
 ## 4. The build, in order
 
-1. **Settle §3.1** (the double-count) and report the answer before writing engine code.
-2. **Correct §3.2**, pinned and mutation-verified.
+1. ✅ **DONE 2026-09-14 — §3.1 settled and corrected.** The allowance was counted twice; the
+   engine now adds it on the seasonal basis only, pinned and mutation-verified.
+2. ~~**Correct §3.2**~~ — **STRUCK. There is no defect there** (§3.2). One step fewer.
 3. **Port the shutdown model into `server/report/wagesModel.js`** — compute wage and revenue
    per person per month from the typed fields in §2.1, replacing the two pre-baked arrays.
    Keep `DEFAULT_INPUTS` reproducing the workbook.

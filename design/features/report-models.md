@@ -1722,8 +1722,9 @@ because that is a real season. Restoring maps the name back to its key.
 actual would be judged against it on the report, and the variance is what the model exists to show.
 
 ⚠ Column S of the rises block carries **stray text from an overlapping table** (*"Pdctn' Hrs"*,
-*"Federal Taxes"*, *"Band 1"*) on rows with no adjusted rate. Not read here — and it is the same
-interleaving that made the shutdown allowance unreadable.
+*"Federal Taxes"*, *"Band 1"*) on rows with no adjusted rate. Not read here. *(This used to add
+"and it is the same interleaving that made the shutdown allowance unreadable" — withdrawn
+2026-09-14: that column was never unreadable. See step 1's note 2.)*
 
 #### Step 4 — What actually happened
 
@@ -1790,14 +1791,21 @@ has failed is worse than one showing the sample.
    emits it — **the engine's input shape and golden test are untouched**, and the sample still
    gives exactly 1,400.
 
-   ⚠ In the workbook three of the four allowance cells have their **formula overtyped with a
-   literal 350**. Harmless there (175 × 2 = 350 either way) but it means changing the rate on those
-   rows moves nothing. Deriving the total removes that trap.
+   ⚠ **WITHDRAWN 2026-09-14.** This paragraph claimed three of the four allowance cells had their
+   formula *overtyped with a literal 350*. They do not. `CF17:CF20` is one **shared formula**
+   `X17*V17`; Excel stores it once on the master cell and leaves rows 18–20 as followers
+   (`<f t="shared" si="145"/>`) with no formula text of their own, so a reader taking each cell's
+   own `<f>` sees blanks and calls them constants. Deriving the total is still right — for the
+   reason above, that it must follow the team.
 
-   🔴 **SHUTDOWN IS NOT SUPPLIED AND MUST NOT BE GUESSED.** Its column interleaves label text with
-   its formulas, and this file stores some strings without the usual type marker, so text could not
-   be told from number with confidence. `confirm` emits `allowances.seasonal` only; the report step
-   has to settle shutdown deliberately rather than inherit a silent zero. Pinned by a test.
+   🔴 **THERE IS NO SHUTDOWN ALLOWANCE TO SUPPLY — SETTLED 2026-09-14.** This too used to say the
+   shutdown column "interleaves label text with its formulas" and could not be read. It reads
+   perfectly: `CE7:CE38` is a clean `Y*AA` throughout. The real answer is that on the shutdown basis
+   the allowance sits **inside** each person's monthly wage (`Shutdown Inputs` CL7), so there is no
+   separate line — and the workbook adding one anyway on `Cash Report` row 20 is a **double count**,
+   corrected in the engine (CORRECTION 3, `server/report/wagesModel.js`). `confirm` emits
+   `allowances.seasonal` only, and that is now the right shape rather than a deferral. Pinned by a
+   test.
 3. **The global overtime flag (`Seasonal Inputs` J4) has no control.** Read by 12 formulas, blank in
    the sample, and **blank is a third state** — not the same as No. Nothing in the workbook or the
    drawing names it, so the field was left out rather than invented and `overtimeSuppressed` is
@@ -1813,11 +1821,11 @@ formulas, which is why it is an either/or and never a blend.
 than 66,000 on the weather alone, because a field team is paid its contracted hours whatever the
 sky does. That is the finding an advisor opens the conversation with.
 
-🔴 **TWO RULED DEVIATIONS, BOTH FOUND AT BUILD TIME AND BOTH RULED THE SAME DAY** — *"fix it -
-always. we want it right in the end"*, then, when the second was put as a definitional choice
-rather than a defect, *"if it needs to be fixed - fix it - NEVER allow a mistake to remain."* Each
-is pinned in `tests/unit/wagesModel.test.js` with the workbook's own cached figure beside ours, and
-each is **mutation-verified**:
+🔴 **THREE RULED DEVIATIONS, THE FIRST TWO FOUND AT BUILD TIME AND BOTH RULED THE SAME DAY** —
+*"fix it - always. we want it right in the end"*, then, when the second was put as a definitional
+choice rather than a defect, *"if it needs to be fixed - fix it - NEVER allow a mistake to remain."*
+Each is pinned in `tests/unit/wagesModel.test.js` with the workbook's own cached figure beside ours,
+and each is **mutation-verified**:
 
 - **A wage costed against another employee's row.** `Seasonal Inputs` BN7 tests `E17`, BN12 tests
   `E22`, BN35 tests `E45` — a row **ten below** the person being costed, and `E45` is blank
@@ -1827,6 +1835,19 @@ each is **mutation-verified**:
 - **Two answers to one question.** The per-season card's cost line dropped the employer retirement
   contribution that the same model's monthly cost includes, so the card flattered every season. It
   now uses the monthly measure, and the card and the months agree.
+- **The overnight allowance, charged twice on the SHUTDOWN basis** *(added 2026-09-14, while
+  settling the question that had to be answered before the shutdown port could start)*.
+  `Seasonal Inputs` CM7 leaves the allowance out of each person's monthly wage; `Shutdown Inputs`
+  CL7 puts it **inside** — and `Cash Report` row 20 adds one to both regardless. The two shutdown
+  additions are not even the same quantity: inside the wage it is each employed person's
+  `Y*AA*4.33`; on the Cash Report it is the raw **weekly** `sum(CE7:CE38) = 2,600` across the whole
+  28-row roster, employed or not, added as though monthly. Ours adds the allowance on the
+  **seasonal basis only**, so `allowances` carries one key rather than two. Over the year that
+  removes **15,600** (six ticked months × 2,600) and the shutdown margin goes **−97,157 → −81,557**.
+  The **seasonal** figures are untouched, which is the point — the correction is one-sided because
+  the defect is. **On the report screen the allowance line is not shown at all on the shutdown
+  basis**, since *"Overnight allowances for the year: $0"* would tell an advisor the team receives
+  none, which is false.
 
 **What moved, and it is named on the drawing's own header too:** year labour margin
 **350,121 → 288,935**, year wage cost **1,012,620 → 1,073,805**, and **July's planned margin

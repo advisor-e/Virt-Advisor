@@ -132,9 +132,14 @@
  * from the rows and `confirm` emits it, which leaves the engine's input shape and its
  * golden test untouched.
  *
- * ⚠ In the workbook three of the four allowance cells have their FORMULA OVERTYPED with a
- * literal 350. Harmless there — 175 x 2 is 350 either way — but changing the rate on those
- * rows would not move the allowance. Computing it here removes that trap.
+ * ⚠ THIS PARAGRAPH USED TO CLAIM three of the four allowance cells had their formula
+ * overtyped with a literal 350. That is FALSE and was withdrawn on 2026-09-14. `CF17:CF20`
+ * is one shared formula `X17*V17`: rows 18-20 are shared-formula FOLLOWERS, stored as
+ * `<f t="shared" si="145"/>` with no formula text of their own, so anything reading each
+ * cell's own `<f>` sees a blank and calls it a typed constant. Deriving the total here is
+ * still right, for the reason in the paragraph above — it must follow the team — and not
+ * for the trap that was never there. The same misreading put a phantom defect into
+ * `design/WAGES-SHUTDOWN-PORT.md` §3.2; see CORRECTION 3 in `server/report/wagesModel.js`.
  *
  * DIVISION DRIVES THE BASIS (Mike, 2026-09-14). The workbook is laid out in blocks and
  * the mapping is exact across all 29 sample rows: Admin and Sales are costed as salary,

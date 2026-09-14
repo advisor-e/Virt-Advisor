@@ -87,9 +87,14 @@
             td.wr-num {{ money(totals.actual) }}
             td.wr-num(:class="{ 'wr-loss': totals.variance < 0 }") {{ money(totals.variance) }}
 
+  //- The allowance line is SEASONAL ONLY. On the shutdown basis each person's allowance is
+  //- inside their own monthly wage rather than on a line of its own, so the engine's total
+  //- is 0 there — and "Overnight allowances for the year: $0" would tell an advisor the team
+  //- receives none, which is false. Absent says nothing untrue; $0 does.
   p.wr-basis
     | {{ $t('report.wagesReview.report.basisLine', { basis: basisLabel, people: headcount }) }}
-    |  {{ $t('report.wagesReview.report.allowanceLine', { allowance: money(totals.allowance) }) }}
+    template(v-if="showsAllowanceLine")
+      |  {{ $t('report.wagesReview.report.allowanceLine', { allowance: money(totals.allowance) }) }}
 
   .wr-actions
     b-button(@click="$emit('back')") {{ $t('report.wagesReview.report.back') }}
@@ -179,6 +184,15 @@ export default {
         ? this.$t('report.wagesReview.work.basisShutdown')
         : this.$t('report.wagesReview.work.basisSeasonal')
     },
+    /**
+     * @returns {boolean} whether the year's overnight-allowance line is shown at all.
+     *
+     * Seasonal only. `Seasonal Inputs` CM7 leaves the allowance out of each person's monthly
+     * wage, so it is a real separate line there. `Shutdown Inputs` CL7 puts it inside the
+     * wage, so the engine reports no separate total on that basis (CORRECTION 3 in
+     * `server/report/wagesModel.js`) — and a "$0" line would read as "the team gets none".
+     */
+    showsAllowanceLine () { return this.data.basis !== 'shutdown' },
     /** @returns {string} the tightest month's name, or a dash before the first result. */
     tightestName () {
       const t = this.headline.tightestMonth
