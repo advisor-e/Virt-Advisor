@@ -156,6 +156,11 @@
                 span.mol-bn
                   | {{ percentOf(benchFixed.after) }}
                   small {{ $tc('outcomeLearning.benchWith', liveCount(benchFixed)) }}
+              //- 4.97 US3: the promise that the advisor's own words always win, as a figure
+              //- that can go up rather than a sentence that cannot. A bench run before US3
+              //- carries no count, and shows nothing rather than a misleading zero.
+              p.mol-breach.is-size-7(v-if="benchCapBreaches !== null" :class="benchCapBreaches > 0 ? 'has-text-danger' : 'has-text-grey'")
+                | {{ $tc('outcomeLearning.benchCapBreaches', benchCapBreaches, { count: benchCapBreaches, cases: benchFixed.cases }) }}
           .column(v-if="benchOutcome")
             .mol-bench
               h5.mol-bench-h {{ $t('outcomeLearning.benchOutcome') }}
@@ -300,6 +305,16 @@ export default {
     benchFixed () {
       const b = this.page.benches
       return b && b.fixed && typeof b.fixed === 'object' ? b.fixed : null
+    },
+
+    /**
+     * @returns {number|null} how many fixed-bench cases a pooled adjustment re-ordered against
+     *   the advisor's own evidence (4.97 US3) — expected 0. Null when the stored run predates
+     *   the count, so an old run shows nothing rather than an unearned zero.
+     */
+    benchCapBreaches () {
+      const b = this.benchFixed
+      return b && typeof b.capBreaches === 'number' ? b.capBreaches : null
     },
 
     /** @returns {object|null} the outcome bench's before/after, when it has run */

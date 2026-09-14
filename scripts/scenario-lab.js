@@ -35,7 +35,7 @@ const fs = require('fs')
 const path = require('path')
 const { SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveTemplatesWithOutlier, buildDisplaySet } = require('../server/utils/templateResolver')
-const { scenarioToCase } = require('../server/utils/outcomeBench')
+const { scenarioToCase, hasCapBreach } = require('../server/utils/outcomeBench')
 const { rankLabels, proposesIssue, parseReply } = require('../server/utils/primaryIssueProposer')
 const templates = require('../data/templates.json')
 
@@ -170,7 +170,17 @@ function runScenario (sc, boosts, adjustments) {
     budget: strategy.templateBudget,
     cards,
     topScores: log.slice(0, 6).map(t => t.score),
-    topReasons: (cards[0] && cards[0].matchReasons) || []
+    topReasons: (cards[0] && cards[0].matchReasons) || [],
+    // 4.97 US3. The same case with NO pooled adjustments, so the report can say whether the
+    // pool re-ordered anything against the advisor's own evidence. Only computed when there
+    // are adjustments to measure — a plain run does a single resolve per case, as before.
+    plainCards: (adjustments && adjustments.length)
+      ? buildDisplaySet(resolveTemplatesWithOutlier(caseState, strategy, templates, {
+          distinctionBoosts: boosts || {},
+          pooledAdjustments: [],
+          pooledSignalTypes: signalTypes
+        }), strategy.templateBudget)
+      : null
   }
 }
 
@@ -227,6 +237,13 @@ async function main () {
   metrics.push(adjustmentsFile
     ? `- **Outcome Learning:** ${adjustments.length} live adjustment${adjustments.length === 1 ? '' : 's'} applied from \`${adjustmentsFile}\`; the #1 card carries a pooled hold-back or outweigh in ${heldBackTops}/${n} cases.`
     : '- **Outcome Learning:** no adjustments applied — run again with `--adjustments <file>` to measure the fixed bench with the live ones.')
+  // 4.97 US3: the rule that the advisor's own words always win, as a countable figure. The
+  // resolver never adjusts a template their evidence reached, so this must read 0 — and a
+  // number that CAN go up is worth more than a sentence saying it cannot.
+  if (adjustments.length > 0) {
+    const breaches = results.filter(r => r.run.plainCards && hasCapBreach(r.run.plainCards, r.run.cards)).length
+    metrics.push(`- **Cap breaches on the fixed bench: ${breaches}/${n}** — cases where a pooled adjustment moved a template BELOW one the adviser's own evidence had ranked above it. Expected 0; anything higher is a defect in the rule, not a measurement.`)
+  }
   // Primary issue (4.97 US1): how often the engine NAMES the problem, and how often its
   // proposal survives the advisor's own words unchanged. The invented cases carry no reply to
   // a proposal, so "would confirm" replays the case's OWN description through parseReply —

@@ -35,7 +35,7 @@
 const STAIRCASE = require('../../data/advisory-staircase.json')
 const { extractProblemSignals } = require('./problemSignals')
 const { staircaseToCeiling, DOMAIN_NATURAL_ENGAGEMENT } = require('./caseState')
-const { resolveTemplatesWithOutlier, buildDisplaySet } = require('./templateResolver')
+const { resolveTemplatesWithOutlier, buildDisplaySet, advisorEvidenceKind } = require('./templateResolver')
 const { rankLabels } = require('./primaryIssueProposer')
 
 const YIELD_EVERY = 200
@@ -57,12 +57,72 @@ function _key (title) {
  * @returns {string|null} the top template's title
  */
 function topRecommendation (caseState, strategy, templates, adjustments, signalTypes) {
+  const cards = displaySetFor(caseState, strategy, templates, adjustments, signalTypes)
+  return cards[0] && typeof cards[0].title === 'string' ? cards[0].title : null
+}
+
+/**
+ * One replay's whole ordered display set, not only its top card — what the cap-breach check
+ * needs, since a breach is about ORDER between two templates rather than about the winner.
+ *
+ * @param {Object} caseState
+ * @param {Object} strategy - `{ engagementType, templateBudget }`
+ * @param {Array<Object>} templates
+ * @param {Array<Object>} adjustments - the resolver option shape; `[]` for the plain run
+ * @param {string[]} signalTypes - the session's fired lens signals
+ * @returns {Array<{title: string, matchReasons: string[]}>} in display order
+ */
+function displaySetFor (caseState, strategy, templates, adjustments, signalTypes) {
   const resolved = resolveTemplatesWithOutlier(caseState, strategy, templates, {
     pooledAdjustments: adjustments,
     pooledSignalTypes: signalTypes
   })
-  const cards = buildDisplaySet(resolved, strategy.templateBudget)
-  return cards[0] && typeof cards[0].title === 'string' ? cards[0].title : null
+  return buildDisplaySet(resolved, strategy.templateBudget)
+}
+
+/**
+ * Did a pooled adjustment re-order a template AGAINST the advisor's own evidence? (4.97 US3.)
+ *
+ * The rule US3 exists to keep is that the advisor's words always win. The resolver enforces it
+ * by never adjusting a template their evidence reached — so a breach should be impossible, and
+ * this counts them to PROVE that rather than asserting it. It is the honest form of the claim:
+ * a number that can go up, not a sentence that cannot.
+ *
+ * A breach is one pair in one case: a template carrying any ADVISOR_EVIDENCE reason that was
+ * ranked ABOVE a pooled-adjusted template in the plain run and BELOW it once the adjustments
+ * were applied. Both halves matter — a pair that was already in that order was not re-ordered
+ * by the pool, and counting it would report a breach the adjustments did not cause.
+ *
+ * @param {Array<{title: string, matchReasons: string[]}>} plain - the run with no adjustments
+ * @param {Array<{title: string, matchReasons: string[]}>} adjusted - the run with them
+ * @returns {boolean} true when at least one pair was re-ordered against the advisor
+ */
+function hasCapBreach (plain, adjusted) {
+  const rankIn = (cards) => {
+    const at = new Map()
+    cards.forEach((c, i) => { if (typeof c.title === 'string') { at.set(_key(c.title), i) } })
+    return at
+  }
+  const plainAt = rankIn(plain)
+  const evidence = []
+  const pooled = []
+  adjusted.forEach((c) => {
+    const reasons = Array.isArray(c.matchReasons) ? c.matchReasons : []
+    if (advisorEvidenceKind(reasons)) { evidence.push(c) }
+    if (reasons.some(r => typeof r === 'string' && r.indexOf('pooled:') === 0)) { pooled.push(c) }
+  })
+  const adjustedAt = rankIn(adjusted)
+  for (const e of evidence) {
+    const eKey = _key(e.title)
+    for (const p of pooled) {
+      const pKey = _key(p.title)
+      if (eKey === pKey) { continue }
+      const wasAbove = plainAt.has(eKey) && plainAt.has(pKey) && plainAt.get(eKey) < plainAt.get(pKey)
+      const nowBelow = adjustedAt.get(eKey) > adjustedAt.get(pKey)
+      if (wasAbove && nowBelow) { return true }
+    }
+  }
+  return false
 }
 
 /**
@@ -171,10 +231,16 @@ async function fixedBench (scenarios, templates, adjustments) {
   const live = Array.isArray(adjustments) ? adjustments : []
   const changed = []
   let unchanged = 0
+  let capBreaches = 0
   for (let i = 0; i < list.length; i++) {
     const { caseState, strategy, signalTypes } = scenarioToCase(list[i])
-    const expected = topRecommendation(caseState, strategy, templates, [], signalTypes)
-    const withLive = topRecommendation(caseState, strategy, templates, live, signalTypes)
+    // The whole display set both ways: the top card answers `after`, the order answers
+    // `capBreaches`. One pair of resolves serves both, so the bench does not run twice.
+    const plainSet = displaySetFor(caseState, strategy, templates, [], signalTypes)
+    const liveSet = displaySetFor(caseState, strategy, templates, live, signalTypes)
+    const expected = plainSet[0] && typeof plainSet[0].title === 'string' ? plainSet[0].title : null
+    const withLive = liveSet[0] && typeof liveSet[0].title === 'string' ? liveSet[0].title : null
+    if (hasCapBreach(plainSet, liveSet)) { capBreaches += 1 }
     if (_key(expected) === _key(withLive)) {
       unchanged += 1
     } else {
@@ -188,6 +254,9 @@ async function fixedBench (scenarios, templates, adjustments) {
     cases: list.length,
     unchanged,
     changed,
+    // 4.97 US3. Expected to be 0: the resolver never adjusts a template the advisor's own
+    // evidence reached. A non-zero figure is a real defect in that rule, not a bench artefact.
+    capBreaches,
     liveIds: _liveIds(live)
   }
 }
@@ -255,6 +324,9 @@ module.exports = {
   scenarioToCase,
   poolRowToCase,
   topRecommendation,
+  // Exported for its own test: a real breach cannot be produced through the resolver (that is
+  // the point of US3), so the counter is proved on constructed display sets instead.
+  hasCapBreach,
   fixedBench,
   outcomeBench,
   runBenches

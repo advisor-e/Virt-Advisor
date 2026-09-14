@@ -133,7 +133,18 @@ held-back template is still in the list, still scored, just lower.
 | `advisor:confidence_mismatch` (−1) | Low confidence reported, and this template needs experience | needs more experience than reported — held back |
 | `pooled:held_back-<n>` (−n, capped at 10) | Across consenting firms this template went less well in this situation; a mentor-accepted adjustment held it back (item 4.87) | learned from outcomes −{n} `LIVE` — Mike, 2026-09-11, from `mockups/outcome-learning-trace.html` |
 | `pooled:lifted-<n>` (+n, capped at 10) | Across consenting firms this template landed well in this situation; a mentor-accepted adjustment lifted it (item 4.97 US2). The code carries the capped NET, so one lift and one hold-back on the same template produce a single reason, not two | learned from outcomes +{n} `LIVE` — Mike, 2026-09-14, from `mockups/outcome-learning-trace-lift.html` |
-| `pooled:outweighed` | A pooled hold-back matched, but the adviser's own words matched a distinction for this template, and those win | outcome learning weighed and outweighed `LIVE` — Mike, 2026-09-11 |
+| `pooled:outweighed-<kind>` | A pooled adjustment matched, but the adviser's own words reached this template first and those win. `<kind>` is which evidence won — `distinction`, `primary_issue`, `industry` or `signal` (item 4.97 US3); a lift is set aside exactly as a hold-back is | outcome learning weighed and outweighed `LIVE` — Mike, 2026-09-11. The Why column reads the same for all four kinds; WHICH evidence won is named on the *Learned from outcomes* line instead, in the four endings below |
+
+**The four "outweighed by" endings** — Mike, 2026-09-14, from `mockups/outcome-learning-trace-lift.html`.
+The line reads *"a hold-back of {n} in {where} was outweighed by …"* (or *"a lift of {n} …"*), and the
+ending is chosen by the kind:
+
+| Kind | Ending |
+| --- | --- |
+| `distinction` | your firm's distinction `LIVE` |
+| `primary_issue` | the main issue you confirmed `LIVE` |
+| `industry` | the client's industry `LIVE` |
+| `signal` | what I heard in your description `LIVE` |
 
 ### The adviser's own confidence
 

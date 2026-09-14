@@ -124,7 +124,7 @@ describe('buildOutcomeLearningTrace', () => {
   // adjustment for the title, so it said "in profit" for a session in sales.)
   const log = [
     { title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:held_back-7'], pooledMatched: [ID] },
-    { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: ['7-cash-drivers|signal|client-awareness'] },
+    { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed-distinction'], pooledMatched: ['7-cash-drivers|signal|client-awareness'] },
     { title: 'Working Capital Cycle', matchReasons: ['domain:primary_subsection'] },
     null,
     { title: 8 },
@@ -152,9 +152,23 @@ describe('buildOutcomeLearningTrace', () => {
 
   test('an outweighed lift reports the positive size that was set aside', () => {
     const positives = [{ id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: 6, firms: 6, cases: 31 }]
-    const log2 = [{ title: 'Break-even Analysis', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: [ID] }]
+    const log2 = [{ title: 'Break-even Analysis', matchReasons: ['distinction:+5', 'pooled:outweighed-distinction'], pooledMatched: [ID] }]
     const block = buildOutcomeLearningTrace(log2, positives, { consented: true, available: true })
     expect(block.outweighed[0]).toMatchObject({ template: 'Break-even Analysis', size: 6, holdBack: 0, by: 'distinction' })
+  })
+
+  // 4.97 US3. `by` was the constant 'distinction' until US3, so the panel said "your firm's
+  // distinction" even when it was the main issue or the industry that actually won — the line
+  // named the wrong evidence, which a reader has no way to check against the engine.
+  test.each([
+    ['distinction', 'distinction:+5'],
+    ['primary_issue', 'primary_issue:strong_match'],
+    ['industry', 'industry:title_match'],
+    ['signal', 'semantic:4.2']
+  ])('the outweighed line names %s, the evidence that actually won', (kind, evidenceReason) => {
+    const log = [{ title: 'Break-even Analysis', matchReasons: [evidenceReason, 'pooled:outweighed-' + kind], pooledMatched: [ID] }]
+    const block = buildOutcomeLearningTrace(log, adjustments, { consented: true, available: true })
+    expect(block.outweighed[0]).toMatchObject({ template: 'Break-even Analysis', by: kind })
   })
 
   test('an outweighed sum beyond the cap reports the capped figure, never the raw total', () => {
@@ -164,14 +178,14 @@ describe('buildOutcomeLearningTrace', () => {
       { id: 'a|domain|profit', template: 'Big', dimension: 'domain', value: 'profit', size: -6, firms: 6, cases: 31 },
       { id: 'b|industry|cafe', template: 'Big', dimension: 'industry', value: 'cafe', size: -6, firms: 6, cases: 31 }
     ]
-    const log3 = [{ title: 'Big', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: ['a|domain|profit', 'b|industry|cafe'] }]
+    const log3 = [{ title: 'Big', matchReasons: ['distinction:+5', 'pooled:outweighed-distinction'], pooledMatched: ['a|domain|profit', 'b|industry|cafe'] }]
     expect(buildOutcomeLearningTrace(log3, big, { consented: true }).outweighed[0]).toMatchObject({ size: -10, holdBack: 10 })
   })
 
   test('when two adjustments matched, the weakest evidence is reported and the outweighed size is their sum', () => {
     const both = [
       { title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:held_back-7'], pooledMatched: [ID, 'break-even-analysis|industry|cafe'] },
-      { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed'], pooledMatched: [ID, '7-cash-drivers|signal|client-awareness'] }
+      { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed-distinction'], pooledMatched: [ID, '7-cash-drivers|signal|client-awareness'] }
     ]
     const block = buildOutcomeLearningTrace(both, adjustments, { consented: true, available: true })
     expect(block.applied).toEqual([{ template: 'Break-even Analysis', size: -7, direction: 'holdBack', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 5, cases: 28 }])
@@ -195,9 +209,9 @@ describe('buildOutcomeLearningTrace', () => {
     expect(block.applied).toEqual([{ template: 'Mystery', size: -2, direction: 'holdBack', holdBack: 2, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
     expect(buildOutcomeLearningTrace('nope', undefined, { consented: true }).applied).toEqual([])
     // An outweighed template whose adjustment carries no numeric size reports 0, not NaN.
-    const odd = buildOutcomeLearningTrace([{ title: 'Odd', matchReasons: ['pooled:outweighed'], pooledMatched: ['odd|domain|x'] }], [{ id: 'odd|domain|x', template: 'Odd', firms: 5, cases: 25 }], { consented: true })
+    const odd = buildOutcomeLearningTrace([{ title: 'Odd', matchReasons: ['pooled:outweighed-distinction'], pooledMatched: ['odd|domain|x'] }], [{ id: 'odd|domain|x', template: 'Odd', firms: 5, cases: 25 }], { consented: true })
     expect(odd.outweighed).toEqual([{ template: 'Odd', size: 0, holdBack: 0, id: 'odd|domain|x', dimension: null, value: null, firms: 5, cases: 25, by: 'distinction' }])
-    const none = buildOutcomeLearningTrace([{ title: 'Nobody', matchReasons: ['pooled:outweighed'] }], [], { consented: true })
+    const none = buildOutcomeLearningTrace([{ title: 'Nobody', matchReasons: ['pooled:outweighed-distinction'] }], [], { consented: true })
     expect(none.outweighed).toEqual([{ template: 'Nobody', size: 0, holdBack: 0, id: null, dimension: null, value: null, firms: 0, cases: 0, by: 'distinction' }])
   })
 })

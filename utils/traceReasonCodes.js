@@ -73,7 +73,14 @@ export const REASON_RULES = [
   // (design/mockups/outcome-learning-trace-lift.html).
   { test: /^pooled:held_back-(\d+)$/, key: 'reasonPooledHeldBack', param: 'n' },
   { test: /^pooled:lifted-(\d+)$/, key: 'reasonPooledLifted', param: 'n' },
-  { test: /^pooled:outweighed$/, key: 'reasonPooledOutweighed' },
+  // Outweighed carries the KIND of the advisor's evidence that won (4.97 US3), never a number.
+  // The Why column reads the same for all four — "outcome learning weighed and outweighed",
+  // built and unchanged — so they share one key; WHICH evidence won is named on the Learned
+  // from outcomes line instead, where the drawing puts it.
+  // The `-<kind>` tail is optional so a case SAVED BEFORE US3 — carrying the bare
+  // `pooled:outweighed` — still renders its English instead of showing the advisor the raw
+  // code, which is what an unmatched code does (see matchReason's contract below).
+  { test: /^pooled:outweighed(-[a-z_]+)?$/, key: 'reasonPooledOutweighed' },
   { test: /^penalty:modeling_declined$/, key: 'reasonPenaltyModeling' },
   { test: /^penalty:reports_already_in_use$/, key: 'reasonPenaltyReports' },
   { test: /^advisor:confidence_mismatch$/, key: 'reasonConfidenceMismatch' },

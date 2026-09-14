@@ -1105,15 +1105,26 @@ export default {
           cases: e.cases
         }
       })
+      // WHICH of the advisor's own evidence won, as the sentence's ending (4.97 US3, the four
+      // endings ruled on outcome-learning-trace-lift.html). A trace saved before US3 carries no
+      // `by`, and a kind we do not recognise falls back to the distinction ending the line has
+      // always had — the line still reads, and never renders a bare key.
+      const BY_KEYS = {
+        distinction: 'outcomeOutweighedByDistinction',
+        primary_issue: 'outcomeOutweighedByPrimaryIssue',
+        industry: 'outcomeOutweighedByIndustry',
+        signal: 'outcomeOutweighedBySignal'
+      }
       const outweighed = (ol.outweighed || []).map((e) => {
         const size = sizeOf(e)
+        const by = this.$t('decisionTrace.' + (BY_KEYS[e.by] || BY_KEYS.distinction))
         return {
           key: 'o:' + e.template,
           applied: false,
           size,
           template: e.template,
           badge: '0',
-          text: this.$t(size > 0 ? 'decisionTrace.outcomeOutweighedLift' : 'decisionTrace.outcomeOutweighed', { n: Math.abs(size), where: where(e) }),
+          text: this.$t(size > 0 ? 'decisionTrace.outcomeOutweighedLift' : 'decisionTrace.outcomeOutweighed', { n: Math.abs(size), where: where(e), by }),
           firms: e.firms,
           cases: e.cases
         }

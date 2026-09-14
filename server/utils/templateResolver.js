@@ -622,12 +622,19 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     // argue with each other before anything reaches the score, and neither can exceed the
     // cap by arriving first.
     //
-    // THE ADVISOR'S WORDS WIN: a template that already carries a `distinction:` reason was
-    // matched by this advisor's own description of this client, and pooled outcomes from
-    // other firms do not overrule that — it is marked `pooled:outweighed` and left alone
-    // (Mike's ruling on the trace drawing). That protection is deliberately kept for LIFTS
-    // as well as hold-backs: a lift that reorders the advisor's own evidence is the same
-    // overruling, in the flattering direction.
+    // THE ADVISOR'S WORDS WIN, IN ALL SIX WAYS THEY REACH A TEMPLATE (4.97 US3). A template
+    // matched by ANY kind in ADVISOR_EVIDENCE — a firm distinction, the confirmed primary
+    // issue, the client's industry, or a signal heard in the description — was put there by
+    // this advisor's own account of this client, and pooled outcomes from other firms do not
+    // overrule that: it is marked `pooled:outweighed-<kind>` and left alone (Mike's ruling on
+    // the trace drawing, 2026-09-14). The kind is on the code so the trace can name WHICH
+    // evidence won rather than asserting that some did.
+    //
+    // Until US3 this test read `distinction:` alone, so the other five kinds were overruled
+    // by other firms' data — the marketing sentence the code only half kept.
+    //
+    // That protection is deliberately kept for LIFTS as well as hold-backs: a lift that
+    // reorders the advisor's own evidence is the same overruling, in the flattering direction.
     // The ids of the adjustments that matched THIS session go on the log entry, so the
     // trace names the situation that actually matched. Without them the trace could only
     // group live adjustments by title, and on 2026-09-12 that put "in profit" on a line
@@ -637,8 +644,9 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
       const _matched = _pooled.filter(a => a.titleKey === _titleKey && _pooledMatches(a))
       if (_matched.length > 0) {
         _pooledMatchedIds = _matched.map(a => a.id).filter(Boolean)
-        if (reasons.some(r => r.indexOf('distinction:') === 0)) {
-          reasons.push('pooled:outweighed')
+        const _evidenceKind = advisorEvidenceKind(reasons)
+        if (_evidenceKind) {
+          reasons.push('pooled:outweighed-' + _evidenceKind)
         } else {
           const _sum = _matched.reduce((sum, a) => sum + a.size, 0)
           const _net = Math.max(-POOLED_HOLDBACK_MAX, Math.min(POOLED_HOLDBACK_MAX, _sum))

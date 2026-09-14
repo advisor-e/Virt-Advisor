@@ -73,6 +73,9 @@ async function loadPooledForSession (firmId) {
 
 const HELD_BACK = /^pooled:held_back-(\d+)$/
 const LIFTED = /^pooled:lifted-(\d+)$/
+// The kind is the advisor's own evidence that outweighed the adjustment (4.97 US3):
+// distinction | primary_issue | industry | signal — ADVISOR_EVIDENCE in templateResolver.js.
+const OUTWEIGHED = /^pooled:outweighed-([a-z_]+)$/
 
 /**
  * The trace block, from what the resolver actually wrote. A template is `applied` only when
@@ -80,7 +83,8 @@ const LIFTED = /^pooled:lifted-(\d+)$/
  * size reported is the one in that reason — the capped NET the resolver applied, not the sum
  * of the adjustments. `size` is signed (negative held back, positive lifted) and `direction`
  * names it in a word, so a reader never has to infer meaning from a sign. A template is
- * `outweighed` only when it carries `pooled:outweighed`.
+ * `outweighed` only when it carries `pooled:outweighed-<kind>`, and `by` is that kind — which
+ * of the advisor's own evidence won (4.97 US3), the one fact story 3 says the trace must carry.
  *
  * The evidence comes from the adjustments the resolver names on the entry as having
  * MATCHED this session (`pooledMatched`, their ids) — never from every live adjustment
@@ -126,6 +130,7 @@ function buildOutcomeLearningTrace (scoringLog, adjustments, status) {
     const reasons = Array.isArray(t.matchReasons) ? t.matchReasons : []
     const held = reasons.map(r => HELD_BACK.exec(String(r))).find(Boolean)
     const lifted = reasons.map(r => LIFTED.exec(String(r))).find(Boolean)
+    const outweighed = reasons.map(r => OUTWEIGHED.exec(String(r))).find(Boolean)
     if (held || lifted) {
       // Signed for the reader: the reason code carries a bare magnitude, the direction is
       // which code it was. `holdBack` stays beside it one release (data-model §3).
@@ -136,14 +141,18 @@ function buildOutcomeLearningTrace (scoringLog, adjustments, status) {
         direction: size > 0 ? 'lift' : 'holdBack',
         holdBack: Math.max(0, -size)
       }, evidence(matchedFor(t))))
-    } else if (reasons.includes('pooled:outweighed')) {
+    } else if (outweighed) {
       const matched = matchedFor(t)
+      // WHICH of the advisor's own evidence won, from the code the resolver wrote (4.97 US3).
+      // Until US3 there was only one kind to name and `by` was the constant 'distinction';
+      // the four endings on the trace drawing are chosen from this.
+      const by = outweighed[1]
       // The signed net that WOULD have applied had the advisor's own words not outweighed it,
       // capped exactly as the resolver would have capped it — so the line the mentor reads
       // says what was actually set aside, never a larger uncapped sum.
       const sum = matched.reduce((total, a) => total + (Number(a.size) || 0), 0)
       const size = Math.max(-POOLED_HOLDBACK_MAX, Math.min(POOLED_HOLDBACK_MAX, sum))
-      block.outweighed.push(Object.assign({ template: t.title, size, holdBack: Math.max(0, -size) }, evidence(matched), { by: 'distinction' }))
+      block.outweighed.push(Object.assign({ template: t.title, size, holdBack: Math.max(0, -size) }, evidence(matched), { by }))
     }
   })
 

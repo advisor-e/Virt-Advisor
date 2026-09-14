@@ -13,7 +13,7 @@
  * exactly as it did; the lift tests beside them are what US2 added.
  */
 
-const { resolveTemplates, resolveTemplatesWithOutlier, POOLED_HOLDBACK_MAX, SCORING_VERSION } = require('../../server/utils/templateResolver')
+const { resolveTemplates, resolveTemplatesWithOutlier, POOLED_HOLDBACK_MAX, SCORING_VERSION, advisorEvidenceKind } = require('../../server/utils/templateResolver')
 const { HISTORY_HOLDBACK_PENALTY } = require('../../server/utils/priorEngagement')
 
 function makeTemplates () {
@@ -135,7 +135,7 @@ describe('pooled hold-back', () => {
     // A lift that reorders the advisor's own evidence is the same overruling as a hold-back.
     const without = run({ distinctionBoosts: LIFT_ALL })
     const r = run({ distinctionBoosts: LIFT_ALL, pooledAdjustments: [lift(10)] })
-    expect(reasonsOf(r, QFD)).toContain('pooled:outweighed')
+    expect(reasonsOf(r, QFD)).toContain('pooled:outweighed-distinction')
     expect(reasonsOf(r, QFD).some(x => x.startsWith('pooled:lifted'))).toBe(false)
     expect(scoreOf(r, QFD)).toBe(scoreOf(without, QFD))
   })
@@ -145,9 +145,91 @@ describe('pooled hold-back', () => {
     const without = run({ distinctionBoosts: LIFT_ALL })
     const r = run({ distinctionBoosts: LIFT_ALL, pooledAdjustments: [adj({ size: -10 })] })
     expect(reasonsOf(r, QFD)).toContain('distinction:+20')
-    expect(reasonsOf(r, QFD)).toContain('pooled:outweighed')
+    expect(reasonsOf(r, QFD)).toContain('pooled:outweighed-distinction')
     expect(reasonsOf(r, QFD).some(r => r.startsWith('pooled:held_back'))).toBe(false)
     expect(scoreOf(r, QFD)).toBe(scoreOf(without, QFD))
+  })
+
+  // ── 4.97 US3: the advisor's own words win in ALL SIX WAYS they reach a template ──
+  //
+  // What UAT cannot see: WHICH evidence protected a template. Until US3 only `distinction:`
+  // did, so the confirmed main issue, the client's industry and the signals heard in the
+  // description were all silently overruled by other firms' data — the engine looked correct
+  // doing it, because the score it produced was a perfectly ordinary number.
+  //
+  // Each case below drives ONE family through the real resolver and asserts the same three
+  // things: the family's own reason fired, the pooled adjustment was set aside naming that
+  // family, and the score is untouched.
+  describe("the advisor's own words outweigh a pooled adjustment, in every family", () => {
+    // A template whose title, tags and purpose carry the words each family matches on.
+    const industryTemplates = () => [
+      { page: 'id-1', title: 'Quick Fire Diagnosis', section: 'Do the Job', subSection: 'General Tools', tags: ['diagnosis'], purpose: 'diagnose the source of the business issue' },
+      { page: 'id-2', title: 'Cafe Performance Model', section: 'Do the Job', subSection: 'General Tools', tags: ['cafe'], purpose: 'model a cafe' }
+    ]
+
+    test('a distinction outweighs it, and names distinction', () => {
+      const without = run({ distinctionBoosts: LIFT_ALL })
+      const r = run({ distinctionBoosts: LIFT_ALL, pooledAdjustments: [hold(10)] })
+      expect(reasonsOf(r, QFD).some(x => x.indexOf('distinction:') === 0)).toBe(true)
+      expect(reasonsOf(r, QFD)).toContain('pooled:outweighed-distinction')
+      expect(scoreOf(r, QFD)).toBe(scoreOf(without, QFD))
+    })
+
+    test('the confirmed main issue outweighs it, and names primary_issue', () => {
+      // The issue's own keywords are in the title and purpose, so the issue branch fires.
+      const over = { primaryIssue: 'diagnosis of the business issue' }
+      const without = run({}, over)
+      const r = run({ pooledAdjustments: [hold(10)] }, over)
+      expect(reasonsOf(r, QFD).some(x => x.indexOf('primary_issue:') === 0)).toBe(true)
+      expect(reasonsOf(r, QFD)).toContain('pooled:outweighed-primary_issue')
+      expect(reasonsOf(r, QFD).some(x => x.indexOf('pooled:held_back') === 0)).toBe(false)
+      expect(scoreOf(r, QFD)).toBe(scoreOf(without, QFD))
+    })
+
+    test("the client's industry outweighs it, and names industry", () => {
+      const TITLE = 'Cafe Performance Model'
+      const cafeAdj = { id: 'c', template: TITLE, dimension: 'domain', value: 'profit', size: -10, firms: 6, cases: 31 }
+      const state = makeCaseState({ industry: 'cafe' })
+      const without = resolveTemplates(state, strategy, industryTemplates(), {})
+      const r = resolveTemplates(state, strategy, industryTemplates(), { pooledAdjustments: [cafeAdj] })
+      expect(reasonsOf(r, TITLE).some(x => x.indexOf('industry:title_match') === 0)).toBe(true)
+      expect(reasonsOf(r, TITLE)).toContain('pooled:outweighed-industry')
+      expect(scoreOf(r, TITLE)).toBe(scoreOf(without, TITLE))
+    })
+
+    test('a signal heard in the description outweighs it, and names signal', () => {
+      // problemSignals drive the semantic / purpose_fallback branches — both report `signal`.
+      // problemSignals is `{ signalName: count }` — a real registry name, a positive count.
+      const over = { problemSignals: { cash_flow_gap: 2 } }
+      const withoutPool = run({}, over)
+      const signalled = reasonsOf(withoutPool, QFD).concat(reasonsOf(withoutPool, 'Working Capital Cycle'))
+      const title = reasonsOf(withoutPool, QFD).some(x => /^(semantic|purpose_fallback):/.test(x)) ? QFD : 'Working Capital Cycle'
+      expect(signalled.some(x => /^(semantic|purpose_fallback):/.test(x))).toBe(true)
+      const target = { id: 's', template: title, dimension: 'domain', value: 'profit', size: -10, firms: 6, cases: 31 }
+      const r = run({ pooledAdjustments: [target] }, over)
+      expect(reasonsOf(r, title)).toContain('pooled:outweighed-signal')
+      expect(scoreOf(r, title)).toBe(scoreOf(withoutPool, title))
+    })
+
+    test('a template carrying none of the six is still adjusted', () => {
+      // The other half of the rule: protection is not blanket. Nothing here is the advisor's
+      // own evidence, so the pooled hold-back applies in full.
+      const without = run({})
+      const r = run({ pooledAdjustments: [hold(3)] })
+      expect(advisorEvidenceKind(reasonsOf(r, QFD))).toBeNull()
+      expect(reasonsOf(r, QFD)).toContain('pooled:held_back-3')
+      expect(scoreOf(r, QFD)).toBe(Math.max(1, scoreOf(without, QFD) - 3))
+    })
+
+    test('an industry PENALTY does not protect a template — only a real industry match does', () => {
+      // `industry:wrong_domain_model` and `industry:mismatch_specific_model` share the prefix
+      // but are penalties, not the advisor's evidence. Treating them as evidence would let a
+      // template the engine just marked irrelevant escape a pooled hold-back.
+      expect(advisorEvidenceKind(['industry:wrong_domain_model'])).toBeNull()
+      expect(advisorEvidenceKind(['industry:mismatch_specific_model'])).toBeNull()
+      expect(advisorEvidenceKind(['industry:title_match'])).toBe('industry')
+      expect(advisorEvidenceKind(['industry:tag_match'])).toBe('industry')
+    })
   })
 
   test('clamps at 1: a low-scoring template with hold-back 10 ends at 1 and never drops from the log', () => {
@@ -232,7 +314,7 @@ describe('pooled hold-back', () => {
     expect(entry.pooledMatched).toEqual(['qfd|domain|profit'])
     // Outweighed carries the same ids, so the panel can say what was set aside.
     const lifted = run({ pooledAdjustments: [notMatching, matching], distinctionBoosts: LIFT_ALL })
-    expect(reasonsOf(lifted, QFD)).toContain('pooled:outweighed')
+    expect(reasonsOf(lifted, QFD)).toContain('pooled:outweighed-distinction')
     expect(lifted.scoringLog.find(t => t.title === QFD).pooledMatched).toEqual(['qfd|domain|profit'])
     // A template nothing matched carries no such key, so an unchanged run stays identical.
     expect('pooledMatched' in r.scoringLog.find(t => t.title === 'Working Capital Cycle')).toBe(false)

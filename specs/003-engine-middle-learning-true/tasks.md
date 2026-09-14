@@ -67,7 +67,7 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 - [ ] T017 [US1] Create `server/utils/primaryIssueProposer.js` — `rankLabels`, `parseReply`, `proposalLine(label, reason)` (wording from the approved drawing), `CONTEXT_DOMAINS`, and `tiebreakWithModel(client, domain, candidates, causeText)` through `aiProvider.getClient('classify')` with `{ personal: false }`, temperature 0, a validator that accepts only a listed label or `none`
 - [ ] T018 [US1] In `server/advisorEngine.js` add the `issueProposed` and `issueDriver` `QUESTIONS` entries after `domainConfirmed` (contracts §The advisor conversation); `onAnswer` per research R1; write `state.primaryIssue` and `trace.primaryIssue`; clear both on a course correction beside the existing reset; log `[signal-miss]` on a final miss; `logAI('issue-tiebreak', …)` on the model call
 - [X] T019 [US1] In `server/utils/outcomeBench.js` `scenarioToCase`, set `primaryIssue` from `rankLabels` on the case's text (top label or `''`); in `scripts/scenario-lab.js` add the METRICS lines "Primary issue proposed: x/51" and "would confirm as proposed: y/51" and the *Issue* column on the at-a-glance table
-- [ ] T020 [US1] In `components/VirtualAdvisor.vue` render the trace's *Primary issue* line from `lastTrace.primaryIssue` (label and how) via `$t('decisionTrace.issue*')`; add the keys to `locales/en.json`; no new identifiers from the retired-selector ban list
+- [X] T020 [US1] In `components/VirtualAdvisor.vue` render the trace's *Primary issue* line from `lastTrace.primaryIssue` (label and how) via `$t('decisionTrace.issue*')`; add the keys to `locales/en.json`; no new identifiers from the retired-selector ban list
 
 **Checkpoint**: quickstart Story 1 passes on the desktop against MySQL; a reviewed case at the consenting firm pools its label.
 
@@ -106,14 +106,14 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 ### Tests for User Story 3
 
-- [ ] T030 [P] [US3] Extend `tests/unit/pooledHoldback.test.js` — for each of the six families, a template carrying it receives no pooled change and the reason `pooled:outweighed-<kind>` names the family; a template carrying none is adjusted
-- [ ] T031 [P] [US3] Update `tests/unit/outcomeBench.test.js` — `fixedBench` returns `capBreaches`; a fixture where an adjusted template moves past an evidence-carrying one counts 1; the shipped 51 cases with the seed's live adjustments count 0
+- [X] T030 [P] [US3] Extend `tests/unit/pooledHoldback.test.js` — for each of the six families, a template carrying it receives no pooled change and the reason `pooled:outweighed-<kind>` names the family; a template carrying none is adjusted
+- [X] T031 [P] [US3] Update `tests/unit/outcomeBench.test.js` — `fixedBench` returns `capBreaches`; a fixture where an adjusted template moves past an evidence-carrying one counts 1; the shipped 51 cases with the seed's live adjustments count 0
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] In `server/utils/templateResolver.js` replace the `distinction:` test with `ADVISOR_EVIDENCE.find(...)` and write `pooled:outweighed-<kind>` (kind map: `semantic:`/`purpose_fallback:` → `signal`, `industry:*` → `industry`)
-- [ ] T033 [US3] In `server/utils/outcomeLearningSession.js` parse the kind into `outweighed[].by`; in `utils/traceReasonCodes.js`, `locales/en.json`, `design/WORDING-TRACE-REASONS.md` and `components/VirtualAdvisor.vue` render "outweighed by your {kind}" per the approved drawing
-- [ ] T034 [US3] In `server/utils/outcomeBench.js` `fixedBench` compute `capBreaches` (a case where, comparing the plain and adjusted display sets, a template with an `ADVISOR_EVIDENCE` reason is ranked below a template that carries a `pooled:` reason and was below it before); surface it on the list route and the bench card; `scripts/scenario-lab.js` prints "Cap breaches on the fixed bench: 0/51"
+- [X] T032 [US3] In `server/utils/templateResolver.js` replace the `distinction:` test with `ADVISOR_EVIDENCE.find(...)` and write `pooled:outweighed-<kind>` (kind map: `semantic:`/`purpose_fallback:` → `signal`, `industry:*` → `industry`)
+- [X] T033 [US3] In `server/utils/outcomeLearningSession.js` parse the kind into `outweighed[].by`; in `utils/traceReasonCodes.js`, `locales/en.json`, `design/WORDING-TRACE-REASONS.md` and `components/VirtualAdvisor.vue` render "outweighed by your {kind}" per the approved drawing
+- [X] T034 [US3] In `server/utils/outcomeBench.js` `fixedBench` compute `capBreaches` (a case where, comparing the plain and adjusted display sets, a template with an `ADVISOR_EVIDENCE` reason is ranked below a template that carries a `pooled:` reason and was below it before); surface it on the list route and the bench card; `scripts/scenario-lab.js` prints "Cap breaches on the fixed bench: 0/51"
 
 **Checkpoint**: the fixed bench prints zero breaches with the seed's adjustments live.
 

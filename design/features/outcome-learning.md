@@ -215,8 +215,16 @@ trained model is a fresh decision for Mike, never an assumption.
 **P4 · The mentor accepts before it applies.** Accept, hold or reject, with name, date, version
 history and restore.
 
-**P5 · The advisor's own words win.** Adjustments are capped below the current session's signals,
-and every applied or outweighed adjustment appears on the decision trace with its evidence count.
+**P5 · The advisor's own words win — in all six ways their evidence reaches a template.** A
+template matched by a firm distinction, the confirmed primary issue, the client's industry or a
+signal heard in the description is never adjusted by the pool: the adjustment is set aside and the
+trace names *which* evidence won. This holds for lifts as well as hold-backs — a lift that reorders
+the advisor's own evidence is the same overruling, in the flattering direction. Adjustments are also
+capped below the current session's signals, and every applied or outweighed adjustment appears on
+the decision trace with its evidence count. **The fixed bench counts breaches of this rule** and
+reports 0; the counter is tested to be capable of counting, so the zero is a measurement rather
+than a label. *(Item 4.97 US3, 2026-09-14. Until then only a distinction was protected, and the
+trace said "your firm's distinction" whichever evidence had actually won.)*
 
 **P6 · Below the floor, nothing publishes.** A minimum number of contributing firms and cases,
 shown beside every adjustment.
@@ -297,7 +305,7 @@ drawing, and the two benches the same evening.
 | The mentor's screen | `components/mentor/MentorOutcomeLearning.vue`, the Outcome Learning tab under Rolled up from below at the mentor tier alone (`TAB_TIERS.outcomeLearning`); strings in `locales/en.json` `outcomeLearning.*`. The bench card says the benches have not been run until "Run the benches" is pressed |
 | The resolver | `pooledAdjustments` / `pooledSignalTypes` in `server/utils/templateResolver.js`, before the history clamp; `SCORING_VERSION` 2.2.0. A matched template's log entry carries `pooledMatched` (the ids that matched this session), and a held-back template stays in the scoring log even below 20th |
 | The session and the trace | `server/utils/outcomeLearningSession.js`, wired in `server/advisorEngine.js`; `decisionTrace.outcomeLearning`. The line's situation and evidence come from `pooledMatched` alone — item 4.94, 2026-09-12: grouping by title had put "in profit" on a line for a session in sales |
-| Reason wording | `pooled:held_back-<n>`, `pooled:outweighed` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
+| Reason wording | `pooled:held_back-<n>`, `pooled:lifted-<n>`, `pooled:outweighed-<kind>` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
 | The advisor's panel | "Learned from outcomes" in `components/VirtualAdvisor.vue` |
 | Industry suggestions on the intake | The intake has no industry field — the engine asks it in the chat — so `questionDoneEvent` in `server/advisorEngine.js` closes each sequenced question with its field, `GET /api/advisor/industry-vocabulary` (`server/routes/industryVocabulary.js`, proxied above the SSE entry) serves the same words the pool accepts, `utils/industrySuggestions.js` holds the rulings as numbers (three letters, eight chips, prefix on the whole answer), and the chip row in `components/VirtualAdvisor.vue` replaces the whole answer on a click. Nothing changes what saves to the case |
 | The dev seed | `scripts/dev/seed-outcome-pool.js` — 31 reviews across five firms through the guard and the store, never around them; refuses under `NODE_ENV=production`; `--reset` clears its own firms' rows first. Firm A is `dev-firm-001`, the firm the dev-local-bypass sign-in carries, so a withdrawal from its tab is quickstart Story 2 step 5 |

@@ -54,7 +54,12 @@ const ENGINE_CODES = [
   ['history:went_less_well', 'reasonWentLess'],
   // Outcome Learning (4.87, T032) — Mike's wording 2026-09-11, from the trace drawing.
   ['pooled:held_back-4', 'reasonPooledHeldBack'],
-  ['pooled:outweighed', 'reasonPooledOutweighed']
+  // 4.97 US3 — one code per kind of the advisor's own evidence. All four share the Why-column
+  // phrase (the drawing keeps it unchanged); WHICH evidence won is named on the outcome line.
+  ['pooled:outweighed-distinction', 'reasonPooledOutweighed'],
+  ['pooled:outweighed-primary_issue', 'reasonPooledOutweighed'],
+  ['pooled:outweighed-industry', 'reasonPooledOutweighed'],
+  ['pooled:outweighed-signal', 'reasonPooledOutweighed']
 ]
 
 describe('every reason code the engine writes has English', () => {
@@ -65,8 +70,9 @@ describe('every reason code the engine writes has English', () => {
     expect(typeof EN.decisionTrace[expectedKey]).toBe('string')
   })
 
-  test('all 28 of them — the count is the point, not the sample', () => {
-    expect(ENGINE_CODES).toHaveLength(28)
+  test('all 31 of them — the count is the point, not the sample', () => {
+    // 28 until 4.97 US3 replaced the single `pooled:outweighed` with one code per kind.
+    expect(ENGINE_CODES).toHaveLength(31)
     expect(ENGINE_CODES.every(([code]) => matchReason(code) !== null)).toBe(true)
   })
 })
@@ -96,7 +102,10 @@ describe('the engine cannot add a code without English for it', () => {
       'purpose_fallback:': 'purpose_fallback:3.0',
       // The engine writes `'pooled:held_back-' + total`; the ends-with test below reads
       // the trailing '-' as incomplete, so the sample supplies the number.
-      'pooled:held_back-': 'pooled:held_back-4'
+      'pooled:held_back-': 'pooled:held_back-4',
+      // 4.97 US3: `'pooled:outweighed-' + kind`, one of the four ADVISOR_EVIDENCE kinds.
+      'pooled:outweighed-': 'pooled:outweighed-distinction',
+      'pooled:lifted-': 'pooled:lifted-2'
     }
     const unknown = []
     prefixes.forEach((prefix) => {
@@ -138,6 +147,13 @@ describe('the codes that carry a value', () => {
   test('a pooled hold-back hands over its capped total; outweighed carries nothing', () => {
     expect(matchReason('pooled:held_back-4')).toMatchObject({ key: 'decisionTrace.reasonPooledHeldBack', params: { n: '4' } })
     expect(matchReason('pooled:held_back-10').params).toEqual({ n: '10' })
+    // The kind rides in the code but carries NO param: the Why column reads the same for all
+    // four, and the kind is spent on the outcome line's ending instead (4.97 US3).
+    expect(matchReason('pooled:outweighed-distinction')).toMatchObject({ key: 'decisionTrace.reasonPooledOutweighed', params: {} })
+    expect(matchReason('pooled:outweighed-signal')).toMatchObject({ key: 'decisionTrace.reasonPooledOutweighed', params: {} })
+    // A case SAVED BEFORE US3 carries the bare code and must still read as English: an
+    // unmatched code is shown to the advisor verbatim, so dropping this would put
+    // "pooled:outweighed" on screen in an old case.
     expect(matchReason('pooled:outweighed')).toMatchObject({ key: 'decisionTrace.reasonPooledOutweighed', params: {} })
     expect(matchReason('pooled:held_back-')).toBeNull()
   })

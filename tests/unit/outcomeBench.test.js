@@ -157,7 +157,60 @@ describe('fixedBench — the Scenario Lab cases', () => {
   })
 
   test('an empty case list reports zero, not NaN', async () => {
-    expect(await bench.fixedBench([], templates, [])).toMatchObject({ before: 0, after: 0, cases: 0 })
+    expect(await bench.fixedBench([], templates, [])).toMatchObject({ before: 0, after: 0, cases: 0, capBreaches: 0 })
+  })
+
+  // ── 4.97 US3: the bench PROVES the advisor's words won, rather than asserting it ──
+  //
+  // What UAT cannot see: that a pooled adjustment re-ordered a template the advisor's own
+  // evidence had put above it. The two orderings look equally plausible on screen — only a
+  // comparison of the same case with and without the adjustments can tell them apart.
+  describe('cap breaches', () => {
+    // A breach cannot be produced through the resolver — US3 is exactly the rule that stops it
+    // — so the counter itself is proved here on constructed display sets. Without this the
+    // "0 breaches" headline could be a counter that never counts.
+    const card = (title, reasons) => ({ title, matchReasons: reasons })
+    const EVIDENCE = ['distinction:+5']
+    const POOLED = ['pooled:lifted-4']
+
+    test('counts a pair the adjustments re-ordered against the advisor', () => {
+      const plain = [card('Evidence Tool', EVIDENCE), card('Pooled Tool', POOLED)]
+      const adjusted = [card('Pooled Tool', POOLED), card('Evidence Tool', EVIDENCE)]
+      expect(bench.hasCapBreach(plain, adjusted)).toBe(true)
+    })
+
+    test('does NOT count a pair that was already in that order before the adjustments', () => {
+      // The pooled template was above all along, so the pool re-ordered nothing. Counting this
+      // would report a breach the adjustments did not cause.
+      const order = [card('Pooled Tool', POOLED), card('Evidence Tool', EVIDENCE)]
+      expect(bench.hasCapBreach(order, order)).toBe(false)
+    })
+
+    test('does not count an unchanged order, nor a template carrying no advisor evidence', () => {
+      const plain = [card('Evidence Tool', EVIDENCE), card('Pooled Tool', POOLED)]
+      expect(bench.hasCapBreach(plain, plain)).toBe(false)
+      const noEvidence = [card('Plain Tool', ['domain:primary_subsection']), card('Pooled Tool', POOLED)]
+      const flipped = [card('Pooled Tool', POOLED), card('Plain Tool', ['domain:primary_subsection'])]
+      expect(bench.hasCapBreach(noEvidence, flipped)).toBe(false)
+    })
+
+    test('every one of the six evidence families is protected, not only a distinction', () => {
+      // The US3 change in one assertion: before it, only the distinction row returned true.
+      const families = ['distinction:+5', 'primary_issue:strong_match', 'industry:title_match', 'industry:tag_match', 'semantic:4.2', 'purpose_fallback:3.0']
+      families.forEach((reason) => {
+        const plain = [card('Evidence Tool', [reason]), card('Pooled Tool', POOLED)]
+        const adjusted = [card('Pooled Tool', POOLED), card('Evidence Tool', [reason])]
+        expect(bench.hasCapBreach(plain, adjusted)).toBe(true)
+      })
+    })
+
+    test('the shipped cases with a live adjustment report zero breaches — the US3 checkpoint', async () => {
+      const { caseState, strategy, signalTypes } = bench.scenarioToCase(profit[0])
+      const top = bench.topRecommendation(caseState, strategy, templates, [], signalTypes)
+      const live = [{ id: 'p|domain|profit', template: top, dimension: 'domain', value: 'profit', size: -POOLED_HOLDBACK_MAX, firms: 5, cases: 25 }]
+      const result = await bench.fixedBench(profit.concat(staff), templates, live)
+      expect(result.capBreaches).toBe(0)
+    })
   })
 
   test('scenarioToCase reads the same fields the Scenario Lab report runs on', () => {
