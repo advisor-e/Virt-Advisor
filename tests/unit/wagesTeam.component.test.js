@@ -466,3 +466,107 @@ describe('WagesTeam — returning to the step', () => {
     expect(wrapper.vm.showSample).toBe(false)
   })
 })
+
+describe('🔴 the two rate converters on step 1', () => {
+  /**
+   * Mike, 2026-09-14: "does it need a seperate Tab?? couldnt it just import the tax data into a
+   * hidden section and apply across the model as needed?" The tab was dropped and these two
+   * moved here, beside the two boxes they exist to fill in — the pay rate and the charge-out
+   * rate. The other two calculators on the drawing (income tax, bonus gross-up) serve no step
+   * of this model and are not built.
+   *
+   * What UAT cannot see, and these assert: the arithmetic, and that the helper never touches
+   * the payload. A converter that quietly wrote into a person's row would be a figure nobody
+   * typed.
+   */
+  it('turns a salary into an hourly rate, and back out as a month, a week and a day', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    Object.assign(wrapper.vm.helper, { salary: 145000, hoursPerWeek: 40, weeksPerYear: 52 })
+    expect(wrapper.vm.helperHourly).toBeCloseTo(69.7115, 3)
+    expect(wrapper.vm.helperWeekly).toBeCloseTo(2788.4615, 3)
+    expect(wrapper.vm.helperDaily).toBeCloseTo(557.6923, 3)
+  })
+
+  it('gives a DASH rather than a number until the hours are known', () => {
+    // A salary cannot be turned into an hourly rate without the hours, and inventing 40 would
+    // be a figure the advisor never gave. `hoursPerWeek` starts empty for that reason.
+    const wrapper = mountWithBuefy(WagesTeam)
+    expect(wrapper.vm.helper.hoursPerWeek).toBeNull()
+    wrapper.vm.helper.salary = 145000
+    expect(wrapper.vm.helperHourly).toBeNull()
+    wrapper.vm.helper.hoursPerWeek = 40
+    expect(wrapper.vm.helperHourly).not.toBeNull()
+  })
+
+  it('starts weeks per year at 52, which is the calendar rather than a default', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    expect(wrapper.vm.helper.weeksPerYear).toBe(52)
+  })
+
+  it('blends one person’s rates across the work they do — the workbook’s own 323.75', () => {
+    // `Hrly Rate & Tax Calculator` E25, the Director's column, for ONE PERSON rather than a
+    // firm: 375x35% + 350x10% + 300x5% + 325x10% + 275x40%.
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.helper.mix = [
+      { label: 'Advisory', rate: 375, share: 35 },
+      { label: 'Compliance', rate: 350, share: 10 },
+      { label: 'Review', rate: 300, share: 5 },
+      { label: 'Planning', rate: 325, share: 10 },
+      { label: 'Supervision', rate: 275, share: 40 }
+    ]
+    expect(wrapper.vm.blendedRate).toBeCloseTo(323.75, 6)
+    expect(wrapper.vm.mixShare).toBe(100)
+  })
+
+  it('🔴 SAYS SO when the mix does not add to a whole week', () => {
+    // The guard the blended rate is worthless without. A mix adding to 80% returns a rate a
+    // fifth too low and nothing else on the screen looks wrong.
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.helper.mix = [
+      { label: 'Advisory', rate: 400, share: 50 },
+      { label: 'Review', rate: 200, share: 30 }
+    ]
+    expect(wrapper.vm.mixShare).toBe(80)
+    expect(wrapper.vm.blendedRate).toBeCloseTo(260, 6)
+    // 260 is a real answer to a different question: 80% of a week. The warning is what stops
+    // it being read as this person's rate.
+    expect(wrapper.vm.blendedRate).toBeLessThan(400 * 0.5 + 200 * 0.5)
+  })
+
+  it('gives a dash rather than zero before anything is typed', () => {
+    expect(mountWithBuefy(WagesTeam).vm.blendedRate).toBeNull()
+  })
+
+  it('adds and removes lines, and never removes the last one', () => {
+    const wrapper = mountWithBuefy(WagesTeam)
+    wrapper.vm.addMix()
+    expect(wrapper.vm.helper.mix).toHaveLength(2)
+    wrapper.vm.removeMix(1)
+    expect(wrapper.vm.helper.mix).toHaveLength(1)
+    wrapper.vm.removeMix(0)
+    expect(wrapper.vm.helper.mix).toHaveLength(1)
+  })
+
+  it('🔴 NEVER reaches the payload — it is a helper, not an input', () => {
+    // The whole safety property. The advisor reads the answer and types it into the row it
+    // belongs to; nothing here is saved, and no person's figure changes because of it.
+    const wrapper = mountWithBuefy(WagesTeam)
+    const before = JSON.stringify(wrapper.vm.orderedPeople)
+    Object.assign(wrapper.vm.helper, { salary: 145000, hoursPerWeek: 40 })
+    wrapper.vm.helper.mix = [{ label: 'Advisory', rate: 375, share: 100 }]
+    wrapper.vm.confirm()
+    const out = wrapper.emitted('confirmed')[0][0]
+    expect(JSON.stringify(wrapper.vm.orderedPeople)).toBe(before)
+    expect(JSON.stringify(out)).not.toContain('145000')
+    expect(Object.keys(out).sort()).toEqual(['allowances', 'people'])
+  })
+
+  it('does not shadow the currency mixin’s own `num`, which formats rather than computes', () => {
+    // An earlier cut added a `num` method here to do arithmetic in the template. The mixin
+    // already supplies one and it returns a STRING; shadowing it would have left any later
+    // use silently returning the wrong type. `mixContribution` exists for that reason.
+    const wrapper = mountWithBuefy(WagesTeam)
+    expect(typeof wrapper.vm.num(1234)).toBe('string')
+    expect(wrapper.vm.mixContribution({ rate: 375, share: 35 })).toBeCloseTo(131.25, 6)
+  })
+})

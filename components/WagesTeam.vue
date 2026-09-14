@@ -15,6 +15,76 @@
       :tone="overheadPeople > 0 ? 'warn' : 'default'"
     )
 
+  //- 🔴 THE TWO CONVERTERS — Mike, 2026-09-14. They sit HERE, above the team, because the two
+  //- boxes they fill in are on this screen: the pay rate and the charge-out rate. On the
+  //- drawing they were a separate tab; he dropped it ("does it need a seperate Tab??"), and
+  //- behind a tab a helper is somewhere to go and find, which is how a helper goes unused.
+  //- Nothing here is saved and nothing is written into a row — it works the figure out and
+  //- the advisor decides which person it belongs to.
+  .wt-card.wt-helper
+    h3.wt-title
+      | {{ $t('report.wagesReview.team.helperTitle') }}
+      span.wt-optional {{ $t('report.wagesReview.team.helperOptional') }}
+    p.wt-note {{ $t('report.wagesReview.team.helperNote') }}
+
+    .wt-conv
+      .wt-field
+        label {{ $t('report.wagesReview.team.helperSalary') }}
+        b-input(v-model.number="helper.salary" type="number" step="any" size="is-small")
+      span.wt-swap ⇄
+      .wt-field
+        label {{ $t('report.wagesReview.team.helperHourly') }}
+        .wt-out {{ helperHourly === null ? dash : money2(helperHourly) }}
+      .wt-field
+        label {{ $t('report.wagesReview.team.helperHours') }}
+        b-input(v-model.number="helper.hoursPerWeek" type="number" step="any" size="is-small" placeholder="40")
+      .wt-field
+        label {{ $t('report.wagesReview.team.helperWeeks') }}
+        b-input(v-model.number="helper.weeksPerYear" type="number" step="any" size="is-small")
+    p.wt-also(v-if="helperHourly !== null")
+      | {{ $t('report.wagesReview.team.helperAlso', {
+      |   month: money(helper.salary / 12),
+      |   week: money2(helperWeekly),
+      |   day: money2(helperDaily)
+      | }) }}
+
+    h4.wt-subtitle {{ $t('report.wagesReview.team.blendTitle') }}
+    p.wt-note {{ $t('report.wagesReview.team.blendNote') }}
+    table.wt-mix
+      thead
+        tr
+          th {{ $t('report.wagesReview.team.blendWork') }}
+          th {{ $t('report.wagesReview.team.blendRate') }}
+          th {{ $t('report.wagesReview.team.blendShare') }}
+          th.wt-num {{ $t('report.wagesReview.team.blendContributes') }}
+          th
+      tbody
+        tr(v-for="(m, i) in helper.mix" :key="i")
+          td
+            b-input(v-model="m.label" size="is-small" :placeholder="$t('report.wagesReview.team.blendWorkPlaceholder')")
+          td
+            b-input(v-model.number="m.rate" type="number" step="any" size="is-small")
+          td
+            b-input(v-model.number="m.share" type="number" step="any" size="is-small" placeholder="%")
+          td.wt-num {{ money2(mixContribution(m)) }}
+          td.wt-act
+            b-button(
+              size="is-small"
+              type="is-text"
+              :disabled="helper.mix.length <= 1"
+              :title="$t('report.wagesReview.team.blendRemove')"
+              @click="removeMix(i)"
+            ) ×
+    .wt-mixfoot
+      b-button(size="is-small" @click="addMix") {{ $t('report.wagesReview.team.blendAdd') }}
+      span.wt-blend
+        | {{ $t('report.wagesReview.team.blendResult') }}
+        b  {{ blendedRate === null ? dash : money2(blendedRate) }}
+      //- 🔴 THE CHECK THAT MAKES IT TRUSTWORTHY. A mix adding to 80% quietly returns a rate a
+      //- fifth too low, and nothing else on the screen would look wrong. The workbook carries
+      //- this as its own "Balance Time Remaining" row.
+      span.wt-mixwarn(v-if="mixShare !== 100") {{ $t('report.wagesReview.team.blendShareWarn', { share: mixShare }) }}
+
   .wt-card
     h3.wt-title {{ $t('report.wagesReview.team.title') }}
     p.wt-note {{ $t('report.wagesReview.team.intro') }}
@@ -342,6 +412,24 @@ export default {
     return {
       people: samplePeople(),
       divisions: Object.keys(DIVISION_BASIS),
+      /**
+       * The two converters' own working. NOT part of the payload and never saved — `confirm`
+       * does not look at it.
+       *
+       * ⚠ `weeksPerYear` starts at 52 and `hoursPerWeek` starts EMPTY, and the difference is
+       * deliberate under Mike's "no invented defaults" rule. There are 52 weeks in a year —
+       * that is the calendar, editable for a firm that works to 48. How many hours somebody
+       * works in a week is the client's own fact, so it is asked for rather than assumed; the
+       * placeholder shows the shape without putting a number in the box. Until it is answered
+       * the hourly rate reads as a dash, which is the honest answer: a salary cannot be turned
+       * into an hourly rate without knowing the hours.
+       */
+      helper: {
+        salary: null,
+        hoursPerWeek: null,
+        weeksPerYear: 52,
+        mix: [{ label: '', rate: null, share: null }]
+      },
       // Frozen at created(): whether this entry started from the workbook's sample.
       showSample: true
     }
@@ -405,6 +493,58 @@ export default {
      * what step 1 is for.
      * @returns {number}
      */
+    /** The em dash every screen shows where a figure does not exist yet. */
+    dash () { return '—' },
+
+    /**
+     * An annual salary as an hourly rate. `salary / (hours per week x weeks per year)`.
+     *
+     * @returns {number|null} null while any of the three is missing — a salary cannot be
+     *   turned into an hourly rate without knowing the hours, and a dash says so.
+     */
+    helperHourly () {
+      const hours = num(this.helper.hoursPerWeek) * num(this.helper.weeksPerYear)
+      const salary = num(this.helper.salary)
+      if (!hours || !salary) { return null }
+      return salary / hours
+    },
+
+    /** @returns {number} the same salary as a week's pay. */
+    helperWeekly () {
+      return num(this.helper.salary) / (num(this.helper.weeksPerYear) || 1)
+    },
+
+    /** @returns {number} the same salary as a day's pay, at five days. */
+    helperDaily () {
+      return this.helperWeekly / 5
+    },
+
+    /**
+     * What share of the week the blended-rate mix accounts for, as a percentage.
+     *
+     * 🔴 THE CHECK THAT MAKES THE BLENDED RATE TRUSTWORTHY. A mix adding to 80% returns a
+     * rate a fifth too low, silently, and nothing else on the screen would look wrong. The
+     * workbook carries it as its own "Balance Time Remaining" row.
+     *
+     * @returns {number}
+     */
+    mixShare () {
+      return this.helper.mix.reduce((sum, m) => sum + num(m.share), 0)
+    },
+
+    /**
+     * One person's blended charge-out rate: each rate weighted by the share of the week
+     * spent on that work. `Hrly Rate & Tax Calculator` row 25, for one person rather than
+     * a firm — Mike's ruling of 2026-09-14.
+     *
+     * @returns {number|null} null until something has been typed
+     */
+    blendedRate () {
+      const rows = this.helper.mix.filter(m => num(m.rate) > 0 && num(m.share) > 0)
+      if (!rows.length) { return null }
+      return rows.reduce((sum, m) => sum + (num(m.rate) * num(m.share) / 100), 0)
+    },
+
     allowanceTotal () {
       return this.people.reduce(
         (sum, p) => sum + (num(p.allowanceRate) * num(p.allowanceNights)), 0
@@ -452,6 +592,30 @@ export default {
     /** Add an empty row at the end of the team. */
     addPerson () {
       this.people.push(blankPerson())
+    },
+
+    /**
+     * What one line of the mix contributes to the blended rate.
+     *
+     * ⚠ A METHOD RATHER THAN `num()` IN THE TEMPLATE. `currencyMixin` already supplies a
+     * `num` — and it returns a FORMATTED STRING, not a number. Shadowing it here to do
+     * arithmetic would have left any later use of it silently returning the wrong type.
+     *
+     * @param {Object} m one row of `helper.mix` @returns {number}
+     */
+    mixContribution (m) {
+      return num(m.rate) * num(m.share) / 100
+    },
+
+    /** Add a kind of work to the blended-rate mix. */
+    addMix () {
+      this.helper.mix.push({ label: '', rate: null, share: null })
+    },
+
+    /** Remove one. The last row stays — an empty mix gives nothing to type into. */
+    removeMix (index) {
+      if (this.helper.mix.length <= 1) { return }
+      this.helper.mix.splice(index, 1)
     },
 
     /**
@@ -554,6 +718,37 @@ export default {
 .wt-foot { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .wt-total { font-size: 12px; color: var(--rs-muted); }
 .wt-total b { color: var(--rs-ink); }
+
+/* The two converters. Deliberately quieter than the team table below it — a helper that
+   competes with the thing it helps with has been put in the wrong place. */
+.wt-helper { background: var(--rs-panel-2); }
+.wt-optional {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--rs-muted); background: var(--rs-panel); border-radius: 4px;
+  padding: 1px 6px; margin-left: 8px; vertical-align: middle;
+}
+.wt-subtitle { font-size: 13px; font-weight: 700; color: var(--rs-ink); margin: 18px 0 4px; }
+.wt-conv { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: flex-end; }
+.wt-field { display: flex; flex-direction: column; gap: 3px; min-width: 130px; flex: 0 1 150px; }
+.wt-field label { font-size: 11px; font-weight: 600; color: var(--rs-muted); }
+.wt-out {
+  border: 1px solid var(--rs-line); border-radius: 4px; padding: 4px 9px;
+  font-size: 13px; font-weight: 700; color: var(--rs-ink); background: var(--rs-panel);
+}
+.wt-swap { align-self: center; font-size: 18px; color: var(--rs-accent); margin-top: 14px; }
+.wt-also { font-size: 12px; color: var(--rs-muted); margin: 8px 0 0; }
+.wt-mix { width: 100%; max-width: 620px; border-collapse: collapse; }
+.wt-mix th {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--rs-muted);
+  text-align: left; padding: 0 8px 4px 0; font-weight: 700;
+}
+.wt-mix td { padding: 2px 8px 2px 0; vertical-align: middle; }
+.wt-mix td.wt-num, .wt-mix th.wt-num { text-align: right; font-variant-numeric: tabular-nums; }
+.wt-mix td.wt-act { width: 2.2rem; padding-right: 0; }
+.wt-mixfoot { margin-top: 8px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.wt-blend { font-size: 12px; color: var(--rs-muted); }
+.wt-blend b { color: var(--rs-ink); font-size: 14px; }
+.wt-mixwarn { font-size: 12px; color: var(--rs-warn); }
 .wt-actions { display: flex; justify-content: flex-end; }
 @media print { .wt-actions, .wt-foot { display: none !important; } }
 </style>

@@ -1882,6 +1882,28 @@ applies; a column appearing only after a trip to step 2 and back is one somebody
 accident or never finds. They are empty in the sample too, because the other sheet's figures
 belong to a different model of the same firm.
 
+🔴 **STEP 1 CARRIES TWO RATE CONVERTERS — Mike, 2026-09-14, and there is NO separate tab.**
+His question settled it: *"does it need a seperate Tab?? couldnt it just import the tax data into a
+hidden section and apply across the model as needed?"* He was right about the data — the income tax
+bands live in Firm Manager → Tax Rates and resolve by country — **but nothing in this model needs
+them, because the model computes no tax at all.** Labour margin is what the team bills minus what it
+costs; income tax is the *employee's*, taken out of gross pay, and gross pay is already the wage
+cost. Deducting it again would count it twice.
+
+That left the four calculators drawn on the old Rates tab splitting two ways. **Salary ⇄ hourly** and
+the **blended charge-out rate** fill in the two boxes on step 1 that the whole labour margin turns
+on, so they sit above the team table; behind a tab a helper is somewhere to go and find, which is
+how a helper goes unused. **The income tax and bonus calculators are not built** — they serve no step
+of this model. Artefact: [`wages-rates-converter.html`](../mockups/wages-rates-converter.html).
+
+⚠ **The helper saves nothing and writes into no row.** It works a figure out and the advisor decides
+which person it belongs to — a converter that quietly wrote into a row would be a figure nobody
+typed. `hoursPerWeek` starts EMPTY and the hourly rate reads as a dash until it is answered, because
+a salary cannot be turned into an hourly rate without knowing the hours; `weeksPerYear` starts at 52,
+which is the calendar rather than a default. The blended rate carries the workbook's own **"Balance
+Time Remaining"** check: a mix adding to 80% returns a rate a fifth too low, silently, and nothing
+else on screen would look wrong. It reproduces `Hrly Rate & Tax Calculator` E25 at **323.75**.
+
 ⚠ **The two input sheets are not the same team, which is why there are TWO samples.** Of the
 29 rows the pay rate differs on 24, the leave split on 27 and the overnight allowance on 25;
 the seasonal sheet carries four production staff the other does not, and one manager is
