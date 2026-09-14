@@ -12,7 +12,8 @@
 ## 2026-09-14 (thirty-fourth session) · Laptop · branch `feat/advisor-progress`
 
 Suite **10,733 green** (508 suites), lint 0 errors, audit PASS. Tree clean, everything
-pushed, **37 ahead of `master`, 0 behind**. **Six live items** — 4.96 and 4.102 closed today.
+pushed, **38 ahead of `master`, 0 behind**. **Seven live items** — 4.96 and 4.102 closed today,
+**4.103 filed** (the payroll reader, lifted out of 4.100 on Mike's instruction).
 
 🔴 **NEW BINDING RULE, IN BOTH CHECKLISTS: FIND IT → SAY IT → ASK → FIX IT. NEVER PARK IT.**
 Mike's ruling after a session named a stale note and then wrote *"I haven't touched it"*.
@@ -28,8 +29,9 @@ it — the allowance counted twice (15,600/yr) and CL28's unanchored `CI28` read
 month's cell. **Two of the four corrections are now the same mistake: read what a formula
 ANCHORS, not what it says.**
 
-**4.100 — still ours: the gated staff register.** The payroll reader waits on **a real payroll
-export from Mike**, his one outstanding item. Done today: the overtime declaration on step 2
+**4.100 — still ours: the gated staff register.** **4.103 is the payroll reader, now its own
+item** — it waits on **a real payroll export from Mike**, his one outstanding item, and per
+`supportedPackages.js` no package is called supported until a real one has been read. Done today: the overtime declaration on step 2
 (required, no default — the old blank cell silently refused every production worker 97.425
 hrs/month, and declaring it paid costs 172,194/yr); **income tax bands as the fifth Tax Rates
 figure**; and the **two rate converters on step 1** after Mike dropped the Rates tab. Artefact:
