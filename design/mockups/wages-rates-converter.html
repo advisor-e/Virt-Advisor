@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wages/Salary Review — the Rates tab: salary ⇄ hourly, income tax, and a bonus grossed up</title>
+<title>Wages/Salary Review — the Rates tab: salary ⇄ hourly, a blended rate, income tax, and a bonus grossed up</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
 <style>
 /* ============================================================================
@@ -140,7 +140,7 @@ table.g tr:last-child td{border-bottom:0}
 
 <p class="eyebrow">Wages/Salary Review · decision 2 · the second tab</p>
 <h1>The Rates tab</h1>
-<p class="lede">Three quick calculators that answer a question in ten seconds and feed nothing.
+<p class="lede">Four quick calculators that answer a question in ten seconds and feed nothing.
 Not a second business, and not a port — Mike, 2026-09-14: <em>“its just a way that people can
 quickly calculate between salary and hrly rate. its not supposed to reflect the entire business,
 modify it as required.”</em></p>
@@ -190,7 +190,35 @@ modify it as required.”</em></p>
       </div>
     </div>
 
-    <!-- 2. income tax -->
+    <!-- 2. blended rate -->
+    <div class="card">
+      <h4>Blended charge-out rate — one person, across the work they actually do</h4>
+      <p class="note">Somebody billing four different kinds of work at four different rates has
+      one rate that matters: the average across how their week actually splits. One person at a
+      time — no headcounts, no roles, no firm.</p>
+      <table class="g">
+        <thead><tr><th>Kind of work</th><th class="n">Rate</th><th class="n">Share of time</th><th class="n">Contributes</th></tr></thead>
+        <tbody>
+          <tr><td>Advisory</td><td class="n">$375</td><td class="n">35%</td><td class="n">$131.25</td></tr>
+          <tr><td>Compliance</td><td class="n">$350</td><td class="n">10%</td><td class="n">$35.00</td></tr>
+          <tr><td>Review</td><td class="n">$300</td><td class="n">5%</td><td class="n">$15.00</td></tr>
+          <tr><td>Planning</td><td class="n">$325</td><td class="n">10%</td><td class="n">$32.50</td></tr>
+          <tr><td>Supervision</td><td class="n">$275</td><td class="n">40%</td><td class="n">$110.00</td></tr>
+        </tbody>
+      </table>
+      <div class="out">
+        <span class="lab">Blended rate</span>
+        <span class="big">$323.75</span>
+        <span class="sub tick">✓ the sheet’s own Director column, E25</span>
+        <span class="sub">100% of time allocated</span>
+      </div>
+      <p class="note" style="margin:10px 0 0">⚠ <strong>The share of time is shown against 100%
+      and says when it does not reach it.</strong> The workbook carries that check as its own
+      “Balance Time Remaining” row, and it is the one thing that makes this calculation
+      trustworthy: a mix adding to 80% quietly returns a rate a fifth too low.</p>
+    </div>
+
+    <!-- 3. income tax -->
     <div class="card">
       <h4>Income tax</h4>
       <p class="note">The workbook’s own five bands, with a spouse split and a second concurrent
@@ -219,7 +247,7 @@ modify it as required.”</em></p>
       </div>
     </div>
 
-    <!-- 3. bonus -->
+    <!-- 4. bonus -->
     <div class="card">
       <h4>Bonus — what to pay so the person receives what you promised</h4>
       <p class="note">The workbook’s “Bonus Payment Quick Calculator”. Promise someone $500 in
@@ -251,9 +279,9 @@ spent on each. That is a second business, and Mike’s ruling removes it.</p>
   <thead><tr><th>On sheet 1</th><th>Cells</th><th>On the tab</th></tr></thead>
   <tbody>
     <tr><td>7 roles and their headcounts (15 people)</td><td><code>C4:M6</code></td><td class="gone">gone — “not supposed to reflect the entire business”</td></tr>
-    <tr><td>7 × 7 charge-out rates by job type</td><td><code>C8:K15</code></td><td class="gone">gone</td></tr>
-    <tr><td>Time mix per role, and the balance row</td><td><code>C16:K24</code></td><td class="gone">gone</td></tr>
-    <tr><td><strong>Average hourly rate, post job &amp; time mix</strong></td><td><code>E25:K25</code></td><td><strong>see question 1</strong></td></tr>
+    <tr><td>7 × 7 charge-out rates by job type</td><td><code>C8:K15</code></td><td>the <strong>rates</strong> survive as one person's own list; the 7 × 7 grid does not</td></tr>
+    <tr><td>Time mix per role, and the balance row</td><td><code>C16:K24</code></td><td>one person's mix, <strong>with the balance check</strong></td></tr>
+    <tr><td><strong>Average hourly rate, post job &amp; time mix</strong></td><td><code>E25:K25</code></td><td><strong>KEPT</strong> — its own calculator, one person at a time (question 1, ruled)</td></tr>
     <tr><td>Income tax calculator, 5 bands + spouse split</td><td><code>S4:BE16</code></td><td>kept</td></tr>
     <tr><td>Second concurrent tax layer (“State” / “Federal”)</td><td><code>W6</code>, <code>AM6</code></td><td><strong>see question 2</strong></td></tr>
     <tr><td>Two spare custom band tables</td><td><code>AB9</code>, <code>AB13</code></td><td>replaced by the country picker</td></tr>
@@ -262,18 +290,21 @@ spent on each. That is a second business, and Mike’s ruling removes it.</p>
 </table>
 
 <!-- ======================= QUESTIONS ======================= -->
-<h2>Four things to settle before it is built — two ruled, two open</h2>
+<h2>Four things to settle before it is built — three ruled, one open</h2>
 
-<div class="ask">
-  <h3>Question 1 — does the blended rate survive?</h3>
-  <p>Row 25 is the one genuinely clever thing on that sheet: given a rate per job type and how a
-  person’s week is split across job types, it returns a <strong>single blended charge-out
-  rate</strong> — $323.75 for the Director, $130.75 for the Junior Tech. It needs the job-type
-  rates and the time mix, but it does <em>not</em> need headcounts or a firm.</p>
-  <p class="rec">Recommendation: <strong>keep it, for one person at a time.</strong> “This person
-  does 35% Job Type 1 at $375 and 40% Job Type 5 at $275 — what are they worth an hour?” is the
-  same question as salary ⇄ hourly, asked the other way round, and it is the part an adviser
-  cannot do in their head. Dropping it would lose the sheet’s only real calculation.</p>
+<div class="ask ruled">
+  <h3>Question 1 — RULED BY MIKE 2026-09-14 — the blended rate stays, one person at a time</h3>
+  <p class="ruling">Row 25 survives as its own calculator on this tab. <strong>One person, no
+  headcounts, no roles, no firm</strong> — which is what keeps it inside his “not supposed to
+  reflect the entire business”.</p>
+  <p>It is the one genuinely clever thing on that sheet: given a rate per kind of work and how a
+  person’s week splits across them, it returns a <strong>single blended charge-out rate</strong>.
+  “This person does 35% advisory at $375 and 40% supervision at $275 — what are they worth an
+  hour?” is the same question as salary ⇄ hourly asked the other way round, and it is the part an
+  adviser cannot do in their head. Dropping it would have left three arithmetic conversions.</p>
+  <p class="rec">⚠ <strong>The time-mix check comes with it.</strong> The workbook carries a
+  “Balance Time Remaining” row, and it is what makes the calculation trustworthy: a mix adding to
+  80% quietly returns a rate a fifth too low, and nothing else on the screen would look wrong.</p>
 </div>
 
 <div class="ask">
