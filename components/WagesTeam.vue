@@ -171,8 +171,8 @@
  * `<f t="shared" si="145"/>` with no formula text of their own, so anything reading each
  * cell's own `<f>` sees a blank and calls it a typed constant. Deriving the total here is
  * still right, for the reason in the paragraph above — it must follow the team — and not
- * for the trap that was never there. The same misreading put a phantom defect into
- * `design/WAGES-SHUTDOWN-PORT.md` §3.2; see CORRECTION 3 in `server/report/wagesModel.js`.
+ * for the trap that was never there. The same misreading had reached seven places across five
+ * files; see CORRECTION 3 in `server/report/wagesModel.js`.
  *
  * DIVISION DRIVES THE BASIS (Mike, 2026-09-14). The workbook is laid out in blocks and
  * the mapping is exact across all 29 sample rows: Admin and Sales are costed as salary,

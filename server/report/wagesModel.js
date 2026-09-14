@@ -77,11 +77,12 @@
  * 237.42 a month dearer, 712.25 across the three ticked months he is actually employed for.
  * April is correct because it holds the master cell. `shutdownMonthlyWage` anchors it.
  *
- * ⚠ A related claim in `design/WAGES-SHUTDOWN-PORT.md` §3.2 — that five of the `CE` cells
- * have their formula "overtyped with stray label text" — is FALSE, and nothing was corrected
- * for it. `CE` is a clean shared formula `Y*AA` on every row 7–38; rows 18–21 and 36 are
- * shared-formula FOLLOWERS (`<f t="shared" si="144"/>`), which carry no formula text of
- * their own and read as blank to anything that takes each cell's own `<f>`.
+ * ⚠ A claim that five of the `CE` cells have their formula "overtyped with stray label text"
+ * circulated through seven places in this repository and is FALSE; nothing was corrected for
+ * it. `CE` is a clean shared formula `Y*AA` on every row 7–38; rows 18–21 and 36 are
+ * shared-formula FOLLOWERS (`<f t="shared" si="144"/>`), which carry no formula text of their
+ * own and read as blank to anything that takes each cell's own `<f>`. Recorded here because
+ * the same misreading will otherwise be made again by the next person to open the XML.
  *
  * Backend-only and pure — no I/O, no database, no model call anywhere in this file, so
  * "personal data never reaches the AI" holds by construction. CommonJS, Node 14.15.

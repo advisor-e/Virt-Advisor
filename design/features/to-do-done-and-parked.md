@@ -185,6 +185,43 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.102 — the Shutdown basis reported zero revenue for a real client.**
+✅ Closed 2026-09-14 on the laptop. A defect we found and Mike ruled the fix himself — *"plan the
+fix properly then get it done"* — after being offered the Shutdown button's removal meanwhile and
+declining it. The engine took each person's shutdown wage and revenue as **two ready-made
+twelve-month arrays** and used them as given; only the workbook's own sample ever carried them, so
+a team built on our step 1 totalled **zero revenue** on that basis, reachable in the app with no
+warning. It now derives both from the ten typed cells of `Shutdown Inputs`, per person per month.
+
+**What proved it.** `SHUTDOWN_SAMPLE` reproduces `Cash Report` R17 at **973,328.4208**, to the
+cent, and the seasonal guard is unmoved at 1,362,740 / 288,935 / July −132. The reading of the
+sheet was checked against **768 cached cells before any code was written** — all 384 revenue cells
+exact, 379 of 384 wage cells. The end-to-end guard is **non-vacuous**: one person with the three
+new step-1 fields bills **88,651.20**, the same person without them bills **0.00** — the original
+fault, reproduced on demand rather than asserted.
+
+**Two corrections came out of it, both pinned with the workbook's own figure beside ours.**
+*The allowance charged twice* — `Shutdown Inputs` CL7 holds it inside each person's wage while
+`Seasonal Inputs` CM7 leaves it out, and `Cash Report` row 20 added one to both regardless:
+15,600 off the year. *A fourth workbook defect* — CL28's **unanchored `CI28`** in a shared formula
+reads another month's cell, overcharging one person 237.42 a month.
+
+🔴 **The lesson, and it is worth more than either instance.** Two of the four corrections in this
+model are now **the same mistake**: a shared formula whose unanchored reference drifts as the block
+fills — down a column in correction 1, across a row in correction 4. **When checking this workbook,
+read what a formula ANCHORS, not only what it says.** That sentence is in
+[`../../server/report/wagesModel.js`](../../server/report/wagesModel.js)'s header, where the next
+session will meet it.
+
+⚠ **A phantom defect was withdrawn in seven places** across five files — the claim that certain
+allowance cells had their formula *"overtyped with stray label text"*. They had not: Excel stores a
+shared formula once on the master cell and leaves the followers empty, so a reader taking each
+cell's own `<f>` sees blanks and calls them typed constants. One test was passing for that wrong
+reason. **`design/WAGES-SHUTDOWN-PORT.md` — the cold-start build spec this item ran on — was
+deleted the same day on Mike's yes**, its durable parts folded into
+[`report-models.md`](report-models.md); it had carried the phantom in §3.2 and a second error in
+§2.5, and a spec that outlives its build becomes the next session's false start.
+
 **4.95 — the Sales Dashboard: the last card that said "coming soon" and opened nothing.**
 ✅ Closed 2026-09-13 on the laptop. Asked for by Mike in his own words — *"sales dashboard in perf
 report"* — when the startup checklist put the open work to him, then *"yes"* to drawing the screen
