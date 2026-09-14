@@ -203,8 +203,29 @@
         "detail": "2026-09-14 - 'transfer your improvement suggestions (all of them) into fixes' and 'if you spot an area of improvement ... get it in the tasks'. Lift, fallback and the profile screen each ruled yes the same day."
       },
       "touches": "advisorEngine.js intake, caseStore, templateResolver and its seam, outcomeLearning and the benches, openaiClient.js, the Mentor Hub (Outcome Learning page and a new template-profile tab), the trace, the Scenario Lab, advisory-engine.md.",
-      "note": "SPEC KIT FEATURE, specs/003-engine-middle-learning-true. Routing groups stay dead (registry ruling 2026-06-09, Mike 2026-09-14); the engine brief's stale line is corrected. DeepSeek second-opinion mode is NOT here - it is 4.98. Personal data goes only to a provider Mike has cleared in config.",
-      "comment": "2026-09-14 - filed on Mike's instruction after the audit comparison; spec written the same day; clarify, plan and tasks each wait for his yes."
+      "note": "SPEC KIT FEATURE, specs/003-engine-middle-learning-true. US1 IS COMPLETE AND LIVE: the engine proposes the primary issue, the advisor confirms or reframes it, and the Main issue row shows what was recorded (T018, T020). T019 - the Scenario Lab measurement - is the remainder of US1. 16 of 67 tasks. Routing groups stay dead (registry ruling 2026-06-09, Mike 2026-09-14). DeepSeek second-opinion mode is NOT here - it is 4.98. Personal data goes only to a provider Mike has cleared in config.",
+      "comment": "2026-09-14 - filed on Mike's instruction after the audit comparison; spec, clarify, plan, tasks, four drawings and sixteen rulings the same day; then T007-T018 and T020 built on his yes one at a time. TWO FAULTS FOUND BY RUNNING IT, NOT BY TESTS: naming a problem from one category word, and recording plain agreement as a correction. Both fixed and pinned."
+    },
+    {
+      "ref": "4.100",
+      "name": "A supplier-cost conversation is routed to sales and marketing",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Domain detection put a client's supplier-cost problem in sales-marketing. The area decides which templates are even considered, so the advisor is offered sales and marketing tools for a margin problem.",
+      "risk": "Every layer downstream inherits it and looks correct doing so - the templates, the primary issue, and the pooled row the platform learns from. Nothing on screen says the area may be wrong, and the advisor is only asked to confirm it once, in the engine's own words.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-14 - hit twice while walking 4.97 T018 on the running app. A defect we found, not a feature nobody asked for; Mike said yes to filing it."
+      },
+      "touches": "The domain keyword patterns in data/domains.json, the detection and disambiguation in server/advisorEngine.js, and the AI domain backstop that already exists beside them.",
+      "note": "REPRODUCE: open the advisor, say 'margins are down, the cost of sales has gone up because suppliers put their prices up'. It lands in sales-marketing; under profit the same words score 4 on 'Cost of sales has increased'. The word 'sales' inside 'cost of sales' is the likely pull. NOT a primary-issue fault - that step is correct in both areas and is what made this visible.",
+      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after the primary-issue step surfaced it. The 4.97 weak-evidence rule stops the engine NAMING a wrong problem here, but the wrong area stands."
     },
     {
       "ref": "4.98",

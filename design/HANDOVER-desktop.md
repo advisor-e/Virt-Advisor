@@ -11,35 +11,36 @@
 
 ## 2026-09-14 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Item 4.97 is specified, planned, drawn, ruled and half-built.** Spec Kit feature
-`specs/003-engine-middle-learning-true`: ten stories out of the Founder's Claims Audit read
-against the built Outcome Learning code. Four drawings approved, **sixteen questions ruled by
-Mike one at a time**, 14 of 67 tasks done. **NOTHING AN ADVISOR SEES HAS CHANGED YET** — every
-seam built so far is called by nothing. Next task is **T018**, which wires the primary-issue
-proposal into the live conversation; do it with the app running, not from tests alone.
+**4.97 US1 IS COMPLETE AND LIVE — the engine asks the advisor what the problem is.** It
+proposes one authored label with a reason, the advisor confirms or reframes it, and the
+**Main issue** row on the trace shows what was recorded and how (T018, T020). This is the
+first thing in 4.97 an advisor actually sees. 16 of 67 tasks; **T019** — the Scenario Lab
+measurement — is the remainder of US1 and the obvious next task.
 
-**🔴 A REAL FAULT IN 4.87 AS SHIPPED, FOUND AND FIXED (`7a78da2d`).** The decision trace stores
-`situation` as a string; `buildContribution` tested it for an object, so **every pooled row in
-UAT has a null primary issue and a null industry**. Both are typed trace keys now. Rows already
-pooled keep their blanks — not back-filled.
+**🔴 BOTH OF TODAY'S FAULTS WERE FOUND BY RUNNING THE APP, NOT BY THE SUITE.** Worth
+knowing before trusting a green run on this feature.
 
-**🔴 MIKE CAUGHT A WRONG SUBJECT IN A DRAWING.** Template Profiles counted the profile FILE
-(199) not the library. It is **220 client-facing tools, 61 of them thin**. The audit's "23/88"
-and "54 with summaries" figures are withdrawn — by page it is 170 of 220.
+1. *Naming a problem from one category word* (`8eec6cea`). "Margins are down, the **cost of
+   sales** has gone up" proposed *Sales Execution — poor sales training*, on the word
+   "sales". Now withheld where the lone match is the domain's own name and the domain has
+   more than one label. Cost, measured on the 51 cases: 16 propose, 6 ask instead.
+2. *Plain agreement recorded as a correction* (`468ad92c`). `parseReply` re-ranked the
+   reply using signals from the ORIGINAL cause text, which fire whatever is typed next, so
+   "Yes that is right" came back `reframed` on a label matching **no word of the reply**.
+   A reframe now ranks on the reply's own words. No existing test could catch it — they all
+   passed an empty signal map.
 
-**Two faults the proposer found by being RUN, not read** (`77e70acd`, both in its comments):
-the industry stop-list gutted Mike's own labels, so "cost of sales has gone up" proposed
-*Excessive discounting*; and a reply could confirm a proposal that was null.
+**⚠ NEW ITEM 4.100, AND IT IS THE BIGGER ONE.** The supplier-cost conversation is routed to
+`sales-marketing` at all. The area decides which templates are even considered, so the
+advisor gets sales-and-marketing tools for a margin problem. Reproduced twice. The
+primary-issue step is correct in both areas — it is what made this visible. Not fixed.
 
-**⚠ NO AI-BACKED SCRIPT RUNS ON THIS MACHINE — now item 4.99.** `NODE_EXTRA_CA_CERTS` points at
-`certs/digicert-bundle.pem`, which does not work here; export the Avast root instead. A lab run
-without the key **overwrote the real report** (separation 2.3 against the true 5.7) and was
-caught by the pre-commit hook, not by the lab. Restored; the code half of 4.99 is ours.
+**4.99 still stands: no AI-backed script runs here** (`NODE_EXTRA_CA_CERTS`), so the
+Scenario Lab cannot measure the AI layers on this machine — which T019 will want.
 
-Suite **10,984 green** (520 suites), lint 0, tree clean, 69 ahead of master, pushed.
+Suite **11,027 green** (522 suites), lint 0, `npm run build` succeeds, tree clean, pushed.
 
-**LAPTOP:** none of your files touched. Shared files that changed: `server/advisorEngine.js`
-(trace keys only), `server/utils/templateResolver.js` (three new exports, `options.profileMap`,
-primary-issue keyword filter), `server/utils/outcomeLearning.js`, `config/integration.js`,
-`.env.example`, `design/UAT-LOAD-PACK.md`, the to-do list (4.97, 4.98, 4.99). Merge `master`
-before you touch any of them.
+**LAPTOP:** none of your files touched. Shared files changed: `server/advisorEngine.js`,
+`server/utils/primaryIssueProposer.js`, `components/VirtualAdvisor.vue` (one trace row),
+`locales/en.json` (four `decisionTrace.*` keys), `design/features/advisory-engine.md`, the
+to-do list (4.97, new 4.100). Merge `master` before you touch any of them.

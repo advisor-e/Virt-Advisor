@@ -97,10 +97,10 @@ Verified against the live model; see
 
 **Design and build differ here, deliberately and on the record.** This is the one feature where
 the written design runs ahead of the code, and that gap is *intended* — the design is the
-destination. What is built and live: signal capture, strategy resolution, template scoring and
-the AI narrative. What is designed and **not** built: primary-issue classification as a named
-field, and routing groups as a pre-filter. Do not read the design document as a description of
-the code, and do not "correct" the design down to what exists.
+destination. What is built and live: signal capture, **primary-issue confirmation** (below),
+strategy resolution, template scoring and the AI narrative. What is designed and **not** built:
+routing groups as a pre-filter. Do not read the design document as a description of the code,
+and do not "correct" the design down to what exists.
 
 **Content filed into the wrong lane is invisible.** It renders, it saves, it passes tests, and
 it silently never reaches the decision it was written for — and every case found so far was
@@ -134,7 +134,7 @@ platform default. Nothing is single-tenant, and nothing new should be.
 | Stage | What happens | Where |
 |---|---|---|
 | 1 | Conversation and signal capture | `server/advisorEngine.js`, `server/utils/signals.js`, `problemSignals.js` |
-| 2 | Primary issue classification | **designed, not in code** |
+| 2 | Primary issue — proposed, then confirmed or reframed by the advisor | `server/utils/primaryIssueProposer.js`, wired in `advisorEngine.js` |
 | 3 | Routing groups | **designed, not in code** |
 | 4 | Strategy resolution — engagement type, complexity ceiling, template budget | `server/utils/strategyResolver.js` |
 | 5 | Template selection — score and rank, no AI | `server/utils/templateResolver.js` |
@@ -153,6 +153,34 @@ platform default. Nothing is single-tenant, and nothing new should be.
 | Domain briefing material | `data/*-domain-support.json`, `server/utils/domainSupport.js` |
 | Distinctions (score boosts) | `data/advisory-distinctions.json` — see [`advisory-distinctions.md`](advisory-distinctions.md) |
 | Lane classification + its guard | `server/utils/contentRouting.js` |
+
+### The primary issue — proposed, never listed
+
+After the domain check-in the engine names **one** label from `data/primary-issues.json` for
+the confirmed domain, with one reason drawn from the advisor's own words, and asks whether it
+has that right. The advisor confirms it or reframes it in their own sentence; a reframe is put
+back to them once. It is never a menu — the selector card was removed in June 2026 and
+`tests/unit/retiredPrimaryIssueSelector.test.js` keeps it gone.
+
+- **Ranking is on the advisor's evidence only** — the words of their cause answer (2 points a
+  word) and the problem signals those words fired (1 point). The model is asked **only** to
+  break a tie between two authored labels, choosing from the list or answering `none`.
+- **Weak evidence withholds the proposal.** A lone matched word that is merely the domain's own
+  name — "sales" taken from "cost of sales" — says the advisor's words picked the *area*, not
+  the problem inside it. Where the domain holds more than one label, the engine asks the open
+  driver question instead of asserting. A domain with a single label still proposes.
+- **A reframe is ranked on the reply's words alone, with no signals.** The cause signals fire
+  whatever the advisor types next, so including them read plain agreement as a correction.
+- **On a miss, no label is stored.** One open driver question, then `how: 'none'` on the trace
+  and a `[signal-miss]` log. A label the advisor's words do not support is worse than none: the
+  resolver scores against it and the outcome pool learns from it.
+- Context domains (`conflict`, `eoy`, `due-diligence`) and any domain with no authored labels
+  ask neither question, and the trace row is hidden rather than reporting a miss.
+
+The confirmed label lands on `state.primaryIssue`, the decision trace (`primaryIssue.label` /
+`.how` / `.reason` / `.asked`), the Main issue row of the advisor's trace panel, and the
+Outcome Learning pool. `SCORING_VERSION` is unchanged at `2.2.0` — the step fills a field the
+scorer already read, rather than changing how anything is scored.
 
 ### The routing report
 
@@ -192,7 +220,11 @@ unknown**.
 
 ### Known gaps, honestly
 
-- Primary issues are locked for all 14 domains but do not exist as a field in the case object.
+- The advisor's confirmed primary issue reaches the trace and the outcome pool, but nothing
+  measures how often the proposal is right across the 51 Scenario Lab cases (4.97 T019).
+- The DOMAIN is misread on some cases, which the primary-issue step made visible: a
+  supplier-cost conversation routed to `sales-marketing` gets sales-and-marketing tools, and
+  the best issue available there is the wrong one. Upstream of everything above.
 - Routing groups are complete for one domain only.
 - Two templates have no semantic profile; 23 have a profile with no signals; 88 have thin
   purpose-only profiles. These affect scoring precision, not function.
