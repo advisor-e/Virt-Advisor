@@ -38,6 +38,13 @@ const { logVASession } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
+// The primary-issue proposer (item 4.97 US1). Imported whole: the engine calls six of its
+// helpers across two QUESTIONS entries, and naming the module at each call site says where
+// the wording lives — on the drawing Mike approved, not in this file.
+const PROPOSER = require('../server/utils/primaryIssueProposer')
+const { proposesIssue } = PROPOSER
+const aiProvider = require('../server/utils/aiProvider')
+const { AI } = require('../config/integration')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
@@ -1137,6 +1144,22 @@ function _isValidConfirmation (out, areaLabel) {
 }
 
 /**
+ * The advisor's own account of the cause, as one block of text.
+ *
+ * The same two pieces `buildDomainConfirmationMessage` reflects back — the opening situation
+ * and the cause answer — so the primary-issue proposal is ranked against exactly the words
+ * the advisor just confirmed the area from. Sentinels never reach it.
+ *
+ * @param {object} state - conversation state (reads openingSituation, situationDiagnostic)
+ * @returns {string} the advisor's words, or '' when nothing has been said yet
+ */
+function causeTextOf (state) {
+  const parts = [state._openingSituation, state.situationDiagnostic]
+    .filter(v => typeof v === 'string' && v && v !== 'pending' && v !== 'skipped')
+  return parts.join('\n').trim()
+}
+
+/**
  * Build the cause-first domain-confirmation message.
  * @param {object} state - conversation state (reads detectedDomain, situationDiagnostic)
  * @param {Array} conversationHistory - prior messages (the opening situation = first user msg)
@@ -1204,6 +1227,132 @@ ${causeText.slice(0, 1500)}
     logAI('domain-confirm', 'gpt-4o-mini', _t0, false, null)
     return fallbackText
   }
+}
+
+/**
+ * Build the primary-issue proposal line, and remember what was proposed (item 4.97 US1).
+ *
+ * Ranks Mike's authored labels for the confirmed domain against the advisor's own cause
+ * words and the problem signals those words fired. The model is asked ONE boxed question and
+ * only when two labels tie on that evidence — it chooses from the list or says none, and it
+ * never writes a label. A failure there costs the tie-break, not the step: the first tied
+ * label stands, which is the advisor's own evidence either way.
+ *
+ * @param {object} state - conversation state; `_issueProposed` and `_issueProposalReason`
+ *   are written for `onAnswer` to read back
+ * @returns {Promise<string|null>} the proposal line, or null when nothing the advisor said
+ *   supports any authored label (the caller then asks the open driver question)
+ */
+async function buildIssueProposal (state) {
+  const causeText = causeTextOf(state)
+  if (!causeText) { return null }
+
+  const signals = extractProblemSignals(causeText)
+  const ranked = PROPOSER.rankLabels(state.detectedDomain, causeText, signals)
+  if (!ranked.top) { return null }
+
+  let label = ranked.top
+  const matched = ranked.matched
+  if (ranked.needsTiebreak) {
+    const _t0 = Date.now()
+    const _model = aiProvider.modelFor(AI.primary, 'classify')
+    try {
+      const chosen = await PROPOSER.tiebreakWithModel(
+        aiProvider.getClient('classify'), ranked.candidates, causeText
+      )
+      logAI('issue-tiebreak', _model, _t0, true, null)
+      if (chosen) { label = chosen }
+    } catch (_e) {
+      // The tie stands unbroken and the first candidate is proposed. The advisor is about
+      // to confirm or reframe it anyway, so a provider outage never blocks the question.
+      logAI('issue-tiebreak', _model, _t0, false, null)
+    }
+  }
+
+  // The reason must describe the label actually proposed: when the model breaks a tie, the
+  // ranker's `matched` still holds the FIRST candidate's words, and showing those beside a
+  // different label tells the advisor we read words we did not.
+  const _reasonWords = (label === ranked.top)
+    ? matched
+    : PROPOSER.keywords(label).filter(w => PROPOSER.keywords(causeText).includes(w))
+
+  state._issueProposed = label
+  state._issueProposalReason = PROPOSER.reasonFrom(_reasonWords)
+  state._issueProposalLine = PROPOSER.proposalLine(label, state._issueProposalReason)
+  return state._issueProposalLine
+}
+
+/**
+ * Apply the advisor's reply to the primary-issue proposal (item 4.97 US1).
+ *
+ * Pure state transition, exported so the flow is tested without driving the SSE handler.
+ * Writes `primaryIssue`, `primaryIssueHow` and `primaryIssueReason` — the three the decision
+ * trace reports — or arms the open driver question when nothing the advisor said matched.
+ *
+ * @param {string} answer - what the advisor typed
+ * @param {object} s - conversation state, mutated in place
+ * @returns {void}
+ */
+function applyIssueReply (answer, s) {
+  const proposed = s._issueProposed || null
+  const signals = extractProblemSignals(causeTextOf(s))
+  const read = PROPOSER.parseReply(answer, proposed, s.detectedDomain, signals)
+
+  if (read.outcome === 'confirmed') {
+    // After a reframe the label came from the advisor's own correction, so it is recorded
+    // as reframed even though this turn was an agreement.
+    s.primaryIssue = read.label
+    s.primaryIssueHow = s._issueReproposed ? 'reframed' : 'confirmed'
+    s.primaryIssueReason = s._issueProposalReason || null
+    return
+  }
+  // A reframe names a DIFFERENT authored label. It is put back to them once — the advisor's
+  // own words, not ours, so it is proposed rather than assumed.
+  if (read.outcome === 'reframed' && !s._issueReproposed) {
+    s._issueReproposed = true
+    s._issueProposed = read.label
+    s._issueProposalReason = PROPOSER.reasonFrom(read.matched)
+    s._forceAskField = 'issueProposed'
+    s._forceAskPrompt = PROPOSER.reproposalLine(read.label)
+    return
+  }
+  if (s._issueReproposed && proposed) {
+    // A second miss after their own reframe. Their words named this label once, so it
+    // stands as reframed rather than throwing the advisor's own correction away.
+    s.primaryIssue = proposed
+    s.primaryIssueHow = 'reframed'
+    s.primaryIssueReason = s._issueProposalReason || null
+    return
+  }
+  // Nothing matched: FR-003a — ONE open driver question, then move on.
+  s._issueNeedsDriver = true
+}
+
+/**
+ * Apply the advisor's reply to the one open driver question (item 4.97 US1).
+ *
+ * The last chance to name an authored label. Mike's Option B governs the miss: continue
+ * WITHOUT an issue and say so on the trace, rather than pin a label the advisor's words do
+ * not support — the resolver scores against it and the pool learns from it.
+ *
+ * @param {string} answer - what the advisor typed
+ * @param {object} s - conversation state, mutated in place
+ * @returns {void}
+ */
+function applyIssueDriverReply (answer, s) {
+  const signals = extractProblemSignals(causeTextOf(s) + '\n' + (answer || ''))
+  const ranked = PROPOSER.rankLabels(s.detectedDomain, answer, signals)
+  if (ranked.top) {
+    s.primaryIssue = ranked.top
+    s.primaryIssueHow = 'reframed'
+    s.primaryIssueReason = PROPOSER.reasonFrom(ranked.matched)
+    return
+  }
+  s.primaryIssue = null
+  s.primaryIssueHow = 'none'
+  s.primaryIssueReason = null
+  console.log('[signal-miss] primary-issue proposal found no authored label for domain=' +
+    (s.detectedDomain || 'none') + ' after the driver question — review the label set')
 }
 
 // ── Crisis (distress) detection ──────────────────────────────────────────────
@@ -1900,8 +2049,21 @@ async function handleQuery (rawBody, res, identity) {
       advisorEnjoyment: null,
       advisorMeetingCount: null,
       advisorSessionLength: null,
-      // Primary issue — which specific problem within the detected domain
+      // Primary issue — which specific problem within the detected domain. PROPOSED by the
+      // engine and confirmed or reframed by the advisor (4.97 US1); `how` and `reason` are
+      // what the decision trace reports, so a null label can still say why it is null.
       primaryIssue: null,
+      primaryIssueHow: 'none',
+      primaryIssueReason: null,
+      // The proposal turn's own working state: what was put to the advisor, whether their
+      // reframe has already been proposed back, and whether the open driver question is due.
+      issueProposed: null,
+      issueDriver: null,
+      _issueProposed: null,
+      _issueProposalReason: null,
+      _issueProposalLine: null,
+      _issueReproposed: false,
+      _issueNeedsDriver: false,
       // Q4 — prior attempts
       clientAlreadyTried: null,
       // Flow state
@@ -1945,6 +2107,12 @@ async function handleQuery (rawBody, res, identity) {
       })
     }
 
+    // The advisor's opening words, kept once so the primary-issue proposer ranks against the
+    // same text the domain check-in reflected back. Set on every turn (the history is the
+    // source; the first user message never changes) and before the sequencer runs.
+    const _firstUserMsg = (conversationHistory || []).filter(m => m.role === 'user').map(m => m.content)[0]
+    if (_firstUserMsg) { state._openingSituation = _firstUserMsg } else if (!state._openingSituation) { state._openingSituation = query }
+
     // Always re-detect domain from the first user message.
     // Score all 14 domains by keyword match count. Most matches wins.
     // On a tie between any two or more, ask disambiguation.
@@ -1973,6 +2141,18 @@ async function handleQuery (rawBody, res, identity) {
         state.disambiguationAnswer = null
         state.domainConfirmed = null
         state.primaryIssue = null
+        // The issue belongs to the domain that was just abandoned, so the whole proposal
+        // turn resets with it — otherwise the next domain's advisor is asked to confirm a
+        // label ranked against a question they have already corrected.
+        state.primaryIssueHow = 'none'
+        state.primaryIssueReason = null
+        state.issueProposed = null
+        state.issueDriver = null
+        state._issueProposed = null
+        state._issueProposalReason = null
+        state._issueProposalLine = null
+        state._issueReproposed = false
+        state._issueNeedsDriver = false
       }
       state.awaitingCourseCorrection = false
     }
@@ -2164,17 +2344,33 @@ async function handleQuery (rawBody, res, identity) {
           s.disambiguationNeeded = false
         }
       },
-      // ── Primary Issue ──
-      // REMOVED from intake (no drop-tab). Per the conversational-intake spec
-      // (memory design-conversational-intake): the primary issue is inferred from
-      // the conversation, and only clarified at recommendation time IF the template
-      // scoring hits a genuine fork. Stage 2 wires that inference + end-of-process
-      // clarification; for now the field stays null and the engine reads the
-      // problem from signals + domain.
+      // ── Primary Issue — PROPOSED, never listed (item 4.97 US1) ──
+      // The conversational-intake redesign of June 2026 removed the cold selector card and
+      // left this half unbuilt, so `state.primaryIssue` stayed null and the resolver's
+      // `primary_issue:*` scoring was dead. This is that second half: the engine names ONE
+      // authored label with one reason and the advisor confirms it or reframes it in their
+      // own words. Every sentence comes from `primaryIssueProposer`, whose wording Mike
+      // ruled on `design/mockups/primary-issue-proposal.html` (2026-09-14).
+      //
+      // `issueProposed` carries the answer to the question the engine ASKED; the confirmed
+      // label lands on `state.primaryIssue`, which the trace, the pool and the resolver all
+      // already read. The field is deliberately NOT `primaryIssue` itself: the sequencer
+      // stores the raw reply in `state[q.field]`, and the reply is the advisor's sentence,
+      // not the label.
       {
-        field: 'primaryIssue',
-        text: '(primary issue inferred — not asked during intake)',
-        skip: () => true
+        field: 'issueProposed',
+        skip: s => !proposesIssue(s.detectedDomain),
+        // The proposal is built by the sequencer's awaited branch (see `issueProposed`
+        // beside `domainConfirmed` below) because a tie is broken by the model. This
+        // fallback line is what the advisor sees if that branch is ever bypassed.
+        textFn: s => s._issueProposalLine || PROPOSER.DRIVER_QUESTION,
+        onAnswer: (answer, s) => applyIssueReply(answer, s)
+      },
+      {
+        field: 'issueDriver',
+        skip: s => !s._issueNeedsDriver,
+        text: PROPOSER.DRIVER_QUESTION,
+        onAnswer: (answer, s) => applyIssueDriverReply(answer, s)
       },
       // ── Universal: Industry ──
       {
@@ -2465,9 +2661,25 @@ async function handleQuery (rawBody, res, identity) {
           // domainConfirmed: cause-first AI confirmation (Scope 1) — reflects the
           // driver the advisor described before naming the detected area; the
           // deterministic textFn line is passed in as the fallback.
-          let questionText = q.field === 'domainConfirmed'
-            ? await buildDomainConfirmationMessage(state, conversationHistory, q.textFn(state))
-            : (q.textFn ? q.textFn(state) : q.text)
+          // Two questions are built rather than read: `domainConfirmed` reflects the cause
+          // back through the model, and `issueProposed` may need the model to break a tie
+          // between two of Mike's own labels. Both are awaited here because `textFn` is
+          // synchronous by design and only these two reach the model to ASK a question.
+          let questionText
+          if (q.field === 'domainConfirmed') {
+            questionText = await buildDomainConfirmationMessage(state, conversationHistory, q.textFn(state))
+          } else if (q.field === 'issueProposed') {
+            questionText = await buildIssueProposal(state)
+            if (!questionText) {
+              // No label the advisor's words support. Skip straight to the driver question
+              // rather than propose something they did not say.
+              state[q.field] = 'skipped'
+              state._issueNeedsDriver = true
+              continue
+            }
+          } else {
+            questionText = q.textFn ? q.textFn(state) : q.text
+          }
           // If we just skipped a question because the advisor was frustrated, prepend
           // the acknowledgement to whatever the NEXT question is (move on, don't repeat).
           if (state.frustrationAckPending) {
@@ -3874,3 +4086,9 @@ module.exports.MAX_PROMPT_CASES = MAX_PROMPT_CASES
 module.exports.buildClientContext = buildClientContext
 
 module.exports.profileInstructionsFor = profileInstructionsFor
+// The primary-issue proposal step (item 4.97 US1) — the builder and the two reply handlers,
+// exported so the flow is proved without driving the SSE handler.
+module.exports.buildIssueProposal = buildIssueProposal
+module.exports.applyIssueReply = applyIssueReply
+module.exports.applyIssueDriverReply = applyIssueDriverReply
+module.exports.causeTextOf = causeTextOf
