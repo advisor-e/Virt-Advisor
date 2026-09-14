@@ -1656,8 +1656,19 @@ due-diligence case, being the safe direction.
 `CLASS_DECISION`, route `/wages-review`. Nothing arrives from an accounts export: every figure is
 typed or derived, which is what makes it a Decision tool rather than a report.
 
-**Still to come:** the **staff register table itself** — its columns, its storage, and Decision 8's
-retention dial — and the **payroll reader** (its own item, 4.103). **A real payroll export is owed
+**Still to come:** the **staff register table itself** — **drawn 2026-09-15 at
+[`../mockups/wages-register.html`](../mockups/wages-register.html), not yet approved and not
+built**, with four questions open on it (hours in a day's leave, what an unpriced person shows,
+whether sick leave is carried, where the retention dial lives). Its people come from step 1 and are
+not typed twice; it adds three typed fields per person and derives the liability; storage is one
+`firmOverlay` key per client, the gate's own seam, **so no new table**. 🔴 **Reading the workbook for
+it found three faults in column `H`, which is what the 63,154 leave-liability headline is summed
+from:** the one surviving formula `(E8*$D$5)*G8` points at a **blank** `D5` (the 8 is in `E4`) and
+evaluates to 0 behind a stale cached value; `H9:H39` are hand-typed constants that never move when
+pay or leave does; and **24 of the 29 people are priced from *sick leave consumed* rather than
+accrued annual leave**. The port prices from accrued leave only and reports **"not yet priced"**
+rather than reaching for the number to hand, so **it does not reproduce 63,154** — and the golden
+test pins the difference. Also still to come: the **payroll reader** (its own item, 4.103). **A real payroll export is owed
 by Mike** — per `intake/supportedPackages.js` no reader is called supported until one has been
 read. The five steps' figures are still not saved per client (4.62's mechanism); the page now knows
 which client it is for, because the register's gate is a property of that client's case.
