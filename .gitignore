@@ -197,6 +197,19 @@ data/dev-meeting-retention.json
 # Nothing about it belongs in this repository.
 data/dev-wages-register.json
 
+# 🔴 THE REGISTER'S CONTENTS, and this line was missing for one commit (2026-09-15). The file
+# above holds only the SWITCH; this one holds what the register says — a client's people with
+# their accrued leave, length of service and a key-person-risk band. If either file belonged
+# out of the repository, this is the one that belonged out of it more, and `git add -A` swept
+# it in because nothing was here to stop it. Adding the store and its ignore line are one
+# change, not two.
+data/dev-wages-register-rows.json
+
+# The staff register's retention dial (item 4.104, Decision 8) — how long ONE firm keeps its
+# registers. Same reasoning as the meeting dial above, and written before the file exists
+# rather than after it is committed.
+data/dev-register-retention.json
+
 # Business Entity Reports (item 4.62) — which models an advisor opened to which client, and
 # the figures saved for them. Both are about named clients of one firm; neither belongs here.
 data/dev-client-report-access.json
