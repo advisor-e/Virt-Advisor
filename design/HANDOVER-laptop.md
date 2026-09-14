@@ -9,39 +9,36 @@
 
 ---
 
-## 2026-09-14 (thirty-fourth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-15 (thirty-fifth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,743 green** (508 suites), lint 0 errors, audit PASS. Tree clean, everything
-pushed, **38 ahead of `master`, 0 behind**. **Seven live items** — 4.96 and 4.102 closed today,
-**4.103 filed** (the payroll reader, lifted out of 4.100 on Mike's instruction).
+Suite **10,833 green** (512 suites), lint 0 errors, audit PASS. Tree clean, everything pushed,
+**43 ahead of `master`, 0 behind**. **Seven live items**, unchanged — today finished work, it
+filed none.
 
-🔴 **NEW BINDING RULE, IN BOTH CHECKLISTS: FIND IT → SAY IT → ASK → FIX IT. NEVER PARK IT.**
-Mike's ruling after a session named a stale note and then wrote *"I haven't touched it"*.
-A problem found is the next thing you do, not a line in a report. **A handover note is not a
-parking space** — if you are about to write *"still outstanding"* about something you could
-have fixed today, put it to him instead.
+**4.100 — the staff register's GATE is built, both directions. The register TABLE is not.**
+Three states, because Decision 6 states two conditions and each failing looks different:
+`closed` renders **no control at all**, `available` is the only state with a button, `open`
+carries the provenance line. Mike ruled the switch turns **both ways** — a close records who
+and when and **keeps the opening it closed**. Artefact `mockups/wages-register-gate.html`,
+approved the same day. `caseStore.js` was **read, never edited**, so 4.87 is untouched.
 
-**4.102 CLOSED — the Shutdown basis reported zero revenue and now bills.** The engine derives
-wage and revenue from the ten typed cells of `Shutdown Inputs` instead of two pre-baked arrays
-only the sample carried. `SHUTDOWN_SAMPLE` reproduces Cash Report R17 at **973,328.4208**;
-seasonal unmoved at **1,362,740 / 288,935 / July −132**. Two workbook corrections came out of
-it — the allowance counted twice (15,600/yr) and CL28's unanchored `CI28` reading another
-month's cell. **Two of the four corrections are now the same mistake: read what a formula
-ANCHORS, not what it says.**
+🔴 **RUNNING THE APP FOUND WHAT 10,819 TESTS COULD NOT — and the lesson generalises.**
+`wagesRegisterGate`, `clientReportAccess` and `savedReports` all reached `firmOverlay` with **no
+dev fallback**, so the gate was dead on any machine without MySQL and a *shipped* feature (4.62)
+put a red error under the client picker on **every report page**. Every unit test mocks
+`firmOverlay`, so the real one was never called. **If a store touches `firmOverlay` directly,
+check it has the `dbFailure` fallback before believing a green suite.**
 
-**4.100 — still ours: the gated staff register.** **4.103 is the payroll reader, now its own
-item** — it waits on **a real payroll export from Mike**, his one outstanding item, and per
-`supportedPackages.js` no package is called supported until a real one has been read. Done today: the overtime declaration on step 2
-(required, no default — the old blank cell silently refused every production worker 97.425
-hrs/month, and declaring it paid costs 172,194/yr); **income tax bands as the fifth Tax Rates
-figure**; and the **two rate converters on step 1** after Mike dropped the Rates tab. Artefact:
-`design/mockups/wages-rates-converter.html`, five decisions ruled on it.
+⚠ **`.claude/skills/run-the-app/SKILL.md` was wrong and is corrected.** The client picker renders
+on **no** report page locally, and the cause is the missing **token**, not the database. Seed
+`advisor_e_token` via `addInitScript` before the page loads; the fix is written into the skill.
 
-**DESKTOP:** 4.87 untouched — no file of its list was opened. Shared files changed today:
-`server/utils/taxRates.js` + `data/tax-rates.json` (a FIFTH figure, `incomeTax`),
-`components/firm/FirmTaxRates.vue`, `server/routes/report.js`, `locales/en.json`, four
-`.claude/skills/*` and both `.claude/commands/` checklists. Merge `master` before touching any.
+**DESKTOP:** 4.87 untouched. Shared files changed: `server/utils/clientReportAccess.js`,
+`savedReports.js`, `server/restify-server.js`, `nuxt.config.js`, `locales/en.json`,
+`design/ARTEFACTS.md`, `features/report-models.md` + its history, and the `run-the-app` skill.
+Merge `master` before touching any.
 
-⚠ **One loose end, honestly: one test failed once in eight runs this morning and has passed
-every run since (a dozen-plus, including four pre-push gates).** The suite name was lost before
-it could be read and it has not reproduced. Not in the wages suites.
+**Found while writing this up, and fixed:** the Brief's *"Still to come"* for this model had listed
+the rates tab and the fifth Tax Rates figure since **the day both were built** (2026-09-14). Replaced,
+superseded text on `report-models-history.md` §5. Checking a line against the code *before* writing
+beside it is what caught it.

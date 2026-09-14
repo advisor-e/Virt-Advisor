@@ -1617,7 +1617,7 @@ what *this* model needs, and a generic sentence cannot say that. Added 2026-09-1
 
 ---
 
-### Wages/Salary Review (4.100 — five steps, the report and the catalogue row, all 2026-09-14)
+### Wages/Salary Review (4.100 — five steps, the report and the catalogue row 2026-09-14; the staff register's gate 2026-09-15)
 
 **What it does.** Answers whether the team bills more than it costs, month by month, against
 twelve actuals the advisor types in. Not a payroll total — the word "wages" undersells it. Drawn
@@ -1631,15 +1631,36 @@ cells — the largest port in the library**, against the Sales Dashboard's 140 r
 [`pages/wages-review.vue`](../../pages/wages-review.vue) — `WagesTeam`, `WagesWork`, `WagesYear`,
 `WagesActual` and `WagesReport`, each with its own component test, plus the shared headline guard.
 
+🔐 **The staff register's GATE is built (2026-09-15) — the register table itself is not.**
+[`server/utils/wagesRegisterGate.js`](../../server/utils/wagesRegisterGate.js) holds the decision as
+a **pure function** so every branch of a call governing personal data is testable, behind
+`GET /api/wages-register/gate/:clientId` and its `/open` and `/close` posts, all `firmAuth`.
+[`components/WagesRegisterGate.vue`](../../components/WagesRegisterGate.vue) renders **three**
+states, because Decision 6 states two conditions and each one failing looks different: `closed`
+(no due-diligence case — **and no control is rendered**, since nothing on this screen may put a
+client into due diligence), `available` (a case stands, not switched on — the only state carrying
+a button), and `open` (both met, with the provenance line). The advisor's own case boundary is
+`caseStore.listForClient`, reused rather than reinvented, so a colleague's *private*
+due-diligence case does not open it. Artefact:
+[`../mockups/wages-register-gate.html`](../mockups/wages-register-gate.html), approved 2026-09-15.
+
+**The switch turns BOTH ways** (Mike, 2026-09-15): Decision 6 named only the switch-on, leaving an
+advisor who opened the register on the wrong client with no way back — and that client is
+necessarily another client in due diligence, so the automatic close would never fire for them. A
+close records who and when and **keeps the opening it closed**; a closed register returns to
+`available` rather than to a fourth state; re-opening is a fresh decision. Closing needs no
+due-diligence case, being the safe direction.
+
 ✅ **IN THE MODEL LIBRARY since 2026-09-14, as a DECISION tool** —
 [`utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js), `STATUS_READY`,
 `CLASS_DECISION`, route `/wages-review`. Nothing arrives from an accounts export: every figure is
 typed or derived, which is what makes it a Decision tool rather than a report.
 
-**Still to come:** the rates converter tab, the gated staff register, the payroll reader, and income
-tax bands as a fifth Tax Rates figure. **A real payroll export is owed by Mike** — per
-`intake/supportedPackages.js` no reader is called supported until one has been read. No per-client
-saving yet (4.62's mechanism).
+**Still to come:** the **staff register table itself** — its columns, its storage, and Decision 8's
+retention dial — and the **payroll reader** (its own item, 4.103). **A real payroll export is owed
+by Mike** — per `intake/supportedPackages.js` no reader is called supported until one has been
+read. The five steps' figures are still not saved per client (4.62's mechanism); the page now knows
+which client it is for, because the register's gate is a property of that client's case.
 
 > *Corrected 2026-09-14.* This block read **"step 1 of the five"** built, **"still to come: steps
 > 2–5, the report screen"**, and **"⚠ NOT IN THE MODEL LIBRARY, deliberately… a card opening onto
