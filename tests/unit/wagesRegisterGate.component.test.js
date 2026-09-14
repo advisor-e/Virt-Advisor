@@ -7,7 +7,8 @@ const { mountWithBuefy } = require('../helpers/mountComponent')
 
 jest.mock('../../utils/wagesRegister', () => ({
   getRegisterGate: jest.fn(),
-  openRegisterGate: jest.fn()
+  openRegisterGate: jest.fn(),
+  closeRegisterGate: jest.fn()
 }))
 
 const api = require('../../utils/wagesRegister')
@@ -61,6 +62,7 @@ async function mountGate (gate, propsData) {
 beforeEach(() => {
   api.getRegisterGate.mockReset()
   api.openRegisterGate.mockReset()
+  api.closeRegisterGate.mockReset()
   window.localStorage.setItem('advisor_e_token', 'a-token')
 })
 
@@ -70,12 +72,13 @@ describe('what each state puts on screen', () => {
   it('🔴 CLOSED renders no switch — nothing here can start a due-diligence project', async () => {
     const wrapper = await mountGate(CLOSED_GATE)
     expect(wrapper.find('.wrg-strip').exists()).toBe(true)
+    // Neither switch: a closed gate offers nothing to press at all.
     expect(wrapper.find('.wrg-btn').exists()).toBe(false)
   })
 
-  it('AVAILABLE is the one state carrying a switch', async () => {
+  it('AVAILABLE is the one state carrying the OPEN switch', async () => {
     const wrapper = await mountGate(AVAILABLE_GATE)
-    expect(wrapper.find('.wrg-btn').exists()).toBe(true)
+    expect(wrapper.find('.wrg-open').exists()).toBe(true)
   })
 
   it('OPEN carries the transaction, the advisor and the date, and no switch', async () => {
@@ -85,14 +88,14 @@ describe('what each state puts on screen', () => {
     expect(note).toContain('M. Bartlett')
     // The date is rendered through $d, so assert a year rather than a format.
     expect(note).toContain('2026')
-    expect(wrapper.find('.wrg-btn').exists()).toBe(false)
+    expect(wrapper.find('.wrg-open').exists()).toBe(false)
   })
 
   it('an available case with no title still offers the switch', async () => {
     // The deal name is what the sentence would have named; its absence is not a reason to
     // withhold a register the ruling says is available.
     const wrapper = await mountGate({ ...AVAILABLE_GATE, case: { id: 'case-1', title: '' } })
-    expect(wrapper.find('.wrg-btn').exists()).toBe(true)
+    expect(wrapper.find('.wrg-open').exists()).toBe(true)
     expect(wrapper.find('.wrg-s').text().length).toBeGreaterThan(0)
   })
 
@@ -157,7 +160,7 @@ describe('switching the register on', () => {
     await wrapper.vm.openRegister()
     await settle(wrapper)
     expect(wrapper.vm.gate).toEqual(OPEN_GATE)
-    expect(wrapper.find('.wrg-btn').exists()).toBe(false)
+    expect(wrapper.find('.wrg-open').exists()).toBe(false)
     expect(api.openRegisterGate).toHaveBeenCalledWith('c-1', 'a-token')
   })
 
@@ -188,5 +191,52 @@ describe('switching the register on', () => {
     wrapper.vm.openRegister()
     wrapper.vm.openRegister()
     expect(api.openRegisterGate).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('switching the register off again', () => {
+  it('the OPEN state carries a close switch, and the closed one does not carry it', async () => {
+    const wrapper = await mountGate(OPEN_GATE)
+    expect(wrapper.find('.wrg-close').exists()).toBe(true)
+    const closedWrapper = await mountGate(CLOSED_GATE)
+    expect(closedWrapper.find('.wrg-close').exists()).toBe(false)
+  })
+
+  it('AVAILABLE offers opening, never closing', async () => {
+    const wrapper = await mountGate(AVAILABLE_GATE)
+    expect(wrapper.find('.wrg-open').exists()).toBe(true)
+    expect(wrapper.find('.wrg-close').exists()).toBe(false)
+  })
+
+  it('shows the SERVER\'s answer after closing, and emits `closed`', async () => {
+    const wrapper = await mountGate(OPEN_GATE)
+    api.closeRegisterGate.mockResolvedValue({ clientId: 'c-1', gate: AVAILABLE_GATE })
+    await wrapper.vm.closeRegister()
+    await settle(wrapper)
+    expect(wrapper.vm.gate).toEqual(AVAILABLE_GATE)
+    expect(wrapper.find('.wrg-close').exists()).toBe(false)
+    expect(wrapper.emitted('closed')[0][0]).toEqual(AVAILABLE_GATE)
+    expect(api.closeRegisterGate).toHaveBeenCalledWith('c-1', 'a-token')
+  })
+
+  it('🔴 a FAILED close leaves the register OPEN and emits nothing', async () => {
+    // The dangerous direction to guess wrong: a screen that showed the register closed
+    // while the server still had it open would tell the advisor the data is withdrawn
+    // when it is not.
+    const wrapper = await mountGate(OPEN_GATE)
+    api.closeRegisterGate.mockRejectedValue(new Error('network down'))
+    await wrapper.vm.closeRegister()
+    await settle(wrapper)
+    expect(wrapper.vm.gate.state).toBe('open')
+    expect(wrapper.emitted('closed')).toBeUndefined()
+    expect(wrapper.find('.wrg-err').exists()).toBe(true)
+  })
+
+  it('a second press while the first is in flight does nothing', async () => {
+    const wrapper = await mountGate(OPEN_GATE)
+    api.closeRegisterGate.mockReturnValue(new Promise(() => {}))
+    wrapper.vm.closeRegister()
+    wrapper.vm.closeRegister()
+    expect(api.closeRegisterGate).toHaveBeenCalledTimes(1)
   })
 })

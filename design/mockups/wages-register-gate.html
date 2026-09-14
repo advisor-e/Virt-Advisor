@@ -7,7 +7,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
 <style>
 /* ============================================================================
-   THE STAFF-REGISTER GATE. Drawn 2026-09-15. THE BACKEND IS BUILT; NO SCREEN IS.
+   THE STAFF-REGISTER GATE. Drawn 2026-09-15, AND BUILT THE SAME DAY — every
+   state on this page is live. The register TABLE is not: see the box below.
 
    WHY IT EXISTS AS ITS OWN DRAWING. Decision 6 of wages-model.html was ruled by
    Mike on 2026-09-14 and the drawing there shows TWO states — Closed, and Open
@@ -24,8 +25,10 @@
      · retention on the firm's dial, NOT deletion at deal-end  — Decision 8
      · the register table's columns and the provenance line    — wages-model.html
 
-   THE ONE DECISION ON THIS PAGE is the wording of the middle state and its
-   button. Everything else below is drawn from the words already approved.
+   TWO DECISIONS WERE RULED ON THIS PAGE, both by Mike on 2026-09-15: the
+   wording of the middle state and its button, and — after it was put to him —
+   that the switch turns BOTH ways. Everything else below is drawn from words
+   already approved.
    ============================================================================ */
 :root{
   --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
@@ -120,11 +123,14 @@ whether any of that is on screen at all.</p>
 
 <div class="mock">
 <h3>What is built, and what is not</h3>
-<p><b>Built today:</b> the whole gate behind the screen — the due-diligence check, the switch
-that records who opened it and when, and the refusal of a switch-on for a client with no
-due-diligence case. 39 tests, every branch covered.</p>
-<p><b>Not built:</b> anything on this page. The register table itself is the next stage and is
-drawn in <code>wages-model.html</code>, already approved.</p>
+<p><b>BUILT 2026-09-15 — all three states on this page, front to back:</b> the due-diligence
+check, the switch that records who opened it and when, the close switch that records who
+closed it while keeping the opening, the refusal of a switch-on for a client with no
+due-diligence case, and the strip itself on <code>/wages-review</code>. The decision is a pure
+function at 100% of statements, branches, functions and lines.</p>
+<p><b>NOT built:</b> the register TABLE — the columns shown in state 3 below are its shape only.
+It is the next stage, along with its storage and Decision 8's retention dial, and it is drawn
+in <code>wages-model.html</code>, already approved.</p>
 </div>
 
 <h2>State 1 — Closed. No due-diligence project.</h2>
@@ -207,6 +213,7 @@ provenance line naming the transaction, the advisor and the date is its wording,
         <p class="s">Prepared for the <i>Acquisition of Kinetic Planning (2007) Limited</i> ·
         by M. Bartlett · 15 September 2026 · closes when the project closes.</p>
       </div>
+      <button class="btn" type="button" style="background:#fff;color:var(--rs-ink);border-color:var(--rs-line)">Close the staff register</button>
     </div>
     <table class="g" style="margin-top:14px">
       <thead><tr><th>Name</th><th>Division</th><th>Pay rate</th><th>Accrued leave</th>
@@ -221,6 +228,26 @@ provenance line naming the transaction, the advisor and the date is its wording,
     <b>Note the column and the bands are Decision 7's, not the workbook's:</b> <i>Key person
     risk</i>, with <i>Direct loss · Indirect loss · No material loss</i>.</p>
   </div>
+</div>
+
+<div class="ask ruled">
+<h3>RULED BY MIKE 2026-09-15 — the switch turns both ways</h3>
+<p class="ruling">Decision 6 named only the switch-on and the automatic close when the case
+leaves the due-diligence domain. <b>An advisor who opened the register on the wrong client
+had no way back</b> — and that client is necessarily ANOTHER client in due diligence, since
+the gate refuses a switch-on for any other, so the automatic close would never fire for them.
+Ruled: <b>a "Close the staff register" switch</b>, on the open state.</p>
+<p><b>Nothing is erased.</b> A close is recorded exactly as an opening is — who and when —
+and it KEEPS the opening it closed, so the record reads as a decision taken and a decision
+reversed. That is a fuller history than the one-way switch, not a thinner one, and
+<code>firmOverlay</code>'s version history holds every earlier switch besides.</p>
+<p><b>A closed register returns to <i>Available</i>, not to a fourth state.</b> Once closed,
+the truth is exactly what Available already says: a due-diligence project stands and the
+register is not open. A fourth sentence would describe a situation the third already
+describes. Re-opening is a fresh decision and is recorded as one.</p>
+<p><b>Closing needs no due-diligence case</b>, unlike opening. It is the safe direction:
+refusing to close because the case has moved on would leave an advisor unable to shut a
+register the app already treats as closed.</p>
 </div>
 
 <div class="ask ruled">
@@ -245,6 +272,8 @@ directly above that note is the one that stands</b>, and it is what will be buil
     <tr><td>Calling the open route directly, no due-diligence case</td><td><b>Refused.</b> The case is re-checked on the server, not trusted from the screen</td></tr>
     <tr><td>A colleague's <i>private</i> due-diligence case</td><td>Does not open it — the advisor's own cases plus the firm's shared ones, the app's existing boundary</td></tr>
     <tr><td>The case later leaves the due-diligence domain</td><td><b>Closes again</b>, and the stored record of who opened it is not reported</td></tr>
+    <tr><td>The advisor closes it again</td><td>Back to <b>Available</b>, with who closed it and when recorded beside the opening it closed</td></tr>
+    <tr><td>Closing one that is already closed</td><td>Writes nothing — a second date would move a decision already taken</td></tr>
     <tr><td>A client of another firm</td><td>Reported as absent, not as forbidden</td></tr>
   </tbody>
 </table>

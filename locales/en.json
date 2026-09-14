@@ -3765,6 +3765,8 @@
         "availableNoteUnnamed": "The staff register can be opened. It records the names, pay, leave and length of service of this client's staff, and who opened it is recorded with the date.",
         "open": "Open the staff register",
         "opening": "Opening…",
+        "close": "Close the staff register",
+        "closing": "Closing…",
         "openTag": "Open",
         "openTitle": "Staff register — due diligence",
         "preparedFor": "Prepared for {project} · by {advisor} · {date} · closes when the project closes.",

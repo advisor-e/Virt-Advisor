@@ -16,7 +16,7 @@ jest.mock('../../server/utils/clientStore', () => ({ getById: jest.fn() }))
 jest.mock('../../server/utils/caseStore', () => ({ listForClient: jest.fn() }))
 jest.mock('../../server/utils/wagesRegisterGate', () => {
   const actual = jest.requireActual('../../server/utils/wagesRegisterGate')
-  return Object.assign({}, actual, { readSwitch: jest.fn(), openRegister: jest.fn() })
+  return Object.assign({}, actual, { readSwitch: jest.fn(), openRegister: jest.fn(), closeRegister: jest.fn() })
 })
 
 const clientStore = require('../../server/utils/clientStore')
@@ -55,6 +55,7 @@ beforeEach(() => {
   caseStore.listForClient.mockReset()
   gate.readSwitch.mockReset()
   gate.openRegister.mockReset()
+  gate.closeRegister.mockReset()
   jest.spyOn(console, 'error').mockImplementation(() => {})
 })
 
@@ -214,6 +215,74 @@ describe('POST /api/wages-register/gate/:clientId/open', () => {
     gate.openRegister.mockRejectedValue(new Error('ER_LOCK_DEADLOCK on firm_framework_versions'))
     const res = makeMockRes()
     await routes.openGate(advisorReq({ params: { clientId: 'c-1' } }), res)
+    expect(res._status).toBe(500)
+    expect(JSON.stringify(res._body)).not.toContain('ER_LOCK_DEADLOCK')
+  })
+})
+
+describe('POST /api/wages-register/gate/:clientId/close', () => {
+  const CLOSED_ROW = {
+    openedBy: STORED.openedBy,
+    openedAt: STORED.openedAt,
+    closedBy: { name: 'M. Bartlett', email: 'mike@advisor-e.com' },
+    closedAt: '2026-09-15T03:00:00.000Z'
+  }
+
+  it('closes the register and answers with the gate back at available', async () => {
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Kinetic Planning' })
+    caseStore.listForClient.mockResolvedValue([DD_CASE])
+    gate.closeRegister.mockResolvedValue(CLOSED_ROW)
+    const res = makeMockRes()
+    await routes.closeGate(advisorReq({ params: { clientId: 'c-1' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.gate.state).toBe('available')
+    expect(gate.closeRegister).toHaveBeenCalledWith('firm-from-jwt', 'c-1', { name: 'M. Bartlett', email: 'mike@advisor-e.com' })
+  })
+
+  it('🔴 closing needs NO due-diligence case — it is the safe direction', async () => {
+    // Refusing to close because the case has moved on would leave an advisor unable to shut
+    // a register the app already treats as closed.
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Kinetic Planning' })
+    caseStore.listForClient.mockResolvedValue([OTHER_CASE])
+    gate.closeRegister.mockResolvedValue(CLOSED_ROW)
+    const res = makeMockRes()
+    await routes.closeGate(advisorReq({ params: { clientId: 'c-1' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.gate.state).toBe('closed')
+    expect(gate.closeRegister).toHaveBeenCalled()
+  })
+
+  it('a client of another firm cannot be closed either', async () => {
+    clientStore.getById.mockResolvedValue(null)
+    const res = makeMockRes()
+    await routes.closeGate(advisorReq({ params: { clientId: 'someone-elses' } }), res)
+    expect(res._status).toBe(404)
+    expect(gate.closeRegister).not.toHaveBeenCalled()
+  })
+
+  it('a session with no firm is refused', async () => {
+    const res = makeMockRes()
+    await routes.closeGate(advisorReq({ firmId: null, params: { clientId: 'c-1' } }), res)
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_FIRM_IDENTITY')
+  })
+
+  it('an unusable client id is a 400 carrying its code', async () => {
+    clientStore.getById.mockResolvedValue({ id: 'c-1:evil', name: 'Kinetic Planning' })
+    const err = new Error('The client id cannot be used as a storage key.')
+    err.code = 'BAD_CLIENT'
+    gate.closeRegister.mockRejectedValue(err)
+    const res = makeMockRes()
+    await routes.closeGate(advisorReq({ params: { clientId: 'c-1:evil' } }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('BAD_CLIENT')
+  })
+
+  it('a store failure is a 500 with no detail of what broke', async () => {
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Kinetic Planning' })
+    gate.closeRegister.mockRejectedValue(new Error('ER_LOCK_DEADLOCK on firm_framework_versions'))
+    const res = makeMockRes()
+    await routes.closeGate(advisorReq({ params: { clientId: 'c-1' } }), res)
     expect(res._status).toBe(500)
     expect(JSON.stringify(res._body)).not.toContain('ER_LOCK_DEADLOCK')
   })

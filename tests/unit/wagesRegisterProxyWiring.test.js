@@ -35,12 +35,13 @@ describe('the staff-register gate — reaching the backend', () => {
     expect(line).toContain('apiProxy.js')
   })
 
-  it('has both backend routes, and both behind firmAuth', () => {
+  it('has all three backend routes, and all behind firmAuth', () => {
     // firmAuth by name: a business-entity token is refused there. A client must never be
     // able to read — let alone open — a register of their own staff.
     const server = read('server/restify-server.js')
     expect(server).toMatch(/server\.get\('\/api\/wages-register\/gate\/:clientId', firmAuth/)
     expect(server).toMatch(/server\.post\('\/api\/wages-register\/gate\/:clientId\/open', firmAuth/)
+    expect(server).toMatch(/server\.post\('\/api\/wages-register\/gate\/:clientId\/close', firmAuth/)
   })
 
   it('the page hands the chosen client to the gate, or the strip can never appear', () => {

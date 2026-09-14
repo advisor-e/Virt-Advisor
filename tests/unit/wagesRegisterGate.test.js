@@ -101,6 +101,17 @@ describe('resolveGate — the decision, in all three states', () => {
     expect(g.openedAt).toBe(STORED.openedAt)
   })
 
+  it('a CLOSED register returns to available, not to a fourth state', () => {
+    // Once closed, the truth is exactly what `available` already says: a project stands and
+    // the register is not open. The record of both decisions stays in the store.
+    const closed = { ...STORED, closedBy: { name: 'M. Bartlett', email: 'mike@advisor-e.com' }, closedAt: '2026-09-15T03:00:00.000Z' }
+    const g = gate.resolveGate(DD_CASE, closed)
+    expect(g.state).toBe(gate.STATE_AVAILABLE)
+    expect(g.reason).toBe(gate.REASON_NOT_SWITCHED_ON)
+    expect(g.case).toEqual(DD_CASE)
+    expect(g.openedAt).toBeNull()
+  })
+
   it('🔴 A STORED SWITCH NEVER OPENS THE GATE ON ITS OWN', () => {
     // Decision 6: "when the case leaves the due-diligence domain the register closes again
     // and what was entered is not shown. It is not a permanent property of the client."
@@ -192,13 +203,25 @@ describe('openRegister — the record of who and when', () => {
     expect(overlay.saveFirmConfig).toHaveBeenCalledWith('firm-1', 'wages-register:c-1', row, 'mike@advisor-e.com')
   })
 
-  it('🔴 re-opening does NOT overwrite the first record', async () => {
+  it('🔴 opening an ALREADY-OPEN register does NOT overwrite the first record', async () => {
     // The first decision is the one that was made. Rewriting it would move the date on a
     // document that exists to say when the judgement was taken.
     overlay.loadFirmConfig.mockResolvedValue(STORED)
     const row = await gate.openRegister('firm-1', 'c-1', { name: 'Someone Else', email: 'other@firm' })
     expect(row).toEqual(STORED)
     expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  it('opening a CLOSED register IS a new decision, and is recorded as one', async () => {
+    // Unlike the case above: the previous decision was reversed, so re-opening is a fresh
+    // act and the screen must name the advisor who took it, not the one who took the last.
+    overlay.loadFirmConfig.mockResolvedValue({ ...STORED, closedBy: { name: 'Old', email: 'old@firm' }, closedAt: '2026-09-15T03:00:00.000Z' })
+    const row = await gate.openRegister('firm-1', 'c-1', { name: 'Someone Else', email: 'other@firm' })
+    expect(row.openedBy).toEqual({ name: 'Someone Else', email: 'other@firm' })
+    expect(row.openedAt).not.toBe(STORED.openedAt)
+    expect(row.closedAt).toBeNull()
+    expect(row.closedBy).toBeNull()
+    expect(overlay.saveFirmConfig).toHaveBeenCalled()
   })
 
   it('caps the stored name and email rather than storing whatever arrives', async () => {
@@ -213,5 +236,50 @@ describe('openRegister — the record of who and when', () => {
     const row = await gate.openRegister('firm-1', 'c-1', null)
     expect(row.openedBy).toEqual({ name: '', email: '' })
     expect(typeof row.openedAt).toBe('string')
+  })
+})
+
+describe('closeRegister — the switch turns both ways', () => {
+  it('🔴 records who closed it and KEEPS the opening it closed', async () => {
+    // A close that erased the opening would leave no record that anyone ever decided to
+    // show this material — the exact thing the gate exists to make attributable.
+    overlay.loadFirmConfig.mockResolvedValue(STORED)
+    const row = await gate.closeRegister('firm-1', 'c-1', { name: 'M. Bartlett', email: 'mike@advisor-e.com' })
+    expect(row.openedBy).toEqual(STORED.openedBy)
+    expect(row.openedAt).toBe(STORED.openedAt)
+    expect(row.closedBy).toEqual({ name: 'M. Bartlett', email: 'mike@advisor-e.com' })
+    expect(typeof row.closedAt).toBe('string')
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith('firm-1', 'wages-register:c-1', row, 'mike@advisor-e.com')
+  })
+
+  it('closing an already-closed register writes nothing', async () => {
+    // A second closedAt would move the date on a decision already taken.
+    const closed = { ...STORED, closedBy: { name: 'First', email: 'first@firm' }, closedAt: '2026-09-15T03:00:00.000Z' }
+    overlay.loadFirmConfig.mockResolvedValue(closed)
+    const row = await gate.closeRegister('firm-1', 'c-1', { name: 'Second', email: 'second@firm' })
+    expect(row).toEqual(closed)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  it('closing a register that was never opened writes nothing', async () => {
+    overlay.loadFirmConfig.mockResolvedValue(null)
+    const row = await gate.closeRegister('firm-1', 'c-1', { name: 'M. Bartlett', email: 'mike@advisor-e.com' })
+    expect(row).toBeNull()
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  it('an advisor with no email on the token still closes it, and is still dated', async () => {
+    overlay.loadFirmConfig.mockResolvedValue(STORED)
+    const row = await gate.closeRegister('firm-1', 'c-1', null)
+    expect(row.closedBy).toEqual({ name: '', email: '' })
+    expect(typeof row.closedAt).toBe('string')
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith('firm-1', 'wages-register:c-1', row, null)
+  })
+
+  it('a closed row no longer opens the gate', async () => {
+    // The round trip, rather than the two halves separately: close, then resolve.
+    overlay.loadFirmConfig.mockResolvedValue(STORED)
+    const row = await gate.closeRegister('firm-1', 'c-1', { name: 'M. Bartlett', email: 'mike@advisor-e.com' })
+    expect(gate.resolveGate(DD_CASE, row).state).toBe(gate.STATE_AVAILABLE)
   })
 })

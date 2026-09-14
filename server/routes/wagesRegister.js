@@ -110,4 +110,39 @@ async function openGate (req, res) {
   }
 }
 
-module.exports = { getGate, openGate }
+/**
+ * POST /api/wages-register/gate/:clientId/close — the advisor switches the register off
+ * again (Mike, 2026-09-15).
+ *
+ * NO DUE-DILIGENCE CASE IS REQUIRED HERE, unlike the switch-on. Closing is the safe
+ * direction: refusing it because the case has moved on would leave an advisor unable to
+ * shut a register the app is already treating as closed. The opening record is kept.
+ *
+ * @route POST /api/wages-register/gate/:clientId/close
+ * @param {string} req.params.clientId - a client of the caller's firm
+ * @returns {200} { success, clientId, gate } — the gate as it now stands
+ * @returns {403} NO_FIRM_IDENTITY · {404} NOT_FOUND · {500} DB_ERROR
+ */
+async function closeGate (req, res) {
+  const firmId = req.firmId
+  if (!firmId) { return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm') }
+  try {
+    const client = await clientStore.getById(req.params.clientId, firmId)
+    if (!client) { return sendError(res, 404, 'NOT_FOUND', 'Client not found') }
+    const stored = await gate.closeRegister(firmId, client.id, advisorWho(req))
+    // Re-resolved against the live case, so the answer is the whole truth of the gate
+    // rather than "we wrote a closedAt" — the same shape the other two routes return.
+    const cases = await caseStore.listForClient(req.advisorId, firmId, client.id)
+    res.send(200, {
+      success: true,
+      clientId: client.id,
+      gate: gate.resolveGate(gate.findDueDiligenceCase(cases), stored)
+    })
+  } catch (err) {
+    if (err.code === 'BAD_CLIENT') { return sendError(res, 400, err.code, err.message) }
+    console.error('[wages-register] closeGate failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not close the staff register')
+  }
+}
+
+module.exports = { getGate, openGate, closeGate }

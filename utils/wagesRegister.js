@@ -47,3 +47,16 @@ export async function openRegisterGate (clientId, token) {
   })
   return parse(res, 'Failed to open the staff register')
 }
+
+/**
+ * The advisor switches the register off again. Recorded the same way the opening was, and
+ * the opening itself is kept (Mike, 2026-09-15).
+ * @param {string} clientId @param {string} token
+ * @returns {Promise<{clientId: string, gate: object}>}
+ */
+export async function closeRegisterGate (clientId, token) {
+  const res = await fetch(`/api/wages-register/gate/${encodeURIComponent(clientId)}/close`, {
+    method: 'POST', headers: authHeaders(token)
+  })
+  return parse(res, 'Failed to close the staff register')
+}

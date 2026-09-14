@@ -30,6 +30,18 @@
  * made. Collapsing those two into one "closed" would put a switch on a screen that must
  * never carry one, which is the one thing this gate exists to prevent.
  *
+ * 🔴 THE SWITCH TURNS BOTH WAYS (Mike, 2026-09-15). Decision 6 named only the switch-on and
+ * the automatic close, and an advisor who opened the register on the wrong client had no way
+ * back — that client is necessarily ANOTHER client in due diligence, so the automatic close
+ * would never fire for them. Closing is recorded exactly as opening is, because closing is
+ * the same kind of act: deliberate, and someone's. **Nothing is erased.** A close keeps the
+ * opening it closed, and `firmOverlay`'s version history holds every earlier switch besides.
+ *
+ * ⚠ A CLOSED REGISTER RETURNS TO `available`, NOT TO A FOURTH STATE. Once closed, the truth
+ * is exactly what `available` already says: a due-diligence project stands and the register
+ * is not open. Inventing a "switched off" state would put a fourth sentence on screen for a
+ * situation the third one already describes.
+ *
  * 🔴 THE STORED SWITCH NEVER OPENS THE GATE BY ITSELF. `resolveGate` re-reads the case
  * domain every time, so — Decision 6 again — *"when the case leaves the due-diligence
  * domain the register closes again and what was entered is not shown. It is not a permanent
@@ -151,8 +163,10 @@ function resolveGate (dueDiligenceCase, stored) {
     }
   }
 
-  // Condition 1 holds, condition 2 has not been met: the advisor may open it, and has not.
-  if (!stored || !stored.openedAt) {
+  // Condition 1 holds, condition 2 has not been met: the advisor may open it, and has not —
+  // either never, or because they closed it again. Both are the same truth on screen, so
+  // both are `available` rather than a fourth state saying the same thing differently.
+  if (!stored || !stored.openedAt || stored.closedAt) {
     return {
       state: STATE_AVAILABLE,
       reason: REASON_NOT_SWITCHED_ON,
@@ -185,9 +199,14 @@ function noClientGate () {
 
 /**
  * Read the stored switch for one client. Null when the register has never been opened.
+ *
+ * A CLOSED register still has a row, and this returns it: the record of who opened it, and
+ * of who closed it, outlives the closing. `resolveGate` is what decides that such a row does
+ * not open the gate.
+ *
  * @param {string} firmId - the authenticated scope id, never client-supplied
  * @param {string} clientId - a client of that firm (the route checks it belongs)
- * @returns {Promise<{openedBy: object, openedAt: string}|null>}
+ * @returns {Promise<{openedBy: object, openedAt: string, closedBy: object|null, closedAt: string|null}|null>}
  */
 async function readSwitch (firmId, clientId) {
   const stored = await overlay.loadFirmConfig(firmId, configKey(clientId))
@@ -196,29 +215,70 @@ async function readSwitch (firmId, clientId) {
 }
 
 /**
+ * Who moved the switch, trimmed to what the column can hold. Shared by both directions so
+ * an opening and a closing are recorded in exactly the same shape.
+ * @param {{name: string, email: string}} who - from the verified token, never the body
+ * @returns {{name: string, email: string}}
+ */
+function recordOf (who) {
+  return {
+    name: (who && who.name) ? String(who.name).slice(0, 128) : '',
+    email: (who && who.email) ? String(who.email).slice(0, 190) : ''
+  }
+}
+
+/**
  * Record that an advisor switched the register on for this client.
  *
  * The record is the point, not the flag: Decision 6 asks for *"who and when"* because that
  * is what makes the register a dated, attributable act rather than a screen that happened
- * to be showing. Re-opening an already-open register does not overwrite the first record —
- * the first decision is the one that was made, and firmOverlay keeps the history of any
- * later write in any case.
+ * to be showing.
+ *
+ * Opening an ALREADY-OPEN register changes nothing — the first decision is the one that was
+ * made. Opening a CLOSED one is a new decision and is recorded as one, replacing the
+ * previous pair rather than accumulating: what is on screen must name the opening now in
+ * force, and `firmOverlay`'s version history keeps the ones before it.
  *
  * @param {string} firmId - the authenticated scope id
  * @param {string} clientId - a client of that firm (the route checks it belongs)
  * @param {{name: string, email: string}} who - from the verified token, never the body
- * @returns {Promise<{openedBy: object, openedAt: string}>} the record now stored
+ * @returns {Promise<{openedBy: object, openedAt: string, closedBy: null, closedAt: null}>}
  */
 async function openRegister (firmId, clientId, who) {
   const existing = await readSwitch(firmId, clientId)
-  if (existing) { return existing }
+  if (existing && !existing.closedAt) { return existing }
   const row = {
-    openedBy: {
-      name: (who && who.name) ? String(who.name).slice(0, 128) : '',
-      email: (who && who.email) ? String(who.email).slice(0, 190) : ''
-    },
-    openedAt: new Date().toISOString()
+    openedBy: recordOf(who),
+    openedAt: new Date().toISOString(),
+    closedBy: null,
+    closedAt: null
   }
+  await overlay.saveFirmConfig(firmId, configKey(clientId), row, (who && who.email) || null)
+  return row
+}
+
+/**
+ * Record that an advisor switched the register off again (Mike, 2026-09-15).
+ *
+ * 🔴 THE OPENING IS KEPT, NOT ERASED. A close writes `closedBy`/`closedAt` alongside the
+ * `openedBy`/`openedAt` it closes, so the pair reads as a decision taken and a decision
+ * reversed — which is a fuller record than the one-way switch it replaces, never a thinner
+ * one. Closing an already-closed or never-opened register changes nothing and writes
+ * nothing: there is no decision to record, and a second `closedAt` would move the date on
+ * one that was already taken.
+ *
+ * @param {string} firmId - the authenticated scope id
+ * @param {string} clientId - a client of that firm (the route checks it belongs)
+ * @param {{name: string, email: string}} who - from the verified token, never the body
+ * @returns {Promise<{openedBy: object, openedAt: string, closedBy: object, closedAt: string}|null>}
+ */
+async function closeRegister (firmId, clientId, who) {
+  const existing = await readSwitch(firmId, clientId)
+  if (!existing || existing.closedAt) { return existing }
+  const row = Object.assign({}, existing, {
+    closedBy: recordOf(who),
+    closedAt: new Date().toISOString()
+  })
   await overlay.saveFirmConfig(firmId, configKey(clientId), row, (who && who.email) || null)
   return row
 }
@@ -238,5 +298,6 @@ module.exports = {
   resolveGate,
   noClientGate,
   readSwitch,
-  openRegister
+  openRegister,
+  closeRegister
 }

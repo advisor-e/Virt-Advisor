@@ -8,7 +8,7 @@
     .wrg-txt
       p.wrg-h {{ titleText }}
       p.wrg-s {{ noteText }}
-    b-button.wrg-btn(
+    b-button.wrg-btn.wrg-open(
       v-if="gate.state === 'available'"
       type="is-primary"
       size="is-small"
@@ -16,6 +16,15 @@
       :disabled="busy"
       @click="openRegister"
     ) {{ busy ? $t('report.wagesReview.register.opening') : $t('report.wagesReview.register.open') }}
+    //- Closing is available wherever the register is open — an advisor who opened it on the
+    //- wrong client must always be able to shut it (Mike, 2026-09-15).
+    b-button.wrg-btn.wrg-close(
+      v-else-if="gate.state === 'open'"
+      size="is-small"
+      :loading="busy"
+      :disabled="busy"
+      @click="closeRegister"
+    ) {{ busy ? $t('report.wagesReview.register.closing') : $t('report.wagesReview.register.close') }}
   p.wrg-err(v-if="error" role="alert") {{ error }}
 </template>
 
@@ -47,7 +56,7 @@
  * switch on screen.
  */
 import { intlLocaleFor } from '~/utils/dateLocale'
-import { getRegisterGate, openRegisterGate } from '~/utils/wagesRegister'
+import { getRegisterGate, openRegisterGate, closeRegisterGate } from '~/utils/wagesRegister'
 
 const TOKEN_KEY = 'advisor_e_token'
 
@@ -170,6 +179,27 @@ export default {
         this.error = ''
         // The register is now open for this client; payload is the gate the server returned.
         this.$emit('opened', data.gate)
+      } catch (e) {
+        this.error = this.$t('report.wagesReview.register.error')
+      } finally {
+        this.busy = false
+      }
+    },
+
+    /**
+     * The advisor switches the register off again. As with opening, the answer replaces the
+     * whole gate rather than flipping a local flag.
+     * Emits `closed` with the gate so the page can withdraw the register in the next stage.
+     */
+    async closeRegister () {
+      if (!this.token || !this.clientId || this.busy) { return }
+      this.busy = true
+      try {
+        const data = await closeRegisterGate(this.clientId, this.token)
+        this.gate = data.gate
+        this.error = ''
+        // The register is closed again; payload is the gate the server returned.
+        this.$emit('closed', data.gate)
       } catch (e) {
         this.error = this.$t('report.wagesReview.register.error')
       } finally {

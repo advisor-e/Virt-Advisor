@@ -398,6 +398,9 @@ server.post('/api/client-reports/saved/:clientId/restore', firmAuth, clientRepor
 // the gate cannot be opened by calling the route directly.
 server.get('/api/wages-register/gate/:clientId', firmAuth, wagesRegisterRoute.getGate)
 server.post('/api/wages-register/gate/:clientId/open', firmAuth, wagesRegisterRoute.openGate)
+// Closing needs no due-diligence case: it is the safe direction, and an advisor who opened
+// the register on the wrong client must always be able to shut it (Mike, 2026-09-15).
+server.post('/api/wages-register/gate/:clientId/close', firmAuth, wagesRegisterRoute.closeGate)
 
 // ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
 // All firmAuth-guarded; identity from the verified JWT, never the body. An
