@@ -9,46 +9,37 @@
 
 ---
 
-## 2026-09-14 (thirty-third session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-14 (thirty-fourth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **10,701 green** (508 suites), lint 0, audit PASS. Tree clean, everything pushed,
-**20 ahead of `master`, 0 behind**. Eight live items.
+Suite **10,733 green** (508 suites), lint 0 errors, audit PASS. Tree clean, everything
+pushed, **37 ahead of `master`, 0 behind**. **Six live items** — 4.96 and 4.102 closed today.
 
-✅ **ITEM 4.102 IS CLOSED** — all six build steps, 2026-09-14. Both pre-code questions were
-answered from the workbook's XML: the overnight allowance **was** counted twice on the shutdown
-basis, and the "overtyped cells" defect **did not exist**. The build spec
-`design/WAGES-SHUTDOWN-PORT.md` was deleted with the item on Mike's yes; its durable parts are
-in [`features/report-models.md`](features/report-models.md), which says how the model works now.
-Closure on [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
+🔴 **NEW BINDING RULE, IN BOTH CHECKLISTS: FIND IT → SAY IT → ASK → FIX IT. NEVER PARK IT.**
+Mike's ruling after a session named a stale note and then wrote *"I haven't touched it"*.
+A problem found is the next thing you do, not a line in a report. **A handover note is not a
+parking space** — if you are about to write *"still outstanding"* about something you could
+have fixed today, put it to him instead.
 
-*(This note is otherwise from the start of that session and is replaced wholesale at shutdown.)*
+**4.102 CLOSED — the Shutdown basis reported zero revenue and now bills.** The engine derives
+wage and revenue from the ten typed cells of `Shutdown Inputs` instead of two pre-baked arrays
+only the sample carried. `SHUTDOWN_SAMPLE` reproduces Cash Report R17 at **973,328.4208**;
+seasonal unmoved at **1,362,740 / 288,935 / July −132**. Two workbook corrections came out of
+it — the allowance counted twice (15,600/yr) and CL28's unanchored `CI28` reading another
+month's cell. **Two of the four corrections are now the same mistake: read what a formula
+ANCHORS, not what it says.**
 
-**The fault it fixes:** a team built on our own step 1 reports **zero revenue** on the
-Shutdown basis (the workbook gets 973,328). The engine reads two ready-made per-person
-arrays that step 1 never collects. It is reachable today — the Shutdown button is live and
-the model is in the Model Library. **Mike was offered the button being disabled meanwhile and
-said no**, so leave it live.
+**4.100 — still ours: the gated staff register.** The payroll reader waits on **a real payroll
+export from Mike**, his one outstanding item. Done today: the overtime declaration on step 2
+(required, no default — the old blank cell silently refused every production worker 97.425
+hrs/month, and declaring it paid costs 172,194/yr); **income tax bands as the fifth Tax Rates
+figure**; and the **two rate converters on step 1** after Mike dropped the Rates tab. Artefact:
+`design/mockups/wages-rates-converter.html`, five decisions ruled on it.
 
-**4.100 — THE WAGES/SALARY REVIEW IS OTHERWISE BUILT END TO END**: five steps on
-`pages/wages-review.vue`, the report, and the card in the library as a **Decision tool**.
-Seasonal is correct and golden-tested — **1,362,740 / 288,935 / July −132 are the regression
-guard and must not move.** Record in [`features/report-models.md`](features/report-models.md).
+**DESKTOP:** 4.87 untouched — no file of its list was opened. Shared files changed today:
+`server/utils/taxRates.js` + `data/tax-rates.json` (a FIFTH figure, `incomeTax`),
+`components/firm/FirmTaxRates.vue`, `server/routes/report.js`, `locales/en.json`, four
+`.claude/skills/*` and both `.claude/commands/` checklists. Merge `master` before touching any.
 
-🔴 **NEVER BUILD FROM THE DRAWING'S FIELD LIST ALONE — the session's real lesson.** It was
-wrong five times out of twelve on step 1. Read the stored XML: does the cell carry an `<f>`,
-and does any formula read it. Both sheets use **1.25–1.88-wide spacer columns**, so a reading
-that skips empty cells shifts every field one left and answers about the wrong column. That
-produced one wrong sentence in the record, corrected in `87921726`.
-
-**Two older questions are now ANSWERED** and folded into 4.102: the "button for overtime in
-summer" is the per-month switch on `Cash Report` row 11, and the shutdown allowance is not a
-separate total but a per-person figure inside each monthly wage. **Still Mike's:** a name for
-the seasonal overtime flag (`Seasonal Inputs` J4), and a real payroll export.
-
-**DESKTOP:** 4.87 untouched. Changed under you today: `locales/en.json`,
-`utils/reportModelCatalogue.js`, `data/report-model-summaries.json`,
-`scripts/check-branch-state.js` (+ new `scripts/ref-ceiling.js`), and the guards
-`reportModelCatalogue`, `reportModelSummaries`, `reportBadgeClass`,
-`reportHeadlineConsistency`, `modelGuideRoute`. Merge `master` before touching any of them.
-**Item numbers are safe now** — `npm run check:branch` prints the next free one across both
-machines (it is 4.102). ⚠ Your live 4.93 still clashes with our closed 4.93.
+⚠ **One loose end, honestly: one test failed once in eight runs this morning and has passed
+every run since (a dozen-plus, including four pre-push gates).** The suite name was lost before
+it could be read and it has not reproduced. Not in the wages suites.

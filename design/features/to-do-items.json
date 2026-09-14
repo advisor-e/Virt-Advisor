@@ -147,27 +147,6 @@
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
     },
     {
-      "ref": "4.96",
-      "name": "The add-a-report skill still points sessions at the frozen ACTIONS.md",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 1,
-      "scoreReason": "internal only",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The skill that governs every new report tells sessions to record their work in design/ACTIONS.md, frozen since 2026-08-24. A session following it writes into an archive nobody reads.",
-      "risk": "A report's record lands where no checklist looks, so it is lost. Worse, a skill is read as an instruction: CLAUDE.md warns that an AI-written line taken as one produced two pieces of unrequested work, and this line is read by every session that builds a report.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-13 - found while building the Sales Dashboard and ignored in favour of the live list. Carried in laptop handovers since at least 2026-09-11 without ever becoming an item. Filed on Mike's yes at shutdown."
-      },
-      "touches": ".claude/skills/add-a-report/SKILL.md, its 'Record & commit' section. design/ADDING-A-REPORT.md is already correct and needs no change.",
-      "note": "ONE SENTENCE IN ONE FILE. The skill's 'Record & commit' section reads 'Add the report's line to design/ACTIONS.md (no silent parking)'. It should name design/features/to-do-items.json, which is where the deviation-logging rule has written since ACTIONS.md was frozen. The deployment-row sentence beside it is still right and stays.",
-      "comment": "2026-09-13 - filed at shutdown on Mike's yes, after three sessions of it living in a handover note instead. That is the failure the shutdown checklist names: an open question for Mike is an item on this list, never a line in a note."
-    },
-    {
       "ref": "4.100",
       "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,

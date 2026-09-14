@@ -185,6 +185,33 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.96 — the skills pointed every build at a frozen archive.**
+✅ Closed 2026-09-14 on the laptop. A defect we found; filed on Mike's yes. The `add-a-report`
+skill's *"Record & commit"* section told every session to record its work in `design/ACTIONS.md`,
+frozen since 2026-08-24 — so a session following the instruction wrote its record into a file no
+checklist reads.
+
+🔴 **ITS SCOPE WAS WRONG, AND THAT IS THE PART WORTH KEEPING.** The item said *"ONE SENTENCE IN ONE
+FILE"*. The same write-instruction was in **four** skills — `add-a-report`, `add-a-domain`,
+`single-source-wiring` and `firm-manager-edit-target`. All four now name the feature's Brief and
+`to-do-items.json`, and each keeps **one line saying what it used to say and why**, because the
+instruction is the thing that misled: deleting it silently would leave the next session to
+rediscover the trap. Fixing one of four and closing the item would have been a narrowed job that
+looked finished.
+
+⚠ **It sat in three consecutive laptop handovers before it became an item at all.** Three sessions
+saw it, three wrote it down, none asked. That is the evidence behind the **find it → say it → ask →
+fix it** rule added to both checklists the same day, and it is quoted in `shutdown.md` for exactly
+that reason: *a handover note is not a parking space.*
+
+⚠ **What was NOT changed, and is a live question rather than an oversight.** Several skills still
+*point at* `ACTIONS.md` as a backlog — `firm-manager-edit-target`'s own trigger text invites a
+session to pick up six building blocks listed there. Rewording what work a skill invites is a
+different decision from correcting where it files its record, and Mike has not been asked. Four of
+those six are unbuilt; **the logic-tree editor is already built and the coaching reference partly
+so**, which is the archive's own warning that an item there is *"a claim to check against the code,
+never a status"*.
+
 **4.102 — the Shutdown basis reported zero revenue for a real client.**
 ✅ Closed 2026-09-14 on the laptop. A defect we found and Mike ruled the fix himself — *"plan the
 fix properly then get it done"* — after being offered the Shutdown button's removal meanwhile and
