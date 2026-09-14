@@ -131,6 +131,12 @@ table.g tr:last-child td{border-bottom:0}
 .calcd{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   color:var(--rs-muted);background:var(--rs-panel-2);border-radius:4px;padding:1px 5px}
 .gone{opacity:.5}
+.prov{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:10px;
+  font-size:12px;color:var(--rs-muted)}
+.provtag{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  border-radius:4px;padding:2px 7px}
+.provtag.ok{color:var(--rs-good);background:var(--rs-good-soft)}
+.provtag.def{color:#a06000;background:var(--rs-warn-soft)}
 .foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--rs-line);
   font-size:12px;color:var(--rs-muted)}
 </style>
@@ -221,13 +227,17 @@ modify it as required.”</em></p>
     <!-- 3. income tax -->
     <div class="card">
       <h4>Income tax</h4>
-      <p class="note">The workbook’s own five bands, with a spouse split and a second concurrent
-      layer. Every ceiling and every rate on that sheet is <span class="typed">typed</span> — only
-      the band floors are computed, each the one below plus a dollar.</p>
+      <p class="note">🔴 <strong>The bands come from Firm Manager → Tax Rates, for the country you
+      pick.</strong> This tab holds no table of its own. Change the country and the country’s own
+      bands apply; correct a band there and it is corrected here the same moment.</p>
       <div class="row">
         <div class="f"><label>Annual income</label><div class="in">$145,000</div></div>
         <div class="f"><label>Spouse’s own or allocated income</label><div class="in">$25,000</div></div>
-        <div class="f"><label>Band table</label><div class="in">New Zealand</div></div>
+        <div class="f"><label>Country</label><div class="in">New Zealand</div></div>
+      </div>
+      <div class="prov">
+        <span class="provtag ok">Your firm’s approved table</span>
+        <span>IRD — Income tax rates · 2025-04 · p. 5 · approved by ruth@harbourco.example</span>
       </div>
       <table class="g">
         <thead><tr><th>Band</th><th>From</th><th>To</th><th>Rate</th><th class="n">Tax</th></tr></thead>
@@ -282,15 +292,15 @@ spent on each. That is a second business, and Mike’s ruling removes it.</p>
     <tr><td>7 × 7 charge-out rates by job type</td><td><code>C8:K15</code></td><td>the <strong>rates</strong> survive as one person's own list; the 7 × 7 grid does not</td></tr>
     <tr><td>Time mix per role, and the balance row</td><td><code>C16:K24</code></td><td>one person's mix, <strong>with the balance check</strong></td></tr>
     <tr><td><strong>Average hourly rate, post job &amp; time mix</strong></td><td><code>E25:K25</code></td><td><strong>KEPT</strong> — its own calculator, one person at a time (question 1, ruled)</td></tr>
-    <tr><td>Income tax calculator, 5 bands + spouse split</td><td><code>S4:BE16</code></td><td>kept</td></tr>
-    <tr><td>Second concurrent tax layer (“State” / “Federal”)</td><td><code>W6</code>, <code>AM6</code></td><td><strong>see question 2</strong></td></tr>
-    <tr><td>Two spare custom band tables</td><td><code>AB9</code>, <code>AB13</code></td><td>replaced by the country picker</td></tr>
+    <tr><td>Income tax calculator, 5 bands + spouse split</td><td><code>S4:BE16</code></td><td>kept — but the BANDS now come from Firm Manager → Tax Rates, per country</td></tr>
+    <tr><td>Second concurrent tax layer (“State” / “Federal”)</td><td><code>W6</code>, <code>AM6</code></td><td class="gone">gone — it was computed and read by nothing (question 2, ruled)</td></tr>
+    <tr><td>Two spare custom band tables</td><td><code>AB9</code>, <code>AB13</code></td><td class="gone">gone — a firm approves its own table in Tax Rates instead</td></tr>
     <tr><td>Bonus payment quick calculator</td><td><code>R29:X39</code></td><td>kept</td></tr>
   </tbody>
 </table>
 
 <!-- ======================= QUESTIONS ======================= -->
-<h2>Four things to settle before it is built — three ruled, one open</h2>
+<h2>Four things to settle before it is built — ALL FOUR RULED 2026-09-14</h2>
 
 <div class="ask ruled">
   <h3>Question 1 — RULED BY MIKE 2026-09-14 — the blended rate stays, one person at a time</h3>
@@ -307,20 +317,25 @@ spent on each. That is a second business, and Mike’s ruling removes it.</p>
   80% quietly returns a rate a fifth too low, and nothing else on the screen would look wrong.</p>
 </div>
 
-<div class="ask">
-  <h3>Question 2 — one tax layer or two?</h3>
-  <p>The sheet runs <strong>two tax tables</strong> — one headed “State Taxes” holding the five NZ
-  rates, and a second headed “Federal Taxes” holding what are plainly Australian ones ($18,200
-  tax-free, then 19%). Its own note says <em>“scroll right to view combined (concurrent) State
-  &amp; Federal Taxes”</em>.</p>
-  <p>⚠ <strong>The Federal table is computed and then used by nothing.</strong> It works out
-  $24,991.75 and no cell reads it. The headline $42,165 comes entirely from the NZ table —
-  $38,770 on the main income plus $3,395 on the spouse’s. So the sheet <em>describes</em> a
-  two-layer country and <em>calculates</em> a one-layer one.</p>
-  <p class="rec">Recommendation: <strong>one layer, from the country picker.</strong> That is what
-  the sheet actually does, it is what a New Zealand or UK adviser needs, and the two-layer case is
-  a US/Australian arrangement the rest of the app has no concept of. Nothing is lost, because
-  nothing was using it.</p>
+<div class="ask ruled">
+  <h3>Question 2 — RULED BY MIKE 2026-09-14 — one layer, and it comes from Tax Rates</h3>
+  <p class="ruling">His words: <em>“the taxes need to link to the tax tables elsewhere in the firm
+  manager hub — select which country you’re in and the taxes apply, as they should.”</em></p>
+  <p><strong>This tab holds no tax table of its own.</strong> Pick the country and the bands are
+  whatever that country’s approved table says, resolved through the same cascade as the company
+  tax rate, the GST rate, the filing cycle and the accounting basis. Correct a band in Firm
+  Manager → Tax Rates and it is corrected here the same moment — there is no second copy to go
+  stale, and no adviser reading one figure while their manager has approved another.</p>
+  <p>It also settles the sheet’s two-table question by making it moot. Sheet 1 ran a “State Taxes”
+  column holding New Zealand’s rates and a “Federal Taxes” column holding Australian ones —
+  <strong>and the second was computed and read by nothing</strong>, working out $24,991.75 that no
+  cell used. The $42,165 came entirely from the first. The sheet <em>described</em> a two-layer
+  country and <em>calculated</em> a one-layer one; the country table does the same thing honestly.</p>
+  <p class="rec">✅ <strong>Already built, ahead of this tab.</strong> Income tax bands landed as
+  the <strong>fifth Tax Rates figure</strong> on 2026-09-14 — cascading, approve-before-use, and
+  validated against a gap, an overlap, an implicit tax-free hole and a closed top band. A country
+  nobody has loaded falls back to the app’s own bands <em>badged as defaults</em>, never withheld:
+  Mike’s ruling of 2026-09-08, <em>“Never block the advisor.”</em></p>
 </div>
 
 <div class="ask ruled">
