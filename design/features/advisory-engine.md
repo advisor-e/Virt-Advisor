@@ -229,16 +229,17 @@ unknown**.
   offered sales-and-marketing tools. That fixed **one phrase, not the general fault** — a thin
   single keyword can still carry a conversation into the wrong area, which is what the AI
   backstop and the confirmation step exist to catch.
-- **One AI provider failing still stops the advisor conversation.** A provider seam exists
-  (`server/utils/aiProvider.js`) and six of the eight calling files go through it, so a second
-  provider answers for the hub reading, the compliance and prompt checks, the case anonymiser
-  and the meeting reports. **`advisorEngine.js` and `courseEngine.js` do not yet** — they call
-  OpenAI directly, exactly as they always have (4.97 US8, part done 2026-09-15). When they are
-  routed, the advisor conversation is classed **personal** and still will not fall back:
-  Mike's ruling of 2026-09-15 is that the advisor describing a real client in their own words
-  does not reach a second provider until that provider's written terms have been read. So a
-  fallback keeps Course Builder and the Mentor Hub AI working through an outage; it is not
-  intended to keep the conversation itself alive.
+- **A provider outage no longer stops everything, but it does stop the conversation — by
+  design.** All eight calling files go through the provider seam (`server/utils/aiProvider.js`,
+  4.97 US8 T050/T051, 2026-09-15), and every model name comes from one role map rather than a
+  literal at the call site. A second provider answers for Course Builder, the hub reading, the
+  compliance and prompt checks, the case anonymiser and the meeting reports. It does **not**
+  answer for the advisor conversation: those calls are classed `personal: true` on Mike's
+  ruling of 2026-09-15 — an advisor describing a real client in their own words does not reach
+  a second provider until that provider's written terms have been read — so the seam rethrows
+  the primary's own error rather than routing the words elsewhere. The advisor is told when no
+  backup is configured (`GET /api/advisor/ai-readiness`, read once as a conversation opens);
+  the warning blocks nothing and the session runs beneath it.
 - Routing groups are complete for one domain only.
 - Two templates have no semantic profile; 23 have a profile with no signals; 88 have thin
   purpose-only profiles. These affect scoring precision, not function.
