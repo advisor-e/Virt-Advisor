@@ -402,13 +402,62 @@ were invisible to a green suite.
 and the third only landed once the rule gave the model something to *look at* rather than something
 to obey. A code-level check was considered and **deliberately not built** — the template slip named
 a real template, gave no page path and cost nobody anything, which is a poor trade for new code on
-the hot path of every client conversation. **Nothing records which model the AI named**, so the
-next regression is found the same way — by hand — or not at all: that is item **7.5**.
+the hot path of every client conversation.
 
-🔴 **THE SEARCH MODE'S CLOSING RULE WAS NOT LOOSENED.** *"MUST be the final line… End there.
-Full stop."* still stands; the calculator block sits **above** it. A test asserts both. That
-rule exists so the AI stops talking — if a future change needs room after the closing line,
-that is a decision to take on its own merits, not a side effect.
+🔴 **WHAT THE AI NAMES IS NOW RECORDED (item 7.5, built 2026-09-16).** Approved artefact:
+[`../mockups/model-choices.html`](../mockups/model-choices.html), all three decisions ruled by Mike
+the same day. Every client conversation that names a calculation model — or says plainly that none
+fits — writes a row to `advisor_model_choices`: when, firm, advisor, the advisory domain, the model,
+and **which of two sources found it**. `GET /api/model-choices` reads it back scoped to the caller's
+tier. **The row holds no word the advisor typed, and the table has no column for one** — this is read
+across firms by the mentor, so the advisor's description of their client stays inside the firm on
+their own saved case, where the decision trace already keeps it.
+
+**Two sources, because one is not enough, and the split is stored.** The AI declares its choice in a
+`[[MODEL: ...]]` marker ([`../../data/prompts/client.txt`](../../data/prompts/client.txt) SECTION 12,
+[`../../data/prompts/discover.txt`](../../data/prompts/discover.txt)); underneath it,
+[`../../server/utils/modelChoiceScan.js`](../../server/utils/modelChoiceScan.js) scans for the
+models' page paths, which is exact because each is a unique string from the same JSON the AI was
+given. **Only the marker can see a decline** — "no model fits" has no fixed wording, and
+phrase-matching it would put rows on a screen nobody could trust.
+
+⚠ **THE MARKER IS UNRELIABLE AND THAT IS ITEM 7.6.** Proved by running it, **nine** live conversations
+on 2026-09-16: **0 in 3** with the instruction in `report-model-summaries.json`, **1 in 6** once it
+moved into the prompts, and **0 in 3** again after the closing-line contradiction below was fixed —
+so that contradiction, the obvious culprit, **is not the cause**. Nearly every row recorded came from
+the fallback. A model that is *named* is caught every time; a **decline under-counts**. ⚠ The client-mode Phase 3 path is **not yet
+tested** — SECTION 11's template marker works reliably there and SECTION 12 sits beside it, so it may
+already be sound. **The screen is not built:** its hub tab needs `FirmManagerHub.vue`.
+
+⚠ **THE SCREEN'S OWN SECOND USE, and it is not an afterthought.** Nineteen models answer to
+twenty-two advisory domains, so a run of declines in one domain is a **gap map** — where advisors
+keep arriving and finding nothing. That is where the next model should go, and where human coaching
+has to carry the work meanwhile.
+
+🔴 **THE SEARCH MODE'S CLOSING RULE STILL HOLDS FOR EVERY WORD THE ADVISOR READS.** *"MUST be
+the final line… End there. Full stop."* stands; the calculator block sits **above** it. That
+rule exists so the AI stops talking.
+
+⚠ **IT NOW CARRIES EXACTLY ONE CARVE-OUT, AND THIS PARAGRAPH IS WHY IT IS WRITTEN DOWN RATHER
+THAN ASSUMED.** The stripped `[[MODEL: ...]]` marker may follow the closing line, because it is
+removed before the advisor reads anything — so the closing question is still the last thing on
+their screen. `client.txt` SECTION 11 has always said this for the template marker; `discover.txt`
+was never given the wording.
+
+🔴 **THIS PARAGRAPH USED TO END *"if a future change needs room after the closing line, that is a
+decision to take on its own merits, not a side effect"* — AND ON 2026-09-16 IT BECAME EXACTLY THAT
+SIDE EFFECT.** Item 7.5 told the AI to write its marker "on its own final line" while this rule
+said, in capitals, that nothing may follow. **Two contradictory rules in one prompt, and the suite
+stayed green**, because the test pinned the strings above and nothing checked whether a later
+section undid them. The live AI obeyed the older, stronger rule — which is the likeliest reason the
+marker fired once in six. Found at shutdown the same day by reading this page, fixed the same hour,
+and `tests/unit/reportModelSummaries.test.js` now asserts the carve-out is **stated, limited to the
+stripped marker, and written beside the rule it qualifies**.
+
+⚠ **THE FIX WAS RIGHT AND IT DID NOT WORK.** Three more live conversations after it: **still 0 of 3**.
+Two contradictory rules in one prompt is a defect whether or not it was *the* defect, so the carve-out
+stays — but **the closing rule was not what was suppressing the marker**, and 7.6's note says so, so
+that nobody spends another session on this wording.
 
 🔴 **R18 IS NOT AN EXCEPTION TO R17.** R17 fixes the recommended template set. A model is not
 a template and never joins, replaces or reorders it. R18 says so in terms, because two hard

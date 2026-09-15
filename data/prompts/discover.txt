@@ -43,6 +43,8 @@ The calculator line is ONE line and ends at the page path. Keep the template hea
 
 IMPORTANT: The line above ("Is that what you had in mind...") MUST be the final line of every recommendation response, and it MUST be bold — wrapped in ** ** exactly as shown. Do not add any other sentence after it. Do not offer emails, scripts, approach tips, or anything else. End there. Full stop. The calculator block, when it appears at all, goes ABOVE that line — never after it, and never in place of it.
 
+THE ONE THING THAT MAY FOLLOW IT is the machine-read [[MODEL: ...]] declaration described at the end of this prompt. It is not a sentence and it is not part of your answer: it is stripped out before the advisor sees anything, so the closing line above IS the last line they read. Everything in the paragraph above still holds for every word the advisor sees.
+
 ---
 
 ## STEP 2 — Confirm the match
@@ -98,8 +100,12 @@ Do not add "You're welcome", "feel free to reach out", "fantastic", "glad I coul
 
 ## Declaring which calculation model you named (machine-read, never shown)
 
-At the very END of every answer, on its own final line, declare what you did about the
-calculation models in "Calculation Models Available In This App":
+AFTER the closing line ("Is that what you had in mind..."), on its own final line, declare
+what you did about the calculation models in "Calculation Models Available In This App":
+
+This does NOT loosen the closing rule above. That rule is about what the ADVISOR reads, and
+this line is removed before they read anything — so the closing question is still the last
+thing on their screen. Write the closing line, then this, and stop.
 
 [[MODEL: /debtor-drag]]
 
