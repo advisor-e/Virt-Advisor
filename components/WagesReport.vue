@@ -34,6 +34,83 @@
       :tone="tightestIsLoss ? 'crit' : 'default'"
       :sub="tightestSub")
 
+  //- ── The charts ────────────────────────────────────────────────────────────
+  //- Above the tables, per the approved drawing: the picture first, the exact figures
+  //- underneath for the conversation. Every one is `computeWages`'s own output mapped to a
+  //- shape — no arithmetic happens here, for the reason in this file's header.
+  .wr-card.wr-chart
+    h3.wr-title {{ $t('report.wagesReview.report.charts.marginByMonthTitle') }}
+    p.wr-note {{ $t('report.wagesReview.report.charts.marginByMonthNote') }}
+    .wr-chartwrap
+      line-chart(
+        :points="marginPoints"
+        :format-value="money"
+        :aria-label="$t('report.wagesReview.report.charts.marginByMonthAria')")
+
+  .wr-card.wr-chart
+    h3.wr-title {{ $t('report.wagesReview.report.charts.seasonMixTitle') }}
+    p.wr-note {{ $t('report.wagesReview.report.charts.seasonMixNote') }}
+    .wr-chartwrap
+      bar-pair-chart(
+        :groups="seasonMixGroups"
+        colour-a="#0070c0"
+        colour-b="#ff9900"
+        :format-value="kMoney"
+        :aria-label="$t('report.wagesReview.report.charts.seasonMixAria')")
+    .wr-legend
+      span
+        i.wr-sw(style="background:#0070c0")
+        | {{ $t('report.wagesReview.report.charts.seasonMixBills') }}
+      span
+        i.wr-sw(style="background:#ff9900")
+        | {{ $t('report.wagesReview.report.charts.seasonMixCosts') }}
+
+  .wr-card.wr-chart
+    h3.wr-title {{ $t('report.wagesReview.report.charts.shareTitle') }}
+    p.wr-note {{ $t('report.wagesReview.report.charts.shareNote') }}
+    .wr-ringrow
+      .wr-ring
+        //- The component's own legend is OFF and this one is drawn beside it. Its legend
+        //- prints `Math.max(value, 0)`, so a losing season arrives as "0%" — which claims
+        //- the season earned nothing when it lost money. The rows below say so in words.
+        doughnut-chart(
+          :slices="shareSlices"
+          :centre="money(totals.margin)"
+          :centre-label="$t('report.wagesReview.report.charts.shareCentreLabel')"
+          :show-legend="false"
+          :aria-label="$t('report.wagesReview.report.charts.shareAria')")
+      .wr-ringlegend
+        table.wr-table.wr-narrow
+          thead
+            tr
+              th {{ $t('report.wagesReview.report.col.season') }}
+              th.wr-num {{ $t('report.wagesReview.report.col.months') }}
+              th.wr-num {{ $t('report.wagesReview.report.col.labourMargin') }}
+              th.wr-num {{ $t('report.wagesReview.report.col.share') }}
+          tbody
+            tr(v-for="s in shareRows" :key="s.season")
+              td
+                i.wr-sw(:style="{ background: s.colour }")
+                | {{ s.name }}
+              td.wr-num {{ s.months }}
+              td.wr-num(:class="{ 'wr-loss': s.margin < 0 }") {{ money(s.margin) }}
+              td.wr-num(:class="{ 'wr-loss': s.share === null }") {{ s.shareLabel }}
+          tfoot
+            tr
+              td {{ $t('report.wagesReview.report.charts.shareTheYear') }}
+              td.wr-num {{ months.length }}
+              td.wr-num {{ money(totals.margin) }}
+              td.wr-num {{ percent(1) }}
+
+  .wr-card.wr-chart
+    h3.wr-title {{ $t('report.wagesReview.report.charts.planVsActualTitle') }}
+    p.wr-note {{ $t('report.wagesReview.report.charts.planVsActualNote') }}
+    .wr-chartwrap
+      waterfall-chart(
+        :steps="planVsActualSteps"
+        :format-value="kMoney"
+        :aria-label="$t('report.wagesReview.report.charts.planVsActualAria')")
+
   .wr-card
     h3.wr-title {{ $t('report.wagesReview.report.seasonsTitle') }}
     p.wr-note {{ $t('report.wagesReview.report.seasonsNote') }}
@@ -128,6 +205,10 @@ import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import SampleNotice from '~/components/base/SampleNotice'
+import LineChart from '~/components/base/LineChart'
+import BarPairChart from '~/components/base/BarPairChart'
+import DoughnutChart from '~/components/base/DoughnutChart'
+import WaterfallChart from '~/components/base/WaterfallChart'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -138,6 +219,7 @@ function emptyResult () {
     months: [],
     seasons: [],
     headcount: 0,
+    seasonShare: [],
     totals: { revenue: 0, wageCost: 0, margin: 0, actual: 0, variance: 0, allowance: 0 },
     headline: { margin: 0, actual: 0, variance: 0, marginPctOfRevenue: 0, tightestMonth: null }
   }
@@ -146,7 +228,16 @@ function emptyResult () {
 export default {
   name: 'WagesReport',
 
-  components: { HeroStrip, HeroFigure, StaleBanner, SampleNotice },
+  components: {
+    HeroStrip,
+    HeroFigure,
+    StaleBanner,
+    SampleNotice,
+    LineChart,
+    BarPairChart,
+    DoughnutChart,
+    WaterfallChart
+  },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -210,7 +301,76 @@ export default {
       return !!(t && t.margin < 0)
     },
     /** The em dash every report shows where a figure does not exist yet. */
-    dash () { return '—' }
+    dash () { return '—' },
+
+    // ── the charts ──────────────────────────────────────────────────────────
+    // Each of these is a SHAPE, not a sum. The engine has already done the arithmetic and
+    // this file's header says why that matters: two implementations of one number is how
+    // they start to disagree.
+
+    /**
+     * @returns {Array} `{ label, value }` per month for the margin line — the planned
+     * margin, negatives INTACT so a loss draws below the zero line.
+     */
+    marginPoints () {
+      return this.months.map(m => ({ label: m.name, value: m.margin }))
+    },
+
+    /**
+     * @returns {Array} `{ label, a, b }` per season — what the team bills against what it
+     * costs, from the season-comparison card (one representative month of each kind).
+     *
+     * ⚠ THIS IS `seasons`, NOT `seasonShare`. Right here because the question is "what does
+     * a month of this kind bill and cost", which is exactly what that block answers. Both
+     * values are costs and billings and so are always positive; `BarPairChart` clamps
+     * negatives to zero and could not be used if they were not.
+     */
+    seasonMixGroups () {
+      return this.seasons.map(s => ({ label: s.name, a: s.revenue, b: s.cost }))
+    },
+
+    /**
+     * @returns {Array} the year's seasons, largest margin first, with the colour each
+     * carries on the ring and the words its share is printed as.
+     *
+     * ⚠ THIS IS `seasonShare`, NOT `seasons`. The ring shows shares of the YEAR, and only
+     * this block's figures are parts of that whole — `seasons` costs one representative
+     * month of each kind and sums to something that is not the year at all.
+     */
+    shareRows () {
+      const palette = ['#0070c0', '#00b1e0', '#4a6b8a']
+      return (this.data.seasonShare || []).map((s, i) => ({
+        season: s.season,
+        name: s.name,
+        months: s.months,
+        margin: s.margin,
+        share: s.share,
+        // A losing season is red on the ring's legend and says so in words. The engine
+        // sends null rather than 0 precisely so this decision lands here and is visible.
+        colour: s.margin < 0 ? '#ff0000' : palette[i % palette.length],
+        shareLabel: s.share === null
+          ? this.$t('report.wagesReview.report.charts.shareNothing')
+          : this.percent(s.share)
+      }))
+    },
+
+    /** @returns {Array} `{ label, value, colour }` per slice, for the ring itself. */
+    shareSlices () {
+      return this.shareRows.map(s => ({ label: s.name, value: s.margin, colour: s.colour }))
+    },
+
+    /**
+     * @returns {Array} the three waterfall steps — the plan, the variance against it, and
+     * what landed. `delta` carries the variance with its sign, which is the whole point:
+     * `WaterfallChart` draws a fall downward and puts its label below the bar.
+     */
+    planVsActualSteps () {
+      return [
+        { label: this.$t('report.wagesReview.report.charts.stepPlanned'), value: this.totals.margin, kind: 'start' },
+        { label: this.$t('report.wagesReview.report.charts.stepVariance'), value: this.totals.variance, kind: 'delta' },
+        { label: this.$t('report.wagesReview.report.charts.stepActual'), value: this.totals.actual, kind: 'end' }
+      ]
+    }
   },
 
   watch: {
@@ -283,6 +443,24 @@ export default {
   background: var(--rs-panel); border: 1px solid var(--rs-line);
   border-radius: 10px; padding: 16px; margin-bottom: 16px;
 }
+/* The charts are the same card as the tables — nothing about them is a different object on
+   the page, so nothing here changes the frame. */
+.wr-chartwrap { overflow-x: auto; }
+.wr-legend {
+  display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px;
+  font-size: 11.5px; color: var(--rs-muted);
+}
+.wr-legend span { display: inline-flex; align-items: center; }
+.wr-sw {
+  width: 11px; height: 11px; border-radius: 3px; display: inline-block;
+  margin-right: 7px; flex: none;
+}
+.wr-ringrow { display: flex; gap: 26px; align-items: center; flex-wrap: wrap; }
+.wr-ring { flex: 0 0 210px; max-width: 210px; }
+.wr-ringlegend { flex: 1 1 340px; min-width: 0; overflow-x: auto; }
+/* The ring's legend is a narrow table beside a fixed-width ring, so the 640px floor the
+   two big tables need would force a scrollbar at every width. */
+.wr-table.wr-narrow { min-width: 340px; }
 .wr-title { font-size: 14px; font-weight: 700; color: var(--rs-ink); margin: 0 0 4px; }
 .wr-note { font-size: 12px; color: var(--rs-muted); margin: 0 0 12px; }
 .wr-scroll { overflow-x: auto; }

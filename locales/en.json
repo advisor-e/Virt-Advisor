@@ -3952,6 +3952,28 @@
         "year": "Year",
         "basisLine": "Basis: {basis} · {people} people on the payroll.",
         "allowanceLine": "Overnight allowances for the year: {allowance}.",
+        "charts": {
+          "marginByMonthTitle": "Planned margin, month by month",
+          "marginByMonthNote": "The planned labour margin in each month, against the zero line. The lowest month is marked in red with its figure, and the last month in navy.",
+          "marginByMonthAria": "The planned labour margin for each month of the year, against the zero line.",
+          "seasonMixTitle": "Why the weather decides it",
+          "seasonMixNote": "What the team bills against what the team costs, in each of the three seasons.",
+          "seasonMixAria": "What the team bills against what the team costs, in each of the three seasons.",
+          "seasonMixBills": "What the team bills",
+          "seasonMixCosts": "What the team costs",
+          "shareTitle": "Where the year is actually won",
+          "shareNote": "Each season's share of the year's labour margin, rolled up from the twelve months.",
+          "shareAria": "Each season's share of the year's labour margin.",
+          "shareCentreLabel": "The year",
+          "shareNothing": "contributes nothing",
+          "shareTheYear": "The year",
+          "planVsActualTitle": "Plan against reality",
+          "planVsActualNote": "The year's planned labour margin, the variance against it, and what actually landed.",
+          "planVsActualAria": "The year's planned labour margin, the variance against it, and what actually landed.",
+          "stepPlanned": "Planned",
+          "stepVariance": "Variance",
+          "stepActual": "Actual"
+        },
         "col": {
           "season": "Season",
           "month": "Month",
@@ -3962,7 +3984,10 @@
           "planned": "Planned",
           "actual": "Actual",
           "variance": "Variance",
-          "hours": "Hours"
+          "hours": "Hours",
+          "months": "Months",
+          "share": "Share of the year",
+          "labourMargin": "Labour margin"
         },
         "back": "Back"
       }

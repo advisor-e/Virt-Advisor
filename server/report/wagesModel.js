@@ -361,6 +361,50 @@ function monthlyWageBySeason (person, settings) {
 }
 
 /**
+ * Each season's SHARE OF THE YEAR — the twelve months rolled up by their own season.
+ *
+ * 🔴 THIS IS NOT `seasonComparison` AND THE TWO MUST NEVER BE CONFUSED. That one costs ONE
+ * REPRESENTATIVE MONTH of each kind — the same team priced against what each sort of month
+ * bills — so its three figures are three parallel scenarios and sum to nothing meaningful
+ * (44,435 on the sample, against a year of 288,935). These are the real twelve months,
+ * grouped, so they ARE parts of the whole and they reconcile to `totals.margin` exactly.
+ *
+ * Asked for by Mike, 2026-09-15: *"maybe a pie graph showing the 3 seasons as a % of total
+ * profit?"* — a share of the year, which only this roll-up can answer.
+ *
+ * ⚠ `share` IS NULL, NEVER 0, FOR A SEASON THAT LOST MONEY. A loss has no honest share of a
+ * positive whole, and a 0 there would be read on screen as *earned none* when the truth is
+ * *lost money* — the screen prints the words instead. The caller must not coerce it.
+ *
+ * ⚠ ORDER IS BY MARGIN, LARGEST FIRST, so the season carrying the year comes first on the
+ * ring and in its legend. `seasonComparison` stays in wet/std/dry order; these answer
+ * different questions and neither order is right for both.
+ *
+ * @param {Array<Object>} months the twelve computed months
+ * @param {number} yearMargin `totals.margin`, the whole these are shares of
+ * @returns {Array<Object>} `{ season, name, months, margin, share }` per season present
+ */
+function seasonShare (months, yearMargin) {
+  const by = {}
+  const order = []
+  months.forEach(function (m) {
+    const k = m.seasonKey || m.season
+    if (!by[k]) {
+      by[k] = { season: k, name: m.season, months: 0, margin: 0, share: null }
+      order.push(k)
+    }
+    by[k].months += 1
+    by[k].margin += m.margin
+  })
+  return order.map(function (k) { return by[k] }).map(function (row) {
+    // A loss gets no share. See the note above: null is the honest answer and the screen
+    // says so in words; 0 would be a different, false claim.
+    row.share = row.margin > 0 && yearMargin > 0 ? row.margin / yearMargin : null
+    return row
+  }).sort(function (a, b) { return b.margin - a.margin })
+}
+
+/**
  * The per-season comparison — `Seasonal Inputs` AB40:AD45, and the model's real headline.
  * The same team on the same pay, costed against what each kind of month bills.
  *
@@ -549,7 +593,7 @@ function shutdownMonthlyRevenue (figures, productionDays, totalProductionDays, o
  * BE49 does not. A person off the payroll that month contributes neither.
  *
  * @param {Object} inputs see DEFAULT_INPUTS for the shape
- * @returns {Object} { basis, months, totals, seasons, people, headline }
+ * @returns {Object} { basis, months, totals, seasons, seasonShare, people, headline }
  */
 function computeWages (inputs) {
   const src = inputs && typeof inputs === 'object' ? inputs : {}
@@ -658,6 +702,11 @@ function computeWages (inputs) {
     months,
     totals,
     seasons: seasonComparison({ settings, people, seasonNames }),
+    // The twelve months grouped by their own season — parts of the year, unlike `seasons`
+    // above. Computed HERE rather than on the screen: this file's own rule is that the
+    // report recalculates nothing, because two implementations of one number is how they
+    // start to disagree.
+    seasonShare: seasonShare(months, totals.margin),
     headcount: people.filter(function (p) { return String(p.name || '').length > 0 }).length,
     headline: {
       margin: totals.margin,
@@ -1716,6 +1765,7 @@ module.exports = {
   retirementBySeason,
   monthlyWageBySeason,
   seasonComparison,
+  seasonShare,
   shutdownFigures,
   shutdownRetirement,
   shutdownMonthlyWage,

@@ -104,7 +104,17 @@
       the components that already exist. No chart library, no new dependency, nothing added to the bundle.<br>
       <b>Updated 2026-09-15 on Mike's suggestion</b> — &ldquo;maybe a pie graph showing the 3 seasons as
       a % of total profit?&rdquo; — now <b>chart 3</b>, built from the twelve months rather than the
-      season card, for the reason recorded on it.
+      season card, for the reason recorded on it.<br>
+      ✅ <b>BUILT 2026-09-15 on Mike's &ldquo;build it&rdquo;</b>, and this drawing then carried
+      <b>TWO CORRECTIONS</b> so it matches what shipped. 🔴 <b>This page had the months table's heading
+      WRONG.</b> It read <i>&ldquo;Month by month&rdquo;</i>, typed rather than read; the screen's actual
+      heading is <code>monthsTitle</code> = <b>&ldquo;The year, month by month&rdquo;</b> — which was also
+      the title drawn on chart 1, so <b>the approved page hid a duplicate heading that appeared the moment
+      the build was opened in a browser.</b> Both are corrected here: the table now carries its real
+      heading, and chart 1 is retitled <b>&ldquo;Planned margin, month by month&rdquo;</b> on Mike's ruling
+      of the same day — which is also more accurate, since the chart shows the plan alone while the table
+      shows plan, actual and variance. <b>The lesson is the drawing's, not the build's:</b> a heading that
+      already exists on the screen is read out of the locale file, never retyped.
     </p>
   </div>
 
@@ -138,7 +148,7 @@
   </div>
 
   <div class="card new">
-    <h3 class="title">1 · The year, month by month</h3>
+    <h3 class="title">1 · Planned margin, month by month</h3>
     <p class="note">The planned labour margin in each month, against the zero line. The lowest month is marked in red with its figure, and the last month in navy — the chart component does that itself.</p>
     <div class="chartwrap">
       <svg class="lc" viewBox="0 0 620 176" role="img" aria-label="Planned labour margin for each month of the year">
@@ -327,7 +337,7 @@
   </div>
 
   <div class="card">
-    <h3 class="title">Month by month</h3>
+    <h3 class="title">The year, month by month</h3>
     <p class="note">Planned against actual, and the variance between them.</p>
     <div class="scroll">
       <table>

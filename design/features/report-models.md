@@ -1715,7 +1715,37 @@ not 63,154.16 across twenty-nine. `tests/unit/wagesRegisterMaths.test.js` recons
 workbook's own figures from sick leave to prove the fault, and says in terms that a later session
 "fixing" the port to match will have restored a liability built on the wrong quantity.
 
-**Still to come:** the **payroll reader** (its own item, 4.103) and the Firm Manager control above.
+**The report's four charts (2026-09-15).** Mike: *"can you make the salary/wages report - last page -
+more engaging with graphs/ pictures etc"*, then the pie was his own — *"maybe a pie graph showing the
+3 seasons as a % of total profit?"*. Drawn at
+[`../mockups/wages-report-visuals.html`](../mockups/wages-report-visuals.html), approved, built.
+**No chart library and no new dependency:** `LineChart`, `BarPairChart`, `DoughnutChart` and
+`WaterfallChart` already existed.
+
+🔴 **FOUR OF THE SEVEN BASE CHARTS CANNOT DRAW A LOSS, and that decided the design rather than
+taste.** `BarPairChart`, `HBarChart` and `BandBarChart` clamp with `Math.max(value, 0)`;
+`DoughnutChart` drops negatives from its total and its own legend prints `Math.max(value, 0)`. A
+paired planned-vs-actual bar chart was ruled out before it was drawn — it would have flattened
+July's **−132** and Wet n Dark's **−13,972** to the axis and looked perfectly correct. Only
+`LineChart` and `WaterfallChart` compute a `min()` and a `zeroY`, so the monthly chart is a line.
+
+🔴 **`seasonShare` IS NOT `seasonComparison`, AND A PIE OF THE WRONG ONE WOULD HAVE LOOKED RIGHT.**
+`seasonComparison` costs **one representative month** of each kind, so its three figures sum to
+**44,435** against a year of **288,935** — three parallel scenarios, not three parts of a whole.
+`seasonShare` rolls the twelve real months up by their own season and reconciles to `totals.margin`
+exactly. It lives on the **engine**, not the screen, because this model's rule is that the report
+recalculates nothing. **A losing season carries `share: null`, never `0`** — the screen then prints
+*"contributes nothing"*, because *0%* claims the season earned none when the truth is that it lost
+money. What the ring says: **four months of twelve carry 68.6% of the year's labour margin**, seven
+carry less than a third, one carries none.
+
+⚠ **A duplicate heading shipped past the drawing and was caught by opening a browser.** The drawing
+had the months table headed *"Month by month"* — typed rather than read from `monthsTitle`, which is
+*"The year, month by month"*, the same title the drawing gave chart 1. Mike ruled chart 1 to
+**"Planned margin, month by month"**; the drawing carries both corrections. **A heading that already
+exists on screen is read out of the locale file, never retyped.**
+
+**Still to come:** the **payroll reader** (its own item, **5.2**) and the Firm Manager control above.
 **A real payroll export is owed by Mike** — per `intake/supportedPackages.js` no reader is called
 supported until one has been read. The five steps' figures are still not saved per client (4.62's
 mechanism), which is why the register matches its entries to people on `personKey` —
