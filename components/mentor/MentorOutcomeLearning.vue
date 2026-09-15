@@ -12,21 +12,37 @@
     hub-guide-panel(storage-key="outcome-learning" :intro="$t('outcomeLearning.guide.intro')" :points="guidePoints")
 
     //- ── The summary strip ────────────────────────────────────────────────────
+    //- Five tiles since 4.97 T040, one of them Loop reach (the drawing's ruled
+    //- question 2: ONE tile, not two). is-one-fifth because Bulma's twelve columns
+    //- do not divide by five.
     .columns.is-multiline.mb-2
-      .column.is-3
+      .column.is-one-fifth
         .box.mol-tile
           .mol-tile-l {{ $t('outcomeLearning.tileFirms') }}
           .mol-tile-v {{ page.firms }}
-      .column.is-3
+      .column.is-one-fifth
         .box.mol-tile
           .mol-tile-l {{ $t('outcomeLearning.tileReviews') }}
           .mol-tile-v {{ page.cases }}
-      .column.is-3
+      //- ── Loop reach (4.97 US5) ────────────────────────────────────────────
+      //- How far the loop reaches: of the cases delivered at sharing firms, how
+      //- many carry a review. The rest are cases it cannot learn from. ONE SUM —
+      //- the backend never sends a per-firm breakdown, FR-008.
+      .column.is-one-fifth
+        .box.mol-tile
+          .mol-tile-l {{ $t('outcomeLearning.tileReach') }}
+          .mol-tile-v.mol-tile-reach(v-if="page.reach") {{ $t('outcomeLearning.tileReachValue', { reviewed: page.reach.reviewed, delivered: page.reach.delivered }) }}
+          .mol-tile-v.mol-tile-v-small(v-else) {{ $t('outcomeLearning.tileReachUnavailable') }}
+          //- The share, and WHEN the counts were read — they are cached a minute, so
+          //- "read 14 Sep 09:12" is the honest word, never "now".
+          .mol-tile-s(v-if="page.reach && page.reach.delivered > 0")
+            | {{ $t('outcomeLearning.tileReachSub', { percent: reachPercent, when: dateTimeWords(page.reach.readAt) }) }}
+      .column.is-one-fifth
         .box.mol-tile
           .mol-tile-l {{ $t('outcomeLearning.tileLive') }}
           .mol-tile-v {{ counts.live }}
           .mol-tile-s {{ $t('outcomeLearning.tileLiveSub', counts) }}
-      .column.is-3
+      .column.is-one-fifth
         .box.mol-tile
           .mol-tile-l {{ $t('outcomeLearning.tileRecomputed') }}
           .mol-tile-v.mol-tile-v-small {{ page.lastRecomputeAt ? dateTimeWords(page.lastRecomputeAt) : $t('outcomeLearning.justNow') }}
@@ -264,7 +280,7 @@ export default {
       loading: true,
       loadError: '',
       /** The route's payload, shaped so the template never reads an undefined list. */
-      page: { firms: 0, cases: 0, lastRecomputeAt: null, floor: { minFirms: 0, minCases: 0 }, capMax: 0, adjustments: [], orphaned: [], benches: null, reading: null, readingStale: false },
+      page: { firms: 0, cases: 0, lastRecomputeAt: null, floor: { minFirms: 0, minCases: 0 }, capMax: 0, adjustments: [], orphaned: [], benches: null, reading: null, readingStale: false, reach: null },
       readingLoading: false,
       readingError: '',
       /** The decisions row's saved versions, newest first. */
@@ -299,6 +315,19 @@ export default {
         if (a.state === 'live') { c.live += 1 } else if (a.state === 'proposed') { c.proposed += 1 } else if (a.state === 'held') { c.held += 1 } else if (a.state === 'below_floor') { c.below += 1 }
       })
       return c
+    },
+
+    /**
+     * The share of delivered cases that carry a review, for the Loop reach sub-line.
+     * Guarded on `delivered` because a platform with no delivered case at all would
+     * otherwise read "NaN% of delivered cases reviewed" (the template hides the
+     * sub-line in that case, and this is the second guard).
+     * @returns {number} 0..100, whole
+     */
+    reachPercent () {
+      const r = this.page.reach
+      if (!r || !r.delivered) { return 0 }
+      return Math.round((r.reviewed / r.delivered) * 100)
     },
 
     /** @returns {object|null} the fixed bench's before/after, when user story 4 has run it */
@@ -497,7 +526,12 @@ export default {
         orphaned: Array.isArray(data.orphaned) ? data.orphaned : [],
         benches: data.benches && typeof data.benches === 'object' ? data.benches : null,
         reading: data.reading && typeof data.reading === 'object' ? data.reading : null,
-        readingStale: data.readingStale === true
+        readingStale: data.readingStale === true,
+        // 🔴 KEEP THE REACH WE ALREADY HAVE when a payload carries none. Only `list` reads
+        // the counts; "Recompute now", a restore and a decision all send `reach: null`, and
+        // rebuilding `page` wholesale would blank the tile on every button press — a figure
+        // vanishing on an unrelated action reads as a fault to the mentor.
+        reach: (data.reach && typeof data.reach === 'object') ? data.reach : (this.page ? this.page.reach : null)
       }
     },
 
@@ -754,6 +788,10 @@ export default {
   font-variant-numeric: tabular-nums;
 }
 .mol-tile-v-small { font-size: 1rem; margin-top: 0.5rem; }
+/* "41 of 118" is nine characters where the other tiles carry one to three digits, and
+   the strip is five columns wide since 4.97 T040. Slightly smaller so it stays on one
+   line at a fifth of the width, as the approved drawing shows it. */
+.mol-tile-reach { font-size: 1.35rem; }
 .mol-tile-s { font-size: 0.75rem; color: #5b6f8a; margin-top: 0.2rem; }
 .mol-lede { font-size: 0.95rem; }
 .mol-sit { font-size: 0.8rem; color: #5b6f8a; }

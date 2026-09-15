@@ -6,6 +6,19 @@
   b-message(v-else-if="loadError" type="is-danger" size="is-small") {{ loadError }}
 
   template(v-else)
+    //- ── Your firm's reviews (4.97 US5) ───────────────────────────────────────
+    //- THIS FIRM'S OWN PAIR AND NOTHING ELSE (spec FR-008) — never another firm's
+    //- and never the platform figure, which is the mentor's alone. It sits ABOVE the
+    //- choice because it is true whether the switch is on or off, and it is the one
+    //- number a manager can act on: an advisor who delivers and never reviews is
+    //- invisible to the loop. Hidden entirely if the count could not be read — a
+    //- blank pair would read as "nobody reviews anything".
+    .box(v-if="reach")
+      h4.title.is-6.mb-2 {{ $t('outcomeConsent.reachHeading') }}
+      p.foc-reach-v.mb-1
+        b {{ $tc('outcomeConsent.reachBody', reach.delivered, { reviewed: reach.reviewed, delivered: reach.delivered }) }}
+      p.is-size-7.has-text-grey.mb-0 {{ $t('outcomeConsent.reachNote') }}
+
     //- ── Your firm's choice ───────────────────────────────────────────────────
     //- 🔴 THE SWITCH IS THE WHOLE GATE (spec FR-002, FR-012). Nothing from a firm
     //- reaches the pool unless the switch is on when an advisor saves a review, and a
@@ -172,6 +185,8 @@ export default {
       pooledCount: null,
       /** Mentor-accepted adjustments live at this firm; null when not sharing or unreadable. */
       adjustmentsApplying: null,
+      /** This firm's own `{ delivered, reviewed }`; null when the count could not be read. */
+      reach: null,
       ticked: false,
       saving: false,
       switchError: '',
@@ -248,6 +263,11 @@ export default {
       this.wording = data.wording || ''
       this.pooledCount = Number.isInteger(data.pooledCount) ? data.pooledCount : null
       this.adjustmentsApplying = Number.isInteger(data.adjustmentsApplying) ? data.adjustmentsApplying : null
+      // Both halves must be whole numbers or the pair is not shown at all: a card reading
+      // "12 of undefined" is worse than no card. Every write re-reads, so this stays current.
+      this.reach = (data.reach && Number.isInteger(data.reach.delivered) && Number.isInteger(data.reach.reviewed))
+        ? { delivered: data.reach.delivered, reviewed: data.reach.reviewed }
+        : null
     },
 
     /**
@@ -373,6 +393,8 @@ export default {
   font-size: 0.95rem;
   line-height: 1.5;
 }
+/* The reach pair, at the drawing's size — a statement, not a headline figure. */
+.foc-reach-v { font-size: 0.95rem; }
 .foc-col {
   background: #f1f6fb;
   border: 1px solid #d5e1ee;

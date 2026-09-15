@@ -103,6 +103,40 @@ describe('what a manager opens', () => {
     expect(wrapper.vm.loading).toBe(false)
   })
 
+  // 4.97 US5 / T040. The card is shown to a firm that is NOT sharing too — a manager
+  // weighing the switch should see how many of its own cases ever get reviewed first.
+  // A half-read pair ("12 of undefined") is hidden rather than shown: UAT would catch
+  // that word, but not a pair that is quietly absent when it should be there.
+  it('takes the firm\'s own pair, whether or not the switch is on', async () => {
+    const off = await mountTab(readPayload({ reach: { delivered: 30, reviewed: 12 } }))
+    expect(off.vm.sharing).toBe(false)
+    expect(off.vm.reach).toEqual({ delivered: 30, reviewed: 12 })
+
+    const on = await mountTab(readPayload({ consent: CONSENT_ON, reach: { delivered: 30, reviewed: 12 } }))
+    expect(on.vm.sharing).toBe(true)
+    expect(on.vm.reach).toEqual({ delivered: 30, reviewed: 12 })
+  })
+
+  it('a missing or half-read pair is no card at all, never a blank figure', async () => {
+    const none = await mountTab(readPayload())
+    expect(none.vm.reach).toBeNull()
+
+    const half = await mountTab(readPayload({ reach: { delivered: 30 } }))
+    expect(half.vm.reach).toBeNull()
+  })
+
+  it('the pair follows a write, because every write re-reads', async () => {
+    const wrapper = await mountTab(i => readPayload(
+      i === 0
+        ? { reach: { delivered: 30, reviewed: 12 } }
+        : { consent: CONSENT_ON, reach: { delivered: 30, reviewed: 13 } }
+    ))
+    expect(wrapper.vm.reach.reviewed).toBe(12)
+    wrapper.vm.ticked = true
+    await wrapper.vm.setSharing(true)
+    expect(wrapper.vm.reach.reviewed).toBe(13)
+  })
+
   it('a network failure is reported in words, not thrown', async () => {
     global.fetch = jest.fn(() => Promise.reject(new TypeError('Failed to fetch')))
     const wrapper = mountWithBuefy(FirmOutcomeConsent, { propsData: { apiToken: 'test-token' } })

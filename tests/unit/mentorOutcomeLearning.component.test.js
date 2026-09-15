@@ -228,6 +228,40 @@ describe('deciding', () => {
   })
 })
 
+// 4.97 US5 / T040. What UAT cannot see here is the SECOND load: only `list` reads the
+// counts, so every other payload carries `reach: null`, and a page that rebuilds itself
+// wholesale would blank the tile on an unrelated button press. A mentor would read a
+// figure vanishing as a fault. The percentage is arithmetic nobody can eyeball either.
+describe('loop reach', () => {
+  const REACH = { delivered: 118, reviewed: 41, readAt: '2026-09-14T09:12:00Z' }
+
+  it('takes the pair and works out the share of delivered cases reviewed', async () => {
+    const wrapper = await mountPage(pagePayload({ reach: REACH }))
+    expect(wrapper.vm.page.reach).toEqual(REACH)
+    expect(wrapper.vm.reachPercent).toBe(35)
+  })
+
+  it('keeps the pair through a recompute, which never reads the counts', async () => {
+    const wrapper = await mountPage(pagePayload({ reach: REACH }))
+    await wrapper.vm.recomputeNow()
+    // The POST answered with a payload carrying no reach, as the route really does.
+    expect(wrapper.vm.page.reach).toEqual(REACH)
+  })
+
+  it('a payload with no reach at all leaves the tile empty, not zeroed', async () => {
+    const wrapper = await mountPage(pagePayload())
+    expect(wrapper.vm.page.reach).toBeNull()
+    // Zero would say every delivered case is unreviewed; null says the count is unknown.
+    expect(wrapper.vm.reachPercent).toBe(0)
+    expect(wrapper.vm.loadError).toBe('')
+  })
+
+  it('no delivered case anywhere is 0%, never NaN', async () => {
+    const wrapper = await mountPage(pagePayload({ reach: { delivered: 0, reviewed: 0, readAt: REACH.readAt } }))
+    expect(wrapper.vm.reachPercent).toBe(0)
+  })
+})
+
 describe('history', () => {
   it('lists decisions newest first with what they were taken on', async () => {
     const wrapper = await mountPage(pagePayload({

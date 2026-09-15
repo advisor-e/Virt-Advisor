@@ -121,10 +121,11 @@ offers rather than overwrites. What does not exist is any loop that closes itsel
 >   become more cautious with use; it can now become better. What remains is evidence: no real
 >   pool has crossed the evidence floor, so "learning across firms" is built and seen on a
 >   developer's seed, not proven in use.
-> - **The review is optional, and its uptake is now counted but not yet on a screen.** A case
->   stays flagged "feedback pending" until the advisor returns to it. Both routes now report how
->   many ever do — the mentor's as one sum across consenting firms, each firm's as its own pair —
->   but neither screen renders it yet, so the loop's reach is knowable and still unseen.
+> - **The review is optional, and its uptake is now measured and on both screens.** A case stays
+>   flagged "feedback pending" until the advisor returns to it. The mentor's page carries one
+>   *Loop reach* tile — the sum across consenting firms — and each firm's Outcome Sharing tab its
+>   own pair, shown whether or not the firm shares. What the number will say in use is unknown;
+>   that it can be said is no longer the gap.
 > - **The middle of the pipeline is designed, not built.** Primary issues and routing groups.
 > - **Content still has holes that a human must fill.** 18 logic-table names still point at pages
 >   the library does not hold; the signal lever fires in fewer than half the lab cases.
