@@ -9,37 +9,34 @@
 
 ---
 
-## 2026-09-15 · Laptop · branch `feat/advisor-progress`
+## 2026-09-16 · Laptop · branch `feat/advisor-progress`
 
-Suite **11,082 green** (521 suites), lint 0, audit PASS. Tree clean, all pushed, **66 ahead of
-`master`, 0 behind**. Seven live items; **7.5 filed**, none closed.
+Suite **11,144 green** (524 suites), lint 0, audit PASS. Tree clean, all pushed, **72 ahead
+of `master`, 0 behind**. Nine live items; **7.6 and 7.7 filed**, none closed.
 
-🔴 **I CHANGED THE ENGINE'S INSTRUCTION BLOCK — `data/report-model-summaries.json`. You are
-active on 7.2, the engine's middle.** Three new rules govern how the AI names a calculation
-model: it must decline when none fits, quote a model's limits verbatim, and apply Mike's own
-definition of what a model IS (input cells + sequential calculations arriving at a report).
-**Merge `master` before touching the engine.**
+🔴 **I CHANGED BOTH AI PROMPT FILES — `data/prompts/client.txt` (new SECTION 12) and
+`data/prompts/discover.txt`. Merge `master` before touching the engine.** Item 7.5: the AI is
+now asked to declare which calculation model it named, or that none fits, in a stripped
+`[[MODEL: ...]]` marker, with a page-path scan underneath it. Rows go to a new
+`advisor_model_choices` table; `GET /api/model-choices` reads them back per tier.
 
-**WHY: the first effectiveness test these summaries have ever had.** Three real conversations
-through `/api/advisor/query` with live AI calls found four faults — every one invisible to
-11,082 passing tests, because **the tests check that the words REACH the prompt, never what the
-model does with them.** Worth repeating on your own engine work. Record: `report-models.md`.
+⚠ **PHASE 3'S STREAMING HOLD-BACK NOW WATCHES TWO MARKERS, not one.** If you touch that loop
+in `advisorEngine.js`, know that watching only `[[TEMPLATES:` would print `[[MODEL:` straight
+to the advisor whenever the AI writes it first. That was a near-miss, caught before shipping.
 
-⚠ **`components/base/ClientAccessSwitch.vue` is on EVERY report page and I changed it.** On a
-loopback host it now stands in for the Advisor-e sign-in — without it the client picker rendered
-nothing on a laptop, so every client-aware screen behind it was unreachable and looked like a
-missing feature rather than a missing sign-in.
+**7.5's last piece is yours to unblock:** its hub tab needs `TAB_TIERS`, `NAV_GROUPS` and a
+panel in `FirmManagerHub.vue`, which is 9.1's and active on your machine. 7.5's `activeOn` is
+the laptop — the backend is built and waiting on that file.
 
-🔴 **THE STAFF REGISTER'S DUE-DILIGENCE GATE IS GONE** (Mike: *"i dont need any bullshit gates
-telling my advisors what they can and cant do"*). One button; the record of who opened it
-survives, and so does the firm-scoping check. 5.1's `activeOn` left clear — its last piece is the
-retention dial in `FirmManagerHub.vue`, which is yours.
+🔴 **A TEST PINNING EXACT STRINGS DOES NOT CATCH A LATER SECTION CONTRADICTING THEM.**
+`discover.txt` said "nothing after the closing line, full stop" and my new section said "write
+the marker last". Suite stayed green all day. Worth remembering on any prompt file.
 
-⚠ **ADDING AN IMPORT TO A `.vue` COMPONENT NEEDS A COLD RESTART.** `cache-loader` serves a stale
-transform and hot reload never picks it up; it cost an hour today and looked like a code fault.
-Kill nuxt, `rm -rf node_modules/.cache .nuxt`, restart. Seventeen orphaned dev servers were also
-fighting over one `.nuxt` — check for those before debugging a build.
+⚠ **NINE LIVE CONVERSATIONS SAID WHAT 11,144 TESTS COULD NOT:** the AI writes that marker about
+one time in nine, and fixing the contradiction above did **not** change it. That is item 7.6,
+and its note says which cause is already ruled out so you do not re-run it.
 
-**Shared files I changed:** `data/report-model-summaries.json`, `server/utils/videoInjector.js`,
-`components/base/ClientAccessSwitch.vue`, `design/features/report-models.md`, `CLAUDE.md`,
-`.claude/commands/startup.md` and `shutdown.md`. **Merge `master` before touching any.**
+**Shared files I changed:** both prompt files, `data/report-model-summaries.json`,
+`server/advisorEngine.js`, `server/restify-server.js`, `nuxt.config.js`,
+`server/utils/activityStore.js`, `server/utils/activityLogger.js`, `config/db-schema.sql`,
+`design/features/report-models.md`. **Merge `master` before touching any.**
