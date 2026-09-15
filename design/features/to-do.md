@@ -43,10 +43,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **7.4** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 7 | **14.1** The add-a-report skill still points sessions at the frozen ACTIONS.md ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 8 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 9 | **9.3** A firm can receive pooled adjustments while unable to contribute any ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 9 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 10 | **9.2** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Ten live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

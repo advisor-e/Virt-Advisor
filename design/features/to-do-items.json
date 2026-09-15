@@ -247,24 +247,24 @@
     },
     {
       "ref": "9.3",
-      "name": "A firm can receive pooled adjustments while unable to contribute any",
+      "name": "The sharing tab says on and off at once with no pool secret",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
-      "why": "With no pool secret the firm cannot contribute a single row, but pooled adjustments computed earlier still apply to its advisors, and the screen says both things at once.",
-      "risk": "Not a privacy fault - an adjustment is a platform-wide average and carries no firm, client or text. It is a fairness and honesty one: the tab shows a green 'Sharing since' badge and '2 adjustments apply' beside a notice saying sharing is switched off.",
+      "waitingOn": "Us",
+      "why": "A firm whose switch is on, on a server with no pool secret, sees a green 'Sharing since' badge and a count of adjustments applying, directly beside a notice saying shared learning is switched off.",
+      "risk": "The manager cannot tell which is true. Both numbers are stale: the consent is real but nothing is pooling, and the adjustment count was computed when the pool was readable. No data is at risk and the engine is correct - only the screen misleads.",
       "askedBy": {
         "who": "us",
         "ours": true,
-        "detail": "2026-09-15 - found while building Mike's warn-never-block ruling, by reading the screen that ruling put the notice on. A defect we found; his call whether it is worth fixing."
+        "detail": "2026-09-15 - found while building Mike's warn-never-block ruling, by reading the screen that ruling put the notice on. A defect we found; filed rather than fixed because nobody asked for it."
       },
-      "touches": "server/utils/outcomeLearningSession.js _liveAdjustments (reads pooled rows by prefix, needing no secret), the Outcome Sharing tab's badge and adjustments card in components/firm/FirmOutcomeConsent.vue.",
-      "note": "THE DECISION IS WHICH IS RIGHT, and it is Mike's, not ours. Either a firm that cannot contribute should not receive either (symmetry), or receiving is correct and the screen should say so plainly instead of contradicting itself. Nothing is broken today and no data is at risk; only the screen misleads.",
-      "comment": "2026-09-15 - found and filed while building the warn-never-block ruling; raised with Mike in the same message, NOT yet ruled on. Seen live on the dev firm with the secret unset: badge green, two adjustments applying, notice saying sharing is off."
+      "touches": "components/firm/FirmOutcomeConsent.vue - the pillOn badge and the 'What sharing has changed for your advisors so far' card, both of which should defer to poolConfigured. server/routes/outcomeConsent.js computes adjustmentsApplying only when consent is on.",
+      "note": "GIVE-TO-GET IS ALREADY BUILT AND GUARDED - IT IS NOT THE FAULT AND MUST NOT BE REOPENED. Mike ruled it 2026-09-15, 'they contribute to receive'; loadPooledForSession returns adjustments:[] for a firm that does not share, and outcomeLearningTrace.test.js pins all three ways to not-share with 'the pool is never read'. An earlier note here claimed the opposite, misreading a count that is only computed when the switch is ON. The fix is the two stale figures on the screen, nothing in the engine.",
+      "comment": "2026-09-15 - filed after a wrong reading was corrected against the code: the dev firm was sharing when the '2 adjustments' was seen, so it was never evidence of a non-sharing firm receiving anything."
     },
     {
       "ref": "9.2",
