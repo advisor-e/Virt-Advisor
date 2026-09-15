@@ -1050,18 +1050,33 @@ server.post('/api/people/marketplace/:id/purchase', ca, peopleRoute.purchaseList
 }())
 
 // ── Start ──
-server.listen(PORT, HOST, () => {
-  console.error(`[restify] virt-advisor-api listening on ${HOST}:${PORT}`)
+//
+// 🔴 THE POOL SECRET IS CHECKED BEFORE THE SERVER LISTENS (item 4.97 US6). Without it,
+// `firmToken` throws and every contribution is silently dropped while every screen goes on
+// saying the firm is sharing — a fault invisible from every page. The check resolves on a
+// store it cannot read, so a database outage never stops the app; only a real consent with
+// no secret does. Skipped under NODE_ENV=test, like the purge sweeper below.
+require('./utils/outcomePoolBootCheck').assertPoolSecretIfConsented()
+  .then(startListening)
+  .catch((err) => {
+    console.error('[startup] FATAL: ' + err.message)
+    process.exit(1)
+  })
 
-  // Meeting Review P8, the other half: a firm sets how long transcripts are kept and the
-  // client is SHOWN that figure before they agree, so something has to make the number true.
-  // Each meeting expires against the period stored on its own record — what the client was
-  // told that day — never against the firm's current dial.
-  //
-  // It starts here rather than at import so that requiring this file (serverWiring.test.js
-  // does) never deletes anything, and it is skipped under test outright. The timer is
-  // unref'd, so it cannot hold a shutting-down server open.
-  if (process.env.NODE_ENV !== 'test') {
-    require('./utils/meetingPurge').startSweeping()
-  }
-})
+function startListening () {
+  server.listen(PORT, HOST, () => {
+    console.error(`[restify] virt-advisor-api listening on ${HOST}:${PORT}`)
+
+    // Meeting Review P8, the other half: a firm sets how long transcripts are kept and the
+    // client is SHOWN that figure before they agree, so something has to make the number true.
+    // Each meeting expires against the period stored on its own record — what the client was
+    // told that day — never against the firm's current dial.
+    //
+    // It starts here rather than at import so that requiring this file (serverWiring.test.js
+    // does) never deletes anything, and it is skipped under test outright. The timer is
+    // unref'd, so it cannot hold a shutting-down server open.
+    if (process.env.NODE_ENV !== 'test') {
+      require('./utils/meetingPurge').startSweeping()
+    }
+  })
+}

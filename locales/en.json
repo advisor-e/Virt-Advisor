@@ -5315,6 +5315,7 @@
   },
   "outcomeConsent": {
     "tab": "Outcome Sharing",
+    "poolRefused": "Sharing can't be switched on yet — the platform's outcome pool isn't configured. Ask Advisor-e to set it. Nothing has been changed.",
     "reachHeading": "Your firm's reviews",
     "reachBody": "{reviewed} of {delivered} delivered case has a review | {reviewed} of {delivered} delivered cases have a review",
     "reachNote": "Only reviewed cases teach the pool — a case without a review contributes nothing, whether or not your firm is sharing.",

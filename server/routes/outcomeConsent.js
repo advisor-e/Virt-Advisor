@@ -83,7 +83,10 @@ async function read (req, res) {
  * POST /api/firm-manager/outcome-consent — switch sharing on or off.
  * @route POST /api/firm-manager/outcome-consent
  * @param {boolean} req.body.on - the only field read; anything else in the body is ignored
- * @returns {200} { success, consent } · {400} INVALID_CONSENT · {403} NO_USER_IDENTITY · {500} DB_ERROR
+ * @returns {200} { success, consent } · {400} INVALID_CONSENT · {403} NO_USER_IDENTITY
+ * @returns {503} POOL_UNAVAILABLE - `on: true` on a server with no pool secret; nothing is
+ *   written. Switching off is never refused for this reason.
+ * @returns {500} DB_ERROR
  */
 async function set (req, res) {
   const on = (req.body || {}).on
@@ -96,6 +99,13 @@ async function set (req, res) {
   }
   const firmId = req.firmId
   try {
+    // 🔴 SWITCHING ON WITHOUT A POOL SECRET IS REFUSED, AND NOTHING IS WRITTEN (4.97 US6).
+    // `firmToken` throws without it, so a consent saved here would be a signed undertaking
+    // that silently pools nothing — the record would say the firm shares and no row would
+    // ever arrive. Switching OFF is always allowed: a manager must never be trapped in a
+    // consent by a server misconfiguration.
+    if (on === true) { firmToken(firmId) }
+
     const existing = readConsent(await overlay.loadFirmConfig(firmId, CONFIG_KEY))
     const setAt = new Date().toISOString()
     const record = {
@@ -111,6 +121,9 @@ async function set (req, res) {
     await overlay.saveFirmConfig(firmId, CONFIG_KEY, record, req.userEmail)
     res.send(200, { success: true, consent: readConsent(record) })
   } catch (err) {
+    if (_secretMissing(err)) {
+      return sendError(res, 503, 'POOL_UNAVAILABLE', 'The outcome pool is not configured on this server')
+    }
     console.error('[outcome-consent] set failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not save the sharing setting')
   }

@@ -177,6 +177,32 @@ describe('read', () => {
 })
 
 describe('set', () => {
+  // 4.97 US6 / T042. A consent saved on a server with no pool secret would be a signed
+  // undertaking that silently pools nothing — the record says the firm shares, no row ever
+  // arrives, and every screen looks right. UAT cannot see that; only the absent rows would,
+  // and only to someone who knew to expect them.
+  describe('without a pool secret', () => {
+    beforeEach(() => { delete process.env.OUTCOME_POOL_SECRET })
+
+    test('refuses to switch ON with 503 and writes nothing at all', async () => {
+      const res = makeRes()
+      await routes.set(req({ body: { on: true } }), res)
+      expect(res._status).toBe(503)
+      expect(res._body).toMatchObject({ success: false, error: { code: 'POOL_UNAVAILABLE' } })
+      expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+    })
+
+    // A manager must never be trapped in a consent by a server misconfiguration.
+    test('still allows switching OFF', async () => {
+      overlay.loadFirmConfig.mockResolvedValue(stored({ on: true }))
+      const res = makeRes()
+      await routes.set(req({ body: { on: false } }), res)
+      expect(res._status).toBe(200)
+      expect(overlay.saveFirmConfig).toHaveBeenCalled()
+      expect(overlay.saveFirmConfig.mock.calls[0][2]).toMatchObject({ on: false })
+    })
+  })
+
   test('writes setBy and setAt from the token, the pinned wording, keeps earlier withdrawals, ignores body identity', async () => {
     overlay.loadFirmConfig.mockResolvedValue(stored({ on: false }))
     const res = makeRes()

@@ -166,11 +166,11 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 **Independent Test**: quickstart Story 6.
 
-- [ ] T041 [P] [US6] Write `tests/unit/outcomePoolBootCheck.test.js` at **100%**: consenting firm + no secret → rejects with the FATAL message; no consenting firm + no secret → resolves; secret set → resolves without reading consent; `NODE_ENV=test` → skipped; a store error → resolves with a logged warning (boot must not depend on the pool store being reachable)
-- [ ] T042 [P] [US6] Extend `tests/unit/outcomeConsent.routes.test.js` — `set` with `on: true` and no secret → `503 POOL_UNAVAILABLE`, nothing written; `on: false` still allowed
-- [ ] T043 [US6] Create `server/utils/outcomePoolBootCheck.js` `assertPoolSecretIfConsented()` (contracts §Boot check) and call it in `server/restify-server.js` before `server.listen`, exiting 1 on rejection with the message on stderr
-- [ ] T044 [US6] In `server/routes/outcomeConsent.js` `set` refuse `on: true` when `firmToken` throws `OUTCOME_POOL_SECRET_MISSING`; in `components/firm/FirmOutcomeConsent.vue` show the approved refusal message on that code
-- [ ] T045 [US6] Rewrite the secret's line in `design/UAT-LOAD-PACK.md` §3 and the comment block in `.env.example` per Mike's ruling (optional until any firm shares; required from then; never changed once set)
+- [x] T041 [P] [US6] Write `tests/unit/outcomePoolBootCheck.test.js` at **100%**: consenting firm + no secret → rejects with the FATAL message; no consenting firm + no secret → resolves; secret set → resolves without reading consent; `NODE_ENV=test` → skipped; a store error → resolves with a logged warning (boot must not depend on the pool store being reachable)
+- [x] T042 [P] [US6] Extend `tests/unit/outcomeConsent.routes.test.js` — `set` with `on: true` and no secret → `503 POOL_UNAVAILABLE`, nothing written; `on: false` still allowed
+- [x] T043 [US6] Create `server/utils/outcomePoolBootCheck.js` `assertPoolSecretIfConsented()` (contracts §Boot check) and call it in `server/restify-server.js` before `server.listen`, exiting 1 on rejection with the message on stderr
+- [x] T044 [US6] In `server/routes/outcomeConsent.js` `set` refuse `on: true` when `firmToken` throws `OUTCOME_POOL_SECRET_MISSING`; in `components/firm/FirmOutcomeConsent.vue` show the approved refusal message on that code
+- [x] T045 [US6] Rewrite the secret's line in `design/UAT-LOAD-PACK.md` §3 and the comment block in `.env.example` per Mike's ruling (optional until any firm shares; required from then; never changed once set)
 
 **Checkpoint**: quickstart Story 6 passes on the desktop.
 

@@ -291,7 +291,13 @@ export default {
         // depend on the switch, and the backend is the only party that knows them.
         this.applyRead(await this.api('GET', '/api/firm-manager/outcome-consent'))
       } catch (e) {
-        this.switchError = e.message
+        // 4.97 US6: the harder sentence for the MOMENT OF PRESSING, from the approved
+        // drawing. The amber line already on the page says the pool is not configured when
+        // it loads; this one says the press did nothing and nothing was changed, which the
+        // backend's generic message does not.
+        this.switchError = e.status === 503
+          ? this.$t('outcomeConsent.poolRefused')
+          : e.message
       }
       this.saving = false
     },

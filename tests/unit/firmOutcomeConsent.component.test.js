@@ -125,6 +125,24 @@ describe('what a manager opens', () => {
     expect(half.vm.reach).toBeNull()
   })
 
+  // 4.97 US6 / T044. A 503 is the server saying the press did nothing. The backend's
+  // generic message does not say that, so the screen must show the ruled sentence for the
+  // moment of pressing — and the switch must stay off, because nothing was written.
+  it('a 503 on switching on shows the ruled refusal and leaves the switch off', async () => {
+    const wrapper = await mountTab(readPayload(), 503)
+    wrapper.vm.ticked = true
+    await wrapper.vm.setSharing(true)
+    expect(wrapper.vm.switchError).toBe('outcomeConsent.poolRefused')
+    expect(wrapper.vm.sharing).toBe(false)
+  })
+
+  it('any other failure keeps the backend message, not the pool sentence', async () => {
+    const wrapper = await mountTab(readPayload(), 500)
+    wrapper.vm.ticked = true
+    await wrapper.vm.setSharing(true)
+    expect(wrapper.vm.switchError).toBe('refused by the backend')
+  })
+
   it('the pair follows a write, because every write re-reads', async () => {
     const wrapper = await mountTab(i => readPayload(
       i === 0
