@@ -243,11 +243,24 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 ### Implementation for User Story 9
 
+> 🔴 **US9 IS BUILT READ-ONLY FIRST — Mike's ruling, 2026-09-16.** He stopped the build to ask
+> whether it interferes with the working model, and it does in exactly one place: **T058** makes
+> the live engine read authored profiles, changing what every advisor is recommended, on the
+> resolver's dominant lever, with no test able to say whether a weight is right.
+>
+> **So the screen ships where he can LOOK but not yet CHANGE:** every page, its effective profile,
+> its source and its thin reason, plus the 44 tools the compiler knows nothing about. That is the
+> thing he cannot do today and it touches no advisor.
+>
+> **T058 is NOT built, and neither is the authoring half of T057** (PUT and restore). The engine
+> keeps reading `data/semantic-profiles.json` exactly as it does now. He decides whether authoring
+> is worth his time — 44 tools of data entry — after seeing the screen.
+
 - [ ] T056 [US9] Create `server/utils/semanticProfiles.js` — `PROFILE_PREFIX = 'semantic-profile:'`, `loadEffectiveProfiles()`, `isThin`, `validateProfile`, `clearProfileCache()`; indicators read from `content-summaries.json` via `templateRegistry`
 - [ ] T057 [US9] Create `server/routes/semanticProfiles.js` (contracts §New routes) and register the four routes in `server/restify-server.js` under `mentorGuard`
 - [ ] T058 [US9] In `server/advisorEngine.js` load `loadEffectiveProfiles()` beside the pooled read and pass `options.profileMap` into both resolver passes; `server/utils/outcomeBench.js` and `scripts/scenario-lab.js` do the same so the benches score what the engine scores
 - [ ] T059 [US9] Create `components/mentor/MentorSemanticProfiles.vue` from the approved drawing (Options API, Pug, Buefy, `$t('semanticProfiles.*')`), modelled on `MentorTemplateLibrary.vue`; register it in `components/FirmManagerHub.vue` with `TAB_TIERS.semanticProfiles = ['mentor']`, a `NAV_GROUPS` item appended to *Your AI coach*, a panel, and the tier judgement as a comment; add `semanticProfiles` to `MENTOR_ADDED_SINCE` in `tests/unit/hubTabTiers.test.js` with the ruling; `locales/en.json` namespace
-- [ ] T060a [US9] Run `node scripts/build-semantic-profiles.js` once and commit the result before the screen ships (Mike's ruling 2026-09-14): it compiles any tool whose summary was written after the last build. Report the before and after counts — today 199 entries cover 220 client tools, 7 have no entry at all and 61 are thin. Whatever remains uncompiled is authored on the screen, because the compiler cannot invent a profile for a tool with no summary
+- [x] T060a [US9] Run `node scripts/build-semantic-profiles.js` once and commit the result before the screen ships (Mike's ruling 2026-09-14). **Done 2026-09-16 (`98185ce4`), and the counts moved the OPPOSITE way to this task's prediction**: 199 entries → **205**, and all six additions carry *"no summary — manual profile needed"*, so the hand-authoring the screen must support rose **38 → 44**. No existing profile changed (the compiler is deterministic and no summary has been rewritten since 7 September). Five of the six were never missing content — they are the other side of a page ID already present: 220 do-the-job tools sit on **205 page IDs** and the registry keeps one template per page. **Item 7.5** carries that; Mike ruled the shared profile CORRECT, so US9 keys by page as specified and the screen lists every template sharing one
 - [ ] T060 [US9] `scripts/scenario-lab.js` prints "Templates with a thin effective profile: n/220" and marks each case's top card with whether a `semantic:` reason carried it; `scripts/build-semantic-profiles.js` header comment says authored rows live in the store and this file is the seed
 
 **Checkpoint**: quickstart Story 9 passes; a compiler re-run leaves the authored row untouched.
