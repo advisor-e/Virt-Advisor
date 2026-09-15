@@ -8,7 +8,7 @@ const WagesTeam = require('../../components/WagesTeam.vue').default
 const { DEFAULT_INPUTS, SHUTDOWN_SAMPLE, computeWages } = require('../../server/report/wagesModel')
 
 /**
- * WagesTeam — step 1 of the Wages/Salary Review (item 4.104).
+ * WagesTeam — step 1 of the Wages/Salary Review (item 5.1).
  *
  * What these tests are for, and what they deliberately leave alone. UAT sees labels,
  * spacing and colour in five seconds and judges them better than an assertion can

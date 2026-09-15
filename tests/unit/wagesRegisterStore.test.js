@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * wagesRegisterStore — what a client's staff register holds (item 4.104).
+ * wagesRegisterStore — what a client's staff register holds (item 5.1).
  *
  * WHAT UAT CANNOT SEE, AND THIS PINS. A tester drives the screen and can only ever send what
  * the screen sends. These assertions cover the other direction: that a field nobody asked for

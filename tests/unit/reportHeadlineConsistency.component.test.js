@@ -121,7 +121,7 @@ const SCREENS = [
   // way, and Quick Position and the Volatility Report are the same Report-class precedent.
   { name: 'Sales Dashboard', component: SalesDashboard, result: () => computeSalesDashboard(SD_DEFAULTS) },
   { name: 'Retirement Review', component: RetirementReview, result: () => computeRetirementReview() },
-  // The Wages/Salary Review (4.104). Its four input steps live on the page, not here —
+  // The Wages/Salary Review (5.1). Its four input steps live on the page, not here —
   // this is the report alone, which is the screen with a headline to keep consistent.
   { name: 'Wages/Salary Review', component: WagesReport, result: () => computeWages(JSON.parse(JSON.stringify(WAGES_DEFAULTS))) }
 ]

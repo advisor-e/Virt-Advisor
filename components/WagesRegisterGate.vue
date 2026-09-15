@@ -31,7 +31,7 @@
 <script>
 /**
  * WagesRegisterGate — the strip that decides whether the Wages/Salary Review's staff
- * register may be shown at all (item 4.104).
+ * register may be shown at all (item 5.1).
  *
  * Design: `design/mockups/wages-register-gate.html`, approved by Mike 2026-09-15, which
  * draws all three states and settles this screen's wording. The gate's two conditions and

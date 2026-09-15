@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * registerRetention — how long a firm keeps a staff register (item 4.104, Decision 8).
+ * registerRetention — how long a firm keeps a staff register (item 5.1, Decision 8).
  *
  * WHAT UAT CANNOT SEE. A tester sees one sentence — *"kept until 15 September 2033"* — and
  * has no way to tell whether the number behind it is this firm's, inherited from above, the

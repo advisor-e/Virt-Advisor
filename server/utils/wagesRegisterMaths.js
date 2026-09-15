@@ -54,7 +54,7 @@ const BANDS = ['direct-loss', 'indirect-loss', 'no-material-loss']
  * The workbook's band names, for reading its sample in and nothing else.
  *
  * ⚠ NOT a translation table the product uses in either direction at runtime. It exists so a
- * test can load the sheet's own rows, and so the payroll reader (item 4.103) has one place to
+ * test can load the sheet's own rows, and so the payroll reader (item 5.2) has one place to
  * look if an export ever carries the old words.
  *
  * @type {Object<string, string>}

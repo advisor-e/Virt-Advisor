@@ -153,7 +153,7 @@ describe('report model catalogue', () => {
       // The Retirement Review (4.90, built 2026-09-13) is the fifth Decision-class build: a
       // household's real income, pension, superannuation and up to six properties, all typed
       // in. No file to import, and no Illustrative badge — the figures are the client's own.
-      // The Wages/Salary Review (4.104, built 2026-09-14) is the sixth Decision-class build,
+      // The Wages/Salary Review (5.1, built 2026-09-14) is the sixth Decision-class build,
       // and the drawing's Decision 1 settles why against the one test in
       // MODEL-CLASSIFICATION.md — how the data arrives. Nothing here comes from an accounts
       // export: a client's team, rates, hiring plan and twelve actuals are all typed by the

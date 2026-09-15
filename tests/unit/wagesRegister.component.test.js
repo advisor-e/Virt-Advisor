@@ -17,7 +17,7 @@ const api = require('../../utils/wagesRegister')
 const WagesRegister = require('../../components/WagesRegister.vue').default
 
 /**
- * WagesRegister — the staff register itself (item 4.104), approved by Mike 2026-09-15.
+ * WagesRegister — the staff register itself (item 5.1), approved by Mike 2026-09-15.
  *
  * WHAT UAT CANNOT SEE, AND THIS PINS. A tester types into the sheet and sees numbers appear.
  * What they cannot see is WHAT LEAVES THE BROWSER — and the one rule that matters most on this

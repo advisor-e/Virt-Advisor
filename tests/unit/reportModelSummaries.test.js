@@ -176,7 +176,7 @@ describe('every summary carries what an advisor needs before being sent to a mod
     // states its own verdict in a sentence.
     // Ten since 2026-09-13: the Sales Dashboard (4.95) carries its reading in the footnote
     // under each card, which is where the approved drawing puts it.
-    // Eleven since 2026-09-14: the Wages/Salary Review (4.104) reads itself — the season
+    // Eleven since 2026-09-14: the Wages/Salary Review (5.1) reads itself — the season
     // table IS the finding (the same team loses money in a wet month and makes 52,270 in a
     // dry one), and the tightest month is named in the headline with its own margin.
     expect(bullet).toMatch(/\*\*Eleven\*\*|\bEleven\b/)

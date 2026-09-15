@@ -8,7 +8,7 @@ const WagesWork = require('../../components/WagesWork.vue').default
 const { computeWages, DEFAULT_INPUTS } = require('../../server/report/wagesModel')
 
 /**
- * WagesWork — step 2 of the Wages/Salary Review (item 4.104): how the work happens.
+ * WagesWork — step 2 of the Wages/Salary Review (item 5.1): how the work happens.
  *
  * Nothing here pins a label or a colour; UAT reads those in five seconds. What UAT cannot
  * see is whether the nested shape this step hands over is the one `computeWages` reads.

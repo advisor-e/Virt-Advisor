@@ -16,7 +16,7 @@ const WagesRegisterGate = require('../../components/WagesRegisterGate.vue').defa
 
 /**
  * WagesRegisterGate — the strip deciding whether the staff register is on screen at all
- * (item 4.104, Decision 6; wording approved by Mike 2026-09-15).
+ * (item 5.1, Decision 6; wording approved by Mike 2026-09-15).
  *
  * WHAT UAT CANNOT SEE, AND THIS PINS. A tester sees one client in one state. These cover
  * the transitions and the failures between them: that a CLOSED gate renders no switch at

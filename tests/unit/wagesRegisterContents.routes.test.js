@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * /api/wages-register/:clientId — the register's CONTENTS (item 4.104).
+ * /api/wages-register/:clientId — the register's CONTENTS (item 5.1).
  *
  * 🔴 WHAT UAT CANNOT SEE, AND THIS IS THE WHOLE REASON THE FILE EXISTS. A tester drives a
  * screen that only renders the register when the gate says open, so on screen the gate always

@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * wagesRegisterMaths — the staff register's arithmetic (item 4.104).
+ * wagesRegisterMaths — the staff register's arithmetic (item 5.1).
  *
  * 🔴 THIS IS THE GOLDEN TEST, AND IT PINS A DELIBERATE DISAGREEMENT WITH THE SOURCE
  * WORKBOOK. Every other model in the library is tested by reproducing its workbook exactly.

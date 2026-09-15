@@ -111,7 +111,7 @@
  * WagesRegister — the staff register itself, behind the gate.
  *
  * Design: `design/mockups/wages-register.html`, approved by Mike 2026-09-15 with all four of
- * its questions ruled the same day. Item 4.104.
+ * its questions ruled the same day. Item 5.1.
  *
  * 🔴 THIS COMPONENT COMPUTES NOTHING. Every liability, every band total and the retention date
  * come from `POST /api/wages-register/:clientId/view`. A leave liability is business logic and
