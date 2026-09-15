@@ -41,9 +41,8 @@ repository sees; the two never both appear, and the build stops if they would.
 | 4 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
 | 5 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 6 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 7 | **14.2** Startup is blind to the other machine's branch - the handover ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Seven live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Six live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

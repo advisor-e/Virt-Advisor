@@ -101,8 +101,16 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    ended without saying whether it was still in hand. Put that one to Mike before anything
    else, and clear or keep the field on his word.
 
-   **Say so if the other machine's note is stale.** Its date against today's is the only
-   signal that the other division has been idle, or ended a session without writing one.
+   **Say so if the other machine's note is stale — and `npm run check:branch` now tells you
+   from the right copy.** Its **OTHER BRANCHES** box prints that machine's handover date read
+   from *that machine's own branch*, beside its last commit date, and says outright when the
+   note is older than the work. Take it from there.
+
+   🔴 **Do NOT judge staleness from `design/HANDOVER-desktop.md` in this working tree.** That
+   copy is frozen at the last merge, so it can be days behind the real note while looking
+   perfectly fine — it exists, it parses, it has a date. That is exactly how a session
+   reported the desktop idle on 2026-09-14 when its note was two days newer, and again on
+   2026-09-15. Read the file for its *content* by all means; take its *date* from the check.
 
    **Read the JSON, not `to-do.md`.** The page is 850 lines of standing explanation
    wrapped around a generated ten-row table; the JSON *is* the list, and the page is

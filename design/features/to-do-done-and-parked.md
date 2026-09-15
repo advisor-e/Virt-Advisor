@@ -185,6 +185,34 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**14.2 — startup was blind to the other machine's branch.** *(Filed as 4.101; renumbered under
+[`../ITEM-NUMBERING.md`](../ITEM-NUMBERING.md).)*
+✅ Closed 2026-09-15 on the laptop, both halves. A defect we found; filed on Mike's yes.
+
+**The numbering half was built twice and ours lost, which is the cheaper outcome.** We built it
+2026-09-14; **PR #93** built the same thing independently off `master` and carries Mike's
+parent-number scheme. Its versions of `scripts/ref-ceiling.js`, `tests/unit/refCeiling.test.js` and
+`scripts/check-branch-state.js` came in with the merge and ours were dropped. **That collision is
+itself the item's own subject** — two machines solving one problem without seeing each other.
+
+🔴 **The handover half is the one that actually misled a reader, twice.** Startup compared handover
+dates using `design/HANDOVER-desktop.md` **in this machine's working tree** — a copy frozen at the
+last merge. It can be days behind the real note and **nothing about it looks wrong**: the file
+exists, it parses, it carries a date. On **2026-09-14** a session reported the desktop idle since
+2026-09-10 when its note was two days newer, and on **2026-09-15** it read one dated the 13th while
+the desktop's branch held one from the 15th. Both were caught only by reading the other branch by
+hand.
+
+**What proves it is closed:** `scripts/branch-survey.js` now reads the note from *that machine's own
+branch* (`git show origin/<their branch>:design/HANDOVER-<machine>.md`), prints its date beside the
+branch's last commit, and **says outright when the note is older than the work**. Seen working
+against the live desktop branch, not just in tests. `tests/unit/branchSurvey.test.js` carries **31
+tests**, including both real false-staleness shapes, a branch with no note, and a branch belonging
+to no machine (which costs no git call). **The instruction was corrected too** — both
+`.claude/commands/startup.md` and [`../WORKING-AGREEMENT.md`](../WORKING-AGREEMENT.md) now say to
+take the date from `npm run check:branch`, never from the working tree. A fix nobody is told to use
+is half a fix.
+
 **4.96 — the skills pointed every build at a frozen archive.**
 ✅ Closed 2026-09-14 on the laptop. A defect we found; filed on Mike's yes. The `add-a-report`
 skill's *"Record & commit"* section told every session to record its work in `design/ACTIONS.md`,

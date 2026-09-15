@@ -202,27 +202,6 @@
       "touches": "server/report/intake/supportedPackages.js and a new reader beside it, components/WagesTeam.vue (the pre-fill target), and design/mockups/wages-model.html decision 4.",
       "note": "A PRE-FILL INTO THE TYPED TEAM SCREEN, NEVER AN ALTERNATIVE ROUTE IN - Mike's decision 4, 2026-09-14. A payroll report knows what a person COSTS but can never know the charge-out rate or the daily production efficiency, and the margin is charge rate minus pay rate, so a standalone import would finish and leave a model that cannot compute its own answer. BLOCKED ON MIKE: per supportedPackages.js no package may be called supported until a REAL export has been read. Kept as its own item so it does not close with 5.1.",
       "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 5.1 where it was a line in the note. An item that lives inside another item closes with it. Was 4.103; renumbered under design/ITEM-NUMBERING.md."
-    },
-    {
-      "ref": "14.2",
-      "name": "Startup is blind to the other machine's branch - the handover",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A session reads the other machine's branch for nothing it needs, so the handover it compares dates against comes from the reader's own branch.",
-      "risk": "A session reports the other division as idle when it is not: on 2026-09-14 the desktop was called stale since 2026-09-10 when its note was two days newer and sitting on its own branch. The files exist and parse, so no check can notice.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-14 - found at shutdown when the desktop's branch was read directly and its note turned out to be two days newer than the copy startup had read. Filed on Mike's yes. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "scripts/check-branch-state.js, where the ceilingReport already reads every branch, and .claude/commands/startup.md step 4 with design/WORKING-AGREEMENT.md, where the same instruction lives.",
-      "note": "THE NUMBERING HALF IS CLOSED. PR #93 built it independently and its versions of scripts/ref-ceiling.js, tests/unit/refCeiling.test.js and scripts/check-branch-state.js came in with master on 2026-09-15, superseding ours; the scheme behind it is design/ITEM-NUMBERING.md. THE HANDOVER HALF REMAINS - the same script can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date, and startup would then read a current note instead of a stale copy. Until it does, a session comparing handover dates must read the other machine's branch directly, not the working tree.",
-      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it. Widened the same day, on his yes, to cover the numbering blindness, and that half built. 2026-09-15 - master came in carrying PR #93, which had built the same half; its versions were taken and ours dropped, so only the handover half is left. Was 4.101; renumbered under design/ITEM-NUMBERING.md."
     }
   ]
 }
