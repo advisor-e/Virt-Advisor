@@ -31,11 +31,12 @@
  * Node 14, CommonJS.
  */
 
+const { AI } = require('../../config/integration')
 const { fenceUntrusted } = require('./promptSafety')
 const { assemblePrompt } = require('./aiPrompts')
 const { checkContribution } = require('./promptContribution')
 const { assertNoPersonalFields } = require('./mentorLogicLabReport')
-const { createOpenAIClient } = require('./openaiClient')
+const { getClient, modelFor, logSuffix } = require('./aiProvider')
 
 const PROMPT_ID = 'hub-reading'
 const PAGES = ['outcome-learning', 'logic-lab-report']
@@ -47,14 +48,22 @@ const MAX_GROUPS = 12
 const MAX_SENTENCES_PER_GROUP = 3
 const MAX_ROWS = 60
 
-const READING_MODEL = 'gpt-4o-mini'
+/**
+ * The model for this role, from the one role map (4.97 US8/T050) rather than a literal here,
+ * so a fallback provider can carry its own name for the same job. Read at call time, not at
+ * import, so a test that changes the environment is not fighting module load order.
+ */
+const READING_MODEL = () => modelFor(AI.primary, 'reading')
 const READING_MAX_TOKENS = 700
 const READING_TIMEOUT_MS = 30000
 
 let _client = null
-/** Built once, on first use, so a missing key is a failed reading and not a dead server. */
+/**
+ * Built once, on first use, so a missing key is a failed reading and not a dead server.
+ * Through the provider seam since 4.97 US8: a second provider answers when the first fails.
+ */
 function _openai () {
-  if (!_client) { _client = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY }) }
+  if (!_client) { _client = getClient('reading') }
   return _client
 }
 /** For tests. */
@@ -214,18 +223,21 @@ function validateReading (parsed) {
  */
 async function makeReading (payload) {
   const startedAt = Date.now()
+  let _reply = null
   const log = (ok, usage) => {
     const tokens = usage ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens}` : 'tokens=unknown'
-    console.log(`[openai] hub-reading page=${payload && payload.page} model=${READING_MODEL} status=${ok ? 'ok' : 'error'} latency=${Date.now() - startedAt}ms ${tokens}`)
+    console.log(`[openai] hub-reading page=${payload && payload.page} model=${READING_MODEL()} status=${ok ? 'ok' : 'error'} latency=${Date.now() - startedAt}ms ${tokens} ${logSuffix(_reply)}`)
   }
   try {
     const { messages } = buildReadingMessages(payload, {})
+    // NOT personal: the payload is the figures already on the mentor's page, and the builders
+    // above send nothing else (see this file's header). Pinned by aiCallSitesPersonal.test.js.
     const response = await _openai().chat.completions.create({
-      model: READING_MODEL,
       max_tokens: READING_MAX_TOKENS,
       temperature: 0,
       messages
-    }, { timeout: READING_TIMEOUT_MS })
+    }, { timeout: READING_TIMEOUT_MS, personal: false })
+    _reply = response
     const content = response && response.choices && response.choices[0] && response.choices[0].message
       ? response.choices[0].message.content
       : ''
@@ -234,7 +246,9 @@ async function makeReading (payload) {
     if (!validated.ok) { return { ok: false, reading: null } }
     return {
       ok: true,
-      reading: Object.assign({}, validated.reading, { readAt: new Date().toISOString(), from: stampOf(payload), model: READING_MODEL })
+      // `provider` beside `model` (4.97 US8/T052): which provider actually answered, so a
+      // stored reading says where it came from rather than leaving it to be assumed.
+      reading: Object.assign({}, validated.reading, { readAt: new Date().toISOString(), from: stampOf(payload), model: READING_MODEL(), provider: (_reply && _reply.provider) || AI.primary.name })
     }
   } catch (err) {
     log(false, null)

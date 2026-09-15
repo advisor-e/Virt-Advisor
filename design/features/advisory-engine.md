@@ -229,6 +229,16 @@ unknown**.
   offered sales-and-marketing tools. That fixed **one phrase, not the general fault** — a thin
   single keyword can still carry a conversation into the wrong area, which is what the AI
   backstop and the confirmation step exist to catch.
+- **One AI provider failing still stops the advisor conversation.** A provider seam exists
+  (`server/utils/aiProvider.js`) and six of the eight calling files go through it, so a second
+  provider answers for the hub reading, the compliance and prompt checks, the case anonymiser
+  and the meeting reports. **`advisorEngine.js` and `courseEngine.js` do not yet** — they call
+  OpenAI directly, exactly as they always have (4.97 US8, part done 2026-09-15). When they are
+  routed, the advisor conversation is classed **personal** and still will not fall back:
+  Mike's ruling of 2026-09-15 is that the advisor describing a real client in their own words
+  does not reach a second provider until that provider's written terms have been read. So a
+  fallback keeps Course Builder and the Mentor Hub AI working through an outage; it is not
+  intended to keep the conversation itself alive.
 - Routing groups are complete for one domain only.
 - Two templates have no semantic profile; 23 have a profile with no signals; 88 have thin
   purpose-only profiles. These affect scoring precision, not function.

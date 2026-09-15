@@ -60,6 +60,7 @@ const {
   DIARIZING_MODEL,
   createTranscriptionClient
 } = require('../utils/transcriptionClient')
+const { logSuffixNoFallback } = require('../utils/aiProvider')
 const obs = require('../utils/meetingObservations')
 // The advisor's own level sits on top of the firm's resolved list. Report generation applies
 // it through the same function the screen uses — see `presetFor`.
@@ -408,7 +409,11 @@ async function runTranscription (meetingId) {
 
     // Every LLM call logs model, size, latency and result (CLAUDE.md). No transcript text and
     // no client words are logged — the log is not a place a meeting gets a second home.
-    console.log('[meeting-review] transcribed: model=' + result.model +
+    // NO FALLBACK BY CONSTRUCTION (4.97 US8/T053): audio transcription is a different
+    // endpoint entirely, and no second provider is wired to it. The line says so rather than
+    // leaving a reader to wonder. This call is also PERSONAL — it sends the whole recording —
+    // so a fallback would need the clearance the pool's personal-data gate describes.
+    console.log('[meeting-review] transcribed: ' + logSuffixNoFallback() + ' model=' + result.model +
       ' bytes=' + result.bytes + ' latencyMs=' + result.latencyMs +
       ' segments=' + result.segments.length + ' dropped=' + result.dropped +
       ' speakers=' + result.speakerCount + ' confident=' + result.confident)

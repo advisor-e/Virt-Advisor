@@ -5,7 +5,8 @@ const { sendError } = require('../utils/sendError')
 const caseStore = require('../utils/caseStore')
 const clientStore = require('../utils/clientStore')
 const { anonymiseCaseContent } = require('../utils/anonymiseCase')
-const { createOpenAIClient } = require('../utils/openaiClient')
+const { getClient, modelFor, logSuffix } = require('../utils/aiProvider')
+const { AI } = require('../../config/integration')
 const { isAwaitingFirms, tierOfScope } = require('../utils/tierChain')
 const { withOrigin } = require('../utils/caseRollup')
 const { firmContributes, contributeCaseOutcome } = require('../utils/outcomeContribute')
@@ -263,14 +264,18 @@ async function anonymiseCasePreview (req, res) {
     if (!theCase) {
       return sendError(res, 404, 'NOT_FOUND', 'Case not found or not shared with the firm')
     }
-    const client = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY })
+    // Through the provider seam since 4.97 US8. The call itself is marked PERSONAL in
+    // `anonymiseCase.js` — it sends the whole client conversation — so it never reaches a
+    // second provider unless one has been cleared for personal data in config.
+    const client = getClient('classify')
     const started = Date.now()
     const anon = await anonymiseCaseContent(
       { summary: theCase.summary, transcript: theCase.transcript },
       client
     )
-    // LLM-call audit (model / tokens / latency) — never logs the raw content.
-    console.log(`[cases] anonymise-preview id=${req.params.id} msgs=${(theCase.transcript || []).length} latencyMs=${Date.now() - started} tokens=${anon.usage ? anon.usage.total_tokens : 'n/a'}`)
+    // LLM-call audit (model / tokens / latency) — never logs the raw content. The model name
+    // was missing from this line until 4.97 US8, which CLAUDE.md requires.
+    console.log(`[cases] anonymise-preview id=${req.params.id} msgs=${(theCase.transcript || []).length} model=${modelFor(AI.primary, 'classify')} latencyMs=${Date.now() - started} tokens=${anon.usage ? anon.usage.total_tokens : 'n/a'} ${logSuffix(anon.reply)}`)
     res.send(200, { success: true, anonymised: { summary: anon.summary, transcript: anon.transcript } })
   } catch (err) {
     console.error('[cases] anonymiseCasePreview failed:', err.message)

@@ -38,7 +38,8 @@
  */
 
 const CHECKLIST = require('../../data/compliance-checklist.json')
-const { createOpenAIClient } = require('./openaiClient')
+const { AI } = require('../../config/integration')
+const { getClient, modelFor, logSuffix } = require('./aiProvider')
 // The whole module rather than the two functions, so a test can stand in for one of them.
 const aiPrompts = require('./aiPrompts')
 
@@ -49,7 +50,8 @@ const PROMPT_ID = 'compliance-check'
  * The model. The same one the depreciation read runs on, for the same reason: it is the one
  * this app has exercised. This task needs no web search and no file input, so neither is sent.
  */
-const MODEL = 'gpt-6-astra'
+/** From the one role map (4.97 US8/T050), read at call time rather than at import. */
+const MODEL = () => modelFor(AI.primary, 'compliance')
 
 /** The eight points, as published. */
 const POINTS = CHECKLIST.points
@@ -243,23 +245,32 @@ async function runCheck (opts) {
   }
 
   let text
+  const _startedAt = Date.now()
   try {
-    const client = createOpenAIClient({ apiKey: opts.apiKey, requestImpl: opts.requestImpl })
+    // Through the provider seam since 4.97 US8, so a second provider answers when the first
+    // fails. NOT personal: the prompt carries document FILE NAMES and the eight published
+    // points — no client words, no figures. Pinned by aiCallSitesPersonal.test.js.
+    const client = getClient('compliance')
     const completion = await client.chat.completions.create(
       {
-        model: MODEL,
         messages: [{ role: 'user', content: promptText }],
         temperature: 0
       },
-      { timeout: TIMEOUT_MS }
+      { timeout: TIMEOUT_MS, personal: false }
     )
+    // This call had no success log at all until 4.97 US8 — CLAUDE.md requires every LLM call
+    // to log its model, tokens, latency and result, and only the failure was recorded.
+    const _usage = completion && completion.usage
+    console.log('[compliance-check] model=' + MODEL() + ' status=ok latency=' + (Date.now() - _startedAt) + 'ms ' +
+      (_usage ? 'prompt=' + _usage.prompt_tokens + ' completion=' + _usage.completion_tokens : 'tokens=unknown') +
+      ' ' + logSuffix(completion))
     text = completion &&
       completion.choices &&
       completion.choices[0] &&
       completion.choices[0].message &&
       completion.choices[0].message.content
   } catch (err) {
-    console.error('[compliance-check] model call failed:', err.message)
+    console.error('[compliance-check] model call failed: ' + err.message + ' ' + logSuffix(null, err))
     return { ok: false, code: 'MODEL_ERROR', result: null }
   }
 

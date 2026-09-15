@@ -192,11 +192,34 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 **Independent Test**: quickstart Story 8.
 
-- [ ] T049 [P] [US8] Write `tests/unit/aiCallSitesPersonal.test.js` — reads every backend call site through the seam and asserts the `personal` flag per research R8's table (the three personal sites are `true`; the four advisor-conversation sites are `false` per Mike's ruling); asserts the Responses-API and audio sites do not go through the seam and log `fallback=none`
+> 🔴 **PART-DONE 2026-09-15, AND DELIBERATELY STOPPED THERE.** T049 and T053 are complete.
+> T050/T051/T052 are done for **six of eight files** — `hubReading`, `complianceCheck`,
+> `promptCheck`, `cases` + `anonymiseCase`, `meetingReports` — each routed through the seam,
+> its model taken from the one role map, and its log line carrying `logSuffix`.
+>
+> **WHAT REMAINS: `server/advisorEngine.js` (10 sites, 4 streaming) and
+> `server/courseEngine.js` (4 sites, 2 streaming).** Their classes are RULED, so nothing has
+> to be re-argued — `advisorEngine` is **personal: true** (Mike, 2026-09-15: the advisor is
+> describing a real client in their own words), `courseEngine` is **personal: false** (a
+> firm's own course profile and answers). Both are written at the head of
+> `tests/unit/aiCallSitesPersonal.test.js`; add them to its `SITES` list when they are routed.
+>
+> **Why they were left, and it is not tiredness.** A streaming call that breaks does not fail
+> cleanly — it half-works, drops tokens mid-sentence, or hangs — and six of `advisorEngine`'s
+> ten sites are the live advisor conversation. Converting them means driving the running app
+> and holding a real conversation through it, which is the standard `feedback_walk_the_conversation`
+> sets and is a session's work, not a tail-end task. **Nothing is half-converted: the seam is
+> additive, so an unrouted file calls OpenAI exactly as it always has.**
+>
+> **Worth doing while in there:** six call sites have NO success log at all, which CLAUDE.md
+> requires — all four in `courseEngine`, plus `advisorEngine`'s `pickLearnTreeAI` and its
+> intake stream. The two found in the six converted files were fixed as part of this.
+
+- [x] T049 [P] [US8] Write `tests/unit/aiCallSitesPersonal.test.js` — reads every backend call site through the seam and asserts the `personal` flag per research R8's table (the three personal sites are `true`; the four advisor-conversation sites are `false` per Mike's ruling); asserts the Responses-API and audio sites do not go through the seam and log `fallback=none`
 - [ ] T050 [US8] Move the eleven hardcoded model names into the role map: `server/advisorEngine.js` (classify, narrative), `server/courseEngine.js` (course), `server/utils/anonymiseCase.js`, `server/utils/hubReading.js` (reading), `server/routes/promptCheck.js` (review), `server/utils/meetingReports.js` (report), `server/utils/complianceCheck.js` (compliance), `server/routes/nextStepsDraft.js` (draft), `server/routes/economicAnalysis.js` (research), `server/utils/depreciationExtract.js` (extract); each reads `AI.models[role]`
 - [ ] T051 [US8] Route the 21 chat-completions call sites through `aiProvider.getClient(role)` with `{ personal }` per the table: `server/advisorEngine.js` (10 sites), `server/courseEngine.js` (4), `server/routes/cases.js` → `anonymiseCase` (personal), `server/utils/hubReading.js`, `server/routes/promptCheck.js`, `server/utils/complianceCheck.js`, `server/utils/meetingReports.js` (2, personal); keep every existing validator and failure path; append `logSuffix` to every AI log line, and add a `logAI` line to `pickLearnTreeAI` which has none
 - [ ] T052 [US8] Record the provider: `trace.ai.provider` from the recommendation call in `server/advisorEngine.js`; a `provider` sibling to `model` on the stored meeting reports, hub reading and transcript (`transcriptionClient` reports `openai`); `components/VirtualAdvisor.vue` renders the *Answered by* line per the approved trace drawing
-- [ ] T053 [US8] For the four no-fallback sites (`server/routes/economicAnalysis.js`, `server/utils/depreciationExtract.js`, `server/utils/countryScheduleRead.js`, `server/routes/meetingReview.js` transcription) append `provider=openai fallback=none` to their log lines and a one-line comment naming why no fallback exists
+- [x] T053 [US8] For the four no-fallback sites (`server/routes/economicAnalysis.js`, `server/utils/depreciationExtract.js`, `server/utils/countryScheduleRead.js`, `server/routes/meetingReview.js` transcription) append `provider=openai fallback=none` to their log lines and a one-line comment naming why no fallback exists
 
 **Checkpoint**: quickstart Story 8 passes with a configured second provider; with none configured the suite and behaviour are unchanged.
 

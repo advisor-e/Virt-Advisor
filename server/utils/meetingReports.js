@@ -39,13 +39,15 @@
  * Node 14, CommonJS.
  */
 
-const { createOpenAIClient } = require('./openaiClient')
+const { AI } = require('../../config/integration')
+const { getClient, modelFor, logSuffix } = require('./aiProvider')
 // Follow-through rides this file's coaching call rather than adding a third prompt, so the
 // citation guard below covers last meeting's agreed actions unchanged.
 const followThrough = require('./meetingFollowThrough')
 
 /** The app's chat model, as used throughout `server/advisorEngine.js`. */
-const REPORT_MODEL = 'gpt-4o-mini'
+/** From the one role map (4.97 US8/T050), read at call time rather than at import. */
+const REPORT_MODEL = () => modelFor(AI.primary, 'report')
 
 /** Generation is nowhere near a page render, so the socket may wait. */
 const REPORT_TIMEOUT_MS = 120000
@@ -431,13 +433,14 @@ function cannotHearFindings (points, segments) {
 // ── Generation ───────────────────────────────────────────────────────────────────────
 
 /** One line per call: model, latency, tokens, result. Never any transcript text. */
-function logCall (label, startedAt, ok, usage, extra) {
+function logCall (label, startedAt, ok, usage, extra, reply, err) {
   const tokens = usage
     ? ('prompt=' + (usage.prompt_tokens || 0) + ' completion=' + (usage.completion_tokens || 0))
     : 'tokens=unknown'
-  console.log('[meeting-reports] ' + label + ' model=' + REPORT_MODEL +
+  console.log('[meeting-reports] ' + label + ' model=' + REPORT_MODEL() +
     ' status=' + (ok ? 'ok' : 'error') +
     ' latency=' + (Date.now() - startedAt) + 'ms ' + tokens +
+    ' ' + logSuffix(reply, err) +
     (extra ? ' ' + extra : ''))
 }
 
@@ -451,13 +454,16 @@ function logCall (label, startedAt, ok, usage, extra) {
  */
 async function askModel (deps, messages, label) {
   const startedAt = Date.now()
-  const client = deps.client || createOpenAIClient({ apiKey: deps.apiKey })
+  const client = deps.client || getClient('report')
   try {
+    // 🔴 PERSONAL (4.97 US8). These messages carry the FULL MEETING TRANSCRIPT — a client's
+    // own spoken words. The consent they gave aloud names AI transcription, not an arbitrary
+    // list of companies, so this never reaches a second provider unless one has been
+    // explicitly cleared for personal data. Pinned by aiCallSitesPersonal.test.js.
     const completion = await client.chat.completions.create({
-      model: REPORT_MODEL,
       messages,
       temperature: 0
-    }, { timeout: REPORT_TIMEOUT_MS })
+    }, { timeout: REPORT_TIMEOUT_MS, personal: true })
 
     const content = completion &&
       completion.choices &&
@@ -468,10 +474,11 @@ async function askModel (deps, messages, label) {
 
     const reply = parseJsonReply(content)
     logCall(label, startedAt, true, completion ? completion.usage : null,
-      'parsed=' + (reply ? 'yes' : 'no'))
-    return { reply, usage: completion ? completion.usage : null }
+      'parsed=' + (reply ? 'yes' : 'no'), completion)
+    // `provider` rides back so the stored report can record which provider answered (T052).
+    return { reply, usage: completion ? completion.usage : null, provider: (completion && completion.provider) || AI.primary.name }
   } catch (err) {
-    logCall(label, startedAt, false, null, 'error=' + err.message)
+    logCall(label, startedAt, false, null, 'error=' + err.message, null, err)
     throw err
   }
 }
@@ -491,7 +498,7 @@ async function generateSummary (args) {
     ? args.transcript.segments
     : []
   const messages = buildSummaryMessages({ segments, scenarioName: args.scenarioName })
-  const { reply } = await askModel(args, messages, 'summary')
+  const { reply, provider } = await askModel(args, messages, 'summary')
 
   const checked = validateSummary(reply, segments)
   if (!checked.valid) {
@@ -507,7 +514,9 @@ async function generateSummary (args) {
   return {
     kind: 'summary',
     generatedAt: new Date().toISOString(),
-    model: REPORT_MODEL,
+    model: REPORT_MODEL(),
+    // Which provider actually answered (4.97 US8/T052), beside the model it used.
+    provider,
     covered: checked.data.covered,
     actions: checked.data.actions,
     next: checked.data.next,
@@ -551,12 +560,17 @@ async function generateCoachingNotes (args) {
 
   let findings = []
   let dropped = 0
+  // Null when the model was never called (the branch below), which is a real configuration —
+  // a report that asked nothing was answered by nobody, and must not claim a provider.
+  let provider = null
 
   // A pre-set of nothing but un-hearable points is a real (if odd) configuration, and calling
   // the model with an empty list would spend money to be told nothing.
   if (asked.length) {
     const messages = buildCoachingMessages({ segments, points: asked })
-    const { reply } = await askModel(args, messages, 'coaching')
+    const answered = await askModel(args, messages, 'coaching')
+    const reply = answered.reply
+    provider = answered.provider
     const checked = validateCoaching(reply, segments, asked)
     if (!checked.valid) {
       const err = new Error('My Coaching Notes were not usable: ' + checked.errors.join('; '))
@@ -580,7 +594,9 @@ async function generateCoachingNotes (args) {
   return {
     kind: 'coaching',
     generatedAt: new Date().toISOString(),
-    model: REPORT_MODEL,
+    model: REPORT_MODEL(),
+    // Which provider answered (4.97 US8/T052); null when nothing was asked.
+    provider,
     metrics: args.metrics || null,
     findings: split.findings.concat(cannotHearFindings(unhearable, segments)),
     followThrough: followThrough.buildBlock(
