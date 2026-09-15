@@ -11,34 +11,36 @@
 
 ## 2026-09-16 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**One commit, pushed** (`bc587288`). Suite **11,197 green** (529 suites), lint 0, coverage and
-audit gates passed. Ten live items. **4.97 / 7.2 is 53 of 67 — US1 to US8 ALL COMPLETE.**
-`activeOn` KEPT on this machine: US9 is next and the work is in hand.
+**Two commits, pushed** (`98185ce4`, `9a082620`). Suite **11,255 green** (530 suites), lint 0,
+coverage and audit gates passed. **Eleven live items** — 7.5 is new. **4.97 / 7.2 is 55 of 67.**
+`activeOn` KEPT on this machine: T057 is next and the work is in hand.
 
-**T052 CLOSED US8.** The advisor's decision trace carries an *Answered by* row naming the service
-that answered, both ruled states, per Screen B of `outcome-learning-trace-lift.html`.
+🔴 **US9 IS READ-ONLY BY MIKE'S RULING.** He stopped the build mid-task to ask *"are you building
+something that will interfere with the working model?"* — and it would have. **T058 wires authored
+profiles into `advisorEngine.js`**, changing what every advisor is recommended, on the resolver's
+dominant lever, with no test able to judge whether a weight is right. **T058 and the authoring half
+of T057 are NOT built and must not be**, until he has seen the screen and decided the authoring
+(44 tools of data entry) is worth his time. The engine still reads the compiled file.
 
-🔴 **THE TRACE WAS SHIPPING A HARDCODED `'openai'`** under a comment saying the seam "does not
-exist yet" — true when written, false since T050/T051 landed the day before. On a session the
-backup rescued it would have named the primary. Neither the suite nor UAT could see it: both
-states read as the same fluent sentence.
+**T060a done.** The compiler re-run moved the counts the OPPOSITE way to the task's prediction:
+199 → 205 entries, and hand-authoring rose **38 → 44**, because all six additions have no summary
+to compile from. No existing profile changed.
 
-⚠ **ONE DEVIATION FROM THE TASK TEXT, in `ARTEFACTS.md`.** T052 said to read the provider "from
-the recommendation call". **It cannot be** — that call is a stream, `aiProvider._tag` skips an
-async iterable by construction, and the trace is sent inside that same stream's finish handler.
-It now comes from the two **distinction-classify** calls, earlier in the same request through the
-same seam. Nothing Mike ruled changed.
+🔴 **NEW ITEM 7.5, and Mike corrected the diagnosis TWICE.** Advisor-e issues an ID per **page**
+and a page legitimately holds several templates — 220 tools on 205 pages. It is **not** an export
+defect, and the shared profile is **correct**: tools on one page share one AI profile. What is left
+is naming every tool on a page.
 
-**PROVED BY DRIVING THE APP, NOT THE SUITE** — a real conversation, local MySQL, 15 live OpenAI
-calls: the row renders and the browser received `{"provider":"openai","fallbackUsed":false}`. The
-backup state was driven at the seam with a 402 primary and produced *"mistral — the usual service
-did not answer, so the backup did"*.
+⚠ **I then reproduced 7.5 myself within the hour** — the store's first draft read `templateRegistry`
+(a Map keyed by page) and silently returned 205 tools, losing 15. It now reads `data/templates.json`
+directly; a test pins all 220 so the "simplification" back onto the registry fails loudly.
 
-**FOR MIKE, ON THE LIST:** the row reads `openai` lowercase because no service is ever named in
-code. The drawing shows "OpenAI". That is `AI_PRIMARY_NAME`, a config value, not a code change.
+**FOR MIKE, NOT OURS:** four tools are listed **twice** in the library under one title
+(`Capacity, Capability, Opportunity`, `IT Services`, and two spelling variants). Harmless; his to
+settle in Advisor-e. The screen shows them rather than hiding them.
 
-**NEXT JOB: US9 / T054** — the mentor's template-profile screen, the last build phase of 7.2.
+**NEXT JOB: T057**, the read-only route `GET /api/mentor/semantic-profiles` under `mentorGuard`.
 
-**LAPTOP:** you are 73 ahead / 0 behind master with a commit today, but your note is dated
-**2026-09-13** — stale for the fourth session running. Shared files I touched:
-`server/advisorEngine.js`, `components/VirtualAdvisor.vue`, `locales/en.json`.
+**LAPTOP:** your note is dated **2026-09-13** but your branch had a commit on 2026-09-16 — stale
+for the fifth session running. Shared files I touched: none. Everything new is
+`server/utils/semanticProfiles.js` and its test.
