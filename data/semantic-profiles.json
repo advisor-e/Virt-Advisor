@@ -226,6 +226,17 @@
     "source": "auto"
   },
   {
+    "page": "id-4007209261",
+    "title": "7 Cash Drivers",
+    "subSection": "General Tools",
+    "profile": {
+      "data_quality": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "8-profit-levers",
     "title": "8 Profit Levers",
     "subSection": "General Tools",
@@ -278,15 +289,6 @@
     "source": "auto"
   },
   {
-    "page": "id-4277160310",
-    "title": "Client pre Meeting",
-    "subSection": "General Tools",
-    "profile": {},
-    "totalSignals": 0,
-    "confidence": "low",
-    "note": "no summary — manual profile needed"
-  },
-  {
     "page": "id-6071441423",
     "title": "Control Matters",
     "subSection": "General Tools",
@@ -313,17 +315,6 @@
       "marketing_gap": 2
     },
     "totalSignals": 12,
-    "confidence": "high",
-    "source": "auto"
-  },
-  {
-    "page": "id-4007209261",
-    "title": "Dashboard Discussions",
-    "subSection": "General Tools",
-    "profile": {
-      "data_quality": 10
-    },
-    "totalSignals": 10,
     "confidence": "high",
     "source": "auto"
   },
@@ -602,13 +593,16 @@
     "source": "keyword"
   },
   {
-    "page": "id-9763482347",
-    "title": "Free Draw 3x3",
+    "page": "id-6607114703",
+    "title": "Growth Curve",
     "subSection": "Growth Framework",
-    "profile": {},
-    "totalSignals": 0,
-    "confidence": "low",
-    "note": "no summary — manual profile needed"
+    "profile": {
+      "governance_gap": 10,
+      "systems_gap": 10
+    },
+    "totalSignals": 20,
+    "confidence": "high",
+    "source": "auto"
   },
   {
     "page": "id-7982468813",
@@ -623,16 +617,31 @@
     "source": "auto"
   },
   {
-    "page": "id-6607114703",
-    "title": "Growth Framework",
+    "page": "id-9763482347",
+    "title": "Growth Fundamentals Framework Philosophy",
     "subSection": "Growth Framework",
-    "profile": {
-      "governance_gap": 10,
-      "systems_gap": 10
-    },
-    "totalSignals": 20,
-    "confidence": "high",
-    "source": "auto"
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-8926057452",
+    "title": "Lite Fundamentals Components",
+    "subSection": "Growth Framework",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-2956086585",
+    "title": "The 9 Growth Stages",
+    "subSection": "Growth Framework",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
   },
   {
     "page": "id-8349162326",
@@ -654,7 +663,7 @@
   },
   {
     "page": "data-session",
-    "title": "Data Session",
+    "title": "Lite Data",
     "subSection": "Lite Fundamentals",
     "profile": {
       "data_quality": 10,
@@ -698,7 +707,7 @@
   },
   {
     "page": "people-session",
-    "title": "People Session",
+    "title": "Lite People",
     "subSection": "Lite Fundamentals",
     "profile": {
       "staff_problem": 10
@@ -709,7 +718,7 @@
   },
   {
     "page": "planning-session",
-    "title": "Planning Session",
+    "title": "Lite Planning",
     "subSection": "Lite Fundamentals",
     "profile": {
       "strategy_needed": 10
@@ -720,7 +729,7 @@
   },
   {
     "page": "process-session",
-    "title": "Process Session",
+    "title": "Lite Process",
     "subSection": "Lite Fundamentals",
     "profile": {
       "systems_gap": 10
@@ -731,7 +740,7 @@
   },
   {
     "page": "sales-session",
-    "title": "Sales Session",
+    "title": "Lite Sales",
     "subSection": "Lite Fundamentals",
     "profile": {
       "sales_volume": 10,
@@ -1507,6 +1516,15 @@
     "source": "auto"
   },
   {
+    "page": "id-2379251051",
+    "title": "Revenue Model Support",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
     "page": "id-2031013565",
     "title": "Rural Volatility",
     "subSection": "Revenue & Feasibility Models",
@@ -1561,15 +1579,6 @@
     "totalSignals": 10,
     "confidence": "high",
     "source": "auto"
-  },
-  {
-    "page": "id-1283439703",
-    "title": "Section Brief",
-    "subSection": "Revenue & Feasibility Models",
-    "profile": {},
-    "totalSignals": 0,
-    "confidence": "low",
-    "note": "no summary — manual profile needed"
   },
   {
     "page": "id-3071922878",
@@ -1647,6 +1656,15 @@
     "totalSignals": 10,
     "confidence": "high",
     "source": "auto"
+  },
+  {
+    "page": "id-1283439703",
+    "title": "Working With Revenue Models",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
   },
   {
     "page": "id-9055555447",
@@ -1734,8 +1752,26 @@
     "source": "auto"
   },
   {
+    "page": "id-4277160310",
+    "title": "Coping With Adversity",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
     "page": "id-1203724614",
     "title": "Customer Reliance",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-9724952675",
+    "title": "Due Diligence Support",
     "subSection": "Specialist Tools",
     "profile": {},
     "totalSignals": 0,
@@ -1974,6 +2010,15 @@
     "note": "no summary — manual profile needed"
   },
   {
+    "page": "id-568032896",
+    "title": "Systems B4 Scale",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
     "page": "id-629955404",
     "title": "Turnaround Behaviours",
     "subSection": "Specialist Tools",
@@ -2039,6 +2084,15 @@
     "totalSignals": 17,
     "confidence": "high",
     "source": "auto"
+  },
+  {
+    "page": "id-4611376603",
+    "title": "Mapping the Marketing & Sales Process",
+    "subSection": "Strategic Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
   },
   {
     "page": "id-3009841766",
