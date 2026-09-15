@@ -41,8 +41,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 4 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-10 |
 | 5 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 6 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 7 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
-**Six live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Seven live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

@@ -202,6 +202,27 @@
       "touches": "server/report/intake/supportedPackages.js and a new reader beside it, components/WagesTeam.vue (the pre-fill target), and design/mockups/wages-model.html decision 4.",
       "note": "A PRE-FILL INTO THE TYPED TEAM SCREEN, NEVER AN ALTERNATIVE ROUTE IN - Mike's decision 4, 2026-09-14. A payroll report knows what a person COSTS but can never know the charge-out rate or the daily production efficiency, and the margin is charge rate minus pay rate, so a standalone import would finish and leave a model that cannot compute its own answer. BLOCKED ON MIKE: per supportedPackages.js no package may be called supported until a REAL export has been read. Kept as its own item so it does not close with 5.1.",
       "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 5.1 where it was a line in the note. An item that lives inside another item closes with it. Was 4.103; renumbered under design/ITEM-NUMBERING.md."
+    },
+    {
+      "ref": "7.5",
+      "name": "Nothing records which calculation model the AI named, so nobody can check its judgement",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Three conversations on 2026-09-15 were the first ever check of whether the model summaries work. Two found faults. Nothing in the app records a model mention, so that check exists only because a session ran it by hand.",
+      "risk": "The AI can send an advisor to a calculator that does not fit, and on 2026-09-15 it did - a governance dispute was offered a cash forecast. Nothing logged it. UAT cannot catch it either: a tester sees one plausible answer, never the pattern across many. Until something records the model named and the situation it was named for, the only detection is somebody running conversations by hand and reading them.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-15 - 'make sure the other issue is entered into the to do list', after the effectiveness test found the gap. The gap was ours to find; the decision to file it was his."
+      },
+      "touches": "server/advisorEngine.js, where the two prompt paths inject the models block; the decision trace and the va-session log, which already record template choices; data/report-model-summaries.json as the names and routes to match against; and whatever surfaces it, which under the hub-page rule starts at the mentor tier.",
+      "note": "PROVEN, NOT INFERRED. Three client-mode conversations were run through /api/advisor/query with live AI calls - the first effectiveness test of these summaries since they were built in August. Two faults were found and fixed the same day (e34ea81b): it never declined when no model fitted, and it invented limits. Both were invisible to 11,064 passing tests, because every one of those checks that the words REACH the prompt, not what the model does with them. The three conversations are a repeatable check but they live in a session scratchpad, not this repository. NO DESIGN EXISTS and nothing is drawn.",
+      "comment": "2026-09-15 - filed on Mike's instruction after the first effectiveness test of the model summaries. That test found two faults, both fixed and pushed the same day in e34ea81b; this item is the half that remains - nothing records what the AI recommended, so the next regression is found the same way, by hand, or not at all."
     }
   ]
 }

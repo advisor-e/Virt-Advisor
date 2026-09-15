@@ -45,6 +45,12 @@ sat in three consecutive laptop handovers before it ever became an item — and 
 was one, its scope said *"one sentence in one file"* and it was four. Three sessions saw it,
 three sessions wrote it down, none of them asked.
 
+🔴 **EVERY FAULT ENDS ONE OF TWO WAYS — FIXED NOW, OR FILED ON THE LIST WITH HIS YES** (Mike,
+2026-09-15). **`CLAUDE.md` holds that rule in full.** At shutdown it has a specific bite: before
+writing this handover, take every fault you found today and check each one reached one of those
+two endings. Anything that reached neither is a question you still owe Mike — ask it now, not
+in the note.
+
 ---
 
 **The LIVE-APP / repo-change rule in `CLAUDE.md` still applies.** Every step that writes,

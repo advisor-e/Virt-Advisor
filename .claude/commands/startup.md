@@ -35,6 +35,12 @@ listed under a Non-Coder Summary. Not "I've left it alone" — that sentence is 
 2. **Ask the one question** you need answered to fix it — one recommendation, one yes/no.
 3. **Fix it on his yes**, then carry on with what you were doing.
 
+🔴 **AND IT ENDS ONE OF TWO WAYS — FIXED NOW, OR FILED ON THE LIST WITH HIS YES** (Mike,
+2026-09-15). Those are the only two endings a fault may have. Which one it gets is a question
+you put to him, not a call you make quietly. **`CLAUDE.md` holds that rule in full — read it
+there.** Note especially: *"one question at a time"* means ask them in sequence, never ask
+fewer than you owe.
+
 **This includes anything you find while doing something else** — a stale note, a wrong
 figure, a comment that contradicts the code, a claim in a Brief that is no longer true.
 Especially those: they are found by accident and lost the same way.
