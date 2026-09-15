@@ -11,33 +11,37 @@
 
 ## 2026-09-15 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Six commits, all pushed** (`d9edc83a` → `9b7d81fa`). Suite **11,167 green** (527 suites),
-lint 0, coverage and audit gates passed. `npm run build` succeeds. Nine live items.
-**4.97 is 50 of 67 — US1 to US7 COMPLETE, US8 half done.** `activeOn` still names this machine.
+**Four commits, all pushed** (`c8b012aa` → `dc0162ee`). Suite **11,190 green** (528 suites),
+lint 0, coverage and audit gates passed. `npm run build` succeeds. Ten live items.
+**4.97 / 7.2 is 52 of 67 — US8 all but T052.** `activeOn` KEPT on this machine: work in hand.
 
-🔴 **I TOLD MIKE SOMETHING UNTRUE AND IT CAME FROM THE TASK LIST.** I said every pooled row
-had a blank primary issue; it had been fixed the day before. Auditing found **twelve tasks
-(T007–T018) built and never ticked** — the count said 36 when it was 40. The rule is now at the
-head of Phase 2: **tick the task in the same change as the code, and where a list and the code
-disagree, the code wins.**
+**ALL EIGHT FILES ARE THROUGH THE AI SEAM** (T050/T051). `advisorEngine.js` (10 sites,
+`personal: true`) and `courseEngine.js` (4, `personal: false`); every hardcoded model name gone
+into the role map. **Proved by driving the app, not by the suite** — 27 live OpenAI calls over
+8 sites, all ok, all naming the provider. Six sites had never logged a success at all; they do
+now. ⚠ **Phase 3's streamed recommendation was proved at the endpoint, not clicked through** —
+worth a click when someone is next in the app.
 
-**THREE THINGS PROVED BY RUNNING IT, NOT BY THE SUITE** — the pattern keeps earning its place:
-reach read *2 of 3* against real MySQL; the server **refused to boot** with a sharing firm and
-no pool secret (exit 1, message naming the count and no firm id); the out-of-sample bench showed
-both states, including its honest refusal on a one-month pool.
+🔴 **MIKE'S RULING, AND IT IS GENERAL: warn, never block, let the user continue.** The server no
+longer dies without `OUTCOME_POOL_SECRET` — it warns, that ONE feature shuts down, everything
+else runs. Safe because a pooled key cannot be derived without the secret, so nothing can be
+written either way. Advisors are now warned when no backup AI is connected (new
+`GET /api/advisor/ai-readiness`, once per conversation, blocks nothing).
 
-⚠ **NEXT JOB IS SPELLED OUT IN THREE PLACES** (spec Phase 10, the item note, the test's header):
-route **`advisorEngine.js` (10 sites) and `courseEngine.js` (4)** through the AI seam — the last
-two of eight files. **Mike's privacy ruling is already recorded so it is not re-argued:** the
-advisor conversation is **personal** and never falls back until a chosen provider's written terms
-have been read. Left because **6 of those 14 calls stream** and a broken stream half-works — it
-needs the app driven afterwards, not just the suite. **Nothing is half-converted:** the seam is
-additive, so an unrouted file calls OpenAI exactly as before.
+🔴 **I TOLD MIKE A NON-SHARING FIRM STILL RECEIVES POOLED LEARNING. IT DOES NOT.** I read
+"2 adjustments apply" beside "sharing is off" as one fact; it was two — the firm's switch was
+ON, the SERVER had no secret. **Give-to-get was already built and guarded** (`loadPooledForSession`
+→ `adjustments: []`, pinned by `outcomeLearningTrace.test.js`). Item **9.3** now says so and says
+it must not be reopened. Mike's ruling stands: content cascades to all, learning is earned.
 
-**Also found, not fixed (nobody asked):** the bench script prints `−undefined` in its "Live:"
-line — it reads `a.holdBack`, renamed to `size` in US2. Cosmetic, in a dev script.
+⚠ **The new route nearly stopped the server booting** — written `async`, lint removed it, Restify
+then refused a callback handler with no `next`. `serverMounts.test.js` caught it. That guard,
+written after v0.11.0 shipped a server that would not start, paid for itself today.
 
-**LAPTOP:** your note is dated 2026-09-13 while your branch had a commit on 2026-09-15 — two days
-stale, flagged again. You are 52 ahead / 3 behind master. Shared files I touched:
-`server/routes/cases.js`, `server/routes/meetingReview.js`, `server/routes/economicAnalysis.js`,
-`server/routes/nextStepsDraft.js`, `locales/en.json`, `config/` untouched. Merge `master` first.
+**NEXT JOB: T052** — `trace.ai.provider` and the *Answered by* line on the advisor's screen, per
+the approved trace drawing.
+
+**LAPTOP:** you are 67 ahead / 0 behind master, last commit today, but your note is dated
+**2026-09-13** — stale for the third session running. Shared files I touched:
+`server/restify-server.js`, `nuxt.config.js`, `locales/en.json`,
+`components/VirtualAdvisor.vue`, `components/firm/FirmOutcomeConsent.vue`.
