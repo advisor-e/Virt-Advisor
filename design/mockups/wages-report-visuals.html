@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wages/Salary Review — step 5, with charts</title>
+<style>
+  :root {
+    --rs-bg: #eef3f8; --rs-panel: #ffffff; --rs-line: #d5e1ee;
+    --rs-ink: #002b64; --rs-body: #23405f; --rs-muted: #5b6f8a;
+    --rs-accent: #0070c0; --rs-accent-bright: #00b1e0;
+    --rs-crit: #ff0000; --rs-crit-soft: #ff00000f;
+    --rs-good: #4ca52d; --rs-warn: #ff9900;
+    --rs-font: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--rs-bg); color: var(--rs-body); font-family: var(--rs-font); font-weight: 300; font-size: 14px; }
+  .frame { max-width: 1120px; margin: 0 auto; padding: 28px 22px 64px; }
+
+  .banner { background: #002b64; color: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+  .banner h1 { margin: 0 0 6px; font-size: 19px; font-weight: 700; }
+  .banner p { margin: 0; font-size: 13px; color: #9dc2e8; line-height: 1.55; }
+  .banner code { background: rgba(255,255,255,.12); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+  .rh { margin-bottom: 16px; }
+  .rh .eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--rs-accent); }
+  .rh h2 { margin: 2px 0 2px; font-size: 26px; font-weight: 300; color: var(--rs-ink); letter-spacing: -.01em; }
+  .rh .sub { font-size: 12.5px; color: var(--rs-muted); }
+
+  .hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rs-line); border: 1px solid var(--rs-line); border-radius: 12px; overflow: hidden; margin-bottom: 18px; }
+  .hf { background: var(--rs-panel); padding: 14px 16px; }
+  .hf .lab { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--rs-muted); }
+  .hf .val { font-size: 25px; font-weight: 300; color: var(--rs-ink); margin: 3px 0 2px; letter-spacing: -.02em; }
+  .hf.crit .val { color: var(--rs-crit); }
+  .hf .sub { font-size: 11.5px; color: var(--rs-muted); }
+
+  .card { background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .card.new { border-top: 3px solid var(--rs-accent-bright); }
+  .title { font-size: 14px; font-weight: 700; color: var(--rs-ink); margin: 0 0 4px; }
+  .note { font-size: 12px; color: var(--rs-muted); margin: 0 0 12px; line-height: 1.5; }
+  .finding { font-size: 12.5px; color: var(--rs-ink); background: #f1f6fb; border-left: 3px solid var(--rs-accent); border-radius: 0 8px 8px 0; padding: 9px 12px; margin: 12px 0 0; line-height: 1.55; }
+  .finding b { font-weight: 700; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 11.5px; color: var(--rs-muted); margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+  .chartwrap { overflow-x: auto; }
+  .lc, .bpc, .wfc { display: block; width: 100%; height: auto; }
+  .lc { max-width: 860px; } .bpc { max-width: 620px; } .wfc { max-width: 620px; }
+  .lc-grid, .bpc-grid, .wfc-grid { stroke: #d5e1ee; stroke-width: 1; stroke-dasharray: 2 3; }
+  .lc-axis, .bpc-axis, .wfc-axis { stroke: #d5e1ee; stroke-width: 1; }
+  .lc-lab, .bpc-lab, .wfc-lab { font-size: 11.5px; fill: #5b6f8a; font-family: inherit; }
+  .wfc-lab { font-size: 10.5px; }
+  .lc-lab.is-b, .bpc-lab.is-b, .wfc-lab.is-b { fill: #002b64; font-weight: 600; }
+
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  th { font-size: 11px; font-weight: 600; color: var(--rs-muted); text-align: left; padding: 0 8px 6px; white-space: nowrap; }
+  td { font-size: 12.5px; color: var(--rs-body); padding: 5px 8px; border-top: 1px solid var(--rs-line); }
+  .num { text-align: right; white-space: nowrap; }
+  .season { color: var(--rs-muted); }
+  .loss { color: var(--rs-crit); font-weight: 600; }
+  tfoot td { border-top: 2px solid var(--rs-line); font-weight: 700; color: var(--rs-ink); }
+  .basis { font-size: 12px; color: var(--rs-muted); margin: 0 0 16px; }
+  .btn { font: inherit; font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 10px; border: 1px solid var(--rs-line); background: var(--rs-panel); color: var(--rs-ink); cursor: pointer; }
+
+  .decisions { background: var(--rs-panel); border: 1px solid var(--rs-line); border-top: 3px solid var(--rs-warn); border-radius: 12px; padding: 18px 20px; margin-top: 28px; }
+  .decisions h3 { margin: 0 0 4px; font-size: 15px; color: var(--rs-ink); font-weight: 700; }
+  .decisions > p { font-size: 12.5px; color: var(--rs-muted); margin: 0 0 14px; }
+  .d { border-top: 1px solid var(--rs-line); padding: 12px 0 0; margin-top: 12px; }
+  .d:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+  .d h4 { margin: 0 0 4px; font-size: 13px; color: var(--rs-ink); font-weight: 700; }
+  .d p { margin: 0 0 6px; font-size: 12.5px; line-height: 1.6; }
+  .d .rec { color: var(--rs-ink); }
+  .d .rec b { color: var(--rs-accent); }
+
+  @media (max-width: 860px) { .hero { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .hero { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="banner">
+    <h1>Wages/Salary Review — step 5, the report, with charts</h1>
+    <p>
+      <b>Item 5.1 · drawn 2026-09-15 on Mike's instruction</b> — &ldquo;make the salary/wages report,
+      last page, more engaging with graphs/pictures etc&rdquo;.<br>
+      Every figure on this page is the model's own output from <code>POST /api/report/wages-review</code>
+      with an empty body (the workbook sample), read on 2026-09-15. <b>Nothing is invented.</b><br>
+      The three charts are drawn by the SVG geometry <b>copied formula-for-formula</b> from
+      <code>LineChart.vue</code>, <code>BarPairChart.vue</code> and <code>WaterfallChart.vue</code> —
+      the components that already exist. No chart library, no new dependency, nothing added to the bundle.
+    </p>
+  </div>
+
+  <div class="rh">
+    <div class="eyebrow">Business performance report · Profitability</div>
+    <h2>Wages/Salary Review</h2>
+    <div class="sub">Prepared for [Client Company] · by [Advisor / Firm]</div>
+  </div>
+
+  <div class="hero">
+    <div class="hf">
+      <div class="lab">Planned labour margin</div>
+      <div class="val">$288,935</div>
+      <div class="sub">21.2% of revenue</div>
+    </div>
+    <div class="hf">
+      <div class="lab">Actual labour margin</div>
+      <div class="val">$97,946</div>
+      <div class="sub">What was recorded</div>
+    </div>
+    <div class="hf crit">
+      <div class="lab">Variance</div>
+      <div class="val">-$190,989</div>
+      <div class="sub">Actual against planned</div>
+    </div>
+    <div class="hf crit">
+      <div class="lab">Tightest month</div>
+      <div class="val">Jul</div>
+      <div class="sub">-$132 · Wet n Dark</div>
+    </div>
+  </div>
+
+  <div class="card new">
+    <h3 class="title">1 · The year, month by month</h3>
+    <p class="note">The planned labour margin in each month, against the zero line. The lowest month is marked in red with its figure, and the last month in navy — the chart component does that itself.</p>
+    <div class="chartwrap">
+      <svg class="lc" viewBox="0 0 620 176" role="img" aria-label="Planned labour margin for each month of the year">
+        <line class="lc-grid" x1="48" x2="604" y1="79.84679213313512" y2="79.84679213313512"/>
+        <text class="lc-lab" x="42" y="83.84679213313512" text-anchor="end">$25,747</text>
+        <line class="lc-grid" x1="48" x2="604" y1="19.999999999999986" y2="19.999999999999986"/>
+        <text class="lc-lab" x="42" y="23.999999999999986" text-anchor="end">$51,495</text>
+        <line class="lc-grid" x1="48" x2="604" y1="139.69358426627028" y2="139.69358426627028"/>
+        <text class="lc-lab" x="42" y="143.69358426627028" text-anchor="end">$0</text>
+        <line class="lc-axis" x1="48" x2="604" y1="139.69358426627028" y2="139.69358426627028"/>
+        <polyline fill="none" stroke="#0070c0" stroke-width="2.5" points="48,87.67647562945791 97.81818181818181,23.970339350020737 147.63636363636363,110.06017406686045 197.45454545454547,140 247.27272727272728,111.44747131026088 297.0909090909091,21.037149736179316 346.90909090909093,118.7974572632102 396.72727272727275,32.82985024213106 446.54545454545456,118.7974572632102 496.3636363636364,19.999999999999986 546.1818181818182,110.20734820891417 596,109.89959347640321"/>
+        <circle cx="48" cy="87.67647562945791" r="4" fill="#0070c0"/>
+        <circle cx="97.81818181818181" cy="23.970339350020737" r="4" fill="#0070c0"/>
+        <circle cx="147.63636363636363" cy="110.06017406686045" r="4" fill="#0070c0"/>
+        <circle cx="197.45454545454547" cy="140" r="5.5" fill="#ff0000"/>
+        <text class="lc-lab is-b" x="197.45454545454547" y="159" text-anchor="middle">-$132</text>
+        <circle cx="247.27272727272728" cy="111.44747131026088" r="4" fill="#0070c0"/>
+        <circle cx="297.0909090909091" cy="21.037149736179316" r="4" fill="#0070c0"/>
+        <circle cx="346.90909090909093" cy="118.7974572632102" r="4" fill="#0070c0"/>
+        <circle cx="396.72727272727275" cy="32.82985024213106" r="4" fill="#0070c0"/>
+        <circle cx="446.54545454545456" cy="118.7974572632102" r="4" fill="#0070c0"/>
+        <circle cx="496.3636363636364" cy="19.999999999999986" r="4" fill="#0070c0"/>
+        <circle cx="546.1818181818182" cy="110.20734820891417" r="4" fill="#0070c0"/>
+        <circle cx="596" cy="109.89959347640321" r="5.5" fill="#002b64"/>
+        <text class="lc-lab is-b" x="596" y="99.89959347640321" text-anchor="end">$12,818</text>
+        <text class="lc-lab" x="48" y="170" text-anchor="middle">Apr</text>
+        <text class="lc-lab" x="97.81818181818181" y="170" text-anchor="middle">May</text>
+        <text class="lc-lab" x="147.63636363636363" y="170" text-anchor="middle">Jun</text>
+        <text class="lc-lab" x="197.45454545454547" y="170" text-anchor="middle">Jul</text>
+        <text class="lc-lab" x="247.27272727272728" y="170" text-anchor="middle">Aug</text>
+        <text class="lc-lab" x="297.0909090909091" y="170" text-anchor="middle">Sep</text>
+        <text class="lc-lab" x="346.90909090909093" y="170" text-anchor="middle">Oct</text>
+        <text class="lc-lab" x="396.72727272727275" y="170" text-anchor="middle">Nov</text>
+        <text class="lc-lab" x="446.54545454545456" y="170" text-anchor="middle">Dec</text>
+        <text class="lc-lab" x="496.3636363636364" y="170" text-anchor="middle">Jan</text>
+        <text class="lc-lab" x="546.1818181818182" y="170" text-anchor="middle">Feb</text>
+        <text class="lc-lab" x="596" y="170" text-anchor="middle">Mar</text>
+      </svg>
+    </div>
+    <p class="finding"><b>What it shows that the table does not:</b> July sits <b>below the line</b> at
+      <b>-$132</b>. The tightest month of the plan does not break even — and a year total of
+      $288,935 says nothing about that.</p>
+  </div>
+
+  <div class="card new">
+    <h3 class="title">2 · Why the weather decides it</h3>
+    <p class="note">What the team bills against what the team costs, in each of the three seasons.</p>
+    <div class="chartwrap">
+      <svg class="bpc" viewBox="0 0 520 210" role="img" aria-label="What the team bills against what the team costs, in each of the three seasons">
+        <line class="bpc-grid" x1="48" x2="510" y1="133.5" y2="133.5"/>
+        <text class="bpc-lab" x="42" y="137.5" text-anchor="end">$42k</text>
+        <line class="bpc-grid" x1="48" x2="510" y1="97" y2="97"/>
+        <text class="bpc-lab" x="42" y="101" text-anchor="end">$84k</text>
+        <line class="bpc-grid" x1="48" x2="510" y1="60.5" y2="60.5"/>
+        <text class="bpc-lab" x="42" y="64.5" text-anchor="end">$126k</text>
+        <line class="bpc-grid" x1="48" x2="510" y1="24" y2="24"/>
+        <text class="bpc-lab" x="42" y="28" text-anchor="end">$168k</text>
+        <line class="bpc-axis" x1="48" x2="510" y1="170" y2="170"/>
+        <rect x="78.33333333333333" y="82.53562072082144" width="44" height="87.46437927917856" fill="#0070c0"/>
+        <rect x="124.33333333333333" y="70.41144889666927" width="44" height="99.58855110333073" fill="#ff9900"/>
+        <text class="bpc-lab is-b" x="100.33333333333333" y="77.53562072082144" text-anchor="middle">$101k</text>
+        <text class="bpc-lab" x="146.33333333333331" y="65.41144889666927" text-anchor="middle">$115k</text>
+        <text class="bpc-lab" x="123.33333333333333" y="190" text-anchor="middle">Wet n Dark</text>
+        <rect x="229" y="62.96395192966558" width="44" height="107.03604807033442" fill="#0070c0"/>
+        <rect x="275" y="68.28927905612652" width="44" height="101.71072094387348" fill="#ff9900"/>
+        <text class="bpc-lab is-b" x="251" y="57.96395192966558" text-anchor="middle">$123k</text>
+        <text class="bpc-lab" x="297" y="63.28927905612652" text-anchor="middle">$117k</text>
+        <text class="bpc-lab" x="274" y="190" text-anchor="middle">Std Season</text>
+        <rect x="379.66666666666663" y="24" width="44" height="146" fill="#0070c0"/>
+        <rect x="425.66666666666663" y="69.35685875785326" width="44" height="100.64314124214674" fill="#ff9900"/>
+        <text class="bpc-lab is-b" x="401.66666666666663" y="19" text-anchor="middle">$168k</text>
+        <text class="bpc-lab" x="447.66666666666663" y="64.35685875785326" text-anchor="middle">$116k</text>
+        <text class="bpc-lab" x="424.66666666666663" y="190" text-anchor="middle">Dry n Light</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i style="background:#0070c0"></i> What the team bills</span>
+      <span><i style="background:#ff9900"></i> What the team costs</span>
+    </div>
+    <p class="finding"><b>This is the whole model in one picture.</b> The orange bars barely move —
+      <b>$114.8k, $117.2k, $116.0k</b>. A field team is paid its contracted hours whatever the sky
+      does. The blue bars swing from <b>$100.8k to $168.3k</b>. So the same team on the same pay
+      makes <b>$52,270</b> in a Dry n Light month and <b>loses $13,972</b> in a Wet n Dark one.</p>
+  </div>
+
+  <div class="card new">
+    <h3 class="title">3 · Plan against reality</h3>
+    <p class="note">The year's planned labour margin, the variance against it, and what actually landed.</p>
+    <div class="chartwrap">
+      <svg class="wfc" viewBox="0 0 620 290" role="img" aria-label="The planned labour margin for the year, the variance against it, and what actually landed">
+        <line class="wfc-grid" x1="44" x2="612" y1="22" y2="22"/>
+        <text class="wfc-lab" x="38" y="26" text-anchor="end">$289k</text>
+        <line class="wfc-grid" x1="44" x2="612" y1="139" y2="139"/>
+        <text class="wfc-lab" x="38" y="143" text-anchor="end">$144k</text>
+        <line class="wfc-axis" x1="44" x2="612" y1="256" y2="256"/>
+        <rect x="103" y="22" width="70" height="234" fill="#002b64"/>
+        <text class="wfc-lab is-b" x="138" y="17" text-anchor="middle">$289k</text>
+        <text class="wfc-lab" x="138" y="284" text-anchor="middle">Planned</text>
+        <line class="wfc-grid" x1="277" x2="291" y1="22" y2="22"/>
+        <rect x="291" y="22" width="70" height="154.67647218848234" fill="#ff9900"/>
+        <text class="wfc-lab is-b" x="326" y="189.67647218848234" text-anchor="middle">-$191k</text>
+        <text class="wfc-lab" x="326" y="284" text-anchor="middle">Variance</text>
+        <line class="wfc-grid" x1="465" x2="479" y1="176.67647218848234" y2="176.67647218848234"/>
+        <rect x="479" y="176.67647218848234" width="70" height="79.32352781151766" fill="#0070c0"/>
+        <text class="wfc-lab is-b" x="514" y="171.67647218848234" text-anchor="middle">$98k</text>
+        <text class="wfc-lab" x="514" y="284" text-anchor="middle">Actual</text>
+      </svg>
+    </div>
+    <p class="finding"><b>Cut this one if it is a chart too many.</b> It restates the first three
+      headline figures rather than adding a fourth fact — but it is the shape an advisor can turn
+      the laptop round and point at.</p>
+  </div>
+
+  <div class="card">
+    <h3 class="title">The three seasons</h3>
+    <p class="note">The same team, the same pay, three different skies.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Season</th><th class="num">Revenue</th><th class="num">Wage cost</th><th class="num">Margin</th><th class="num">Hours</th></tr></thead>
+        <tbody>
+          <tr><td>Wet n Dark</td><td class="num">$100,795</td><td class="num">$114,767</td><td class="num loss">-$13,972</td><td class="num">1401</td></tr>
+          <tr><td>Std Season</td><td class="num">$123,350</td><td class="num">$117,213</td><td class="num">$6,137</td><td class="num">1862</td></tr>
+          <tr><td>Dry n Light</td><td class="num">$168,252</td><td class="num">$115,982</td><td class="num">$52,270</td><td class="num">2781</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="title">Month by month</h3>
+    <p class="note">Planned against actual, and the variance between them.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Month</th><th>Season</th><th class="num">Revenue</th><th class="num">Wage cost</th><th class="num">Planned</th><th class="num">Actual</th><th class="num">Variance</th></tr></thead>
+        <tbody>
+          <tr><td>Apr</td><td class="season">Std Season</td><td class="num">$80,423</td><td class="num">$58,044</td><td class="num">$22,379</td><td class="num">$5,000</td><td class="num loss">-$17,379</td></tr>
+          <tr><td>May</td><td class="season">Dry n Light</td><td class="num">$111,013</td><td class="num">$61,227</td><td class="num">$49,786</td><td class="num">$27,500</td><td class="num loss">-$22,286</td></tr>
+          <tr><td>Jun</td><td class="season">Std Season</td><td class="num">$82,737</td><td class="num">$69,988</td><td class="num">$12,749</td><td class="num">$2,500</td><td class="num loss">-$10,249</td></tr>
+          <tr><td>Jul</td><td class="season">Wet n Dark</td><td class="num">$81,166</td><td class="num">$81,298</td><td class="num loss">-$132</td><td class="num">-$5,000</td><td class="num loss">-$4,868</td></tr>
+          <tr><td>Aug</td><td class="season">Std Season</td><td class="num">$105,068</td><td class="num">$92,916</td><td class="num">$12,152</td><td class="num">$11,450</td><td class="num loss">-$702</td></tr>
+          <tr><td>Sep</td><td class="season">Dry n Light</td><td class="num">$154,011</td><td class="num">$102,963</td><td class="num">$51,048</td><td class="num">$16,750</td><td class="num loss">-$34,298</td></tr>
+          <tr><td>Oct</td><td class="season">Std Season</td><td class="num">$107,437</td><td class="num">$98,447</td><td class="num">$8,990</td><td class="num">$1,500</td><td class="num loss">-$7,490</td></tr>
+          <tr><td>Nov</td><td class="season">Dry n Light</td><td class="num">$143,142</td><td class="num">$97,167</td><td class="num">$45,975</td><td class="num">$1,250</td><td class="num loss">-$44,725</td></tr>
+          <tr><td>Dec</td><td class="season">Std Season</td><td class="num">$107,437</td><td class="num">$98,447</td><td class="num">$8,990</td><td class="num">$12,568</td><td class="num">$3,578</td></tr>
+          <tr><td>Jan</td><td class="season">Dry n Light</td><td class="num">$157,383</td><td class="num">$105,889</td><td class="num">$51,495</td><td class="num">$11,450</td><td class="num loss">-$40,045</td></tr>
+          <tr><td>Feb</td><td class="season">Std Season</td><td class="num">$116,462</td><td class="num">$103,776</td><td class="num">$12,686</td><td class="num">$2,500</td><td class="num loss">-$10,186</td></tr>
+          <tr><td>Mar</td><td class="season">Std Season</td><td class="num">$116,462</td><td class="num">$103,644</td><td class="num">$12,818</td><td class="num">$10,478</td><td class="num loss">-$2,340</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td>Year</td><td class="season">Seasonal</td><td class="num">$1,362,740</td><td class="num">$1,073,805</td><td class="num">$288,935</td><td class="num">$97,946</td><td class="num loss">-$190,989</td></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <p class="basis">Figures on the Seasonal basis, for 26 people. Overnight allowances for the year: $8,400.</p>
+
+  <div><button class="btn">Back</button></div>
+
+  <div class="decisions">
+    <h3>Four things to rule before this is built</h3>
+    <p>Each is a real choice, not a detail. Nothing gets built until these are settled.</p>
+
+    <div class="d">
+      <h4>1 · Three charts, or two?</h4>
+      <p>Charts 1 and 2 each carry a fact no table row makes visible. Chart 3 restates the headline
+        figures in a different shape.</p>
+      <p class="rec"><b>Recommendation: keep charts 1 and 2, cut chart 3.</b> Two charts that each
+        say something new beat three where one repeats.</p>
+    </div>
+
+    <div class="d">
+      <h4>2 · Where do the charts sit?</h4>
+      <p>Drawn here <b>above</b> the tables, directly under the headline figures — the picture first,
+        the exact figures underneath for the conversation.</p>
+      <p class="rec"><b>Recommendation: above, as drawn.</b> An advisor opens the page to the story,
+        then scrolls to the detail.</p>
+    </div>
+
+    <div class="d">
+      <h4>3 · Full figures on chart 1, against the house style</h4>
+      <p>Every other chart in the app abbreviates to thousands — <code>$289k</code>. July's margin is
+        <b>-$132</b>, which abbreviates to <b>$0k</b> — and &ldquo;$0k&rdquo; destroys the one fact
+        the chart exists to show. Chart 1 is drawn with full figures; charts 2 and 3 keep the house
+        abbreviation.</p>
+      <p class="rec"><b>Recommendation: full figures on chart 1 only,</b> as drawn — a deliberate,
+        recorded deviation, because the alternative prints a false zero.</p>
+    </div>
+
+    <div class="d">
+      <h4>4 · Printing</h4>
+      <p>These reports are printed and left with a client. Inline SVG prints at full resolution, and
+        the charts carry no interaction to lose on paper.</p>
+      <p class="rec"><b>Recommendation: the charts print with the report</b>, exactly as the tables
+        do. Only the Back button is hidden on paper, which is already the case.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
