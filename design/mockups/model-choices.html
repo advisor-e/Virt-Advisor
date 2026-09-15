@@ -33,8 +33,25 @@
      · nobody edits the model summaries at any tier; they describe what the maths
        does, and /model-guide only ever shows them
 
-   THREE DECISIONS ARE OPEN AND THEY ARE MIKE'S. They are marked ⬥ below and
-   asked one at a time in the conversation, each with a recommendation.
+   🔴 ALL THREE DECISIONS WERE RULED BY MIKE ON 2026-09-16, asked one at a time.
+   TWO OF THE THREE WENT AGAINST THE RECOMMENDATION, so a session building from
+   the recommendations builds the wrong thing. Every ruling is recorded in its
+   own box below WITH THE RECOMMENDATION LEFT IN PLACE BENEATH IT.
+
+     1 · how we know a model was named   — ruled AS recommended
+     2 · what is stored beside the name  — 🔴 WIDENED. His question: "if im a
+         manager, group manager or global manager and I don't see the advisors
+         words - will i have enough context to be able to use the findings to
+         make changes?" The recommendation had bundled two different things and
+         called them both privacy. The firm and the advisor are already recorded
+         on every VA session and already read by firm managers on Team Progress;
+         only the advisor's WORDS are the real line. Rows now carry firm and
+         advisor, and the page is scoped by tier.
+     3 · name, group and tiers          — 🔴 REVERSED BY DECISION 2. The page
+         argued mentor-alone because no other tier could act on it; with each
+         tier scoped to its own level that reason is gone. All four tiers, and
+         the group moves from "Your AI coach" (where a manager EDITS what the AI
+         knows) to "Rolled up from below" (where a manager READS what it did).
    ============================================================================ */
 :root{
   --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
@@ -137,12 +154,15 @@ table.g td.b{font-weight:600}
 <body>
 <div class="shell">
 
-<p class="eyebrow">Mentor Hub · item 7.5 · drawn 2026-09-16 · nothing built</p>
+<p class="eyebrow">Manager hub · all four tiers · item 7.5 · drawn 2026-09-16 · nothing built</p>
 <h1>Model Choices</h1>
 <p class="lede">Nineteen calculation models are described to the AI on every client
 conversation. It names one when it judges one fits. Until now, nothing anywhere wrote down
 which one it named, or what it was asked — so the only way to check its judgement was for
 somebody to sit and read conversations.</p>
+<p class="lede" style="margin-top:10px">Drawn below as the <b>mentor's</b> view, which reads
+every firm. A firm manager opens the same tab and sees their own firm alone; a group manager
+their group. That is the roll-up every other report on this hub already does.</p>
 
 <div class="mock">
 <h3>What is built, and what is not</h3>
@@ -161,10 +181,10 @@ nothing new to teach the AI.</p>
 <div class="screen">
   <div class="rs-top">
     <div class="t">
-      <div class="rs-eyebrow">Mentor Hub · Your AI coach</div>
+      <div class="rs-eyebrow">Mentor Hub · Rolled up from below</div>
       <div class="rs-title">Model Choices</div>
       <p class="rs-sub">Which calculation model the AI sent an advisor to, and when it said none
-        fits. Across every firm on the platform.</p>
+        fits. Every firm — you are the mentor.</p>
     </div>
     <select class="sel"><option>Last 30 days</option></select>
   </div>
@@ -197,7 +217,8 @@ nothing new to teach the AI.</p>
     <div class="sec">
       <h4>Which model, for which kind of problem</h4>
       <p class="cap">The pattern a person testing one conversation at a time cannot see. Sorted
-        by how often the pairing came up, commonest first.</p>
+        by how often the pairing came up, commonest first. A firm manager reads the same table
+        built from their own advisors' conversations.</p>
       <div class="wrap">
       <table class="g">
         <thead><tr>
@@ -237,8 +258,16 @@ nothing new to teach the AI.</p>
     <!-- ── band 3 ─────────────────────────────────────────────── -->
     <div class="sec">
       <h4>When it said no model fits</h4>
-      <p class="cap">The answer the instruction of 2026-09-15 made compulsory. Worth reading:
-        a run of these in one domain is a gap in the library, not a fault in the AI.</p>
+      <p class="cap">The answer the instruction of 2026-09-15 made compulsory.</p>
+      <p class="note" style="margin:0 0 11px"><b>🔴 THIS IS A GAP MAP, NOT A FAULT LIST — Mike,
+        2026-09-16, asking how the page would help him build a better coaching environment.</b>
+        There are <b>nineteen models against twenty-two advisory domains</b>. Every domain in the
+        table below has no calculator at all, so the AI is answering correctly every time. What
+        the list tells you is where advisors keep arriving and finding nothing — which is both
+        where the next model should go, and where human coaching has to carry the work instead.
+        At a firm manager's tier it says something they cannot ask today: a run of these means a
+        whole area of their team's practice is unsupported by the app, which is a signal to the
+        mentor rather than a training problem with their advisors.</p>
       <div class="wrap">
       <table class="g">
         <thead><tr><th>When</th><th>Advisory domain</th><th class="num">Times</th></tr></thead>
@@ -261,27 +290,42 @@ nothing new to teach the AI.</p>
       <div class="wrap">
       <table class="g">
         <thead><tr>
-          <th>When</th><th>Advisory domain</th><th>What the AI did</th><th>How</th>
+          <th>When</th><th>Firm</th><th>Advisor</th><th>Advisory domain</th>
+          <th>What the AI did</th><th>How</th>
         </tr></thead>
         <tbody>
-          <tr><td>15 Sep 16:04</td><td class="dom">financial management</td>
+          <tr><td>15 Sep 16:04</td><td>Hartley &amp; Rowe</td><td>D. Okafor</td>
+              <td class="dom">financial management</td>
               <td class="b">3-Way Forecast Filter</td><td><span class="tag declared">Declared</span></td></tr>
-          <tr><td>15 Sep 15:41</td><td class="dom">governance and leadership</td>
+          <tr><td>15 Sep 15:41</td><td>Bell Kinsey</td><td>S. Marchetti</td>
+              <td class="dom">governance and leadership</td>
               <td class="b">Said no model fits</td><td><span class="tag declined">Declared</span></td></tr>
-          <tr><td>15 Sep 14:32</td><td class="dom">governance and leadership</td>
+          <tr><td>15 Sep 14:32</td><td>Hartley &amp; Rowe</td><td>J. Whitfield</td>
+              <td class="dom">governance and leadership</td>
               <td class="b">3-Way Forecast Filter</td><td><span class="tag declared">Declared</span></td></tr>
-          <tr><td>15 Sep 11:58</td><td class="dom">profitability and feasibility</td>
+          <tr><td>15 Sep 11:58</td><td>Crane Meredith</td><td>A. Boateng</td>
+              <td class="dom">profitability and feasibility</td>
               <td class="b">Margin · Mark-up · Break-even</td><td><span class="tag prose">Page path in prose</span></td></tr>
-          <tr><td>15 Sep 09:12</td><td class="dom">financial management</td>
+          <tr><td>15 Sep 09:12</td><td>Bell Kinsey</td><td>S. Marchetti</td>
+              <td class="dom">financial management</td>
               <td class="b">Debtor Business Drag</td><td><span class="tag declared">Declared</span></td></tr>
-          <tr><td>14 Sep 17:20</td><td class="dom">valuation</td>
+          <tr><td>14 Sep 17:20</td><td>Crane Meredith</td><td>P. Lindqvist</td>
+              <td class="dom">valuation</td>
               <td class="b">EBITDA &amp; Discounted Cash Flow</td><td><span class="tag declared">Declared</span></td></tr>
         </tbody>
       </table>
       </div>
-      <p class="note"><b>There is no firm name, no advisor name and no client situation on any
-        row.</b> That is Decision 2 below, and it is the reason this page can exist at the mentor
-        tier at all.</p>
+      <p class="note"><b>🔴 THE FIRM AND THE ADVISOR ARE ON THE ROW. NOT ONE WORD THE ADVISOR
+        TYPED IS.</b> That is Decision 2 as Mike ruled it, and the two halves are not the same
+        thing: <code>advisor_va_sessions</code> already records <code>advisorId</code>,
+        <code>advisorName</code> and <code>firmId</code> on every completed session, and firm
+        managers already read their own team's activity on Team Progress — so these two columns
+        are not a new step at all. The advisor's own description of their client is, and it
+        stays inside their firm, on their own saved case, where the decision trace already
+        keeps it.</p>
+      <p class="note"><b>A firm manager's copy of this table has one value in the Firm column.</b>
+        The columns are the same at every tier; what changes is how many firms the rows come
+        from.</p>
     </div>
 
   </div>
@@ -291,8 +335,15 @@ nothing new to teach the AI.</p>
 
 <h2>⬥ Decision 1 — how we know a model was named</h2>
 
+<div class="ask ruled">
+<h3>RULED BY MIKE 2026-09-16 — as recommended, both</h3>
+<p class="ruling">His words: <i>"yes to both"</i>. <b>The AI declares its model choice with a
+marker, AND the page-path scan is kept underneath it as the fallback, and each row records
+which of the two produced it.</b></p>
+</div>
+
 <div class="ask">
-<h3>Recommended — the AI declares it, and the page-path scan stays as the fallback</h3>
+<h3>The recommendation, kept — the AI declares it, and the page-path scan stays as the fallback</h3>
 <p class="rec">Add a machine-readable marker the AI writes at the end of its reply, exactly as
 it already does for templates, and keep the page-path scan underneath it. Record which of the
 two produced each row — that is the <span class="tag prose">Page path in prose</span> tag on
@@ -316,8 +367,36 @@ already does for the template marker on all three response paths.</p>
 
 <h2>⬥ Decision 2 — what is stored beside the model name</h2>
 
+<div class="ask ruled">
+<h3>RULED BY MIKE 2026-09-16 — WIDENED. The recommendation below was too narrow.</h3>
+<p class="ruling"><b>A row holds: when · firm · advisor · advisory domain · the model named
+(or that it declined) · how we knew. Still never the advisor's own words.</b> The page is
+scoped by tier — a firm manager sees their own firm, a group manager their group, the mentor
+every firm.</p>
+<p><b>His question is what found the fault, and it is worth keeping in his own words:</b>
+<i>"if im a manager, group manager or global manager and I don't see the advisors words -
+will i have enough context to be able to use the findings to make changes? - how will it
+help me build a better coaching environent?"</i></p>
+<p><b>The recommendation had bundled two different things together and called them both
+privacy.</b> They are not the same. The advisor's own <i>words</i> describing a client's
+business genuinely are the line — lifting those onto a screen read across firms is a real
+privacy step. <b>The firm and the advisor are not a new step at all:</b>
+<code>advisor_va_sessions</code> already records <code>advisorId</code>,
+<code>advisorName</code> and <code>firmId</code> on every completed session, and firm managers
+already read their own team's activity on Team Progress. Leaving them off kept the page tidy
+and cost it the thing he asked about — a firm manager would have opened it and found nothing
+of their own in it.</p>
+<p><b>It also restores his own ruling of 2026-08-10, that every report rolls up.</b> With the
+rows scoped by tier there is no exception left to argue for.</p>
+<p><b>What does NOT change:</b> the advisor's description of their client stays inside their
+firm, on their own saved case, where the decision trace already keeps it. And retention is
+still settled without a dial — see the last paragraph below, which the ruling does not
+disturb: a firm id and an advisor name are already held on the session row beside it and on
+the same footing.</p>
+</div>
+
 <div class="ask">
-<h3>Recommended — the advisory domain and nothing else. Never the advisor's own words.</h3>
+<h3>The recommendation, kept — it was too narrow, and this is why</h3>
 <p class="rec">A row holds: when, the advisory domain, the model named (or that it declined),
 and how we knew. No firm, no advisor, no client, and not a word of what was typed.</p>
 <p><b>Why this is the important one.</b> This page reads across every firm on the platform —
@@ -336,11 +415,33 @@ here that has to be deleted on a clock, so no retention control is proposed — 
 register, where the opposite was true.</p>
 </div>
 
-<h2>⬥ Decision 3 — what the tab is called</h2>
+<h2>⬥ Decision 3 — what the tab is called, where it sits, and which tiers get it</h2>
+
+<div class="ask ruled">
+<h3>RULED BY MIKE 2026-09-16 — the name stands, the group and the tiers are REVERSED</h3>
+<p class="ruling"><b>The tab is <code>Model Choices</code>. It sits at the END of the
+"Rolled up from below" group — not "Your AI coach" — and it appears at ALL FOUR manager
+tiers.</b></p>
+<p><b>Decision 2 removed the reason for mentor-alone.</b> The argument below was that no
+other tier could act on what the page showed. With each tier scoped to its own level, a firm
+manager now has their own rows to read, so the exception has nothing left holding it up and
+the 2026-08-10 roll-up ruling applies plainly.</p>
+<p><b>The group moved because the page changed character.</b> "Your AI coach" is where a
+manager <i>edits</i> what the AI knows — Domain Support, Logic Tables, AI Prompts. "Rolled up
+from below" is where they <i>read back</i> what it did, and it already holds the three reports
+this most resembles: Adoption, the Logic-Lab Report and Case Reviews. Appended at the end,
+which moves nothing already on a manager's screen.</p>
+<p>⚠ <b>ONE CONSEQUENCE, NAMED BEFORE IT IS FOUND: "Rolled up from below" has never appeared
+on a firm manager's screen.</b> All three items in it today stop at the group tier. A firm
+manager will see that heading for the first time, with this one entry under it. It is
+accurate — it <i>is</i> rolled up from their advisors — but it is a visible change to their
+hub and it was put to Mike as one.</p>
+</div>
 
 <div class="ask">
-<h3>Recommended — <b>Model Choices</b>, in the "Your AI coach" group, mentor tier alone</h3>
-<p class="rec">Two words, plain, and it says what the page holds: the choices the AI made.
+<h3>The recommendation, kept — the name survived it; the group and the tiers did not</h3>
+<p class="rec"><b>Model Choices</b>, in the "Your AI coach" group, mentor tier alone.</p>
+<p>Two words, plain, and it says what the page holds: the choices the AI made.
 Appended to the end of the group, which moves nothing already on a manager's screen.</p>
 <p><b>Why not "Model Mentions" or "Model Accuracy".</b> <i>Mentions</i> describes the mechanism
 rather than the thing — you would be reading a page named after how it was built.
@@ -365,10 +466,11 @@ the same day, and so does the editing screen the standing rule would then requir
 the route that reads it back touch <code>server/advisorEngine.js</code>,
 <code>server/utils/</code> and <code>data/report-model-summaries.json</code> — none of which
 belongs to another machine's work.</p>
-<p><b>The tab is not.</b> Putting a tab on the Mentor Hub means editing
-<code>components/FirmManagerHub.vue</code> in three places — the tier matrix, the menu and the
-panel. That file is named in item <b>9.1</b>'s touches, and 9.1 has been active on the desktop
-since 10 September. It is the same wall 5.1's retention dial hit on 15 September.</p>
+<p><b>The tab is not.</b> Putting a tab on the hub means editing
+<code>components/FirmManagerHub.vue</code> in three places — <code>TAB_TIERS</code> (all four
+tiers, per Decision 3), <code>NAV_GROUPS</code> (the end of "Rolled up from below") and the
+panel itself. That file is named in item <b>9.1</b>'s touches, and 9.1 has been active on the
+desktop since 10 September. It is the same wall 5.1's retention dial hit on 15 September.</p>
 <p><b>Which is why this drawing exists now rather than later.</b> With the screen settled, the
 recording half can be built knowing exactly what it has to feed, and the tab becomes a small,
 well-specified job on the day the desktop releases the hub file.</p>
