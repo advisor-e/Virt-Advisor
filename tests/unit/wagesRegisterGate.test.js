@@ -78,11 +78,58 @@ describe('findDueDiligenceCase', () => {
 })
 
 describe('resolveGate — the decision, in all three states', () => {
-  it('no due-diligence case: CLOSED, and no switch is offered', () => {
+  it('🔴 NO DUE-DILIGENCE CASE IS NOT A REFUSAL — the register is simply not open yet', () => {
+    // Mike, 2026-09-15: *"i dont need any bullshit gates telling my advisors what they can
+    // and cant do. if they're engaged to run a due diligence project they will fucking tell
+    // you."* This used to return CLOSED and offer nothing. It was unmeetable in any case —
+    // the only thing that could ever satisfy the condition was the Virtual Advisor inferring
+    // the domain from an advisor's words, and no screen let a human say so.
     const g = gate.resolveGate(null, null)
-    expect(g.state).toBe(gate.STATE_CLOSED)
-    expect(g.reason).toBe(gate.REASON_NO_DUE_DILIGENCE_CASE)
+    expect(g.state).toBe(gate.STATE_AVAILABLE)
     expect(g.case).toBeNull()
+  })
+
+  it('🔴 AN OPENING WITH NO CASE AT ALL STANDS — the advisor said so, and that is enough', () => {
+    const own = {
+      openedBy: STORED.openedBy,
+      openedAt: STORED.openedAt,
+      declaredBy: { name: 'M. Bartlett', email: 'mike@advisor-e.com' },
+      declaredAt: '2026-09-15T04:00:00.000Z',
+      closedBy: null,
+      closedAt: null
+    }
+    const g = gate.resolveGate(null, own)
+    expect(g.state).toBe(gate.STATE_OPEN)
+    expect(g.case).toBeNull()
+    // The RECORD is what survived the gate: who opened it, when, and that it was on their
+    // own say-so rather than against a case already in the domain.
+    expect(g.declaredBy).toEqual(own.declaredBy)
+    expect(g.declaredAt).toBe(own.declaredAt)
+  })
+
+  it('a CLOSED register is closed however it was opened', () => {
+    // Closing is a decision too, and it still holds — what went is the barrier to OPENING,
+    // never the advisor's ability to shut one they opened on the wrong client.
+    const closed = {
+      openedBy: STORED.openedBy,
+      openedAt: STORED.openedAt,
+      declaredBy: { name: 'M. Bartlett', email: 'mike@advisor-e.com' },
+      declaredAt: '2026-09-15T04:00:00.000Z',
+      closedBy: { name: 'M. Bartlett', email: 'mike@advisor-e.com' },
+      closedAt: '2026-09-15T05:00:00.000Z'
+    }
+    const g = gate.resolveGate(null, closed)
+    expect(g.state).toBe(gate.STATE_AVAILABLE)
+    expect(g.declaredAt).toBeNull()
+  })
+
+  it('a case in the domain claims NO say-so nobody gave', () => {
+    // The two routes in stay distinguishable in the record: opening against an existing case
+    // is not the advisor asserting anything, so it must not be written down as though it were.
+    const g = gate.resolveGate(DD_CASE, STORED)
+    expect(g.state).toBe(gate.STATE_OPEN)
+    expect(g.declaredBy).toBeNull()
+    expect(g.declaredAt).toBeNull()
   })
 
   it('a due-diligence case, not switched on: AVAILABLE, naming the case', () => {
@@ -112,21 +159,25 @@ describe('resolveGate — the decision, in all three states', () => {
     expect(g.openedAt).toBeNull()
   })
 
-  it('🔴 A STORED SWITCH NEVER OPENS THE GATE ON ITS OWN', () => {
-    // Decision 6: "when the case leaves the due-diligence domain the register closes again
-    // and what was entered is not shown. It is not a permanent property of the client."
-    // Trusting the stored flag would leave the register standing open for the life of the
-    // client record — the standing opinion the ruling refuses.
+  it('🔴 A STORED OPENING STANDS ON ITS OWN, WITH NO CASE ANYWHERE', () => {
+    // This test used to assert the exact opposite, and the reversal is Mike's ruling of
+    // 2026-09-15. Decision 6 had the register close itself when a case left the
+    // due-diligence domain — which, with the gate gone, would mean an opening the advisor
+    // made deliberately being revoked by a domain classifier they never asked to consult.
+    // An advisor who is finished closes it; nothing else does it behind them.
     const g = gate.resolveGate(null, STORED)
-    expect(g.state).toBe(gate.STATE_CLOSED)
-    expect(g.openedBy).toBeNull()
-    expect(g.openedAt).toBeNull()
+    expect(g.state).toBe(gate.STATE_OPEN)
+    expect(g.openedBy).toEqual(STORED.openedBy)
+    expect(g.openedAt).toBe(STORED.openedAt)
   })
 
-  it('a closed gate reports NO record that the register was ever opened', () => {
-    // Returning the old record would tell the reader this client was once in a transaction
-    // — a fact the closed state exists to stop disclosing.
-    const g = gate.resolveGate(null, STORED)
+  it('a register that is NOT open discloses nobody — no name, no date', () => {
+    // The one disclosure rule that survives the gate, and it still matters: `available` is
+    // rendered to anyone who opens the screen, so it must not carry the record of an earlier
+    // opening and tell a reader this client was once in a transaction.
+    const closed = { ...STORED, closedBy: { name: 'M. Bartlett', email: 'mike@advisor-e.com' }, closedAt: '2026-09-15T05:00:00.000Z' }
+    const g = gate.resolveGate(null, closed)
+    expect(g.state).toBe(gate.STATE_AVAILABLE)
     expect(JSON.stringify(g)).not.toContain('Bartlett')
     expect(JSON.stringify(g)).not.toContain(STORED.openedAt)
   })

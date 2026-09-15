@@ -14,7 +14,15 @@ jest.mock('../../utils/wagesRegister', () => ({
 }))
 
 const api = require('../../utils/wagesRegister')
+
 const WagesRegister = require('../../components/WagesRegister.vue').default
+
+// 🔴 THE DEV SIGN-IN IS MOCKED OFF BY DEFAULT. jsdom serves these tests from `localhost`,
+// which IS a dev host, so the component's dev fallback (2026-09-15) would fire in every test
+// here and "does not call the backend at all without a token" would stop testing anything.
+// Production is served from a domain, where this is false; the dev path is tested below.
+jest.mock('~/utils/devHost', () => ({ isDevHost: jest.fn(() => false) }))
+const { isDevHost } = require('~/utils/devHost')
 
 /**
  * WagesRegister — the staff register itself (item 5.1), approved by Mike 2026-09-15.
@@ -75,6 +83,7 @@ async function mountRegister (over) {
 beforeEach(() => {
   api.viewRegister.mockReset()
   api.saveRegister.mockReset()
+  isDevHost.mockReturnValue(false)
   window.localStorage.setItem('advisor_e_token', 'a-token')
 })
 
@@ -142,6 +151,17 @@ describe('reading the register', () => {
     const wrapper = mountWithBuefy(WagesRegister, { propsData: { clientId: 'c-1', team: TEAM } })
     await settle(wrapper)
     expect(api.viewRegister).not.toHaveBeenCalled()
+  })
+
+  it('🔴 on a developer\'s own machine it stands in for the sign-in', async () => {
+    // 2026-09-15 — the same fallback the gate and the client picker carry. Without it the
+    // sheet read nothing on a laptop, so the register opened onto an empty screen.
+    window.localStorage.clear()
+    isDevHost.mockReturnValue(true)
+    const wrapper = mountWithBuefy(WagesRegister, { propsData: { clientId: 'c-1', team: TEAM } })
+    await settle(wrapper)
+    expect(api.viewRegister).toHaveBeenCalled()
+    expect(api.viewRegister.mock.calls[0][2]).toBe('dev-local-bypass')
   })
 
   it('re-reads when the team changes, so somebody added in step 1 appears here', async () => {

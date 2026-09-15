@@ -38,12 +38,20 @@ export async function getRegisterGate (clientId, token) {
 
 /**
  * The advisor switches the register on. Recorded with who and when — Decision 6.
+ *
+ * `declared` is the advisor answering "is this client in a due-diligence project?" (Mike,
+ * 2026-09-15). The route REQUIRES it when no case is already in the domain and refuses the
+ * open without it, so it is sent as a real boolean rather than left undefined.
+ *
  * @param {string} clientId @param {string} token
+ * @param {boolean} [declared] - the advisor declares the project
  * @returns {Promise<{clientId: string, gate: object}>}
  */
-export async function openRegisterGate (clientId, token) {
+export async function openRegisterGate (clientId, token, declared) {
   const res = await fetch(`/api/wages-register/gate/${encodeURIComponent(clientId)}/open`, {
-    method: 'POST', headers: authHeaders(token)
+    method: 'POST',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders(token)),
+    body: JSON.stringify({ declared: declared === true })
   })
   return parse(res, 'Failed to open the staff register')
 }

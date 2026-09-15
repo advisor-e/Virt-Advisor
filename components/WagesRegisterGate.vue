@@ -8,6 +8,9 @@
     .wrg-txt
       p.wrg-h {{ titleText }}
       p.wrg-s {{ noteText }}
+    //- One button, and it is offered whenever a client is chosen (Mike, 2026-09-15). No
+    //- condition is checked before showing it: the advisor clicking it is the advisor
+    //- telling us the engagement is under way.
     b-button.wrg-btn.wrg-open(
       v-if="gate.state === 'available'"
       type="is-primary"
@@ -38,12 +41,21 @@
  * their reasoning are Decision 6 of `design/mockups/wages-model.html`, ruled 2026-09-14.
  *
  * 🔴 THE THREE STATES ARE NOT COSMETIC.
- *   · `closed`    — no due-diligence case. NO CONTROL IS RENDERED. Nothing on this screen
- *                   can put a client into due diligence, which is the point of condition 1.
- *   · `available` — a case stands, the advisor has not switched the register on. The only
- *                   state carrying a button.
+ *   · `closed`    — no due-diligence project is recorded. With a client chosen it now ASKS
+ *                   ("is this client in a due-diligence project?") and the answer both
+ *                   declares the project and opens the register, recorded against the
+ *                   advisor's name. With NO client chosen (`canDeclare` false) it renders no
+ *                   control, because a declaration must be recorded against somebody.
+ *   · `available` — a case already in the domain, and the advisor has not switched the
+ *                   register on.
  *   · `open`      — both conditions met; the provenance line names the transaction, the
  *                   advisor and the date.
+ *
+ * ⚠ `closed` USED TO CARRY NO CONTROL AT ALL, and that is what changed on 2026-09-15. The
+ * only thing in the app that could satisfy condition 1 was the Virtual Advisor inferring the
+ * due-diligence domain from an advisor's words; no screen let a human say so. An advisor on a
+ * real due-diligence job was told "it opens only while a due-diligence project is open on the
+ * case" and given no way to make that true. Mike: *"ASK THE FUCKING ADVISOR!!! stop guessing"*.
  *
  * ⚠ THIS COMPONENT IS NOT THE GATE. It renders what the backend decided. The switch-on
  * re-checks the due-diligence case server-side, so nothing here — a prop, a stale answer, a
@@ -57,6 +69,7 @@
  */
 import { intlLocaleFor } from '~/utils/dateLocale'
 import { getRegisterGate, openRegisterGate, closeRegisterGate } from '~/utils/wagesRegister'
+import { isDevHost } from '~/utils/devHost'
 
 const TOKEN_KEY = 'advisor_e_token'
 
@@ -102,11 +115,14 @@ export default {
     noteText () {
       const t = 'report.wagesReview.register.'
       if (this.gate.state === 'open') {
-        return this.$t(t + 'preparedFor', {
-          project: this.projectName,
-          advisor: (this.gate.openedBy && this.gate.openedBy.name) || '',
-          date: this.openedDate
-        })
+        const advisor = (this.gate.openedBy && this.gate.openedBy.name) || ''
+        // ⚠ NAME THE PROJECT ONLY WHERE THERE IS ONE. Since the due-diligence condition went
+        // (Mike, 2026-09-15) most registers are opened on the advisor's own say-so with no
+        // case to name, and the single sentence rendered "Prepared for  · by …" — a gap
+        // where a deal name used to be.
+        return this.projectName
+          ? this.$t(t + 'preparedFor', { project: this.projectName, advisor, date: this.openedDate })
+          : this.$t(t + 'preparedBy', { advisor, date: this.openedDate })
       }
       if (this.gate.state === 'available') {
         return this.projectName
@@ -139,6 +155,10 @@ export default {
     try {
       this.token = window.localStorage.getItem(TOKEN_KEY) || ''
     } catch (e) { this.token = '' }
+    // On a developer's own machine, stand in for the Advisor-e sign-in (2026-09-15). Same
+    // two gates as every other dev sign-in here: a loopback hostname, and a backend that
+    // refuses the bypass token unless ALLOW_DEV_AUTH is set. Production has neither.
+    if (!this.token && isDevHost()) { this.token = 'dev-local-bypass' }
     this.load()
   },
 
@@ -175,6 +195,10 @@ export default {
      * The advisor switches the register on. The answer replaces the whole gate rather than
      * flipping a local flag, so what is on screen is always what the server decided.
      * Emits `opened` with the gate so the page can reveal the register in the next stage.
+     */
+    /**
+     * Open the staff register. No condition is checked here or on the route (Mike,
+     * 2026-09-15) — the click is the advisor telling us. The backend records who and when.
      */
     async openRegister () {
       if (!this.token || !this.clientId || this.busy) { return }

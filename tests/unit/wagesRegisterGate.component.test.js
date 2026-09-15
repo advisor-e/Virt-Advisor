@@ -12,7 +12,16 @@ jest.mock('../../utils/wagesRegister', () => ({
 }))
 
 const api = require('../../utils/wagesRegister')
+
 const WagesRegisterGate = require('../../components/WagesRegisterGate.vue').default
+
+// 🔴 THE DEV SIGN-IN IS MOCKED OFF BY DEFAULT. jsdom serves these tests from `localhost`,
+// which IS a dev host — so without this the component's dev fallback (2026-09-15, so the
+// screen works on a developer's own machine) fires in every test here and "no token: the
+// backend is never asked" becomes untestable. Production is served from a domain, where this
+// is false. The dev path has its own test below, which turns it on.
+jest.mock('~/utils/devHost', () => ({ isDevHost: jest.fn(() => false) }))
+const { isDevHost } = require('~/utils/devHost')
 
 /**
  * WagesRegisterGate — the strip deciding whether the staff register is on screen at all
@@ -63,6 +72,7 @@ beforeEach(() => {
   api.getRegisterGate.mockReset()
   api.openRegisterGate.mockReset()
   api.closeRegisterGate.mockReset()
+  isDevHost.mockReturnValue(false)
   window.localStorage.setItem('advisor_e_token', 'a-token')
 })
 
@@ -119,6 +129,20 @@ describe('when nothing should be rendered at all', () => {
     await wrapper.vm.$nextTick()
     expect(api.getRegisterGate).not.toHaveBeenCalled()
     expect(wrapper.find('.wrg-strip').exists()).toBe(false)
+  })
+
+  it('🔴 on a developer\'s own machine it stands in for the sign-in', async () => {
+    // 2026-09-15. In production Advisor-e writes the token before our page loads; nothing on
+    // a laptop does, so this strip rendered NOTHING and the staff register looked like a
+    // missing feature rather than a missing sign-in. Two gates keep it out of production: a
+    // loopback hostname, and a backend that refuses the bypass token without ALLOW_DEV_AUTH.
+    window.localStorage.clear()
+    isDevHost.mockReturnValue(true)
+    api.getRegisterGate.mockResolvedValue({ clientId: 'c-1', gate: AVAILABLE_GATE })
+    const wrapper = mountWithBuefy(WagesRegisterGate, { propsData: { clientId: 'c-1' } })
+    await settle(wrapper)
+    expect(api.getRegisterGate).toHaveBeenCalledWith('c-1', 'dev-local-bypass')
+    expect(wrapper.find('.wrg-strip').exists()).toBe(true)
   })
 
   it('🔴 a FAILED check leaves no switch on screen', async () => {

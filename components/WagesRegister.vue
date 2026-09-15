@@ -131,6 +131,7 @@
  */
 import { viewRegister, saveRegister } from '~/utils/wagesRegister'
 import { intlLocaleFor } from '~/utils/dateLocale'
+import { isDevHost } from '~/utils/devHost'
 
 /** The master app's token, the same key every other feature reads. */
 const TOKEN_KEY = 'advisor_e_token'
@@ -213,6 +214,10 @@ export default {
     try {
       this.token = window.localStorage.getItem(TOKEN_KEY) || ''
     } catch (e) { this.token = '' }
+    // On a developer's own machine, stand in for the Advisor-e sign-in (2026-09-15). Same
+    // two gates as every other dev sign-in here: a loopback hostname, and a backend that
+    // refuses the bypass token unless ALLOW_DEV_AUTH is set. Production has neither.
+    if (!this.token && isDevHost()) { this.token = 'dev-local-bypass' }
     this.load()
   },
 

@@ -84,16 +84,32 @@ describe('GET /api/wages-register/gate/:clientId', () => {
     expect(res._body.gate.case).toEqual({ id: 'case-1', title: DD_CASE.title })
   })
 
-  it('no due-diligence case is CLOSED, and the switch is never even read', async () => {
-    // Reading it would be harmless in itself; NOT reading it is what guarantees the closed
-    // answer cannot accidentally carry the old record out with it.
+  it('🔴 THE SWITCH IS READ EVEN WITH NO DUE-DILIGENCE CASE', async () => {
+    // The bug this pins, found while removing the gate (Mike, 2026-09-15): the switch used to
+    // be read ONLY when a due-diligence case stood, because without one the register was
+    // closed whatever was stored. With the gate gone most registers are opened with no case
+    // at all — so skipping the read reports every one of them as "not open", and the advisor
+    // reopens it on every visit, never seeing the one they already had.
     clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Kinetic Planning' })
     caseStore.listForClient.mockResolvedValue([OTHER_CASE])
+    gate.readSwitch.mockResolvedValue(STORED)
     const res = makeMockRes()
     await routes.getGate(advisorReq({ params: { clientId: 'c-1' } }), res)
-    expect(res._body.gate.state).toBe('closed')
+    expect(gate.readSwitch).toHaveBeenCalled()
+    expect(res._body.gate.state).toBe('open')
+  })
+
+  it('a register that is not open discloses no name and no date', async () => {
+    // The disclosure rule that outlived the gate: `available` renders to anyone who opens the
+    // screen, so it must not carry the record of an earlier opening.
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Kinetic Planning' })
+    caseStore.listForClient.mockResolvedValue([OTHER_CASE])
+    gate.readSwitch.mockResolvedValue(null)
+    const res = makeMockRes()
+    await routes.getGate(advisorReq({ params: { clientId: 'c-1' } }), res)
+    expect(res._body.gate.state).toBe('available')
     expect(res._body.gate.openedBy).toBeNull()
-    expect(gate.readSwitch).not.toHaveBeenCalled()
+    expect(res._body.gate.openedAt).toBeNull()
   })
 
   it('identity is the TOKEN\'s — firm and advisor both', async () => {
@@ -145,7 +161,7 @@ describe('POST /api/wages-register/gate/:clientId/open', () => {
     expect(res._status).toBe(200)
     expect(res._body.gate.state).toBe('open')
     // Who is recorded comes from the verified token, never the body.
-    expect(gate.openRegister).toHaveBeenCalledWith('firm-from-jwt', 'c-1', { name: 'M. Bartlett', email: 'mike@advisor-e.com' })
+    expect(gate.openRegister).toHaveBeenCalledWith('firm-from-jwt', 'c-1', { name: 'M. Bartlett', email: 'mike@advisor-e.com' }, false)
   })
 
   it('an advisor whose token carries no name is recorded by email', async () => {
@@ -157,7 +173,7 @@ describe('POST /api/wages-register/gate/:clientId/open', () => {
     gate.openRegister.mockResolvedValue(STORED)
     const res = makeMockRes()
     await routes.openGate(advisorReq({ params: { clientId: 'c-1' }, advisorName: null }), res)
-    expect(gate.openRegister).toHaveBeenCalledWith('firm-from-jwt', 'c-1', { name: 'mike@advisor-e.com', email: 'mike@advisor-e.com' })
+    expect(gate.openRegister).toHaveBeenCalledWith('firm-from-jwt', 'c-1', { name: 'mike@advisor-e.com', email: 'mike@advisor-e.com' }, false)
   })
 
   it('a token with neither name nor email still records the date, not a crash', async () => {
@@ -167,22 +183,27 @@ describe('POST /api/wages-register/gate/:clientId/open', () => {
     const res = makeMockRes()
     await routes.openGate(advisorReq({ params: { clientId: 'c-1' }, advisorName: null, userEmail: null }), res)
     expect(res._status).toBe(200)
-    expect(gate.openRegister).toHaveBeenCalledWith('firm-from-jwt', 'c-1', { name: '', email: '' })
+    expect(gate.openRegister).toHaveBeenCalledWith('firm-from-jwt', 'c-1', { name: '', email: '' }, false)
   })
 
-  it('🔴 a switch-on with NO due-diligence case is refused by the route itself', async () => {
-    // Condition 1 is not a hint to the frontend. Without this, the register opens for any
-    // client by calling the route directly.
+  it('🔴 IT OPENS WITH NO DUE-DILIGENCE CASE, AND REFUSES NOBODY', async () => {
+    // Mike, 2026-09-15: *"i dont need any bullshit gates telling my advisors what they can and
+    // cant do."* This route used to answer 403 here. The advisor clicking the button IS the
+    // advisor telling us the engagement is under way.
     clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Kinetic Planning' })
     caseStore.listForClient.mockResolvedValue([OTHER_CASE])
+    gate.openRegister.mockResolvedValue(STORED)
     const res = makeMockRes()
     await routes.openGate(advisorReq({ params: { clientId: 'c-1' } }), res)
-    expect(res._status).toBe(403)
-    expect(res._body.error.code).toBe('NO_DUE_DILIGENCE_CASE')
-    expect(gate.openRegister).not.toHaveBeenCalled()
+    expect(res._status).toBe(200)
+    // Opened on the advisor's own say-so — recorded as such, which is the record that
+    // outlived the gate. Who it was still comes from the token, never the body.
+    expect(gate.openRegister).toHaveBeenCalledWith('firm-from-jwt', 'c-1', { name: 'M. Bartlett', email: 'mike@advisor-e.com' }, true)
   })
 
-  it('a client of another firm cannot be switched on', async () => {
+  it('🔴 a client of another firm cannot be switched on — scope is not a permission gate', async () => {
+    // The one check that did NOT go with the due-diligence gate, and must never go: an
+    // advisor opening another firm's staff register is not a judgement call, it is an IDOR.
     clientStore.getById.mockResolvedValue(null)
     const res = makeMockRes()
     await routes.openGate(advisorReq({ params: { clientId: 'someone-elses' } }), res)
@@ -241,14 +262,16 @@ describe('POST /api/wages-register/gate/:clientId/close', () => {
 
   it('🔴 closing needs NO due-diligence case — it is the safe direction', async () => {
     // Refusing to close because the case has moved on would leave an advisor unable to shut
-    // a register the app already treats as closed.
+    // a register they opened. A closed register reports `available` — the truth being simply
+    // that it is not open — rather than inventing a fourth state saying the same thing.
     clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Kinetic Planning' })
     caseStore.listForClient.mockResolvedValue([OTHER_CASE])
     gate.closeRegister.mockResolvedValue(CLOSED_ROW)
     const res = makeMockRes()
     await routes.closeGate(advisorReq({ params: { clientId: 'c-1' } }), res)
     expect(res._status).toBe(200)
-    expect(res._body.gate.state).toBe('closed')
+    expect(res._body.gate.state).toBe('available')
+    expect(res._body.gate.openedBy).toBeNull()
     expect(gate.closeRegister).toHaveBeenCalled()
   })
 

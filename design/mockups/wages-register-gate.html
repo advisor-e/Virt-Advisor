@@ -133,16 +133,66 @@ It is the next stage, along with its storage and Decision 8's retention dial, an
 in <code>wages-model.html</code>, already approved.</p>
 </div>
 
-<h2>State 1 — Closed. No due-diligence project.</h2>
-<p>The client's case is in some other domain, so there is no transaction under way.
-<b>There is no switch here</b>, and that is the point: nothing on this screen can put a client
-into due diligence.</p>
+<h2>State 1 — <b>DELETED 2026-09-15. THERE IS NO GATE.</b></h2>
+
+<div class="mock" style="background:#fdeaea;border-color:#f0a8a8;color:#7a1414">
+<h3>🔴 MIKE'S RULING, 2026-09-15 — THE DUE-DILIGENCE CONDITION IS GONE ENTIRELY</h3>
+<p><b>In his words:</b> <i>"just make it easy for me to click on a button — i dont need any
+bullshit gates telling my advisors what they can and cant do. if they're engaged to run a due
+diligence project they will fucking tell you — end of fucking argument!"</i></p>
+<p><b>He ruled twice, and the first version of this box recorded only the first ruling.</b> Asked
+how the model was supposed to know a client was in due diligence, he first said <i>"ASK THE
+FUCKING ADVISOR!!! stop guessing"</i> — so the screen was rebuilt to ask a question. He then cut
+the question too: <b>an advisor who opens the register is the advisor telling us.</b> One button,
+no condition, no question.</p>
+<p><b>The fault that started it.</b> The state drawn below carried no control, on the reasoning
+that <i>"nothing on this screen can put a client into due diligence"</i>. The reasoning was sound
+and the consequence was not: <b>the only thing in the entire app that could satisfy the condition
+was the Virtual Advisor inferring the <code>due-diligence</code> domain from an advisor's words
+mid-conversation</b> (<code>VirtualAdvisor.vue</code>, <code>domain: this.sessionDomain</code>).
+No screen anywhere let a human say so, so an advisor on a real due-diligence engagement was shown
+a true sentence — <i>"it opens only while a due-diligence project is open on the case"</i> — and
+<b>no way on earth to make it true.</b></p>
+<p><b>WHAT SURVIVES, and it was always the substance of Decision 6: the RECORD.</b>
+<code>openedBy</code>/<code>openedAt</code> from the verified token, never the request body, so
+<i>"who decided to show this client's named staff, and when?"</i> has exactly the answer it
+always had. An opening made with no case in the domain is marked as being on the advisor's own
+say-so. None of it stops anybody; it is a record, not a barrier. The close switch survives too.
+<b>The one check that did NOT go</b> is that the client belongs to the caller's firm — that is
+scoping, not permission, and removing it would be an IDOR.</p>
+<p><b>There are now two states on this page, not three</b> — <b>Available</b> (not open yet,
+carrying the button) and <b>Open</b>. <code>closed</code> survives for one case only and it is
+not a refusal: no client has been chosen, so there is no register to speak about.</p>
+</div>
 
 <div class="screen">
   <div class="rs-top">
     <div class="rs-eyebrow">Decision tool · Profitability</div>
     <div class="rs-title">Wages/Salary Review</div>
   </div>
+  <div class="body">
+    <div class="gate closed">
+      <span class="pill off">Available</span>
+      <div class="txt">
+        <p class="h">The staff register is not open for this client.</p>
+        <p class="s">It holds this client's named staff with their pay, accrued leave, length of
+        service and what the business loses if they go. Opening it records your name and the
+        date.</p>
+      </div>
+      <button class="btn">Open the staff register</button>
+    </div>
+    <div class="absent" style="margin-top:14px">Until it is opened the register is
+    <b>absent, not greyed</b> — nothing of it is rendered, and no employee data is sent to
+    this screen.</div>
+  </div>
+</div>
+
+<h3>Superseded — what this state drew until 2026-09-15</h3>
+<p>Kept so the change above can be read against what it replaced, never as a live drawing.
+The client's case was in some other domain, so there was no transaction under way, and there was
+<b>no switch here at all</b>.</p>
+
+<div class="screen" style="opacity:.55">
   <div class="body">
     <div class="gate closed">
       <span class="pill off">Closed</span>
@@ -152,8 +202,6 @@ into due diligence.</p>
         client's case is in the <i>profitability and feasibility</i> domain.</p>
       </div>
     </div>
-    <div class="absent" style="margin-top:14px">The register is <b>absent, not greyed</b> —
-    nothing of it is rendered, and no employee data is sent to this screen.</div>
   </div>
 </div>
 

@@ -166,18 +166,29 @@ function findDueDiligenceCase (cases) {
  * @returns {{state: string, reason: string, case: object|null, openedBy: object|null, openedAt: string|null}}
  */
 function resolveGate (dueDiligenceCase, stored) {
-  // Condition 1 fails: there is no transaction under way, so there is nothing to offer and
-  // NO SWITCH TO SHOW. A stored switch from an earlier project is deliberately ignored
-  // rather than reported — the register closed when the case left the domain.
-  if (!dueDiligenceCase) {
-    return {
-      state: STATE_CLOSED,
-      reason: REASON_NO_DUE_DILIGENCE_CASE,
-      case: null,
-      openedBy: null,
-      openedAt: null
-    }
-  }
+  // 🔴 THERE IS NO PERMISSION CHECK LEFT HERE — Mike's ruling, 2026-09-15: *"i dont need any
+  // bullshit gates telling my advisors what they can and cant do. if they're engaged to run a
+  // due diligence project they will fucking tell you — end of fucking argument!"*
+  //
+  // The due-diligence condition is GONE. It was unmeetable in any case: the only thing in the
+  // app that could ever satisfy it was the Virtual Advisor inferring the domain from an
+  // advisor's words mid-conversation (`VirtualAdvisor.vue`, `domain: this.sessionDomain`), and
+  // no screen anywhere let a human say so — so an advisor on a real due-diligence engagement
+  // was shown a true sentence and no way to act on it.
+  //
+  // ⚠ SO THIS FUNCTION NO LONGER DECIDES WHO MAY; IT REPORTS WHETHER IT IS OPEN. Two states do
+  // that — `available` (not opened yet) and `open`. `closed` survives for ONE case only, and
+  // it is not a refusal: no client has been chosen, so there is no register to speak about.
+  //
+  // WHAT IS KEPT IS THE RECORD, which was always the substance of Decision 6: who opened it
+  // and when, from the verified token. `declaredAt` marks an opening made on the advisor's own
+  // say-so rather than against a case already in the domain — a note in the record, never a
+  // condition on the screen. It stops nobody. It is what lets a firm answer, afterwards, who
+  // decided to show this client's named staff.
+  const declared = !!(stored && stored.declaredAt && !stored.closedAt)
+  const theCase = dueDiligenceCase || null
+  const declaredBy = declared ? (stored.declaredBy || null) : null
+  const declaredAt = declared ? stored.declaredAt : null
 
   // Condition 1 holds, condition 2 has not been met: the advisor may open it, and has not —
   // either never, or because they closed it again. Both are the same truth on screen, so
@@ -186,7 +197,10 @@ function resolveGate (dueDiligenceCase, stored) {
     return {
       state: STATE_AVAILABLE,
       reason: REASON_NOT_SWITCHED_ON,
-      case: dueDiligenceCase,
+      case: theCase,
+      canDeclare: false,
+      declaredBy,
+      declaredAt,
       openedBy: null,
       openedAt: null
     }
@@ -196,18 +210,31 @@ function resolveGate (dueDiligenceCase, stored) {
   return {
     state: STATE_OPEN,
     reason: REASON_SWITCHED_ON,
-    case: dueDiligenceCase,
+    case: theCase,
+    canDeclare: false,
+    declaredBy,
+    declaredAt,
     openedBy: stored.openedBy || null,
     openedAt: stored.openedAt
   }
 }
 
-/** The gate for a caller who has not chosen a client yet. Never a switch, never a case. */
+/**
+ * The gate for a caller who has not chosen a client yet. Never a switch, never a case.
+ *
+ * ⚠ AND NEVER THE DECLARATION EITHER — `canDeclare` is false here. The declaration is made
+ * ABOUT a client and recorded AGAINST one, so with no client chosen there is nothing to
+ * declare and nowhere to keep it. Offering the question first would collect an answer that
+ * belongs to nobody.
+ */
 function noClientGate () {
   return {
     state: STATE_CLOSED,
     reason: REASON_NO_CLIENT,
     case: null,
+    canDeclare: false,
+    declaredBy: null,
+    declaredAt: null,
     openedBy: null,
     openedAt: null
   }
@@ -313,17 +340,30 @@ function recordOf (who) {
  * previous pair rather than accumulating: what is on screen must name the opening now in
  * force, and `firmOverlay`'s version history keeps the ones before it.
  *
+ * 🔴 `declared` IS THE ADVISOR ANSWERING THE QUESTION (Mike, 2026-09-15) — "yes, this client
+ * is in a due-diligence project". It is recorded in the same shape and from the same verified
+ * token as the opening, because it is the same kind of act and carries more weight: the
+ * opening says who showed the register, the declaration says on whose word it could be shown
+ * at all. One act, not two — an advisor answering the question has already decided.
+ *
  * @param {string} firmId - the authenticated scope id
  * @param {string} clientId - a client of that firm (the route checks it belongs)
  * @param {{name: string, email: string}} who - from the verified token, never the body
- * @returns {Promise<{openedBy: object, openedAt: string, closedBy: null, closedAt: null}>}
+ * @param {boolean} [declared] - the advisor declared the project; the route requires this
+ *   when no case is already in the domain, and refuses the open without it
+ * @returns {Promise<{openedBy: object, openedAt: string, declaredBy: object|null, declaredAt: string|null, closedBy: null, closedAt: null}>}
  */
-async function openRegister (firmId, clientId, who) {
+async function openRegister (firmId, clientId, who, declared) {
   const existing = await readSwitch(firmId, clientId)
   if (existing && !existing.closedAt) { return existing }
+  const at = new Date().toISOString()
   const row = {
     openedBy: recordOf(who),
-    openedAt: new Date().toISOString(),
+    openedAt: at,
+    // Absent unless the advisor declared it, so a register opened on a case already in the
+    // domain does not claim a declaration nobody made.
+    declaredBy: declared ? recordOf(who) : null,
+    declaredAt: declared ? at : null,
     closedBy: null,
     closedAt: null
   }

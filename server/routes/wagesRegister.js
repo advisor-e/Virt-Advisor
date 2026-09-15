@@ -62,10 +62,14 @@ async function getGate (req, res) {
     // register for this one.
     const cases = await caseStore.listForClient(req.advisorId, firmId, client.id)
     const ddCase = gate.findDueDiligenceCase(cases)
-    // Read the switch ONLY when a due-diligence case stands. With none, the register is
-    // closed whatever was stored, and reporting an old record would leak that the client
-    // was once in a transaction.
-    const stored = ddCase ? await gate.readSwitch(firmId, client.id) : null
+    // 🔴 ALWAYS READ THE SWITCH. It used to be read only when a due-diligence case stood,
+    // because without one the register was closed whatever was stored. With that gate gone
+    // (Mike, 2026-09-15) most registers are opened with no case at all — and skipping the
+    // read would report every one of them as "not open", so the advisor would open it again
+    // on every visit and never see the one they already had. The leak the old line guarded
+    // against is handled where it belongs: `resolveGate` returns no name and no date unless
+    // the register is actually open.
+    const stored = await gate.readSwitch(firmId, client.id)
     res.send(200, {
       success: true,
       clientId: client.id,
@@ -81,14 +85,21 @@ async function getGate (req, res) {
 /**
  * POST /api/wages-register/gate/:clientId/open — the advisor switches the register on.
  *
- * 🔴 THE DUE-DILIGENCE CASE IS CHECKED HERE TOO, not only on the screen. Condition 1 is not
- * a hint to the frontend; a switch-on for a client with no due-diligence case is refused,
- * so the register cannot be opened by calling this route directly.
+ * 🔴 IT REFUSES NOBODY — Mike's ruling, 2026-09-15, and it replaces the due-diligence gate
+ * this route used to enforce. The advisor opening the register is the advisor telling us the
+ * engagement is under way; the app does not second-guess them. The only thing still required
+ * is a client of the caller's own firm, which is a scoping check, not a permission one — an
+ * advisor must never open another firm's register.
+ *
+ * WHAT IS KEPT IS THE RECORD. `openRegister` writes who and when from the VERIFIED TOKEN,
+ * never the body, and a client with no case already in the due-diligence domain is recorded
+ * as having been opened on the advisor's own say-so. Nothing about that stops anyone; it is
+ * what lets the firm answer "who decided to show this client's named staff, and when?".
  *
  * @route POST /api/wages-register/gate/:clientId/open
  * @param {string} req.params.clientId - a client of the caller's firm
  * @returns {200} { success, clientId, gate } — the gate as it now stands, state 'open'
- * @returns {403} NO_FIRM_IDENTITY | NO_DUE_DILIGENCE_CASE · {404} NOT_FOUND · {500} DB_ERROR
+ * @returns {403} NO_FIRM_IDENTITY · {404} NOT_FOUND · {500} DB_ERROR
  */
 async function openGate (req, res) {
   const firmId = req.firmId
@@ -98,10 +109,12 @@ async function openGate (req, res) {
     if (!client) { return sendError(res, 404, 'NOT_FOUND', 'Client not found') }
     const cases = await caseStore.listForClient(req.advisorId, firmId, client.id)
     const ddCase = gate.findDueDiligenceCase(cases)
-    if (!ddCase) {
-      return sendError(res, 403, 'NO_DUE_DILIGENCE_CASE', 'The staff register opens only while a due-diligence project is open on the case')
-    }
-    const stored = await gate.openRegister(firmId, client.id, advisorWho(req))
+    // 🔴 NO REFUSAL HERE ANY MORE — Mike, 2026-09-15: *"i dont need any bullshit gates telling
+    // my advisors what they can and cant do. if they're engaged to run a due diligence project
+    // they will fucking tell you."* The advisor clicking the button IS the telling. What is
+    // kept is the RECORD, not a barrier: who opened it and when, from the verified token. That
+    // stops nobody and is what makes the screen answerable afterwards.
+    const stored = await gate.openRegister(firmId, client.id, advisorWho(req), !ddCase)
     res.send(200, {
       success: true,
       clientId: client.id,
@@ -152,11 +165,15 @@ async function closeGate (req, res) {
 /**
  * The gate, re-resolved from the live case and the stored switch.
  *
- * 🔴 EVERY CONTENTS ROUTE BELOW CALLS THIS FIRST, and that is not belt-and-braces. The gate
- * is a property of the client's case RIGHT NOW, not of a flag: Decision 6 says that when the
- * case leaves the due-diligence domain *"the register closes again and what was entered is
- * not shown"*. A contents route that trusted the stored switch would keep serving named
- * employees for the life of the client record.
+ * 🔴 EVERY CONTENTS ROUTE BELOW CALLS THIS FIRST, so that named employees are served only
+ * while the register is actually open — never on the strength of a request alone.
+ *
+ * 🔴 THE SWITCH IS ALWAYS READ. It used to be read only when a due-diligence case stood,
+ * because without one the register was shut whatever was stored. With that gate gone (Mike,
+ * 2026-09-15) most registers are opened with no case at all — and skipping the read resolved
+ * every one of them to `available`, so the sheet rendered and then every contents route
+ * answered 403. Found by opening it in a browser; no test saw it, because the tests mock
+ * `resolveFor`'s parts separately.
  *
  * @param {object} req @param {object} client
  * @returns {Promise<object>} the resolved gate
@@ -164,7 +181,7 @@ async function closeGate (req, res) {
 async function resolveFor (req, client) {
   const cases = await caseStore.listForClient(req.advisorId, req.firmId, client.id)
   const ddCase = gate.findDueDiligenceCase(cases)
-  const stored = ddCase ? await gate.readSwitch(req.firmId, client.id) : null
+  const stored = await gate.readSwitch(req.firmId, client.id)
   return gate.resolveGate(ddCase, stored)
 }
 
