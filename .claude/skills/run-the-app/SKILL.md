@@ -236,7 +236,21 @@ Say these plainly rather than implying a screen was verified when it was not:
 
 - **No MySQL on the laptop** (Mike declined it). Every store falls back to gitignored
   `data/dev-*.json`. Nothing about real persistence is tested here.
-- **Client pickers are empty** — they need the database.
+- 🔴 **The client picker does not render on ANY report page locally — and the reason is the
+  TOKEN, not the database.** `ClientAccessSwitch` returns early unless `advisor_e_token` is in
+  `localStorage`, and **no report page writes it in dev**; in production Advisor-e puts it there
+  before our pages load. Proved 2026-09-15 on `/wages-review`, `/quick-position` and `/volatility`
+  — all three, token `null`, no picker. *(This line used to read "client pickers are empty — they
+  need the database", which is wrong in both halves and cost a session an afternoon.)* **To drive
+  a client-aware screen**, seed the token the way the master app would, before the page loads:
+  ```js
+  await page.addInitScript(() => {
+    window.localStorage.setItem('advisor_e_token', 'dev-local-bypass')
+    window.localStorage.setItem('advisor_e_role', 'advisor')
+  })
+  ```
+  Then the picker renders and lists the firm's clients. **Say that you stood in for the sign-in** —
+  the screen behind the picker is proven, the picker appearing at all is not.
 - **The middle-tier hubs show 27 invented firms**, seeded so their layout can be reviewed at all.
 - **Nothing in this repo builds the app.** A green suite says nothing about whether `nuxt build`
   succeeds; that is `npm run build`, and it is step 2 of Integration before tagging.

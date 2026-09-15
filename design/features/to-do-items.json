@@ -162,25 +162,113 @@
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
     },
     {
-      "ref": "14.1",
-      "name": "The add-a-report skill still points sessions at the frozen ACTIONS.md",
+      "ref": "5.1",
+      "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,
-      "kind": "defect",
-      "score": 1,
-      "scoreReason": "internal only",
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The skill that governs every new report tells sessions to record their work in design/ACTIONS.md, frozen since 2026-08-24. A session following it writes into an archive nobody reads.",
-      "risk": "A report's record lands where no checklist looks, so it is lost. Worse, a skill is read as an instruction: CLAUDE.md warns that an AI-written line taken as one produced two pieces of unrequested work, and this line is read by every session that builds a report.",
+      "why": "Mike asked for the wages workbook built into the performance-report section. It is the largest source model in the library: two operating bases, a hiring plan, and twelve months of labour margin projected against actual.",
+      "risk": "Nine decisions stand before any code and eight are Mike's. The register holds a client's named employees with pay, leave and service, so it is the only model touching identifiable people - built ungated it becomes a standing rating of someone's colleagues. And 1,778 of the workbook's cells are typed: any shipped as a constant silently removes the control the model exists to give.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-14 - 'buile the wages model into the perf report section', then 'look in here - C:\\Documents\\Visual Code Projects\\Perf Report and you will see a model named wages' when told it was not in the repository, then yes to drawing it before any code."
+      },
+      "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
+      "note": "THE REPORT'S THREE CHARTS ARE BUILT 2026-09-15 - drawn, approved, walked in a browser; the pie is Mike's own. seasonShare() is on the ENGINE, never the screen. NO DECISIONS REMAIN OPEN. THE REGISTER AND ITS TABLE ARE BUILT, and there is NO GATE - Mike removed the due-diligence condition 2026-09-15; it is one button plus the record of who opened it. The port does NOT reproduce the workbook's 63,154 - three faults in its liability column. ONE PIECE WAITS: the Firm Manager retention dial needs FirmManagerHub.vue, which is 9.1's and active on the desktop. THE PAYROLL READER IS ITS OWN ITEM, 5.2. Record: report-models.md, tax-rates.md.",
+      "comment": "2026-09-14 - filed, all nine decisions ruled, then the engine, all five steps, the report and the catalogue row in one day. Two rulings reversed our recommendation: the payroll import, and retention. Mike found the added-person sort fault by testing it himself. 2026-09-15 - the register's gate and table, then the report's four charts on his instruction and his own pie idea. Was 4.104; renumbered under design/ITEM-NUMBERING.md. TWICE IN ONE DAY RUNNING IT FOUND WHAT THE SUITE COULD NOT: three stores reached firmOverlay with no dev fallback, and the drawing carried a heading typed rather than read, so two cards shipped with the same title."
+    },
+    {
+      "ref": "5.2",
+      "name": "Load a payroll report to pre-fill the team",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Mike asked for a payroll report to be loadable so an advisor does not type a whole team by hand into step 1 of the Wages/Salary Review.",
+      "risk": "Without it a 29-person team is typed by hand, which is the slowest part of the model and the easiest place to mistype a pay rate. The counter-risk is privacy: a payroll export carries IRD numbers, bank accounts, addresses and dates of birth, none of them needed, so the reader must take its columns and discard the rest at the door and never store the file.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-14 - 'lets explore having the ability to load a payroll report to speed up the process of loading data on the team', then ruled as decision 4. Kept as its own item on his instruction of 2026-09-14."
+      },
+      "touches": "server/report/intake/supportedPackages.js and a new reader beside it, components/WagesTeam.vue (the pre-fill target), and design/mockups/wages-model.html decision 4.",
+      "note": "A PRE-FILL INTO THE TYPED TEAM SCREEN, NEVER AN ALTERNATIVE ROUTE IN - Mike's decision 4, 2026-09-14. A payroll report knows what a person COSTS but can never know the charge-out rate or the daily production efficiency, and the margin is charge rate minus pay rate, so a standalone import would finish and leave a model that cannot compute its own answer. BLOCKED ON MIKE: per supportedPackages.js no package may be called supported until a REAL export has been read. Kept as its own item so it does not close with 5.1.",
+      "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 5.1 where it was a line in the note. An item that lives inside another item closes with it. Was 4.103; renumbered under design/ITEM-NUMBERING.md."
+    },
+    {
+      "ref": "7.5",
+      "name": "Nothing records which calculation model the AI named, so nobody can check its judgement",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Three conversations on 2026-09-15 were the first ever check of whether the model summaries work. Two found faults. Nothing in the app records a model mention, so that check exists only because a session ran it by hand.",
+      "risk": "The AI can send an advisor to a calculator that does not fit, and on 2026-09-15 it did - a governance dispute was offered a cash forecast. Nothing logged it. UAT cannot catch it either: a tester sees one plausible answer, never the pattern across many. Until something records the model named and the situation it was named for, the only detection is somebody running conversations by hand and reading them.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-15 - 'make sure the other issue is entered into the to do list', after the effectiveness test found the gap. The gap was ours to find; the decision to file it was his."
+      },
+      "touches": "server/advisorEngine.js, where the two prompt paths inject the models block; the decision trace and the va-session log, which already record template choices; data/report-model-summaries.json as the names and routes to match against; and whatever surfaces it, which under the hub-page rule starts at the mentor tier.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-16"
+      },
+      "note": "DRAWN, ALL THREE DECISIONS RULED, AND THE RECORDING HALF BUILT - 2026-09-16, in that order. Artefact: design/mockups/model-choices.html. Built: modelChoiceScan.js, the marker in client.txt SECTION 12 and discover.txt, the strip and hold-back on all three response paths, advisor_model_choices with its dev-file fallback, logModelChoice, GET /api/model-choices scoped by tier, and 41 tests. ONE PIECE WAITS: the hub tab needs TAB_TIERS, NAV_GROUPS and a panel in FirmManagerHub.vue, which is 9.1's and active on the desktop. TWO DRAWN THINGS THE ROUTE DOES NOT YET SERVE, both on the drawing: the period selector, and the conversations-count in band 1. THE MARKER IS UNRELIABLE - that is item 7.6.",
+      "comment": "2026-09-15 - filed on Mike's instruction after the first effectiveness test of the model summaries. 2026-09-16 - drawn, three decisions ruled one at a time, recording half built. TWO OF THE THREE WENT AGAINST THE RECOMMENDATION: his question about a manager's context widened the row from the domain alone to carry firm and advisor, which then reversed mentor-alone to all four tiers. RUNNING IT FOUND WHAT THE SUITE COULD NOT, again: the AI ignored the new marker in all three conversations until its instruction moved into the system prompts, and it is still unreliable - item 7.6."
+    },
+    {
+      "ref": "7.6",
+      "name": "The AI declares its model choice only sometimes, so declines under-count",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The marker that records a decline is written about one time in six. Where the AI names a model the page-path scan catches it; a decline has no other source.",
+      "risk": "The declines band on the Model Choices screen under-counts and nothing on it says so, so a mentor reads nine where there were thirty. That band is the gap map - where advisers keep arriving and finding nothing - so an under-count points the next model at the wrong place. Named models are unaffected: their rows come from the exact page-path scan.",
       "askedBy": {
         "who": "us",
         "ours": true,
-        "detail": "2026-09-13 - found while building the Sales Dashboard and ignored in favour of the live list. Carried in laptop handovers since at least 2026-09-11 without ever becoming an item. Filed on Mike's yes at shutdown."
+        "detail": "2026-09-16 - found by running six live conversations after building 7.5; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
-      "touches": ".claude/skills/add-a-report/SKILL.md, its 'Record & commit' section. design/ADDING-A-REPORT.md is already correct and needs no change.",
-      "note": "ONE SENTENCE IN ONE FILE. The skill's 'Record & commit' section reads 'Add the report's line to design/ACTIONS.md (no silent parking)'. It should name design/features/to-do-items.json, which is where the deviation-logging rule has written since ACTIONS.md was frozen. The deployment-row sentence beside it is still right and stays.",
-      "comment": "2026-09-13 - filed at shutdown on Mike's yes, after three sessions of it living in a handover note instead. That is the failure the shutdown checklist names: an open question for Mike is an item on this list, never a line in a note."
+      "touches": "data/prompts/client.txt SECTION 12 and data/prompts/discover.txt, where the instruction lives; server/utils/modelChoiceScan.js, which reads the marker; and the declines band of design/mockups/model-choices.html, which is what under-counts.",
+      "note": "NOT SESSION WORK - MIKE'S RULING, 2026-09-16: it corrects a counter on an internal screen and changes nothing an advisor or a client sees, so it waits until the Model Choices screen has real use behind it. Do not propose it. THE CAUSE IS KNOWN, so nobody need re-run this: seven live discover conversations declared the marker 0 times, and client-mode Phase 3 declared it first time. The difference is structural, not wording - in Phase 3 the AI is already writing [[TEMPLATES:]] and SECTION 12 asks for a second line, while discover has no first marker and an absolute closing-line rule stated four times. REWORDING HAS FAILED TWICE. DO NOT RE-RAISE IT.",
+      "comment": "2026-09-16 - filed on Mike's yes, the same day 7.5 was built. Found by running the app rather than by a test: every one of the passing tests proves our code handles what the AI sends, and none can prove the AI sends it - the same blind spot 7.5 was filed to close. Parked the same day, after seven more live conversations proved the cause and Mike ruled it not worth session work until the screen has real use."
+    },
+    {
+      "ref": "7.9",
+      "name": "Eight of nineteen calculators are not offered when the advisor asks the question they answer",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "One plain question per calculator, twice over: eight of nineteen were never offered, and twice the AI offered a different calculator instead - the one thing the model list explicitly forbids.",
+      "risk": "An advisor asking 'lease or buy a van' or 'what are the loan repayments' gets nothing, and there is no template for either - the calculator is the only answer the app has. Twice it offered the closest model instead: a rental-portfolio model for a loan question, and the wrong size of budget. UAT will not catch it: each answer reads perfectly well on its own, and the same question answers differently run to run.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-16 - Mike asked for it to be checked now after a lease-vs-buy miss surfaced during item 7.8's testing; he said yes to filing what the check found. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "data/report-model-summaries.json and server/utils/reportModels.js formatReportModelsForPrompt, whose 51,072-character block carries the HOW TO USE THIS LIST rules; data/prompts/discover.txt STEP 1, which frames the calculator as an optional extra; and whatever measurement proves a change, which has to be live conversations.",
+      "note": "MEASURED, NOT GUESSED - 30 live discover conversations, 2026-09-16. Reliable both runs: 8 of 19. Missed both runs: working capital cycle, EBITDA/DCF, lease vs buy, loan estimator, dashboard reports, high-level budget, stock purchasing, sales dashboard. Flipped between runs: debtor drag, cost of capital, quick position. SAME BLOCK, SAME FIX: one answer rendered the heading with 'None.' beneath it instead of omitting the block, which discover.txt line 38 requires. NOT THIN CONTENT: the AI gets 51,072 characters on these models. The likely cause is the conservatism added to stop over-offering - 'SAYING NONE OF THESE FITS IS A REQUIRED ANSWER'. HOW FORTHCOMING DISCOVER SHOULD BE IS MIKE'S CALL, not ours to guess.",
+      "comment": "2026-09-16 - filed on Mike's yes. Found because he asked for it to be checked now, after a lease-vs-buy miss surfaced while testing 7.8. Fourth thing in one day that running the app found and the suite could not: no test can ask the AI a question and judge the answer."
     }
   ]
 }

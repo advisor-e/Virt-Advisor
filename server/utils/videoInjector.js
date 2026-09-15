@@ -10,9 +10,11 @@
  * Key design decisions:
  * - ALL bold tags are used as block boundaries, not just video ones. Without
  *   this, a video sentence for template A would land after template B's content.
- * - Injection point is after the first blank line in the block (end of the
- *   template's own content), not at the end of all following prose. Without
- *   this, sentences land inside unrelated paragraphs that follow a template.
+ * - Injection point is the end of the template's OWN content — whichever comes
+ *   first, the next blank line or the start of the next list item — not the end
+ *   of all following prose. Without the blank line, sentences land inside
+ *   unrelated paragraphs; without the list item, they split a session plan's
+ *   next meeting away from its template name (seen live 2026-09-15).
  * - The length is read from `cpd.watchedVideo` on the template record — the
  *   authored field in the master export, and the same one cpdCatalogue reads.
  *   It used to read a `videoMinutes` field that `scripts/sync-video-minutes.js`
@@ -152,8 +154,22 @@ function injectVideoInfo (responseText, orgTemplateIds, libraryPool) {
 
     // Inject after the template's OWN content — the first blank line in the block.
     // This stops the sentence landing inside unrelated prose that follows the template.
+    //
+    // 🔴 A BLANK LINE IS NOT THE ONLY BOUNDARY, AND A LIST HAS NONE. Seen live
+    // 2026-09-15 in a "Suggested session plan", which is a tight list:
+    //     - Meeting 1 (60 mins): **Formal Risk Management** — Risk identification.
+    //     - Meeting 2 (60 mins): **Lite Fundamentals Proposal** — Review goals.
+    // With no blank line between the items, Meeting 1's own content ran on into
+    // "- Meeting 2 (60 mins): " and the sentence was inserted at the end of THAT —
+    // splitting the second meeting away from its own template name. It happens on
+    // every plan with more than one meeting. The rule above was written for prose
+    // and was never tried against a list.
     const firstBlankIdx = block.indexOf('\n\n')
-    const ownContent = firstBlankIdx !== -1 ? block.slice(0, firstBlankIdx) : block
+    // A new list item starts the next template's line, so it ends this one's content.
+    const nextItemIdx = block.search(/\n[ \t]*(?:[-*+]|\d+\.)[ \t]/)
+    const bounds = [firstBlankIdx, nextItemIdx].filter(i => i !== -1)
+    const cutAt = bounds.length ? Math.min.apply(null, bounds) : -1
+    const ownContent = cutAt !== -1 ? block.slice(0, cutAt) : block
     const trimmed = ownContent.trimEnd()
     if (!trimmed) { continue }
 

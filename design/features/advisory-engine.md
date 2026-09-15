@@ -49,7 +49,14 @@ P3.
 
 **P2 · The AI cannot invent, rename or substitute a template.** Every selected name is validated
 against the library before it reaches the writing stage; anything not found is rejected and
-logged. An off-list reply is refused.
+logged. An off-list reply is refused. **In discover mode the AI writes the names itself rather
+than choosing from a scored list, so the check runs the other way round: the names it puts under
+*Best match* and *Also worth considering* are read back against the library after it has written
+them and before the advisor sees anything.** A calculation model offered as a template is not
+sent — the AI is asked once more with the fault named and its real page path, and the corrected
+answer is the one that is displayed, watched for invented wording, and recorded. If it ignores
+the correction twice the answer goes out with a note saying plainly that the named item is a
+calculator, not a template. `server/utils/templateHeadingCheck.js`.
 
 **P3 · Domain detection is keyword-first, AI only as the backstop.** A confident keyword match
 (two or more hits) is used as-is with no AI. A tie asks the advisor. A thin single hit gets one
@@ -189,6 +196,20 @@ unknown**.
    once reduced a coaching note to its first sentence by reading named delivery *approaches* as
    templates it could not serve — a "fix" that would have shipped while deleting the instruction.
    Before putting a new field through the gate, **run it through and read what survives.**
+8. 🔴 **A RULE WRITTEN IN THE PROMPT FOUR TIMES IS STILL NOT ENFORCED.** `discover.txt` forbids
+   naming a calculation model under a template heading at lines 33, 38 and 92, and the model-list
+   instruction forbids it a fourth time — and the AI did it anyway, in four of six live
+   conversations. **A fifth sentence is not a fix; a check in code is** (P2, item 7.7). Nothing in
+   the suite could see this: all 11,155 tests prove our code handles what the AI sends, and none
+   of them can prove what the AI sends.
+9. 🔴 **A correction must carry the escape, AND fence it.** 7.7's first retry said only "name a
+   real template", and the AI reached for a weak one rather than saying nothing fitted — a
+   truthful no-match is what `discover.txt` STEP 1 actually asks for, so the escape was added.
+   **Unfenced, it then produced a worse answer** (item 7.8): told to empty *Also worth
+   considering*, and with no permission to leave a required block empty, the AI filled it with
+   the no-match sentence — recommending a template and denying having one, in the same reply.
+   **A correction that empties a required block must say what to do with the empty block**, or
+   the model finds its own way out.
 
 ### Known gaps, honestly
 

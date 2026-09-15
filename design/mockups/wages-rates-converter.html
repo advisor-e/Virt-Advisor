@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wages/Salary Review — the two rate converters, on step 1</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   THE TWO RATE CONVERTERS, ON STEP 1. Drawn 2026-09-14. NOTHING IS BUILT.
+
+   🔴 THIS PAGE WAS "THE RATES TAB" AND MIKE DROPPED THE TAB ON 2026-09-14:
+   "does it need a separate tab? couldnt it just import the tax data into a
+   hidden section and apply across the model as needed?" He was right about the
+   data - the bands live in Tax Rates and resolve by country already - and
+   checking the engine settled the rest: THE WAGES MODEL COMPUTES NO TAX AT ALL,
+   because income tax is the employee's and comes out of gross pay, which is
+   already the wage cost. So there was no consumer to apply anything to, and the
+   four calculators split two ways: two fill in a box on step 1, and two serve
+   nothing here. Decision 5 below carries it. The earlier shape is in git.
+
+   WHY IT EXISTS AS ITS OWN DRAWING. Decision 2 of the Wages/Salary Review was
+   ruled by Mike on 2026-09-14 — the rates sheet STAYS, as a converter — but the
+   SCREEN was never drawn. wages-model.html carries the decision in a table and
+   one sentence saying the tab "sits outside the steps entirely". That is a
+   ruling about WHAT it is, not a layout, a field list or any wording. Building
+   from it would be building from a paraphrase, which is the failure the
+   Save-the-Artefact rule exists to stop.
+
+   MIKE'S OWN WORDS, which are the whole brief: "as the name suggests, its just
+   a way that people can quickly calculate between salary and hrly rate. its not
+   supposed to reflect the entire business, modify it as required."
+
+   "MODIFY IT AS REQUIRED" IS THE PERMISSION. The standing rule is never to
+   remove an element of a source model without asking. He asked for it here, in
+   terms — so the 15-person professional-services firm on that sheet goes, and
+   what is left is a calculator.
+
+   WHERE THE NUMBERS COME FROM. Every figure below is read out of sheet 1 of
+   design/report-source-models/Wages Model.xlsx — "Hrly Rate & Tax Calculator" —
+   its own typed inputs and its own cached results. Nothing is invented to fill a
+   box. Two of its results are reproduced by hand from the stored formulas and
+   marked ✓: the tax on 145,000 with a 25,000 spouse split (42,165) and the
+   net-to-gross bonus (793.65 = 500 ÷ (1 − 0.30 − 0.07)).
+
+   THE SHEET IS ISOLATED, AND THAT WAS PROVEN RATHER THAN ASSUMED, by counting
+   cross-sheet references in both directions: it is referenced 0 times by any
+   other sheet and references 0 itself. The Annual Hiring Plan, by comparison,
+   reads Seasonal Inputs 2,849 times. Nothing this tab does can move a figure on
+   the five steps or the report.
+   ============================================================================ */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+h1{font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-size:19px;margin:34px 0 10px;letter-spacing:-.01em}
+h3{font-size:15px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 8px}
+.lede{font-size:16px;color:var(--rs-muted);max-width:80ch}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px solid #cbe7d2}
+.ask.behaviour{background:#fff6ec;border-color:#f3c893;border-left-color:var(--rs-warn)}
+.ask.behaviour h3{color:#a06000}
+
+/* ---------- the screen ---------- */
+.screen{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden;margin:16px 0 8px}
+.rs-top{background:var(--rs-panel-2);border-bottom:1px solid var(--rs-line);padding:14px 18px}
+.rs-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rs-muted)}
+.rs-title{font-size:19px;font-weight:700;margin:2px 0 0}
+.tabs{display:flex;gap:4px;padding:0 18px;background:var(--rs-panel-2);
+  border-bottom:1px solid var(--rs-line)}
+.tab{padding:9px 15px;font-size:13px;font-weight:600;color:var(--rs-muted);
+  border-bottom:3px solid transparent;cursor:default}
+.tab.on{color:var(--rs-accent);border-bottom-color:var(--rs-accent);background:var(--rs-panel)}
+.body{padding:18px}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:10px;
+  padding:14px 16px;margin:0 0 14px}
+.card h4{margin:0 0 3px;font-size:14.5px}
+.card .note{margin:0 0 12px;font-size:12px;color:var(--rs-muted);max-width:74ch}
+
+.row{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end}
+.f{display:flex;flex-direction:column;gap:3px;min-width:150px;flex:1 1 150px}
+.f.wide{flex:1 1 100%}
+.f label{font-size:11px;font-weight:600;color:var(--rs-muted)}
+.f .in{border:1px solid var(--rs-line);border-radius:6px;padding:6px 9px;font-size:13.5px;
+  background:var(--rs-panel)}
+.f .in.calc{background:var(--rs-panel-2);color:var(--rs-muted);font-weight:600}
+.arrow{align-self:center;font-size:20px;color:var(--rs-accent);padding:0 2px;
+  margin-top:14px;flex:0 0 auto}
+
+.out{background:var(--rs-accent-soft);border:1px solid #bcdcf5;border-radius:8px;
+  padding:11px 14px;margin-top:12px;display:flex;flex-wrap:wrap;gap:6px 26px;align-items:baseline}
+.out .lab{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rs-accent)}
+.out .big{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.out .sub{font-size:12px;color:var(--rs-muted)}
+
+table.g{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 0}
+table.g th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted);
+  text-align:left;padding:0 10px 6px 0;font-weight:700}
+table.g td{padding:5px 10px 5px 0;border-bottom:1px solid var(--rs-line)}
+table.g td.n{text-align:right;font-variant-numeric:tabular-nums}
+table.g tr:last-child td{border-bottom:0}
+.tick{color:var(--rs-good);font-weight:700}
+.typed{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--rs-warn);background:var(--rs-warn-soft);border-radius:4px;padding:1px 5px}
+.calcd{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--rs-muted);background:var(--rs-panel-2);border-radius:4px;padding:1px 5px}
+.gone{opacity:.5}
+.prov{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:10px;
+  font-size:12px;color:var(--rs-muted)}
+.provtag{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  border-radius:4px;padding:2px 7px}
+.provtag.ok{color:var(--rs-good);background:var(--rs-good-soft)}
+.provtag.def{color:#a06000;background:var(--rs-warn-soft)}
+.foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--rs-line);
+  font-size:12px;color:var(--rs-muted)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<p class="eyebrow">Wages/Salary Review · decisions 2 and 5 · step 1</p>
+<h1>The two rate converters</h1>
+<p class="lede">Two conversions an adviser cannot do in their head, put beside the two boxes on step 1 that need them — the pay rate and the charge-out rate.
+Not a second business, and not a port — Mike, 2026-09-14: <em>“its just a way that people can
+quickly calculate between salary and hrly rate. its not supposed to reflect the entire business,
+modify it as required.”</em></p>
+
+<div class="mock">
+  <h3>Nothing here is built</h3>
+  <p>This is a drawing for approval. The five steps, the report and the Model Library card are
+  built and live; this tab is not. <strong>The figures are sheet 1’s own</strong> — its typed
+  inputs and its cached results — so they are the spreadsheet’s numbers, not ours. A golden test
+  is what will later pin them.</p>
+  <p><strong>Two of its results are already reproduced by hand from the stored formulas</strong>
+  and are marked <span class="tick">✓</span> where they appear. That is the standard the build
+  will be held to.</p>
+</div>
+
+<!-- ======================= THE SCREEN ======================= -->
+<h2>The screen — step 1, not a tab</h2>
+
+<p>The helper sits above the team table, where the adviser is already typing pay rates and
+charge-out rates. It works a rate out; the adviser puts it in the row it belongs to.</p>
+
+<div class="screen">
+  <div class="rs-top">
+    <div class="rs-eyebrow">Business Performance Report · Wages/Salary Review</div>
+    <div class="rs-title">Step 1 — The team</div>
+  </div>
+  <div class="body">
+
+    <div class="card">
+      <h4>Work out a rate <span class="calcd">optional helper</span></h4>
+      <p class="note">Two conversions an adviser cannot do in their head, beside the two boxes
+      that need them. Nothing here is saved and nothing is filled in for you — it works the
+      figure out, you decide which person it belongs to.</p>
+
+      <div class="row">
+        <div class="f"><label>Annual salary</label><div class="in">$145,000</div></div>
+        <div class="arrow">⇄</div>
+        <div class="f"><label>Hourly rate</label><div class="in calc">$69.71</div></div>
+        <div class="f"><label>Hours per week</label><div class="in">40</div></div>
+        <div class="f"><label>Weeks per year</label><div class="in">52</div></div>
+      </div>
+      <div class="out">
+        <span class="lab">Also</span>
+        <span class="big">$12,083</span><span class="sub">a month</span>
+        <span class="big">$2,788</span><span class="sub">a week</span>
+        <span class="big">$557.69</span><span class="sub">a day, at 5 days</span>
+      </div>
+
+      <h4 style="margin-top:18px">Blended charge-out rate — one person, across the work they do</h4>
+      <p class="note">Somebody billing four kinds of work at four rates has one rate that
+      matters: the average across how their week actually splits.</p>
+      <table class="g">
+        <thead><tr><th>Kind of work</th><th class="n">Rate</th><th class="n">Share of time</th><th class="n">Contributes</th></tr></thead>
+        <tbody>
+          <tr><td>Advisory</td><td class="n">$375</td><td class="n">35%</td><td class="n">$131.25</td></tr>
+          <tr><td>Compliance</td><td class="n">$350</td><td class="n">10%</td><td class="n">$35.00</td></tr>
+          <tr><td>Review</td><td class="n">$300</td><td class="n">5%</td><td class="n">$15.00</td></tr>
+          <tr><td>Planning</td><td class="n">$325</td><td class="n">10%</td><td class="n">$32.50</td></tr>
+          <tr><td>Supervision</td><td class="n">$275</td><td class="n">40%</td><td class="n">$110.00</td></tr>
+        </tbody>
+      </table>
+      <div class="out">
+        <span class="lab">Blended rate</span>
+        <span class="big">$323.75</span>
+        <span class="sub tick">✓ the sheet’s own Director column, E25</span>
+        <span class="sub">100% of time allocated</span>
+      </div>
+      <p class="note" style="margin:10px 0 0">⚠ <strong>The share of time is shown against 100% and
+      says when it does not reach it.</strong> The workbook carries that check as its own “Balance
+      Time Remaining” row, and it is what makes the calculation trustworthy: a mix adding to 80%
+      quietly returns a rate a fifth too low, and nothing else on screen would look wrong.</p>
+    </div>
+
+    <div class="card">
+      <h4>The team</h4>
+      <p class="note">The thirteen controls per person, as built. The two figures the helper works
+      out are the <strong>charge-out rate</strong> and the <strong>pay rate</strong> — the first
+      two numeric columns, and the two the whole labour margin turns on.</p>
+      <table class="g">
+        <thead><tr><th>Name</th><th>Division</th><th class="n">Charge rate</th><th class="n">Pay rate</th><th>…</th></tr></thead>
+        <tbody>
+          <tr><td>Billy Ray</td><td>Production</td><td class="n">$55</td><td class="n">$35</td><td class="sub">+ 9 more</td></tr>
+          <tr><td>Bob</td><td>Production</td><td class="n">$52</td><td class="n">$32</td><td class="sub"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<div class="ask ruled">
+  <h3>Decision 5 — RULED BY MIKE 2026-09-14 — no separate tab</h3>
+  <p class="ruling">His words: <em>“does it need a separate tab? couldn’t it just import the tax
+  data into a hidden section and apply across the model as needed?”</em> — and on the answer
+  below, <strong>the tab is dropped and the two converters move to step 1.</strong></p>
+
+  <p><strong>He is right about the data, and it already works that way.</strong> The income tax
+  bands live in Firm Manager → Tax Rates, resolve by country through the existing cascade, and any
+  screen can read them. No tab is needed for that and none ever was.</p>
+
+  <p>🔴 <strong>But nothing in the wages model needs them, and checking settled it: the model
+  computes no tax anywhere.</strong> Labour margin is what the team bills minus what it costs.
+  Income tax is the <em>employee’s</em>, taken out of their gross pay — and gross pay is already
+  the wage cost. Deducting it again would count it twice. So <em>“apply across the model as
+  needed”</em> has no consumer to apply to.</p>
+
+  <p><strong>That reframed the four calculators, and two of them were in the wrong place.</strong>
+  Salary ⇄ hourly and the blended rate exist to fill in a box on step 1 — the pay rate and the
+  charge-out rate. Behind a tab, an adviser has to leave the flow to find them, which is how a
+  helper goes unused. The other two serve no step of this model at all.</p>
+
+  <table>
+    <thead><tr><th>Calculator</th><th>Where it goes now</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Salary ⇄ hourly</strong></td><td>step 1, beside the pay-rate column</td></tr>
+      <tr><td><strong>Blended charge-out rate</strong></td><td>step 1, beside the charge-rate column</td></tr>
+      <tr><td>Income tax</td><td><strong>not built here</strong> — serves nothing in this model</td></tr>
+      <tr><td>Bonus gross-up</td><td><strong>not built here</strong> — serves nothing in this model</td></tr>
+    </tbody>
+  </table>
+
+  <p class="rec">⚠ <strong>This NARROWS decision 2, and says so rather than quietly holding it.</strong>
+  That ruling was <em>“the rates sheet stays, as a converter… modify it as required”</em>. What the
+  sheet is genuinely for survives and lands where it is used; the parts that serve nothing do not
+  get a screen. The four rulings below stand as the record of how it got here — two of them
+  (“own or allocated income”, “Employee superannuation %”) were about calculators now dropped, and
+  are kept because they are findings about the workbook, not decisions about a screen.</p>
+</div>
+
+
+<!-- ======================= WHAT GOES ======================= -->
+<h2>What comes off sheet 1, and why</h2>
+
+<p>Sheet 1 describes a <strong>15-person professional-services firm</strong> — seven roles with
+headcounts, a 7 × 7 matrix of charge-out rates by job type, and the percentage of each role’s time
+spent on each. That is a second business, and Mike’s ruling removes it.</p>
+
+<table class="g">
+  <thead><tr><th>On sheet 1</th><th>Cells</th><th>On the tab</th></tr></thead>
+  <tbody>
+    <tr><td>7 roles and their headcounts (15 people)</td><td><code>C4:M6</code></td><td class="gone">gone — “not supposed to reflect the entire business”</td></tr>
+    <tr><td>7 × 7 charge-out rates by job type</td><td><code>C8:K15</code></td><td>the <strong>rates</strong> survive as one person's own list; the 7 × 7 grid does not</td></tr>
+    <tr><td>Time mix per role, and the balance row</td><td><code>C16:K24</code></td><td>one person's mix, <strong>with the balance check</strong></td></tr>
+    <tr><td><strong>Average hourly rate, post job &amp; time mix</strong></td><td><code>E25:K25</code></td><td><strong>KEPT</strong> — its own calculator, one person at a time (question 1, ruled)</td></tr>
+    <tr><td>Income tax calculator, 5 bands + spouse split</td><td><code>S4:BE16</code></td><td class="gone">NOT BUILT HERE (decision 5) — the model computes no tax. The BANDS it would have read are built, as the fifth Tax Rates figure</td></tr>
+    <tr><td>Second concurrent tax layer (“State” / “Federal”)</td><td><code>W6</code>, <code>AM6</code></td><td class="gone">gone — it was computed and read by nothing (question 2, ruled)</td></tr>
+    <tr><td>Two spare custom band tables</td><td><code>AB9</code>, <code>AB13</code></td><td class="gone">gone — a firm approves its own table in Tax Rates instead</td></tr>
+    <tr><td>Bonus payment quick calculator</td><td><code>R29:X39</code></td><td class="gone">NOT BUILT HERE (decision 5) — serves no step of this model</td></tr>
+  </tbody>
+</table>
+
+<!-- ======================= QUESTIONS ======================= -->
+<h2>The four questions the tab raised — all ruled 2026-09-14, and kept as the record</h2>
+<p>Two of them (“own or allocated income”, “Employee superannuation %”) were about calculators
+decision 5 then dropped. They are kept because they are <strong>findings about the workbook</strong>
+— things that are true of the spreadsheet whoever builds on it next — not decisions about a screen
+that no longer exists.</p>
+
+<div class="ask ruled">
+  <h3>Question 1 — RULED BY MIKE 2026-09-14 — the blended rate stays, one person at a time</h3>
+  <p class="ruling">Row 25 survives as its own calculator on this tab. <strong>One person, no
+  headcounts, no roles, no firm</strong> — which is what keeps it inside his “not supposed to
+  reflect the entire business”.</p>
+  <p>It is the one genuinely clever thing on that sheet: given a rate per kind of work and how a
+  person’s week splits across them, it returns a <strong>single blended charge-out rate</strong>.
+  “This person does 35% advisory at $375 and 40% supervision at $275 — what are they worth an
+  hour?” is the same question as salary ⇄ hourly asked the other way round, and it is the part an
+  adviser cannot do in their head. Dropping it would have left three arithmetic conversions.</p>
+  <p class="rec">⚠ <strong>The time-mix check comes with it.</strong> The workbook carries a
+  “Balance Time Remaining” row, and it is what makes the calculation trustworthy: a mix adding to
+  80% quietly returns a rate a fifth too low, and nothing else on the screen would look wrong.</p>
+</div>
+
+<div class="ask ruled">
+  <h3>Question 2 — RULED BY MIKE 2026-09-14 — one layer, and it comes from Tax Rates</h3>
+  <p class="ruling">His words: <em>“the taxes need to link to the tax tables elsewhere in the firm
+  manager hub — select which country you’re in and the taxes apply, as they should.”</em></p>
+  <p><strong>This tab holds no tax table of its own.</strong> Pick the country and the bands are
+  whatever that country’s approved table says, resolved through the same cascade as the company
+  tax rate, the GST rate, the filing cycle and the accounting basis. Correct a band in Firm
+  Manager → Tax Rates and it is corrected here the same moment — there is no second copy to go
+  stale, and no adviser reading one figure while their manager has approved another.</p>
+  <p>It also settles the sheet’s two-table question by making it moot. Sheet 1 ran a “State Taxes”
+  column holding New Zealand’s rates and a “Federal Taxes” column holding Australian ones —
+  <strong>and the second was computed and read by nothing</strong>, working out $24,991.75 that no
+  cell used. The $42,165 came entirely from the first. The sheet <em>described</em> a two-layer
+  country and <em>calculated</em> a one-layer one; the country table does the same thing honestly.</p>
+  <p class="rec">✅ <strong>Already built, ahead of this tab.</strong> Income tax bands landed as
+  the <strong>fifth Tax Rates figure</strong> on 2026-09-14 — cascading, approve-before-use, and
+  validated against a gap, an overlap, an implicit tax-free hole and a closed top band. A country
+  nobody has loaded falls back to the app’s own bands <em>badged as defaults</em>, never withheld:
+  Mike’s ruling of 2026-09-08, <em>“Never block the advisor.”</em></p>
+</div>
+
+<div class="ask ruled">
+  <h3>Question 2b — RULED BY MIKE 2026-09-14 — “own or allocated income”</h3>
+  <p class="ruling">His words: <em>“own income — or more importantly, own or allocated income.”</em>
+  The field is labelled <strong>“Spouse’s own or allocated income”</strong>, and the arithmetic is
+  kept exactly as the workbook has it.</p>
+  <p><strong>Those two words settle what looked like a defect.</strong> The sheet taxes the full
+  $145,000 on one table and the $25,000 on a second copy, and never subtracts — so it appeared to
+  tax $170,000 of income from a $145,000 salary. Under his ruling it does not: <strong>both figures
+  are each person’s own taxable income</strong>, typed independently, because any allocation has
+  already happened before either is entered. There is nothing to subtract.</p>
+  <p>“Allocated” is the half that matters. It covers income the spouse never earned but is taxed on
+  — a trust distribution, a partnership share, a salary allocated from the business — which is
+  precisely the case an adviser meets and which “own income” alone would have excluded.</p>
+  <p class="rec">What this closes: the alternative reading would have made the correct answer
+  <strong>$33,915</strong> instead of $42,165, a difference of $8,250. <strong>The figure stands
+  at $42,165</strong> and the golden test will pin it.</p>
+</div>
+
+<div class="ask behaviour">
+  <h3>Question 3 — where do the bands come from, given the fifth Tax Rates figure is not built?</h3>
+  <p>Decision 5 is already ruled: income tax bands become <strong>a fifth figure in Tax Rates</strong>,
+  NZ badged <code>app default</code>, never withheld. That work is outstanding. Today the store holds
+  four figures — <code>companyTax</code>, <code>gst</code>, <code>filing</code>, <code>basis</code>.</p>
+  <p class="rec">Recommendation: <strong>build the tab against Tax Rates from the start, and build
+  the fifth figure first.</strong> The alternative is a tab holding its own private band table that
+  has to be unpicked weeks later, and a firm that has corrected its bands in Tax Rates seeing stale
+  ones here. It makes this job bigger by one step and leaves nothing to undo.</p>
+</div>
+
+<div class="ask ruled">
+  <h3>Question 4 — RULED BY MIKE 2026-09-14 — “Employee superannuation %”</h3>
+  <p class="ruling">The field on this tab reads <strong>“Employee superannuation %”</strong>. The
+  model’s own <em>Employer Retirement Contribution</em> is untouched.</p>
+  <p><strong>What it prevents.</strong> The bonus calculator deducts its 7% <em>from</em> the gross,
+  which only makes sense as the <em>employee’s</em> contribution. The Seasonal Inputs sheet
+  separately carries 3% as the <em>firm’s</em> cost on top of pay. Both are the adviser’s own typed
+  fields, so neither is wrong — but one model would hold two retirement percentages meaning
+  opposite things, and an adviser typing the 3% they know into this box would get a quietly wrong
+  bonus with nothing on screen to say so.</p>
+  <p class="rec">Two words, and the ambiguity is gone.</p>
+</div>
+
+<div class="ask">
+  <h3>Where it lives, and what it does not do</h3>
+  <p><strong>A second tab on <code>/wages-review</code></strong>, beside “The model”. Not a Model
+  Library card of its own: it is a calculator, not a model, and a card promises a report.</p>
+  <p><strong>It saves nothing and feeds nothing.</strong> Sheet 1 is referenced 0 times by any other
+  sheet and references 0 itself — proven by counting in both directions — so the tab cannot move a
+  figure on the five steps or the report. That isolation is the reason it is safe to build now.</p>
+  <p><strong>No personal data.</strong> Salaries and rates, never a named person. The staff register
+  is the gated screen and is nothing to do with this tab.</p>
+</div>
+
+<div class="foot">
+  Drawn 2026-09-14 for approval, before any code. Source:
+  <code>design/report-source-models/Wages Model.xlsx</code>, sheet 1 “Hrly Rate &amp; Tax
+  Calculator” — 356 filled cells, 63% of them typed, the highest proportion in the workbook.
+  Decision 2 of <code>design/mockups/wages-model.html</code>. Brief:
+  <code>design/features/report-models.md</code>.
+</div>
+
+</div>
+</body>
+</html>

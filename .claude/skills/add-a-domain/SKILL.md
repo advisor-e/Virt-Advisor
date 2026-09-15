@@ -70,8 +70,12 @@ Not every domain needs every file. State explicitly which you are creating and w
 
 ## 5. Record & commit
 
-Tick the relevant item in `design/ACTIONS.md`; update memory if the domain set changed. Commit the
-domain as its own unit. Push when asked.
+Record the domain in its Brief, and close or file anything outstanding on the live list,
+`design/features/to-do-items.json`. Update memory if the domain set changed. Commit the domain as
+its own unit. Push when asked.
+
+> ⚠ **NOT `design/ACTIONS.md`** — frozen archive since 2026-08-24, nothing added, nothing triaged.
+> This line used to name it. Same defect as item 4.96, found in three more skills on 2026-09-14.
 
 ## References
 - `data/domains.json`, `data/<id>-domain-support.json`, `data/primary-issues.json`,

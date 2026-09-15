@@ -191,6 +191,30 @@ data/dev-meeting-type-next-seq.json
 # platform default to be carried around in the repository.
 data/dev-meeting-retention.json
 
+# The Wages/Salary Review's staff-register switch (item 4.104, Decision 6) — who opened a
+# client's staff register and when. Ignored for a reason of its own: it is a record about a
+# named client of one firm, and the register it governs holds that client's named employees.
+# Nothing about it belongs in this repository.
+data/dev-wages-register.json
+
+# 🔴 THE REGISTER'S CONTENTS, and this line was missing for one commit (2026-09-15). The file
+# above holds only the SWITCH; this one holds what the register says — a client's people with
+# their accrued leave, length of service and a key-person-risk band. If either file belonged
+# out of the repository, this is the one that belonged out of it more, and `git add -A` swept
+# it in because nothing was here to stop it. Adding the store and its ignore line are one
+# change, not two.
+data/dev-wages-register-rows.json
+
+# The staff register's retention dial (item 4.104, Decision 8) — how long ONE firm keeps its
+# registers. Same reasoning as the meeting dial above, and written before the file exists
+# rather than after it is committed.
+data/dev-register-retention.json
+
+# Business Entity Reports (item 4.62) — which models an advisor opened to which client, and
+# the figures saved for them. Both are about named clients of one firm; neither belongs here.
+data/dev-client-report-access.json
+data/dev-client-report-saved.json
+
 # Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
 data/dev-firm-domain-support.json
 data/dev-firm-logic-trees.json

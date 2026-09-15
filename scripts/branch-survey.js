@@ -12,6 +12,13 @@
  * and once causing this AI to recommend work that another machine had already rebuilt.
  * A branch that is pushed but not yet merged is invisible to every check we own.
  *
+ * 🔴 IT ALSO REPORTS THE OTHER MACHINE'S HANDOVER, READ FROM THAT MACHINE'S OWN BRANCH —
+ * item 14.2's second half, closed 2026-09-15. Startup used to compare handover dates using
+ * the copy in THIS machine's working tree, which is frozen at the last merge, so a session
+ * could report the other division idle when it was not. It did exactly that on 2026-09-14
+ * and again on 2026-09-15, both times caught only by someone reading the other branch by
+ * hand. The date now comes from the branch that owns it.
+ *
  * REPORT ONLY — and that is structural, not a promise. Nothing here returns an exit code,
  * throws, or is reachable from the two rules that block. Another machine's branch is never
  * a reason to refuse THIS machine's push.
@@ -20,6 +27,8 @@
  */
 
 'use strict'
+
+var activeItems = require('./active-items')
 
 var PROTECTED_BRANCH = 'master'
 var REMOTE_PREFIX = 'origin/'
@@ -101,6 +110,44 @@ function selectBranches (rows, currentBranch) {
 }
 
 /**
+ * What to say about the other machine's handover note, if anything.
+ *
+ * 🔴 THE HALF OF ITEM 14.2 THAT THIS CLOSES, and it is the half that actually misleads a
+ * reader. Startup reads `design/HANDOVER-desktop.md` out of the WORKING TREE — which is
+ * this machine's copy of it, frozen at whatever the last merge brought over. The other
+ * machine writes its note on its OWN branch, so the copy read here can be days behind the
+ * real one and nothing about it looks wrong: the file exists, it parses, it has a date.
+ *
+ * On 2026-09-14 a session reported the desktop idle since 2026-09-10 when its note was in
+ * fact two days newer, and it happened AGAIN on 2026-09-15 — the note this machine held
+ * was dated 2026-09-13 while the desktop's own branch carried one from the 15th. Both
+ * times it was caught only by reading the other branch by hand.
+ *
+ * Pure so it can be tested without git: the date is read from the branch by the caller.
+ *
+ * @param {{machine: string|null, handoverDate: string|null, lastCommit: string}} row
+ * @returns {string|null} one line, or null when there is nothing worth saying
+ */
+function handoverNote (row) {
+  if (!row || !row.machine) { return null }
+
+  var date = row.handoverDate || null
+  var last = String(row.lastCommit || '')
+
+  if (!date) {
+    return 'no handover note on that branch — that session ended without writing one'
+  }
+  if (last && date < last) {
+    // The note predates the work, which is the signal that matters: somebody committed
+    // and then finished without a shutdown. Days are deliberately not counted — the two
+    // dates say it, and arithmetic on date strings is a thing to get wrong.
+    return row.machine + ' handover dated ' + date + ', OLDER than its last commit (' +
+      last + ') — treat it as incomplete'
+  }
+  return row.machine + ' handover dated ' + date + ' — current, and read from ITS branch'
+}
+
+/**
  * Turn the selected branches into printable lines.
  *
  * @param {Array} selected output of `selectBranches`
@@ -114,6 +161,9 @@ function describeSurvey (selected) {
 
   var lines = ['Other branches hold work that is NOT in `' + PROTECTED_BRANCH + '`:', '']
 
+  // Aligns the note under the counts: the first line is 2 spaces, the name, then 3 more.
+  var gutter = new Array(width + 4).join(' ')
+
   selected.forEach(function (row, i) {
     var pad = names[i] + new Array(width - names[i].length + 1).join(' ')
     lines.push(
@@ -121,6 +171,8 @@ function describeSurvey (selected) {
       '   ' + row.ahead + ' ahead, ' + row.behind + ' behind ' + PROTECTED_BRANCH +
       ' — last commit ' + (row.lastCommit || 'unknown')
     )
+    var note = handoverNote(row)
+    if (note) { lines.push('  ' + gutter + note) }
   })
 
   lines.push('')
@@ -171,11 +223,25 @@ function surveyLines (gitSafe, currentBranch) {
     if (counts === null) { return }
     var pair = counts.split(/\s+/)
 
+    // The other machine's handover, READ FROM ITS OWN BRANCH rather than from this
+    // machine's working copy of the file. That is the whole point — see `handoverNote`.
+    // A branch that is nobody's machine gets no note and costs no git call.
+    var machine = activeItems.machineFor(shortName(ref))
+    var handoverDate = null
+    if (machine) {
+      var note = gitSafe(['show', ref + ':design/HANDOVER-' + machine + '.md'])
+      // null means the command failed — usually the file does not exist on that branch,
+      // which `handoverNote` reports as its own thing rather than staying silent.
+      handoverDate = note === null ? null : activeItems.handoverDate(note)
+    }
+
     rows.push({
       ref: ref,
       behind: parseInt(pair[0], 10) || 0,
       ahead: parseInt(pair[1], 10) || 0,
-      lastCommit: (parts[1] || '').trim()
+      lastCommit: (parts[1] || '').trim(),
+      machine: machine,
+      handoverDate: handoverDate
     })
   })
 
@@ -185,6 +251,7 @@ function surveyLines (gitSafe, currentBranch) {
 module.exports = {
   isCandidate: isCandidate,
   selectBranches: selectBranches,
+  handoverNote: handoverNote,
   describeSurvey: describeSurvey,
   surveyLines: surveyLines
 }

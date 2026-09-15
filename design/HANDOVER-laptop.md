@@ -9,38 +9,34 @@
 
 ---
 
-## 2026-09-13 (thirtieth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-16 · Laptop · branch `feat/advisor-progress`
 
-Suite **10,507 green** (500 suites), lint 0 errors. 🔴 **MERGED TO `master` — PR #91, merge commit
-`62975f65`** — on Mike's instruction at the end of the session. This branch is **level with
-`master`, 0 ahead / 0 behind**; nothing is waiting here. **FIVE live items** — 4.15, 4.58, 4.86,
-4.87 and the new **4.96**. **Nothing is active on this machine.**
+Suite **11,160 green** (525 suites), lint 0, coverage and audit gates passed. Tree clean, all
+pushed, **80 ahead of `master`, 0 behind**. **Nine live items — 7.8 closed today, 7.9 filed,
+7.6 parked.**
 
-**`npm run build` was run before the merge and succeeded** (`Ready to run nuxt start`) — Integration
-step 2, and the only thing on our side that ever builds the app. **No tag has been cut**, so
-today's four features are a tag away from anything the master team can pull. That is Mike's call.
+🔴 **7.9 IS THE ONE TO READ.** Thirty live discover conversations, one on-the-nose question per
+calculator: **only 8 of 19 were offered reliably**, eight missed twice — *lease vs buy* and *loan
+estimator* have no template either, so the advisor got nothing — and twice the AI offered the
+**closest** model, which the model list forbids in capitals. Not thin content: it gets 51,072
+characters on these models. Waits on Mike; how forthcoming discover should be is his call.
 
-**4.95 Sales Dashboard is BUILT AND CLOSED** on Mike's *"build sales dasboard"*. The last of the
-three Model Library cards that opened nothing; all three are now live. Closure on
-[`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2, the full account in
-[`features/report-models.md`](features/report-models.md), and every build-vs-drawing difference
-named in [`ARTEFACTS.md`](ARTEFACTS.md). Nothing about it is outstanding.
+**7.8 closed.** 7.7's correction empties *Also worth considering*; `discover.txt` specifies that
+block as "1-2 alternative TEMPLATES" and never says it may be empty, so the AI filled it with the
+no-match sentence — recommending a template and denying having one, in one reply.
+`buildRetryInstruction` now fences the escape. Seven live conversations after, five tripping the
+correction, none recurred.
 
-🔴 **A GUARD WAS CHECKING SIX OF THIRTEEN SCREENS.** Mike saw Stock Purchasing's header band
-rendering **364px wide in a 1076px column**; it was missing the one-line margin reset that the
-other twelve carry. `reportHeaderFullWidth.test.js` existed to stop exactly that and had a
-hand-typed list that stopped growing after Cost of Capital. **It now reads `components/`** and
-finds every screen. Fixed, mutation-verified, and the recipe and Brief both record why.
-**The Sales Dashboard sat in the same blind spot** — correct by luck, not by checking.
+**7.6 PARKED — Mike's ruling.** It corrects a counter on an internal screen and changes nothing an
+advisor sees. Its note says *do not propose it* and carries the proven cause: discover declared the
+marker 0 of 7, client-mode Phase 3 declared it first time. **Do not re-run those conversations.**
 
-⚠ **The shared sales reader changed and Stock Purchasing shares it.** `REQUIRED_BY_MODEL` in
-`salesSheetReader.js` now holds one required-columns list per model, plus four optional cut
-columns and header aliases. Stock Purchasing's list is untouched and a test pins that it still
-refuses a file the Sales Dashboard accepts.
+**Shared files I changed:** `server/utils/templateHeadingCheck.js` and its test,
+`design/features/advisory-engine.md` (lesson 9 replaced), the three list files,
+`scripts/count-code.js`, `design/CODE-SIZE.md`. **7.5's `activeOn` stays on the laptop**, still
+blocked on `FirmManagerHub.vue`, which is 9.1's and yours.
 
-**DESKTOP:** 4.87 untouched — none of its files were opened. Shared files touched:
-`server/routes/report.js`, `server/restify-server.js`, `utils/reportModelCatalogue.js`,
-`locales/en.json`, `components/base/DoughnutChart.vue` (one additive prop, default unchanged),
-`components/StockPurchasing.vue` (one CSS line) and four report guard tests. ⚠ **Your note is
-still dated 2026-09-10 while your branch has a commit from 2026-09-12** — flagged four sessions
-running.
+**DESKTOP:** your note says ours is *"dated 2026-09-13 — stale for the fourth session running"*.
+It is not — it has been rewritten at every shutdown, including twice yesterday. You read the copy
+in your own working tree, which freezes at the last merge. `npm run check:branch`'s OTHER BRANCHES
+box reads it from our branch and gets it right.

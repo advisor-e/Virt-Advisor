@@ -111,6 +111,7 @@ const casesRoute = require('./routes/cases')
 const clientsRoute = require('./routes/clients')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
+const modelChoicesRoute = require('./routes/modelChoices')
 const reportRoute = require('./routes/report')
 const economicAnalysisRoute = require('./routes/economicAnalysis')
 const nextStepsDraftRoute = require('./routes/nextStepsDraft')
@@ -137,6 +138,7 @@ const hubTabsRoute = require('./routes/hubTabs')
 // `firmOrEntityAuth` in the guard list.
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 const clientReportsRoute = require('./routes/clientReports')
+const wagesRegisterRoute = require('./routes/wagesRegister')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
 // design/COLLABORATE-MERGE-PLAN.md. Its routes are registered below, under
@@ -246,6 +248,10 @@ server.post('/api/report/multiple-property', reportRoute.multipleProperty)
 // household than any other model here, which is the reason it stores nothing.
 server.post('/api/report/retirement-review', reportRoute.retirementReview)
 server.post('/api/report/volatility', reportRoute.volatility)
+// Wages/Salary Review (item 5.1) — calc-only, anonymous. Pay rates and hours in, labour
+// margin out. The staff register that makes this model unusual is NOT part of it: that is
+// gated behind a due-diligence project (Mike's decision 6, 2026-09-14) and has its own seam.
+server.post('/api/report/wages-review', reportRoute.wagesReview)
 // The Import & Retail shipment calculator (item 4.64 slice 2). Anonymous like the
 // volatility read beside it — dates and numbers in, dates and numbers out. It is a route
 // rather than a computed property because the date rules are business logic, and one
@@ -384,6 +390,25 @@ server.put('/api/client-reports/mine/saved', entityAuth, clientReportsRoute.putM
 server.get('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.getSaved)
 server.put('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.putSaved)
 server.post('/api/client-reports/saved/:clientId/restore', firmAuth, clientReportsRoute.restoreSaved)
+
+// ── The Wages/Salary Review's staff register gate (item 5.1, Decision 6) ──
+// The register holds a client's NAMED employees, so it opens only while a due-diligence
+// case stands AND an advisor has switched it on, recorded with who and when. Both routes
+// are firmAuth: the firm and advisor come from the verified token, and the client id in
+// the path is checked to belong to that firm. The switch-on re-checks the case itself, so
+// the gate cannot be opened by calling the route directly.
+server.get('/api/wages-register/gate/:clientId', firmAuth, wagesRegisterRoute.getGate)
+server.post('/api/wages-register/gate/:clientId/open', firmAuth, wagesRegisterRoute.openGate)
+// Closing needs no due-diligence case: it is the safe direction, and an advisor who opened
+// the register on the wrong client must always be able to shut it (Mike, 2026-09-15).
+server.post('/api/wages-register/gate/:clientId/close', firmAuth, wagesRegisterRoute.closeGate)
+// The register's CONTENTS. Both re-resolve the gate from the live case before answering, so
+// a case that has left the due-diligence domain stops serving named employees immediately
+// rather than when somebody remembers to switch it off. `view` is a POST because it carries
+// step 1's team, which is not stored with the register; the pricing happens here, on the
+// backend, because a liability is business logic.
+server.post('/api/wages-register/:clientId/view', firmAuth, wagesRegisterRoute.viewRegister)
+server.put('/api/wages-register/:clientId', firmAuth, wagesRegisterRoute.saveRegister)
 
 // ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
 // All firmAuth-guarded; identity from the verified JWT, never the body. An
@@ -873,6 +898,16 @@ server.get('/api/mentor/cases', firmAuth, requireManagingTier, mentorRoute.listM
 // firm's advisers BY NAME, which is a firm manager's view of their own people.
 // Design: design/mockups/mentor-adoption-view.html (ruled by Mike 2026-08-09).
 server.get('/api/mentor/adoption', firmAuth, requireManagingTier, mentorRoute.getAdoption)
+
+// ── Model Choices (item 7.5) ──
+// What calculation model the AI named in a client conversation, and when it said
+// plainly that none fits. Read at ALL FOUR manager tiers, each scoped to its own
+// level — Mike's ruling of 2026-09-16, which reversed the drawing's mentor-only
+// recommendation once the rows gained a firm and an advisor.
+// `requireManagerRole` rather than `requireManagingTier`: a FIRM manager reads this
+// one, which is the whole point of the widening. The handler takes the scope from
+// req.firmId and never from the request. design/mockups/model-choices.html.
+server.get('/api/model-choices', firmAuth, requireManagerRole, modelChoicesRoute.getModelChoices)
 
 // Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
 // The mentor authors the platform set every firm receives as its default; plain CRUD

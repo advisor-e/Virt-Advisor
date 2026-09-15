@@ -46,6 +46,7 @@
 import { MODELS } from '~/utils/reportModelCatalogue'
 import { listClients } from '~/utils/clients'
 import { getClientAccess, setClientAccess } from '~/utils/clientReports'
+import { isDevHost } from '~/utils/devHost'
 
 const TOKEN_KEY = 'advisor_e_token'
 const ROLE_KEY = 'advisor_e_role'
@@ -89,6 +90,14 @@ export default {
       role = window.localStorage.getItem(ROLE_KEY) || ''
       remembered = window.localStorage.getItem(CLIENT_KEY) || ''
     } catch (e) { return }
+    // 🔴 ON A DEVELOPER'S OWN MACHINE, STAND IN FOR THE SIGN-IN (2026-09-15). In production
+    // Advisor-e writes this token before our page loads; nothing on a laptop does, so the
+    // picker rendered NOTHING on every report page and every client-aware screen behind it
+    // was unreachable — the staff register among them, which looked like a missing feature.
+    // Same two gates as every other dev sign-in in this app (`pages/advisor.vue` and eleven
+    // others): a loopback hostname, and a backend that refuses the bypass token unless
+    // ALLOW_DEV_AUTH is set. Production is served from a domain and sets neither.
+    if (!token && isDevHost()) { token = 'dev-local-bypass' }
     if (!token || role === ENTITY_ROLE) { return }
     if (!MODELS.some(m => m.route === this.modelRoute)) { return }
     this.token = token

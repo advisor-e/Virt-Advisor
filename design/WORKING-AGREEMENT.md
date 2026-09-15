@@ -90,6 +90,10 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    notes to read**: the 85 files written before that date stay as history, none is written now.
    **An item whose `activeOn` names the other machine is off limits** — say so, and do not
    touch the files it names.
+   🔴 **Take the other machine's handover DATE from `npm run check:branch`, never from the
+   copy in this working tree.** That copy is frozen at the last merge and can be days behind
+   the real note while looking perfectly fine. The check reads it from that machine's own
+   branch and says outright when the note is older than the work there (item 14.2).
 5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
 
 ## End of session — either machine

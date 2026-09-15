@@ -165,6 +165,33 @@ describe('where the sentence lands', () => {
     const text = 'A paragraph of advice with no template names in it at all.'
     expect(injectVideoInfo(text, null)).toBe(text)
   })
+
+  test('🔴 a session plan is a LIST, and the sentence must not split a meeting off its own name', () => {
+    // Seen live 2026-09-15, three conversations running. A "Suggested session plan"
+    // is a tight list with no blank line between its items, so the first meeting's
+    // own content ran on into "- Meeting 2 (60 mins): " and the sentence landed at
+    // the end of THAT — between the second meeting and its template name:
+    //
+    //     - Meeting 2 (60 mins):
+    //     A 7-minute tutorial video is available... **Lite Fundamentals Proposal** — ...
+    //
+    // It happened on every plan with more than one meeting. The blank-line rule was
+    // written for prose and had never been tried against a list.
+    getOrgTemplates.mockReturnValue([
+      template({ title: 'Formal Risk Management' }),
+      withCpd({ watchedVideo: 4 }, { title: 'Lite Fundamentals Proposal' })
+    ])
+    const plan = '#### Suggested session plan\n' +
+      '- Meeting 1 (60 mins): **Formal Risk Management** — Risk identification.\n' +
+      '- Meeting 2 (60 mins): **Lite Fundamentals Proposal** — Review goals.\n'
+    const out = injectVideoInfo(plan, null)
+
+    // Every meeting line still carries its own template name, unbroken.
+    expect(out).toContain('- Meeting 1 (60 mins): **Formal Risk Management**')
+    expect(out).toContain('- Meeting 2 (60 mins): **Lite Fundamentals Proposal**')
+    // Both sentences are still delivered — the fix moves them, it does not drop them.
+    expect(out.match(/tutorial video is available/g)).toHaveLength(2)
+  })
 })
 
 describe('the field labels it also bolds', () => {

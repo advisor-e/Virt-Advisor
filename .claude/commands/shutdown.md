@@ -26,6 +26,31 @@ a new one beneath it.
 2026-09-04). Say what you recommend, say why, ask one question a bare yes or no answers.
 Never two options. No exceptions.
 
+## 🔴 FIND IT → SAY IT → ASK → FIX IT. NEVER PARK IT. (Mike's ruling, 2026-09-14 — binding)
+
+In his words: *"you find a problem then ignore it and leave it for later — fucking bring it
+to me every time you find it, ask the question and get it fixed."*
+
+**A problem found during this checklist is fixed during this checklist, not written into the
+handover.** Say it in one or two sentences, ask the one question you need, fix it on his yes.
+
+⛔ **A handover note is not a parking space, and this is where that habit shows up.** If you
+are about to write *"⚠ still outstanding…"*, *"worth fixing next session"*, or *"I've left it
+alone"* about something you found today and could have fixed today, **stop and put it to Mike
+instead.** A handover carries what the next session needs to KNOW — the branch, what changed,
+what is genuinely blocked on somebody else. It does not carry work you chose not to do.
+
+**Item 4.96 is the proof.** An AI-written line pointing every report build at a frozen archive
+sat in three consecutive laptop handovers before it ever became an item — and when it finally
+was one, its scope said *"one sentence in one file"* and it was four. Three sessions saw it,
+three sessions wrote it down, none of them asked.
+
+🔴 **EVERY FAULT ENDS ONE OF TWO WAYS — FIXED NOW, OR FILED ON THE LIST WITH HIS YES** (Mike,
+2026-09-15). **`CLAUDE.md` holds that rule in full.** At shutdown it has a specific bite: before
+writing this handover, take every fault you found today and check each one reached one of those
+two endings. Anything that reached neither is a question you still owe Mike — ask it now, not
+in the note.
+
 ---
 
 **The LIVE-APP / repo-change rule in `CLAUDE.md` still applies.** Every step that writes,

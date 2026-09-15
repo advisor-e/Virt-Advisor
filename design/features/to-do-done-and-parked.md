@@ -185,6 +185,162 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.8 — the retry could recommend a template and deny having one in the same answer.**
+✅ Closed 2026-09-16 on the laptop. A defect we found the same day 7.7 shipped, by running the app
+while diagnosing 7.6; filed on Mike's yes and fixed on his yes within the hour.
+
+7.7's correction empties the *Also worth considering* block when it holds a calculator. But
+`discover.txt` specifies that block as *"1-2 alternative TEMPLATES"* and never says it may be
+empty — so an answer with a best match it was keeping and a slot it was forbidden to fill had no
+permitted exit except 7.7's own no-match sentence. It wrote both: **Best match — Money Matters**
+and *"I can't find an exact match in the available templates"*, in one reply.
+
+🔴 **THE AI WAS BOXED IN, NOT CARELESS, and that is the transferable part.** A correction that
+removes the only permitted content from a required block must say what to do with the empty block,
+or the model will find its own way out. **The fix gives it the exit it lacked** and fences the
+escape to the case it was written for: keep the best match, leave the alternatives block out
+entirely when nothing remains, and use the no-match line only when no template fits at all — where
+it replaces the whole answer rather than sitting inside one. `buildRetryInstruction` in
+`server/utils/templateHeadingCheck.js`; the retry instruction **alone**, not `discover.txt`,
+because the fault appears only in corrected answers and changing the prompt would touch every
+discover answer.
+
+**What proves it is closed: seven live conversations, five of them tripping the correction, no
+contradiction** — against one in three observed before. The answers improved in the way the fix
+predicts: the AI now omits the alternatives block and puts the calculator in the calculator block
+at its page path. Small sample, and this is the AI's behaviour rather than a rule code can
+enforce — which is why the one test added pins **the fence itself**
+(`tests/unit/templateHeadingCheck.test.js`, now 15), so those sentences cannot be deleted by a
+later edit that has forgotten why they are there.
+
+**7.7 — the AI offered the wages model as a template that does not exist.**
+✅ Closed 2026-09-16 on the laptop. A defect we found while proving item 7.5 by running the app;
+filed on Mike's yes, fixed on his yes the next morning.
+
+Asked about wages, the AI answered **Best match — Wages/Salary Review**, which is a calculator
+page in this app (`/wages-review`). The library holds **Wages Review**. One word apart, a
+different kind of thing, and the advisor goes to Advisor-e for a document that is not there.
+
+🔴 **THE RULE ALREADY EXISTED FOUR TIMES AND WAS IGNORED** — `discover.txt` lines 33, 38 and 92,
+plus the model-list instruction. A fifth sentence was not the fix, and item 7.6 had proved that
+same week that rewording this prompt does not move this behaviour. **The fix is a check in code**:
+`server/utils/templateHeadingCheck.js` reads the names under *Best match* and *Also worth
+considering* back against the library, and a calculation model found there is **not sent** — the
+AI is re-asked once with the fault and the real page path named. Discover mode buffers its whole
+reply and emits it in one delta, so nothing is on screen when this runs; that is what made a
+correction possible instead of an apology. Brief **P2**.
+
+**What proves it is closed: six live conversations, four trips, four corrections, none reaching
+an advisor.** The best of them returned *Best match — Wages Review* (the real template) with
+*Wages/Salary Review* in the calculator block at its page path. **Running it found two things
+11,155 passing tests could not** — the AI mislabels a second calculator the same way
+(`High-Level Budget`), so a hardcoded pair would already have been wrong; and the first version of
+the correction made one answer **worse**, the AI reaching for a weak template rather than saying
+nothing fitted. The correction now carries STEP 1's honest no-match with it.
+
+**14 tests** (`tests/unit/templateHeadingCheck.test.js`), including the Wages pair pinned against
+the shipped data so a rename of either name fails the test rather than reviving the fault under a
+new spelling, and Mike's approved note wording pinned beside it.
+
+⚠ **The doc/slide/sheet type would NOT have helped and is not available.** All 24 fields of
+`search_content_20260820053246.json` were checked, at every depth, in all four copies on the
+machine: none carries it, and `status` is `"--"` on all 291 rows. Our calculators are not in the
+master library at all, so the library check answers this with certainty without it. If the type
+ever arrives it sharpens the *other* half of this family — Working Capital Cycle and Quick
+Position, where a calculator and a document genuinely share one name (item 4.33).
+
+**14.2 — startup was blind to the other machine's branch.** *(Filed as 4.101; renumbered under
+[`../ITEM-NUMBERING.md`](../ITEM-NUMBERING.md).)*
+✅ Closed 2026-09-15 on the laptop, both halves. A defect we found; filed on Mike's yes.
+
+**The numbering half was built twice and ours lost, which is the cheaper outcome.** We built it
+2026-09-14; **PR #93** built the same thing independently off `master` and carries Mike's
+parent-number scheme. Its versions of `scripts/ref-ceiling.js`, `tests/unit/refCeiling.test.js` and
+`scripts/check-branch-state.js` came in with the merge and ours were dropped. **That collision is
+itself the item's own subject** — two machines solving one problem without seeing each other.
+
+🔴 **The handover half is the one that actually misled a reader, twice.** Startup compared handover
+dates using `design/HANDOVER-desktop.md` **in this machine's working tree** — a copy frozen at the
+last merge. It can be days behind the real note and **nothing about it looks wrong**: the file
+exists, it parses, it carries a date. On **2026-09-14** a session reported the desktop idle since
+2026-09-10 when its note was two days newer, and on **2026-09-15** it read one dated the 13th while
+the desktop's branch held one from the 15th. Both were caught only by reading the other branch by
+hand.
+
+**What proves it is closed:** `scripts/branch-survey.js` now reads the note from *that machine's own
+branch* (`git show origin/<their branch>:design/HANDOVER-<machine>.md`), prints its date beside the
+branch's last commit, and **says outright when the note is older than the work**. Seen working
+against the live desktop branch, not just in tests. `tests/unit/branchSurvey.test.js` carries **31
+tests**, including both real false-staleness shapes, a branch with no note, and a branch belonging
+to no machine (which costs no git call). **The instruction was corrected too** — both
+`.claude/commands/startup.md` and [`../WORKING-AGREEMENT.md`](../WORKING-AGREEMENT.md) now say to
+take the date from `npm run check:branch`, never from the working tree. A fix nobody is told to use
+is half a fix.
+
+**4.96 — the skills pointed every build at a frozen archive.**
+✅ Closed 2026-09-14 on the laptop. A defect we found; filed on Mike's yes. The `add-a-report`
+skill's *"Record & commit"* section told every session to record its work in `design/ACTIONS.md`,
+frozen since 2026-08-24 — so a session following the instruction wrote its record into a file no
+checklist reads.
+
+🔴 **ITS SCOPE WAS WRONG, AND THAT IS THE PART WORTH KEEPING.** The item said *"ONE SENTENCE IN ONE
+FILE"*. The same write-instruction was in **four** skills — `add-a-report`, `add-a-domain`,
+`single-source-wiring` and `firm-manager-edit-target`. All four now name the feature's Brief and
+`to-do-items.json`, and each keeps **one line saying what it used to say and why**, because the
+instruction is the thing that misled: deleting it silently would leave the next session to
+rediscover the trap. Fixing one of four and closing the item would have been a narrowed job that
+looked finished.
+
+⚠ **It sat in three consecutive laptop handovers before it became an item at all.** Three sessions
+saw it, three wrote it down, none asked. That is the evidence behind the **find it → say it → ask →
+fix it** rule added to both checklists the same day, and it is quoted in `shutdown.md` for exactly
+that reason: *a handover note is not a parking space.*
+
+⚠ **What was NOT changed, and is a live question rather than an oversight.** Several skills still
+*point at* `ACTIONS.md` as a backlog — `firm-manager-edit-target`'s own trigger text invites a
+session to pick up six building blocks listed there. Rewording what work a skill invites is a
+different decision from correcting where it files its record, and Mike has not been asked. Four of
+those six are unbuilt; **the logic-tree editor is already built and the coaching reference partly
+so**, which is the archive's own warning that an item there is *"a claim to check against the code,
+never a status"*.
+
+**4.102 — the Shutdown basis reported zero revenue for a real client.**
+✅ Closed 2026-09-14 on the laptop. A defect we found and Mike ruled the fix himself — *"plan the
+fix properly then get it done"* — after being offered the Shutdown button's removal meanwhile and
+declining it. The engine took each person's shutdown wage and revenue as **two ready-made
+twelve-month arrays** and used them as given; only the workbook's own sample ever carried them, so
+a team built on our step 1 totalled **zero revenue** on that basis, reachable in the app with no
+warning. It now derives both from the ten typed cells of `Shutdown Inputs`, per person per month.
+
+**What proved it.** `SHUTDOWN_SAMPLE` reproduces `Cash Report` R17 at **973,328.4208**, to the
+cent, and the seasonal guard is unmoved at 1,362,740 / 288,935 / July −132. The reading of the
+sheet was checked against **768 cached cells before any code was written** — all 384 revenue cells
+exact, 379 of 384 wage cells. The end-to-end guard is **non-vacuous**: one person with the three
+new step-1 fields bills **88,651.20**, the same person without them bills **0.00** — the original
+fault, reproduced on demand rather than asserted.
+
+**Two corrections came out of it, both pinned with the workbook's own figure beside ours.**
+*The allowance charged twice* — `Shutdown Inputs` CL7 holds it inside each person's wage while
+`Seasonal Inputs` CM7 leaves it out, and `Cash Report` row 20 added one to both regardless:
+15,600 off the year. *A fourth workbook defect* — CL28's **unanchored `CI28`** in a shared formula
+reads another month's cell, overcharging one person 237.42 a month.
+
+🔴 **The lesson, and it is worth more than either instance.** Two of the four corrections in this
+model are now **the same mistake**: a shared formula whose unanchored reference drifts as the block
+fills — down a column in correction 1, across a row in correction 4. **When checking this workbook,
+read what a formula ANCHORS, not only what it says.** That sentence is in
+[`../../server/report/wagesModel.js`](../../server/report/wagesModel.js)'s header, where the next
+session will meet it.
+
+⚠ **A phantom defect was withdrawn in seven places** across five files — the claim that certain
+allowance cells had their formula *"overtyped with stray label text"*. They had not: Excel stores a
+shared formula once on the master cell and leaves the followers empty, so a reader taking each
+cell's own `<f>` sees blanks and calls them typed constants. One test was passing for that wrong
+reason. **`design/WAGES-SHUTDOWN-PORT.md` — the cold-start build spec this item ran on — was
+deleted the same day on Mike's yes**, its durable parts folded into
+[`report-models.md`](report-models.md); it had carried the phantom in §3.2 and a second error in
+§2.5, and a spec that outlives its build becomes the next session's false start.
+
 **4.95 — the Sales Dashboard: the last card that said "coming soon" and opened nothing.**
 ✅ Closed 2026-09-13 on the laptop. Asked for by Mike in his own words — *"sales dashboard in perf
 report"* — when the startup checklist put the open work to him, then *"yes"* to drawing the screen

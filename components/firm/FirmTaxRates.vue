@@ -141,6 +141,43 @@
             b-field(:label="$t('firmTaxRates.sourcePageLabel')" label-position="on-border")
               b-input(v-model="form[f.key].page" size="is-small")
 
+        //- 🔴 THE BAND TABLE — the only figure here that is not a single value, and the only
+        //- one that can be wrong invisibly. A gap leaves income untaxed, an overlap taxes it
+        //- twice, and both total up to something entirely plausible. `bandsProblem` says so
+        //- while the manager types; the backend refuses it again on the way in.
+        .field(v-if="f.kind === 'bands'")
+          table.ftr-bands
+            thead
+              tr
+                th {{ $t('firmTaxRates.bandFromCol') }}
+                th {{ $t('firmTaxRates.bandToCol') }}
+                th {{ $t('firmTaxRates.bandRateCol') }}
+                th
+            tbody
+              tr(v-for="(b, i) in form.incomeTax.bands" :key="i")
+                td
+                  b-input(v-model.number="b.from" type="number" step="any" size="is-small")
+                td
+                  b-input(
+                    v-if="i < form.incomeTax.bands.length - 1"
+                    v-model.number="b.to"
+                    type="number"
+                    step="any"
+                    size="is-small")
+                  span.ftr-open(v-else) {{ $t('firmTaxRates.bandAndAbove') }}
+                td
+                  b-input(v-model.number="b.percent" type="number" step="any" size="is-small" placeholder="10.5")
+                td.ftr-bandact
+                  b-button(
+                    size="is-small"
+                    type="is-text"
+                    :disabled="form.incomeTax.bands.length <= 1"
+                    :title="$t('firmTaxRates.bandRemove')"
+                    @click="removeBand(i)") ×
+          .ftr-bandfoot
+            b-button(size="is-small" @click="addBand") {{ $t('firmTaxRates.bandAdd') }}
+            span.ftr-bandwarn(v-if="bandsProblem") {{ bandsProblem }}
+
         //- 🔴 The company tax rate's own line. The forecast applies ONE flat rate
         //- and cannot judge which entities qualify, so the manager says it here.
         .field(v-if="f.key === 'companyTax'")
@@ -272,8 +309,43 @@ export default {
           kind: 'basis',
           label: this.$t('firmTaxRates.basis'),
           help: this.$t('firmTaxRates.basisHelp')
+        },
+        {
+          key: 'incomeTax',
+          kind: 'bands',
+          label: this.$t('firmTaxRates.incomeTax'),
+          help: this.$t('firmTaxRates.incomeTaxHelp')
         }
       ]
+    },
+
+    /**
+     * @returns {boolean} whether the band rows currently form a usable table.
+     *
+     * The backend is the authority and refuses a gap, an overlap, an implicit tax-free hole
+     * and a closed top band. This is the same check on screen so the manager sees it while
+     * typing rather than as a rejection — the one figure here that is a table is the one that
+     * goes wrong invisibly.
+     */
+    bandsProblem () {
+      const rows = this.form.incomeTax.bands
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i]
+        const from = Number(r.from)
+        const last = i === rows.length - 1
+        const open = r.to === '' || r.to === null
+        if (!isFinite(from) || from < 0) { return this.$t('firmTaxRates.bandFrom') }
+        if (r.percent === '' || r.percent === null) { return this.$t('firmTaxRates.bandRate') }
+        if (open && !last) { return this.$t('firmTaxRates.bandOpenMiddle') }
+        if (last && !open) { return this.$t('firmTaxRates.bandTopOpen') }
+        if (i === 0 && from !== 0 && from !== 1) { return this.$t('firmTaxRates.bandFirstFloor') }
+        if (i > 0) {
+          const prevTo = Number(rows[i - 1].to)
+          if (from !== prevTo + 1) { return this.$t('firmTaxRates.bandContiguous', { expected: prevTo + 1 }) }
+        }
+        if (!open && Number(r.to) <= from) { return this.$t('firmTaxRates.bandCeiling') }
+      }
+      return ''
     },
 
     /** The four rows as they read in force, each with its value, source and origin. */
@@ -309,8 +381,26 @@ export default {
         companyTax: Object.assign({ percent: '', appliesTo: '' }, source()),
         gst: Object.assign({ percent: '' }, source()),
         filing: Object.assign({ months: 2, label: '' }, source()),
-        basis: Object.assign({ basis: 'invoice', label: '' }, source())
+        basis: Object.assign({ basis: 'invoice', label: '' }, source()),
+        // One open-ended row to start. A band table cannot be half-typed into a valid state,
+        // so the form opens with the shape the validator wants and the manager fills it in.
+        incomeTax: Object.assign({ bands: [{ from: 0, to: '', percent: '' }] }, source())
       }
+    },
+
+    /** Add a band below the last one, starting where that one stopped, plus a dollar. */
+    addBand () {
+      const rows = this.form.incomeTax.bands
+      const last = rows[rows.length - 1]
+      // The row that WAS open-ended gets a ceiling, because only the last row may be open.
+      if (last && (last.to === '' || last.to === null)) { last.to = '' }
+      rows.push({ from: '', to: '', percent: '' })
+    },
+
+    /** Remove one band. The last remaining row is never removed — there would be no table. */
+    removeBand (index) {
+      if (this.form.incomeTax.bands.length <= 1) { return }
+      this.form.incomeTax.bands.splice(index, 1)
     },
 
     /**
@@ -332,6 +422,18 @@ export default {
       }
       if (key === 'basis') {
         return v.label || (v.basis ? this.$t(`firmTaxRates.basis${v.basis === 'cash' ? 'Cash' : 'Invoice'}`) : this.$t('firmTaxRates.notSet'))
+      }
+      if (key === 'incomeTax') {
+        // A summary, never the table: five rows would crush a row that holds four one-line
+        // figures beside it. The whole table is one click away in the editor below.
+        const bands = Array.isArray(v.bands) ? v.bands : []
+        if (!bands.length) { return this.$t('firmTaxRates.notSet') }
+        const pct = r => `${Math.round(r * 1000) / 10}%`
+        return this.$t('firmTaxRates.bandSummary', {
+          count: bands.length,
+          lowest: pct(bands[0].rate),
+          highest: pct(bands[bands.length - 1].rate)
+        })
       }
       if (v.rate === null || v.rate === undefined) { return this.$t('firmTaxRates.notSet') }
       // One decimal place, which is enough for every published rate and does not invent
@@ -440,6 +542,10 @@ export default {
       if (this.isSourced(key)) { return false }
       const f = this.form[key]
       if (key === 'companyTax' || key === 'gst') { return f.percent !== '' && f.percent !== null }
+      // A band table counts as "typed" once any rate has been put against a row.
+      if (key === 'incomeTax') {
+        return f.bands.some(b => b.percent !== '' && b.percent !== null)
+      }
       return Boolean(String(f.label || '').trim())
     },
 
@@ -450,7 +556,7 @@ export default {
      * @returns {object|null} the figures to send, or null when something was refused
      */
     buildFigures () {
-      const orphan = ['companyTax', 'gst', 'filing', 'basis'].find(k => this.hasOrphanValue(k))
+      const orphan = ['companyTax', 'gst', 'filing', 'basis', 'incomeTax'].find(k => this.hasOrphanValue(k))
       if (orphan) {
         this.formError = this.$t('firmTaxRates.sourceRequired')
         return null
@@ -488,6 +594,23 @@ export default {
           basis: this.form.basis.basis,
           label: String(this.form.basis.label || '').trim(),
           source: sourceOf('basis')
+        }
+      }
+      if (this.isSourced('incomeTax')) {
+        // Refused here rather than sent and bounced: the backend's message names a cell
+        // reference, which is right for an API and wrong for somebody reading a form.
+        if (this.bandsProblem) {
+          this.formError = this.bandsProblem
+          return null
+        }
+        figures.incomeTax = {
+          bands: this.form.incomeTax.bands.map((b, i) => ({
+            from: Number(b.from),
+            to: i === this.form.incomeTax.bands.length - 1 ? null : Number(b.to),
+            // The screen works in percentages and converts, exactly as the two rates do.
+            rate: this.toDecimal(b.percent)
+          })),
+          source: sourceOf('incomeTax')
         }
       }
 
@@ -613,4 +736,21 @@ export default {
   border-bottom: 1px solid #f0f3f7;
 }
 .ftr-hist:last-child { border-bottom: 0; }
+
+/* The band table. Narrow columns on purpose — three numbers a row, not a spreadsheet. */
+.ftr-bands { width: 100%; max-width: 520px; border-collapse: collapse; }
+.ftr-bands th {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7a8ba0;
+  text-align: left;
+  padding: 0 0.5rem 0.3rem 0;
+  font-weight: 600;
+}
+.ftr-bands td { padding: 0.15rem 0.5rem 0.15rem 0; vertical-align: middle; }
+.ftr-bands td:last-child { width: 2.2rem; padding-right: 0; }
+.ftr-open { font-size: 0.8rem; color: #7a8ba0; font-style: italic; }
+.ftr-bandfoot { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.4rem; flex-wrap: wrap; }
+.ftr-bandwarn { font-size: 0.78rem; color: #b56200; }
 </style>

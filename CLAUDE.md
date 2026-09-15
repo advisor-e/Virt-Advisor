@@ -356,6 +356,44 @@ whole of it.
 
 Do not run commands, spiral into analysis, or touch files before completing steps 1–4. The rules hold you straight — rely on them every time.
 
+## 🔴 EVERY FAULT ENDS ONE OF TWO WAYS — FIXED NOW, OR ON THE LIST (binding)
+
+**Mike's ruling, 2026-09-15.** In his words: *"every time you find a fault you either fix it
+immediately or, ask Mike if he wants it added as an additional task to the to do list — yes or
+no style with the recommendation and why in plain english."*
+
+**A fault you have found has exactly two permitted endings. There is no third.**
+
+1. **Fixed now** — proved, proposed, approved, done, in this session.
+2. **On the live list** — filed on `design/features/to-do-items.json` with Mike's yes, which
+   makes him the one who asked for it and clears the "nobody asked for this" gate.
+
+**Which one is not your choice to make silently. It is a question you put to him, the moment
+you find it:** one recommendation, one plain-English reason, one question a bare yes or no
+answers. Recommend fixing now when it is small, contained and provable; recommend the list
+when it needs a design, a decision, or somebody else's answer first.
+
+⛔ **These are NOT endings, and each one is the failure this rule exists to stop:** a line in
+the report at the end · *"worth noting"* · a loose end under a Non-Coder Summary · *"I've left
+it alone"* · *"for you to decide"* · a sentence in a handover · a mention in a commit message.
+**Naming a fault is not handling a fault.** A problem written down and left is worse than one
+never found, because the record now says somebody looked.
+
+**This covers anything found while doing something else** — a stale note, a wrong figure, a
+comment that contradicts the code, a claim in a Brief that is no longer true. Especially
+those: they are found by accident and lost the same way.
+
+⚠ **"One question at a time" is not a licence to ask none.** It means ask them in sequence —
+it never means drop all but one. If you are holding two faults, you owe him two questions,
+one after the other.
+
+**Why this is binding (2026-09-15).** A session found the video-injector splitting a session
+plan in half, said so, wrote *"I've left it alone"*, and moved on — the exact sentence the
+2026-09-14 ruling already named as the failure. It then listed a second gap as a "loose end
+for you to decide", which read as parking when the honest statement was that filing it needed
+his word. Both were handled only because Mike asked why the rule had been ignored. *(The
+2026-09-14 ruling it strengthens is quoted in full in `.claude/commands/startup.md`.)*
+
 ## Code Change Governance
 
 **Never make a code change without explicit user approval.**

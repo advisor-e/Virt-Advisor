@@ -58,8 +58,16 @@ const {
  */
 const BASE_TAX_FIGURES = BASE_FILE.figures
 
-/** The four figures the forecast has, in the order a manager reads them. */
-const FIGURE_KEYS = ['companyTax', 'gst', 'filing', 'basis']
+/**
+ * The figures a country's table holds, in the order a manager reads them.
+ *
+ * ⚠ `incomeTax` IS THE FIFTH AND IT ARRIVED LATER (2026-09-14, decision 5 of the Wages/Salary
+ * Review). The first four serve the Three-Way Forecast, which taxes company profit; the fifth
+ * serves the Wages/Salary Review's rates tab, which taxes a person's income. They share this
+ * store because they share the thing that matters — one country table, one cascade, and one
+ * approve-before-use gate — not because they serve one screen.
+ */
+const FIGURE_KEYS = ['companyTax', 'gst', 'filing', 'basis', 'incomeTax']
 
 /** The overlay address an approved table is stored under, at every tier. */
 const CONFIG_KEY = 'tax-rates'
@@ -108,6 +116,15 @@ const MAX_SUPERSEDED = 5
  * advisor reads it beside the rate, and the app claims nothing it cannot support.
  */
 const MAX_APPLIES_TO = 200
+
+/**
+ * The most income tax bands one country's table may hold.
+ *
+ * Twelve is generous against reality — New Zealand has five, Australia five, the United
+ * Kingdom three plus a personal allowance — and exists so a malformed upload cannot put a
+ * thousand rows into every response that reads this figure.
+ */
+const MAX_BANDS = 12
 
 /**
  * Validate the parts every figure shares, and return the tail of a cleaned entry.
@@ -217,12 +234,114 @@ function cleanBasis (value, where, errors) {
   return { basis, label, source: common.source }
 }
 
+/**
+ * Validate the INCOME TAX BANDS — the progressive table a person's income is taxed through.
+ *
+ * 🔴 THE FIFTH FIGURE, AND THE ONLY ONE THAT IS A TABLE. The other four are single values, so
+ * this validator carries the weight the others do not: a band table goes wrong QUIETLY. A gap
+ * between two bands leaves a slice of income untaxed, an overlap taxes it twice, and both
+ * produce a total that looks entirely plausible on screen. Nobody re-adds a tax table by hand,
+ * which is exactly why nobody would catch it.
+ *
+ * So the shape is checked rather than trusted:
+ *
+ *   - at least one band, at most MAX_BANDS
+ *   - every rate a decimal 0..1, the store's convention everywhere (39% is 0.39, never 39)
+ *   - the FIRST band starts at 0 or 1, so a tax-free threshold has to be written as an
+ *     explicit 0% band rather than left as a silent hole below the first one
+ *   - each later band starts at the previous band's ceiling PLUS ONE — the workbook's own
+ *     convention (`X9 = Y8+1`) and the one every real table uses. This is what makes a gap or
+ *     an overlap impossible rather than merely unlikely
+ *   - exactly ONE open-ended band and it is the LAST, because income above the top ceiling
+ *     must be taxed at something
+ *
+ * ⚠ IT DOES NOT VALIDATE THAT RATES RISE. A regressive or flat band is legal in some regimes
+ * and refusing one would be this app inventing tax policy. Contiguity is arithmetic; the
+ * direction of the rates is the country's business.
+ *
+ * @param {*} value
+ * @param {string} where
+ * @param {string[]} errors
+ * @returns {object|null}
+ */
+function cleanIncomeTax (value, where, errors) {
+  const common = cleanCommon(value, where, errors)
+  if (common === null) { return null }
+
+  const raw = value.bands
+  if (!Array.isArray(raw) || raw.length === 0) {
+    errors.push(`${where}.bands must be a non-empty array of { from, to, rate }`)
+    return null
+  }
+  if (raw.length > MAX_BANDS) {
+    errors.push(`${where}.bands must hold at most ${MAX_BANDS} bands`)
+    return null
+  }
+
+  const bands = []
+  for (let i = 0; i < raw.length; i++) {
+    const at = `${where}.bands[${i}]`
+    const band = raw[i]
+    if (!band || typeof band !== 'object' || Array.isArray(band)) {
+      errors.push(`${at} must be a non-array JSON object`)
+      return null
+    }
+
+    const rate = cleanRate(band.rate, `${at}.rate`, errors)
+    if (rate === null) { return null }
+
+    const from = num(band.from)
+    if (from === null || from < 0) {
+      errors.push(`${at}.from must be a number of zero or more`)
+      return null
+    }
+
+    const last = i === raw.length - 1
+    const open = band.to === null || band.to === undefined
+    if (open && !last) {
+      errors.push(`${at}.to may only be open-ended on the LAST band — income above every ceiling has to be taxed at something`)
+      return null
+    }
+
+    let to = null
+    if (!open) {
+      to = num(band.to)
+      if (to === null || to <= from) {
+        errors.push(`${at}.to must be a number greater than ${at}.from`)
+        return null
+      }
+    }
+    if (last && !open && to !== null) {
+      errors.push(`${at}.to must be null on the last band — otherwise income above ${to} is taxed at nothing`)
+      return null
+    }
+
+    if (i === 0) {
+      if (from !== 0 && from !== 1) {
+        errors.push(`${at}.from must be 0 or 1 — a tax-free threshold belongs in the table as a 0% band, never as a gap below the first one`)
+        return null
+      }
+    } else {
+      const prev = bands[i - 1]
+      if (from !== prev.to + 1) {
+        errors.push(`${at}.from must be ${prev.to + 1}, one above the previous band's ceiling — anything else leaves income untaxed or taxed twice`)
+        return null
+      }
+    }
+
+    bands.push({ from, to, rate })
+  }
+
+  return { bands, source: common.source }
+}
+
 /** The validator for each figure, by key. An unknown key has none, which is the point. */
 const CLEANERS = {
   companyTax: cleanCompanyTax,
   gst: cleanGst,
   filing: cleanFiling,
-  basis: cleanBasis
+  basis: cleanBasis,
+  incomeTax: cleanIncomeTax
 }
 
 /**
@@ -484,6 +603,40 @@ async function loadResolvedTaxRates (scopeId, country, loadFirmConfig) {
   return flat
 }
 
+/**
+ * The income tax owed on one person's income, band by band.
+ *
+ * 🔴 THE BANDS ARE THE TABLE IN FORCE FOR THAT COUNTRY, resolved through the cascade like any
+ * other figure — never a constant, and never the caller's own copy. A country nobody has
+ * loaded a document for falls back to the app's own, badged `app default`, because Mike's
+ * ruling of 2026-09-08 is *"Never block the advisor"*: a missing table gives a badged answer,
+ * never a blank one.
+ *
+ * ⚠ THE BAND BOUNDARIES ARE INCLUSIVE AND THE TABLE IS CONTIGUOUS +1, which is what
+ * `cleanIncomeTax` guarantees. So the slice charged at each band's rate is `to - from + 1`,
+ * capped at what is left of the income. Reproducing the workbook exactly matters here: on New
+ * Zealand's bands an income of 145,000 owes 38,770, and a separate 25,000 owes 3,395.
+ *
+ * @param {number} income - the person's taxable income
+ * @param {Array<{from:number,to:?number,rate:number}>} bands - a validated table
+ * @returns {number} tax owed, unrounded
+ */
+function incomeTaxOn (income, bands) {
+  const amount = num(income)
+  if (amount === null || amount <= 0 || !Array.isArray(bands)) { return 0 }
+
+  let owed = 0
+  for (let i = 0; i < bands.length; i++) {
+    const band = bands[i]
+    if (amount < band.from) { break }
+    const ceiling = band.to === null || band.to === undefined ? amount : Math.min(amount, band.to)
+    // `from` is the first dollar IN the band, so the slice runs from the previous ceiling.
+    const floor = band.from === 0 ? 0 : band.from - 1
+    if (ceiling > floor) { owed += (ceiling - floor) * band.rate }
+  }
+  return owed
+}
+
 module.exports = {
   BASE_TAX_FIGURES,
   FIGURE_KEYS,
@@ -492,7 +645,9 @@ module.exports = {
   BASIS_VALUES,
   MAX_SUPERSEDED,
   MAX_APPLIES_TO,
+  MAX_BANDS,
   validateTaxRates,
   pickNewer,
+  incomeTaxOn,
   loadResolvedTaxRates
 }

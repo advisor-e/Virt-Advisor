@@ -55,6 +55,39 @@ cross-domain cases at 90% reachability. This is the conscious, documented liftin
 constraint, and it kept the boundary intact: the AI still cannot invent a domain or pick a
 template. → Brief **P3**.
 
+### A prompt rule written four times, enforced none · 2026-09-16 (item 7.7)
+
+Asked about wages, the AI answered **Best match — Wages/Salary Review**, with that model's own
+summary beneath it. `Wages/Salary Review` is a calculator page in this app (`/wages-review`); the
+library holds `Wages Review`. One word apart, and a different kind of thing. The advisor goes to
+Advisor-e for a document that is not there and finds out in front of their client.
+
+**`discover.txt` already forbade exactly this, three times — lines 33, 38 and 92 — and the
+model-list instruction a fourth.** The answer was not another sentence. Item 7.6, filed the same
+day, had just proved that rewording this prompt does not move the behaviour it aims at.
+
+Two facts settled the shape of the fix:
+
+- **Our 19 calculators are not in the master library at all**, so "is this name a template?" is
+  answerable with certainty from the shipped data. The doc/slide/sheet type is not available to
+  help: all 24 fields of `search_content_20260820053246.json` were checked and none carries it —
+  `status` is `"--"` on all 291 rows. If it ever arrives it would sharpen the *other* half of this
+  family (Working Capital Cycle and Quick Position, where a calculator and a document genuinely
+  share one name, handled by item 4.33's route test in `videoInjector`).
+- **Discover mode does not stream.** The main path buffers the whole reply and emits it in ONE
+  delta at `finish_reason`, so nothing is on the advisor's screen when the check runs. Unlike the
+  fabrication watch — which must correct itself in public because Phase 3 really does stream — a
+  wrong answer here can simply not be sent. → Brief **P2**.
+
+**Running it taught two things the 11,155-test suite could not**, which is now three days in a row:
+the AI mislabels a **second** calculator the same way (`High-Level Budget`), so a hardcoded pair
+would have been wrong by the end of the first day; and the first version of the correction made
+one answer **worse** — told it could not use the calculator, the AI reached for a weak template
+instead of saying nothing fitted. The correction now carries STEP 1's honest no-match with it.
+
+Six live conversations, four trips, four corrections, none reaching an advisor. The note for the
+twice-ignored case is Mike's approved wording and is pinned by a test beside the data it protects.
+
 ---
 
 ## 3. Decisions taken and closed — do not reopen

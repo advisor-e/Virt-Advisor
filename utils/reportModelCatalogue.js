@@ -92,6 +92,12 @@ export const MODELS = [
   // advertised a built model as "coming soon". Removed 2026-07-13 with the owner's approval.
   { name: 'Margin · Mark-up · Break-even', category: 'Profitability', summary: 'The pricing trio every quote depends on, in one calculator.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/margin-breakeven' },
   { name: '8 Levers Model', category: 'Profitability', summary: 'The eight levers that move profit, and which one to pull first.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/eight-levers' },
+  // A DECISION TOOL, not a Report, and the drawing's Decision 1 settles why: nothing in this
+  // model arrives from an accounts export — every figure is typed by the advisor across four
+  // steps, which is the single test in design/MODEL-CLASSIFICATION.md. The NAME is Mike's own
+  // and is pinned ("Wages/Salary Review"); the category was ruled separately on 2026-09-14,
+  // because `category` is the small word on the card face, never the shelf.
+  { name: 'Wages/Salary Review', category: 'Profitability', summary: 'Whether the team bills more than it costs, month by month, against what actually happened.', scope: 'Five steps: the team, how the work happens, the year ahead, the actuals, then the report. The staff register, the payroll import and the rates converter follow as their own stages.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/wages-review' },
   // The summary was "Smarter reorder points and buying to free cash without stock-outs" until
   // 2026-09-13. There are no reorder points anywhere in the source workbook and nothing in it
   // detects a stock-out; an advisor picking from the library on that description would open

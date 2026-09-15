@@ -204,6 +204,23 @@ listed here so nobody quotes them as current:
   **There are nine live routes.**
 - `ADDING-A-REPORT.md` says a new report *"looks and behaves like the other six."*
 
+### The Wages/Salary Review's "Still to come", 2026-09-14 → replaced 2026-09-15
+
+The Brief's block read:
+
+> **Still to come:** the rates converter tab, the gated staff register, the payroll reader, and
+> income tax bands as a fifth Tax Rates figure.
+
+**Two of those four were built the same day the sentence was written.** Mike dropped the rates tab
+on 2026-09-14 — *"does it need a separate tab?"* — and the two converters moved onto step 1; income
+tax bands landed as the fifth Tax Rates figure the same day (`FIGURE_KEYS` in
+[`../../server/utils/taxRates.js`](../../server/utils/taxRates.js)). The sentence then sat unread
+through a whole session, telling the Handbook's readers that approved, finished work was
+outstanding. **The same failure as the block directly above this one, one day later and in the
+Brief itself** — which is the document written to stop it.
+
+Found 2026-09-15 by checking the line against the code *before* writing to it, rather than after.
+
 **This is the drift the Brief is designed to stop.** Every one of those numbers was correct
 when written and became wrong without anyone touching it. The Brief therefore states no
 count that the catalogue already knows — [`utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js)

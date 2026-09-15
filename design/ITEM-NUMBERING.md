@@ -112,9 +112,24 @@ collided on 4.94 and 4.96 under any scheme.**
 each name two unrelated jobs in the archive, and `4.93`/`4.96` name one closed and one live.
 They are recorded here so nobody re-derives them as a fault.
 
-**Does not fix.** Two machines can still both invent parent `15`. The ceiling printed by
-`npm run check:branch` reads every machine's branch and is the defence — **take a number from
-there, never from your own branch.**
+**Fixed 2026-09-16, after `7.5` collided anyway.** The ceiling built on 2026-09-14 answers
+*"what new **parent** is free"* — and the rule at the top of this page, made the day after,
+turned almost every new job into a **decimal of a subject that already exists**. Nothing
+compared those across branches, so the box could truthfully print *"highest in use 14.2 /
+14.1"* on a morning when `7.5` named two unrelated jobs, one per machine. That was the
+twelfth collision.
+
+`npm run check:branch` now prints three things instead of one, and **every number is taken
+from there, never from your own branch**:
+
+- the next free **parent**, for a subject that has none;
+- the next free **decimal of every open subject**, read across every branch — and never a
+  decimal of the closed `2.x`, `3.x`, `4.x` families, whatever looks free in them;
+- **any number that already names two different jobs**, with both titles and both branches,
+  so it is settled before the branches merge rather than after.
+
+The eleven above are listed as recorded history and get one quiet line, not a warning — a
+box that repeats the same names every morning is a box nobody reads.
 
 ---
 
