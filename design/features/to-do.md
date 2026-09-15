@@ -43,9 +43,8 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 7 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | **laptop**, since 2026-09-16 |
 | 8 | **7.6** The AI declares its model choice only sometimes, so declines under-count ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 9 | **7.7** The AI offers the wages model as a template that does not exist ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**Nine live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Eight live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

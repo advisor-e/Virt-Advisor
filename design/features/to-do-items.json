@@ -248,27 +248,6 @@
       "touches": "data/prompts/client.txt SECTION 12 and data/prompts/discover.txt, where the instruction lives; server/utils/modelChoiceScan.js, which reads the marker; and the declines band of design/mockups/model-choices.html, which is what under-counts.",
       "note": "PROVEN BY RUNNING IT. Nine live discover-mode conversations: 0 of 3 with the instruction in the data file, 1 of 6 after it moved into the system prompts, 0 of 3 again after discover.txt's contradictory closing rule was fixed. THE OBVIOUS CAUSE WAS TESTED AND IS NOT IT: discover.txt did say nothing may follow the closing line while SECTION 12 said write the marker last - a real defect, fixed with a stated carve-out and a test - and the marker rate did not move. DO NOT RE-RAISE IT. FIRST STEP IS THE PATH NOT YET TESTED: client-mode Phase 3, where SECTION 11's template marker has worked reliably since 4.53 and SECTION 12 sits beside it.",
       "comment": "2026-09-16 - filed on Mike's yes, the same day 7.5 was built. Found by running the app rather than by a test: every one of the 11,123 passing tests proves our code handles what the AI sends, and none of them can prove the AI sends it - the same blind spot 7.5 was filed to close. The prompt contradiction found at shutdown was fixed the same hour and did not resolve this, which is worth knowing before anyone spends another session on the wording."
-    },
-    {
-      "ref": "7.7",
-      "name": "The AI offers the wages model as a template that does not exist",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Asked about wages, the AI names 'Wages/Salary Review' as the best template. That is the model's name; the template is 'Wages Review'. The advisor is sent for a document that does not exist.",
-      "risk": "An advisor goes looking in Advisor-e for a document that is not there, and finds out in front of their client. Same family as 7.1, where coaching names templates the library does not hold. discover.txt already forbids naming a model under a template heading; the rule was ignored in both test runs. One run also named it as the best template and then said no calculator fitted - the same reply recommending and denying the same thing.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-16 - found while testing 7.5 with live conversations; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "data/prompts/discover.txt, whose line forbidding this is already there and was ignored; data/templates.json, which holds 'Wages Review'; data/report-model-summaries.json, which holds the model name; and server/utils/tierLookup.js.",
-      "note": "PROVEN BY RUNNING IT. Two live discover-mode conversations on 2026-09-16 both put the MODEL under the template heading, with the model's own summary wording beneath it. The collision is two days old: the model was named Wages/Salary Review on 2026-09-14 (item 5.1) and the template Wages Review already existed - one word apart. THE RULE ALREADY EXISTS AND IS NOT BEING FOLLOWED, so a stronger prompt line is one route and validating a named template against the catalogue before the answer leaves is the other; tierLookup.isKnownTemplate already does exactly that for the Phase 3 marker. Renaming either thing is Mike's call, never ours.",
-      "comment": "2026-09-16 - filed on Mike's yes, found while proving item 7.5 by running the app. The third thing in three days that running the app found and the suite could not."
     }
   ]
 }

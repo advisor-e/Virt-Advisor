@@ -185,6 +185,42 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.7 — the AI offered the wages model as a template that does not exist.**
+✅ Closed 2026-09-16 on the laptop. A defect we found while proving item 7.5 by running the app;
+filed on Mike's yes, fixed on his yes the next morning.
+
+Asked about wages, the AI answered **Best match — Wages/Salary Review**, which is a calculator
+page in this app (`/wages-review`). The library holds **Wages Review**. One word apart, a
+different kind of thing, and the advisor goes to Advisor-e for a document that is not there.
+
+🔴 **THE RULE ALREADY EXISTED FOUR TIMES AND WAS IGNORED** — `discover.txt` lines 33, 38 and 92,
+plus the model-list instruction. A fifth sentence was not the fix, and item 7.6 had proved that
+same week that rewording this prompt does not move this behaviour. **The fix is a check in code**:
+`server/utils/templateHeadingCheck.js` reads the names under *Best match* and *Also worth
+considering* back against the library, and a calculation model found there is **not sent** — the
+AI is re-asked once with the fault and the real page path named. Discover mode buffers its whole
+reply and emits it in one delta, so nothing is on screen when this runs; that is what made a
+correction possible instead of an apology. Brief **P2**.
+
+**What proves it is closed: six live conversations, four trips, four corrections, none reaching
+an advisor.** The best of them returned *Best match — Wages Review* (the real template) with
+*Wages/Salary Review* in the calculator block at its page path. **Running it found two things
+11,155 passing tests could not** — the AI mislabels a second calculator the same way
+(`High-Level Budget`), so a hardcoded pair would already have been wrong; and the first version of
+the correction made one answer **worse**, the AI reaching for a weak template rather than saying
+nothing fitted. The correction now carries STEP 1's honest no-match with it.
+
+**14 tests** (`tests/unit/templateHeadingCheck.test.js`), including the Wages pair pinned against
+the shipped data so a rename of either name fails the test rather than reviving the fault under a
+new spelling, and Mike's approved note wording pinned beside it.
+
+⚠ **The doc/slide/sheet type would NOT have helped and is not available.** All 24 fields of
+`search_content_20260820053246.json` were checked, at every depth, in all four copies on the
+machine: none carries it, and `status` is `"--"` on all 291 rows. Our calculators are not in the
+master library at all, so the library check answers this with certainty without it. If the type
+ever arrives it sharpens the *other* half of this family — Working Capital Cycle and Quick
+Position, where a calculator and a document genuinely share one name (item 4.33).
+
 **14.2 — startup was blind to the other machine's branch.** *(Filed as 4.101; renumbered under
 [`../ITEM-NUMBERING.md`](../ITEM-NUMBERING.md).)*
 ✅ Closed 2026-09-15 on the laptop, both halves. A defect we found; filed on Mike's yes.

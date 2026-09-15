@@ -35,6 +35,7 @@ const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
 const { resolveRecommendedTemplatesWithSource, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
 const { resolveModelChoiceWithSource, stripModelMarker, MODEL_MARK_OPEN } = require('../server/utils/modelChoiceScan')
+const { checkTemplateHeadings, buildRetryInstruction, buildAdvisorNote } = require('../server/utils/templateHeadingCheck')
 const { logVASession, logModelChoice } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
@@ -809,6 +810,70 @@ function logAI (label, model, startTime, success, usage) {
     ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens} total=${usage.total_tokens}`
     : 'tokens=unknown'
   console.log(`[openai] ${label} model=${model} status=${success ? 'ok' : 'error'} latency=${latency}ms ${tokens}`)
+}
+
+/**
+ * Item 7.7 — a calculation model offered under a template heading, put right before the
+ * advisor sees it.
+ *
+ * 🔴 WHY A RETRY AND NOT A NOTE APPENDED TO THE ANSWER. The path this serves buffers the
+ * whole reply and emits it in ONE delta at `finish_reason` — nothing is on the advisor's
+ * screen yet, unlike Phase 3, which genuinely streams and is why the fabrication watch
+ * has to correct itself in public. Here the wrong answer can simply not be sent, and the
+ * advisor reads one correct one.
+ *
+ * ⚠ Bounded to a single extra call. If the second answer names a model under a template
+ * heading too it is still sent — a second retry would spend the advisor's time on a model
+ * that has now ignored the same correction twice — but it does NOT go out silently: the
+ * offenders come back as `unresolved` and the caller appends Mike's approved note, so the
+ * advisor is told what the thing actually is rather than sent looking for it.
+ *
+ * @param {string} answer - the model's raw first reply, markers included
+ * @param {Array<{role: string, content: string}>} sourceMessages - what it was given
+ * @param {string} model - the model id, so the retry runs on the same one
+ * @returns {Promise<{answer: string, unresolved: Array<{name: string, route: string}>}>}
+ *   the reply to use, and anything still wrong with it after the retry
+ */
+async function correctTemplateHeadings (answer, sourceMessages, model) {
+  let check
+  try {
+    check = checkTemplateHeadings(stripModelMarker(stripTemplateMarker(answer)))
+  } catch (e) {
+    console.error('[advisor] template-heading check failed:', e.message)
+    return { answer, unresolved: [] }
+  }
+  if (check.ok) { return { answer, unresolved: [] } }
+
+  const named = check.offenders.map(o => `${o.name} (${o.route})`).join(', ')
+  console.warn(`[advisor] template-heading check: ${named} offered as a template — re-asking once`)
+
+  const _t0 = Date.now()
+  try {
+    const response = await getOpenAI().chat.completions.create({
+      model,
+      max_tokens: 2500,
+      messages: [
+        ...sourceMessages,
+        { role: 'assistant', content: answer },
+        { role: 'user', content: buildRetryInstruction(check.offenders) }
+      ]
+    })
+    const text = response.choices[0]?.message?.content || ''
+    logAI('discover-heading-retry', model, _t0, !!text, response.usage)
+    // An empty retry is not an improvement on a flawed answer: keep the one we have, and
+    // with it the fault we already know about, so the note still reaches the advisor.
+    if (!text) { return { answer, unresolved: check.offenders } }
+    const second = checkTemplateHeadings(stripModelMarker(stripTemplateMarker(text)))
+    if (!second.ok) {
+      console.warn('[advisor] template-heading check: the retry named ' +
+        second.offenders.map(o => o.name).join(', ') + ' under a template heading too')
+    }
+    return { answer: text, unresolved: second.offenders }
+  } catch (e) {
+    console.error('[advisor] template-heading retry failed:', e.message)
+    logAI('discover-heading-retry', model, _t0, false, null)
+    return { answer, unresolved: check.offenders }
+  }
 }
 
 const BODY_LIMIT = 256 * 1024 // 256 KB — protects against memory-exhaustion DoS
@@ -3800,19 +3865,34 @@ async function handleQuery (rawBody, res, identity) {
         : ''
       if (text) { _mainBuffer += text }
       if (chunk.choices[0] && chunk.choices[0].finish_reason) {
+        // Item 7.7 — discover mode is where the template headings live (discover.txt's
+        // "Best match" / "Also worth considering"); no other prompt writes them, so no
+        // other mode has anything for this to read. Everything below works on the answer
+        // this returns, so a corrected reply is the one that is watched, displayed AND
+        // recorded — recording the discarded one would put a model on the Model Choices
+        // screen that no advisor was ever sent to.
+        const corrected = mode === 'discover'
+          ? await correctTemplateHeadings(_mainBuffer, _mainMessages, model)
+          : { answer: _mainBuffer, unresolved: [] }
+        const answer = corrected.answer
         // Tier 2: watch for invented quoted wording — a hit appends the
         // approved correction note (a streamed reply can't be unprinted).
-        const _mainFlagged = logUnverifiedQuotes(mode, _mainBuffer, _mainMessages)
+        const _mainFlagged = logUnverifiedQuotes(mode, answer, _mainMessages)
         // Same reason as the post-recommendation path: this prompt is client.txt too,
         // so the markers can arrive here. Buffered, so one strip of each covers it.
-        const visible = stripModelMarker(stripTemplateMarker(_mainBuffer))
-        const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _mainFlagged, _mainBuffer, _mainMessages)
+        const visible = stripModelMarker(stripTemplateMarker(answer))
+        let processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _mainFlagged, answer, _mainMessages)
+        // Item 7.7's floor: the AI ignored the correction twice, so the advisor is told
+        // what the named thing actually is. Last, and after the video injector, so the
+        // note is never read as part of a template's own block.
+        const headingNote = buildAdvisorNote(corrected.unresolved)
+        if (headingNote) { processed = processed + '\n\n---\n\n' + headingNote }
         res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
         // Item 7.5. ⚠ THE DOMAIN IS NULL HERE AND THAT IS THE TRUTH, not an omission:
         // domain detection is the client-mode sequencer's, and `discover` — the only
         // other mode the models block reaches — never runs it. Recording a guessed
         // domain would put invented rows in the very table that exists to be checked.
-        noteModelChoice(_mainBuffer, mode, null, null)
+        noteModelChoice(answer, mode, null, null)
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       }
     }
