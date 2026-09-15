@@ -88,6 +88,28 @@ live one moved. `4.93` in the code means **Mid-Level Budget** (closed) — those
 correct and must not be touched. `4.96` is closed on the laptop's branch and live on the
 desktop's; the live one becomes `14.1`.
 
+### 🔴 2026-09-16 — the desktop's `7.5` becomes `7.10`, ruled by Mike
+
+**Both machines filed a `7.5` a day apart, for two unrelated engine jobs.** Neither could see
+the other: nothing had reached `master` since 13 September.
+
+| Machine | Item | Outcome |
+|---|---|---|
+| laptop, filed 2026-09-15 | Nothing records which calculation model the AI named | **keeps `7.5`** |
+| desktop, filed 2026-09-16 | A page's templates are hidden behind whichever won the ID | **becomes `7.10`** |
+
+**Why that way round, and not the other.** The laptop's is quoted in fifteen-plus places —
+`config/db-schema.sql`, `nuxt.config.js`, `server/advisorEngine.js`, `server/utils/modelChoiceScan.js`,
+`server/utils/activityLogger.js`, `server/restify-server.js`, four test files,
+`design/mockups/model-choices.html` and two Briefs. The desktop's is one day old and lives in
+`server/utils/semanticProfiles.js` and its test. Moving the cheaper one is the whole of the
+reason; neither job is more important than the other.
+
+**`7.10` is the number `npm run check:branch` prints as the next free decimal of subject 7,**
+and it is reserved for this. **The desktop applies it** — the item is on that machine's branch
+and this one must never edit it. Until it is applied the clash box names it every session,
+which is the point: it stays visible instead of being remembered.
+
 ### Code comments updated with the live items
 
 Four files name a live item and were corrected in the same change. Nothing else in the 279 was
