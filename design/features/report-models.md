@@ -1739,12 +1739,21 @@ as `LineChart` and `WaterfallChart` always have. **With every value positive the
 to the previous expressions exactly**, pinned by `tests/unit/barPairChart.component.test.js`, so the
 six screens already using it are unmoved.
 
-**Still clamping, and not yet examined against their own call sites:** `HBarChart` and
-`BandBarChart` (`Math.max(value, 0)`). Their current feeds — stock values and monthly sales — are
-non-negative in practice; the one not proved either way is the sensitivity lever delta in
-`DashboardReportSensitivity`. `DoughnutChart` is a different case and not a defect: a pie genuinely
-cannot show a negative, so excluding it and **saying so in words** is the right behaviour, which is
-what the wages ring does.
+**`HBarChart` was fixed the same day too, and the investigation decided its scope.** Four of its
+five call sites are stock values and cannot go negative. The fifth is `DashboardReportSensitivity`,
+whose levers proved **better guarded than feared**: `computeProfitSensitivity` blocks on
+`NO_REVENUE` and `NO_CONTRIBUTION`, so no-revenue and selling-below-cost never reach a chart at all,
+and **a merely loss-making business renders with all four levers positive** — they measure the size
+of an effect, not a profit. What stays reachable is a **negative expense line in a client's accounts
+export** (a credit posted to cost of sales or overheads), proved to yield a negative lever: an
+accounting anomaly rather than a bad year. Fixed anyway, because this app reads exports it does not
+control — the component now draws left of a zero line, and a negative's figure sits right of that
+line where the row is empty, since beyond the bar's left end it would print over the row's own name.
+
+**Still clamping, and left deliberately:** `BandBarChart`. Its only feed is monthly sales, and a
+month with negative total sales is not a thing. `DoughnutChart` is a different case and not a defect
+at all: a pie genuinely cannot show a negative, so excluding it and **saying so in words** is the
+right behaviour, which is what the wages ring does.
 
 🔴 **`seasonShare` IS NOT `seasonComparison`, AND A PIE OF THE WRONG ONE WOULD HAVE LOOKED RIGHT.**
 `seasonComparison` costs **one representative month** of each kind, so its three figures sum to

@@ -18,16 +18,16 @@ const { computeWages, DEFAULT_INPUTS } = require('../../server/report/wagesModel
  * rewrite. What a person CANNOT see is a chart that is quietly drawing the wrong numbers,
  * and this page has four separate ways for that to happen:
  *
- *   1. SOME OF THE BASE CHARTS ERASE A LOSS. `HBarChart` and `BandBarChart` clamp with
- *      `Math.max(value, 0)`; `DoughnutChart` drops negatives from its total and its own
- *      legend prints `Math.max(value, 0)`. A loss handed to any of them renders as zero or
- *      as "0%" and looks entirely correct. So the tests check that the NEGATIVES ARRIVE
- *      INTACT at the charts that can draw them, and that a figure which could be negative
- *      never reaches one that cannot.
- *      ⚠ `BarPairChart` WAS IN THAT LIST AND NO LONGER IS — it was given a zero line on
- *      2026-09-15 (`tests/unit/barPairChart.component.test.js`) after the same clamp was
- *      found drawing a loss-making year as break-even on the Profit & Loss page and an
- *      overdraft as a blank chart on Cash Flow.
+ *   1. SOME OF THE BASE CHARTS ERASE A LOSS. `BandBarChart` still clamps with
+ *      `Math.max(value, 0)` — deliberately, its only feed being monthly sales — and
+ *      `DoughnutChart` drops negatives from its total and its own legend prints
+ *      `Math.max(value, 0)`. A loss handed to either renders as zero or as "0%" and looks
+ *      entirely correct. So the tests check that NEGATIVES ARRIVE INTACT at the charts that
+ *      can draw them, and that a figure which could be negative never reaches one that cannot.
+ *      ⚠ `BarPairChart` AND `HBarChart` WERE IN THAT LIST AND NO LONGER ARE — both were given
+ *      a zero line on 2026-09-15 (`barPairChart.component.test.js`, `hBarChart.component.test.js`)
+ *      after the clamp was found drawing a loss-making year as break-even on Profit & Loss and
+ *      an overdraft as a blank chart on Cash Flow.
  *   2. THE RING COULD BE FED THE WRONG BLOCK. `seasons` and `seasonShare` both hold three
  *      rows keyed by season and both look right on a ring. Only one is parts of a whole.
  *   3. A LOSING SEASON COULD PRINT "0%" rather than saying it contributed nothing.
