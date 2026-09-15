@@ -202,10 +202,14 @@ unknown**.
    conversations. **A fifth sentence is not a fix; a check in code is** (P2, item 7.7). Nothing in
    the suite could see this: all 11,155 tests prove our code handles what the AI sends, and none
    of them can prove what the AI sends.
-9. **Correcting the AI can make an answer worse if the correction is narrower than the rule.**
-   The first version of 7.7's retry said only "name a real template", and the AI reached for a
-   weak one rather than saying nothing fitted — a truthful no-match is what `discover.txt` STEP 1
-   actually asks for. A correction must carry the escape as well as the prohibition.
+9. 🔴 **A correction must carry the escape, AND fence it.** 7.7's first retry said only "name a
+   real template", and the AI reached for a weak one rather than saying nothing fitted — a
+   truthful no-match is what `discover.txt` STEP 1 actually asks for, so the escape was added.
+   **Unfenced, it then produced a worse answer** (item 7.8): told to empty *Also worth
+   considering*, and with no permission to leave a required block empty, the AI filled it with
+   the no-match sentence — recommending a template and denying having one, in the same reply.
+   **A correction that empties a required block must say what to do with the empty block**, or
+   the model finds its own way out.
 
 ### Known gaps, honestly
 
