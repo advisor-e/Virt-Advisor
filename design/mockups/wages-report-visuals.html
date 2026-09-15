@@ -54,6 +54,16 @@
   .wfc-lab { font-size: 10.5px; }
   .lc-lab.is-b, .bpc-lab.is-b, .wfc-lab.is-b { fill: #002b64; font-weight: 600; }
 
+  .ringrow { display: flex; gap: 26px; align-items: center; flex-wrap: wrap; }
+  .ring { flex: 0 0 210px; }
+  .dnc { display: block; width: 210px; height: auto; }
+  .dnc-centre { font-size: 16px; font-weight: 600; fill: #002b64; font-family: inherit; }
+  .dnc-sub { font-size: 9px; letter-spacing: .09em; text-transform: uppercase; font-weight: 600; fill: #5b6f8a; font-family: inherit; }
+  .ringlegend { flex: 1 1 340px; min-width: 300px; }
+  .ringlegend table { min-width: 0; }
+  .sw { width: 11px; height: 11px; border-radius: 3px; display: inline-block; margin-right: 8px; vertical-align: -1px; }
+  .tiny { font-size: 11.5px; color: var(--rs-muted); margin: 10px 0 0; line-height: 1.5; }
+
   .scroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; min-width: 640px; }
   th { font-size: 11px; font-weight: 600; color: var(--rs-muted); text-align: left; padding: 0 8px 6px; white-space: nowrap; }
@@ -91,7 +101,10 @@
       with an empty body (the workbook sample), read on 2026-09-15. <b>Nothing is invented.</b><br>
       The three charts are drawn by the SVG geometry <b>copied formula-for-formula</b> from
       <code>LineChart.vue</code>, <code>BarPairChart.vue</code> and <code>WaterfallChart.vue</code> —
-      the components that already exist. No chart library, no new dependency, nothing added to the bundle.
+      the components that already exist. No chart library, no new dependency, nothing added to the bundle.<br>
+      <b>Updated 2026-09-15 on Mike's suggestion</b> — &ldquo;maybe a pie graph showing the 3 seasons as
+      a % of total profit?&rdquo; — now <b>chart 3</b>, built from the twelve months rather than the
+      season card, for the reason recorded on it.
     </p>
   </div>
 
@@ -212,7 +225,66 @@
   </div>
 
   <div class="card new">
-    <h3 class="title">3 · Plan against reality</h3>
+    <h3 class="title">3 · Where the year is actually won</h3>
+    <p class="note">Each season's share of the year's labour margin, rolled up from the twelve months.</p>
+    <div class="ringrow">
+      <div class="ring">
+        <svg class="dnc" viewBox="0 0 210 210" role="img" aria-label="Each season’s share of the year’s labour margin, rolled up from the twelve months">
+          <g transform="translate(105 105) rotate(-90)">
+            <circle r="66" fill="none" stroke="#ebf4fa" stroke-width="30"/>
+            <circle r="66" fill="none" stroke="#0070c0" stroke-width="30" stroke-dasharray="284.4833032169125 130.20692705694023" stroke-dashoffset="0"/>
+            <circle r="66" fill="none" stroke="#00b1e0" stroke-width="30" stroke-dasharray="130.20692705694026 284.4833032169124" stroke-dashoffset="-284.4833032169125"/>
+            <circle r="66" fill="none" stroke="#ff0000" stroke-width="30" stroke-dasharray="0 414.6902302738527" stroke-dashoffset="-414.69023027385276"/>
+          </g>
+          <text class="dnc-centre" x="105" y="104" text-anchor="middle">$288,935</text>
+          <text class="dnc-sub" x="105" y="122" text-anchor="middle">The year</text>
+        </svg>
+      </div>
+      <div class="ringlegend">
+        <table>
+          <thead><tr><th>Season</th><th class="num">Months</th><th class="num">Labour margin</th><th class="num">Share of the year</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><i class="sw" style="background:#0070c0"></i>Dry n Light</td>
+              <td class="num">4</td>
+              <td class="num">$198,304</td>
+              <td class="num">68.6%</td>
+            </tr>
+            <tr>
+              <td><i class="sw" style="background:#00b1e0"></i>Std Season</td>
+              <td class="num">7</td>
+              <td class="num">$90,763</td>
+              <td class="num">31.4%</td>
+            </tr>
+            <tr>
+              <td><i class="sw" style="background:#ff0000"></i>Wet n Dark</td>
+              <td class="num">1</td>
+              <td class="num loss">-$132</td>
+              <td class="num loss">contributes nothing</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr><td>The year</td><td class="num">12</td><td class="num">$288,935</td><td class="num">100%</td></tr>
+          </tfoot>
+        </table>
+        <p class="tiny">The twelve months reconcile to the year's total exactly. The generator refuses
+          to draw this chart if they ever stop doing so.</p>
+      </div>
+    </div>
+    <p class="finding"><b>Mike's idea, 2026-09-15, and it is the sharpest statement on the page:</b>
+      <b>four months out of twelve</b> produce <b>68.6%</b> of the entire year's labour margin. Seven
+      months produce less than a third between them. One produces nothing.<br>
+      🔴 <b>Two traps, both avoided here, both worth recording.</b> First, this is rolled up from the
+      TWELVE MONTHS — <b>not</b> from the season card below, whose three figures are one representative
+      month of each kind and sum to <b>$44,435</b>, not the year's $288,935. A pie of those would slice
+      a whole into three things that are not its parts. Second, <code>DoughnutChart</code> drops any
+      negative from its total and its own legend would print <b>&ldquo;Wet n Dark · 0%&rdquo;</b> — so the
+      built-in legend is off and this one is drawn beside the ring instead, saying
+      <b>contributes nothing</b>. &ldquo;0%&rdquo; reads as <i>earned none</i>; the truth is <i>lost money</i>.</p>
+  </div>
+
+  <div class="card new">
+    <h3 class="title">4 · Plan against reality</h3>
     <p class="note">The year's planned labour margin, the variance against it, and what actually landed.</p>
     <div class="chartwrap">
       <svg class="wfc" viewBox="0 0 620 290" role="img" aria-label="The planned labour margin for the year, the variance against it, and what actually landed">
@@ -234,9 +306,9 @@
         <text class="wfc-lab" x="514" y="284" text-anchor="middle">Actual</text>
       </svg>
     </div>
-    <p class="finding"><b>Cut this one if it is a chart too many.</b> It restates the first three
-      headline figures rather than adding a fourth fact — but it is the shape an advisor can turn
-      the laptop round and point at.</p>
+    <p class="finding"><b>This is the one to cut.</b> It restates the first three headline figures in a
+      different shape rather than adding a fact — and with chart 3 now on the page, four charts is one
+      too many. Drawn so the choice is yours rather than mine.</p>
   </div>
 
   <div class="card">
@@ -290,11 +362,13 @@
     <p>Each is a real choice, not a detail. Nothing gets built until these are settled.</p>
 
     <div class="d">
-      <h4>1 · Three charts, or two?</h4>
-      <p>Charts 1 and 2 each carry a fact no table row makes visible. Chart 3 restates the headline
-        figures in a different shape.</p>
-      <p class="rec"><b>Recommendation: keep charts 1 and 2, cut chart 3.</b> Two charts that each
-        say something new beat three where one repeats.</p>
+      <h4>1 · Four charts, or three?</h4>
+      <p>Charts 1, 2 and 3 each carry a fact no table row makes visible — a month below the line, a
+        cost that does not move while revenue does, and four months carrying two thirds of the year.
+        Chart 4 restates the headline figures in a different shape.</p>
+      <p class="rec"><b>Recommendation: keep charts 1, 2 and 3, cut chart 4.</b> Three charts that
+        each say something new beat four where one repeats. <b>Still open — the drawing shows all
+        four so the choice is Mike's.</b></p>
     </div>
 
     <div class="d">
