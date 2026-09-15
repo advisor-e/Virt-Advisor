@@ -11,39 +11,35 @@
 
 ## 2026-09-15 · Laptop · branch `feat/advisor-progress`
 
-Suite **11,064 green** (521 suites), lint 0, audit PASS. Tree clean, all pushed, **61 ahead
-of `master`, 0 behind**. Six live items; **14.2 closed**, none filed.
+Suite **11,082 green** (521 suites), lint 0, audit PASS. Tree clean, all pushed, **66 ahead of
+`master`, 0 behind**. Seven live items; **7.5 filed**, none closed.
 
-🔴 **TWO SHARED CHART COMPONENTS CHANGED, AND THEY ARE ON YOUR SCREENS.** `BarPairChart` and
-`HBarChart` clamped every value with `Math.max(value, 0)` while their labels printed the truth.
-On the Business Performance Report that meant **a loss-making year drew as break-even**
-(`DashboardReportProfitLoss`) and **an overdraft drew as a blank chart** (`DashboardReportCashFlow`
-— both bars at zero, and with no positive value the scale fell back to `max = 1`, so the gridlines
-meant nothing either). Both now bracket zero and draw from it. **With every value positive the
-arithmetic reduces to the old expressions exactly** — pinned by ten tests — so your six
-`BarPairChart` and four `HBarChart` screens are unmoved. `BandBarChart` still clamps, deliberately:
-its only feed is monthly sales.
+🔴 **I CHANGED THE ENGINE'S INSTRUCTION BLOCK — `data/report-model-summaries.json`. You are
+active on 7.2, the engine's middle.** Three new rules govern how the AI names a calculation
+model: it must decline when none fits, quote a model's limits verbatim, and apply Mike's own
+definition of what a model IS (input cells + sequential calculations arriving at a report).
+**Merge `master` before touching the engine.**
 
-**14.2 CLOSED, both halves.** `npm run check:branch` now reads **your** handover from **your**
-branch and prints its date beside your last commit, saying outright when the note is older than the
-work there. `startup.md` and `WORKING-AGREEMENT.md` now say to take the date from there, never from
-this tree's frozen copy — that copy misled a session on the 14th and again on the 15th.
+**WHY: the first effectiveness test these summaries have ever had.** Three real conversations
+through `/api/advisor/query` with live AI calls found four faults — every one invisible to
+11,082 passing tests, because **the tests check that the words REACH the prompt, never what the
+model does with them.** Worth repeating on your own engine work. Record: `report-models.md`.
 
-⚠ **`14.1` IS LIVE ON YOUR LIST AND CLOSED HERE.** Same job — the `add-a-report` skill pointing at
-the frozen `ACTIONS.md` — closed on this branch 2026-09-14 with its closure written. PR #93 branched
-before that and renumbered a finished job. Drop it when you merge `master`.
+⚠ **`components/base/ClientAccessSwitch.vue` is on EVERY report page and I changed it.** On a
+loopback host it now stands in for the Advisor-e sign-in — without it the client picker rendered
+nothing on a laptop, so every client-aware screen behind it was unreachable and looked like a
+missing feature rather than a missing sign-in.
 
-**5.1 — three charts on the report** (a line for the monthly margin, paired bars for bills-against-
-costs per season, and Mike's own pie for each season's share of the year), all from components that
-already existed. `seasonShare()` is on the **engine**, never the screen — and it is **not**
-`seasonComparison`, which costs one representative month of each kind and sums to 44,435 rather than
-the year's 288,935. A fourth chart was built and cut on Mike's word. **`activeOn` left clear: the
-Firm Manager retention-dial control is yours when 9.1 lands.**
+🔴 **THE STAFF REGISTER'S DUE-DILIGENCE GATE IS GONE** (Mike: *"i dont need any bullshit gates
+telling my advisors what they can and cant do"*). One button; the record of who opened it
+survives, and so does the firm-scoping check. 5.1's `activeOn` left clear — its last piece is the
+retention dial in `FirmManagerHub.vue`, which is yours.
 
-⚠ **The drawing had a heading typed rather than read from `locales/en.json`**, so two cards shipped
-with the same title and nothing in the approved page showed it. Read headings; never retype them.
+⚠ **ADDING AN IMPORT TO A `.vue` COMPONENT NEEDS A COLD RESTART.** `cache-loader` serves a stale
+transform and hot reload never picks it up; it cost an hour today and looked like a code fault.
+Kill nuxt, `rm -rf node_modules/.cache .nuxt`, restart. Seventeen orphaned dev servers were also
+fighting over one `.nuxt` — check for those before debugging a build.
 
-**Shared files I changed:** `components/base/BarPairChart.vue`, `components/base/HBarChart.vue`,
-`scripts/branch-survey.js`, `.claude/commands/startup.md`, `design/WORKING-AGREEMENT.md`,
-`design/ARTEFACTS.md`, `features/report-models.md`, `locales/en.json`. **Merge `master` before
-touching any.**
+**Shared files I changed:** `data/report-model-summaries.json`, `server/utils/videoInjector.js`,
+`components/base/ClientAccessSwitch.vue`, `design/features/report-models.md`, `CLAUDE.md`,
+`.claude/commands/startup.md` and `shutdown.md`. **Merge `master` before touching any.**
