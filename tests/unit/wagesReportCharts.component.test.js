@@ -144,24 +144,21 @@ describe('the ring — each season share of the year', () => {
   })
 })
 
-describe('the waterfall — plan, variance, actual', () => {
-  it('carries the year figures with the variance keeping its sign', async () => {
-    const vm = (await mountReport()).vm
-    const [planned, variance, actual] = vm.planVsActualSteps
-    expect(planned.value).toBe(RESULT.totals.margin)
-    expect(planned.kind).toBe('start')
-    expect(variance.value).toBe(RESULT.totals.variance)
-    expect(variance.kind).toBe('delta')
-    expect(actual.value).toBe(RESULT.totals.actual)
-    expect(actual.kind).toBe('end')
+describe('there are THREE charts, not four', () => {
+  // The drawing carried a fourth, a WaterfallChart of planned → variance → actual. Mike cut
+  // it 2026-09-15: it restated the three headline figures in a different shape rather than
+  // adding a fact. Pinned because a later session reading the drawing would find a chart
+  // that is deliberately absent, and this says so rather than leaving it to look like a gap.
+  it('does not mount a waterfall', async () => {
+    const wrapper = await mountReport()
+    expect(wrapper.findComponent({ name: 'WaterfallChart' }).exists()).toBe(false)
   })
 
-  it('the three steps are arithmetically consistent — the plan plus the variance IS the actual', async () => {
-    // A waterfall that does not land where its last bar says is the worst kind of wrong:
-    // it looks like a considered picture and it is a broken sum.
-    const vm = (await mountReport()).vm
-    const [planned, variance, actual] = vm.planVsActualSteps
-    expect(planned.value + variance.value).toBeCloseTo(actual.value, 6)
+  it('mounts the three that remain', async () => {
+    const wrapper = await mountReport()
+    expect(wrapper.findComponent({ name: 'LineChart' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'BarPairChart' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'DoughnutChart' }).exists()).toBe(true)
   })
 })
 

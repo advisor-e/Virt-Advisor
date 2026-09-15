@@ -3966,13 +3966,7 @@
           "shareAria": "Each season's share of the year's labour margin.",
           "shareCentreLabel": "The year",
           "shareNothing": "contributes nothing",
-          "shareTheYear": "The year",
-          "planVsActualTitle": "Plan against reality",
-          "planVsActualNote": "The year's planned labour margin, the variance against it, and what actually landed.",
-          "planVsActualAria": "The year's planned labour margin, the variance against it, and what actually landed.",
-          "stepPlanned": "Planned",
-          "stepVariance": "Variance",
-          "stepActual": "Actual"
+          "shareTheYear": "The year"
         },
         "col": {
           "season": "Season",

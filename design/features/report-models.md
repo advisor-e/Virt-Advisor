@@ -1715,12 +1715,22 @@ not 63,154.16 across twenty-nine. `tests/unit/wagesRegisterMaths.test.js` recons
 workbook's own figures from sick leave to prove the fault, and says in terms that a later session
 "fixing" the port to match will have restored a liability built on the wrong quantity.
 
-**The report's four charts (2026-09-15).** Mike: *"can you make the salary/wages report - last page -
+**The report's three charts (2026-09-15).** Mike: *"can you make the salary/wages report - last page -
 more engaging with graphs/ pictures etc"*, then the pie was his own — *"maybe a pie graph showing the
 3 seasons as a % of total profit?"*. Drawn at
 [`../mockups/wages-report-visuals.html`](../mockups/wages-report-visuals.html), approved, built.
-**No chart library and no new dependency:** `LineChart`, `BarPairChart`, `DoughnutChart` and
-`WaterfallChart` already existed.
+**No chart library and no new dependency:** `LineChart` (the planned margin by month, with July
+below the zero line), `BarPairChart` (what the team bills against what it costs, per season) and
+`DoughnutChart` (each season's share of the year) already existed.
+
+**The drawing carried a fourth and Mike cut it** — *"cut the waterfall graph"*, the same day. A
+`WaterfallChart` of planned → variance → actual, which restated the three headline figures at the
+top of the report in a different shape rather than adding a fact. It was **built first**, because
+the drawing showed four and a silent deviation from an approved artefact is exactly what these
+rules exist to stop; it came out on his word. The cut chart stays on the drawing, greyed and
+marked, with the recommendation left beneath the ruling, and
+`tests/unit/wagesReportCharts.component.test.js` pins that no waterfall mounts — so the absence
+reads as a decision rather than a gap.
 
 🔴 **THE CHART CHOICES WERE DECIDED BY WHICH COMPONENTS COULD DRAW A LOSS, not by taste.** When
 this was drawn, four of the seven base charts clamped a negative away. A paired planned-vs-actual

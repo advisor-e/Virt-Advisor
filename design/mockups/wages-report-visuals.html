@@ -75,6 +75,17 @@
   .basis { font-size: 12px; color: var(--rs-muted); margin: 0 0 16px; }
   .btn { font: inherit; font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 10px; border: 1px solid var(--rs-line); background: var(--rs-panel); color: var(--rs-ink); cursor: pointer; }
 
+  /* A chart kept on the page as the record of a decision, not as a thing to build. */
+  .card.cut { border-top: 3px solid var(--rs-crit); opacity: .96; }
+  .card.cut .title { color: var(--rs-crit); }
+  .chartwrap.is-cut { opacity: .38; filter: grayscale(1); }
+  .ruled {
+    font-size: 12.5px; color: var(--rs-ink); background: #e8f4e9;
+    border-left: 3px solid var(--rs-good); border-radius: 0 8px 8px 0;
+    padding: 9px 12px; margin: 12px 0 0; line-height: 1.55;
+  }
+  .ruled .rec { display: block; margin-top: 6px; color: var(--rs-muted); font-size: 12px; }
+
   .decisions { background: var(--rs-panel); border: 1px solid var(--rs-line); border-top: 3px solid var(--rs-warn); border-radius: 12px; padding: 18px 20px; margin-top: 28px; }
   .decisions h3 { margin: 0 0 4px; font-size: 15px; color: var(--rs-ink); font-weight: 700; }
   .decisions > p { font-size: 12.5px; color: var(--rs-muted); margin: 0 0 14px; }
@@ -301,10 +312,12 @@
       <b>contributes nothing</b>. &ldquo;0%&rdquo; reads as <i>earned none</i>; the truth is <i>lost money</i>.</p>
   </div>
 
-  <div class="card new">
-    <h3 class="title">4 · Plan against reality</h3>
-    <p class="note">The year's planned labour margin, the variance against it, and what actually landed.</p>
-    <div class="chartwrap">
+  <div class="card cut">
+    <h3 class="title">4 · Plan against reality — 🔴 CUT, NOT BUILT</h3>
+    <p class="note">Kept on this page as the record of a decision, not as a thing to build.
+      It restated the three headline figures at the top of the report in a different shape rather
+      than adding a fact.</p>
+    <div class="chartwrap is-cut">
       <svg class="wfc" viewBox="0 0 620 290" role="img" aria-label="The planned labour margin for the year, the variance against it, and what actually landed">
         <line class="wfc-grid" x1="44" x2="612" y1="22" y2="22"/>
         <text class="wfc-lab" x="38" y="26" text-anchor="end">$289k</text>
@@ -324,9 +337,11 @@
         <text class="wfc-lab" x="514" y="284" text-anchor="middle">Actual</text>
       </svg>
     </div>
-    <p class="finding"><b>This is the one to cut.</b> It restates the first three headline figures in a
-      different shape rather than adding a fact — and with chart 3 now on the page, four charts is one
-      too many. Drawn so the choice is yours rather than mine.</p>
+    <p class="ruled"><b>✅ RULED BY MIKE, 2026-09-15: &ldquo;cut the waterfall graph&rdquo;.</b>
+      Decision 1 is settled and the recommendation it followed is left in place beneath, as every
+      ruling on these drawings is. <b>The report ships with three charts.</b>
+      <span class="rec">Recommendation, made before the ruling: cut this one — three charts that each
+      say something new beat four where one repeats.</span></p>
   </div>
 
   <div class="card">
@@ -380,13 +395,14 @@
     <p>Each is a real choice, not a detail. Nothing gets built until these are settled.</p>
 
     <div class="d">
-      <h4>1 · Four charts, or three?</h4>
-      <p>Charts 1, 2 and 3 each carry a fact no table row makes visible — a month below the line, a
+      <h4>1 · Four charts, or three? — ✅ RULED</h4>
+      <p><b>Mike, 2026-09-15: &ldquo;cut the waterfall graph&rdquo;.</b> The report ships with three.
+        Charts 1, 2 and 3 each carry a fact no table row makes visible — a month below the line, a
         cost that does not move while revenue does, and four months carrying two thirds of the year.
-        Chart 4 restates the headline figures in a different shape.</p>
-      <p class="rec"><b>Recommendation: keep charts 1, 2 and 3, cut chart 4.</b> Three charts that
-        each say something new beat four where one repeats. <b>Still open — the drawing shows all
-        four so the choice is Mike's.</b></p>
+        Chart 4 restated the headline figures in a different shape.</p>
+      <p class="rec"><b>Recommendation, made before the ruling: keep charts 1, 2 and 3, cut chart 4.</b>
+        Three charts that each say something new beat four where one repeats. <b>Ruled as
+        recommended.</b></p>
     </div>
 
     <div class="d">

@@ -38,6 +38,11 @@
   //- Above the tables, per the approved drawing: the picture first, the exact figures
   //- underneath for the conversation. Every one is `computeWages`'s own output mapped to a
   //- shape — no arithmetic happens here, for the reason in this file's header.
+  //-
+  //- THREE, NOT FOUR. The drawing carried a fourth — a WaterfallChart of planned → variance
+  //- → actual — and Mike cut it on 2026-09-15: it restated the three headline figures above
+  //- in a different shape rather than adding a fact. The three that remain each say
+  //- something no table row makes visible.
   .wr-card.wr-chart
     h3.wr-title {{ $t('report.wagesReview.report.charts.marginByMonthTitle') }}
     p.wr-note {{ $t('report.wagesReview.report.charts.marginByMonthNote') }}
@@ -101,15 +106,6 @@
               td.wr-num {{ months.length }}
               td.wr-num {{ money(totals.margin) }}
               td.wr-num {{ percent(1) }}
-
-  .wr-card.wr-chart
-    h3.wr-title {{ $t('report.wagesReview.report.charts.planVsActualTitle') }}
-    p.wr-note {{ $t('report.wagesReview.report.charts.planVsActualNote') }}
-    .wr-chartwrap
-      waterfall-chart(
-        :steps="planVsActualSteps"
-        :format-value="kMoney"
-        :aria-label="$t('report.wagesReview.report.charts.planVsActualAria')")
 
   .wr-card
     h3.wr-title {{ $t('report.wagesReview.report.seasonsTitle') }}
@@ -208,7 +204,6 @@ import SampleNotice from '~/components/base/SampleNotice'
 import LineChart from '~/components/base/LineChart'
 import BarPairChart from '~/components/base/BarPairChart'
 import DoughnutChart from '~/components/base/DoughnutChart'
-import WaterfallChart from '~/components/base/WaterfallChart'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -235,8 +230,7 @@ export default {
     SampleNotice,
     LineChart,
     BarPairChart,
-    DoughnutChart,
-    WaterfallChart
+    DoughnutChart
   },
 
   mixins: [currencyMixin, reportRecompute],
@@ -357,19 +351,6 @@ export default {
     /** @returns {Array} `{ label, value, colour }` per slice, for the ring itself. */
     shareSlices () {
       return this.shareRows.map(s => ({ label: s.name, value: s.margin, colour: s.colour }))
-    },
-
-    /**
-     * @returns {Array} the three waterfall steps — the plan, the variance against it, and
-     * what landed. `delta` carries the variance with its sign, which is the whole point:
-     * `WaterfallChart` draws a fall downward and puts its label below the bar.
-     */
-    planVsActualSteps () {
-      return [
-        { label: this.$t('report.wagesReview.report.charts.stepPlanned'), value: this.totals.margin, kind: 'start' },
-        { label: this.$t('report.wagesReview.report.charts.stepVariance'), value: this.totals.variance, kind: 'delta' },
-        { label: this.$t('report.wagesReview.report.charts.stepActual'), value: this.totals.actual, kind: 'end' }
-      ]
     }
   },
 
