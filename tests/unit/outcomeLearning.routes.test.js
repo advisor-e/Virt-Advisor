@@ -11,13 +11,17 @@
 jest.mock('../../server/utils/firmOverlay', () => ({
   loadFirmConfig: jest.fn(),
   loadFirmConfigsByPrefix: jest.fn(),
+  listFirmIdsWithConfigKey: jest.fn(),
   saveFirmConfig: jest.fn(),
   getVersionHistory: jest.fn(),
   restoreVersion: jest.fn()
 }))
 jest.mock('../../server/utils/templateLibrary', () => ({ loadEffectiveTemplates: jest.fn() }))
+jest.mock('../../server/utils/caseStore', () => ({ countReviewStatus: jest.fn() }))
 
 const overlay = require('../../server/utils/firmOverlay')
+const caseStore = require('../../server/utils/caseStore')
+const { CONFIG_KEY: CONSENT_KEY } = require('../../server/utils/outcomeConsent')
 const { loadEffectiveTemplates } = require('../../server/utils/templateLibrary')
 const routes = require('../../server/routes/outcomeLearning')
 const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
@@ -65,7 +69,12 @@ beforeEach(() => {
   loadEffectiveTemplates.mockResolvedValue(LIB)
   overlay.loadFirmConfig.mockResolvedValue(null)
   overlay.loadFirmConfigsByPrefix.mockResolvedValue({})
+  overlay.listFirmIdsWithConfigKey.mockResolvedValue([])
   overlay.saveFirmConfig.mockResolvedValue(1)
+  caseStore.countReviewStatus.mockResolvedValue({ delivered: 0, reviewed: 0 })
+  // The reach cache is module-level and survives between cases; a stale pair would make a
+  // later test pass on the previous one's numbers.
+  routes._clearReachCache()
   jest.spyOn(console, 'error').mockImplementation(() => {})
 })
 
@@ -137,6 +146,120 @@ describe('list', () => {
     expect(res._status).toBe(500)
     expect(res._body).toMatchObject({ success: false, error: { code: 'DB_ERROR' } })
     expect(JSON.stringify(res._body)).not.toContain('10.0.0.1')
+  })
+
+  // 4.97 US5 / FR-008 / data-model §5. What UAT cannot see: a plausible-looking total that
+  // counted a firm which never consented, or a payload carrying the per-firm breakdown the
+  // mentor is not granted. Both read identically on the tile.
+  describe('loop reach', () => {
+    const consented = (...ids) => {
+      overlay.listFirmIdsWithConfigKey.mockResolvedValue(ids)
+      overlay.loadFirmConfig.mockImplementation((scope, key) => {
+        if (key === CONSENT_KEY) { return Promise.resolve({ on: true, setBy: 'm@f.example', setAt: '2026-09-01T00:00:00Z' }) }
+        return Promise.resolve(null)
+      })
+    }
+
+    test('sums the pairs of every consenting firm and asks for consent by the right key', async () => {
+      consented('firm-a', 'firm-b')
+      caseStore.countReviewStatus
+        .mockResolvedValueOnce({ delivered: 70, reviewed: 25 })
+        .mockResolvedValueOnce({ delivered: 48, reviewed: 16 })
+      const res = makeRes()
+      await routes.list(req(), res)
+      expect(overlay.listFirmIdsWithConfigKey).toHaveBeenCalledWith(CONSENT_KEY)
+      expect(res._body.reach).toMatchObject({ delivered: 118, reviewed: 41 })
+      expect(typeof res._body.reach.readAt).toBe('string')
+    })
+
+    test('a firm whose consent is off is not counted, and is not even queried', async () => {
+      overlay.listFirmIdsWithConfigKey.mockResolvedValue(['sharing', 'not-sharing'])
+      overlay.loadFirmConfig.mockImplementation((scope, key) => {
+        if (key !== CONSENT_KEY) { return Promise.resolve(null) }
+        return Promise.resolve({ on: scope === 'sharing', setBy: 'm@f.example', setAt: '2026-09-01T00:00:00Z' })
+      })
+      caseStore.countReviewStatus.mockResolvedValue({ delivered: 10, reviewed: 4 })
+      const res = makeRes()
+      await routes.list(req(), res)
+      expect(caseStore.countReviewStatus).toHaveBeenCalledTimes(1)
+      expect(caseStore.countReviewStatus).toHaveBeenCalledWith('sharing')
+      expect(res._body.reach).toMatchObject({ delivered: 10, reviewed: 4 })
+    })
+
+    // FR-008: the mentor gets the platform figure, never which firm reviews and which does not.
+    test('the payload carries the sum alone — no firm id, no per-firm pair', async () => {
+      consented('firm-a', 'firm-b')
+      caseStore.countReviewStatus
+        .mockResolvedValueOnce({ delivered: 70, reviewed: 25 })
+        .mockResolvedValueOnce({ delivered: 48, reviewed: 16 })
+      const res = makeRes()
+      await routes.list(req(), res)
+      expect(Object.keys(res._body.reach).sort()).toEqual(['delivered', 'readAt', 'reviewed'])
+      expect(JSON.stringify(res._body.reach)).not.toContain('firm-a')
+      expect(JSON.stringify(res._body.reach)).not.toContain('firm-b')
+    })
+
+    test('one firm failing to count is skipped, not fatal — the others still total', async () => {
+      consented('good', 'broken')
+      caseStore.countReviewStatus.mockImplementation((firmId) => {
+        if (firmId === 'broken') { return Promise.reject(new Error('ECONNREFUSED 10.0.0.1:3306')) }
+        return Promise.resolve({ delivered: 12, reviewed: 5 })
+      })
+      const res = makeRes()
+      await routes.list(req(), res)
+      expect(res._status).toBe(200)
+      expect(res._body.reach).toMatchObject({ delivered: 12, reviewed: 5 })
+      expect(JSON.stringify(res._body)).not.toContain('10.0.0.1')
+    })
+
+    test('the whole reach read failing leaves the tile empty and the page intact', async () => {
+      overlay.loadFirmConfigsByPrefix.mockResolvedValue(pool({ firms: 6, cases: 31, less: 12 }))
+      overlay.listFirmIdsWithConfigKey.mockRejectedValue(new Error('ECONNREFUSED 10.0.0.1:3306'))
+      const res = makeRes()
+      await routes.list(req(), res)
+      expect(res._status).toBe(200)
+      expect(res._body.reach).toBeNull()
+      expect(res._body.adjustments.find(a => a.id === ID)).toBeTruthy()
+      expect(JSON.stringify(res._body)).not.toContain('10.0.0.1')
+    })
+
+    // The sub-line says "read 14 Sep 09:12". Within the window that time must not move, or
+    // the page claims a freshness it does not have.
+    test('a second load inside the window re-reads nothing and keeps the same readAt', async () => {
+      consented('firm-a')
+      caseStore.countReviewStatus.mockResolvedValue({ delivered: 70, reviewed: 25 })
+      const first = makeRes()
+      await routes.list(req(), first)
+      const second = makeRes()
+      await routes.list(req(), second)
+      expect(caseStore.countReviewStatus).toHaveBeenCalledTimes(1)
+      expect(second._body.reach.readAt).toBe(first._body.reach.readAt)
+    })
+
+    test('past the window the counts are read again', async () => {
+      consented('firm-a')
+      caseStore.countReviewStatus.mockResolvedValue({ delivered: 70, reviewed: 25 })
+      const first = makeRes()
+      await routes.list(req(), first)
+      const realNow = Date.now
+      Date.now = () => realNow() + routes.REACH_CACHE_MS + 1
+      try {
+        caseStore.countReviewStatus.mockResolvedValue({ delivered: 71, reviewed: 26 })
+        const second = makeRes()
+        await routes.list(req(), second)
+        expect(caseStore.countReviewStatus).toHaveBeenCalledTimes(2)
+        expect(second._body.reach).toMatchObject({ delivered: 71, reviewed: 26 })
+      } finally {
+        Date.now = realNow
+      }
+    })
+
+    test('no firm sharing reads as a zero pair, not as a missing tile', async () => {
+      const res = makeRes()
+      await routes.list(req(), res)
+      expect(res._body.reach).toMatchObject({ delivered: 0, reviewed: 0 })
+      expect(caseStore.countReviewStatus).not.toHaveBeenCalled()
+    })
   })
 
   test('a 10,000-row pool across 50 firms recomputes inside the 2000 ms page rule', async () => {

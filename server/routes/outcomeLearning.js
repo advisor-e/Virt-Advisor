@@ -38,6 +38,8 @@ const { loadEffectiveTemplates } = require('../utils/templateLibrary')
 const outcomeBench = require('../utils/outcomeBench')
 const hubReading = require('../utils/hubReading')
 const { createLimiter } = require('../utils/rateLimit')
+const caseStore = require('../utils/caseStore')
+const { CONFIG_KEY: CONSENT_KEY, contributionOpen } = require('../utils/outcomeConsent')
 const SEED_TEMPLATES = require('../../data/templates.json')
 const SCENARIOS = require('../../scripts/scenario-lab-cases.json')
 const {
@@ -63,6 +65,10 @@ const _jobs = new Map()
 const READING_KEY = 'outcome-reading'
 /** Six readings a minute per address: a person reads one; anything faster is not reading. */
 const readingLimiter = createLimiter(6)
+/** Loop reach is one query per consenting firm, so it is read at most once a minute. */
+const REACH_CACHE_MS = 60 * 1000
+/** `{ at, value }` — see `_reach`. In memory, like the bench jobs above. */
+let _reachCache = null
 
 /**
  * The platform's template library now: the mentor's uploaded library when there is one,
@@ -72,6 +78,46 @@ const readingLimiter = createLimiter(6)
 async function _library () {
   const uploaded = await loadEffectiveTemplates(null)
   return Array.isArray(uploaded) && uploaded.length > 0 ? uploaded : SEED_TEMPLATES
+}
+
+/**
+ * Loop reach, summed across every firm whose consent is on (4.97 US5, data-model §5).
+ *
+ * 🔴 THE MENTOR SEES ONE SUM, NEVER A PER-FIRM BREAKDOWN. FR-008 gives the platform figure
+ * here and each firm its own pair on its own tab; a list keyed by firm would tell the mentor
+ * which firm reviews and which does not, which no ruling grants.
+ *
+ * Cached for CACHE_MS so `readAt` is the moment the counts were actually read rather than the
+ * moment the page rendered — the sub-line on the drawing says "read 14 Sep 09:12" and it has
+ * to be true. The cache also holds the cost down: this is one query per consenting firm.
+ *
+ * A firm whose count fails is logged and skipped, never allowed to fail the mentor's page:
+ * the reach tile is context, and the adjustments beside it are the page's purpose.
+ *
+ * @returns {Promise<{delivered: number, reviewed: number, readAt: string}>}
+ */
+async function _reach () {
+  if (_reachCache && (Date.now() - _reachCache.at) < REACH_CACHE_MS) { return _reachCache.value }
+
+  const firmIds = await overlay.listFirmIdsWithConfigKey(CONSENT_KEY)
+  const pairs = await Promise.all(firmIds.map(async (firmId) => {
+    if (!contributionOpen(await overlay.loadFirmConfig(firmId, CONSENT_KEY))) { return null }
+    try {
+      return await caseStore.countReviewStatus(firmId)
+    } catch (err) {
+      console.error('[outcome-learning] reach count failed for one firm:', err.message)
+      return null
+    }
+  }))
+
+  const value = pairs.filter(Boolean).reduce((acc, p) => {
+    acc.delivered += Number(p.delivered) || 0
+    acc.reviewed += Number(p.reviewed) || 0
+    return acc
+  }, { delivered: 0, reviewed: 0, readAt: new Date().toISOString() })
+
+  _reachCache = { at: Date.now(), value }
+  return value
 }
 
 /**
@@ -159,18 +205,33 @@ function _payload (result) {
     orphaned: result.orphaned,
     benches: result.benches,
     reading: result.reading,
-    readingStale: result.readingStale
+    readingStale: result.readingStale,
+    // Null on a recompute or a withdrawal, which do not read the counts: the tile keeps the
+    // figure the page already had rather than blanking on a button press.
+    reach: result.reach || null
   }
 }
 
 /**
  * GET /api/mentor/outcome-learning — the page. Recomputes on every call; writes nothing.
  * @route GET /api/mentor/outcome-learning
- * @returns {200} { success, firms, cases, lastRecomputeAt, floor, capMax, adjustments, orphaned, benches }
+ * @returns {200} { success, firms, cases, lastRecomputeAt, floor, capMax, adjustments, orphaned,
+ *   benches, reach } — `reach` is the platform pair `{ delivered, reviewed, readAt }` cached
+ *   60 s, or null when the counts could not be read
  */
 async function list (req, res) {
   try {
-    res.send(200, _payload(await recompute()))
+    const [result, reach] = await Promise.all([
+      recompute(),
+      // The reach tile must never cost the mentor the page. A store that cannot answer
+      // leaves the tile empty; the adjustments below it are why the page exists.
+      _reach().catch((err) => {
+        console.error('[outcome-learning] reach unavailable:', err.message)
+        return null
+      })
+    ])
+    result.reach = reach
+    res.send(200, _payload(result))
   } catch (err) {
     console.error('[outcome-learning] list failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not read the outcome pool')
@@ -413,6 +474,9 @@ async function reading (req, res) {
 /** For tests: forget every job. */
 function _clearJobs () { _jobs.clear() }
 
+/** For tests: forget the cached reach, so a case starts from a real read. */
+function _clearReachCache () { _reachCache = null }
+
 module.exports = {
   list,
   recomputeNow,
@@ -427,5 +491,7 @@ module.exports = {
   recompute,
   recomputeAndPersist,
   SYNC_BUDGET_MS,
-  _clearJobs
+  REACH_CACHE_MS,
+  _clearJobs,
+  _clearReachCache
 }

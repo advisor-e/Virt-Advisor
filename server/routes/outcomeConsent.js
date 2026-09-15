@@ -22,6 +22,7 @@
 const overlay = require('../utils/firmOverlay')
 const { PLATFORM_SCOPE } = require('../utils/platformScope')
 const { sendError } = require('../utils/sendError')
+const caseStore = require('../utils/caseStore')
 const { CONFIG_KEY, CONSENT_WORDING, readConsent, firmToken } = require('../utils/outcomeConsent')
 const { POOL_PREFIX } = require('../utils/outcomeLearning')
 const { loadPooledForSession } = require('../utils/outcomeLearningSession')
@@ -34,12 +35,15 @@ function _secretMissing (err) {
 /**
  * GET /api/firm-manager/outcome-consent — the switch's state and what a withdrawal would remove.
  * @route GET /api/firm-manager/outcome-consent
- * @returns {200} { success, consent, wording, pooledCount, adjustmentsApplying } —
+ * @returns {200} { success, consent, wording, pooledCount, adjustmentsApplying, reach } —
  *   `pooledCount` is null when the server has no OUTCOME_POOL_SECRET, so the screen can say
  *   the pool is not configured; `adjustmentsApplying` is the number of mentor-accepted
  *   adjustments live at this firm right now (Mike's ruling of 2026-09-10: a sharing firm
  *   sees the COUNT, never the list), null when the firm is not sharing or the pool could
  *   not be read. It comes from the same cached loader the engine uses for a session.
+ *   `reach` is THIS FIRM'S OWN pair `{ delivered, reviewed }` (4.97 US5) — never another
+ *   firm's and never the platform figure — read whether or not the switch is on, because a
+ *   case without a review teaches the pool nothing either way. Null if the count failed.
  * @returns {500} DB_ERROR
  */
 async function read (req, res) {
@@ -59,7 +63,16 @@ async function read (req, res) {
       const pooled = await loadPooledForSession(firmId)
       adjustmentsApplying = pooled.available ? pooled.adjustments.length : null
     }
-    res.send(200, { success: true, consent, wording: CONSENT_WORDING, pooledCount, adjustmentsApplying })
+    // The firm's own two counts. Read for a firm that is NOT sharing too: the card says a
+    // case without a review teaches nothing "whether or not your firm is sharing", and a
+    // manager deciding whether to switch on deserves to see it first.
+    let reach = null
+    try {
+      reach = await caseStore.countReviewStatus(firmId)
+    } catch (err) {
+      console.error('[outcome-consent] reach count failed:', err.message)
+    }
+    res.send(200, { success: true, consent, wording: CONSENT_WORDING, pooledCount, adjustmentsApplying, reach })
   } catch (err) {
     console.error('[outcome-consent] read failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not read the sharing setting')

@@ -15,8 +15,10 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 }))
 jest.mock('../../server/routes/outcomeLearning', () => ({ recomputeAndPersist: jest.fn() }))
 jest.mock('../../server/utils/outcomeLearningSession', () => ({ loadPooledForSession: jest.fn() }))
+jest.mock('../../server/utils/caseStore', () => ({ countReviewStatus: jest.fn() }))
 
 const overlay = require('../../server/utils/firmOverlay')
+const caseStore = require('../../server/utils/caseStore')
 const { recomputeAndPersist } = require('../../server/routes/outcomeLearning')
 const { loadPooledForSession } = require('../../server/utils/outcomeLearningSession')
 const routes = require('../../server/routes/outcomeConsent')
@@ -61,6 +63,7 @@ beforeEach(() => {
   overlay.deleteFirmConfigsByPrefix.mockResolvedValue(0)
   recomputeAndPersist.mockResolvedValue({})
   loadPooledForSession.mockResolvedValue({ consented: true, available: true, adjustments: [{ id: 'a' }, { id: 'b' }] })
+  caseStore.countReviewStatus.mockResolvedValue({ delivered: 30, reviewed: 12 })
   jest.spyOn(console, 'error').mockImplementation(() => {})
 })
 
@@ -78,7 +81,7 @@ describe('read', () => {
     expect(overlay.loadFirmConfig).toHaveBeenCalledWith(FIRM, CONFIG_KEY)
     expect(overlay.loadFirmConfigsByPrefix).toHaveBeenCalledWith(PLATFORM_SCOPE, 'outcome-pool:' + token + ':')
     expect(res._status).toBe(200)
-    expect(res._body).toEqual({ success: true, consent: stored(), wording: CONSENT_WORDING, pooledCount: 2, adjustmentsApplying: 2 })
+    expect(res._body).toEqual({ success: true, consent: stored(), wording: CONSENT_WORDING, pooledCount: 2, adjustmentsApplying: 2, reach: { delivered: 30, reviewed: 12 } })
     expect(loadPooledForSession).toHaveBeenCalledWith(FIRM)
   })
 
@@ -105,7 +108,7 @@ describe('read', () => {
   test('no record yet reads as consent null, count 0, even when the pool read returns null', async () => {
     const res = makeRes()
     await routes.read(req(), res)
-    expect(res._body).toEqual({ success: true, consent: null, wording: CONSENT_WORDING, pooledCount: 0, adjustmentsApplying: null })
+    expect(res._body).toEqual({ success: true, consent: null, wording: CONSENT_WORDING, pooledCount: 0, adjustmentsApplying: null, reach: { delivered: 30, reviewed: 12 } })
     overlay.loadFirmConfigsByPrefix.mockResolvedValue(null)
     const res2 = makeRes()
     await routes.read(req(), res2)
@@ -136,6 +139,40 @@ describe('read', () => {
     expect(res._status).toBe(500)
     expect(res._body).toMatchObject({ success: false, error: { code: 'DB_ERROR' } })
     expect(JSON.stringify(res._body)).not.toContain('10.0.0.1')
+  })
+
+  // 4.97 US5 / FR-008: the firm's own two counts, scoped to the verified firm and nothing
+  // else. What UAT cannot see is the SCOPE — a pair that looked plausible but was counted
+  // for another firm, or for every firm, would read exactly the same on the screen.
+  describe('loop reach', () => {
+    test("returns THIS firm's pair, counted for req.firmId and no other", async () => {
+      overlay.loadFirmConfig.mockResolvedValue(stored())
+      const res = makeRes()
+      await routes.read(req({ body: { firmId: 'someone-else' } }), res)
+      expect(caseStore.countReviewStatus).toHaveBeenCalledWith(FIRM)
+      expect(caseStore.countReviewStatus).toHaveBeenCalledTimes(1)
+      expect(res._body.reach).toEqual({ delivered: 30, reviewed: 12 })
+    })
+
+    // The card's own words: a case without a review teaches nothing "whether or not your
+    // firm is sharing". A manager weighing the switch sees the number before deciding.
+    test('a firm that is not sharing still gets its pair', async () => {
+      overlay.loadFirmConfig.mockResolvedValue(stored({ on: false }))
+      const res = makeRes()
+      await routes.read(req(), res)
+      expect(res._body.reach).toEqual({ delivered: 30, reviewed: 12 })
+    })
+
+    test('a count failure leaves reach null and the rest of the tab still loads', async () => {
+      overlay.loadFirmConfig.mockResolvedValue(stored())
+      caseStore.countReviewStatus.mockRejectedValue(new Error('ECONNREFUSED 10.0.0.1:3306'))
+      const res = makeRes()
+      await routes.read(req(), res)
+      expect(res._status).toBe(200)
+      expect(res._body.reach).toBeNull()
+      expect(res._body.consent).toEqual(stored())
+      expect(JSON.stringify(res._body)).not.toContain('10.0.0.1')
+    })
   })
 })
 
