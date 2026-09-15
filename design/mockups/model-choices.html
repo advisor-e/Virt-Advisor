@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Choices — what the AI sent advisors to, and what it declined</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   MODEL CHOICES — the Mentor Hub page for to-do item 7.5.
+   Drawn 2026-09-16. NOTHING ON THIS PAGE IS BUILT. It is the artefact the
+   build will be measured against, per CLAUDE.md's Save-the-Artefact rule.
+
+   WHY IT EXISTS. On 2026-09-15 the model summaries were given their first
+   effectiveness test — three real conversations through /api/advisor/query with
+   live AI calls. Two faults were found: the AI never declined when no model
+   fitted, and it invented limits for the ones it named. A governance dispute was
+   offered a cash forecast. Both were fixed the same day (e34ea81b).
+
+   NOTHING RECORDED ANY OF IT. That check existed only because a session ran it
+   by hand and read the replies. 11,082 passing tests could not see it, because
+   every one of them checks that the words REACH the prompt, never what the model
+   does with them. This page is the half that remains.
+
+   WHAT IS ALREADY TRUE IN THE CODE AND IS NOT RE-ASKED HERE:
+     · the models block reaches two client-mode prompt paths — the Phase 3
+       recommendation and the ongoing conversation (server/advisorEngine.js)
+     · the instruction already orders the AI to give a model's exact page path
+       (data/report-model-summaries.json → instruction)
+     · a declared-marker-with-prose-fallback, and recording WHICH was used, is a
+       proven mechanism in this engine — item 4.53 does it for templates
+       (server/utils/tierLookup.js → TEMPLATE_MARK_OPEN)
+     · nobody edits the model summaries at any tier; they describe what the maths
+       does, and /model-guide only ever shows them
+
+   THREE DECISIONS ARE OPEN AND THEY ARE MIKE'S. They are marked ⬥ below and
+   asked one at a time in the conversation, each with a recommendation.
+   ============================================================================ */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+h1{font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-size:19px;margin:36px 0 10px;letter-spacing:-.01em}
+h3{font-size:15px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 8px}
+.lede{font-size:16px;color:var(--rs-muted);max-width:80ch}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px solid #cbe7d2}
+
+/* ---------- the screen ---------- */
+.screen{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden;margin:16px 0 8px}
+.rs-top{background:var(--rs-panel-2);border-bottom:1px solid var(--rs-line);padding:14px 18px;
+  display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.rs-top .t{flex:1 1 300px;min-width:0}
+.rs-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rs-muted)}
+.rs-title{font-size:19px;font-weight:700;margin:2px 0 0}
+.rs-sub{font-size:12.5px;color:var(--rs-muted);margin:3px 0 0;max-width:70ch}
+.sel{font-family:inherit;font-size:13px;border:1px solid var(--rs-line);border-radius:8px;
+  padding:7px 12px;background:var(--rs-panel);color:var(--rs-ink);flex:0 0 auto}
+.body{padding:18px}
+
+/* ---------- band 1: the counts ---------- */
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ct{border:1px solid var(--rs-line);border-radius:10px;padding:13px 14px;background:var(--rs-panel-2)}
+.ct .n{font-size:27px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.ct .l{font-size:12px;color:var(--rs-muted);margin-top:3px;line-height:1.4}
+.ct.good{background:var(--rs-good-soft);border-color:#a8dcb4}
+.ct.good .n{color:#2f7d32}
+.ct.warn{background:var(--rs-warn-soft);border-color:#f3c893}
+.ct.warn .n{color:#a06000}
+
+.note{font-size:12.5px;color:var(--rs-muted);margin:12px 0 0;max-width:80ch}
+
+/* ---------- tables ---------- */
+.sec{margin-top:26px;padding-top:18px;border-top:1px solid var(--rs-line)}
+.sec:first-child{margin-top:0;padding-top:0;border-top:0}
+.sec h4{margin:0 0 3px;font-size:14px;font-weight:700}
+.sec .cap{font-size:12.5px;color:var(--rs-muted);margin:0 0 11px;max-width:78ch}
+
+table.g{width:100%;border-collapse:collapse;font-size:13px}
+table.g th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted);
+  text-align:left;padding:0 12px 7px 0;font-weight:700;white-space:nowrap}
+table.g td{padding:7px 12px 7px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.g tr:last-child td{border-bottom:0}
+table.g td.num{text-align:right;font-variant-numeric:tabular-nums;width:64px;padding-right:0}
+table.g td.b{font-weight:600}
+.dom{color:var(--rs-muted);font-size:12.5px}
+.rare td{background:#fff8ee}
+
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;border-radius:999px;padding:2px 9px;white-space:nowrap;
+  border:1px solid var(--rs-line);background:var(--rs-panel);color:var(--rs-muted)}
+.tag.declared{color:#2f7d32;border-color:#a8dcb4;background:#f4fbf5}
+.tag.prose{color:#a06000;border-color:#f3c893;background:#fff8ee}
+.tag.declined{color:var(--rs-accent);border-color:#9fd0f5;background:#f2f9ff}
+
+.wrap{overflow-x:auto}
+.foot{margin-top:44px;padding-top:14px;border-top:1px solid var(--rs-line);
+  font-size:12px;color:var(--rs-muted)}
+.foot p{max-width:82ch}
+@media (max-width:760px){
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<p class="eyebrow">Mentor Hub · item 7.5 · drawn 2026-09-16 · nothing built</p>
+<h1>Model Choices</h1>
+<p class="lede">Nineteen calculation models are described to the AI on every client
+conversation. It names one when it judges one fits. Until now, nothing anywhere wrote down
+which one it named, or what it was asked — so the only way to check its judgement was for
+somebody to sit and read conversations.</p>
+
+<div class="mock">
+<h3>What is built, and what is not</h3>
+<p><b>NOTHING ON THIS PAGE IS BUILT.</b> This is a drawing. Every figure in it is invented to
+show the shape of the screen — not one of them is a reading from the app.</p>
+<p><b>What IS already true, and is what makes this cheap:</b> the instruction the AI is given
+already says <i>"give its exact page path from this list so the advisor can open it"</i>. Those
+paths — <code>/debtor-drag</code>, <code>/three-way-forecast</code> — are unique strings that
+come from <code>data/report-model-summaries.json</code> itself. So finding a model mention in a
+reply is an <b>exact match against a known list of nineteen</b>, not a guess. No heuristic, and
+nothing new to teach the AI.</p>
+</div>
+
+<h2>The screen</h2>
+
+<div class="screen">
+  <div class="rs-top">
+    <div class="t">
+      <div class="rs-eyebrow">Mentor Hub · Your AI coach</div>
+      <div class="rs-title">Model Choices</div>
+      <p class="rs-sub">Which calculation model the AI sent an advisor to, and when it said none
+        fits. Across every firm on the platform.</p>
+    </div>
+    <select class="sel"><option>Last 30 days</option></select>
+  </div>
+
+  <div class="body">
+
+    <!-- ── band 1 ─────────────────────────────────────────────── -->
+    <div class="sec">
+      <h4>The period at a glance</h4>
+      <p class="cap">Every client conversation that reached the point where the models list was
+        in front of the AI.</p>
+      <div class="counts">
+        <div class="ct"><div class="n">142</div>
+          <div class="l">Conversations where a model could have been named</div></div>
+        <div class="ct"><div class="n">38</div>
+          <div class="l">Named a model</div></div>
+        <div class="ct good"><div class="n">9</div>
+          <div class="l">Said plainly that no model fits</div></div>
+        <div class="ct warn"><div class="n">6</div>
+          <div class="l">Named a model without its page path</div></div>
+      </div>
+      <p class="note"><b>The third box is the one that was invisible before.</b> Saying "the app
+        has no model for this" is the AI doing its job — the instruction of 2026-09-15 makes it a
+        required answer, not a last resort — and it is the single hardest thing to confirm is
+        happening. The fourth box is the AI half-obeying: it named a real model but left the
+        advisor to go and find the page.</p>
+    </div>
+
+    <!-- ── band 2 ─────────────────────────────────────────────── -->
+    <div class="sec">
+      <h4>Which model, for which kind of problem</h4>
+      <p class="cap">The pattern a person testing one conversation at a time cannot see. Sorted
+        by how often the pairing came up, commonest first.</p>
+      <div class="wrap">
+      <table class="g">
+        <thead><tr>
+          <th>Advisory domain</th><th>Model named</th><th>Page</th><th class="num">Times</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="dom">financial management</td><td class="b">3-Way Forecast Filter</td>
+              <td><code>/three-way-forecast</code></td><td class="num">9</td></tr>
+          <tr><td class="dom">profitability and feasibility</td><td class="b">Margin · Mark-up · Break-even</td>
+              <td><code>/margin-breakeven</code></td><td class="num">7</td></tr>
+          <tr><td class="dom">financial management</td><td class="b">Debtor Business Drag</td>
+              <td><code>/debtor-drag</code></td><td class="num">6</td></tr>
+          <tr><td class="dom">stock purchasing and inventory management</td><td class="b">Stock Purchasing (Growth Pro)</td>
+              <td><code>/stock-purchasing</code></td><td class="num">5</td></tr>
+          <tr><td class="dom">valuation</td><td class="b">EBITDA &amp; Discounted Cash Flow</td>
+              <td><code>/ebitda-dcf</code></td><td class="num">4</td></tr>
+          <tr><td class="dom">succession planning</td><td class="b">Retirement Review</td>
+              <td><code>/retirement-review</code></td><td class="num">3</td></tr>
+          <tr><td class="dom">staff, productivity and leadership</td><td class="b">Wages/Salary Review</td>
+              <td><code>/wages-review</code></td><td class="num">2</td></tr>
+          <tr class="rare"><td class="dom">governance and leadership</td><td class="b">3-Way Forecast Filter</td>
+              <td><code>/three-way-forecast</code></td><td class="num">1</td></tr>
+          <tr class="rare"><td class="dom">conflict and conflict meetings</td><td class="b">8 Levers Model</td>
+              <td><code>/eight-levers</code></td><td class="num">1</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note"><b>Nothing here is judged, and the two shaded rows carry no warning.</b>
+        They are shaded only because they happened once. A single pairing is not a fault — a
+        governance conversation may genuinely turn on cash. The screen says what happened; you
+        decide whether it should have. Anything that scored the AI's judgement would be a second
+        AI marking the first one's homework, and nobody could check <i>that</i>.</p>
+      <p class="note">The eighth row is the fault of 2026-09-15 as it would have appeared here:
+        a governance dispute sent to a cash forecast. It sat alone in a session scratchpad.</p>
+    </div>
+
+    <!-- ── band 3 ─────────────────────────────────────────────── -->
+    <div class="sec">
+      <h4>When it said no model fits</h4>
+      <p class="cap">The answer the instruction of 2026-09-15 made compulsory. Worth reading:
+        a run of these in one domain is a gap in the library, not a fault in the AI.</p>
+      <div class="wrap">
+      <table class="g">
+        <thead><tr><th>When</th><th>Advisory domain</th><th class="num">Times</th></tr></thead>
+        <tbody>
+          <tr><td>15 Sep</td><td class="dom">governance and leadership</td><td class="num">3</td></tr>
+          <tr><td>14 Sep</td><td class="dom">conflict and conflict meetings</td><td class="num">2</td></tr>
+          <tr><td>12 Sep</td><td class="dom">firm management coaching and culture</td><td class="num">2</td></tr>
+          <tr><td>09 Sep</td><td class="dom">people engagement, recruitment and performance</td><td class="num">2</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- ── band 4 ─────────────────────────────────────────────── -->
+    <div class="sec">
+      <h4>Every choice, most recent first</h4>
+      <p class="cap">One row per model named or declined. <b>How</b> says whether the AI declared
+        its choice or we found the page path in its prose — the same distinction the template
+        recommendations already record.</p>
+      <div class="wrap">
+      <table class="g">
+        <thead><tr>
+          <th>When</th><th>Advisory domain</th><th>What the AI did</th><th>How</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>15 Sep 16:04</td><td class="dom">financial management</td>
+              <td class="b">3-Way Forecast Filter</td><td><span class="tag declared">Declared</span></td></tr>
+          <tr><td>15 Sep 15:41</td><td class="dom">governance and leadership</td>
+              <td class="b">Said no model fits</td><td><span class="tag declined">Declared</span></td></tr>
+          <tr><td>15 Sep 14:32</td><td class="dom">governance and leadership</td>
+              <td class="b">3-Way Forecast Filter</td><td><span class="tag declared">Declared</span></td></tr>
+          <tr><td>15 Sep 11:58</td><td class="dom">profitability and feasibility</td>
+              <td class="b">Margin · Mark-up · Break-even</td><td><span class="tag prose">Page path in prose</span></td></tr>
+          <tr><td>15 Sep 09:12</td><td class="dom">financial management</td>
+              <td class="b">Debtor Business Drag</td><td><span class="tag declared">Declared</span></td></tr>
+          <tr><td>14 Sep 17:20</td><td class="dom">valuation</td>
+              <td class="b">EBITDA &amp; Discounted Cash Flow</td><td><span class="tag declared">Declared</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note"><b>There is no firm name, no advisor name and no client situation on any
+        row.</b> That is Decision 2 below, and it is the reason this page can exist at the mentor
+        tier at all.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================ DECISIONS ============================ -->
+
+<h2>⬥ Decision 1 — how we know a model was named</h2>
+
+<div class="ask">
+<h3>Recommended — the AI declares it, and the page-path scan stays as the fallback</h3>
+<p class="rec">Add a machine-readable marker the AI writes at the end of its reply, exactly as
+it already does for templates, and keep the page-path scan underneath it. Record which of the
+two produced each row — that is the <span class="tag prose">Page path in prose</span> tag on
+the screen above.</p>
+<p><b>Why not the scan alone.</b> The scan is exact for a model that was <i>named</i> — the
+nineteen page paths are unique strings. But <b>it can never see a decline.</b> "The app has no
+model for this situation" is ordinary prose with no fixed wording, and matching it by phrase is
+the kind of guesswork that puts wrong rows on a screen people then trust. A declared marker is
+the only honest way to record the third box on the screen above — and that box is the AI getting
+it <i>right</i>, which today is exactly as invisible as the failures.</p>
+<p><b>Why the fallback stays.</b> Item 4.53 established this for template recommendations, and
+its reason applies here word for word: <i>the AI obeys the declaration instruction only
+sometimes.</i> Keeping the scan means a mention is still caught when the marker is missing, and
+recording which one fired means a drift in obedience shows on the screen instead of quietly
+shrinking the numbers.</p>
+<p><b>What it costs.</b> One line added to the instruction block in
+<code>data/report-model-summaries.json</code> — the file whose instruction you changed on
+15 September — and a strip step so the marker never reaches the advisor, which the engine
+already does for the template marker on all three response paths.</p>
+</div>
+
+<h2>⬥ Decision 2 — what is stored beside the model name</h2>
+
+<div class="ask">
+<h3>Recommended — the advisory domain and nothing else. Never the advisor's own words.</h3>
+<p class="rec">A row holds: when, the advisory domain, the model named (or that it declined),
+and how we knew. No firm, no advisor, no client, and not a word of what was typed.</p>
+<p><b>Why this is the important one.</b> This page reads across every firm on the platform —
+that is what makes the pattern visible, and it is the same reason the Logic-Lab Report can only
+exist at the mentor tier. The decision trace already stores the advisor's own intake answers,
+but that stays <i>inside the firm</i>, on their own saved case. Carrying those words up to a
+platform-wide screen would move one firm's client situations in front of Advisor-e staff, and
+that is a privacy decision, not a reporting feature.</p>
+<p><b>It costs nothing you need.</b> The domain <i>is</i> the situation, for this purpose: a
+governance conversation offered a cash forecast is the whole fault of 15 September, and the row
+above shows it with no client content at all. Where somebody does need the detail, the
+conversation is findable inside the firm that had it, by the people entitled to read it.</p>
+<p><b>And it settles retention without a dial.</b> A row holding a timestamp, a domain name and
+one of nineteen model names is not personal data and describes no business. There is nothing
+here that has to be deleted on a clock, so no retention control is proposed — unlike the staff
+register, where the opposite was true.</p>
+</div>
+
+<h2>⬥ Decision 3 — what the tab is called</h2>
+
+<div class="ask">
+<h3>Recommended — <b>Model Choices</b>, in the "Your AI coach" group, mentor tier alone</h3>
+<p class="rec">Two words, plain, and it says what the page holds: the choices the AI made.
+Appended to the end of the group, which moves nothing already on a manager's screen.</p>
+<p><b>Why not "Model Mentions" or "Model Accuracy".</b> <i>Mentions</i> describes the mechanism
+rather than the thing — you would be reading a page named after how it was built.
+<i>Accuracy</i> claims the page judges the AI, and it does not: it reports, and you judge.</p>
+<p><b>Mentor tier alone, and here is the judgement rather than an assumption.</b> The rule's
+default since 2026-08-24 is the mentor's view only, and it is right here for a reason that is
+easy to state: <b>the content this page audits is platform content that no other tier may
+edit.</b> The model summaries describe what the maths does; nobody at a firm, group or global
+tier gets to change when Lease vs Buy is the right tool. A screen shown to a tier that cannot
+act on it is a screen that trains people to ignore a tab. If that ever changes — if a firm is
+ever allowed to say when <i>its</i> advisors should reach for a model — this page cascades on
+the same day, and so does the editing screen the standing rule would then require.</p>
+</div>
+
+<!-- ============================ THE BLOCK ============================ -->
+
+<h2>What can be built now, and what cannot</h2>
+
+<div class="mock">
+<h3>The screen half is blocked on this machine — stated before any code, not discovered after</h3>
+<p><b>The recording half is free.</b> The marker, the strip, the page-path scan, the store and
+the route that reads it back touch <code>server/advisorEngine.js</code>,
+<code>server/utils/</code> and <code>data/report-model-summaries.json</code> — none of which
+belongs to another machine's work.</p>
+<p><b>The tab is not.</b> Putting a tab on the Mentor Hub means editing
+<code>components/FirmManagerHub.vue</code> in three places — the tier matrix, the menu and the
+panel. That file is named in item <b>9.1</b>'s touches, and 9.1 has been active on the desktop
+since 10 September. It is the same wall 5.1's retention dial hit on 15 September.</p>
+<p><b>Which is why this drawing exists now rather than later.</b> With the screen settled, the
+recording half can be built knowing exactly what it has to feed, and the tab becomes a small,
+well-specified job on the day the desktop releases the hub file.</p>
+</div>
+
+<p class="foot">
+<b>Item 7.5</b> · filed 2026-09-15 on Mike's instruction — <i>"make sure the other issue is
+entered into the to do list"</i> — after the first effectiveness test of the model summaries.
+Score 2, robustness. The two faults that test found were fixed the same day in
+<code>e34ea81b</code>; this is the half that remains.</p>
+<p class="foot" style="margin-top:0;border-top:0;padding-top:0">
+Related: <code>design/features/report-models.md</code> ·
+<code>data/report-model-summaries.json</code> ·
+<code>server/utils/reportModels.js</code> ·
+<code>server/advisorEngine.js</code> ·
+item 4.53 (the template marker) in <code>server/utils/tierLookup.js</code>.</p>
+
+</div>
+</body>
+</html>
