@@ -34,7 +34,8 @@ const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
 const { resolveRecommendedTemplatesWithSource, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
-const { logVASession } = require('../server/utils/activityLogger')
+const { resolveModelChoiceWithSource, stripModelMarker, MODEL_MARK_OPEN } = require('../server/utils/modelChoiceScan')
+const { logVASession, logModelChoice } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
@@ -1756,6 +1757,63 @@ async function handleQuery (rawBody, res, identity) {
   // firm manager's own token cannot tell them a colleague's name — see activityStore.
   const advisorName = (identity && identity.advisorName) || null
 
+  /**
+   * Item 7.5 — record what one reply did about calculation models.
+   *
+   * Called on every path the models block reaches, from the RAW buffer (the marker is
+   * still in it there; the advisor's copy has already had it stripped). Fire-and-forget
+   * with an explicit swallow, on the same reasoning as logVASession: a diagnostic row is
+   * never worth an advisor's answer.
+   *
+   * A reply that named nothing and declined nothing writes no row at all — the screen's
+   * "said nothing about models" count comes from the session count by subtraction, so
+   * this table stays a record of CHOICES rather than of every conversation.
+   *
+   * ⚠ IT IS HANDED THE RAW REPLY AND PASSES ON ONLY WHAT THE SCAN RESOLVED — routes, a
+   * decline flag and which source found them. No sentence of the reply, and no word the
+   * advisor typed, goes anywhere near the store. Mike's ruling of 2026-09-16.
+   *
+   * ⚠ `domain` and `session` ARE PARAMETERS RATHER THAN CLOSED OVER. The client-mode
+   * sequencer declares its own `state` and `sessionId` inside its block, so neither is
+   * visible out here — and reaching for them would be a reference error at the one moment
+   * nobody is watching, in a path whose whole job is to fail quietly.
+   *
+   * @param {string} rawBuffer - the model's own output, marker included
+   * @param {string} phase - 'recommendation', 'conversation', or the mode name
+   * @param {string|null} domain - the detected advisory domain, or null
+   * @param {string|null} session - the session id, for the console line only
+   * @returns {void}
+   */
+  function noteModelChoice (rawBuffer, phase, domain, session) {
+    if (!advisorId || !firmId) { return }
+    try {
+      const choice = resolveModelChoiceWithSource(rawBuffer)
+      if (choice.unverified > 0) {
+        // The AI declared a model the catalogue does not know. Said out loud rather than
+        // counted silently: it is the same family as a fabricated template name, and the
+        // row it would have written is the one nobody could check.
+        console.warn('[advisor] model marker named ' + choice.unverified +
+          ' model(s) not in the catalogue — session=' + (session || 'none'))
+      }
+      if (!choice.models.length && !choice.declined) { return }
+      console.log('[advisor] model choice source=' + choice.source +
+        ' models=' + (choice.declined ? 'none-declared' : choice.models.join(',')) +
+        ' phase=' + phase + ' session=' + (session || 'none'))
+      logModelChoice({
+        advisorId,
+        firmId,
+        advisorName,
+        domain: domain || null,
+        models: choice.models,
+        declined: choice.declined,
+        source: choice.source,
+        phase
+      }).catch(() => {})
+    } catch (e) {
+      console.error('[advisor] noteModelChoice failed:', e.message)
+    }
+  }
+
   const ALLOWED_MODES = ['client', 'discover', 'plan', 'learn']
   if (!ALLOWED_MODES.includes(mode)) {
     sendError(res, 400, 'INVALID_MODE', 'Invalid mode')
@@ -2656,13 +2714,20 @@ async function handleQuery (rawBody, res, identity) {
             // Tier 2: watch for invented quoted wording — a hit appends the
             // approved correction note (a streamed reply can't be unprinted).
             const _postFlagged = logUnverifiedQuotes(isLearnRequest ? 'learn-post-rec' : 'client-post-rec', _postBuffer, _postMessages)
-            // The marker is machine-read and must never be displayed. SECTION 11 of
+            // The markers are machine-read and must never be displayed. SECTION 11 of
             // client.txt is in this prompt too, so one can arrive here — and unlike
             // Phase 3 this path buffers the whole reply and emits it once, so there is
             // no streaming tail to hold back. One strip before display is the whole fix.
-            const visible = stripTemplateMarker(_postBuffer)
+            // The model marker (item 7.5) is stripped SECOND and removes only itself:
+            // the two can arrive in either order, and cutting to the end here would
+            // discard a template marker the line above still has to read.
+            const visible = stripModelMarker(stripTemplateMarker(_postBuffer))
             const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _postFlagged, _postBuffer, _postMessages)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
+            // Item 7.5: what this reply did about calculation models. The models block
+            // reaches this path as well as Phase 3, so a model named here is a model
+            // an advisor was sent to and must be recorded the same way.
+            noteModelChoice(_postBuffer, 'conversation', state.detectedDomain, sessionId)
             if (sessionId) { sessionSave(sessionId, state) }
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
           }
@@ -3406,11 +3471,19 @@ async function handleQuery (rawBody, res, identity) {
         if (text) {
           _p3Buffer += text
           // Stream immediately so the advisor sees text appearing in real time — but hold
-          // back a tail as long as the marker's opening sentinel, so a half-arrived marker
-          // can never flash on screen mid-sentence.
-          const markAt = _p3Buffer.indexOf(TEMPLATE_MARK_OPEN)
+          // back a tail as long as the longest marker's opening sentinel, so a half-arrived
+          // marker can never flash on screen mid-sentence.
+          // 🔴 TWO MARKERS SINCE ITEM 7.5, AND THE HOLD-BACK IS TAKEN FROM WHICHEVER COMES
+          // FIRST. Watching only the template sentinel would let `[[MODEL:` print in full
+          // whenever the AI wrote it first — which the instruction asks it to do, on the
+          // last line — and the advisor would read a machine marker mid-answer.
+          const _tmplAt = _p3Buffer.indexOf(TEMPLATE_MARK_OPEN)
+          const _modelAt = _p3Buffer.indexOf(MODEL_MARK_OPEN)
+          const markAt = (_tmplAt === -1 || (_modelAt !== -1 && _modelAt < _tmplAt)) ? _modelAt : _tmplAt
+          // The tail is sized by the LONGER sentinel, so a partial arrival of either is held.
+          const _sentinel = Math.max(TEMPLATE_MARK_OPEN.length, MODEL_MARK_OPEN.length)
           const safeEnd = markAt === -1
-            ? Math.max(0, _p3Buffer.length - (TEMPLATE_MARK_OPEN.length - 1))
+            ? Math.max(0, _p3Buffer.length - (_sentinel - 1))
             // Stop before the blank line that precedes the marker too, or the answer
             // ends with a stray gap where the marker was.
             : _p3Buffer.slice(0, markAt).replace(/\s+$/, '').length
@@ -3425,8 +3498,9 @@ async function handleQuery (rawBody, res, identity) {
           // stream has already printed, so the note rides the final rewrite).
           const _p3Flagged = logUnverifiedQuotes('phase3-recommendation', _p3Buffer, _p3Messages)
           // Post-process: heading normaliser → R02 scrub → video injection
-          // Everything the advisor sees is the answer WITHOUT its trailing marker.
-          const visible = stripTemplateMarker(_p3Buffer)
+          // Everything the advisor sees is the answer WITHOUT its trailing markers.
+          // Model marker stripped second, removing only itself — see the post-rec path.
+          const visible = stripModelMarker(stripTemplateMarker(_p3Buffer))
           // Flush whatever is still held back — the safety tail, and any text before a marker.
           if (visible.length > _p3Sent) {
             res.write('data: ' + JSON.stringify({ type: 'delta', text: visible.slice(_p3Sent) }) + '\n\n')
@@ -3448,6 +3522,11 @@ async function handleQuery (rawBody, res, identity) {
             ' count=' + _recommended.templates.length + ' session=' + (sessionId || 'none'))
           _decisionTrace.recommendation.selected = state.recommendedTemplates
           _decisionTrace.recommendation.source = _recommended.source
+          // Item 7.5 — the same question asked of the models block: what did it name,
+          // and how do we know? The two are recorded separately because a template and a
+          // calculation model are different things (the instruction says so in as many
+          // words), and because a model can be named here or in the conversation after.
+          noteModelChoice(_p3Buffer, 'recommendation', state.detectedDomain, sessionId)
           res.write('data: ' + JSON.stringify({ type: 'budget_notice', notice: _budgetNotice }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'trace', trace: _decisionTrace }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'session_meta', domain: state.detectedDomain, templates: state.recommendedTemplates }) + '\n\n')
@@ -3725,10 +3804,15 @@ async function handleQuery (rawBody, res, identity) {
         // approved correction note (a streamed reply can't be unprinted).
         const _mainFlagged = logUnverifiedQuotes(mode, _mainBuffer, _mainMessages)
         // Same reason as the post-recommendation path: this prompt is client.txt too,
-        // so the marker can arrive here. Buffered, so one strip covers it.
-        const visible = stripTemplateMarker(_mainBuffer)
+        // so the markers can arrive here. Buffered, so one strip of each covers it.
+        const visible = stripModelMarker(stripTemplateMarker(_mainBuffer))
         const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _mainFlagged, _mainBuffer, _mainMessages)
         res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
+        // Item 7.5. ⚠ THE DOMAIN IS NULL HERE AND THAT IS THE TRUTH, not an omission:
+        // domain detection is the client-mode sequencer's, and `discover` — the only
+        // other mode the models block reaches — never runs it. Recording a guessed
+        // domain would put invented rows in the very table that exists to be checked.
+        noteModelChoice(_mainBuffer, mode, null, null)
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       }
     }

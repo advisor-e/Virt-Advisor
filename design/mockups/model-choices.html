@@ -342,6 +342,26 @@ marker, AND the page-path scan is kept underneath it as the fallback, and each r
 which of the two produced it.</b></p>
 </div>
 
+<div class="mock">
+<h3>🔴 The ruling paid for itself the same day — and exposed a second fault</h3>
+<p><b>BUILT 2026-09-16, THEN RUN AGAINST THE LIVE AI.</b> Six <code>discover</code>-mode
+conversations. The marker was written <b>0 times in 3</b> with its instruction sitting in
+<code>data/report-model-summaries.json</code>, and <b>1 time in 6</b> after it was moved into
+the system prompts (<code>client.txt</code> SECTION 12, <code>discover.txt</code>) beside the
+template marker that has worked since item 4.53.</p>
+<p><b>The fallback is the only reason any of it was recorded.</b> Three of the four rows came
+from the page-path scan. Had this been built on the declaration alone — the tidier design —
+the screen would have been very nearly empty and nothing would have said why.</p>
+<p>🔴 <b>WHAT IS STILL WRONG, AND IT IS FILED AS ITEM 7.6 rather than left here.</b> A model
+that is NAMED is caught exactly, every time, because its page path is a unique string. A
+<b>decline</b> has no second source, so the declines band below <b>under-counts, and nothing
+on the screen says so</b>. The one time the marker did fire was a decline that had recorded
+nothing at all before the move, so the change was worth making — it is just not finished.
+⚠ <b>The client-mode Phase 3 path is UNTESTED</b>: SECTION 11's template marker works
+reliably there, and SECTION 12 sits beside it, so it may already be fine. That is 7.6's first
+step.</p>
+</div>
+
 <div class="ask">
 <h3>The recommendation, kept — the AI declares it, and the page-path scan stays as the fallback</h3>
 <p class="rec">Add a machine-readable marker the AI writes at the end of its reply, exactly as
@@ -461,11 +481,26 @@ the same day, and so does the editing screen the standing rule would then requir
 <h2>What can be built now, and what cannot</h2>
 
 <div class="mock">
+<h3>⚠ Two differences between this drawing and the backend that was built — named here rather than found later</h3>
+<p><b>1 · The period selector is drawn and is not built.</b>
+<code>GET /api/model-choices</code> returns the most recent 2,000 rows for the caller's scope
+and takes no date range. Building the screen means either adding one to the route or filtering
+in the component; <b>the drawing is what was approved, so the route is what has to catch up</b>,
+and this line exists so that is a decision rather than a surprise.</p>
+<p><b>2 · The first band's largest number is not available yet.</b> "142 conversations where a
+model could have been named" is a count of client conversations, which lives in
+<code>advisor_va_sessions</code> — a different table. The route returns
+<code>named</code>, <code>declined</code> and <code>viaProse</code>; the fourth figure needs
+that second read. Everything else on the page is served.</p>
+</div>
+
+<div class="mock">
 <h3>The screen half is blocked on this machine — stated before any code, not discovered after</h3>
-<p><b>The recording half is free.</b> The marker, the strip, the page-path scan, the store and
-the route that reads it back touch <code>server/advisorEngine.js</code>,
-<code>server/utils/</code> and <code>data/report-model-summaries.json</code> — none of which
-belongs to another machine's work.</p>
+<p><b>The recording half is free, and is BUILT (2026-09-16).</b>
+<code>server/utils/modelChoiceScan.js</code>, the marker in the two prompt files, the strip on
+all three response paths, the streaming hold-back, <code>advisor_model_choices</code> with its
+dev-file fallback, <code>logModelChoice</code>, and
+<code>GET /api/model-choices</code> — none of it touches another machine's work.</p>
 <p><b>The tab is not.</b> Putting a tab on the hub means editing
 <code>components/FirmManagerHub.vue</code> in three places — <code>TAB_TIERS</code> (all four
 tiers, per Decision 3), <code>NAV_GROUPS</code> (the end of "Rolled up from below") and the

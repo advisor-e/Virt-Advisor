@@ -286,6 +286,65 @@ CREATE TABLE IF NOT EXISTS `advisor_cpd_claims` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
+-- advisor_model_choices
+-- To-do item 7.5. One row per calculation model the AI named in a client
+-- conversation, and one row when it said plainly that no model fits.
+--
+-- A conversation that said nothing about any model writes NO ROW. The screen
+-- counts those by subtraction from the session count, so this table stays a
+-- record of choices rather than of every conversation that happened.
+--
+-- WHY IT EXISTS. Nineteen models are described to the AI on every client
+-- conversation and nothing recorded which one it named. On 2026-09-15 three live
+-- conversations found a governance dispute offered a cash forecast; nothing
+-- logged it, and 11,082 passing tests could not see it, because they check that
+-- the words reach the prompt and never what the model does with them.
+--
+-- 🔴 THERE IS NO COLUMN FOR THE ADVISOR'S OWN WORDS, AND THERE MUST NOT BE.
+-- Mike's ruling of 2026-09-16 (design/mockups/model-choices.html, Decision 2):
+-- this table is read ACROSS firms by the mentor, so the advisor's description of
+-- their client stays inside the firm, on their own saved case, where the decision
+-- trace already keeps it. advisor_id / advisor_name / firm_id are here because
+-- advisor_va_sessions beside it already stores all three on every session — they
+-- are what lets a firm manager read their own team's rows, and they are not a
+-- new category of data about anyone.
+--
+-- declined is stored rather than inferred from a NULL model_route: "the AI said
+-- none fits" and "the AI named something we could not verify" both leave the
+-- route empty, and collapsing them would record a fabrication as good behaviour.
+--
+-- source: 'declared' = the AI's own [[MODEL: ...]] marker; 'prose' = the
+-- page-path scan that stands behind it. Recorded because the AI obeys the
+-- declaration instruction only sometimes, and a drift in obedience is otherwise
+-- invisible to everyone, including a tester in UAT (the same reason as item 4.53).
+--
+-- advisor_id is not FK-constrained — advisors table belongs to the Advisor-e platform.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `advisor_model_choices` (
+  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `advisor_id`   VARCHAR(64)  NOT NULL,
+  -- See advisor_va_sessions.advisor_name — captured at write time from the
+  -- advisor's own verified JWT, NULL until the token carries a name claim.
+  `advisor_name` VARCHAR(128)          DEFAULT NULL,
+  `firm_id`      VARCHAR(64)  NOT NULL,
+  `domain`       VARCHAR(128)          DEFAULT NULL,
+  -- The catalogue's own route, e.g. '/debtor-drag'. NULL on a decline.
+  `model_route`  VARCHAR(128)          DEFAULT NULL,
+  `declined`     TINYINT(1)   NOT NULL DEFAULT 0,
+  `source`       ENUM('declared','prose') NOT NULL,
+  -- Where in the conversation: 'recommendation', 'conversation', or the mode name.
+  `phase`        VARCHAR(32)  NOT NULL,
+  `chosen_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_model_choices_firm`   (`firm_id`),
+  KEY `idx_model_choices_when`   (`chosen_at`),
+  KEY `idx_model_choices_route`  (`model_route`),
+  KEY `idx_model_choices_domain` (`domain`),
+  CONSTRAINT `fk_model_choices_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
 -- va_clients
 -- The firm-scoped client register (client knowledge base, design 2026-07-14).
 -- One row per client business, per firm — every advisor at the firm selects

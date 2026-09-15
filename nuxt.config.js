@@ -167,6 +167,9 @@ export default {
     { path: '/api/activity', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/firm-manager', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/mentor', handler: '~/server-middleware/apiProxy.js' },
+    // Model Choices (item 7.5) — what the AI named, read at all four manager tiers.
+    // Added WITH the route, for the reason the paragraph above spells out at length.
+    { path: '/api/model-choices', handler: '~/server-middleware/apiProxy.js' },
     // Collaborate's people layer + its template catalogue. Same thin proxy as the
     // groups above: the browser only ever talks to its own origin, and the single
     // Restify backend answers. Collaborate shipped its own near-identical proxy

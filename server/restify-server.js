@@ -111,6 +111,7 @@ const casesRoute = require('./routes/cases')
 const clientsRoute = require('./routes/clients')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
+const modelChoicesRoute = require('./routes/modelChoices')
 const reportRoute = require('./routes/report')
 const economicAnalysisRoute = require('./routes/economicAnalysis')
 const nextStepsDraftRoute = require('./routes/nextStepsDraft')
@@ -897,6 +898,16 @@ server.get('/api/mentor/cases', firmAuth, requireManagingTier, mentorRoute.listM
 // firm's advisers BY NAME, which is a firm manager's view of their own people.
 // Design: design/mockups/mentor-adoption-view.html (ruled by Mike 2026-08-09).
 server.get('/api/mentor/adoption', firmAuth, requireManagingTier, mentorRoute.getAdoption)
+
+// ── Model Choices (item 7.5) ──
+// What calculation model the AI named in a client conversation, and when it said
+// plainly that none fits. Read at ALL FOUR manager tiers, each scoped to its own
+// level — Mike's ruling of 2026-09-16, which reversed the drawing's mentor-only
+// recommendation once the rows gained a firm and an advisor.
+// `requireManagerRole` rather than `requireManagingTier`: a FIRM manager reads this
+// one, which is the whole point of the widening. The handler takes the scope from
+// req.firmId and never from the request. design/mockups/model-choices.html.
+server.get('/api/model-choices', firmAuth, requireManagerRole, modelChoicesRoute.getModelChoices)
 
 // Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
 // The mentor authors the platform set every firm receives as its default; plain CRUD

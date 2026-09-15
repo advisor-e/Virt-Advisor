@@ -82,6 +82,22 @@
     "- WHEN YOU GIVE A MODEL'S LIMITS, GIVE ITS \"What it does NOT cover\" LINE AS WRITTEN AND ADD NOTHING TO IT. Quote that line. Do not summarise it, extend it, or put it in your own words, and never follow it with a further limitation of your own — not even a reasonable-sounding one. That line is the whole of what is known about the model's limits. If it does not answer what the advisor asked, say that it does not, rather than filling the gap: an invented limitation reads exactly like a real one, and the advisor will repeat it to their client as fact.",
     "- A model marked \"illustrative\" uses teaching figures, not the client's accounts. Never describe its numbers as a picture of the client's business."
   ],
+  "_markerNote": [
+    "🔴 THE [[MODEL: ...]] DECLARATION IS NOT IN THIS FILE, AND THAT IS DELIBERATE.",
+    "Item 7.5 first put it here, as one more line of the instruction block above. It was",
+    "tried against the live AI on 2026-09-16 and IGNORED IN ALL THREE CONVERSATIONS —",
+    "including the one where the AI correctly said no model fitted, which is the single",
+    "row the declaration exists to capture.",
+    "",
+    "The reason is where it sat. This file is REFERENCE MATERIAL handed to the model for a",
+    "particular question; the system prompt is its standing instruction about its own",
+    "output. The template marker that works has been a numbered SECTION of the system",
+    "prompt since item 4.53. A rule about the shape of the answer belongs there, not here.",
+    "",
+    "It now lives in data/prompts/client.txt SECTION 12 and data/prompts/discover.txt.",
+    "DO NOT MOVE IT BACK. server/utils/modelChoiceScan.js reads the marker; this file is",
+    "only ever the list of what may be named."
+  ],
   "models": [
     {
       "route": "/business-performance-report",

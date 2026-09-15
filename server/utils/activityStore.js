@@ -123,6 +123,38 @@ const SQL_INSERT_VA =
          (advisor_id, advisor_name, firm_id, domain, recommended_templates, highest_tier)
        VALUES (?, ?, ?, ?, ?, ?)`
 
+// ── Model choices (item 7.5) ─────────────────────────────────────────────────
+// What calculation model the AI named in a client conversation, or that it named
+// none. One row per model named; a decline is one row with model_route NULL.
+//
+// 🔴 WHAT IS NOT IN THESE COLUMNS IS THE POINT. There is no column for the
+// advisor's own words. Mike's ruling of 2026-09-16 widened the row from "the
+// domain and nothing else" to carry firm and advisor — both of which
+// advisor_va_sessions beside it already stores on every session, so neither is a
+// new category of data — and stopped there: the advisor's description of their
+// client stays inside the firm, on their own saved case, where the decision trace
+// keeps it. This table is read ACROSS firms by the mentor, which is exactly why
+// the line is drawn where it is. design/mockups/model-choices.html, Decision 2.
+const SQL_INSERT_MODEL_CHOICE =
+  `INSERT INTO advisor_model_choices
+         (advisor_id, advisor_name, firm_id, domain, model_route, declined, source, phase)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+
+// LIMIT 2000 rather than 200: this is a pattern read, and the pattern is the whole
+// reason the screen exists. A firm's own rows are a small slice of it.
+const SQL_MODEL_CHOICES_ALL =
+  `SELECT advisor_id, advisor_name, firm_id, domain, model_route, declined, source,
+                phase, chosen_at
+         FROM advisor_model_choices
+         ORDER BY chosen_at DESC LIMIT 2000`
+
+const SQL_MODEL_CHOICES_FIRM =
+  `SELECT advisor_id, advisor_name, firm_id, domain, model_route, declined, source,
+                phase, chosen_at
+         FROM advisor_model_choices
+         WHERE firm_id = ?
+         ORDER BY chosen_at DESC LIMIT 2000`
+
 // CPD claims. No de-duplication and no INSERT IGNORE: a repeat is a genuine second
 // claim (owner ruling 2026-07-29), not an accidental double submit.
 const SQL_ADVISOR_CPD =
@@ -457,6 +489,69 @@ async function recordVASession (row) {
 }
 
 /**
+ * Record one model choice — a model the AI named, or that it named none.
+ *
+ * Fire-and-forget in spirit like recordVASession: it is written mid-conversation and a
+ * storage failure must never cost an advisor their answer. The caller swallows; this
+ * still falls back to the dev file so the screen is usable on a machine with no MySQL.
+ *
+ * @param {object} row - { advisorId, advisorName, firmId, domain, modelRoute, declined,
+ *   source, phase }. `modelRoute` is null on a decline; `declined` is the only thing that
+ *   distinguishes a decline from a reply that said nothing, so it is stored, not inferred.
+ * @returns {Promise<void>}
+ */
+async function recordModelChoice (row) {
+  const declined = row.declined ? 1 : 0
+  const values = [
+    row.advisorId, row.advisorName || null, row.firmId, row.domain || null,
+    row.modelRoute || null, declined, row.source, row.phase
+  ]
+  try {
+    await db.execute(SQL_INSERT_MODEL_CHOICE, values)
+  } catch (err) {
+    if (!devFallbackEnabled(err)) { throw err }
+    _warnFallback('recordModelChoice', err)
+    const all = _devReadAll()
+    all.modelChoices.push({
+      advisor_id: row.advisorId,
+      advisor_name: row.advisorName || null,
+      firm_id: row.firmId,
+      domain: row.domain || null,
+      model_route: row.modelRoute || null,
+      declined,
+      source: row.source,
+      phase: row.phase,
+      chosen_at: _now()
+    })
+    _devWriteAll(all)
+  }
+}
+
+/**
+ * The model choices a scope may read.
+ *
+ * @param {string|null} firmId - one firm's rows, or null for every firm. The ROUTE
+ *   decides which, from the caller's own verified tier — never the caller's request.
+ * @returns {Promise<object[]>} rows, newest first
+ */
+async function readModelChoices (firmId) {
+  try {
+    const [rows] = firmId
+      ? await db.execute(SQL_MODEL_CHOICES_FIRM, [firmId])
+      : await db.execute(SQL_MODEL_CHOICES_ALL)
+    return rows
+  } catch (err) {
+    if (!devFallbackEnabled(err)) { throw err }
+    _warnFallback('readModelChoices', err)
+    const all = _devReadAll()
+    return all.modelChoices
+      .filter(r => !firmId || r.firm_id === firmId)
+      .sort((a, b) => String(b.chosen_at).localeCompare(String(a.chosen_at)))
+      .slice(0, 2000)
+  }
+}
+
+/**
  * Record a completed course session.
  *
  * The DB has a unique key on (advisor_id, course_id, session_index) and uses
@@ -622,7 +717,7 @@ function _devReadAll () {
   try {
     raw = fs.readFileSync(DEV_ACTIVITY_FILE, 'utf8')
   } catch (e) {
-    if (e.code === 'ENOENT') { return { vaSessions: [], courseSessions: [], cpdClaims: [] } }
+    if (e.code === 'ENOENT') { return { vaSessions: [], courseSessions: [], cpdClaims: [], modelChoices: [] } }
     throw e
   }
   const parsed = JSON.parse(raw)
@@ -631,7 +726,10 @@ function _devReadAll () {
     courseSessions: Array.isArray(parsed.courseSessions) ? parsed.courseSessions : [],
     // Absent in every dev file written before CPD claims existed — an older file is
     // simply an advisor with no claims yet, not a fault.
-    cpdClaims: Array.isArray(parsed.cpdClaims) ? parsed.cpdClaims : []
+    cpdClaims: Array.isArray(parsed.cpdClaims) ? parsed.cpdClaims : [],
+    // Same again for model choices (item 7.5), absent in every file written before
+    // 2026-09-16. An older file is a machine that has recorded none yet.
+    modelChoices: Array.isArray(parsed.modelChoices) ? parsed.modelChoices : []
   }
 }
 
@@ -723,7 +821,9 @@ module.exports = {
   readSessionsUnderScope,
   readAdoptionByFirm,
   readAdvisorClaims,
+  readModelChoices,
   recordVASession,
+  recordModelChoice,
   recordCourseSession,
   recordCpdClaim,
   withdrawCpdClaim,
