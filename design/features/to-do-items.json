@@ -48,6 +48,21 @@
     "filed at all. A defect we found ourselves still can, because Mike never asked us to stop",
     "reporting bugs; he asked us to stop inventing work.",
     "",
+    "REF — A WHOLE NUMBER IS A SUBJECT, ITS DECIMALS ARE THE JOBS IN IT. Mike's ruling,",
+    "2026-09-15: 7 is the AI advisory engine, so 7.1/7.2/7.3 are engine jobs and NOTHING",
+    "else may start with 7. A new job on an existing subject takes the next free decimal of",
+    "that parent; a job belonging to no subject is a new parent, and that is a real event.",
+    "The ten parents, and the 2026-09-15 renumber, are design/ITEM-NUMBERING.md.",
+    "",
+    "TAKE A NEW NUMBER FROM `npm run check:branch`, NEVER from this file. It reads every",
+    "machine's branch; this file is one branch's view and cannot see the other's. Guessing",
+    "produced ELEVEN duplicated refs - 4.81, 4.88-4.92 and 4.94 each name two unrelated",
+    "jobs in the archive, where the uniqueness guard below does not reach.",
+    "",
+    "2.x, 3.x, 4.x and 5.1-5.5 ARE CLOSED FAMILIES - the old flat scheme, frozen as history",
+    "because 613 references to those numbers are written into 279 code files. Never reissue",
+    "one, and never renumber one.",
+    "",
     "SCORE — 5 security/privacy/data integrity · 4 the user is worse off · 3 helps",
     "sell the package · 2 robustness · 1 internal only · 0 is not filed, it is",
     "deleted with its code.",
@@ -60,7 +75,7 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
   "items": [
     {
-      "ref": "4.15",
+      "ref": "7.1",
       "name": "The 14 branches that still name a page nobody can open",
       "kind": "defect",
       "score": 4,
@@ -80,7 +95,7 @@
       "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
     },
     {
-      "ref": "4.58",
+      "ref": "8.1",
       "name": "Meeting Review — three non-coding gates before a first real recording",
       "rankedByMike": false,
       "kind": "feature",
@@ -101,7 +116,7 @@
       "comment": "2026-09-01 - filed; screens approved; slices 1-2 built. 2026-09-02 - slice 3, the types cascade, renumbered from 4.56; two rules Mike never made deleted (Brief P14). 2026-09-07 - the manager aggregate, transcript expiry and follow-through. 2026-09-08 - meeting-types slice 3 and slice 4's advisor half. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day on his instruction, closing §4 item 7. Two of its eight rulings reversed the recommendation: the advisor ALONE releases, so a request spanning several advisors is answered by each in turn. 2026-09-12 - the OpenAI letter sent; its reply closes DPIA finding A."
     },
     {
-      "ref": "4.86",
+      "ref": "11.1",
       "name": "Adviser Network runs on nine invented people and forgets every decision in production",
       "rankedByMike": false,
       "kind": "defect",
@@ -119,10 +134,10 @@
       },
       "touches": "server/collaborate/data/repository.js, the master team's seam by Mike's 2026-08-15 ruling on 4.8; config/db-schema.sql COLLABORATE tables; design/MASTER-TEAM-INTEGRATION-EMAIL.md question 7.",
       "note": "DO NOT WIRE THE SEAM FROM HERE. The repository header names the master team as the only party to change it, and Mike ruled 2026-08-15 that only they can complete it once the stubs exist. The dev-only snapshot (devStore.js) hides this on a developer's machine; NODE_ENV=production, which the UAT pack recommends, reads and writes nothing by design. Closes when their reply to question 7 names where identity lives and they wire the two identity functions; our tables can follow through the same seam.",
-      "comment": "2026-09-10 - filed on Mike's yes after the wiring was proposed and then stopped on the evidence above. Numbered after the laptop's 4.85 (3492421); renumber here if the laptop files a 4.86 the same day."
+      "comment": "2026-09-10 - filed on Mike's yes after the wiring was proposed and then stopped on the evidence above. Was 4.86; renumbered to 11.1 on 2026-09-15 when a number became a statement of what a job belongs to - see design/ITEM-NUMBERING.md."
     },
     {
-      "ref": "4.87",
+      "ref": "9.1",
       "name": "Learning from outcomes across consenting firms - the platform gets smarter with use",
       "rankedByMike": false,
       "activeOn": {
@@ -147,7 +162,7 @@
       "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
     },
     {
-      "ref": "4.104",
+      "ref": "5.1",
       "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,
       "kind": "feature",
@@ -164,11 +179,11 @@
         "detail": "2026-09-14 - 'buile the wages model into the perf report section', then 'look in here - C:\\Documents\\Visual Code Projects\\Perf Report and you will see a model named wages' when told it was not in the repository, then yes to drawing it before any code."
       },
       "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
-      "note": "THE REGISTER'S GATE IS BUILT 2026-09-15 - three states, both switches, artefact mockups/wages-register-gate.html approved the same day. THE REGISTER TABLE IS BUILT 2026-09-15 - drawn, approved, all four questions ruled, and three faults found in the workbook's liability column, so the port does NOT reproduce its 63,154. ONE PIECE WAITS: the Firm Manager control for the retention dial needs FirmManagerHub.vue, which is 4.87's and active on the desktop. THE PAYROLL READER IS ITS OWN ITEM, 4.103. Built 2026-09-14: all five steps, the report, the catalogue row, the overtime declaration, income tax bands as the FIFTH Tax Rates figure, and the two rate converters on step 1 after Mike dropped the tab. Record: report-models.md, tax-rates.md.",
-      "comment": "2026-09-14 - filed, all nine decisions ruled, the engine built, then all five steps, the report and the catalogue row in the same day. Two rulings reversed our recommendation: the payroll import, and retention. Mike found the added-person sort fault by testing it himself. Renumbered 4.97 to 4.100 to 4.104, the desktop having closed a different 4.100. 2026-09-15 - the gate built and walked in a running app, which found what 10,819 tests could not: three stores reached firmOverlay with no dev fallback, so the gate was dead on any machine without MySQL and a shipped feature showed an error on every report page. Mike ruled the switch turns both ways."
+      "note": "THE REGISTER'S GATE IS BUILT 2026-09-15 - three states, both switches, artefact mockups/wages-register-gate.html approved the same day. THE REGISTER TABLE IS BUILT 2026-09-15 - drawn, approved, all four questions ruled, and three faults found in the workbook's liability column, so the port does NOT reproduce its 63,154. ONE PIECE WAITS: the Firm Manager control for the retention dial needs FirmManagerHub.vue, which is 9.1's and active on the desktop. THE PAYROLL READER IS ITS OWN ITEM, 5.2. Built 2026-09-14: all five steps, the report, the catalogue row, the overtime declaration, income tax bands as the FIFTH Tax Rates figure, and the two rate converters on step 1 after Mike dropped the tab. Record: report-models.md, tax-rates.md.",
+      "comment": "2026-09-14 - filed, all nine decisions ruled, the engine built, then all five steps, the report and the catalogue row in the same day. Two rulings reversed our recommendation: the payroll import, and retention. Mike found the added-person sort fault by testing it himself. 2026-09-15 - the gate built and walked in a running app, which found what 10,819 tests could not: three stores reached firmOverlay with no dev fallback, so the gate was dead on any machine without MySQL and a shipped feature showed an error on every report page. Mike ruled the switch turns both ways. Was 4.104; renumbered under design/ITEM-NUMBERING.md."
     },
     {
-      "ref": "4.103",
+      "ref": "5.2",
       "name": "Load a payroll report to pre-fill the team",
       "rankedByMike": false,
       "kind": "feature",
@@ -185,12 +200,12 @@
         "detail": "2026-09-14 - 'lets explore having the ability to load a payroll report to speed up the process of loading data on the team', then ruled as decision 4. Kept as its own item on his instruction of 2026-09-14."
       },
       "touches": "server/report/intake/supportedPackages.js and a new reader beside it, components/WagesTeam.vue (the pre-fill target), and design/mockups/wages-model.html decision 4.",
-      "note": "A PRE-FILL INTO THE TYPED TEAM SCREEN, NEVER AN ALTERNATIVE ROUTE IN - Mike's decision 4, 2026-09-14. A payroll report knows what a person COSTS but can never know the charge-out rate or the daily production efficiency, and the margin is charge rate minus pay rate, so a standalone import would finish and leave a model that cannot compute its own answer. BLOCKED ON MIKE: per supportedPackages.js no package may be called supported until a REAL export has been read. Kept as its own item so it does not close with 4.104.",
-      "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 4.104 where it was a line in the note. An item that lives inside another item closes with it."
+      "note": "A PRE-FILL INTO THE TYPED TEAM SCREEN, NEVER AN ALTERNATIVE ROUTE IN - Mike's decision 4, 2026-09-14. A payroll report knows what a person COSTS but can never know the charge-out rate or the daily production efficiency, and the margin is charge rate minus pay rate, so a standalone import would finish and leave a model that cannot compute its own answer. BLOCKED ON MIKE: per supportedPackages.js no package may be called supported until a REAL export has been read. Kept as its own item so it does not close with 5.1.",
+      "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 5.1 where it was a line in the note. An item that lives inside another item closes with it. Was 4.103; renumbered under design/ITEM-NUMBERING.md."
     },
     {
-      "ref": "4.101",
-      "name": "Startup is blind to the other machine's branch - the handover, and the numbers",
+      "ref": "14.2",
+      "name": "Startup is blind to the other machine's branch - the handover",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -198,16 +213,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Two faults, one cause: a session reads the other machine's branch for nothing it needs. The handover comes from the reader's own branch, and item numbers were guessed from it.",
-      "risk": "A session reports the other division as idle when it is not: on 2026-09-14 the desktop was called stale since 2026-09-10 when its note was two days newer and sitting on its own branch. The same blindness gave two different items one number, eight times. The files exist and parse, so no check can notice.",
+      "why": "A session reads the other machine's branch for nothing it needs, so the handover it compares dates against comes from the reader's own branch.",
+      "risk": "A session reports the other division as idle when it is not: on 2026-09-14 the desktop was called stale since 2026-09-10 when its note was two days newer and sitting on its own branch. The files exist and parse, so no check can notice.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-09-14 - found at shutdown when the desktop's branch was read directly and its note turned out to be two days newer than the copy startup had read. Filed on Mike's yes. A defect we found, not a feature nobody asked for."
       },
-      "touches": "scripts/ref-ceiling.js and tests/unit/refCeiling.test.js (built), the ceilingReport in scripts/check-branch-state.js, and for the half still open, .claude/commands/startup.md step 4 and design/WORKING-AGREEMENT.md, where the same instruction lives.",
-      "note": "THE NUMBERING HALF WAS BUILT TWICE - ours 2026-09-14, and again on PR #93 (fix/item-number-ceiling, off master), which supersedes it and carries Mike's parent-number scheme in design/ITEM-NUMBERING.md. scripts/ref-ceiling.js, tests/unit/refCeiling.test.js and scripts/check-branch-state.js all differ between the two branches, so EITHER merge order collides on all three: take #93's versions when master comes in, and do not delete ours before it lands or check:branch breaks here. THE HANDOVER HALF REMAINS - the same script can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date, and startup would then read a current note instead of a stale copy. Until it does, a session comparing handover dates must read the other machine's branch directly, not the working tree.",
-      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it. Renumbered from 4.98 on Mike's yes: the desktop had filed a different 4.98 the same day. Widened the same day, on his yes, to cover the numbering blindness that caused the renumber, and its half built. 2026-09-15 - found at shutdown that PR #93 had built the same half independently; recorded rather than resolved, since deleting ours before it lands breaks check:branch on this machine."
+      "touches": "scripts/check-branch-state.js, where the ceilingReport already reads every branch, and .claude/commands/startup.md step 4 with design/WORKING-AGREEMENT.md, where the same instruction lives.",
+      "note": "THE NUMBERING HALF IS CLOSED. PR #93 built it independently and its versions of scripts/ref-ceiling.js, tests/unit/refCeiling.test.js and scripts/check-branch-state.js came in with master on 2026-09-15, superseding ours; the scheme behind it is design/ITEM-NUMBERING.md. THE HANDOVER HALF REMAINS - the same script can read design/HANDOVER-<machine>.md from origin/<their branch> and print its date, and startup would then read a current note instead of a stale copy. Until it does, a session comparing handover dates must read the other machine's branch directly, not the working tree.",
+      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after this session reported the false staleness at startup and then wrote it into a handover before catching it. Widened the same day, on his yes, to cover the numbering blindness, and that half built. 2026-09-15 - master came in carrying PR #93, which had built the same half; its versions were taken and ours dropped, so only the handover half is left. Was 4.101; renumbered under design/ITEM-NUMBERING.md."
     }
   ]
 }

@@ -148,7 +148,7 @@ function activeReport (currentBranch) {
 /**
  * Rule 5 (report only) — the highest item number in use across BOTH machines.
  *
- * Item 4.101, found 2026-09-14: each machine allocates the next number from its own
+ * Item 14.2, found 2026-09-14: each machine allocates the next number from its own
  * branch and cannot see the other's, so both pick the same one. Eight refs have been
  * duplicated that way. The ceiling is a read where there used to be a guess.
  *
