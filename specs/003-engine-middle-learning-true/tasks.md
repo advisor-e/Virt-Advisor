@@ -192,32 +192,39 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 **Independent Test**: quickstart Story 8.
 
-> 🔴 **PART-DONE 2026-09-15, AND DELIBERATELY STOPPED THERE.** T049 and T053 are complete.
-> T050/T051/T052 are done for **six of eight files** — `hubReading`, `complianceCheck`,
-> `promptCheck`, `cases` + `anonymiseCase`, `meetingReports` — each routed through the seam,
-> its model taken from the one role map, and its log line carrying `logSuffix`.
+> ✅ **T050 AND T051 ARE COMPLETE — ALL EIGHT FILES ARE THROUGH THE SEAM (2026-09-15).** The
+> last two, `server/advisorEngine.js` (10 sites, 4 streaming) and `server/courseEngine.js`
+> (4 sites, 2 streaming), were routed with their ruled classes: `advisorEngine` is
+> **personal: true** (Mike, 2026-09-15: the advisor is describing a real client in their own
+> words), `courseEngine` is **personal: false** (a firm's own course profile and answers).
+> Every hardcoded model literal is gone — the advisor file's eleven `gpt-4o-mini` and the
+> course file's four `gpt-4o` now come from the role map via `classify`/`narrative`/`course`.
 >
-> **WHAT REMAINS: `server/advisorEngine.js` (10 sites, 4 streaming) and
-> `server/courseEngine.js` (4 sites, 2 streaming).** Their classes are RULED, so nothing has
-> to be re-argued — `advisorEngine` is **personal: true** (Mike, 2026-09-15: the advisor is
-> describing a real client in their own words), `courseEngine` is **personal: false** (a
-> firm's own course profile and answers). Both are written at the head of
-> `tests/unit/aiCallSitesPersonal.test.js`; add them to its `SITES` list when they are routed.
+> 🔴 **PROVED ON THE RUNNING APP, WHICH IS THE ONLY THING THAT COULD PROVE IT.** A streaming
+> call that breaks does not fail cleanly — it half-works, drops tokens mid-sentence, or hangs
+> — so the suite cannot speak to it. **27 live OpenAI calls across 8 distinct sites**, every
+> one `status=ok` carrying `provider=openai fallback=none`, zero failures: `intake`,
+> `discover`, `learn`, `learn-tree-pick`, `domain-classify`, `domain-confirm`,
+> `course:quiz-generate`, `course:quiz-grade`. The intake stream was watched arriving token by
+> token and closing on `done`. The role map was confirmed live by the course sites logging
+> `model=gpt-4o` while the advisor sites logged `gpt-4o-mini`.
 >
-> **Why they were left, and it is not tiredness.** A streaming call that breaks does not fail
-> cleanly — it half-works, drops tokens mid-sentence, or hangs — and six of `advisorEngine`'s
-> ten sites are the live advisor conversation. Converting them means driving the running app
-> and holding a real conversation through it, which is the standard `feedback_walk_the_conversation`
-> sets and is a session's work, not a tail-end task. **Nothing is half-converted: the seam is
-> additive, so an unrouted file calls OpenAI exactly as it always has.**
+> ⚠ **One path was proved at the endpoint, not through the screen:** the Phase 3 streamed
+> recommendation. The browser walk answered fifteen questions and two click-pickers without
+> reaching it. Worth a click-through when someone is next in the app.
 >
-> **Worth doing while in there:** six call sites have NO success log at all, which CLAUDE.md
-> requires — all four in `courseEngine`, plus `advisorEngine`'s `pickLearnTreeAI` and its
-> intake stream. The two found in the six converted files were fixed as part of this.
+> **Six call sites had NO success log at all**, which CLAUDE.md requires — all four in
+> `courseEngine` (which had no `logAI` of any kind; one was added), plus `advisorEngine`'s
+> `pickLearnTreeAI` and its intake stream. All six now log, and both silent ones were seen
+> logging live.
+>
+> **Found by the suite, fixed in the same change:** `tests/unit/issueProposedFlow.test.js`
+> mocked `aiProvider` without `logSuffix`, so the engine threw inside its own logger. The real
+> module exports it; the mock was short.
 
 - [x] T049 [P] [US8] Write `tests/unit/aiCallSitesPersonal.test.js` — reads every backend call site through the seam and asserts the `personal` flag per research R8's table (the three personal sites are `true`; the four advisor-conversation sites are `false` per Mike's ruling); asserts the Responses-API and audio sites do not go through the seam and log `fallback=none`
-- [ ] T050 [US8] Move the eleven hardcoded model names into the role map: `server/advisorEngine.js` (classify, narrative), `server/courseEngine.js` (course), `server/utils/anonymiseCase.js`, `server/utils/hubReading.js` (reading), `server/routes/promptCheck.js` (review), `server/utils/meetingReports.js` (report), `server/utils/complianceCheck.js` (compliance), `server/routes/nextStepsDraft.js` (draft), `server/routes/economicAnalysis.js` (research), `server/utils/depreciationExtract.js` (extract); each reads `AI.models[role]`
-- [ ] T051 [US8] Route the 21 chat-completions call sites through `aiProvider.getClient(role)` with `{ personal }` per the table: `server/advisorEngine.js` (10 sites), `server/courseEngine.js` (4), `server/routes/cases.js` → `anonymiseCase` (personal), `server/utils/hubReading.js`, `server/routes/promptCheck.js`, `server/utils/complianceCheck.js`, `server/utils/meetingReports.js` (2, personal); keep every existing validator and failure path; append `logSuffix` to every AI log line, and add a `logAI` line to `pickLearnTreeAI` which has none
+- [x] T050 [US8] Move the eleven hardcoded model names into the role map: `server/advisorEngine.js` (classify, narrative), `server/courseEngine.js` (course), `server/utils/anonymiseCase.js`, `server/utils/hubReading.js` (reading), `server/routes/promptCheck.js` (review), `server/utils/meetingReports.js` (report), `server/utils/complianceCheck.js` (compliance), `server/routes/nextStepsDraft.js` (draft), `server/routes/economicAnalysis.js` (research), `server/utils/depreciationExtract.js` (extract); each reads `AI.models[role]`
+- [x] T051 [US8] Route the 21 chat-completions call sites through `aiProvider.getClient(role)` with `{ personal }` per the table: `server/advisorEngine.js` (10 sites), `server/courseEngine.js` (4), `server/routes/cases.js` → `anonymiseCase` (personal), `server/utils/hubReading.js`, `server/routes/promptCheck.js`, `server/utils/complianceCheck.js`, `server/utils/meetingReports.js` (2, personal); keep every existing validator and failure path; append `logSuffix` to every AI log line, and add a `logAI` line to `pickLearnTreeAI` which has none
 - [ ] T052 [US8] Record the provider: `trace.ai.provider` from the recommendation call in `server/advisorEngine.js`; a `provider` sibling to `model` on the stored meeting reports, hub reading and transcript (`transcriptionClient` reports `openai`); `components/VirtualAdvisor.vue` renders the *Answered by* line per the approved trace drawing
 - [x] T053 [US8] For the four no-fallback sites (`server/routes/economicAnalysis.js`, `server/utils/depreciationExtract.js`, `server/utils/countryScheduleRead.js`, `server/routes/meetingReview.js` transcription) append `provider=openai fallback=none` to their log lines and a one-line comment naming why no fallback exists
 

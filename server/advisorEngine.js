@@ -9,7 +9,6 @@
 const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
-const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
 // Item 4.31 step 4 — the material a level has put in force for itself, plus what it has
@@ -149,12 +148,11 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
   const _t0 = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 80,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    })
-    logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, true, response.usage)
+    }, { personal: true })
+    logAI(label || 'distinction-classify', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     // A reply we cannot READ is not "matched nothing" either — same defect one level
     // down. The prompt asks for {"matches":[]} when none apply, so a genuine no-match
     // always parses; a truncated, empty or prose reply does not, and used to fall
@@ -168,7 +166,7 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
     }
     return { ok: true, rows: parsed.matches.map(id => rows[Number(id) - 1]).filter(Boolean) }
   } catch (_e) {
-    logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, false, null)
+    logAI(label || 'distinction-classify', CLASSIFY_MODEL(), _t0, false, null, null)
     // The rows stay empty so a live session still degrades gracefully — but `ok:false`
     // travels with them so nothing downstream can call this a result.
     return { ok: false, rows: [] }
@@ -289,15 +287,14 @@ Return ONLY a JSON object {"domain":"<id>"} using exactly one id from the list a
   const _t0 = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 30,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    })
-    logAI('domain-classify', 'gpt-4o-mini', _t0, true, response.usage)
+    }, { personal: true })
+    logAI('domain-classify', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     return parseDomainClassification(response.choices[0]?.message?.content || '{}', validIds)
   } catch (_e) {
-    logAI('domain-classify', 'gpt-4o-mini', _t0, false, null)
+    logAI('domain-classify', CLASSIFY_MODEL(), _t0, false, null, null)
     return null
   }
 }
@@ -335,15 +332,14 @@ Return ONLY {"distress":true} if the business is at imminent risk of failing, ot
   const _t0 = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 20,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    })
-    logAI('distress-read', 'gpt-4o-mini', _t0, true, response.usage)
+    }, { personal: true })
+    logAI('distress-read', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     return parseDistressRead(response.choices[0]?.message?.content || '{}')
   } catch (_e) {
-    logAI('distress-read', 'gpt-4o-mini', _t0, false, null)
+    logAI('distress-read', CLASSIFY_MODEL(), _t0, false, null, null)
     return false
   }
 }
@@ -522,19 +518,18 @@ Return ONLY the chosen question — no preamble, no explanation, no additional t
   const _t0mf = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 50,
       messages: [
         { role: 'system', content: systemPrompt },
         ...conversationHistory.slice(-6),
         { role: 'user', content: 'Choose and return the single most appropriate question.' }
       ]
-    })
-    logAI('moving-forward', 'gpt-4o-mini', _t0mf, true, response.usage)
+    }, { personal: true })
+    logAI('moving-forward', CLASSIFY_MODEL(), _t0mf, true, response.usage, response)
     const returned = (response.choices[0]?.message?.content || '').trim()
     return MOVING_FORWARD_OPTIONS.find(q => returned.includes(q.slice(0, 20))) || MOVING_FORWARD_OPTIONS[0]
   } catch (e) {
-    logAI('moving-forward', 'gpt-4o-mini', _t0mf, false, null)
+    logAI('moving-forward', CLASSIFY_MODEL(), _t0mf, false, null, null)
     return MOVING_FORWARD_OPTIONS[0]
   }
 }
@@ -636,14 +631,30 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   ].filter(Boolean).join('\n') + profileText
 }
 
-let openaiClient = null
+// 🔴 THE ADVISOR CONVERSATION IS PERSONAL (Mike's ruling, 2026-09-15): the advisor is
+// describing a real client in their own words, so every call from this file states
+// `personal: true` and will NOT fall back to an uncleared provider — the feature fails
+// exactly as it does today rather than routing a client's words somewhere new.
+//
+// Two roles, two clients: `classify` for the short judgement calls, `narrative` for the
+// conversation the advisor reads. Both come from the one role map; no model name is written
+// in this file any more (4.97 US8/T050).
+let _classifyClient = null
+let _narrativeClient = null
 
 function getOpenAI () {
-  if (!openaiClient) {
-    openaiClient = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY })
-  }
-  return openaiClient
+  if (!_classifyClient) { _classifyClient = aiProvider.getClient('classify') }
+  return _classifyClient
 }
+
+function getNarrativeAI () {
+  if (!_narrativeClient) { _narrativeClient = aiProvider.getClient('narrative') }
+  return _narrativeClient
+}
+
+/** The model each role uses, read at call time so a test changing the environment is obeyed. */
+const CLASSIFY_MODEL = () => aiProvider.modelFor(AI.primary, 'classify')
+const NARRATIVE_MODEL = () => aiProvider.modelFor(AI.primary, 'narrative')
 
 /**
  * AI-assisted coaching-tree selection for Learn mode. The deterministic keyword
@@ -680,13 +691,16 @@ async function pickLearnTreeAI (advisorText, firmTrees) {
   const system = 'You match an advisor to the single most relevant coaching guide for what they want help with. The advisor text may contain speech-to-text errors — read it for meaning (e.g. "ND year" / "India meeting" means "end of year"). The advisor\'s messages are ordered NEWEST FIRST — the first line is what they want help with NOW and outweighs everything after it; later lines are older context, and when the newest line changes topic, follow the newest line. Reply with ONLY the guide id exactly as written in the list, or the word none if nothing clearly fits. No other words.'
   const user = `Coaching guides:\n${menu}\n\nThe advisor said (newest message first):\n${fenceUntrusted(advisorText.slice(0, 1000))}\n\nWhich one guide id best fits?`
 
+  const _t0pick = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       temperature: 0,
       max_tokens: 20,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }]
-    })
+    }, { personal: true })
+    // This call had NO success log at all until 4.97 US8, which CLAUDE.md requires of every
+    // LLM call. Its failure path logged; its successes were invisible.
+    logAI('learn-tree-pick', CLASSIFY_MODEL(), _t0pick, true, response.usage, response)
     const raw = (response.choices && response.choices[0] && response.choices[0].message && response.choices[0].message.content) || ''
     const out = raw.trim().toLowerCase().replace(/[^a-z0-9_]+/g, ' ').trim()
     const tokens = out ? out.split(/\s+/) : []
@@ -694,6 +708,7 @@ async function pickLearnTreeAI (advisorText, firmTrees) {
     const match = learnTrees.find(t => out === t.id || tokens.includes(t.id))
     return match || null
   } catch (err) {
+    logAI('learn-tree-pick', CLASSIFY_MODEL(), _t0pick, false, null, null)
     console.error('[advisor] learn tree AI-pick failed:', err.message)
     return null
   }
@@ -817,12 +832,14 @@ function scrubAdvisorHallucinations (text) {
 
 // Logs a completed OpenAI call to stderr for operational monitoring.
 // Always on (not gated by VA_DEBUG) — lightweight, one line per call.
-function logAI (label, model, startTime, success, usage) {
+// Carries which provider answered since 4.97 US8, so a session's provider is readable after
+// the fact; `reply` is the reply object (or null on a failure) and nothing else is read from it.
+function logAI (label, model, startTime, success, usage, reply) {
   const latency = Date.now() - startTime
   const tokens = usage
     ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens} total=${usage.total_tokens}`
     : 'tokens=unknown'
-  console.log(`[openai] ${label} model=${model} status=${success ? 'ok' : 'error'} latency=${latency}ms ${tokens}`)
+  console.log(`[openai] ${label} model=${model} status=${success ? 'ok' : 'error'} latency=${latency}ms ${tokens} ${aiProvider.logSuffix(reply || null)}`)
 }
 
 const BODY_LIMIT = 256 * 1024 // 256 KB — protects against memory-exhaustion DoS
@@ -1215,16 +1232,15 @@ ${causeText.slice(0, 1500)}
   const _t0 = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 160,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    })
-    logAI('domain-confirm', 'gpt-4o-mini', _t0, true, response.usage)
+    }, { personal: true })
+    logAI('domain-confirm', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     const out = (response.choices[0]?.message?.content || '').trim()
     return _isValidConfirmation(out, detected.label) ? out : fallbackText
   } catch (_e) {
-    logAI('domain-confirm', 'gpt-4o-mini', _t0, false, null)
+    logAI('domain-confirm', CLASSIFY_MODEL(), _t0, false, null, null)
     return fallbackText
   }
 }
@@ -2607,20 +2623,26 @@ async function handleQuery (rawBody, res, identity) {
         intakeMessages = buildIntakeMessages('close', {}, conversationHistory)
       }
 
+      const _t0intake = Date.now()
+      let _intakeOk = false
+      let _intakeStream = null
       try {
-        const intakeStream = await getOpenAI().chat.completions.create({
-          model: 'gpt-4o-mini',
+        _intakeStream = await getNarrativeAI().chat.completions.create({
           messages: intakeMessages,
           stream: true,
           max_tokens: 400
-        })
-        for await (const chunk of intakeStream) {
+        }, { personal: true })
+        for await (const chunk of _intakeStream) {
           const text = chunk.choices[0]?.delta?.content || ''
           if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
         }
+        _intakeOk = true
       } catch (intakeErr) {
         console.error('[advisor] Intake stream error:', intakeErr.message)
       }
+      // No success log here until 4.97 US8 — the intake was the first thing an advisor saw
+      // and the only AI call in the product that left no trace when it worked.
+      logAI('intake', NARRATIVE_MODEL(), _t0intake, _intakeOk, null, _intakeStream)
       res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       if (sessionId) { sessionSave(sessionId, state) }
       if (!res.writableEnded) { res.end() }
@@ -2872,15 +2894,16 @@ async function handleQuery (rawBody, res, identity) {
       let _postUsage = null
       let _postOk = false
       let _postBuffer = ''
+      let _postStream = null
       const _postMessages = [{ role: 'system', content: (isLearnRequest ? loadPrompt('learn') : loadPrompt('client')) + postRecInstruction }, ...messagesPost]
       try {
-        const streamPost = await getOpenAI().chat.completions.create({
-          model: 'gpt-4o-mini',
+        const streamPost = await getNarrativeAI().chat.completions.create({
           max_tokens: 1500,
           stream: true,
           stream_options: { include_usage: true },
           messages: _postMessages
-        })
+        }, { personal: true })
+        _postStream = streamPost
         for await (const chunk of streamPost) {
           if (chunk.usage) { _postUsage = chunk.usage }
           const text = chunk.choices[0]?.delta?.content || ''
@@ -2912,7 +2935,7 @@ async function handleQuery (rawBody, res, identity) {
           try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
         }
       } finally {
-        logAI('client-post-rec', 'gpt-4o-mini', _t0post, _postOk, _postUsage)
+        logAI('client-post-rec', NARRATIVE_MODEL(), _t0post, _postOk, _postUsage, _postStream)
         if (!res.writableEnded) { res.end() }
       }
       return
@@ -3670,19 +3693,20 @@ async function handleQuery (rawBody, res, identity) {
     let _p3Usage = null
     let _p3Ok = false
     let _p3Buffer = ''
+    let _p3Stream = null
     // How much of _p3Buffer has been streamed. The response ends with a machine-readable
     // marker declaring what was recommended; it must NEVER reach the advisor, not even for
     // the instant between arriving and the final rewrite.
     let _p3Sent = 0
     const _p3Messages = [{ role: 'system', content: systemPrompt2 }, ...messages2]
     try {
-      const stream2 = await getOpenAI().chat.completions.create({
-        model: 'gpt-4o-mini',
+      const stream2 = await getNarrativeAI().chat.completions.create({
         max_tokens: 2500,
         stream: true,
         stream_options: { include_usage: true },
         messages: _p3Messages
-      })
+      }, { personal: true })
+      _p3Stream = stream2
       for await (const chunk of stream2) {
         if (chunk.usage) { _p3Usage = chunk.usage }
         const text = chunk.choices[0]?.delta?.content || ''
@@ -3747,7 +3771,7 @@ async function handleQuery (rawBody, res, identity) {
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
       }
     } finally {
-      logAI('client-phase3', 'gpt-4o-mini', _t0phase3, _p3Ok, _p3Usage)
+      logAI('client-phase3', NARRATIVE_MODEL(), _t0phase3, _p3Ok, _p3Usage, _p3Stream)
       if (!res.writableEnded) { res.end() }
     }
     return
@@ -3798,8 +3822,8 @@ async function handleQuery (rawBody, res, identity) {
   // found at scale.
   const firmContributionsText = formatContributionsForPrompt(firmContributions)
 
-  // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
-  const model = 'gpt-4o-mini'
+  // The conversational model, from the one role map rather than a literal here (4.97 US8/T050).
+  const model = NARRATIVE_MODEL()
 
   // Summaries only apply to Do the Job templates — skip for plan/learn modes.
   // Also defer until conversation is deep enough to be approaching a recommendation.
@@ -3976,20 +4000,19 @@ async function handleQuery (rawBody, res, identity) {
   let stream
   const _mainMessages = [{ role: 'system', content: systemPrompt }, ...messages]
   try {
-    stream = await getOpenAI().chat.completions.create({
-      model,
+    stream = await getNarrativeAI().chat.completions.create({
       max_tokens: 2500,
       stream: true,
       stream_options: { include_usage: true },
       messages: _mainMessages
-    })
+    }, { personal: true })
   } catch (createErr) {
     console.error('[advisor] OpenAI stream create error:', createErr.message)
     if (!res.writableEnded) {
       try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Could not reach AI service' }) + '\n\n') } catch (e) {}
       res.end()
     }
-    logAI(mode, model, _t0main, false, null)
+    logAI(mode, model, _t0main, false, null, null)
     return
   }
 
@@ -4022,7 +4045,7 @@ async function handleQuery (rawBody, res, identity) {
       try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
     }
   } finally {
-    logAI(mode, model, _t0main, _mainOk, _mainUsage)
+    logAI(mode, model, _t0main, _mainOk, _mainUsage, stream)
     if (!res.writableEnded) { res.end() }
   }
 }

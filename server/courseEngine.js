@@ -13,7 +13,8 @@
 
 const fs = require('fs')
 const path = require('path')
-const { createOpenAIClient } = require('../server/utils/openaiClient')
+const { getClient, modelFor, logSuffix } = require('../server/utils/aiProvider')
+const { AI } = require('../config/integration')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { loadEffectiveTemplates } = require('../server/utils/templateLibrary')
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
@@ -35,11 +36,36 @@ const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = requi
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const CourseReminderService = require('../server/services/CourseReminderService')
 
-// OpenAI singleton — one client per process, avoids creating a new connection pool on every request
+// OpenAI singleton — one client per process, avoids creating a new connection pool on every request.
+// Through the provider seam since 4.97 US8: a second provider answers when the first cannot.
 let _openaiClient = null
 function getOpenAI () {
-  if (!_openaiClient) { _openaiClient = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY }) }
+  if (!_openaiClient) { _openaiClient = getClient('course') }
   return _openaiClient
+}
+
+/**
+ * The model for this role, from the one role map (4.97 US8/T050) rather than a literal at each
+ * call site, so a fallback provider can carry its own name for the same job. Read at call time,
+ * not at import, so a test that changes the environment is not fighting module load order.
+ */
+const COURSE_MODEL = () => modelFor(AI.primary, 'course')
+
+/**
+ * One line per completed AI call, which CLAUDE.md requires and all four of this file's call
+ * sites were missing (4.97 US8). Matches `advisorEngine`'s `logAI` so both engines read the
+ * same way in a log, and carries the provider that answered.
+ * @param {string} label - the call site, e.g. 'course:design'
+ * @param {number} startTime - Date.now() before the call
+ * @param {boolean} success
+ * @param {Object|null} usage - the reply's usage block, when there is one
+ * @param {Object|null} [reply] - the reply, for the provider it carries
+ */
+function logAI (label, startTime, success, usage, reply) {
+  const tokens = usage
+    ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens} total=${usage.total_tokens}`
+    : 'tokens=unknown'
+  console.log(`[openai] ${label} model=${COURSE_MODEL()} status=${success ? 'ok' : 'error'} latency=${Date.now() - startTime}ms ${tokens} ${logSuffix(reply || null)}`)
 }
 
 // Lazy firmOverlay accessor (the advisorEngine pattern) — firmOverlay pulls in
@@ -227,17 +253,21 @@ async function handleDesign (req, body, res) {
     sseWrite(res, { type: 'state', state })
 
     let stream
+    const _t0design = Date.now()
+    let _designOk = false
     try {
+      // NOT personal: a firm's own course brief and its template library, never a named
+      // client's situation (Mike's ruling 2026-09-15). Pinned by aiCallSitesPersonal.test.js.
       stream = await openai.chat.completions.create({
-        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage }
         ],
         max_tokens: 2500,
         stream: true
-      }, { timeout: 60000 })
+      }, { timeout: 60000, personal: false })
     } catch (createErr) {
+      logAI('course:design', _t0design, false, null, null)
       console.error('[course:design] OpenAI create failed:', createErr.message)
       // Same user-facing message the session handler sends — the design screen
       // must never end a failed stream with nothing to show (CB-10).
@@ -257,9 +287,11 @@ async function handleDesign (req, body, res) {
           sseWrite(res, { type: 'delta', text: delta })
         }
       }
+      _designOk = true
     } catch (streamErr) {
       console.error('[course:design] Stream error:', streamErr.message)
     }
+    logAI('course:design', _t0design, _designOk, null, stream)
 
     const outlineMatch = fullText.match(/\[COURSE_OUTLINE\]([\s\S]*?)\[\/COURSE_OUTLINE\]/)
     // Commit-only-on-success: until a replacement outline validates, the final
@@ -635,14 +667,17 @@ async function handleSession (req, body, res) {
   sseWrite(res, { type: 'state', state: {} })
 
   let stream
+  const _t0session = Date.now()
+  let _sessionOk = false
   try {
+    // NOT personal: the firm's own course content being delivered back to its advisor.
     stream = await openai.chat.completions.create({
-      model: 'gpt-4o',
       messages,
       max_tokens: 2000,
       stream: true
-    }, { timeout: 45000 })
+    }, { timeout: 45000, personal: false })
   } catch (createErr) {
+    logAI('course:session', _t0session, false, null, null)
     console.error('[course:session] OpenAI create failed:', createErr.message)
     sseWrite(res, { type: 'error', message: 'AI response timed out. Please try again.' })
     sseWrite(res, { type: 'done' })
@@ -655,9 +690,11 @@ async function handleSession (req, body, res) {
       const delta = chunk.choices[0]?.delta?.content || ''
       if (delta) { sseWrite(res, { type: 'delta', text: delta }) }
     }
+    _sessionOk = true
   } catch (streamErr) {
     console.error('[course:session] Stream error:', streamErr.message)
   }
+  logAI('course:session', _t0session, _sessionOk, null, stream)
 
   sseWrite(res, { type: 'done' })
   res.end()
@@ -757,13 +794,15 @@ ${factRequirements}
 Return ONLY valid JSON with no other text:
 ${jsonShape}`
 
+  const _t0gen = Date.now()
   try {
+    // NOT personal: the session's own teaching content, no client in it.
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 600,
       response_format: { type: 'json_object' }
-    })
+    }, { personal: false })
+    logAI('course:quiz-generate', _t0gen, true, completion.usage, completion)
     const data = JSON.parse(completion.choices[0].message.content)
     const result = validateQuizGenerate(data)
     if (!result.valid) {
@@ -779,6 +818,7 @@ ${jsonShape}`
       bank: bank ? { key: bankKey, source: bank.source || null, origin: bank.origin || 'platform' } : null
     })
   } catch (e) {
+    logAI('course:quiz-generate', _t0gen, false, null, null)
     console.error('[course:quiz-generate]', e.message)
     sendError(res, 500, 'QUIZ_GENERATE_FAILED', 'Failed to generate quiz questions')
   }
@@ -847,13 +887,15 @@ Evaluate whether this answer demonstrates understanding of the objective, judged
 
 Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfectly should still pass. A low score must include specific guidance on what to revisit.`
 
+  const _t0grade = Date.now()
   try {
+    // NOT personal: the advisor's own answer to a course question, not a client's situation.
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 300,
       response_format: { type: 'json_object' }
-    })
+    }, { personal: false })
+    logAI('course:quiz-grade', _t0grade, true, completion.usage, completion)
     const data = JSON.parse(completion.choices[0].message.content)
     const result = validateQuizGrade(data)
     if (!result.valid) {
@@ -871,6 +913,7 @@ Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfect
     }
     jsonResponse(res, 200, payload)
   } catch (e) {
+    logAI('course:quiz-grade', _t0grade, false, null, null)
     console.error('[course:quiz-grade]', e.message)
     sendError(res, 500, 'QUIZ_GRADE_FAILED', 'Failed to grade answer')
   }

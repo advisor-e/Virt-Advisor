@@ -26,7 +26,11 @@ jest.mock('../../server/utils/aiProvider', () => ({
   getClient: () => ({
     chat: { completions: { create: (...args) => mockCreate(...args) } }
   }),
-  modelFor: () => 'test-model'
+  modelFor: () => 'test-model',
+  // Every AI log line in the engine carries which provider answered (4.97 US8). A mock
+  // missing this made the engine throw inside its own logger, which is a failure the real
+  // module cannot have — it exports it.
+  logSuffix: () => 'provider=test fallback=none'
 }))
 
 const {

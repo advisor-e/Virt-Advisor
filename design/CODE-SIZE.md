@@ -5,15 +5,15 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-15 at commit `3bf2b2bd`.**
+> **Measured 2026-09-15 at commit `5c680ee8`.**
 
-**Working code: 95,920 lines** across 461 files — blank lines and
+**Working code: 96,144 lines** across 462 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
-| Screens and components (`components`) | 151 | 47,485 | 14,586 |
-| The Restify backend (`server`) | 216 | 43,078 | 31,789 |
+| Screens and components (`components`) | 151 | 47,543 | 14,643 |
+| The Restify backend (`server`) | 217 | 43,244 | 31,970 |
 | Front-end helpers (`utils`) | 30 | 2,089 | 1,789 |
 | Pages (`pages`) | 41 | 1,701 | 858 |
 | Mixins (`mixins`) | 11 | 1,023 | 354 |
@@ -22,18 +22,18 @@ comment lines stripped; tests, design documents, data, scripts and locale string
 | Nuxt configuration (`nuxt.config.js`) | 1 | 91 | 121 |
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **461** | **95,920** | **49,807** |
+| **Total working code** | **462** | **96,144** | **50,045** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
-| JavaScript | 267 | 46,715 |
-| Vue screens and components | 194 | 49,205 |
+| JavaScript | 268 | 46,881 |
+| Vue screens and components | 194 | 49,263 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 49,807 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 535 files, 92,758 lines of test code.
-- **Locale strings**: 6,025 non-blank lines across the language files. Words on screens, not logic.
+- **Comments and documentation** inside those same files: 50,045 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 537 files, 93,267 lines of test code.
+- **Locale strings**: 6,038 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 
 **How a line is classified.** A line is a comment if, once trimmed, it starts with `//`, `*`,
