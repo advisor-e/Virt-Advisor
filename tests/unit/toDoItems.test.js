@@ -67,7 +67,7 @@ describe('the to-do data carries what the list\'s own rules demand', () => {
     })
   })
 
-  // 🔴 THE CAPS. Mike, 2026-09-03, on opening his list and finding item 4.58's comment
+  // 🔴 THE CAPS. Mike, 2026-09-03, on opening his list and finding item 8.1's comment
   // at 1,388 words: seven sessions had each appended an "UPDATED …" paragraph beneath
   // the last, and nothing here objected because this file checked that a field EXISTS
   // and never what was in it. The list is for reading; the feature's Brief and history

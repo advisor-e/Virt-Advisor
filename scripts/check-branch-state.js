@@ -25,6 +25,7 @@ var fs = require('fs')
 var path = require('path')
 var branchSurvey = require('./branch-survey')
 var activeItems = require('./active-items')
+var refCeiling = require('./ref-ceiling')
 
 var REPORT_ONLY = process.argv.indexOf('--report') !== -1
 var PROTECTED_BRANCH = 'master'
@@ -144,6 +145,46 @@ function activeReport (currentBranch) {
   bar()
 }
 
+/**
+ * Rule 5 (report only) — the highest item number in use across BOTH machines.
+ *
+ * Item 14.2, found 2026-09-14: each machine allocates the next number from its own
+ * branch and cannot see the other's, so both pick the same one. Eight refs have been
+ * duplicated that way. The ceiling is a read where there used to be a guess.
+ *
+ * This branch is read from the working tree, the others from their remote refs. Report
+ * only, same as the survey and the active list: it can never block a push, including
+ * by throwing.
+ *
+ * @param {string} currentBranch the branch we are standing on
+ */
+function ceilingReport (currentBranch) {
+  var lines = null
+  try {
+    var root = path.resolve(__dirname, '..')
+    var read = function (file) {
+      try {
+        return fs.readFileSync(path.join(root, 'design', 'features', file), 'utf8')
+      } catch (err) {
+        return ''
+      }
+    }
+    lines = refCeiling.ceilingLines(gitSafe, currentBranch, branchSurvey.isCandidate, {
+      live: read('to-do-items.json'),
+      archive: read('to-do-done-and-parked.md')
+    })
+  } catch (err) {
+    return
+  }
+  if (!lines) { return }
+
+  bar()
+  line('🔢 ITEM NUMBERS — the next free one, across both machines')
+  bar()
+  lines.forEach(line)
+  bar()
+}
+
 var branch = gitSafe(['rev-parse', '--abbrev-ref', 'HEAD'])
 
 if (!branch || branch === 'HEAD') {
@@ -220,6 +261,7 @@ if (behind > 0) {
   // start it is exactly when you want the whole picture, not half of it.
   survey(branch)
   activeReport(branch)
+  ceilingReport(branch)
   process.exit(0)
 }
 
@@ -227,4 +269,5 @@ if (behind > 0) {
 line('✔ Branch `' + branch + '`: ' + ahead + ' ahead, 0 behind origin/' + PROTECTED_BRANCH + '.')
 survey(branch)
 activeReport(branch)
+ceilingReport(branch)
 process.exit(0)

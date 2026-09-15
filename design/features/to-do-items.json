@@ -48,6 +48,21 @@
     "filed at all. A defect we found ourselves still can, because Mike never asked us to stop",
     "reporting bugs; he asked us to stop inventing work.",
     "",
+    "REF — A WHOLE NUMBER IS A SUBJECT, ITS DECIMALS ARE THE JOBS IN IT. Mike's ruling,",
+    "2026-09-15: 7 is the AI advisory engine, so 7.1/7.2/7.3 are engine jobs and NOTHING",
+    "else may start with 7. A new job on an existing subject takes the next free decimal of",
+    "that parent; a job belonging to no subject is a new parent, and that is a real event.",
+    "The ten parents, and the 2026-09-15 renumber, are design/ITEM-NUMBERING.md.",
+    "",
+    "TAKE A NEW NUMBER FROM `npm run check:branch`, NEVER from this file. It reads every",
+    "machine's branch; this file is one branch's view and cannot see the other's. Guessing",
+    "produced ELEVEN duplicated refs - 4.81, 4.88-4.92 and 4.94 each name two unrelated",
+    "jobs in the archive, where the uniqueness guard below does not reach.",
+    "",
+    "2.x, 3.x, 4.x and 5.1-5.5 ARE CLOSED FAMILIES - the old flat scheme, frozen as history",
+    "because 613 references to those numbers are written into 279 code files. Never reissue",
+    "one, and never renumber one.",
+    "",
     "SCORE — 5 security/privacy/data integrity · 4 the user is worse off · 3 helps",
     "sell the package · 2 robustness · 1 internal only · 0 is not filed, it is",
     "deleted with its code.",
@@ -57,10 +72,10 @@
     "to justify itself."
   ],
   "orderedByMikeOn": "2026-09-15",
-  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 4.97 from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
+  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "4.97",
+      "ref": "7.2",
       "name": "The engine's middle, and the learning loop made true",
       "rankedByMike": false,
       "kind": "feature",
@@ -81,11 +96,11 @@
         "detail": "2026-09-14 - 'transfer your improvement suggestions (all of them) into fixes' and 'if you spot an area of improvement ... get it in the tasks'. Lift, fallback and the profile screen each ruled yes the same day."
       },
       "touches": "advisorEngine.js intake, caseStore, templateResolver and its seam, outcomeLearning and the benches, openaiClient.js, the Mentor Hub (Outcome Learning page and a new template-profile tab), the trace, the Scenario Lab, advisory-engine.md.",
-      "note": "NEXT JOB IS T039 AND T040 (Mike, 2026-09-15): the route, then the reach tiles on the mentor's page and the firm's consent tab, per the approved drawing. countReviewStatus EXISTS and NOTHING CALLS IT, so the number is invisible - that is why US5 reads half built. SPEC KIT FEATURE, specs/003-engine-middle-learning-true; 36 of 67 tasks. US1 TO US4 COMPLETE: the engine proposes the primary issue and the Main issue row shows it; the pooled adjustment is SIGNED so learning lifts as well as holds back; the advisor's words win in ALL SIX ways their evidence reaches a template; a loosely typed industry reaches the pool. Routing groups stay dead (registry ruling 2026-06-09). DeepSeek second-opinion is 4.98.",
+      "note": "NEXT JOB IS T039 AND T040 (Mike, 2026-09-15): the route, then the reach tiles on the mentor's page and the firm's consent tab, per the approved drawing. countReviewStatus EXISTS and NOTHING CALLS IT, so the number is invisible - that is why US5 reads half built. SPEC KIT FEATURE, specs/003-engine-middle-learning-true; 36 of 67 tasks. US1 TO US4 COMPLETE: the engine proposes the primary issue and the Main issue row shows it; the pooled adjustment is SIGNED so learning lifts as well as holds back; the advisor's words win in ALL SIX ways their evidence reaches a template; a loosely typed industry reaches the pool. Routing groups stay dead (registry ruling 2026-06-09). DeepSeek second-opinion is 7.3.",
       "comment": "2026-09-14 - filed on Mike's instruction; spec, clarify, plan, tasks, four drawings and sixteen rulings the same day. TWO FAULTS FOUND BY RUNNING IT, NOT BY TESTS: naming a problem from one category word, and recording plain agreement as a correction. US3 closed the same day: five of the six evidence families had never been protected. 2026-09-15 - T037's test was found written but T038's FUNCTION never was, left untracked so no gate saw it and the suite was red. A THIRD FAULT FOUND BY RUNNING IT: the function passed all ten tests and real MySQL REFUSED the statement - only_full_group_by needs SELECT and GROUP BY to carry the identical expression."
     },
     {
-      "ref": "4.15",
+      "ref": "7.1",
       "name": "The 14 branches that still name a page nobody can open",
       "kind": "defect",
       "score": 4,
@@ -105,7 +120,7 @@
       "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
     },
     {
-      "ref": "4.58",
+      "ref": "8.1",
       "name": "Meeting Review — three non-coding gates before a first real recording",
       "rankedByMike": false,
       "kind": "feature",
@@ -126,7 +141,7 @@
       "comment": "2026-09-01 - filed; screens approved; slices 1-2 built. 2026-09-02 - slice 3, the types cascade, renumbered from 4.56; two rules Mike never made deleted (Brief P14). 2026-09-07 - the manager aggregate, transcript expiry and follow-through. 2026-09-08 - meeting-types slice 3 and slice 4's advisor half. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day on his instruction, closing §4 item 7. Two of its eight rulings reversed the recommendation: the advisor ALONE releases, so a request spanning several advisors is answered by each in turn. 2026-09-12 - the OpenAI letter sent; its reply closes DPIA finding A."
     },
     {
-      "ref": "4.86",
+      "ref": "11.1",
       "name": "Adviser Network runs on nine invented people and forgets every decision in production",
       "rankedByMike": false,
       "kind": "defect",
@@ -144,10 +159,10 @@
       },
       "touches": "server/collaborate/data/repository.js, the master team's seam by Mike's 2026-08-15 ruling on 4.8; config/db-schema.sql COLLABORATE tables; design/MASTER-TEAM-INTEGRATION-EMAIL.md question 7.",
       "note": "DO NOT WIRE THE SEAM FROM HERE. The repository header names the master team as the only party to change it, and Mike ruled 2026-08-15 that only they can complete it once the stubs exist. The dev-only snapshot (devStore.js) hides this on a developer's machine; NODE_ENV=production, which the UAT pack recommends, reads and writes nothing by design. Closes when their reply to question 7 names where identity lives and they wire the two identity functions; our tables can follow through the same seam.",
-      "comment": "2026-09-10 - filed on Mike's yes after the wiring was proposed and then stopped on the evidence above. Numbered after the laptop's 4.85 (3492421); renumber here if the laptop files a 4.86 the same day."
+      "comment": "2026-09-10 - filed on Mike's yes after the wiring was proposed and then stopped on the evidence above. Was 4.86; renumbered to 11.1 on 2026-09-15 when a number became a statement of what a job belongs to - see design/ITEM-NUMBERING.md."
     },
     {
-      "ref": "4.87",
+      "ref": "9.1",
       "name": "Learning from outcomes across consenting firms - the platform gets smarter with use",
       "rankedByMike": false,
       "kind": "feature",
@@ -168,7 +183,7 @@
       "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T042 on the desktop: both hub screens from their ruled wording rows, the seed, industry suggestions, then the benches on Mike's yes, pressed on the running app. 2026-09-12 - T043 to T047: differences on the drawings, lint, suite and build green, the quickstart walked; 4.94 found and fixed the same hour. Handed to UAT."
     },
     {
-      "ref": "4.93",
+      "ref": "7.4",
       "name": "Read this for me - plain guidance and an AI reading on the mentor's pages",
       "rankedByMike": false,
       "kind": "feature",
@@ -189,7 +204,7 @@
       "comment": "2026-09-11 - raised by Mike on the running app after pressing Run the benches, drawn the same evening, ruled and built on his yes. 2026-09-15 - the 'no credits' blocker was STALE and had been carried for four days: Mike said the account was fine, a real call proved it. Moved from waiting on Mike to ours."
     },
     {
-      "ref": "4.96",
+      "ref": "14.1",
       "name": "The add-a-report skill still points sessions at the frozen ACTIONS.md",
       "rankedByMike": false,
       "kind": "defect",
@@ -210,7 +225,7 @@
       "comment": "2026-09-13 - filed at shutdown on Mike's yes, after three sessions of it living in a handover note instead. That is the failure the shutdown checklist names: an open question for Mike is an item on this list, never a line in a note."
     },
     {
-      "ref": "4.98",
+      "ref": "7.3",
       "name": "A second opinion from two AI providers",
       "rankedByMike": false,
       "kind": "feature",
@@ -219,19 +234,19 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Mike wonders whether two providers answering the same narrative or reading, with the advisor seeing both, gives a better answer than one. A later decision, separate from the fallback in 4.97.",
+      "why": "Mike wonders whether two providers answering the same narrative or reading, with the advisor seeing both, gives a better answer than one. A later decision, separate from the fallback in 7.2.",
       "risk": "Without a decision it stays an idea. Building it doubles AI cost and wait on every call it covers, and a second provider needs the same privacy clearance as the first before any client words reach it.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-14 - 'perhaps there is a strength to using open AI AND Deepseek for the purposes of different perspectives?' Filed as its own item on his yes."
       },
-      "touches": "The provider seam 4.97 builds, the narrative and hub-reading call sites, the advisor's screen where two answers would show, the provider clearance in config.",
-      "note": "NOT PART OF 4.97. Needs a design decision first: which calls get two answers, what the advisor sees when they disagree, and which provider is cleared for which data. DeepSeek's China hosting and training terms are the privacy question to answer before it carries anything personal.",
+      "touches": "The provider seam 7.2 builds, the narrative and hub-reading call sites, the advisor's screen where two answers would show, the provider clearance in config.",
+      "note": "NOT PART OF 7.2. Needs a design decision first: which calls get two answers, what the advisor sees when they disagree, and which provider is cleared for which data. DeepSeek's China hosting and training terms are the privacy question to answer before it carries anything personal.",
       "comment": "2026-09-14 - filed on Mike's yes so the idea is on the list and not in a chat."
     },
     {
-      "ref": "4.99",
+      "ref": "9.2",
       "name": "A part-measured lab run overwrites a full one",
       "rankedByMike": false,
       "kind": "defect",
@@ -245,7 +260,7 @@
       "askedBy": {
         "who": "us",
         "ours": true,
-        "detail": "2026-09-14 - hit while measuring the resolver change for 4.97. A defect we found, not a feature nobody asked for; Mike said yes to filing it."
+        "detail": "2026-09-14 - hit while measuring the resolver change for 7.2. A defect we found, not a feature nobody asked for; Mike said yes to filing it."
       },
       "touches": ".env on the desktop only (NODE_EXTRA_CA_CERTS), and scripts/scenario-lab.js which overwrites design/SCENARIO-LAB-REPORT.md whether or not the AI layers ran.",
       "note": "THE ENVIRONMENT HALF IS DONE: NODE_EXTRA_CA_CERTS points at the Avast root and AI-backed scripts DO run here, proved 2026-09-15 by a real OpenAI call from a script on this desktop. ONLY THE CODE HALF IS LEFT, and it is the one that matters: the lab should REFUSE to overwrite the report when the AI layers did not run, or write to a clearly marked file, so a partial measurement cannot replace a full one. SEEN HAPPENING 2026-09-15 - an unrecognised flag made the lab run 0 cases with AI OFF and overwrite the real 51-session AI-ON report; restored from git. There is also no --help, so a wrong flag is read as a filter matching nothing.",

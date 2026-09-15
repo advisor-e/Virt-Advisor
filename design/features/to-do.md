@@ -35,15 +35,15 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **4.97** The engine's middle, and the learning loop made true ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-14 |
-| 2 | **4.15** The 14 branches that still name a page nobody can open | 4 | — | **Mike** | — |
-| 3 | **4.58** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 4 | **4.86** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
-| 5 | **4.87** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 6 | **4.93** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 7 | **4.96** The add-a-report skill still points sessions at the frozen ACTIONS.md ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
-| 8 | **4.98** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 9 | **4.99** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 1 | **7.2** The engine's middle, and the learning loop made true ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-14 |
+| 2 | **7.1** The 14 branches that still name a page nobody can open | 4 | — | **Mike** | — |
+| 3 | **8.1** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 4 | **11.1** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
+| 5 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 6 | **7.4** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 7 | **14.1** The add-a-report skill still points sessions at the frozen ACTIONS.md ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
+| 8 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 9 | **9.2** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
 **Nine live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
