@@ -322,8 +322,8 @@ export default {
      *
      * ⚠ THIS IS `seasons`, NOT `seasonShare`. Right here because the question is "what does
      * a month of this kind bill and cost", which is exactly what that block answers. Both
-     * values are costs and billings and so are always positive; `BarPairChart` clamps
-     * negatives to zero and could not be used if they were not.
+     * values are a billing and a cost and so are always positive — the MARGIN between them
+     * is what can go negative, and that is chart 1's subject, not this one's.
      */
     seasonMixGroups () {
       return this.seasons.map(s => ({ label: s.name, a: s.revenue, b: s.cost }))

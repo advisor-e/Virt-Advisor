@@ -1722,12 +1722,29 @@ more engaging with graphs/ pictures etc"*, then the pie was his own — *"maybe 
 **No chart library and no new dependency:** `LineChart`, `BarPairChart`, `DoughnutChart` and
 `WaterfallChart` already existed.
 
-🔴 **FOUR OF THE SEVEN BASE CHARTS CANNOT DRAW A LOSS, and that decided the design rather than
-taste.** `BarPairChart`, `HBarChart` and `BandBarChart` clamp with `Math.max(value, 0)`;
-`DoughnutChart` drops negatives from its total and its own legend prints `Math.max(value, 0)`. A
-paired planned-vs-actual bar chart was ruled out before it was drawn — it would have flattened
-July's **−132** and Wet n Dark's **−13,972** to the axis and looked perfectly correct. Only
-`LineChart` and `WaterfallChart` compute a `min()` and a `zeroY`, so the monthly chart is a line.
+🔴 **THE CHART CHOICES WERE DECIDED BY WHICH COMPONENTS COULD DRAW A LOSS, not by taste.** When
+this was drawn, four of the seven base charts clamped a negative away. A paired planned-vs-actual
+bar chart was ruled out before it was drawn — it would have flattened July's **−132** and Wet n
+Dark's **−13,972** to the axis and looked perfectly correct — so the monthly chart is a line.
+
+**That finding then turned out to be a live defect elsewhere, and `BarPairChart` was fixed the same
+day (Mike's ruling, 2026-09-15).** Two client-facing screens were feeding it figures that go
+negative: `DashboardReportProfitLoss` (`netProfit` — a loss-making year drew as **break-even**,
+height zero on the axis, with the true "−$40,000" printed beside it) and `DashboardReportCashFlow`
+(the closing bank balance — an overdraft put **both bars at zero** and, with no positive value
+anywhere, the scale fell back to `max = 1`, so the gridlines meant nothing either: **a blank chart
+on the page about cash**, while the same component drew that same figure correctly as a `LineChart`
+immediately above). `BarPairChart` now brackets zero and draws each bar from the zero line, exactly
+as `LineChart` and `WaterfallChart` always have. **With every value positive the arithmetic reduces
+to the previous expressions exactly**, pinned by `tests/unit/barPairChart.component.test.js`, so the
+six screens already using it are unmoved.
+
+**Still clamping, and not yet examined against their own call sites:** `HBarChart` and
+`BandBarChart` (`Math.max(value, 0)`). Their current feeds — stock values and monthly sales — are
+non-negative in practice; the one not proved either way is the sensitivity lever delta in
+`DashboardReportSensitivity`. `DoughnutChart` is a different case and not a defect: a pie genuinely
+cannot show a negative, so excluding it and **saying so in words** is the right behaviour, which is
+what the wages ring does.
 
 🔴 **`seasonShare` IS NOT `seasonComparison`, AND A PIE OF THE WRONG ONE WOULD HAVE LOOKED RIGHT.**
 `seasonComparison` costs **one representative month** of each kind, so its three figures sum to

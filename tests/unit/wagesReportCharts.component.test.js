@@ -18,12 +18,16 @@ const { computeWages, DEFAULT_INPUTS } = require('../../server/report/wagesModel
  * rewrite. What a person CANNOT see is a chart that is quietly drawing the wrong numbers,
  * and this page has four separate ways for that to happen:
  *
- *   1. FOUR OF THE SEVEN BASE CHARTS SILENTLY ERASE A LOSS. `BarPairChart`, `HBarChart`
- *      and `BandBarChart` clamp with `Math.max(value, 0)`; `DoughnutChart` drops negatives
- *      from its total and its own legend prints `Math.max(value, 0)`. A loss handed to any
- *      of them renders as zero or as "0%" and looks entirely correct. So the tests check
- *      that the NEGATIVES ARRIVE INTACT at the two charts that can draw them, and that the
- *      one that cannot is never given a figure that could be negative.
+ *   1. SOME OF THE BASE CHARTS ERASE A LOSS. `HBarChart` and `BandBarChart` clamp with
+ *      `Math.max(value, 0)`; `DoughnutChart` drops negatives from its total and its own
+ *      legend prints `Math.max(value, 0)`. A loss handed to any of them renders as zero or
+ *      as "0%" and looks entirely correct. So the tests check that the NEGATIVES ARRIVE
+ *      INTACT at the charts that can draw them, and that a figure which could be negative
+ *      never reaches one that cannot.
+ *      ⚠ `BarPairChart` WAS IN THAT LIST AND NO LONGER IS — it was given a zero line on
+ *      2026-09-15 (`tests/unit/barPairChart.component.test.js`) after the same clamp was
+ *      found drawing a loss-making year as break-even on the Profit & Loss page and an
+ *      overdraft as a blank chart on Cash Flow.
  *   2. THE RING COULD BE FED THE WRONG BLOCK. `seasons` and `seasonShare` both hold three
  *      rows keyed by season and both look right on a ring. Only one is parts of a whole.
  *   3. A LOSING SEASON COULD PRINT "0%" rather than saying it contributed nothing.
@@ -78,10 +82,12 @@ describe('the season mix — bills against costs', () => {
     })
   })
 
-  it('never hands BarPairChart a negative, which it would clamp to zero', async () => {
+  it('sends only figures that cannot be negative, which is why this pairing is safe', async () => {
     // Billings and costs are both always positive; the MARGIN between them is what can go
-    // negative, and the margin is deliberately not on this chart. If a future change puts
-    // it here, this fails rather than the screen quietly flattening a loss to the axis.
+    // negative, and the margin is deliberately not on this chart — it is chart 1's subject.
+    // `BarPairChart` has drawn below zero since 2026-09-15, so this is no longer load-bearing
+    // against a clamp; it still pins the intent, which is that this chart compares two
+    // quantities rather than reporting a result.
     const vm = (await mountReport()).vm
     vm.seasonMixGroups.forEach((g) => {
       expect(g.a).toBeGreaterThanOrEqual(0)

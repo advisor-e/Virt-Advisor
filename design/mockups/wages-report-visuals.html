@@ -114,7 +114,15 @@
       heading, and chart 1 is retitled <b>&ldquo;Planned margin, month by month&rdquo;</b> on Mike's ruling
       of the same day — which is also more accurate, since the chart shows the plan alone while the table
       shows plan, actual and variance. <b>The lesson is the drawing's, not the build's:</b> a heading that
-      already exists on the screen is read out of the locale file, never retyped.
+      already exists on the screen is read out of the locale file, never retyped.<br>
+      🔴 <b>AND THE CONSTRAINT BEHIND CHART 1 TURNED OUT TO BE A LIVE DEFECT ON TWO OTHER SCREENS.</b>
+      <code>BarPairChart</code>'s <code>Math.max(value, 0)</code> — the reason the monthly chart is a line
+      rather than paired bars — was already running on the Business Performance Report:
+      <b>a loss-making year drew as break-even</b> on Profit &amp; Loss, and <b>an overdraft drew as a blank
+      chart</b> on Cash Flow. Fixed the same day on Mike's ruling: the component now brackets zero and draws
+      each bar from the zero line, as <code>LineChart</code> and <code>WaterfallChart</code> always have. With
+      every value positive the arithmetic reduces to the old expressions exactly, so the six screens using it
+      are unmoved. <b>Chart 2 stays a paired bar chart regardless</b> — a billing and a cost, never a result.
     </p>
   </div>
 
