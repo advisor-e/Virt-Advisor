@@ -9,48 +9,41 @@
 
 ---
 
-## 2026-09-15 (thirty-sixth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-15 · Laptop · branch `feat/advisor-progress`
 
-Suite **10,993 green** (517 suites), lint 0 errors, audit PASS. Tree clean, all pushed,
-**51 ahead of `master`, 0 behind**. **Seven live items** — none filed, none closed.
+Suite **11,064 green** (521 suites), lint 0, audit PASS. Tree clean, all pushed, **61 ahead
+of `master`, 0 behind**. Six live items; **14.2 closed**, none filed.
 
-🔴 **MERGE PR #93 BEFORE THIS BRANCH, AND KNOW THAT NEITHER ORDER IS CLEAN.** #93
-(`fix/item-number-ceiling`, off `master`) is **seven files, not three**, and **three of them
-already exist here with different contents**: `scripts/ref-ceiling.js`,
-`tests/unit/refCeiling.test.js`, `scripts/check-branch-state.js`. The numbering half of 4.101
-was built twice — ours 2026-09-14, theirs the same week. **#93 supersedes ours** and carries
-Mike's parent-number scheme (`design/ITEM-NUMBERING.md`). Take #93's versions when `master`
-comes in; do **not** delete ours before it lands or `check:branch` breaks here. On 4.101.
+🔴 **TWO SHARED CHART COMPONENTS CHANGED, AND THEY ARE ON YOUR SCREENS.** `BarPairChart` and
+`HBarChart` clamped every value with `Math.max(value, 0)` while their labels printed the truth.
+On the Business Performance Report that meant **a loss-making year drew as break-even**
+(`DashboardReportProfitLoss`) and **an overdraft drew as a blank chart** (`DashboardReportCashFlow`
+— both bars at zero, and with no positive value the scale fell back to `max = 1`, so the gridlines
+meant nothing either). Both now bracket zero and draw from it. **With every value positive the
+arithmetic reduces to the old expressions exactly** — pinned by ten tests — so your six
+`BarPairChart` and four `HBarChart` screens are unmoved. `BandBarChart` still clamps, deliberately:
+its only feed is monthly sales.
 
-**4.100 IS NOW 4.104** (`a7b0f6f8`, 26 files). Two items held 4.100 — ours and a keyword fault
-the desktop closed the same day, both numbered 2026-09-14 before any ceiling existed. Found by
-reading the desktop's handover **from its own branch**, as 4.101's note says to.
+**14.2 CLOSED, both halves.** `npm run check:branch` now reads **your** handover from **your**
+branch and prints its date beside your last commit, saying outright when the note is older than the
+work there. `startup.md` and `WORKING-AGREEMENT.md` now say to take the date from there, never from
+this tree's frozen copy — that copy misled a session on the 14th and again on the 15th.
 
-**4.104 — THE STAFF REGISTER IS BUILT.** Drawn, approved, four questions ruled, built, then
-walked in a running app. One `firmOverlay` key per client — **no new table**. Both contents
-routes re-resolve the gate from the live case. Leave is valued at the rate **including pay
-rises** (`max` of the year's rises — the workbook's own `S49`), so step 3 is preferred over
-step 1.
+⚠ **`14.1` IS LIVE ON YOUR LIST AND CLOSED HERE.** Same job — the `add-a-report` skill pointing at
+the frozen `ACTIONS.md` — closed on this branch 2026-09-14 with its closure written. PR #93 branched
+before that and renumbered a finished job. Drop it when you merge `master`.
 
-🔴 **WE DELIBERATELY DO NOT REPRODUCE THE WORKBOOK'S 63,154 LEAVE LIABILITY.** 24 of its 29
-people are priced from *sick leave consumed*; its one surviving formula points at a blank cell;
-the rest of the column is hand-typed. We price from accrued leave only — **10,115.84 across
-five**. The golden test pins the difference *and the reason*, so nobody "fixes" it back.
+**5.1 — three charts on the report** (a line for the monthly margin, paired bars for bills-against-
+costs per season, and Mike's own pie for each season's share of the year), all from components that
+already existed. `seasonShare()` is on the **engine**, never the screen — and it is **not**
+`seasonComparison`, which costs one representative month of each kind and sums to 44,435 rather than
+the year's 288,935. A fourth chart was built and cut on Mike's word. **`activeOn` left clear: the
+Firm Manager retention-dial control is yours when 9.1 lands.**
 
-🔴 **RUNNING IT FOUND THREE FAULTS 10,975 GREEN TESTS DID NOT.** The sample team carries four
-duplicated names and four nameless people: rows keyed by name updated the wrong person, and
-nameless rows were **silently discarded on save**. Identity is `division|name|occurrence` now.
-The footer also read "1 person" above twenty-nine.
+⚠ **The drawing had a heading typed rather than read from `locales/en.json`**, so two cards shipped
+with the same title and nothing in the approved page showed it. Read headings; never retype them.
 
-⚠ **THE API DOES NOT HOT-RELOAD.** The first browser walk tested the old backend while the
-frontend had rebuilt, and nearly read as a failed fix. Restart it before believing any walk
-that follows a backend change.
-
-**DESKTOP:** 4.87 untouched. **One piece of 4.104 is yours when 4.87 lands** — the Firm Manager
-control for the register's retention dial needs a tab in `FirmManagerHub.vue`; its backend,
-cascade and default are built and tested, and `4.104`'s `activeOn` is cleared so you can take
-it. Also: on your branch **`4.94` names two different closed items in the same file**, and
-`4.96` differs across branches — old numbers are frozen under #93's scheme, so that is a
-decision, not a renumber. Shared files I changed: `locales/en.json`, `nuxt.config.js`,
-`server/restify-server.js`, `.gitignore`, `design/ARTEFACTS.md`, `features/report-models.md`,
-`.claude/commands/startup.md`, `scripts/ref-ceiling.js`. Merge `master` before touching any.
+**Shared files I changed:** `components/base/BarPairChart.vue`, `components/base/HBarChart.vue`,
+`scripts/branch-survey.js`, `.claude/commands/startup.md`, `design/WORKING-AGREEMENT.md`,
+`design/ARTEFACTS.md`, `features/report-models.md`, `locales/en.json`. **Merge `master` before
+touching any.**
