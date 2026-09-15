@@ -239,7 +239,12 @@ unknown**.
   a second provider until that provider's written terms have been read — so the seam rethrows
   the primary's own error rather than routing the words elsewhere. The advisor is told when no
   backup is configured (`GET /api/advisor/ai-readiness`, read once as a conversation opens);
-  the warning blocks nothing and the session runs beneath it.
+  the warning blocks nothing and the session runs beneath it. Since T052 the decision trace
+  also names which service answered, on **every** session — a row that appeared only on failure
+  could not be trusted by its absence, and a case reopened months later still says who wrote it.
+  Because the advisor's own calls are `personal: true`, that row names the primary in practice;
+  the backup's wording is reachable at the call sites the second provider does answer for. The
+  name is never written in code — it is whatever `AI_PRIMARY_NAME` is configured with.
 - Routing groups are complete for one domain only.
 - Two templates have no semantic profile; 23 have a profile with no signals; 88 have thin
   purpose-only profiles. These affect scoring precision, not function.

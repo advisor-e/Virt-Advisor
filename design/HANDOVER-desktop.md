@@ -9,39 +9,36 @@
 
 ---
 
-## 2026-09-15 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-16 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Four commits, all pushed** (`c8b012aa` → `dc0162ee`). Suite **11,190 green** (528 suites),
-lint 0, coverage and audit gates passed. `npm run build` succeeds. Ten live items.
-**4.97 / 7.2 is 52 of 67 — US8 all but T052.** `activeOn` KEPT on this machine: work in hand.
+**One commit, pushed** (`bc587288`). Suite **11,197 green** (529 suites), lint 0, coverage and
+audit gates passed. Ten live items. **4.97 / 7.2 is 53 of 67 — US1 to US8 ALL COMPLETE.**
+`activeOn` KEPT on this machine: US9 is next and the work is in hand.
 
-**ALL EIGHT FILES ARE THROUGH THE AI SEAM** (T050/T051). `advisorEngine.js` (10 sites,
-`personal: true`) and `courseEngine.js` (4, `personal: false`); every hardcoded model name gone
-into the role map. **Proved by driving the app, not by the suite** — 27 live OpenAI calls over
-8 sites, all ok, all naming the provider. Six sites had never logged a success at all; they do
-now. ⚠ **Phase 3's streamed recommendation was proved at the endpoint, not clicked through** —
-worth a click when someone is next in the app.
+**T052 CLOSED US8.** The advisor's decision trace carries an *Answered by* row naming the service
+that answered, both ruled states, per Screen B of `outcome-learning-trace-lift.html`.
 
-🔴 **MIKE'S RULING, AND IT IS GENERAL: warn, never block, let the user continue.** The server no
-longer dies without `OUTCOME_POOL_SECRET` — it warns, that ONE feature shuts down, everything
-else runs. Safe because a pooled key cannot be derived without the secret, so nothing can be
-written either way. Advisors are now warned when no backup AI is connected (new
-`GET /api/advisor/ai-readiness`, once per conversation, blocks nothing).
+🔴 **THE TRACE WAS SHIPPING A HARDCODED `'openai'`** under a comment saying the seam "does not
+exist yet" — true when written, false since T050/T051 landed the day before. On a session the
+backup rescued it would have named the primary. Neither the suite nor UAT could see it: both
+states read as the same fluent sentence.
 
-🔴 **I TOLD MIKE A NON-SHARING FIRM STILL RECEIVES POOLED LEARNING. IT DOES NOT.** I read
-"2 adjustments apply" beside "sharing is off" as one fact; it was two — the firm's switch was
-ON, the SERVER had no secret. **Give-to-get was already built and guarded** (`loadPooledForSession`
-→ `adjustments: []`, pinned by `outcomeLearningTrace.test.js`). Item **9.3** now says so and says
-it must not be reopened. Mike's ruling stands: content cascades to all, learning is earned.
+⚠ **ONE DEVIATION FROM THE TASK TEXT, in `ARTEFACTS.md`.** T052 said to read the provider "from
+the recommendation call". **It cannot be** — that call is a stream, `aiProvider._tag` skips an
+async iterable by construction, and the trace is sent inside that same stream's finish handler.
+It now comes from the two **distinction-classify** calls, earlier in the same request through the
+same seam. Nothing Mike ruled changed.
 
-⚠ **The new route nearly stopped the server booting** — written `async`, lint removed it, Restify
-then refused a callback handler with no `next`. `serverMounts.test.js` caught it. That guard,
-written after v0.11.0 shipped a server that would not start, paid for itself today.
+**PROVED BY DRIVING THE APP, NOT THE SUITE** — a real conversation, local MySQL, 15 live OpenAI
+calls: the row renders and the browser received `{"provider":"openai","fallbackUsed":false}`. The
+backup state was driven at the seam with a 402 primary and produced *"mistral — the usual service
+did not answer, so the backup did"*.
 
-**NEXT JOB: T052** — `trace.ai.provider` and the *Answered by* line on the advisor's screen, per
-the approved trace drawing.
+**FOR MIKE, ON THE LIST:** the row reads `openai` lowercase because no service is ever named in
+code. The drawing shows "OpenAI". That is `AI_PRIMARY_NAME`, a config value, not a code change.
 
-**LAPTOP:** you are 67 ahead / 0 behind master, last commit today, but your note is dated
-**2026-09-13** — stale for the third session running. Shared files I touched:
-`server/restify-server.js`, `nuxt.config.js`, `locales/en.json`,
-`components/VirtualAdvisor.vue`, `components/firm/FirmOutcomeConsent.vue`.
+**NEXT JOB: US9 / T054** — the mentor's template-profile screen, the last build phase of 7.2.
+
+**LAPTOP:** you are 73 ahead / 0 behind master with a commit today, but your note is dated
+**2026-09-13** — stale for the fourth session running. Shared files I touched:
+`server/advisorEngine.js`, `components/VirtualAdvisor.vue`, `locales/en.json`.
