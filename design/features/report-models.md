@@ -377,6 +377,34 @@ format; `client.txt` carries hard rule **R18**. Both are written as an invitatio
 brake**: only when a model directly answers the situation, always with its exact page path,
 only from the list, and never in place of a template.
 
+🔴 **THREE OF THE BRAKES WERE ADDED 2026-09-15, THE FIRST TIME THIS WAS EVER TESTED FOR
+EFFECTIVENESS RATHER THAN DELIVERY.** Three real client conversations were run through
+`/api/advisor/query` against live OpenAI calls. **Every existing test checks that the right words
+REACH the prompt; not one checks what the model then does with them** — so all three faults below
+were invisible to a green suite.
+
+- **It never declined.** Given a situation with no financial dimension at all — two owners at war,
+  agreed by the engine as governance — and asked whether any model would help, it offered the
+  3-Way Forecast. *"If no model fits, say that plainly"* was a trailing clause on another bullet
+  and was talked past. **Declining is now its own rule and a required answer.**
+- **It invented limits.** Asked what Lease vs Buy does not cover, it gave the real FBT limitation
+  and then added one of its own that is written nowhere. **Limits are now QUOTED as written, with
+  nothing summarised, extended or appended** — an invented limitation reads exactly like a real
+  one, and the advisor repeats it to their client as fact.
+- **It called a TEMPLATE a "model".** Nothing in the block had ever defined the difference.
+  **Mike's own wording now does** (2026-09-15): a model has variable input cells and sequential
+  calculations arriving at a report — *"The advisor must be able to supply"* and *"Key calculation
+  output"* — and anything showing neither is not a model and is not to be called one. It is a test
+  the model can actually run, because both lists sit in the same prompt and only one carries those
+  fields.
+
+⚠ **Instructions steer; they do not bind.** Two of the three took a second attempt at the wording,
+and the third only landed once the rule gave the model something to *look at* rather than something
+to obey. A code-level check was considered and **deliberately not built** — the template slip named
+a real template, gave no page path and cost nobody anything, which is a poor trade for new code on
+the hot path of every client conversation. **Nothing records which model the AI named**, so the
+next regression is found the same way — by hand — or not at all: that is item **7.5**.
+
 🔴 **THE SEARCH MODE'S CLOSING RULE WAS NOT LOOSENED.** *"MUST be the final line… End there.
 Full stop."* still stands; the calculator block sits **above** it. A test asserts both. That
 rule exists so the AI stops talking — if a future change needs room after the closing line,
@@ -1631,25 +1659,43 @@ cells — the largest port in the library**, against the Sales Dashboard's 140 r
 [`pages/wages-review.vue`](../../pages/wages-review.vue) — `WagesTeam`, `WagesWork`, `WagesYear`,
 `WagesActual` and `WagesReport`, each with its own component test, plus the shared headline guard.
 
-🔐 **The staff register's GATE is built (2026-09-15) — the register table itself is not.**
-[`server/utils/wagesRegisterGate.js`](../../server/utils/wagesRegisterGate.js) holds the decision as
-a **pure function** so every branch of a call governing personal data is testable, behind
-`GET /api/wages-register/gate/:clientId` and its `/open` and `/close` posts, all `firmAuth`.
-[`components/WagesRegisterGate.vue`](../../components/WagesRegisterGate.vue) renders **three**
-states, because Decision 6 states two conditions and each one failing looks different: `closed`
-(no due-diligence case — **and no control is rendered**, since nothing on this screen may put a
-client into due diligence), `available` (a case stands, not switched on — the only state carrying
-a button), and `open` (both met, with the provenance line). The advisor's own case boundary is
-`caseStore.listForClient`, reused rather than reinvented, so a colleague's *private*
-due-diligence case does not open it. Artefact:
-[`../mockups/wages-register-gate.html`](../mockups/wages-register-gate.html), approved 2026-09-15.
+🔐 **The staff register and its switch are both built (2026-09-15). THERE IS NO GATE — it is one
+button.** Mike's ruling that day: *"i dont need any bullshit gates telling my advisors what they
+can and cant do. if they're engaged to run a due diligence project they will fucking tell you."*
+The advisor who opens the register is the advisor telling us.
 
-**The switch turns BOTH ways** (Mike, 2026-09-15): Decision 6 named only the switch-on, leaving an
-advisor who opened the register on the wrong client with no way back — and that client is
-necessarily another client in due diligence, so the automatic close would never fire for them. A
-close records who and when and **keeps the opening it closed**; a closed register returns to
-`available` rather than to a fourth state; re-opening is a fresh decision. Closing needs no
-due-diligence case, being the safe direction.
+🔴 **WHY THE GATE WENT, because it is the more useful half of the story.** Decision 6 required a
+case already in the `due-diligence` domain — and the ONLY thing in the app that can set that field
+is [`components/VirtualAdvisor.vue`](../../components/VirtualAdvisor.vue) saving
+`domain: this.sessionDomain`, the engine's own inference from an advisor's words mid-conversation.
+No screen anywhere let a human say so. An advisor on a real due-diligence engagement who opened
+this model was shown a true sentence — *"it opens only while a due-diligence project is open on
+the case"* — **and no means of making it true.** A condition with no way to meet it.
+
+**WHAT SURVIVES IS THE RECORD**, which was always the substance of Decision 6.
+[`server/utils/wagesRegisterGate.js`](../../server/utils/wagesRegisterGate.js) is still a **pure
+function** so every branch of a call governing personal data is testable, behind
+`GET /api/wages-register/gate/:clientId` and its `/open` and `/close` posts, all `firmAuth`. It
+now reports whether the register is open rather than deciding who may open it:
+[`WagesRegisterGate.vue`](../../components/WagesRegisterGate.vue) shows `available` (the button)
+or `open` (the provenance line); `closed` survives for one case only, and it is not a refusal — no
+client has been chosen, so there is no register to speak about. `openedBy`/`openedAt` come from
+the **verified token, never the body**, and an opening made with no case in the domain is marked
+as being on the advisor's own say-so. **The one check that did NOT go** is that the client belongs
+to the caller's firm: that is scoping, not permission, and removing it would be an IDOR. Artefact:
+[`../mockups/wages-register-gate.html`](../mockups/wages-register-gate.html), carrying both
+rulings and the superseded drawing beneath them.
+
+**The switch turns BOTH ways** (Mike, 2026-09-15): an advisor who opened the register on the wrong
+client must always be able to shut it. A close records who and when and **keeps the opening it
+closed**; a closed register returns to `available` rather than to a fourth state; re-opening is a
+fresh decision.
+
+⚠ **THE SWITCH IS ALWAYS READ, and it was not always.** `getGate` and `resolveFor` each read it
+only when a due-diligence case stood, which was right while the gate existed. With the gate gone,
+most registers are opened with no case at all — so the unread switch reported every one as *not
+open*, and the contents routes answered **403** onto a rendered sheet. Found by opening it in a
+browser; no test saw it.
 
 ✅ **IN THE MODEL LIBRARY since 2026-09-14, as a DECISION tool** —
 [`utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js), `STATUS_READY`,
