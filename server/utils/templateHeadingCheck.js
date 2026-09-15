@@ -152,9 +152,19 @@ function buildRetryInstruction (offenders) {
     // nothing fitted — turning our fix into a worse answer. STEP 1 of discover.txt already
     // permits the honest no-match; this says so here, because a model being corrected
     // reads THIS instruction, not the one it has already moved past.
-    '\n\nIf no template in the list genuinely fits, say so honestly in the words STEP 1 gives you ' +
-    'for that — do NOT substitute a weak template to fill the heading. A truthful "I can\'t find ' +
-    'an exact match" is a better answer than a template that does not fit.'
+    //
+    // 🔴 ITEM 7.8 — AND WHY THE ESCAPE IS FENCED RATHER THAN OPEN. The paragraph above,
+    // unfenced, produced an answer carrying BOTH a best match and "I can't find an exact
+    // match". The AI was boxed in, not careless: discover.txt specifies the alternatives
+    // block as "[1-2 alternative TEMPLATES…]" and never says it may be empty, so a
+    // correction that empties it leaves no permitted way out except this sentence. The
+    // fence gives it the exit it lacked — an answer with one good template is complete —
+    // and confines the no-match line to the whole-answer case it was written for.
+    '\n\nKeep your "Best match" if one still fits — this correction does not affect it. If nothing ' +
+    'is left for "Also worth considering", leave that block out entirely; an answer with one good ' +
+    'template is complete. Only when NO template in the list fits at all, best match included, say ' +
+    'so in the words STEP 1 gives you for that — and then it replaces the whole answer rather than ' +
+    'sitting inside one. Never write both a best match and "I can\'t find an exact match".'
 }
 
 /**

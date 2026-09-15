@@ -237,7 +237,7 @@
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "The marker that records a decline is written about one time in six. Where the AI names a model the page-path scan catches it; a decline has no other source.",
       "risk": "The declines band on the Model Choices screen under-counts and nothing on it says so, so a mentor reads nine where there were thirty. That band is the gap map - where advisers keep arriving and finding nothing - so an under-count points the next model at the wrong place. Named models are unaffected: their rows come from the exact page-path scan.",
       "askedBy": {
@@ -246,8 +246,8 @@
         "detail": "2026-09-16 - found by running six live conversations after building 7.5; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
       "touches": "data/prompts/client.txt SECTION 12 and data/prompts/discover.txt, where the instruction lives; server/utils/modelChoiceScan.js, which reads the marker; and the declines band of design/mockups/model-choices.html, which is what under-counts.",
-      "note": "PROVEN BY RUNNING IT. Nine live discover-mode conversations: 0 of 3 with the instruction in the data file, 1 of 6 after it moved into the system prompts, 0 of 3 again after discover.txt's contradictory closing rule was fixed. THE OBVIOUS CAUSE WAS TESTED AND IS NOT IT: discover.txt did say nothing may follow the closing line while SECTION 12 said write the marker last - a real defect, fixed with a stated carve-out and a test - and the marker rate did not move. DO NOT RE-RAISE IT. FIRST STEP IS THE PATH NOT YET TESTED: client-mode Phase 3, where SECTION 11's template marker has worked reliably since 4.53 and SECTION 12 sits beside it.",
-      "comment": "2026-09-16 - filed on Mike's yes, the same day 7.5 was built. Found by running the app rather than by a test: every one of the 11,123 passing tests proves our code handles what the AI sends, and none of them can prove the AI sends it - the same blind spot 7.5 was filed to close. The prompt contradiction found at shutdown was fixed the same hour and did not resolve this, which is worth knowing before anyone spends another session on the wording."
+      "note": "NOT SESSION WORK - MIKE'S RULING, 2026-09-16: it corrects a counter on an internal screen and changes nothing an advisor or a client sees, so it waits until the Model Choices screen has real use behind it. Do not propose it. THE CAUSE IS KNOWN, so nobody need re-run this: seven live discover conversations declared the marker 0 times, and client-mode Phase 3 declared it first time. The difference is structural, not wording - in Phase 3 the AI is already writing [[TEMPLATES:]] and SECTION 12 asks for a second line, while discover has no first marker and an absolute closing-line rule stated four times. REWORDING HAS FAILED TWICE. DO NOT RE-RAISE IT.",
+      "comment": "2026-09-16 - filed on Mike's yes, the same day 7.5 was built. Found by running the app rather than by a test: every one of the passing tests proves our code handles what the AI sends, and none can prove the AI sends it - the same blind spot 7.5 was filed to close. Parked the same day, after seven more live conversations proved the cause and Mike ruled it not worth session work until the screen has real use."
     }
   ]
 }

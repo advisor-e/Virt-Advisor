@@ -185,6 +185,34 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.8 — the retry could recommend a template and deny having one in the same answer.**
+✅ Closed 2026-09-16 on the laptop. A defect we found the same day 7.7 shipped, by running the app
+while diagnosing 7.6; filed on Mike's yes and fixed on his yes within the hour.
+
+7.7's correction empties the *Also worth considering* block when it holds a calculator. But
+`discover.txt` specifies that block as *"1-2 alternative TEMPLATES"* and never says it may be
+empty — so an answer with a best match it was keeping and a slot it was forbidden to fill had no
+permitted exit except 7.7's own no-match sentence. It wrote both: **Best match — Money Matters**
+and *"I can't find an exact match in the available templates"*, in one reply.
+
+🔴 **THE AI WAS BOXED IN, NOT CARELESS, and that is the transferable part.** A correction that
+removes the only permitted content from a required block must say what to do with the empty block,
+or the model will find its own way out. **The fix gives it the exit it lacked** and fences the
+escape to the case it was written for: keep the best match, leave the alternatives block out
+entirely when nothing remains, and use the no-match line only when no template fits at all — where
+it replaces the whole answer rather than sitting inside one. `buildRetryInstruction` in
+`server/utils/templateHeadingCheck.js`; the retry instruction **alone**, not `discover.txt`,
+because the fault appears only in corrected answers and changing the prompt would touch every
+discover answer.
+
+**What proves it is closed: seven live conversations, five of them tripping the correction, no
+contradiction** — against one in three observed before. The answers improved in the way the fix
+predicts: the AI now omits the alternatives block and puts the calculator in the calculator block
+at its page path. Small sample, and this is the AI's behaviour rather than a rule code can
+enforce — which is why the one test added pins **the fence itself**
+(`tests/unit/templateHeadingCheck.test.js`, now 15), so those sentences cannot be deleted by a
+later edit that has forgotten why they are there.
+
 **7.7 — the AI offered the wages model as a template that does not exist.**
 ✅ Closed 2026-09-16 on the laptop. A defect we found while proving item 7.5 by running the app;
 filed on Mike's yes, fixed on his yes the next morning.

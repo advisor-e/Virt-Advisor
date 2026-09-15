@@ -136,6 +136,21 @@ describe('templateHeadingCheck — what the AI is told to fix', () => {
     // four times across discover.txt and the model-list instruction.
     expect(instruction).toContain('CALCULATION MODEL')
   })
+
+  // 🔴 ITEM 7.8. These two sentences are the fence around the no-match escape, and they
+  // are load-bearing: without them a live retry produced an answer carrying BOTH a best
+  // match and "I can't find an exact match", because discover.txt specifies the
+  // alternatives block as "1-2 alternative TEMPLATES" and never says it may be empty, so
+  // emptying it left the AI no permitted exit. Deleting either sentence restores that
+  // trap, and no other test can see it — nothing here can assert what the AI writes back.
+  it('lets the AI keep its best match and drop the alternatives, rather than deny both', () => {
+    const out = check.checkTemplateHeadings(answer(`**${MODEL.name}**`))
+    const instruction = check.buildRetryInstruction(out.offenders)
+    expect(instruction).toContain('Keep your "Best match" if one still fits')
+    expect(instruction).toContain('leave that block out entirely')
+    // The escape survives, but only for the whole-answer case it was written for.
+    expect(instruction).toContain('Only when NO template in the list fits at all')
+  })
 })
 
 describe('templateHeadingCheck — the note the advisor reads when the retry fails', () => {
