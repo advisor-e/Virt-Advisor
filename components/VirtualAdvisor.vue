@@ -404,6 +404,17 @@
           .trace-row
             span.trace-label {{ $t('decisionTrace.whatShaped') }}
             span.trace-value {{ traceLensSummary }}
+          //- Answered by — which AI service wrote this. Ruled by Mike 2026-09-14 on
+          //- design/mockups/outcome-learning-trace-lift.html (Screen B): it shows on EVERY
+          //- trace, not only when the backup answered, because a row that appears only on
+          //- failure cannot be trusted by its absence — and a case reopened months later
+          //- still says who wrote it. It sits outside the outcome section deliberately, so a
+          //- firm that shares nothing still sees it: the provider is a fact about every
+          //- session, not about outcome sharing. Hidden only when no call through the seam
+          //- answered, where naming one would be a guess.
+          .trace-row(v-if="traceAnsweredBy")
+            span.trace-label {{ $t('decisionTrace.answeredBy') }}
+            span.trace-value {{ traceAnsweredBy }}
           .trace-section
             .trace-section-title {{ $t('decisionTrace.distinctions') }}
             p.trace-note {{ lastTrace.distinctions.note }}
@@ -1090,6 +1101,28 @@ export default {
       // is hidden unless the step ran — `asked` is set by the engine when it put the
       // question. Without it we would tell an EOY advisor their issue went unrecognised.
       return pi.asked ? this.$t('decisionTrace.issueNone') : ''
+    },
+    /**
+     * The "Answered by" trace row (item 4.97 US8/T052), in its two ruled states:
+     *   the usual service  →  "{provider}"
+     *   the backup         →  "{provider} — the usual service did not answer, so the backup did"
+     *
+     * Wording ruled by Mike 2026-09-14 on design/mockups/outcome-learning-trace-lift.html,
+     * Screen B. No service is ever named in code — the name is whatever the platform is
+     * configured with, and it arrives on the trace.
+     *
+     * Returns '' when the trace carries no provider, which happens on a session where no
+     * call through the seam answered, and on any case saved before this shipped. An old
+     * case must not be made to claim a provider nobody recorded.
+     *
+     * @returns {string} the row's value, or '' to hide the row
+     */
+    traceAnsweredBy () {
+      const ai = this.lastTrace && this.lastTrace.ai
+      if (!ai || !ai.provider) { return '' }
+      return ai.fallbackUsed
+        ? this.$t('decisionTrace.answeredByBackup', { provider: ai.provider })
+        : this.$t('decisionTrace.answeredByValue', { provider: ai.provider })
     },
     traceBoostList () {
       const boosts = (this.lastTrace && this.lastTrace.distinctions && this.lastTrace.distinctions.boostsApplied) || {}

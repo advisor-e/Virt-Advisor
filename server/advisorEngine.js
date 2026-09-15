@@ -112,13 +112,17 @@ const DISTINCTION_TRIGGER_EXAMPLE_CAP = 25
 // deliberately: a caller that forgets to check it still gets an empty `rows` and degrades,
 // where `null` would have thrown mid-session.
 //
+// `provider` rides back beside them (4.97 US8/T052): which AI service actually answered, so
+// the trace can name it rather than assume the primary. Null when no call was made or the
+// call failed — a session that asked nobody must not claim a provider.
+//
 // @param {Array<Object>} rows distinction rows to classify
 // @param {string} advisorText the advisor's words
 // @param {string} [label] logAI label
-// @returns {Promise<{ok: boolean, rows: Array<Object>}>}
+// @returns {Promise<{ok: boolean, rows: Array<Object>, provider: string|null}>}
 async function _classifyMatchingRows (rows, advisorText, label) {
   // Nothing to ask is not a failure — there was no call to fail.
-  if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return { ok: true, rows: [] } }
+  if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return { ok: true, rows: [], provider: null, fallbackState: null } }
 
   let phrasesIgnored = 0
   const patternList = rows.map((row, i) => {
@@ -162,14 +166,19 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
     const parsed = jsonText ? JSON.parse(jsonText) : null
     if (!parsed || !Array.isArray(parsed.matches)) {
       console.warn(`[advisor] ${label || 'distinction-classify'}: the model's reply carried no readable {"matches":[...]} — reported as a FAILURE, not as "none matched"`)
-      return { ok: false, rows: [] }
+      return { ok: false, rows: [], provider: response.provider || null, fallbackState: response.fallbackState || null }
     }
-    return { ok: true, rows: parsed.matches.map(id => rows[Number(id) - 1]).filter(Boolean) }
+    return {
+      ok: true,
+      rows: parsed.matches.map(id => rows[Number(id) - 1]).filter(Boolean),
+      provider: response.provider || null,
+      fallbackState: response.fallbackState || null
+    }
   } catch (_e) {
     logAI(label || 'distinction-classify', CLASSIFY_MODEL(), _t0, false, null, null)
     // The rows stay empty so a live session still degrades gracefully — but `ok:false`
     // travels with them so nothing downstream can call this a result.
-    return { ok: false, rows: [] }
+    return { ok: false, rows: [], provider: null, fallbackState: null }
   }
 }
 
@@ -178,21 +187,22 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
 // firm-own rows); we score only the rows for the detected domain. The resolver
 // guarantees an overridden platform row appears once, so a boost is never doubled.
 //
-// Returns `{ok, boosts}` — `ok:false` means the classifier call FAILED and the empty
-// boost map is a fault, not a finding. See _classifyMatchingRows for why.
+// Returns `{ok, boosts, provider}` — `ok:false` means the classifier call FAILED and the
+// empty boost map is a fault, not a finding. See _classifyMatchingRows for why, and for what
+// `provider` is null.
 //
-// @returns {Promise<{ok: boolean, boosts: Object<string, number>}>}
+// @returns {Promise<{ok: boolean, boosts: Object<string, number>, provider: string|null}>}
 async function classifyDistinctions (domain, advisorText, candidateRows) {
-  if (!domain || !advisorText) { return { ok: true, boosts: {} } }
+  if (!domain || !advisorText) { return { ok: true, boosts: {}, provider: null, fallbackState: null } }
   const rows = (Array.isArray(candidateRows) ? candidateRows : []).filter(r => r.domain === domain)
-  const { ok, rows: matched } = await _classifyMatchingRows(rows, advisorText, 'distinction-classify')
+  const { ok, rows: matched, provider, fallbackState } = await _classifyMatchingRows(rows, advisorText, 'distinction-classify')
   const boostMap = {}
   for (const row of matched) {
     for (const templateTitle of (row.templates || [])) {
       boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
     }
   }
-  return { ok, boosts: boostMap }
+  return { ok, boosts: boostMap, provider, fallbackState }
 }
 
 // Cross-domain "bridge": the firm's OWN distinctions (firm-own or firm-edited) that
@@ -206,14 +216,19 @@ async function classifyDistinctions (domain, advisorText, candidateRows) {
 // flag. This one fails the quietest of all — the section simply does not render — so it
 // needs the flag most.
 //
-// @returns {Promise<{ok: boolean, rows: Array<{id, description, domain, source}>}>}
+// @returns {Promise<{ok: boolean, rows: Array<{id, description, domain, source}>, provider: string|null}>}
 async function findNearMissDistinctions (detectedDomain, advisorText, effectiveDistinctions) {
-  if (!detectedDomain || !advisorText) { return { ok: true, rows: [] } }
+  if (!detectedDomain || !advisorText) { return { ok: true, rows: [], provider: null, fallbackState: null } }
   const otherFirmRows = (Array.isArray(effectiveDistinctions) ? effectiveDistinctions : []).filter(r =>
     r && r.domain !== detectedDomain && (r.source === 'firm-own' || r.source === 'firm-override'))
-  if (otherFirmRows.length === 0) { return { ok: true, rows: [] } }
-  const { ok, rows: matched } = await _classifyMatchingRows(otherFirmRows, advisorText, 'distinction-nearmiss')
-  return { ok, rows: matched.map(r => ({ id: r.id, description: r.description, domain: r.domain, source: r.source })) }
+  if (otherFirmRows.length === 0) { return { ok: true, rows: [], provider: null, fallbackState: null } }
+  const { ok, rows: matched, provider, fallbackState } = await _classifyMatchingRows(otherFirmRows, advisorText, 'distinction-nearmiss')
+  return {
+    ok,
+    rows: matched.map(r => ({ id: r.id, description: r.description, domain: r.domain, source: r.source })),
+    provider,
+    fallbackState
+  }
 }
 
 // Build detection patterns from domain definitions — compiled once at startup
@@ -3205,12 +3220,26 @@ async function handleQuery (rawBody, res, identity) {
     // here. An empty boost map means one of two opposite things — the AI read the firm's
     // distinctions and matched none, or the call never completed — and the difference is
     // the firm's biggest lever silently going missing from live advice.
-    const { ok: _distinctionAiOk, boosts: _distinctionBoosts } =
+    const _distinctionResult =
       await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
+    const { ok: _distinctionAiOk, boosts: _distinctionBoosts } = _distinctionResult
     // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
     // session (likely mis-filed) — surfaced in the decision trace, not scored here.
-    const { ok: _nearMissAiOk, rows: _nearMissDistinctions } =
+    const _nearMissResult =
       await findNearMissDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
+    const { ok: _nearMissAiOk, rows: _nearMissDistinctions } = _nearMissResult
+    // 🔴 WHICH PROVIDER ANSWERED, TAKEN FROM THESE CALLS AND NOT FROM THE RECOMMENDATION
+    // (4.97 US8/T052). The recommendation is a STREAM, and a stream cannot report its
+    // provider without being consumed — `aiProvider._tag` skips an async iterable by
+    // construction — while the trace is assembled and sent inside that same stream's finish
+    // handler, by which time the answer is already written. These two classify calls run
+    // earlier in the same request, go through the same seam, and do carry the fact. First
+    // one that actually answered wins; both null means no classify call was made or both
+    // failed, and the trace then says so rather than assuming the primary.
+    // Recorded on `state` so it survives into the trace and onto a saved case.
+    const _answered = _distinctionResult.provider ? _distinctionResult : _nearMissResult
+    state.aiProvider = _answered.provider || null
+    state.aiFallbackState = _answered.provider ? (_answered.fallbackState || null) : null
 
     // Logic-tree soft hint (guide, not replace — memory design-logic-trees-guide-not-replace).
     // Detect the content logic tree(s) this conversation matches, and walk each to the
@@ -3525,10 +3554,11 @@ async function handleQuery (rawBody, res, identity) {
     // recommendation below and intended to be stored on a saved case study.
     const _savedClientAudit = buildSavedClientTraceAudit(state.savedClientContext, state.savedClientContextUsage)
     const _continuityAudit = buildContinuityTraceAudit(_continuityAllowed, _priorSummary)
-    // Which provider answered this session's recommendation call (item 4.97 US8). The seam
-    // that sets it does not exist yet, so it reads as the primary until T011 lands; the trace
-    // carries the key from today so a saved case never has to be read two ways.
+    // Which AI service answered this session (item 4.97 US8/T052), recorded at the classify
+    // calls above. Null when nothing through the seam answered — the trace then omits the
+    // row rather than naming a provider nobody heard from.
     const _aiProvider = state.aiProvider || null
+    const _aiFallbackUsed = state.aiFallbackState === aiProvider.FALLBACK_USED
 
     const _decisionTrace = {
       session: sessionId || null,
@@ -3565,9 +3595,12 @@ async function handleQuery (rawBody, res, identity) {
       // the pool resolves it against the engine's own vocabulary and cannot read the string
       // above. The sentinels are mapped to null exactly as `caseState.js` does.
       industry: (state.industry && state.industry !== 'pending' && state.industry !== 'skipped') ? state.industry : null,
-      // Which AI provider answered the recommendation call (item 4.97 US8). Filled by the
-      // provider seam; until it exists every call is the primary.
-      ai: { provider: _aiProvider || 'openai' },
+      // Which AI service answered, and whether it was the backup (item 4.97 US8/T052).
+      // Mike's ruling 2026-09-14: this shows on EVERY trace, not only on a fallback — a row
+      // that appears only on failure cannot be trusted by its absence, and a case reopened
+      // months later still says which service wrote it. `provider` is null only when no call
+      // through the seam answered; the screen shows nothing rather than guessing.
+      ai: { provider: _aiProvider, fallbackUsed: _aiFallbackUsed },
       domain: {
         id: state.detectedDomain || null,
         label: (DOMAINS.find(d => d.id === state.detectedDomain) || {}).label || null
