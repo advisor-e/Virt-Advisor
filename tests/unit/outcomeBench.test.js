@@ -269,6 +269,154 @@ describe('runBenches — the stored shape', () => {
   })
 })
 
+// ── The out-of-sample bench (4.97 US7, T046) ─────────────────────────────────
+//
+// 🔴 WHAT THIS EXISTS TO STOP, AND WHY NO TESTER COULD SEE IT. The outcome bench scores the
+// adjustments on the very reviews that produced them, so it flatters them — an adjustment
+// built from a review is asked to predict that same review. The figure looks like evidence
+// and is not. This bench trains on the earlier months and tests on the latest, so it cannot
+// see its own answers. A mentor reading "0% → 60%" has no way to tell which kind of number
+// they are looking at; only the code can keep the two apart.
+//
+// The assertion that matters most is the NEGATIVE one: an adjustment that clears the floor
+// only because the test month's rows were counted must NOT apply. That is the leak that
+// would quietly turn this back into the in-sample bench while still reading as honest.
+describe('timeSplitBench — trained on the earlier months, tested on the latest', () => {
+  const { plain, held } = plainAndHeld()
+  const { MIN_CASES, MIN_FIRMS } = require('../../server/utils/outcomeLearning')
+
+  /** `n` rows in `month`, each marking `title` as the outcome given, across `firms` tokens. */
+  function rows (month, n, title, outcome, firms = MIN_FIRMS, from = 0) {
+    const out = {}
+    for (let i = 0; i < n; i++) {
+      out['tok' + (i % firms) + ':' + month + '-c' + (from + i)] =
+        row({ month, templates: [{ title, used: 'full', outcome }] })
+    }
+    return out
+  }
+
+  const LIB = templates.map(t => t.title)
+
+  test('one month only is insufficient: nothing to train on, and the figures are null', async () => {
+    const pool = rows('2026-09', MIN_CASES + 10, plain, 'well')
+    const out = await bench.timeSplitBench(pool, {}, templates, LIB)
+    expect(out.insufficient).toBe(true)
+    expect(out.before).toBeNull()
+    expect(out.after).toBeNull()
+    expect(out.trained).toBe(0)
+  })
+
+  test('names the cut-off month and counts both sides', async () => {
+    const pool = Object.assign(
+      rows('2026-07', MIN_CASES + 5, held, 'less'),
+      rows('2026-08', MIN_CASES + 5, held, 'less', MIN_FIRMS, 100),
+      rows('2026-09', MIN_CASES + 5, plain, 'well', MIN_FIRMS, 200)
+    )
+    const out = await bench.timeSplitBench(pool, {}, templates, LIB)
+    // The cut-off is the month being TESTED — the latest one.
+    expect(out.cutoff).toBe('2026-09')
+    expect(out.tested).toBe(MIN_CASES + 5)
+    expect(out.trained).toBe((MIN_CASES + 5) * 2)
+    expect(out.insufficient).toBe(false)
+  })
+
+  test('too few rows in the latest month is insufficient, not a small sample reported as fact', async () => {
+    const pool = Object.assign(
+      rows('2026-08', MIN_CASES + 5, held, 'less'),
+      rows('2026-09', 3, plain, 'well', MIN_FIRMS, 200)
+    )
+    const out = await bench.timeSplitBench(pool, {}, templates, LIB)
+    expect(out.insufficient).toBe(true)
+    expect(out.tested).toBe(3)
+    expect(out.before).toBeNull()
+    expect(out.after).toBeNull()
+  })
+
+  // 🔴 THE LEAK THIS BENCH EXISTS TO PREVENT.
+  test('an adjustment that only clears the floor thanks to the TEST month never applies', async () => {
+    // Under the floor in training (5 rows), over it once September is counted in.
+    const pool = Object.assign(
+      rows('2026-08', 5, held, 'less'),
+      rows('2026-09', MIN_CASES + 5, held, 'less', MIN_FIRMS, 200)
+    )
+    const out = await bench.timeSplitBench(pool, {}, templates, LIB)
+    expect(out.liveIds).toEqual([])
+    // With nothing applying, the two figures must be identical — there is no adjustment
+    // to make a difference, and any gap would mean the test month leaked into training.
+    expect(out.after).toBe(out.before)
+  })
+
+  // The mentor's gate holds here exactly as it does live: nothing changes a recommendation
+  // until it is ACCEPTED, so an undecided pool measures no adjustment at all. A bench that
+  // quietly applied proposals would report a lift the platform is not actually giving.
+  test('the mentor gate holds — only an ACCEPTED adjustment is measured', async () => {
+    const pool = Object.assign(
+      rows('2026-07', MIN_CASES + 5, held, 'less'),
+      rows('2026-08', MIN_CASES + 5, held, 'less', MIN_FIRMS, 100),
+      rows('2026-09', MIN_CASES + 5, plain, 'well', MIN_FIRMS, 200)
+    )
+    const undecided = await bench.timeSplitBench(pool, {}, templates, LIB)
+    expect(undecided.liveIds).toEqual([])
+    expect(undecided.after).toBe(undecided.before)
+
+    // Accept whatever the training months proposed, and it is measured.
+    const { computeAdjustments } = require('../../server/utils/outcomeLearning')
+    const trainOnly = {}
+    Object.keys(pool).forEach((k) => { if (pool[k].month < '2026-09') { trainOnly[k] = pool[k] } })
+    const accepted = {}
+    computeAdjustments(trainOnly, {}, LIB)
+      .filter(a => a.state === 'proposed')
+      .forEach((a) => { accepted[a.id] = { state: 'live', by: 'mentor@x' } })
+    expect(Object.keys(accepted).length).toBeGreaterThan(0)
+
+    const out = await bench.timeSplitBench(pool, accepted, templates, LIB)
+    expect(out.liveIds.length).toBeGreaterThan(0)
+
+    // And a rejection puts it back to measuring nothing.
+    const rejected = {}
+    Object.keys(accepted).forEach((id) => { rejected[id] = { state: 'rejected', reason: 'no' } })
+    const back = await bench.timeSplitBench(pool, rejected, templates, LIB)
+    expect(back.liveIds).toEqual([])
+  })
+
+  test('the shares are shares, and the result carries the data-model §4 shape', async () => {
+    const pool = Object.assign(
+      rows('2026-08', MIN_CASES + 5, held, 'less'),
+      rows('2026-09', MIN_CASES + 5, plain, 'well', MIN_FIRMS, 200)
+    )
+    const out = await bench.timeSplitBench(pool, {}, templates, LIB)
+    expect(Object.keys(out).sort()).toEqual(['after', 'before', 'cutoff', 'insufficient', 'liveIds', 'tested', 'trained'])
+    expect(out.before).toBeGreaterThanOrEqual(0)
+    expect(out.before).toBeLessThanOrEqual(1)
+    expect(out.after).toBeGreaterThanOrEqual(0)
+    expect(out.after).toBeLessThanOrEqual(1)
+  })
+
+  test('runBenches carries it as the third figure, stamped like the others', async () => {
+    const pool = Object.assign(
+      rows('2026-08', MIN_CASES + 5, held, 'less'),
+      rows('2026-09', MIN_CASES + 5, plain, 'well', MIN_FIRMS, 200)
+    )
+    const out = await bench.runBenches({
+      scenarios: SCENARIOS.slice(0, 3),
+      poolRows: pool,
+      templates,
+      adjustments: [],
+      decisions: {},
+      libraryTitles: LIB
+    })
+    expect(out.timeSplit).toBeDefined()
+    expect(typeof out.timeSplit.ranAt).toBe('string')
+    expect(out.timeSplit.cutoff).toBe('2026-09')
+  })
+
+  test('an empty pool is insufficient rather than a crash', async () => {
+    const out = await bench.timeSplitBench({}, {}, templates, LIB)
+    expect(out.insufficient).toBe(true)
+    expect(out.cutoff).toBeNull()
+  })
+})
+
 describe('poolRowToCase — the anonymised shape and nothing more', () => {
   test('maps a staircase step id to its ceiling and passes only the row fields', () => {
     const { caseState, strategy, signalTypes } = bench.poolRowToCase(row({ staircaseStep: 'as-observation', industry: 'cafe', primaryIssue: 'Cost of sales has increased', signals: ['a', 7, 'b'] }))

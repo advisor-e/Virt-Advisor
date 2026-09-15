@@ -376,7 +376,12 @@ async function _runAndPersistBenches (savedBy) {
     scenarios: SCENARIOS,
     poolRows: result.rows,
     templates: result.library,
-    adjustments: liveAdjustments(result.computed)
+    adjustments: liveAdjustments(result.computed),
+    // The out-of-sample bench recomputes from the training months itself, so it needs the
+    // mentor's decisions and the library titles rather than the finished adjustments — the
+    // live list was computed from the WHOLE pool, test month included (4.97 US7).
+    decisions: result.row.decisions,
+    libraryTitles: result.library.map(t => t && t.title).filter(t => typeof t === 'string' && t.trim())
   })
   const current = await _decisionsRow()
   await overlay.saveFirmConfig(PLATFORM_SCOPE, DECISIONS_KEY, {

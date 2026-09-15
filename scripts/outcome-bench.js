@@ -22,7 +22,7 @@ const overlay = require('../server/utils/firmOverlay')
 const { PLATFORM_SCOPE } = require('../server/utils/platformScope')
 const { POOL_PREFIX, DECISIONS_KEY, computeAdjustments, liveAdjustments } = require('../server/utils/outcomeLearning')
 const { platformTemplates } = require('../server/utils/outcomeContribute')
-const { outcomeBench } = require('../server/utils/outcomeBench')
+const { outcomeBench, timeSplitBench } = require('../server/utils/outcomeBench')
 
 const pct = x => (100 * x).toFixed(1) + '%'
 
@@ -45,6 +45,20 @@ async function main () {
   console.log(`                                            with adjustments    ${pct(result.after)} (${result.wellAfter}/${result.reviews})`)
   console.log(`  Reviews with no "Landed well" verdict (counted in the denominator only): ${result.noWellVerdict}`)
   if (live.length) { console.log('  Live: ' + live.map(a => `${a.template} · ${a.dimension} ${a.value} · −${a.holdBack}`).join(' | ')) }
+
+  // The out-of-sample figure (item 4.97 US7): trained on the earlier months, tested on the
+  // latest. The number above flatters itself; this one cannot. Printed beside it so nobody
+  // reads the in-sample share alone and takes it for evidence.
+  const split = await timeSplitBench(rows, decisions, templates, titles)
+  if (split.insufficient) {
+    console.log(`\n=== OUT-OF-SAMPLE — not yet measurable (${split.trained} trained · ${split.tested} tested) ===`)
+    console.log('  The pool needs a later month with at least the floor in it to test on.')
+  } else {
+    console.log(`\n=== OUT-OF-SAMPLE — tested on ${split.cutoff}, trained on every month before it · ${split.liveIds.length} adjustment${split.liveIds.length === 1 ? '' : 's'} ===`)
+    console.log(`  ${split.trained} reviews trained · ${split.tested} tested`)
+    console.log(`  Top recommendation marked "Landed well":  without adjustments ${pct(split.before)}`)
+    console.log(`                                            with adjustments    ${pct(split.after)}`)
+  }
   console.log('')
   return result
 }

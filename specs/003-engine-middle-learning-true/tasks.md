@@ -180,9 +180,9 @@ Two-part app at the repository root: `server/` (Restify), `components/` / `utils
 
 **Independent Test**: quickstart Story 7.
 
-- [ ] T046 [P] [US7] Extend `tests/unit/outcomeBench.test.js` — `timeSplitBench` trains on every earlier month and tests on the latest; only live ids meeting the floor **in the training set** apply; fewer than `MIN_CASES` test rows → `insufficient: true` and null figures; one month only → insufficient; the result shape per data-model §4
-- [ ] T047 [US7] Add `timeSplitBench(poolRows, decisions, templates)` to `server/utils/outcomeBench.js` and include it in `runBenches`; store as `benches.timeSplit`
-- [ ] T048 [US7] In `components/mentor/MentorOutcomeLearning.vue` add the out-of-sample column, cut-off, count tested, the insufficient state and the rewritten honesty line per the approved drawing; `locales/en.json`; `scripts/outcome-bench.js` prints the third result; `scripts/dev/seed-outcome-pool.js` gains `--months <n>` for the quickstart's one-month check
+- [x] T046 [P] [US7] Extend `tests/unit/outcomeBench.test.js` — `timeSplitBench` trains on every earlier month and tests on the latest; only live ids meeting the floor **in the training set** apply; fewer than `MIN_CASES` test rows → `insufficient: true` and null figures; one month only → insufficient; the result shape per data-model §4
+- [x] T047 [US7] Add `timeSplitBench(poolRows, decisions, templates)` to `server/utils/outcomeBench.js` and include it in `runBenches`; store as `benches.timeSplit`
+- [x] T048 [US7] In `components/mentor/MentorOutcomeLearning.vue` add the out-of-sample column, cut-off, count tested, the insufficient state and the rewritten honesty line per the approved drawing; `locales/en.json`; `scripts/outcome-bench.js` prints the third result; `scripts/dev/seed-outcome-pool.js` gains `--months <n>` for the quickstart's one-month check
 
 **Checkpoint**: the bench card shows three figures or an honest sentence.
 

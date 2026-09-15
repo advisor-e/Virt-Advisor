@@ -158,7 +158,7 @@
         b-button(size="is-small" outlined type="is-primary" :loading="runningBenches" :disabled="runningBenches" @click="runBenches")
           | {{ runningBenches ? $t('outcomeLearning.benchRunning') : $t('outcomeLearning.benchRun') }}
       b-message(v-if="benchError" type="is-danger" size="is-small") {{ benchError }}
-      template(v-if="benchFixed || benchOutcome")
+      template(v-if="benchFixed || benchOutcome || benchTimeSplit")
         .columns
           .column(v-if="benchFixed")
             .mol-bench
@@ -189,6 +189,26 @@
                 span.mol-bn
                   | {{ percentOf(benchOutcome.after) }}
                   small {{ $tc('outcomeLearning.benchWith', liveCount(benchOutcome)) }}
+          //- ── Out-of-sample (4.97 US7) ──────────────────────────────────────
+          //- The honest number: trained on the earlier months, tested on the latest,
+          //- so it cannot see its own answers. When there is not enough to say so, it
+          //- SAYS that rather than showing a figure from a handful of rows.
+          .column(v-if="benchTimeSplit")
+            .mol-bench
+              h5.mol-bench-h {{ benchTimeSplitHeading }}
+              p.is-size-7.has-text-grey {{ $t('outcomeLearning.benchTimeSplitDesc') }}
+              template(v-if="!benchTimeSplit.insufficient")
+                .mol-bfig
+                  span.mol-bn
+                    | {{ percentOf(benchTimeSplit.before) }}
+                    small {{ $t('outcomeLearning.benchWithout') }}
+                  span.has-text-grey →
+                  span.mol-bn
+                    | {{ percentOf(benchTimeSplit.after) }}
+                    small {{ $tc('outcomeLearning.benchWith', liveCount(benchTimeSplit)) }}
+                p.is-size-7.has-text-grey
+                  | {{ $t('outcomeLearning.benchTimeSplitCounts', { trained: benchTimeSplit.trained, tested: benchTimeSplit.tested }) }}
+              p.is-size-7.has-text-grey(v-else) {{ $t('outcomeLearning.benchTimeSplitInsufficient') }}
         p.is-size-7.has-text-grey.mt-2
           template(v-if="benchRanAt")  {{ $tc('outcomeLearning.benchLastRun', liveCount(benchOutcome || benchFixed), { when: dateTimeWords(benchRanAt) }) }}
           |  {{ $t('outcomeLearning.benchHonesty') }}
@@ -350,6 +370,24 @@ export default {
     benchOutcome () {
       const b = this.page.benches
       return b && b.outcome && typeof b.outcome === 'object' ? b.outcome : null
+    },
+
+    /** @returns {object|null} the out-of-sample bench (4.97 US7), when it has run */
+    benchTimeSplit () {
+      const b = this.page.benches
+      return b && b.timeSplit && typeof b.timeSplit === 'object' ? b.timeSplit : null
+    },
+
+    /**
+     * The out-of-sample heading, which names the months when it has them — the drawing's
+     * "Out-of-sample — trained on July–August, tested on September". With nothing to test
+     * on there are no months to name, so it falls back to the bare heading.
+     * @returns {string}
+     */
+    benchTimeSplitHeading () {
+      const b = this.benchTimeSplit
+      if (!b || b.insufficient || !b.cutoff) { return this.$t('outcomeLearning.benchTimeSplit') }
+      return this.$t('outcomeLearning.benchTimeSplitTested', { month: this.monthWords(b.cutoff) })
     },
 
     /** @returns {string[]} the four points of "How to use this page" */
@@ -721,6 +759,22 @@ export default {
     /** @param {number} fraction - 0..1 @returns {string} */
     percentOf (fraction) {
       return Number.isFinite(fraction) ? Math.round(100 * fraction) + '%' : ''
+    },
+
+    /**
+     * A pool month, "2026-09", as "September 2026". Built with an explicit day-1 UTC date
+     * because `new Date('2026-09')` is parsed as UTC midnight and can render as the month
+     * BEFORE in a negative-offset timezone — the wrong month on a bench heading is a
+     * quietly wrong claim about what was tested.
+     * @param {string} month - 'YYYY-MM'
+     * @returns {string}
+     */
+    monthWords (month) {
+      if (typeof month !== 'string' || !/^\d{4}-\d{2}$/.test(month)) { return '' }
+      const parts = month.split('-')
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, 1)
+      if (Number.isNaN(d.getTime())) { return '' }
+      return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
     },
 
     /** @param {string} iso @returns {string} */

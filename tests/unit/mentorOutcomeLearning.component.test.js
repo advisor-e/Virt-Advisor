@@ -228,6 +228,41 @@ describe('deciding', () => {
   })
 })
 
+// 4.97 US7 / T048. The out-of-sample figure is the one a mentor is meant to trust, and
+// the two failure shapes both look plausible on screen: a figure computed from a handful
+// of rows, and a month heading naming the wrong month. Neither is visible to a tester, who
+// has nothing to compare against.
+describe('the out-of-sample bench', () => {
+  const split = over => pagePayload({ benches: { timeSplit: Object.assign({ cutoff: '2026-09', trained: 38, tested: 21, before: 0.4, after: 0.6, liveIds: ['x|domain|profit'], insufficient: false }, over || {}) } })
+
+  it('takes the figures and names the month it was tested on', async () => {
+    const wrapper = await mountPage(split())
+    expect(wrapper.vm.benchTimeSplit).toMatchObject({ trained: 38, tested: 21, insufficient: false })
+    // "2026-09" must read as September, not August — a month built as UTC midnight renders
+    // as the month before in a negative-offset timezone, and the heading would be a
+    // quietly wrong claim about what was tested.
+    expect(wrapper.vm.monthWords('2026-09')).toMatch(/September/)
+    expect(wrapper.vm.monthWords('2026-01')).toMatch(/January/)
+  })
+
+  it('the insufficient state carries no figures and no month in the heading', async () => {
+    const wrapper = await mountPage(split({ insufficient: true, before: null, after: null, cutoff: null, trained: 0, tested: 40 }))
+    expect(wrapper.vm.benchTimeSplit.insufficient).toBe(true)
+    expect(wrapper.vm.benchTimeSplitHeading).toBe('outcomeLearning.benchTimeSplit')
+  })
+
+  it('a malformed month is blank rather than a wrong month', async () => {
+    const wrapper = await mountPage(split())
+    expect(wrapper.vm.monthWords('nonsense')).toBe('')
+    expect(wrapper.vm.monthWords(null)).toBe('')
+  })
+
+  it('a page with no benches at all leaves it null, not a broken card', async () => {
+    const wrapper = await mountPage(pagePayload({ benches: null }))
+    expect(wrapper.vm.benchTimeSplit).toBeNull()
+  })
+})
+
 // 4.97 US5 / T040. What UAT cannot see here is the SECOND load: only `list` reads the
 // counts, so every other payload carries `reach: null`, and a page that rebuilds itself
 // wholesale would blank the tile on an unrelated button press. A mentor would read a

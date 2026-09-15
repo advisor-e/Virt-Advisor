@@ -73,7 +73,11 @@ const MONTHS = ['2026-07', '2026-08', '2026-09']
  * @param {string[]} libraryTitles - so the titles are the library's own spelling
  * @returns {Array<{firmId: string, caseId: string, row: Object}>}
  */
-function buildSeedRows (libraryTitles) {
+function buildSeedRows (libraryTitles, monthCount) {
+  // `--months 1` puts every review in ONE month, so the out-of-sample bench has nothing
+  // earlier to train on and must say so rather than show a figure (4.97 US7, quickstart
+  // Story 7). Anything else uses the full spread.
+  const months = MONTHS.slice(0, Math.max(1, Math.min(MONTHS.length, Number(monthCount) || MONTHS.length)))
   const canonical = new Map(libraryTitles.map(t => [t.trim().toLowerCase(), t]))
   const above = canonical.get(TEMPLATE_ABOVE.toLowerCase())
   const below = canonical.get(TEMPLATE_BELOW.toLowerCase())
@@ -95,7 +99,7 @@ function buildSeedRows (libraryTitles) {
       caseId: 'seed-case-' + (i + 1),
       row: {
         v: 1,
-        month: MONTHS[i % MONTHS.length],
+        month: months[i % months.length],
         domain: DOMAIN,
         primaryIssue: i % 2 === 0 ? PRIMARY_ISSUE : null,
         industry: null,
@@ -127,7 +131,7 @@ async function seed (opts) {
     }
   }
 
-  const rows = buildSeedRows(libraryTitles)
+  const rows = buildSeedRows(libraryTitles, opts && opts.months)
   let written = 0
   for (const r of rows) {
     guardContribution(r.row, { libraryTitles, signalTypes })
@@ -139,7 +143,11 @@ async function seed (opts) {
 
 async function main () {
   const reset = process.argv.includes('--reset')
-  const result = await seed({ reset })
+  // `--months <n>`: how many of the seed's months to spread the reviews over. 1 gives the
+  // out-of-sample bench nothing to train on, which is quickstart Story 7's insufficient case.
+  const monthsFlag = process.argv.indexOf('--months')
+  const months = monthsFlag === -1 ? undefined : Number(process.argv[monthsFlag + 1])
+  const result = await seed({ reset, months })
   process.stdout.write([
     '',
     `seed-outcome-pool: ${result.written} reviews written across ${result.firms} firms` + (reset ? `, after removing ${result.removed} earlier rows` : '') + '.',

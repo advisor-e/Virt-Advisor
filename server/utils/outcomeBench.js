@@ -305,17 +305,94 @@ async function outcomeBench (poolRows, templates, adjustments) {
 }
 
 /**
- * Both benches, stamped, in the shape `outcome-adjustments.benches` stores (data-model §4).
- * @param {{scenarios: Array, poolRows: Object, templates: Array, adjustments: Array}} input
- * @returns {Promise<{fixed: Object, outcome: Object}>} each with `ranAt`
+ * The out-of-sample bench (item 4.97 US7, data-model §4): recompute the adjustments from the
+ * EARLIER months only, keep the mentor's decisions, then score them on the latest month —
+ * reviews the adjustments never saw.
+ *
+ * 🔴 WHY THIS EXISTS. `outcomeBench` above scores the adjustments on the very reviews that
+ * produced them: an adjustment built from a review is asked to predict that same review, so
+ * the figure flatters itself and cannot be read as evidence. Nothing on the screen
+ * distinguished the two numbers, and a mentor had no way to tell. This one is trained on
+ * what came before and tested on what came after, so it cannot see its own answers.
+ *
+ * 🔴 THE FLOOR IS APPLIED TO THE TRAINING SET ALONE. An adjustment that clears 5 firms /
+ * 25 cases only once the test month is counted must not apply, or the test month has leaked
+ * into training and this is the in-sample bench wearing an honest name.
+ *
+ * `insufficient` is the honest answer, not a small sample reported as fact: one month only
+ * (nothing to train on), or fewer than `MIN_CASES` rows in the latest month.
+ *
+ * @param {Object} poolRows - the pool, keyed `<token>:<hash>`
+ * @param {Object} decisions - the mentor's decisions row, honoured exactly as it is live
+ * @param {Array<Object>} templates - the platform library
+ * @param {Array<string>} libraryTitles - titles `computeAdjustments` validates against
+ * @returns {Promise<{cutoff: string|null, trained: number, tested: number, before: number|null,
+ *   after: number|null, liveIds: string[], insufficient: boolean}>}
+ */
+async function timeSplitBench (poolRows, decisions, templates, libraryTitles) {
+  const { computeAdjustments, liveAdjustments, MIN_CASES } = require('./outcomeLearning')
+  const rows = poolRows && typeof poolRows === 'object' ? poolRows : {}
+  const keys = Object.keys(rows).filter(k => rows[k] && typeof rows[k] === 'object')
+
+  const months = Array.from(new Set(keys
+    .map(k => rows[k].month)
+    .filter(m => typeof m === 'string' && m))).sort()
+
+  const empty = { cutoff: null, trained: 0, tested: 0, before: null, after: null, liveIds: [], insufficient: true }
+  // One month (or none) means there is no earlier period to train on.
+  if (months.length < 2) {
+    if (months.length === 1) { empty.cutoff = months[0] }
+    empty.tested = keys.filter(k => rows[k].month === months[0]).length
+    empty.trained = 0
+    return empty
+  }
+
+  const cutoff = months[months.length - 1]
+  const trainKeys = keys.filter(k => rows[k].month < cutoff)
+  const testKeys = keys.filter(k => rows[k].month === cutoff)
+
+  if (testKeys.length < MIN_CASES) {
+    return Object.assign({}, empty, { cutoff, trained: trainKeys.length, tested: testKeys.length })
+  }
+
+  // Train: the floor is measured on these rows alone.
+  const trainRows = {}
+  trainKeys.forEach((k) => { trainRows[k] = rows[k] })
+  const computed = computeAdjustments(trainRows, decisions, libraryTitles)
+  const live = liveAdjustments(computed)
+
+  // Test: the latest month, scored with those adjustments and without them.
+  const testRows = {}
+  testKeys.forEach((k) => { testRows[k] = rows[k] })
+  const scored = await outcomeBench(testRows, templates, live)
+
+  return {
+    cutoff,
+    trained: trainKeys.length,
+    tested: testKeys.length,
+    before: scored.before,
+    after: scored.after,
+    liveIds: _liveIds(live),
+    insufficient: false
+  }
+}
+
+/**
+ * All three benches, stamped, in the shape `outcome-adjustments.benches` stores
+ * (data-model §4).
+ * @param {{scenarios: Array, poolRows: Object, templates: Array, adjustments: Array,
+ *   decisions: Object, libraryTitles: Array<string>}} input
+ * @returns {Promise<{fixed: Object, outcome: Object, timeSplit: Object}>} each with `ranAt`
  */
 async function runBenches (input) {
   const fixed = await fixedBench(input.scenarios, input.templates, input.adjustments)
   const outcome = await outcomeBench(input.poolRows, input.templates, input.adjustments)
+  const timeSplit = await timeSplitBench(input.poolRows, input.decisions, input.templates, input.libraryTitles)
   const ranAt = new Date().toISOString()
   return {
     fixed: Object.assign({ ranAt }, fixed),
-    outcome: Object.assign({ ranAt }, outcome)
+    outcome: Object.assign({ ranAt }, outcome),
+    timeSplit: Object.assign({ ranAt }, timeSplit)
   }
 }
 
@@ -329,5 +406,6 @@ module.exports = {
   hasCapBreach,
   fixedBench,
   outcomeBench,
+  timeSplitBench,
   runBenches
 }
