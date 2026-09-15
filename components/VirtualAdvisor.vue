@@ -148,6 +148,17 @@
   .section-banner(v-if="mode" :class="'banner-' + mode")
     span.section-banner-label {{ sectionBannerLabel }}
 
+  //- No backup AI provider (4.97 US8, Mike's ruling 2026-09-15: "always give warning but
+  //- let the user continue"). Shown once when a conversation is chosen — not per message —
+  //- and it stops nothing: the session runs exactly as before, immediately beneath it.
+  //- Above the mode split so every conversation and the course builder alike carry it.
+  b-message.va-backup-notice(
+    v-if="mode && noBackupProvider"
+    type="is-warning"
+    size="is-small"
+    has-icon
+  ) {{ $t('advisor.backupProvider.notice') }}
+
   //- Course builder
   CourseBuilder(
     v-if="mode === 'course'"
@@ -996,6 +1007,11 @@ export default {
       // The engine's industry vocabulary, fetched once the first time the industry
       // question arrives; null until then, and left null if the fetch fails (no chips).
       industryWords: null,
+      // No backup AI provider connected (4.97 US8, Mike 2026-09-15: "always give warning
+      // but let the user continue"). Read ONCE when a conversation is chosen, never per
+      // message. Starts false so a slow or failed read never warns: an unproven warning on
+      // every conversation teaches advisors to ignore the one that matters.
+      noBackupProvider: false,
       // Client-knowledge-base step (design 2026-07-14): "Who is this session
       // for?" shown before the intake begins in client mode. sessionClient is
       // the chosen register entry ({id, name}) or null when skipped — the id
@@ -1336,6 +1352,26 @@ export default {
       } catch (e) { /* no chips; the question still stands and the answer still sends */ }
     },
 
+    /**
+     * Ask the backend once whether a backup AI provider is connected, so the advisor is
+     * warned BEFORE a conversation rather than when one fails halfway through (4.97 US8).
+     *
+     * It never blocks and never stops a session: only an explicit `backupProvider: false`
+     * raises the notice. A failed or slow read leaves it silent, deliberately — a warning
+     * shown when we do not actually know is a warning advisors learn to scroll past.
+     * @returns {Promise<void>}
+     */
+    async loadAiReadiness () {
+      try {
+        const res = await fetch('/api/advisor/ai-readiness', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { return }
+        const data = await res.json()
+        this.noBackupProvider = !!(data && data.backupProvider === false)
+      } catch (e) { /* silent: see the note above */ }
+    },
+
     // humanizeReasons() — the "Why" column's plain English — now comes from
     // traceReasonMixin, shared with FirmManagerHub. It used to live here and knew
     // 7 of the engine's 26 codes; the saved-case view knew none of them, which is
@@ -1424,6 +1460,8 @@ export default {
       this.isStreaming = false
       this.streamingText = ''
       this.mode = selected
+      // Once per conversation, not per message (Mike's ruling 2026-09-15).
+      this.loadAiReadiness()
       // Client-step state resets FIRST — the client branch below re-arms it.
       this.showClientStep = false
       this.sessionClient = null

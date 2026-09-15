@@ -136,6 +136,9 @@
       "conflict": "Conflict & Dispute",
       "eoy": "End of Year",
       "due-diligence": "Due Diligence & Acquisitions"
+    },
+    "backupProvider": {
+      "notice": "No backup AI provider is connected. If the main provider drops out mid-conversation, this session could fail and you may need to start it again."
     }
   },
   "header": {
@@ -5362,7 +5365,7 @@
     "pillHistoryOn": "On",
     "pillHistoryOff": "Off",
     "pillRemoved": "Removed",
-    "poolNotConfigured": "The outcome pool is not configured on this server, so nothing is being shared yet.",
+    "poolNotConfigured": "Shared learning is switched off on this server because it is not fully set up. Nothing is being shared, and nothing can be until your administrator completes the setup. Everything else in the app works normally.",
     "unreachable": "The server could not be reached. Check your connection and try again.",
     "failed": "That could not be done.",
     "advisorNotice": "Your firm shares how each template went, without names or notes, to improve recommendations across Advisor-e. Nothing you type below leaves the firm."

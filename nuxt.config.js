@@ -131,6 +131,9 @@ export default {
     // Same rule, same reason: the industry words the intake offers as the advisor
     // types (item 4.87 T022a) are a plain GET and must sit above the SSE entry.
     { path: '/api/advisor/industry-vocabulary', handler: '~/server-middleware/apiProxy.js' },
+    // Same rule, same reason: whether a backup AI provider is connected (4.97 US8) is a
+    // plain GET and must sit above the SSE entry or it falls through to a Nuxt 404.
+    { path: '/api/advisor/ai-readiness', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/advisor', handler: '~/server-middleware/advisor.js' },
     { path: '/api/translate', handler: '~/server-middleware/translate.js' },
     { path: '/api/course', handler: '~/server-middleware/course.js' },

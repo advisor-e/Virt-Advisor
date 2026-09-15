@@ -4,13 +4,24 @@
  * Refuse to start when firms share outcomes and the pool secret is missing (item 4.97 US6,
  * specs/003-engine-middle-learning-true contracts §Boot check).
  *
- * 🔴 WHY A SERVER THAT WILL NOT START IS THE RIGHT ANSWER. Without `OUTCOME_POOL_SECRET`,
- * `firmToken` throws, every contribution is dropped, and NOTHING SAYS SO: the app runs, the
- * screens render, the switch still reads "Sharing since 11 Sep", and a firm that signed a
- * consent contributes nothing at all. The fault is invisible from every page, which is
- * exactly why it cannot be left to be noticed. Mike's ruling of 2026-09-14: the secret is
- * optional until the first firm shares, required from then, and never changed once set —
- * changing it orphans every row already pooled under the old one.
+ * 🔴 THE FEATURE STOPS; THE APP DOES NOT (Mike's ruling, 2026-09-15). Asked whether a missing
+ * secret should stop the server, his answer was that one firm's data must never reach another
+ * — "can the app still function elsewhere and just THAT FUNCTION shut down with a
+ * notification / warning so the rest can still be used?" So this warns loudly and starts.
+ *
+ * 🔴 WHY THAT IS SAFE, AND IT IS NOT A JUDGEMENT CALL. Pooled sharing cannot leak without the
+ * secret because it cannot be ADDRESSED without it: every pooled read and write derives its
+ * key through `firmToken`, which throws on a missing secret, and the consent route refuses to
+ * switch sharing on at all. The protection is structural, not a flag someone remembered to
+ * check. What was missing was never safety — it was that NOTHING SAID SO: the app ran, the
+ * screens rendered, the switch still read "Sharing since 11 Sep", and a firm that signed a
+ * consent contributed nothing. That is what the warning here and the notice on the consent
+ * screen now answer, in the place a person actually looks.
+ *
+ * Mike's ruling of 2026-09-14 stands unchanged on the secret itself: optional until the first
+ * firm shares, required from then, and never changed once set — changing it orphans every row
+ * already pooled under the old one. This file no longer decides whether the server lives; it
+ * decides how loudly the gap is announced.
  *
  * 🔴 AND WHY IT MUST NOT MAKE BOOT DEPEND ON THE STORE. A database that cannot be reached
  * at startup is not evidence that anyone shares. Refusing to start on an unreadable store
@@ -48,20 +59,25 @@ async function _countSharingFirms () {
 }
 
 /**
- * Throw if any firm shares outcomes while the pool secret is unset. Called before the
- * listening line in `restify-server.js`, which exits 1 on rejection.
+ * Warn — loudly — if any firm shares outcomes while the pool secret is unset, and let the
+ * server start. Called before the listening line in `restify-server.js`.
+ *
+ * NEVER REJECTS. Pooled sharing is already incapable of writing without the secret (see this
+ * file's header), so the server dying added no protection and took every other feature down
+ * with it. The warning is the whole job.
  *
  * Skipped under `NODE_ENV=test`: the suite boots the wiring repeatedly and must not be
  * made to depend on an environment variable or on the store being reachable.
  *
- * @returns {Promise<void>} resolves when it is safe to start
- * @throws {Error} `OUTCOME_POOL_SECRET_REQUIRED` — the message names the COUNT of sharing
- *   firms and never a firm id: a startup log is not a place to put an identifier.
+ * @returns {Promise<{ok: boolean, sharing: number}>} `ok:false` with the COUNT of sharing
+ *   firms when the secret is missing and someone shares — never a firm id, because a startup
+ *   log is not a place to put an identifier. Returned rather than only logged so a caller
+ *   (and the test) can assert on it.
  */
 async function assertPoolSecretIfConsented () {
-  if (process.env.NODE_ENV === 'test') { return }
+  if (process.env.NODE_ENV === 'test') { return { ok: true, sharing: 0 } }
   // With the secret set there is nothing to decide, so do not pay for a query per firm.
-  if (_secretPresent()) { return }
+  if (_secretPresent()) { return { ok: true, sharing: 0 } }
 
   let sharing = 0
   try {
@@ -71,16 +87,19 @@ async function assertPoolSecretIfConsented () {
     // depend on it. The message is deliberately generic — a connection string in a
     // startup log is a leak.
     console.warn('[startup] could not check outcome-sharing consent; starting anyway')
-    return
+    return { ok: true, sharing: 0 }
   }
 
   if (sharing > 0) {
-    const err = new Error(
-      'OUTCOME_POOL_SECRET is not set but ' + sharing + ' firm(s) share outcomes'
+    console.warn(
+      '[startup] WARNING: shared outcome learning is SWITCHED OFF — OUTCOME_POOL_SECRET is ' +
+      'not set and ' + sharing + ' firm(s) have consented to share. Nothing is being pooled ' +
+      'and nothing can be: every pooled read and write needs the secret to derive its key. ' +
+      'No other feature is affected. Set the secret to turn shared learning back on.'
     )
-    err.code = 'OUTCOME_POOL_SECRET_REQUIRED'
-    throw err
+    return { ok: false, sharing }
   }
+  return { ok: true, sharing: 0 }
 }
 
 module.exports = { assertPoolSecretIfConsented }

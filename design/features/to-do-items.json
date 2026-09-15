@@ -96,7 +96,7 @@
         "detail": "2026-09-14 - 'transfer your improvement suggestions (all of them) into fixes' and 'if you spot an area of improvement ... get it in the tasks'. Lift, fallback and the profile screen each ruled yes the same day."
       },
       "touches": "advisorEngine.js intake, caseStore, templateResolver and its seam, outcomeLearning and the benches, openaiClient.js, the Mentor Hub (Outcome Learning page and a new template-profile tab), the trace, the Scenario Lab, advisory-engine.md.",
-      "note": "US1 TO US7 COMPLETE, US8 NEARLY, 52 OF 67 TASKS. ALL EIGHT FILES ARE NOW THROUGH THE AI SEAM (T050/T051 done 2026-09-15): advisorEngine personal, courseEngine not, every hardcoded model gone. PROVED LIVE, not by the suite - 27 real calls over 8 sites, all ok, all naming the provider; six sites that never logged success now do. NEXT JOB: T052, record the provider in the trace and the 'Answered by' line on the advisor's screen. SPEC KIT, specs/003-engine-middle-learning-true. DeepSeek second-opinion is 7.3.",
+      "note": "US1 TO US7 COMPLETE, US8 NEARLY, 52 OF 67 TASKS. ALL EIGHT FILES ARE NOW THROUGH THE AI SEAM (T050/T051 done 2026-09-15): advisorEngine personal, courseEngine not, every hardcoded model gone. PROVED LIVE, not by the suite - 27 real calls over 8 sites, all ok, all naming the provider; six sites that never logged success now do. MIKE'S WARN-NEVER-BLOCK RULING BUILT the same day: the server no longer dies without OUTCOME_POOL_SECRET, that ONE function shuts down and says so, and the advisor is told when no backup AI is connected. NEXT JOB: T052, record the provider in the trace and the 'Answered by' line on the advisor's screen. SPEC KIT, specs/003-engine-middle-learning-true. DeepSeek second-opinion is 7.3.",
       "comment": "2026-09-14 - filed on Mike's instruction; spec, clarify, plan, tasks, four drawings and sixteen rulings the same day. TWO FAULTS FOUND BY RUNNING IT, NOT BY TESTS: naming a problem from one category word, and recording plain agreement as a correction. US3 closed the same day: five of the six evidence families had never been protected. 2026-09-15 - a THIRD fault found by running it: a function passed all ten tests and real MySQL refused the statement. 2026-09-15 pm - T050/T051 finished and walked on the running app; the course engine was found to have never logged a successful AI call at all."
     },
     {
@@ -244,6 +244,27 @@
       "touches": "The provider seam 7.2 builds, the narrative and hub-reading call sites, the advisor's screen where two answers would show, the provider clearance in config.",
       "note": "NOT PART OF 7.2. Needs a design decision first: which calls get two answers, what the advisor sees when they disagree, and which provider is cleared for which data. DeepSeek's China hosting and training terms are the privacy question to answer before it carries anything personal.",
       "comment": "2026-09-14 - filed on Mike's yes so the idea is on the list and not in a chat."
+    },
+    {
+      "ref": "9.3",
+      "name": "A firm can receive pooled adjustments while unable to contribute any",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "With no pool secret the firm cannot contribute a single row, but pooled adjustments computed earlier still apply to its advisors, and the screen says both things at once.",
+      "risk": "Not a privacy fault - an adjustment is a platform-wide average and carries no firm, client or text. It is a fairness and honesty one: the tab shows a green 'Sharing since' badge and '2 adjustments apply' beside a notice saying sharing is switched off.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-15 - found while building Mike's warn-never-block ruling, by reading the screen that ruling put the notice on. A defect we found; his call whether it is worth fixing."
+      },
+      "touches": "server/utils/outcomeLearningSession.js _liveAdjustments (reads pooled rows by prefix, needing no secret), the Outcome Sharing tab's badge and adjustments card in components/firm/FirmOutcomeConsent.vue.",
+      "note": "THE DECISION IS WHICH IS RIGHT, and it is Mike's, not ours. Either a firm that cannot contribute should not receive either (symmetry), or receiving is correct and the screen should say so plainly instead of contradicting itself. Nothing is broken today and no data is at risk; only the screen misleads.",
+      "comment": "2026-09-15 - found and filed while building the warn-never-block ruling; raised with Mike in the same message, NOT yet ruled on. Seen live on the dev firm with the secret unset: badge green, two adjustments applying, notice saying sharing is off."
     },
     {
       "ref": "9.2",

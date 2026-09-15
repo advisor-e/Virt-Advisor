@@ -129,6 +129,7 @@ const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
 const industryVocabularyRoute = require('./routes/industryVocabulary')
+const aiReadinessRoute = require('./routes/aiReadiness')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
@@ -220,6 +221,9 @@ server.get('/api/advisor/staircase', firmAuth, staircaseRoute.get)
 // The words the intake's industry question offers as the advisor types (item 4.87
 // T022a). Same shape as the staircase read: any firm user, never an error.
 server.get('/api/advisor/industry-vocabulary', firmAuth, industryVocabularyRoute.get)
+// Whether a backup AI provider is connected, so the advisor is warned before a conversation
+// rather than when one fails halfway through (4.97 US8, Mike 2026-09-15). Warns, never blocks.
+server.get('/api/advisor/ai-readiness', firmAuth, aiReadinessRoute.get)
 server.post('/api/course', firmAuth, courseEngine)
 server.post('/api/report/working-capital-cycle', reportRoute.workingCapitalCycle)
 server.post('/api/report/debtor-drag', reportRoute.debtorDrag)
@@ -1051,17 +1055,18 @@ server.post('/api/people/marketplace/:id/purchase', ca, peopleRoute.purchaseList
 
 // ── Start ──
 //
-// 🔴 THE POOL SECRET IS CHECKED BEFORE THE SERVER LISTENS (item 4.97 US6). Without it,
-// `firmToken` throws and every contribution is silently dropped while every screen goes on
-// saying the firm is sharing — a fault invisible from every page. The check resolves on a
-// store it cannot read, so a database outage never stops the app; only a real consent with
-// no secret does. Skipped under NODE_ENV=test, like the purge sweeper below.
+// 🔴 THE POOL SECRET IS CHECKED BEFORE THE SERVER LISTENS, AND NEVER STOPS IT (item 4.97 US6,
+// amended by Mike's ruling of 2026-09-15: warn, let the user continue, and shut down only the
+// one function). Without the secret, shared outcome learning cannot pool anything — every
+// pooled key is derived through `firmToken`, which throws — so the feature is off by
+// construction and no other feature is touched. The check warns; the server starts regardless,
+// including when the store cannot be read. Skipped under NODE_ENV=test, like the sweeper below.
 require('./utils/outcomePoolBootCheck').assertPoolSecretIfConsented()
-  .then(startListening)
   .catch((err) => {
-    console.error('[startup] FATAL: ' + err.message)
-    process.exit(1)
+    // A fault in the CHECK must not stop the app either — it only decides a log line.
+    console.warn('[startup] outcome-pool check failed; starting anyway: ' + err.message)
   })
+  .then(startListening)
 
 function startListening () {
   server.listen(PORT, HOST, () => {

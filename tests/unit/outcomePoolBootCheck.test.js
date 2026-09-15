@@ -1,20 +1,27 @@
 'use strict'
 
 /**
- * The boot check that refuses to start a server whose firms share outcomes when no
- * OUTCOME_POOL_SECRET is set (item 4.97 US6, T041/T043; contracts §Boot check).
+ * The boot check that WARNS when firms share outcomes and no OUTCOME_POOL_SECRET is set
+ * (item 4.97 US6, T041/T043; contracts §Boot check).
  *
- * 🔴 WHAT UAT CANNOT SEE, AND WHY THIS IS AT 100%. Without the secret, `firmToken` throws
- * and nothing is pooled — the server runs, every screen looks normal, and a firm that
- * signed a consent quietly contributes nothing. There is no error on any page, because
- * from the app's point of view nothing went wrong. A tester would have to know the pool
- * should have grown and notice that it did not. This check turns that silence into a
- * server that will not start.
+ * 🔴 IT WARNS AND THE SERVER STARTS — Mike's ruling of 2026-09-15, which replaced the
+ * refusal this file used to pin: "always give warning but let the user continue", and for
+ * this feature specifically, "can the app still function elsewhere and just THAT FUNCTION
+ * shut down with a notification / warning so the rest can still be used?"
+ *
+ * 🔴 WHAT UAT CANNOT SEE, AND WHY THIS IS STILL AT 100%. Without the secret, `firmToken`
+ * throws and nothing is pooled — the server runs, every screen looks normal, and a firm that
+ * signed a consent quietly contributes nothing. There is no error on any page, because from
+ * the app's point of view nothing went wrong. A tester would have to know the pool should
+ * have grown and notice that it did not. The silence is the fault; the warning is the fix.
+ * The DATA was never at risk either way — a pooled row cannot be addressed without the
+ * secret — which is why warning is enough and refusing to boot was too much.
  *
  * The second rule is the one that is easy to get backwards: THE CHECK MUST NOT MAKE BOOT
  * DEPEND ON THE STORE. A database that cannot be reached at startup must not stop the app
  * — that would trade a silent fault for a much louder one, and the pool is not what the
- * app is for. So a store error resolves, with a warning.
+ * app is for. So a store error resolves, warning that it could not check rather than
+ * claiming the feature is off — an unreadable store is not evidence that anyone shares.
  */
 
 jest.mock('../../server/utils/firmOverlay', () => ({
@@ -60,24 +67,42 @@ afterEach(() => {
 })
 
 describe('a firm shares and the secret is missing — the one case this exists for', () => {
-  test('rejects, names how many firms share, and never names a firm', async () => {
+  test('warns, names how many firms share, never names a firm, and NEVER rejects', async () => {
     delete process.env.OUTCOME_POOL_SECRET
     firms(['firm-a', 'firm-b', 'firm-c'], ['firm-a', 'firm-c'])
 
-    await expect(assertPoolSecretIfConsented()).rejects.toThrow(/OUTCOME_POOL_SECRET is not set/)
+    const result = await assertPoolSecretIfConsented()
+    expect(result).toEqual({ ok: false, sharing: 2 })
 
     // The count is the whole message: it tells whoever reads the log that real consents
     // are affected. A firm id in a startup log is an identifier in a place nobody guards.
-    const err = await assertPoolSecretIfConsented().catch(e => e)
-    expect(err.message).toContain('2 firm(s) share outcomes')
-    expect(err.message).not.toContain('firm-a')
-    expect(err.message).not.toContain('firm-c')
+    const logged = JSON.stringify(console.warn.mock.calls)
+    expect(logged).toContain('2 firm(s)')
+    expect(logged).not.toContain('firm-a')
+    expect(logged).not.toContain('firm-c')
+  })
+
+  // The half of the ruling that is easy to lose: the app must still run. A regression here
+  // would take every other feature down with the one that is off.
+  test('the server is never stopped — the promise resolves', async () => {
+    delete process.env.OUTCOME_POOL_SECRET
+    firms(['firm-a'], ['firm-a'])
+    await expect(assertPoolSecretIfConsented()).resolves.toBeDefined()
+  })
+
+  test('the warning says the feature is off and that nothing else is affected', async () => {
+    delete process.env.OUTCOME_POOL_SECRET
+    firms(['firm-a'], ['firm-a'])
+    await assertPoolSecretIfConsented()
+    const logged = JSON.stringify(console.warn.mock.calls)
+    expect(logged).toMatch(/SWITCHED OFF/)
+    expect(logged).toMatch(/No other feature is affected/)
   })
 
   test('an empty-string secret counts as missing, not as a secret', async () => {
     process.env.OUTCOME_POOL_SECRET = ''
     firms(['firm-a'], ['firm-a'])
-    await expect(assertPoolSecretIfConsented()).rejects.toThrow(/OUTCOME_POOL_SECRET is not set/)
+    await expect(assertPoolSecretIfConsented()).resolves.toEqual({ ok: false, sharing: 1 })
   })
 })
 
@@ -85,12 +110,14 @@ describe('the cases that must NOT stop the server', () => {
   test('no firm shares and no secret is set — a plain development machine starts', async () => {
     delete process.env.OUTCOME_POOL_SECRET
     firms(['firm-a', 'firm-b'], [])
-    await expect(assertPoolSecretIfConsented()).resolves.toBeUndefined()
+    await expect(assertPoolSecretIfConsented()).resolves.toEqual({ ok: true, sharing: 0 })
+    expect(console.warn).not.toHaveBeenCalled()
   })
 
   test('a firm shares and the secret is set — the ordinary production case', async () => {
     firms(['firm-a'], ['firm-a'])
-    await expect(assertPoolSecretIfConsented()).resolves.toBeUndefined()
+    await expect(assertPoolSecretIfConsented()).resolves.toEqual({ ok: true, sharing: 0 })
+    expect(console.warn).not.toHaveBeenCalled()
   })
 
   // Reading consent costs a query per firm. With a secret there is nothing to decide, so
@@ -106,7 +133,7 @@ describe('the cases that must NOT stop the server', () => {
     process.env.NODE_ENV = 'test'
     delete process.env.OUTCOME_POOL_SECRET
     firms(['firm-a'], ['firm-a'])
-    await expect(assertPoolSecretIfConsented()).resolves.toBeUndefined()
+    await expect(assertPoolSecretIfConsented()).resolves.toEqual({ ok: true, sharing: 0 })
     expect(overlay.listFirmIdsWithConfigKey).not.toHaveBeenCalled()
   })
 
@@ -115,7 +142,7 @@ describe('the cases that must NOT stop the server', () => {
   test('a store failure resolves with a warning — boot never depends on the store', async () => {
     delete process.env.OUTCOME_POOL_SECRET
     overlay.listFirmIdsWithConfigKey.mockRejectedValue(new Error('ECONNREFUSED 10.0.0.1:3306'))
-    await expect(assertPoolSecretIfConsented()).resolves.toBeUndefined()
+    await expect(assertPoolSecretIfConsented()).resolves.toEqual({ ok: true, sharing: 0 })
     expect(console.warn).toHaveBeenCalled()
     expect(JSON.stringify(console.warn.mock.calls)).not.toContain('10.0.0.1')
   })
@@ -127,15 +154,15 @@ describe('the cases that must NOT stop the server', () => {
       if (firmId === 'broken') { return Promise.reject(new Error('row unreadable')) }
       return Promise.resolve(consent(true))
     })
-    const err = await assertPoolSecretIfConsented().catch(e => e)
-    expect(err).toBeInstanceOf(Error)
-    expect(err.message).toContain('1 firm(s) share outcomes')
+    const result = await assertPoolSecretIfConsented()
+    expect(result).toEqual({ ok: false, sharing: 1 })
+    expect(JSON.stringify(console.warn.mock.calls)).toContain('1 firm(s)')
   })
 
   test('a malformed consent record is not a sharing firm', async () => {
     delete process.env.OUTCOME_POOL_SECRET
     overlay.listFirmIdsWithConfigKey.mockResolvedValue(['firm-a'])
     overlay.loadFirmConfig.mockResolvedValue({ on: 'yes' })
-    await expect(assertPoolSecretIfConsented()).resolves.toBeUndefined()
+    await expect(assertPoolSecretIfConsented()).resolves.toEqual({ ok: true, sharing: 0 })
   })
 })

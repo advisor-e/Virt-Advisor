@@ -71,9 +71,14 @@
 
         template(v-if="!sharing")
           p.is-size-7.has-text-grey.mt-2.mb-3 {{ $t('outcomeConsent.underSentence') }}
+          //- Mike's ruling 2026-09-15: the function shuts down and SAYS SO, rather than the
+          //- server refusing to start. A firm that is not yet sharing saw none of this — the
+          //- notice below was shown only to a firm already sharing, so a manager could tick a
+          //- consent and press a button that could never have worked.
+          b-message(v-if="!poolConfigured" type="is-warning" size="is-small") {{ $t('outcomeConsent.poolNotConfigured') }}
           b-message(v-if="switchError" type="is-danger" size="is-small") {{ switchError }}
           .buttons
-            b-button(type="is-primary" :disabled="!ticked" :loading="saving" @click="setSharing(true)")
+            b-button(type="is-primary" :disabled="!ticked || !poolConfigured" :loading="saving" @click="setSharing(true)")
               | {{ $t('outcomeConsent.start') }}
             //- A firm that stopped sharing may still have rows in the pool. Withdrawal
             //- works whether the switch is on or off (the drawing, Screen B's note), so
