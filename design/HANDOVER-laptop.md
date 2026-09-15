@@ -11,35 +11,32 @@
 
 ## 2026-09-16 · Laptop · branch `feat/advisor-progress`
 
-Suite **11,148 green** (525 suites), lint 0, coverage and audit gates passed. Tree clean, all
-pushed, **74 ahead of `master`, 0 behind**. **Eight live items — 7.7 built and closed today.**
+Suite **11,160 green** (525 suites), lint 0, coverage and audit gates passed. Tree clean, all
+pushed, **80 ahead of `master`, 0 behind**. **Nine live items — 7.8 closed today, 7.9 filed,
+7.6 parked.**
 
-🔴 **I CHANGED `server/advisorEngine.js`'s MAIN PATH — merge `master` before touching it.** The
-`finish_reason` block in discover mode now `await`s `correctTemplateHeadings()`, which returns
-**`{ answer, unresolved }`**, not a string. Everything downstream — the fabrication watch, the
-video injector, the display text and **`noteModelChoice`** — must use `answer`, never
-`_mainBuffer`. Recording the discarded reply would put a model on the Model Choices screen that
-no advisor was ever sent to.
+🔴 **7.9 IS THE ONE TO READ.** Thirty live discover conversations, one on-the-nose question per
+calculator: **only 8 of 19 were offered reliably**, eight missed twice — *lease vs buy* and *loan
+estimator* have no template either, so the advisor got nothing — and twice the AI offered the
+**closest** model, which the model list forbids in capitals. Not thin content: it gets 51,072
+characters on these models. Waits on Mike; how forthcoming discover should be is his call.
 
-**Item 7.7 closed.** Asked about wages the AI offered **Wages/Salary Review** — a calculator page
-(`/wages-review`) — as the best-match *template*; the library holds **Wages Review**.
-`server/utils/templateHeadingCheck.js` reads the names under *Best match* / *Also worth
-considering* back against the library; a model found there is not sent, and the AI is re-asked
-once with the fault and its real page path named.
+**7.8 closed.** 7.7's correction empties *Also worth considering*; `discover.txt` specifies that
+block as "1-2 alternative TEMPLATES" and never says it may be empty, so the AI filled it with the
+no-match sentence — recommending a template and denying having one, in one reply.
+`buildRetryInstruction` now fences the escape. Seven live conversations after, five tripping the
+correction, none recurred.
 
-⚠ **THE RULE WAS ALREADY IN THE PROMPT FOUR TIMES AND WAS IGNORED** — `discover.txt` lines 33, 38
-and 92, plus the model-list instruction. Do not reach for a fifth sentence on any prompt fault;
-7.6 proved the same week that rewording does not move it.
+**7.6 PARKED — Mike's ruling.** It corrects a counter on an internal screen and changes nothing an
+advisor sees. Its note says *do not propose it* and carries the proven cause: discover declared the
+marker 0 of 7, client-mode Phase 3 declared it first time. **Do not re-run those conversations.**
 
-🔴 **RUNNING IT FOUND TWO THINGS 11,155 TESTS COULD NOT, which is four days running.** The AI
-mislabels a **second** calculator the same way (`High-Level Budget`) — a hardcoded pair would have
-been wrong within a day. And my first correction made one answer **worse**: told it couldn't use
-the calculator, the AI grabbed a weak template instead of saying nothing fitted. A correction must
-carry the escape as well as the prohibition.
+**Shared files I changed:** `server/utils/templateHeadingCheck.js` and its test,
+`design/features/advisory-engine.md` (lesson 9 replaced), the three list files,
+`scripts/count-code.js`, `design/CODE-SIZE.md`. **7.5's `activeOn` stays on the laptop**, still
+blocked on `FirmManagerHub.vue`, which is 9.1's and yours.
 
-**7.5's `activeOn` stays on the laptop** — its hub tab still needs `TAB_TIERS`, `NAV_GROUPS` and a
-panel in `FirmManagerHub.vue`, which is 9.1's and active on your machine. Backend built and
-waiting.
-
-**Shared files I changed:** `server/advisorEngine.js`, `design/features/advisory-engine.md` and
-its history, `to-do-items.json` / `to-do.md` / `to-do-done-and-parked.md`, `design/CODE-SIZE.md`.
+**DESKTOP:** your note says ours is *"dated 2026-09-13 — stale for the fourth session running"*.
+It is not — it has been rewritten at every shutdown, including twice yesterday. You read the copy
+in your own working tree, which freezes at the last merge. `npm run check:branch`'s OTHER BRANCHES
+box reads it from our branch and gets it right.
