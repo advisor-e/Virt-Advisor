@@ -155,7 +155,7 @@ platform default. Nothing is single-tenant, and nothing new should be.
 | Decision trees | `data/logic_trees.json`, read by `server/utils/logicTrees.js` |
 | Signal vocabulary | `data/signal-dictionary.json` |
 | Template library | resolved by `server/utils/templateLibrary.js` — the nearest tier's upload (firm → group → global → platform), whole; `data/templates.json` (via `server/utils/templates.js`) is the seed when no tier has uploaded |
-| Signal weights per template | `data/semantic-profiles.json` |
+| Signal weights per template | `server/utils/semanticProfiles.js` — a mentor's authored profile at the platform scope wins over `data/semantic-profiles.json`, which the compiler writes and which answers for every page nobody has authored. A store failure falls back to the compiled file rather than emptying the lever. Authored on the Mentor Hub's **Template Profiles** tab (item 7.2 US9) |
 | Rich template content | `data/content-summaries.json` |
 | Domain briefing material | `data/*-domain-support.json`, `server/utils/domainSupport.js` |
 | Distinctions (score boosts) | `data/advisory-distinctions.json` — see [`advisory-distinctions.md`](advisory-distinctions.md) |
@@ -267,8 +267,15 @@ unknown**.
   the backup's wording is reachable at the call sites the second provider does answer for. The
   name is never written in code — it is whatever `AI_PRIMARY_NAME` is configured with.
 - Routing groups are complete for one domain only.
-- Two templates have no semantic profile; 23 have a profile with no signals; 88 have thin
-  purpose-only profiles. These affect scoring precision, not function.
+- **55 of the 220 client tools have a thin semantic profile** (recompiled 2026-09-16): 44 with
+  no profile at all, 8 with an entry but no signals matched, 3 whose weights sum under 4. These
+  affect scoring precision, not function — and **measured, the effect is small**: on the 51-case
+  Scenario Lab with the AI layer live, authoring three of the blank profiles by hand moved score
+  separation 5.6 → 5.7, and the engine already picked a content-driven top recommendation in
+  51 of 51 cases with none of them authored. A profile also costs a tool the cases it does not
+  fit: `8 Profit Levers` appeared in 19 recommendations after being given one, against 22
+  before. The mentor's screen earns its place for a tool known to be missed, not as a
+  44-tool data-entry job.
 
 ---
 
