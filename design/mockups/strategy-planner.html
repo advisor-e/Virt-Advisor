@@ -3,10 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Strategy Planner — the session an advisor runs, and what it keeps</title>
+<title>Superseded — the 16 Sep session drawing</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
 <style>
 /* ============================================================================
+   ⛔⛔ SUPERSEDED 2026-09-17 — DO NOT OPEN THIS AS THE CURRENT DESIGN. ⛔⛔
+
+   Mike redirected item 15.1 on 2026-09-17. THE SCREENS BELOW NO LONGER
+   DESCRIBE THE TARGET. The current drawing is THE ASSEMBLED PLAN —
+   design/mockups/strategy-plan-output.html, published at
+   https://claude.ai/artifact/2WufpS2R3XDP5LyZbtdZu3
+
+   ✅ WHAT IS STILL LIVE HERE, AND THE ONLY REASON THE PAGE EXISTS: the
+   ELEVEN RULINGS. They bind. Decision 5 especially — the models run inside
+   the card on the SAME backend route, never a second copy of the maths.
+
+   🔴 NEVER SEND MIKE TO THIS PAGE AS THE PLAN. His words, 2026-09-17, after a
+   republish of it surfaced here where he expected the new drawing: "make sure
+   the old plan version never comes back — there is NO WAY that should have
+   happened." The page is not deleted because a drawing that is gone cannot be
+   checked against, and because the rulings live here. It is instead LABELLED,
+   in the browser title, in the h1, and in a banner above everything else.
+   ============================================================================
+
    STRATEGY PLANNER — the strategy domain's execution surface, to-do item 15.1.
    Drawn 2026-09-16. NOTHING ON THIS PAGE IS BUILT. It is the artefact the build
    will be measured against, per CLAUDE.md's Save-the-Artefact rule.
@@ -155,6 +174,24 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
 .mg.zero{background:#e000000f;border-color:#f0b4b4}
 .mg.zero .n{color:var(--rs-crit)}
 
+/* ---------- SUPERSEDED banner — added 2026-09-17 ----------
+   Mike, 2026-09-17, after this page was republished and surfaced in front of
+   him where he expected the new one: "make sure the old plan version never
+   comes back — there is NO WAY that should have happened". The page cannot be
+   deleted (its eleven rulings bind, and a drawing that is gone cannot be
+   checked against), so it says what it is, at the top, before anything else. */
+.superseded{background:#fdeaea;border:2px solid var(--rs-crit);border-radius:12px;
+  padding:16px 18px;margin:0 0 22px}
+.superseded .sh{font-size:15px;font-weight:700;color:#a01414;margin:0 0 8px;
+  letter-spacing:.01em}
+.superseded p{font-size:13.5px;margin:0 0 8px;max-width:82ch}
+.superseded p:last-child{margin:0}
+.superseded .go{background:var(--rs-panel);border:1px solid #f0b4b4;border-radius:8px;
+  padding:10px 12px}
+.superseded .why{color:#6b3030;font-size:12.5px}
+.superseded a{color:var(--rs-accent);font-weight:600}
+.h1flag{font-size:.55em;font-weight:600;color:var(--rs-crit);white-space:nowrap}
+
 /* ---------- the screen ---------- */
 .screen{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
   box-shadow:var(--rs-shadow);overflow:hidden;margin:16px 0 8px}
@@ -285,10 +322,26 @@ table.g td.inc{text-align:center;white-space:nowrap}
 <body>
 <div class="shell">
 
-  <p class="eyebrow">To-do item 15.1 · drawn 16 Sep 2026 · nothing built</p>
-  <h1>Strategy Planner</h1>
-  <p class="lede">The session an advisor actually runs with a client — and the first thing in this
-    app that keeps what was said in the room.</p>
+  <div class="superseded">
+    <p class="sh">⛔ Superseded — this is not the current design</p>
+    <p><b>Mike redirected item 15.1 on 17 September 2026.</b> The screens on this page no longer
+      describe what is being built. It is kept because <b>its eleven rulings still bind</b>, and
+      because a drawing that is deleted cannot be checked against.</p>
+    <p class="go"><b>The current drawing is <i>The Assembled Plan</i></b> —
+      <code>design/mockups/strategy-plan-output.html</code>, published at
+      <a href="https://claude.ai/artifact/2WufpS2R3XDP5LyZbtdZu3">claude.ai/artifact/2WufpS2R3XDP5LyZbtdZu3</a>.
+      Go there for the target; come back here only for a ruling.</p>
+    <p class="why">Design from the OUTPUT, in his words: <i>"I want the final output to break down
+      to each concept/slide/s … into 1 seamless document that can easily expand over time"</i>, and
+      <i>"each concept needs to be presented AS IT CURRENTLY APPEARS in the slides."</i>
+      <b>Decision 5 is the ruling most easily lost</b> — the models run inside the card, on the same
+      backend route, never a second copy of the maths.</p>
+  </div>
+
+  <p class="eyebrow">To-do item 15.1 · drawn 16 Sep 2026 · superseded 17 Sep 2026 · nothing built</p>
+  <h1>Strategy Planner <span class="h1flag">— superseded</span></h1>
+  <p class="lede">The session an advisor actually runs with a client. <b>Read the box above before
+    reading anything below it.</b></p>
 
   <div class="measure">
     <h3>The impact test, measured before this was drawn</h3>

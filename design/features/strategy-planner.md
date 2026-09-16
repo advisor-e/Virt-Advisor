@@ -16,10 +16,13 @@
 >
 > To-do item **15.1**. Two artefacts, both registered in [`ARTEFACTS.md`](../ARTEFACTS.md):
 >
-> - **The session an advisor runs** — [`design/mockups/strategy-planner.html`](../mockups/strategy-planner.html),
->   **eleven decisions all ruled by Mike on 2026-09-16**. ⚠ It predates the redirection. Its
->   **rulings still bind** (Decision 5 especially); its **screens do not describe the target any
->   more.**
+> - ⛔ **SUPERSEDED — the session an advisor runs** —
+>   [`design/mockups/strategy-planner.html`](../mockups/strategy-planner.html),
+>   **eleven decisions all ruled by Mike on 2026-09-16**. Its **rulings still bind** (Decision 5
+>   especially) and that is the only reason it is kept. 🔴 **NEVER OPEN IT AS THE CURRENT DESIGN
+>   AND NEVER SEND MIKE TO IT AS THE PLAN** — his instruction of 2026-09-17, after a republish of
+>   it surfaced where he expected the new drawing: *"make sure the old plan version never comes
+>   back."* Go to it for a ruling, never for the target.
 > - **The assembled plan** — [`design/mockups/strategy-plan-output.html`](../mockups/strategy-plan-output.html),
 >   drawn 2026-09-17, the output this redirection asks for. **All 31 pages of `Pivot.pdf`
 >   reproduced**, each block carrying the Pivot page it answers, so the acceptance test runs
