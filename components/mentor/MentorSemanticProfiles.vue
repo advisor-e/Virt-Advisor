@@ -104,7 +104,7 @@
     //- Opens beneath the table on the row being edited, never as a modal: the summary
     //- on the left is meant to be read AGAINST the ticks on the right, which a dialog
     //- covering the table would not help with.
-    .box(v-if="editing")
+    .box(v-if="editing" ref="editor")
       .sp-card-h.mb-4
         p.sp-band-title {{ editing.title }} · {{ editing.subSection || '—' }}
         b-tag(v-if="editing.thin" :type="thinTag(editing.thinReason)") {{ thinLabel(editing.thinReason) }}
@@ -417,6 +417,24 @@ export default {
       this.saveError = ''
       this.history = []
       this.loadHistory(row.page)
+
+      // 🔴 SCROLL TO IT, OR THE CLICK LOOKS LIKE IT DID NOTHING. The editor renders below
+      // the table, and with 25 rows on screen that is roughly 1,300px down — off-screen.
+      // Mike hit exactly that on 2026-09-16: he clicked Edit on `Retail`, the button said
+      // "Editing…", and the panel he was waiting for was sitting past the bottom of the
+      // window. The suite could not see it and my own check missed it, because I had
+      // clicked the FIRST row, where the panel happens to be close enough to notice.
+      // Guarded on the element itself rather than on `process.client`: there is no ref on
+      // the server, so this is SSR-safe either way, and `process.client` is a Nuxt
+      // build-time flag that is undefined under Jest — which would have made this branch
+      // untestable. The options object is ignored by anything that does not understand it
+      // rather than throwing, so an older browser still scrolls, just without the easing.
+      this.$nextTick(() => {
+        const el = this.$refs.editor
+        if (el && typeof el.scrollIntoView === 'function') {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      })
     },
 
     closeEditor () {
