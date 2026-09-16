@@ -5,9 +5,11 @@ const { sendError } = require('../utils/sendError')
 const caseStore = require('../utils/caseStore')
 const clientStore = require('../utils/clientStore')
 const { anonymiseCaseContent } = require('../utils/anonymiseCase')
-const { createOpenAIClient } = require('../utils/openaiClient')
+const { getClient, modelFor, logSuffix } = require('../utils/aiProvider')
+const { AI } = require('../../config/integration')
 const { isAwaitingFirms, tierOfScope } = require('../utils/tierChain')
 const { withOrigin } = require('../utils/caseRollup')
+const { firmContributes, contributeCaseOutcome } = require('../utils/outcomeContribute')
 
 /**
  * All case routes derive identity from the verified JWT (firmAuth attaches
@@ -21,7 +23,10 @@ const { withOrigin } = require('../utils/caseRollup')
  * is echoed back so the client can tell which cases are the advisor's own (it
  * must not rely on a client-held id — identity is server-derived here).
  * @route GET /api/cases
- * @returns {200} { success: true, advisorId: string, cases: object[] }
+ * `outcomeContribution` (item 4.87) says whether this firm currently shares anonymised
+ * template outcomes, so the review screen can show its one-line notice. It rides here
+ * because there is no single-case route: this is the call the review screen already makes.
+ * @returns {200} { success: true, advisorId: string, cases: object[], outcomeContribution: boolean }
  * @returns {403} NO_ADVISOR_IDENTITY · {500} DB_ERROR
  */
 async function listCases (req, res) {
@@ -32,7 +37,8 @@ async function listCases (req, res) {
   }
   try {
     const cases = await caseStore.listForAdvisor(advisorId, firmId)
-    res.send(200, { success: true, advisorId, cases })
+    const outcomeContribution = await firmContributes(firmId)
+    res.send(200, { success: true, advisorId, cases, outcomeContribution })
   } catch (err) {
     console.error('[cases] listCases failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load case studies')
@@ -171,6 +177,17 @@ async function reviewCase (req, res) {
       templateOutcomes: body.templateOutcomes
     })
     if (!ok) { return sendError(res, 404, 'NOT_FOUND', 'Case not found') }
+
+    // Outcome Learning (4.87): pool this review's verdicts when the firm consents. Its own
+    // try/catch, so a guard refusal, a missing secret or a store fault is logged with the
+    // case id and the review response is exactly what it was — the review is never lost
+    // because learning failed.
+    try {
+      await contributeCaseOutcome(req.params.id, advisorId, req.firmId)
+    } catch (contribErr) {
+      console.error('[outcome-learning] contribution failed for case ' + req.params.id + ':', contribErr.code || contribErr.message)
+    }
+
     res.send(200, { success: true })
   } catch (err) {
     console.error('[cases] reviewCase failed:', err.message)
@@ -247,14 +264,18 @@ async function anonymiseCasePreview (req, res) {
     if (!theCase) {
       return sendError(res, 404, 'NOT_FOUND', 'Case not found or not shared with the firm')
     }
-    const client = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY })
+    // Through the provider seam since 4.97 US8. The call itself is marked PERSONAL in
+    // `anonymiseCase.js` — it sends the whole client conversation — so it never reaches a
+    // second provider unless one has been cleared for personal data in config.
+    const client = getClient('classify')
     const started = Date.now()
     const anon = await anonymiseCaseContent(
       { summary: theCase.summary, transcript: theCase.transcript },
       client
     )
-    // LLM-call audit (model / tokens / latency) — never logs the raw content.
-    console.log(`[cases] anonymise-preview id=${req.params.id} msgs=${(theCase.transcript || []).length} latencyMs=${Date.now() - started} tokens=${anon.usage ? anon.usage.total_tokens : 'n/a'}`)
+    // LLM-call audit (model / tokens / latency) — never logs the raw content. The model name
+    // was missing from this line until 4.97 US8, which CLAUDE.md requires.
+    console.log(`[cases] anonymise-preview id=${req.params.id} msgs=${(theCase.transcript || []).length} model=${modelFor(AI.primary, 'classify')} latencyMs=${Date.now() - started} tokens=${anon.usage ? anon.usage.total_tokens : 'n/a'} ${logSuffix(anon.reply)}`)
     res.send(200, { success: true, anonymised: { summary: anon.summary, transcript: anon.transcript } })
   } catch (err) {
     console.error('[cases] anonymiseCasePreview failed:', err.message)

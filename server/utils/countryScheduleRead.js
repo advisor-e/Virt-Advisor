@@ -46,6 +46,7 @@
  */
 
 const { createOpenAIClient, failureFromEvent } = require('./openaiClient')
+const { logSuffixNoFallback } = require('./aiProvider')
 const aiPrompts = require('./aiPrompts')
 // The pure helpers only — request assembly, response reading, JSON parsing and one-line text.
 // They are shared rather than copied so the two readers cannot drift on what a fenced answer
@@ -396,6 +397,7 @@ async function _send (opts) {
   let completed = null
   let eventsSeen = 0
   let refusal = null
+  const _startedAt = Date.now()
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
@@ -456,6 +458,17 @@ async function _send (opts) {
   }
 
   const answer = textFromResponse(completed)
+  // The model/latency/token line CLAUDE.md requires. This file had NO success logging of any
+  // kind before 4.97 US8 — its only output was `console.error` — so a read that worked left
+  // no trace at all. NO FALLBACK BY CONSTRUCTION (T053): a Responses-API call with base64 PDF
+  // input, which has no chat-completions equivalent at another provider.
+  const _u = (completed && completed.usage) || {}
+  console.log('[country-schedule] model=' + MODEL +
+    ' status=ok latency=' + (Date.now() - _startedAt) + 'ms' +
+    ' prompt_tokens=' + (_u.input_tokens === undefined ? '?' : _u.input_tokens) +
+    ' completion_tokens=' + (_u.output_tokens === undefined ? '?' : _u.output_tokens) +
+    ' ' + logSuffixNoFallback())
+
   return { ok: true, code: null, message: null, answer, parsed: parseModelJson(answer) }
 }
 

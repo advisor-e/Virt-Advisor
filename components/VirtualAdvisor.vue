@@ -148,6 +148,17 @@
   .section-banner(v-if="mode" :class="'banner-' + mode")
     span.section-banner-label {{ sectionBannerLabel }}
 
+  //- No backup AI provider (4.97 US8, Mike's ruling 2026-09-15: "always give warning but
+  //- let the user continue"). Shown once when a conversation is chosen — not per message —
+  //- and it stops nothing: the session runs exactly as before, immediately beneath it.
+  //- Above the mode split so every conversation and the course builder alike carry it.
+  b-message.va-backup-notice(
+    v-if="mode && noBackupProvider"
+    type="is-warning"
+    size="is-small"
+    has-icon
+  ) {{ $t('advisor.backupProvider.notice') }}
+
   //- Course builder
   CourseBuilder(
     v-if="mode === 'course'"
@@ -382,9 +393,28 @@
           .trace-row
             span.trace-label {{ $t('decisionTrace.areaFocused') }}
             span.trace-value {{ lastTrace.domain.label || lastTrace.domain.id || '—' }}
+          //- Main issue — directly under the area, because it is the next thing the advisor
+          //- confirmed. Hidden where no proposal was ever made (the context domains, which
+          //- name no structural problem by design): a row saying "none proposed" there would
+          //- report a gap that does not exist. Wording and the three states ruled by Mike on
+          //- design/mockups/primary-issue-proposal.html, Screen D, 2026-09-14.
+          .trace-row(v-if="traceMainIssue")
+            span.trace-label {{ $t('decisionTrace.mainIssue') }}
+            span.trace-value {{ traceMainIssue }}
           .trace-row
             span.trace-label {{ $t('decisionTrace.whatShaped') }}
             span.trace-value {{ traceLensSummary }}
+          //- Answered by — which AI service wrote this. Ruled by Mike 2026-09-14 on
+          //- design/mockups/outcome-learning-trace-lift.html (Screen B): it shows on EVERY
+          //- trace, not only when the backup answered, because a row that appears only on
+          //- failure cannot be trusted by its absence — and a case reopened months later
+          //- still says who wrote it. It sits outside the outcome section deliberately, so a
+          //- firm that shares nothing still sees it: the provider is a fact about every
+          //- session, not about outcome sharing. Hidden only when no call through the seam
+          //- answered, where naming one would be a guess.
+          .trace-row(v-if="traceAnsweredBy")
+            span.trace-label {{ $t('decisionTrace.answeredBy') }}
+            span.trace-value {{ traceAnsweredBy }}
           .trace-section
             .trace-section-title {{ $t('decisionTrace.distinctions') }}
             p.trace-note {{ lastTrace.distinctions.note }}
@@ -412,6 +442,25 @@
             p.trace-nearmiss(v-for="nm in lastTrace.distinctions.nearMisses" :key="nm.id")
               span.trace-value {{ nm.description }}
               span.trace-note  {{ $t('decisionTrace.currentlyIn', { area: nm.domain }) }}
+          //- Outcome Learning (item 4.87) — design/mockups/outcome-learning-trace.html, approved
+          //- 2026-09-10. SHARING FIRMS ONLY: a firm that does not share sees no section (Mike's
+          //- ruling B3), and a sharing firm with nothing matched sees the quiet line (ruling B1),
+          //- so an adviser who has seen it before is not left wondering whether it stopped. The
+          //- fault line comes first, in the same voice as the distinctions fault above: a layer
+          //- that could not be read is named, never passed off as "nothing applied".
+          .trace-section(v-if="lastTrace.outcomeLearning && lastTrace.outcomeLearning.consented")
+            .trace-section-title {{ $t('decisionTrace.outcomeTitle') }}
+            p.trace-note.trace-fault(v-if="lastTrace.outcomeLearning.available === false") {{ $t('decisionTrace.outcomeUnavailable') }}
+            template(v-else-if="traceOutcomeLines.length")
+              p.trace-line(v-for="line in traceOutcomeLines" :key="line.key")
+                //- The badge carries the direction: amber −n held back, green +n lifted, grey 0
+                //- outweighed. As drawn on outcome-learning-trace-lift.html (approved 2026-09-14).
+                span.trace-hb(:class="{ 'trace-ow': !line.applied, 'trace-lift': line.applied && line.size > 0 }") {{ line.badge }}
+                b {{ line.template }}
+                span  — {{ line.text }}
+                span.trace-count {{ $t('decisionTrace.outcomeCounts', { firms: line.firms, cases: line.cases }) }}
+              p.trace-note {{ $t('decisionTrace.outcomeNote') }}
+            p.trace-note(v-else) {{ $t('decisionTrace.outcomeNothing') }}
           .trace-section
             .trace-section-title {{ $t('decisionTrace.templatesScored') }}
             table.trace-scores
@@ -479,6 +528,17 @@
           svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
             path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
           | {{ $t('voice.recordAgain') }}
+
+    //- Industry suggestions (item 4.87 T022a, drawing 4): only while the engine's
+    //- industry question is live, only from three letters, at most eight words.
+    .industry-suggest(v-if="industrySuggestions.length")
+      span.industry-suggest-label {{ $t('input.pickOne') }}
+      button.industry-chip(
+        v-for="word in industrySuggestions"
+        :key="word"
+        type="button"
+        @click="pickIndustry(word)"
+      ) {{ word }}
 
     //- Text input + send
     .input-inner
@@ -701,6 +761,15 @@
                       @click="setOutcomeResult(t, 'less')"
                     ) {{ $t('advisor.outcome.didntLand') }}
 
+              //- Outcome Learning (item 4.87) — the one line an advisor sees at a firm
+              //- that is sharing, in Mike's ruled wording (design/mockups/
+              //- outcome-learning-consent.html, Screen C). It sits at the boundary it
+              //- describes: above it, what is shared; below it, what never leaves.
+              //- Absent at a firm that is not sharing, so the panel is exactly today's.
+              .review-share-note(v-if="outcomeContribution")
+                span.review-share-dot
+                span {{ $t('outcomeConsent.advisorNotice') }}
+
               .review-field
                 label.review-label {{ $t('advisor.review.wentLess') }}
                 .review-voice-bar(v-if="speechSupported")
@@ -822,6 +891,7 @@ import DOMPurify from 'isomorphic-dompurify'
 import { createCase, findUnrecordedCase, updateCaseReview } from '~/utils/cases'
 import { listClients, createClient, filterClientRegister } from '~/utils/clients'
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
+import { suggestIndustries } from '~/utils/industrySuggestions'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
@@ -941,6 +1011,18 @@ export default {
       showDomainSelector: false,
       selectedDomainId: null,
       suggestedDomainId: null,
+      // The intake question the advisor is answering right now — the `field` on the
+      // engine's closing event (item 4.87 T022a). Null between questions and after
+      // every send, so chips can never outlive the question they belong to.
+      liveField: null,
+      // The engine's industry vocabulary, fetched once the first time the industry
+      // question arrives; null until then, and left null if the fetch fails (no chips).
+      industryWords: null,
+      // No backup AI provider connected (4.97 US8, Mike 2026-09-15: "always give warning
+      // but let the user continue"). Read ONCE when a conversation is chosen, never per
+      // message. Starts false so a slow or failed read never warns: an unproven warning on
+      // every conversation teaches advisors to ignore the one that matters.
+      noBackupProvider: false,
       // Client-knowledge-base step (design 2026-07-14): "Who is this session
       // for?" shown before the intake begins in client mode. sessionClient is
       // the chosen register entry ({id, name}) or null when skipped — the id
@@ -993,9 +1075,110 @@ export default {
       if (l.templateBudget !== null && l.templateBudget !== undefined) { parts.push(this.$t('decisionTrace.lensBudget', { budget: l.templateBudget })) }
       return parts.join(' · ')
     },
+    /**
+     * The "Main issue" trace row (item 4.97 US1), in its three ruled states:
+     *   confirmed  →  "{issue} · confirmed by you"
+     *   reframed   →  "{issue} · reframed by you"
+     *   none       →  "none proposed — nothing in what you said matched a known issue"
+     *
+     * Returns '' where no proposal was ever put — a context domain, or a session that
+     * predates the step — so the row is hidden rather than reporting an absence as a miss.
+     * The three states are Mike's, ruled on the Screen D drawing 2026-09-14.
+     *
+     * @returns {string} the row's value, or '' to hide the row
+     */
+    traceMainIssue () {
+      const pi = this.lastTrace && this.lastTrace.primaryIssue
+      if (!pi) { return '' }
+      if (pi.label && pi.how === 'reframed') {
+        return this.$t('decisionTrace.issueReframed', { issue: pi.label })
+      }
+      if (pi.label) {
+        return this.$t('decisionTrace.issueConfirmed', { issue: pi.label })
+      }
+      // A label-less trace is only a MISS if the engine actually asked and got nothing.
+      // 'none' is also the resting value for a domain that never proposes, hence the row
+      // is hidden unless the step ran — `asked` is set by the engine when it put the
+      // question. Without it we would tell an EOY advisor their issue went unrecognised.
+      return pi.asked ? this.$t('decisionTrace.issueNone') : ''
+    },
+    /**
+     * The "Answered by" trace row (item 4.97 US8/T052), in its two ruled states:
+     *   the usual service  →  "{provider}"
+     *   the backup         →  "{provider} — the usual service did not answer, so the backup did"
+     *
+     * Wording ruled by Mike 2026-09-14 on design/mockups/outcome-learning-trace-lift.html,
+     * Screen B. No service is ever named in code — the name is whatever the platform is
+     * configured with, and it arrives on the trace.
+     *
+     * Returns '' when the trace carries no provider, which happens on a session where no
+     * call through the seam answered, and on any case saved before this shipped. An old
+     * case must not be made to claim a provider nobody recorded.
+     *
+     * @returns {string} the row's value, or '' to hide the row
+     */
+    traceAnsweredBy () {
+      const ai = this.lastTrace && this.lastTrace.ai
+      if (!ai || !ai.provider) { return '' }
+      return ai.fallbackUsed
+        ? this.$t('decisionTrace.answeredByBackup', { provider: ai.provider })
+        : this.$t('decisionTrace.answeredByValue', { provider: ai.provider })
+    },
     traceBoostList () {
       const boosts = (this.lastTrace && this.lastTrace.distinctions && this.lastTrace.distinctions.boostsApplied) || {}
       return Object.keys(boosts).map(title => ({ title, boost: boosts[title] }))
+    },
+    // Outcome Learning lines, applied first then outweighed. "{where}" is the area's name
+    // when the match was on the area, else the matched value itself — one phrase for every
+    // dimension, the stated deviation from the drawing's per-dimension wording (2026-09-11).
+    traceOutcomeLines () {
+      const ol = this.lastTrace && this.lastTrace.outcomeLearning
+      if (!ol) { return [] }
+      const where = (e) => {
+        if (e.dimension === 'domain') { return (this.lastTrace.domain && this.lastTrace.domain.label) || e.value || '' }
+        return e.value || ''
+      }
+      // A trace saved before 4.97 US2 carries `holdBack` and no `size`; read it as the
+      // negative it always was, so an old case still renders rather than showing NaN.
+      const sizeOf = e => (typeof e.size === 'number' ? e.size : -(e.holdBack || 0))
+      const applied = (ol.applied || []).map((e) => {
+        const size = sizeOf(e)
+        return {
+          key: 'a:' + e.template,
+          applied: true,
+          template: e.template,
+          size,
+          badge: (size > 0 ? '+' : '−') + Math.abs(size),
+          text: this.$t(size > 0 ? 'decisionTrace.outcomeLifted' : 'decisionTrace.outcomeApplied', { where: where(e) }),
+          firms: e.firms,
+          cases: e.cases
+        }
+      })
+      // WHICH of the advisor's own evidence won, as the sentence's ending (4.97 US3, the four
+      // endings ruled on outcome-learning-trace-lift.html). A trace saved before US3 carries no
+      // `by`, and a kind we do not recognise falls back to the distinction ending the line has
+      // always had — the line still reads, and never renders a bare key.
+      const BY_KEYS = {
+        distinction: 'outcomeOutweighedByDistinction',
+        primary_issue: 'outcomeOutweighedByPrimaryIssue',
+        industry: 'outcomeOutweighedByIndustry',
+        signal: 'outcomeOutweighedBySignal'
+      }
+      const outweighed = (ol.outweighed || []).map((e) => {
+        const size = sizeOf(e)
+        const by = this.$t('decisionTrace.' + (BY_KEYS[e.by] || BY_KEYS.distinction))
+        return {
+          key: 'o:' + e.template,
+          applied: false,
+          size,
+          template: e.template,
+          badge: '0',
+          text: this.$t(size > 0 ? 'decisionTrace.outcomeOutweighedLift' : 'decisionTrace.outcomeOutweighed', { n: Math.abs(size), where: where(e), by }),
+          firms: e.firms,
+          cases: e.cases
+        }
+      })
+      return applied.concat(outweighed)
     },
     domainSelectorOptions () {
       return [
@@ -1062,6 +1245,15 @@ export default {
         { field: 'notes', question: this.$t('profile.questions.notes') }
       )
       return questions
+    },
+    /**
+     * The chips under the box: the vocabulary words starting with what is typed, while
+     * the industry question is live. Empty otherwise — the same computed answers "no
+     * match", "not this question" and "vocabulary not loaded" with one empty list.
+     */
+    industrySuggestions () {
+      if (this.liveField !== 'industry' || !this.industryWords) { return [] }
+      return suggestIndustries(this.industryWords, this.inputText)
     },
     inputPlaceholder () {
       return this.mode === 'discover'
@@ -1165,6 +1357,54 @@ export default {
   },
 
   methods: {
+    /**
+     * A chip was clicked: the whole answer becomes that word (ruling 3 on drawing 4 —
+     * the pool keeps an industry only when the whole answer equals one vocabulary word,
+     * so patching the last word would let "car yard plumber" look chosen and never pool).
+     * Send is untouched; the advisor may still edit before pressing Enter.
+     * @param {string} word
+     */
+    pickIndustry (word) {
+      this.inputText = word
+    },
+
+    /**
+     * Fetch the engine's vocabulary once, the first time the industry question is
+     * asked. Never surfaces to the session: a failed read leaves `industryWords` null
+     * and the chat carries on without chips, exactly as when nothing matches.
+     */
+    async loadIndustryWords () {
+      if (this.industryWords) { return }
+      try {
+        const res = await fetch('/api/advisor/industry-vocabulary', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { return }
+        const data = await res.json()
+        if (data && Array.isArray(data.words)) { this.industryWords = data.words }
+      } catch (e) { /* no chips; the question still stands and the answer still sends */ }
+    },
+
+    /**
+     * Ask the backend once whether a backup AI provider is connected, so the advisor is
+     * warned BEFORE a conversation rather than when one fails halfway through (4.97 US8).
+     *
+     * It never blocks and never stops a session: only an explicit `backupProvider: false`
+     * raises the notice. A failed or slow read leaves it silent, deliberately — a warning
+     * shown when we do not actually know is a warning advisors learn to scroll past.
+     * @returns {Promise<void>}
+     */
+    async loadAiReadiness () {
+      try {
+        const res = await fetch('/api/advisor/ai-readiness', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { return }
+        const data = await res.json()
+        this.noBackupProvider = !!(data && data.backupProvider === false)
+      } catch (e) { /* silent: see the note above */ }
+    },
+
     // humanizeReasons() — the "Why" column's plain English — now comes from
     // traceReasonMixin, shared with FirmManagerHub. It used to live here and knew
     // 7 of the engine's 26 codes; the saved-case view knew none of them, which is
@@ -1253,6 +1493,8 @@ export default {
       this.isStreaming = false
       this.streamingText = ''
       this.mode = selected
+      // Once per conversation, not per message (Mike's ruling 2026-09-15).
+      this.loadAiReadiness()
       // Client-step state resets FIRST — the client branch below re-arms it.
       this.showClientStep = false
       this.sessionClient = null
@@ -1735,6 +1977,7 @@ export default {
       this.streamingText = ''
       this.showRetry = false
       this.showSellSwitch = false
+      this.liveField = null
       this.lastQuery = query
 
       await this.$nextTick()
@@ -1811,6 +2054,9 @@ export default {
                 await this.$nextTick()
                 this.scrollToBottom()
               } else if (data.type === 'done') {
+                // Which intake question is now live, if the engine said (item 4.87 T022a).
+                this.liveField = typeof data.field === 'string' ? data.field : null
+                if (this.liveField === 'industry') { this.loadIndustryWords() }
                 if (this.streamingText.includes('[INTAKE_COMPLETE]')) {
                   this.streamingText = this.streamingText.replace('[INTAKE_COMPLETE]', '').trim()
                   this.intakeComplete = true
@@ -2476,6 +2722,12 @@ export default {
 
 .input-hint { font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center; }
 
+/* Industry suggestions under the box (item 4.87 T022a, drawing 4) */
+.industry-suggest { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 0 0 10px; font-size: 12.5px; color: #6b7280; }
+.industry-suggest-label { flex: none; }
+.industry-chip { font-family: inherit; font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 999px; border: 1px solid #1e40af; color: #1e40af; background: #fff; cursor: pointer; }
+.industry-chip:hover, .industry-chip:focus-visible { background: #1e40af; color: #fff; outline: none; }
+
 .retry-row { display: flex; justify-content: center; padding: 8px 0 4px; }
 .retry-btn { background: none; border: 1px solid #d1d5db; color: #6b7280; font-size: 13px; padding: 6px 16px; border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
 .retry-btn:hover { background: #f3f4f6; color: #374151; border-color: #9ca3af; }
@@ -2855,6 +3107,16 @@ export default {
    line here that says the advice above is missing a layer. */
 .trace-fault { color: #9a3412; background: #fff7ed; border-left: 3px solid #ea580c; padding: 4px 8px; border-radius: 3px; }
 .trace-boost { color: #047857; font-weight: 600; }
+/* Outcome Learning lines: the number first, red for a hold-back applied, grey for one
+   the adviser's own words outweighed; the evidence count at the end of the line. */
+.trace-line { margin: 3px 0; font-size: 12.5px; color: #374151; }
+.trace-hb { display: inline-block; min-width: 26px; font-weight: 700; color: #b91c1c; margin-right: 6px; }
+.trace-hb.trace-ow { color: #6b7280; }
+/* A lift reads green against the hold-back's red, as drawn (outcome-learning-trace-lift.html,
+   approved 2026-09-14). The drawing uses pill badges; this panel has always used plain
+   coloured numerals, so the colour carries the direction and the shape stays as built. */
+.trace-hb.trace-lift { color: #2f7d32; }
+.trace-count { color: #6b7280; font-size: 11.5px; margin-left: 8px; white-space: nowrap; }
 .trace-nearmiss { margin: 3px 0; padding: 4px 8px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 3px; }
 .trace-scores { width: 100%; border-collapse: collapse; margin-top: 4px; }
 .trace-scores th, .trace-scores td {
@@ -3299,6 +3561,27 @@ export default {
   border-top: 1px solid #f3f4f6;
 }
 .review-outcome-row:first-of-type { border-top: none; }
+.review-share-note {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  color: #5b6f8a;
+  background: #f1f6fb;
+  border: 1px solid #d5e1ee;
+  border-radius: 9px;
+  padding: 9px 12px;
+  margin: 12px 0;
+}
+.review-share-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00b1e0;
+  flex: none;
+  margin-top: 6px;
+}
 .review-outcome-name {
   flex: 1 1 100%;
   font-size: 12.5px;

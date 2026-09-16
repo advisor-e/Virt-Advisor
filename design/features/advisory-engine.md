@@ -104,10 +104,10 @@ Verified against the live model; see
 
 **Design and build differ here, deliberately and on the record.** This is the one feature where
 the written design runs ahead of the code, and that gap is *intended* — the design is the
-destination. What is built and live: signal capture, strategy resolution, template scoring and
-the AI narrative. What is designed and **not** built: primary-issue classification as a named
-field, and routing groups as a pre-filter. Do not read the design document as a description of
-the code, and do not "correct" the design down to what exists.
+destination. What is built and live: signal capture, **primary-issue confirmation** (below),
+strategy resolution, template scoring and the AI narrative. What is designed and **not** built:
+routing groups as a pre-filter. Do not read the design document as a description of the code,
+and do not "correct" the design down to what exists.
 
 **Content filed into the wrong lane is invisible.** It renders, it saves, it passes tests, and
 it silently never reaches the decision it was written for — and every case found so far was
@@ -141,7 +141,7 @@ platform default. Nothing is single-tenant, and nothing new should be.
 | Stage | What happens | Where |
 |---|---|---|
 | 1 | Conversation and signal capture | `server/advisorEngine.js`, `server/utils/signals.js`, `problemSignals.js` |
-| 2 | Primary issue classification | **designed, not in code** |
+| 2 | Primary issue — proposed, then confirmed or reframed by the advisor | `server/utils/primaryIssueProposer.js`, wired in `advisorEngine.js` |
 | 3 | Routing groups | **designed, not in code** |
 | 4 | Strategy resolution — engagement type, complexity ceiling, template budget | `server/utils/strategyResolver.js` |
 | 5 | Template selection — score and rank, no AI | `server/utils/templateResolver.js` |
@@ -155,11 +155,39 @@ platform default. Nothing is single-tenant, and nothing new should be.
 | Decision trees | `data/logic_trees.json`, read by `server/utils/logicTrees.js` |
 | Signal vocabulary | `data/signal-dictionary.json` |
 | Template library | resolved by `server/utils/templateLibrary.js` — the nearest tier's upload (firm → group → global → platform), whole; `data/templates.json` (via `server/utils/templates.js`) is the seed when no tier has uploaded |
-| Signal weights per template | `data/semantic-profiles.json` |
+| Signal weights per template | `server/utils/semanticProfiles.js` — a mentor's authored profile at the platform scope wins over `data/semantic-profiles.json`, which the compiler writes and which answers for every page nobody has authored. A store failure falls back to the compiled file rather than emptying the lever. Authored on the Mentor Hub's **Template Profiles** tab (item 7.2 US9) |
 | Rich template content | `data/content-summaries.json` |
 | Domain briefing material | `data/*-domain-support.json`, `server/utils/domainSupport.js` |
 | Distinctions (score boosts) | `data/advisory-distinctions.json` — see [`advisory-distinctions.md`](advisory-distinctions.md) |
 | Lane classification + its guard | `server/utils/contentRouting.js` |
+
+### The primary issue — proposed, never listed
+
+After the domain check-in the engine names **one** label from `data/primary-issues.json` for
+the confirmed domain, with one reason drawn from the advisor's own words, and asks whether it
+has that right. The advisor confirms it or reframes it in their own sentence; a reframe is put
+back to them once. It is never a menu — the selector card was removed in June 2026 and
+`tests/unit/retiredPrimaryIssueSelector.test.js` keeps it gone.
+
+- **Ranking is on the advisor's evidence only** — the words of their cause answer (2 points a
+  word) and the problem signals those words fired (1 point). The model is asked **only** to
+  break a tie between two authored labels, choosing from the list or answering `none`.
+- **Weak evidence withholds the proposal.** A lone matched word that is merely the domain's own
+  name — "sales" taken from "cost of sales" — says the advisor's words picked the *area*, not
+  the problem inside it. Where the domain holds more than one label, the engine asks the open
+  driver question instead of asserting. A domain with a single label still proposes.
+- **A reframe is ranked on the reply's words alone, with no signals.** The cause signals fire
+  whatever the advisor types next, so including them read plain agreement as a correction.
+- **On a miss, no label is stored.** One open driver question, then `how: 'none'` on the trace
+  and a `[signal-miss]` log. A label the advisor's words do not support is worse than none: the
+  resolver scores against it and the outcome pool learns from it.
+- Context domains (`conflict`, `eoy`, `due-diligence`) and any domain with no authored labels
+  ask neither question, and the trace row is hidden rather than reporting a miss.
+
+The confirmed label lands on `state.primaryIssue`, the decision trace (`primaryIssue.label` /
+`.how` / `.reason` / `.asked`), the Main issue row of the advisor's trace panel, and the
+Outcome Learning pool. `SCORING_VERSION` is unchanged at `2.2.0` — the step fills a field the
+scorer already read, rather than changing how anything is scored.
 
 ### The routing report
 
@@ -213,10 +241,41 @@ unknown**.
 
 ### Known gaps, honestly
 
-- Primary issues are locked for all 14 domains but do not exist as a field in the case object.
+- The advisor's confirmed primary issue reaches the trace and the outcome pool, but nothing
+  measures how often the proposal is right across the 51 Scenario Lab cases (4.97 T019).
+- The DOMAIN is misread on some cases, which the primary-issue step made visible. Upstream of
+  everything above, because the area decides which templates are considered at all. **The
+  "cost of sales" case is closed** (4.100): `sales-marketing` no longer counts the word *sales*
+  when *cost of* precedes it, so a supplier-cost conversation stays in `profit` instead of being
+  offered sales-and-marketing tools. That fixed **one phrase, not the general fault** — a thin
+  single keyword can still carry a conversation into the wrong area, which is what the AI
+  backstop and the confirmation step exist to catch.
+- **A provider outage no longer stops everything, but it does stop the conversation — by
+  design.** All eight calling files go through the provider seam (`server/utils/aiProvider.js`,
+  4.97 US8 T050/T051, 2026-09-15), and every model name comes from one role map rather than a
+  literal at the call site. A second provider answers for Course Builder, the hub reading, the
+  compliance and prompt checks, the case anonymiser and the meeting reports. It does **not**
+  answer for the advisor conversation: those calls are classed `personal: true` on Mike's
+  ruling of 2026-09-15 — an advisor describing a real client in their own words does not reach
+  a second provider until that provider's written terms have been read — so the seam rethrows
+  the primary's own error rather than routing the words elsewhere. The advisor is told when no
+  backup is configured (`GET /api/advisor/ai-readiness`, read once as a conversation opens);
+  the warning blocks nothing and the session runs beneath it. Since T052 the decision trace
+  also names which service answered, on **every** session — a row that appeared only on failure
+  could not be trusted by its absence, and a case reopened months later still says who wrote it.
+  Because the advisor's own calls are `personal: true`, that row names the primary in practice;
+  the backup's wording is reachable at the call sites the second provider does answer for. The
+  name is never written in code — it is whatever `AI_PRIMARY_NAME` is configured with.
 - Routing groups are complete for one domain only.
-- Two templates have no semantic profile; 23 have a profile with no signals; 88 have thin
-  purpose-only profiles. These affect scoring precision, not function.
+- **55 of the 220 client tools have a thin semantic profile** (recompiled 2026-09-16): 44 with
+  no profile at all, 8 with an entry but no signals matched, 3 whose weights sum under 4. These
+  affect scoring precision, not function — and **measured, the effect is small**: on the 51-case
+  Scenario Lab with the AI layer live, authoring three of the blank profiles by hand moved score
+  separation 5.6 → 5.7, and the engine already picked a content-driven top recommendation in
+  51 of 51 cases with none of them authored. A profile also costs a tool the cases it does not
+  fit: `8 Profit Levers` appeared in 19 recommendations after being given one, against 22
+  before. The mentor's screen earns its place for a tool known to be missed, not as a
+  44-tool data-entry job.
 
 ---
 

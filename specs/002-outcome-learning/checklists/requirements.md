@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — **two remain, both Mike's to rule**: FR-008 (the floor figures) and FR-010 (hold-back only, or both directions)
+- [x] No [NEEDS CLARIFICATION] markers remain — FR-008 (floor: 5 firms, 25 cases) and FR-010 (hold-back only) ruled by Mike 2026-09-10
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,7 +31,7 @@
 
 ## Notes
 
-- The two open markers are decisions only Mike can make, and each carries a recommendation in
-  the spec. `/speckit-clarify` is the next step, and it stops for his yes.
+- `/speckit-clarify` ran on 2026-09-10: four questions, four answers from Mike, recorded under
+  the spec's Clarifications heading. `/speckit-plan` is the next step, and it waits for his yes.
 - Per the project's own rules, the three drawings come before any plan is executed, and every
   on-screen word is approved by Mike before it reaches code.

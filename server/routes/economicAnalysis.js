@@ -37,6 +37,7 @@
  */
 
 const { createOpenAIClient, failureFromEvent } = require('../utils/openaiClient')
+const { logSuffixNoFallback } = require('../utils/aiProvider')
 const { fenceUntrusted } = require('../utils/promptSafety')
 const { sendError } = require('../utils/sendError')
 const { assemblePrompt, loadResolvedAiPromptOverrides, BASE_PROMPTS } = require('../utils/aiPrompts')
@@ -112,9 +113,12 @@ function logCall (runId, startedAt, success, usage, searches) {
   const tokens = usage
     ? 'prompt=' + usage.input_tokens + ' completion=' + usage.output_tokens + ' total=' + usage.total_tokens
     : 'tokens=unknown'
+  // NO FALLBACK BY CONSTRUCTION (4.97 US8/T053): this call uses the Responses API with web
+  // search and citations, which has no chat-completions equivalent at another provider. The
+  // log says so rather than leaving a reader to wonder why no second provider was tried.
   console.log('[openai] economic-analysis run=' + runId + ' model=' + MODEL +
     ' status=' + (success ? 'ok' : 'error') + ' latency=' + latency + 'ms ' +
-    tokens + ' searches=' + searches)
+    tokens + ' searches=' + searches + ' ' + logSuffixNoFallback())
 }
 
 /** How much of a refused reply is logged. Enough to see the shape, not a whole transcript. */

@@ -3,8 +3,9 @@
 > **One page, two halves.** The first half is the audit Mike asked for on 2026-09-10: three
 > claims he wants to market, read against the design documents and the code. The second half
 > is the task that came out of it, item **4.87 · Outcome Learning**, in his words, with the spec
-> at [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md). Nothing
-> in the second half is built. The history is in
+> at [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md). The
+> whole of it is built (2026-09-11): the backend, the advisor's panel, the two hub screens, the
+> seed script and the two benches — §8 says what stands where. The history is in
 > [`outcome-learning-history.md`](outcome-learning-history.md).
 >
 > **Read against the code at commit `b1466ef`**: the Advisory Engine, Advisory Distinctions and
@@ -110,15 +111,21 @@ offers rather than overwrites. What does not exist is any loop that closes itsel
 
 ### What is missing, and it is the difference between "loops" and "learning"
 
-> - **The outcome loop stops at the client.** A verdict on a template changes the next
->   recommendation for that client and nothing else. No firm-wide or platform-wide weight, boost
->   or signal moves because of what advisors recorded, and no screen aggregates those verdicts so
->   a mentor or manager can see which templates keep going less well. The engine brief says
->   improvement comes from real sessions, not pre-emptive patching; the sessions are now recorded,
->   but only one client at a time reads them.
-> - **The review is optional and its uptake is unmeasured.** A case stays flagged "feedback
->   pending" until the advisor returns to it. Nothing reports how many ever do, so the loop's
->   reach is unknown.
+> - **The outcome loop crosses firms and moves BOTH ways, and no real pool has yet crossed the
+>   floor.** A consenting firm's per-template verdicts are pooled anonymised at the platform
+>   scope, netted into one signed adjustment per pairing — positive where the template landed
+>   well, negative where it did not — capped at ±10, made live only by a mentor-accepted
+>   decision on the Outcome Learning hub page, and applied in the resolver beneath the
+>   advisor's own words, which outweigh it in either direction (part two). Until 2026-09-14 the
+>   good half of that evidence was counted and then discarded, so the platform could only ever
+>   become more cautious with use; it can now become better. What remains is evidence: no real
+>   pool has crossed the evidence floor, so "learning across firms" is built and seen on a
+>   developer's seed, not proven in use.
+> - **The review is optional, and its uptake is now measured and on both screens.** A case stays
+>   flagged "feedback pending" until the advisor returns to it. The mentor's page carries one
+>   *Loop reach* tile — the sum across consenting firms — and each firm's Outcome Sharing tab its
+>   own pair, shown whether or not the firm shares. What the number will say in use is unknown;
+>   that it can be said is no longer the gap.
 > - **The middle of the pipeline is designed, not built.** Primary issues and routing groups.
 > - **Content still has holes that a human must fill.** 18 logic-table names still point at pages
 >   the library does not hold; the signal lever fires in fewer than half the lab cases.
@@ -159,8 +166,9 @@ thing a serious buyer checks before believing that phrase.
 
 **Not yet supportable**
 
-- "Gets smarter with use" across the board. It remembers and adjusts for each client; it does not
-  yet learn across clients or firms.
+- "Gets smarter with use" across the board. The cross-firm loop is built on the backend
+  (part two) but supportable only once the mentor's page exists and a real pool has crossed the
+  floor in UAT.
 - Any accuracy or outcome figure from real advisors. Verdicts are recorded per case, but nothing
   adds them up, and the app is not yet in production.
 - "World class" as a comparison. Say what it does instead; the list above is stronger than the
@@ -209,8 +217,16 @@ trained model is a fresh decision for Mike, never an assumption.
 **P4 · The mentor accepts before it applies.** Accept, hold or reject, with name, date, version
 history and restore.
 
-**P5 · The advisor's own words win.** Adjustments are capped below the current session's signals,
-and every applied or outweighed adjustment appears on the decision trace with its evidence count.
+**P5 · The advisor's own words win — in all six ways their evidence reaches a template.** A
+template matched by a firm distinction, the confirmed primary issue, the client's industry or a
+signal heard in the description is never adjusted by the pool: the adjustment is set aside and the
+trace names *which* evidence won. This holds for lifts as well as hold-backs — a lift that reorders
+the advisor's own evidence is the same overruling, in the flattering direction. Adjustments are also
+capped below the current session's signals, and every applied or outweighed adjustment appears on
+the decision trace with its evidence count. **The fixed bench counts breaches of this rule** and
+reports 0; the counter is tested to be capable of counting, so the zero is a measurement rather
+than a label. *(Item 4.97 US3, 2026-09-14. Until then only a distinction was protected, and the
+trace said "your firm's distinction" whichever evidence had actually won.)*
 
 **P6 · Below the floor, nothing publishes.** A minimum number of contributing firms and cases,
 shown beside every adjustment.
@@ -218,10 +234,13 @@ shown beside every adjustment.
 **P7 · A recommendation never waits on learning.** If the pool cannot be read, the engine runs
 without adjustments and the trace says so.
 
-**Two decisions open for Mike**, each with a recommendation in the spec: the floor figures
-(proposed 5 firms and 30 cases, from the meeting aggregate's precedent), and whether an
-adjustment can only hold a template back or may also lift one (recommended hold-back only in the
-first release). **Three drawings come before any code.**
+**Ruled by Mike, 2026-09-10:** the floor is **5 contributing firms and 25 cases**, and an
+adjustment can only **hold a template back**, never lift one, in this release. Both are written into
+the spec (FR-008, FR-010). **Clarified with him the same day**, in the spec's Clarifications section:
+no free text enters the pool, only the tick-box verdicts; an adjustment is keyed to a template and one
+situation dimension at a time; only "went less well" on a delivered template counts against it, and
+"not used at all" is neutral; recompute happens when the mentor opens the page or asks for it, and on
+a firm's withdrawal, never on a background schedule. **The three drawings are drawn and approved (2026-09-10); their rulings sit on each drawing.**
 
 ## 7. The task, as Mike set it
 
@@ -270,17 +289,32 @@ Every change needs Mike's explicit yes. Wording on screens is his to approve bef
 
 ## 8. For the coder
 
-Nothing is built. The spec names what is reused; the plan, when Mike approves one, names the
-files.
+Built through story 3 and both hub screens on 2026-09-11, task by task from
+[`tasks.md`](../../specs/002-outcome-learning/tasks.md), each checked against the three drawings
+approved by Mike 2026-09-10; industry suggestions on the intake followed the same day from a fourth
+drawing, and the two benches the same evening.
 
 | Piece | Where it stands today |
 |---|---|
-| The per-template verdict | `server/utils/caseStore.js`, `template_outcomes` |
-| The per-client read-back | `server/utils/priorEngagement.js`, `HISTORY_HOLDBACK_PENALTY` in `server/utils/templateResolver.js` |
-| The anonymiser and its guard | the mentor-share path in `caseStore.js`, [`case-reviews.md`](case-reviews.md) P1–P4 |
-| The score-adjustment seam | distinction boosts in `templateResolver.js` |
-| The bench | `scripts/scenario-lab.js` |
-| The specification | [`specs/002-outcome-learning/spec.md`](../../specs/002-outcome-learning/spec.md) |
+| Consent record, tokens, pinned wording | `server/utils/outcomeConsent.js` — HMAC tokens under `OUTCOME_POOL_SECRET` (`.env.example`, UAT load pack §3) |
+| The secret is enforced, not assumed | `server/utils/outcomePoolBootCheck.js` — when any firm shares and the secret is unset the server **warns loudly and starts**, naming the count and no firm id (Mike, 2026-09-15: *"can the app still function elsewhere and just THAT FUNCTION shut down with a notification / warning so the rest can still be used?"*). **This one feature shuts down; nothing else is affected.** That is safe because pooled data cannot be *addressed* without the secret — every pooled key derives through `firmToken`, which throws — so switching sharing on is refused with `503 POOL_UNAVAILABLE` and nothing can be written. The sharing tab carries the notice in both states, and "Start sharing" is disabled beneath it. A store it cannot read never stops the boot |
+| Pool row, guard, arithmetic | `server/utils/outcomeLearning.js` — floor 5 firms / 25 cases, cap 10; primary issue validated by membership in Mike's authored labels (cap 120, a stated exception) |
+| The one hard delete | `deleteFirmConfigsByPrefix` in `server/utils/firmOverlay.js` — withdrawal removes every version under `outcome-pool:<token>:` |
+| The review hook and the advisor's flag | `server/utils/outcomeContribute.js`, called from `reviewCase` in `server/routes/cases.js`; `outcomeContribution` rides the case list |
+| Firm routes | `server/routes/outcomeConsent.js` — read, set, withdraw under `fmGuard`; withdraw recomputes. The read also returns `adjustmentsApplying` (the count a sharing firm sees, never the list) and every switch is kept as `events` on the record for the History card |
+| The firm's screen | `components/firm/FirmOutcomeConsent.vue`, the Outcome Sharing tab under Compliance at the firm tier alone (`TAB_TIERS.outcomeConsent`); strings in `locales/en.json` `outcomeConsent.*` |
+| The advisor's notice | the one line on the review panel in `components/VirtualAdvisor.vue`, shown when `outcomeContribution` on the case list is true (`mixins/caseMixin.js`) |
+| Mentor routes | `server/routes/outcomeLearning.js` — list, recompute, decision, history, restore, export under `mentorGuard`; a page load recomputes but never writes a version; a rejection without a reason is refused |
+| The mentor's screen | `components/mentor/MentorOutcomeLearning.vue`, the Outcome Learning tab under Rolled up from below at the mentor tier alone (`TAB_TIERS.outcomeLearning`); strings in `locales/en.json` `outcomeLearning.*`. The bench card says the benches have not been run until "Run the benches" is pressed |
+| The resolver | `pooledAdjustments` / `pooledSignalTypes` in `server/utils/templateResolver.js`, before the history clamp; `SCORING_VERSION` 2.2.0. A matched template's log entry carries `pooledMatched` (the ids that matched this session), and a held-back template stays in the scoring log even below 20th |
+| The session and the trace | `server/utils/outcomeLearningSession.js`, wired in `server/advisorEngine.js`; `decisionTrace.outcomeLearning`. The line's situation and evidence come from `pooledMatched` alone — item 4.94, 2026-09-12: grouping by title had put "in profit" on a line for a session in sales |
+| Reason wording | `pooled:held_back-<n>`, `pooled:lifted-<n>`, `pooled:outweighed-<kind>` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
+| The advisor's panel | "Learned from outcomes" in `components/VirtualAdvisor.vue` |
+| Industry suggestions on the intake | The intake has no industry field — the engine asks it in the chat — so `questionDoneEvent` in `server/advisorEngine.js` closes each sequenced question with its field, `GET /api/advisor/industry-vocabulary` (`server/routes/industryVocabulary.js`, proxied above the SSE entry) serves the same words the pool accepts, `utils/industrySuggestions.js` holds the rulings as numbers (three letters, eight chips, prefix on the whole answer), and the chip row in `components/VirtualAdvisor.vue` replaces the whole answer on a click. Nothing changes what saves to the case |
+| The dev seed | `scripts/dev/seed-outcome-pool.js` — 31 reviews across five firms through the guard and the store, never around them; refuses under `NODE_ENV=production`; `--reset` clears its own firms' rows first. Firm A is `dev-firm-001`, the firm the dev-local-bypass sign-in carries, so a withdrawal from its tab is quickstart Story 2 step 5 |
+| The two benches | `server/utils/outcomeBench.js` replays a situation through the same two-pass resolver and display-set builder the live session uses, twice — plain and with the live adjustments. **Outcome bench**: every pooled review; a hit is a top recommendation that review marked "Landed well"; a review with no such verdict counts in the denominator only (SC-005). **Fixed bench**: the 51 Scenario Lab cases; **the expected answer is the engine's own unadjusted answer (Mike's yes, 2026-09-11)** because the cases carry no authored key and inventing one would be inventing his content — so "before" is 100% by construction and "after" is the share the adjustments left unchanged, which is the guard SC-001 and SC-004 ask for. `scripts/scenario-lab.js --adjustments <file>` (the export's shape; the METRICS block names the file and the count) and `scripts/outcome-bench.js` print them; `POST /api/mentor/outcome-learning/bench` stores both on the decisions row with `ranAt` and `liveIds`, answering inside 1500 ms or with a job id the page polls (`GET …/bench/:jobId`) — measured at ~1 ms per resolver pass, so ~20 s at 10,000 reviews. **Out-of-sample bench** (4.97 US7): the adjustments are recomputed from the EARLIER months only — the floor measured on those rows alone, so an adjustment that clears it only once the test month is counted never applies — the mentor's decisions kept, then scored on the latest month, reviews they never saw. Fewer than `MIN_CASES` in that month, or one month in the pool, reads `insufficient` and shows no figure rather than a number from a handful of rows. The honesty line now names all three: the outcome bench flatters itself, the fixed bench is a guard, and the out-of-sample figure is the honest one |
+| How to use this page, and What this is telling you | Item 4.93 (Mike, 2026-09-11: *"I have no idea how I, as a mentor, am supposed to use this function"*). `components/shared/HubGuidePanel.vue` opens with the four plain points on first visit; `components/shared/HubReadingCard.vue` makes a reading on the button through `POST /api/mentor/outcome-learning/reading` — `server/utils/hubReading.js` sends the model the rows and figures on the page and nothing else, refuses a reply without the three fixed headings or carrying a link or a name, and the route stores it on its own row (`outcome-reading`, never the decisions row) with the counts it was read from; `list` carries `reading` and `readingStale`. The document is `hub-reading` on the AI Prompts tab. Drawing: [`hub-page-guidance.html`](../mockups/hub-page-guidance.html). It decides nothing |
+| The five approved drawings | [`outcome-learning-consent.html`](../mockups/outcome-learning-consent.html) · [`outcome-learning-mentor.html`](../mockups/outcome-learning-mentor.html) · [`outcome-learning-trace.html`](../mockups/outcome-learning-trace.html) · [`outcome-learning-intake-industry.html`](../mockups/outcome-learning-intake-industry.html) · [`hub-page-guidance.html`](../mockups/hub-page-guidance.html), rulings on each, rows in [`ARTEFACTS.md`](../ARTEFACTS.md) |
 
 ## 9. Related briefs
 

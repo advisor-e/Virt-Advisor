@@ -27,6 +27,7 @@
  */
 
 const { createOpenAIClient } = require('../utils/openaiClient')
+const { logSuffixNoFallback } = require('../utils/aiProvider')
 const { sendError } = require('../utils/sendError')
 const { assemblePrompt, loadResolvedAiPromptOverrides } = require('../utils/aiPrompts')
 const { loadFirmConfig } = require('../utils/firmOverlay')
@@ -63,12 +64,15 @@ function _setClientFactory (factory) {
  */
 function logCall (runId, startedAt, success, usage) {
   const u = usage || {}
+  // NO FALLBACK BY CONSTRUCTION (4.97 US8/T053): a Responses-API call, which has no
+  // chat-completions equivalent at another provider.
   console.log('[next-steps] run ' + runId +
     ' model=' + MODEL +
     ' ok=' + success +
     ' ms=' + (Date.now() - startedAt) +
     ' prompt_tokens=' + (u.input_tokens === undefined ? '?' : u.input_tokens) +
-    ' completion_tokens=' + (u.output_tokens === undefined ? '?' : u.output_tokens))
+    ' completion_tokens=' + (u.output_tokens === undefined ? '?' : u.output_tokens) +
+    ' ' + logSuffixNoFallback())
 }
 
 /**

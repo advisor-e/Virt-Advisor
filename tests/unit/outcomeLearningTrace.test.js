@@ -1,0 +1,217 @@
+'use strict'
+
+/**
+ * What a session reads from Outcome Learning and writes to the trace (4.87 T033/T035).
+ *
+ * What UAT cannot see: an adjustment applied at a firm that never consented, a session
+ * that dies because the pool could not be read, and a trace that claims a hold-back the
+ * resolver never applied.
+ */
+
+jest.mock('../../server/utils/firmOverlay', () => ({
+  loadFirmConfig: jest.fn(),
+  loadFirmConfigsByPrefix: jest.fn(),
+  saveFirmConfig: jest.fn()
+}))
+jest.mock('../../server/utils/templateLibrary', () => ({ loadEffectiveTemplates: jest.fn() }))
+jest.mock('../../server/utils/caseStore', () => ({}))
+
+const overlay = require('../../server/utils/firmOverlay')
+const { loadEffectiveTemplates } = require('../../server/utils/templateLibrary')
+const { loadPooledForSession, buildOutcomeLearningTrace, clearPooledCache } = require('../../server/utils/outcomeLearningSession')
+const { CONFIG_KEY, CONSENT_WORDING } = require('../../server/utils/outcomeConsent')
+const { POOL_PREFIX, DECISIONS_KEY } = require('../../server/utils/outcomeLearning')
+const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
+
+const FIRM = 'firm-from-jwt'
+const ID = 'break-even-analysis|domain|profit'
+const consentOn = () => ({ on: true, setBy: 'm@firm.example', setAt: '2026-09-01T00:00:00Z', wording: CONSENT_WORDING, withdrawals: [] })
+
+function pool ({ firms, cases, less }) {
+  const rows = {}
+  for (let i = 0; i < cases; i++) {
+    rows['t' + (i % firms) + ':c' + i] = { domain: 'profit', templates: [{ title: 'Break-even Analysis', used: 'full', outcome: i < less ? 'less' : 'well' }] }
+  }
+  return rows
+}
+
+beforeEach(() => {
+  jest.clearAllMocks()
+  clearPooledCache()
+  loadEffectiveTemplates.mockResolvedValue([{ title: 'Break-even Analysis' }])
+  overlay.loadFirmConfigsByPrefix.mockResolvedValue(pool({ firms: 6, cases: 30, less: 12 }))
+  jest.spyOn(console, 'error').mockImplementation(() => {})
+})
+afterEach(() => { console.error.mockRestore() })
+
+describe('loadPooledForSession', () => {
+  test('a session with no firm reads nothing', async () => {
+    expect(await loadPooledForSession(null)).toEqual({ consented: false, available: true, adjustments: [] })
+    expect(overlay.loadFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test.each([['switched off', { ...consentOn(), on: false }], ['no record', null], ['malformed', { on: 'true' }]])(
+    'consent %s: nothing applied and the pool is never read', async (_l, consent) => {
+      overlay.loadFirmConfig.mockResolvedValue(consent)
+      expect(await loadPooledForSession(FIRM)).toEqual({ consented: false, available: true, adjustments: [] })
+      expect(overlay.loadFirmConfig).toHaveBeenCalledWith(FIRM, CONFIG_KEY)
+      expect(overlay.loadFirmConfigsByPrefix).not.toHaveBeenCalled()
+    })
+
+  test('consent on: only LIVE adjustments come back, from the platform scope', async () => {
+    overlay.loadFirmConfig.mockImplementation((scope, key) => {
+      if (scope === FIRM && key === CONFIG_KEY) { return Promise.resolve(consentOn()) }
+      if (scope === PLATFORM_SCOPE && key === DECISIONS_KEY) { return Promise.resolve({ decisions: { [ID]: { state: 'live' }, 'break-even-analysis|engagementType|advice': { state: 'held' } } }) }
+      return Promise.resolve(null)
+    })
+    const out = await loadPooledForSession(FIRM)
+    expect(overlay.loadFirmConfigsByPrefix).toHaveBeenCalledWith(PLATFORM_SCOPE, POOL_PREFIX)
+    expect(out.consented).toBe(true)
+    expect(out.available).toBe(true)
+    // 30 delivered, 12 less, 18 well: round(10 × 6 ÷ 30) = +2, so the session carries a LIFT.
+    expect(out.adjustments).toEqual([{ id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: 2, firms: 6, cases: 30 }])
+  })
+
+  test('no decisions row, or a malformed one, means nothing is live', async () => {
+    overlay.loadFirmConfig.mockImplementation(scope => Promise.resolve(scope === FIRM ? consentOn() : ['bad']))
+    expect((await loadPooledForSession(FIRM)).adjustments).toEqual([])
+    clearPooledCache()
+    overlay.loadFirmConfig.mockImplementation(scope => Promise.resolve(scope === FIRM ? consentOn() : null))
+    expect((await loadPooledForSession(FIRM)).adjustments).toEqual([])
+  })
+
+  test('the pool read failing degrades to nothing, available false, consent still true, and is logged', async () => {
+    overlay.loadFirmConfig.mockImplementation(scope => Promise.resolve(scope === FIRM ? consentOn() : null))
+    overlay.loadFirmConfigsByPrefix.mockRejectedValue(new Error('ECONNREFUSED'))
+    expect(await loadPooledForSession(FIRM)).toEqual({ consented: true, available: false, adjustments: [] })
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('unavailable'), 'ECONNREFUSED')
+  })
+
+  test('the consent read failing degrades to nothing with consent unknown as false', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(new Error('store down'))
+    expect(await loadPooledForSession(FIRM)).toEqual({ consented: false, available: false, adjustments: [] })
+  })
+
+  test('the live list is cached for a minute per process, and clearPooledCache drops it', async () => {
+    overlay.loadFirmConfig.mockImplementation(scope => Promise.resolve(scope === FIRM ? consentOn() : { decisions: { [ID]: { state: 'live' } } }))
+    await loadPooledForSession(FIRM)
+    await loadPooledForSession(FIRM)
+    expect(overlay.loadFirmConfigsByPrefix).toHaveBeenCalledTimes(1)
+    clearPooledCache()
+    await loadPooledForSession(FIRM)
+    expect(overlay.loadFirmConfigsByPrefix).toHaveBeenCalledTimes(2)
+  })
+
+  test('falls back to the seed titles when no library is uploaded', async () => {
+    loadEffectiveTemplates.mockResolvedValue(null)
+    overlay.loadFirmConfig.mockImplementation(scope => Promise.resolve(scope === FIRM ? consentOn() : { decisions: { [ID]: { state: 'live' } } }))
+    // 'Break-even Analysis' is not a seed title, so it is orphaned and never live.
+    expect((await loadPooledForSession(FIRM)).adjustments).toEqual([])
+  })
+})
+
+describe('buildOutcomeLearningTrace', () => {
+  // Signed since 4.97 US2: negative holds back, positive lifts.
+  const adjustments = [
+    { id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: -4, firms: 6, cases: 31 },
+    { id: 'break-even-analysis|industry|cafe', template: 'Break-even Analysis', dimension: 'industry', value: 'cafe', size: -3, firms: 5, cases: 28 },
+    { id: '7-cash-drivers|signal|client-awareness', template: '7 Cash Drivers', dimension: 'signal', value: 'client_awareness', size: -3, firms: 5, cases: 28 }
+  ]
+  // The resolver names, by id, the adjustments that MATCHED the session (`pooledMatched`).
+  // Here the domain one matched Break-even Analysis and the industry one did not, so the
+  // evidence on the line is the domain one's alone — 6 firms / 31 cases, not the weaker
+  // industry figures. (Quickstart finding, 2026-09-12: the line used to name every live
+  // adjustment for the title, so it said "in profit" for a session in sales.)
+  const log = [
+    { title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:held_back-7'], pooledMatched: [ID] },
+    { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed-distinction'], pooledMatched: ['7-cash-drivers|signal|client-awareness'] },
+    { title: 'Working Capital Cycle', matchReasons: ['domain:primary_subsection'] },
+    null,
+    { title: 8 },
+    { title: 'No Reasons' }
+  ]
+
+  test('applied lists only adjusted templates with the size the resolver wrote, and the evidence of the adjustments that matched', () => {
+    const block = buildOutcomeLearningTrace(log, adjustments, { consented: true, available: true })
+    expect(block).toEqual({
+      consented: true,
+      available: true,
+      applied: [{ template: 'Break-even Analysis', size: -7, direction: 'holdBack', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 6, cases: 31 }],
+      outweighed: [{ template: '7 Cash Drivers', size: -3, holdBack: 3, id: '7-cash-drivers|signal|client-awareness', dimension: 'signal', value: 'client_awareness', firms: 5, cases: 28, by: 'distinction' }]
+    })
+  })
+
+  // 4.97 US2 T023. The trace must say which WAY learning moved a template, and it must read
+  // that from the reason code the resolver actually wrote — never from the adjustment's own
+  // size, which is the uncapped input and may not be what reached the score.
+  test('a lifted template carries a positive size, the lift direction, and a hold-back of nothing', () => {
+    const lifted = [{ title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:lifted-5'], pooledMatched: [ID] }]
+    const block = buildOutcomeLearningTrace(lifted, adjustments, { consented: true, available: true })
+    expect(block.applied).toEqual([{ template: 'Break-even Analysis', size: 5, direction: 'lift', holdBack: 0, id: ID, dimension: 'domain', value: 'profit', firms: 6, cases: 31 }])
+  })
+
+  test('an outweighed lift reports the positive size that was set aside', () => {
+    const positives = [{ id: ID, template: 'Break-even Analysis', dimension: 'domain', value: 'profit', size: 6, firms: 6, cases: 31 }]
+    const log2 = [{ title: 'Break-even Analysis', matchReasons: ['distinction:+5', 'pooled:outweighed-distinction'], pooledMatched: [ID] }]
+    const block = buildOutcomeLearningTrace(log2, positives, { consented: true, available: true })
+    expect(block.outweighed[0]).toMatchObject({ template: 'Break-even Analysis', size: 6, holdBack: 0, by: 'distinction' })
+  })
+
+  // 4.97 US3. `by` was the constant 'distinction' until US3, so the panel said "your firm's
+  // distinction" even when it was the main issue or the industry that actually won — the line
+  // named the wrong evidence, which a reader has no way to check against the engine.
+  test.each([
+    ['distinction', 'distinction:+5'],
+    ['primary_issue', 'primary_issue:strong_match'],
+    ['industry', 'industry:title_match'],
+    ['signal', 'semantic:4.2']
+  ])('the outweighed line names %s, the evidence that actually won', (kind, evidenceReason) => {
+    const log = [{ title: 'Break-even Analysis', matchReasons: [evidenceReason, 'pooled:outweighed-' + kind], pooledMatched: [ID] }]
+    const block = buildOutcomeLearningTrace(log, adjustments, { consented: true, available: true })
+    expect(block.outweighed[0]).toMatchObject({ template: 'Break-even Analysis', by: kind })
+  })
+
+  test('an outweighed sum beyond the cap reports the capped figure, never the raw total', () => {
+    // Three matched adjustments summing to −12 could only ever have applied −10, so the line
+    // the mentor reads must say −10: what was actually set aside, not a bigger number.
+    const big = [
+      { id: 'a|domain|profit', template: 'Big', dimension: 'domain', value: 'profit', size: -6, firms: 6, cases: 31 },
+      { id: 'b|industry|cafe', template: 'Big', dimension: 'industry', value: 'cafe', size: -6, firms: 6, cases: 31 }
+    ]
+    const log3 = [{ title: 'Big', matchReasons: ['distinction:+5', 'pooled:outweighed-distinction'], pooledMatched: ['a|domain|profit', 'b|industry|cafe'] }]
+    expect(buildOutcomeLearningTrace(log3, big, { consented: true }).outweighed[0]).toMatchObject({ size: -10, holdBack: 10 })
+  })
+
+  test('when two adjustments matched, the weakest evidence is reported and the outweighed size is their sum', () => {
+    const both = [
+      { title: 'Break-even Analysis', matchReasons: ['domain:primary_subsection', 'pooled:held_back-7'], pooledMatched: [ID, 'break-even-analysis|industry|cafe'] },
+      { title: '7 Cash Drivers', matchReasons: ['distinction:+5', 'pooled:outweighed-distinction'], pooledMatched: [ID, '7-cash-drivers|signal|client-awareness'] }
+    ]
+    const block = buildOutcomeLearningTrace(both, adjustments, { consented: true, available: true })
+    expect(block.applied).toEqual([{ template: 'Break-even Analysis', size: -7, direction: 'holdBack', holdBack: 7, id: ID, dimension: 'domain', value: 'profit', firms: 5, cases: 28 }])
+    expect(block.outweighed[0].size).toBe(-7)
+    // An id the resolver names that no live adjustment carries contributes nothing.
+    const stale = buildOutcomeLearningTrace([{ title: 'Break-even Analysis', matchReasons: ['pooled:held_back-4'], pooledMatched: ['gone|domain|x'] }], adjustments, { consented: true })
+    expect(stale.applied).toEqual([{ template: 'Break-even Analysis', size: -4, direction: 'holdBack', holdBack: 4, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
+  })
+
+  test('consented false gives both lists empty whatever the log says', () => {
+    expect(buildOutcomeLearningTrace(log, adjustments, { consented: false, available: true })).toEqual({ consented: false, available: true, applied: [], outweighed: [] })
+  })
+
+  test('available false is carried through', () => {
+    expect(buildOutcomeLearningTrace([], [], { consented: true, available: false })).toEqual({ consented: true, available: false, applied: [], outweighed: [] })
+    expect(buildOutcomeLearningTrace([], [], null)).toEqual({ consented: false, available: true, applied: [], outweighed: [] })
+  })
+
+  test('an adjusted template with no matching adjustment still shows, with no evidence', () => {
+    const block = buildOutcomeLearningTrace([{ title: 'Mystery', matchReasons: ['pooled:held_back-2'] }], [null, { template: 5 }], { consented: true })
+    expect(block.applied).toEqual([{ template: 'Mystery', size: -2, direction: 'holdBack', holdBack: 2, id: null, dimension: null, value: null, firms: 0, cases: 0 }])
+    expect(buildOutcomeLearningTrace('nope', undefined, { consented: true }).applied).toEqual([])
+    // An outweighed template whose adjustment carries no numeric size reports 0, not NaN.
+    const odd = buildOutcomeLearningTrace([{ title: 'Odd', matchReasons: ['pooled:outweighed-distinction'], pooledMatched: ['odd|domain|x'] }], [{ id: 'odd|domain|x', template: 'Odd', firms: 5, cases: 25 }], { consented: true })
+    expect(odd.outweighed).toEqual([{ template: 'Odd', size: 0, holdBack: 0, id: 'odd|domain|x', dimension: null, value: null, firms: 5, cases: 25, by: 'distinction' }])
+    const none = buildOutcomeLearningTrace([{ title: 'Nobody', matchReasons: ['pooled:outweighed-distinction'] }], [], { consented: true })
+    expect(none.outweighed).toEqual([{ template: 'Nobody', size: 0, holdBack: 0, id: null, dimension: null, value: null, firms: 0, cases: 0, by: 'distinction' }])
+  })
+})

@@ -234,6 +234,80 @@ const INVITE = {
   bulkMax: 50
 }
 
+// ── AI providers (item 4.97 US8) ─────────────────────────────────────────────
+// Mike, 2026-09-14: "yes" to a backend fallback provider, after the OpenAI account ran out of
+// credit on 11 September and every AI feature in the product stopped at once.
+//
+// 🔴 NO PROVIDER IS NAMED IN CODE. Both are configured here from the environment, so the
+// choice of who answers is an operator decision and never a developer's.
+//
+// 🔴 PERSONAL DATA GOES ONLY TO A PROVIDER MIKE HAS CLEARED, and the default is cleared for
+// NOTHING. A meeting transcript, a client's words or the case anonymiser's input must not
+// reach a second provider on a fallback simply because the first one failed: the consent a
+// client gave aloud names AI transcription, not an arbitrary list of companies. DeepSeek was
+// the provider Mike raised (2026-09-14) and it is the reason this defaults to false — its API
+// is hosted in China and its terms permit training on submitted data, so it would need fresh
+// consent wording and a fresh legal opinion per market before it could carry anything
+// personal. A provider with a no-training, non-Chinese-hosted API needs neither.
+//
+// Which calls count as personal is decided at each call site, not here: see
+// specs/003-engine-middle-learning-true/research.md R8 for the table of all 25.
+//
+// Four call sites can have NO fallback and the seam records that rather than pretending:
+// the economic analysis (web search with citations), the two PDF schedule readers (base64
+// file input) and the meeting transcription (audio) use endpoints and features no second
+// provider offers today.
+
+const _aiModels = (prefix, fallbacks) => ({
+  classify: process.env[prefix + 'MODEL_CLASSIFY'] || fallbacks.classify,
+  narrative: process.env[prefix + 'MODEL_NARRATIVE'] || fallbacks.narrative,
+  course: process.env[prefix + 'MODEL_COURSE'] || fallbacks.course,
+  report: process.env[prefix + 'MODEL_REPORT'] || fallbacks.report,
+  reading: process.env[prefix + 'MODEL_READING'] || fallbacks.reading,
+  review: process.env[prefix + 'MODEL_REVIEW'] || fallbacks.review,
+  compliance: process.env[prefix + 'MODEL_COMPLIANCE'] || fallbacks.compliance,
+  draft: process.env[prefix + 'MODEL_DRAFT'] || fallbacks.draft,
+  research: process.env[prefix + 'MODEL_RESEARCH'] || fallbacks.research,
+  extract: process.env[prefix + 'MODEL_EXTRACT'] || fallbacks.extract
+})
+
+// The models each role uses today, moved here from eleven hardcoded literals across the
+// backend so both providers can be configured without touching a call site twice.
+const _primaryModels = {
+  classify: 'gpt-4o-mini',
+  narrative: 'gpt-4o-mini',
+  course: 'gpt-4o',
+  report: 'gpt-4o-mini',
+  reading: 'gpt-4o-mini',
+  review: 'gpt-4o-mini',
+  compliance: 'gpt-6-astra',
+  draft: 'gpt-6-astra',
+  research: 'gpt-6-astra',
+  extract: 'gpt-6-astra'
+}
+
+const AI = {
+  primary: {
+    name: process.env.AI_PRIMARY_NAME || 'openai',
+    host: process.env.AI_PRIMARY_HOST || 'api.openai.com',
+    // The existing key, unchanged: an installation that sets nothing new keeps working.
+    apiKey: process.env.AI_PRIMARY_KEY || process.env.OPENAI_API_KEY || '',
+    models: _aiModels('AI_PRIMARY_', _primaryModels)
+  },
+  // Unset name or key = NO FALLBACK, and the seam behaves exactly as the app does today.
+  fallback: {
+    name: process.env.AI_FALLBACK_NAME || '',
+    host: process.env.AI_FALLBACK_HOST || '',
+    apiKey: process.env.AI_FALLBACK_KEY || '',
+    chatPath: process.env.AI_FALLBACK_CHAT_PATH || '/v1/chat/completions',
+    models: _aiModels('AI_FALLBACK_', {})
+  },
+  // Only the exact string 'true' clears the fallback for personal data. Anything else,
+  // including 'TRUE', '1' and 'yes', leaves it uncleared — a privacy gate should not open
+  // on a typo.
+  fallbackPersonalCleared: process.env.AI_FALLBACK_PERSONAL_DATA_CLEARED === 'true'
+}
+
 module.exports = {
-  AUTH, DB, DRIVE, PUSH, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, OUTREACH, INVITE
+  AUTH, DB, DRIVE, PUSH, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, OUTREACH, INVITE, AI
 }

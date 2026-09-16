@@ -131,6 +131,20 @@ held-back template is still in the list, still scored, just lower.
 | `penalty:modeling_declined` (−50) | The adviser said revenue modelling is not the answer here | you ruled out revenue modelling — held back |
 | `penalty:reports_already_in_use` (−4) | The client already gets regular management reports | client already gets regular reports — held back |
 | `advisor:confidence_mismatch` (−1) | Low confidence reported, and this template needs experience | needs more experience than reported — held back |
+| `pooled:held_back-<n>` (−n, capped at 10) | Across consenting firms this template went less well in this situation; a mentor-accepted adjustment held it back (item 4.87) | learned from outcomes −{n} `LIVE` — Mike, 2026-09-11, from `mockups/outcome-learning-trace.html` |
+| `pooled:lifted-<n>` (+n, capped at 10) | Across consenting firms this template landed well in this situation; a mentor-accepted adjustment lifted it (item 4.97 US2). The code carries the capped NET, so one lift and one hold-back on the same template produce a single reason, not two | learned from outcomes +{n} `LIVE` — Mike, 2026-09-14, from `mockups/outcome-learning-trace-lift.html` |
+| `pooled:outweighed-<kind>` | A pooled adjustment matched, but the adviser's own words reached this template first and those win. `<kind>` is which evidence won — `distinction`, `primary_issue`, `industry` or `signal` (item 4.97 US3); a lift is set aside exactly as a hold-back is | outcome learning weighed and outweighed `LIVE` — Mike, 2026-09-11. The Why column reads the same for all four kinds; WHICH evidence won is named on the *Learned from outcomes* line instead, in the four endings below |
+
+**The four "outweighed by" endings** — Mike, 2026-09-14, from `mockups/outcome-learning-trace-lift.html`.
+The line reads *"a hold-back of {n} in {where} was outweighed by …"* (or *"a lift of {n} …"*), and the
+ending is chosen by the kind:
+
+| Kind | Ending |
+| --- | --- |
+| `distinction` | your firm's distinction `LIVE` |
+| `primary_issue` | the main issue you confirmed `LIVE` |
+| `industry` | the client's industry `LIVE` |
+| `signal` | what I heard in your description `LIVE` |
 
 ### The adviser's own confidence
 
@@ -138,6 +152,21 @@ held-back template is still in the list, still scored, just lower.
 | --- | --- | --- |
 | `advisor:confidence_match` (+1) | Suits an adviser newer to this area | suits an adviser newer to this area |
 | `advisor:confidence_boost` (+1) | High confidence reported in an area that rewards it | you reported strong confidence here |
+
+### The mentor's bench — the cap-breach line
+
+**Ruled by Mike, 2026-09-14**, chosen from three wordings. Not on the trace drawing: the counter
+did not exist when that screen was drawn, so this is its record. It sits under the fixed bench on
+the Mentor Hub's Outcome Learning page (`outcomeLearning.benchCapBreaches`).
+
+His reason for this one over the alternatives: **it shows the figure even at zero**, so a mentor
+sees a number that was actually measured rather than a reassurance.
+
+| When | English |
+| --- | --- |
+| 0 breaches (expected) | No pooled adjustment outranked the adviser (0 of {cases}). `LIVE` |
+| 1 | 1 of {cases} cases put a pooled adjustment above the adviser's own words. `LIVE` |
+| more than 1 | {count} of {cases} cases put a pooled adjustment above the adviser's own words. `LIVE` |
 
 ---
 

@@ -42,7 +42,8 @@ const { sendError } = require('../utils/sendError')
 const { createLimiter } = require('../utils/rateLimit')
 const { checkContribution, MAX_CHARACTERS } = require('../utils/promptContribution')
 const { supportEmail } = require('../utils/supportContact')
-const { createOpenAIClient } = require('../utils/openaiClient')
+const { getClient, modelFor, logSuffix } = require('../utils/aiProvider')
+const { AI } = require('../../config/integration')
 const { buildReviewMessages, parseReview, validateReview } = require('../utils/promptReview')
 
 /**
@@ -60,7 +61,8 @@ const limiter = createLimiter(10)
  * timeout is longer than the twenty seconds the screen promises, so a slow answer still
  * arrives rather than being thrown away a moment before it lands.
  */
-const REVIEW_MODEL = 'gpt-4o-mini'
+/** From the one role map (4.97 US8/T050), read at call time rather than at import. */
+const REVIEW_MODEL = () => modelFor(AI.primary, 'review')
 const REVIEW_MAX_TOKENS = 1400
 const REVIEW_TIMEOUT_MS = 30000
 
@@ -69,7 +71,8 @@ let openaiClient = null
 /** Built once, on first use, so a missing key is a failed review and not a dead server. */
 function getOpenAI () {
   if (!openaiClient) {
-    openaiClient = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY })
+    // Through the provider seam since 4.97 US8: a second provider answers when the first fails.
+    openaiClient = getClient('review')
   }
   return openaiClient
 }
@@ -81,12 +84,12 @@ function getOpenAI () {
  * typed — this is the one call in the application whose input is a person's own working
  * document.
  */
-function logReview (startedAt, success, usage) {
+function logReview (startedAt, success, usage, reply) {
   const tokens = usage
     ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens} total=${usage.total_tokens}`
     : 'tokens=unknown'
-  console.log(`[openai] prompt-review model=${REVIEW_MODEL} status=${success ? 'ok' : 'error'} ` +
-    `latency=${Date.now() - startedAt}ms ${tokens}`)
+  console.log(`[openai] prompt-review model=${REVIEW_MODEL()} status=${success ? 'ok' : 'error'} ` +
+    `latency=${Date.now() - startedAt}ms ${tokens} ${logSuffix(reply)}`)
 }
 
 /**
@@ -109,14 +112,15 @@ async function runReview (text) {
   const startedAt = Date.now()
   try {
     const { messages } = buildReviewMessages(text, {})
+    // NOT personal: the reviewed text is the user's OWN pasted document, not a client's
+    // words or record. Pinned by aiCallSitesPersonal.test.js.
     const response = await getOpenAI().chat.completions.create({
-      model: REVIEW_MODEL,
       max_tokens: REVIEW_MAX_TOKENS,
       temperature: 0,
       messages
-    }, { timeout: REVIEW_TIMEOUT_MS })
+    }, { timeout: REVIEW_TIMEOUT_MS, personal: false })
 
-    logReview(startedAt, true, response.usage)
+    logReview(startedAt, true, response.usage, response)
 
     const content = response &&
       response.choices &&

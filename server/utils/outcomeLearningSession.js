@@ -1,0 +1,162 @@
+'use strict'
+
+/**
+ * outcomeLearningSession — what a live advisor session reads from Outcome Learning, and
+ * what it writes back onto the decision trace (item 4.87, specs/002-outcome-learning
+ * data-model §5, tasks T033/T035).
+ *
+ * Two functions, kept out of advisorEngine.js so they can be tested to 100% without a
+ * session harness:
+ *
+ *   loadPooledForSession(firmId)  — the firm's consent and the LIVE adjustments, or nothing.
+ *   buildOutcomeLearningTrace(…)  — the trace block, computed from the scoring log, never
+ *                                   from intent.
+ *
+ * 🔴 A SESSION NEVER FAILS BECAUSE LEARNING COULD NOT BE READ (FR-019). Every store fault
+ * degrades to no adjustments with `available: false`, and the recommendation resolves as it
+ * would have before this feature existed. The trace then says learning was unavailable,
+ * which is the honest sentence; silence would claim an influence the engine did not have.
+ *
+ * 🔴 NOTHING IS APPLIED AT A FIRM THAT HAS NOT OPTED IN. Consent is read per session; the
+ * pool is read only after it.
+ */
+
+const overlay = require('./firmOverlay')
+const { PLATFORM_SCOPE } = require('./platformScope')
+const { CONFIG_KEY, contributionOpen } = require('./outcomeConsent')
+const { POOL_PREFIX, DECISIONS_KEY, POOLED_HOLDBACK_MAX, computeAdjustments, liveAdjustments } = require('./outcomeLearning')
+const { platformTemplates } = require('./outcomeContribute')
+
+/**
+ * The live list is one platform-wide set and costs a full pool read plus the arithmetic,
+ * so it is cached per process for a minute — the same TTL the template library uses. A
+ * mentor's decision therefore reaches live sessions within a minute, which the mentor
+ * page says; clearPooledCache exists for tests and for any route that wants it sooner.
+ */
+const TTL_MS = 60 * 1000
+let _cache = null
+
+function clearPooledCache () { _cache = null }
+
+async function _liveAdjustments () {
+  if (_cache && (Date.now() - _cache.at) < TTL_MS) { return _cache.value }
+  const [rows, stored, templates] = await Promise.all([
+    overlay.loadFirmConfigsByPrefix(PLATFORM_SCOPE, POOL_PREFIX),
+    overlay.loadFirmConfig(PLATFORM_SCOPE, DECISIONS_KEY),
+    platformTemplates()
+  ])
+  const decisions = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored.decisions : null
+  const titles = templates.map(t => t && t.title).filter(t => typeof t === 'string' && t.trim())
+  const value = liveAdjustments(computeAdjustments(rows, decisions, titles))
+  _cache = { at: Date.now(), value }
+  return value
+}
+
+/**
+ * @param {string|null} firmId - the verified scope, or null for a session with no firm
+ * @returns {Promise<{consented: boolean, available: boolean, adjustments: Array}>} the
+ *   resolver option shape in `adjustments`; `[]` unless the firm consents and the pool
+ *   could be read
+ */
+async function loadPooledForSession (firmId) {
+  if (!firmId) { return { consented: false, available: true, adjustments: [] } }
+  let consented = false
+  try {
+    consented = contributionOpen(await overlay.loadFirmConfig(firmId, CONFIG_KEY))
+    if (!consented) { return { consented: false, available: true, adjustments: [] } }
+    return { consented: true, available: true, adjustments: await _liveAdjustments() }
+  } catch (err) {
+    console.error('[outcome-learning] unavailable for this session:', err.message)
+    return { consented, available: false, adjustments: [] }
+  }
+}
+
+const HELD_BACK = /^pooled:held_back-(\d+)$/
+const LIFTED = /^pooled:lifted-(\d+)$/
+// The kind is the advisor's own evidence that outweighed the adjustment (4.97 US3):
+// distinction | primary_issue | industry | signal — ADVISOR_EVIDENCE in templateResolver.js.
+const OUTWEIGHED = /^pooled:outweighed-([a-z_]+)$/
+
+/**
+ * The trace block, from what the resolver actually wrote. A template is `applied` only when
+ * its scoring log carries a `pooled:held_back-<n>` or `pooled:lifted-<n>` reason, and the
+ * size reported is the one in that reason — the capped NET the resolver applied, not the sum
+ * of the adjustments. `size` is signed (negative held back, positive lifted) and `direction`
+ * names it in a word, so a reader never has to infer meaning from a sign. A template is
+ * `outweighed` only when it carries `pooled:outweighed-<kind>`, and `by` is that kind — which
+ * of the advisor's own evidence won (4.97 US3), the one fact story 3 says the trace must carry.
+ *
+ * The evidence comes from the adjustments the resolver names on the entry as having
+ * MATCHED this session (`pooledMatched`, their ids) — never from every live adjustment
+ * that shares the title. Found by the quickstart on 2026-09-12: grouping by title put
+ * "held back in profit" on a line for a session in sales, with both hold-backs summed.
+ * Where several matched, `id` is the first one's and `firms`/`cases` are the smallest
+ * across them — the weakest evidence behind the line, so the panel never overstates it.
+ *
+ * @param {Array<{title: string, matchReasons: string[], pooledMatched?: string[]}>} scoringLog
+ * @param {Array<{id: string, template: string, size: number, firms: number, cases: number}>} adjustments
+ * @param {{consented: boolean, available: boolean}} status
+ * @returns {{consented: boolean, available: boolean, applied: Array, outweighed: Array}}
+ */
+function buildOutcomeLearningTrace (scoringLog, adjustments, status) {
+  const consented = !!(status && status.consented)
+  const available = !(status && status.available === false)
+  const block = { consented, available, applied: [], outweighed: [] }
+  if (!consented) { return block }
+
+  const byId = new Map()
+  ;(Array.isArray(adjustments) ? adjustments : []).forEach((a) => {
+    if (!a || typeof a.id !== 'string') { return }
+    byId.set(a.id, a)
+  })
+
+  const matchedFor = entry => (Array.isArray(entry.pooledMatched) ? entry.pooledMatched : [])
+    .map(id => byId.get(id)).filter(Boolean)
+
+  const evidence = (matched) => {
+    if (matched.length === 0) { return { id: null, dimension: null, value: null, firms: 0, cases: 0 } }
+    return {
+      id: matched[0].id,
+      // What matched, so the panel can say "held back in {where}" (the trace drawing).
+      dimension: matched[0].dimension || null,
+      value: matched[0].value || null,
+      firms: Math.min(...matched.map(a => a.firms)),
+      cases: Math.min(...matched.map(a => a.cases))
+    }
+  }
+
+  ;(Array.isArray(scoringLog) ? scoringLog : []).forEach((t) => {
+    if (!t || typeof t.title !== 'string') { return }
+    const reasons = Array.isArray(t.matchReasons) ? t.matchReasons : []
+    const held = reasons.map(r => HELD_BACK.exec(String(r))).find(Boolean)
+    const lifted = reasons.map(r => LIFTED.exec(String(r))).find(Boolean)
+    const outweighed = reasons.map(r => OUTWEIGHED.exec(String(r))).find(Boolean)
+    if (held || lifted) {
+      // Signed for the reader: the reason code carries a bare magnitude, the direction is
+      // which code it was. `holdBack` stays beside it one release (data-model §3).
+      const size = held ? -Number(held[1]) : Number(lifted[1])
+      block.applied.push(Object.assign({
+        template: t.title,
+        size,
+        direction: size > 0 ? 'lift' : 'holdBack',
+        holdBack: Math.max(0, -size)
+      }, evidence(matchedFor(t))))
+    } else if (outweighed) {
+      const matched = matchedFor(t)
+      // WHICH of the advisor's own evidence won, from the code the resolver wrote (4.97 US3).
+      // Until US3 there was only one kind to name and `by` was the constant 'distinction';
+      // the four endings on the trace drawing are chosen from this.
+      const by = outweighed[1]
+      // The signed net that WOULD have applied had the advisor's own words not outweighed it,
+      // capped exactly as the resolver would have capped it — so the line the mentor reads
+      // says what was actually set aside, never a larger uncapped sum.
+      const sum = matched.reduce((total, a) => total + (Number(a.size) || 0), 0)
+      const size = Math.max(-POOLED_HOLDBACK_MAX, Math.min(POOLED_HOLDBACK_MAX, sum))
+      block.outweighed.push(Object.assign({ template: t.title, size, holdBack: Math.max(0, -size) }, evidence(matched), { by }))
+    }
+  })
+
+  return block
+}
+
+module.exports = { TTL_MS, clearPooledCache, loadPooledForSession, buildOutcomeLearningTrace }

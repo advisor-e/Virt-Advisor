@@ -25,7 +25,8 @@
 
 const { fenceUntrusted } = require('./promptSafety')
 
-const MODEL = 'gpt-4o-mini'
+// The model is no longer named here: the caller hands in a seam client that resolves it from
+// the one role map (4.97 US8/T050). Nothing imported this constant — checked before removing.
 const MAX_MESSAGES = 200 // safety cap on transcript length sent in one call
 const MAX_CONTENT_CHARS = 4000 // per-field truncation guard
 
@@ -123,8 +124,11 @@ async function anonymiseCaseContent (input, client) {
     return { summary: '', transcript: [], usage: null }
   }
 
+  // 🔴 PERSONAL (4.97 US8). This call sends the WHOLE client conversation — it is the text
+  // this function exists to strip. It never falls back to a second provider unless that
+  // provider has been explicitly cleared for personal data in config. Pinned by
+  // aiCallSitesPersonal.test.js.
   const response = await client.chat.completions.create({
-    model: MODEL,
     temperature: 0,
     max_tokens: 4096,
     response_format: { type: 'json_object' },
@@ -132,7 +136,7 @@ async function anonymiseCaseContent (input, client) {
       { role: 'system', content: SYSTEM },
       { role: 'user', content: buildUserPrompt(summary, messages) }
     ]
-  })
+  }, { personal: true })
 
   const rawContent = response && response.choices && response.choices[0] &&
     response.choices[0].message && response.choices[0].message.content
@@ -148,7 +152,9 @@ async function anonymiseCaseContent (input, client) {
     content: byIndex.get(i)
   }))
 
-  return { summary: anonSummary, transcript, usage: (response && response.usage) || null }
+  // `reply` carries the seam's `provider`/`fallbackState` so the CALLER can log which
+  // provider answered (4.97 US8/T052); it is the raw response, never stored.
+  return { summary: anonSummary, transcript, usage: (response && response.usage) || null, reply: response || null }
 }
 
-module.exports = { anonymiseCaseContent, parseAnonymisedResponse, buildUserPrompt, MODEL }
+module.exports = { anonymiseCaseContent, parseAnonymisedResponse, buildUserPrompt }

@@ -129,11 +129,16 @@ const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
+const industryVocabularyRoute = require('./routes/industryVocabulary')
+const aiReadinessRoute = require('./routes/aiReadiness')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
 const hubTabsRoute = require('./routes/hubTabs')
+const outcomeLearningRoute = require('./routes/outcomeLearning')
+const outcomeConsentRoute = require('./routes/outcomeConsent')
+const semanticProfilesRoute = require('./routes/semanticProfiles')
 // Both sides of the 2026-09-10 merge: this machine's compliance routes, and the desktop's
 // `firmOrEntityAuth` in the guard list.
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
@@ -216,6 +221,12 @@ server.post('/api/advisor/query', firmAuth, advisorEngine)
 // any firm user (every advisor is asked the staircase question); the WRITE lives on
 // the manager-only /api/firm-manager/staircase. Same blend the engine uses.
 server.get('/api/advisor/staircase', firmAuth, staircaseRoute.get)
+// The words the intake's industry question offers as the advisor types (item 4.87
+// T022a). Same shape as the staircase read: any firm user, never an error.
+server.get('/api/advisor/industry-vocabulary', firmAuth, industryVocabularyRoute.get)
+// Whether a backup AI provider is connected, so the advisor is warned before a conversation
+// rather than when one fails halfway through (4.97 US8, Mike 2026-09-15). Warns, never blocks.
+server.get('/api/advisor/ai-readiness', firmAuth, aiReadinessRoute.get)
 server.post('/api/course', firmAuth, courseEngine)
 server.post('/api/report/working-capital-cycle', reportRoute.workingCapitalCycle)
 server.post('/api/report/debtor-drag', reportRoute.debtorDrag)
@@ -540,6 +551,14 @@ server.post('/api/firm-manager/tax-rates/restore', ...fmGuard, taxRatesRoute.res
 // route that takes a scope from the body would undo both rulings at once.
 server.get('/api/firm-manager/compliance', ...fmGuard, complianceRoute.getForManager)
 server.post('/api/firm-manager/compliance', ...fmGuard, complianceRoute.publish)
+
+// Outcome Sharing — item 4.87, the firm's consent (specs/002-outcome-learning contracts
+// §Firm manager). THE FIRM TIER ALONE: consent is a firm's own undertaking, as its
+// compliance declaration is; the mentor has nothing to switch. Withdraw calls the mentor
+// side's recomputeAndPersist so an adjustment now below the floor is recorded as such.
+server.get('/api/firm-manager/outcome-consent', ...fmGuard, outcomeConsentRoute.read)
+server.post('/api/firm-manager/outcome-consent', ...fmGuard, outcomeConsentRoute.set)
+server.post('/api/firm-manager/outcome-consent/withdraw', ...fmGuard, outcomeConsentRoute.withdraw)
 server.get('/api/firm-manager/compliance/history', ...fmGuard, complianceRoute.history)
 server.post('/api/firm-manager/compliance/restore', ...fmGuard, complianceRoute.restore)
 // The firm's OWN compliance evidence (slice 2) — its lawyer's opinion, its privacy statement,
@@ -924,6 +943,37 @@ server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentor
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
 server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
 
+// Outcome Learning — item 4.87, the mentor's side (specs/002-outcome-learning contracts
+// §Mentor). The pool is one platform-wide set, so this is the MENTOR TIER ALONE (FR-014):
+// no lower tier holds a different value, and the firm's only lever is its consent.
+server.get('/api/mentor/outcome-learning', ...mentorGuard, outcomeLearningRoute.list)
+server.post('/api/mentor/outcome-learning/recompute', ...mentorGuard, outcomeLearningRoute.recomputeNow)
+server.post('/api/mentor/outcome-learning/decision', ...mentorGuard, outcomeLearningRoute.decision)
+server.get('/api/mentor/outcome-learning/history', ...mentorGuard, outcomeLearningRoute.history)
+server.post('/api/mentor/outcome-learning/restore', ...mentorGuard, outcomeLearningRoute.restore)
+server.get('/api/mentor/outcome-learning/export', ...mentorGuard, outcomeLearningRoute.exportLive)
+server.post('/api/mentor/outcome-learning/bench', ...mentorGuard, outcomeLearningRoute.runBench)
+server.get('/api/mentor/outcome-learning/bench/:jobId', ...mentorGuard, outcomeLearningRoute.benchJob)
+server.post('/api/mentor/outcome-learning/reading', ...mentorGuard, outcomeLearningRoute.reading)
+
+// Template Profiles — item 4.97 / 7.2 US9 (specs/003-engine-middle-learning-true
+// contracts §New routes). What the AI understands each client tool to be ABOUT: the
+// resolver's dominant lever, scored out of sight until this screen.
+//
+// 🔴 AUTHORING IS LIVE, AND MIKE TURNED IT ON KNOWING WHAT IT DOES — his second ruling of
+// 2026-09-16. A profile saved here OVERRIDES the compiled guess and changes which tool an
+// advisor is recommended, on the resolver's dominant lever, and no test can say a weight is
+// right. He accepted that: 44 tools have no profile at all. The guard is REVERSIBILITY —
+// every save is a version with its author and reason, and restore puts back any earlier one
+// including the script's own compiled row.
+//
+// MENTOR TIER ALONE: one library, one set of profiles, no firm holds a different view of
+// what a tool is about (the default-is-mentor-alone ruling of 2026-08-24).
+server.get('/api/mentor/semantic-profiles', ...mentorGuard, semanticProfilesRoute.list)
+server.put('/api/mentor/semantic-profiles/:page', ...mentorGuard, semanticProfilesRoute.save)
+server.get('/api/mentor/semantic-profiles/:page/history', ...mentorGuard, semanticProfilesRoute.history)
+server.post('/api/mentor/semantic-profiles/:page/restore', ...mentorGuard, semanticProfilesRoute.restore)
+
 // ── Master template library (MENTOR ONLY — the upload doorway) ──
 // SEARCH-CONTENT-CASCADE-PLAN.md Phase 1: the mentor uploads the Advisor-e master
 // export here instead of a developer mirroring it into data/templates.json by hand.
@@ -969,6 +1019,9 @@ server.del('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRout
 // boundary by mentorLogicLabReport.assertNoPersonalFields, which throws rather
 // than filtering. Artefact: design/mockups/mentor-logic-lab-report-mockup.html.
 server.get('/api/mentor/logic-lab-report', firmAuth, requireManagingTier, mentorRoute.getLogicLabReport)
+// "Read this for me" (Mike, 2026-09-11; design/mockups/hub-page-guidance.html): the model
+// reads the grouped feed without its origin path and the reading is stored at the viewer's scope.
+server.post('/api/mentor/logic-lab-report/reading', firmAuth, requireManagingTier, mentorRoute.getLogicLabReading)
 
 // ── Collaborate: template catalogue + people layer ──
 // Merged in 2026-08-01 from the standalone Collaborate app, which ran its OWN
@@ -1055,18 +1108,34 @@ server.post('/api/people/marketplace/:id/purchase', ca, peopleRoute.purchaseList
 }())
 
 // ── Start ──
-server.listen(PORT, HOST, () => {
-  console.error(`[restify] virt-advisor-api listening on ${HOST}:${PORT}`)
+//
+// 🔴 THE POOL SECRET IS CHECKED BEFORE THE SERVER LISTENS, AND NEVER STOPS IT (item 4.97 US6,
+// amended by Mike's ruling of 2026-09-15: warn, let the user continue, and shut down only the
+// one function). Without the secret, shared outcome learning cannot pool anything — every
+// pooled key is derived through `firmToken`, which throws — so the feature is off by
+// construction and no other feature is touched. The check warns; the server starts regardless,
+// including when the store cannot be read. Skipped under NODE_ENV=test, like the sweeper below.
+require('./utils/outcomePoolBootCheck').assertPoolSecretIfConsented()
+  .catch((err) => {
+    // A fault in the CHECK must not stop the app either — it only decides a log line.
+    console.warn('[startup] outcome-pool check failed; starting anyway: ' + err.message)
+  })
+  .then(startListening)
 
-  // Meeting Review P8, the other half: a firm sets how long transcripts are kept and the
-  // client is SHOWN that figure before they agree, so something has to make the number true.
-  // Each meeting expires against the period stored on its own record — what the client was
-  // told that day — never against the firm's current dial.
-  //
-  // It starts here rather than at import so that requiring this file (serverWiring.test.js
-  // does) never deletes anything, and it is skipped under test outright. The timer is
-  // unref'd, so it cannot hold a shutting-down server open.
-  if (process.env.NODE_ENV !== 'test') {
-    require('./utils/meetingPurge').startSweeping()
-  }
-})
+function startListening () {
+  server.listen(PORT, HOST, () => {
+    console.error(`[restify] virt-advisor-api listening on ${HOST}:${PORT}`)
+
+    // Meeting Review P8, the other half: a firm sets how long transcripts are kept and the
+    // client is SHOWN that figure before they agree, so something has to make the number true.
+    // Each meeting expires against the period stored on its own record — what the client was
+    // told that day — never against the firm's current dial.
+    //
+    // It starts here rather than at import so that requiring this file (serverWiring.test.js
+    // does) never deletes anything, and it is skipped under test outright. The timer is
+    // unref'd, so it cannot hold a shutting-down server open.
+    if (process.env.NODE_ENV !== 'test') {
+      require('./utils/meetingPurge').startSweeping()
+    }
+  })
+}

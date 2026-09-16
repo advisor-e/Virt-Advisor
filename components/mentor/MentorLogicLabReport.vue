@@ -18,6 +18,12 @@
     p.title.is-5 {{ $t('logicLabReport.title') }}
     p.subtitle.is-6.has-text-grey.mb-5 {{ $t('logicLabReport.lede') }}
 
+    //- ── How to use this page, and what it is telling you (Mike, 2026-09-11;
+    //- design/mockups/hub-page-guidance.html). The reading is the model's, from the
+    //- grouped feed without its origin path; it decides nothing.
+    hub-guide-panel(storage-key="logic-lab-report" :intro="$t('logicLabReport.guide.intro')" :points="guidePoints")
+    hub-reading-card(:reading="report.reading || null" :stale="report.readingStale === true" :loading="readingLoading" :error="readingError" :from-now="readingFromNow" :from-then="readingFromThen" :caveat="$t('logicLabReport.readingCaveat')" @read="readReport")
+
     //- ── 1 · What firms pushed ─────────────────────────────────────
     p.llr-band {{ $t('logicLabReport.pushed.heading') }}
     p.is-size-7.has-text-grey.mb-4
@@ -149,11 +155,13 @@
 
 import { DISTINCTION_DOMAINS } from '~/components/FirmManagerHub.vue'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
+import HubGuidePanel from '~/components/shared/HubGuidePanel.vue'
+import HubReadingCard from '~/components/shared/HubReadingCard.vue'
 
 export default {
   name: 'MentorLogicLabReport',
 
-  components: { TierNotConnected },
+  components: { TierNotConnected, HubGuidePanel, HubReadingCard },
 
   props: {
     // The caller's JWT. Re-gated server-side by requireManagingTier on every call —
@@ -173,11 +181,31 @@ export default {
        * mentor, whose empty report would genuinely mean no firm has changed anything.
        */
       awaitingFirms: false,
-      opened: {}
+      opened: {},
+      readingLoading: false,
+      readingError: ''
     }
   },
 
   computed: {
+    /** @returns {string[]} the four points of "How to use this page" */
+    guidePoints () {
+      return ['p1', 'p2', 'p3', 'p4'].map(k => this.$t('logicLabReport.guide.' + k))
+    },
+
+    /** @returns {string} "from 7 firms, 11 pushed edits", as the report stands */
+    readingFromNow () {
+      const g = this.report.glance || {}
+      return this.$tc('logicLabReport.readingFrom', g.pushedEdits || 0, { firms: g.firms || 0, edits: g.pushedEdits || 0 })
+    },
+
+    /** @returns {string} the same, for the counts the stored reading was made from */
+    readingFromThen () {
+      const f = this.report.reading && this.report.reading.from
+      if (!f) { return '' }
+      return this.$tc('logicLabReport.readingFrom', f.edits || 0, { firms: f.firms || 0, edits: f.edits || 0 })
+    },
+
     glanceTiles () {
       const g = this.report.glance || {}
       return [
@@ -249,6 +277,31 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+
+    /**
+     * "Read this for me". The backend sends the model the grouped feed without its origin
+     * path and stores the reading at this viewer's scope.
+     * @route POST /api/mentor/logic-lab-report/reading
+     * @returns {Promise<void>}
+     */
+    async readReport () {
+      this.readingError = ''
+      this.readingLoading = true
+      try {
+        const res = await fetch('/api/mentor/logic-lab-report/reading', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        })
+        const body = await res.json().catch(() => ({}))
+        if (!res.ok || !body.success) {
+          throw new Error(res.status === 502 ? this.$t('hubReading.failed') : ((body.error && body.error.message) || this.$t('hubReading.failed')))
+        }
+        this.report = Object.assign({}, this.report, { reading: body.reading || null, readingStale: false })
+      } catch (e) {
+        this.readingError = e.message === 'Failed to fetch' ? this.$t('hubReading.unreachable') : e.message
+      }
+      this.readingLoading = false
     },
 
     /** @param {string} key - the group key. */

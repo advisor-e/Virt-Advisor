@@ -66,6 +66,21 @@ export const REASON_RULES = [
   // Held back.
   { test: /^history:already_delivered$/, key: 'reasonDelivered' },
   { test: /^history:went_less_well$/, key: 'reasonWentLess' },
+  // Outcome Learning (item 4.87; the lift added by 4.97 US2). The applied codes carry the
+  // capped NET, as a bare magnitude — the direction is which code it is, so a reader never
+  // has to read a sign. The outweighed code carries nothing: the advisor's own words won.
+  // Mike's wording, 2026-09-11 (design/mockups/outcome-learning-trace.html) and 2026-09-14
+  // (design/mockups/outcome-learning-trace-lift.html).
+  { test: /^pooled:held_back-(\d+)$/, key: 'reasonPooledHeldBack', param: 'n' },
+  { test: /^pooled:lifted-(\d+)$/, key: 'reasonPooledLifted', param: 'n' },
+  // Outweighed carries the KIND of the advisor's evidence that won (4.97 US3), never a number.
+  // The Why column reads the same for all four — "outcome learning weighed and outweighed",
+  // built and unchanged — so they share one key; WHICH evidence won is named on the Learned
+  // from outcomes line instead, where the drawing puts it.
+  // The `-<kind>` tail is optional so a case SAVED BEFORE US3 — carrying the bare
+  // `pooled:outweighed` — still renders its English instead of showing the advisor the raw
+  // code, which is what an unmatched code does (see matchReason's contract below).
+  { test: /^pooled:outweighed(-[a-z_]+)?$/, key: 'reasonPooledOutweighed' },
   { test: /^penalty:modeling_declined$/, key: 'reasonPenaltyModeling' },
   { test: /^penalty:reports_already_in_use$/, key: 'reasonPenaltyReports' },
   { test: /^advisor:confidence_mismatch$/, key: 'reasonConfidenceMismatch' },
