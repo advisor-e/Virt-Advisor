@@ -119,7 +119,14 @@ function chooseReportPath (mainPath, run) {
   const hadCases = casesMatch ? Number(casesMatch[1]) : 0
 
   if (hadAi && !run.ai) {
-    return { path: partial, withheld: 'The AI layers did not run; the existing report measured them.' }
+    // `run.ai` is "the layers ANSWERED", not "a key was set" — item 9.4. `failed` separates a
+    // broken environment from a deliberate no-key run, because they need different fixes.
+    return {
+      path: partial,
+      withheld: run.failed
+        ? 'The AI layers were configured but FAILED; the existing report measured them. Check the key, the credit and NODE_EXTRA_CA_CERTS.'
+        : 'The AI layers did not run; the existing report measured them.'
+    }
   }
   if (run.cases < hadCases) {
     return { path: partial, withheld: `This run measured ${run.cases} cases; the existing report has ${hadCases}.` }
@@ -280,6 +287,7 @@ async function main () {
     // would understate it and read as an engine result — so failures are counted and
     // stated in the report rather than averaged in.
     let aiFailed = false
+    let distressFailed = false
     if (HAS_AI) {
       const fullText = [sc.opening, sc.situationDiagnostic, sc.clientAlreadyTried, sc.domainConfirmed].filter(Boolean).join(' ')
       try {
@@ -287,9 +295,13 @@ async function main () {
         boosts = (classified && classified.boosts) || {}
         aiFailed = !!(classified && classified.ok === false)
       } catch (_e) { boosts = {}; aiFailed = true }
-      try { distress = await readDistressAI(fullText) } catch (_e) { distress = null }
+      // 🔴 A FAILED DISTRESS READ IS NOT "NOT IN DISTRESS" (item 9.4). Both are `null` here,
+      // so a swallowed error used to count as a measured negative in the precision figures
+      // below. It is recorded separately and, like a classifier failure, stops this run
+      // replacing a measured one.
+      try { distress = await readDistressAI(fullText) } catch (_e) { distress = null; distressFailed = true }
     }
-    results.push({ sc, distress, boosts, aiFailed, run: runScenario(sc, boosts, adjustments) })
+    results.push({ sc, distress, boosts, aiFailed, distressFailed, run: runScenario(sc, boosts, adjustments) })
   }
 
   // ── Metrics ────────────────────────────────────────────────────────────────
@@ -346,13 +358,26 @@ async function main () {
   if (distinctionFailures > 0) {
     metrics.push(`- 🔴 **Distinction classifier FAILED on ${distinctionFailures}/${n} cases** — those sessions ran with no distinction lever at all, so every figure above understates it. This is a fault in the run, not a result: fix it and re-run before comparing anything.`)
   }
+  const distressFailures = results.filter(r => r.distressFailed).length
+  if (distressFailures > 0) {
+    metrics.push(`- 🔴 **Distress read FAILED on ${distressFailures}/${n} cases** — a failed read is not "not in distress", so the precision and recall figures above are measured over fewer cases than they claim. A fault in the run, not a result.`)
+  }
+  // 🔴 ITEM 9.4: the key EXISTING is not the AI having RUN. Every call above swallows its own
+  // error, so a run with an expired key, no credit or a missing CA root reported "AI ON" and
+  // was allowed to replace a properly measured report. The script already said these failures
+  // are "a fault in the run, not a result" — this is that sentence enforced. Any failure at all
+  // is enough: a partly-measured run is exactly what item 9.2 exists to keep out of the record.
+  const aiReallyRan = HAS_AI && distinctionFailures === 0 && distressFailures === 0
 
   // ── Report ─────────────────────────────────────────────────────────────────
   const lines = []
   lines.push('# Scenario Lab — Cross-Domain Case-Study Report')
   lines.push('')
   lines.push('> **Auto-generated** by `scripts/scenario-lab.js` over the fixed 50-case set (`scenario-lab-cases.json`). Re-run to refresh; do not hand-edit.')
-  lines.push(`> Coverage: **${n} sessions across all 14 content domains**. AI layer (firm distinctions + distress): **${HAS_AI ? 'ON' : 'OFF'}**. Outcome Learning adjustments: **${adjustmentsFile ? `${adjustments.length} from ${adjustmentsFile}` : 'none'}**.`)
+  // The header is what `chooseReportPath` reads on the NEXT run, so it must say ON only when
+  // the layers actually answered — not merely when a key was present (item 9.4).
+  const aiWord = aiReallyRan ? 'ON' : (HAS_AI ? 'FAILED' : 'OFF')
+  lines.push(`> Coverage: **${n} sessions across all 14 content domains**. AI layer (firm distinctions + distress): **${aiWord}**. Outcome Learning adjustments: **${adjustmentsFile ? `${adjustments.length} from ${adjustmentsFile}` : 'none'}**.`)
   lines.push('')
   lines.push('## Metrics (measure before vs after an engine change)')
   lines.push('')
@@ -409,10 +434,10 @@ async function main () {
   }
 
   const outPath = path.join(process.cwd(), 'design', 'SCENARIO-LAB-REPORT.md')
-  const target = chooseReportPath(outPath, { cases: n, ai: HAS_AI, filtered: !!filter })
+  const target = chooseReportPath(outPath, { cases: n, ai: aiReallyRan, failed: HAS_AI && !aiReallyRan, filtered: !!filter })
   fs.writeFileSync(target.path, lines.join('\n'), 'utf8')
 
-  console.log(`\n=== SCENARIO LAB — ${n} cases · AI ${HAS_AI ? 'ON' : 'OFF'} ===`)
+  console.log(`\n=== SCENARIO LAB — ${n} cases · AI ${aiWord} ===`)
   metrics.forEach(m => console.log(m.replace(/\*\*/g, '').replace(/^- /, '  ')))
   if (target.withheld) {
     console.log(`\n🔴 THE MAIN REPORT WAS NOT TOUCHED. ${target.withheld}`)

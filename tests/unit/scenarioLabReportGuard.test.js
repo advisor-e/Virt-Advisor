@@ -91,6 +91,37 @@ describe('the lab never replaces a fuller report with a thinner one', () => {
     withExisting('something that is not a lab report at all')
     expect(chooseReportPath(MAIN, { cases: 51, ai: false, filtered: false }).path).toBe(MAIN)
   })
+
+  // ── Item 9.4: a key that EXISTS is not the AI having RUN ──────────────────
+  // The lab set its AI flag from `!!process.env.OPENAI_API_KEY` while every call site swallowed
+  // its own error, so an expired key, exhausted credit or a missing CA root reported AI ON and
+  // was allowed to overwrite a measured report. The Avast root has broken this exact script
+  // before, so this is the realistic failure, not a hypothetical one.
+  test('AI configured but FAILING is treated as not measured, and says which it was', () => {
+    withExisting(header(51, true))
+    const out = chooseReportPath(MAIN, { cases: 51, ai: false, failed: true, filtered: false })
+    expect(out.path).toBe(PARTIAL)
+    expect(out.withheld).toMatch(/FAILED/)
+    // The fix has to be findable: a broken environment and a no-key run need different actions.
+    expect(out.withheld).toMatch(/NODE_EXTRA_CA_CERTS/)
+  })
+
+  test('a no-key run and a failed run give different reasons', () => {
+    withExisting(header(51, true))
+    const noKey = chooseReportPath(MAIN, { cases: 51, ai: false, failed: false, filtered: false })
+    const failed = chooseReportPath(MAIN, { cases: 51, ai: false, failed: true, filtered: false })
+    expect(noKey.withheld).not.toEqual(failed.withheld)
+    expect(noKey.withheld).not.toMatch(/FAILED/)
+  })
+
+  test('a report whose header says FAILED does not count as AI-measured', () => {
+    // So a later GOOD run can replace it. A failed run must never become the thing that
+    // blocks the fix from being recorded.
+    withExisting(header(51, false).replace('**OFF**', '**FAILED**'))
+    const out = chooseReportPath(MAIN, { cases: 51, ai: true, failed: false, filtered: false })
+    expect(out.path).toBe(MAIN)
+    expect(out.withheld).toBeNull()
+  })
 })
 
 describe('an unknown argument stops the run instead of becoming a case filter', () => {

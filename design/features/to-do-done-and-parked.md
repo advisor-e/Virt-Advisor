@@ -185,6 +185,34 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**9.4 — the lab trusted a key that existed over a call that worked.**
+✅ Closed 2026-09-17, filed and fixed the same hour on Mike's instruction. Found while fixing
+9.2 (below) and deliberately kept out of it rather than widen an approved scope.
+
+`HAS_AI` was `!!process.env.OPENAI_API_KEY` — the key *existing*, never a call *succeeding* — and
+both call sites swallowed their own errors. So an expired key, exhausted credit or a missing CA
+root reported **AI ON**, passed the guard 9.2 had just added, and overwrote the measured report
+with AI-free numbers. **The Avast root has broken this exact script before**, which is the
+realistic way it fires.
+
+**The decision the item said was needed turned out to be already made, in the script's own words.**
+It detects these failures and prints *"This is a fault in the run, not a result: fix it and re-run
+before comparing anything"* — then handed the report to the writer as a full AI run anyway. The fix
+is that sentence enforced: `aiReallyRan` requires the key **and** zero failures, and the header now
+reads `ON` / `FAILED` / `OFF` rather than only the first and last. A `FAILED` header is not read as
+AI-measured, so a later good run can still replace it.
+
+**A second, quieter half was found in the same file:** a failed `readDistressAI` set `distress =
+null`, which is indistinguishable from a genuine *"not in distress"* — so swallowed errors were
+counted as measured negatives in the precision and recall figures. Now recorded separately and
+reported.
+
+🔴 **Proved by breaking it.** With the guard reverted, one run with an invalid key **destroyed the
+1,145-line report** — the original fault, reproduced exactly. Restored from git, guard replaced,
+and the same command is now refused with a message naming the key, the credit and
+`NODE_EXTRA_CA_CERTS`. Thirteen tests; a no-key run and a failed run are pinned to give different
+reasons, because they need different fixes.
+
 **9.2 — a part-measured lab run could overwrite a full one.**
 ✅ Closed 2026-09-17 on the desktop. Filed 2026-09-14 after a run without the key replaced a real
 report and was caught by the **pre-commit hook** rather than by anything in the lab; it fired twice
