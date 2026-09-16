@@ -11,29 +11,32 @@
 
 ## 2026-09-17 · Laptop · branch `feat/advisor-progress`
 
-**Five commits, all pushed** (`2ab31be9` … `46e0872f`). Suite **12,074 green**, lint 0, audit
-gate pass. **0 behind `master`, 15 ahead.** **No code was written today** — 15.1 stays active
-on this laptop, 7.5 likewise, still blocked on `FirmManagerHub.vue`.
+**Eight commits, all pushed** (`be111078` … `b0edacf1`). Suite **12,074 green**, lint 0, audit
+gate pass. **0 behind `master`, 24 ahead.** No application code was written — `design/` only.
+**15.1 and 7.5 stay active on this laptop.**
 
-🔴 **MIKE REDIRECTED 15.1's DESIGN. Read [`PLANNING-TEMPLATE-CENSUS.md`](PLANNING-TEMPLATE-CENSUS.md)
-before the Brief, and the Brief before anything else.** Design from the OUTPUT: an advisor ticks
-concepts and gets one seamless plan, each concept shown **as it appears in his slides**. The four
-built steps stand; the shape ahead of them does not.
+🔴 **`design/mockups/strategy-planner.html` IS SUPERSEDED AND NOW SAYS SO** — in its browser
+title, its `h1`, a banner above everything, and its file header. Mike's instruction after a
+republish of it surfaced where he expected the new drawing: *"make sure the old plan version
+never comes back."* **Open it for a ruling, never as the design.** Not deleted — its eleven
+rulings live there, and a drawing that is gone cannot be checked against.
 
-**This machine could not open a PDF until today.** Every design decision before 2026-09-17 was
-made from second-hand summaries, which is how five capture shapes and a count of 45 got written
-down. `pymupdf`, `python-pptx`, `python-docx` and `openpyxl` are now installed (user-level
-Python, nothing to do with the app's stack).
+**15.1 — THE OUTPUT IS DRAWN.** [`strategy-plan-output.html`](mockups/strategy-plan-output.html):
+all 31 pages of `Pivot.pdf` reproduced, each block carrying the page it answers, so the
+acceptance test runs against the drawing. ☑ **Decision 1 ruled** — one continuous document of
+slide-shaped pages, **ONE artefact never two formats**. ☐ **Four open, Decision 2 asked and
+unanswered**: does the advisor name the steps, or does the app group the ticked concepts?
 
-**Measured, not assumed:** 51 concepts in scope, from five documents' own menus · **21 teaching
-forms, 9 capture forms** — a concept is taught in one form and captured in another, and nothing
-is ever filled in as a ring, a staircase or a curve · `Pivot.pdf` is the **acceptance test**,
-being a deck Mike assembled by hand out of Orientation 2 and Sales & Marketing.
+**Read Pivot, not the notes about it.** Two findings changed the model, both in census §1:
+teaching and capture interleave **per STEP, never per concept**, and **a concept can be captured
+twice into the same table** (Porter's p11 observations, p21 responses) — so the capture record
+keys on the **visit**. The Brief's *"the plan carries the capture, never the teaching"* was wrong
+and is corrected; Pivot is 12 teaching slides to 9 capture.
 
-**In the repo now:** `design/planning-templates/` — his twelve decks, two workbooks, and 21
-fill-in tables in their original Word/PowerPoint/Excel. The Enneagram table is deliberately
-excluded on licence grounds; the census says why.
+**The impact test's 45 was wrong — it is 51.** ADV.0's index has drifted four concepts and a page
+offset. Corrected in `ARTEFACTS.md`, the Brief and both drawings, with the reason on the page.
 
-**DESKTOP — shared files I changed:** none. Only `design/` documents and
-`design/features/to-do-items.json` (15.1's note). **Nothing in `components/FirmManagerHub.vue`,
-`server/advisorEngine.js`, or anything else 7.2 owns.**
+**DESKTOP — shared files I changed:** `design/ARTEFACTS.md`,
+`design/features/strategy-planner.md`, `design/features/to-do-items.json` (15.1's note), and the
+two mockups. **Nothing in `components/FirmManagerHub.vue`, `server/advisorEngine.js`, or anything
+else 7.2 owns.**
