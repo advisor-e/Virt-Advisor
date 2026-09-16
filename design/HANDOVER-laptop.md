@@ -29,10 +29,16 @@ Mike asked for a Strategy Planner, from thirteen source decks in
 `C:/Documents/Visual Code Projects/Strategy Planner`. The scoping found it largely specified
 already, which shrank the job twice:
 
-- **`data/strategy-domain-support.json` names every deck he supplied** — all thirteen materials,
-  including the Planning Outcomes Review and the Growth Curve. Its `diagnostic_entry` *is* the
-  advisor-facing opening check, and the Client Planning Framework already sizes a plan three ways
+- **`data/strategy-domain-support.json` holds thirteen materials** — including the Planning
+  Outcomes Review and the Growth Curve. Its `diagnostic_entry` *is* the advisor-facing opening
+  check, and the Client Planning Framework already sizes a plan three ways
   (Bizz Case / Lite Fundamentals / Planning Outcomes Review).
+- 🔴 **It does NOT name every deck Mike supplied, and an earlier version of this line said it
+  did.** Two of the four Planning Domains he ruled *are* the session are authored outside it:
+  **Sales & Marketing Review** in `data/sales-marketing-domain-support.json` (19 materials
+  matching the deck's Session Scope tables item for item) and **Organisational Review** in
+  `data/staff-domain-support.json`. **The Planner reads across three domain support files, or
+  it delivers half the session.** Corrected 2026-09-16 on Mike's yes, before anything was drawn.
 - **`client_planning` branches THREE ways, not two** — startup, well established, or **blocked**,
   the third keyed to the psyche errors in the Growth Curve deck. Read it before anyone designs an
   opening question for this.

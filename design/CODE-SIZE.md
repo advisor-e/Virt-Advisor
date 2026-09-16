@@ -5,7 +5,7 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-16 at commit `64f6348f`.**
+> **Measured 2026-09-16 at commit `7bc6b5b1`.**
 
 **Working code: 101,612 lines** across 484 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.

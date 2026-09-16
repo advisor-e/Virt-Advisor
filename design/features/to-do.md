@@ -51,8 +51,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 14 | **9.2** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 15 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 16 | **15.1** The strategy domain has thirteen materials and no session to run them in ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 17 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**Sixteen live items. Eight need Mike.** If this list passes about twenty, something is wrong.
+**Seventeen live items. Eight need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

@@ -413,9 +413,30 @@
         "ours": false,
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
-      "touches": "data/strategy-domain-support.json and its thirteen materials; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "NOTHING IS BUILT AND NOTHING IS DRAWN - this is scoping only, 2026-09-16. The route in already exists: client_planning's entry question branches three ways - startup, well established, or BLOCKED, the third keyed to the psyche errors. Mike's ruling: the four Planning Domains are the session, expanding to the nine Growth Aspects for experienced clients; the nine are a coverage check, not a menu, per Orientation 1's own instruction to test objectives against them. Facilitation feedback goes into Meeting Review's existing My Coaching Notes as new observation points, inheriting P2-P6, not a second report. Build the machine and prove it on three frameworks, not fifty.",
-      "comment": "2026-09-16 - filed on Mike's instruction after a full read of the thirteen source documents he supplied. The scoping found the feature largely specified already: the strategy domain support names every deck he gave us, its diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework already sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. His four-to-nine expansion is the rung above those three. The impact test was run at scoping and reshaped the task twice: the recording half is Meeting Review's, the maths half is the Model Library's, and 8 Profit Levers is already a built report."
+      "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
+      "note": "NOTHING IS BUILT OR DRAWN - scoping only, 2026-09-16. MEASURED BEFORE DESIGN: the four Planning Domains hold 45 frameworks; 0 are capturable in-app today and 0 answers survive to the next session - no store exists. Build ONE capture machine, not 45 screens; prove on three frameworks. The route in exists: client_planning branches three ways - startup, well established, or BLOCKED, keyed to the psyche errors. Mike's ruling: the four Domains are the session, expanding to the nine Growth Aspects for experienced clients; the nine are a coverage check, not a menu, per Orientation 1's instruction to test objectives against them. Facilitation feedback becomes new observation points in Meeting Review's My Coaching Notes, inheriting P2-P6, not a second report.",
+      "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
+    },
+    {
+      "ref": "15.2",
+      "name": "The hundred questions behind the nine Growth Aspects",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The coverage wheel can say an aspect is untouched but cannot help the advisor ask anything about it. The hundred questions behind the nine aspects are what make the check useful in the room.",
+      "risk": "Without them an advisor sees a hatched segment and has nothing to say next, so the coverage check names a gap it cannot help close. The counter-risk is scale: a hundred questions authored onto a screen is a real content job, and folding it into 15.1 is how that build stops ending.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-16 - the 9 Growth Aspect Questions deck is one of the fourteen he supplied for the Strategy Planner; split out of 15.1 on his yes, as Decision 7 of the drawing. Not a new idea of ours."
+      },
+      "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
+      "note": "NOT IN THIS BUILD - Mike's ruling 2026-09-16, Decision 7 on design/mockups/strategy-planner.html, where the reasoning is recorded in full. The coverage check ships on the nine names alone and still does its job: it shows WHERE a plan is thin. Source is his '9 Growth Aspect Questions hyperlinked.pdf' - about 100 questions across the nine aspects. growth-fundamentals.json already holds the nine names and descriptions, so this adds questions beneath an existing structure rather than inventing one. Under the hub-page rule the screen starts at the mentor tier ALONE: platform content, identical for every firm.",
+      "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as Decision 7 of the drawing. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
     }
   ]
 }
