@@ -5,6 +5,34 @@
 
 ---
 
+## 0. Superseded by the redirection of 2026-09-17
+
+**The Brief's §2 used to name five capture shapes and call the sixth the last one missing.**
+Kept here because a build was made against it and the code still carries those names:
+
+| Shape | What it is | Built for |
+|---|---|---|
+| `buckets` | ideas sorted under named headings | The 8 Profit Levers |
+| `quadrants` | exactly four boxes | SWOT / PEST |
+| `forces` | five or six boxes, one marked centre | Porter's 5 Forces |
+| `statements` | a short list side by side | Strategic Objective and Strategy |
+| `actions` | a rows × columns table | the Action Plan |
+
+*"**`placement`** — a 2×2 an owner is placed on, for the Heald Matrix and Business Dating — is
+the one shape still missing."*
+
+**Why it was wrong, and it is a useful lesson rather than a blunder.** Those five were derived
+from the app's own short material summaries, because no session could read Mike's source: this
+machine had no PDF reader at all until 2026-09-17. Reading the templates gave **21 teaching
+forms and 9 capture forms**, and showed two of the five to be wrong against his fill-in tables.
+The `placement` line was doubly stale — the Heald Matrix is out of scope entirely, being a tool
+for selling a plan rather than making one.
+
+**The 45 was wrong too, and for the same reason.** The Brief's impact test counted 45
+frameworks from ADV.0's index. ADV.0 is a *copy* of the decks' contents tables and has drifted
+from them — four concepts missing, page references off by one. Counted from the decks
+themselves the scope is **51**.
+
 ## 1. The measurement that reshaped the task, run before anything was drawn
 
 The Brief (§1) carries the figures. **Recorded here is why they mattered**, because the
