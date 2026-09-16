@@ -14,11 +14,18 @@
 > before designing anything**: it is the measured survey of Mike's own templates that the new
 > direction rests on.
 >
-> To-do item **15.1**. Approved artefact:
-> [`design/mockups/strategy-planner.html`](../mockups/strategy-planner.html) — **eleven
-> decisions, all ruled by Mike on 2026-09-16**, registered in [`ARTEFACTS.md`](../ARTEFACTS.md).
-> ⚠ That drawing predates the redirection. Its **rulings still bind** (Decision 5 especially);
-> its **screens do not describe the target any more.**
+> To-do item **15.1**. Two artefacts, both registered in [`ARTEFACTS.md`](../ARTEFACTS.md):
+>
+> - **The session an advisor runs** — [`design/mockups/strategy-planner.html`](../mockups/strategy-planner.html),
+>   **eleven decisions all ruled by Mike on 2026-09-16**. ⚠ It predates the redirection. Its
+>   **rulings still bind** (Decision 5 especially); its **screens do not describe the target any
+>   more.**
+> - **The assembled plan** — [`design/mockups/strategy-plan-output.html`](../mockups/strategy-plan-output.html),
+>   drawn 2026-09-17, the output this redirection asks for. **All 31 pages of `Pivot.pdf`
+>   reproduced**, each block carrying the Pivot page it answers, so the acceptance test runs
+>   against the drawing rather than after a build. ☐ **Five decisions drawn and none ruled.** Its
+>   §5 states what it does *not* ask approval for — chiefly how each of the 21 teaching forms is
+>   drawn, which stays open.
 >
 > **Step 1 — scope the session.** The four Planning Domains, each opening Mike's own Session
 > Scope table from ADV.0 Planning Outcomes: Framework · What it explores · Helps your client

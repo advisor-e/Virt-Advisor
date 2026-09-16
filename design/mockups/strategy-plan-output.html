@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Assembled Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   THE ASSEMBLED PLAN — the OUTPUT of the Strategy Planner, to-do item 15.1.
+   Drawn 2026-09-17. NOTHING ON THIS PAGE IS BUILT. It is the artefact the build
+   will be measured against, per CLAUDE.md's Save-the-Artefact rule.
+
+   WHY THIS DRAWING EXISTS, AND WHY IT IS A SECOND ONE. Mike redirected 15.1 on
+   2026-09-17: "I want the final output to break down to each concept/slide/s
+   within the template in the menu so that an advisor can complete the initial
+   session check and have a strategic plan formatted to include the necessary
+   concepts/slides into 1 seamless document that can easily expand over time."
+   And: "each concept needs to be presented AS IT CURRENTLY APPEARS in the
+   slides."
+
+   design/mockups/strategy-planner.html (2026-09-16) draws the SESSION an advisor
+   runs. Its eleven rulings still bind. It does not draw the DOCUMENT that comes
+   out, which is what the redirection asks for. This page is that document.
+
+   🔴 THE MEASUREMENT, NAMED BEFORE THE DESIGN (CLAUDE.md's impact test). It is
+   not a new one — it is the acceptance test 15.1 already carries: Pivot.pdf, a
+   deck Mike assembled BY HAND out of Strategic Orientation 2 and Sales &
+   Marketing. An advisor ticks those concepts and a running order, and the app
+   produces Pivot. Every block below carries the Pivot page it answers, so the
+   test can be run against this drawing before a line of code.
+
+   🔴 WHAT READING PIVOT CHANGED. The Brief stated, as the rule the data model
+   hangs off, that "the plan document carries the capture, never the teaching."
+   Pivot is 12 teaching slides to 9 capture slides. A build to that sentence
+   delivers a workbook of blank tables. Corrected in the Brief 2026-09-17 and in
+   design/PLANNING-TEMPLATE-CENSUS.md §1, which holds the page-by-page anatomy.
+
+   THE FIVE RULES BELOW ARE MEASURED, NOT PROPOSED. Each is provable on a numbered
+   page of Pivot. The two that change the data model:
+     · teaching and capture interleave per STEP, never per concept
+     · a concept can be captured TWICE INTO THE SAME TABLE (Porter's, p11 + p21)
+
+   ⚠ WHAT THIS DRAWING IS NOT ASKING APPROVAL FOR. How each of the 21 teaching
+   forms is DRAWN — the ring, the curve, the staircase — is still open
+   (PLANNING-TEMPLATE-CENSUS.md §7). Three are drawn here at fidelity to prove
+   the slide-shaped page holds them; the rest carry their real title and real
+   words in a plain frame. That is deliberate and is recorded in §5.
+   ============================================================================ */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --teach:#0070c0; --teach-soft:#e6f2fb;
+  --capture:#b56200; --capture-soft:#fdf1e0;
+  --divider:#002b64;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1180px;margin:0 auto;padding-block:28px 72px;padding-left:22px;padding-right:22px}
+h1{font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 6px;letter-spacing:-.015em;text-wrap:balance}
+h2{font-size:19px;margin:42px 0 10px;letter-spacing:-.01em;text-wrap:balance}
+h3{font-size:15px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+ul{margin:0 0 12px;padding-left:20px}
+li{margin:0 0 5px;max-width:78ch}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 8px}
+.lede{font-size:16px;color:var(--rs-muted);max-width:80ch}
+a{color:var(--rs-accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--rs-accent-bright);outline-offset:2px}
+
+/* ---- the boxes this project's drawings already use ---- */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask .q{margin-top:9px;padding-top:9px;border-top:1px solid #bcdcf6;font-weight:600}
+
+.measure{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:4px solid var(--rs-crit);
+  border-radius:10px;padding:14px 16px;margin:18px 0}
+.measure h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-crit)}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0 0 10px}
+.mg{border:1px solid var(--rs-line);border-radius:10px;padding:12px 13px;background:var(--rs-panel-2)}
+.mg .n{font-size:27px;font-weight:700;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.mg .l{font-size:12px;color:var(--rs-muted);margin-top:3px;line-height:1.4}
+
+/* ---- tables ---- */
+.tw{overflow-x:auto;margin:0 0 16px}
+table.doc{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+table.doc th,table.doc td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--rs-line);
+  vertical-align:top}
+table.doc th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;white-space:nowrap}
+table.doc td:first-child{font-weight:600}
+
+/* ---- the input panel: what the advisor ticked ---- */
+.input{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);padding:16px 18px;margin:16px 0 0}
+.input h3{margin:0 0 4px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-muted)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+.stepcol{border:1px solid var(--rs-line);border-radius:10px;padding:11px 12px;background:var(--rs-panel-2)}
+.stepcol b{display:block;font-size:13px;margin-bottom:6px;line-height:1.35}
+.stepcol .num{font-size:10.5px;font-weight:700;letter-spacing:.1em;color:var(--rs-accent);
+  text-transform:uppercase;display:block;margin-bottom:2px}
+.stepcol ul{margin:0;padding-left:16px;font-size:12.5px;color:var(--rs-muted)}
+.stepcol li{margin:0 0 3px}
+.stepcol .none{font-size:12.5px;color:var(--rs-muted);font-style:italic}
+
+/* ---- THE DOCUMENT ---- */
+.doccanvas{background:#dfe8f3;border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px;margin:16px 0 0}
+.docstrip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;font-size:12.5px;
+  color:var(--rs-muted)}
+.docstrip .name{font-weight:700;color:var(--rs-ink);font-size:14px}
+.docstrip .seg{display:inline-flex;gap:6px;align-items:center}
+.swatch{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid #00000022}
+.sw-t{background:var(--teach)}.sw-c{background:var(--capture)}.sw-d{background:var(--divider)}
+
+.pageset{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.slide{position:relative;background:#fff;border:1px solid #c9d8e8;border-radius:9px;
+  aspect-ratio:16/9;max-width:100%;padding:16px 17px 14px;display:flex;flex-direction:column;
+  overflow:hidden;box-shadow:0 1px 3px #002b6414}
+.slide.wide{grid-column:1/-1;aspect-ratio:auto;min-height:0}
+.slide .pg{position:absolute;top:8px;right:9px;font-size:10px;font-weight:700;letter-spacing:.06em;
+  color:var(--rs-muted);background:var(--rs-panel-2);border:1px solid var(--rs-line);
+  border-radius:20px;padding:1px 7px;font-variant-numeric:tabular-nums}
+.slide .kind{font-size:9.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  margin:0 0 6px}
+.slide.teach{border-top:3px solid var(--teach)}
+.slide.teach .kind{color:var(--teach)}
+.slide.capture{border-top:3px solid var(--capture);background:#fffdf8}
+.slide.capture .kind{color:var(--capture)}
+.slide h4{margin:0 0 6px;font-size:14.5px;line-height:1.25;letter-spacing:-.01em;text-wrap:balance}
+.slide .sub{font-size:11.5px;color:var(--rs-muted);margin:0 0 7px;font-style:italic}
+.slide .body{font-size:11.5px;line-height:1.5;color:#33506f;overflow:hidden}
+.slide .body ul{padding-left:15px;margin:0}
+.slide .body li{margin:0 0 2px;max-width:none}
+.slide .instruct{font-size:11.5px;line-height:1.5;background:#e9f7ea;border-left:3px solid var(--rs-good);
+  padding:7px 9px;border-radius:0 6px 6px 0;color:#1d4d24;margin:0 0 7px}
+.slide .fromtable{margin-top:auto;font-size:10.5px;color:var(--capture);font-weight:600;
+  letter-spacing:.03em;padding-top:6px}
+.slide .formname{margin-top:auto;font-size:10.5px;color:var(--rs-muted);padding-top:6px}
+
+.divider{grid-column:1/-1;position:relative;background:var(--divider);color:#fff;border-radius:9px;
+  padding:18px 20px;display:flex;flex-direction:column;justify-content:center;min-height:118px}
+.divider .step{font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:#9dc2e8;margin:0 0 5px}
+.divider .q{font-size:clamp(17px,2.4vw,23px);font-weight:700;line-height:1.2;letter-spacing:-.015em;
+  margin:0;text-wrap:balance}
+.divider .qual{font-size:12.5px;color:#cfe0f2;margin:6px 0 0}
+.divider .pg{position:absolute;top:9px;right:10px;font-size:10px;font-weight:700;color:#9dc2e8;
+  background:#ffffff1a;border:1px solid #ffffff33;border-radius:20px;padding:1px 7px}
+.divider.action{background:#11406f}
+.divider.action .step{color:#8fd3f0}
+
+.minitable{width:100%;border-collapse:collapse;font-size:10px;margin:2px 0 0}
+.minitable th,.minitable td{border:1px solid #d8e3ef;padding:3px 4px;text-align:left;vertical-align:top}
+.minitable th{background:var(--rs-panel-2);font-size:9px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:700}
+.minitable td.blank{color:#aab8c8}
+
+.fig{width:100%;height:auto;display:block;margin:2px 0}
+
+.stepband{grid-column:1/-1;display:flex;align-items:baseline;gap:10px;margin:8px 0 -4px;
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6b8199}
+.stepband span{flex:1;height:1px;background:#c3d4e5}
+
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0}
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:12px;padding:14px 16px}
+.card h3{margin:0 0 6px}
+.card p:last-child{margin:0}
+.rule{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:4px solid var(--rs-accent-bright);
+  border-radius:0 10px 10px 0;padding:12px 15px;margin:0 0 10px}
+.rule b{display:block;margin-bottom:3px}
+.rule p{margin:0;font-size:13.5px}
+.rule.hot{border-left-color:var(--rs-crit)}
+
+@media (max-width:640px){
+  .slide{aspect-ratio:auto}
+  table.doc{min-width:420px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<p class="eyebrow">To-do item 15.1 · drawn 2026-09-17 · nothing here is built</p>
+<h1>The Assembled Plan</h1>
+<p class="lede">The advisor ticks the concepts. This is the document that comes out — one
+seamless plan, each concept as it appears in your slides. Drawn against
+<code>Pivot.pdf</code> page by page, because Pivot is the test.</p>
+
+<div class="measure">
+  <h3>The measurement, named before the design</h3>
+  <p style="margin:0 0 10px">Not a new one. It is the acceptance test item 15.1 already carries:
+  <b>Pivot.pdf, a deck you assembled by hand</b> out of Strategic Orientation 2 and Sales &amp;
+  Marketing. Every block below carries the Pivot page it answers, so the test can be run against
+  this drawing before a line of code is written.</p>
+  <div class="mgrid">
+    <div class="mg"><div class="n">31</div><div class="l">pages in Pivot</div></div>
+    <div class="mg"><div class="n">12</div><div class="l">teaching slides</div></div>
+    <div class="mg"><div class="n">9</div><div class="l">capture slides</div></div>
+    <div class="mg"><div class="n">6</div><div class="l">step dividers</div></div>
+    <div class="mg"><div class="n">0</div><div class="l">pages this design cannot place</div></div>
+  </div>
+  <p style="margin:0"><b>Pass is binary and it is not a judgement:</b> the app produces Pivot's
+  31 pages, in Pivot's order, from a tick list and a running order — or it does not.</p>
+</div>
+
+<h2>1. The assembly rule, read off the output itself</h2>
+
+<p>Pivot has a rhythm, and it is not the one the September drawing assumed. It does not alternate
+teach-then-capture one concept at a time. <b>It teaches a whole step, then captures the whole
+step</b> — and it announces that step twice, once for discussion and once for action.</p>
+
+<div class="tw">
+<table class="doc">
+  <thead><tr><th>Pivot pages</th><th>What is on them</th></tr></thead>
+  <tbody>
+    <tr><td>1–3</td><td>Title · Session Objective · <b>The Pivot Process</b> — the five-step agenda</td></tr>
+    <tr><td>4</td><td><b>Step 1 divider</b> — "Identify the Resistance / What's Forcing The Change? <b>(Discussion Points)</b>"</td></tr>
+    <tr><td>5–9</td><td><b>Teach</b> — Porter's · Market Diffusion · Product Life Cycle · Technology Points · Sigmoid</td></tr>
+    <tr><td>10</td><td><b>The same divider again — "(Action Points)"</b></td></tr>
+    <tr><td>11–12</td><td><b>Capture</b> — Porter's <i>Part 1, observations only</i> · Curve &amp; Cycle</td></tr>
+    <tr><td>13</td><td><b>Step 2 divider</b> — "Choose Your Competition Fronts <b>(Discussion Points)</b>"</td></tr>
+    <tr><td>14–19</td><td><b>Teach</b> — Horizontal Integration · Progression of Economic Value <i>(two slides)</i> · Blue Ocean · Vertical Integration · 6 Marketing Questions</td></tr>
+    <tr><td>20</td><td><b>The same divider again — "(Action Points)"</b></td></tr>
+    <tr><td>21–24</td><td><b>Capture</b> — Porter's <i>Part 2, responses</i> · Integration Tasks · Progression of Economic Value · Blue Ocean Fronts</td></tr>
+    <tr><td>25–28</td><td>Step 3 — <b>no discussion/action split</b>: capture · teach · capture</td></tr>
+    <tr><td>29–30</td><td>Step 4 divider · Test Parameters</td></tr>
+    <tr><td>31</td><td>Notes — <i>"Type your notes in here…"</i></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>The five rules, each provable on a numbered page</h3>
+
+<div class="rule">
+  <b>1 · Teaching and capture interleave per STEP, never per concept.</b>
+  <p>Teach the whole step, then capture the whole step. Pages 4–12 are one step done twice over.</p>
+</div>
+<div class="rule hot">
+  <b>2 · A concept can be captured more than once, into the same table.</b>
+  <p>Porter's takes observations on page 11 — <i>"record your observations ONLY. (For Now)"</i> — and
+  responses on page 21, in a different step. <b>A model in which a concept appears once in a session
+  cannot produce Pivot.</b> The capture record keys on the visit, not on the concept.</p>
+</div>
+<div class="rule">
+  <b>3 · A concept can bring more than one teaching slide.</b>
+  <p>Progression of Economic Value brings two — pages 15 and 16, the ladder and then Pine's
+  output/imperative/sensitivity table.</p>
+</div>
+<div class="rule">
+  <b>4 · Capture slides come in two kinds.</b>
+  <p>The table drawn on the page (22, 23, 28, 30), and a pointer to a separate table (11, 12, 21,
+  24, 26). Both are in the document; only the second sends the client to a workbook.</p>
+</div>
+<div class="rule hot">
+  <b>5 · The agenda is authored, not derived from the ticks.</b>
+  <p>Step 5, <i>"Do It &amp; Review It"</i>, is on page 3's agenda and has <b>no slides at all</b>. The
+  discussion/action split is a choice too — step 3 does without it. <b>Nothing here can be computed
+  from the tick list alone.</b></p>
+</div>
+
+<h2>2. What the advisor ticked</h2>
+
+<p>The input that produced the document in §3. Fourteen concepts, arranged into five steps the
+advisor names. This is the whole of what is typed — everything after it is assembled.</p>
+
+<div class="input">
+  <h3>Session plan · Pivot · Rapid Strategy &amp; Simple Test Frameworks</h3>
+  <p style="margin:0;font-size:13px;color:var(--rs-muted)">Client: <b style="color:var(--rs-ink)">Example
+  client</b> · drawn from Strategic Orientation 2 and Sales &amp; Marketing Review</p>
+  <div class="steps">
+    <div class="stepcol">
+      <span class="num">Step 1</span>
+      <b>Identify the Resistance</b>
+      <ul>
+        <li>Porter's 5 Forces <i>— observations</i></li>
+        <li>Market Diffusion</li>
+        <li>Product Life Cycle</li>
+        <li>Technology Points</li>
+        <li>Sigmoid Curve</li>
+      </ul>
+    </div>
+    <div class="stepcol">
+      <span class="num">Step 2</span>
+      <b>Choose Your Competition Fronts</b>
+      <ul>
+        <li>Porter's 5 Forces <i>— responses</i></li>
+        <li>Horizontal Integration</li>
+        <li>Vertical Integration</li>
+        <li>Progression of Economic Value</li>
+        <li>Blue Ocean Strategy</li>
+        <li>6 Marketing Questions</li>
+      </ul>
+    </div>
+    <div class="stepcol">
+      <span class="num">Step 3</span>
+      <b>Rehearse the Message</b>
+      <ul>
+        <li>6 Marketing Answers</li>
+        <li>A.I.D.C.R.A</li>
+      </ul>
+    </div>
+    <div class="stepcol">
+      <span class="num">Step 4</span>
+      <b>Trial the Prototype</b>
+      <ul>
+        <li>Test Parameters</li>
+      </ul>
+    </div>
+    <div class="stepcol">
+      <span class="num">Step 5</span>
+      <b>Do It &amp; Review It</b>
+      <p class="none">No concepts. On the agenda only — exactly as Pivot has it.</p>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <h3>Two things to notice about the input</h3>
+  <p><b>Porter's is ticked twice</b>, into steps 1 and 2, and each tick carries its own instruction.
+  It writes into one Porter's table.</p>
+  <p><b>Step 5 has nothing in it</b> and still appears. A step is a thing the advisor names, not a
+  container the ticks create.</p>
+</div>
+
+<h2>3. The output — the document itself</h2>
+
+<p>One continuous document of slide-shaped pages. On screen it scrolls; printed or presented it is
+your deck. Every page below carries the Pivot page it answers.</p>
+
+<div class="doccanvas">
+  <div class="docstrip">
+    <span class="name">Pivot — Example client</span>
+    <span>31 pages</span>
+    <span class="seg"><span class="swatch sw-d"></span> divider</span>
+    <span class="seg"><span class="swatch sw-t"></span> teach</span>
+    <span class="seg"><span class="swatch sw-c"></span> capture</span>
+  </div>
+
+  <div class="pageset">
+
+    <!-- ============ FRONT MATTER ============ -->
+    <div class="stepband">Front matter <span></span></div>
+
+    <div class="slide teach">
+      <span class="pg">p1</span>
+      <p class="kind">Title</p>
+      <h4 style="font-size:20px">Pivot</h4>
+      <p class="sub">Rapid Strategy &amp; Simple Test Frameworks</p>
+      <div class="body">For Agile Business Owners.</div>
+      <p class="formname">Form: title page · the plan's own name, typed by the advisor</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p2</span>
+      <p class="kind">Standing opener</p>
+      <h4>Our Session Objective</h4>
+      <p class="sub">Welcome, it's all about you and your business today…</p>
+      <div class="body"><ul>
+        <li>Everyone contributes to collaborative thinking.</li>
+        <li>Planned Breaks &amp; Housekeeping</li>
+        <li>My/Our Role is to Challenge What You Believe To Be True!</li>
+        <li>Your Role is to Explore Issues/Ideas With an Open Heart and an Open Mind.</li>
+        <li>Record what we learn.</li>
+        <li>Build an action plan going forward.</li>
+      </ul></div>
+      <p class="formname">Form: prompt list · from ADV.0 Planning Outcomes, every session</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p3</span>
+      <p class="kind">Agenda — authored</p>
+      <h4>The Pivot Process</h4>
+      <div class="body"><ul>
+        <li>1. Identify the Resistance</li>
+        <li>2. Choose Your Competition Fronts</li>
+        <li>3. Rehearse the Message</li>
+        <li>4. Trial the Prototype</li>
+        <li>5. Do It &amp; Review It</li>
+      </ul></div>
+      <p class="formname">The five step names from §2 — <b>including step 5, which holds nothing</b></p>
+    </div>
+
+    <!-- ============ STEP 1 ============ -->
+    <div class="stepband">Step 1 · Identify the Resistance <span></span></div>
+
+    <div class="divider">
+      <span class="pg">p4</span>
+      <p class="step">Identify the Resistance</p>
+      <p class="q">What's Forcing The Change?</p>
+      <p class="qual">(Discussion Points)</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p5</span>
+      <p class="kind">Teach</p>
+      <h4>Porter's (Michael) 5 Forces</h4>
+      <p class="sub">(Where's the pressure coming from??)</p>
+      <svg class="fig" viewBox="0 0 300 108" role="img" aria-label="Porter's five forces arranged around a central rivalry hub">
+        <rect x="112" y="40" width="76" height="28" rx="5" fill="#002b64"></rect>
+        <text x="150" y="51" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle">Existing</text>
+        <text x="150" y="61" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle">Rivalry</text>
+        <rect x="112" y="6" width="76" height="22" rx="5" fill="#e6f2fb" stroke="#0070c0"></rect>
+        <text x="150" y="20" fill="#002b64" font-size="8" text-anchor="middle">New Entrants</text>
+        <rect x="112" y="80" width="76" height="22" rx="5" fill="#e6f2fb" stroke="#0070c0"></rect>
+        <text x="150" y="94" fill="#002b64" font-size="8" text-anchor="middle">Substitutes</text>
+        <rect x="14" y="43" width="76" height="22" rx="5" fill="#e6f2fb" stroke="#0070c0"></rect>
+        <text x="52" y="57" fill="#002b64" font-size="8" text-anchor="middle">Suppliers</text>
+        <rect x="210" y="43" width="76" height="22" rx="5" fill="#e6f2fb" stroke="#0070c0"></rect>
+        <text x="248" y="57" fill="#002b64" font-size="8" text-anchor="middle">Customers</text>
+        <path d="M150 28 V40 M150 68 V80 M90 54 H112 M188 54 H210" stroke="#7fa8cc" stroke-width="1.4" fill="none"></path>
+      </svg>
+      <p class="formname">Form: radial hub · <b>drawn at fidelity</b></p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p6</span>
+      <p class="kind">Teach</p>
+      <h4>Market Diffusion Theory</h4>
+      <div class="body">Market Diffusion Theory relates to the concept of market Acceptance and
+      Saturation. The theory explores the natural stages required to bring a new product (or
+      service) to market; the costs and time associated and the likely timing of increased
+      competition once the market is 'educated'.</div>
+      <p class="formname">Form: annotated curve · not drawn here — see §5</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p7</span>
+      <p class="kind">Teach</p>
+      <h4>Product Life Cycle</h4>
+      <div class="body">The Key difference between market diffusion and the product life cycle is
+      that (with diffusion theory) a market may have reached saturation whilst the product still
+      enjoys acceptance. Whereas (with product life cycle) it's the product itself that is
+      considered obsolete.</div>
+      <p class="formname">Form: annotated curve · axes <i>Revenue</i> / <i>Time</i></p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p8</span>
+      <p class="kind">Teach</p>
+      <h4>Technology Points</h4>
+      <p class="sub">(Chris Anderson — Wired Magazine)</p>
+      <div class="body">The Four Key Stages:<ul>
+        <li>Critical Price Point</li>
+        <li>Market Acceptance</li>
+        <li>Displacing Established Technology</li>
+        <li>Becoming Ubiquitous (ever-present)</li>
+      </ul></div>
+      <p class="formname">Form: rendered illustration — census §3 records this one as itself</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p9</span>
+      <p class="kind">Teach</p>
+      <h4>The Sigmoid Curve</h4>
+      <svg class="fig" viewBox="0 0 300 104" role="img" aria-label="Sigmoid curve rising through design, growth and maturity to decline">
+        <line x1="26" y1="92" x2="290" y2="92" stroke="#c3d4e5" stroke-width="1.2"></line>
+        <line x1="26" y1="8" x2="26" y2="92" stroke="#c3d4e5" stroke-width="1.2"></line>
+        <text x="8" y="50" fill="#5b6f8a" font-size="7.5" transform="rotate(-90 8 50)" text-anchor="middle">Progress</text>
+        <text x="158" y="101" fill="#5b6f8a" font-size="7.5" text-anchor="middle">Time</text>
+        <path d="M34 86 C70 84 78 30 128 26 C180 22 196 40 214 62 C230 82 250 88 282 90"
+              stroke="#0070c0" stroke-width="2.2" fill="none"></path>
+        <circle cx="128" cy="26" r="3" fill="#00b1e0"></circle>
+        <text x="128" y="18" fill="#002b64" font-size="7.5" font-weight="700" text-anchor="middle">X</text>
+        <circle cx="214" cy="62" r="3" fill="#ff9900"></circle>
+        <text x="222" y="60" fill="#002b64" font-size="7.5" font-weight="700">Y</text>
+        <text x="46" y="80" fill="#5b6f8a" font-size="7">Design</text>
+        <text x="96" y="40" fill="#5b6f8a" font-size="7">Growth</text>
+        <text x="158" y="34" fill="#5b6f8a" font-size="7">Maturity</text>
+        <text x="244" y="80" fill="#5b6f8a" font-size="7">Decline</text>
+      </svg>
+      <div class="body" style="font-size:11px">The Optimum Time to interrupt a Growth Curve before
+      it reaches its peak.</div>
+      <p class="formname">Form: annotated curve · <b>drawn at fidelity</b></p>
+    </div>
+
+    <div class="divider action">
+      <span class="pg">p10</span>
+      <p class="step">Identify the Resistance</p>
+      <p class="q">What's Forcing The Change?</p>
+      <p class="qual">(Action Points) — the same divider, second half of the step</p>
+    </div>
+
+    <div class="slide capture">
+      <span class="pg">p11</span>
+      <p class="kind">Capture · visit 1 of 2</p>
+      <h4>Porter's 5 Forces (Part 1)</h4>
+      <p class="instruct">Complete the Porter's 5 Forces table to record your <b>observations ONLY.
+      (For Now)</b> — your responses will be determined in the next stage of this strategy session.</p>
+      <div class="body" style="font-size:11px">(You don't have to follow any particular order; just
+      capture your thoughts 'as you go')</div>
+      <p class="fromtable">→ writes into Porter's 5 Forces · banded grid</p>
+    </div>
+
+    <div class="slide capture">
+      <span class="pg">p12</span>
+      <p class="kind">Capture</p>
+      <h4>Product (Diffusion) Curve &amp; Lifecycle</h4>
+      <p class="instruct">Complete the Curve &amp; Cycle table to record your 'market acceptance'
+      observations.</p>
+      <div class="body" style="font-size:11px">(Feel free to modify the frameworks to suit. You may
+      translate the product lifecycle to MARKET-CYCLE instead.)</div>
+      <p class="fromtable">→ writes into Curve &amp; Cycle Notes · small comparison grid</p>
+    </div>
+
+    <!-- ============ STEP 2 ============ -->
+    <div class="stepband">Step 2 · Choose Your Competition Fronts <span></span></div>
+
+    <div class="divider">
+      <span class="pg">p13</span>
+      <p class="step">Choose Your Competition Fronts</p>
+      <p class="q">What's Our Options?</p>
+      <p class="qual">(Discussion Points)</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p14</span>
+      <p class="kind">Teach</p>
+      <h4>Horizontal Integration (Considerations)</h4>
+      <div class="body">Tea · Biscuits · Coffee · Crockery · Chocolate — experience related,
+      supportive of introductions to core product. <i>(note: one of these is not like the
+      other…)</i> Against: Tea · Magazines · Stereo Headphones — offer nil scale or cost benefits,
+      a false belief of 'diversified risk'.</div>
+      <p class="formname">Form: above and below a dividing line</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p15</span>
+      <p class="kind">Teach · 1 of 2 for this concept</p>
+      <h4>Progression of Economic Value</h4>
+      <p class="sub">(Joseph Pine)</p>
+      <svg class="fig" viewBox="0 0 300 96" role="img" aria-label="Ascending staircase from commodity to experience with coffee prices">
+        <rect x="16" y="76" width="52" height="14" fill="#e6f2fb" stroke="#0070c0"></rect>
+        <text x="42" y="86" fill="#002b64" font-size="7" text-anchor="middle">Commodity</text>
+        <rect x="74" y="58" width="52" height="14" fill="#d3e8f7" stroke="#0070c0"></rect>
+        <text x="100" y="68" fill="#002b64" font-size="7" text-anchor="middle">Goods</text>
+        <rect x="132" y="40" width="52" height="14" fill="#bfdcf2" stroke="#0070c0"></rect>
+        <text x="158" y="50" fill="#002b64" font-size="7" text-anchor="middle">Services</text>
+        <rect x="190" y="22" width="52" height="14" fill="#9fcbec" stroke="#0070c0"></rect>
+        <text x="216" y="32" fill="#002b64" font-size="7" text-anchor="middle">Experience</text>
+        <text x="42" y="72" fill="#5b6f8a" font-size="6.5" text-anchor="middle">2–3c cup</text>
+        <text x="100" y="54" fill="#5b6f8a" font-size="6.5" text-anchor="middle">25–50c cup</text>
+        <text x="158" y="36" fill="#5b6f8a" font-size="6.5" text-anchor="middle">$1.50 cup</text>
+        <text x="216" y="18" fill="#5b6f8a" font-size="6.5" text-anchor="middle">$4–$5 cup</text>
+        <text x="252" y="32" fill="#002b64" font-size="6.5">Authenticity</text>
+      </svg>
+      <p class="formname">Form: ascending staircase · <b>drawn at fidelity</b></p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p16</span>
+      <p class="kind">Teach · 2 of 2 for this concept</p>
+      <h4>"Customers will gladly spend both time and money for an experience of authenticity"</h4>
+      <p class="sub">Joseph Pine</p>
+      <table class="minitable">
+        <thead><tr><th>Economic output</th><th>Business imperative</th><th>Consumer sensitivity</th></tr></thead>
+        <tbody>
+          <tr><td>Experience</td><td>Render</td><td>Authenticity</td></tr>
+          <tr><td>Services</td><td>Improve</td><td>Quality</td></tr>
+          <tr><td>Goods</td><td>Quality Control</td><td>Costs</td></tr>
+          <tr><td>Commodities</td><td>Supply</td><td>Availability</td></tr>
+        </tbody>
+      </table>
+      <p class="formname">One concept, a second teaching page — rule 3</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p17</span>
+      <p class="kind">Teach</p>
+      <h4>Blue Ocean Strategy</h4>
+      <div class="body">Std Competition 'Fronts' <i>(Red Water Zone)</i> — Price · Quality /
+      Endurance · Convenience &amp; Location · Consistency · Availability · Customer Experience ·
+      Effectiveness · Efficiency · Easier · Faster, Safer, Lighter · Higher Status · Uniqueness ·
+      Newest · Aesthetics · Disruptive · Humourous.</div>
+      <p class="formname">Form: above and below a dividing line</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p18</span>
+      <p class="kind">Teach</p>
+      <h4>Vertical Integration</h4>
+      <div class="body">Own the land → Grow the Tea → Process → Blend → Market (Wholesale) →
+      Retail (Distribution) → Retail (Experience). <i>Are you looking to Secure Margin or
+      Quality?</i> Consider it from the perspective of an investor: the extra process should
+      generate profit by that activity, in isolation.</div>
+      <p class="formname">Form: vertical chain with a direction arrow</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p19</span>
+      <p class="kind">Teach</p>
+      <h4>(6) Critical Marketing Questions</h4>
+      <div class="body"><ul>
+        <li>Who are you targeting?</li>
+        <li>What are their key concerns / common problems?</li>
+        <li>What are their legitimate purchasing constraints?</li>
+        <li>What makes you special?</li>
+      </ul><i>…taught here, answered in step 3.</i></div>
+      <p class="formname">Form: prompt list · no capture on this page</p>
+    </div>
+
+    <div class="divider action">
+      <span class="pg">p20</span>
+      <p class="step">Choose Your Competition Fronts</p>
+      <p class="q">What's Our Options?</p>
+      <p class="qual">(Action Points)</p>
+    </div>
+
+    <div class="slide capture">
+      <span class="pg">p21</span>
+      <p class="kind">Capture · visit 2 of 2</p>
+      <h4>Porter's 5 Forces (Part 2)</h4>
+      <p class="instruct">Complete the Porter's 5 Forces table to record your <b>RESPONSES</b> — now
+      that you've had time to consider more information.</p>
+      <p class="fromtable">→ writes into <b>the same</b> Porter's 5 Forces table as p11 · rule 2</p>
+    </div>
+
+    <div class="slide capture wide">
+      <span class="pg">p22</span>
+      <p class="kind">Capture · table on the page</p>
+      <h4>Vertical &amp; Horizontal Integration Tasks</h4>
+      <table class="minitable">
+        <thead><tr><th></th><th>Vertical Integration Tasks</th><th>Horizontal Integration Tasks</th><th>The question</th></tr></thead>
+        <tbody>
+          <tr><td>Priority Tasks</td><td>Conduct feasibility on purchasing own timber mill</td><td>Conduct feasibility on purchasing electrical firm</td><td>Owned vs. Contract of Supply or Formal Alliance?</td></tr>
+          <tr><td>Support Tasks</td><td>Discuss contract of exclusive supply with local sawmill</td><td>Discuss exclusive contract of supply with electrician</td><td>Customer Experience vs. Bottom Line Focus</td></tr>
+        </tbody>
+      </table>
+      <p class="fromtable">Form: fixed rows × named columns · drawn on the page, not pointed at</p>
+    </div>
+
+    <div class="slide capture wide">
+      <span class="pg">p23</span>
+      <p class="kind">Capture · table on the page</p>
+      <h4>Progression of Economic Value</h4>
+      <p class="sub">(How we cope with the cycles of customisation vs. commoditisation)</p>
+      <table class="minitable">
+        <thead><tr><th>#</th><th>Our Business Output (Delivery Promise)</th><th>Our Business Imperative Tasks</th><th>Our Consumer Sensitivity Tasks</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Our quality means cheaper in the long run</td><td>Quality Control</td><td>Monitor &amp; Record Failures / 'Comebacks'</td></tr>
+          <tr><td>2</td><td class="blank">Enter your thoughts here…</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>3</td><td class="blank">—</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>4</td><td class="blank">—</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>5</td><td class="blank">—</td><td class="blank">—</td><td class="blank">—</td></tr>
+        </tbody>
+      </table>
+      <p class="fromtable">Form: named rows × staged columns · <b>taught as a staircase on p15, captured as a grid</b></p>
+    </div>
+
+    <div class="slide capture">
+      <span class="pg">p24</span>
+      <p class="kind">Capture</p>
+      <h4>Blue Ocean Strategy</h4>
+      <p class="instruct">Complete the Blue Ocean Fronts table to record your observations &amp;
+      response to competition in your marketplace.</p>
+      <p class="fromtable">→ writes into Blue Ocean Fronts · banded grid</p>
+    </div>
+
+    <!-- ============ STEP 3 ============ -->
+    <div class="stepband">Step 3 · Rehearse the Message — no discussion/action split <span></span></div>
+
+    <div class="divider">
+      <span class="pg">p25</span>
+      <p class="step">Rehearse the Message</p>
+      <p class="q">Can We Clear The First Hurdle?</p>
+      <p class="qual">One divider only — this step teaches and captures in sequence</p>
+    </div>
+
+    <div class="slide capture">
+      <span class="pg">p26</span>
+      <p class="kind">Capture</p>
+      <h4>6 Marketing Questions / Answers</h4>
+      <p class="instruct">Complete the 6 Marketing Answers table.</p>
+      <div class="body" style="font-size:11px">(A great way to gain a contextual understanding of
+      the problems you seek to solve for your clients and therein, the value you offer.)</div>
+      <p class="fromtable">→ writes into Marketing Answers · prompt → answer sheet</p>
+    </div>
+
+    <div class="slide teach">
+      <span class="pg">p27</span>
+      <p class="kind">Teach — after a capture</p>
+      <h4>A.I.D.C.R.A Advertising Model</h4>
+      <table class="minitable">
+        <thead><tr><th>A</th><th>I</th><th>D</th><th>C</th><th>R</th><th>A</th></tr></thead>
+        <tbody><tr>
+          <td>Grab Their Attention</td><td>Create Self Relevance</td><td>Wants / Needs</td>
+          <td>Achieve Status or Authority</td><td>Make it Safe &amp; Easy</td><td>Tell them how to purchase</td>
+        </tr></tbody>
+      </table>
+      <p class="formname">Form: staged columns · teaching and capture <b>alternate</b> here</p>
+    </div>
+
+    <div class="slide capture wide">
+      <span class="pg">p28</span>
+      <p class="kind">Capture · table on the page</p>
+      <h4>(Our) A.I.D.C.R.A Advertisement</h4>
+      <table class="minitable">
+        <thead><tr><th>Attention</th><th>Interest</th><th>Desire</th><th>Credibility</th><th>Risk Removal</th><th>Action</th></tr></thead>
+        <tbody><tr>
+          <td class="blank">What will grab Their Attention?</td>
+          <td class="blank">How will you Create Self Relevance?</td>
+          <td class="blank">What 'fuels their Desire'?</td>
+          <td class="blank">How will you Achieve Status or Authority?</td>
+          <td class="blank">What makes it Safe &amp; Easy to take the first step?</td>
+          <td class="blank">Tell them how to purchase. Clear &amp; Simple</td>
+        </tr></tbody>
+      </table>
+      <p class="fromtable">Form: staged columns · <b>same form as the teaching slide, with the prompts turned into questions</b></p>
+    </div>
+
+    <!-- ============ STEP 4 ============ -->
+    <div class="stepband">Step 4 · Trial the Prototype <span></span></div>
+
+    <div class="divider">
+      <span class="pg">p29</span>
+      <p class="step">Trial the Prototype</p>
+      <p class="q">What's Our Test Parameters?</p>
+      <p class="qual">(Budget &amp; Timeline)</p>
+    </div>
+
+    <div class="slide capture wide">
+      <span class="pg">p30</span>
+      <p class="kind">Capture · Pivot's one original page</p>
+      <h4>Test Parameters</h4>
+      <table class="minitable">
+        <thead><tr><th>Test Element</th><th>Notes</th><th>$ Budget</th><th>Timeline</th></tr></thead>
+        <tbody>
+          <tr><td>Product Development</td><td class="blank">—</td><td class="blank">$</td><td class="blank">XYZ Days / Weeks</td></tr>
+          <tr><td>Market Research</td><td class="blank">—</td><td class="blank">$</td><td class="blank">XYZ Days / Weeks</td></tr>
+          <tr><td>Competitor Analysis</td><td class="blank">—</td><td class="blank">$</td><td class="blank">XYZ Days / Weeks</td></tr>
+          <tr><td>Team Learning / Skills Development</td><td class="blank">—</td><td class="blank">$</td><td class="blank">XYZ Days / Weeks</td></tr>
+          <tr><td>Prototype Solution</td><td class="blank">—</td><td class="blank">$</td><td class="blank">XYZ Days / Weeks</td></tr>
+          <tr><td>Messaging Appeal (test)</td><td class="blank">—</td><td class="blank">$</td><td class="blank">XYZ Days / Weeks</td></tr>
+          <tr><td>Other</td><td class="blank">—</td><td class="blank">$</td><td class="blank">XYZ Days / Weeks</td></tr>
+        </tbody>
+      </table>
+      <p class="fromtable">Form: fixed rows × named columns · <b>belongs to no deck</b> — it exists only in Pivot, and comes in with it</p>
+    </div>
+
+    <!-- ============ STEP 5 + NOTES ============ -->
+    <div class="stepband">Step 5 · Do It &amp; Review It — on the agenda, no pages <span></span></div>
+
+    <div class="slide capture">
+      <span class="pg">p31</span>
+      <p class="kind">Capture · free</p>
+      <h4>Notes</h4>
+      <div class="body" style="color:#aab8c8;font-style:italic">Type your notes in here…</div>
+      <p class="fromtable">One free page at the end, exactly where Pivot puts it</p>
+    </div>
+
+  </div>
+</div>
+
+<h2>4. The decisions — none of these is ruled</h2>
+
+<p>Each is one recommendation and one question a yes or no answers. Asked one at a time in chat;
+recorded here so the ruling and what was proposed both survive.</p>
+
+<div class="ask">
+  <h3>Decision 1 — is the output a deck or a web page?</h3>
+  <p>Your words were <i>"1 seamless document"</i> and <i>"AS IT CURRENTLY APPEARS in the slides"</i>.
+  Those pull in different directions: a document scrolls, a slide is a fixed 16:9 frame.</p>
+  <p class="rec">Recommendation: one continuous document of <b>slide-shaped pages</b>, as drawn in
+  §3. On screen it scrolls as one thing; printed or presented it is your deck, page for page.
+  Nothing is lost and it needs no second format.</p>
+  <p class="q">Is the output a continuous document of slide-shaped pages?</p>
+</div>
+
+<div class="ask">
+  <h3>Decision 2 — does the advisor tick concepts, or steps?</h3>
+  <p>Step 5 of Pivot holds no concepts and still appears on page 3, so the agenda cannot be
+  computed from the ticks.</p>
+  <p class="rec">Recommendation: the advisor <b>ticks concepts and then names the steps</b>, dragging
+  each ticked concept into one. A step with nothing in it still prints on the agenda.</p>
+  <p class="q">Does the advisor name the steps himself, rather than the app grouping the ticks?</p>
+</div>
+
+<div class="ask">
+  <h3>Decision 3 — the discussion / action split</h3>
+  <p>Steps 1 and 2 announce themselves twice, <i>(Discussion Points)</i> then <i>(Action Points)</i>.
+  Step 3 does not, and alternates teach and capture instead.</p>
+  <p class="rec">Recommendation: <b>split by default</b>, with one switch per step to turn it off.
+  Default on, because two of your four populated steps use it and it is how a session is actually
+  run — teach the whole thing, then work it.</p>
+  <p class="q">Split by default, with a per-step switch to turn it off?</p>
+</div>
+
+<div class="ask">
+  <h3>Decision 4 — a concept captured twice</h3>
+  <p>Porter's appears on p11 for observations and p21 for responses, writing into one table. This
+  is the rule that decides the shape of the stored record.</p>
+  <p class="rec">Recommendation: a concept may be added to <b>more than one step</b>, each visit
+  carrying <b>its own instruction line</b> — your <i>"observations ONLY. (For Now)"</i> is what makes
+  the first visit different from the second. Both write into the same table, and the table shows
+  which visit each line came from.</p>
+  <p class="q">May a concept be ticked into more than one step, each visit with its own instruction?</p>
+</div>
+
+<div class="ask">
+  <h3>Decision 5 — what does the client keep?</h3>
+  <p>Pivot is a <b>blank</b> pack: it points at tables nobody has filled in. What the client takes
+  away after the session is the same document with their answers in it.</p>
+  <p class="rec">Recommendation: <b>one document, two states.</b> <i>Session pack</i> — the blank
+  version drawn in §3, printed before the meeting. <i>The plan</i> — the identical document with
+  every capture filled in, which is what expands over time. One assembly, one order, one set of
+  page numbers; the only difference is whether the boxes carry words.</p>
+  <p class="q">One document in two states — a blank session pack, and the same pages filled in as the plan?</p>
+</div>
+
+<h2>5. What this drawing does not settle, stated rather than assumed</h2>
+
+<div class="two">
+  <div class="card">
+    <h3>The 21 teaching forms are not drawn</h3>
+    <p>Three are, to prove a slide-shaped page holds them: the Porter's hub (p5), the Sigmoid curve
+    (p9) and Pine's staircase (p15). The rest carry their real title and real words in a plain
+    frame. <b>How each form is drawn stays open</b> —
+    <code>PLANNING-TEMPLATE-CENSUS.md</code> §7. Approving this page is not approving those.</p>
+  </div>
+  <div class="card">
+    <h3>The capture tables are shown as pointers, not as grids</h3>
+    <p>Where Pivot points at a table — Porter's, Curve &amp; Cycle, Blue Ocean, Marketing Answers
+    — this drawing names the table and its form and stops there. The four tables Pivot draws on the
+    page (22, 23, 28, 30) are drawn, because those are in the document itself.</p>
+  </div>
+  <div class="card">
+    <h3>How a manager adds a concept</h3>
+    <p>Your request of 2026-09-17 — a manager adds a concept, mentor tier first, cascading down —
+    is a separate screen and is <b>not on this page</b>. It is named in the Brief §6 as undesigned.</p>
+  </div>
+  <div class="card">
+    <h3>Nothing here has met a database</h3>
+    <p>The session store was written on the laptop, which has no MySQL. A wrong column name would
+    pass every test. That check is desktop or UAT work and is not done — Brief §6.</p>
+  </div>
+</div>
+
+<div class="mock">
+  <h3>Two honest limits on the drawing itself</h3>
+  <p><b>The slide text is trimmed.</b> Every title and every instruction is yours, word for word.
+  Body copy on the teaching pages is cut to fit a card at this size — the real slides carry more.</p>
+  <p><b>The example client is invented</b>, and so are the tea, timber-mill and coffee figures —
+  they are your own teaching examples from the deck, not a real client. Nothing in
+  <code>design/planning-templates/</code> contains client data.</p>
+</div>
+
+<p style="margin-top:28px;font-size:13px;color:var(--rs-muted)">Item 15.1 ·
+<code>design/features/strategy-planner.md</code> is the Brief ·
+<code>design/PLANNING-TEMPLATE-CENSUS.md</code> §1 holds Pivot's anatomy ·
+the session an advisor runs is <code>design/mockups/strategy-planner.html</code>, whose eleven
+rulings of 2026-09-16 still bind.</p>
+
+</div>
+</body>
+</html>
