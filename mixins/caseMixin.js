@@ -11,6 +11,10 @@ export default {
       // client-held id) — used to scope owner-only features like the
       // session-start catch-up card.
       serverAdvisorId: null,
+      // Item 4.87: whether the firm is sharing anonymised template outcomes right now,
+      // as the SERVER says. Drives the one-line notice on the review panel and nothing
+      // else — the pooling itself happens on the backend when a review is saved.
+      outcomeContribution: false,
       casesError: false,
       visibilityBusyId: null,
       showCasesPanel: false,
@@ -59,9 +63,10 @@ export default {
   methods: {
     async refreshMyCases () {
       try {
-        const { cases, advisorId } = await listCases(this.apiToken)
+        const { cases, advisorId, outcomeContribution } = await listCases(this.apiToken)
         this.visibleCases = cases
         this.serverAdvisorId = advisorId || null
+        this.outcomeContribution = outcomeContribution === true
         // "My" cases are the ones the SIGNED-IN advisor owns — keyed on the
         // server-returned identity, not the (possibly placeholder) advisorId
         // prop. Firm-shared cases from others stay in visibleCases (for the AI

@@ -71,9 +71,34 @@
     "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
     "to justify itself."
   ],
-  "orderedByMikeOn": "2026-08-23",
-  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
+  "orderedByMikeOn": "2026-09-15",
+  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
+    {
+      "ref": "7.2",
+      "name": "The engine's middle, and the learning loop made true",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-14"
+      },
+      "why": "The Founder's Claims Audit named ten improvements and Mike asked for every one to become work: the primary issue confirmed, lift as well as hold-back, the cap made true, an honest bench, a provider fallback, template profiles on a screen.",
+      "risk": "Marketing sentences the code only partly enforces: the advisor's words do not always win, learning cannot lift, the bench is in-sample, every pooled row has a blank primary issue, and one AI provider failing stops every AI feature.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-14 - 'transfer your improvement suggestions (all of them) into fixes' and 'if you spot an area of improvement ... get it in the tasks'. Lift, fallback and the profile screen each ruled yes the same day."
+      },
+      "touches": "advisorEngine.js intake, caseStore, templateResolver and its seam, outcomeLearning and the benches, openaiClient.js, the Mentor Hub (Outcome Learning page and a new template-profile tab), the trace, the Scenario Lab, advisory-engine.md.",
+      "note": "US1 TO US9 COMPLETE, 63 OF 67. US9 SHIPPED IN FULL on Mike's two rulings of 2026-09-16: read-only first, then authoring once he was told plainly it changes what advisors are recommended, with no test able to judge a weight. Template Profiles is live - 220 tools on 205 pages, 55 thin - and the engine reads authored profiles over the compiled file, falling back if the store fails. T060 dropped on his 'save where you can'. FOUR LEFT, all writing: T061 and T065 correct two Briefs, T064 walks the quickstart, T066 closes this. MEASURED: authoring three profiles moved the lab 5.6 to 5.7, which produced the IMPACT TEST rule.",
+      "comment": "2026-09-14 - filed on Mike's instruction; spec, plan, four drawings, sixteen rulings the same day. FOUR FAULTS FOUND BY RUNNING IT, NONE BY THE SUITE: a problem named from one category word; agreement recorded as a correction; a function real MySQL refused; a hardcoded 'openai' in the trace. 2026-09-16 - US9 built, and a FIFTH found the same way when Mike clicked Edit and the editor opened below the fold. He then asked how this beats Advisory Distinctions; the measurement said barely, and that became a binding rule."
+    },
     {
       "ref": "7.1",
       "name": "The 14 branches that still name a page nobody can open",
@@ -140,10 +165,6 @@
       "ref": "9.1",
       "name": "Learning from outcomes across consenting firms - the platform gets smarter with use",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-10"
-      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
@@ -158,8 +179,29 @@
         "detail": "2026-09-10 - 'build a prompt to develop the task to enable real machine learning - such that it does, indeed, get smarter with use. Not just from one firm, but from all those who consent to help develop the model by sharing anonymised data'."
       },
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
-      "note": "SPEC KIT FEATURE, specs/002-outcome-learning. Explainable code, not a black-box model: pooled verdicts become capped score adjustments through the same seam as distinction boosts, published only above a firm-and-case floor and only after the mentor accepts each one; every applied adjustment shows on the decision trace with its evidence. Nothing leaves a firm that has not opted in. Three drawings come before any code.",
-      "comment": "2026-09-10 - filed on Mike's instruction, in the prompt he pasted to /speckit-specify. Spec written the same day; clarify, plan and tasks each wait for his yes."
+      "note": "SPEC KIT FEATURE, specs/002-outcome-learning. ALL BUILT AND POLISHED (2026-09-12): T001 to T047 ticked. The quickstart was walked on the desktop against local MySQL: consent, a pooled row with no free text, the mentor's decisions and both refusals, restore, both benches and the advisor's notice, all seen. It found and closed 4.94 (the trace named the wrong hold-back and could hide one). NOT SHOWN LOCALLY: a withdrawal taking an adjustment below the floor (yesterday's rows sit under a lost secret) and a second firm (one dev sign-in). Every word on both screens is ruled, on the drawings. Brief §8 says what stands where. WHAT REMAINS IS UAT.",
+      "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T042 on the desktop: both hub screens from their ruled wording rows, the seed, industry suggestions, then the benches on Mike's yes, pressed on the running app. 2026-09-12 - T043 to T047: differences on the drawings, lint, suite and build green, the quickstart walked; 4.94 found and fixed the same hour. Handed to UAT."
+    },
+    {
+      "ref": "7.4",
+      "name": "Read this for me - plain guidance and an AI reading on the mentor's pages",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike opened Outcome Learning and could not tell how to use it or what it was telling him; the client reports carry an AI reading and the hub pages carried none.",
+      "risk": "A mentor who cannot read the page takes no decision on it, and the learning the platform gathered changes nothing. The counter-risk is a reading taken as a verdict, which the caveat under every reading and the backend's shape check answer.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-11 - 'I have no idea how I, as a mentor, am supposed to use this function and what I'm learning from it ... I'm not seeing any AI interpretation of what's in front of me. Is that possible we could create that?'"
+      },
+      "touches": "components/shared/HubGuidePanel.vue and HubReadingCard.vue, both mentor pages, server/utils/hubReading.js, the two reading routes, the hub-reading document on the AI Prompts tab, locales.",
+      "note": "BUILT 2026-09-11 from hub-page-guidance.html, approved the same day. Both pages open with How to use this page and carry What this is telling you, on the button, never on open; the model is sent only what the page shows; a reply missing the three fixed headings, or carrying a link or a name, is dropped whole. It never accepts or rejects anything. NOTHING BLOCKS THIS: the OpenAI account HAS credit, proved 2026-09-15 by a real gpt-4o-mini call from this desktop that answered. What remains is to run a reading on the built app and look at it.",
+      "comment": "2026-09-11 - raised by Mike on the running app after pressing Run the benches, drawn the same evening, ruled and built on his yes. 2026-09-15 - the 'no credits' blocker was STALE and had been carried for four days: Mike said the account was fine, a real call proved it. Moved from waiting on Mike to ours."
     },
     {
       "ref": "5.1",
@@ -269,6 +311,90 @@
       "touches": "data/report-model-summaries.json and server/utils/reportModels.js formatReportModelsForPrompt, whose 51,072-character block carries the HOW TO USE THIS LIST rules; data/prompts/discover.txt STEP 1, which frames the calculator as an optional extra; and whatever measurement proves a change, which has to be live conversations.",
       "note": "MEASURED, NOT GUESSED - 30 live discover conversations, 2026-09-16. Reliable both runs: 8 of 19. Missed both runs: working capital cycle, EBITDA/DCF, lease vs buy, loan estimator, dashboard reports, high-level budget, stock purchasing, sales dashboard. Flipped between runs: debtor drag, cost of capital, quick position. SAME BLOCK, SAME FIX: one answer rendered the heading with 'None.' beneath it instead of omitting the block, which discover.txt line 38 requires. NOT THIN CONTENT: the AI gets 51,072 characters on these models. The likely cause is the conservatism added to stop over-offering - 'SAYING NONE OF THESE FITS IS A REQUIRED ANSWER'. HOW FORTHCOMING DISCOVER SHOULD BE IS MIKE'S CALL, not ours to guess.",
       "comment": "2026-09-16 - filed on Mike's yes. Found because he asked for it to be checked now, after a lease-vs-buy miss surfaced while testing 7.8. Fourth thing in one day that running the app found and the suite could not: no test can ask the AI a question and judge the answer."
+    },
+    {
+      "ref": "7.3",
+      "name": "A second opinion from two AI providers",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Mike wonders whether two providers answering the same narrative or reading, with the advisor seeing both, gives a better answer than one. A later decision, separate from the fallback in 7.2.",
+      "risk": "Without a decision it stays an idea. Building it doubles AI cost and wait on every call it covers, and a second provider needs the same privacy clearance as the first before any client words reach it.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-14 - 'perhaps there is a strength to using open AI AND Deepseek for the purposes of different perspectives?' Filed as its own item on his yes."
+      },
+      "touches": "The provider seam 7.2 builds, the narrative and hub-reading call sites, the advisor's screen where two answers would show, the provider clearance in config.",
+      "note": "NOT PART OF 7.2. Needs a design decision first: which calls get two answers, what the advisor sees when they disagree, and which provider is cleared for which data. DeepSeek's China hosting and training terms are the privacy question to answer before it carries anything personal.",
+      "comment": "2026-09-14 - filed on Mike's yes so the idea is on the list and not in a chat."
+    },
+    {
+      "ref": "9.3",
+      "name": "The sharing tab says on and off at once with no pool secret",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A firm whose switch is on, on a server with no pool secret, sees a green 'Sharing since' badge and a count of adjustments applying, directly beside a notice saying shared learning is switched off.",
+      "risk": "The manager cannot tell which is true. Both numbers are stale: the consent is real but nothing is pooling, and the adjustment count was computed when the pool was readable. No data is at risk and the engine is correct - only the screen misleads.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-15 - found while building Mike's warn-never-block ruling, by reading the screen that ruling put the notice on. A defect we found; filed rather than fixed because nobody asked for it."
+      },
+      "touches": "components/firm/FirmOutcomeConsent.vue - the pillOn badge and the 'What sharing has changed for your advisors so far' card, both of which should defer to poolConfigured. server/routes/outcomeConsent.js computes adjustmentsApplying only when consent is on.",
+      "note": "GIVE-TO-GET IS ALREADY BUILT AND GUARDED - IT IS NOT THE FAULT AND MUST NOT BE REOPENED. Mike ruled it 2026-09-15, 'they contribute to receive'; loadPooledForSession returns adjustments:[] for a firm that does not share, and outcomeLearningTrace.test.js pins all three ways to not-share with 'the pool is never read'. An earlier note here claimed the opposite, misreading a count that is only computed when the switch is ON. The fix is the two stale figures on the screen, nothing in the engine.",
+      "comment": "2026-09-15 - filed after a wrong reading was corrected against the code: the dev firm was sharing when the '2 adjustments' was seen, so it was never evidence of a non-sharing firm receiving anything."
+    },
+    {
+      "ref": "9.2",
+      "name": "A part-measured lab run overwrites a full one",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The Scenario Lab writes its report whether or not the AI layers ran, so a run that measured less of the engine silently replaces one that measured all of it.",
+      "risk": "A lab run here silently reports the engine WITHOUT its AI layers and overwrites the report measured with them - score separation reads 2.3 against the real 5.7. Nothing says the layers were off unless someone reads the line that says so.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-14 - hit while measuring the resolver change for 7.2. A defect we found, not a feature nobody asked for; Mike said yes to filing it."
+      },
+      "touches": ".env on the desktop only (NODE_EXTRA_CA_CERTS), and scripts/scenario-lab.js which overwrites design/SCENARIO-LAB-REPORT.md whether or not the AI layers ran.",
+      "note": "THE ENVIRONMENT HALF IS DONE: NODE_EXTRA_CA_CERTS points at the Avast root and AI-backed scripts DO run here, proved 2026-09-15 by a real OpenAI call from a script on this desktop. ONLY THE CODE HALF IS LEFT, and it is the one that matters: the lab should REFUSE to overwrite the report when the AI layers did not run, or write to a clearly marked file, so a partial measurement cannot replace a full one. SEEN HAPPENING 2026-09-15 - an unrecognised flag made the lab run 0 cases with AI OFF and overwrite the real 51-session AI-ON report; restored from git. There is also no --help, so a wrong flag is read as a filter matching nothing.",
+      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after a lab run without the key replaced a real report and was caught by the pre-commit hook rather than by anything in the lab itself. 2026-09-15 - the environment half was found ALREADY FIXED (a real OpenAI call runs here), so the item is now the code half alone and was renamed to it. It fired again the same day from a mistyped flag, caught by eye."
+    },
+    {
+      "ref": "7.10",
+      "name": "A page's templates are hidden behind whichever won the ID",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A page often holds several templates, so 220 client tools sit on 205 pages. One shared profile per page is correct, but the registry keeps only the first template on each page, hiding the other 15 from anything reading it.",
+      "risk": "Nothing scores wrongly and no advice is withheld: the resolver filters the full 220-row array and never keys by page, so every tool competes. The loss is visibility - a profile screen, an audit or a count reading the registry sees 205 titles and cannot name the 15 tools sharing those pages, so a mentor editing a page's profile is not told which tools it governs.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-16 - told us the relationship is one-to-many by design, 'a single page will contain multiple templates which is why this occurs', and said to save it as a job and move around it."
+      },
+      "touches": "server/utils/templateRegistry.js, the page-to-entry Map that keeps one template per page; scripts/build-semantic-profiles.js, which writes one row per page and names only the winner; US9's template-profile screen in 7.2, which must list every template on a page.",
+      "note": "THE SHARED PROFILE IS RIGHT AND MUST NOT BE 'FIXED' - Mike ruled 2026-09-16 that templates on one page SHARE one AI profile, because an advisor opening that page gets them all. This is not a rekey. What is missing is the many half: the registry should carry every template on a page, so a screen can show that this profile governs both Working Capital Cycle and Activity Ratios. Collisions grew 10 to 14 between the 25 June and 30 July exports, so more tools hide as the library grows. NEVER EDIT THE IDS - CLAUDE.md.",
+      "comment": "2026-09-16 - found while running T060a for 7.2 US9; the compiler appeared to discover six new tools that were only collision winners changing places. Filed first as a keying defect, then corrected twice by Mike: the one-to-many page relationship is by design, and one shared profile per page is the behaviour he wants. RENUMBERED 7.5 to 7.10 on Mike's ruling of 2026-09-16: the laptop had taken 7.5 the same day for the model-choice record, and a number is spent for good once used."
     }
   ]
 }

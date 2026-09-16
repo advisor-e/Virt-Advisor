@@ -9,6 +9,29 @@
 
 ---
 
+> 🔴 **ADDED BY THE DESKTOP, 2026-09-16, ON MIKE'S INSTRUCTION — READ THIS FIRST, THEN THE
+> SESSION NOTE BELOW.** This is the only time the desktop writes in this file; it did so
+> because the alternative was you opening to a 115-commit merge and a conflict.
+>
+> **`v0.13.0` WAS CUT AND PUSHED** — 197 commits, PRs #96/#97/#98, tag on `9b44cbd7`.
+> `master` moved a long way after your session ended.
+>
+> ✅ **YOUR BRANCH IS ALREADY LEVEL WITH `master`** — the desktop merged it in for you and
+> pushed. **Nothing of yours was overwritten:** `master` was merged INTO your branch, never
+> the reverse, and your two commits are untouched. The one conflict was `CODE-SIZE.md`,
+> which is generated — resolved by running `npm run handbook`, not by choosing a side.
+> Verified after merging: **11,930 tests green / 556 suites.**
+>
+> **So at your next startup: `git pull` and begin.** No catching up, no conflict.
+>
+> ⚠ **Your handover below is from before all this and its first line is now wrong** — it
+> says 0 ahead / 0 behind, which was true when you wrote it. Everything else in it stands.
+>
+> **What the desktop did that touches you:** Template Profiles (a new Mentor Hub tab),
+> the engine reading authored profiles, and a new binding rule in `CLAUDE.md` — **THE
+> IMPACT TEST**: state the problem or gain and the measurement *before* any design, or the
+> work does not start. Read it before scoping anything.
+
 ## 2026-09-16 (second session) · Laptop · branch `feat/advisor-progress`
 
 Suite **11,180 green** (525 suites), lint 0, coverage and audit gates passed. Tree clean.

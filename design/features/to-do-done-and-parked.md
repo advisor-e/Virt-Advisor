@@ -340,6 +340,54 @@ reason. **`design/WAGES-SHUTDOWN-PORT.md` — the cold-start build spec this ite
 deleted the same day on Mike's yes**, its durable parts folded into
 [`report-models.md`](report-models.md); it had carried the phantom in §3.2 and a second error in
 §2.5, and a spec that outlives its build becomes the next session's false start.
+**4.100 — a supplier-cost conversation was routed to sales and marketing.**
+✅ Closed 2026-09-15 on the desktop (`883a6481`), on Mike's yes. Filed at the previous shutdown
+after the 4.97 primary-issue step made it visible on the running app.
+
+- **The cause was one word inside a phrase.** `sales-marketing`'s keyword pattern hunted for
+  *sales* and found the one sitting inside **"cost of sales"** — the accounting term for the
+  direct cost of what you sell, which is a profit matter. The advisory area decides which
+  templates are considered at all, so everything downstream inherited it and looked correct
+  doing so: the templates, the primary issue, and the pooled row the platform learns from.
+- **Measuring it found a worse shape than the one filed.** The item's own reproduction sentence
+  (*"margins are down, the cost of sales has gone up"*) scores **profit 1, sales 1** — a tie, so
+  the advisor is asked. Nothing silently wrong, but the question was never genuine. Whereas
+  *"our cost of sales keeps climbing"* scores **profit 0, sales 1** — no tie, so it routes
+  **outright** to sales and marketing and the advisor is never told there was a choice.
+- **The fix.** One line in `data/domains.json`: the word *sales* still counts, unless *cost of*
+  precedes it. `server/advisorEngine.js` is untouched — its detection and tie logic were behaving
+  correctly throughout; the tie should never have existed.
+- **Proved three ways.** Lookbehind confirmed on the real Node 14.15.0 binary before the pattern
+  was changed. Mutation-verified: reverting the pattern fails 6 of `costOfSalesRouting.test.js`'s
+  13 assertions while the 7 guarding genuine sales wording stay green, so the guard cannot be
+  bought by deleting the domain. Six real sales/marketing sentences unchanged, none dragged into
+  profit.
+- **It fixed one phrase, not domain misreading in general** — recorded honestly in
+  [`advisory-engine.md`](advisory-engine.md) §4 rather than claimed as closed.
+
+**4.94 — "Why this?" named the wrong hold-back, and could hide one.**
+✅ Found and closed 2026-09-12 on the desktop, filed and fixed on Mike's yes the same hour. A
+defect in 4.87 as built, found by walking `specs/002-outcome-learning/quickstart.md` Story 3 on
+the running app — the two things UAT could not have seen, because a tester does not know which
+adjustment should have matched.
+
+- **The trace named every live adjustment for a template, not the ones that matched.** A sales
+  session under facilitation, two Break-Even adjustments live (one keyed to engagement type
+  facilitation, one to domain profit): the resolver correctly applied the facilitation one alone,
+  and the "Why this?" line read *a hold-back of 8 in profitability and feasibility*. Wrong size,
+  wrong situation, in Mike's ruled *"in {where}"* wording — and against FR-011, which says the line
+  carries *the situation it matched*. The unit test had pinned the wrong behaviour.
+- **A held-back template could vanish from the panel.** The scoring log is the top 20 by score; a
+  hold-back that took Break-Even from 6th to below 20th removed it from the log, so the applied
+  line was never built. The consent tab promises the advisor sees every adjustment that applies.
+- **The fix.** The resolver keeps each adjustment's id and writes `pooledMatched` (the ids that
+  matched this session) on the log entry; the trace builder reads its evidence from those alone.
+  The log keeps any entry beyond 20th that carries a pooled reason. Scores are unchanged, so
+  `SCORING_VERSION` stays 2.2.0. Tests first: two in `pooledHoldback.test.js`, the expectations in
+  `outcomeLearningTrace.test.js` corrected, one new. Proved on the same session afterwards:
+  *−4 · engagementType facilitation · 6 firms · 30 cases*, Break-Even in the log at 21st.
+- Not on the live list at any point: found, filed and closed in one sitting, recorded here so
+  the number is not reused.
 
 **4.95 — the Sales Dashboard: the last card that said "coming soon" and opened nothing.**
 ✅ Closed 2026-09-13 on the laptop. Asked for by Mike in his own words — *"sales dashboard in perf

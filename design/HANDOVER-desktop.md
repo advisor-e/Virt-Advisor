@@ -9,29 +9,39 @@
 
 ---
 
-## 2026-09-10 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-16 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Built and closed today: 4.85 — the Handbook is built from `origin/master`.** Both
-machines now publish the same page, neither can erase the other's features, and the line
-under the title names the master commit and how many commits each machine holds beyond it.
-`npm run handbook -- --working-tree` previews unmerged pages and says so on the page.
-Closure on [`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
+**Six commits, all pushed** (`68f3d881` … `6d2933ea`). Suite **11,930 green** (556 suites),
+lint 0, `npm run build` succeeds. **Fifteen live items. 7.2 is 63 of 67** — `activeOn` KEPT,
+the four remaining tasks are in hand here.
 
-**The consequence for both machines:** a feature shows on the Handbook once its pull
-request has landed, not when it is pushed. Read the banner's counts out at startup.
+🔴 **READ `CLAUDE.md` → THE IMPACT TEST BEFORE SCOPING ANYTHING.** New binding rule, Mike's
+words: state the problem or gain, **the measurement, named before the work**, and what
+already does the job — or the work does not start. It came from him asking what US9 actually
+bought after it shipped. Measured: authoring three profiles moved the 51-case lab **5.6 →
+5.7**, the engine already picked a content-driven top recommendation in **51 of 51** with
+none authored, and the tool given a profile appeared **less** often (22 → 19). Not a licence
+to re-argue work he has asked for — report once, at scoping.
 
-Suite **9,700 green** (471 suites). Tree clean once this commit lands. Nine live items.
-Nothing active on this machine except 4.87's flag (below).
+**US9 SHIPPED IN FULL**, on two rulings the same day: read-only first, then authoring once he
+was told plainly it changes what advisors are recommended with no test able to judge a
+weight. Template Profiles is live on the Mentor Hub; the engine reads authored profiles over
+the compiled file and **falls back to compiled if the store fails**.
 
-**v0.11.0** is cut on `0f0fdab`, awaiting the master team's pull; the ledger row is the next
-thing to write when it lands.
+⚠ **MERGED `origin/master` IN — 84 commits.** This branch was 0 behind at startup and went
+behind mid-session when the laptop's PRs #94/#95 landed. No code conflicted; four record
+files did, all resolved keeping both sides. **The desktop's 7.5 is now 7.10** per Mike's
+ruling — the laptop took 7.5 the same day.
 
-**Next session, bring to Mike first** (his instruction of 2026-09-10): the two open decisions
-on **4.87 Outcome Learning** — the evidence floor, and hold-back only or both directions —
-then `/speckit-clarify` on his yes. Its `activeOn` is the desktop. Then **4.84**, the hub
-notification dots, which is unblocked and waits on us.
+⚠ **Item 9.2 fired again**, third time: `--help` is not a recognised lab flag, so it was read
+as a case filter, ran 0 cases and overwrote the real 51-session report. Restored from git.
+The item already carries this; nothing new to file.
 
-**LAPTOP:** none of your files were touched. `scripts/build-handbook.js`,
-`scripts/handbook-shell.html`, the Handbook Brief, `.claude/commands/startup.md` and
-`WORKING-AGREEMENT.md` changed; merge `master` in at startup and your next
-`npm run handbook` will carry the banner.
+**The AI-ON lab needs the Avast root**, not `.env`'s digicert bundle — export it to
+`NODE_EXTRA_CA_CERTS` or every OpenAI call fails *"unable to verify the first certificate"*.
+
+**LAPTOP:** shared files I touched — `locales/en.json`, `server/restify-server.js`,
+`server/advisorEngine.js`, `server/utils/outcomeBench.js`, `components/FirmManagerHub.vue`.
+The bench gained an optional trailing `profileMap` argument; every existing caller omits it
+and behaves exactly as before. Your note is dated **2026-09-13** while your branch merged
+twice on 2026-09-16 — stale for the sixth session running.

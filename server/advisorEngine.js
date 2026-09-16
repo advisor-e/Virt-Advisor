@@ -9,7 +9,6 @@
 const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
-const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
 // Item 4.31 step 4 — the material a level has put in force for itself, plus what it has
@@ -40,6 +39,13 @@ const { logVASession, logModelChoice } = require('../server/utils/activityLogger
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
+// The primary-issue proposer (item 4.97 US1). Imported whole: the engine calls six of its
+// helpers across two QUESTIONS entries, and naming the module at each call site says where
+// the wording lives — on the drawing Mike approved, not in this file.
+const PROPOSER = require('../server/utils/primaryIssueProposer')
+const { proposesIssue } = PROPOSER
+const aiProvider = require('../server/utils/aiProvider')
+const { AI } = require('../config/integration')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
@@ -108,13 +114,17 @@ const DISTINCTION_TRIGGER_EXAMPLE_CAP = 25
 // deliberately: a caller that forgets to check it still gets an empty `rows` and degrades,
 // where `null` would have thrown mid-session.
 //
+// `provider` rides back beside them (4.97 US8/T052): which AI service actually answered, so
+// the trace can name it rather than assume the primary. Null when no call was made or the
+// call failed — a session that asked nobody must not claim a provider.
+//
 // @param {Array<Object>} rows distinction rows to classify
 // @param {string} advisorText the advisor's words
 // @param {string} [label] logAI label
-// @returns {Promise<{ok: boolean, rows: Array<Object>}>}
+// @returns {Promise<{ok: boolean, rows: Array<Object>, provider: string|null}>}
 async function _classifyMatchingRows (rows, advisorText, label) {
   // Nothing to ask is not a failure — there was no call to fail.
-  if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return { ok: true, rows: [] } }
+  if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return { ok: true, rows: [], provider: null, fallbackState: null } }
 
   let phrasesIgnored = 0
   const patternList = rows.map((row, i) => {
@@ -144,12 +154,11 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
   const _t0 = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 80,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    })
-    logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, true, response.usage)
+    }, { personal: true })
+    logAI(label || 'distinction-classify', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     // A reply we cannot READ is not "matched nothing" either — same defect one level
     // down. The prompt asks for {"matches":[]} when none apply, so a genuine no-match
     // always parses; a truncated, empty or prose reply does not, and used to fall
@@ -159,14 +168,19 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
     const parsed = jsonText ? JSON.parse(jsonText) : null
     if (!parsed || !Array.isArray(parsed.matches)) {
       console.warn(`[advisor] ${label || 'distinction-classify'}: the model's reply carried no readable {"matches":[...]} — reported as a FAILURE, not as "none matched"`)
-      return { ok: false, rows: [] }
+      return { ok: false, rows: [], provider: response.provider || null, fallbackState: response.fallbackState || null }
     }
-    return { ok: true, rows: parsed.matches.map(id => rows[Number(id) - 1]).filter(Boolean) }
+    return {
+      ok: true,
+      rows: parsed.matches.map(id => rows[Number(id) - 1]).filter(Boolean),
+      provider: response.provider || null,
+      fallbackState: response.fallbackState || null
+    }
   } catch (_e) {
-    logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, false, null)
+    logAI(label || 'distinction-classify', CLASSIFY_MODEL(), _t0, false, null, null)
     // The rows stay empty so a live session still degrades gracefully — but `ok:false`
     // travels with them so nothing downstream can call this a result.
-    return { ok: false, rows: [] }
+    return { ok: false, rows: [], provider: null, fallbackState: null }
   }
 }
 
@@ -175,21 +189,22 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
 // firm-own rows); we score only the rows for the detected domain. The resolver
 // guarantees an overridden platform row appears once, so a boost is never doubled.
 //
-// Returns `{ok, boosts}` — `ok:false` means the classifier call FAILED and the empty
-// boost map is a fault, not a finding. See _classifyMatchingRows for why.
+// Returns `{ok, boosts, provider}` — `ok:false` means the classifier call FAILED and the
+// empty boost map is a fault, not a finding. See _classifyMatchingRows for why, and for what
+// `provider` is null.
 //
-// @returns {Promise<{ok: boolean, boosts: Object<string, number>}>}
+// @returns {Promise<{ok: boolean, boosts: Object<string, number>, provider: string|null}>}
 async function classifyDistinctions (domain, advisorText, candidateRows) {
-  if (!domain || !advisorText) { return { ok: true, boosts: {} } }
+  if (!domain || !advisorText) { return { ok: true, boosts: {}, provider: null, fallbackState: null } }
   const rows = (Array.isArray(candidateRows) ? candidateRows : []).filter(r => r.domain === domain)
-  const { ok, rows: matched } = await _classifyMatchingRows(rows, advisorText, 'distinction-classify')
+  const { ok, rows: matched, provider, fallbackState } = await _classifyMatchingRows(rows, advisorText, 'distinction-classify')
   const boostMap = {}
   for (const row of matched) {
     for (const templateTitle of (row.templates || [])) {
       boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
     }
   }
-  return { ok, boosts: boostMap }
+  return { ok, boosts: boostMap, provider, fallbackState }
 }
 
 // Cross-domain "bridge": the firm's OWN distinctions (firm-own or firm-edited) that
@@ -203,14 +218,19 @@ async function classifyDistinctions (domain, advisorText, candidateRows) {
 // flag. This one fails the quietest of all — the section simply does not render — so it
 // needs the flag most.
 //
-// @returns {Promise<{ok: boolean, rows: Array<{id, description, domain, source}>}>}
+// @returns {Promise<{ok: boolean, rows: Array<{id, description, domain, source}>, provider: string|null}>}
 async function findNearMissDistinctions (detectedDomain, advisorText, effectiveDistinctions) {
-  if (!detectedDomain || !advisorText) { return { ok: true, rows: [] } }
+  if (!detectedDomain || !advisorText) { return { ok: true, rows: [], provider: null, fallbackState: null } }
   const otherFirmRows = (Array.isArray(effectiveDistinctions) ? effectiveDistinctions : []).filter(r =>
     r && r.domain !== detectedDomain && (r.source === 'firm-own' || r.source === 'firm-override'))
-  if (otherFirmRows.length === 0) { return { ok: true, rows: [] } }
-  const { ok, rows: matched } = await _classifyMatchingRows(otherFirmRows, advisorText, 'distinction-nearmiss')
-  return { ok, rows: matched.map(r => ({ id: r.id, description: r.description, domain: r.domain, source: r.source })) }
+  if (otherFirmRows.length === 0) { return { ok: true, rows: [], provider: null, fallbackState: null } }
+  const { ok, rows: matched, provider, fallbackState } = await _classifyMatchingRows(otherFirmRows, advisorText, 'distinction-nearmiss')
+  return {
+    ok,
+    rows: matched.map(r => ({ id: r.id, description: r.description, domain: r.domain, source: r.source })),
+    provider,
+    fallbackState
+  }
 }
 
 // Build detection patterns from domain definitions — compiled once at startup
@@ -284,15 +304,14 @@ Return ONLY a JSON object {"domain":"<id>"} using exactly one id from the list a
   const _t0 = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 30,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    })
-    logAI('domain-classify', 'gpt-4o-mini', _t0, true, response.usage)
+    }, { personal: true })
+    logAI('domain-classify', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     return parseDomainClassification(response.choices[0]?.message?.content || '{}', validIds)
   } catch (_e) {
-    logAI('domain-classify', 'gpt-4o-mini', _t0, false, null)
+    logAI('domain-classify', CLASSIFY_MODEL(), _t0, false, null, null)
     return null
   }
 }
@@ -330,15 +349,14 @@ Return ONLY {"distress":true} if the business is at imminent risk of failing, ot
   const _t0 = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 20,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    })
-    logAI('distress-read', 'gpt-4o-mini', _t0, true, response.usage)
+    }, { personal: true })
+    logAI('distress-read', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     return parseDistressRead(response.choices[0]?.message?.content || '{}')
   } catch (_e) {
-    logAI('distress-read', 'gpt-4o-mini', _t0, false, null)
+    logAI('distress-read', CLASSIFY_MODEL(), _t0, false, null, null)
     return false
   }
 }
@@ -401,6 +419,23 @@ let _loadEffectiveTemplates = null
 function loadEffectiveTemplates (...args) {
   if (!_loadEffectiveTemplates) { _loadEffectiveTemplates = require('../server/utils/templateLibrary').loadEffectiveTemplates }
   return _loadEffectiveTemplates(...args)
+}
+
+// Outcome Learning (item 4.87) — lazy for the same reason. The module itself is what
+// guarantees a session never fails because the pool could not be read.
+let _outcomeSession = null
+function outcomeSession () {
+  if (!_outcomeSession) { _outcomeSession = require('../server/utils/outcomeLearningSession') }
+  return _outcomeSession
+}
+
+// Template Profiles (item 4.97 / 7.2 US9) — lazy for the same reason. The store itself
+// guarantees a session never fails because the authored rows could not be read: it falls
+// back to the compiled file rather than rejecting.
+let _semanticProfiles = null
+function semanticProfiles () {
+  if (!_semanticProfiles) { _semanticProfiles = require('../server/utils/semanticProfiles') }
+  return _semanticProfiles
 }
 
 // ── Startup checks ──
@@ -509,19 +544,18 @@ Return ONLY the chosen question — no preamble, no explanation, no additional t
   const _t0mf = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 50,
       messages: [
         { role: 'system', content: systemPrompt },
         ...conversationHistory.slice(-6),
         { role: 'user', content: 'Choose and return the single most appropriate question.' }
       ]
-    })
-    logAI('moving-forward', 'gpt-4o-mini', _t0mf, true, response.usage)
+    }, { personal: true })
+    logAI('moving-forward', CLASSIFY_MODEL(), _t0mf, true, response.usage, response)
     const returned = (response.choices[0]?.message?.content || '').trim()
     return MOVING_FORWARD_OPTIONS.find(q => returned.includes(q.slice(0, 20))) || MOVING_FORWARD_OPTIONS[0]
   } catch (e) {
-    logAI('moving-forward', 'gpt-4o-mini', _t0mf, false, null)
+    logAI('moving-forward', CLASSIFY_MODEL(), _t0mf, false, null, null)
     return MOVING_FORWARD_OPTIONS[0]
   }
 }
@@ -623,14 +657,30 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   ].filter(Boolean).join('\n') + profileText
 }
 
-let openaiClient = null
+// 🔴 THE ADVISOR CONVERSATION IS PERSONAL (Mike's ruling, 2026-09-15): the advisor is
+// describing a real client in their own words, so every call from this file states
+// `personal: true` and will NOT fall back to an uncleared provider — the feature fails
+// exactly as it does today rather than routing a client's words somewhere new.
+//
+// Two roles, two clients: `classify` for the short judgement calls, `narrative` for the
+// conversation the advisor reads. Both come from the one role map; no model name is written
+// in this file any more (4.97 US8/T050).
+let _classifyClient = null
+let _narrativeClient = null
 
 function getOpenAI () {
-  if (!openaiClient) {
-    openaiClient = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY })
-  }
-  return openaiClient
+  if (!_classifyClient) { _classifyClient = aiProvider.getClient('classify') }
+  return _classifyClient
 }
+
+function getNarrativeAI () {
+  if (!_narrativeClient) { _narrativeClient = aiProvider.getClient('narrative') }
+  return _narrativeClient
+}
+
+/** The model each role uses, read at call time so a test changing the environment is obeyed. */
+const CLASSIFY_MODEL = () => aiProvider.modelFor(AI.primary, 'classify')
+const NARRATIVE_MODEL = () => aiProvider.modelFor(AI.primary, 'narrative')
 
 /**
  * AI-assisted coaching-tree selection for Learn mode. The deterministic keyword
@@ -667,13 +717,16 @@ async function pickLearnTreeAI (advisorText, firmTrees) {
   const system = 'You match an advisor to the single most relevant coaching guide for what they want help with. The advisor text may contain speech-to-text errors — read it for meaning (e.g. "ND year" / "India meeting" means "end of year"). The advisor\'s messages are ordered NEWEST FIRST — the first line is what they want help with NOW and outweighs everything after it; later lines are older context, and when the newest line changes topic, follow the newest line. Reply with ONLY the guide id exactly as written in the list, or the word none if nothing clearly fits. No other words.'
   const user = `Coaching guides:\n${menu}\n\nThe advisor said (newest message first):\n${fenceUntrusted(advisorText.slice(0, 1000))}\n\nWhich one guide id best fits?`
 
+  const _t0pick = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       temperature: 0,
       max_tokens: 20,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }]
-    })
+    }, { personal: true })
+    // This call had NO success log at all until 4.97 US8, which CLAUDE.md requires of every
+    // LLM call. Its failure path logged; its successes were invisible.
+    logAI('learn-tree-pick', CLASSIFY_MODEL(), _t0pick, true, response.usage, response)
     const raw = (response.choices && response.choices[0] && response.choices[0].message && response.choices[0].message.content) || ''
     const out = raw.trim().toLowerCase().replace(/[^a-z0-9_]+/g, ' ').trim()
     const tokens = out ? out.split(/\s+/) : []
@@ -681,6 +734,7 @@ async function pickLearnTreeAI (advisorText, firmTrees) {
     const match = learnTrees.find(t => out === t.id || tokens.includes(t.id))
     return match || null
   } catch (err) {
+    logAI('learn-tree-pick', CLASSIFY_MODEL(), _t0pick, false, null, null)
     console.error('[advisor] learn tree AI-pick failed:', err.message)
     return null
   }
@@ -804,12 +858,14 @@ function scrubAdvisorHallucinations (text) {
 
 // Logs a completed OpenAI call to stderr for operational monitoring.
 // Always on (not gated by VA_DEBUG) — lightweight, one line per call.
-function logAI (label, model, startTime, success, usage) {
+// Carries which provider answered since 4.97 US8, so a session's provider is readable after
+// the fact; `reply` is the reply object (or null on a failure) and nothing else is read from it.
+function logAI (label, model, startTime, success, usage, reply) {
   const latency = Date.now() - startTime
   const tokens = usage
     ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens} total=${usage.total_tokens}`
     : 'tokens=unknown'
-  console.log(`[openai] ${label} model=${model} status=${success ? 'ok' : 'error'} latency=${latency}ms ${tokens}`)
+  console.log(`[openai] ${label} model=${model} status=${success ? 'ok' : 'error'} latency=${latency}ms ${tokens} ${aiProvider.logSuffix(reply || null)}`)
 }
 
 /**
@@ -1195,6 +1251,22 @@ function _isValidConfirmation (out, areaLabel) {
 }
 
 /**
+ * The advisor's own account of the cause, as one block of text.
+ *
+ * The same two pieces `buildDomainConfirmationMessage` reflects back — the opening situation
+ * and the cause answer — so the primary-issue proposal is ranked against exactly the words
+ * the advisor just confirmed the area from. Sentinels never reach it.
+ *
+ * @param {object} state - conversation state (reads openingSituation, situationDiagnostic)
+ * @returns {string} the advisor's words, or '' when nothing has been said yet
+ */
+function causeTextOf (state) {
+  const parts = [state._openingSituation, state.situationDiagnostic]
+    .filter(v => typeof v === 'string' && v && v !== 'pending' && v !== 'skipped')
+  return parts.join('\n').trim()
+}
+
+/**
  * Build the cause-first domain-confirmation message.
  * @param {object} state - conversation state (reads detectedDomain, situationDiagnostic)
  * @param {Array} conversationHistory - prior messages (the opening situation = first user msg)
@@ -1250,18 +1322,144 @@ ${causeText.slice(0, 1500)}
   const _t0 = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
       max_tokens: 160,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    })
-    logAI('domain-confirm', 'gpt-4o-mini', _t0, true, response.usage)
+    }, { personal: true })
+    logAI('domain-confirm', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     const out = (response.choices[0]?.message?.content || '').trim()
     return _isValidConfirmation(out, detected.label) ? out : fallbackText
   } catch (_e) {
-    logAI('domain-confirm', 'gpt-4o-mini', _t0, false, null)
+    logAI('domain-confirm', CLASSIFY_MODEL(), _t0, false, null, null)
     return fallbackText
   }
+}
+
+/**
+ * Build the primary-issue proposal line, and remember what was proposed (item 4.97 US1).
+ *
+ * Ranks Mike's authored labels for the confirmed domain against the advisor's own cause
+ * words and the problem signals those words fired. The model is asked ONE boxed question and
+ * only when two labels tie on that evidence — it chooses from the list or says none, and it
+ * never writes a label. A failure there costs the tie-break, not the step: the first tied
+ * label stands, which is the advisor's own evidence either way.
+ *
+ * @param {object} state - conversation state; `_issueProposed` and `_issueProposalReason`
+ *   are written for `onAnswer` to read back
+ * @returns {Promise<string|null>} the proposal line, or null when nothing the advisor said
+ *   supports any authored label (the caller then asks the open driver question)
+ */
+async function buildIssueProposal (state) {
+  const causeText = causeTextOf(state)
+  if (!causeText) { return null }
+
+  const signals = extractProblemSignals(causeText)
+  const ranked = PROPOSER.rankLabels(state.detectedDomain, causeText, signals)
+  if (!ranked.top) { return null }
+
+  let label = ranked.top
+  const matched = ranked.matched
+  if (ranked.needsTiebreak) {
+    const _t0 = Date.now()
+    const _model = aiProvider.modelFor(AI.primary, 'classify')
+    try {
+      const chosen = await PROPOSER.tiebreakWithModel(
+        aiProvider.getClient('classify'), ranked.candidates, causeText
+      )
+      logAI('issue-tiebreak', _model, _t0, true, null)
+      if (chosen) { label = chosen }
+    } catch (_e) {
+      // The tie stands unbroken and the first candidate is proposed. The advisor is about
+      // to confirm or reframe it anyway, so a provider outage never blocks the question.
+      logAI('issue-tiebreak', _model, _t0, false, null)
+    }
+  }
+
+  // The reason must describe the label actually proposed: when the model breaks a tie, the
+  // ranker's `matched` still holds the FIRST candidate's words, and showing those beside a
+  // different label tells the advisor we read words we did not.
+  const _reasonWords = (label === ranked.top)
+    ? matched
+    : PROPOSER.keywords(label).filter(w => PROPOSER.keywords(causeText).includes(w))
+
+  state._issueProposed = label
+  state._issueProposalReason = PROPOSER.reasonFrom(_reasonWords)
+  state._issueProposalLine = PROPOSER.proposalLine(label, state._issueProposalReason)
+  return state._issueProposalLine
+}
+
+/**
+ * Apply the advisor's reply to the primary-issue proposal (item 4.97 US1).
+ *
+ * Pure state transition, exported so the flow is tested without driving the SSE handler.
+ * Writes `primaryIssue`, `primaryIssueHow` and `primaryIssueReason` — the three the decision
+ * trace reports — or arms the open driver question when nothing the advisor said matched.
+ *
+ * @param {string} answer - what the advisor typed
+ * @param {object} s - conversation state, mutated in place
+ * @returns {void}
+ */
+function applyIssueReply (answer, s) {
+  const proposed = s._issueProposed || null
+  // No signals: a reframe must rest on words the advisor just typed, never on signals from
+  // the earlier cause text, which fire whatever they now say. See `parseReply`.
+  const read = PROPOSER.parseReply(answer, proposed, s.detectedDomain)
+
+  if (read.outcome === 'confirmed') {
+    // After a reframe the label came from the advisor's own correction, so it is recorded
+    // as reframed even though this turn was an agreement.
+    s.primaryIssue = read.label
+    s.primaryIssueHow = s._issueReproposed ? 'reframed' : 'confirmed'
+    s.primaryIssueReason = s._issueProposalReason || null
+    return
+  }
+  // A reframe names a DIFFERENT authored label. It is put back to them once — the advisor's
+  // own words, not ours, so it is proposed rather than assumed.
+  if (read.outcome === 'reframed' && !s._issueReproposed) {
+    s._issueReproposed = true
+    s._issueProposed = read.label
+    s._issueProposalReason = PROPOSER.reasonFrom(read.matched)
+    s._forceAskField = 'issueProposed'
+    s._forceAskPrompt = PROPOSER.reproposalLine(read.label)
+    return
+  }
+  if (s._issueReproposed && proposed) {
+    // A second miss after their own reframe. Their words named this label once, so it
+    // stands as reframed rather than throwing the advisor's own correction away.
+    s.primaryIssue = proposed
+    s.primaryIssueHow = 'reframed'
+    s.primaryIssueReason = s._issueProposalReason || null
+    return
+  }
+  // Nothing matched: FR-003a — ONE open driver question, then move on.
+  s._issueNeedsDriver = true
+}
+
+/**
+ * Apply the advisor's reply to the one open driver question (item 4.97 US1).
+ *
+ * The last chance to name an authored label. Mike's Option B governs the miss: continue
+ * WITHOUT an issue and say so on the trace, rather than pin a label the advisor's words do
+ * not support — the resolver scores against it and the pool learns from it.
+ *
+ * @param {string} answer - what the advisor typed
+ * @param {object} s - conversation state, mutated in place
+ * @returns {void}
+ */
+function applyIssueDriverReply (answer, s) {
+  const signals = extractProblemSignals(causeTextOf(s) + '\n' + (answer || ''))
+  const ranked = PROPOSER.rankLabels(s.detectedDomain, answer, signals)
+  if (ranked.top) {
+    s.primaryIssue = ranked.top
+    s.primaryIssueHow = 'reframed'
+    s.primaryIssueReason = PROPOSER.reasonFrom(ranked.matched)
+    return
+  }
+  s.primaryIssue = null
+  s.primaryIssueHow = 'none'
+  s.primaryIssueReason = null
+  console.log('[signal-miss] primary-issue proposal found no authored label for domain=' +
+    (s.detectedDomain || 'none') + ' after the driver question — review the label set')
 }
 
 // ── Crisis (distress) detection ──────────────────────────────────────────────
@@ -1449,6 +1647,20 @@ function formatCaseSummaries (cases) {
     '',
     fenceUntrusted(lines.join('\n'))
   ].join('\n')
+}
+
+/**
+ * The closing event of a streamed intake question. Carries the question's field name
+ * when there is one, so the screen knows which question is live; every other closing
+ * event on the stream is `{ type: 'done' }` exactly as before. Only a non-empty string
+ * is carried — a question asked with no field (the switch offers, the prep-mode
+ * offer, the guard's forced ownership ask) closes as it always has.
+ *
+ * @param {*} field - the intake question's `field`, or nothing
+ * @returns {{type: 'done', field?: string}}
+ */
+function questionDoneEvent (field) {
+  return typeof field === 'string' && field.trim() ? { type: 'done', field: field.trim() } : { type: 'done' }
 }
 
 // ── Saved-client intake context (Phase A) ───────────────────────────────────
@@ -2001,8 +2213,21 @@ async function handleQuery (rawBody, res, identity) {
       advisorEnjoyment: null,
       advisorMeetingCount: null,
       advisorSessionLength: null,
-      // Primary issue — which specific problem within the detected domain
+      // Primary issue — which specific problem within the detected domain. PROPOSED by the
+      // engine and confirmed or reframed by the advisor (4.97 US1); `how` and `reason` are
+      // what the decision trace reports, so a null label can still say why it is null.
       primaryIssue: null,
+      primaryIssueHow: 'none',
+      primaryIssueReason: null,
+      // The proposal turn's own working state: what was put to the advisor, whether their
+      // reframe has already been proposed back, and whether the open driver question is due.
+      issueProposed: null,
+      issueDriver: null,
+      _issueProposed: null,
+      _issueProposalReason: null,
+      _issueProposalLine: null,
+      _issueReproposed: false,
+      _issueNeedsDriver: false,
       // Q4 — prior attempts
       clientAlreadyTried: null,
       // Flow state
@@ -2046,6 +2271,12 @@ async function handleQuery (rawBody, res, identity) {
       })
     }
 
+    // The advisor's opening words, kept once so the primary-issue proposer ranks against the
+    // same text the domain check-in reflected back. Set on every turn (the history is the
+    // source; the first user message never changes) and before the sequencer runs.
+    const _firstUserMsg = (conversationHistory || []).filter(m => m.role === 'user').map(m => m.content)[0]
+    if (_firstUserMsg) { state._openingSituation = _firstUserMsg } else if (!state._openingSituation) { state._openingSituation = query }
+
     // Always re-detect domain from the first user message.
     // Score all 14 domains by keyword match count. Most matches wins.
     // On a tie between any two or more, ask disambiguation.
@@ -2074,6 +2305,18 @@ async function handleQuery (rawBody, res, identity) {
         state.disambiguationAnswer = null
         state.domainConfirmed = null
         state.primaryIssue = null
+        // The issue belongs to the domain that was just abandoned, so the whole proposal
+        // turn resets with it — otherwise the next domain's advisor is asked to confirm a
+        // label ranked against a question they have already corrected.
+        state.primaryIssueHow = 'none'
+        state.primaryIssueReason = null
+        state.issueProposed = null
+        state.issueDriver = null
+        state._issueProposed = null
+        state._issueProposalReason = null
+        state._issueProposalLine = null
+        state._issueReproposed = false
+        state._issueNeedsDriver = false
       }
       state.awaitingCourseCorrection = false
     }
@@ -2146,8 +2389,11 @@ async function handleQuery (rawBody, res, identity) {
     }
     } // end domain lock else
 
-    // Helper: stream a hardcoded question directly to the client
-    const sendQuestion = (text) => {
+    // Helper: stream a hardcoded question directly to the client. `field` names the
+    // intake question being asked, so the screen can offer industry suggestions while
+    // that one question is live (item 4.87 T022a, drawing 4) — the screen had no way
+    // to know which question it was answering before this.
+    const sendQuestion = (text, _state, field) => {
       if (sessionId) { sessionSave(sessionId, state) }
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -2156,7 +2402,7 @@ async function handleQuery (rawBody, res, identity) {
         'X-Accel-Buffering': 'no'
       })
       res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
-      res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+      res.write('data: ' + JSON.stringify(questionDoneEvent(field)) + '\n\n')
       res.end()
     }
 
@@ -2262,17 +2508,33 @@ async function handleQuery (rawBody, res, identity) {
           s.disambiguationNeeded = false
         }
       },
-      // ── Primary Issue ──
-      // REMOVED from intake (no drop-tab). Per the conversational-intake spec
-      // (memory design-conversational-intake): the primary issue is inferred from
-      // the conversation, and only clarified at recommendation time IF the template
-      // scoring hits a genuine fork. Stage 2 wires that inference + end-of-process
-      // clarification; for now the field stays null and the engine reads the
-      // problem from signals + domain.
+      // ── Primary Issue — PROPOSED, never listed (item 4.97 US1) ──
+      // The conversational-intake redesign of June 2026 removed the cold selector card and
+      // left this half unbuilt, so `state.primaryIssue` stayed null and the resolver's
+      // `primary_issue:*` scoring was dead. This is that second half: the engine names ONE
+      // authored label with one reason and the advisor confirms it or reframes it in their
+      // own words. Every sentence comes from `primaryIssueProposer`, whose wording Mike
+      // ruled on `design/mockups/primary-issue-proposal.html` (2026-09-14).
+      //
+      // `issueProposed` carries the answer to the question the engine ASKED; the confirmed
+      // label lands on `state.primaryIssue`, which the trace, the pool and the resolver all
+      // already read. The field is deliberately NOT `primaryIssue` itself: the sequencer
+      // stores the raw reply in `state[q.field]`, and the reply is the advisor's sentence,
+      // not the label.
       {
-        field: 'primaryIssue',
-        text: '(primary issue inferred — not asked during intake)',
-        skip: () => true
+        field: 'issueProposed',
+        skip: s => !proposesIssue(s.detectedDomain),
+        // The proposal is built by the sequencer's awaited branch (see `issueProposed`
+        // beside `domainConfirmed` below) because a tie is broken by the model. This
+        // fallback line is what the advisor sees if that branch is ever bypassed.
+        textFn: s => s._issueProposalLine || PROPOSER.DRIVER_QUESTION,
+        onAnswer: (answer, s) => applyIssueReply(answer, s)
+      },
+      {
+        field: 'issueDriver',
+        skip: s => !s._issueNeedsDriver,
+        text: PROPOSER.DRIVER_QUESTION,
+        onAnswer: (answer, s) => applyIssueDriverReply(answer, s)
       },
       // ── Universal: Industry ──
       {
@@ -2508,20 +2770,26 @@ async function handleQuery (rawBody, res, identity) {
         intakeMessages = buildIntakeMessages('close', {}, conversationHistory)
       }
 
+      const _t0intake = Date.now()
+      let _intakeOk = false
+      let _intakeStream = null
       try {
-        const intakeStream = await getOpenAI().chat.completions.create({
-          model: 'gpt-4o-mini',
+        _intakeStream = await getNarrativeAI().chat.completions.create({
           messages: intakeMessages,
           stream: true,
           max_tokens: 400
-        })
-        for await (const chunk of intakeStream) {
+        }, { personal: true })
+        for await (const chunk of _intakeStream) {
           const text = chunk.choices[0]?.delta?.content || ''
           if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
         }
+        _intakeOk = true
       } catch (intakeErr) {
         console.error('[advisor] Intake stream error:', intakeErr.message)
       }
+      // No success log here until 4.97 US8 — the intake was the first thing an advisor saw
+      // and the only AI call in the product that left no trace when it worked.
+      logAI('intake', NARRATIVE_MODEL(), _t0intake, _intakeOk, null, _intakeStream)
       res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       if (sessionId) { sessionSave(sessionId, state) }
       if (!res.writableEnded) { res.end() }
@@ -2563,16 +2831,32 @@ async function handleQuery (rawBody, res, identity) {
           // domainConfirmed: cause-first AI confirmation (Scope 1) — reflects the
           // driver the advisor described before naming the detected area; the
           // deterministic textFn line is passed in as the fallback.
-          let questionText = q.field === 'domainConfirmed'
-            ? await buildDomainConfirmationMessage(state, conversationHistory, q.textFn(state))
-            : (q.textFn ? q.textFn(state) : q.text)
+          // Two questions are built rather than read: `domainConfirmed` reflects the cause
+          // back through the model, and `issueProposed` may need the model to break a tie
+          // between two of Mike's own labels. Both are awaited here because `textFn` is
+          // synchronous by design and only these two reach the model to ASK a question.
+          let questionText
+          if (q.field === 'domainConfirmed') {
+            questionText = await buildDomainConfirmationMessage(state, conversationHistory, q.textFn(state))
+          } else if (q.field === 'issueProposed') {
+            questionText = await buildIssueProposal(state)
+            if (!questionText) {
+              // No label the advisor's words support. Skip straight to the driver question
+              // rather than propose something they did not say.
+              state[q.field] = 'skipped'
+              state._issueNeedsDriver = true
+              continue
+            }
+          } else {
+            questionText = q.textFn ? q.textFn(state) : q.text
+          }
           // If we just skipped a question because the advisor was frustrated, prepend
           // the acknowledgement to whatever the NEXT question is (move on, don't repeat).
           if (state.frustrationAckPending) {
             questionText = FRUSTRATION_ACK + '\n\n' + questionText
             state.frustrationAckPending = false
           }
-          return sendQuestion(questionText, state)
+          return sendQuestion(questionText, state, q.field)
         }
         if (state[q.field] === 'pending') {
           // Was asked last turn — record the answer
@@ -2607,7 +2891,7 @@ async function handleQuery (rawBody, res, identity) {
             state._forceAskField = null
             state._forceAskPrompt = null
             state[q.field] = 'pending'
-            return sendQuestion(prompt, state)
+            return sendQuestion(prompt, state, q.field)
           }
           // Contradiction check: if the answer signals the conversation has gone wrong, pause and verify
           if (
@@ -2757,15 +3041,16 @@ async function handleQuery (rawBody, res, identity) {
       let _postUsage = null
       let _postOk = false
       let _postBuffer = ''
+      let _postStream = null
       const _postMessages = [{ role: 'system', content: (isLearnRequest ? loadPrompt('learn') : loadPrompt('client')) + postRecInstruction }, ...messagesPost]
       try {
-        const streamPost = await getOpenAI().chat.completions.create({
-          model: 'gpt-4o-mini',
+        const streamPost = await getNarrativeAI().chat.completions.create({
           max_tokens: 1500,
           stream: true,
           stream_options: { include_usage: true },
           messages: _postMessages
-        })
+        }, { personal: true })
+        _postStream = streamPost
         for await (const chunk of streamPost) {
           if (chunk.usage) { _postUsage = chunk.usage }
           const text = chunk.choices[0]?.delta?.content || ''
@@ -2804,7 +3089,7 @@ async function handleQuery (rawBody, res, identity) {
           try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
         }
       } finally {
-        logAI('client-post-rec', 'gpt-4o-mini', _t0post, _postOk, _postUsage)
+        logAI('client-post-rec', NARRATIVE_MODEL(), _t0post, _postOk, _postUsage, _postStream)
         if (!res.writableEnded) { res.end() }
       }
       return
@@ -2854,7 +3139,7 @@ async function handleQuery (rawBody, res, identity) {
         if (q.skip && q.skip(state)) { continue }
         if (!state[q.field] || state[q.field] === 'pending') {
           if (!state[q.field]) { state[q.field] = 'pending' }
-          return sendQuestion(q.textFn ? q.textFn(state) : q.text)
+          return sendQuestion(q.textFn ? q.textFn(state) : q.text, state, q.field)
         }
       }
       // All QUESTIONS are skipped but mandatory fields are still empty — something is very wrong.
@@ -3074,12 +3359,26 @@ async function handleQuery (rawBody, res, identity) {
     // here. An empty boost map means one of two opposite things — the AI read the firm's
     // distinctions and matched none, or the call never completed — and the difference is
     // the firm's biggest lever silently going missing from live advice.
-    const { ok: _distinctionAiOk, boosts: _distinctionBoosts } =
+    const _distinctionResult =
       await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
+    const { ok: _distinctionAiOk, boosts: _distinctionBoosts } = _distinctionResult
     // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
     // session (likely mis-filed) — surfaced in the decision trace, not scored here.
-    const { ok: _nearMissAiOk, rows: _nearMissDistinctions } =
+    const _nearMissResult =
       await findNearMissDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
+    const { ok: _nearMissAiOk, rows: _nearMissDistinctions } = _nearMissResult
+    // 🔴 WHICH PROVIDER ANSWERED, TAKEN FROM THESE CALLS AND NOT FROM THE RECOMMENDATION
+    // (4.97 US8/T052). The recommendation is a STREAM, and a stream cannot report its
+    // provider without being consumed — `aiProvider._tag` skips an async iterable by
+    // construction — while the trace is assembled and sent inside that same stream's finish
+    // handler, by which time the answer is already written. These two classify calls run
+    // earlier in the same request, go through the same seam, and do carry the fact. First
+    // one that actually answered wins; both null means no classify call was made or both
+    // failed, and the trace then says so rather than assuming the primary.
+    // Recorded on `state` so it survives into the trace and onto a saved case.
+    const _answered = _distinctionResult.provider ? _distinctionResult : _nearMissResult
+    state.aiProvider = _answered.provider || null
+    state.aiFallbackState = _answered.provider ? (_answered.fallbackState || null) : null
 
     // Logic-tree soft hint (guide, not replace — memory design-logic-trees-guide-not-replace).
     // Detect the content logic tree(s) this conversation matches, and walk each to the
@@ -3095,6 +3394,21 @@ async function handleQuery (rawBody, res, identity) {
       for (const _name of walkLogicTree(state, _tree.id, firmLogicTrees)) { _treeHintNames.push(_name) }
     }
 
+    // Outcome Learning (item 4.87): the firm's consent and the mentor-accepted live
+    // adjustments, or nothing — on ANY failure the session resolves exactly as it would
+    // have before this feature, and the trace says learning was unavailable (FR-019).
+    const _pooled = await outcomeSession().loadPooledForSession(firmId)
+
+    // 🔴 THE MENTOR'S AUTHORED PROFILES (item 4.97 / 7.2 US9, T058). What the AI understands
+    // each tool to be ABOUT, with the mentor's saved rows winning over the compiled guesses.
+    // This is the resolver's DOMINANT LEVER, so a weight saved on the Template Profiles screen
+    // changes which tool this advisor is shown. Mike turned it on 2026-09-16 knowing that, and
+    // knowing no test can judge whether a weight is right; the guard is that every save is a
+    // restorable version. Loaded here because the store is async and the resolver is not.
+    // It never rejects: a store failure falls back to the compiled file, so the lever degrades
+    // to the script's guesses rather than emptying mid-conversation.
+    const _profileMap = await semanticProfiles().effectiveProfileMap()
+
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
     const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool, {
@@ -3102,7 +3416,13 @@ async function handleQuery (rawBody, res, identity) {
       treeHintNames: _treeHintNames,
       // Client-history hold-back (Option A): already-delivered templates are
       // discouraged, never banned — visible in the trace via history:* reasons.
-      priorHoldback: _historyInputs
+      priorHoldback: _historyInputs,
+      // Pooled hold-back: capped, clamped, outweighed by the advisor's own words —
+      // visible in the trace via pooled:* reasons. Empty unless the firm consents.
+      pooledAdjustments: _pooled.adjustments,
+      pooledSignalTypes: _signals.map(s => s.type),
+      // The mentor's authored profiles merged over the compiled ones — see the load above.
+      profileMap: _profileMap
     })
     const _resolvedTemplates = _resolvedResult.primary // primary used for scoring log / observability
     const _hasOutlier = _resolvedResult.hasOutlier
@@ -3385,6 +3705,11 @@ async function handleQuery (rawBody, res, identity) {
     // recommendation below and intended to be stored on a saved case study.
     const _savedClientAudit = buildSavedClientTraceAudit(state.savedClientContext, state.savedClientContextUsage)
     const _continuityAudit = buildContinuityTraceAudit(_continuityAllowed, _priorSummary)
+    // Which AI service answered this session (item 4.97 US8/T052), recorded at the classify
+    // calls above. Null when nothing through the seam answered — the trace then omits the
+    // row rather than naming a provider nobody heard from.
+    const _aiProvider = state.aiProvider || null
+    const _aiFallbackUsed = state.aiFallbackState === aiProvider.FALLBACK_USED
 
     const _decisionTrace = {
       session: sessionId || null,
@@ -3394,7 +3719,39 @@ async function handleQuery (rawBody, res, identity) {
       // the auditability "tag each saved case with the active version" goal).
       scoringVersion: SCORING_VERSION,
       // The advisor's own words for the situation (their intake answers).
+      // 🔴 THIS IS A STRING, not an object — `collectedAnswers` is a newline-joined list of
+      // labelled lines (see its build above) and `resolveSavedClientContext` reads it as text
+      // with `extractLabeledLine`. Anything needing a FIELD off this trace reads one of the
+      // typed keys below, never a property of this string. Item 4.97, 2026-09-14: Outcome
+      // Learning's `buildContribution` tested `typeof situation === 'object'` and so pooled a
+      // null primary issue and a null industry on EVERY live row, while its unit tests passed
+      // because they built `situation` as an object the engine has never produced.
       situation: collectedAnswers || {},
+      // The confirmed primary issue (item 4.97 US1). `label` is one of Mike's authored labels
+      // for this domain (data/primary-issues.json) or null; `how` says whether the advisor
+      // confirmed the engine's proposal, reframed it to another authored label, or nothing
+      // matched; `reason` is the one line shown with the proposal. Context domains and domains
+      // with no authored labels never propose, and carry `how: 'none'`.
+      primaryIssue: {
+        label: (state.primaryIssue && state.primaryIssue !== 'pending' && state.primaryIssue !== 'skipped') ? state.primaryIssue : null,
+        how: state.primaryIssueHow || 'none',
+        reason: state.primaryIssueReason || null,
+        // Whether the engine actually PUT the question. A context domain proposes nothing by
+        // design and rests at how:'none' having asked nothing, which reads identically to a
+        // session where the advisor's words matched no label. The trace row needs to tell
+        // those apart: only the second is a miss worth reporting to the advisor.
+        asked: proposesIssue(state.detectedDomain)
+      },
+      // The client's industry as the advisor typed it (item 4.97 US4). A TYPED FIELD, because
+      // the pool resolves it against the engine's own vocabulary and cannot read the string
+      // above. The sentinels are mapped to null exactly as `caseState.js` does.
+      industry: (state.industry && state.industry !== 'pending' && state.industry !== 'skipped') ? state.industry : null,
+      // Which AI service answered, and whether it was the backup (item 4.97 US8/T052).
+      // Mike's ruling 2026-09-14: this shows on EVERY trace, not only on a fallback — a row
+      // that appears only on failure cannot be trusted by its absence, and a case reopened
+      // months later still says which service wrote it. `provider` is null only when no call
+      // through the seam answered; the screen shows nothing rather than guessing.
+      ai: { provider: _aiProvider, fallbackUsed: _aiFallbackUsed },
       domain: {
         id: state.detectedDomain || null,
         label: (DOMAINS.find(d => d.id === state.detectedDomain) || {}).label || null
@@ -3457,6 +3814,9 @@ async function handleQuery (rawBody, res, identity) {
               .some(t => (t.matchReasons || []).some(r => r.indexOf('history:') === 0))
           }
         : null,
+      // Outcome Learning (item 4.87, data-model §5): computed from the scoring log, never
+      // from intent — a template is "applied" only if the resolver wrote pooled:held_back-<n>.
+      outcomeLearning: outcomeSession().buildOutcomeLearningTrace(_resolvedTemplates.scoringLog, _pooled.adjustments, _pooled),
       // Phase A context contract (saved-client intake): trusted context
       // resolution metadata only — consumed for UX behavior in Phase B.
       savedClientContext: {
@@ -3517,19 +3877,20 @@ async function handleQuery (rawBody, res, identity) {
     let _p3Usage = null
     let _p3Ok = false
     let _p3Buffer = ''
+    let _p3Stream = null
     // How much of _p3Buffer has been streamed. The response ends with a machine-readable
     // marker declaring what was recommended; it must NEVER reach the advisor, not even for
     // the instant between arriving and the final rewrite.
     let _p3Sent = 0
     const _p3Messages = [{ role: 'system', content: systemPrompt2 }, ...messages2]
     try {
-      const stream2 = await getOpenAI().chat.completions.create({
-        model: 'gpt-4o-mini',
+      const stream2 = await getNarrativeAI().chat.completions.create({
         max_tokens: 2500,
         stream: true,
         stream_options: { include_usage: true },
         messages: _p3Messages
-      })
+      }, { personal: true })
+      _p3Stream = stream2
       for await (const chunk of stream2) {
         if (chunk.usage) { _p3Usage = chunk.usage }
         const text = chunk.choices[0]?.delta?.content || ''
@@ -3608,7 +3969,7 @@ async function handleQuery (rawBody, res, identity) {
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
       }
     } finally {
-      logAI('client-phase3', 'gpt-4o-mini', _t0phase3, _p3Ok, _p3Usage)
+      logAI('client-phase3', NARRATIVE_MODEL(), _t0phase3, _p3Ok, _p3Usage, _p3Stream)
       if (!res.writableEnded) { res.end() }
     }
     return
@@ -3659,8 +4020,8 @@ async function handleQuery (rawBody, res, identity) {
   // found at scale.
   const firmContributionsText = formatContributionsForPrompt(firmContributions)
 
-  // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
-  const model = 'gpt-4o-mini'
+  // The conversational model, from the one role map rather than a literal here (4.97 US8/T050).
+  const model = NARRATIVE_MODEL()
 
   // Summaries only apply to Do the Job templates — skip for plan/learn modes.
   // Also defer until conversation is deep enough to be approaching a recommendation.
@@ -3837,20 +4198,19 @@ async function handleQuery (rawBody, res, identity) {
   let stream
   const _mainMessages = [{ role: 'system', content: systemPrompt }, ...messages]
   try {
-    stream = await getOpenAI().chat.completions.create({
-      model,
+    stream = await getNarrativeAI().chat.completions.create({
       max_tokens: 2500,
       stream: true,
       stream_options: { include_usage: true },
       messages: _mainMessages
-    })
+    }, { personal: true })
   } catch (createErr) {
     console.error('[advisor] OpenAI stream create error:', createErr.message)
     if (!res.writableEnded) {
       try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Could not reach AI service' }) + '\n\n') } catch (e) {}
       res.end()
     }
-    logAI(mode, model, _t0main, false, null)
+    logAI(mode, model, _t0main, false, null, null)
     return
   }
 
@@ -3903,7 +4263,7 @@ async function handleQuery (rawBody, res, identity) {
       try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
     }
   } finally {
-    logAI(mode, model, _t0main, _mainOk, _mainUsage)
+    logAI(mode, model, _t0main, _mainOk, _mainUsage, stream)
     if (!res.writableEnded) { res.end() }
   }
 }
@@ -3934,6 +4294,7 @@ module.exports.parseMeetingCount = parseMeetingCount
 module.exports.parseMeetingCountDetailed = parseMeetingCountDetailed
 module.exports.MEETING_MAX = MEETING_MAX
 module.exports.buildIntakeMessages = buildIntakeMessages
+module.exports.questionDoneEvent = questionDoneEvent
 module.exports.classifyDistinctions = classifyDistinctions
 // Exported for Logic-Lab's sentence probe (server/utils/phraseProbe), which needs
 // the MATCHED ROWS rather than the boost map classifyDistinctions returns — a firm
@@ -3972,3 +4333,9 @@ module.exports.MAX_PROMPT_CASES = MAX_PROMPT_CASES
 module.exports.buildClientContext = buildClientContext
 
 module.exports.profileInstructionsFor = profileInstructionsFor
+// The primary-issue proposal step (item 4.97 US1) — the builder and the two reply handlers,
+// exported so the flow is proved without driving the SSE handler.
+module.exports.buildIssueProposal = buildIssueProposal
+module.exports.applyIssueReply = applyIssueReply
+module.exports.applyIssueDriverReply = applyIssueDriverReply
+module.exports.causeTextOf = causeTextOf

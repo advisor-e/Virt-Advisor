@@ -39,6 +39,7 @@
  */
 
 const { createOpenAIClient, failureFromEvent } = require('./openaiClient')
+const { logSuffixNoFallback } = require('./aiProvider')
 // The whole module rather than the two functions, so a test can stand in for one of them:
 // both of this file's prompt-assembly failure paths are otherwise unreachable, and an error
 // path nobody has run is an error path nobody knows the shape of.
@@ -571,6 +572,7 @@ async function readDocument (opts) {
   let eventsSeen = 0
   let lastType = ''
   let refusal = null
+  const _startedAt = Date.now()
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
@@ -703,6 +705,18 @@ async function readDocument (opts) {
       (Object.keys(result.reading.categories).length === 0 ? ' · NO CATEGORY WAS MATCHED' : '')
     )
   }
+
+  // The standard model/latency/token line CLAUDE.md requires, which this call never had —
+  // the diagnostics above say what was READ, nothing said what it cost or who answered.
+  // NO FALLBACK BY CONSTRUCTION (4.97 US8/T053): a Responses-API call with base64 PDF input,
+  // which has no chat-completions equivalent at another provider.
+  const _u = (completed && completed.usage) || {}
+  console.log('[depreciation-read] model=' + MODEL +
+    ' status=' + (result.ok ? 'ok' : 'error') +
+    ' latency=' + (Date.now() - _startedAt) + 'ms' +
+    ' prompt_tokens=' + (_u.input_tokens === undefined ? '?' : _u.input_tokens) +
+    ' completion_tokens=' + (_u.output_tokens === undefined ? '?' : _u.output_tokens) +
+    ' ' + logSuffixNoFallback())
 
   return result
 }

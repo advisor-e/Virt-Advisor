@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engine middle — the primary-issue proposal in the conversation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Engine middle, item 4.97 (specs/003-engine-middle-learning-true) — drawing
+   1 of 4: the conversation turn after the cause-first domain check-in, where
+   the engine proposes ONE primary issue from Mike's authored list for that
+   area, in a sentence, and the advisor confirms or reframes it in their own
+   words. Drawn 2026-09-14 (task T001). NOTHING IS BUILT. Every string on this
+   page is PROPOSED until Mike rules on it.
+
+   Style: the :root, cards, pills, notices, tables, questions and trace-panel
+   rules are outcome-learning-trace.html's, verbatim. The chat look is copied
+   from outcome-learning-intake-industry.html, which copied it from
+   components/VirtualAdvisor.vue. No dark mode, RULED 2026-07-27.
+
+   MIKE'S WORDS THIS DRAWING IS BUILT FROM (2026-09-14):
+     - "transfer your improvement suggestions (all of them) into fixes"
+     - "yes" to "part 2 becomes the propose-and-confirm primary-issue step,
+       routing groups stay dead"
+
+   HIS RULINGS ALREADY GIVEN, applied here and NOT re-asked:
+     - Clarify ruling, Option B (spec.md, 2026-09-14): when the cause words
+       match none of the authored issues, "Ask one open question ('what is the
+       single biggest driver?') and try once more to map the answer; skip if it
+       still matches nothing. Never a list."
+     - June 2026 (conversational-intake redesign): no menu, no drop-tab, no
+       selector card anywhere on the intake. The text box stays open.
+     - research.md R1: no new database column. The confirmed issue rides the
+       decision trace the case already saves.
+     - Context domains (Conflict Meetings, End of Year Meetings, Due Diligence)
+       produce no primary issue by design (spec.md, assumptions).
+
+   THE QUESTIONS (three, at the foot of the page, one recommendation each):
+     1. the proposal sentence, as drawn;
+     2. the "Main issue" trace row, as drawn;
+     3. whether a confirmed issue is also shown on the case-review summary.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+.ex{font-size:11px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:4px;
+  padding:0 5px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+.new{outline:2px dashed #ff9900;outline-offset:4px;border-radius:6px}
+
+/* cards, pills, notices, tables, questions — as the other drawings */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #4ca52d55}
+.pill.wait{background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059}
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.tw{overflow-x:auto}
+table.w{border-collapse:collapse;width:100%;font-size:13.5px}
+table.w th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+table.w td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.w tr:last-child td{border-bottom:0}
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:15px 18px;margin-bottom:14px}
+.q h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+.q p{margin:0 0 8px;font-size:13.5px}
+.q p:last-child{margin-bottom:0}
+
+/* the shipped trace panel, redrawn */
+.va{max-width:760px;background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);padding:18px 20px;margin-bottom:16px}
+.va .reco{font-size:14px;line-height:1.6;margin:0 0 14px}
+.va .reco b{display:block;margin-bottom:4px}
+.trace-toggle{font:inherit;font-size:13px;font-weight:600;color:var(--rs-accent);background:none;border:0;padding:0;cursor:default}
+.trace-body{margin-top:10px;border-top:1px solid var(--rs-line);padding-top:10px;font-size:13px}
+.trace-row{display:flex;gap:10px;padding:4px 0}
+.trace-label{color:var(--rs-muted);min-width:170px;flex:none}
+.trace-value{color:var(--rs-ink)}
+.trace-section{margin-top:12px}
+.trace-section-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600;margin-bottom:4px}
+.trace-note{color:var(--rs-muted);margin:2px 0;font-size:12.5px}
+.trace-boost{display:inline-block;margin-left:8px;font-weight:600}
+.trace-line{margin:3px 0;font-size:13px}
+.trace-line .cnt{color:var(--rs-muted);font-size:12px;margin-left:6px}
+.trace-line .hb{display:inline-block;font-weight:700;font-variant-numeric:tabular-nums;border-radius:6px;
+  padding:0 6px;background:var(--rs-warn-soft);color:#8a5a00;border:1px solid #ff990059;margin-right:6px}
+.trace-line .ow{display:inline-block;font-weight:700;border-radius:6px;padding:0 6px;
+  background:var(--rs-panel-2);color:var(--rs-muted);border:1px solid var(--rs-line);margin-right:6px}
+.trace-fault{color:#8a5a00}
+table.trace-scores{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:4px}
+table.trace-scores th{text-align:left;font-weight:600;color:var(--rs-muted);padding:4px 8px 4px 0;border-bottom:1px solid var(--rs-line);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+table.trace-scores td{padding:5px 8px 5px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.trace-scores tr:last-child td{border-bottom:0}
+table.trace-scores td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.trace-reasons{color:var(--rs-muted)}
+.trace-reasons .hl{color:#8a5a00;font-weight:600}
+
+/* the chat — copied from outcome-learning-intake-industry.html (itself from VirtualAdvisor.vue) */
+.chat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:var(--rs-shadow);
+  max-width:820px;margin-bottom:16px;overflow:hidden;font-weight:400}
+.msgs{padding:20px 24px;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;align-items:flex-start}
+.row.user{justify-content:flex-end}
+.avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:11px;flex-shrink:0;background:#1e40af;color:#fff}
+.bubble{max-width:75%;padding:14px 18px;border-radius:12px;font-size:15px;line-height:1.6}
+.bubble.adv{max-width:88%;background:#f9fafb;border:1px solid #e5e7eb;color:#111827;border-radius:4px 12px 12px 12px}
+.bubble.usr{background:#1e40af;color:#fff;border-radius:12px 4px 12px 12px}
+.bubble .ex.w{color:#fff;background:#ffffff22;border-color:#fff8}
+.input-area{border-top:1px solid #e5e7eb;padding:16px 24px;background:#fff}
+.input-inner{display:flex;gap:10px;align-items:flex-end}
+.message-input{flex:1;border:1px solid #d1d5db;border-radius:10px;padding:12px 16px;font-size:14px;
+  font-family:inherit;color:#111827;line-height:1.5;min-height:74px;background:#fff}
+.message-input.focus{border-color:#1e40af;box-shadow:0 0 0 3px rgba(30,64,175,.1)}
+.message-input.ready{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.08)}
+.message-input .ph{color:#9ca3af}
+.caret::after{content:"";display:inline-block;width:1px;height:16px;background:#111827;vertical-align:-3px;margin-left:1px}
+.send-btn{background:#1e40af;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;white-space:nowrap}
+.input-hint{font-size:11px;color:#9ca3af;margin-top:8px;text-align:center}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Engine middle, item 4.97 — drawing 1 of 4: the primary-issue proposal in the conversation.
+  Drawn 2026-09-14. Nothing is built. Every string here is proposed until Mike rules on it.</b>
+  Saved before approval as CLAUDE.md requires; the build will be checked against this file.</p>
+  <p><b>What this change is for, in one sentence:</b> once the advisor has confirmed the area, the
+  engine says in one sentence which of Mike's named issues for that area it thinks this is, and why,
+  and the advisor says yes or puts it in their own words — so every case carries a named issue that
+  the scoring, the trace and the outcome pool can all read. Today that field is never set.</p>
+  <p><b>Only the dashed-outlined bubbles and rows are new.</b> Every other bubble is the engine's own
+  wording today. What the advisor types is one advisor's example and is marked
+  <span class="ex">example</span>. The issue names are Mike's, from <code>data/primary-issues.json</code>,
+  quoted exactly.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen A — profitability: the engine proposes, the advisor confirms</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">What do you feel contributed to this situation, and are there any downstream effects we should factor into the service offer?</div></div>
+    <div class="row user"><div class="bubble usr">Cost of sales has been rising all year — supplier prices are up and he hasn't passed any of it on, so the margin's gone. Cash is starting to get tight. <span class="ex w">example</span></div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">So supplier prices have climbed and the business has absorbed them rather than repricing, which is squeezing the margin and now the cash — I'm reading this as a <b>profitability and feasibility</b> situation. Have I got that right, or is it really about a different area? <span class="ex">example — the check-in is written by the AI in the cause-first shape that ships today</span></div></div>
+    <div class="row user"><div class="bubble usr">yes</div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv new">From what you've said, the main issue looks like <b>Cost of sales has increased</b> — your cause answer points at supplier prices and margin. Have I got that right, or is it really something else?</div></div>
+  </div>
+  <div class="input-area">
+    <div class="input-inner">
+      <div class="message-input ready"><span>yes</span><span class="caret"></span></div>
+      <div class="send-btn">Send</div>
+    </div>
+    <div class="input-hint">Press Enter to send · Shift+Enter for a new line</div>
+  </div>
+</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row user"><div class="bubble usr">yes</div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">What industry is the client in?</div></div>
+  </div>
+</div>
+
+<div class="notice info">
+  <b>What is happening on Screen A</b>
+  The new bubble is one sentence: the issue name in bold, one reason in plain words, and the same
+  "have I got that right" turn the area check-in already uses. <b>No card, no list, no buttons</b> —
+  the text box stays open exactly as it does for every other question. The reason is built from the
+  advisor's own cause words that matched the issue ("supplier prices", "margin"), never invented.
+  The engine picks the one issue whose name and known signals best fit the cause answer; when two
+  tie, it asks the model to choose one from Mike's list or say "none" — it can never make up a name.
+  After "yes" the conversation carries on to the industry question exactly as today.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen B — the advisor reframes it; the engine proposes once more</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv new">From what you've said, the main issue looks like <b>Cost of sales has increased</b> — your cause answer points at supplier prices and margin. Have I got that right, or is it really something else?</div></div>
+    <div class="row user"><div class="bubble usr">no, it's really that we keep discounting to win work <span class="ex w">example</span></div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv new">Then it sounds like <b>Excessive discounting eroding margin</b> — have I got that right?</div></div>
+    <div class="row user"><div class="bubble usr">yes</div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">What industry is the client in?</div></div>
+  </div>
+</div>
+
+<div class="notice info">
+  <b>One reframe, one re-proposal, then on</b>
+  Anything that is not a plain "yes" is read as the advisor's own words and mapped once more against
+  the same list for that area. A hit is proposed once — shorter, because the reason is now the
+  advisor's own sentence, just given. If the advisor says no a second time, the engine does not loop:
+  it goes to the open question on Screen C. The case records the issue as <i>reframed</i>, not
+  <i>confirmed</i>, so a reviewer can tell the two apart.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen C — nothing matched: one open question, then move on (Option B, ruled)</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">…I'm reading this as a <b>profitability and feasibility</b> situation. Have I got that right, or is it really about a different area?</div></div>
+    <div class="row user"><div class="bubble usr">yes</div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv new">What's the single biggest thing driving it, in a sentence?</div></div>
+    <div class="row user"><div class="bubble usr">Honestly the owner has just lost interest since his partner left. <span class="ex w">example</span></div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv new">Noted — I'll work from your own words on that rather than pin it to a named issue.<br>What industry is the client in?</div></div>
+  </div>
+</div>
+
+<div class="notice warn">
+  <b>"Skip if it still matches nothing. Never a list."</b>
+  When the cause answer matched no issue for the area, the engine does not propose a guess; it asks
+  the one open question and tries once more. If that still matches nothing — as here, where the
+  answer is about the owner, not the numbers — it says one line and continues. It never shows the
+  list, and it never says "no match" as if the advisor had answered wrongly. Behind the scenes the miss
+  is logged for the signal dictionary (the same <code>[signal-miss]</code> log the check-in already
+  writes), and the trace on Screen D says plainly that no issue was proposed. The recommendation
+  is still built from the area and the signals, as it is today.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen D — "Why this recommendation": the new Main issue row, and the Why phrase that comes alive</div>
+
+<div class="va">
+  <p class="reco"><b>Recommended for this session</b>
+    Start with <b>Margin vs Markup</b> to show where the margin went, then <b>Break-Even</b> once the
+    owner can see the gap. Hold <b>Price Rise</b> for a later session…</p>
+
+  <button class="trace-toggle">▾ Why this recommendation</button>
+  <div class="trace-body">
+    <div class="trace-row"><span class="trace-label">Area I focused on</span><span class="trace-value">profitability and feasibility</span></div>
+    <div class="trace-row new"><span class="trace-label">Main issue</span><span class="trace-value">Cost of sales has increased · confirmed by you</span></div>
+    <div class="trace-row"><span class="trace-label">What shaped the advice</span><span class="trace-value">education engagement · step 2 ceiling · budget 3 · 2 signals</span></div>
+
+    <div class="trace-section">
+      <div class="trace-section-title">Distinctions</div>
+      <p class="trace-note">No distinction changed the scoring in this area.</p>
+    </div>
+
+    <div class="trace-section">
+      <div class="trace-section-title">How the templates scored</div>
+      <table class="trace-scores">
+        <tr><th>Template</th><th>Score</th><th>Why</th></tr>
+        <tr><td>Margin vs Markup</td><td class="n">27 <span class="ex">example</span></td><td class="trace-reasons">core to this area, <span class="hl">closely matches the stated problem</span>, matches the signals in this conversation</td></tr>
+        <tr><td>Break-Even</td><td class="n">24</td><td class="trace-reasons">core to this area, matches the signals in this conversation</td></tr>
+        <tr><td>Price Rise</td><td class="n">19</td><td class="trace-reasons">in a related part of this area, fits this engagement type</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>The Main issue row — its three states</h2></div>
+  <div class="card-b">
+    <div class="tw">
+    <table class="w">
+      <thead><tr><th>When</th><th>The row reads</th></tr></thead>
+      <tbody>
+        <tr><td>Screen A — confirmed as proposed</td><td>Main issue &nbsp;·&nbsp; <b>Cost of sales has increased · confirmed by you</b></td></tr>
+        <tr><td>Screen B — reframed by the advisor</td><td>Main issue &nbsp;·&nbsp; <b>Excessive discounting eroding margin · reframed by you</b></td></tr>
+        <tr><td>Screen C — nothing matched</td><td>Main issue &nbsp;·&nbsp; <b>none proposed — nothing in what you said matched a known issue</b></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">The row sits directly under
+    "Area I focused on" because it is the next thing the advisor confirmed. The highlighted Why phrase,
+    <i>closely matches the stated problem</i>, already exists in every locale file
+    (<code>reasonIssueStrong</code>) and has never appeared on a live trace, because the field it
+    reads has been empty since June. It is not a new string; it starts showing.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen E — a Conflict Meetings session: no proposal at all</div>
+
+<div class="chat">
+  <div class="msgs">
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">…I'm reading this as a <b>conflict and conflict meetings</b> situation. Have I got that right, or is it really about a different area?</div></div>
+    <div class="row user"><div class="bubble usr">yes</div></div>
+    <div class="row"><div class="avatar">AI</div><div class="bubble adv">What industry is the client in?</div></div>
+  </div>
+</div>
+
+<div class="notice info">
+  <b>Nothing changes here, by design</b>
+  Conflict Meetings, End of Year Meetings and Due Diligence are context domains: they describe the
+  kind of meeting, not a problem, so Mike's list has no issues for them and the engine asks nothing.
+  The trace for such a session shows no Main issue row at all — not "none proposed", because nothing
+  was ever due.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which areas get a proposal</div>
+
+<div class="card">
+  <div class="card-h"><h2>Eleven areas with named issues — 40 issues in all, from data/primary-issues.json</h2></div>
+  <div class="card-b">
+    <div class="tw">
+    <table class="w">
+      <thead><tr><th>Area (as the advisor sees it)</th><th>Named issues</th><th>Example, quoted exactly</th></tr></thead>
+      <tbody>
+        <tr><td>profitability and feasibility</td><td>5</td><td>Cost of sales has increased</td></tr>
+        <tr><td>staff, productivity and leadership</td><td>6</td><td>Too few qualified staff</td></tr>
+        <tr><td>data integrity and financial systems</td><td>4</td><td>Poor data integrity</td></tr>
+        <tr><td>sales and marketing</td><td>4</td><td>Poor positioning or brand perception</td></tr>
+        <tr><td>financial management</td><td>3</td><td>Over-trading</td></tr>
+        <tr><td>governance and leadership</td><td>6</td><td>Lack of financial controls</td></tr>
+        <tr><td>strategy and planning</td><td>3</td><td>No defined objectives means no communicated direction</td></tr>
+        <tr><td>systems</td><td>4</td><td>Siloed operations</td></tr>
+        <tr><td>valuation</td><td>1</td><td>Transaction Readiness</td></tr>
+        <tr><td>risk management</td><td>1</td><td>Risk Framework — no systematic process to identify and mitigate risks</td></tr>
+        <tr><td>succession planning</td><td>3</td><td>No clear succession pathway</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0"><b>The other eleven areas get no
+    proposal</b> — the three context domains (conflict and conflict meetings; end of year meetings; due
+    diligence), by design, and the eight newer areas (stock purchasing and inventory management; raising
+    capital and business acquisition; firm management coaching and culture; CA firm strategy and partner
+    management; CA firm capacity planning; leadership development and partner management; firm board
+    governance and reporting; people engagement, recruitment and performance), because Mike has not yet
+    named issues for them. For an area with one named issue (valuation, risk) the engine still proposes
+    only when the cause words fit it; it never proposes the one issue just because it is the only one.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Every new word on these screens — all proposed</div>
+
+<div class="card">
+  <div class="card-b">
+    <div class="tw">
+    <table class="w">
+      <thead><tr><th>Where</th><th>Proposed wording</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Proposal bubble (Screens A, B)</td><td>From what you've said, the main issue looks like <b>{issue}</b> — {reason}. Have I got that right, or is it really something else?</td><td><span class="pill ok">Ruled 2026-09-14 — as drawn</span></td></tr>
+        <tr><td>The reason, in the bubble</td><td>your cause answer points at {the advisor's matched words}</td><td><span class="pill wait">Proposed — shape only; the words inside are the advisor's</span></td></tr>
+        <tr><td>Re-proposal after a reframe (Screen B)</td><td>Then it sounds like <b>{issue}</b> — have I got that right?</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>The one open question (Screen C)</td><td>What's the single biggest thing driving it, in a sentence?</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Moving on after no match (Screen C)</td><td>Noted — I'll work from your own words on that rather than pin it to a named issue.</td><td><span class="pill wait">Proposed</span></td></tr>
+        <tr><td>Trace row label (Screen D)</td><td>Main issue</td><td><span class="pill ok">Ruled 2026-09-14 — as drawn</span></td></tr>
+        <tr><td>Trace row, confirmed</td><td>{issue} · confirmed by you</td><td><span class="pill ok">Ruled 2026-09-14 — as drawn</span></td></tr>
+        <tr><td>Trace row, reframed</td><td>{issue} · reframed by you</td><td><span class="pill ok">Ruled 2026-09-14 — as drawn</span></td></tr>
+        <tr><td>Trace row, nothing matched</td><td>none proposed — nothing in what you said matched a known issue</td><td><span class="pill ok">Ruled 2026-09-14 — as drawn</span></td></tr>
+        <tr><td>Why column (Screen D)</td><td>closely matches the stated problem</td><td><span class="pill ok">Exists today — starts appearing</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--rs-muted);margin:12px 0 0">Once ruled, the trace strings
+    go into all eight locale files; the conversation strings live in the engine beside the check-in's.
+    No test will assert any of this wording.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Rulings already given — applied here, not re-asked</div>
+
+<div class="notice good">
+  <b>RULED — Option B when nothing matches (Mike, 2026-09-14)</b>
+  "Ask one open question ('what is the single biggest driver?') and try once more to map the answer;
+  skip if it still matches nothing. Never a list." Screen C is that ruling drawn.
+</div>
+<div class="notice good">
+  <b>RULED — no menu on the intake (June 2026)</b>
+  The conversational-intake redesign removed every drop-tab and selector card. The proposal is a
+  sentence and the text box stays open; the retired selector's identifiers are pinned out by test.
+</div>
+<div class="notice good">
+  <b>DECIDED — no new database column (research R1)</b>
+  The confirmed issue rides the decision trace the case already saves, as the industry now does. The
+  outcome pool reads it from there. Nothing in the database changes shape.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Rulings — all three questions answered by Mike 2026-09-14, one at a time · ✅ THE DRAWING ITSELF APPROVED BY MIKE 2026-09-14 ("yes"), asked as its own question after the rulings</div>
+
+<div class="notice good">
+  <b>RULED — the proposal sentence, as drawn on Screen A</b>
+  Approved as recommended. The proposal bubble and the re-proposal after a reframe stand as written
+  in the table above.
+</div>
+<div class="notice good">
+  <b>RULED — the "Main issue" trace row, as drawn on Screen D</b>
+  Approved as recommended, with its three states: confirmed by you · reframed by you · none proposed.
+</div>
+<div class="notice good">
+  <b>RULED — the confirmed issue stays off the case-review summary in this release</b>
+  Approved as recommended. The trace carries it, one click away on the same screen.
+</div>
+
+<div class="stepmark">The questions as they were put — kept beside the rulings</div>
+
+<div class="q">
+  <h3>1 · The proposal sentence, as drawn on Screen A?</h3>
+  <p>"From what you've said, the main issue looks like <b>{issue}</b> — {reason}. Have I got that
+  right, or is it really something else?"</p>
+  <p><span class="rec">Recommended: yes, as drawn.</span> It is the same shape as the area check-in the
+  advisor has just answered, so the second question reads as a continuation, not a new form; the issue
+  name is in bold so the eye lands on it; the reason is the advisor's own words reflected back, which
+  is the cause-first rule of June applied again. Against: "main issue" is a looser phrase than Mike's
+  own "primary issue" — but "primary issue" is a term of the design, and on a screen it reads as
+  jargon to an advisor mid-conversation.</p>
+</div>
+
+<div class="q">
+  <h3>2 · The "Main issue" trace row, as drawn on Screen D?</h3>
+  <p>Label "Main issue"; value "{issue} · confirmed by you" / "· reframed by you" /
+  "none proposed — nothing in what you said matched a known issue".</p>
+  <p><span class="rec">Recommended: yes, as drawn.</span> It matches the voice of the row above it
+  ("Area I focused on"), says in two words whether the advisor accepted or rewrote it, and the
+  nothing-matched line says why there is no name rather than leaving a blank. Against: the
+  nothing-matched line is the longest value on the panel; a shorter "none proposed" would fit the row
+  but would not tell the advisor it was their words, not the engine, that produced no match.</p>
+</div>
+
+<div class="q">
+  <h3>3 · Should the confirmed issue also be shown on the case-review screen's summary?</h3>
+  <p>The trace on Screen D carries it, and the firm manager sees that same trace on a saved case.
+  The question is whether the issue name is also printed up front on the case-review summary.</p>
+  <p><span class="rec">Recommended: no, not in this release.</span> The trace carries it, the pool
+  reads it from the trace, and adding it to the summary is a second screen for a field that has not
+  yet been seen working in a live session. Against: an advisor reviewing the case weeks later would
+  like the issue up front without opening "Why this recommendation" — a fair point, and one to raise
+  as its own request once the field has been live for a while.</p>
+</div>
+
+<div class="notice warn" style="margin-top:20px">
+  <b>What this drawing does not decide</b>
+  How the engine ranks the issues against the cause words, when it asks the model to break a tie, and
+  the exact shape of the stored trace key are the plan's, pinned by tests, not by this drawing. The
+  three sister drawings (the Outcome Learning page, the trace line for a lift, the Template Profiles
+  tab) are their own questions.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Which tiers get this, and why</div>
+
+<div class="card">
+  <div class="card-b">
+    <p style="margin:0"><b>The advisor, in their own conversation and on their own trace</b> — the
+    proposal is a turn in the intake, and the Main issue row is on their "Why this recommendation"
+    panel. <b>The firm manager</b> sees the same trace on a saved case in the hub
+    (<code>FirmManagerHub.vue</code> renders the same panel through the same mixin), so the new row
+    appears there with no second build. <b>No tier above the firm</b> sees an individual advisor's
+    conversation or trace today, and this changes nothing about that. The issue names themselves are
+    Mike's authored list and are not edited on any screen by this change.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

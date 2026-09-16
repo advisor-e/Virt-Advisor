@@ -589,3 +589,19 @@ describe('caseMixin — display helpers', () => {
     expect(wrapper.vm.formatDate('')).toBe('')
   })
 })
+
+describe('the outcome-sharing notice (item 4.87)', () => {
+  // The line on the review panel tells an advisor their firm is sharing. It must never
+  // appear at a firm that is not — only an explicit `true` from the server switches it on,
+  // and a response that omits the flag reads as not sharing.
+  test('is on only when the server says the firm shares', async () => {
+    cases.listCases.mockResolvedValue({ cases: [MINE], advisorId: 'advisor-1', outcomeContribution: true })
+    expect((await mountHost()).vm.outcomeContribution).toBe(true)
+
+    cases.listCases.mockResolvedValue({ cases: [MINE], advisorId: 'advisor-1', outcomeContribution: false })
+    expect((await mountHost()).vm.outcomeContribution).toBe(false)
+
+    cases.listCases.mockResolvedValue({ cases: [MINE], advisorId: 'advisor-1' })
+    expect((await mountHost()).vm.outcomeContribution).toBe(false)
+  })
+})

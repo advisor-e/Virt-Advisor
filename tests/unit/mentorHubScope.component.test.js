@@ -264,7 +264,13 @@ describe('the two tiers are recognisably the same screen', () => {
   // from a recorded meeting inside the firm it came from, so cascading it upward would break
   // the promise a named client heard spoken. It sits SECOND because it is drawn immediately
   // after Meeting Review in "Your AI coach", the first group — menu order, per the note above.
-  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules']
+  //
+  // ⚠ AMENDED 2026-09-11, and the list is now SIX. `outcomeConsent.tab` is the firm's Outcome
+  // Sharing switch (item 4.87, Mike 2026-09-10: "on a hub page at the firm tier"). Firm-only
+  // as a stated judgement: consent is the firm's own undertaking, and the tiers above
+  // contribute no reviews and receive no adjustment. It sits LAST because it is appended to
+  // the Compliance group, the last heading the firm sees — menu order, per the note above.
+  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules', 'outcomeConsent.tab']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
   //
@@ -279,7 +285,18 @@ describe('the two tiers are recognisably the same screen', () => {
   // It is the price ladder imported stock sells down at as it ages (Mike, 2026-09-04, item
   // 4.64 — the tab's name is his), and it sits beside `Forecast Trend Thresholds` under
   // "Model Inputs", not in the tail. Mentor-only per the same default of 2026-08-24.
-  const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab']
+  //
+  // ⚠ AMENDED 2026-09-11: `outcomeLearning.tab` joins the tail — the mentor's Outcome Learning
+  // page (item 4.87, Mike 2026-09-10: "It surfaces on the Mentor Hub first"), drawn last under
+  // "Rolled up from below" beside Case Reviews and Template Check because it is the same kind
+  // of thing: what the firms' reviews add up to. Mentor-only by design (spec FR-014).
+  //
+  // ⚠ AMENDED 2026-09-16: `semanticProfiles.tab` joins the tail, BESIDE `templateLibrary.tab`
+  // rather than at the end — item 4.97 / 7.2 US9, and the drawing places it there because the
+  // two are one object from two sides: the library is what a template IS, the profile is what
+  // it ANSWERS. Mentor-only as a stated judgement (a profile says what a tool is FOR, which
+  // does not vary by firm). Built READ-ONLY on Mike's ruling of 2026-09-16.
+  const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab', 'semanticProfiles.tab', 'outcomeLearning.tab']
   //
   // ⚠ AMENDED 2026-09-08: `Industry Benchmarks` joins it — the Stats NZ benchmarker release in
   // force and the two-file upload that replaces it (Mike, 2026-09-08, item 4.70 stage 3; the
@@ -381,11 +398,17 @@ describe('the hub menu — the sidebar itself', () => {
     // word the same day. ⚠ ADVISER NETWORK IS NOT MOVED INTO IT, though the drawing's sidebar
     // shows it there: it has been under "Your Team In Action" since 2026-08-19 and moving it
     // would move something already on a manager's screen.
+    //
+    // EIGHTEEN on 2026-09-11, when Outcome Sharing was appended to Compliance (item 4.87) —
+    // the firm's consent to pool its anonymised template outcomes, asked for by Mike on
+    // 2026-09-10 for the firm tier alone and drawn beside Compliance because consent is a
+    // firm's own undertaking in the same way its declaration is. Appended at the end of the
+    // last group the firm sees, so the four index assertions below are untouched.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(17)
+    expect(tabLabels(wrapper)).toHaveLength(18)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.

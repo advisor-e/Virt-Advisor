@@ -347,6 +347,58 @@ async function listSharedWithMentor (scopeId) {
 }
 
 /**
+ * How far the learning loop actually reaches at one firm, as two integers.
+ *
+ * The pool learns from a case ONLY once an advisor goes back and records how it
+ * went, so "delivered" against "reviewed" is the honest measure of how much the
+ * platform is really learning — the gap between them is advice given and never
+ * reported back on.
+ *
+ * ONE grouped COUNT, done in the database. Reading the rows and counting them here
+ * was rejected (research R5): the list reads cap at 500 rows, so a firm past that
+ * would report a reach quietly LOWER than the truth, and whole cases would leave
+ * the store just to produce an integer.
+ *
+ * Every visibility is counted. A count discloses no case, and a private case still
+ * teaches the pool once it is reviewed — the firm is the boundary here, not
+ * visibility.
+ *
+ * 🔴 A DB failure PROPAGATES in production rather than reading as zero. "0 of 0"
+ * is a real state — a firm nobody has reviewed at — so a silent zero would make
+ * the failure invisible on the mentor's page.
+ *
+ * @param {string} firmId - from the verified JWT
+ * @returns {Promise<{delivered: number, reviewed: number}>}
+ */
+async function countReviewStatus (firmId) {
+  if (!firmId) { return { delivered: 0, reviewed: 0 } }
+
+  try {
+    const [rows] = await db.execute(
+      // 🔴 SELECT and GROUP BY must be the SAME expression, character for character.
+      // MySQL's only_full_group_by does not see `NOT (reviewed_at IS NULL)` and
+      // `reviewed_at IS NULL` as related, and rejects the statement outright — a
+      // failure no mocked test can show, found by running this against real MySQL.
+      // Hence `= 0` to flip the polarity: `reviewed` is 1 when the case IS reviewed.
+      `SELECT (reviewed_at IS NULL) = 0 AS reviewed, COUNT(*) AS cnt
+         FROM va_case_studies
+        WHERE firm_id = ?
+        GROUP BY (reviewed_at IS NULL) = 0`,
+      [firmId]
+    )
+    return rows.reduce((acc, row) => {
+      const n = Number(row.cnt) || 0
+      acc.delivered += n
+      if (Number(row.reviewed) === 1) { acc.reviewed += n }
+      return acc
+    }, { delivered: 0, reviewed: 0 })
+  } catch (err) {
+    if (devFallbackEnabled(err)) { return _devCountReviewStatus(firmId) }
+    throw err
+  }
+}
+
+/**
  * Insert a new case. Identity (advisorId/firmId) is the caller's verified
  * identity — never trusted from the request body.
  * @param {object} input
@@ -605,6 +657,17 @@ function _devListForClient (advisorId, firmId, clientId) {
   return _devList(advisorId, firmId).filter(c => c.clientId === clientId)
 }
 
+/** Mirrors countReviewStatus's SQL: every case at the firm, reviewed ones counted again. */
+function _devCountReviewStatus (firmId) {
+  return _devReadAll()
+    .filter(c => c.firmId === firmId)
+    .reduce((acc, c) => {
+      acc.delivered += 1
+      if (c.review && c.review.reviewedAt) { acc.reviewed += 1 }
+      return acc
+    }, { delivered: 0, reviewed: 0 })
+}
+
 function _devListSharedForFirm (firmId) {
   return _devReadAll()
     .filter(c => c.firmId === firmId && c.visibility === 'shared')
@@ -711,6 +774,7 @@ module.exports = {
   getSharedForFirm,
   getVisibleCase,
   listSharedWithMentor,
+  countReviewStatus,
   create,
   updateReview,
   updateVisibility,

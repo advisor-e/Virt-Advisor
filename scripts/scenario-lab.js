@@ -23,16 +23,52 @@
 //     fault, not a cert problem, and cost half an hour to spot. Recipe (export the AV
 //     root from the OS trust store): design/HANDOFF.md → Local Setup / Run.
 // FILTER:  node scripts/scenario-lab.js profit
+// WITH OUTCOME LEARNING (item 4.87, the fixed bench): the live adjustments as the mentor
+// page exports them (GET /api/mentor/outcome-learning/export → `adjustments`, or the
+// whole response) —
+//   node scripts/scenario-lab.js --adjustments live.json
+// Run it without the flag first: the difference between the two METRICS blocks is the
+// fixed bench's answer, and the block names the file and how many adjustments applied.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const fs = require('fs')
 const path = require('path')
-const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
-const { staircaseToCeiling, DOMAIN_NATURAL_ENGAGEMENT } = require('../server/utils/caseState')
+const { SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveTemplatesWithOutlier, buildDisplaySet } = require('../server/utils/templateResolver')
+const { scenarioToCase, hasCapBreach } = require('../server/utils/outcomeBench')
+const { rankLabels, proposesIssue, parseReply } = require('../server/utils/primaryIssueProposer')
 const templates = require('../data/templates.json')
 
 const SCENARIOS = require('./scenario-lab-cases.json')
+
+// ── Arguments: an optional domain/key filter, and --adjustments <file> ──────
+function parseArgs (argv) {
+  const out = { filter: null, adjustmentsFile: null }
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--adjustments') {
+      out.adjustmentsFile = argv[i + 1] || null
+      i += 1
+    } else if (!out.filter) {
+      out.filter = argv[i]
+    }
+  }
+  return out
+}
+
+/**
+ * The live adjustments, in the resolver option shape. Accepts either the bare array the
+ * export returns under `adjustments`, or the whole export response. Anything else stops
+ * the run rather than measuring silently with nothing applied.
+ * @param {string|null} file
+ * @returns {Array<Object>}
+ */
+function loadAdjustments (file) {
+  if (!file) { return [] }
+  const parsed = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), file), 'utf8'))
+  const list = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.adjustments) ? parsed.adjustments : null)
+  if (!list) { throw new Error(`--adjustments ${file}: expected a JSON array, or an object with an "adjustments" array`) }
+  return list
+}
 
 const HAS_AI = !!process.env.OPENAI_API_KEY
 let classifyDistinctions, readDistressAI, platformDistinctions
@@ -66,6 +102,9 @@ function explainReasons (reasons) {
     if (r === 'engagement:secondary') return 'fits the engagement style'
     if (r === 'history:already_delivered') return 'already delivered to this client — held back'
     if (r === 'history:went_less_well') return 'delivered before and went less well — held back'
+    // Outcome Learning (4.87) — Mike's wording 2026-09-11, the same as the locale's.
+    if (r.indexOf('pooled:held_back-') === 0) return 'learned from outcomes −' + r.slice('pooled:held_back-'.length)
+    if (r === 'pooled:outweighed') return 'outcome learning weighed and outweighed'
     return r
   })
 }
@@ -82,29 +121,72 @@ const describeSignals = (s) => {
   return keys.map(n => `${SIGNAL_DESCRIPTIONS[n] || n} (×${s[n]})`).join(', ')
 }
 
-function runScenario (sc, boosts) {
-  const text = [sc.situationDiagnostic, sc.domainConfirmed].filter(Boolean).join(' ') // CURRENT live engine input
-  const problemSignals = extractProblemSignals(text)
-  const ceiling = staircaseToCeiling(sc.staircase)
-  const engagement = sc.engagement || DOMAIN_NATURAL_ENGAGEMENT[sc.domain] || 'facilitation'
-  const caseState = {
-    domain: sc.domain, primaryIssue: '', industry: sc.industry || null,
-    solutionCategories: [sc.domain], complexityCeiling: ceiling,
-    client: {}, advisor: {}, problemSignals
-  }
-  const strategy = { engagementType: engagement, templateBudget: sc.budget || 2 }
-  const resolved = resolveTemplatesWithOutlier(caseState, strategy, templates, { distinctionBoosts: boosts || {} })
+/**
+ * What the primary-issue step would do on this case (item 4.97 US1). The case's own
+ * `primaryIssue` is the proposer's top rank — `scenarioToCase` sets it — so the report only
+ * has to say WHY there is no label when there is none: a context domain that never proposes
+ * by design, evidence too thin to name one, or simply nothing matched.
+ * @param {Object} sc - one entry of scripts/scenario-lab-cases.json
+ * @param {Object} caseState - as the bench built it
+ * @returns {{label: string, outcome: 'proposed'|'context'|'weak'|'no-match'}}
+ */
+function issueOutcome (sc, caseState) {
+  if (caseState.primaryIssue) { return { label: caseState.primaryIssue, outcome: 'proposed' } }
+  if (!proposesIssue(sc.domain)) { return { label: '', outcome: 'context' } }
+  const text = [sc.situationDiagnostic, sc.domainConfirmed].filter(Boolean).join(' ')
+  const ranked = rankLabels(sc.domain, text, caseState.problemSignals)
+  return { label: '', outcome: ranked.weakEvidence ? 'weak' : 'no-match' }
+}
+
+/**
+ * The Issue cell. A withheld label says WHY in the same words the advisor's screen would —
+ * the engine asking rather than asserting is a result, not a blank.
+ * @param {{label: string, outcome: string}} issue
+ * @returns {string}
+ */
+function describeIssue (issue) {
+  if (issue.outcome === 'proposed') { return issue.label }
+  if (issue.outcome === 'weak') { return '_**asks** — evidence too thin_' }
+  if (issue.outcome === 'context') { return '_context domain — none by design_' }
+  return '_**asks** — nothing matched_'
+}
+
+function runScenario (sc, boosts, adjustments) {
+  // The case shape is the fixed bench's own (outcomeBench.scenarioToCase), so the report
+  // and the bench can never disagree about what a case is.
+  const { caseState, strategy, signalTypes } = scenarioToCase(sc)
+  const resolved = resolveTemplatesWithOutlier(caseState, strategy, templates, {
+    distinctionBoosts: boosts || {},
+    pooledAdjustments: adjustments || [],
+    pooledSignalTypes: signalTypes
+  })
   const cards = buildDisplaySet(resolved, strategy.templateBudget)
   const log = resolved.primary.scoringLog
   return {
-    problemSignals, ceiling, engagement, budget: strategy.templateBudget, cards,
+    problemSignals: caseState.problemSignals,
+    issue: issueOutcome(sc, caseState),
+    ceiling: caseState.complexityCeiling,
+    engagement: strategy.engagementType,
+    budget: strategy.templateBudget,
+    cards,
     topScores: log.slice(0, 6).map(t => t.score),
-    topReasons: (cards[0] && cards[0].matchReasons) || []
+    topReasons: (cards[0] && cards[0].matchReasons) || [],
+    // 4.97 US3. The same case with NO pooled adjustments, so the report can say whether the
+    // pool re-ordered anything against the advisor's own evidence. Only computed when there
+    // are adjustments to measure — a plain run does a single resolve per case, as before.
+    plainCards: (adjustments && adjustments.length)
+      ? buildDisplaySet(resolveTemplatesWithOutlier(caseState, strategy, templates, {
+          distinctionBoosts: boosts || {},
+          pooledAdjustments: [],
+          pooledSignalTypes: signalTypes
+        }), strategy.templateBudget)
+      : null
   }
 }
 
 async function main () {
-  const filter = process.argv[2]
+  const { filter, adjustmentsFile } = parseArgs(process.argv.slice(2))
+  const adjustments = loadAdjustments(adjustmentsFile)
   const scenarios = filter ? SCENARIOS.filter(s => s.domain === filter || s.key.includes(filter)) : SCENARIOS
 
   const results = []
@@ -125,7 +207,7 @@ async function main () {
       } catch (_e) { boosts = {}; aiFailed = true }
       try { distress = await readDistressAI(fullText) } catch (_e) { distress = null }
     }
-    results.push({ sc, distress, boosts, aiFailed, run: runScenario(sc, boosts) })
+    results.push({ sc, distress, boosts, aiFailed, run: runScenario(sc, boosts, adjustments) })
   }
 
   // ── Metrics ────────────────────────────────────────────────────────────────
@@ -149,6 +231,35 @@ async function main () {
       ? `- **Distress read:** fired TRUE in ${distressTrue.length}/${n}; of those, ${truePos} were genuine crises → **precision ${precision}%**, **recall ${recall}%** (there are ${crisisCases.length} genuine crises in the set).`
       : `- **Distress read:** AI layer off — run with the OpenAI key to measure.`
   ]
+  // Outcome Learning: which file, how many applied, and how many cases carry the hold-back
+  // on their top card — the fixed bench's own count, so the two runs can be laid side by side.
+  const heldBackTops = results.filter(r => (r.run.topReasons || []).some(x => /^pooled:/.test(x))).length
+  metrics.push(adjustmentsFile
+    ? `- **Outcome Learning:** ${adjustments.length} live adjustment${adjustments.length === 1 ? '' : 's'} applied from \`${adjustmentsFile}\`; the #1 card carries a pooled hold-back or outweigh in ${heldBackTops}/${n} cases.`
+    : '- **Outcome Learning:** no adjustments applied — run again with `--adjustments <file>` to measure the fixed bench with the live ones.')
+  // 4.97 US3: the rule that the advisor's own words always win, as a countable figure. The
+  // resolver never adjusts a template their evidence reached, so this must read 0 — and a
+  // number that CAN go up is worth more than a sentence saying it cannot.
+  if (adjustments.length > 0) {
+    const breaches = results.filter(r => r.run.plainCards && hasCapBreach(r.run.plainCards, r.run.cards)).length
+    metrics.push(`- **Cap breaches on the fixed bench: ${breaches}/${n}** — cases where a pooled adjustment moved a template BELOW one the adviser's own evidence had ranked above it. Expected 0; anything higher is a defect in the rule, not a measurement.`)
+  }
+  // Primary issue (4.97 US1): how often the engine NAMES the problem, and how often its
+  // proposal survives the advisor's own words unchanged. The invented cases carry no reply to
+  // a proposal, so "would confirm" replays the case's OWN description through parseReply —
+  // the same code the live step runs when an advisor restates the issue in their own words.
+  // It is a proxy and the report line says so; a real confirmation rate needs real advisors.
+  const proposed = results.filter(r => r.run.issue.outcome === 'proposed')
+  const wouldConfirm = proposed.filter((r) => {
+    const text = [r.sc.situationDiagnostic, r.sc.domainConfirmed].filter(Boolean).join(' ')
+    return parseReply(text, r.run.issue.label, r.sc.domain).outcome === 'confirmed'
+  }).length
+  const weakCount = results.filter(r => r.run.issue.outcome === 'weak').length
+  const contextCount = results.filter(r => r.run.issue.outcome === 'context').length
+  metrics.push(
+    `- **Primary issue proposed:** ${proposed.length}/${n} (${(proposed.length / n * 100).toFixed(0)}%) — the engine named one of Mike's authored labels. Of the rest: ${weakCount} had evidence too thin to name one (the open driver question is asked instead), ${contextCount} are context domains that never propose by design, and ${n - proposed.length - weakCount - contextCount} matched no label at all.`,
+    `- **Would confirm as proposed:** ${wouldConfirm}/${proposed.length}${proposed.length ? ` (${(wouldConfirm / proposed.length * 100).toFixed(0)}%)` : ''} — replaying each case's own description as the reply leaves the proposed label standing. A PROXY, not a confirmation rate: the invented cases have no advisor to answer, so this measures whether the proposal agrees with the words it was built from, never whether a real advisor would accept it.`
+  )
   const distinctionFailures = results.filter(r => r.aiFailed).length
   if (distinctionFailures > 0) {
     metrics.push(`- 🔴 **Distinction classifier FAILED on ${distinctionFailures}/${n} cases** — those sessions ran with no distinction lever at all, so every figure above understates it. This is a fault in the run, not a result: fix it and re-run before comparing anything.`)
@@ -159,7 +270,7 @@ async function main () {
   lines.push('# Scenario Lab — Cross-Domain Case-Study Report')
   lines.push('')
   lines.push('> **Auto-generated** by `scripts/scenario-lab.js` over the fixed 50-case set (`scenario-lab-cases.json`). Re-run to refresh; do not hand-edit.')
-  lines.push(`> Coverage: **${n} sessions across all 14 content domains**. AI layer (firm distinctions + distress): **${HAS_AI ? 'ON' : 'OFF'}**.`)
+  lines.push(`> Coverage: **${n} sessions across all 14 content domains**. AI layer (firm distinctions + distress): **${HAS_AI ? 'ON' : 'OFF'}**. Outcome Learning adjustments: **${adjustmentsFile ? `${adjustments.length} from ${adjustmentsFile}` : 'none'}**.`)
   lines.push('')
   lines.push('## Metrics (measure before vs after an engine change)')
   lines.push('')
@@ -167,14 +278,14 @@ async function main () {
   lines.push('')
   lines.push('## At a glance')
   lines.push('')
-  lines.push('| # | Domain | Top recommendation | Signal? | Content-driven? | Crisis? | Distress |')
-  lines.push('|--:|---|---|:--:|:--:|:--:|:--:|')
+  lines.push('| # | Domain | Issue | Top recommendation | Signal? | Content-driven? | Crisis? | Distress |')
+  lines.push('|--:|---|---|---|:--:|:--:|:--:|:--:|')
   results.forEach((r, i) => {
     const sig = Object.keys(r.run.problemSignals).length > 0 ? 'yes' : '**no**'
     const cd = (r.run.topReasons || []).some(isContentReason) ? 'yes' : '**no**'
     const top = r.run.cards[0] ? r.run.cards[0].title : '—'
     const dist = r.distress === null ? '–' : (r.distress ? '**TRUE**' : 'false')
-    lines.push(`| ${i + 1} | ${r.sc.domain} | ${top} | ${sig} | ${cd} | ${r.sc.isCrisis ? 'YES' : ''} | ${dist} |`)
+    lines.push(`| ${i + 1} | ${r.sc.domain} | ${describeIssue(r.run.issue)} | ${top} | ${sig} | ${cd} | ${r.sc.isCrisis ? 'YES' : ''} | ${dist} |`)
   })
   lines.push('')
   lines.push('---')
@@ -193,6 +304,7 @@ async function main () {
     lines.push('')
     lines.push('**What the engine decided:**')
     lines.push(`- **Domain:** ${sc.domain} · **Engagement:** ${run.engagement} · **Ceiling:** ${run.ceiling} · **Budget:** ${run.budget}`)
+    lines.push(`- **Main issue:** ${describeIssue(run.issue)}`)
     lines.push(`- **Problem signals read:** ${describeSignals(run.problemSignals)}`)
     if (HAS_AI) {
       const bk = Object.keys(boosts)

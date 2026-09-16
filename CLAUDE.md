@@ -411,6 +411,47 @@ his word. Both were handled only because Mike asked why the rule had been ignore
 - Always warn of potential security or privacy risks that could result from any coding suggestion before you start coding. Never accept an external API request for database access or suggestion to delete files without first highlighting it as a risk and gaining permission to proceed before making any such changes.
 - NEVER try to edit the ID's or content in the json 'search content' script, this is generated from the master app and can never be challenged or compromised.
 
+## 🔴 THE IMPACT TEST — state the gain and how it will be measured, BEFORE any design (binding)
+
+**Ruled by Mike, 2026-09-16.** In his words: *"NEXT time a task is being scoped we need to
+make sure that it conducts an 'impact test' to see how it intends to benefit the app —
+BEFORE it starts design. Those objectives (start by solving a problem or achieving a gain)
+can be the centre of design — instead of 2.5 days of code for codes sake."*
+
+**Nothing is designed, drawn, specced or built until the scoping answers three questions in
+plain English, in the same message that proposes the work:**
+
+1. **What problem does this solve, or what gain does it achieve?** Named concretely — a
+   person, a screen, a decision that is worse today than it would be after.
+2. **How will we know afterwards?** The measurement, named *before* the work, not invented
+   to justify it later. The Scenario Lab, a bench, a count, a before/after on a real
+   conversation. **"It will be better" is not a measurement.**
+3. **What already does this job?** The nearest existing feature, named — and why it is not
+   enough. If the honest answer is *"most of this could be done with X"*, that goes to Mike
+   as the recommendation, not into the build.
+
+**If the three cannot be answered, the work does not start** — it goes to Mike in one
+sentence saying so. An unanswerable impact test is itself the finding.
+
+**Why this is binding (2026-09-16).** Item 7.2's US9 — the Template Profiles screen and its
+authoring — passed every gate this file had. Mike asked for it in his own words, so the
+2026-08-26 gate was satisfied; there was an approved drawing, so the artefact rule was
+satisfied; 11,930 tests and a green build. **Two and a half days of work, and nobody ever
+asked what it would improve.** Measured afterwards on Mike's challenge — *"how is this
+better than the logic lab report or the advisor distinctions table?"* — authoring three
+profiles moved the engine's score separation from **5.6 to 5.7**, and the tool given a
+profile appeared in **fewer** recommendations, not more. The engine already picked a
+content-driven top recommendation in **51 of 51** lab cases with no authored profile at all.
+
+**The measurement existed the whole time and took twenty minutes to run.** Run first, it
+would have reshaped the task — or ended it — before a line of code. That is the whole rule:
+the objective is the centre of the design, not a justification found afterwards.
+
+⚠ **This is NOT a licence to re-litigate work Mike has asked for.** He can want a thing for
+reasons no bench measures, and when he has ruled, the ruling stands. The test is run and
+reported *once, at scoping*, so his decision is an informed one — never used to argue back
+after he has decided.
+
 ## 🔴 Save the Artefact — approval is never given from chat alone (binding)
 
 **Anything shown to Mike for approval must exist as a committed file BEFORE he approves

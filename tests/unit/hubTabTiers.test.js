@@ -100,8 +100,13 @@ const MENTOR_BEFORE = [
  *   reason, which is that a global group manager or group manager has material of its own to
  *   publish for its country or brand. ⚠ The firm is where it lands and where the declaration
  *   that gates Meeting Review is recorded (slice 3).
+ * - `outcomeConsent` — Mike, 2026-09-10 (item 4.87), in his own words: *"A firm manager opts
+ *   the firm in, and can opt out at any time, on a hub page at the firm tier."* 🔴 **THE FIRM
+ *   ALONE, and stated rather than assumed:** consent is a firm's own undertaking, and the
+ *   tiers above contribute no reviews and receive no adjustment, so they have nothing to
+ *   switch (spec FR-014). The mentor's page for the same feature is a separate tab.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -144,8 +149,16 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   at: the platform's own assessment of what this software does with a client's information is
  *   the first thing published, and every tier beneath inherits it. The mentor is also the only
  *   tier with nothing published TO it, which is the one way its screen differs.
+ * - `outcomeLearning` — Mike, 2026-09-10 (item 4.87): *"It surfaces on the Mentor Hub first. A
+ *   page shows what has been learned … and the mentor accepts, holds or rejects each one before
+ *   it goes live."* ⚠ MENTOR ALONE by design (spec FR-014): the pool is one platform-wide set,
+ *   and a lower tier would see the same rows and could take no different decision on them.
+ * - `semanticProfiles` — item 4.97 / 7.2 US9, Mike 2026-09-14 ("yes" to a screen to review each
+ *   template's signals and profile), built READ-ONLY on his ruling of 2026-09-16. ⚠ MENTOR ALONE:
+ *   a profile says what a template is FOR, which does not change from firm to firm; a firm's own
+ *   vocabulary already reaches scoring through Advisory Distinctions, which every tier has.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

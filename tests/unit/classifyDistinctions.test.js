@@ -82,9 +82,12 @@ describe('classifyDistinctions over the resolved effective list', () => {
   it('no boosts for missing domain/text or an empty effective list — and that is NOT a failure', async () => {
     // ok:true throughout: there was no call to fail. A guard clause reporting ok:false
     // would cry fault on the ordinary case of a firm with nothing filed in this domain.
-    expect(await classifyDistinctions('', 'text', PLATFORM)).toEqual({ ok: true, boosts: {} })
-    expect(await classifyDistinctions('conflict', '', PLATFORM)).toEqual({ ok: true, boosts: {} })
-    expect(await classifyDistinctions('conflict', 'text', [])).toEqual({ ok: true, boosts: {} })
+    // `provider` is null for the same reason: nobody was asked, so nobody answered, and the
+    // trace must not name a service on the strength of a call that never happened (T052).
+    const NOTHING_ASKED = { ok: true, boosts: {}, provider: null, fallbackState: null }
+    expect(await classifyDistinctions('', 'text', PLATFORM)).toEqual(NOTHING_ASKED)
+    expect(await classifyDistinctions('conflict', '', PLATFORM)).toEqual(NOTHING_ASKED)
+    expect(await classifyDistinctions('conflict', 'text', [])).toEqual(NOTHING_ASKED)
     expect(mockCreate).not.toHaveBeenCalled()
   })
 
@@ -148,13 +151,15 @@ describe('findNearMissDistinctions (cross-domain bridge)', () => {
       { id: 'pd-1', domain: 'conflict', description: 'platform row', source: 'platform' },
       { id: 1, domain: 'data-systems', description: 'firm thing', templates: ['T'], boost: 5, source: 'firm-own' }
     ]
-    expect(await findNearMissDistinctions('data-systems', 'anything', onlyHere)).toEqual({ ok: true, rows: [] })
+    expect(await findNearMissDistinctions('data-systems', 'anything', onlyHere))
+      .toEqual({ ok: true, rows: [], provider: null, fallbackState: null })
     expect(mockCreate).not.toHaveBeenCalled()
   })
 
   it('no rows for missing domain or text', async () => {
-    expect(await findNearMissDistinctions('', 'text', effective)).toEqual({ ok: true, rows: [] })
-    expect(await findNearMissDistinctions('data-systems', '', effective)).toEqual({ ok: true, rows: [] })
+    const NOTHING_ASKED = { ok: true, rows: [], provider: null, fallbackState: null }
+    expect(await findNearMissDistinctions('', 'text', effective)).toEqual(NOTHING_ASKED)
+    expect(await findNearMissDistinctions('data-systems', '', effective)).toEqual(NOTHING_ASKED)
   })
 
   // The bridge fails the quietest of the three callers — on failure its whole section
@@ -162,10 +167,34 @@ describe('findNearMissDistinctions (cross-domain bridge)', () => {
   it('a FAILED call returns ok:false, distinct from "no distinction is filed elsewhere"', async () => {
     mockCreate = jest.fn().mockRejectedValue(new Error('network'))
     const failed = await findNearMissDistinctions('data-systems', 'they have no financial controls', effective)
-    expect(failed).toEqual({ ok: false, rows: [] })
+    expect(failed).toEqual({ ok: false, rows: [], provider: null, fallbackState: null })
 
     mockCreate = matchReply([])
     const matchedNone = await findNearMissDistinctions('data-systems', 'they have no financial controls', effective)
-    expect(matchedNone).toEqual({ ok: true, rows: [] })
+    expect(matchedNone.ok).toBe(true)
+    expect(matchedNone.rows).toEqual([])
+  })
+
+  // ── Which service answered (item 4.97 US8/T052) ────────────────────────────
+  // The trace's "Answered by" row is built from this. Before T052 it read a hardcoded
+  // 'openai' literal, so it would have named the primary on a session the backup rescued
+  // — the one thing the row exists to prevent, and invisible in UAT because both states
+  // read as the same fluent sentence on screen.
+  it('reports WHICH provider answered, so the trace never has to assume', async () => {
+    mockCreate = matchReply([])
+    const { provider, fallbackState } = await findNearMissDistinctions(
+      'data-systems', 'they have no financial controls', effective)
+    // The name comes from config, never from a literal here: whatever the platform is
+    // configured with is what the advisor is told.
+    expect(typeof provider).toBe('string')
+    expect(provider).toBe(require('../../config/integration').AI.primary.name)
+    expect(fallbackState).toBe('none')
+  })
+
+  it('a call that FAILED names no provider — nobody answered', async () => {
+    mockCreate = jest.fn().mockRejectedValue(new Error('network'))
+    const { provider } = await findNearMissDistinctions(
+      'data-systems', 'they have no financial controls', effective)
+    expect(provider).toBeNull()
   })
 })

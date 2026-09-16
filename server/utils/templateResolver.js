@@ -4,6 +4,7 @@ const { readFileSync } = require('fs')
 const { resolve } = require('path')
 const { SIGNAL_REGISTRY } = require('./problemSignals')
 const { HISTORY_HOLDBACK_PENALTY } = require('./priorEngagement')
+const { POOLED_HOLDBACK_MAX, DIMENSIONS: POOLED_DIMENSIONS } = require('./outcomeLearning')
 const { STOP_WORDS } = require('./stop-words')
 
 // Commerce-generic words that must never be read as the client's INDUSTRY.
@@ -39,7 +40,12 @@ function getProfileMap () {
 
 // ── Scoring version + config ────────────────────────────────────────────────
 // Bump SCORING_VERSION whenever the algorithm changes so scoring logs are traceable.
-const SCORING_VERSION = '2.1.0'
+// 2.2.0 — Outcome Learning's pooled hold-back joined the formula (item 4.87). A saved trace
+// must say which formula produced it, so the version moves with the formula.
+// 2.3.0 — that hold-back became SIGNED (item 4.97 US2): pooled outcomes now lift a template
+// as well as hold it back, and the matched sizes net before the ±cap. A trace saved under
+// 2.2.0 could only ever have been held back, so the version is how a reader tells which.
+const SCORING_VERSION = '2.3.0'
 
 // Signal attenuation — out-of-domain signals are excluded entirely (weight 0).
 // Each domain's scope is defined in DOMAIN_SIGNAL_SCOPE. Signals outside the scope
@@ -211,10 +217,49 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   const { domain, primaryIssue, industry, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
 
+  // Outcome Learning (item 4.87, specs/002-outcome-learning contracts §Resolver). The LIVE
+  // pooled adjustments — mentor-accepted, above the evidence floor — each naming a template,
+  // a dimension and a value. Normalised once here; a malformed entry is dropped rather than
+  // guessed at. The fired signal types come in beside them because caseState carries none.
+  // 🔴 SIGNED SINCE 4.97 US2: `size` is positive to lift and negative to hold back. A pairing
+  // of 0 is dropped here because it would change nothing and put a reason on the trace saying
+  // so. `Math.trunc` rather than `floor`, so a negative size rounds toward zero like a
+  // positive one — `floor(-2.5)` would quietly make a hold-back bigger than the evidence.
+  const _pooled = (Array.isArray(options && options.pooledAdjustments) ? options.pooledAdjustments : [])
+    .filter(a => a && typeof a.template === 'string' && POOLED_DIMENSIONS.includes(a.dimension) &&
+      typeof a.value === 'string' && Number.isFinite(a.size) && Math.trunc(a.size) !== 0)
+    .map(a => ({
+      // The id is kept so the scoring log can name WHICH adjustments matched this
+      // session; the trace reads its evidence from those alone.
+      id: typeof a.id === 'string' ? a.id : null,
+      titleKey: a.template.trim().toLowerCase(),
+      dimension: a.dimension,
+      valueKey: a.value.trim().toLowerCase(),
+      size: Math.trunc(a.size)
+    }))
+  const _pooledSignals = new Set(
+    (Array.isArray(options && options.pooledSignalTypes) ? options.pooledSignalTypes : [])
+      .filter(s => typeof s === 'string').map(s => s.trim().toLowerCase())
+  )
+  const _pooledSession = {
+    domain: typeof domain === 'string' ? domain.trim().toLowerCase() : null,
+    industry: typeof industry === 'string' ? industry.trim().toLowerCase() : null,
+    engagementType: typeof engagementType === 'string' ? engagementType.trim().toLowerCase() : null
+  }
+  const _pooledMatches = a => a.dimension === 'signal'
+    ? _pooledSignals.has(a.valueKey)
+    : _pooledSession[a.dimension] === a.valueKey
+
   // Primary issue keyword hints — used to add a scoring boost for templates whose
   // tags or purpose closely match the advisor-confirmed primary issue.
+  // The same stop-word filter the industry matcher applies, for the same reason (item 4.97
+  // T013): Mike's authored labels are sentences — "Sales Revenue — low volume, revenue is the
+  // constraint" — so without it words like "revenue" and "business" boost every template
+  // carrying them in its tags. The label's own separator set includes the em-dash it uses.
   const _primaryIssueKeywords = primaryIssue
-    ? primaryIssue.toLowerCase().split(/[\s—\-,]+/).filter(w => w.length > 4)
+    ? primaryIssue.toLowerCase()
+      .split(/[\s—\-,/&]+/)
+      .filter(w => w.length > 4 && !STOP_WORDS.has(w) && !INDUSTRY_STOPWORDS.has(w))
     : []
 
   // Industry keyword hints — the client's stated industry (e.g. "cafe") is a key
@@ -270,8 +315,12 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   }
   const engagementPreferred = ENGAGEMENT_SUBSECTION_PREFERENCE[engagementType] || []
 
-  // Prepare semantic scoring inputs once (not inside the map loop)
-  const _profileMap = getProfileMap()
+  // Prepare semantic scoring inputs once (not inside the map loop).
+  // `options.profileMap` is the EFFECTIVE profile map — the mentor's authored rows merged
+  // over the compiled file (item 4.97 US9). The caller loads it because the store is async
+  // and this function is not; with nothing supplied the compiled file is read as before, so
+  // the benches, the labs and any caller that has not been updated behave exactly as today.
+  const _profileMap = (options && options.profileMap instanceof Map) ? options.profileMap : getProfileMap()
   const _problemSignals = caseState.problemSignals || {}
   const _activeSignalEntries = Object.entries(_problemSignals)
     .filter(([sig, n]) => sig !== 'modeling_rejected' && n > 0)
@@ -295,9 +344,12 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     }
 
     // Primary issue keyword boost — advisor confirmed the specific problem,
-    // so templates whose tags or purpose echo those keywords score higher.
+    // so templates whose title, tags or purpose echo those keywords score higher.
+    // The TITLE joins the text searched (item 4.97 T013): Mike's authored labels name tools as
+    // often as problems — "Break-Even", "Asset utilisation" — and until the issue was a real
+    // field this branch had never run against live data to show that.
     if (_primaryIssueKeywords.length > 0) {
-      const _allText = [...tagsLower, purposeLower].join(' ')
+      const _allText = [(t.title || '').toLowerCase(), ...tagsLower, purposeLower].join(' ')
       const _matches = _primaryIssueKeywords.filter(kw => _allText.includes(kw)).length
       if (_matches >= 2) {
         score += 3
@@ -557,6 +609,55 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     // remove. Bottom-ranked and labelled beats invisible. Templates that were
     // not viable anyway (score<=0) are left untouched — no penalty, no reason.
     const _titleKey = (t.title || '').trim().toLowerCase()
+
+    // Outcome Learning (item 4.87; SIGNED since 4.97 US2) — after every boost, IMMEDIATELY
+    // BEFORE the client-history clamp below, and for the same reasons that clamp exists: a
+    // template is nudged by what happened across consenting firms, never added or removed,
+    // and the nudge is on the trace.
+    //
+    // 🔴 IT NOW MOVES BOTH WAYS. A template consenting firms reported as landing WELL is
+    // lifted by exactly the machinery that used to only hold back — same floor, same mentor
+    // decision, same cap, same trace. The matched sizes are NETTED first and the net is
+    // capped at ±POOLED_HOLDBACK_MAX, so a lift on one dimension and a hold-back on another
+    // argue with each other before anything reaches the score, and neither can exceed the
+    // cap by arriving first.
+    //
+    // THE ADVISOR'S WORDS WIN, IN ALL SIX WAYS THEY REACH A TEMPLATE (4.97 US3). A template
+    // matched by ANY kind in ADVISOR_EVIDENCE — a firm distinction, the confirmed primary
+    // issue, the client's industry, or a signal heard in the description — was put there by
+    // this advisor's own account of this client, and pooled outcomes from other firms do not
+    // overrule that: it is marked `pooled:outweighed-<kind>` and left alone (Mike's ruling on
+    // the trace drawing, 2026-09-14). The kind is on the code so the trace can name WHICH
+    // evidence won rather than asserting that some did.
+    //
+    // Until US3 this test read `distinction:` alone, so the other five kinds were overruled
+    // by other firms' data — the marketing sentence the code only half kept.
+    //
+    // That protection is deliberately kept for LIFTS as well as hold-backs: a lift that
+    // reorders the advisor's own evidence is the same overruling, in the flattering direction.
+    // The ids of the adjustments that matched THIS session go on the log entry, so the
+    // trace names the situation that actually matched. Without them the trace could only
+    // group live adjustments by title, and on 2026-09-12 that put "in profit" on a line
+    // for a session in sales, with the two hold-backs summed.
+    let _pooledMatchedIds = null
+    if (_pooled.length > 0 && score > 0) {
+      const _matched = _pooled.filter(a => a.titleKey === _titleKey && _pooledMatches(a))
+      if (_matched.length > 0) {
+        _pooledMatchedIds = _matched.map(a => a.id).filter(Boolean)
+        const _evidenceKind = advisorEvidenceKind(reasons)
+        if (_evidenceKind) {
+          reasons.push('pooled:outweighed-' + _evidenceKind)
+        } else {
+          const _sum = _matched.reduce((sum, a) => sum + a.size, 0)
+          const _net = Math.max(-POOLED_HOLDBACK_MAX, Math.min(POOLED_HOLDBACK_MAX, _sum))
+          if (_net !== 0) {
+            score = Math.max(1, score + _net)
+            reasons.push(_net > 0 ? 'pooled:lifted-' + _net : 'pooled:held_back-' + (-_net))
+          }
+        }
+      }
+    }
+
     if (_histDelivered.has(_titleKey) && score > 0) {
       score = Math.max(1, score - HISTORY_HOLDBACK_PENALTY)
       reasons.push(_histWentLess.has(_titleKey) ? 'history:went_less_well' : 'history:already_delivered')
@@ -564,7 +665,10 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 
     const _profile = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
     const profileRichness = Object.values(_profile).reduce((sum, n) => sum + n, 0)
-    return { title: t.title, page: t.page, subSection, score, profileRichness, matchReasons: reasons }
+    const _entry = { title: t.title, page: t.page, subSection, score, profileRichness, matchReasons: reasons }
+    // Only on a template a pooled adjustment matched, so an unadjusted run's log is unchanged.
+    if (_pooledMatchedIds) { _entry.pooledMatched = _pooledMatchedIds }
+    return _entry
   })
 
   // ── Step 3: Rank and cap ─────────────────────────────────────────────────
@@ -619,7 +723,13 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   // Deliberately UNdeduped: a duplicate title in the library is a genuine
   // data-quality signal a firm manager should see in the trace, not something
   // to hide. Only the budget/candidates are deduped — never the evidence.
-  const scoringLog = ranked.slice(0, 20)
+  // A pooled hold-back can push a template below 20th; it is never removed from the
+  // ranking (the clamp at 1 above), so it must not vanish from the trace either — the
+  // consent tab promises the advisor sees every adjustment that applied. Found by the
+  // 4.87 quickstart on 2026-09-12: a −4 took Break-Even from 6th to absent.
+  const scoringLog = ranked.slice(0, 20).concat(
+    ranked.slice(20).filter(t => t.matchReasons.some(r => r.indexOf('pooled:') === 0))
+  )
 
   if (selected.length === 0) {
     return {
@@ -643,8 +753,18 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 // fallbackExists — true when at least one within-range template was found
 function resolveTemplatesWithOutlier (caseState, strategyDecision, templates, options) {
   const opts = options || {}
-  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreCeiling: true, distinctionBoosts: opts.distinctionBoosts, treeHintNames: opts.treeHintNames, priorHoldback: opts.priorHoldback })
-  const withinRange = resolveTemplates(caseState, strategyDecision, templates, { distinctionBoosts: opts.distinctionBoosts, treeHintNames: opts.treeHintNames, priorHoldback: opts.priorHoldback })
+  const _passOpts = {
+    distinctionBoosts: opts.distinctionBoosts,
+    treeHintNames: opts.treeHintNames,
+    priorHoldback: opts.priorHoldback,
+    pooledAdjustments: opts.pooledAdjustments,
+    pooledSignalTypes: opts.pooledSignalTypes,
+    // Both passes must score against the same profiles, or the stretch option and the
+    // in-range list would disagree about what a template answers (item 4.97 US9).
+    profileMap: opts.profileMap
+  }
+  const primary = resolveTemplates(caseState, strategyDecision, templates, Object.assign({ ignoreCeiling: true }, _passOpts))
+  const withinRange = resolveTemplates(caseState, strategyDecision, templates, _passOpts)
 
   const primaryTop = primary.selected[0]
   const withinTop = withinRange.selected[0]
@@ -701,4 +821,70 @@ function buildDisplaySet (resolvedResult, budget) {
 // TREE_HINT_BOOST is exported for the Logic-Lab page, which states the number to
 // firm managers as fact. Exporting it means the screen reads the engine's own
 // value instead of carrying a copy that is free to disagree with it.
-module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION, TREE_HINT_BOOST }
+// INDUSTRY_STOPWORDS is exported so Outcome Learning's industry vocabulary is built with the
+// SAME filter this matcher applies (specs/002-outcome-learning research §9) — one list, not two.
+/**
+ * The kinds of scoring reason that come from THE ADVISOR'S OWN WORDS in this session, in the
+ * order they are reported. Item 4.97 US3, Mike's ruling of 2026-09-14: pooled evidence may
+ * never move a template that any of these reached — "the advisor's own words win" holds
+ * against every kind, not only a distinction as it did when 4.87 shipped. The consequence he
+ * approved: learning re-orders the long tail of a recommendation, never its head.
+ *
+ * `semantic:` and `purpose_fallback:` are both the problem signals heard in the advisor's
+ * description, so both report as `signal`.
+ */
+const ADVISOR_EVIDENCE = [
+  { prefix: 'distinction:', kind: 'distinction' },
+  { prefix: 'primary_issue:', kind: 'primary_issue' },
+  { prefix: 'industry:title_match', kind: 'industry' },
+  { prefix: 'industry:tag_match', kind: 'industry' },
+  { prefix: 'semantic:', kind: 'signal' },
+  { prefix: 'purpose_fallback:', kind: 'signal' }
+]
+
+/**
+ * Which kind of the advisor's own evidence matched a template, or null.
+ * @param {string[]} reasons - a scoring log entry's matchReasons
+ * @returns {string|null} 'distinction' | 'primary_issue' | 'industry' | 'signal' | null
+ */
+function advisorEvidenceKind (reasons) {
+  const list = Array.isArray(reasons) ? reasons : []
+  for (const e of ADVISOR_EVIDENCE) {
+    if (list.some(r => typeof r === 'string' && r.indexOf(e.prefix) === 0)) { return e.kind }
+  }
+  return null
+}
+
+/**
+ * The vocabulary word a typed industry resolves to, or null (item 4.97 US4).
+ *
+ * The pool may hold only a word the engine itself recognises, and it must be the SAME word
+ * the scorer would match — so this runs the matcher's own splitter, stop-word filters and
+ * stem rule rather than a second copy of them. "cafes" resolves to "cafe"; "business" is a
+ * stop word and resolves to nothing.
+ *
+ * @param {string} typed - the advisor's free-text industry
+ * @param {Iterable<string>} vocabulary - the words the engine recognises
+ * @returns {string|null} the vocabulary word, lowercase
+ */
+function resolveIndustryWord (typed, vocabulary) {
+  if (typeof typed !== 'string' || !typed.trim()) { return null }
+  const words = Array.from(vocabulary || [], s => String(s).trim().toLowerCase()).filter(Boolean)
+  if (words.length === 0) { return null }
+  const keywords = typed.toLowerCase()
+    .split(/[\s—\-,/&]+/)
+    .filter(w => w.length > 3 && !STOP_WORDS.has(w) && !INDUSTRY_STOPWORDS.has(w))
+  const matches = (a, b) => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a)))
+  for (const kw of keywords) {
+    const hit = words.find(w => matches(kw, w))
+    if (hit) { return hit }
+  }
+  return null
+}
+
+// TREE_HINT_BOOST is exported for the Logic-Lab page, which states the number to
+// firm managers as fact. Exporting it means the screen reads the engine's own
+// value instead of carrying a copy that is free to disagree with it.
+// INDUSTRY_STOPWORDS is exported so Outcome Learning's industry vocabulary is built with the
+// SAME filter this matcher applies (specs/002-outcome-learning research §9) — one list, not two.
+module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION, TREE_HINT_BOOST, INDUSTRY_STOPWORDS, POOLED_HOLDBACK_MAX, ADVISOR_EVIDENCE, advisorEvidenceKind, resolveIndustryWord }
