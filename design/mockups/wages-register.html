@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The staff register — the sheet itself</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   THE STAFF REGISTER ITSELF. Drawn 2026-09-15. NOTHING HERE IS BUILT.
+
+   The gate in front of this sheet was built on 2026-09-15 and is drawn at
+   wages-register-gate.html. This is the other half: the sheet that opens once
+   the gate says Open.
+
+   WHAT IS ALREADY SETTLED AND IS NOT RE-ASKED HERE:
+     · the gate, its two conditions, and the switch both ways   — Decision 6
+     · the column heading "Key person risk" and its three bands
+       Direct loss / Indirect loss / No material loss           — Decision 7
+     · retention on the firm's own dial, NOT deletion at deal-end — Decision 8
+     · date of birth and age are NOT on the register            — wages-model.html
+     · the provenance line naming transaction, advisor and date — wages-model.html
+
+   EVERY CELL FACT ON THIS PAGE WAS READ FROM THE WORKBOOK'S STORED XML on
+   2026-09-15 — sheet 6, "DD Considerations" — and the sheet is NAMED each time,
+   which is the lesson report-models.md records against this very model: a finding
+   about one sheet was once written down as a finding about the workbook.
+
+   FOUR QUESTIONS WERE PUT ON THIS PAGE, each with one recommendation.
+   THE SCREEN WAS APPROVED BY MIKE 2026-09-15 — the screen, not the answers.
+   ALL FOUR RULED BY MIKE 2026-09-15, each as recommended — though Q4's
+   recommendation was CORRECTED before it was put to him, once meetingRetention.js
+   was read and turned out to hold a transcript period, not a general one.
+   NOTHING IS BUILT.
+   ============================================================================ */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-good-soft:#4ca52d1a;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+h1{font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-size:19px;margin:34px 0 10px;letter-spacing:-.01em}
+h3{font-size:15px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 8px}
+.lede{font-size:16px;color:var(--rs-muted);max-width:80ch}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px solid #cbe7d2}
+
+.fault{background:#fff4f4;border:1px solid #f3b9b9;border-left:4px solid var(--rs-crit);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.fault h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-crit)}
+.fault p{margin:0 0 7px}.fault p:last-child{margin:0}
+
+.screen{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden;margin:16px 0 8px}
+.rs-top{background:var(--rs-panel-2);border-bottom:1px solid var(--rs-line);padding:14px 18px}
+.rs-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rs-muted)}
+.rs-title{font-size:19px;font-weight:700;margin:2px 0 0}
+.body{padding:18px}
+
+.gate{display:flex;gap:13px;align-items:flex-start;border-radius:10px;padding:13px 15px;
+  border:1px solid #a8dcb4;background:var(--rs-good-soft)}
+.gate .txt{flex:1 1 260px;min-width:0}
+.gate .h{font-weight:700;font-size:14px;margin:0 0 3px}
+.gate .s{font-size:12.5px;color:var(--rs-muted);margin:0;max-width:72ch}
+.pill{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:3px 10px;white-space:nowrap;flex:0 0 auto;margin-top:2px}
+.pill.on{color:var(--rs-good);background:#fff;border:1px solid #a8dcb4}
+.btn{font-family:inherit;font-size:13px;font-weight:600;border-radius:8px;padding:8px 15px;
+  border:1px solid var(--rs-line);background:#fff;color:var(--rs-ink);cursor:default;
+  flex:0 0 auto;white-space:nowrap}
+
+table.g{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 0}
+table.g th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted);
+  text-align:left;padding:0 10px 6px 0;font-weight:700;vertical-align:bottom}
+table.g td{padding:5px 10px 5px 0;border-bottom:1px solid var(--rs-line)}
+table.g tr:last-child td{border-bottom:0}
+table.g .num{text-align:right}
+table.g th.num{text-align:right}
+.divhead td{font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rs-muted);padding-top:12px;border-bottom:1px solid var(--rs-line)}
+.tot td{font-weight:700;border-top:2px solid var(--rs-ink);border-bottom:0;padding-top:8px}
+
+/* a typed cell, drawn as the box it will be */
+.inp{display:inline-block;min-width:62px;border:1px solid var(--rs-line);border-radius:6px;
+  padding:2px 7px;background:#fff;font-size:12.5px;text-align:right}
+.sel{display:inline-block;border:1px solid var(--rs-line);border-radius:6px;padding:2px 22px 2px 8px;
+  background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%235b6f8a'/></svg>") no-repeat right 7px center;
+  font-size:12.5px;white-space:nowrap}
+.derived{color:var(--rs-muted)}
+.none{color:var(--rs-warn);font-weight:600}
+
+.dial{display:flex;gap:13px;align-items:center;flex-wrap:wrap;border:1px solid var(--rs-line);
+  border-radius:10px;padding:13px 15px;background:var(--rs-panel-2);margin-top:16px}
+.dial .txt{flex:1 1 300px;min-width:0}
+.dial .h{font-weight:700;font-size:13.5px;margin:0 0 3px}
+.dial .s{font-size:12.5px;color:var(--rs-muted);margin:0;max-width:70ch}
+
+.sum{border:1px solid var(--rs-line);border-radius:10px;padding:13px 15px;margin-top:16px;
+  background:var(--rs-panel-2)}
+.sum h4{margin:0 0 4px;font-size:13.5px}
+.sum .s{font-size:12.5px;color:var(--rs-muted);margin:0 0 8px}
+
+.foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--rs-line);
+  font-size:12px;color:var(--rs-muted)}
+.cellref{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em;color:var(--rs-muted)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<p class="eyebrow">Wages/Salary Review · item 4.104 · the staff register</p>
+<h1>The staff register — the sheet itself</h1>
+<p class="lede">The gate that decides whether this sheet exists at all is built. This is what is
+behind it: the client's named people, what the business owes them in accrued leave, how long they
+have been there, and what it loses if they go.</p>
+
+<div class="mock">
+<h3>What is built, and what this is</h3>
+<p><b>BUILT 2026-09-15:</b> the gate only — its two conditions, the switch both ways, and the
+strip on <code>/wages-review</code>. <b>NOTHING on this page is built.</b></p>
+<p><b>This drawing exists because the register was only ever illustrated.</b>
+<code>wages-model.html</code> shows it as seven static rows to put Decisions 6–8 to you. The real
+sheet has <b>typed cells in it</b> — the <i>DD Considerations</i> sheet carries 159 of them — so it
+is a data-entry screen, and an illustration cannot be built from.</p>
+</div>
+
+<div class="fault">
+<h3>🔴 What opening this screen found, and the one difference from the drawing below</h3>
+<p><b>Built 2026-09-15 and then opened in a browser, which found three faults 10,975 green tests
+did not</b> — all three needing the workbook's own team to appear at all.</p>
+<p><b>1 · The sample team has FOUR DUPLICATED NAMES and FOUR PEOPLE WITH NO NAME.</b> Butch, Bono,
+Boris and Brad each appear twice. The first build identified a person by name, so the wrong row
+updated as the advisor typed, and the two Butches collapsed into one stored entry on save.
+Identity is now <code>division|name|occurrence</code>.</p>
+<p><b>2 · Nameless rows were silently discarded on save.</b> They render with a full rating
+control, and everything typed into them vanished without a word. Silent loss is the worst of the
+possible outcomes; they are kept now.</p>
+<p><b>3 · The footer read “1 person” above twenty-nine of them</b>, because the total counted only
+people somebody had already rated. A headcount that counts only the rated is not a headcount.</p>
+<p class="rec"><b>THE ONE DIFFERENCE FROM THE DRAWING BELOW, named rather than discovered later:
+the summary carries a fourth line, <i>Not rated</i>,</b> shown only when somebody has not been
+rated. The drawing has three bands and a total because in the workbook everyone is rated; on a
+register nobody has touched yet, three zeroes above a total of 29 do not add up on the page. The
+line is what makes them reconcile.</p>
+</div>
+
+<h2>The screen, once the gate is open</h2>
+<p>The strip at the top is built and approved; it is drawn here only so the sheet is seen in
+its place. <b>The people are not typed again</b> — name, division and pay rate come from step 1,
+so the register can never disagree with the model about who works there.</p>
+
+<div class="screen">
+  <div class="rs-top">
+    <div class="rs-eyebrow">Decision tool · Profitability</div>
+    <div class="rs-title">Wages/Salary Review</div>
+  </div>
+  <div class="body">
+
+    <div class="gate">
+      <span class="pill on">Open</span>
+      <div class="txt">
+        <p class="h">Staff register — due diligence</p>
+        <p class="s">Prepared for the <i>Acquisition of Kinetic Planning (2007) Limited</i> ·
+        by M. Bartlett · 15 September 2026 · closes when the project closes.</p>
+      </div>
+      <button class="btn" type="button">Close the staff register</button>
+    </div>
+
+    <div class="dial" style="margin-top:16px">
+      <div class="txt">
+        <p class="h">Hours in a day's leave &nbsp; <span class="inp">8</span></p>
+        <p class="s">Applies to everyone on the register, and it is what turns days owed into
+        money. <b>It starts empty</b> — until it is set, nothing is priced. Shown filled here
+        because the figures below need it; the workbook's own 8 is typed there <i>because</i> it
+        varies, so it is not assumed on your behalf.</p>
+      </div>
+    </div>
+
+    <table class="g" style="margin-top:16px">
+      <thead><tr>
+        <th>Name</th>
+        <th>Division</th>
+        <th class="num">Pay rate</th>
+        <th class="num">Accrued annual<br>leave (days)</th>
+        <th class="num">Leave liability</th>
+        <th class="num">Years<br>employed</th>
+        <th>Key person risk</th>
+      </tr></thead>
+      <tbody>
+        <tr class="divhead"><td colspan="7">Admin</td></tr>
+        <tr>
+          <td>Mary G</td><td>Admin</td><td class="num derived">19.95</td>
+          <td class="num"><span class="inp">&nbsp;</span></td>
+          <td class="num none">not yet priced</td>
+          <td class="num"><span class="inp">3</span></td>
+          <td><span class="sel">Direct loss</span></td>
+        </tr>
+        <tr>
+          <td>Agatha</td><td>Admin</td><td class="num derived">19.00</td>
+          <td class="num"><span class="inp">13</span></td>
+          <td class="num derived">1,976</td>
+          <td class="num"><span class="inp">4</span></td>
+          <td><span class="sel">Indirect loss</span></td>
+        </tr>
+        <tr>
+          <td>Judy</td><td>Admin</td><td class="num derived">19.00</td>
+          <td class="num"><span class="inp">15</span></td>
+          <td class="num derived">2,280</td>
+          <td class="num"><span class="inp">5</span></td>
+          <td><span class="sel">No material loss</span></td>
+        </tr>
+        <tr class="divhead"><td colspan="7">Production</td></tr>
+        <tr>
+          <td>Bruce</td><td>Production</td><td class="num derived">40.28</td>
+          <td class="num"><span class="inp">16</span></td>
+          <td class="num derived">5,156</td>
+          <td class="num"><span class="inp">5</span></td>
+          <td><span class="sel">Direct loss</span></td>
+        </tr>
+        <tr>
+          <td>Billy Ray</td><td>Production</td><td class="num derived">35.00</td>
+          <td class="num"><span class="inp">&nbsp;</span></td>
+          <td class="num none">not yet priced</td>
+          <td class="num"><span class="inp">2</span></td>
+          <td><span class="sel">Direct loss</span></td>
+        </tr>
+        <tr class="divhead"><td colspan="7">Management</td></tr>
+        <tr>
+          <td>Stevie</td><td>Management</td><td class="num derived">76.96</td>
+          <td class="num"><span class="inp">&nbsp;</span></td>
+          <td class="num none">not yet priced</td>
+          <td class="num"><span class="inp">4</span></td>
+          <td><span class="sel">Direct loss</span></td>
+        </tr>
+        <tr class="tot">
+          <td>29 people</td><td></td><td></td><td></td>
+          <td class="num">10,115.84 <span class="derived" style="font-weight:400">· 5 of 29 priced</span></td>
+          <td></td><td></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="s" style="font-size:12.5px;color:var(--rs-muted);margin-top:8px">
+      Six of the twenty-nine drawn. <b>Grouped by division, in step 1's own order</b> — the same
+      stable partition step 1 already uses, so a person never jumps because a number changed.</p>
+
+    <div class="dial">
+      <div class="txt">
+        <p class="h">This register is kept until 15 September 2033</p>
+        <p class="s">Your firm's retention period <b>for staff registers</b> — seven years — set in
+        Firm Manager, beside the meeting-transcript period and <b>separate from it</b>. It is not
+        deleted when the deal closes.</p>
+      </div>
+      <button class="btn" type="button">Change in Firm Manager</button>
+    </div>
+
+    <div class="sum">
+      <h4>Leave liability by key person risk</h4>
+      <p class="s">A balance-sheet figure that names nobody. This is the summary an acquirer sees.</p>
+      <table class="g">
+        <thead><tr><th>Band</th><th class="num">People</th><th class="num">Priced</th>
+          <th class="num">Liability</th><th class="num">Avg years</th></tr></thead>
+        <tbody>
+          <tr><td>Direct loss</td><td class="num">10</td><td class="num">2</td><td class="num">5,859.84</td><td class="num">3.7</td></tr>
+          <tr><td>Indirect loss</td><td class="num">10</td><td class="num">2</td><td class="num">1,976.00</td><td class="num">5.8</td></tr>
+          <tr><td>No material loss</td><td class="num">9</td><td class="num">1</td><td class="num">2,280.00</td><td class="num">5.3</td></tr>
+          <tr class="tot"><td>Total</td><td class="num">29</td><td class="num">5</td><td class="num">10,115.84</td><td class="num"></td></tr>
+        </tbody>
+      </table>
+      <p class="s" style="margin-top:8px"><b>Worth an advisor's attention, and it is the client's
+      own data:</b> the people rated <i>No material loss</i> have been there <b>longer</b> on
+      average than the people rated <i>Direct loss</i> — 5.3 years against 3.7. In a restructure,
+      length of service is exactly what makes someone expensive and legally awkward to let go.</p>
+    </div>
+
+  </div>
+</div>
+
+<h2>What the advisor types, and what the app works out</h2>
+<p>Read from the stored XML of sheet 6, <i>DD Considerations</i>, on 2026-09-15. The rule the
+model already lives by applies here: <b>every typed cell reachable, and a typed cell that nothing
+reads earns no control.</b></p>
+
+<table class="g">
+  <thead><tr><th>Column on the sheet</th><th>In the workbook</th><th>On this screen</th></tr></thead>
+  <tbody>
+    <tr><td>Name, division</td><td><span class="cellref">N</span> — pulled from <i>Annual Hiring Plan</i></td><td>from step 1, not typed again</td></tr>
+    <tr><td>Current pay rate (incl rise)</td><td><span class="cellref">E</span> — <b>formula</b>, reads <i>Annual Hiring Plan</i></td><td>derived, shown, not editable</td></tr>
+    <tr><td>Sick leave consumed</td><td><span class="cellref">F</span> — typed, and <b>nothing reads it</b></td><td>🔴 <b>not carried</b> — ruled 2026-09-15, question 3</td></tr>
+    <tr><td>Accrued annual leave (outstanding)</td><td><span class="cellref">G</span> — typed</td><td><b>typed here</b> — the one leave input</td></tr>
+    <tr><td>Annual leave liability</td><td><span class="cellref">H</span> — see the faults below</td><td>derived: pay rate × hours in a leave day × days</td></tr>
+    <tr><td>Yrs employed</td><td><span class="cellref">I</span> — typed, read by the averages</td><td><b>typed here</b></td></tr>
+    <tr><td>Yrs industry experience</td><td><span class="cellref">J</span> — typed, <b>nothing reads it</b>, 12.0 on every row</td><td>not carried</td></tr>
+    <tr><td>D.O.B · Current age</td><td><span class="cellref">K</span> typed · <span class="cellref">L</span> formula, read by nothing</td><td>not carried — already your ruling</td></tr>
+    <tr><td>Team dependance</td><td><span class="cellref">M</span> — typed; the three band totals read it</td><td><b>typed here</b>, as Key person risk</td></tr>
+  </tbody>
+</table>
+
+<div class="fault">
+<h3>🔴 Three faults in the source workbook — sheet 6, DD Considerations</h3>
+<p><b>They all sit in one column, <span class="cellref">H</span>, "Annual Leave Liability" — and
+that column is what the whole 63,154 headline is summed from</b> (<span class="cellref">L54:L56</span>,
+three <code>sumif</code>s over <span class="cellref">H8:H39</span>).</p>
+<p><b>1 · The one surviving formula points at an empty cell.</b>
+<span class="cellref">H8</span> is <code>(E8*$D$5)*G8</code>. <b><span class="cellref">D5</span> is
+blank</b> — the 8-hour figure it means to use is in <span class="cellref">E4</span>, one cell away.
+As written the formula evaluates to <b>0</b>; the 1,915.20 on screen is a stale cached value from
+before the reference broke.</p>
+<p><b>2 · Every other row in the column is a hand-typed number, not a formula.</b>
+<span class="cellref">H9</span> through <span class="cellref">H39</span> are constants. Change
+someone's pay rate or their leave and <b>the liability does not move</b>.</p>
+<p><b>3 · And this is the one that matters — 24 of the 29 people are priced from the wrong
+column.</b> Only five rows carry an accrued-leave figure at all
+(<span class="cellref">G9, G10, G21, G32, G38</span>). On the other twenty-four the typed liability
+is <b>pay rate × 8 × <i>sick leave consumed</i></b> — column <span class="cellref">F</span>. Mary G
+is the clearest case: no accrued leave recorded, 12 days of sick leave consumed, and a liability of
+1,915.20, which is 19.95 × 8 × <b>12</b>. Where a row has both, the accrued column wins
+(Agatha: 14 sick, 13 accrued, liability 1,976 = 19 × 8 × <b>13</b>) — so the intent is not in
+doubt, only the execution.</p>
+<p><b>Sick leave consumed is a cost already spent. Accrued annual leave is money the business
+still owes.</b> They are not the same quantity and one is not an estimate of the other. A
+liability an acquirer prices the business on is the last figure that should be carrying it.</p>
+<p class="rec"><b>What the port does:</b> computes the liability from accrued annual leave only,
+every row, always — and where no accrued figure has been entered it says <b>“not yet priced”</b>
+rather than reaching for a number that is to hand. <b>It does not reproduce the workbook's
+63,154</b>, and it should not: on the sample data the honest figure is <b>10,115.84 across the five
+people who have a leave balance recorded</b> — rows <span class="cellref">9, 10, 21, 32</span> and
+<span class="cellref">38</span>. The golden test pins the difference and says why.</p>
+<p>⚠ <b>Corrected 2026-09-15, before a line was built on it.</b> This card first read
+<b>7,132 · 1,976 · 1,564, total 10,672</b>, with priced counts 2 · 1 · 2. <b>Those figures were
+never computed — they were filled in</b>, on a drawing whose whole subject is a total that was not
+computed either. Worked from the sheet: Direct loss is Bruce 5,155.84 + row 32's 704.00 =
+<b>5,859.84</b>; Indirect loss is Agatha 1,976.00 + row 38's 0.00 (a zero pay rate) =
+<b>1,976.00</b>, two people priced, not one; No material loss is Judy alone at
+<b>2,280.00</b>.</p>
+</div>
+
+<div class="fault">
+<h3>🔴 And a wrong count on the drawing you have already seen</h3>
+<p><code>wages-model.html</code>'s leave-liability card reads <b>Vital 9 · Beneficial 10 ·
+Dispensable 9, total 28</b>. The workbook says <b>10 · 10 · 9, total 29</b>
+(<span class="cellref">L50:L52</span>, three <code>countif</code>s).</p>
+<p><b>The card's own arithmetic proves which is right.</b> It gives the Vital band an average of
+3.7 years, and the workbook's total years for that band is 37
+(<span class="cellref">M58</span>). 37 ÷ 10 = 3.7. Had there been 9 people it would read 4.1.
+Step 1's "29 sample rows" is the same 29.</p>
+<p class="rec"><b>Corrected on that drawing in the same change as this one</b>, along with its two
+notes that were overtaken by your own later rulings — the <i>Revenue at risk / Vital / Beneficial /
+Dispensable</i> table, which Decision 7 replaced, and the note saying the register is deleted at
+deal-end, which Decision 8 reversed.</p>
+</div>
+
+<h2>The four open questions</h2>
+
+<div class="ask ruled">
+<h3>Question 1 — RULED BY MIKE 2026-09-15 — the register carries its own field</h3>
+<p class="ruling">Ruled as recommended: <b>a single typed field on the register, "Hours in a day's
+leave", starting empty and applying to everyone.</b> Until it is set nothing is priced — a firm
+that never sets it gets no figure, rather than a figure resting on an assumption of ours. It is
+drawn above the table, because a setting that changes every number on a sheet belongs on the face
+of it, not in a menu.</p>
+<p class="rec">Recommended: <b>a single typed field on the register</b>, "Hours in a day's leave",
+starting empty, applying to everyone. The liability stays blank until it is set.</p>
+<p><b>Why not take it from step 2.</b> Step 2 already asks for <i>"Average Working Hrs per Day
+(incl Travel)"</i>, and it is tempting to reuse it. But that figure is how long a working day
+actually runs, travel included — it moves when the work changes. <b>A leave day is contractual.</b>
+Tying the two would make the money a business owes its staff move every time someone's travel time
+is re-estimated.</p>
+<p><b>Why not simply use 8.</b> It is the workbook's figure
+(<span class="cellref">E4</span>, typed) and it is a fair default — but it is typed <i>because</i>
+it varies, and hard-coding it is exactly the fault this model has already been corrected for once:
+"every typed cell reachable, nothing quietly fixed as a constant".</p>
+</div>
+
+<div class="ask ruled">
+<h3>Question 2 — RULED BY MIKE 2026-09-15 — the gap shows on the document</h3>
+<p class="ruling">Ruled as recommended, and it is what is drawn above: an unpriced row reads
+<b>"not yet priced"</b>, and the totals carry a <b>Priced</b> count beside the People count —
+<i>5 of 29</i>. <b>A partial total never presents itself as a whole one</b>, and the count doubles
+as the advisor's list of whose figures to go and get.</p>
+<p class="rec">Recommended, and drawn above: the row reads <b>"not yet priced"</b>, and the totals
+carry a <b>Priced</b> count beside the People count — <i>5 of 29</i> — so the gap is on the face of
+the document.</p>
+<p><b>Why not just total the ones you have.</b> That is what the workbook effectively does, and it
+produces a single confident number with no hint that five-sixths of the workforce is missing from
+it. An acquirer reading 10,672 as the leave liability of a 29-person business would be misled by a
+figure that is technically correct.</p>
+</div>
+
+<div class="ask ruled">
+<h3>Question 3 — RULED BY MIKE 2026-09-15 — sick leave comes off</h3>
+<p class="ruling">Ruled as recommended, in his words: <i>"take it off"</i>. <b>Sick leave consumed
+is not carried at all</b> — not on the screen, not in the stored record, not read from the payroll
+import when that is built. The workbook's column <span class="cellref">F</span> is left where it
+is; nothing in the product reads it.</p>
+<p class="rec">Recommended: <b>no.</b> It is not on the screen drawn above.</p>
+<p><b>Two reasons, and either alone would do.</b> Once the liability is computed from the right
+column, <b>nothing reads it</b> — and this model's own rule is that a typed cell nothing reads
+earns no control. And it is the most sensitive field on the sheet: how much sick leave a named
+person has taken is medical-adjacent data about someone who consented to nothing, on a document
+being prepared for an acquirer. <b>The same reasoning that kept date of birth off the register
+applies here with more force.</b></p>
+<p>If you want it, it is a column and a stored field — but it should be a decision taken out loud,
+which is why it is a question rather than an omission.</p>
+</div>
+
+<div class="ask ruled">
+<h3>Question 4 — RULED BY MIKE 2026-09-15 — its own dial, the same mechanism</h3>
+<p class="ruling">Ruled as recommended: <b>the staff register gets its own firm-level retention
+dial</b>, stored the way the meeting one is but under its own key, set in Firm Manager beside it.
+The register shows only the resulting date; changing it is a Firm Manager decision. <b>The
+recommendation was corrected before it was put</b> — see the warning below.</p>
+<p class="rec">Recommended: <b>the same mechanism, its own setting</b> — one firm-level dial for
+staff registers, stored exactly as the meeting one is (<code>firmOverlay</code>, cascading the tier
+chain, version history free) but under its own key, set in Firm Manager beside it. The register
+shows the resulting date in plain words, as drawn: <i>"kept until 15 September 2033"</i>.</p>
+<p>⚠ <b>This corrects what this page said first,</b> which was "the firm's existing retention dial"
+— reading <code>server/utils/meetingRetention.js</code> showed there is no general one. What exists
+is <code>meeting-retention</code>, and its own file says it is how long a firm keeps <b>a meeting
+transcript</b>. <b>Reusing that number would tie two unlike things together:</b> the transcript
+period is <i>spoken aloud to a client</i> in the recorded consent wording, so changing what a firm
+promises a client would silently change how long it keeps registers of named staff, and the
+reverse. One dial, two promises, is the kind of coupling nobody remembers at the moment they move
+it.</p>
+<p><b>Why not a dial per register.</b> Decision 8 settled that the register is kept rather than
+deleted at deal-end, and gave the reason: a restructure is challenged years later, and both sides
+need the record. A per-register dial would let one register be set to a shorter period than the
+firm's own policy, which is the setting most likely to be regretted and the least likely to be
+reviewed.</p>
+<p><b>What this screen adds is the sentence, not the setting.</b> The date is shown here because a
+document holding named people should say on its face how long it lives; changing it is a Firm
+Manager decision, and the button goes there.</p>
+</div>
+
+<h2>What this does not do</h2>
+<table class="g">
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Does any of it reach the AI?</td><td><b>No.</b> The whole model is arithmetic and its route calls no language model. Nothing on this sheet is ever sent to one.</td></tr>
+    <tr><td>Can a firm manager open it?</td><td>Not from here. It is the advisor's own due-diligence case, by the gate's existing boundary.</td></tr>
+    <tr><td>Does it need a new database table?</td><td><b>No.</b> One <code>firmOverlay</code> key per client, exactly as the gate stores its switch — which gives version history free.</td></tr>
+    <tr><td>Does it add a person?</td><td>No. People are added in step 1. A register that could add someone would be a second team list.</td></tr>
+    <tr><td>Is the sample data real?</td><td>No — it is the workbook's own sample company, and it carries a sample badge like every other screen.</td></tr>
+  </tbody>
+</table>
+
+<p class="foot">Drawn 2026-09-15 · nothing on this page is built · the gate in front of it is
+<code>design/mockups/wages-register-gate.html</code>, built and approved 2026-09-15 · Decisions 6,
+7 and 8 were ruled by Mike on 2026-09-14 · every cell fact read from the stored XML of sheet 6,
+<i>DD Considerations</i>.</p>
+
+</div>
+</body>
+</html>

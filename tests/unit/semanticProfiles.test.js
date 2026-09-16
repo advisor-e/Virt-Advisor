@@ -39,7 +39,7 @@ describe('the overlay address', () => {
 })
 
 describe('every client tool reaches the screen', () => {
-  // The fault item 7.5 names: templateRegistry is keyed by page and keeps ONE template
+  // The fault item 7.10 names: templateRegistry is keyed by page and keeps ONE template
   // per page, so reading it loses 15 of Mike's tools. This is the assertion that fails
   // if someone "simplifies" the store back onto the registry.
   test('names all 220 do-the-job tools, not the 205 pages they sit on', () => {

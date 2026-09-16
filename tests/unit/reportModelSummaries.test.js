@@ -176,8 +176,11 @@ describe('every summary carries what an advisor needs before being sent to a mod
     // states its own verdict in a sentence.
     // Ten since 2026-09-13: the Sales Dashboard (4.95) carries its reading in the footnote
     // under each card, which is where the approved drawing puts it.
-    expect(bullet).toMatch(/\*\*Ten\*\*|\bTen\b/)
-    expect(noPanel).toHaveLength(10)
+    // Eleven since 2026-09-14: the Wages/Salary Review (5.1) reads itself — the season
+    // table IS the finding (the same team loses money in a wet month and makes 52,270 in a
+    // dry one), and the tightest month is named in the headline with its own margin.
+    expect(bullet).toMatch(/\*\*Eleven\*\*|\bEleven\b/)
+    expect(noPanel).toHaveLength(11)
     // And every one of them named, so a new one cannot be added silently.
     //
     // Matched on the name's identifying stem rather than in full, because prose calls
@@ -395,7 +398,7 @@ describe('the AI is INVITED to use the list, not merely given it — item 4.32',
     expect(client).toMatch(/a recommendation is not worse for leaving it out/)
   })
 
-  it('🔴 DISCOVER’S CLOSING-LINE RULE IS UNTOUCHED, and the calculator sits ABOVE it', () => {
+  it('🔴 DISCOVER’S CLOSING-LINE RULE STILL HOLDS FOR EVERY WORD THE ADVISOR READS', () => {
     // That rule exists so the AI stops talking. Loosening it was never the ask, and a
     // calculator line appended AFTER the closing question would break it while looking
     // like a feature. The block was placed inside the format instead.
@@ -408,6 +411,39 @@ describe('the AI is INVITED to use the list, not merely given it — item 4.32',
     const closingAt = discover.indexOf('**Is that what you had in mind')
     expect(calcAt).toBeGreaterThan(-1)
     expect(calcAt).toBeLessThan(closingAt)
+  })
+
+  it('🔴 THE ONE CARVE-OUT IS STATED, AND IT IS ONLY THE STRIPPED MARKER (item 7.5)', () => {
+    // 🔴 THIS TEST EXISTS BECAUSE THE FAULT IT GUARDS WAS SHIPPED, on 2026-09-16.
+    // Item 7.5 added a [[MODEL: ...]] declaration and told the AI to write it "on its own
+    // final line" — while the rule above said, in capitals, that nothing may follow the
+    // closing line. TWO CONTRADICTORY RULES IN ONE PROMPT, and the suite stayed green
+    // because the strings above were all still present: nothing checked that a LATER
+    // section did not undo them.
+    //
+    // The live AI obeyed the older, stronger rule and wrote the marker roughly once in
+    // six replies. `client.txt` SECTION 11 had solved this years earlier by saying the
+    // marker goes AFTER the closing line because it is stripped; discover.txt was simply
+    // never given that wording.
+    //
+    // So the carve-out must be STATED in the prompt, and it must be limited to the
+    // machine-read marker. A future session widening it to anything the advisor can read
+    // fails here, which is the half that was missing.
+    expect(discover).toMatch(/THE ONE THING THAT MAY FOLLOW IT is the machine-read \[\[MODEL: \.\.\.\]\] declaration/)
+    expect(discover).toMatch(/stripped out before the advisor sees anything/)
+    expect(discover).toMatch(/Everything in the paragraph above still holds for every word the advisor sees/)
+
+    // And the declaration section itself must not read as a licence to talk past the
+    // closing line — it says which line it follows, and that it loosens nothing.
+    expect(discover).toMatch(/AFTER the closing line \("Is that what you had in mind\.\.\."\), on its own final line/)
+    expect(discover).toMatch(/This does NOT loosen the closing rule above/)
+
+    // The carve-out is written beside the rule it qualifies, not somewhere a reader of
+    // that rule would never reach.
+    const ruleAt = discover.indexOf('MUST be the final line of every recommendation response')
+    const carveAt = discover.indexOf('THE ONE THING THAT MAY FOLLOW IT')
+    expect(carveAt).toBeGreaterThan(ruleAt)
+    expect(discover.slice(ruleAt, carveAt).length).toBeLessThan(600)
   })
 
   it('🔴 CLIENT MODE’S R18 DOES NOT REOPEN R17 — a model is not a template', () => {

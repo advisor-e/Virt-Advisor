@@ -85,7 +85,9 @@ edit-target needs an allowed-value list, **read it from the data file** (see the
 - Override is read on the live decision path (proven, not assumed).
 - Surfaced in `FirmManagerHub.vue` via the proxy.
 - Tests: route ≥ 90%, validation 100% (valid, missing fields, wrong types, not-owned-by-firm,
-  dev-fallback). Update `design/ACTIONS.md` (tick the EDIT-TARGET item).
+  dev-fallback). Close the item on the live list, `design/features/to-do-items.json`, and record the
+  change in the relevant Brief. ⚠ **NOT `design/ACTIONS.md`** — frozen archive since 2026-08-24.
+  This line used to name it; same defect as item 4.96.
 
 ## References
 - `server/routes/firmManager.js`, `server/utils/firmOverlay.js`, `server/restify-server.js`,

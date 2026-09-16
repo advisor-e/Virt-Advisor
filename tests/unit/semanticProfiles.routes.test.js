@@ -7,7 +7,7 @@
  * (CLAUDE.md → Testing): this route is the only view anyone has of the resolver's
  * dominant lever. A tool missing from the payload is a tool whose profile nobody can
  * inspect — and a person reading a 205-row screen cannot tell that 15 titles are
- * absent. That is precisely the fault item 7.5 names, and it was reproduced once
+ * absent. That is precisely the fault item 7.10 names, and it was reproduced once
  * already on 2026-09-16 by reading the page-keyed registry.
  *
  * 🔴 THE OTHER THREE ROUTES ARE NOT BUILT, so nothing here tests them — Mike's ruling
@@ -47,7 +47,7 @@ describe('the list the screen reads', () => {
     expect(res._status).toBe(200)
     expect(res._body.success).toBe(true)
 
-    // Item 7.5: the page-keyed registry holds one template per page and loses 15 tools.
+    // Item 7.10: the page-keyed registry holds one template per page and loses 15 tools.
     // A row names its page's primary tool plus every other tool sharing that page.
     const named = res._body.templates.flatMap(r => [r.title, ...r.alsoOnPage])
     expect(named.length).toBe(doTheJob.length)

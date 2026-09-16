@@ -4,6 +4,15 @@
 'use strict'
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
+
+// 🔴 THE DEV SIGN-IN IS MOCKED OFF BY DEFAULT, AND THE REASON MATTERS. jsdom serves these
+// tests from `localhost`, which IS a dev host — so without this the component's dev fallback
+// (added 2026-09-15 so the picker works on a developer's own machine) fires inside every test
+// here and "renders nothing with no sign-in" silently becomes untestable. Production is served
+// from a domain, where this is false. The dev path has its own test below, which turns it on.
+jest.mock('~/utils/devHost', () => ({ isDevHost: jest.fn(() => false) }))
+const { isDevHost } = require('~/utils/devHost')
+
 const ClientAccessSwitch = require('~/components/base/ClientAccessSwitch.vue').default
 
 /**
@@ -31,7 +40,7 @@ function fetchByUrl (answers) {
   })
 }
 
-beforeEach(() => { window.localStorage.clear() })
+beforeEach(() => { window.localStorage.clear(); isDevHost.mockReturnValue(false) })
 afterEach(() => { delete global.fetch })
 
 describe('ClientAccessSwitch — when it appears', () => {
@@ -41,6 +50,21 @@ describe('ClientAccessSwitch — when it appears', () => {
     await settle(wrapper)
     expect(wrapper.find('.cas').exists()).toBe(false)
     expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  it('🔴 ON A DEVELOPER\'S OWN MACHINE IT STANDS IN FOR THE SIGN-IN', async () => {
+    // 2026-09-15. In production Advisor-e writes `advisor_e_token` before our page loads;
+    // nothing on a laptop does, so the picker rendered NOTHING on every report page — and
+    // every client-aware screen behind it was unreachable. The staff register was the one
+    // that made this visible: it looked like a missing feature, not a missing sign-in.
+    // Two gates keep this out of production: a loopback hostname, and a backend that refuses
+    // the bypass token unless ALLOW_DEV_AUTH is set. A deployed app has neither.
+    isDevHost.mockReturnValue(true)
+    global.fetch = fetchByUrl({ 'GET /api/clients': () => respond(200, CLIENTS) })
+    const wrapper = mountWithBuefy(ClientAccessSwitch, { propsData: { modelRoute: '/volatility' } })
+    await settle(wrapper)
+    expect(wrapper.find('.cas').exists()).toBe(true)
+    expect(global.fetch).toHaveBeenCalled()
   })
 
   it('renders nothing for a business entity\'s sign-in (D5: advisor only)', async () => {

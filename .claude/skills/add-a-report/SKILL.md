@@ -77,8 +77,15 @@ point. There is no excuse for a screen with no test.
 
 ## Record & commit
 
-Add the report's line to `design/ACTIONS.md` (no silent parking), and record the deployment row if
-it ships anywhere beyond this machine. Commit the report as its own unit; push when asked.
+Record the report in the feature's Brief — `design/features/report-models.md`, which says how the
+model works **now** — and file anything still open on the live list,
+`design/features/to-do-items.json` (no silent parking). Record the deployment row if it ships
+anywhere beyond this machine. Commit the report as its own unit; push when asked.
+
+> ⚠ **NOT `design/ACTIONS.md`.** This line used to name it. That file has been a **frozen archive
+> since 2026-08-24** — nothing is added to it and nothing is triaged from it — so a session following
+> the old instruction wrote its record into a file no checklist reads. Its own first page says an
+> item there is *"a claim to check against the code, never a status"*. Item 4.96, closed 2026-09-14.
 
 ## References
 - `design/ADDING-A-REPORT.md` (the 8 steps) · `design/REPORT-SCAFFOLDING-PLAN.md` (why the blocks

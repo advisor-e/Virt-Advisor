@@ -41,9 +41,54 @@
     "tells them apart by exactly this field."
   ],
   "figures": {
-    "companyTax": { "rate": 0.28, "appliesTo": null, "source": null },
-    "gst": { "rate": 0.15, "source": null },
-    "filing": { "months": 2, "label": "Two-monthly", "source": null },
-    "basis": { "basis": "invoice", "label": "Invoice", "source": null }
+    "companyTax": {
+      "rate": 0.28,
+      "appliesTo": null,
+      "source": null
+    },
+    "gst": {
+      "rate": 0.15,
+      "source": null
+    },
+    "filing": {
+      "months": 2,
+      "label": "Two-monthly",
+      "source": null
+    },
+    "basis": {
+      "basis": "invoice",
+      "label": "Invoice",
+      "source": null
+    },
+    "incomeTax": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 14000,
+          "rate": 0.105
+        },
+        {
+          "from": 14001,
+          "to": 48000,
+          "rate": 0.175
+        },
+        {
+          "from": 48001,
+          "to": 70000,
+          "rate": 0.3
+        },
+        {
+          "from": 70001,
+          "to": 180000,
+          "rate": 0.33
+        },
+        {
+          "from": 180001,
+          "to": null,
+          "rate": 0.39
+        }
+      ],
+      "source": null
+    }
   }
 }

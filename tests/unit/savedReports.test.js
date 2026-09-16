@@ -157,3 +157,55 @@ describe('savedReports — reading', () => {
     expect(saved.changedKeys(null)).toEqual([])
   })
 })
+
+describe('the no-database fallback — dev only, and never on a refusal', () => {
+  const fs = require('fs')
+  const path = require('path')
+  const DEV_PATH = path.resolve(process.cwd(), 'data/dev-client-report-saved.json')
+  const INPUTS = { revenue: 100, cost: 40 }
+
+  function noServer () {
+    const e = new Error('connect ECONNREFUSED 127.0.0.1:3306')
+    e.code = 'ECONNREFUSED'
+    return e
+  }
+
+  function refused () {
+    const e = new Error('Cannot add or update a child row')
+    e.code = 'ER_NO_REFERENCED_ROW_2'
+    e.sqlState = '23000'
+    return e
+  }
+
+  afterEach(() => { try { fs.unlinkSync(DEV_PATH) } catch (_e) { /* not written */ } })
+
+  it('🔴 a read with no database answers "nothing saved" instead of throwing', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    await expect(saved.load('firm-1', 'c-1', '/volatility')).resolves.toBeNull()
+  })
+
+  it('an advisor save with no database is read back', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    overlay.saveFirmConfig.mockRejectedValue(noServer())
+    await saved.saveAsAdvisor('firm-1', 'c-1', '/volatility', INPUTS, { name: 'A', email: 'a@firm' })
+    const row = await saved.load('firm-1', 'c-1', '/volatility')
+    expect(row.inputs).toEqual(INPUTS)
+    // Another model's row is not this one's.
+    await expect(saved.load('firm-1', 'c-1', '/debtor-drag')).resolves.toBeNull()
+  })
+
+  it('🔴 A SERVER THAT REFUSED THE WRITE NEVER FALLS BACK', async () => {
+    overlay.loadFirmConfig.mockResolvedValue(null)
+    overlay.saveFirmConfig.mockRejectedValue(refused())
+    await expect(saved.saveAsAdvisor('firm-1', 'c-1', '/volatility', INPUTS, { name: 'A', email: 'a@firm' }))
+      .rejects.toThrow(/child row/)
+    expect(fs.existsSync(DEV_PATH)).toBe(false)
+  })
+
+  it('🔴 an unusable route THROWS rather than being written to the dev file', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(noServer())
+    overlay.saveFirmConfig.mockRejectedValue(noServer())
+    await expect(saved.load('firm-1', 'c-1', 'not-a-route')).rejects.toThrow(/route/)
+    expect(fs.existsSync(DEV_PATH)).toBe(false)
+  })
+})

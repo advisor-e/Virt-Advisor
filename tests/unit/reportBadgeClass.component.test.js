@@ -68,7 +68,12 @@ const RENDERED_BY = {
   '/dashboard-reports': { source: 'pages/dashboard-reports.vue' },
   '/quick-position': { source: 'pages/quick-position.vue' },
   '/ebitda-dcf': { source: 'pages/ebitda-dcf.vue' },
-  '/loan-estimator': { source: 'pages/loan-estimator.vue' }
+  '/loan-estimator': { source: 'pages/loan-estimator.vue' },
+  // The Wages/Salary Review (5.1): the header is the page's, above five step chips, the
+  // same shape as the Loan Estimator. A DECISION TOOL — every figure is typed by the
+  // advisor across four steps and nothing arrives from an accounts export — so no
+  // "Illustrative" badge, which is forbidden on Decision tools and Reports alike.
+  '/wages-review': { source: 'pages/wages-review.vue' }
 }
 
 const READY = MODELS.filter(m => m.status === STATUS_READY)

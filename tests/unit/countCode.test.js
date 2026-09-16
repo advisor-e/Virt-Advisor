@@ -8,7 +8,7 @@
  * figure that nobody could tell from a right one — which is exactly what a test is for.
  */
 
-const { countCode, measure, renderMarkdown } = require('../../scripts/count-code')
+const { countCode, measure, renderMarkdown, localDate } = require('../../scripts/count-code')
 
 describe('countCode', () => {
   test('blank lines and line comments are not code', () => {
@@ -62,5 +62,14 @@ describe('measure and render', () => {
     expect(md).toContain('1,500')
     expect(md).toContain('2,000')
     expect(md).toContain('more test code than app code')
+  })
+
+  test('the stamp is the local date, not the UTC one', () => {
+    // 2026-09-16 08:29 NZST is still 2026-09-15 in UTC. toISOString() stamped yesterday
+    // beside a commit made this morning, and the page says nothing about time zones.
+    const morning = new Date(2026, 8, 16, 8, 29, 0)
+    expect(localDate(morning)).toBe('2026-09-16')
+    const lateEvening = new Date(2026, 8, 16, 23, 59, 0)
+    expect(localDate(lateEvening)).toBe('2026-09-16')
   })
 })

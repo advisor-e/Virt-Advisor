@@ -51,6 +51,61 @@ async function logVASession (advisorId, firmId, domain, recommendedTemplates, ad
 }
 
 /**
+ * Logs what a client conversation did about calculation models (item 7.5).
+ *
+ * Fire-and-forget, on the same reasoning as logVASession above: this is written while an
+ * advisor is mid-conversation, and a storage failure must cost a diagnostic row, never
+ * their answer.
+ *
+ * ONE ROW PER MODEL NAMED, or one row for a decline. A reply that said nothing about any
+ * model writes NOTHING — the drawing's first band counts those by subtraction from the
+ * session count, rather than this table carrying a row for every conversation that was
+ * simply about something else.
+ *
+ * ⚠ NO ADVISOR TEXT REACHES THIS FUNCTION, and that is by construction rather than by
+ * care: there is no parameter for it. Mike's ruling, 2026-09-16 — see
+ * design/mockups/model-choices.html Decision 2.
+ *
+ * @param {object} params
+ * @param {string}   params.advisorId   - JWT-derived, from the route
+ * @param {string}   params.firmId      - JWT-derived, from the route
+ * @param {string}   [params.advisorName] - display name from the same verified JWT
+ * @param {string|null} params.domain   - the detected advisory domain
+ * @param {string[]} params.models      - catalogue routes the AI named, already validated
+ * @param {boolean}  params.declined    - the AI said plainly that no model fits
+ * @param {string}   params.source      - 'declared' or 'prose' (see modelChoiceScan)
+ * @param {string}   params.phase       - where in the conversation: 'recommendation',
+ *   'conversation', or the mode name for the general path
+ * @returns {Promise<void>}
+ */
+async function logModelChoice (params) {
+  const { advisorId, firmId, advisorName, domain, models, declined, source, phase } = params || {}
+  if (!advisorId || !firmId) { return }
+  const routes = Array.isArray(models) ? models : []
+  if (!routes.length && !declined) { return }
+  try {
+    const base = {
+      advisorId: String(advisorId).slice(0, 64),
+      advisorName: advisorName ? String(advisorName).slice(0, 128) : null,
+      firmId: String(firmId).slice(0, 64),
+      domain: domain ? String(domain).slice(0, 128) : null,
+      source: String(source || '').slice(0, 16),
+      phase: String(phase || '').slice(0, 32)
+    }
+    if (declined) {
+      await activityStore.recordModelChoice(Object.assign({}, base, { modelRoute: null, declined: true }))
+      return
+    }
+    for (const route of routes) {
+      await activityStore.recordModelChoice(
+        Object.assign({}, base, { modelRoute: String(route).slice(0, 128), declined: false }))
+    }
+  } catch (err) {
+    console.error('[activityLogger] logModelChoice failed:', err.message)
+  }
+}
+
+/**
  * Logs a completed course session to advisor_course_completions.
  * Called when an advisor finishes (or skips) a quiz in CourseBuilder.
  * Uses INSERT IGNORE so a duplicate save attempt (e.g. double-click) is silently skipped.
@@ -107,4 +162,4 @@ async function logCourseSession (params) {
   }
 }
 
-module.exports = { logVASession, logCourseSession }
+module.exports = { logVASession, logCourseSession, logModelChoice }

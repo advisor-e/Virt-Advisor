@@ -22,7 +22,7 @@
  * 🔴 ONE PROFILE PER PAGE, AND THAT IS CORRECT — Mike's ruling, 2026-09-16. Advisor-e issues
  * an ID per PAGE, and a page legitimately holds several templates: 220 client tools sit on 205
  * pages. Templates sharing a page SHARE one profile, because an advisor opening that page gets
- * them all. This is not a collision to be keyed away (item 7.5) — what item 7.5 carries is the
+ * them all. This is not a collision to be keyed away (item 7.10) — what item 7.10 carries is the
  * other half: naming every tool on a page, so a reader can see that one profile governs both
  * `Working Capital Cycle` and `Activity Ratios`. `listTemplateProfiles` does that here.
  */
@@ -124,7 +124,7 @@ function listTemplateProfiles () {
   const byPage = new Map()
 
   // 🔴 READ THE LIBRARY ARRAY, NOT THE REGISTRY. `templateRegistry` is a Map keyed by page,
-  // so it holds ONE template per page and the other 15 never arrive (item 7.5). Reading
+  // so it holds ONE template per page and the other 15 never arrive (item 7.10). Reading
   // `templates.json` directly is what lets a row name every tool on its page — the whole
   // point of Mike's ruling. Its summary still comes through the registry, which is keyed by
   // page and therefore correct for a value the tools share.

@@ -75,7 +75,9 @@ it outright.
 - Confirm the change is byte-for-byte equivalent in effect (same tallies, same resolved outputs).
 
 ### 8. Record and commit
-- Mark the task ✅ done in `design/ACTIONS.md`; update any relevant memory file.
+- Close the item on the live list, `design/features/to-do-items.json`, and record the change in the
+  relevant Brief; update any memory file. ⚠ **NOT `design/ACTIONS.md`** — frozen archive since
+  2026-08-24. This line used to name it; same defect as item 4.96.
 - Commit **each consolidation separately** with a message that states it is behaviour-preserving
   and cites the test result. Push only when the user asks.
 

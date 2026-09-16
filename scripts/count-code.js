@@ -211,6 +211,21 @@ function renderMarkdown (m, stamp) {
 }
 
 /**
+ * Today's date where the machine is, as YYYY-MM-DD.
+ *
+ * `toISOString()` is UTC, and we are UTC+12: a build run before noon here stamped
+ * YESTERDAY beside a commit made this morning. Every other date in this project —
+ * commit dates, handover headings, `activeOn.since` — is local, so this one is too.
+ *
+ * @param {Date} [now] the moment to read; defaults to this one
+ * @returns {string} e.g. '2026-09-16'
+ */
+function localDate (now) {
+  const d = now || new Date()
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
+}
+
+/**
  * Measure and write design/CODE-SIZE.md.
  *
  * @param {string} root
@@ -218,13 +233,13 @@ function renderMarkdown (m, stamp) {
  */
 function writeRecord (root) {
   const m = measure(root)
-  const stamp = { date: new Date().toISOString().slice(0, 10), commit: commitOf(root) }
+  const stamp = { date: localDate(), commit: commitOf(root) }
   const file = path.join(root, 'design', 'CODE-SIZE.md')
   fs.writeFileSync(file, renderMarkdown(m, stamp), 'utf8')
   return { file, code: m.app.code, files: m.app.files, tests: m.tests.code }
 }
 
-module.exports = { countCode, measure, renderMarkdown, writeRecord, APP_DIRS }
+module.exports = { countCode, measure, renderMarkdown, writeRecord, localDate, APP_DIRS }
 
 if (require.main === module) {
   const root = path.resolve(__dirname, '..')

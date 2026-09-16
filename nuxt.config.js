@@ -144,6 +144,9 @@ export default {
     // read (design/features/business-entity-reports.md). Added with the feature, because
     // /api/meeting below shows what happens when a slice forgets this line.
     { path: '/api/client-reports', handler: '~/server-middleware/apiProxy.js' },
+    // The Wages/Salary Review's staff-register gate (item 5.1, Decision 6). Added WITH the
+    // routes, not after them — the paragraph below is the standing reason why.
+    { path: '/api/wages-register', handler: '~/server-middleware/apiProxy.js' },
     // 🔴 THESE TWO WERE MISSING UNTIL 2026-09-11, AND BOTH FEATURES WERE DEAD IN THE BROWSER.
     // Built 2026-09-10 with every backend route registered and serving; neither added its line
     // here, so every call got a Nuxt 404. That is the THIRD time — see /api/meeting below, and
@@ -170,6 +173,9 @@ export default {
     { path: '/api/activity', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/firm-manager', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/mentor', handler: '~/server-middleware/apiProxy.js' },
+    // Model Choices (item 7.5) — what the AI named, read at all four manager tiers.
+    // Added WITH the route, for the reason the paragraph above spells out at length.
+    { path: '/api/model-choices', handler: '~/server-middleware/apiProxy.js' },
     // Collaborate's people layer + its template catalogue. Same thin proxy as the
     // groups above: the browser only ever talks to its own origin, and the single
     // Restify backend answers. Collaborate shipped its own near-identical proxy

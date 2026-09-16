@@ -74,7 +74,8 @@ describe('report model catalogue', () => {
         '/sales-dashboard',
         '/stock-purchasing',
         '/three-way-forecast',
-        '/volatility'
+        '/volatility',
+        '/wages-review'
       ])
     })
 
@@ -115,7 +116,8 @@ describe('report model catalogue', () => {
         'Lease vs Buy',
         'Multiple Property Assessment',
         'Retirement Review',
-        'The Loan Estimator'
+        'The Loan Estimator',
+        'Wages/Salary Review'
       ])
       expect(by(CLASS_REPORT)).toHaveLength(9)
     })
@@ -151,15 +153,21 @@ describe('report model catalogue', () => {
       // The Retirement Review (4.90, built 2026-09-13) is the fifth Decision-class build: a
       // household's real income, pension, superannuation and up to six properties, all typed
       // in. No file to import, and no Illustrative badge — the figures are the client's own.
+      // The Wages/Salary Review (5.1, built 2026-09-14) is the sixth Decision-class build,
+      // and the drawing's Decision 1 settles why against the one test in
+      // MODEL-CLASSIFICATION.md — how the data arrives. Nothing here comes from an accounts
+      // export: a client's team, rates, hiring plan and twelve actuals are all typed by the
+      // advisor across four steps. No file intake, and no Illustrative badge.
       const DECISION_BUILDS = [
         'The Loan Estimator',
         'Lease vs Buy',
         'Cost of Capital (WACC)',
         'Multiple Property Assessment',
-        'Retirement Review'
+        'Retirement Review',
+        'Wages/Salary Review'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(18)
+      expect(built).toHaveLength(19)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -311,7 +319,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(18)
+      expect(readyCount(MODELS)).toBe(19)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

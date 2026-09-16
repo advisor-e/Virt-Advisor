@@ -205,10 +205,10 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Ten** models —
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Eleven** models —
   8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator, Dashboard Reports, the
-  High-Level Budget, the Mid-Level Budget, the Retirement Review, Stock Purchasing and the
-  Sales Dashboard —
+  High-Level Budget, the Mid-Level Budget, the Retirement Review, Stock Purchasing, the
+  Sales Dashboard and the Wages/Salary Review —
   carry explanatory notes and verdict rules instead, and the screen heads them differently
   (Dashboard Reports is the client's own document; its reading is the health score and the
   advisor's words on its pages. The High-Level Budget's reading is the variance table itself —
@@ -377,10 +377,87 @@ format; `client.txt` carries hard rule **R18**. Both are written as an invitatio
 brake**: only when a model directly answers the situation, always with its exact page path,
 only from the list, and never in place of a template.
 
-🔴 **THE SEARCH MODE'S CLOSING RULE WAS NOT LOOSENED.** *"MUST be the final line… End there.
-Full stop."* still stands; the calculator block sits **above** it. A test asserts both. That
-rule exists so the AI stops talking — if a future change needs room after the closing line,
-that is a decision to take on its own merits, not a side effect.
+🔴 **THREE OF THE BRAKES WERE ADDED 2026-09-15, THE FIRST TIME THIS WAS EVER TESTED FOR
+EFFECTIVENESS RATHER THAN DELIVERY.** Three real client conversations were run through
+`/api/advisor/query` against live OpenAI calls. **Every existing test checks that the right words
+REACH the prompt; not one checks what the model then does with them** — so all three faults below
+were invisible to a green suite.
+
+- **It never declined.** Given a situation with no financial dimension at all — two owners at war,
+  agreed by the engine as governance — and asked whether any model would help, it offered the
+  3-Way Forecast. *"If no model fits, say that plainly"* was a trailing clause on another bullet
+  and was talked past. **Declining is now its own rule and a required answer.**
+- **It invented limits.** Asked what Lease vs Buy does not cover, it gave the real FBT limitation
+  and then added one of its own that is written nowhere. **Limits are now QUOTED as written, with
+  nothing summarised, extended or appended** — an invented limitation reads exactly like a real
+  one, and the advisor repeats it to their client as fact.
+- **It called a TEMPLATE a "model".** Nothing in the block had ever defined the difference.
+  **Mike's own wording now does** (2026-09-15): a model has variable input cells and sequential
+  calculations arriving at a report — *"The advisor must be able to supply"* and *"Key calculation
+  output"* — and anything showing neither is not a model and is not to be called one. It is a test
+  the model can actually run, because both lists sit in the same prompt and only one carries those
+  fields.
+
+⚠ **Instructions steer; they do not bind.** Two of the three took a second attempt at the wording,
+and the third only landed once the rule gave the model something to *look at* rather than something
+to obey. A code-level check was considered and **deliberately not built** — the template slip named
+a real template, gave no page path and cost nobody anything, which is a poor trade for new code on
+the hot path of every client conversation.
+
+🔴 **WHAT THE AI NAMES IS NOW RECORDED (item 7.5, built 2026-09-16).** Approved artefact:
+[`../mockups/model-choices.html`](../mockups/model-choices.html), all three decisions ruled by Mike
+the same day. Every client conversation that names a calculation model — or says plainly that none
+fits — writes a row to `advisor_model_choices`: when, firm, advisor, the advisory domain, the model,
+and **which of two sources found it**. `GET /api/model-choices` reads it back scoped to the caller's
+tier. **The row holds no word the advisor typed, and the table has no column for one** — this is read
+across firms by the mentor, so the advisor's description of their client stays inside the firm on
+their own saved case, where the decision trace already keeps it.
+
+**Two sources, because one is not enough, and the split is stored.** The AI declares its choice in a
+`[[MODEL: ...]]` marker ([`../../data/prompts/client.txt`](../../data/prompts/client.txt) SECTION 12,
+[`../../data/prompts/discover.txt`](../../data/prompts/discover.txt)); underneath it,
+[`../../server/utils/modelChoiceScan.js`](../../server/utils/modelChoiceScan.js) scans for the
+models' page paths, which is exact because each is a unique string from the same JSON the AI was
+given. **Only the marker can see a decline** — "no model fits" has no fixed wording, and
+phrase-matching it would put rows on a screen nobody could trust.
+
+⚠ **THE MARKER IS UNRELIABLE AND THAT IS ITEM 7.6.** Proved by running it, **nine** live conversations
+on 2026-09-16: **0 in 3** with the instruction in `report-model-summaries.json`, **1 in 6** once it
+moved into the prompts, and **0 in 3** again after the closing-line contradiction below was fixed —
+so that contradiction, the obvious culprit, **is not the cause**. Nearly every row recorded came from
+the fallback. A model that is *named* is caught every time; a **decline under-counts**. ⚠ The client-mode Phase 3 path is **not yet
+tested** — SECTION 11's template marker works reliably there and SECTION 12 sits beside it, so it may
+already be sound. **The screen is not built:** its hub tab needs `FirmManagerHub.vue`.
+
+⚠ **THE SCREEN'S OWN SECOND USE, and it is not an afterthought.** Nineteen models answer to
+twenty-two advisory domains, so a run of declines in one domain is a **gap map** — where advisors
+keep arriving and finding nothing. That is where the next model should go, and where human coaching
+has to carry the work meanwhile.
+
+🔴 **THE SEARCH MODE'S CLOSING RULE STILL HOLDS FOR EVERY WORD THE ADVISOR READS.** *"MUST be
+the final line… End there. Full stop."* stands; the calculator block sits **above** it. That
+rule exists so the AI stops talking.
+
+⚠ **IT NOW CARRIES EXACTLY ONE CARVE-OUT, AND THIS PARAGRAPH IS WHY IT IS WRITTEN DOWN RATHER
+THAN ASSUMED.** The stripped `[[MODEL: ...]]` marker may follow the closing line, because it is
+removed before the advisor reads anything — so the closing question is still the last thing on
+their screen. `client.txt` SECTION 11 has always said this for the template marker; `discover.txt`
+was never given the wording.
+
+🔴 **THIS PARAGRAPH USED TO END *"if a future change needs room after the closing line, that is a
+decision to take on its own merits, not a side effect"* — AND ON 2026-09-16 IT BECAME EXACTLY THAT
+SIDE EFFECT.** Item 7.5 told the AI to write its marker "on its own final line" while this rule
+said, in capitals, that nothing may follow. **Two contradictory rules in one prompt, and the suite
+stayed green**, because the test pinned the strings above and nothing checked whether a later
+section undid them. The live AI obeyed the older, stronger rule — which is the likeliest reason the
+marker fired once in six. Found at shutdown the same day by reading this page, fixed the same hour,
+and `tests/unit/reportModelSummaries.test.js` now asserts the carve-out is **stated, limited to the
+stripped marker, and written beside the rule it qualifies**.
+
+⚠ **THE FIX WAS RIGHT AND IT DID NOT WORK.** Three more live conversations after it: **still 0 of 3**.
+Two contradictory rules in one prompt is a defect whether or not it was *the* defect, so the carve-out
+stays — but **the closing rule was not what was suppressing the marker**, and 7.6's note says so, so
+that nobody spends another session on this wording.
 
 🔴 **R18 IS NOT AN EXCEPTION TO R17.** R17 fixes the recommended template set. A model is not
 a template and never joins, replaces or reorders it. R18 says so in terms, because two hard
@@ -1614,6 +1691,565 @@ generic sentence and reached nobody, for **Stock Purchasing too**, from the day 
 written. Same fault recorded for `TOO_MANY_MONTHLY_FILES` in that file's own comments. It matters
 more now that the required columns are per model: the whole point is that a file is refused by
 what *this* model needs, and a generic sentence cannot say that. Added 2026-09-13.
+
+---
+
+### Wages/Salary Review (4.104 — five steps, the report and the catalogue row 2026-09-14; the staff register's gate 2026-09-15)
+
+**What it does.** Answers whether the team bills more than it costs, month by month, against
+twelve actuals the advisor types in. Not a payroll total — the word "wages" undersells it. Drawn
+first at [`../mockups/wages-model.html`](../mockups/wages-model.html); **all nine decisions were
+ruled by Mike on 2026-09-14**, four of them against the recommendation, and he approved the build
+the same day. Source: `../report-source-models/Wages Model.xlsx`, **six sheets and 10,456 filled
+cells — the largest port in the library**, against the Sales Dashboard's 140 rows.
+
+**Built:** `server/report/wagesModel.js` and its golden test, `POST /api/report/wages-review`
+(anonymous, like every calculation route), and **all five steps with the report** on
+[`pages/wages-review.vue`](../../pages/wages-review.vue) — `WagesTeam`, `WagesWork`, `WagesYear`,
+`WagesActual` and `WagesReport`, each with its own component test, plus the shared headline guard.
+
+🔐 **The staff register and its switch are both built (2026-09-15). THERE IS NO GATE — it is one
+button.** Mike's ruling that day: *"i dont need any bullshit gates telling my advisors what they
+can and cant do. if they're engaged to run a due diligence project they will fucking tell you."*
+The advisor who opens the register is the advisor telling us.
+
+🔴 **WHY THE GATE WENT, because it is the more useful half of the story.** Decision 6 required a
+case already in the `due-diligence` domain — and the ONLY thing in the app that can set that field
+is [`components/VirtualAdvisor.vue`](../../components/VirtualAdvisor.vue) saving
+`domain: this.sessionDomain`, the engine's own inference from an advisor's words mid-conversation.
+No screen anywhere let a human say so. An advisor on a real due-diligence engagement who opened
+this model was shown a true sentence — *"it opens only while a due-diligence project is open on
+the case"* — **and no means of making it true.** A condition with no way to meet it.
+
+**WHAT SURVIVES IS THE RECORD**, which was always the substance of Decision 6.
+[`server/utils/wagesRegisterGate.js`](../../server/utils/wagesRegisterGate.js) is still a **pure
+function** so every branch of a call governing personal data is testable, behind
+`GET /api/wages-register/gate/:clientId` and its `/open` and `/close` posts, all `firmAuth`. It
+now reports whether the register is open rather than deciding who may open it:
+[`WagesRegisterGate.vue`](../../components/WagesRegisterGate.vue) shows `available` (the button)
+or `open` (the provenance line); `closed` survives for one case only, and it is not a refusal — no
+client has been chosen, so there is no register to speak about. `openedBy`/`openedAt` come from
+the **verified token, never the body**, and an opening made with no case in the domain is marked
+as being on the advisor's own say-so. **The one check that did NOT go** is that the client belongs
+to the caller's firm: that is scoping, not permission, and removing it would be an IDOR. Artefact:
+[`../mockups/wages-register-gate.html`](../mockups/wages-register-gate.html), carrying both
+rulings and the superseded drawing beneath them.
+
+**The switch turns BOTH ways** (Mike, 2026-09-15): an advisor who opened the register on the wrong
+client must always be able to shut it. A close records who and when and **keeps the opening it
+closed**; a closed register returns to `available` rather than to a fourth state; re-opening is a
+fresh decision.
+
+⚠ **THE SWITCH IS ALWAYS READ, and it was not always.** `getGate` and `resolveFor` each read it
+only when a due-diligence case stood, which was right while the gate existed. With the gate gone,
+most registers are opened with no case at all — so the unread switch reported every one as *not
+open*, and the contents routes answered **403** onto a rendered sheet. Found by opening it in a
+browser; no test saw it.
+
+✅ **IN THE MODEL LIBRARY since 2026-09-14, as a DECISION tool** —
+[`utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js), `STATUS_READY`,
+`CLASS_DECISION`, route `/wages-review`. Nothing arrives from an accounts export: every figure is
+typed or derived, which is what makes it a Decision tool rather than a report.
+
+🔐 **THE STAFF REGISTER ITSELF IS BUILT (2026-09-15)** — drawn at
+[`../mockups/wages-register.html`](../mockups/wages-register.html), approved by Mike and all four
+of its questions ruled the same day, one at a time. The sheet is
+[`components/WagesRegister.vue`](../../components/WagesRegister.vue), rendered by
+`pages/wages-review.vue` **only while the gate says open** — `v-if`, never `v-show`, so no
+employee data is put in the DOM behind CSS. The people come from step 1 and are not typed twice;
+the register adds three typed fields per person and derives the liability.
+
+💰 **LEAVE IS VALUED AT THE RATE INCLUDING PAY RISES** (Mike, 2026-09-15), not step 1's base
+rate — leave is paid at the rate in force when it is taken, so the base rate understates a real
+liability, and understating what is owed on a document an acquirer prices a business from is the
+wrong direction to err. The workbook's own definition is reproduced exactly: `Annual Hiring Plan`
+S49 is `(E49*R49)+E49` with `R49 = max(F49:Q49)` — **the base rate lifted by the largest rise in
+the twelve months**, not the last one and not a compounding of them. 19 × 1.05 = 19.95. The rises
+live on step 3, so `registerTeam` prefers step 3's people over step 1's; until step 3 is
+confirmed leave is valued at the base rate, which is correct because no rise has been recorded
+yet. The screen carries a line saying so, because the figure will not match step 1's for anyone
+with a rise and an unexplained difference between two screens reads as a fault.
+
+**The pieces.** [`server/utils/wagesRegisterMaths.js`](../../server/utils/wagesRegisterMaths.js) is
+pure and holds the arithmetic (38 tests, the golden one below).
+[`wagesRegisterStore.js`](../../server/utils/wagesRegisterStore.js) stores it as **one
+`firmOverlay` key per client** — the gate's own seam, so version history is free and **no new
+table**. `POST /api/wages-register/:clientId/view` and `PUT /api/wages-register/:clientId`, both
+`firmAuth`, **both re-resolve the gate from the live case before answering**: a case that leaves
+the due-diligence domain stops serving named employees at once, which is Decision 6's *"not a
+permanent property of the client"* enforced at the route rather than only on the screen.
+
+**The four rulings, each as recommended (2026-09-15).** (1) The register carries **its own typed
+"Hours in a day's leave", starting empty** — not step 2's average working day, which moves with
+the work, and not a hard-coded 8; until it is set nothing is priced. (2) An unpriced person reads
+**"not yet priced"** and the totals carry a **Priced** count beside People, so a partial total
+never presents itself as a whole one. (3) 🔴 **Sick leave is not carried at all** — his words,
+*"take it off"*; `sanitise` is an allow-list, and both the store's tests and the component's pin
+that it cannot arrive by being added to a body. (4) The register has **its own firm-level
+retention dial**, [`registerRetention.js`](../../server/utils/registerRetention.js), key
+`register-retention`, default 84 months — deliberately **not** `meeting-retention`, whose period
+is *spoken aloud to a client* in the consent wording; sharing one number would let a promise to a
+client silently change how long registers of named staff are kept.
+
+⚠ **ONE PIECE IS NOT BUILT, AND IT IS NOT A SCOPE CALL.** The Firm Manager **control** to change
+the retention period needs a tab in
+[`components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue), which is named in item
+4.87's `touches` and **active on the desktop** since 2026-09-10. Off limits from this machine. The
+backend, the cascade and the platform default are built and tested, and the register shows the
+resulting date; only the screen to change it waits. It is one component and one `TAB_TIERS` entry
+on the day 4.87 lands.
+
+🔴 **THE GOLDEN TEST PINS A DELIBERATE DISAGREEMENT WITH THE WORKBOOK**, which no other model in
+this library does. Reading sheet 6's stored XML found three faults in column `H` — what the
+63,154.16 headline is summed from: its one surviving formula `(E8*$D$5)*G8` points at a **blank**
+`D5` (the 8 is in `E4`) and evaluates to 0 behind a stale cached value; `H9:H39` are hand-typed
+constants that never move when pay or leave does; and **24 of the 29 people are priced from *sick
+leave consumed* (`F`) rather than accrued annual leave (`G`)**. Where a row carries both, `G` wins,
+so the intent is not in doubt. We price from accrued leave only: **10,115.84 across five people**,
+not 63,154.16 across twenty-nine. `tests/unit/wagesRegisterMaths.test.js` reconstructs the
+workbook's own figures from sick leave to prove the fault, and says in terms that a later session
+"fixing" the port to match will have restored a liability built on the wrong quantity.
+
+**The report's three charts (2026-09-15).** Mike: *"can you make the salary/wages report - last page -
+more engaging with graphs/ pictures etc"*, then the pie was his own — *"maybe a pie graph showing the
+3 seasons as a % of total profit?"*. Drawn at
+[`../mockups/wages-report-visuals.html`](../mockups/wages-report-visuals.html), approved, built.
+**No chart library and no new dependency:** `LineChart` (the planned margin by month, with July
+below the zero line), `BarPairChart` (what the team bills against what it costs, per season) and
+`DoughnutChart` (each season's share of the year) already existed.
+
+**The drawing carried a fourth and Mike cut it** — *"cut the waterfall graph"*, the same day. A
+`WaterfallChart` of planned → variance → actual, which restated the three headline figures at the
+top of the report in a different shape rather than adding a fact. It was **built first**, because
+the drawing showed four and a silent deviation from an approved artefact is exactly what these
+rules exist to stop; it came out on his word. The cut chart stays on the drawing, greyed and
+marked, with the recommendation left beneath the ruling, and
+`tests/unit/wagesReportCharts.component.test.js` pins that no waterfall mounts — so the absence
+reads as a decision rather than a gap.
+
+🔴 **THE CHART CHOICES WERE DECIDED BY WHICH COMPONENTS COULD DRAW A LOSS, not by taste.** When
+this was drawn, four of the seven base charts clamped a negative away. A paired planned-vs-actual
+bar chart was ruled out before it was drawn — it would have flattened July's **−132** and Wet n
+Dark's **−13,972** to the axis and looked perfectly correct — so the monthly chart is a line.
+
+**That finding then turned out to be a live defect elsewhere, and `BarPairChart` was fixed the same
+day (Mike's ruling, 2026-09-15).** Two client-facing screens were feeding it figures that go
+negative: `DashboardReportProfitLoss` (`netProfit` — a loss-making year drew as **break-even**,
+height zero on the axis, with the true "−$40,000" printed beside it) and `DashboardReportCashFlow`
+(the closing bank balance — an overdraft put **both bars at zero** and, with no positive value
+anywhere, the scale fell back to `max = 1`, so the gridlines meant nothing either: **a blank chart
+on the page about cash**, while the same component drew that same figure correctly as a `LineChart`
+immediately above). `BarPairChart` now brackets zero and draws each bar from the zero line, exactly
+as `LineChart` and `WaterfallChart` always have. **With every value positive the arithmetic reduces
+to the previous expressions exactly**, pinned by `tests/unit/barPairChart.component.test.js`, so the
+six screens already using it are unmoved.
+
+**`HBarChart` was fixed the same day too, and the investigation decided its scope.** Four of its
+five call sites are stock values and cannot go negative. The fifth is `DashboardReportSensitivity`,
+whose levers proved **better guarded than feared**: `computeProfitSensitivity` blocks on
+`NO_REVENUE` and `NO_CONTRIBUTION`, so no-revenue and selling-below-cost never reach a chart at all,
+and **a merely loss-making business renders with all four levers positive** — they measure the size
+of an effect, not a profit. What stays reachable is a **negative expense line in a client's accounts
+export** (a credit posted to cost of sales or overheads), proved to yield a negative lever: an
+accounting anomaly rather than a bad year. Fixed anyway, because this app reads exports it does not
+control — the component now draws left of a zero line, and a negative's figure sits right of that
+line where the row is empty, since beyond the bar's left end it would print over the row's own name.
+
+**Still clamping, and left deliberately:** `BandBarChart`. Its only feed is monthly sales, and a
+month with negative total sales is not a thing. `DoughnutChart` is a different case and not a defect
+at all: a pie genuinely cannot show a negative, so excluding it and **saying so in words** is the
+right behaviour, which is what the wages ring does.
+
+🔴 **`seasonShare` IS NOT `seasonComparison`, AND A PIE OF THE WRONG ONE WOULD HAVE LOOKED RIGHT.**
+`seasonComparison` costs **one representative month** of each kind, so its three figures sum to
+**44,435** against a year of **288,935** — three parallel scenarios, not three parts of a whole.
+`seasonShare` rolls the twelve real months up by their own season and reconciles to `totals.margin`
+exactly. It lives on the **engine**, not the screen, because this model's rule is that the report
+recalculates nothing. **A losing season carries `share: null`, never `0`** — the screen then prints
+*"contributes nothing"*, because *0%* claims the season earned none when the truth is that it lost
+money. What the ring says: **four months of twelve carry 68.6% of the year's labour margin**, seven
+carry less than a third, one carries none.
+
+⚠ **A duplicate heading shipped past the drawing and was caught by opening a browser.** The drawing
+had the months table headed *"Month by month"* — typed rather than read from `monthsTitle`, which is
+*"The year, month by month"*, the same title the drawing gave chart 1. Mike ruled chart 1 to
+**"Planned margin, month by month"**; the drawing carries both corrections. **A heading that already
+exists on screen is read out of the locale file, never retyped.**
+
+**Still to come:** the **payroll reader** (its own item, **5.2**) and the Firm Manager control above.
+**A real payroll export is owed by Mike** — per `intake/supportedPackages.js` no reader is called
+supported until one has been read. The five steps' figures are still not saved per client (4.62's
+mechanism), which is why the register matches its entries to people on `personKey` —
+**`division|name|occurrence`** — rather than on anything permanent. It is stable, not permanent:
+it survives a reload and step 1's division regrouping, but renaming someone, or moving them
+between divisions, separates them from their entry. Stated in `wagesRegisterStore.js`.
+
+🔴 **OPENING IT IN A BROWSER FOUND THREE FAULTS THAT 10,975 GREEN TESTS DID NOT** (2026-09-15) —
+all three invisible to a test because they need the workbook's own sample team to appear.
+**(1)** That team carries **Butch, Bono, Boris and Brad twice each and four people with no name at
+all**, and the first build keyed rows by name: Vue reported duplicate keys, the wrong person's row
+updated as the advisor typed, and the two Butches collapsed into one stored entry on save. Hence
+`personKey`. **(2)** Nameless rows were **silently discarded on save** — the allow-list dropped an
+entry with no name — so whatever was typed against four real rows vanished without a word. The key
+identifies an entry now; the name may be empty. **(3)** The footer read **"1 person"** above
+twenty-nine, because the total counted only people somebody had already rated; the total is the
+register's headcount, and a **Not rated** line now lets the three bands and the total reconcile on
+screen. *That third one had a test asserting the wrong behaviour, which was replaced.* Proved
+afterwards in the browser: typing 9 days against the **second** Butch, saving and reloading leaves
+the first blank and the second at 1,872.00.
+
+> *Corrected 2026-09-14.* This block read **"step 1 of the five"** built, **"still to come: steps
+> 2–5, the report screen"**, and **"⚠ NOT IN THE MODEL LIBRARY, deliberately… a card opening onto
+> one fifth of a model is a promise the screen cannot keep."** All three were true when written and
+> none survived the same day's work. It matters more here than in a code comment: this Brief is what
+> the Handbook publishes, so it was telling every reader — the master team at a UAT gate included —
+> that a finished, catalogued model was a fifth built. **Nothing compares a Brief to the code; only
+> a person does.**
+
+🔴 **STEP 1 HAS THIRTEEN CONTROLS WHERE THE DRAWING LISTED TWELVE — every difference named, per §5.**
+The drawing's inventory was a hand reading of which cells are typed; building it was checked against
+the workbook's stored XML (does the cell carry an `<f>`, and does any formula read it). Five fields
+resolved differently, **one control Mike ruled**, and **two were reinstated by 4.102** once the
+shutdown sheet was read:
+
+| Drawn field | What the workbook holds | What step 1 does |
+|---|---|---|
+| Weekly base hours | `Seasonal Inputs`: **typed but read by NOTHING** (`Std Hrs`, col N). `Shutdown Inputs` col K: **typed and live — the whole wage chain runs off it** | **a control, since 4.102** |
+| Weekly overtime hours | `Seasonal Inputs`: **calculated** (`Extra Hrs Wkd`, BV/BX/BZ). `Shutdown Inputs` col O: **typed and read** | **a control, since 4.102** |
+| Annual salary | **Typed but read by NOTHING** — col G, 0 readers | no control |
+| On salary? (Yes/No) | **Typed but read by NOTHING** — col F, 0 readers | **Division**, Mike's ruling 2026-09-14 |
+| Overtime pay rate | the typed cell is the *uplift*; the workbook's header calls it `Overtime Pay Rate (%)`, holding 0.5 | the uplift is the control |
+| *(absent from the drawing)* | `toolsWeekly` — `CH7 = (Z7*52)/12` | a control was added |
+| *(absent from the drawing)* | `productivity` — `Shutdown Inputs` col S | **a control, since 4.102** |
+
+🔴 **THE LESSON THE FIRST TWO ROWS CARRY.** They read *"typed but read by nothing"* and *"calculated"*
+for months, and both statements were TRUE — **of the seasonal sheet, which was the only one anyone
+had read.** On the shutdown sheet they are live typed inputs. A finding about one sheet was written
+down as a finding about the workbook, and the missing controls are exactly why a real team billed
+zero on the shutdown basis. **Say which sheet a cell fact came from, every time.**
+
+**Neither a calculated cell nor a typed one that nothing reads earns a control.** *Every typed cell
+reachable, nothing quietly fixed as a constant* guards against removing a control the model gives; a
+box the engine overwrites — or one wired to nothing at all — is the opposite fault.
+
+⚠ **THE COLUMN MAP IS NOT WHAT IT LOOKS LIKE, and a first reading of it was wrong.** `Seasonal
+Inputs` uses 1.25-wide **spacer columns** (I, K, Q, S), so any reading that skips empty cells shifts
+every field one to the left. The table above is the corrected reading, taken from the sheet's own
+header row: **D** name · **E** full/part time · **F** On Salary · **G** Annual Salary · **H** charge
+rate · **J** pay rate · **M** efficiency · **N** Std Hrs · **P** retirement · **R** overtime uplift ·
+**T** leave days. The build was unaffected — the same ten controls are right either way — but the
+first record of *why* said "Std Hrs is calculated", and it is typed-and-unread instead.
+
+**Division drives the basis** (Mike, 2026-09-14). The workbook is laid out in blocks and the mapping
+is exact across all 29 sample rows: Admin and Sales are costed as salary, Production as production,
+Management as management. One question to the advisor, not two.
+
+**Two further deviations, both deliberate.** The screen **opens on the workbook's sample team behind a
+SampleNotice** — the house pattern (Loan Estimator does the same) rather than the drawing's stricter
+"never pre-filled"; the sample is the workbook's own, badged as sample, and the copy is pinned
+against the engine's `DEFAULT_INPUTS` so it cannot drift. And the **three unnamed rows are kept**, so
+a confirmed payload reproduces the golden figures exactly.
+
+**The grid groups itself by division** — Mike, testing step 1, added an Admin person and found them
+at the foot of the page below Management. A **stable partition**, not a sort: people keep their order
+within their block, so a row moves only when its own division changes. Chosen over an Add button per
+role because a per-role button fixes only insertion, and Division is the control that gets *changed*
+on existing rows. Rows carry a per-row id rather than an index key, and remove takes the person by
+identity — both forced by rows that move. Safe because the engine's figures do not depend on row
+order: reversing the whole team moves the year margin by 1.7e-10, IEEE-754 addition order, pinned by
+a test.
+
+#### Step 2 — How the work happens
+
+[`components/WagesWork.vue`](../../components/WagesWork.vue), with
+`tests/unit/wagesWork.component.test.js`. The seasonal/shutdown basis (a two-button switch, Mike's
+decision 3 — never a blend), the three seasons as a matrix, and the figures set once for the whole
+model. **Every control is a typed cell**, verified in the stored XML, which is what the drawing's own
+warning about this block — *"six of these ten would have been shipped as constants"* — was for.
+
+🔴 **LABELS ARE THE WORKBOOK'S OWN WORDS** (Mike's ruling, 2026-09-14), because the drawing names only
+ten of these and the model already has a vocabulary: *"Average Working Hrs per Day (incl Travel)"*,
+*"Wet Days or Heat Days Lost per Month"*, *"Field Team Paid for 'Lost' Days"*, *"Mang't, Admin & Sales
+Hrs per Day"*, *"Days Worked"*.
+
+#### Step 3 — The year ahead
+
+[`components/WagesYear.vue`](../../components/WagesYear.vue), with
+`tests/unit/wagesYear.component.test.js`. **The largest step**, because the Annual Hiring Plan carries
+453 typed cells. **Three grids, not one** — the twelve months, who is on the payroll in each, and each
+person's pay rises — because they answer three different questions and ~750 controls in one table
+would be unreadable.
+
+**Where each grid's cells live**, all verified typed in the stored XML: the months are the **Cash
+Report's** rows 9 / 7 / 5 / 11 (name, season, production days, allowances apply), which the Hiring
+Plan only *mirrors* in calculated cells; on-payroll is `Annual Hiring Plan` F..Q on each person's row;
+pay rises are F..Q on the *"Team Wage/ Salary %"* block from row 46. The **opening and adjusted pay
+rates are calculated**, so neither gets a control — the opening rate is shown read-only because a rise
+means nothing without it.
+
+**Seasons are stored by key and sent by name.** The engine matches a month to a season on the firm's
+own wording, so the picker's options come from **step 2**, not a list here — a hardcoded list would
+send every month to the standard-season fallback the moment a firm renamed a season, silently,
+because that is a real season. Restoring maps the name back to its key.
+
+⚠ **`actualMargin` is deliberately not set here** — it is step 4's. A month arriving with an invented
+actual would be judged against it on the report, and the variance is what the model exists to show.
+
+⚠ Column S of the rises block carries **stray text from an overlapping table** (*"Pdctn' Hrs"*,
+*"Federal Taxes"*, *"Band 1"*) on rows with no adjusted rate. Not read here. *(This used to add
+"and it is the same interleaving that made the shutdown allowance unreadable" — withdrawn
+2026-09-14: that column was never unreadable. See step 1's note 2.)*
+
+#### Step 4 — What actually happened
+
+[`components/WagesActual.vue`](../../components/WagesActual.vue), with
+`tests/unit/wagesActual.component.test.js`. **The smallest step, and the one the model is judged by:**
+twelve typed cells, `Cash Report` row 24, labelled by the workbook itself *"Actual Labour Margin"* and
+sitting directly under row 22's calculated *"Projected Labour Margin"*. **Nothing imports them** — the
+drawing's first cut left this row out altogether, which is how the model nearly shipped with no way to
+judge the plan against reality.
+
+**Month names come from step 3.** A firm whose year starts in July would otherwise type its actuals
+against somebody else's calendar.
+
+⚠ **No plan is shown beside the actuals, deliberately.** The projected margin is the *engine's* figure
+(row 22 is calculated), so showing it here would mean either a second backend call from an input step
+or — far worse — re-implementing the maths in the browser. Plan against actual, and the variance, is
+the **report's** job; `computeWages` already returns `totals.variance` for it.
+
+**A blank month is not a zero month.** Both reach the engine as 0, because that is what the workbook's
+own blank cell does, but the headline counts what has actually been filled in — an advisor four months
+into the year can see which is which.
+
+#### Step 5 — The report
+
+[`components/WagesReport.vue`](../../components/WagesReport.vue), with
+`tests/unit/wagesReport.component.test.js`. **The first screen of this model that calls the backend,
+and it calculates nothing itself** — every figure is `computeWages`'s own output. That is exactly why
+the four input steps deliberately showed no planned figures: two implementations of one number is how
+they start to disagree.
+
+**The seasons come first, the months second.** The same team on the same pay makes **52,270** in a
+*Dry n Light* month and **loses 13,972** in a *Wet n Dark* one — a swing of more than 66,000 on the
+weather alone, because a field team is paid its contracted hours whatever the sky does. The year total
+hides that completely.
+
+**The tightest month is a headline figure** because of what the port found: correcting the workbook's
+two defects moved July's planned margin from **+181 to −132**. The tightest month of the plan no
+longer breaks even, and a year total of 288,935 says nothing about that. Pinned by a test, so a
+reverted correction shows up here.
+
+**In the consistency guard.** `reportHeadlineConsistency.component.test.js` carries *Wages/Salary
+Review* — the step the skill warns nothing reminds you about, and the one whose omission fails
+silently. Recompute is `reportRecompute` (debounce plus a monotonic request stamp), so a slow older
+response can never overwrite a newer one, and `error` is that mixin's **stale flag — a boolean, never
+a message**.
+
+⚠ **An empty body is sent deliberately when no step has been confirmed.** The route falls back to the
+workbook's sample, so the report shows the sample behind its notice rather than a blank screen —
+skipping the request would also leave the stale banner unreachable, and a report that cannot show it
+has failed is worse than one showing the sample.
+
+**Three findings against the drawing's list of ten:**
+
+1. **"Days Worked" (`Seasonal Inputs` W45) is missing from the drawing** — the office week, which the
+   engine reads for every non-production person. A control was added.
+2. ✅ **The overnight allowance is NOT a setting — CLOSED on Mike's ruling, in step 1.** It is **two
+   typed cells per person**: V *"Overnight/ Meals + Accom' Allowance"* (175) × X *"Avg Number of
+   Nights/ Meals per Month"* (2) = that person's 350, summed by `CF40` to 1,400.
+
+   🔴 **The defect this fixed.** The engine takes `allowances.seasonal` as one **fixed total**, so
+   the figure did not follow the team: adding ten people or deleting twenty left it at 1,400 a
+   month. A wrong number produced by using step 1 exactly as intended, with nothing on screen
+   saying so. Step 1 now carries both cells per person, derives the total (`allowanceTotal`) and
+   emits it — **the engine's input shape and golden test are untouched**, and the sample still
+   gives exactly 1,400.
+
+   ⚠ **WITHDRAWN 2026-09-14.** This paragraph claimed three of the four allowance cells had their
+   formula *overtyped with a literal 350*. They do not. `CF17:CF20` is one **shared formula**
+   `X17*V17`; Excel stores it once on the master cell and leaves rows 18–20 as followers
+   (`<f t="shared" si="145"/>`) with no formula text of their own, so a reader taking each cell's
+   own `<f>` sees blanks and calls them constants. Deriving the total is still right — for the
+   reason above, that it must follow the team.
+
+   🔴 **THERE IS NO SHUTDOWN ALLOWANCE TO SUPPLY — SETTLED 2026-09-14.** This too used to say the
+   shutdown column "interleaves label text with its formulas" and could not be read. It reads
+   perfectly: `CE7:CE38` is a clean `Y*AA` throughout. The real answer is that on the shutdown basis
+   the allowance sits **inside** each person's monthly wage (`Shutdown Inputs` CL7), so there is no
+   separate line — and the workbook adding one anyway on `Cash Report` row 20 is a **double count**,
+   corrected in the engine (CORRECTION 3, `server/report/wagesModel.js`). `confirm` emits
+   `allowances.seasonal` only, and that is now the right shape rather than a deferral. Pinned by a
+   test.
+3. ✅ **The global overtime flag is now THE OVERTIME DECLARATION, on step 2 — Mike, 2026-09-14.**
+   It had no control while nobody could say what it meant. He said what it means, and it is not a
+   calculation toggle: *"I want an advisor to have the option to click yes — 'my staff get paid
+   overtime in Dry n Light season' — even though that season already has long hours, BECAUSE we do
+   NOT assume that just because they agree to work more, they should do so without overtime (which
+   is against the law). There MAY be times however that overtime is NOT paid if they receive time
+   off in lieu during the Wet n Dark season. That's an owner's decision, that's what that cell is
+   asking them to declare."*
+
+   🔴 **THE OLD CELL FAILED SILENTLY, AND EXPENSIVELY.** `Seasonal Inputs` J4 was one unlabelled
+   cell with an **asymmetric** gate: the wet and standard columns paid unless it read "Yes", while
+   the dry column paid ONLY when it read literally "No". It was **blank**. On these settings the dry
+   season is the only one with extra hours to pay for — wet is 10.8 hours *shorter* than standard,
+   and standard is the baseline — so the single live gate was the inverted one. Every production
+   worker had **97.425 hours a month** of overtime calculated and none of it paid, nothing on any
+   screen said so, and switching it on meant typing the word **"No"**.
+
+   **What replaced it.** One required Yes/No on step 2: *"Are staff paid overtime for the extra
+   hours a longer season demands?"* — **Yes**, they are paid; **No**, they take the time back in
+   lieu during the shorter season. All three seasons now read it the same way, and a season with no
+   extra hours pays nothing without needing a special case. **It has no default and Continue is
+   refused until it is answered** — a question that costs somebody their overtime when nobody
+   answers it cannot have one.
+
+   ⚠ **It is a large number.** On the workbook's own team, declaring overtime paid costs
+   **172,194 a year** and takes the planned margin from **288,935 to 116,742**. The sample declares
+   *not paid*, which is what the blank cell amounted to, so every pinned seasonal figure is unmoved.
+   The two sheets declare **differently** and that is the workbook's own answer: `Shutdown Inputs`
+   G5 reads "No", which on that sheet means overtime wages *do* count, so `SHUTDOWN_SAMPLE` carries
+   `overtimePaid: true`.
+
+**Two operating bases, one switch** (Decision 3). A firm runs *either* a seasonal basis, where
+weather decides how many productive days a month holds, *or* a shutdown basis planned around
+production days and overtime. **Both revenue and cost swap sides together**, verified from the
+formulas, which is why it is an either/or and never a blend.
+
+🔴 **THE SHUTDOWN BASIS IS DERIVED, NOT CARRIED — item 4.102, closed 2026-09-14.** Until that
+day the engine took each person's shutdown wage and revenue as **two ready-made twelve-month
+arrays**, used as given. Only the workbook's own sample ever carried them, so **a team built
+on our step 1 totalled zero revenue on that basis** — reachable in the app, with no warning.
+It now computes both from the ten typed cells of `Shutdown Inputs`, per person per month:
+
+| | |
+|---|---|
+| Wage (CL7) | `(base + overtime? + allowance) × 4.33 + tools + retirement ÷ 12` |
+| Revenue (DB7) | `days × (annual charge ÷ 231 production days)` |
+| The month's switch | gates the **overtime only** — the allowance is in both branches |
+
+The reading was checked against **768 cached cells before any code was written**: all 384
+revenue cells exact, 379 of 384 wage cells, the five exceptions being the row-28 defect below.
+`SHUTDOWN_SAMPLE` reproduces `Cash Report` R17 at **973,328.4208**, to the cent.
+
+**Step 1 gained the three fields the chain needs** — weekly base hours, weekly overtime hours,
+productivity — **shown to everyone and starting empty** (Mike's yes, 2026-09-14). The basis is
+chosen on step 2 and this is step 1, his own decision 9, so the screen cannot know which basis
+applies; a column appearing only after a trip to step 2 and back is one somebody fills in by
+accident or never finds. They are empty in the sample too, because the other sheet's figures
+belong to a different model of the same firm.
+
+🔴 **STEP 1 CARRIES TWO RATE CONVERTERS — Mike, 2026-09-14, and there is NO separate tab.**
+His question settled it: *"does it need a seperate Tab?? couldnt it just import the tax data into a
+hidden section and apply across the model as needed?"* He was right about the data — the income tax
+bands live in Firm Manager → Tax Rates and resolve by country — **but nothing in this model needs
+them, because the model computes no tax at all.** Labour margin is what the team bills minus what it
+costs; income tax is the *employee's*, taken out of gross pay, and gross pay is already the wage
+cost. Deducting it again would count it twice.
+
+That left the four calculators drawn on the old Rates tab splitting two ways. **Salary ⇄ hourly** and
+the **blended charge-out rate** fill in the two boxes on step 1 that the whole labour margin turns
+on, so they sit above the team table; behind a tab a helper is somewhere to go and find, which is
+how a helper goes unused. **The income tax and bonus calculators are not built** — they serve no step
+of this model. Artefact: [`wages-rates-converter.html`](../mockups/wages-rates-converter.html).
+
+⚠ **The helper saves nothing and writes into no row.** It works a figure out and the advisor decides
+which person it belongs to — a converter that quietly wrote into a row would be a figure nobody
+typed. `hoursPerWeek` starts EMPTY and the hourly rate reads as a dash until it is answered, because
+a salary cannot be turned into an hourly rate without knowing the hours; `weeksPerYear` starts at 52,
+which is the calendar rather than a default. The blended rate carries the workbook's own **"Balance
+Time Remaining"** check: a mix adding to 80% returns a rate a fifth too low, silently, and nothing
+else on screen would look wrong. It reproduces `Hrly Rate & Tax Calculator` E25 at **323.75**.
+
+⚠ **The two input sheets are not the same team, which is why there are TWO samples.** Of the
+29 rows the pay rate differs on 24, the leave split on 27 and the overnight allowance on 25;
+the seasonal sheet carries four production staff the other does not, and one manager is
+Natalie there and Shirley here. One team cannot reproduce both sheets, so each basis has its
+own sample and the route serves whichever the request asks for. *(Leave is not a real
+disagreement: seasonal writes 30 days; shutdown writes 20 with 10 as the sheet-level sick-day
+setting. 20 + 10 = 30.)*
+
+⚠ **Overtime adds no revenue on this basis, and that is the workbook's state, not an omission.**
+`BR7 = if($B$5=0,0,…)` and `B5` is **blank**, which Excel reads as 0, so the overtime charge is
+nil on all 29 rows. The hours chain is computed anyway and the gate is named
+(`settings.overtimeChargeMonths`), so a firm that needs it supplies one value rather than a
+rewrite.
+
+**The real headline is the per-season card, not the year.** The same team on the same pay: a
+*Wet n Dark* month **loses 13,972** while a *Dry n Light* month makes **52,270** — a swing of more
+than 66,000 on the weather alone, because a field team is paid its contracted hours whatever the
+sky does. That is the finding an advisor opens the conversation with.
+
+🔴 **FOUR RULED DEVIATIONS, THE FIRST TWO FOUND AT BUILD TIME AND BOTH RULED THE SAME DAY** —
+*"fix it - always. we want it right in the end"*, then, when the second was put as a definitional
+choice rather than a defect, *"if it needs to be fixed - fix it - NEVER allow a mistake to remain."*
+Each is pinned in `tests/unit/wagesModel.test.js` with the workbook's own cached figure beside ours,
+and each is **mutation-verified**:
+
+- **A wage costed against another employee's row.** `Seasonal Inputs` BN7 tests `E17`, BN12 tests
+  `E22`, BN35 tests `E45` — a row **ten below** the person being costed, and `E45` is blank
+  entirely. It is a **shared** formula (ref BN7:BN10, BN12:BN15, BN35:BN38) so whole blocks inherit
+  it, and it runs **both ways**: Mary G is costed 1,440.83/month too dear, Max 1,744.17 too cheap,
+  Stevie 5,611.67 and Natalie 2,654.17 too cheap. Ours tests each person's own employment type.
+- **Two answers to one question.** The per-season card's cost line dropped the employer retirement
+  contribution that the same model's monthly cost includes, so the card flattered every season. It
+  now uses the monthly measure, and the card and the months agree.
+- **One wage reading another month's cell** *(added 2026-09-14, found while porting the
+  shutdown basis)*. `Shutdown Inputs` CL28 is a shared formula across the twelve month
+  columns. Every other row anchors the retirement contribution as `$CI$<row>` in **both**
+  branches; row 28 writes it as **`CI28`, unanchored, in the "Yes" branch alone**, so each
+  month shifts it one column right — May reads CJ28 (blank), July reads CL28 (April's own
+  wage), January reads CR28 (October's). Bevis is charged a twelfth of another month's total
+  instead of a twelfth of his retirement contribution: **237.42 a month dearer, 712.25 across
+  the three ticked months he is actually employed for.** April is correct only because it
+  holds the master cell. ⚠ **This is the first deviation's cousin** — both are shared formulas
+  whose unanchored reference drifts as the block fills, down a column there and across a row
+  here. When checking this workbook, read what a formula *anchors*, not only what it says.
+- **The overnight allowance, charged twice on the SHUTDOWN basis** *(added 2026-09-14, while
+  settling the question that had to be answered before the shutdown port could start)*.
+  `Seasonal Inputs` CM7 leaves the allowance out of each person's monthly wage; `Shutdown Inputs`
+  CL7 puts it **inside** — and `Cash Report` row 20 adds one to both regardless. The two shutdown
+  additions are not even the same quantity: inside the wage it is each employed person's
+  `Y*AA*4.33`; on the Cash Report it is the raw **weekly** `sum(CE7:CE38) = 2,600` across the whole
+  28-row roster, employed or not, added as though monthly. Ours adds the allowance on the
+  **seasonal basis only**, so `allowances` carries one key rather than two. Over the year that
+  removes **15,600** (six ticked months × 2,600) and the shutdown margin goes **−97,157 → −81,557**.
+  The **seasonal** figures are untouched, which is the point — the correction is one-sided because
+  the defect is. **On the report screen the allowance line is not shown at all on the shutdown
+  basis**, since *"Overnight allowances for the year: $0"* would tell an advisor the team receives
+  none, which is false.
+
+**What moved, and it is named on the drawing's own header too:** year labour margin
+**350,121 → 288,935**, year wage cost **1,012,620 → 1,073,805**, and **July's planned margin
+181 → −132 — the tightest month of the plan no longer breaks even**, which is the single most
+consequential figure on the screen when there is one. The three per-season months went
+−10,356 → −13,972, 18,090 → 6,137, 55,921 → 52,270, those moving for both corrections together.
+
+✅ **The port is proven faithful, which is what makes the corrections attributable.** Year billings
+are **unchanged at 1,362,740** and match the workbook on **all 87 person-seasons**. With both
+defects deliberately restored on a copy outside the repo, the engine reproduces the workbook **to
+the cent** — 1,012,619.59 (R20), 350,120.64 (R22), July 180.61 (H22).
+
+⚠ **A third fault was in OUR code and the golden test caught it before it shipped:** the engine was
+inventing overtime for two managers. The workbook measures overtime against paid-hours cells that
+are **empty on every salaried row**, so its own test can never fire there — salaried people are not
+paid by the hour. The lesson generalises past this model: when a workbook appears to do nothing in
+a case, check whether the cells it reads exist at all before deciding it forgot to.
+
+⚠ **Two things reproduced deliberately rather than tidied.** The management block's *wet* and *dry*
+wages read their own row and are correct — only its standard-season figure carries the defect, and
+an earlier cut of this port reclassified the whole block and silently moved four more figures; a
+test now pins that shut. And the workbook's overtime gate is asymmetric (two columns suppressed
+when the global flag reads "Yes", the third paid only when it reads "No"); with the flag blank, as
+the sample leaves it, every season returns nothing.
+
+🔴 **The staff register is NOT part of this engine and never travels through its route.** Decision 6
+is Mike's own ruling: the register opens only when the client's case is in the `due-diligence`
+domain *and* the advisor switches it on, and it is kept on the firm's retention dial rather than
+deleted at deal-end (Decision 8, reversed from the recommendation) because it is the firm's evidence
+of *why* a role was cut. A route test pins that no named-employee field can reach the calculation.
+**The model calls no language model anywhere**, so "personal data never reaches the AI" holds by
+construction rather than by promise.
 
 ---
 

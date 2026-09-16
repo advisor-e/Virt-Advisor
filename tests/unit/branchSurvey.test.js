@@ -3,6 +3,7 @@
 const {
   isCandidate,
   selectBranches,
+  handoverNote,
   describeSurvey,
   surveyLines
 } = require('../../scripts/branch-survey')
@@ -222,5 +223,116 @@ describe('branch-survey — surveyLines (git at the edge)', () => {
     expect(text).not.toContain('course-builder-v3')
     expect(text).not.toContain('advisor-progress')
     expect(text).not.toContain('release/')
+  })
+})
+
+/**
+ * The other machine's handover, read from ITS branch — item 14.2's second half.
+ *
+ * 🔴 WHAT THIS PREVENTS, TWICE OVER. Startup compares handover dates using the copy of
+ * `HANDOVER-desktop.md` in THIS machine's working tree, which is frozen at the last merge.
+ * On 2026-09-14 a session called the desktop idle since 2026-09-10 when its real note was
+ * two days newer, and on 2026-09-15 it read a note dated the 13th while the desktop's own
+ * branch carried one from the 15th. Both times the file existed, parsed and had a date —
+ * so nothing could look wrong. Only reading the other branch settles it.
+ */
+describe('branch-survey — the other machine handover note', () => {
+  describe('handoverNote', () => {
+    it('says nothing for a branch that is nobody machine', () => {
+      expect(handoverNote({ machine: null, handoverDate: '2026-09-15', lastCommit: '2026-09-15' })).toBeNull()
+      expect(handoverNote(null)).toBeNull()
+    })
+
+    it('reports a note written on the same day as the last commit as current', () => {
+      const s = handoverNote({ machine: 'desktop', handoverDate: '2026-09-15', lastCommit: '2026-09-15' })
+      expect(s).toContain('desktop')
+      expect(s).toContain('2026-09-15')
+      expect(s).toContain('current')
+    })
+
+    it('🔴 CALLS OUT A NOTE OLDER THAN ITS OWN BRANCH last commit', () => {
+      // The real 2026-09-14 shape: committed on the 15th, note still dated the 13th.
+      const s = handoverNote({ machine: 'desktop', handoverDate: '2026-09-13', lastCommit: '2026-09-15' })
+      expect(s).toContain('OLDER')
+      expect(s).toContain('2026-09-13')
+      expect(s).toContain('2026-09-15')
+      expect(s).not.toContain('current')
+    })
+
+    it('says so plainly when the branch carries no note at all', () => {
+      const s = handoverNote({ machine: 'desktop', handoverDate: null, lastCommit: '2026-09-15' })
+      expect(s).toContain('no handover')
+    })
+
+    it('does not call a note stale when the branch commit date is unknown', () => {
+      const s = handoverNote({ machine: 'laptop', handoverDate: '2026-09-15', lastCommit: '' })
+      expect(s).not.toContain('OLDER')
+    })
+  })
+
+  describe('through surveyLines', () => {
+    const REFS_CMD = 'for-each-ref --format=%(refname:short)\t%(committerdate:short) refs/remotes/origin'
+
+    /** The desktop branch, ahead of master, with whatever note is given. */
+    function run (note, commitDate) {
+      const responses = {
+        'fetch origin --quiet': '',
+        [REFS_CMD]: 'origin/feat/firm-quiz-builder-ui\t' + commitDate,
+        'rev-list --left-right --count origin/master...origin/feat/firm-quiz-builder-ui': '0\t89'
+      }
+      if (note !== null) {
+        responses['show origin/feat/firm-quiz-builder-ui:design/HANDOVER-desktop.md'] = note
+      }
+      const git = (args) => {
+        const key = args.join(' ')
+        return Object.prototype.hasOwnProperty.call(responses, key) ? responses[key] : null
+      }
+      return surveyLines(git, 'feat/advisor-progress').join('\n')
+    }
+
+    it('reads the note from the OTHER branch, not from this working tree', () => {
+      const calls = []
+      const git = (args) => {
+        calls.push(args.join(' '))
+        if (args[0] === 'fetch') { return '' }
+        if (args[0] === 'for-each-ref') { return 'origin/feat/firm-quiz-builder-ui\t2026-09-15' }
+        if (args[0] === 'rev-list') { return '0\t89' }
+        return '## 2026-09-15 · Desktop\n'
+      }
+      surveyLines(git, 'feat/advisor-progress')
+      expect(calls).toContain('show origin/feat/firm-quiz-builder-ui:design/HANDOVER-desktop.md')
+    })
+
+    it('prints the date it found on that branch', () => {
+      expect(run('## 2026-09-15 · Desktop · branch `feat/firm-quiz-builder-ui`\n', '2026-09-15'))
+        .toContain('desktop handover dated 2026-09-15')
+    })
+
+    it('🔴 FLAGS THE NOTE THAT CAUSED THE FALSE STALENESS REPORT', () => {
+      expect(run('## 2026-09-13 · Desktop\n', '2026-09-15')).toContain('OLDER than its last commit')
+    })
+
+    it('reports a branch with no note rather than staying silent about it', () => {
+      expect(run(null, '2026-09-15')).toContain('no handover note on that branch')
+    })
+
+    it('spends no git call on a branch that belongs to no machine', () => {
+      const calls = []
+      const git = (args) => {
+        calls.push(args.join(' '))
+        if (args[0] === 'fetch') { return '' }
+        if (args[0] === 'for-each-ref') { return 'origin/feat/somebody-else\t2026-09-15' }
+        return '0\t3'
+      }
+      surveyLines(git, 'feat/advisor-progress')
+      expect(calls.filter(c => c.indexOf('show ') === 0)).toEqual([])
+    })
+
+    it('still reports the branch when the note cannot be read — it must never throw', () => {
+      // A survey failure must never turn a working drift check into an unverified one.
+      const text = run(null, '2026-09-15')
+      expect(text).toContain('feat/firm-quiz-builder-ui')
+      expect(text).toContain('89 ahead')
+    })
   })
 })

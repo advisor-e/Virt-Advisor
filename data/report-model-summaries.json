@@ -76,9 +76,27 @@
     "HOW TO USE THIS LIST:",
     "- Mention a model ONLY when it directly answers the client situation being discussed. It is a tool, not a recommendation to make for its own sake.",
     "- When you do, give its exact page path from this list so the advisor can open it.",
-    "- NEVER name a model that is not in this list, and never invent a page path. If no model fits, say that plainly — the app has models for some questions and not others.",
-    "- Say what the model does not cover when that matters to the situation. The limits are listed for that purpose.",
+    "- NEVER name a model that is not in this list, and never invent a page path.",
+    "- WHAT A MODEL IS, SO YOU CAN TELL ONE FROM A TEMPLATE. A model has a series of variable input cells and a collection of sequential calculations that arrive at a report — in this list, that is what \"The advisor must be able to supply\" and \"Key calculation output\" describe. If something does not show both, it is NOT a model. Do not call it one. Templates are not models: they have no inputs, no calculation and no page.",
+    "- SAYING \"NONE OF THESE FITS\" IS A REQUIRED ANSWER, NOT A LAST RESORT. Before naming a model, ask whether it answers THIS question. If it does not, say plainly that the app has no model for this situation, and stop — never offer the closest one instead. An advisor who asks \"is there a model for this?\" is entitled to hear no. A model reached for because one was asked for sends them into a screen that cannot answer them, and they find out in front of their client.",
+    "- WHEN YOU GIVE A MODEL'S LIMITS, GIVE ITS \"What it does NOT cover\" LINE AS WRITTEN AND ADD NOTHING TO IT. Quote that line. Do not summarise it, extend it, or put it in your own words, and never follow it with a further limitation of your own — not even a reasonable-sounding one. That line is the whole of what is known about the model's limits. If it does not answer what the advisor asked, say that it does not, rather than filling the gap: an invented limitation reads exactly like a real one, and the advisor will repeat it to their client as fact.",
     "- A model marked \"illustrative\" uses teaching figures, not the client's accounts. Never describe its numbers as a picture of the client's business."
+  ],
+  "_markerNote": [
+    "🔴 THE [[MODEL: ...]] DECLARATION IS NOT IN THIS FILE, AND THAT IS DELIBERATE.",
+    "Item 7.5 first put it here, as one more line of the instruction block above. It was",
+    "tried against the live AI on 2026-09-16 and IGNORED IN ALL THREE CONVERSATIONS —",
+    "including the one where the AI correctly said no model fitted, which is the single",
+    "row the declaration exists to capture.",
+    "",
+    "The reason is where it sat. This file is REFERENCE MATERIAL handed to the model for a",
+    "particular question; the system prompt is its standing instruction about its own",
+    "output. The template marker that works has been a numbered SECTION of the system",
+    "prompt since item 4.53. A rule about the shape of the answer belongs there, not here.",
+    "",
+    "It now lives in data/prompts/client.txt SECTION 12 and data/prompts/discover.txt.",
+    "DO NOT MOVE IT BACK. server/utils/modelChoiceScan.js reads the marker; this file is",
+    "only ever the list of what may be named."
   ],
   "models": [
     {
@@ -1001,6 +1019,64 @@
         "margin by product",
         "sales over time",
         "sales trend"
+      ]
+    },
+    {
+      "route": "/wages-review",
+      "name": "Wages/Salary Review",
+      "category": "Profitability",
+      "modelClass": "decision",
+      "answers": "Whether the team bills more than it costs, month by month, and how far the plan has drifted from what actually happened. Not a payroll total: the answer is labour margin — what the team earns less what the team costs — and the model's real finding is how much of that is decided by the weather rather than by anybody's effort. A firm runs on one of two bases, never a blend: a seasonal basis where the season decides how many productive days a month holds, or a shutdown basis planned around production days and overtime. Both revenue and cost swap sides together when the basis changes.",
+      "keyOutputs": [
+        "Planned labour margin for the year, and as a percentage of revenue",
+        "The actual labour margin the advisor entered, month by month",
+        "The variance between the plan and what actually happened",
+        "The tightest month of the plan, named, with its own margin and its season"
+      ],
+      "inputsNeeded": "Everything is typed by the advisor across four steps; no accounts export is read. Step 1 is the team — each person's division, whether they are full or part time, their hourly charge and pay rates, daily production efficiency, employer retirement percentage, overtime uplift, leave days, tools allowance and overnight allowance. Step 2 is how the work happens — the basis, the three seasons' names, hours per day, days per week and days lost, plus part-time hours, statutory holidays and the office team's day and week. Step 3 is the year ahead — which season each month is, its production days, whether allowances apply, who is on the payroll in each month and each person's pay rises. Step 4 is the twelve actual labour-margin figures.",
+      "useWhen": "The client's wage bill keeps rising and nobody can say whether the work is covering it, or a seasonal business wants to know what the weather costs them rather than what they feel it costs. It is also the model to reach for when a firm is deciding whether to hire: the hiring plan is month by month, so the cost of a start date can be seen before it is committed to.",
+      "limits": "It forecasts nothing and reads no accounts file. The actual figures are typed in — nothing imports them — so the variance is only as good as what the advisor enters. The staff register that would name individual employees is a separate, gated stage and is not part of this calculation; no personal detail reaches the model. The overnight allowance is currently carried for the seasonal basis only.",
+      "heroFigures": [
+        {
+          "label": "Planned labour margin",
+          "sub": "as a percentage of revenue"
+        },
+        {
+          "label": "Actual labour margin",
+          "sub": "what really happened"
+        },
+        {
+          "label": "Variance",
+          "sub": "actual against plan"
+        },
+        {
+          "label": "Tightest month",
+          "sub": "its margin and its season"
+        }
+      ],
+      "alsoOnScreen": "Two tables under the headline. The three seasons come first — revenue, cost, margin and productive hours for each — because that is where the finding is. The year month by month follows, with revenue, wage cost, planned margin, actual and variance on every row and the year totalled underneath. A line beneath names the basis in force, the headcount on the payroll and the year's overnight allowances.",
+      "coach": [
+        "Read the season table before the year total. On the source workbook's own sample the same team on the same pay loses 13,972 in a wet month and makes 52,270 in a dry one — a swing of more than 66,000 that no annual figure shows, and it happens because a field team is paid its contracted hours whatever the sky does.",
+        "The tightest month is the one to talk about. In the sample it is July, and the plan puts it at minus 132: the tightest month of the year does not break even, which is a different conversation from a year that looks healthy at 288,935.",
+        "A person with no charge-out rate costs and never bills — the model gives them zero working days. That is right for an office or sales role and wrong for anyone entered in a hurry, so the team screen counts them separately."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "wages",
+        "salary review",
+        "labour margin",
+        "wage cost",
+        "does the team pay for itself",
+        "staff costs",
+        "hiring plan",
+        "pay rises",
+        "seasonal labour",
+        "overtime",
+        "charge out rate",
+        "productive hours",
+        "team cost",
+        "payroll cost",
+        "wages against billings"
       ]
     }
   ]

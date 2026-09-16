@@ -98,9 +98,12 @@ describe('what a manager opens', () => {
     })
   })
 
-  it('shows the four figures in the order a manager reads them', async () => {
+  it('shows the five figures in the order a manager reads them', async () => {
+    // `incomeTax` joined on 2026-09-14 (decision 5 of the Wages/Salary Review). The first four
+    // serve the Three-Way Forecast, which taxes company profit; the fifth serves the
+    // Wages/Salary Review's rates tab, which taxes a person's income. One country table.
     const wrapper = await mountTab()
-    expect(wrapper.vm.rows.map(r => r.key)).toEqual(['companyTax', 'gst', 'filing', 'basis'])
+    expect(wrapper.vm.rows.map(r => r.key)).toEqual(['companyTax', 'gst', 'filing', 'basis', 'incomeTax'])
   })
 
   // A decimal comes back from the backend and a percentage goes on the screen. The two are
@@ -363,5 +366,132 @@ describe('failures the manager has to see', () => {
     const wrapper = await mountTab()
     await wrapper.vm.show('au')
     expect(calls().pop()[1]).toContain('country=AU')
+  })
+})
+
+describe('🔴 the income tax bands — the one figure on this screen that is a table', () => {
+  /**
+   * Every other figure here is a single value: type it wrong and it looks wrong. A band table
+   * does not. A gap between two bands leaves a slice of income untaxed, an overlap taxes it
+   * twice, and either way the total looks perfectly reasonable to the manager approving it and
+   * to anyone in UAT reading the screen. The backend refuses all of it; this block is the same
+   * check on the way in, so the manager is told while typing instead of after a rejection.
+   *
+   * Added 2026-09-14 with the figure (decision 5 of the Wages/Salary Review).
+   */
+  /** Put a band table on the form, as a manager typing it would. */
+  function typeBands (wrapper, bands) {
+    wrapper.vm.form.incomeTax.bands = bands
+    wrapper.vm.form.incomeTax.document = 'IRD — Income tax rates'
+    wrapper.vm.form.incomeTax.published = '2025-04'
+  }
+
+  const VALID = [
+    { from: 0, to: 14000, percent: 10.5 },
+    { from: 14001, to: 48000, percent: 17.5 },
+    { from: 48001, to: '', percent: 30 }
+  ]
+
+  it('opens with one open-ended row rather than an empty table', async () => {
+    const wrapper = await mountTab()
+    expect(wrapper.vm.form.incomeTax.bands).toHaveLength(1)
+    expect(wrapper.vm.form.incomeTax.bands[0].to).toBe('')
+  })
+
+  it('accepts a contiguous table and converts each rate to the stored decimal', async () => {
+    const wrapper = await mountTab()
+    typeBands(wrapper, VALID)
+    expect(wrapper.vm.bandsProblem).toBe('')
+    const figures = wrapper.vm.buildFigures()
+    expect(figures.incomeTax.bands).toEqual([
+      { from: 0, to: 14000, rate: 0.105 },
+      { from: 14001, to: 48000, rate: 0.175 },
+      { from: 48001, to: null, rate: 0.3 }
+    ])
+  })
+
+  it('refuses A GAP, and will not build a payload from it', async () => {
+    const wrapper = await mountTab()
+    typeBands(wrapper, [
+      { from: 0, to: 14000, percent: 10.5 },
+      { from: 20000, to: '', percent: 30 }
+    ])
+    expect(wrapper.vm.bandsProblem).not.toBe('')
+    expect(wrapper.vm.buildFigures()).toBeNull()
+  })
+
+  it('refuses AN OVERLAP', async () => {
+    const wrapper = await mountTab()
+    typeBands(wrapper, [
+      { from: 0, to: 14000, percent: 10.5 },
+      { from: 12000, to: '', percent: 30 }
+    ])
+    expect(wrapper.vm.bandsProblem).not.toBe('')
+  })
+
+  it('refuses A TAX-FREE AMOUNT LEFT AS A HOLE below the first band', async () => {
+    const wrapper = await mountTab()
+    typeBands(wrapper, [{ from: 18201, to: '', percent: 16 }])
+    expect(wrapper.vm.bandsProblem).not.toBe('')
+  })
+
+  it('refuses A BAND WITH NO RATE, which would tax that slice at nothing', async () => {
+    const wrapper = await mountTab()
+    typeBands(wrapper, [
+      { from: 0, to: 14000, percent: '' },
+      { from: 14001, to: '', percent: 30 }
+    ])
+    expect(wrapper.vm.bandsProblem).not.toBe('')
+  })
+
+  it('refuses the whole table when it is typed with no source document', async () => {
+    // The rule every figure on this screen obeys: a figure that cannot be sourced cannot be
+    // approved. A band table is not an exception because it is bigger.
+    const wrapper = await mountTab()
+    wrapper.vm.form.incomeTax.bands = VALID
+    expect(wrapper.vm.buildFigures()).toBeNull()
+  })
+
+  it('leaves the table out entirely when the manager never touched it', async () => {
+    // Approving a company tax rate must not silently publish an empty band table over the
+    // one the tier above already approved.
+    const wrapper = await mountTab()
+    wrapper.vm.form.companyTax.percent = 28
+    wrapper.vm.form.companyTax.document = 'IRD'
+    wrapper.vm.form.companyTax.published = '2025-04'
+    const figures = wrapper.vm.buildFigures()
+    expect(figures.companyTax).toBeDefined()
+    expect(figures.incomeTax).toBeUndefined()
+  })
+
+  it('adds and removes rows, and never removes the last one', async () => {
+    const wrapper = await mountTab()
+    wrapper.vm.addBand()
+    expect(wrapper.vm.form.incomeTax.bands).toHaveLength(2)
+    wrapper.vm.removeBand(1)
+    expect(wrapper.vm.form.incomeTax.bands).toHaveLength(1)
+    wrapper.vm.removeBand(0)
+    expect(wrapper.vm.form.incomeTax.bands).toHaveLength(1)
+  })
+
+  it('summarises the table in force rather than printing five rows into a one-line cell', async () => {
+    const wrapper = await mountTab()
+    wrapper.vm.resolved = {
+      isDefault: false,
+      figures: {
+        incomeTax: {
+          bands: [
+            { from: 0, to: 14000, rate: 0.105 },
+            { from: 14001, to: null, rate: 0.39 }
+          ],
+          source: null
+        }
+      }
+    }
+    await wrapper.vm.$nextTick()
+    const row = wrapper.vm.rows.find(r => r.key === 'incomeTax')
+    expect(row.value).toContain('2')
+    expect(row.value).toContain('10.5%')
+    expect(row.value).toContain('39%')
   })
 })

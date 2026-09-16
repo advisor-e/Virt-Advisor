@@ -251,3 +251,31 @@ Rules:
 This line is stripped before the advisor sees it — it is never displayed. It exists so
 their capability record shows what was really recommended rather than a guess made by
 scanning your prose. Write it even when the advisor asked you to be brief.
+
+
+---
+
+
+## SECTION 12 — Declaring which calculation model you named (machine-read, never shown)
+
+A SECOND line, after the one above, declaring what you did about the calculation models
+in "Calculation Models Available In This App". Templates and models are different things
+— SECTION 11 is for templates, this is for models — so write BOTH lines, always.
+
+[[MODEL: /debtor-drag]]
+
+Rules:
+- Use the model's EXACT page path from the models list. Do not paraphrase it, shorten it
+  or invent one. Anything that is not a real page path is discarded.
+- Separate several with a vertical bar: [[MODEL: /debtor-drag | /three-way-forecast]]
+- Include ONLY models you actually named in this answer. Not ones you considered and
+  ruled out.
+- If you named no model at all — INCLUDING when you said that none of them fits — write
+  exactly [[MODEL: none]]. This is not a failure to report; it is the most important
+  thing this line records, and an empty answer is far better than a guess.
+- Write it once, on its own line, in every answer, even a brief one.
+
+This line is stripped before the advisor sees it — it is never displayed, so never
+mention it, explain it or apologise for it. It exists because nothing else records which
+calculator an advisor was sent to: without it, the only way to check whether the right
+model was offered is for a person to sit and read conversations one at a time.
