@@ -17,7 +17,8 @@ Suite **11,180 green** (525 suites), lint 0, coverage and audit gates passed. Tr
 **THE 81-COMMIT BACKLOG IS MERGED** — PR #94 (`b9b6ac2d`), PR #95 (`efd6ac1f`). Nothing had
 reached `master` since 13 September, and that one fact caused both of today's faults.
 
-🔴 **DESKTOP — YOU ARE 105 BEHIND. MERGE `master` FIRST.** Two things arrive when you do.
+🔴 **DESKTOP — YOU MERGED `master` (`90580cf3`) WHILE WE WORKED, SO YOU ALREADY HOLD BOTH OF
+THESE.** Nothing to catch up on; act on them.
 
 **1. Your `7.5` becomes `7.10`** — Mike's ruling, recorded in
 [`ITEM-NUMBERING.md`](ITEM-NUMBERING.md) §4. Both machines filed a 7.5 a day apart. Ours keeps
@@ -28,7 +29,7 @@ and its test. **You apply it** — the item is on your branch and we never edit 
 **2. Our handover was never missing.** Your note says we left none for five sessions; there are
 twelve commits to this file in three days, three of them today. You were reading the copy
 frozen in your own working tree at the 13 September merge. `branch-survey.js` reads it from our
-branch instead, and that is in `master` now.
+branch instead, and you now have it — `npm run check:branch` will date this note correctly.
 
 **The number check answers the right question now.** It reported the free *parent* while, since
 Mike's 2026-09-15 ruling, almost every new job takes a *decimal* — which is why it printed
