@@ -185,6 +185,45 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.2 — the engine's middle, and the learning loop made true.**
+✅ Closed 2026-09-17 on the desktop. Filed 2026-09-14 on Mike's instruction that every one of the
+Founder's Claims Audit's ten improvements become work. **Nine user stories, 66 tasks, all shipped**
+— the primary issue proposed and confirmed by the advisor, the pooled adjustment made signed so it
+lifts as well as holds back, an out-of-sample bench, a provider fallback seam across all eight
+calling files, and Template Profiles authored on a screen at the mentor tier.
+
+🔴 **FIVE FAULTS WERE FOUND BY RUNNING THE APP. NONE BY THE SUITE.** A problem named from a single
+category word; plain agreement recorded as a correction; a function real MySQL refused; a hardcoded
+`'openai'` in the trace; and an editor that opened below the fold when Mike clicked Edit. That is
+the transferable part, and it is the basis of the 2026-09-14 rule — 11,930 passing tests and UAT
+both miss what one person driving the running app finds in minutes.
+
+🔴 **IT ALSO PRODUCED THE IMPACT TEST RULE, at its own expense.** US9 — Template Profiles — passed
+every gate this project had: Mike asked for it in his own words, there was an approved drawing, the
+suite was green. **Nobody asked what it would improve.** Measured afterwards on his challenge,
+authoring three profiles moved the 51-case lab's score separation **5.6 → 5.7**, the engine already
+picked a content-driven top recommendation in **51 of 51** cases with none authored, and the tool
+given a profile appeared in **fewer** recommendations (22 → 19). The measurement took twenty
+minutes and existed the whole time. Run first, it would have reshaped or ended the task before a
+line of code — which is now binding in `CLAUDE.md`.
+
+**What closed it: the last four tasks were documentation, and three were Briefs contradicting the
+code.** Verified against the source on 2026-09-17, not taken on trust: `advisory-engine.md` still
+listed primary-issue confirmation as *"designed and not built"* when `primaryIssueProposer.js` was
+wired and live, and still carried routing groups as a pipeline stage and an open gap although the
+registry deleted that layer on 2026-06-09. Both Briefs stated `SCORING_VERSION` **2.2.0** against
+the code's **2.3.0**. 🔴 **The one that mattered:** `outcome-learning.md` told a reader an
+adjustment *"can only hold a template back, never lift one, in this release"* — untrue since US2,
+on the exact mechanism that decides what an advisor is shown. The registry's `__none_of_these__`
+sentinel line was corrected too: the handler was deleted 2026-08-15, but the escape survives in the
+contradiction detector, so the principle stands and only the mechanism changed.
+
+**T060 and T064 were not done, deliberately.** T060 dropped on Mike's *"make it work but save where
+you can"* of 2026-09-16, after 7.2 consumed 75% of a week's token budget — the thin count is already
+on the screen. T064's quickstart walk-through is written and unrun: it needs a live AI session to
+re-prove ten stories each verified as it shipped. **Re-open T064 if the engine's scoring is touched
+again**, because that is when a walk of the running app earns its cost.
+
 **7.8 — the retry could recommend a template and deny having one in the same answer.**
 ✅ Closed 2026-09-16 on the laptop. A defect we found the same day 7.7 shipped, by running the app
 while diagnosing 7.6; filed on Mike's yes and fixed on his yes within the hour.

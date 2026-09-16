@@ -102,12 +102,15 @@ Verified against the live model; see
 
 ## 3. Design considerations
 
-**Design and build differ here, deliberately and on the record.** This is the one feature where
-the written design runs ahead of the code, and that gap is *intended* — the design is the
-destination. What is built and live: signal capture, **primary-issue confirmation** (below),
-strategy resolution, template scoring and the AI narrative. What is designed and **not** built:
-routing groups as a pre-filter. Do not read the design document as a description of the code,
-and do not "correct" the design down to what exists.
+**The design and the code now say the same thing.** Signal capture, **primary-issue
+confirmation** (below), strategy resolution, template scoring and the AI narrative are all built
+and live — primary-issue confirmation by item 4.97 (`server/utils/primaryIssueProposer.js`, wired
+in `server/advisorEngine.js`).
+
+**Routing groups are dead, not pending.** The registry ruled them removed on 2026-06-09
+(`design/virt-advisor-registry.md` — *"Routing groups are dead and removed"*, and Stage 3 of the
+old six-stage pipeline deleted with the 4-Table Governance Model that served it). They are not a
+gap, not a pre-filter waiting to be built, and nothing should be written to restore them.
 
 **Content filed into the wrong lane is invisible.** It renders, it saves, it passes tests, and
 it silently never reaches the decision it was written for — and every case found so far was
@@ -142,7 +145,7 @@ platform default. Nothing is single-tenant, and nothing new should be.
 |---|---|---|
 | 1 | Conversation and signal capture | `server/advisorEngine.js`, `server/utils/signals.js`, `problemSignals.js` |
 | 2 | Primary issue — proposed, then confirmed or reframed by the advisor | `server/utils/primaryIssueProposer.js`, wired in `advisorEngine.js` |
-| 3 | Routing groups | **designed, not in code** |
+| — | ~~Routing groups~~ — **deleted 2026-06-09**, not a missing stage | the registry's ruling |
 | 4 | Strategy resolution — engagement type, complexity ceiling, template budget | `server/utils/strategyResolver.js` |
 | 5 | Template selection — score and rank, no AI | `server/utils/templateResolver.js` |
 | 6 | AI narrative — copy only | `advisorEngine.js`, prompts in `data/prompts/` |
@@ -186,8 +189,9 @@ back to them once. It is never a menu — the selector card was removed in June 
 
 The confirmed label lands on `state.primaryIssue`, the decision trace (`primaryIssue.label` /
 `.how` / `.reason` / `.asked`), the Main issue row of the advisor's trace panel, and the
-Outcome Learning pool. `SCORING_VERSION` is unchanged at `2.2.0` — the step fills a field the
-scorer already read, rather than changing how anything is scored.
+Outcome Learning pool. The step itself changed no scoring — it fills a field the scorer already
+read. `SCORING_VERSION` is **`2.3.0`** (`server/utils/templateResolver.js`), raised by the signed
+pooled adjustment of 4.97 US2, which made a hold-back able to lift as well.
 
 ### The routing report
 
@@ -266,7 +270,8 @@ unknown**.
   Because the advisor's own calls are `personal: true`, that row names the primary in practice;
   the backup's wording is reachable at the call sites the second provider does answer for. The
   name is never written in code — it is whatever `AI_PRIMARY_NAME` is configured with.
-- Routing groups are complete for one domain only.
+- *(Routing groups were listed here as a gap. They are not one — the registry deleted the layer
+  on 2026-06-09. See §3.)*
 - **55 of the 220 client tools have a thin semantic profile** (recompiled 2026-09-16): 44 with
   no profile at all, 8 with an entry but no signals matched, 3 whose weights sum under 4. These
   affect scoring precision, not function — and **measured, the effect is small**: on the 51-case
