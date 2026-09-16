@@ -23,17 +23,28 @@ const frameworks = require('../../server/utils/strategyFrameworks')
 const strategySupport = require('../../data/strategy-domain-support.json')
 
 describe('the three proving frameworks load', () => {
-  it('loads exactly the three Mike named, and no more', () => {
+  it('offers exactly the three Mike named for a session, and no more', () => {
     // "Build the machine and prove it on three frameworks, not fifty." A fourth arriving
-    // here without a decision is scope creep with no ruling behind it.
-    expect(frameworks.listFrameworks().map(f => f.id).sort())
+    // here without a decision is scope creep with no ruling behind it. The two CLOSING
+    // frameworks are not in this list: they are never chosen, every session gets them.
+    expect(frameworks.listFrameworks().filter(f => !f.closesTheSession).map(f => f.id).sort())
       .toEqual(['porters-five-forces', 'profit-levers', 'swot-pest'])
+  })
+
+  it('keeps the two closing frameworks off the Session Scope table', () => {
+    // They carry planningDomains so the plan can group by domain, which is exactly why
+    // they would otherwise appear as something to tick.
+    expect(frameworks.closingFrameworks().map(f => f.id).sort())
+      .toEqual(['action-plan', 'strategic-statements'])
+    expect(frameworks.frameworksForPlanningDomain('strategic-orientation').map(f => f.id))
+      .not.toContain('action-plan')
   })
 
   it('gives the three genuinely different shapes the decision turns on', () => {
     // If all three were the same shape they would prove nothing about one renderer
     // carrying 45 frameworks.
-    const shapes = frameworks.listFrameworks().map(f => f.shape).sort()
+    const shapes = frameworks.listFrameworks()
+      .filter(f => !f.closesTheSession).map(f => f.shape).sort()
     expect(shapes).toEqual(['buckets', 'forces', 'quadrants'])
   })
 
@@ -214,9 +225,29 @@ describe('the loaded set cannot be mutated by a caller', () => {
 })
 
 describe('the shapes that exist, and the two that do not yet', () => {
-  it('knows exactly the three shapes built so far', () => {
+  it('knows exactly the five shapes built so far', () => {
+    // 'placement' — a 2x2 an owner is placed on, for the Heald Matrix and Business Dating
+    // — is the one still missing, and is deliberately absent until something needs it.
     expect(Object.keys(frameworks.STRATEGY_SHAPES).sort())
-      .toEqual(['buckets', 'forces', 'quadrants'])
+      .toEqual(['actions', 'buckets', 'forces', 'quadrants', 'statements'])
+  })
+
+  it('expands a table framework into ordinary fields, so the store needs no special case', () => {
+    // 6 rows x 4 columns. 'row-3-whom' is just a field key, which is why the timeline and
+    // the audit trail work on a table with no extra code.
+    const plan = frameworks.getFramework('action-plan')
+    expect(plan.fields).toHaveLength(24)
+    expect(plan.fields[0].key).toBe('row-1-objective')
+    expect(plan.fields.filter(f => f.row === 3).map(f => f.column))
+      .toEqual(['objective', 'whom', 'when', 'aspect'])
+  })
+
+  it('gives the aspect column the nine Growth Aspects to choose from', () => {
+    // A fixed list, never free text: the coverage check COUNTS these, so a typo would
+    // silently lose an aspect and the wheel would under-report.
+    const aspect = frameworks.getFramework('action-plan').fields.find(f => f.column === 'aspect')
+    expect(aspect.options).toHaveLength(9)
+    expect(aspect.options).toContain('Harmony / Balance')
   })
 
   it('names the four Planning Domains in the deck\'s own order', () => {

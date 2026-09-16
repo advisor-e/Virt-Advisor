@@ -112,6 +112,7 @@ const clientsRoute = require('./routes/clients')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const modelChoicesRoute = require('./routes/modelChoices')
+const strategyPlannerRoute = require('./routes/strategyPlanner')
 const reportRoute = require('./routes/report')
 const economicAnalysisRoute = require('./routes/economicAnalysis')
 const nextStepsDraftRoute = require('./routes/nextStepsDraft')
@@ -927,6 +928,24 @@ server.get('/api/mentor/adoption', firmAuth, requireManagingTier, mentorRoute.ge
 // one, which is the whole point of the widening. The handler takes the scope from
 // req.firmId and never from the request. design/mockups/model-choices.html.
 server.get('/api/model-choices', firmAuth, requireManagerRole, modelChoicesRoute.getModelChoices)
+
+// ── Strategy Planner (item 15.1) ─────────────────────────────────────────────
+// The session an advisor runs with a client, from design/mockups/strategy-planner.html.
+// firmAuth ALONE, and deliberately: these are an ADVISOR's own working screens, not a
+// manager's read-across. Every handler takes the firm and the advisor from req, never
+// from the request — a firmId in a body would be an IDOR into another firm's client
+// plans. The store scopes each statement by firm as well, so this is the outer of two
+// boundaries. A session belonging to another firm answers 404, not 403, so an id cannot
+// be probed for existence.
+server.get('/api/strategy/frameworks', firmAuth, strategyPlannerRoute.getFrameworks)
+server.get('/api/strategy/sessions', firmAuth, strategyPlannerRoute.listSessions)
+server.post('/api/strategy/sessions', firmAuth, strategyPlannerRoute.createSession)
+server.get('/api/strategy/sessions/:id', firmAuth, strategyPlannerRoute.getSession)
+server.put('/api/strategy/sessions/:id/scope', firmAuth, strategyPlannerRoute.putScope)
+server.put('/api/strategy/sessions/:id/entries', firmAuth, strategyPlannerRoute.putEntries)
+// Decision 11's mechanism, not telemetry: which box was open, and when. It is what lets
+// a recording's words reach the right box without a model deciding anything.
+server.post('/api/strategy/sessions/:id/timeline', firmAuth, strategyPlannerRoute.postTimeline)
 
 // Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
 // The mentor authors the platform set every firm receives as its default; plain CRUD

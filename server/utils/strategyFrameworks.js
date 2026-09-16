@@ -51,16 +51,15 @@ const DOMAIN_SUPPORT = {
 }
 
 /**
- * The four Planning Domains, in the order ADV.0 Planning Outcomes presents them. This is
- * the session's own structure and it is NOT the app's advisory domains — a Planning Domain
- * draws its frameworks from whichever advisory domain authored them.
+ * The four Planning Domains, in the order ADV.0 Planning Outcomes presents them, with the
+ * deck's own descriptions. This is the session's own structure and it is NOT the app's
+ * advisory domains — a Planning Domain draws its frameworks from whichever advisory domain
+ * authored them, which is why this module reads three domain support files.
  */
-const PLANNING_DOMAINS = [
-  'business-targets',
-  'strategic-orientation',
-  'organisational-review',
-  'sales-marketing-review'
-]
+const PLANNING_DOMAIN_RECORDS = FRAMEWORK_DATA.planningDomains || []
+
+/** Their ids, in the same order. What a framework's `planningDomains` is checked against. */
+const PLANNING_DOMAINS = PLANNING_DOMAIN_RECORDS.map(d => d.id)
 
 /**
  * Capture shapes, and how many boxes each may hold.
@@ -77,7 +76,17 @@ const STRATEGY_SHAPES = {
   // wearing the name, and the renderer's 2×2 would misplace it.
   quadrants: { min: 4, max: 4 },
   // Five forces, or six when the deck asks for a response as well as an observation.
-  forces: { min: 5, max: 6 }
+  forces: { min: 5, max: 6 },
+  // A short list of statements side by side — the Strategic Objective and the Strategy.
+  statements: { min: 2, max: 4 },
+  // A table: `rows` × `columns`, expanded into ordinary fields by expandRows below.
+  actions: { min: 1, max: 80 }
+}
+
+/** Where a column may draw its options from, when it offers a fixed list. */
+const OPTION_SOURCES = {
+  growthAspects: (require('../../data/growth-fundamentals.json').growthAspects || [])
+    .map(a => a.name)
 }
 
 function fail (code, message) {
@@ -110,6 +119,38 @@ function resolveMaterial (ref) {
 }
 
 /**
+ * A table framework authors `rows` and `columns`; the store, the navigation timeline and
+ * the audit trail all work in ordinary fields, so it is expanded here rather than special-
+ * cased in four places downstream. `row-3-whom` is just a field key.
+ *
+ * @param {object} raw
+ * @returns {object[]|null} the expanded fields, or null when this is not a table
+ */
+function expandRows (raw) {
+  if (raw.shape !== 'actions') { return null }
+  const columns = Array.isArray(raw.columns) ? raw.columns : []
+  const rows = Number(raw.rows) || 0
+  if (!columns.length || rows < 1) {
+    throw fail('BAD_FRAMEWORK',
+      'Framework "' + raw.id + '" is a table and needs both rows and columns.')
+  }
+  const out = []
+  for (let r = 1; r <= rows; r++) {
+    columns.forEach((c) => {
+      out.push({
+        key: 'row-' + r + '-' + c.key,
+        label: c.label,
+        prompt: r === 1 ? (c.prompt || '') : '',
+        row: r,
+        column: c.key,
+        options: c.optionsFrom ? (OPTION_SOURCES[c.optionsFrom] || []) : null
+      })
+    })
+  }
+  return out
+}
+
+/**
  * Check one authored framework and return it joined to its material.
  *
  * Validation is deliberately strict about field keys: two boxes sharing a key would share
@@ -133,7 +174,7 @@ function buildFramework (raw) {
       'Framework "' + id + '" names an unknown capture shape "' + shape + '".')
   }
 
-  const fields = Array.isArray(raw.fields) ? raw.fields : []
+  const fields = expandRows(raw) || (Array.isArray(raw.fields) ? raw.fields : [])
   if (fields.length < rules.min || fields.length > rules.max) {
     throw fail('BAD_FRAMEWORK',
       'Framework "' + id + '" is a ' + shape + ' with ' + fields.length +
@@ -167,13 +208,27 @@ function buildFramework (raw) {
     name: raw.name || material.name,
     planningDomains: domains.slice(),
     helpsClientTo: raw.helpsClientTo || '',
+    // 🔴 THE SESSION SCOPE LINE, AND IT IS NOT THE COACHING SUMMARY. Mike ruled
+    // 2026-09-16, comparing the build against the approved drawing: screen 1 shows ONE
+    // SHORT LINE per framework, because a domain holding fifteen is unreadable otherwise.
+    // `conceptSummary` below is the long coaching text and belongs on the CARD, where the
+    // advisor reads it while running the session. Two sentences, two readers, and neither
+    // may be deleted in favour of the other. Falls back so a framework without one still
+    // renders something rather than an empty column.
+    explores: raw.explores || '',
     captureInstruction: raw.captureInstruction || '',
     shape,
+    // Decision 3's other half: a framework that closes the session rather than being one
+    // of the ones chosen on screen 1. Every session gets these; they are not ticked.
+    closesTheSession: raw.closesTheSession === true,
     fields: fields.map(f => ({
       key: String(f.key),
       label: String(f.label || ''),
       prompt: String(f.prompt || ''),
-      centre: f.centre === true
+      centre: f.centre === true,
+      row: f.row || null,
+      column: f.column || null,
+      options: Array.isArray(f.options) ? f.options.slice() : null
     })),
     // Decision 5: a framework with an existing model runs it INSIDE the card, on the same
     // backend route as the standalone page. Absent for a framework that has no model.
@@ -214,6 +269,37 @@ function listFrameworks () {
 }
 
 /**
+ * The four Planning Domains with their names and the deck's descriptions, each carrying
+ * how many frameworks it currently offers.
+ *
+ * ⚠ A COUNT OF ZERO IS HONEST AND MUST STAY VISIBLE. Organisational Review's eight and
+ * Sales & Marketing's fifteen are authored in the other two domain support files and have
+ * not reached the Planner yet. Hiding an empty domain would make the session look complete
+ * when half of it is missing — the same failure the item's own note had to be corrected for.
+ *
+ * @returns {object[]} `{ id, name, description, frameworkCount }`
+ */
+function listPlanningDomains () {
+  return PLANNING_DOMAIN_RECORDS.map(d => ({
+    id: d.id,
+    name: d.name,
+    description: d.description,
+    frameworkCount: FRAMEWORKS.filter(
+      f => !f.closesTheSession && f.planningDomains.includes(d.id)).length
+  }))
+}
+
+/**
+ * The frameworks that CLOSE a session rather than being chosen for it — the Strategic
+ * Statements and the Action Plan. Every session gets them, so they never appear on screen
+ * 1's Session Scope table and are never ticked.
+ * @returns {object[]}
+ */
+function closingFrameworks () {
+  return FRAMEWORKS.filter(f => f.closesTheSession).map(cloneFramework)
+}
+
+/**
  * The frameworks one Planning Domain offers, for screen 1's Session Scope table.
  * @param {string} planningDomain one of PLANNING_DOMAINS
  * @returns {object[]}
@@ -221,7 +307,8 @@ function listFrameworks () {
 function frameworksForPlanningDomain (planningDomain) {
   const domain = String(planningDomain || '')
   return FRAMEWORKS
-    .filter(f => f.planningDomains.includes(domain))
+    // A closing framework is never on a Session Scope table — every session gets it.
+    .filter(f => !f.closesTheSession && f.planningDomains.includes(domain))
     .map(cloneFramework)
 }
 
@@ -253,7 +340,9 @@ function hasField (frameworkId, fieldKey) {
 function cloneFramework (f) {
   return Object.assign({}, f, {
     planningDomains: f.planningDomains.slice(),
-    fields: f.fields.map(x => Object.assign({}, x)),
+    fields: f.fields.map(x => Object.assign({}, x, {
+      options: x.options ? x.options.slice() : null
+    })),
     steps: f.steps.slice(),
     model: f.model ? Object.assign({}, f.model) : null,
     materialRef: Object.assign({}, f.materialRef)
@@ -262,6 +351,8 @@ function cloneFramework (f) {
 
 module.exports = {
   listFrameworks,
+  listPlanningDomains,
+  closingFrameworks,
   frameworksForPlanningDomain,
   getFramework,
   hasField,

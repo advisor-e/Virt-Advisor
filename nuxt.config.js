@@ -167,6 +167,10 @@ export default {
     // against this list, so a fourth feature cannot ship without its entry.
     { path: '/api/client-copy-requests', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/compliance', handler: '~/server-middleware/apiProxy.js' },
+    // The Strategy Planner (item 15.1) — frameworks, sessions, captured boxes and the
+    // navigation timeline. Added in the SAME change as the routes, because the paragraph
+    // above is the standing record of what happens when a slice forgets this line.
+    { path: '/api/strategy', handler: '~/server-middleware/apiProxy.js' },
     // NB '/api/course' (singular, the SSE engine) never prefix-matches
     // '/api/courses' — connect only mounts on a '/' boundary.
     { path: '/api/courses', handler: '~/server-middleware/apiProxy.js' },

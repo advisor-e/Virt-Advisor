@@ -5829,5 +5829,62 @@
     "orphanBody": "It is not applied and cannot be. If the template comes back under the same title it resumes; if it was renamed, the pool will learn the new title afresh.",
     "unreachable": "The server could not be reached. Check your connection and try again.",
     "failed": "That could not be done."
+  },
+  "strategyPlanner": {
+    "title": "What do you want from your session?",
+    "navTitle": "Strategy Planner",
+    "subtitle": "Your role is to challenge what the client believes to be true. Their role is to explore with an open heart and an open mind.",
+    "saveAndClose": "Save and close",
+    "startSession": "Start the session",
+    "back": "Back",
+    "nextFramework": "Next framework",
+    "rail": {
+      "scope": "1 · Scope",
+      "run": "2 · Run the frameworks",
+      "objectives": "3 · Objectives & actions",
+      "plan": "4 · The plan"
+    },
+    "scope": {
+      "domainsHeading": "The four Planning Domains",
+      "domainsCaption": "Pick the domains this session covers. The descriptions are the deck's own words.",
+      "chooseHeading": "{domain} — choose what to include",
+      "chooseCaption": "Framework · What it explores · Helps your client to… · Include.",
+      "colFramework": "Framework",
+      "colExplores": "What it explores",
+      "colHelps": "Helps your client to…",
+      "colInclude": "Include",
+      "count": "{count} framework | {count} frameworks",
+      "countNone": "None in the Planner yet",
+      "noneYet": "These frameworks are authored but have not reached the Planner yet.",
+      "chosenCount": "{count} chosen for this session"
+    },
+    "card": {
+      "whatThisDoes": "What this does in the room",
+      "whoAndWhen": "Who and when",
+      "placeholder": "Record it as it comes up…",
+      "choose": "Choose…"
+    },
+    "errors": {
+      "loadFailed": "The planning frameworks could not be loaded. Nothing has been lost — try again in a moment.",
+      "saveFailed": "That box could not be saved. What you typed is still on screen; try again before moving on.",
+      "startFailed": "The session could not be opened. Choose a client and try again — nothing you have ticked has been lost.",
+      "clientsFailed": "Your clients could not be loaded, so a session cannot be opened yet."
+    },
+    "chooseClient": "Which client?",
+    "toObjectives": "Objectives and actions",
+    "producePlan": "Produce the plan",
+    "wheel": {
+      "heading": "Coverage check — the nine Growth Aspects",
+      "caption": "Orientation 1's own instruction: objectives should be tested against the nine Growth Aspects to ensure strong organisational health. It is a check, not a score — nobody has to reach nine.",
+      "ofNine": "OF 9 COVERED",
+      "nothingYet": "Nothing yet",
+      "objectives": "{count} objective | {count} objectives",
+      "aria": "The nine Growth Aspects. {count} are covered by an objective: {names}."
+    },
+    "plan": {
+      "subtitle": "Everything captured in this session, in the order it was worked.",
+      "nothingCaptured": "Nothing was captured for this framework.",
+      "untitled": "This planning session"
+    }
   }
 }

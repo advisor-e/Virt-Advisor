@@ -48,6 +48,7 @@ can be read in one place — the Handbook does not move them.*
 | [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
 | [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
 | [Founder's Claims Audit & Outcome Learning](outcome-learning.md) — three marketing claims read against the code, and the task that came out of it | [history](outcome-learning-history.md) |
+| [Strategy Planner](strategy-planner.md) — the planning session an advisor runs with a client, and the first thing that keeps what was said in the room | [history](strategy-planner-history.md) |
 
 ## Hub pages — mentor & firm
 

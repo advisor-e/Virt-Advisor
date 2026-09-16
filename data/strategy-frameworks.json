@@ -26,21 +26,62 @@
     "they need three genuinely DIFFERENT shapes - if one renderer carries all three, the",
     "remaining 42 are data entry. The other 42 are added here, not in code.",
     "",
-    "SHAPES: 'buckets' (sort ideas under named headings), 'quadrants' (exactly four boxes),",
-    "'forces' (five or six boxes, one marked centre). Two more are expected and are NOT yet",
-    "built: 'placement' (a 2x2 an owner is placed on - the Heald Matrix, Business Dating)",
-    "and 'actions' (a Task / Whom / When table). Adding one is a change to the renderer and",
-    "to STRATEGY_SHAPES in server/utils/strategyFrameworks.js, and to nothing else."
+    "SHAPES, ALL FIVE BUILT: buckets (sort ideas under named headings), quadrants (exactly",
+    "four boxes), forces (five or six, one marked centre), statements (a short list side by",
+    "side) and actions (a rows x columns table the loader expands into ordinary fields).",
+    "ONE IS STILL MISSING: placement - a 2x2 an owner is placed on, for the Heald Matrix and",
+    "Business Dating. Adding it is a change to STRATEGY_SHAPES, a grid rule in the renderer,",
+    "and nothing else.",
+    "",
+    "TWO TEXTS PER FRAMEWORK, AND THEY ARE NOT DUPLICATES. 'explores' is the deck's own",
+    "Session Scope line for screen 1; the long coaching summary is JOINED from the domain",
+    "support file and shown on the framework card. A client choosing the scope and an advisor",
+    "running the session need different sentences. Mike ruled this 2026-09-16."
   ],
   "version": 1,
   "lastUpdated": "2026-09-16",
+  "_planningDomainsReadme": [
+    "THE FOUR PLANNING DOMAINS ARE THE SESSION - Mike's ruling. Their order and their",
+    "descriptions are ADV.0 Planning Outcomes' own words, from 'The Planning Domains",
+    "Explained'. They are NOT the app's advisory domains: a Planning Domain draws its",
+    "frameworks from whichever advisory domain authored them, which is why the loader reads",
+    "three domain support files."
+  ],
+  "planningDomains": [
+    {
+      "id": "business-targets",
+      "name": "Business Targets",
+      "description": "Revenue, profit and personal income targets, debt ratio and risk tolerance, work hours and leave expectations, and the specific focus areas the owner believes need attention."
+    },
+    {
+      "id": "strategic-orientation",
+      "name": "Strategic Orientation",
+      "description": "A challenging review of the actual business model — revenue streams, application of assets, target market — supported by external insights data and scenario modelling."
+    },
+    {
+      "id": "organisational-review",
+      "name": "Organisational Review",
+      "description": "Communication and reporting channels, divisional roles and individual responsibilities, in order to improve efficiencies and team engagement."
+    },
+    {
+      "id": "sales-marketing-review",
+      "name": "Sales & Marketing Review",
+      "description": "How you attract attention to your product or service, how you convert attention into interest and action, and how you finally secure their custom."
+    }
+  ],
   "frameworks": [
     {
       "id": "profit-levers",
       "name": "The 8 Profit Levers",
-      "planningDomains": ["business-targets", "strategic-orientation"],
+      "planningDomains": [
+        "business-targets",
+        "strategic-orientation"
+      ],
       "helpsClientTo": "Identify the little things that can contribute to massive business growth.",
-      "material": { "domain": "strategy", "id": "strategy-profit-levers-blue-ocean" },
+      "material": {
+        "domain": "strategy",
+        "id": "strategy-profit-levers-blue-ocean"
+      },
       "captureInstruction": "If you're running short of time you can identify just one task per lever for now; do the rest when time provides.",
       "shape": "buckets",
       "model": {
@@ -48,47 +89,214 @@
         "note": "Decision 5, RULED AGAINST THE RECOMMENDATION: this runs INSIDE the framework card on the same backend route as the standalone page. Seamless is the surface, never a second copy of the maths."
       },
       "fields": [
-        { "key": "foot-traffic", "label": "Number of Foot-traffic", "prompt": "Gain their ATTENTION — market attention, outbound message views." },
-        { "key": "prospects", "label": "Number of Prospects", "prompt": "Capture their INTEREST — shop walk-ins, phone-ins or social click-thru." },
-        { "key": "customers", "label": "Number of Customers", "prompt": "Secure their CUSTOM — the percentage of prospects that become customers." },
-        { "key": "average-spend", "label": "Average Customer Spend", "prompt": "Secure their CUSTOM — total sales value divided by total number of transactions." },
-        { "key": "frequency", "label": "Average Customer Frequency", "prompt": "Keep them WANTING MORE — how often do they buy per month or year." },
-        { "key": "sales-margin", "label": "Sales Margin", "prompt": "Buy materials or stock FOR LESS — the difference between how much you sell it for and what it cost you." },
-        { "key": "activity-costs", "label": "Activity Driven Costs", "prompt": "Reduce SPENDING — the cost of gaining a customer." },
-        { "key": "fixed-costs", "label": "Fixed Costs (Overheads)", "prompt": "Reduce SPENDING/OVERHEADS — the total regular cost of being open for business, even when nobody buys." }
-      ]
+        {
+          "key": "foot-traffic",
+          "label": "Number of Foot-traffic",
+          "prompt": "Gain their ATTENTION — market attention, outbound message views."
+        },
+        {
+          "key": "prospects",
+          "label": "Number of Prospects",
+          "prompt": "Capture their INTEREST — shop walk-ins, phone-ins or social click-thru."
+        },
+        {
+          "key": "customers",
+          "label": "Number of Customers",
+          "prompt": "Secure their CUSTOM — the percentage of prospects that become customers."
+        },
+        {
+          "key": "average-spend",
+          "label": "Average Customer Spend",
+          "prompt": "Secure their CUSTOM — total sales value divided by total number of transactions."
+        },
+        {
+          "key": "frequency",
+          "label": "Average Customer Frequency",
+          "prompt": "Keep them WANTING MORE — how often do they buy per month or year."
+        },
+        {
+          "key": "sales-margin",
+          "label": "Sales Margin",
+          "prompt": "Buy materials or stock FOR LESS — the difference between how much you sell it for and what it cost you."
+        },
+        {
+          "key": "activity-costs",
+          "label": "Activity Driven Costs",
+          "prompt": "Reduce SPENDING — the cost of gaining a customer."
+        },
+        {
+          "key": "fixed-costs",
+          "label": "Fixed Costs (Overheads)",
+          "prompt": "Reduce SPENDING/OVERHEADS — the total regular cost of being open for business, even when nobody buys."
+        }
+      ],
+      "explores": "The accumulative effect of incremental changes in business activities."
     },
     {
       "id": "swot-pest",
       "name": "SWOT / PEST",
-      "planningDomains": ["strategic-orientation"],
+      "planningDomains": [
+        "strategic-orientation"
+      ],
       "helpsClientTo": "Establish a baseline of where they actually stand before anything is planned.",
-      "material": { "domain": "strategy", "id": "strategy-swot-pest" },
+      "material": {
+        "domain": "strategy",
+        "id": "strategy-swot-pest"
+      },
       "captureInstruction": "You don't have to complete them in any set order — just record them as they come to mind.",
       "shape": "quadrants",
       "fields": [
-        { "key": "strengths", "label": "Strengths", "prompt": "Internal — personnel roles, communication lines, POS report accuracy, profit lines, technology usage." },
-        { "key": "weaknesses", "label": "Weaknesses", "prompt": "Internal — growth drag, and the financial instruments used to reduce risk." },
-        { "key": "opportunities", "label": "Opportunities", "prompt": "External (PEST) — political, economic, interest rate, consumer confidence, regulatory or tariff changes." },
-        { "key": "threats", "label": "Threats", "prompt": "External (PEST) — the same prompts, read the other way." }
-      ]
+        {
+          "key": "strengths",
+          "label": "Strengths",
+          "prompt": "Internal — personnel roles, communication lines, POS report accuracy, profit lines, technology usage."
+        },
+        {
+          "key": "weaknesses",
+          "label": "Weaknesses",
+          "prompt": "Internal — growth drag, and the financial instruments used to reduce risk."
+        },
+        {
+          "key": "opportunities",
+          "label": "Opportunities",
+          "prompt": "External (PEST) — political, economic, interest rate, consumer confidence, regulatory or tariff changes."
+        },
+        {
+          "key": "threats",
+          "label": "Threats",
+          "prompt": "External (PEST) — the same prompts, read the other way."
+        }
+      ],
+      "explores": "Internal position through strengths and weaknesses; the external macro-environment through political, economic, regulatory and tariff movement."
     },
     {
       "id": "porters-five-forces",
       "name": "Porter's 5 Forces",
-      "planningDomains": ["strategic-orientation"],
+      "planningDomains": [
+        "strategic-orientation"
+      ],
       "helpsClientTo": "Look out for changes in the market and anticipate how everyone will react, so they can be ready to take advantage of the situation.",
-      "material": { "domain": "strategy", "id": "strategy-porters-pine" },
+      "material": {
+        "domain": "strategy",
+        "id": "strategy-porters-pine"
+      },
       "captureInstruction": "You don't have to follow any particular order; just capture your thoughts as you go.",
       "shape": "forces",
       "fields": [
-        { "key": "customers", "label": "Customers", "prompt": "Are customers likely to be motivated to pay premium prices in return for latest style or fashion, technology or prestige? Are they concerned about your business safety, environment or ethical impact?" },
-        { "key": "new-entrants", "label": "New Entrants", "prompt": "How easy is it for new entrants to enter your marketplace? Is it conceivable that your current supplier could become your future competition?" },
-        { "key": "suppliers", "label": "Suppliers", "prompt": "Is there competition amongst your suppliers? Do they actively compete for your business, and if you had to shift to a new supplier, how easy would it be?" },
-        { "key": "substitutes", "label": "Substitutes", "prompt": "What are the alternatives to your product or service? Could your customers solve their problem a different way?" },
-        { "key": "existing-rivalry", "label": "Existing Rivalry", "prompt": "The centre of the model — what the other four press upon.", "centre": true },
-        { "key": "observations-response", "label": "Observations & response", "prompt": "Record your observations AND your response to the changing economic environment — the deck asks for both, and a response is the half most easily lost." }
-      ]
+        {
+          "key": "customers",
+          "label": "Customers",
+          "prompt": "Are customers likely to be motivated to pay premium prices in return for latest style or fashion, technology or prestige? Are they concerned about your business safety, environment or ethical impact?"
+        },
+        {
+          "key": "new-entrants",
+          "label": "New Entrants",
+          "prompt": "How easy is it for new entrants to enter your marketplace? Is it conceivable that your current supplier could become your future competition?"
+        },
+        {
+          "key": "suppliers",
+          "label": "Suppliers",
+          "prompt": "Is there competition amongst your suppliers? Do they actively compete for your business, and if you had to shift to a new supplier, how easy would it be?"
+        },
+        {
+          "key": "substitutes",
+          "label": "Substitutes",
+          "prompt": "What are the alternatives to your product or service? Could your customers solve their problem a different way?"
+        },
+        {
+          "key": "existing-rivalry",
+          "label": "Existing Rivalry",
+          "prompt": "The centre of the model — what the other four press upon.",
+          "centre": true
+        },
+        {
+          "key": "observations-response",
+          "label": "Observations & response",
+          "prompt": "Record your observations AND your response to the changing economic environment — the deck asks for both, and a response is the half most easily lost."
+        }
+      ],
+      "explores": "How customer trends, supplier tactics, new entrants and substitute products can all impact your business at the same time."
+    },
+    {
+      "id": "strategic-statements",
+      "name": "Strategic Objective and Strategy",
+      "planningDomains": [
+        "business-targets",
+        "strategic-orientation"
+      ],
+      "helpsClientTo": "Agree one desired end result, and the ethos that will get them there.",
+      "material": {
+        "domain": "strategy",
+        "id": "strategy-orientation-part-1"
+      },
+      "captureInstruction": "You can complete this here or as part of Strategic Orientation part 2 — it is the exact same table.",
+      "closesTheSession": true,
+      "shape": "statements",
+      "fields": [
+        {
+          "key": "strategic-objective",
+          "label": "Strategic Objective",
+          "prompt": "The desired end result — SINGULAR — inclusive of ongoing management plans."
+        },
+        {
+          "key": "strategy",
+          "label": "Strategy",
+          "prompt": "The ethos or belief about how best to achieve it. Effectively an acid test for every decision that follows."
+        }
+      ],
+      "explores": "The planning language itself: a singular desired end result, and the ethos that will reach it."
+    },
+    {
+      "id": "action-plan",
+      "name": "Operational Objectives and Tactics",
+      "planningDomains": [
+        "business-targets",
+        "strategic-orientation"
+      ],
+      "helpsClientTo": "Turn the session into things that are actually done, by someone, by a date.",
+      "material": {
+        "domain": "strategy",
+        "id": "strategy-orientation-part-1"
+      },
+      "captureInstruction": "ALL must pass the test: observable or measurable, bound by a timeframe, and clearly in support of the singular Strategic Objective.",
+      "closesTheSession": true,
+      "shape": "actions",
+      "_rowsNote": [
+        "SIX ROWS IS A FIRST CUT, NOT A LIMIT ON PLANNING. The deck's own Action Plan Reminder is",
+        "a fixed table, and the loader expands `rows` x `columns` into ordinary fields so the store,",
+        "the timeline and the audit trail need no special case. Changing 6 to 12 is a data edit."
+      ],
+      "rows": 6,
+      "columns": [
+        {
+          "key": "objective",
+          "label": "Operational Objective",
+          "prompt": "Observable, time-bound, and in support of the Strategic Objective."
+        },
+        {
+          "key": "whom",
+          "label": "Whom"
+        },
+        {
+          "key": "when",
+          "label": "When"
+        },
+        {
+          "key": "aspect",
+          "label": "Growth Aspect",
+          "optionsFrom": "growthAspects"
+        }
+      ],
+      "explores": "The things we want to achieve, turned into a task, a person and a date."
     }
+  ],
+  "_exploresReadme": [
+    "EXPLORES IS THE DECK'S OWN SESSION SCOPE LINE, and it is NOT the coaching summary.",
+    "Mike ruled 2026-09-16, comparing the build against the approved drawing: the Session Scope",
+    "table shows ONE SHORT LINE per framework, because a domain holding fifteen of them is",
+    "unreadable otherwise. The long coaching summary stays joined from the domain support file",
+    "and is shown on the framework CARD, where the advisor reads it while running the session.",
+    "Two sentences for two readers - a client choosing the scope, and the advisor running it.",
+    "This is NOT duplication, and neither may be deleted in favour of the other."
   ]
 }
