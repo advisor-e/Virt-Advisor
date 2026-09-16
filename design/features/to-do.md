@@ -39,18 +39,17 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **8.1** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **11.1** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 4 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 5 | **7.4** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 6 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 7 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 8 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | **laptop**, since 2026-09-16 |
-| 9 | **7.6** The AI declares its model choice only sometimes, so declines under-count ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 10 | **7.9** Eight of nineteen calculators are not offered when the advisor asks the question they answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 11 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 12 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 13 | **9.2** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 14 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 5 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 6 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 7 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | **laptop**, since 2026-09-16 |
+| 8 | **7.6** The AI declares its model choice only sometimes, so declines under-count ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 9 | **7.9** Eight of nineteen calculators are not offered when the advisor asks the question they answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 10 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 11 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 12 | **9.2** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 13 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Fourteen live items. Eight need Mike.** If this list passes about twenty, something is wrong.
+**Thirteen live items. Eight need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

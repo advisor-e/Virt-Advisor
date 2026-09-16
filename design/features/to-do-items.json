@@ -158,27 +158,6 @@
       "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T042 on the desktop: both hub screens from their ruled wording rows, the seed, industry suggestions, then the benches on Mike's yes, pressed on the running app. 2026-09-12 - T043 to T047: differences on the drawings, lint, suite and build green, the quickstart walked; 4.94 found and fixed the same hour. Handed to UAT."
     },
     {
-      "ref": "7.4",
-      "name": "Read this for me - plain guidance and an AI reading on the mentor's pages",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike opened Outcome Learning and could not tell how to use it or what it was telling him; the client reports carry an AI reading and the hub pages carried none.",
-      "risk": "A mentor who cannot read the page takes no decision on it, and the learning the platform gathered changes nothing. The counter-risk is a reading taken as a verdict, which the caveat under every reading and the backend's shape check answer.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-11 - 'I have no idea how I, as a mentor, am supposed to use this function and what I'm learning from it ... I'm not seeing any AI interpretation of what's in front of me. Is that possible we could create that?'"
-      },
-      "touches": "components/shared/HubGuidePanel.vue and HubReadingCard.vue, both mentor pages, server/utils/hubReading.js, the two reading routes, the hub-reading document on the AI Prompts tab, locales.",
-      "note": "BUILT 2026-09-11 from hub-page-guidance.html, approved the same day. Both pages open with How to use this page and carry What this is telling you, on the button, never on open; the model is sent only what the page shows; a reply missing the three fixed headings, or carrying a link or a name, is dropped whole. It never accepts or rejects anything. NOTHING BLOCKS THIS: the OpenAI account HAS credit, proved 2026-09-15 by a real gpt-4o-mini call from this desktop that answered. What remains is to run a reading on the built app and look at it.",
-      "comment": "2026-09-11 - raised by Mike on the running app after pressing Run the benches, drawn the same evening, ruled and built on his yes. 2026-09-15 - the 'no credits' blocker was STALE and had been carried for four days: Mike said the account was fine, a real call proved it. Moved from waiting on Mike to ours."
-    },
-    {
       "ref": "5.1",
       "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,

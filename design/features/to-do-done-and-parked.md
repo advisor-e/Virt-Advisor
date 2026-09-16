@@ -185,6 +185,46 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.4 — "Read this for me": plain guidance and an AI reading on the mentor's pages.**
+✅ Closed 2026-09-17 on the desktop. Asked for by Mike on 2026-09-11 on the running app — *"I have
+no idea how I, as a mentor, am supposed to use this function and what I'm learning from it … I'm
+not seeing any AI interpretation of what's in front of me."* Built the same day from
+[`hub-page-guidance.html`](../mockups/hub-page-guidance.html).
+
+**What closed it: somebody finally pressed the button.** The item had sat since 2026-09-11 with one
+line of work left — *"run a reading on the built app and look at it"* — and nobody had. Three live
+readings on the production build, against local MySQL and a seeded pool of 31 reviews across five
+firms, **found two faults in the shipped feature.** Neither was reachable by the suite or by UAT,
+because nothing checked what the model is told.
+
+🔴 **The model could not tell a lift from a hold-back.** `outcomeLearningPayload` sent the legacy
+`holdBack` field, which carries a value only when the direction is negative, so **ten of eleven
+rows arrived as 0**. With only delivery volume left to reason from, the reading told the mentor to
+*"focus on Break-Even … suggesting it is currently effective"* — **the worst-performing row on the
+page**, 49 of 125 didn't land. The route returns `size` (signed) and `direction`, which is what the
+screen renders. Fixed, and the same page now reads *"Quick Fire Diagnosis … a positive lift of 8"*.
+The stored `hub-reading` prompt described the old field the same way and was corrected with it.
+**This was the pre-US2 assumption surviving in live code** — the identical sentence was corrected
+in two Briefs the same morning, which is how it was recognised.
+
+**The reading named domains by their ids** — *"domain: profit"* where the page says *"profitability
+and feasibility"*. Labels now come from `data/domains.json`, the single source the screen already
+reads. ⚠ **The engagement type and the industry were deliberately left alone, on Mike's correction:**
+education / facilitation / advice are the three Engagement Types, Advisor-e's own framework for how
+an advisor works with a client and critical to judging whether a template applies — content, not
+ids to be translated. A test pins that with the reason on it.
+
+**A third fault fell out sideways:** `seedOutcomePool`'s *"without the pool secret nothing is
+written"* deleted the variable, but the script's own `dotenv.config()` read it straight back from
+the developer's `.env` — so it asserted nothing on any machine following the quickstart. dotenv is
+mocked in that suite now. **A test measuring the machine instead of the code.**
+
+**The measurement, named before the work and met:** can a mentor answer *"what should I do about
+this?"* from what it says. The final reading — *"Focus on 'Quick Fire Diagnosis' in the
+profitability and feasibility situation first, as it has a solid number of cases and a positive
+lift"* — names a row and a reason. ⚠ **Still open and already on the list: 4.82**, nothing caps how
+many paid readings a user can trigger.
+
 **7.2 — the engine's middle, and the learning loop made true.**
 ✅ Closed 2026-09-17 on the desktop. Filed 2026-09-14 on Mike's instruction that every one of the
 Founder's Claims Audit's ten improvements become work. **Nine user stories, 66 tasks, all shipped**
