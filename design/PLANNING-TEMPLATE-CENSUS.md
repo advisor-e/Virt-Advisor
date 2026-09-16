@@ -69,6 +69,41 @@ Answers table"*).
 Pivot.** If it cannot, the gap is the design's, and it is found before the build rather than
 after. Its one original piece — the **Test Parameters** table, page 30 — comes in with it.
 
+#### Pivot's anatomy — read page by page, 2026-09-17
+
+**This is the shape of the output, taken from the output itself.** 31 pages: **12 teaching
+slides, 9 capture slides, 6 dividers, 3 front matter, 1 notes.**
+
+| Pages | |
+|---|---|
+| 1–3 | Title · Session Objective · **The Pivot Process** — the five-step agenda |
+| 4 | **Step 1 divider** — "Identify the Resistance / What's Forcing The Change? **(Discussion Points)**" |
+| 5–9 | **Teach** — Porter's · Market Diffusion · Product Life Cycle · Technology Points · Sigmoid |
+| 10 | **Step 1 divider repeated — "(Action Points)"** |
+| 11–12 | **Capture** — Porter's *Part 1, observations only* · Curve & Cycle |
+| 13 | **Step 2 divider** — "Choose Your Competition Fronts **(Discussion Points)**" |
+| 14–19 | **Teach** — Horizontal Integration · Progression of Economic Value *(two slides)* · Blue Ocean · Vertical Integration · 6 Marketing Questions |
+| 20 | **Step 2 divider repeated — "(Action Points)"** |
+| 21–24 | **Capture** — Porter's *Part 2, responses* · Integration Tasks · Progression of Economic Value · Blue Ocean Fronts |
+| 25–28 | Step 3 — **no Discussion/Action split**: capture · teach · capture |
+| 29–30 | Step 4 divider · Test Parameters |
+| 31 | Notes — *"Type your notes in here…"* |
+
+**Five rules the design must satisfy, each provable on a page above:**
+
+1. **Teaching and capture interleave per STEP, never per concept.** Teach the whole step, then
+   capture the whole step, announced by the same divider twice.
+2. 🔴 **A CONCEPT CAN BE CAPTURED MORE THAN ONCE, INTO THE SAME TABLE.** Porter's takes
+   observations on page 11 — *"record your observations ONLY. (For Now)"* — and responses on
+   page 21. One concept, two visits, in two different steps.
+3. **A concept can bring more than one teaching slide** — Progression of Economic Value brings
+   two, pages 15 and 16.
+4. **Capture slides come in two kinds**: the table drawn on the page (22, 23, 28, 30) and a
+   pointer to a separate table (11, 12, 21, 24, 26).
+5. **The agenda is authored, not derived.** Step 5, *"Do It & Review It"*, is on page 3's
+   agenda and has no slides at all. The Discussion/Action split is a choice too — step 3
+   does without it.
+
 ## 2. The measurement, and the answer
 
 **Deck one needed 13 forms. Everything after it added 8 more.**
@@ -207,8 +242,20 @@ The capture forms converge hard: **Porter's, S.W.O.T and Insights Summary alread
 form** — named blocks, each with a few numbered blank lines. The 21 teaching forms are
 presentational and cost far less than 21 capture forms would.
 
-⚠ **The capture census is incomplete.** Roughly two dozen templates were in hand when this was
-written and more were still arriving; the count above will move. Finish it before designing.
+✅ **The capture census is COMPLETE — this is not a gate on designing.** All 24 templates Mike
+loaded were read. 21 are in [`fill-in-tables/`](planning-templates/fill-in-tables/); one of
+those, `BD stages.xlsx`, is a calculator, leaving **20 capture templates, and every one is in
+the table above**. The count moves only if Mike supplies more.
+*(This paragraph used to say the census was unfinished and to finish it before designing. That
+was written while the files were still arriving and it outlived the fact by a day — in the one
+document every session is told to read first.)*
+
+⚠ **But know what the table above does NOT cover.** Four of its rows — Branding, Pricing,
+Packaging/Bundling and Customer Loyalty — have no fill-in file; they are the deck's own
+prompt → answer sheets, read from the Sales & Marketing slides. **So the nine forms are
+measured across 24 things, not across all 51 concepts.** A concept outside those 24 has no
+measured capture form, and choosing one for it is a design decision rather than a reading —
+say which it is when the time comes.
 
 ⚠ **Two existing shapes in the build are wrong against these tables.** `quadrants` gives SWOT
 one free-text box per quadrant where the real table has four numbered lines in each; `buckets`
@@ -285,9 +332,11 @@ source**) · 9 Growth Aspects Graphic (1pp — the wheel the palette came from).
 **Settled.** One renderer with a library of ~21 forms is the right shape. Concepts are
 records shared across templates. A template is a name, a purpose and its contents rows —
 Mike's own loading format. A deck's contents table is authoritative. The app holds the
-capture tables the decks have always pointed at.
+capture tables the decks have always pointed at. **And the order the finished document puts
+them in** — Pivot's anatomy in §1: front matter, then per step a *Discussion* divider, its
+teaching slides, an *Action* divider, its capture slides.
 
-**Not settled, and not to be assumed.** How each of the 21 forms is drawn; how the finished
-document assembles them; how a manager adds a concept at each tier; and whether the routing
-flow on Sales & Marketing page 4 becomes part of the session check. Those are design, and
-design has not started.
+**Not settled, and not to be assumed.** How each of the 21 forms is drawn; **how a step's
+slides are laid out on a page once the order is known**; how a manager adds a concept at each
+tier; and whether the routing flow on Sales & Marketing page 4 becomes part of the session
+check. Those are design, and design has not started.

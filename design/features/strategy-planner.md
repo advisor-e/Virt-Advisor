@@ -95,7 +95,17 @@ two different things, and that the second is far smaller than the first:
 
 **Nothing is ever filled in as a ring, a staircase or a curve.** The Org Chart proves it: what
 gets typed is a flat *role / reports to* list, and the hierarchy tree is only the rendering.
-**The plan document carries the capture, never the teaching.**
+
+🔴 **THE DOCUMENT CARRIES BOTH, AND MOSTLY THE TEACHING.** `Pivot.pdf` is **12 teaching slides
+to 9 capture slides**, and Mike's ruling asks for each concept *"AS IT CURRENTLY APPEARS in the
+slides"*. The capture form governs **where the client's typing goes**, never what the document
+contains — a plan of blank tables is not a plan an advisor can present. Its page-by-page
+anatomy, and the five rules that follow from it, are
+[`PLANNING-TEMPLATE-CENSUS.md`](../PLANNING-TEMPLATE-CENSUS.md) §1.
+
+🔴 **AND A CONCEPT CAN BE CAPTURED TWICE INTO THE SAME TABLE.** Porter's takes observations in
+Pivot's step 1 and responses in step 2. **A model in which a concept appears once in a session
+cannot produce Pivot** — the capture record keys on the *visit*, not on the concept.
 
 The full libraries are in
 [`design/PLANNING-TEMPLATE-CENSUS.md`](../PLANNING-TEMPLATE-CENSUS.md) §3, each form traced to
@@ -172,7 +182,7 @@ from a list of the nine**, and the wheel counts those. No model reads an objecti
 | **Voice recording** | A strategy session is a **Meeting Review meeting type** (Decision 10) — the Planner builds no recorder. It inherits that feature's three non-coding gates: staff consultation, a lawyer per market, and the OpenAI audio-terms letter. **The typed capture must stand alone until they clear.** |
 | **The ~100 Growth Aspect questions** | Item **15.2**, filed on Mike's yes. |
 | **The aspect descriptions on the wheel labels** | Mike's own deferral, 2026-09-16. |
-| **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how the output document assembles them · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down) · whether Sales & Marketing's "Where To Start??" routing flow becomes part of the session check. **None of this is designed. Do not assume it from the September drawing.** |
+| **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down) · whether Sales & Marketing's "Where To Start??" routing flow becomes part of the session check. **None of this is designed. Do not assume it from the September drawing.** *(The document's assembly ORDER is no longer open — it is Pivot's anatomy, census §1.)* |
 
 ### 🔴 Two built shapes are WRONG against Mike's own fill-in tables
 
