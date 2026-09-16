@@ -1,5 +1,12 @@
 # Data Model: Outcome Learning (4.87)
 
+> 🔴 **AMENDED 2026-09-17 — the adjustment is SIGNED.** As first written, an adjustment could only
+> hold a template back, and §3 said so (*"never lifts"*). **Item 7.2 US2 superseded that**: `size`
+> is positive to lift and negative to hold back, through the same floor, the same mentor decision
+> and the same cap. The shapes below now match the code. `holdBack` survives only as a derived
+> field, `max(0, -size)`, so it reads **0 on every lift** — a trap that had already cost one live
+> defect (the AI reading on the Mentor Hub was blind to lifts for two days). **Read `size`.**
+
 All storage is the existing overlay store (`firm_framework_versions`). No schema change. Shapes are validated on the way in by `readX(value) → cleaned | null` functions in the pattern of `compliance.js`, and the pool shape by a throwing guard.
 
 ## 1. Contribution consent — `outcome-consent`, on the firm's own row
@@ -53,16 +60,18 @@ All storage is the existing overlay store (`firm_framework_versions`). No schema
   value: 'profit',
   delivered: 31,        // outcomes where used ∈ {full, partial}
   less: 12,             // of those, outcome === 'less'
-  well: 17,             // of those, outcome === 'well'   (balance; never lifts)
+  well: 17,             // of those, outcome === 'well'
   firms: 6,             // distinct tokens among the delivered outcomes
   cases: 31,            // === delivered
-  holdBack: 4,          // round(POOLED_HOLDBACK_MAX * less / delivered), 0..10
+  size: -4,             // 🔴 SIGNED since 4.97 US2 — POSITIVE lifts, NEGATIVE holds back, ±10
+  direction: 'holdBack',// 'lift' | 'holdBack' — the same value in words
+  holdBack: 4,          // DEPRECATED, kept for old readers: max(0, -size), so 0 on every lift
   meetsFloor: true,     // firms >= 5 && cases >= 25
   state: 'below_floor' | 'proposed' | 'live' | 'held' | 'rejected' | 'orphaned'
 }
 ```
 
-- `holdBack` of 0 (delivered but never "less") is listed, `proposed` if it meets the floor, and applies nothing.
+- A `size` of 0 (the outcomes balance) is listed, `proposed` if it meets the floor, and applies nothing. ⚠ **`holdBack` of 0 does NOT mean this** — since US2 it is 0 on every lift too, which is exactly the misreading that made the Outcome Learning AI reading blind to lifts (2026-09-17, `server/utils/hubReading.js`). Read `size`.
 - `orphaned`: a decision exists whose `template` is no longer a title in the platform library. Never applied.
 - `state` is `below_floor` whenever `meetsFloor` is false, regardless of any earlier decision: a withdrawal that drops a live adjustment below the floor unpublishes it, and the page says why.
 - Constants exported beside every payload: `MIN_FIRMS = 5`, `MIN_CASES = 25`, `POOLED_HOLDBACK_MAX = 10`.
@@ -87,7 +96,7 @@ All storage is the existing overlay store (`firm_framework_versions`). No schema
 
 ## 5. Resolver option and trace block (runtime, not stored)
 
-Resolver input: `options.pooledAdjustments = [{ id, template, dimension, value, holdBack, firms, cases }]` — live ones only, only when the caller's firm consent is on; `[]` otherwise or on any read failure.
+Resolver input: `options.pooledAdjustments = [{ id, template, dimension, value, size, firms, cases }]` — live ones only, only when the caller's firm consent is on; `[]` otherwise or on any read failure. 🔴 **The resolver reads `size`, not `holdBack`** (`templateResolver.js`): a row whose `size` is not a finite non-zero number is dropped, so an adjustment supplied with only the old field applies nothing at all.
 
 Trace block on `decisionTrace.outcomeLearning`:
 
@@ -95,8 +104,10 @@ Trace block on `decisionTrace.outcomeLearning`:
 {
   consented: true | false,
   available: true | false,                 // false when the pool or decisions could not be read (FR-019)
-  applied:    [ { template, id, dimension, value, holdBack, firms, cases } ],
-  outweighed: [ { template, id, dimension, value, holdBack, firms, cases, by: 'distinction' } ]
+  // `size` is the capped NET the resolver applied, `direction` the same in words, and
+  // `holdBack` = max(0, -size) is carried alongside for old readers — 0 on every lift.
+  applied:    [ { template, id, dimension, value, size, direction, holdBack, firms, cases } ],
+  outweighed: [ { template, id, dimension, value, size, direction, holdBack, firms, cases, by: 'distinction' } ]
 }
 ```
 
