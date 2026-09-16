@@ -395,6 +395,27 @@
       "touches": "server/utils/templateRegistry.js, the page-to-entry Map that keeps one template per page; scripts/build-semantic-profiles.js, which writes one row per page and names only the winner; US9's template-profile screen in 7.2, which must list every template on a page.",
       "note": "THE SHARED PROFILE IS RIGHT AND MUST NOT BE 'FIXED' - Mike ruled 2026-09-16 that templates on one page SHARE one AI profile, because an advisor opening that page gets them all. This is not a rekey. What is missing is the many half: the registry should carry every template on a page, so a screen can show that this profile governs both Working Capital Cycle and Activity Ratios. Collisions grew 10 to 14 between the 25 June and 30 July exports, so more tools hide as the library grows. NEVER EDIT THE IDS - CLAUDE.md.",
       "comment": "2026-09-16 - found while running T060a for 7.2 US9; the compiler appeared to discover six new tools that were only collision winners changing places. Filed first as a keying defect, then corrected twice by Mike: the one-to-many page relationship is by design, and one shared profile per page is the behaviour he wants. RENUMBERED 7.5 to 7.10 on Mike's ruling of 2026-09-16: the laptop had taken 7.5 the same day for the model-choice record, and a number is spent for good once used."
+    },
+    {
+      "ref": "15.1",
+      "name": "The strategy domain has thirteen materials and no session to run them in",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The engine already diagnoses planning need, routes to the Planning Outcomes Review and names thirteen materials. The advisor arrives and there is no screen, so the session still runs on slides and the client's answers never reach the app.",
+      "risk": "Without it the planning routes lead nowhere: an advisor asking for a planning session is sent to materials that exist only as slide decks, and nothing said in the room carries forward to the next session or into the engine. The counter-risk is scale - close to fifty capture tables and forty concept cards, so the frameworks must be data a mentor authors, never code, or the build never ends.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
+      },
+      "touches": "data/strategy-domain-support.json and its thirteen materials; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
+      "note": "NOTHING IS BUILT AND NOTHING IS DRAWN - this is scoping only, 2026-09-16. The route in already exists: client_planning's entry question branches three ways - startup, well established, or BLOCKED, the third keyed to the psyche errors. Mike's ruling: the four Planning Domains are the session, expanding to the nine Growth Aspects for experienced clients; the nine are a coverage check, not a menu, per Orientation 1's own instruction to test objectives against them. Facilitation feedback goes into Meeting Review's existing My Coaching Notes as new observation points, inheriting P2-P6, not a second report. Build the machine and prove it on three frameworks, not fifty.",
+      "comment": "2026-09-16 - filed on Mike's instruction after a full read of the thirteen source documents he supplied. The scoping found the feature largely specified already: the strategy domain support names every deck he gave us, its diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework already sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. His four-to-nine expansion is the rung above those three. The impact test was run at scoping and reshaped the task twice: the recording half is Meeting Review's, the maths half is the Model Library's, and 8 Profit Levers is already a built report."
     }
   ]
 }

@@ -61,8 +61,9 @@ Taken from what the 121 items inventoried on 2026-09-15 actually are, not from a
 | **12** | **Course Builder & quizzes** | Courses, quiz banks, CPD, advisor progress |
 | **13** | **Depreciation, tax & compliance rates** | Country rates, schedules, tax bands, compliance pages |
 | **14** | **Tooling & process** | The Handbook, this list, branch checks, skills, the test suite, governance |
+| **15** | **Strategy Planner** | The strategy domain's session surface: the planning menu, capture tables, carry-forward, the client plan report, facilitation observation points |
 
-**15 is the next free parent.**
+**16 is the next free parent.**
 
 ## 4. The live items, renumbered 2026-09-15
 
