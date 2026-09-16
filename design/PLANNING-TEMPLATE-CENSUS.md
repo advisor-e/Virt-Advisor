@@ -7,9 +7,16 @@
 > than a screen. If his concepts need one design each, that bet is lost and the feature is a
 > different size of job.
 >
-> Item **15.1**. Sources: [`design/planning-templates/`](planning-templates/) — the
-> twelve decks and two workbooks, copied in on 2026-09-17 from
-> `C:\Documents\Visual Code Projects\Strategy Planner` on Mike's laptop.
+> Item **15.1**. Sources, both copied in on 2026-09-17 from
+> `C:\Documents\Visual Code Projects\Strategy Planner` on Mike's laptop:
+> [`design/planning-templates/`](planning-templates/) — the twelve decks and two workbooks —
+> and [`fill-in-tables/`](planning-templates/fill-in-tables/) — the 21 templates a client
+> actually completes, in their original Word, PowerPoint and Excel so the real grid is
+> readable rather than inferred from a picture.
+>
+> Of the 24 Mike loaded, three are not here: two exact duplicates (`Insights Summary (1)`,
+> `Product Fit (Customer Orientation) (1)`) and the Enneagram file, excluded on licence
+> grounds — see §1.
 >
 > 🔴 **This is a measurement, not a design.** Nothing here is approved, drawn or built.
 
@@ -37,6 +44,16 @@ Opportunity, the Client Planning Framework, Porters & Pine, SWOT/PEST and Profit
 Blue Ocean are named as materials in `data/strategy-domain-support.json` and have no deck in
 the folder. **They are tools for selling a plan, not for making one** (Mike, 2026-09-17). Do
 not go looking for them again.
+
+🔴 **THE ENNEAGRAM FILE IS OUT, AND THE REASON IS LEGAL.** `Enneagram based employment
+questions.docx` carries two notices in its own text: the Business Type descriptions and
+Personality Grids are **copyright The Enneagram Institute**, supplied under a licence held by
+Kinetic Planning (2007) Ltd; and the questions beside them **"may not be reproduced,
+disseminated, copied or distributed in any form without written authority"**. Putting it in
+the app would distribute licensed third-party material to every firm that uses it. It is also
+out of scope by the rule above — recruitment is not on the Organisational Review agenda.
+**Excluded by Mike, 2026-09-17. It is not copied into this repository.** Anyone reopening
+this needs the Institute's position first, not a technical decision.
 
 ### Pivot is the acceptance test, never a menu entry
 
@@ -108,6 +125,36 @@ Two entries resist all of the above and are recorded as themselves:
 - **Business Owner Expectations** and **Business Development Stages** are a spreadsheet
   model (`BO Expectations.xlsx`, four sheets, interest calculations). They belong with the
   Report Models, not with the capture forms.
+
+### The capture forms — nine, not twenty-one
+
+Read from Mike's own fill-in templates in their original Word, PowerPoint and Excel, 2026-09-17.
+
+| Capture form | Tables using it |
+|---|---|
+| **Banded grid** — named blocks, blank numbered lines | S.W.O.T · Porter's 5 Forces · Blue Ocean Fronts · Insights Summary · Profit Levers |
+| **Prompt → answer sheet** | Marketing Answers · 10 Critical Marketing Statements · Tension Point Scripts · People vs Process · Leadership Review · Branding · Pricing · Packaging · Customer Loyalty |
+| **Attribute rows × entity columns** | Customer Types (nine personas) · Customer & Skills Review |
+| **Named rows × staged columns** | Operational Objectives List · Progression of Economic Value |
+| **Named-field stack** | Productive Habits · Strategic Statements |
+| **Parallel prompt pair** | Product Fit (Customer Orientation) |
+| **Small comparison grid** | Curve & Cycle Notes |
+| **Snaking step sequence** | Sales Flowchart — steps 1–5 left to right, 10–6 back, 11–15 forward |
+| **Parent → child list** | Org Chart |
+
+🔴 **THE ORG CHART IS THE PROOF OF THE SPLIT.** What is filled in is a flat two-column list —
+*role, reports to*. The hierarchy tree on the slide is only how it is **drawn**. Nobody drags
+boxes; they type a list. Every teaching form should be read the same way: as a rendering of
+something simpler that was typed.
+
+**The 8 Profit Levers is a third thing again**, and worth stating because the build currently
+gets it wrong: the slide is an **equation**, the deck's summary slide is an **aims → levers
+table**, and the fill-in template is **seven aims with three blank task lines each**. The
+built `buckets` shape matches none of the three.
+
+Excluded from both libraries: `BO Expectations.xlsx` and `BD stages.xlsx` are spreadsheet
+**calculators** with their own interest sheets and scenario comparison. They are Report Model
+work, not capture forms.
 
 ## 4. Six structural findings
 
