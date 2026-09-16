@@ -26,9 +26,17 @@
 > - **The assembled plan** — [`design/mockups/strategy-plan-output.html`](../mockups/strategy-plan-output.html),
 >   drawn 2026-09-17, the output this redirection asks for. **All 31 pages of `Pivot.pdf`
 >   reproduced**, each block carrying the Pivot page it answers, so the acceptance test runs
->   against the drawing rather than after a build. ☐ **Five decisions drawn and none ruled.** Its
->   §5 states what it does *not* ask approval for — chiefly how each of the 21 teaching forms is
->   drawn, which stays open.
+>   against the drawing rather than after a build. Its §5 states what it does *not* ask approval
+>   for — chiefly how each of the 21 teaching forms is drawn, which stays open.
+>   - ☑ **Decision 1 ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
+>     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
+>     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
+>     produces a web report *and* a separate exported deck has created two things that can
+>     disagree, and the page is a 16:9 frame from the start rather than a reflowing column
+>     squeezed into one later.
+>   - ☐ **Four decisions still open**, Decision 2 asked and unanswered: does the advisor name the
+>     steps himself, or does the app group the ticked concepts? Pivot's step 5 sits on the agenda
+>     with no slides behind it, which is why the running order cannot be computed from the ticks.
 >
 > **Step 1 — scope the session.** The four Planning Domains, each opening Mike's own Session
 > Scope table from ADV.0 Planning Outcomes: Framework · What it explores · Helps your client

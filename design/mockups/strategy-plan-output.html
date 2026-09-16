@@ -90,6 +90,14 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rs-accent-bright);o
 .ask p{margin:0 0 7px}.ask p:last-child{margin:0}
 .ask .rec{font-weight:600;color:var(--rs-ink)}
 .ask .q{margin-top:9px;padding-top:9px;border-top:1px solid #bcdcf6;font-weight:600}
+/* A ruled decision keeps its recommendation BENEATH the ruling, so a later
+   session can see what was proposed as well as what was decided — the
+   convention set by design/mockups/strategy-planner.html. */
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask.ruled .q{border-top-color:#cbe7d2;font-weight:400;color:var(--rs-muted);font-size:12.5px}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px solid #cbe7d2}
 
 .measure{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:4px solid var(--rs-crit);
   border-radius:10px;padding:14px 16px;margin:18px 0}
@@ -771,19 +779,29 @@ your deck. Every page below carries the Pivot page it answers.</p>
   </div>
 </div>
 
-<h2>4. The decisions — none of these is ruled</h2>
+<h2>4. The decisions — 1 ruled, 4 open</h2>
 
 <p>Each is one recommendation and one question a yes or no answers. Asked one at a time in chat;
-recorded here so the ruling and what was proposed both survive.</p>
+recorded here so the ruling <b>and what was proposed</b> both survive — a later session can see
+which way a decision went and whether it went against the recommendation.</p>
 
-<div class="ask">
-  <h3>Decision 1 — is the output a deck or a web page?</h3>
-  <p>Your words were <i>"1 seamless document"</i> and <i>"AS IT CURRENTLY APPEARS in the slides"</i>.
-  Those pull in different directions: a document scrolls, a slide is a fixed 16:9 frame.</p>
+<div class="ask ruled">
+  <h3>Decision 1 — is the output a deck or a web page? — RULED</h3>
+  <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-17. <b>One continuous document of
+  slide-shaped pages.</b> It scrolls as one document on screen and is his deck page for page when
+  printed or presented. 🔴 <b>THE CONSEQUENCE IS BINDING: there is ONE artefact, never two
+  formats.</b> A build that produces a web report and a separate exported deck has created two
+  things that can disagree — and the page is a 16:9 frame from the start, not a reflowing column
+  that is later squeezed into one.</p>
+  <p>His words pull slightly apart: <i>"1 seamless document"</i> and <i>"AS IT CURRENTLY APPEARS in
+  the slides"</i>. A document scrolls; a slide is a fixed 16:9 frame.</p>
   <p class="rec">Recommendation: one continuous document of <b>slide-shaped pages</b>, as drawn in
   §3. On screen it scrolls as one thing; printed or presented it is your deck, page for page.
   Nothing is lost and it needs no second format.</p>
-  <p class="q">Is the output a continuous document of slide-shaped pages?</p>
+  <p>What this rejects, recorded so it is not re-proposed: a free-flowing web report. It would read
+  better on a phone and could never be put on a projector in a room, which is where a planning
+  session is actually run.</p>
+  <p class="q">Asked as: is the output a continuous document of slide-shaped pages?</p>
 </div>
 
 <div class="ask">
