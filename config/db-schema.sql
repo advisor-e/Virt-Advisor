@@ -693,3 +693,108 @@ CREATE TABLE IF NOT EXISTS notification (
   created_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_user_unread (user_id, is_read, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- -----------------------------------------------------------------------------
+-- STRATEGY PLANNER — to-do item 15.1
+-- Design: design/mockups/strategy-planner.html, eleven decisions ruled by Mike
+-- 2026-09-16 and registered in design/ARTEFACTS.md.
+--
+-- WHY THESE EXIST. Measured before any of this was designed: the four Planning
+-- Domains hold 45 frameworks, an advisor can capture 0 of them in the app, and 0
+-- answers survive to the next session — because there was nowhere to put them.
+-- The decks carry tables forward between sessions, so the absence of a store is
+-- the feature's central defect, not a missing nicety.
+--
+-- 🔴 WHAT THIS HOLDS, STATED SO NOBODY HAS TO INFER IT. A client's commercial
+-- plan, and named individuals: Decision 4 keeps the capture as free text, and
+-- Task/Whom/When names staff by name while an Organisational Review records
+-- judgements about them. Every read is scoped by firm_id for that reason.
+-- Nothing here is sent to a model on its own: the only AI that touches it is
+-- Decision 11's wording tidy, which runs on a Meeting Review transcript already
+-- inside that feature's consent.
+--
+-- 🔴 THESE ROWS DO NOT EXPIRE, AND THAT IS DELIBERATE. A meeting transcript runs
+-- on Meeting Review's clock and is destroyed; the plan built out of it is the
+-- firm's working document and is carried into the next session by design. A
+-- strategy plan that deleted itself would break the thing it exists for.
+-- -----------------------------------------------------------------------------
+
+-- One row per planning session with one client.
+CREATE TABLE IF NOT EXISTS `strategy_sessions` (
+  `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `client_id`      VARCHAR(64)  NOT NULL,
+  `advisor_id`     VARCHAR(64)  NOT NULL,
+  -- See advisor_va_sessions.advisor_name — captured at write time from the
+  -- advisor's own verified JWT, NULL until the token carries a name claim.
+  `advisor_name`   VARCHAR(128)          DEFAULT NULL,
+  `firm_id`        VARCHAR(64)  NOT NULL,
+  -- What screen 1 ticked: the chosen domains and framework ids. Decision 1 —
+  -- the advisor ticks and nothing is pre-ticked, so an empty scope is a real
+  -- state (a session opened and not yet scoped), never a missing value.
+  `scope_json`     JSON                  DEFAULT NULL,
+  -- Set only when the session is being recorded. Decision 10: the Planner has
+  -- NO recorder of its own — a strategy session is a Meeting Review meeting
+  -- type, so this points at that meeting and the audio, consent, transcription
+  -- and destruction all stay that feature's job. NULL is the ordinary case and
+  -- will stay so until Meeting Review's three non-coding gates clear.
+  `meeting_id`     VARCHAR(64)           DEFAULT NULL,
+  `status`         ENUM('open','closed') NOT NULL DEFAULT 'open',
+  `started_at`     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_opened_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_strategy_sessions_firm`   (`firm_id`),
+  KEY `idx_strategy_sessions_client` (`firm_id`, `client_id`),
+  KEY `idx_strategy_sessions_when`   (`started_at`),
+  CONSTRAINT `fk_strategy_sessions_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- One row per captured field. This is the table that moves the zero.
+CREATE TABLE IF NOT EXISTS `strategy_session_entries` (
+  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `session_id`    INT UNSIGNED NOT NULL,
+  -- The framework's id in its domain support file, e.g. 'strategy-swot-pest'.
+  -- Decision 3: a framework is DATA naming its capture shape, never its own
+  -- screen, so this is an id in a JSON file rather than a table of its own.
+  `framework_id`  VARCHAR(128) NOT NULL,
+  -- Which box within that framework, e.g. 'strengths', 'suppliers', 'lever-3'.
+  `field_key`     VARCHAR(128) NOT NULL,
+  `value`         TEXT                  DEFAULT NULL,
+  -- 🔴 source + original_text ARE THE AUDIT TRAIL THE STANDARDS REQUIRE, not
+  -- metadata. Decision 11: when the AI tidies a spoken passage into the sentence
+  -- an advisor would have typed, the RAW PASSAGE STAYS HERE beside it. That is
+  -- Original Value | AI Suggestion | Final Approved Value, and it is why an
+  -- advisor can always see what was actually said rather than what a model made
+  -- of it. Dropping original_text to save space destroys the trail.
+  `source`        ENUM('typed','transcript') NOT NULL DEFAULT 'typed',
+  `original_text` TEXT                  DEFAULT NULL,
+  `updated_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                        ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  -- One row per box. A save replaces what that box holds; history is not kept
+  -- here, because the box is a live worksheet an advisor edits in the room.
+  UNIQUE KEY `uq_strategy_entry` (`session_id`, `framework_id`, `field_key`),
+  KEY `idx_strategy_entries_framework` (`session_id`, `framework_id`),
+  CONSTRAINT `fk_strategy_entries_session`
+    FOREIGN KEY (`session_id`) REFERENCES `strategy_sessions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Which box was open, and when. Small, and it is the whole mechanism.
+CREATE TABLE IF NOT EXISTS `strategy_session_timeline` (
+  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `session_id`   INT UNSIGNED NOT NULL,
+  `framework_id` VARCHAR(128) NOT NULL,
+  `field_key`    VARCHAR(128) NOT NULL,
+  -- 🔴 MILLISECONDS, NOT SECONDS, AND THE PRECISION IS THE POINT. Decision 11
+  -- apportions speech to fields by comparing these against a recording's own
+  -- clock. Whole seconds put every passage spoken near a boundary into a
+  -- coin-flip, and the resulting mis-filing would look like the AI guessing —
+  -- which is the one thing that ruling forbids.
+  `opened_at`    DATETIME(3)  NOT NULL,
+  -- NULL while the field is still open; set when the advisor moves on.
+  `closed_at`    DATETIME(3)           DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_strategy_timeline_session` (`session_id`, `opened_at`),
+  CONSTRAINT `fk_strategy_timeline_session`
+    FOREIGN KEY (`session_id`) REFERENCES `strategy_sessions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -242,6 +242,16 @@ data/dev-courses.json
 # (created locally when MySQL is unavailable)
 data/dev-activity.json
 
+# 🔴 THE STRATEGY PLANNER'S SESSIONS (item 15.1) — a named client's whole strategic plan,
+# in the client's and advisor's own free-text words, plus the staff they named in Task /
+# Whom / When and whatever an Organisational Review recorded about them. When a session is
+# recorded it also holds the original spoken passages, kept beside the tidied sentences as
+# the audit trail Decision 11 requires. This is the most sensitive dev file in the list and
+# nothing about it belongs in this repository. Written in the SAME change as the store, not
+# after it — the lesson of dev-wages-register-rows.json above, which was missing for one
+# commit because the store and its ignore line were treated as two jobs.
+data/dev-strategy-sessions.json
+
 # Dev-only Collaborate people store — advisers, groups, threads, postures
 # (created locally so the Adviser Network tab survives a restart; NEVER written
 # in production, where MySQL is the store — see server/collaborate/data/devStore.js)
