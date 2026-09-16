@@ -9,58 +9,35 @@
 
 ---
 
-## 2026-09-16 (third session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-16 (fourth session) · Laptop · branch `feat/advisor-progress`
 
-**Scoping only. Nothing built, nothing drawn, no code touched.** One commit (`fc9f54b5`), three
-files, all of them records. Tree clean. **0 behind `master`.**
+**Four commits, all pushed** (`3e1ed8e7` … `1c73ec55`). Suite **12,074 green**, lint 0 errors.
+**0 behind `master`.** Item **15.1 is active on this laptop**; so is **7.5**, still blocked on
+`FirmManagerHub.vue`, which is 9.1's and the desktop's.
 
-**The desktop's catch-up note is done and removed.** It warned of a 115-commit merge waiting;
-this session fast-forwarded to it cleanly (116 commits, nothing of ours at risk). `CODE-SIZE.md`
-was dirty from `npm run handbook` at startup and was discarded, not merged — it is generated.
-**Your `7.5` → `7.10` renumber has landed**; the clash is gone from `npm run check:branch`.
+**The Strategy Planner is built end to end and walked in a browser** — scope the session, run
+the frameworks, objectives and actions, the plan. Brief:
+[`features/strategy-planner.md`](features/strategy-planner.md), history beside it. Eleven
+decisions ruled on [`mockups/strategy-planner.html`](mockups/strategy-planner.html), registered
+in [`ARTEFACTS.md`](ARTEFACTS.md). 🔴 **Decision 5 went AGAINST the recommendation** — the
+models run INSIDE the framework card on the same backend route, never a second copy of the
+maths. A session building from the recommendations builds what Mike refused.
 
-🔴 **PARENT 15 IS NOW TAKEN — `16` IS THE NEXT FREE PARENT.**
-[`ITEM-NUMBERING.md`](ITEM-NUMBERING.md) §3 has the new row. `scripts/ref-ceiling.js` computes
-`nextParent` itself, so `npm run check:branch` was already right — it was the authored line that
-was stale, and it is the same line that let `7.5` collide a day earlier.
+🔴 **NO SQL HAS EVER RUN AGAINST A REAL DATABASE.** Three new tables, a store and seven routes,
+written on a machine with no MySQL. A wrong column name or a broken join would pass every test
+here. **This is the one thing the desktop can do that this machine cannot** — run the quickstart
+against local MySQL.
 
-**Filed: `15.1` — the strategy domain has thirteen materials and no session to run them in.**
-Mike asked for a Strategy Planner, from thirteen source decks in
-`C:/Documents/Visual Code Projects/Strategy Planner`. The scoping found it largely specified
-already, which shrank the job twice:
+**Item 15.2 filed** on Mike's yes — the ~100 Growth Aspect questions behind the nine names.
 
-- **`data/strategy-domain-support.json` holds thirteen materials** — including the Planning
-  Outcomes Review and the Growth Curve. Its `diagnostic_entry` *is* the advisor-facing opening
-  check, and the Client Planning Framework already sizes a plan three ways
-  (Bizz Case / Lite Fundamentals / Planning Outcomes Review).
-- 🔴 **It does NOT name every deck Mike supplied, and an earlier version of this line said it
-  did.** Two of the four Planning Domains he ruled *are* the session are authored outside it:
-  **Sales & Marketing Review** in `data/sales-marketing-domain-support.json` (19 materials
-  matching the deck's Session Scope tables item for item) and **Organisational Review** in
-  `data/staff-domain-support.json`. **The Planner reads across three domain support files, or
-  it delivers half the session.** Corrected 2026-09-16 on Mike's yes, before anything was drawn.
-- **`client_planning` branches THREE ways, not two** — startup, well established, or **blocked**,
-  the third keyed to the psyche errors in the Growth Curve deck. Read it before anyone designs an
-  opening question for this.
-- **The facilitation feedback is mostly built.** It becomes new observation points inside Meeting
-  Review's existing **My Coaching Notes**, inheriting P2–P6 — not a second report. The approved
-  consent line already says *"it helps me review how I did."*
+**Still open on 15.1 and all recorded in its note, not here:** Decision 6's three objective
+tests are ruled and absent from the build; the Mentor authoring tab needs `FirmManagerHub.vue`;
+recording inherits Meeting Review's three non-coding gates; the wheel's aspect descriptions are
+Mike's own deferral.
 
-**Three rulings from Mike, all recorded in 15.1's `note`:** the four Planning Domains are the
-session and the nine Growth Aspects are a coverage check rather than a menu; facilitation feedback
-lives inside My Coaching Notes; and this is built as the strategy domain's execution surface rather
-than a standalone feature.
-
-**Next step, NOT started and not yet approved:** draw the journey — domain menu, one framework card
-mid-session, the report — as a committed mockup. Then prove the machine on three frameworks
-(8 Profit Levers, SWOT, Porter's), not on all fifty capture tables.
-
-⚠ **`/startup` step 3 did not complete.** `npm run handbook` built fine, but the publish was refused
-by a guard that wanted the whole 2.4 MB published page read back first. Mike declined the
-force-publish and redirected. **The Handbook is still showing the previous build.**
-
-**DESKTOP — shared files I changed:** `design/features/to-do-items.json`,
-`design/features/to-do.md` (regenerated by `npm run to-do`) and `design/ITEM-NUMBERING.md`.
-Nothing in `components/`, `server/` or `data/` was touched. **`7.5`'s `activeOn` stays on the
-laptop**, unchanged and still blocked on `FirmManagerHub.vue`, which is 9.1's and yours.
-`15.1` has no `activeOn` — nobody is on it.
+**DESKTOP — shared files I changed:** `locales/en.json`, `server/restify-server.js` (seven route
+registrations), `nuxt.config.js` (one proxy line), `design/features/README.md`,
+`to-do-items.json`, `design/CONTENT-ROUTING.md`, and `.claude/skills/run-the-app/SKILL.md` —
+which gained a trap worth knowing: **Nuxt hot-reloads, Restify does not.** A screen looked
+broken for twenty minutes today while the code was correct. **Nothing in
+`components/FirmManagerHub.vue`, `server/advisorEngine.js`, or anything else 7.2 owns.**
