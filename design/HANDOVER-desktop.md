@@ -11,36 +11,37 @@
 
 ## 2026-09-16 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Two commits, pushed** (`98185ce4`, `9a082620`). Suite **11,255 green** (530 suites), lint 0,
-coverage and audit gates passed. **Eleven live items** — 7.5 is new. **4.97 / 7.2 is 55 of 67.**
-`activeOn` KEPT on this machine: T057 is next and the work is in hand.
+**Six commits, all pushed** (`68f3d881` … `6d2933ea`). Suite **11,930 green** (556 suites),
+lint 0, `npm run build` succeeds. **Fifteen live items. 7.2 is 63 of 67** — `activeOn` KEPT,
+the four remaining tasks are in hand here.
 
-🔴 **US9 IS READ-ONLY BY MIKE'S RULING.** He stopped the build mid-task to ask *"are you building
-something that will interfere with the working model?"* — and it would have. **T058 wires authored
-profiles into `advisorEngine.js`**, changing what every advisor is recommended, on the resolver's
-dominant lever, with no test able to judge whether a weight is right. **T058 and the authoring half
-of T057 are NOT built and must not be**, until he has seen the screen and decided the authoring
-(44 tools of data entry) is worth his time. The engine still reads the compiled file.
+🔴 **READ `CLAUDE.md` → THE IMPACT TEST BEFORE SCOPING ANYTHING.** New binding rule, Mike's
+words: state the problem or gain, **the measurement, named before the work**, and what
+already does the job — or the work does not start. It came from him asking what US9 actually
+bought after it shipped. Measured: authoring three profiles moved the 51-case lab **5.6 →
+5.7**, the engine already picked a content-driven top recommendation in **51 of 51** with
+none authored, and the tool given a profile appeared **less** often (22 → 19). Not a licence
+to re-argue work he has asked for — report once, at scoping.
 
-**T060a done.** The compiler re-run moved the counts the OPPOSITE way to the task's prediction:
-199 → 205 entries, and hand-authoring rose **38 → 44**, because all six additions have no summary
-to compile from. No existing profile changed.
+**US9 SHIPPED IN FULL**, on two rulings the same day: read-only first, then authoring once he
+was told plainly it changes what advisors are recommended with no test able to judge a
+weight. Template Profiles is live on the Mentor Hub; the engine reads authored profiles over
+the compiled file and **falls back to compiled if the store fails**.
 
-🔴 **NEW ITEM 7.5, and Mike corrected the diagnosis TWICE.** Advisor-e issues an ID per **page**
-and a page legitimately holds several templates — 220 tools on 205 pages. It is **not** an export
-defect, and the shared profile is **correct**: tools on one page share one AI profile. What is left
-is naming every tool on a page.
+⚠ **MERGED `origin/master` IN — 84 commits.** This branch was 0 behind at startup and went
+behind mid-session when the laptop's PRs #94/#95 landed. No code conflicted; four record
+files did, all resolved keeping both sides. **The desktop's 7.5 is now 7.10** per Mike's
+ruling — the laptop took 7.5 the same day.
 
-⚠ **I then reproduced 7.5 myself within the hour** — the store's first draft read `templateRegistry`
-(a Map keyed by page) and silently returned 205 tools, losing 15. It now reads `data/templates.json`
-directly; a test pins all 220 so the "simplification" back onto the registry fails loudly.
+⚠ **Item 9.2 fired again**, third time: `--help` is not a recognised lab flag, so it was read
+as a case filter, ran 0 cases and overwrote the real 51-session report. Restored from git.
+The item already carries this; nothing new to file.
 
-**FOR MIKE, NOT OURS:** four tools are listed **twice** in the library under one title
-(`Capacity, Capability, Opportunity`, `IT Services`, and two spelling variants). Harmless; his to
-settle in Advisor-e. The screen shows them rather than hiding them.
+**The AI-ON lab needs the Avast root**, not `.env`'s digicert bundle — export it to
+`NODE_EXTRA_CA_CERTS` or every OpenAI call fails *"unable to verify the first certificate"*.
 
-**NEXT JOB: T057**, the read-only route `GET /api/mentor/semantic-profiles` under `mentorGuard`.
-
-**LAPTOP:** your note is dated **2026-09-13** but your branch had a commit on 2026-09-16 — stale
-for the fifth session running. Shared files I touched: none. Everything new is
-`server/utils/semanticProfiles.js` and its test.
+**LAPTOP:** shared files I touched — `locales/en.json`, `server/restify-server.js`,
+`server/advisorEngine.js`, `server/utils/outcomeBench.js`, `components/FirmManagerHub.vue`.
+The bench gained an optional trailing `profileMap` argument; every existing caller omits it
+and behaves exactly as before. Your note is dated **2026-09-13** while your branch merged
+twice on 2026-09-16 — stale for the sixth session running.
