@@ -68,7 +68,7 @@ describe('outcomeLearningPayload — the rows and figures, and nothing that coul
     floor: { minFirms: 5, minCases: 25 },
     capMax: 10,
     adjustments: [
-      { id: 'break-even|domain|profit', template: 'Break-Even', dimension: 'domain', value: 'profit', delivered: 31, less: 12, well: 19, holdBack: 4, firms: 5, cases: 31, meetsFloor: true, state: 'live', decision: { by: 'mentor@x', at: '2026-09-11' } }
+      { id: 'break-even|domain|profit', template: 'Break-Even', dimension: 'domain', value: 'profit', delivered: 31, less: 12, well: 19, size: -4, direction: 'holdBack', holdBack: 4, firms: 5, cases: 31, meetsFloor: true, state: 'live', decision: { by: 'mentor@x', at: '2026-09-11' } }
     ],
     benches: { fixed: { ranAt: 'x', before: 1, after: 1, liveIds: ['a'] }, outcome: { ranAt: 'x', before: 0.2, after: 0.3, liveIds: ['a'] } },
     rows: { 'SECRETTOKEN:hash': { domain: 'profit' } },
@@ -83,7 +83,7 @@ describe('outcomeLearningPayload — the rows and figures, and nothing that coul
       cases: 31,
       floor: { minFirms: 5, minCases: 25 },
       capMax: 10,
-      rows: [{ template: 'Break-Even', situation: 'domain: profit', delivered: 31, less: 12, holdBack: 4, firms: 5, cases: 31, state: 'live' }],
+      rows: [{ template: 'Break-Even', situation: 'domain: profitability and feasibility', delivered: 31, less: 12, size: -4, direction: 'holdBack', firms: 5, cases: 31, state: 'live' }],
       benches: { fixed: { before: 1, after: 1, liveAdjustments: 1 }, outcome: { before: 0.2, after: 0.3, liveAdjustments: 1 } }
     })
     const text = JSON.stringify(out)
@@ -100,7 +100,52 @@ describe('outcomeLearningPayload — the rows and figures, and nothing that coul
   test('a bench with one half missing, and a row with fields missing, read as zero and null rather than a guess', () => {
     const out = hr.outcomeLearningPayload({ benches: { fixed: { before: 1, after: 0.9 } }, adjustments: [{}] })
     expect(out.benches).toEqual({ fixed: { before: 1, after: 0.9, liveAdjustments: 0 }, outcome: null })
-    expect(out.rows[0]).toEqual({ template: '', situation: ': ', delivered: 0, less: 0, holdBack: 0, firms: 0, cases: 0, state: '' })
+    expect(out.rows[0]).toEqual({ template: '', situation: ': ', delivered: 0, less: 0, size: 0, direction: '', firms: 0, cases: 0, state: '' })
+  })
+
+  // 🔴 THIS IS THE TEST THAT WAS MISSING, and its absence is why 11,920 green tests sat over a
+  // live fault for two days. The payload sent the legacy `holdBack`, which carries a value ONLY
+  // when the direction is a hold-back — so every LIFT reached the model as 0 and the reading had
+  // nothing but delivery volume to reason from. Found 2026-09-17 by pressing the button and
+  // reading the answer, not by the suite. It asserts a NUMBER the model must see, which is what
+  // Mike's 2026-08-24 rule says a test is for: UAT cannot see what the AI was told.
+  test('a LIFT reaches the model as a positive size, not as a zero hold-back', () => {
+    const out = hr.outcomeLearningPayload({
+      adjustments: [{ template: 'Quick Fire Diagnosis', dimension: 'domain', value: 'profit', delivered: 56, less: 6, size: 8, direction: 'lift', holdBack: 0, firms: 10, cases: 56, state: 'proposed' }]
+    })
+    expect(out.rows[0].size).toBe(8)
+    expect(out.rows[0].direction).toBe('lift')
+    // The dead field must not travel: it reads as "no adjustment" for every lift.
+    expect(out.rows[0]).not.toHaveProperty('holdBack')
+  })
+
+  // The model reads the words the mentor reads. Found the same way, 2026-09-17: the reading
+  // came back naming "the 'domain: profit' situation" on a page that says "profitability and
+  // feasibility". Labels come from data/domains.json — the same single source the screen reads.
+  test('a domain arrives as its label and a signal without underscores', () => {
+    const out = hr.outcomeLearningPayload({
+      adjustments: [
+        { template: 'T', dimension: 'domain', value: 'profit', state: 'live' },
+        { template: 'T', dimension: 'signal', value: 'financial_foundations_gap', state: 'live' }
+      ]
+    })
+    expect(out.rows[0].situation).toBe('domain: profitability and feasibility')
+    expect(out.rows[1].situation).toBe('signal: financial foundations gap')
+  })
+
+  // 🔴 Mike's correction, 2026-09-17: these are NOT raw ids to be translated. Education,
+  // Facilitation and Advice are the three Engagement Types — Advisor-e's own framework for how
+  // an advisor works with a client, and critical to judging whether a template applies. A later
+  // session "tidying" these into something else would be removing content the model needs.
+  test('the engagement type and the industry reach the model unchanged', () => {
+    const out = hr.outcomeLearningPayload({
+      adjustments: [
+        { template: 'T', dimension: 'engagementType', value: 'education', state: 'live' },
+        { template: 'T', dimension: 'industry', value: 'plumber', state: 'live' }
+      ]
+    })
+    expect(out.rows[0].situation).toBe('engagementType: education')
+    expect(out.rows[1].situation).toBe('industry: plumber')
   })
 
   test('caps the rows sent', () => {

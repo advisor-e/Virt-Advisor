@@ -32,11 +32,45 @@
  */
 
 const { AI } = require('../../config/integration')
+const DOMAINS = require('../../data/domains.json')
 const { fenceUntrusted } = require('./promptSafety')
 const { assemblePrompt } = require('./aiPrompts')
 const { checkContribution } = require('./promptContribution')
 const { assertNoPersonalFields } = require('./mentorLogicLabReport')
 const { getClient, modelFor, logSuffix } = require('./aiProvider')
+
+/**
+ * The domain labels the mentor's screen shows, from the same single source the screen reads
+ * (`data/domains.json`) rather than a second copy here. `situationWords` in
+ * `components/mentor/MentorOutcomeLearning.vue` does exactly this for the page, and its JSDoc
+ * states the rule this follows: "Never the raw id where the data file has a label."
+ */
+const DOMAIN_LABELS = new Map()
+;(Array.isArray(DOMAINS) ? DOMAINS : (DOMAINS.domains || [])).forEach((d) => {
+  if (d && d.id) { DOMAIN_LABELS.set(d.id, d.label || d.id) }
+})
+
+/**
+ * One row's situation in the words the page shows. The DIMENSION name stays as it is — the
+ * model is told what each one means in the prompt — but the VALUE is the mentor-facing label
+ * wherever the data file has one.
+ *
+ * 🔴 The engagement type and the industry are deliberately UNCHANGED. `education`,
+ * `facilitation` and `advice` are the three Engagement Types (`data/engagement-types.json`) —
+ * proprietary Advisor-e framework describing how the advisor works with the client, and
+ * critical to judging whether a template applies. They are content, not ids to be translated.
+ * An industry arrives as the advisor typed it.
+ *
+ * @param {{dimension: string, value: string}} a - one computed adjustment
+ * @returns {string} e.g. "domain: profitability and feasibility"
+ */
+function _situation (a) {
+  const dim = String((a && a.dimension) || '')
+  const raw = String((a && a.value) || '')
+  if (dim === 'domain') { return dim + ': ' + (DOMAIN_LABELS.get(raw) || raw) }
+  if (dim === 'signal') { return dim + ': ' + raw.replace(/_/g, ' ') }
+  return dim + ': ' + raw
+}
 
 const PROMPT_ID = 'hub-reading'
 const PAGES = ['outcome-learning', 'logic-lab-report']
@@ -84,10 +118,17 @@ function outcomeLearningPayload (page) {
   const p = page && typeof page === 'object' ? page : {}
   const rows = (Array.isArray(p.adjustments) ? p.adjustments : []).slice(0, MAX_ROWS).map(a => ({
     template: String(a.template || ''),
-    situation: String(a.dimension || '') + ': ' + String(a.value || ''),
+    situation: _situation(a),
     delivered: _num(a.delivered),
     less: _num(a.less),
-    holdBack: _num(a.holdBack),
+    // 🔴 SIGNED SINCE 4.97 US2 — `size` is positive to LIFT and negative to hold back, and it
+    // is what the screen renders (`MentorOutcomeLearning.vue` `signedSize`). This used to send
+    // the legacy `holdBack`, which carries a value ONLY when the direction is a hold-back, so
+    // every lift reached the model as 0. Found 2026-09-17 by running the page: ten of eleven
+    // rows arrived zeroed and the reading called the page's WORST performer "effective",
+    // having nothing but delivery volume left to reason from. Send what the mentor sees.
+    size: _num(a.size),
+    direction: String(a.direction || ''),
     firms: _num(a.firms),
     cases: _num(a.cases),
     state: String(a.state || '')
