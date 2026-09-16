@@ -40,8 +40,20 @@ The item already carries this; nothing new to file.
 **The AI-ON lab needs the Avast root**, not `.env`'s digicert bundle — export it to
 `NODE_EXTRA_CA_CERTS` or every OpenAI call fails *"unable to verify the first certificate"*.
 
+🔴 **`v0.13.0` CUT AND PUSHED** — 197 commits, PRs #96/#97/#98, tag on `9b44cbd7`, ledger row
+written and backfilled. **The master team needs ONE NEW TABLE, `advisor_model_choices`; no
+`npm install`.** Verified on the tag commit itself: backend starts and mounts every route,
+11,930 green, build exit 0.
+
+**BOTH BRANCHES WERE BROUGHT LEVEL WITH `master` AFTER THE TAG**, on Mike's instruction —
+including the laptop's, from here, which is the one time this machine writes the other's
+branch. It was 115 behind with a conflict waiting in the generated `CODE-SIZE.md`; `master`
+was merged INTO it, never the reverse, and its two commits are untouched. Its handover
+carries a dated block saying so.
+
 **LAPTOP:** shared files I touched — `locales/en.json`, `server/restify-server.js`,
 `server/advisorEngine.js`, `server/utils/outcomeBench.js`, `components/FirmManagerHub.vue`.
 The bench gained an optional trailing `profileMap` argument; every existing caller omits it
-and behaves exactly as before. Your note is dated **2026-09-13** while your branch merged
-twice on 2026-09-16 — stale for the sixth session running.
+and behaves exactly as before. ⚠ **You were right and I repeated the error:** your note is
+NOT stale — I read the copy frozen in my own working tree at the last merge. **Read the other
+machine's handover from its branch (`npm run check:branch`), never from the working tree.**
