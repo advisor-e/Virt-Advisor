@@ -4597,6 +4597,14 @@
     "heading": "Every template and what it answers",
     "intro": "What the AI understands each client tool to be about. This is what decides which tool an advisor is shown for a client's problem.",
     "authoringNotice": "What you save here changes which tool an advisor is recommended, from their next conversation onward. Every save is kept as a version with your reason, and you can always restore an earlier one — including the profile the script wrote.",
+    "guide": {
+      "intro": "A profile is what the AI understands one of your tools to be about — which client problems it answers, and how strongly. It is one of several things that decide what an advisor is shown, and it is the one that works from the tool's end rather than from the client's words.",
+      "p1": "Read a row like a sentence: this tool answers these problems, this strongly. \"Revenue modelling 10\" means a client talking about revenue models should see that tool near the top. A weight of 1 barely registers; 10 is decisive.",
+      "p2": "Source says where the profile came from. Generated means a script read the tool's written summary and guessed. Keyword only means it matched a word and little more — never trust those. None means there was no summary to read, so the AI knows nothing about that tool at all.",
+      "p3": "Use Thin only to see the tools the AI understands weakly or not at all. Not all of them are a problem: PDF Storage, Programme Pages and Advisor Prep have no profile because they answer no client problem, and they should stay that way. The ones worth your time are the real advisory tools sitting blank.",
+      "p4": "Be sparing. Measured on the 50-case test bench, the engine already picked a sensible recommendation in every case before any profile was written by hand, and filling in three changed almost nothing. A profile also makes a tool lose the cases it does not fit, not only win the ones it does. This page earns its keep for one job: a tool you know is being missed, that you can say what it is for.",
+      "p5": "Nothing here is permanent. Every save is kept with your name and reason, and Restore to here puts back any earlier version — including the one the script originally wrote. If a weight turns out wrong, you are one click from where you were."
+    },
     "edit": "Edit",
     "editing": "Editing…",
     "summaryHeading": "What the summary says this tool is for",

@@ -8,7 +8,17 @@
 
   template(v-else)
     p.title.is-5 {{ $t('semanticProfiles.heading') }}
-    p.subtitle.is-6.has-text-grey.mb-5 {{ $t('semanticProfiles.intro') }}
+    p.subtitle.is-6.has-text-grey.mb-4 {{ $t('semanticProfiles.intro') }}
+
+    //- "How to use this page" — asked for by Mike 2026-09-16, and written from the
+    //- Scenario Lab measurement rather than from a pitch. It says plainly when NOT to
+    //- use this screen, because the measurement showed the engine already picks a
+    //- content-driven recommendation in 51 of 51 cases with no authored profile.
+    hub-guide-panel.mb-5(
+      storage-key="semantic-profiles"
+      :intro="$t('semanticProfiles.guide.intro')"
+      :points="guidePoints"
+    )
 
     //- Authoring is live (Mike's second ruling of 2026-09-16), so the screen says what a
     //- save actually does rather than letting a mentor discover it from an advisor.
@@ -203,8 +213,12 @@
  * template is *for*, which does not change from firm to firm. A firm's own vocabulary
  * already reaches scoring through Advisory Distinctions, which every tier has.
  */
+import HubGuidePanel from '~/components/shared/HubGuidePanel.vue'
+
 export default {
   name: 'MentorSemanticProfiles',
+
+  components: { HubGuidePanel },
 
   props: {
     // The mentor's JWT. The route is re-gated server-side by requireMentorRole.
@@ -240,7 +254,12 @@ export default {
   },
 
   computed: {
-    /** @returns {number} rows a mentor has authored; 0 until authoring ships. */
+    /** @returns {Array<string>} the numbered points of "How to use this page". */
+    guidePoints () {
+      return ['p1', 'p2', 'p3', 'p4', 'p5'].map(k => this.$t('semanticProfiles.guide.' + k))
+    },
+
+    /** @returns {number} rows a mentor has authored. */
     authoredCount () {
       return this.rows.filter(r => r.source === 'authored').length
     },
