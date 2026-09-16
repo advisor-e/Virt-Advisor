@@ -309,27 +309,6 @@
       "comment": "2026-09-15 - filed after a wrong reading was corrected against the code: the dev firm was sharing when the '2 adjustments' was seen, so it was never evidence of a non-sharing firm receiving anything."
     },
     {
-      "ref": "9.2",
-      "name": "A part-measured lab run overwrites a full one",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The Scenario Lab writes its report whether or not the AI layers ran, so a run that measured less of the engine silently replaces one that measured all of it.",
-      "risk": "A lab run here silently reports the engine WITHOUT its AI layers and overwrites the report measured with them - score separation reads 2.3 against the real 5.7. Nothing says the layers were off unless someone reads the line that says so.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-14 - hit while measuring the resolver change for 7.2. A defect we found, not a feature nobody asked for; Mike said yes to filing it."
-      },
-      "touches": ".env on the desktop only (NODE_EXTRA_CA_CERTS), and scripts/scenario-lab.js which overwrites design/SCENARIO-LAB-REPORT.md whether or not the AI layers ran.",
-      "note": "THE ENVIRONMENT HALF IS DONE: NODE_EXTRA_CA_CERTS points at the Avast root and AI-backed scripts DO run here, proved 2026-09-15 by a real OpenAI call from a script on this desktop. ONLY THE CODE HALF IS LEFT, and it is the one that matters: the lab should REFUSE to overwrite the report when the AI layers did not run, or write to a clearly marked file, so a partial measurement cannot replace a full one. SEEN HAPPENING 2026-09-15 - an unrecognised flag made the lab run 0 cases with AI OFF and overwrite the real 51-session AI-ON report; restored from git. There is also no --help, so a wrong flag is read as a filter matching nothing.",
-      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after a lab run without the key replaced a real report and was caught by the pre-commit hook rather than by anything in the lab itself. 2026-09-15 - the environment half was found ALREADY FIXED (a real OpenAI call runs here), so the item is now the code half alone and was renamed to it. It fired again the same day from a mistyped flag, caught by eye."
-    },
-    {
       "ref": "7.10",
       "name": "A page's templates are hidden behind whichever won the ID",
       "rankedByMike": false,

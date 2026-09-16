@@ -46,10 +46,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 9 | **7.9** Eight of nineteen calculators are not offered when the advisor asks the question they answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 10 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 11 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 12 | **9.2** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 13 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 12 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Thirteen live items. Eight need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Eight need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

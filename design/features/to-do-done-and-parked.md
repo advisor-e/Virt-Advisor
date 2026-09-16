@@ -185,6 +185,38 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**9.2 — a part-measured lab run could overwrite a full one.**
+✅ Closed 2026-09-17 on the desktop. Filed 2026-09-14 after a run without the key replaced a real
+report and was caught by the **pre-commit hook** rather than by anything in the lab; it fired twice
+more before it was fixed.
+
+**The item recorded one cause. There were two, and the unnamed one was the trigger every time.**
+`parseArgs` caught any unrecognised argument in its filter branch, so **`--help` was read as a
+domain name**, matched no case and ran 0 of them — and the run still wrote the report.
+**Reproduced before the fix on 2026-09-17: one `--help` replaced 1,145 lines of AI-measured results
+with 21 lines of zeros.** Any typo did it: a misspelled domain, a singular `--adjustment`. An
+unknown flag now stops the run with a usage message before a case is replayed, and a filter
+matching nothing prints the real domain list and exits without writing.
+
+**The second cause was the one on the item:** the report was written whatever the run measured.
+`chooseReportPath` now refuses to replace a fuller report — AI off where the existing one had AI
+on, fewer cases, or any filtered run, which is a subset by definition. Those go to
+`SCENARIO-LAB-REPORT-partial.md` (gitignored, because it reads almost identically to the real
+report) and the console names the condition that withheld the write. It reads the existing
+report's own coverage header, so there is no new state to keep in step.
+
+🔴 **The tests were verified by breaking the code, not by going green.** There had been **no test
+of this script at all** — which is why the fault survived three occurrences. Ten now; the AI guard
+and the unknown-flag guard were each disabled in turn and each failed exactly its own test and
+nothing else. All five paths were also proved on the running script, and
+`design/SCENARIO-LAB-REPORT.md` came through the whole investigation **byte-identical to the
+committed version**.
+
+⚠ **One narrower weakness is deliberately NOT fixed and is not this item:** `HAS_AI` is
+`!!process.env.OPENAI_API_KEY` — it checks the key *exists*, never that a call *succeeded*. A run
+with a bad key or a missing CA root still reports `AI ON` and may overwrite. Put to Mike separately
+rather than widening an approved scope.
+
 **7.4 — "Read this for me": plain guidance and an AI reading on the mentor's pages.**
 ✅ Closed 2026-09-17 on the desktop. Asked for by Mike on 2026-09-11 on the running app — *"I have
 no idea how I, as a mentor, am supposed to use this function and what I'm learning from it … I'm
