@@ -9,57 +9,52 @@
 
 ---
 
-> 🔴 **ADDED BY THE DESKTOP, 2026-09-16, ON MIKE'S INSTRUCTION — READ THIS FIRST, THEN THE
-> SESSION NOTE BELOW.** This is the only time the desktop writes in this file; it did so
-> because the alternative was you opening to a 115-commit merge and a conflict.
->
-> **`v0.13.0` WAS CUT AND PUSHED** — 197 commits, PRs #96/#97/#98, tag on `9b44cbd7`.
-> `master` moved a long way after your session ended.
->
-> ✅ **YOUR BRANCH IS ALREADY LEVEL WITH `master`** — the desktop merged it in for you and
-> pushed. **Nothing of yours was overwritten:** `master` was merged INTO your branch, never
-> the reverse, and your two commits are untouched. The one conflict was `CODE-SIZE.md`,
-> which is generated — resolved by running `npm run handbook`, not by choosing a side.
-> Verified after merging: **11,930 tests green / 556 suites.**
->
-> **So at your next startup: `git pull` and begin.** No catching up, no conflict.
->
-> ⚠ **Your handover below is from before all this and its first line is now wrong** — it
-> says 0 ahead / 0 behind, which was true when you wrote it. Everything else in it stands.
->
-> **What the desktop did that touches you:** Template Profiles (a new Mentor Hub tab),
-> the engine reading authored profiles, and a new binding rule in `CLAUDE.md` — **THE
-> IMPACT TEST**: state the problem or gain and the measurement *before* any design, or the
-> work does not start. Read it before scoping anything.
+## 2026-09-16 (third session) · Laptop · branch `feat/advisor-progress`
 
-## 2026-09-16 (second session) · Laptop · branch `feat/advisor-progress`
+**Scoping only. Nothing built, nothing drawn, no code touched.** One commit (`fc9f54b5`), three
+files, all of them records. Tree clean. **0 behind `master`.**
 
-Suite **11,180 green** (525 suites), lint 0, coverage and audit gates passed. Tree clean.
-**0 ahead, 0 behind `master`.**
+**The desktop's catch-up note is done and removed.** It warned of a 115-commit merge waiting;
+this session fast-forwarded to it cleanly (116 commits, nothing of ours at risk). `CODE-SIZE.md`
+was dirty from `npm run handbook` at startup and was discarded, not merged — it is generated.
+**Your `7.5` → `7.10` renumber has landed**; the clash is gone from `npm run check:branch`.
 
-**THE 81-COMMIT BACKLOG IS MERGED** — PR #94 (`b9b6ac2d`), PR #95 (`efd6ac1f`). Nothing had
-reached `master` since 13 September, and that one fact caused both of today's faults.
+🔴 **PARENT 15 IS NOW TAKEN — `16` IS THE NEXT FREE PARENT.**
+[`ITEM-NUMBERING.md`](ITEM-NUMBERING.md) §3 has the new row. `scripts/ref-ceiling.js` computes
+`nextParent` itself, so `npm run check:branch` was already right — it was the authored line that
+was stale, and it is the same line that let `7.5` collide a day earlier.
 
-🔴 **DESKTOP — YOU MERGED `master` (`90580cf3`) WHILE WE WORKED, SO YOU ALREADY HOLD BOTH OF
-THESE.** Nothing to catch up on; act on them.
+**Filed: `15.1` — the strategy domain has thirteen materials and no session to run them in.**
+Mike asked for a Strategy Planner, from thirteen source decks in
+`C:/Documents/Visual Code Projects/Strategy Planner`. The scoping found it largely specified
+already, which shrank the job twice:
 
-**1. Your `7.5` becomes `7.10`** — Mike's ruling, recorded in
-[`ITEM-NUMBERING.md`](ITEM-NUMBERING.md) §4. Both machines filed a 7.5 a day apart. Ours keeps
-the number on cost alone: it is quoted in fifteen-plus files, yours in `semanticProfiles.js`
-and its test. **You apply it** — the item is on your branch and we never edit it.
-`npm run check:branch` names the clash every session until you do.
+- **`data/strategy-domain-support.json` names every deck he supplied** — all thirteen materials,
+  including the Planning Outcomes Review and the Growth Curve. Its `diagnostic_entry` *is* the
+  advisor-facing opening check, and the Client Planning Framework already sizes a plan three ways
+  (Bizz Case / Lite Fundamentals / Planning Outcomes Review).
+- **`client_planning` branches THREE ways, not two** — startup, well established, or **blocked**,
+  the third keyed to the psyche errors in the Growth Curve deck. Read it before anyone designs an
+  opening question for this.
+- **The facilitation feedback is mostly built.** It becomes new observation points inside Meeting
+  Review's existing **My Coaching Notes**, inheriting P2–P6 — not a second report. The approved
+  consent line already says *"it helps me review how I did."*
 
-**2. Our handover was never missing.** Your note says we left none for five sessions; there are
-twelve commits to this file in three days, three of them today. You were reading the copy
-frozen in your own working tree at the 13 September merge. `branch-survey.js` reads it from our
-branch instead, and you now have it — `npm run check:branch` will date this note correctly.
+**Three rulings from Mike, all recorded in 15.1's `note`:** the four Planning Domains are the
+session and the nine Growth Aspects are a coverage check rather than a menu; facilitation feedback
+lives inside My Coaching Notes; and this is built as the strategy domain's execution surface rather
+than a standalone feature.
 
-**The number check answers the right question now.** It reported the free *parent* while, since
-Mike's 2026-09-15 ruling, almost every new job takes a *decimal* — which is why it printed
-"highest in use 14.2 / 14.1" the morning 7.5 collided. It now prints the next free decimal of
-every open subject across all branches, flags any number naming two different jobs, and never
-offers a closed `2.x`/`3.x`/`4.x` number.
+**Next step, NOT started and not yet approved:** draw the journey — domain menu, one framework card
+mid-session, the report — as a committed mockup. Then prove the machine on three frameworks
+(8 Profit Levers, SWOT, Porter's), not on all fifty capture tables.
 
-**Shared files I changed:** `scripts/ref-ceiling.js` and its test, `design/ITEM-NUMBERING.md`,
-`design/CODE-SIZE.md`. **7.5's `activeOn` stays on the laptop**, still blocked on
-`FirmManagerHub.vue`, which is 9.1's and yours.
+⚠ **`/startup` step 3 did not complete.** `npm run handbook` built fine, but the publish was refused
+by a guard that wanted the whole 2.4 MB published page read back first. Mike declined the
+force-publish and redirected. **The Handbook is still showing the previous build.**
+
+**DESKTOP — shared files I changed:** `design/features/to-do-items.json`,
+`design/features/to-do.md` (regenerated by `npm run to-do`) and `design/ITEM-NUMBERING.md`.
+Nothing in `components/`, `server/` or `data/` was touched. **`7.5`'s `activeOn` stays on the
+laptop**, unchanged and still blocked on `FirmManagerHub.vue`, which is 9.1's and yours.
+`15.1` has no `activeOn` — nobody is on it.
