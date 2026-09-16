@@ -4352,6 +4352,49 @@
       "load": "The report could not be built. Nothing has changed — if this keeps happening the backend may not be running."
     }
   },
+  "semanticProfiles": {
+    "tab": "Template Profiles",
+    "heading": "Every template and what it answers",
+    "intro": "What the AI understands each client tool to be about. This is what decides which tool an advisor is shown for a client's problem.",
+    "readOnlyNotice": "This screen shows what the AI holds today. Editing a profile is not switched on yet — nothing here changes what advisors are recommended.",
+    "tileTools": "Client tools",
+    "tileToolsSub": "every tool the engine scores, on {pages} pages; the 71 get-the-job and get-organised items are not scored and are not listed",
+    "tileThin": "Thin",
+    "tileAuthored": "Authored by you",
+    "tileAuthoredSub": "editing is not switched on yet",
+    "tileGenerated": "Generated, never reviewed",
+    "tileGeneratedSub": "compiled from the summaries by script",
+    "tableHeading": "Every template and what it answers",
+    "weightsHint": "Weights 1–10 · a higher weight makes the match count for more",
+    "filterAll": "All ({n})",
+    "filterThin": "Thin only ({n})",
+    "filterAuthored": "Authored ({n})",
+    "searchPlaceholder": "Search by tool or section…",
+    "colTemplate": "Template",
+    "colSection": "Section",
+    "colSignals": "Signals",
+    "colSource": "Source",
+    "colThin": "Thin?",
+    "alsoOnPage": "Shares this profile with: {list}",
+    "noSignals": "none",
+    "weakDetail": "weights add up to {n}",
+    "noneMatch": "No tool matches that filter.",
+    "foot": "Showing {shown} of {rows} rows, covering {tools} client tools. Sorted by section, then title.",
+    "loadFailed": "The template profiles could not be loaded. Nothing has changed — try again shortly.",
+    "source": {
+      "authored": "Authored",
+      "auto": "Generated",
+      "keyword": "Keyword only",
+      "reviewed": "Reviewed",
+      "none": "None"
+    },
+    "thin": {
+      "no_entry": "No profile at all",
+      "no_signals": "No signals matched",
+      "weak": "Weak match",
+      "keyword_only": "Keyword only"
+    }
+  },
   "templateLibrary": {
     "tab": "Template Library",
     "heading": "Master template export",

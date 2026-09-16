@@ -153,8 +153,12 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   page shows what has been learned … and the mentor accepts, holds or rejects each one before
  *   it goes live."* ⚠ MENTOR ALONE by design (spec FR-014): the pool is one platform-wide set,
  *   and a lower tier would see the same rows and could take no different decision on them.
+ * - `semanticProfiles` — item 4.97 / 7.2 US9, Mike 2026-09-14 ("yes" to a screen to review each
+ *   template's signals and profile), built READ-ONLY on his ruling of 2026-09-16. ⚠ MENTOR ALONE:
+ *   a profile says what a template is FOR, which does not change from firm to firm; a firm's own
+ *   vocabulary already reaches scoring through Advisory Distinctions, which every tier has.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

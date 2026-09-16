@@ -290,7 +290,13 @@ describe('the two tiers are recognisably the same screen', () => {
   // page (item 4.87, Mike 2026-09-10: "It surfaces on the Mentor Hub first"), drawn last under
   // "Rolled up from below" beside Case Reviews and Template Check because it is the same kind
   // of thing: what the firms' reviews add up to. Mentor-only by design (spec FR-014).
-  const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab', 'outcomeLearning.tab']
+  //
+  // ⚠ AMENDED 2026-09-16: `semanticProfiles.tab` joins the tail, BESIDE `templateLibrary.tab`
+  // rather than at the end — item 4.97 / 7.2 US9, and the drawing places it there because the
+  // two are one object from two sides: the library is what a template IS, the profile is what
+  // it ANSWERS. Mentor-only as a stated judgement (a profile says what a tool is FOR, which
+  // does not vary by firm). Built READ-ONLY on Mike's ruling of 2026-09-16.
+  const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab', 'semanticProfiles.tab', 'outcomeLearning.tab']
   //
   // ⚠ AMENDED 2026-09-08: `Industry Benchmarks` joins it — the Stats NZ benchmarker release in
   // force and the two-file upload that replaces it (Mike, 2026-09-08, item 4.70 stage 3; the

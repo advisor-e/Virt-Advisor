@@ -137,6 +137,7 @@ const complianceRoute = require('./routes/compliance')
 const hubTabsRoute = require('./routes/hubTabs')
 const outcomeLearningRoute = require('./routes/outcomeLearning')
 const outcomeConsentRoute = require('./routes/outcomeConsent')
+const semanticProfilesRoute = require('./routes/semanticProfiles')
 // Both sides of the 2026-09-10 merge: this machine's compliance routes, and the desktop's
 // `firmOrEntityAuth` in the guard list.
 const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
@@ -919,6 +920,20 @@ server.get('/api/mentor/outcome-learning/export', ...mentorGuard, outcomeLearnin
 server.post('/api/mentor/outcome-learning/bench', ...mentorGuard, outcomeLearningRoute.runBench)
 server.get('/api/mentor/outcome-learning/bench/:jobId', ...mentorGuard, outcomeLearningRoute.benchJob)
 server.post('/api/mentor/outcome-learning/reading', ...mentorGuard, outcomeLearningRoute.reading)
+
+// Template Profiles — item 4.97 / 7.2 US9 (specs/003-engine-middle-learning-true
+// contracts §New routes). What the AI understands each client tool to be ABOUT: the
+// resolver's dominant lever, scored out of sight until this screen.
+//
+// 🔴 ONE ROUTE, NOT THE CONTRACT'S FOUR — Mike's ruling, 2026-09-16. The authoring half
+// (`PUT /:page`, `/:page/history`, `/:page/restore`) is NOT built and must not be added
+// until he has seen the screen: a saved profile only matters once the engine reads it
+// (T058), and that changes every advisor's recommendations on the dominant lever with no
+// test able to judge whether a weight is right. This route reads and nothing else.
+//
+// MENTOR TIER ALONE: one library, one set of profiles, no firm holds a different view of
+// what a tool is about (the default-is-mentor-alone ruling of 2026-08-24).
+server.get('/api/mentor/semantic-profiles', ...mentorGuard, semanticProfilesRoute.list)
 
 // ── Master template library (MENTOR ONLY — the upload doorway) ──
 // SEARCH-CONTENT-CASCADE-PLAN.md Phase 1: the mentor uploads the Advisor-e master

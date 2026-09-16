@@ -891,6 +891,16 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('templateLibrary')" v-show="activeTab === 'templateLibrary'")
         mentor-template-library(:api-token="apiToken")
 
+      //- ── Tab (mentor only): Template Profiles ───────────────────────
+      //- Item 4.97 / 7.2 US9, from design/mockups/template-profiles.html Screen A
+      //- (approved by Mike 2026-09-14). What the AI understands each client tool to
+      //- be ABOUT — the resolver's dominant lever, visible nowhere until this tab.
+      //- READ-ONLY by Mike's ruling of 2026-09-16: the drawing's row editor
+      //- (Screens B and C) is not built, because a saved profile only matters once
+      //- the engine reads it and that changes every advisor's recommendations.
+      div.hub-panel(v-if="showsTab('semanticProfiles')" v-show="activeTab === 'semanticProfiles'")
+        mentor-semantic-profiles(:api-token="apiToken")
+
       //- ── Tab (firm only): Template Library — the firm's OWN upload ──
       //- SEARCH-CONTENT-CASCADE-PLAN.md Phase 3 (wording + Remove button approved
       //- by Mike 2026-09-01, §7 of the plan). The firm's upload replaces the
@@ -941,6 +951,7 @@ import MentorOutcomeLearning from '~/components/mentor/MentorOutcomeLearning.vue
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
 import MentorTemplateLibrary from '~/components/mentor/MentorTemplateLibrary.vue'
+import MentorSemanticProfiles from '~/components/mentor/MentorSemanticProfiles.vue'
 import MentorLogicLabReport from '~/components/mentor/MentorLogicLabReport.vue'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
@@ -1092,6 +1103,15 @@ const TAB_TIERS = {
   // the shared platform library. A firm's own upload has its own doorway
   // (importTemplates); the middle tiers get theirs only when a real need names it.
   templateLibrary: ['mentor'],
+
+  // 🔴 THE MENTOR ALONE, AS A STATED JUDGEMENT (item 4.97 / 7.2 US9, and the closing
+  // section of design/mockups/template-profiles.html). A profile describes what a
+  // template is FOR, and that does not change from firm to firm. A firm's own
+  // vocabulary — the words its advisors actually use — already reaches scoring through
+  // Advisory Distinctions, which every tier has. Cascading becomes mandatory the day a
+  // firm has a real reason to hold a different profile for the same template; none has
+  // one today, and the overlay store can carry a firm's row with no schema change.
+  semanticProfiles: ['mentor'],
 
   // The firm's OWN template upload (SEARCH-CONTENT-CASCADE-PLAN.md Phase 3, Mike
   // 2026-09-01). Firm only: since Phase 2 the nearest tier's upload wins the whole
@@ -1481,6 +1501,10 @@ const NAV_GROUPS = [
       // mentor-only maintenance of the one shared template catalogue, even though
       // an upload is not itself a roll-up. Named to Mike at approval time.
       { key: 'templateLibrary', i18n: 'templateLibrary.tab' },
+      // Item 4.97 / 7.2 US9. Beside Template Library because the drawing places it
+      // there and they are one object from two sides: the library is what a template
+      // IS, the profile is what it ANSWERS. Mentor only; see TAB_TIERS.semanticProfiles.
+      { key: 'semanticProfiles', i18n: 'semanticProfiles.tab' },
       // Item 4.87. Beside Case Reviews and Template Check because it is the same kind of
       // thing — what the firms' reviews add up to — as the drawing places it. Mentor only;
       // see TAB_TIERS.outcomeLearning.
@@ -1520,7 +1544,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected },
 
   mixins: [traceReasonMixin],
 
