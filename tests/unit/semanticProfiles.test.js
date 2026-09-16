@@ -13,6 +13,18 @@
  * Nothing here asserts wording or CSS — the screen is judged on screen.
  */
 
+// The overlay store is mocked so these tests measure the COMPILED file deterministically.
+// Authored rows winning over it, and a store failure falling back to it, are covered in
+// their own describe block below with this mock told what to return.
+jest.mock('../../server/utils/firmOverlay', () => ({
+  loadFirmConfigsByPrefix: jest.fn(),
+  saveFirmConfig: jest.fn(),
+  getVersionHistory: jest.fn(),
+  restoreVersion: jest.fn()
+}))
+
+const overlay = require('../../server/utils/firmOverlay')
+
 const {
   PROFILE_PREFIX,
   NOTE_MAX,
@@ -30,7 +42,12 @@ const COMPILED = require('../../data/semantic-profiles.json')
 const allTemplates = LIBRARY.templates || LIBRARY
 const doTheJob = allTemplates.filter(t => t && t.page && t.menuSection === 'do-the-job')
 
-beforeEach(() => clearProfileCache())
+beforeEach(() => {
+  jest.clearAllMocks()
+  // No authored rows by default: the compiled file is what these tests measure.
+  overlay.loadFirmConfigsByPrefix.mockResolvedValue({})
+  clearProfileCache()
+})
 
 describe('the overlay address', () => {
   test('is the prefix the route and the store agree on', () => {
@@ -42,15 +59,15 @@ describe('every client tool reaches the screen', () => {
   // The fault item 7.10 names: templateRegistry is keyed by page and keeps ONE template
   // per page, so reading it loses 15 of Mike's tools. This is the assertion that fails
   // if someone "simplifies" the store back onto the registry.
-  test('names all 220 do-the-job tools, not the 205 pages they sit on', () => {
-    const { rows, total, pages } = listTemplateProfiles()
+  test('names all 220 do-the-job tools, not the 205 pages they sit on', async () => {
+    const { rows, total, pages } = await listTemplateProfiles()
     expect(total).toBe(doTheJob.length)
     expect(pages).toBe(rows.length)
     expect(total).toBeGreaterThan(pages)
   })
 
-  test('every tool title in the library appears on exactly one row', () => {
-    const { rows } = listTemplateProfiles()
+  test('every tool title in the library appears on exactly one row', async () => {
+    const { rows } = await listTemplateProfiles()
     const named = rows.flatMap(r => [r.title, ...r.alsoOnPage])
     expect(named.length).toBe(doTheJob.length)
     for (const t of doTheJob) {
@@ -58,8 +75,8 @@ describe('every client tool reaches the screen', () => {
     }
   })
 
-  test('tools sharing a page share one row and one profile — Mike 2026-09-16', () => {
-    const { rows } = listTemplateProfiles()
+  test('tools sharing a page share one row and one profile — Mike 2026-09-16', async () => {
+    const { rows } = await listTemplateProfiles()
     const shared = rows.filter(r => r.alsoOnPage.length > 0)
     expect(shared.length).toBeGreaterThan(0)
     for (const row of shared) {
@@ -75,8 +92,8 @@ describe('every client tool reaches the screen', () => {
   // one: a repeated title is a duplicate for Mike to see in Advisor-e, and a screen that
   // hides it is why nobody has noticed. Pinned because the obvious "tidy" fix is to
   // de-duplicate titles here, which would bury it again.
-  test('a title listed twice on one page is shown twice, never collapsed', () => {
-    const { rows } = listTemplateProfiles()
+  test('a title listed twice on one page is shown twice, never collapsed', async () => {
+    const { rows } = await listTemplateProfiles()
     const withRepeat = rows.filter(r => new Set([r.title, ...r.alsoOnPage]).size <
       [r.title, ...r.alsoOnPage].length)
     expect(withRepeat.length).toBeGreaterThan(0)
@@ -85,14 +102,14 @@ describe('every client tool reaches the screen', () => {
     }
   })
 
-  test('no row is listed twice and every page id is distinct', () => {
-    const { rows } = listTemplateProfiles()
+  test('no row is listed twice and every page id is distinct', async () => {
+    const { rows } = await listTemplateProfiles()
     const pages = rows.map(r => r.page)
     expect(new Set(pages).size).toBe(pages.length)
   })
 
-  test('a tool with no compiled entry still appears, as source none', () => {
-    const { rows } = listTemplateProfiles()
+  test('a tool with no compiled entry still appears, as source none', async () => {
+    const { rows } = await listTemplateProfiles()
     const noEntry = rows.filter(r => r.source === 'none')
     expect(noEntry.length).toBeGreaterThan(0)
     for (const row of noEntry) {
@@ -102,14 +119,14 @@ describe('every client tool reaches the screen', () => {
     }
   })
 
-  test('the thin count is the number of thin rows', () => {
-    const { rows, thinCount } = listTemplateProfiles()
+  test('the thin count is the number of thin rows', async () => {
+    const { rows, thinCount } = await listTemplateProfiles()
     expect(thinCount).toBe(rows.filter(r => r.thin).length)
   })
 
-  test('every effective weight is a whole number 1-10 on a known signal', () => {
+  test('every effective weight is a whole number 1-10 on a known signal', async () => {
     const known = new Set(Object.keys(SIGNAL_REGISTRY))
-    for (const row of listTemplateProfiles().rows) {
+    for (const row of (await listTemplateProfiles()).rows) {
       for (const [signal, weight] of Object.entries(row.effective)) {
         expect(known.has(signal)).toBe(true)
         expect(Number.isInteger(weight)).toBe(true)
@@ -120,15 +137,15 @@ describe('every client tool reaches the screen', () => {
 })
 
 describe('loadEffectiveProfiles', () => {
-  test('carries every page the compiled file holds', () => {
-    const map = loadEffectiveProfiles()
+  test('carries every page the compiled file holds', async () => {
+    const map = await loadEffectiveProfiles()
     const compiledPages = COMPILED.filter(r => r && r.page).map(r => r.page)
     expect(map.size).toBe(new Set(compiledPages).size)
     for (const page of compiledPages) { expect(map.has(page)).toBe(true) }
   })
 
-  test('a compiled row written with no summary reads as source none', () => {
-    const map = loadEffectiveProfiles()
+  test('a compiled row written with no summary reads as source none', async () => {
+    const map = await loadEffectiveProfiles()
     const noSummary = COMPILED.filter(r => r.note)
     expect(noSummary.length).toBeGreaterThan(0)
     for (const row of noSummary) {
@@ -136,11 +153,11 @@ describe('loadEffectiveProfiles', () => {
     }
   })
 
-  test('is memoised, and clearProfileCache drops it', () => {
-    const first = loadEffectiveProfiles()
-    expect(loadEffectiveProfiles()).toBe(first)
+  test('is memoised, and clearProfileCache drops it', async () => {
+    const first = await loadEffectiveProfiles()
+    expect(await loadEffectiveProfiles()).toBe(first)
     clearProfileCache()
-    expect(loadEffectiveProfiles()).not.toBe(first)
+    expect(await loadEffectiveProfiles()).not.toBe(first)
   })
 })
 

@@ -37,6 +37,7 @@ const { extractProblemSignals } = require('./problemSignals')
 const { staircaseToCeiling, DOMAIN_NATURAL_ENGAGEMENT } = require('./caseState')
 const { resolveTemplatesWithOutlier, buildDisplaySet, advisorEvidenceKind } = require('./templateResolver')
 const { rankLabels } = require('./primaryIssueProposer')
+const semanticProfiles = require('./semanticProfiles')
 
 const YIELD_EVERY = 200
 
@@ -56,8 +57,8 @@ function _key (title) {
  * @param {string[]} signalTypes - the session's fired lens signals, for `signal` adjustments
  * @returns {string|null} the top template's title
  */
-function topRecommendation (caseState, strategy, templates, adjustments, signalTypes) {
-  const cards = displaySetFor(caseState, strategy, templates, adjustments, signalTypes)
+function topRecommendation (caseState, strategy, templates, adjustments, signalTypes, profileMap) {
+  const cards = displaySetFor(caseState, strategy, templates, adjustments, signalTypes, profileMap)
   return cards[0] && typeof cards[0].title === 'string' ? cards[0].title : null
 }
 
@@ -72,10 +73,14 @@ function topRecommendation (caseState, strategy, templates, adjustments, signalT
  * @param {string[]} signalTypes - the session's fired lens signals
  * @returns {Array<{title: string, matchReasons: string[]}>} in display order
  */
-function displaySetFor (caseState, strategy, templates, adjustments, signalTypes) {
+function displaySetFor (caseState, strategy, templates, adjustments, signalTypes, profileMap) {
   const resolved = resolveTemplatesWithOutlier(caseState, strategy, templates, {
     pooledAdjustments: adjustments,
-    pooledSignalTypes: signalTypes
+    pooledSignalTypes: signalTypes,
+    // The mentor's authored profiles, which the engine now scores from (US9 T058). Threaded
+    // through so a bench measures the SAME lever an advisor gets. Omitted — as every existing
+    // caller does — the resolver reads the compiled file exactly as before.
+    profileMap
   })
   return buildDisplaySet(resolved, strategy.templateBudget)
 }
@@ -229,6 +234,8 @@ function _liveIds (adjustments) {
 async function fixedBench (scenarios, templates, adjustments) {
   const list = Array.isArray(scenarios) ? scenarios : []
   const live = Array.isArray(adjustments) ? adjustments : []
+  // Loaded once for the whole run, not per case: 51 scenarios would otherwise be 51 reads.
+  const _profileMap = await semanticProfiles.effectiveProfileMap()
   const changed = []
   let unchanged = 0
   let capBreaches = 0
@@ -236,8 +243,8 @@ async function fixedBench (scenarios, templates, adjustments) {
     const { caseState, strategy, signalTypes } = scenarioToCase(list[i])
     // The whole display set both ways: the top card answers `after`, the order answers
     // `capBreaches`. One pair of resolves serves both, so the bench does not run twice.
-    const plainSet = displaySetFor(caseState, strategy, templates, [], signalTypes)
-    const liveSet = displaySetFor(caseState, strategy, templates, live, signalTypes)
+    const plainSet = displaySetFor(caseState, strategy, templates, [], signalTypes, _profileMap)
+    const liveSet = displaySetFor(caseState, strategy, templates, live, signalTypes, _profileMap)
     const expected = plainSet[0] && typeof plainSet[0].title === 'string' ? plainSet[0].title : null
     const withLive = liveSet[0] && typeof liveSet[0].title === 'string' ? liveSet[0].title : null
     if (hasCapBreach(plainSet, liveSet)) { capBreaches += 1 }
@@ -276,6 +283,8 @@ async function fixedBench (scenarios, templates, adjustments) {
 async function outcomeBench (poolRows, templates, adjustments) {
   const rows = poolRows && typeof poolRows === 'object' ? Object.keys(poolRows).map(k => poolRows[k]) : []
   const live = Array.isArray(adjustments) ? adjustments : []
+  // Loaded once for the whole run — see fixedBench.
+  const _profileMap = await semanticProfiles.effectiveProfileMap()
   let reviews = 0
   let wellBefore = 0
   let wellAfter = 0
@@ -287,8 +296,8 @@ async function outcomeBench (poolRows, templates, adjustments) {
     const well = _wellTitles(row)
     if (well.size === 0) { noWellVerdict += 1 }
     const { caseState, strategy, signalTypes } = poolRowToCase(row)
-    const plain = _key(topRecommendation(caseState, strategy, templates, [], signalTypes))
-    const adjusted = _key(topRecommendation(caseState, strategy, templates, live, signalTypes))
+    const plain = _key(topRecommendation(caseState, strategy, templates, [], signalTypes, _profileMap))
+    const adjusted = _key(topRecommendation(caseState, strategy, templates, live, signalTypes, _profileMap))
     if (plain && well.has(plain)) { wellBefore += 1 }
     if (adjusted && well.has(adjusted)) { wellAfter += 1 }
     if ((i + 1) % YIELD_EVERY === 0) { await new Promise(resolve => setImmediate(resolve)) }

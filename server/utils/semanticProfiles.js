@@ -11,13 +11,18 @@
  * keyword phrases and scores them. That is a proxy for Mike's expertise, and for the 44
  * tools with no summary at all it is not even that: the compiler has nothing to read.
  *
- * 🔴 READ-ONLY IN THIS RELEASE — Mike's ruling, 2026-09-16. He stopped the build to ask
- * whether it interferes with the working model. It would have, in one place: wiring authored
- * profiles into `advisorEngine.js` (T058) changes what every advisor is recommended, on the
- * dominant lever, with no test able to judge whether a weight is right. So the mentor's screen
- * ships where he can LOOK and not yet CHANGE, and `loadEffectiveProfiles` reads the compiled
- * file alone. The authored-overlay branch below is deliberately present and deliberately
- * unreachable until he has seen the screen and decided the authoring is worth his time.
+ * 🔴 AUTHORING IS LIVE — Mike's ruling, 2026-09-16, taken twice. He first stopped the build
+ * to ask whether it interferes with the working model; it does, and he was told exactly how
+ * before he turned it on: an authored profile OVERRIDES the compiled guess and changes which
+ * tool an advisor is recommended, on the resolver's dominant lever, and **no test can say a
+ * weight is right**. A wrong weight here is invisible to the suite and to UAT — it surfaces
+ * only as an advisor being sent somewhere odd. That is the trade he accepted, because 44 tools
+ * have no profile at all and he knows these tools better than a keyword script does.
+ *
+ * WHAT PROTECTS IT INSTEAD OF A TEST: every save is a version with its author and reason, the
+ * compiled row is always restorable ("Restore to here" on the Generated line), and the trace
+ * says `semantic:` when a profile carried a recommendation. The guard is reversibility, not
+ * assertion.
  *
  * 🔴 ONE PROFILE PER PAGE, AND THAT IS CORRECT — Mike's ruling, 2026-09-16. Advisor-e issues
  * an ID per PAGE, and a page legitimately holds several templates: 220 client tools sit on 205
@@ -32,6 +37,7 @@ const LIBRARY = require('../../data/templates.json')
 const { SIGNAL_REGISTRY } = require('./problemSignals')
 const { getEntry } = require('./templateRegistry')
 const { PLATFORM_SCOPE } = require('./platformScope')
+const overlay = require('./firmOverlay')
 
 /** The overlay address one page's authored profile is stored under. */
 const PROFILE_PREFIX = 'semantic-profile:'
@@ -99,14 +105,44 @@ function isThin (entry) {
 /**
  * The profile in force for every page, keyed by page id.
  *
- * READ-ONLY RELEASE: this is the compiled file. When authoring is turned on, an authored
- * row read from the overlay store at `PLATFORM_SCOPE` wins over the compiled entry for that
- * page, and a page with neither resolves to `{}`.
+ * An AUTHORED row read from the overlay store at `PLATFORM_SCOPE` wins over the compiled
+ * entry for that page; a page with neither resolves to `{}`. This is the function the engine
+ * reads, so what a mentor saves on the screen is what an advisor is recommended from.
  *
- * @returns {Map<string, {profile: object, source: string, title: string}>}
+ * 🔴 IT NEVER THROWS, AND THAT IS DELIBERATE. If the overlay store is unreachable the
+ * compiled file still answers: a database blip must degrade to the script's guesses, never
+ * empty the resolver's dominant lever mid-conversation. The failure is logged, not raised.
+ *
+ * An authored profile with no signals is kept, not discarded — saving an empty tick list is a
+ * deliberate "this tool answers no client problem" (data-model §6). It stays thin, but its
+ * source is `authored`, so it is no longer *unreviewed*.
+ *
+ * @returns {Promise<Map<string, {profile: object, source: string, title: string}>>}
  */
-function loadEffectiveProfiles () {
-  return compiledByPage()
+async function loadEffectiveProfiles () {
+  const compiled = compiledByPage()
+  let authored = null
+  try {
+    authored = await overlay.loadFirmConfigsByPrefix(PLATFORM_SCOPE, PROFILE_PREFIX)
+  } catch (err) {
+    console.error('[semantic-profiles] authored rows unavailable, using compiled:', err.message)
+    return compiled
+  }
+  if (!authored || Object.keys(authored).length === 0) { return compiled }
+
+  const merged = new Map(compiled)
+  for (const [page, row] of Object.entries(authored)) {
+    if (!row || typeof row !== 'object') { continue }
+    merged.set(page, {
+      profile: row.profile || {},
+      source: 'authored',
+      title: (compiled.get(page) || {}).title || null,
+      authoredBy: row.savedBy || null,
+      authoredAt: row.savedAt || null,
+      note: row.note || null
+    })
+  }
+  return merged
 }
 
 /**
@@ -116,11 +152,12 @@ function loadEffectiveProfiles () {
  * 205 pages; a row's `templates` array carries all of them so no tool of Mike's is absent
  * from the screen, and `title` is the first — the page's primary tool.
  *
- * @returns {{rows: Array<object>, total: number, pages: number, thinCount: number}}
+ * @returns {Promise<{rows: Array<object>, total: number, pages: number, thinCount: number}>}
  *   `rows` one per page; `total` the tool count (220), `pages` the row count (205).
  */
-function listTemplateProfiles () {
-  const effective = loadEffectiveProfiles()
+async function listTemplateProfiles () {
+  const effective = await loadEffectiveProfiles()
+  const compiled = compiledByPage()
   const byPage = new Map()
 
   // 🔴 READ THE LIBRARY ARRAY, NOT THE REGISTRY. `templateRegistry` is a Map keyed by page,
@@ -162,7 +199,15 @@ function listTemplateProfiles () {
       source: entry.source,
       thin: verdict.thin,
       thinReason: verdict.reason,
-      indicators: row.indicators
+      indicators: row.indicators,
+      // Who last saved this and why — present only on an authored row, so the screen can
+      // show the mentor their own reason beside the ticks rather than a bare "Authored".
+      authoredBy: entry.authoredBy || null,
+      authoredAt: entry.authoredAt || null,
+      note: entry.note || null,
+      // What the compiler wrote, kept beside the authored profile so the editor's history
+      // can offer "Restore to here" on the Generated line without a second call.
+      compiled: (compiled.get(row.page) || {}).profile || {}
     })
   }
 
@@ -220,6 +265,60 @@ function validateProfile (body, signalTypes, library) {
   return { ok: true, value: { profile, note } }
 }
 
+/**
+ * The effective profiles in the shape `templateResolver` scores from: page → the profile
+ * object itself, with the source and authorship stripped.
+ *
+ * 🔴 THIS IS THE FUNCTION THE ENGINE CALLS, so what a mentor saves reaches an advisor
+ * through here. It never throws for the same reason `loadEffectiveProfiles` does not: a
+ * store failure degrades to the compiled guesses rather than emptying the dominant lever.
+ *
+ * @returns {Promise<Map<string, object>>} page → `{ signal: weight }`
+ */
+async function effectiveProfileMap () {
+  const effective = await loadEffectiveProfiles()
+  const map = new Map()
+  for (const [page, entry] of effective) {
+    map.set(page, (entry && entry.profile) || {})
+  }
+  return map
+}
+
+/**
+ * Every page id the library holds a client tool on — what a PUT is validated against, so a
+ * profile can never be saved for a page that does not exist.
+ * @returns {Set<string>}
+ */
+function libraryPages () {
+  const all = LIBRARY.templates || LIBRARY
+  const pages = new Set()
+  for (const t of all) {
+    if (t && t.page && t.menuSection === 'do-the-job') { pages.add(t.page) }
+  }
+  return pages
+}
+
+/**
+ * Store one page's authored profile. Every save is a new version carrying its author and
+ * reason — the reversibility that stands in for a test nobody can write (see the header).
+ *
+ * @param {string} page - the page id, already validated against `libraryPages()`
+ * @param {{profile: object, note: string|null}} value - the validated profile
+ * @param {string} savedBy - the mentor's verified email, from the token and never the body
+ * @returns {Promise<{version: number}>}
+ */
+async function saveProfile (page, value, savedBy) {
+  const row = {
+    profile: value.profile,
+    note: value.note,
+    savedBy,
+    savedAt: new Date().toISOString()
+  }
+  const saved = await overlay.saveFirmConfig(PLATFORM_SCOPE, PROFILE_PREFIX + page, row, savedBy)
+  clearProfileCache()
+  return saved
+}
+
 module.exports = {
   PROFILE_PREFIX,
   PLATFORM_SCOPE,
@@ -228,7 +327,10 @@ module.exports = {
   CACHE_TTL_MS,
   clearProfileCache,
   loadEffectiveProfiles,
+  effectiveProfileMap,
   listTemplateProfiles,
+  libraryPages,
+  saveProfile,
   isThin,
   validateProfile
 }

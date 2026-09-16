@@ -960,15 +960,19 @@ server.post('/api/mentor/outcome-learning/reading', ...mentorGuard, outcomeLearn
 // contracts §New routes). What the AI understands each client tool to be ABOUT: the
 // resolver's dominant lever, scored out of sight until this screen.
 //
-// 🔴 ONE ROUTE, NOT THE CONTRACT'S FOUR — Mike's ruling, 2026-09-16. The authoring half
-// (`PUT /:page`, `/:page/history`, `/:page/restore`) is NOT built and must not be added
-// until he has seen the screen: a saved profile only matters once the engine reads it
-// (T058), and that changes every advisor's recommendations on the dominant lever with no
-// test able to judge whether a weight is right. This route reads and nothing else.
+// 🔴 AUTHORING IS LIVE, AND MIKE TURNED IT ON KNOWING WHAT IT DOES — his second ruling of
+// 2026-09-16. A profile saved here OVERRIDES the compiled guess and changes which tool an
+// advisor is recommended, on the resolver's dominant lever, and no test can say a weight is
+// right. He accepted that: 44 tools have no profile at all. The guard is REVERSIBILITY —
+// every save is a version with its author and reason, and restore puts back any earlier one
+// including the script's own compiled row.
 //
 // MENTOR TIER ALONE: one library, one set of profiles, no firm holds a different view of
 // what a tool is about (the default-is-mentor-alone ruling of 2026-08-24).
 server.get('/api/mentor/semantic-profiles', ...mentorGuard, semanticProfilesRoute.list)
+server.put('/api/mentor/semantic-profiles/:page', ...mentorGuard, semanticProfilesRoute.save)
+server.get('/api/mentor/semantic-profiles/:page/history', ...mentorGuard, semanticProfilesRoute.history)
+server.post('/api/mentor/semantic-profiles/:page/restore', ...mentorGuard, semanticProfilesRoute.restore)
 
 // ── Master template library (MENTOR ONLY — the upload doorway) ──
 // SEARCH-CONTENT-CASCADE-PLAN.md Phase 1: the mentor uploads the Advisor-e master

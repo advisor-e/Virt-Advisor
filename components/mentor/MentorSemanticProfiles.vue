@@ -10,10 +10,10 @@
     p.title.is-5 {{ $t('semanticProfiles.heading') }}
     p.subtitle.is-6.has-text-grey.mb-5 {{ $t('semanticProfiles.intro') }}
 
-    //- READ-ONLY IN THIS RELEASE, and the screen says so rather than leaving a
-    //- mentor hunting for a Save button. Mike's ruling, 2026-09-16.
-    b-notification.mb-5(type="is-info is-light" :closable="false")
-      | {{ $t('semanticProfiles.readOnlyNotice') }}
+    //- Authoring is live (Mike's second ruling of 2026-09-16), so the screen says what a
+    //- save actually does rather than letting a mentor discover it from an advisor.
+    b-notification.mb-5(type="is-warning is-light" :closable="false")
+      | {{ $t('semanticProfiles.authoringNotice') }}
 
     //- The four tiles of the approved drawing, read from the route so they can
     //- never drift from the table beneath them.
@@ -88,10 +88,92 @@
           .sp-also(v-if="row.thin && row.thinReason === 'weak'")
             | {{ $t('semanticProfiles.weakDetail', { n: weightTotal(row) }) }}
 
+        b-table-column(v-slot="{ row }" label="" width="90")
+          b-button(
+            size="is-small"
+            :type="editing && editing.page === row.page ? 'is-primary' : 'is-light'"
+            @click="openEditor(row)"
+          ) {{ editing && editing.page === row.page ? $t('semanticProfiles.editing') : $t('semanticProfiles.edit') }}
+
         template(#empty)
           p.has-text-grey.py-4 {{ $t('semanticProfiles.noneMatch') }}
 
       p.sp-foot.mt-3 {{ footLine }}
+
+    //- ── The row editor (the drawing's Screens B and C) ──────────────────
+    //- Opens beneath the table on the row being edited, never as a modal: the summary
+    //- on the left is meant to be read AGAINST the ticks on the right, which a dialog
+    //- covering the table would not help with.
+    .box(v-if="editing")
+      .sp-card-h.mb-4
+        p.sp-band-title {{ editing.title }} · {{ editing.subSection || '—' }}
+        b-tag(v-if="editing.thin" :type="thinTag(editing.thinReason)") {{ thinLabel(editing.thinReason) }}
+
+      .columns
+        .column.is-one-third
+          p.sp-lbl {{ $t('semanticProfiles.summaryHeading') }}
+          .sp-says(v-if="editing.indicators")
+            | {{ editing.indicators }}
+            .sp-who {{ $t('semanticProfiles.summaryReadOnly') }}
+          .sp-says.sp-says-empty(v-else)
+            | {{ editing.source === 'none' ? $t('semanticProfiles.noProfileAtAll') : $t('semanticProfiles.noSummary') }}
+
+        .column
+          p.sp-lbl {{ $t('semanticProfiles.ticksHeading') }}
+          .sp-tick(v-for="s in signals" :key="s.type")
+            b-checkbox(
+              :value="draft[s.type] !== undefined"
+              @input="toggleSignal(s.type, $event)"
+            )
+              span.sp-signame {{ signalLabel(s.type) }}
+              small.sp-sigdesc {{ s.description }}
+            b-input.sp-weight(
+              v-if="draft[s.type] !== undefined"
+              :value="draft[s.type]"
+              type="number"
+              min="1"
+              max="10"
+              size="is-small"
+              @input="setWeight(s.type, $event)"
+            )
+            span.sp-weight-off(v-else) –
+
+      p.sp-lbl.mt-4 {{ $t('semanticProfiles.whyLabel') }}
+      b-input(
+        v-model="draftNote"
+        type="textarea"
+        rows="2"
+        :maxlength="noteMax"
+        :placeholder="$t('semanticProfiles.whyPlaceholder')"
+      )
+
+      b-notification.mt-3(v-if="saveError" type="is-danger is-light" :closable="true" @close="saveError = ''")
+        | {{ saveError }}
+
+      .buttons.mt-3
+        b-button(type="is-primary" :loading="saving" @click="save") {{ $t('semanticProfiles.save') }}
+        b-button(@click="closeEditor") {{ $t('semanticProfiles.cancel') }}
+
+      p.sp-foot.mt-2 {{ $t('semanticProfiles.saveKeeps') }}
+
+      //- History, per page. "Restore to here" on the Generated line puts the script's
+      //- own compiled profile back — the reversibility that stands in for the test
+      //- nobody can write for a weight.
+      template(v-if="history.length > 0")
+        p.sp-band-title.mt-5 {{ $t('semanticProfiles.historyHeading') }}
+        b-table(:data="history" :hoverable="true" :narrowed="true")
+          b-table-column(v-slot="{ row }" :label="$t('semanticProfiles.colWhen')")
+            | {{ formatDate(row.created_at) }}
+          b-table-column(v-slot="{ row }" :label="$t('semanticProfiles.colBy')")
+            | {{ row.saved_by }}
+            b-tag.ml-2(v-if="row.is_active" type="is-success is-light") {{ $t('semanticProfiles.current') }}
+          b-table-column(v-slot="{ row }" label="" width="130")
+            b-button(
+              v-if="!row.is_active"
+              size="is-small"
+              :loading="restoring === row.id"
+              @click="restore(row)"
+            ) {{ $t('semanticProfiles.restore') }}
 </template>
 
 <script>
@@ -140,7 +222,20 @@ export default {
       total: 0,
       /** 'all' | 'thin' | 'authored' — the drawing's three filters. */
       filter: 'all',
-      search: ''
+      search: '',
+      /** The row open in the editor, or null. */
+      editing: null,
+      /** `{ signal: weight }` being edited — a copy, so Cancel really cancels. */
+      draft: {},
+      draftNote: '',
+      saving: false,
+      saveError: '',
+      /** That page's saved versions, newest first. */
+      history: [],
+      /** History-row id being restored ('' = none). */
+      restoring: '',
+      /** Matches NOTE_MAX on the backend; the box stops typing rather than failing a save. */
+      noteMax: 300
     }
   },
 
@@ -301,6 +396,127 @@ export default {
       return reason === 'weak' || reason === 'keyword_only' ? 'is-warning is-light' : 'is-danger is-light'
     },
 
+    /** @param {string} iso @returns {string} a short local date. */
+    formatDate (iso) {
+      const d = new Date(iso)
+      return isNaN(d.getTime())
+        ? ''
+        : d.toLocaleDateString(this.$i18n.locale, { day: 'numeric', month: 'short', year: 'numeric' })
+    },
+
+    /**
+     * Open the editor on a row, seeded with the profile the engine reads TODAY rather
+     * than blank — the mentor edits what is actually in force (the drawing's Option A).
+     * @param {object} row - the table row
+     */
+    openEditor (row) {
+      if (this.editing && this.editing.page === row.page) { this.closeEditor(); return }
+      this.editing = row
+      this.draft = Object.assign({}, row.effective)
+      this.draftNote = row.note || ''
+      this.saveError = ''
+      this.history = []
+      this.loadHistory(row.page)
+    },
+
+    closeEditor () {
+      this.editing = null
+      this.draft = {}
+      this.draftNote = ''
+      this.saveError = ''
+      this.history = []
+    },
+
+    /**
+     * Tick or untick a signal. A freshly ticked signal starts at 5 — Mike's ruling of
+     * 2026-09-14, clarify question 3.
+     * @param {string} type - the signal key
+     * @param {boolean} on - the checkbox's new state
+     */
+    toggleSignal (type, on) {
+      const next = Object.assign({}, this.draft)
+      if (on) { next[type] = next[type] === undefined ? 5 : next[type] } else { delete next[type] }
+      this.draft = next
+    },
+
+    /**
+     * Set one signal's weight, clamped to 1–10 so the box cannot offer a value the
+     * backend will refuse.
+     * @param {string} type - the signal key
+     * @param {string|number} value - whatever the input holds
+     */
+    setWeight (type, value) {
+      const n = Math.round(Number(value))
+      if (!Number.isFinite(n)) { return }
+      this.draft = Object.assign({}, this.draft, { [type]: Math.min(10, Math.max(1, n)) })
+    },
+
+    /** @param {string} page - load that page's saved versions. */
+    async loadHistory (page) {
+      try {
+        const res = await fetch(`/api/mentor/semantic-profiles/${encodeURIComponent(page)}/history`, {
+          headers: this.headers()
+        })
+        const body = await res.json()
+        if (res.ok && body.success) { this.history = body.history || [] }
+      } catch (e) {
+        // History is a convenience beside the editor; failing to read it must not
+        // stop the mentor saving. The editor stays usable with no history shown.
+        this.history = []
+      }
+    },
+
+    /**
+     * 🔴 SAVE CHANGES WHAT ADVISORS ARE RECOMMENDED from the next conversation onward.
+     * The list is reloaded afterwards so the table shows what the engine will now read,
+     * rather than the mentor's optimistic copy of it.
+     */
+    async save () {
+      if (!this.editing) { return }
+      this.saving = true
+      this.saveError = ''
+      try {
+        const res = await fetch(`/api/mentor/semantic-profiles/${encodeURIComponent(this.editing.page)}`, {
+          method: 'PUT',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, this.headers()),
+          body: JSON.stringify({ profile: this.draft, note: this.draftNote || null })
+        })
+        const body = await res.json()
+        if (!res.ok || !body.success) {
+          this.saveError = (body.error && body.error.message) || this.$t('semanticProfiles.saveFailed')
+          return
+        }
+        this.$buefy.toast.open({ message: this.$t('semanticProfiles.saved'), type: 'is-success' })
+        this.closeEditor()
+        await this.load()
+      } catch (e) {
+        this.saveError = this.$t('semanticProfiles.saveFailed')
+      } finally {
+        this.saving = false
+      }
+    },
+
+    /** @param {object} row - a history row; puts that version back. */
+    async restore (row) {
+      this.restoring = row.id
+      try {
+        const res = await fetch(`/api/mentor/semantic-profiles/${encodeURIComponent(this.editing.page)}/restore`, {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, this.headers()),
+          body: JSON.stringify({ versionId: row.id })
+        })
+        const body = await res.json()
+        if (!res.ok || !body.success) { throw new Error('restore failed') }
+        this.$buefy.toast.open({ message: this.$t('semanticProfiles.restored'), type: 'is-success' })
+        this.closeEditor()
+        await this.load()
+      } catch (e) {
+        this.$buefy.toast.open({ message: this.$t('semanticProfiles.restoreFailed'), type: 'is-danger' })
+      } finally {
+        this.restoring = ''
+      }
+    },
+
     async load () {
       this.loading = true
       this.loadError = ''
@@ -398,5 +614,73 @@ export default {
 .sp-foot {
   font-size: 0.78rem;
   color: #5b6f8a;
+}
+
+/* ── the row editor (the drawing's Screens B and C) ── */
+.sp-lbl {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5b6f8a;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.sp-says {
+  background: #f1f6fb;
+  border-left: 3px solid #0070c0;
+  border-radius: 0 9px 9px 0;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.sp-says-empty {
+  border-left-color: #ff9900;
+  font-style: italic;
+  color: #5b6f8a;
+}
+
+.sp-who {
+  font-size: 0.72rem;
+  color: #5b6f8a;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.sp-tick {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #eef3f8;
+}
+
+.sp-signame {
+  font-weight: 600;
+  color: #002b64;
+  font-size: 0.86rem;
+}
+
+.sp-sigdesc {
+  display: block;
+  font-size: 0.72rem;
+  color: #5b6f8a;
+  line-height: 1.35;
+  font-weight: 400;
+}
+
+.sp-weight {
+  width: 78px;
+  margin-left: auto;
+  flex: none;
+}
+
+.sp-weight-off {
+  margin-left: auto;
+  color: #b5c4d6;
+  width: 78px;
+  text-align: center;
+  flex: none;
 }
 </style>

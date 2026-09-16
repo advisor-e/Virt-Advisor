@@ -429,6 +429,15 @@ function outcomeSession () {
   return _outcomeSession
 }
 
+// Template Profiles (item 4.97 / 7.2 US9) — lazy for the same reason. The store itself
+// guarantees a session never fails because the authored rows could not be read: it falls
+// back to the compiled file rather than rejecting.
+let _semanticProfiles = null
+function semanticProfiles () {
+  if (!_semanticProfiles) { _semanticProfiles = require('../server/utils/semanticProfiles') }
+  return _semanticProfiles
+}
+
 // ── Startup checks ──
 // Validate critical env vars and required files before any request arrives.
 ;(function startupCheck () {
@@ -3390,6 +3399,16 @@ async function handleQuery (rawBody, res, identity) {
     // have before this feature, and the trace says learning was unavailable (FR-019).
     const _pooled = await outcomeSession().loadPooledForSession(firmId)
 
+    // 🔴 THE MENTOR'S AUTHORED PROFILES (item 4.97 / 7.2 US9, T058). What the AI understands
+    // each tool to be ABOUT, with the mentor's saved rows winning over the compiled guesses.
+    // This is the resolver's DOMINANT LEVER, so a weight saved on the Template Profiles screen
+    // changes which tool this advisor is shown. Mike turned it on 2026-09-16 knowing that, and
+    // knowing no test can judge whether a weight is right; the guard is that every save is a
+    // restorable version. Loaded here because the store is async and the resolver is not.
+    // It never rejects: a store failure falls back to the compiled file, so the lever degrades
+    // to the script's guesses rather than emptying mid-conversation.
+    const _profileMap = await semanticProfiles().effectiveProfileMap()
+
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
     const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool, {
@@ -3401,7 +3420,9 @@ async function handleQuery (rawBody, res, identity) {
       // Pooled hold-back: capped, clamped, outweighed by the advisor's own words —
       // visible in the trace via pooled:* reasons. Empty unless the firm consents.
       pooledAdjustments: _pooled.adjustments,
-      pooledSignalTypes: _signals.map(s => s.type)
+      pooledSignalTypes: _signals.map(s => s.type),
+      // The mentor's authored profiles merged over the compiled ones — see the load above.
+      profileMap: _profileMap
     })
     const _resolvedTemplates = _resolvedResult.primary // primary used for scoring log / observability
     const _hasOutlier = _resolvedResult.hasOutlier

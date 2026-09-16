@@ -18,13 +18,25 @@
  * Nothing here asserts wording or CSS — the screen is judged on screen.
  */
 
+jest.mock('../../server/utils/firmOverlay', () => ({
+  loadFirmConfigsByPrefix: jest.fn(),
+  saveFirmConfig: jest.fn(),
+  getVersionHistory: jest.fn(),
+  restoreVersion: jest.fn()
+}))
+
+const overlay = require('../../server/utils/firmOverlay')
 const routes = require('../../server/routes/semanticProfiles')
 const { SIGNAL_REGISTRY } = require('../../server/utils/problemSignals')
 const { clearProfileCache } = require('../../server/utils/semanticProfiles')
 const LIBRARY = require('../../data/templates.json')
 
+const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
+
 const allTemplates = LIBRARY.templates || LIBRARY
 const doTheJob = allTemplates.filter(t => t && t.page && t.menuSection === 'do-the-job')
+/** A real page from the real library, so a refusal cannot pass by naming a fake one. */
+const KNOWN_PAGE = doTheJob[0].page
 
 function makeMockRes () {
   return {
@@ -38,7 +50,11 @@ function makeMockRes () {
 }
 const errorBody = res => (typeof res._body === 'string' ? JSON.parse(res._body) : res._body)
 
-beforeEach(() => clearProfileCache())
+beforeEach(() => {
+  jest.clearAllMocks()
+  overlay.loadFirmConfigsByPrefix.mockResolvedValue({})
+  clearProfileCache()
+})
 
 describe('the list the screen reads', () => {
   test('🔴 CARRIES EVERY ONE OF MIKE\'S TOOLS, not just the pages they sit on', async () => {
@@ -110,19 +126,128 @@ describe('the list the screen reads', () => {
 })
 
 describe('the shape Restify will mount', () => {
-  // Caught for real on 2026-09-16: the handler was written `async (req, res)`, lint
-  // objected that it never awaits, and making it synchronous without adding `next`
-  // made Restify refuse the mount outright — the whole backend failed to start.
-  // serverMounts.test.js found it; this pins the rule at the handler itself.
-  test('a synchronous handler takes three arguments, or Restify refuses to mount it', () => {
-    expect(routes.list.constructor.name).toBe('Function')
-    expect(routes.list.length).toBe(3)
+  // Caught for real on 2026-09-16: a non-async handler that omits `next` is refused at
+  // mount and the WHOLE BACKEND fails to boot, not just this route. serverMounts.test.js
+  // found it; this pins the rule at the handlers themselves. All four are async now that
+  // the store reads the overlay, so all four take exactly (req, res).
+  test('every handler is async and takes (req, res)', () => {
+    for (const name of ['list', 'save', 'history', 'restore']) {
+      expect(routes[name].constructor.name).toBe('AsyncFunction')
+      expect(routes[name].length).toBe(2)
+    }
+  })
+})
+
+describe('saving a profile — this is what changes an advisor\'s recommendations', () => {
+  test('🔴 STORES IT AT THE PLATFORM SCOPE, keyed by page, authored by the TOKEN not the body', async () => {
+    overlay.saveFirmConfig.mockResolvedValue({ version: 3 })
+    const res = makeMockRes()
+    await routes.save({
+      params: { page: KNOWN_PAGE },
+      body: { profile: { cash_flow_gap: 8 }, note: 'a cash tool', savedBy: 'impostor@x' },
+      userEmail: 'mentor@x'
+    }, res)
+
+    expect(res._status).toBe(200)
+    const [scope, key, value, by] = overlay.saveFirmConfig.mock.calls[0]
+    expect(scope).toBe(PLATFORM_SCOPE)
+    expect(key).toBe('semantic-profile:' + KNOWN_PAGE)
+    expect(value.profile).toEqual({ cash_flow_gap: 8 })
+    // The author is the verified token's. A body claiming otherwise is ignored.
+    expect(by).toBe('mentor@x')
+    expect(value.savedBy).toBe('mentor@x')
   })
 
-  test('calls next so the chain continues', async () => {
-    const next = jest.fn()
-    await routes.list({}, makeMockRes(), next)
-    expect(next).toHaveBeenCalledTimes(1)
+  test('an empty tick list is valid — "authored as none", not a rejection', async () => {
+    overlay.saveFirmConfig.mockResolvedValue({ version: 1 })
+    const res = makeMockRes()
+    await routes.save({ params: { page: KNOWN_PAGE }, body: { profile: {} }, userEmail: 'm@x' }, res)
+    expect(res._status).toBe(200)
+    expect(overlay.saveFirmConfig.mock.calls[0][2].profile).toEqual({})
+  })
+
+  test.each([
+    ['an unknown signal', { not_a_signal: 5 }],
+    ['a weight of 0', { cash_flow_gap: 0 }],
+    ['a weight of 11', { cash_flow_gap: 11 }],
+    ['a fractional weight', { cash_flow_gap: 4.5 }]
+  ])('refuses %s, and writes nothing', async (_label, profile) => {
+    const res = makeMockRes()
+    await routes.save({ params: { page: KNOWN_PAGE }, body: { profile }, userEmail: 'm@x' }, res)
+    expect(res._status).toBe(400)
+    expect(errorBody(res).error.code).toBe('INVALID_PROFILE')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('refuses a page the library does not hold', async () => {
+    const res = makeMockRes()
+    await routes.save({ params: { page: 'not-a-real-page' }, body: { profile: { cash_flow_gap: 5 } }, userEmail: 'm@x' }, res)
+    expect(res._status).toBe(400)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('a store failure returns the safe envelope, never a stack trace', async () => {
+    overlay.saveFirmConfig.mockRejectedValue(new Error('C:\\Users\\Mike Barnes\\db.js:42 refused'))
+    const errs = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const res = makeMockRes()
+    await routes.save({ params: { page: KNOWN_PAGE }, body: { profile: { cash_flow_gap: 5 } }, userEmail: 'm@x' }, res)
+    expect(res._status).toBe(500)
+    expect(JSON.stringify(errorBody(res))).not.toMatch(/Users|\.js:/)
+    errs.mockRestore()
+  })
+})
+
+describe('history and restore — the reversibility that stands in for a test', () => {
+  test('history reads the page\'s own key at the platform scope', async () => {
+    overlay.getVersionHistory.mockResolvedValue([{ id: 'v2', version: 2, is_active: 1 }])
+    const res = makeMockRes()
+    await routes.history({ params: { page: KNOWN_PAGE } }, res)
+    expect(res._status).toBe(200)
+    expect(res._body.history).toHaveLength(1)
+    expect(overlay.getVersionHistory).toHaveBeenCalledWith(PLATFORM_SCOPE, 'semantic-profile:' + KNOWN_PAGE)
+  })
+
+  test('restore puts a named version back and drops the cache', async () => {
+    overlay.restoreVersion.mockResolvedValue({ version: 4 })
+    const res = makeMockRes()
+    await routes.restore({ params: { page: KNOWN_PAGE }, body: { versionId: 'v1' } }, res)
+    expect(res._status).toBe(200)
+    expect(overlay.restoreVersion).toHaveBeenCalledWith(PLATFORM_SCOPE, 'semantic-profile:' + KNOWN_PAGE, 'v1')
+  })
+
+  test('restore with no version named writes nothing', async () => {
+    const res = makeMockRes()
+    await routes.restore({ params: { page: KNOWN_PAGE }, body: {} }, res)
+    expect(res._status).toBe(400)
+    expect(overlay.restoreVersion).not.toHaveBeenCalled()
+  })
+})
+
+describe('an authored row wins over the compiled one', () => {
+  test('🔴 WHAT THE MENTOR SAVED IS WHAT THE LIST REPORTS, and its source says authored', async () => {
+    overlay.loadFirmConfigsByPrefix.mockResolvedValue({
+      [KNOWN_PAGE]: { profile: { staff_problem: 9 }, note: 'mine', savedBy: 'mentor@x', savedAt: '2026-09-16T00:00:00Z' }
+    })
+    const res = makeMockRes()
+    await routes.list({}, res)
+    const row = res._body.templates.find(r => r.page === KNOWN_PAGE)
+    expect(row.effective).toEqual({ staff_problem: 9 })
+    expect(row.source).toBe('authored')
+    expect(row.authoredBy).toBe('mentor@x')
+    // The compiled row is kept beside it so the editor can offer "Restore to here".
+    expect(row.compiled).toBeTruthy()
+  })
+
+  test('🔴 A STORE FAILURE FALLS BACK TO THE COMPILED FILE — the lever never empties', async () => {
+    overlay.loadFirmConfigsByPrefix.mockRejectedValue(new Error('db down'))
+    const errs = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const res = makeMockRes()
+    await routes.list({}, res)
+    expect(res._status).toBe(200)
+    expect(res._body.total).toBe(doTheJob.length)
+    // Not an empty map: a blip must degrade to the script's guesses, never to nothing.
+    expect(res._body.templates.some(r => Object.keys(r.effective).length > 0)).toBe(true)
+    errs.mockRestore()
   })
 })
 
