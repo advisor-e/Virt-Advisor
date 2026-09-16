@@ -107,10 +107,18 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    ended without saying whether it was still in hand. Put that one to Mike before anything
    else, and clear or keep the field on his word.
 
-   **Say so if the other machine's note is stale — and `npm run check:branch` now tells you
-   from the right copy.** Its **OTHER BRANCHES** box prints that machine's handover date read
-   from *that machine's own branch*, beside its last commit date, and says outright when the
-   note is older than the work. Take it from there.
+   🔴 **NEVER CALL THE OTHER MACHINE'S NOTE STALE FROM THE COPY IN YOUR WORKING TREE. It is
+   frozen at your last merge and it will look weeks old when it is not.** Read its date from
+   the **OTHER BRANCHES** box of `npm run check:branch`, which reads that machine's handover
+   from *that machine's own branch* beside its last commit date, and says outright when the
+   note is genuinely older than the work. **If you have not looked at that box, you do not
+   know, and you do not get to say it.**
+
+   *Six consecutive desktop sessions accused the laptop of not writing a handover — including
+   2026-09-16, after the laptop had rebutted it in writing in its own note. Every one of them
+   was reading the stale working-tree copy. The rule above was already here and said to use
+   the box; it was not enough, because a session that opens the file directly never reaches
+   it. Open the box first, then the file.*
 
    🔴 **Do NOT judge staleness from `design/HANDOVER-desktop.md` in this working tree.** That
    copy is frozen at the last merge, so it can be days behind the real note while looking

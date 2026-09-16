@@ -118,6 +118,13 @@ a time and wait for the answer.
    machine needs to know. Keep it under about 20 lines. This is what stops the two
    divisions treading on each other, and it is the *only* narrative file a session writes.
 
+   ⛔ **DO NOT WRITE THAT THE OTHER MACHINE'S NOTE IS STALE** unless the **OTHER BRANCHES**
+   box of `npm run check:branch` said so this session. The copy in your working tree is
+   frozen at your last merge and looks weeks old when it is not. *Six consecutive desktop
+   handovers carried this accusation, the last on 2026-09-16 — after the laptop had rebutted
+   it in writing. A handover is read by the other division; a false charge in it costs them
+   a session's trust and teaches the next session to repeat it.*
+
    It carries one session because the previous handover has already been acted on by the
    time you write yours — and because a file that only ever grows is the exact mechanism
    that produced 85 session-notes files nobody read. Anything worth keeping beyond
