@@ -47,8 +47,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 11 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 12 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 13 | **9.4** The lab trusts a key that exists over a call that worked ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Twelve live items. Eight need Mike.** If this list passes about twenty, something is wrong.
+**Thirteen live items. Eight need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

@@ -328,6 +328,26 @@
       "touches": "server/utils/templateRegistry.js, the page-to-entry Map that keeps one template per page; scripts/build-semantic-profiles.js, which writes one row per page and names only the winner; US9's template-profile screen in 7.2, which must list every template on a page.",
       "note": "THE SHARED PROFILE IS RIGHT AND MUST NOT BE 'FIXED' - Mike ruled 2026-09-16 that templates on one page SHARE one AI profile, because an advisor opening that page gets them all. This is not a rekey. What is missing is the many half: the registry should carry every template on a page, so a screen can show that this profile governs both Working Capital Cycle and Activity Ratios. Collisions grew 10 to 14 between the 25 June and 30 July exports, so more tools hide as the library grows. NEVER EDIT THE IDS - CLAUDE.md.",
       "comment": "2026-09-16 - found while running T060a for 7.2 US9; the compiler appeared to discover six new tools that were only collision winners changing places. Filed first as a keying defect, then corrected twice by Mike: the one-to-many page relationship is by design, and one shared profile per page is the behaviour he wants. RENUMBERED 7.5 to 7.10 on Mike's ruling of 2026-09-16: the laptop had taken 7.5 the same day for the model-choice record, and a number is spent for good once used."
+    },
+    {
+      "ref": "9.4",
+      "name": "The lab trusts a key that exists over a call that worked",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The Scenario Lab decides the AI layers ran by checking OPENAI_API_KEY is set, never that a call succeeded, so a broken environment measures as a good run.",
+      "risk": "An expired key, no credit or a missing CA root reports AI ON, passes 9.2 guard and overwrites the measured report with AI-free numbers. 9.2 closed the loud failures; this is the quiet one.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-17 - found while fixing 9.2 and deliberately left out of it rather than widen an approved scope. Mike said yes to filing it."
+      },
+      "touches": "scripts/scenario-lab.js HAS_AI and chooseReportPath; the same weakness applies to any script deciding AI ran from the key alone.",
+      "note": "NEEDS A DECISION BEFORE CODE: whether the lab counts successful AI calls and refuses below a threshold, or fails hard on the first error. Not an obvious fix. The Avast CA root has broken this exact script before, which is the realistic way it fires. Nothing blocks it and nothing depends on it."
     }
   ]
 }
