@@ -4,7 +4,7 @@
 > to answer one question before anything is designed: **how many distinct visual forms does
 > his material actually use?** The Strategy Planner's whole shape rests on *one renderer,
 > many forms* — a form being a layout rule, so the next concept costs a data entry rather
-> than a screen. If his ~90 concepts need ~90 designs, that bet is lost and the feature is a
+> than a screen. If his concepts need one design each, that bet is lost and the feature is a
 > different size of job.
 >
 > Item **15.1**. Sources: [`design/planning-templates/`](planning-templates/) — the
@@ -13,30 +13,69 @@
 >
 > 🔴 **This is a measurement, not a design.** Nothing here is approved, drawn or built.
 
-## 1. The measurement, and the answer
+## 1. Scope — Mike's ruling, 2026-09-17
 
-**Deck one needed 13 forms. The next ~70 concepts needed 8 more.**
+**The menu is the five main documents' own contents pages and agendas. Nothing else.**
+
+| Document | Its menu | Entries |
+|---|---|---|
+| Business Targets | the agenda, slide 2 | 5 |
+| Strategic Orientation 1 | the agenda, slide 2 — it has no contents table | 4 |
+| Strategic Orientation 2 | the Session Scope tables, slides 3–5 | 17 |
+| Sales & Marketing Review | the Session Scope tables, slides 2–3 | 16 |
+| Organisational Review | the agenda, slide 2 | 9 |
+| | | **51** |
+
+In Mike's words: *"if you don't see them listed in the pages or menus of the main 4 docs …
+then ignore them."* **80/20 Farm Plan, Business Dating and Growth Curve are included where
+they fit** (his ruling the same day); Growth Curve's stages already enter through Business
+Targets' own agenda item *Business Development Stages*, and its Profit Lever Focus item
+brings in the 8 Profit Levers.
+
+🔴 **OUT OF SCOPE, AND IT IS NOT AN OVERSIGHT.** The Heald Matrix, Capacity/Capability/
+Opportunity, the Client Planning Framework, Porters & Pine, SWOT/PEST and Profit Levers &
+Blue Ocean are named as materials in `data/strategy-domain-support.json` and have no deck in
+the folder. **They are tools for selling a plan, not for making one** (Mike, 2026-09-17). Do
+not go looking for them again.
+
+### Pivot is the acceptance test, never a menu entry
+
+`Pivot.pdf` is a **hand-assembled cut-down deck** and the clearest statement of why this
+feature exists. Its 31 pages are Porter's, Market Diffusion, Product Life Cycle, Technology
+Points, Sigmoid, Vertical and Horizontal Integration, Progression of Economic Value, Blue
+Ocean, the 6 Marketing Questions and A.I.D.C.R.A — every one of them lifted out of Strategic
+Orientation 2 and Sales & Marketing — re-sequenced into a five-step agenda, and pointing at
+the same fill-in tables (*"Complete the Blue Ocean Fronts table"*, *"Complete the 6 Marketing
+Answers table"*).
+
+🔴 **THE TEST: an advisor ticks those concepts and a running order, and the app produces
+Pivot.** If it cannot, the gap is the design's, and it is found before the build rather than
+after. Its one original piece — the **Test Parameters** table, page 30 — comes in with it.
+
+## 2. The measurement, and the answer
+
+**Deck one needed 13 forms. Everything after it added 8 more.**
 
 | | |
 |---|---|
+| Concepts in scope | **51** |
 | Concepts in Strategic Orientation 2 | **17** |
-| Distinct visual forms they use | **13** |
-| Concepts across every other deck | **~70** |
-| *New* forms those 70 added | **8** |
+| Distinct visual forms those 17 use | **13** |
+| *New* forms the remaining 34 added | **8** |
 | **Total form library** | **≈21** |
 
 **The bet holds, but only from the second deck onward.** The first deck looks close to one
 design per concept — 17 concepts, 13 forms — which is why reading only Strategic Orientation 2
-would have justified abandoning the design. Across the whole library the reuse is heavy:
-matrices, prompt sheets, staged tables and annotated curves each serve four to six concepts.
+would have justified abandoning the design. Across the rest the reuse is heavy: matrices,
+prompt sheets, staged tables and annotated curves each serve four to six concepts.
 
-**21 forms is the honest cost.** It is not small, and it is not 90.
+**21 forms for 51 concepts is the honest cost.** It is not small, and it is not 51.
 
 🔴 **BUT ALL 21 ARE *TEACHING* FORMS, AND THE CAPTURE FORMS ARE A DIFFERENT, SMALLER SET.**
 Established 2026-09-17 on the first of Mike's fill-in templates, which arrived after this
-census was written. See §3 finding 6 — it is the most consequential thing in this document.
+census was written. See §4 finding 6 — it is the most consequential thing in this document.
 
-## 2. The form library
+## 3. The form library
 
 | Form | Concepts using it |
 |---|---|
@@ -70,7 +109,7 @@ Two entries resist all of the above and are recorded as themselves:
   model (`BO Expectations.xlsx`, four sheets, interest calculations). They belong with the
   Report Models, not with the capture forms.
 
-## 3. Five structural findings
+## 4. Six structural findings
 
 **1. The decks mark their own capture points, in green.** Every capture step is a slide whose
 instruction is highlighted green — *"Complete the Porter's 5 Forces table to record your
@@ -130,7 +169,7 @@ renders the 8 Profit Levers as ideas under headings where the slide is an equati
 inside the redesign and are fixed by it — recorded here so neither is carried across by
 accident.
 
-## 4. Defects found in the source material
+## 5. Defects found in the source material
 
 **ADV.0 Planning Outcomes has drifted from the decks it indexes.** It is a copy of their
 contents tables, and the copies are now wrong:
@@ -153,7 +192,7 @@ Engineers)"* is a teaching device for collaborative versus argumentative thinkin
 client or a scenario — confirmed by Mike, 2026-09-17. Every other example read is invented:
 Farmer Joe, the Binford 6000, a used-car dealership, a crocodile-removal service.
 
-## 5. The concept inventory
+## 6. The concept inventory
 
 Page numbers are where each concept starts in its own deck; a concept owns the slides up to
 the next one.
@@ -194,7 +233,7 @@ four relationship stages as a 2×2) · 80/20 Farm Plan (10pp) · 9 Growth Aspect
 — a hyperlinked directory, one page of ~9 questions per aspect: **this is item 15.2's
 source**) · 9 Growth Aspects Graphic (1pp — the wheel the palette came from).
 
-## 6. What the census settles, and what it does not
+## 7. What the census settles, and what it does not
 
 **Settled.** One renderer with a library of ~21 forms is the right shape. Concepts are
 records shared across templates. A template is a name, a purpose and its contents rows —
