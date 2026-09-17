@@ -152,6 +152,28 @@ have added new features since."*
   [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md). Only the version number in them is stale. **Do not
   re-derive either.**
 
+**7.1 · The 14 branches that still name a page nobody can open.** ⏸ **Parked 2026-09-17 by Mike.**
+It is his own job, done in UAT, and it had been surfacing at the top of every startup as though it
+were waiting on us.
+
+- **What it was:** fourteen logic-table branches recommend documents the template library does not
+  hold, so the recommendation gate withholds or trims that coaching before an adviser sees it. The
+  gate is behaving correctly; the content names tools that are not there. The full list — 14
+  branches, 18 names — is [`../LOGIC-TABLE-TEMPLATES-NEEDED.md`](../LOGIC-TABLE-TEMPLATES-NEEDED.md).
+- **Why it is parked and not done:** 🔴 **Mike settles the 18 names himself, while testing in UAT**
+  (his ruling, 2026-09-10). It was never session work. Leaving it on the live list meant every
+  session opened on a score-4 item at rank 1 that no session was allowed to touch, and each one
+  spent its startup re-reporting it to him.
+- 🔴 **NOT A CHANGE OF MIND ABOUT THE CONTENT.** The fourteen branches are still wrong and the
+  coaching is still withheld. What changed is only where the job lives: with him, in UAT, not on a
+  list of work for this repository.
+- ⚠ **A second step exists and comes AFTER the names, never before.** 22 branches name their
+  template only in prose, which the ranking engine never reads; once the names resolve, those
+  `templates[]` arrays must be populated too. Detail in `logic-tables-history.md` §8. Do not start
+  it early — it has nothing to act on until Mike's names exist.
+- **Related, and the same shape:** *lease vs buy* and *loan estimator* are offered no template at
+  all (item 7.9). Material that was never written is not a code defect.
+
 **Template Check queue, and the Logic Tables rewording.** Parked 2026-08-13 — sort them after
 UAT testing.
 

@@ -75,26 +75,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "7.1",
-      "name": "The 14 branches that still name a page nobody can open",
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Fourteen logic-table recommendations name documents the template library does not hold, so the gate withholds or cuts that advice before an adviser sees it.",
-      "risk": "Coaching Mike wrote is withheld from advisers and nothing on screen says so. The gate is behaving correctly; the content names tools that are not there.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
-      },
-      "touches": "data/logic_trees.json, the Mentor Hub logic tables, the Template Check screen where the real page names are settled, and tests/unit/recommendationGate.test.js, which pins 39 whole / 8 partial / 8 withheld.",
-      "note": "MIKE SETTLES THE 18 NAMES HIMSELF, IN UAT, by editing the logic tables while testing (his ruling, 2026-09-10). Not session work: do not propose it. The whole list is design/LOGIC-TABLE-TEMPLATES-NEEDED.md (14 branches, 18 names). A second step was found 2026-08-26: 22 branches name their template only in prose, which the ranking engine never reads, so once the names resolve their templates[] must be populated too, and not before. Detail in logic-tables-history.md §8.",
-      "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
-    },
-    {
       "ref": "8.1",
       "name": "Meeting Review — three non-coding gates before a first real recording",
       "rankedByMike": false,
