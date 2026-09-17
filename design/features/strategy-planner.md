@@ -203,6 +203,39 @@ from a list of the nine**, and the wheel counts those. No model reads an objecti
 | **The aspect descriptions on the wheel labels** | Mike's own deferral, 2026-09-16. |
 | **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down) · whether Sales & Marketing's "Where To Start??" routing flow becomes part of the session check. **None of this is designed. Do not assume it from the September drawing.** *(The document's assembly ORDER is no longer open — it is Pivot's anatomy, census §1.)* |
 
+### 🔴 The AI cannot suggest what to include, and the reason is structural
+
+**Measured 2026-09-17 on Mike's yes, before anything was designed** (CLAUDE.md's impact test),
+against `data/templates.json` and `data/content-summaries.json` — the engine's whole candidate
+set. **Its unit is a document, never a concept.** Strategic Orientation 2 is one row: title
+*Orientation Part 2*, page `strategic-orientation-pt-2`. Its eighteen concepts appear only as
+words inside that row's `purpose` paragraph, which the ranker reads as keywords.
+
+| | |
+|---|---|
+| Entries in the candidate set | 291 documents · 187 summaries |
+| Pivot's 11 concepts present as their own entry | **0** |
+| Present only as words in a document's purpose text | 8 |
+| Absent entirely — Vertical Integration, 6 Marketing Questions, A.I.D.C.R.A | 3 |
+
+**The best answer the engine can give is the two decks those concepts live in — 34 concepts, of
+which Pivot uses 11, leaving 23 for the advisor to cut by hand.** That is the hand-assembly this
+feature exists to end, restated as a number.
+
+🔴 **So the AI-guided selection is not a tuning job on the existing engine. It needs a
+concept-level index — and so does the menu screen.** One piece of data, two uses, and its text is
+already written: every Session Scope row carries a *Concept Summary* and a *Helps Your Client
+To…* line in Mike's own words.
+
+**The nearest existing answer is Mike's own**: Sales & Marketing page 4's **"Where To Start??"
+routing flow**, the only thing in any deck that says when a section is necessary (census §6).
+Whether the AI runs that diagnostic rather than a new one is undesigned — it is the last row of
+the table above.
+
+⚠ **What was measured, stated exactly:** the candidate set, not a live engine run. A ranker
+cannot return a row that does not exist, so the set answers the question on its own. **Nothing
+here is drawn or approved.**
+
 ### 🔴 Two built shapes are WRONG against Mike's own fill-in tables
 
 Found 2026-09-17 by reading the templates themselves. Both are inside the redirection and are
