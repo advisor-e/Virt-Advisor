@@ -45,14 +45,21 @@
 >   concepts are the eleven ticked rows, so the acceptance test runs on the page. **Five decisions
 >   ruled**: **A** the menu is his table and its words are never rewritten · **B** an agenda row
 >   carries only words Mike wrote · **C** the AI pre-ticks with a reason, never unticks, and the
->   scope follows the ticks · **D** his own "Where To Start??" flow is an optional second route
->   in · **E** shared text is stored once and pointed at, never copied. 🔴 **Approval means it is
+>   scope follows the ticks · ⛔ **D WITHDRAWN, see below** · **E** shared text is stored once and
+>   pointed at, never copied. 🔴 **Approval means it is
 >   what the build is measured against — open it beside the build and name every difference. It
 >   does not mean the screen has been built.**
 >   - ☑ **The concept index — BUILT 2026-09-17.** The first of the two prerequisites is done: see
 >     §8. The screen itself is not built.
->   - ☐ **Decision F is still Mike's and still open** — which concept each "Where To Start??"
->     action means. A mapping for him to write, not a yes/no.
+>   - ⛔ **DECISION D IS WITHDRAWN AND DECISION F IS VOID — Mike, 2026-09-17.** In his words:
+>     *"this has NOTHING to do with determining the place to start a strategic plan — it's a
+>     method for diagnosing a sales approach."* **"Where To Start??" is not part of this feature,
+>     the action-to-concept mapping is not to be written, and no session is to re-derive it.**
+>     The ruling on the drawing itself still reads as given on 2026-09-17 and is superseded by
+>     this line. *(It was ruled in on a description of page 4; reading the page itself the next
+>     day showed it to be a seven-rung sales-journey diagnostic — Suspect through Centre of
+>     Influence — whose endpoints are sales actions, four of which match no concept in the deck
+>     at all.)*
 >
 > **Step 1 — scope the session.** The four Planning Domains, each opening Mike's own Session
 > Scope table: the advisor picks the client and ticks the frameworks. ⚠ **As BUILT this screen
@@ -72,6 +79,59 @@
 >
 > ⚠ **VOICE RECORDING IS NOT BUILT AND CANNOT BE** until Meeting Review's three non-coding
 > gates clear. See §6.
+
+---
+
+## 0. The build from here — eight stages
+
+🔴 **Mike's test, 2026-09-17, and it is what this section is:** *"each stage should explain how it
+benefits the feature and align to specific requested features or attributes that I asked for — if
+you can't pair it to a specific feature request of mine OR can't explain why it is crucial for
+accuracy or user experience, then DONT put it in the build design."*
+
+**Every stage below names the request it serves, in his words, or the measured defect it removes.
+Four things that would otherwise have been built failed that test and are listed at the end
+rather than quietly dropped.**
+
+**Where the build actually stands:** the concept index is built (52 records, no screen). The old
+four-step screen is built but predates the redirection. Nothing an advisor types is captured
+anywhere.
+
+### The spine — after stage 3 an advisor can run the whole job
+
+| | Stage | The request it serves | What it buys |
+|---|---|---|---|
+| **1** | **The session menu** — the approved drawing, reading the 52 records, across all four Planning Domains | *"an advisor can complete the initial session check"* · **Decision A** — the screen **is** his table, his words, his page numbers | The screen that exists today offers **5 concepts of 52** and takes its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room**, so drifted wording is wrong in front of a client. |
+| **2** | **Capture** — one stored record per box, keyed on the visit, with the navigation timeline behind it | *"a strategic plan … that can easily expand over time"* — a plan cannot expand if nothing is kept | The feature's central defect. An advisor can capture **nothing** today and **nothing** survives to the next session, while the decks carry tables forward between sessions by design. |
+| **3** | **The assembled document** — the ticked concepts in Pivot's order: front matter, then per step a *Discussion* divider, its teaching slides, an *Action* divider, its capture slides. A failing objective carries its flag onto the page. | *"…into 1 seamless document"* · **Decision 1** — one continuous document of slide-shaped pages, **one artefact never two formats** · **Decision 6** — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* After this, **zero hand-assembled decks**. |
+
+### Then — making it right rather than making it work
+
+| | Stage | The request it serves | What it buys |
+|---|---|---|---|
+| **4** | **21 teaching forms** — every concept drawn as the slide draws it | *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides."* **Nothing else in this list serves that sentence.** | Pivot is **12 teaching slides to 9 capture slides** — mostly teaching. A plan of blank tables is not a plan an advisor can present. ⚠ The largest stage here: 21 forms, none drawn. |
+| **5** | **9 capture forms** — every table the table his template actually is | **Decision 4** — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
+| **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **Decision C**, ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
+| **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
+| **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
+
+### 🔴 What the test removed
+
+- **"Where To Start??" and its action-to-concept mapping** — withdrawn by Mike, see the box at
+  the top of this page.
+- **The ~100 Growth Aspect questions** — his own deferral, already filed as item **15.2**.
+- **Voice recording** — designed by his Decisions 10 and 11, but unbuildable until Meeting
+  Review's three non-coding gates clear. It is not a stage anyone can start.
+- **Re-reading the decks to rebuild the concept index** — no request behind it and no accuracy
+  gain: the index is pinned by tests and independently agrees with the approved drawing.
+
+### What gates what
+
+**Stage 1 is clear to start.** **Stages 2 and 3 cannot start** until the four open decisions on
+[`strategy-plan-output.html`](../mockups/strategy-plan-output.html) are answered — **Decision 4**
+decides the stored record's shape (a concept captured twice), and **Decisions 2, 3 and 5** decide
+the document's running order, its Discussion/Action split, and whether the client keeps one
+document in two states.
 
 ---
 
@@ -229,7 +289,7 @@ from a list of the nine**, and the wheel counts those. No model reads an objecti
 | **Voice recording** | A strategy session is a **Meeting Review meeting type** (Decision 10) — the Planner builds no recorder. It inherits that feature's three non-coding gates: staff consultation, a lawyer per market, and the OpenAI audio-terms letter. **The typed capture must stand alone until they clear.** |
 | **The ~100 Growth Aspect questions** | Item **15.2**, filed on Mike's yes. |
 | **The aspect descriptions on the wheel labels** | Mike's own deferral, 2026-09-16. |
-| **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down). **None of this is designed. Do not assume it from the September drawing.** *(Two things have LEFT this row: the document's assembly ORDER is Pivot's anatomy, census §1; and the "Where To Start??" routing flow was ruled IN by Decision D on the menu drawing, 2026-09-17 — what remains of it is Decision F, the action-to-concept mapping, which is Mike's to write.)* |
+| **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down). **None of this is designed. Do not assume it from the September drawing.** *(One thing has LEFT this row: the document's assembly ORDER is Pivot's anatomy, census §1. And one thing has left the FEATURE: the "Where To Start??" routing flow, withdrawn by Mike on 2026-09-17 — see the box at the top.)* |
 
 ### 🔴 The AI cannot suggest what to include, and the reason is structural
 
@@ -261,10 +321,9 @@ nowhere at all. What the paragraph above describes is the state the engine was i
 build, and it is kept because it is what the index was measured against. **The AI-guided
 selection itself is still not built** — Decision C describes it and nothing implements it.
 
-**The nearest existing answer is Mike's own**: Sales & Marketing page 4's **"Where To Start??"
-routing flow**, the only thing in any deck that says when a section is necessary (census §6).
-Whether the AI runs that diagnostic rather than a new one is undesigned — it is the last row of
-the table above.
+⛔ **AND THE ANSWER IS NOT "WHERE TO START??".** An earlier reading of the census proposed Sales &
+Marketing page 4 as the nearest existing diagnostic. **Mike withdrew it on 2026-09-17** — it
+diagnoses a sales approach, not where a strategic plan starts. Do not raise it again.
 
 ⚠ **What was measured, stated exactly:** the candidate set, not a live engine run. A ranker
 cannot return a row that does not exist, so the set answers the question on its own. **Nothing
