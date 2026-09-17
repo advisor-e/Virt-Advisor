@@ -11,31 +11,36 @@
 
 ## 2026-09-17 · Laptop · branch `feat/advisor-progress`
 
-**One commit, pushed** (`8a021f50`). Suite **12,111 green**, lint 0 errors, coverage and audit
-gates passed at push. **0 behind `master`, 38 ahead.** **15.1 and 7.5 stay active on this laptop.**
+**Five commits, all pushed** (`3b489c76` … `1401ae17`). Suite **12,141 green**, lint 0 errors,
+coverage and audit gates passed at push. **0 behind `master`, 44 ahead.** **15.1 and 7.5 stay
+active on this laptop; 15.3 is new and waits on Mike.**
 
-☑ **THE CONCEPT INDEX IS BUILT — 15.1's first prerequisite is closed.** The 52 as records in
-`data/strategy-frameworks.json`, loaded by `strategyFrameworks.js`, pinned by
-`strategyConcepts.test.js`. **All 11 of Pivot's concepts resolve; 0 did before.** Full account in
-the Brief §8 — read it there, not here.
+☑ **15.1 STAGE 1 IS BUILT — the session scope menu.** His own Session Scope table with Include
+made real: five deck panels in his order, all 52 concepts, ticks crossing freely. The
+acceptance test is a test — Pivot's eleven tick across exactly two decks.
+`StrategySessionScope.vue` is DELETED, not left beside it. **The eight-stage plan is Brief §0**
+— read it before picking up 15.1.
 
-🔴 **DECISION F IS STILL MIKE'S AND IT BLOCKS THE MENU SCREEN** — which concept each "Where To
-Start??" action means. A mapping for him to write, not a yes/no. **D2 on the output drawing is
-also still open** from 16 Sep. Nothing else waits on him.
+⚠ **An advisor can tick all 52 and only TWO reach a capture card.** The screen says so. SWOT /
+PEST is no longer separately tickable and that is correct — it is not a row on any scope table.
 
-⚠ **32 of the 52 carry NO capture form, on purpose.** Census §4 says choosing one for a concept
-outside the measured 24 is a design decision, not a reading. A test fails if one appears. **Do
-not "complete" them.**
+⛔ **"WHERE TO START??" IS WITHDRAWN — Mike, 2026-09-17.** It diagnoses a sales approach.
+Decision D struck, Decision F void, corrected in the Brief, the drawing, the register and the
+list. **Do not re-raise it.**
 
-⚠ **NO EXTRACTOR EXISTS AND THE DATA FILE IS NOW THE SOURCE.** The rows were read off the PDFs
-once by a throwaway Python script, deliberately not kept (JS-only repo). **The five traps that
-extraction hit are in Brief §8** — read them before writing another one.
+☐ **15.3 — 18 drafted "Helps Your Client To…" lines WAIT ON MIKE**, in
+`design/AGENDA-HELPS-LINES.md`. He edits, marks `yes`, `npm run helps-lines -- --apply`. An
+unapproved line is never in the data file at all — that is structural, not a flag. **No Mentor
+Hub tab was built for it**: that needs `FirmManagerHub.vue`, which 7.2 has active on the
+desktop. Reason recorded in `ARTEFACTS.md`; the authoring screen stays undesigned and
+unapproved under Mike's gate of 2026-08-26.
 
-**Filed today:** 5.3 — four Wages Register suites share one real dev file and collide at random
-under parallel Jest workers. Failed once in three full runs. Cause traced, three fixes named.
+🔴 **STAGES 2 AND 3 CANNOT START** until Mike answers the four open decisions on
+`strategy-plan-output.html`. Decision 4 decides the stored record's shape.
 
-**DESKTOP — shared files I changed:** `data/strategy-frameworks.json` (added `concepts`; the
-five `frameworks` rows are untouched), `server/utils/strategyFrameworks.js` (added only —
-nothing existing changed), `design/features/to-do-items.json`, `design/ARTEFACTS.md`,
-`design/PLANNING-TEMPLATE-CENSUS.md`, `design/features/strategy-planner.md`.
-**Nothing in `FirmManagerHub.vue`, `advisorEngine.js` or anything else 7.2 owns.**
+**DESKTOP — shared files I changed:** `locales/en.json` (new `strategyPlanner.menu` block,
+nothing existing touched), `server/restify-server.js` (one route mount line),
+`server/routes/strategyPlanner.js` (one new handler), `server/utils/strategyFrameworks.js`
+(additive), `data/strategy-frameworks.json` (added `decks`, plus `conceptId` on two
+frameworks), `package.json` (one script). **Nothing in `FirmManagerHub.vue`,
+`advisorEngine.js` or anything else 7.2 owns.**
