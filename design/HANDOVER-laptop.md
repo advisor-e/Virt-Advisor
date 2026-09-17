@@ -11,37 +11,31 @@
 
 ## 2026-09-17 · Laptop · branch `feat/advisor-progress`
 
-**Eleven commits, all pushed** (`13255d3e` … `5bd1b99c`). Suite **12,074 green**, lint 0,
-audit gate pass. **0 behind `master`, 36 ahead.** `design/` only — no application code.
-**15.1 and 7.5 stay active on this laptop.**
+**One commit, pushed** (`8a021f50`). Suite **12,111 green**, lint 0 errors, coverage and audit
+gates passed at push. **0 behind `master`, 38 ahead.** **15.1 and 7.5 stay active on this laptop.**
 
-🔴 **THE SCOPE IS 52, NOT 51.** Strategic Orientation 2's Session Scope table has **18 rows**
-(7+6+5 across slides 3–5), counted off the deck. The census listed all 18 under a heading
-saying 17. The other four documents were re-checked and are correct. Corrected everywhere.
+☑ **THE CONCEPT INDEX IS BUILT — 15.1's first prerequisite is closed.** The 52 as records in
+`data/strategy-frameworks.json`, loaded by `strategyFrameworks.js`, pinned by
+`strategyConcepts.test.js`. **All 11 of Pivot's concepts resolve; 0 did before.** Full account in
+the Brief §8 — read it there, not here.
 
-☑ **THE MENU IS DRAWN AND APPROVED TO BUILD FROM** —
-[`mockups/strategy-session-menu.html`](mockups/strategy-session-menu.html),
-[published here](https://claude.ai/artifact/TYVeczM52XyjAXSD7utd1p). It is Mike's own Session Scope table with
-the Include column made real, its 34 described rows carrying his wording read off the decks
-by machine. **Five decisions ruled** — A his table, words never rewritten · B the 18 agenda
-rows name-only, their lines his to write · C the AI pre-ticks with a reason and changes
-nothing itself · D "Where To Start??" an optional second route in · E shared text stored
-once, never copied.
+🔴 **DECISION F IS STILL MIKE'S AND IT BLOCKS THE MENU SCREEN** — which concept each "Where To
+Start??" action means. A mapping for him to write, not a yes/no. **D2 on the output drawing is
+also still open** from 16 Sep. Nothing else waits on him.
 
-🔴 **THE ENGINE COULD NOT PROPOSE CONCEPTS, AND IT WAS STRUCTURAL** (Brief §6, measured). Its
-candidate set is 291 documents; **0 of Pivot's 11 concepts were entries** and 3 appeared
-nowhere. Its best answer was the two decks — 34 concepts for a session needing 11.
+⚠ **32 of the 52 carry NO capture form, on purpose.** Census §4 says choosing one for a concept
+outside the measured 24 is a design decision, not a reading. A test fails if one appears. **Do
+not "complete" them.**
 
-☑ **THE CONCEPT INDEX IS BUILT — 2026-09-17, Brief §8.** The prerequisite is closed. All **11 of
-11** Pivot concepts now resolve to their own record. **The AI pre-tick itself is still not
-built** — Decision C describes it, nothing implements it.
+⚠ **NO EXTRACTOR EXISTS AND THE DATA FILE IS NOW THE SOURCE.** The rows were read off the PDFs
+once by a throwaway Python script, deliberately not kept (JS-only repo). **The five traps that
+extraction hit are in Brief §8** — read them before writing another one.
 
-**TWO THINGS WAIT ON MIKE, both on 15.1's note:** Decision F — which concept each "Where To
-Start??" action means, his mapping to write, not a yes/no — and D2 on the output drawing,
-still asked and unanswered.
+**Filed today:** 5.3 — four Wages Register suites share one real dev file and collide at random
+under parallel Jest workers. Failed once in three full runs. Cause traced, three fixes named.
 
-**DESKTOP — shared files I changed:** `design/ARTEFACTS.md`, `design/PLANNING-TEMPLATE-CENSUS.md`,
-`design/features/strategy-planner.md`, `design/features/to-do-items.json` (15.1's note only),
-and the two mockups. **Nothing in `FirmManagerHub.vue`, `advisorEngine.js` or anything else
-7.2 owns.** Your `to-do-items.json` conflict warning still stands — you removed four items,
-I edited 15.1's note; keep both sides.
+**DESKTOP — shared files I changed:** `data/strategy-frameworks.json` (added `concepts`; the
+five `frameworks` rows are untouched), `server/utils/strategyFrameworks.js` (added only —
+nothing existing changed), `design/features/to-do-items.json`, `design/ARTEFACTS.md`,
+`design/PLANNING-TEMPLATE-CENSUS.md`, `design/features/strategy-planner.md`.
+**Nothing in `FirmManagerHub.vue`, `advisorEngine.js` or anything else 7.2 owns.**
