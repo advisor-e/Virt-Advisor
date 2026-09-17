@@ -7,13 +7,27 @@
  * @module server/utils/strategyFrameworks
  *
  * Design: `design/mockups/strategy-planner.html`, Decision 3, ruled by Mike 2026-09-16 —
- * **a framework is DATA naming its capture shape, and is never its own screen.** Five
- * shapes cover all 45 frameworks the four Planning Domains hold, and a mentor adds the
- * 46th by typing rather than by asking for a developer. To-do item 15.1.
+ * **a framework is DATA naming its capture shape, and is never its own screen.** One form
+ * library serves every concept the four Planning Domains hold, and a mentor adds the next
+ * by typing rather than by asking for a developer. To-do item 15.1.
  *
  * 🔴 IF A FRAMEWORK WILL NOT FIT A SHAPE, ADD A SHAPE — NEVER A COMPONENT FOR THAT ONE
- * FRAMEWORK. One more shape serves all 45; one more component serves one, and forty-five
+ * FRAMEWORK. One more shape serves all of them; one more component serves one, and fifty-two
  * components is the build that never ends. That is the whole of Decision 3.
+ *
+ * 🔴 THE SCOPE IS 52 CONCEPTS. This docblock used to say 45, and "the 46th" — a count taken
+ * from ADV.0's index, which has drifted four concepts out of step with the decks it copies.
+ * Mike's scoping ruling of 2026-09-17 counts the five decks' own contents tables and agendas.
+ * See `_conceptsReadme` in the data file and `design/PLANNING-TEMPLATE-CENSUS.md` §1.
+ *
+ * 🔴 TWO SETS OF RECORDS LIVE HERE, AND THEY ARE NOT THE SAME THING.
+ * - `frameworks` — the five built capture machines, each naming a shape and its fields. Their
+ *   shapes are superseded by the 2026-09-17 redirection and two are wrong against Mike's own
+ *   fill-in tables; the data file's `_readme` says which.
+ * - `concepts` — THE CONCEPT INDEX: all 52, as records, in Mike's own words read off his
+ *   decks. This is what the engine never had. Before it, Strategic Orientation 2 was ONE row
+ *   and its eighteen concepts were only words inside that row's purpose text, so a ranker
+ *   could not return a concept because no concept existed to return.
  *
  * 🔴 IT READS ACROSS THREE DOMAIN FILES, NOT ONE, AND THAT IS NOT AN OPTIMISATION. Mike
  * ruled the four Planning Domains ARE the session, and two of them are authored outside
@@ -336,6 +350,202 @@ function hasField (frameworkId, fieldKey) {
   return f.fields.some(x => x.key === String(fieldKey || ''))
 }
 
+/* ------------------------------------------------------------------------------------- *
+ * THE CONCEPT INDEX — the 52 concepts as records.
+ * ------------------------------------------------------------------------------------- */
+
+/** How a concept's row reached this file. `agenda` rows are name-only by Decision B. */
+const CONCEPT_SOURCES = ['session-scope-table', 'agenda']
+
+/** Whether a capture form was matched to one of Mike's fill-in templates, or not yet. */
+const CAPTURE_BASES = ['measured', 'unmeasured']
+
+/** The two fields that may carry a reference instead of their own text (Decision E). */
+const REFERENCEABLE = ['conceptSummary', 'helpsClientTo']
+
+const RAW_CONCEPTS = FRAMEWORK_DATA.concepts || []
+
+/**
+ * Validate one authored concept.
+ *
+ * Fails loudly at load for the same reason `buildFramework` does: these records decide what
+ * an advisor is offered in a client meeting, and a silently-dropped or mis-pointed one looks
+ * exactly like a concept Mike chose not to include.
+ *
+ * @param {object} raw the authored record
+ * @param {Set<string>} knownIds every concept id in the file, for reference checking
+ * @returns {object} the validated concept
+ */
+function buildConcept (raw, knownIds) {
+  const id = String((raw && raw.id) || '')
+  if (!id) {
+    throw fail('BAD_CONCEPT', 'A concept has no id.')
+  }
+  if (!raw.name) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" has no name.')
+  }
+  if (!PLANNING_DOMAINS.includes(raw.planningDomain)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" names an unknown Planning Domain "' +
+      raw.planningDomain + '".')
+  }
+  if (!CONCEPT_SOURCES.includes(raw.source)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" has source "' + raw.source +
+      '", which is not one of ' + CONCEPT_SOURCES.join(', ') + '.')
+  }
+  if (!Number.isInteger(raw.page) || raw.page < 1) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" has no usable page number.')
+  }
+  if (!CAPTURE_BASES.includes(raw.captureFormBasis)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" has captureFormBasis "' +
+      raw.captureFormBasis + '".')
+  }
+  // "measured" is a claim that the census matched this concept to a named template. If the
+  // name is missing the claim cannot be checked, which is worse than not claiming it.
+  if (raw.captureFormBasis === 'measured' && !(raw.captureForm && raw.captureTemplate)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id +
+      '" is marked measured but names no capture form and template.')
+  }
+  if (raw.captureFormBasis === 'unmeasured' && raw.captureForm) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" carries a capture form while marked ' +
+      'unmeasured. Choosing one is a design decision — census §4 — not a data edit.')
+  }
+
+  REFERENCEABLE.forEach(function (field) {
+    const ref = raw[field + 'Ref']
+    if (!ref) { return }
+    // Both at once means two versions of one sentence, which is the drift Decision E exists
+    // to prevent. One or the other, never both.
+    if (raw[field]) {
+      throw fail('BAD_CONCEPT', 'Concept "' + id + '" has both ' + field + ' and ' +
+        field + 'Ref. Shared text is stored once and pointed at (Decision E).')
+    }
+    const targetId = String(ref).split('#')[0]
+    if (!knownIds.has(targetId)) {
+      throw fail('BAD_CONCEPT', 'Concept "' + id + '" points its ' + field + ' at "' +
+        targetId + '", which is not a concept.')
+    }
+  })
+
+  return {
+    id,
+    name: String(raw.name),
+    planningDomain: raw.planningDomain,
+    deck: raw.deck || null,
+    page: raw.page,
+    source: raw.source,
+    conceptSummary: raw.conceptSummary || null,
+    conceptSummaryRef: raw.conceptSummaryRef || null,
+    helpsClientTo: raw.helpsClientTo || null,
+    helpsClientToRef: raw.helpsClientToRef || null,
+    teachingForm: raw.teachingForm || null,
+    captureForm: raw.captureForm || null,
+    captureTemplate: raw.captureTemplate || null,
+    captureFormBasis: raw.captureFormBasis
+  }
+}
+
+const CONCEPT_IDS = new Set(RAW_CONCEPTS.map(c => String((c && c.id) || '')))
+
+/**
+ * Every concept, validated.
+ * @type {object[]}
+ */
+const CONCEPTS = RAW_CONCEPTS.map(c => buildConcept(c, CONCEPT_IDS))
+
+const CONCEPT_BY_ID = CONCEPTS.reduce(function (acc, c) {
+  if (acc[c.id]) {
+    throw fail('BAD_CONCEPT', 'Two concepts share the id "' + c.id + '".')
+  }
+  acc[c.id] = c
+  return acc
+}, {})
+
+/**
+ * Resolve one of a concept's two referenceable texts, following a Decision E pointer.
+ *
+ * 🔴 THE POINTER IS FOLLOWED AT READ TIME, NEVER FLATTENED INTO THE FILE. The decks merge
+ * some Session Scope cells across two rows — Price For Problem Solving and Price For
+ * Delivery Medium are one sentence written across the pair — and copying it into both rows
+ * creates two texts that can drift apart with nothing failing. That is precisely what
+ * ADV.0's index did to the decks it copies.
+ *
+ * @param {object} concept a validated concept
+ * @param {string} field 'conceptSummary' or 'helpsClientTo'
+ * @returns {{text: string|null, sharedWith: string|null}} the text, and the concept it is
+ *   shared with when this row does not hold it itself
+ */
+function conceptText (concept, field) {
+  if (!REFERENCEABLE.includes(field)) {
+    throw fail('BAD_FIELD', '"' + field + '" is not a referenceable concept text.')
+  }
+  const ref = concept[field + 'Ref']
+  if (!ref) {
+    return { text: concept[field] || null, sharedWith: null }
+  }
+  const parts = String(ref).split('#')
+  const target = CONCEPT_BY_ID[parts[0]]
+  // The deck also puts one sentence in BOTH columns of a single row — Drafting Tender
+  // Proposals — which is written as a pointer at this concept's own other field.
+  const targetField = parts[1] || field
+  return {
+    text: (target && target[targetField]) || null,
+    sharedWith: target ? target.id : null
+  }
+}
+
+/**
+ * Every concept the Planner knows, with shared text resolved.
+ *
+ * ⚠ A NULL TEXT IS NOT A DEFECT AND MUST NOT BE FILLED IN. Decision B: an agenda row's
+ * description is Mike's to write, never generated and never inferred from the slides. Null
+ * means "not written yet". All 18 agenda rows have a null `helpsClientTo` for that reason.
+ *
+ * Nine of them DO carry a `conceptSummary`, and it is still his: Organisational Review's
+ * agenda already prints a one-line description under each of its nine items — "Who reports
+ * to who?" — read off the slide by machine on his ruling of 2026-09-17. The other nine
+ * (Business Targets, Strategic Orientation 1) have no such line on the slide and stay null.
+ *
+ * @returns {object[]} copies, so a caller cannot mutate the loaded set
+ */
+function listConcepts () {
+  return CONCEPTS.map(cloneConcept)
+}
+
+/**
+ * One concept, or null.
+ * @param {string} id
+ * @returns {object|null}
+ */
+function getConcept (id) {
+  const found = CONCEPT_BY_ID[String(id || '')]
+  return found ? cloneConcept(found) : null
+}
+
+/**
+ * The concepts one Planning Domain offers — what the session scope menu renders.
+ * @param {string} planningDomain one of PLANNING_DOMAINS
+ * @returns {object[]}
+ */
+function conceptsForPlanningDomain (planningDomain) {
+  const domain = String(planningDomain || '')
+  return CONCEPTS.filter(c => c.planningDomain === domain).map(cloneConcept)
+}
+
+/**
+ * @param {object} c a validated concept
+ * @returns {object} a copy carrying the resolved text beside the raw record
+ */
+function cloneConcept (c) {
+  const summary = conceptText(c, 'conceptSummary')
+  const helps = conceptText(c, 'helpsClientTo')
+  return Object.assign({}, c, {
+    conceptSummary: summary.text,
+    conceptSummarySharedWith: summary.sharedWith,
+    helpsClientTo: helps.text,
+    helpsClientToSharedWith: helps.sharedWith
+  })
+}
+
 /** @param {object} f @returns {object} */
 function cloneFramework (f) {
   return Object.assign({}, f, {
@@ -358,6 +568,13 @@ module.exports = {
   hasField,
   PLANNING_DOMAINS,
   STRATEGY_SHAPES,
+  // The concept index — the 52
+  listConcepts,
+  getConcept,
+  conceptsForPlanningDomain,
+  CONCEPT_SOURCES,
+  CAPTURE_BASES,
   // exported so a test can check an authored record without reaching into the file
-  buildFramework
+  buildFramework,
+  buildConcept
 }

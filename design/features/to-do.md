@@ -52,8 +52,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 15 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 16 | **15.1** The strategy domain has thirteen materials and no session to run them in ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-16 |
 | 17 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 18 | **5.3** Four Wages Register test suites share one file and collide at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Seventeen live items. Eight need Mike.** If this list passes about twenty, something is wrong.
+**Eighteen live items. Eight need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

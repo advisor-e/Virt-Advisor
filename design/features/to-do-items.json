@@ -418,7 +418,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT: one seamless plan from the concepts an advisor ticks, each as it appears in his slides. READ design/PLANNING-TEMPLATE-CENSUS.md, then the Brief; his decks are in design/planning-templates/. Scope: 52 concepts, 21 teaching forms, 9 capture forms. TWO DRAWINGS. The output (strategy-plan-output.html) reproduces all 31 pages of the acceptance test Pivot.pdf: D1 ruled, FOUR OPEN, D2 asked. The menu (strategy-session-menu.html) is APPROVED TO BUILD FROM, five decisions ruled. NOTHING IS BUILDABLE UNTIL THE CONCEPT INDEX EXISTS - the 52 rows as records. DECISION F IS MIKE'S: which concept each Where To Start?? action means. Still undesigned: the 21 teaching forms, a manager adding a concept at each tier.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT: one seamless plan from the concepts an advisor ticks, each as it appears in his slides. READ design/PLANNING-TEMPLATE-CENSUS.md, then the Brief; his decks are in design/planning-templates/. Scope: 52 concepts, 21 teaching forms, 9 capture forms. TWO DRAWINGS: the output (strategy-plan-output.html) reproduces all 31 pages of the acceptance test Pivot.pdf - D1 ruled, FOUR OPEN, D2 asked; the menu (strategy-session-menu.html) is APPROVED TO BUILD FROM, five decisions ruled. THE CONCEPT INDEX IS BUILT - 2026-09-17, Brief section 8 - so all 11 Pivot concepts now resolve. STILL UNBUILT: the menu screen, the AI pre-tick, the teaching forms. DECISION F IS MIKE'S: which concept each Where To Start?? action means.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -441,6 +441,27 @@
       "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
       "note": "NOT IN THIS BUILD - Mike's ruling 2026-09-16, Decision 7 on design/mockups/strategy-planner.html, where the reasoning is recorded in full. The coverage check ships on the nine names alone and still does its job: it shows WHERE a plan is thin. Source is his '9 Growth Aspect Questions hyperlinked.pdf' - about 100 questions across the nine aspects. growth-fundamentals.json already holds the nine names and descriptions, so this adds questions beneath an existing structure rather than inventing one. Under the hub-page rule the screen starts at the mentor tier ALONE: platform content, identical for every firm.",
       "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as Decision 7 of the drawing. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
+    },
+    {
+      "ref": "5.3",
+      "name": "Four Wages Register test suites share one file and collide at random",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The gate's dev-file fallback writes and deletes one real file, data/dev-wages-register.json, and four suites reach it from parallel Jest workers, so one worker's delete lands while another is opening the same path.",
+      "risk": "The pre-push hook runs the whole suite, so a push is blocked at random by a failure that has nothing to do with the code being pushed. Worse, once it is known as the flaky one, a REAL failure in the Wages Register gets waved through with a re-run.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-17 - hit while proving the concept index build. Failed once in three full runs and passed alone. Mike said yes to filing it."
+      },
+      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant), and the four suites that reach it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes and wagesRegisterContents.routes.",
+      "note": "NOT REPRODUCIBLE ON DEMAND - it failed once in three full runs on 2026-09-17, then passed alone and on both re-runs. The cause is traced rather than guessed: wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. THREE WAYS OUT, and choosing between them is the work: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. Nothing is blocked by it today.",
+      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end."
     }
   ]
 }

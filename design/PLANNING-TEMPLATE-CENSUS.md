@@ -198,11 +198,28 @@ work, not capture forms.
 
 ## 4. Six structural findings
 
-**1. The decks mark their own capture points, in green.** Every capture step is a slide whose
-instruction is highlighted green — *"Complete the Porter's 5 Forces table to record your
-observations"*, *"Start your session by completing the 6 Marketing Answers table"*,
-*"Complete the S.W.O.T analysis table"*. The convention holds in every deck read. It tells us,
-from Mike's own material, which concepts have a capture step and what it is called.
+**1. The decks mark their own capture points — but in TWO conventions, not one, and a finder
+built on the first alone loses four capture slides in ten.** Measured page by page across both
+concept decks on 2026-09-17:
+
+| How the slide says it is a capture step | Strategic Orientation 2 | Sales & Marketing |
+|---|---|---|
+| A green instruction — *"Complete the S.W.O.T analysis table"*, *"Start your session by completing the 6 Marketing Answers table"* | 7 pages | 6 pages |
+| **No instruction at all — only an *"(Our) …"* title**, the client's own copy of the grid | 2 pages | 5 pages |
+
+🔴 **The second convention is invisible to a text search for the first.** Sales & Marketing
+page 16, *"(Our) A.I.D.C.R.A Advertisement"*, is a blank six-column grid of prompts; pages
+20–21, *"(Our) Digital Client On-Boarding as an 'Engagement Story-Board'"*, are the same thing.
+All three are capture slides and none contains the word *Complete*.
+
+**So the split can be DRAFTED by machine and must be CONFIRMED by eye** — about 99 pages
+across the two decks, once. It is still Mike's own material that says which concepts have a
+capture step and what it is called; it simply says so two ways.
+
+*(This finding used to read "Every capture step is a slide whose instruction is highlighted
+green… The convention holds in every deck read." That was written from the slides that carry
+the instruction. It is the sentence a build would trust to find the capture points
+automatically, which is why the correction is here rather than in a footnote.)*
 
 **2. 🔴 THE CAPTURE TABLES ARE NOT IN THE DECKS, AND NEVER WERE.** The decks *teach* and then
 *point* — at a SWOT table, an Action Plan Reminder, a 6 Marketing Answers table — that lives
@@ -274,7 +291,7 @@ accident.
 contents tables, and the copies are now wrong:
 
 - Its Strategic Orientation scope lists **14** concepts. The Strategic Orientation 2 deck
-  holds **17**. Missing entirely: **Product (Fit) Review, Price for Problem Solving, Price
+  holds **18**. Missing entirely: **Product (Fit) Review, Price for Problem Solving, Price
   for Delivery Medium, the Boston Model.**
 - Its Sales & Marketing scope — the one table in ADV.0 that carries page numbers — says page
   12 is A.I.D.C.R.A. **Page 12 of the actual deck is the Customer (Persona) Type Table**,

@@ -8,11 +8,12 @@
 > into 1 seamless document that can easily expand over time."* And: *"each concept needs to be
 > presented AS IT CURRENTLY APPEARS in the slides."*
 >
-> **Nothing below §7 has been redesigned yet.** The four steps described here are built and
-> walked in a browser, and they keep working — but the framework model in §2 is superseded and
-> is marked so. **Read [`design/PLANNING-TEMPLATE-CENSUS.md`](../PLANNING-TEMPLATE-CENSUS.md)
-> before designing anything**: it is the measured survey of Mike's own templates that the new
-> direction rests on.
+> **§1–§7 describe the build as it stood BEFORE this redirection, and have not been
+> redesigned.** The four steps described there are built and walked in a browser, and they keep
+> working — but the framework model in §2 is superseded and is marked so. **§8 is the one piece
+> built since: the concept index.** **Read
+> [`design/PLANNING-TEMPLATE-CENSUS.md`](../PLANNING-TEMPLATE-CENSUS.md) before designing
+> anything**: it is the measured survey of Mike's own templates that the new direction rests on.
 >
 > To-do item **15.1**. Three artefacts, all registered in [`ARTEFACTS.md`](../ARTEFACTS.md):
 >
@@ -42,14 +43,16 @@
 >   **INPUT**: Mike's own Session Scope table with the `Include (Yes/No)` column made real, its
 >   34 described rows carrying **his wording read off the decks by machine**. Pivot's eleven
 >   concepts are the eleven ticked rows, so the acceptance test runs on the page. **Five decisions
->   ruled**: **A** the menu is his table and its words are never rewritten · **B** the 18 agenda
->   rows are name-only and their missing lines are his to write, never generated · **C** the AI
->   pre-ticks with a reason, never unticks, and the scope follows the ticks · **D** his own
->   "Where To Start??" flow is an optional second route in · **E** shared text is stored once and
->   pointed at, never copied. 🔴 **Approval means it is what the build is measured against — open
->   it beside the build and name every difference. It does not mean the build has started**, and
->   two things must exist first: the **concept index** (the 52 rows as records) and **Decision F**,
->   which concept each "Where To Start??" action means — Mike's mapping to write, not a yes/no.
+>   ruled**: **A** the menu is his table and its words are never rewritten · **B** an agenda row
+>   carries only words Mike wrote · **C** the AI pre-ticks with a reason, never unticks, and the
+>   scope follows the ticks · **D** his own "Where To Start??" flow is an optional second route
+>   in · **E** shared text is stored once and pointed at, never copied. 🔴 **Approval means it is
+>   what the build is measured against — open it beside the build and name every difference. It
+>   does not mean the screen has been built.**
+>   - ☑ **The concept index — BUILT 2026-09-17.** The first of the two prerequisites is done: see
+>     §8. The screen itself is not built.
+>   - ☐ **Decision F is still Mike's and still open** — which concept each "Where To Start??"
+>     action means. A mapping for him to write, not a yes/no.
 >
 > **Step 1 — scope the session.** The four Planning Domains, each opening Mike's own Session
 > Scope table: the advisor picks the client and ticks the frameworks. ⚠ **As BUILT this screen
@@ -77,18 +80,26 @@
 The impact test was run **before any of this was drawn** (CLAUDE.md's rule of 2026-09-16), and
 it is what shaped the build. Counted from Mike's own Session Scope tables:
 
-| | |
-|---|---|
-| Concepts across the four Planning Domains | **52** |
-| An advisor could capture, in the app | **0** |
-| Answers surviving to the next session | **0** |
-| Concepts with a supporting calculator | 3 |
+| | At the scoping | After the concept index, 2026-09-17 |
+|---|---|---|
+| Concepts across the four Planning Domains | **52** | 52 |
+| Concepts the app holds as a record of their own | **0** | **52** |
+| Pivot's 11 concepts findable as their own entry | **0** | **11** |
+| Of those, absent from the engine entirely | 3 | **0** |
+| An advisor could capture, in the app | **0** | **0** — no screen is built |
+| Answers surviving to the next session | **0** | **0** — no screen is built |
+| Concepts with a supporting calculator | 3 | 3 |
 
 The decks carry tables forward between sessions, so having nowhere to put anything was the
 feature's central defect rather than a missing nicety.
 
 🔴 **The measurement is what produced the shape: ONE capture machine, never 52 screens.**
 Re-run the same count to measure the build.
+
+⚠ **The right-hand column moves only the rows the index could move, and that is the point.** The
+two zeros that measure whether an ADVISOR is better off are still zeros, because the index is
+data with no screen on it. A build that reported this as progress toward capture would be
+counting the wrong thing.
 
 **The 52 is Mike's own scoping ruling of 2026-09-17** — the menu is the five main documents'
 own contents pages and agendas, nothing else. It replaces an earlier count of 45, which was
@@ -240,9 +251,15 @@ which Pivot uses 11, leaving 23 for the advisor to cut by hand.** That is the ha
 feature exists to end, restated as a number.
 
 🔴 **So the AI-guided selection is not a tuning job on the existing engine. It needs a
-concept-level index — and so does the menu screen.** One piece of data, two uses, and its text is
+concept-level index — and so does the menu screen.** One piece of data, two uses, and its text was
 already written: every Session Scope row carries a *Concept Summary* and a *Helps Your Client
 To…* line in Mike's own words.
+
+✅ **That index now exists — built 2026-09-17, §8.** The measurement above was re-run against it:
+**all 11 of Pivot's concepts resolve to their own record**, including the three that appeared
+nowhere at all. What the paragraph above describes is the state the engine was in before that
+build, and it is kept because it is what the index was measured against. **The AI-guided
+selection itself is still not built** — Decision C describes it and nothing implements it.
 
 **The nearest existing answer is Mike's own**: Sales & Marketing page 4's **"Where To Start??"
 routing flow**, the only thing in any deck that says when a section is necessary (census §6).
@@ -289,14 +306,97 @@ One deviation from the original, deliberate: labels sit **outside** the ring, ho
 deck curves them inside it, which is unreadable at screen size and cannot be selected, read
 aloud or translated.
 
-## 8. Where it lives
+## 8. The concept index — built 2026-09-17
+
+**The 52 concepts, as records.** The prerequisite the approved menu named, and the thing the
+engine never had: before it, Strategic Orientation 2 was **one** row in the candidate set and its
+eighteen concepts existed only as words inside that row's purpose paragraph, so a ranker could not
+return a concept because no concept existed to return.
+
+It lives in `data/strategy-frameworks.json` under `concepts`, is loaded and validated by
+`server/utils/strategyFrameworks.js` (`listConcepts`, `getConcept`, `conceptsForPlanningDomain`),
+and is pinned by `tests/unit/strategyConcepts.test.js`.
+
+| | |
+|---|---|
+| Concepts | **52** — Business Targets 5 · Strategic Orientation 22 · Sales & Marketing 16 · Organisational Review 9 |
+| Carrying Mike's own Concept Summary and Helps line | **34**, from the two Session Scope tables |
+| Agenda rows | **18** — 9 carry his own agenda sub-line, 9 are name-only |
+| Teaching form named (census §3) | 33 |
+| Capture form **measured** against one of his fill-in templates | 20 |
+
+🔴 **EVERY WORD IS HIS, READ OFF THE DECKS BY MACHINE — never retyped, never summarised.**
+Decision A. Ligatures are normalised to ASCII and nothing else is altered. Two deliberate wording
+pins in the test file guard it, and they exist because the failure has already happened once: the
+built `porters-five-forces` framework carries *"Look out for changes… so **they** can be ready"*,
+a third-person rewrite of the deck's *"To look out for changes… so **you** can be ready"*, taken
+from ADV.0. **A rewrite reads perfectly well in UAT. Only a comparison with the deck catches it.**
+
+**Decision B, as amended by Mike on 2026-09-17.** All 18 agenda rows have a null
+`helpsClientTo` — that line is his. But **Organisational Review's agenda already prints a
+one-line description under each of its nine items** (*"Who reports to who?"*, *"What's MOST
+important to us?"*), so those nine carry it, read off the slide by machine. The ruling is
+unchanged in substance: an agenda row only ever carries words Mike wrote.
+
+**Decision E is honoured in the data, not just described.** Three cells the decks merge are stored
+once and pointed at with a `*Ref`, resolved when read: `price-for-delivery-medium` →
+`price-for-problem-solving` (both columns — one sentence written across the pair),
+`horizontal-integration` → `vertical-integration` (the Helps column), and
+`drafting-tender-proposals` → its own summary (the deck puts one sentence in both its columns).
+**An editing screen must say which rows share a piece of text before anyone changes it**, or one
+row's edit silently rewrites its neighbour.
+
+⚠ **32 concepts carry NO capture form, and that is deliberate.** Census §4 measured the nine
+capture forms across 24 templates, **not across all 52**, and is explicit that choosing one for a
+concept outside those 24 is a **design decision, not a reading**. Each measured row names the
+template it was matched to (`captureTemplate`) so the match is checkable; the rest are
+`unmeasured` with nothing in the field, and a test fails if a form ever appears on one.
+
+**What the index is NOT.** It is data with no screen on it. The session scope menu is not built,
+Decision C's AI pre-tick is not built, and no teaching or capture form is *drawn* — the index
+names a concept's form, it does not lay it out.
+
+### 🔴 There is no extractor in this repository, and these are the five traps if one is ever written
+
+The rows were read off the PDFs **once**, by a throwaway script that was deliberately **not
+kept**: it is Python, and this is a JavaScript-only repository under the Stack Constitution, so
+committing it would have been a stack deviation needing its own reconcile task.
+`tests/unit/strategyConcepts.test.js` **pins** the result; it does not re-derive it. **The data
+file is now the source**, and the audit trail is the decks plus the census.
+
+Re-extraction is therefore a fresh task with its own tooling decision. **Every one of these five
+produced a wrong index that looked entirely plausible**, which is why they are written down
+rather than left to be rediscovered:
+
+1. **Anchor rows on the FRAMEWORK column, never the page column.** The deck merges a page-number
+   cell across two rows — Price For Problem Solving and Price For Delivery Medium both sit
+   against page 20 — so counting page numbers finds 6 rows where there are 7.
+2. **Take the header row from the TOPMOST occurrence of each label.** *"Framework"* and *"Page"*
+   also occur inside concept names further down the same table — *A.I.D.C.R.A Advertisement
+   **Framework***, *(Inbound) Landing **Page** Review* — and reading the last occurrence silently
+   discards every row above them. This one cost 8 of Sales & Marketing's 16 rows.
+3. **Work in WORDS, not blocks.** PyMuPDF merges some of the deck's blocks across columns, so
+   filtering blocks by x-position drops whole cells. Every word carries its own x.
+4. **Group lines into a cell on the BOTTOM-to-TOP gap, and keep the threshold under 4pt.** Inside
+   a cell the gap is ~0; between cells it is ~13.9pt on Strategic Orientation 2 but only ~4.4pt
+   on Sales & Marketing. A threshold taken from the 9.8pt top-to-top leading welds neighbouring
+   cells together, and each row then carries its neighbour's sentence.
+5. **When a row has no cell of its own, find its partner by GEOMETRY.** That is a cell the deck
+   merged across two rows. Looking a fixed direction — up or down — points Price For Delivery
+   Medium at Vertical Integration, two rows away, whose text has nothing to do with it.
+
+**And check the result against the approved menu drawing**, which independently marks the same
+three shared cells. Agreement between a machine read and that drawing is the check that caught
+each of the five above.
+
+## 9. Where it lives
 
 `data/strategy-frameworks.json` · `server/utils/strategyFrameworks.js` ·
 `server/utils/strategySessionStore.js` · `server/routes/strategyPlanner.js` ·
 `components/strategy/` · `pages/strategy-planner.vue` · `config/db-schema.sql`
 
-Tests: `strategyFrameworks` · `strategySessionStore` · `strategyPlanner.routes` ·
-`strategyCapture.component`.
+Tests: `strategyFrameworks` · `strategyConcepts` · `strategySessionStore` ·
+`strategyPlanner.routes` · `strategyCapture.component`.
 
 **The source material, in the repository since 2026-09-17** — read it before designing, not
 the summaries written from it: [`design/planning-templates/`](../planning-templates/) holds

@@ -28,10 +28,13 @@ rows name-only, their lines his to write · C the AI pre-ticks with a reason and
 nothing itself · D "Where To Start??" an optional second route in · E shared text stored
 once, never copied.
 
-🔴 **THE ENGINE CANNOT PROPOSE CONCEPTS, AND IT IS STRUCTURAL** (Brief §6, measured). Its
-candidate set is 291 documents; **0 of Pivot's 11 concepts are entries** and 3 appear
-nowhere. Its best answer is the two decks — 34 concepts for a session needing 11. **The
-concept index is the prerequisite for the whole thing** and does not exist.
+🔴 **THE ENGINE COULD NOT PROPOSE CONCEPTS, AND IT WAS STRUCTURAL** (Brief §6, measured). Its
+candidate set is 291 documents; **0 of Pivot's 11 concepts were entries** and 3 appeared
+nowhere. Its best answer was the two decks — 34 concepts for a session needing 11.
+
+☑ **THE CONCEPT INDEX IS BUILT — 2026-09-17, Brief §8.** The prerequisite is closed. All **11 of
+11** Pivot concepts now resolve to their own record. **The AI pre-tick itself is still not
+built** — Decision C describes it, nothing implements it.
 
 **TWO THINGS WAIT ON MIKE, both on 15.1's note:** Decision F — which concept each "Where To
 Start??" action means, his mapping to write, not a yes/no — and D2 on the output drawing,
