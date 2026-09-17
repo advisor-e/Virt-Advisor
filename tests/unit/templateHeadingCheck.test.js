@@ -195,3 +195,32 @@ describe('templateHeadingCheck — the live case that produced item 7.7', () => 
     expect(check.checkTemplateHeadings(answer('**Wages Review**')).ok).toBe(true)
   })
 })
+
+// 🔴 ITEM 7.9 — THE ORDER THAT KEEPS THE SHORT-FORM WIDENING SAFE.
+//
+// `resolveModelToken` now also resolves a model's name without its trailing parenthetical,
+// so "Stock Purchasing" reaches `/stock-purchasing`. That makes "Cost of Capital" — the
+// short form of "Cost of Capital (WACC)" — one more name living in both catalogues.
+// The full set is SIX and is recomputed in `nameCollisions.test.js`, never counted here.
+//
+// `checkTemplateHeadings` tests `isKnownTemplate` FIRST and skips on a match, so a real
+// template of that name is still left alone. That ordering is the whole reason the
+// widening is safe, and nothing else states it — without this test it is an accident that
+// a later reordering could silently undo, turning good answers into forced retries.
+describe('templateHeadingCheck — a template keeps its name even when a model shortens to it', () => {
+  const shortOf = name => String(name).replace(/\s*\([^)]*\)\s*$/, '').trim()
+
+  it('leaves a real template alone when a model abbreviates to the same name', () => {
+    const shared = MODELS
+      .map(m => shortOf(m.name))
+      .filter(short => TITLE_SET.has(short.toLowerCase()))
+
+    // Vacuous-pass guard: if the catalogues are reworded so no such name exists, this
+    // test must say so rather than quietly proving nothing.
+    expect(shared.length).toBeGreaterThan(0)
+
+    shared.forEach((name) => {
+      expect(check.checkTemplateHeadings(answer(`**${name}**`)).ok).toBe(true)
+    })
+  })
+})

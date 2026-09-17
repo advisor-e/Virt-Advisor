@@ -165,3 +165,54 @@ describe('modelChoiceScan — the catalogue is the authority', () => {
     expect(scan.resolveModelToken(null)).toBeNull()
   })
 })
+
+// 🔴 ITEM 7.9. Measured 2026-09-17: asked the question `/stock-purchasing` answers, the AI
+// named "Stock Purchasing" while the catalogue holds "Stock Purchasing (Growth Pro)". The
+// exact-match-only lookup returned null and every net went quiet at once — the heading
+// check had no model to report, and the `[[MODEL:]]` marker counted the name as
+// `unverified` rather than as a real mention.
+describe('modelChoiceScan — the short form the AI actually writes (item 7.9)', () => {
+  const shortOf = name => name.replace(/\s*\([^)]*\)\s*$/, '').trim()
+  const abbreviated = MODELS.filter(m => shortOf(m.name) !== m.name)
+
+  it('has models whose name carries a trailing parenthetical', () => {
+    // Guards the two tests below from passing vacuously if the catalogue is ever reworded.
+    expect(abbreviated.length).toBeGreaterThan(0)
+  })
+
+  it('resolves a model named without its trailing parenthetical', () => {
+    abbreviated.forEach((m) => {
+      expect(scan.resolveModelToken(shortOf(m.name))).toBe(m.route)
+    })
+  })
+
+  it('still resolves every full name and route — the short form is added, never substituted', () => {
+    MODELS.forEach((m) => {
+      expect(scan.resolveModelToken(m.name)).toBe(m.route)
+      expect(scan.resolveModelToken(m.route)).toBe(m.route)
+    })
+  })
+
+  it('does not invent a short form for a name that has no parenthetical', () => {
+    // The rule strips a TRAILING bracket only. Nothing else may become resolvable.
+    expect(scan.resolveModelToken('Purchasing')).toBeNull()
+    expect(scan.resolveModelToken('Growth Pro')).toBeNull()
+    expect(scan.resolveModelToken('Stock')).toBeNull()
+  })
+
+  it('never lets two models claim one short form', () => {
+    // A short form claimed twice is dropped rather than guessed. None collide today; this
+    // fails the build the day a twentieth model would make one ambiguous, rather than
+    // letting it silently mis-attribute.
+    const claims = new Map()
+    MODELS.forEach((m) => {
+      const short = shortOf(m.name)
+      if (short === m.name) { return }
+      const key = short.toLowerCase()
+      claims.set(key, (claims.get(key) || 0) + 1)
+    })
+    claims.forEach((count, key) => {
+      expect({ shortForm: key, claimedBy: count }).toEqual({ shortForm: key, claimedBy: 1 })
+    })
+  })
+})

@@ -58,6 +58,87 @@ answer is the one that is displayed, watched for invented wording, and recorded.
 the correction twice the answer goes out with a note saying plainly that the named item is a
 calculator, not a template. `server/utils/templateHeadingCheck.js`.
 
+⚠ **That check recognises a model by its EXACT catalogue name or route, and this is the seam
+item 7.9 turns on.** Measured 2026-09-17 against the shipped catalogues, the three "model named
+but no page path" cases are three different things, not one:
+
+| What the AI wrote | What it is | What happens today |
+| --- | --- | --- |
+| `Wages/Salary Review` | model only (`/wages-review`) | **Caught.** The check fires and the retry corrects it |
+| `Sales Dashboard` | **both** a model (`/sales-dashboard`) and a real template title | **Skipped on purpose** — `if (isKnownTemplate) continue`. The page-path case lives in `videoInjector` (4.33) |
+| `Stock Purchasing` | short form of `Stock Purchasing (Growth Pro)` | **Missed by everything.** `resolveModelToken` returns null, so the heading check skips it *and* a `[[MODEL:]]` carrying it counts as `unverified` rather than a real mention |
+
+🔴 **SIX model names sit in both catalogues, not three — and that miscount was itself the
+fault.** This paragraph said "three" (and `templateHeadingCheck`'s header said "two"), every
+later note repeated it, and nobody recomputed it from the data. Three of the six differ from
+the library's own spelling by a **single character**:
+
+| Model | Route | The real template title | Differs by |
+| --- | --- | --- | --- |
+| Working Capital Cycle | `/business-performance-report` | Working Capital Cycle | — identical |
+| Quick Position | `/quick-position` | Quick Position | — identical |
+| Sales Dashboard | `/sales-dashboard` | Sales Dashboard | — identical |
+| **Lease vs Buy** | `/lease-vs-buy` | **Lease vs. Buy** | a full stop |
+| **High-Level Budget** | `/high-level-budget` | **High Level Budget** | a hyphen |
+| **Dashboard Reports** | `/dashboard-reports` | **Dashboard Report** | a plural "s" |
+
+`isKnownTemplate` compares exactly, so the bottom three read as "not a template" and
+`checkTemplateHeadings` **flagged a genuine template recommendation as a calculator** — telling
+the AI the advisor *"would go looking in Advisor-e and find nothing"* when the document is in
+the library. Item 7.7's fault, produced in reverse by item 7.7's own guard, and it was firing
+on **28 of 38** bench calls.
+
+**Closed 2026-09-17:** `nearestTemplateTitle` (`tierLookup`) answers the question from the
+catalogue on every call, and `checkTemplateHeadings` skips a name that resolves to a real
+template. `tests/unit/nameCollisions.test.js` **recomputes the set** rather than trusting this
+table — a seventh collision fails the build. It also pins that an invented name is never
+rescued, so this can never become a licence to fabricate.
+
+A name alone can therefore never say which of the two was meant, for any of the six. Row 3 of
+the table above is the only real reach gap, and it is `resolveModelToken`'s matching, not a
+missing mechanism. Forcing a page path whenever a model is named duplicates row 1 and breaks
+row 2.
+
+🔴 **A BENCH THAT OMITS THE TEMPLATE LIST MEASURES NOTHING — and it lies in a way that looks
+like a finding.** Discover's prompt is assembled in two parts (`advisorEngine.js` ~3981–4138):
+the system message is `discover.txt` alone, and a **separate user message** carries the
+per-query pre-filtered template list *and then* the model block. A harness that sends only
+`discover.txt` + the models leaves the AI with **no templates to choose from** while the format
+still demands a **Best match** — so it invents plausible names to fill the block.
+
+Built that way on 2026-09-17, a bench "discovered" the retry fabricating template names
+(*"Lease vs Buy Decision"*, *"Inventory Management Review"*) and reported it as a defect worse
+than 7.9. It was the harness. The real pre-filter surfaces **Lease vs. Buy** and **Loan
+Estimator** for those exact queries — both are genuine library titles, and the long-standing
+claim that those two questions have "no template either" is false.
+
+**Before trusting any discover measurement, assert the context contains a known template title
+and the models heading.** The numbers are meaningless otherwise, and wrong in the direction
+that invents work.
+
+### What the corrected bench measured — 2026-09-17, 19 models × 2 runs
+
+**12 of 19 reliably offered** (an openable page path on every run), 3 sometimes, 4 never. **No
+invented template names.** The heading retry fired on 28 of 38 calls, so the AI names a model
+under a template heading roughly two calls in three and the guard is carrying that load.
+
+**Both questions item 7.9 was filed over now score 2/2** — *lease or buy a van* → **Lease vs
+Buy**, *loan repayments* → **The Loan Estimator**. So do **Stock Purchasing (Growth Pro)** and
+**Cost of Capital (WACC)**, the two the short-form fix targeted.
+
+**The four never offered are four different faults, not one.** Diagnosed by reading the replies,
+not inferred:
+
+| Model | What the AI did | What that means |
+| --- | --- | --- |
+| **8 Levers Model** | never named it; omitted the calculator block entirely | a genuine reach failure — the question never surfaces the model |
+| **High-Level Budget** | offered **Mid-Level Budget** instead, with its path | the forbidden "closest model" substitution the list bans in capitals |
+| **Sales Dashboard** | named it in prose, emitted **no page path** | the 7.9 shape proper, and the one the heading check cannot touch because the name is also a real template title |
+| **Working Capital Cycle** | named it, WITH `/business-performance-report` | **not a fault** — re-run offered it correctly; its 0/2 was run-to-run variance |
+
+⚠ **Two runs per model is too thin to separate a systematic miss from variance**, as the last row
+shows. Treat a 0/2 as a candidate to re-run, never as a proven never.
+
 **P3 · Domain detection is keyword-first, AI only as the backstop.** A confident keyword match
 (two or more hits) is used as-is with no AI. A tie asks the advisor. A thin single hit gets one
 cheap AI opinion — if it agrees the keyword stands, if it disagrees **both are shown to the
