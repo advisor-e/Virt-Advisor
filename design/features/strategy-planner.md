@@ -117,6 +117,11 @@ steps — waits on the open decision in *What gates what* below.
 
 ### Then — making it right rather than making it work
 
+⛔ **The green highlighter mark on Strategic Orientation 2 p34 STAYS — Mike, 2026-09-18.** His
+*(Our) Revenue Streams* page carries a highlight on its title; it renders on screen and would
+print in a client's plan. He was shown it and ruled it cosmetic. **It is in his deck, not in our
+code**, so there is nothing here to fix — do not report it, and do not re-render around it.
+
 🔴 **DO NOT REDRAW A CONCEPT. EVER.** The hand-drawn Porter's hub that stood here until
 2026-09-18 carried a comment saying it was Mike's approved drawing *"COPIED, NOT REDRAWN"*. It was
 redrawn, and against his actual slide — Strategic Orientation 2 **p13** — **three of the four
