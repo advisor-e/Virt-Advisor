@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Session Scope Menu</title>
+<!--
+================================================================================
+  THE SESSION SCOPE MENU — the INPUT screen of the Strategy Planner, item 15.1.
+  Drawn 2026-09-17. NOTHING ON THIS PAGE IS BUILT. It is the artefact the build
+  will be measured against, per CLAUDE.md's Save-the-Artefact rule.
+
+  WHY IT EXISTS. Mike asked on 2026-09-17 whether mockups existed for three
+  things: this input menu, an AI-guided selection, and the post-session report.
+  The report is drawn (strategy-plan-output.html). The AI selection existed
+  nowhere. THIS SCREEN had only a superseded drawing — Screen 1 of
+  strategy-planner.html, which predates the redirection and its 52-concept scope.
+
+  THE WORDING IN THE TABLES IS MIKE'S OWN, READ OFF HIS DECKS BY MACHINE on
+  2026-09-17 — Strategic Orientation 2 slides 3–5 and Sales &amp; Marketing slides
+  2–3, taken from the Session Scope tables themselves rather than retyped or
+  summarised. Ligatures were normalised and one stray fragment that overlaps the
+  Blue Ocean row was removed. Nothing else was altered, and nothing was written
+  that Mike had not written.
+================================================================================
+-->
+<style>
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1180px;margin:0 auto;padding:28px 22px 72px}
+h1{font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-size:19px;margin:42px 0 10px;letter-spacing:-.01em}
+h3{font-size:15px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+ul{margin:0 0 12px;padding-left:20px} li{margin:0 0 5px;max-width:78ch}
+code{font-family:ui-monospace,Consolas,monospace;font-size:.92em;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 8px}
+.lede{font-size:16px;color:var(--rs-muted);max-width:80ch}
+a{color:var(--rs-accent)}
+.measure{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:4px solid var(--rs-crit);
+  border-radius:10px;padding:14px 16px;margin:18px 0}
+.measure h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-crit)}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0 0 10px}
+.mg{border:1px solid var(--rs-line);border-radius:10px;padding:12px 13px;background:var(--rs-panel-2)}
+.mg .n{font-size:27px;font-weight:700;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.mg .l{font-size:12px;color:var(--rs-muted);margin-top:3px;line-height:1.4}
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask .q{margin-top:9px;padding-top:9px;border-top:1px solid #bcdcf6;font-weight:600}
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+
+/* ---- the screen ---- */
+.screen{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden;margin:16px 0 28px}
+.chrome{background:var(--rs-ink);color:#fff;padding:13px 18px;display:flex;flex-wrap:wrap;
+  gap:10px 18px;align-items:baseline}
+.chrome b{font-size:15px}
+.chrome .who{font-size:12.5px;opacity:.82}
+.chrome .count{margin-left:auto;font-size:12.5px;background:#ffffff1f;border-radius:999px;padding:3px 11px;
+  font-variant-numeric:tabular-nums}
+.bar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding:12px 18px;
+  border-bottom:1px solid var(--rs-line);background:var(--rs-panel-2)}
+.btn{border:1px solid var(--rs-accent);background:var(--rs-accent);color:#fff;border-radius:8px;
+  padding:7px 13px;font-size:13px;font-weight:600;font-family:inherit}
+.btn.ghost{background:#fff;color:var(--rs-accent)}
+.bar .hint{font-size:12px;color:var(--rs-muted)}
+.dom{border-bottom:1px solid var(--rs-line)}
+.domhead{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;padding:12px 18px;background:#f7fafd}
+.domhead b{font-size:14.5px}
+.domhead .src{font-size:12px;color:var(--rs-muted)}
+.domhead .dm{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--rs-accent);background:#e6f2fb;border:1px solid #bcdcf6;border-radius:4px;padding:1px 6px}
+.domhead .n{margin-left:auto;font-size:12px;color:var(--rs-muted);font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+table.menu{border-collapse:collapse;width:100%;font-size:13px;min-width:760px}
+table.menu th,table.menu td{text-align:left;padding:9px 11px;border-top:1px solid var(--rs-line);
+  vertical-align:top}
+table.menu th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;white-space:nowrap;background:#fff}
+table.menu td.pg{color:var(--rs-muted);font-variant-numeric:tabular-nums;width:46px}
+table.menu td.nm{font-weight:600;width:172px}
+table.menu td.tick{width:38px}
+table.menu tr.on{background:#f2f9ee}
+.box{display:inline-block;width:15px;height:15px;border:1.5px solid #9bb0c6;border-radius:4px;
+  background:#fff;vertical-align:-2px}
+.box.x{background:var(--rs-good);border-color:var(--rs-good);position:relative}
+.box.x::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg)}
+.shared{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:#8a5a00;background:#fdf1e0;border:1px solid #f0cf9a;
+  border-radius:4px;padding:1px 5px;vertical-align:1px}
+.sub{display:block;font-weight:400;color:var(--rs-muted);font-size:12.5px;margin-top:2px}
+.nodesc{padding:10px 18px;font-size:12.5px;color:#8a5a00;background:#fdf1e0;border-top:1px solid #f0cf9a}
+.foot{padding:13px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--rs-panel-2)}
+.foot .sum{font-size:13px;font-weight:600}
+.foot .rest{font-size:12.5px;color:var(--rs-muted)}
+.sugg{background:#eef7ff;border-top:1px solid #9fd0f5;padding:11px 18px;font-size:12.5px}
+.sugg b{color:var(--rs-accent)}
+table.doc{border-collapse:collapse;width:100%;font-size:13.5px}
+table.doc th,table.doc td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--rs-line);
+  vertical-align:top}
+table.doc th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700}
+table.doc td:first-child{font-weight:600}
+@media (max-width:640px){.shell{padding:20px 16px 56px}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<p class="eyebrow">Strategy Planner · item 15.1 · drawn 17 September 2026</p>
+<h1>Session Scope Menu</h1>
+<p class="lede">The screen an advisor opens first: which of the 52 concepts this
+session will cover. It is Mike's own Session Scope table with the <b>Include</b>
+column made real — the same table his clients already read in the room.</p>
+
+<div class="measure">
+  <h3>The measurement, named before the design</h3>
+  <p>It is not a new one. It is the acceptance test 15.1 already carries:
+  <b>Pivot.pdf</b>, a deck Mike assembled by hand out of Strategic Orientation 2
+  and Sales &amp; Marketing. <b>The test for THIS screen is narrow, and it either
+  passes or it does not: can an advisor produce Pivot's tick-list from this
+  menu?</b> The screen below is showing exactly that — Pivot's eleven concepts,
+  ticked, across two domains.</p>
+  <div class="mgrid">
+    <div class="mg"><div class="n">52</div><div class="l">concepts in the menu</div></div>
+    <div class="mg"><div class="n">11</div><div class="l">Pivot needs — 9 here, 2 there</div></div>
+    <div class="mg"><div class="n">2</div><div class="l">domains one session spans</div></div>
+    <div class="mg"><div class="n">34</div><div class="l">the engine would offer instead</div></div>
+  </div>
+  <p><b>The fourth number is why the AI cannot do this job today</b>, and it is measured
+  in the Brief §6: the recommendation engine's smallest unit is a whole document,
+  so its best answer for a Pivot-shaped client is the two decks — 34 concepts for a
+  session that needs 11. This screen is where that gets fixed, because a menu of
+  concepts is the index the engine never had.</p>
+</div>
+
+<h2>1. The screen</h2>
+<p><b>Four Planning Domains across five documents</b> — Strategic Orientation is one
+domain in two decks, and only the second of them carries a scope table. One list,
+and ticks that cross freely between the panels. <b>Pivot proves the crossing
+matters</b>: nine of its concepts are in Strategic Orientation 2 and two are in
+Sales &amp; Marketing, so a menu that makes an advisor choose one domain and stay
+inside it cannot produce the acceptance test.</p>
+<p>The panels are in Mike's own order, which means the advisor meets the two
+agenda-only documents first. That is deliberate — it is what Decision B is about,
+and hiding it behind the richer decks would make the screen look better than it is.</p>
+
+<div class="screen">
+  <div class="chrome">
+    <b>Scope the session</b>
+    <span class="who">Ferndale Engineering Ltd · planning session, 24 Sep 2026</span>
+    <span class="count">11 of 52 included</span>
+  </div>
+  <div class="bar">
+    <button class="btn" type="button">Suggest for this client</button>
+    <button class="btn ghost" type="button">Where To Start??</button>
+    <span class="hint">Nothing is included until you leave it ticked.</span>
+  </div>
+  <div class="sugg"><b>Suggested, not applied.</b> Eight rows were pre-ticked from
+  this client's last two conversations, each with one line saying why. Three were
+  wrong and have been unticked — the count above follows the ticks, never the
+  suggestion. See Decision C.</div>
+<section class="dom"><div class="domhead"><b>Business Targets</b><span class="dm">Business Targets domain</span><span class="src">the agenda, slide 2</span><span class="n">0 of 5 included</span></div><div class="nodesc">This deck is an agenda, not a scope table — it has no Concept Summary and no Helps Your Client To… column. Those two columns are empty here because Mike has not written them, and nothing else may. See Decision B.</div><div class="tw"><table class="menu"><thead><tr><th>Include</th><th>Page</th><th>Framework</th><th>Concept Summary</th><th>Helps Your Client To…</th></tr></thead><tbody><tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Define Your Business Owner Expectations</td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Determine Your Business Development Stages (Profile Points)</td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Choose Your Objectives (what you want to achieve)</td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Review Your Profit Lever Focus<span class="sub">how you plan to achieve your objectives - based on the profit levers</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Plan your meeting follow-up<span class="sub">using the client plan feature</span></td></tr></tbody></table></div></section><section class="dom"><div class="domhead"><b>Strategic Orientation 1</b><span class="dm">Strategic Orientation domain</span><span class="src">the agenda, slide 2 — it has no contents table</span><span class="n">0 of 4 included</span></div><div class="nodesc">This deck is an agenda, not a scope table — it has no Concept Summary and no Helps Your Client To… column. Those two columns are empty here because Mike has not written them, and nothing else may. See Decision B.</div><div class="tw"><table class="menu"><thead><tr><th>Include</th><th>Page</th><th>Framework</th><th>Concept Summary</th><th>Helps Your Client To…</th></tr></thead><tbody><tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Review the Planning Process &amp; Language to ensure we’re all on the ‘same page’.<span class="sub">section 1</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Assess current position by reviewing (pre-meeting) data &amp; Financial Performance Reports<span class="sub">section 2</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Determine the business Strategic Objective &amp; document the Strategy<span class="sub">section 3</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Brainstorm &amp; record Operational Objectives and Tactics (actions) in the Automated Action Plan Reminder</td></tr></tbody></table></div></section><section class="dom"><div class="domhead"><b>Strategic Orientation 2</b><span class="dm">Strategic Orientation domain</span><span class="src">Session Scope tables, slides 3–5</span><span class="n">9 of 18 included</span></div><div class="tw"><table class="menu"><thead><tr><th>Include</th><th>Page</th><th>Framework</th><th>Concept Summary</th><th>Helps Your Client To…</th></tr></thead><tbody><tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">13</td><td class="nm">Porter’s 5 Forces</td><td>This concept explores how Customer Trends, Supplier Tactics, New Entrants and New Substitute/Alternative products can all impact your business at the same time.</td><td>To look out for changes in the market and anticipate how everyone will react; so you can be ready to take advantage of the situation.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">15</td><td class="nm">Product Fit Review</td><td>This concept examines the market/customer resistance by clarifying the major purchasing obstacles and competitor comparison.</td><td>By challenging the assumptions around customer demand for BOTH the problem to be solved - AND - the manner in which it is solved by your product/service - VS that of competitors.</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">17</td><td class="nm">Progression of Economic Value</td><td>This concept explores the ‘Business Imperatives’ that relate to each stage of the value chain and suggests that the ‘bright new thing’ becomes the ‘minimum standard’ in the future.</td><td>To identify what to focus on, depending on how they ‘add value’ to their customer.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">20</td><td class="nm">Price For Problem Solving</td><td>This concept Identifies the various pricing components in your service delivery (as they relate) to the value client’s place on their problem being solved.</td><td>This allows for a leveraged (delegated) team delivery AND multiple price points. Clients with more time (to do things themselves) can save money; those that just want the ‘problem to disappear’ can pay a premium for time saving and risk reduction.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">20</td><td class="nm">Price For Delivery Medium<span class="shared" title="both columns shared with the row above, in the deck">shared cell</span></td><td>This concept Identifies the various pricing components in your service delivery (as they relate) to the value client’s place on their problem being solved.</td><td>This allows for a leveraged (delegated) team delivery AND multiple price points. Clients with more time (to do things themselves) can save money; those that just want the ‘problem to disappear’ can pay a premium for time saving and risk reduction.</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">22</td><td class="nm">Vertical Integration</td><td>This concept explores the supply and distribution chain to see if you need to own more of the value chain components.</td><td>To identify asset purchases or alliances that could help protect existing market share and sales margin or new products that could increase your sales.</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">23</td><td class="nm">Horizontal Integration<span class="shared" title="the Helps column is one cell across this row and the one above">shared cell</span></td><td>This concept explores the additional products or service that you could cross-sell to existing customers or would attract new customers to your business.</td><td>To identify asset purchases or alliances that could help protect existing market share and sales margin or new products that could increase your sales.</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">25</td><td class="nm">Market Diffusion Theory</td><td>This concept explores the introduction of a new product (similar to product life cycle) but focuses on how the market reacts and the ‘tipping point’ required to achieve success.</td><td>To identify where they are in the marketing process so they don’t waste money in the wrong areas. (kind of like the law of diminishing return / flogging a dead horse)</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">26</td><td class="nm">Boston Model</td><td>This concept assists in the understanding of market position in terms of pricing, clientele &amp; market acceptance. Originally designed to identify business divisions that should be sold, this model can be applied for both sale &amp; growth discussions.</td><td>Stop and think about how the business/ product is positioned against competitors and determine if this is by direct strategy or failure to execute tactics.</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">27</td><td class="nm">Product Life Cycle</td><td>This concept explores how a new product or service becomes popular (gains acceptance) and then over time, becomes outdated and no longer relevant. (Decline)</td><td>Understand the likelihood of your client’s product or service being replaced (or eroded) by new product offers, new technology or product substitutes.</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">28</td><td class="nm">Technology Points</td><td>This concept explores how a product goes through stages of finding the right price point to improve market acceptance; how the cost of production comes down as sales volumes go up; that increased sales often result in lower sales prices and that eventually, big name brands will drop out and move to the next new thing.</td><td>To identify the ‘forces at play’ surrounding their product (or service) and to identify the opportunities (and threats) that could emerge in future. (Luck is often defined by preparation and timing)</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">30</td><td class="nm">Sigmoid Curve</td><td>This concept explores the natural ‘highs and lows’ of a product and to identify the signs that it’s time to make change. It also suggests the time to invest in new ideas is while you’re still enjoying positive cash flow from your existing product.</td><td>Look ahead and plan the investment/ improvement / development of your product now, BEFORE sales are dropping and you don’t have the cash to afford the necessary changes.</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">31</td><td class="nm">Blue Ocean Strategy</td><td>This concept explores how you can attract customers that wouldn’t normally purchase your services or product.</td><td>To explore ways to make your business, product or service stand out from all your other competitors.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">33</td><td class="nm">Revenue Streams</td><td>This concept explores using unrelated products to increase foot traffic or shorter sales cycle offerings, vs related upsell or ‘after sale’ offerings.</td><td>Help your client to explore possible revenue alternatives or ways to diversify, whilst minimizing risk.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">35</td><td class="nm">Risk Reward Matrix</td><td>This concept explores the idea that risk can be categorised into ‘Knowns, ‘Partial Unknowns’ and ‘Complete Unknowns’.</td><td>Identify new opportunities relating to market expansion and product diversification by only testing one ‘unknown’ at a time.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">36</td><td class="nm">E. Deming’s Volatility Theory</td><td>This concept explains how Volatility can be measured in terms of Probability and therefore, can be a better ‘predictor’ of events going forward.</td><td>Develop more meaningful targets and reports.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">38</td><td class="nm">Senge’s Circles of Causality</td><td>This concept reminds us of how the ‘equal and opposite reaction’ law (in Physics), applies to business improvement also.</td><td>To expect the negative consequences in advance so they don’t get confused and change their plans (when they should have kept going)</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">39</td><td class="nm">The 8 Profit Levers</td><td>This concept explains the Accumulative effect of Incremental changes in business activities.</td><td>Identify the ‘little things’ that can contribute to massive business growth.</td></tr></tbody></table></div></section><section class="dom"><div class="domhead"><b>Sales &amp; Marketing Review</b><span class="dm">Sales &amp; Marketing Review domain</span><span class="src">Session Scope tables, slides 2–3</span><span class="n">2 of 16 included</span></div><div class="tw"><table class="menu"><thead><tr><th>Include</th><th>Page</th><th>Framework</th><th>Concept Summary</th><th>Helps Your Client To…</th></tr></thead><tbody><tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">5</td><td class="nm">6 Marketing Questions</td><td>This concept explores 6 key questions to ensure you’ve considered your value from the customer’s perspective.</td><td>Get clear in your own mind about who you serve, how you add value and what makes you special. (Know what matters)</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">7</td><td class="nm">Product Fit</td><td>This concept explores the ‘trade-offs’ between business profitability and customer acceptance.</td><td>Increase sales conversions from the marketing leads you generate. (Even your sub-standard salespeople should be able to win sales with your product or service.)</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">10</td><td class="nm">10 Marketing Messages</td><td>This concept explores 10 marketing statements that ‘speak’ to the purchase decision points of your customer.</td><td>Convert what you’ve defined (in the marketing questions) into ‘sticky’ outbound marketing messages. (Know how to explain it to others)</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">12</td><td class="nm">Customer (Persona) Type Table</td><td>This table summarises your customer types - to product fit.</td><td>Identify the ‘specific messaging’ for customer types vs the ‘general messaging’ for wider market coverage.</td></tr>
+<tr class="on"><td class="tick"><span class="box x" role="img" aria-label="included"></span></td><td class="pg">14</td><td class="nm">A.I.D.C.R.A Advertisement Framework</td><td>This framework explains the logical order to construct an advertisement.</td><td>Build more effective adverts and have a review framework so you can ‘A’ and ‘B’ test if desired.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">17</td><td class="nm">Digital Funnel Storyboard</td><td>This concept explores the sequential offerings, messaging and responses, to entice your target customer ‘from their couch to your cash register’.</td><td>Get clear on how to utilise all their marketing assets in one comprehensive plan.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">22</td><td class="nm">(Outbound) Messaging Plan</td><td>This framework helps you schedule your messaging activities and explores Medium, Platform, Time &amp; Cost as planning considerations.</td><td>Execute an effective campaign amongst all other business activities/ responsibilities.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">26</td><td class="nm">(Inbound) Landing Page Review</td><td>This framework defines the reader’s logic and the landing page logic, to help you define the sequence of text, graphics &amp; widgets.</td><td>Build an effective landing page to convert more of your marketing leads into sales opportunity.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">31</td><td class="nm">Sparketing (Friction) Review</td><td>This concept explores a review of your product from a ‘what stops people from buying it?’ vs features/ profitability.</td><td>Get clear of what your customer will happily pay for, what they could care less about &amp; what they just don’t want from you.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">33</td><td class="nm">Branding Review</td><td>This checklist helps you align your logo, graphics, message, market promise and ‘story’ so that you ‘stick’ in your customers mind.</td><td>Build powerful mental associations that create lasting influence in the mind of your target customer.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">35</td><td class="nm">Customer Loyalty Programme</td><td>This checklist helps to clarify the purpose of your customer loyalty programme and ensure it translates into profits for your business.</td><td>Stop giving stuff away if it doesn’t make a measurable improvement in your business profits.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">37</td><td class="nm">Pricing</td><td>This checklist encourages a review of your pricing beyond just ‘lifting it up’ or ‘dropping it down’. Your price should be an active reflection of the value you provide your customer.</td><td>Money is an exchange of value; you need to be clear on the value you offer to price in a sustainable fashion.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">39</td><td class="nm">Packaging/ Bundling</td><td>This checklist guides you through a review of how your packaging supports your ‘big promise’ and client perception.</td><td>Use packaging and bundled solutions to influence the purchasing decision, price point and quality perceptions of your product/ service.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">41</td><td class="nm">Sales Channel Options</td><td>This checklist explores the different sales channel options and encourages a pros and cons discussion.</td><td>Identify a variety of ways to engage salespeople to sell your products or service to a wider market.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">43</td><td class="nm">Sales Process Review</td><td>These templates encourage a review of the sales process from both customer and salesperson perspectives.</td><td>Know what to say and when to ‘say it’ to help a customer choose to do business with you.</td></tr>
+<tr class=""><td class="tick"><span class="box " role="img" aria-label="not included"></span></td><td class="pg">52</td><td class="nm">Drafting Tender Proposals<span class="shared" title="the deck puts the same sentence in both columns">shared cell</span></td><td>Just a few notes/ ideas to incorporate in your tender applications as you see fit. (General reading rather than focused session)</td><td>Just a few notes/ ideas to incorporate in your tender applications as you see fit. (General reading rather than focused session)</td></tr></tbody></table></div></section><section class="dom"><div class="domhead"><b>Organisational Review</b><span class="dm">Organisational Review domain</span><span class="src">the agenda, slide 2</span><span class="n">0 of 9 included</span></div><div class="nodesc">This deck is an agenda, not a scope table — it has no Concept Summary and no Helps Your Client To… column. Those two columns are empty here because Mike has not written them, and nothing else may. See Decision B.</div><div class="tw"><table class="menu"><thead><tr><th>Include</th><th>Page</th><th>Framework</th><th>Concept Summary</th><th>Helps Your Client To…</th></tr></thead><tbody><tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Review the Development Stages of the Organisation<span class="sub">Where are we headed?</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Review Internal Insights Data<span class="sub">What our team say about the organisation</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Review Your Understanding of People/Process Basics<span class="sub">Are we doing the basics (already) before seeking improvement?</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Define the Leadership Style Necessary for Success<span class="sub">How best to lead our team</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Define the Cultural Core Values<span class="sub">What’s MOST important to us?</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Understanding our Habit Drivers<span class="sub">Why we do the same old things, the same old way</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Design the Organisational Hierarchy Chart<span class="sub">Who reports to who?</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Determine the Divisional KPI’s<span class="sub">How we measure divisional performance</span></td></tr>
+<tr><td class="tick"><span class="box" role="img" aria-label="not included"></span></td><td class="pg">—</td><td class="nm" colspan="3">Develop Cascaded Operational Objectives<span class="sub">Milestones, broken down to each team layer</span></td></tr></tbody></table></div></section>
+  <div class="foot">
+    <span class="sum">11 concepts included</span>
+    <span class="rest">· 41 not included · order and steps come next</span>
+  </div>
+</div>
+
+<h2>2. The rows with nothing to read</h2>
+<p><b>Three of the five documents have no description text at all, and that is not an
+omission on our side.</b> Strategic Orientation 2 and Sales &amp; Marketing carry
+proper Session Scope tables — a page number, a Concept Summary and a Helps Your
+Client To… line for every row, in Mike's words. Business Targets, Strategic
+Orientation 1 and Organisational Review are <b>agendas</b>: a line each, and for
+Organisational Review one short sub-line.</p>
+<p>It does not fall on domain lines either, which is what makes it awkward:
+<b>the Strategic Orientation domain has the text in one of its two decks and not the
+other</b>. The census called this &ldquo;the four domain decks are three different
+animals&rdquo; (§4 finding 4), and this screen is where it bites —
+<b>34 of the 52 rows can be read before ticking, and 18 cannot</b>.</p>
+
+<div class="tw"><table class="doc">
+<thead><tr><th>Document</th><th>Planning Domain</th><th>Its menu</th><th>Rows</th><th>Has description text?</th></tr></thead>
+<tbody>
+<tr><td>Business Targets</td><td>Business Targets</td><td>the agenda, slide 2</td><td>5</td><td>No — name only</td></tr>
+<tr><td>Strategic Orientation 1</td><td>Strategic Orientation</td><td>the agenda, slide 2</td><td>4</td><td>No — name and a section number</td></tr>
+<tr><td>Strategic Orientation 2</td><td>Strategic Orientation</td><td>Session Scope tables, slides 3–5</td><td>18</td><td>Yes — both columns</td></tr>
+<tr><td>Sales &amp; Marketing Review</td><td>Sales &amp; Marketing Review</td><td>Session Scope tables, slides 2–3</td><td>16</td><td>Yes — both columns</td></tr>
+<tr><td>Organisational Review</td><td>Organisational Review</td><td>the agenda, slide 2</td><td>9</td><td>No — name and one sub-line</td></tr>
+</tbody></table></div>
+
+<div class="mock">
+  <h3>Three cells the deck itself shares between two rows</h3>
+  <p>Marked <span class="shared">shared cell</span> in the tables above, and left exactly as the
+  deck has them. <b>Price For Delivery Medium</b> takes both its columns from the row above;
+  <b>Horizontal Integration</b> shares one Helps cell with Vertical Integration; and
+  <b>Drafting Tender Proposals</b> has the same sentence in both columns. These are
+  Mike's own tables, so nothing was invented to fill them — but a build has to decide whether
+  two rows may point at one piece of text, and that is Decision B's second half.</p>
+</div>
+
+<h2>3. The decisions — four open</h2>
+<p>Each is one recommendation and one question a yes or no answers. Asked one at a
+time in chat; recorded here so the ruling and what was proposed both survive.</p>
+
+<div class="ask">
+  <h3>Decision A — is the menu your own table, or a new screen?</h3>
+  <p>Your Session Scope table already has the exact column a menu needs: <b>Include
+  (Yes/No)</b>. Clients read this table in the room today, on paper.</p>
+  <p class="rec">Recommendation: the screen IS your table, with the Include column
+  made real — same column order, same words, same page numbers.</p>
+  <p>What this rejects, recorded so it is not re-proposed: a card grid or a
+  redesigned picker. It would look more like an app and less like the thing the
+  advisor and the client are both already holding.</p>
+  <p class="q">Is the menu your own Session Scope table with the Include column made real?</p>
+</div>
+
+<div class="ask">
+  <h3>Decision B — the 18 rows with no description</h3>
+  <p>Three of your five documents are agendas, so 18 of the 52 rows have a name and
+  nothing to read. An advisor scanning the menu can weigh 34 of them and must already
+  know the other 18.</p>
+  <p class="rec">Recommendation: show them as name-only now, and give the mentor a
+  place to write the two lines later — <b>never generated, never filled by AI</b>.
+  A description that shapes what a client is taught is yours to write.</p>
+  <p>The cost of the alternative is stated plainly: writing 18 × 2 lines is an
+  evening of your time, and nothing can start it but you.</p>
+  <p class="q">Show those rows as name-only, with the descriptions left for you to write later?</p>
+</div>
+
+<div class="ask">
+  <h3>Decision C — how far the AI suggestion goes</h3>
+  <p>The engine cannot propose concepts today (Brief §6). Once this menu exists it can —
+  and the question is what it is allowed to do with the answer.</p>
+  <p class="rec">Recommendation: <b>it pre-ticks and writes one line of reason against
+  each row, and nothing is included until the advisor leaves it ticked.</b> It never
+  unticks, never hides a row, and the count follows the ticks rather than the suggestion.</p>
+  <p>This keeps the Planner inside the rule the rest of the feature already follows —
+  the AI tidies and proposes, the human decides. A build where the suggestion silently
+  becomes the scope has broken it.</p>
+  <p class="q">Does the AI pre-tick with a reason against each row, changing nothing by itself?</p>
+</div>
+
+<div class="ask">
+  <h3>Decision D — your own diagnostic, on this screen</h3>
+  <p>Sales &amp; Marketing page 4 carries <b>&ldquo;Where To Start??&rdquo;</b> — a routing flow that
+  sends an advisor to the right concept. The census found it is <b>the only thing in any
+  deck that answers when a section is necessary</b>.</p>
+  <p class="rec">Recommendation: put it on this screen as a second way in — answer the
+  diagnostic and it ticks for you, on the same rows, which you then adjust. It is your
+  answer to this problem and it predates ours.</p>
+  <p class="q">Should &ldquo;Where To Start??&rdquo; run as an optional route into the ticks?</p>
+</div>
+
+<h2>4. What this drawing does not settle, stated rather than assumed</h2>
+<ul>
+<li><b>How ticks become steps.</b> That is Decision 2 on the assembled-plan drawing —
+asked and unanswered: does the advisor name the steps, or does the app group the ticks?
+This menu produces a tick-list and works either way.</li>
+<li><b>A concept ticked into two steps.</b> Pivot uses Porter's twice, on pages 11 and 21.
+That is Decision 4 on the same drawing. <b>This screen ticks a concept once</b>; visiting it
+twice belongs to the step screen, not here.</li>
+<li><b>The 21 teaching forms and the 9 capture forms.</b> Untouched by this screen and still
+open (census §7).</li>
+<li><b>How a manager adds a concept</b>, at each tier. Mike's request of 2026-09-17, undesigned.</li>
+<li><b>Nothing here has met a database.</b> No statement in the Planner's store has ever run
+against real MySQL — it was written on the laptop, which has none. That is desktop or UAT work.</li>
+</ul>
+
+<div class="mock">
+  <h3>Two honest limits on the drawing itself</h3>
+  <p><b>The client is invented.</b> &ldquo;Ferndale Engineering Ltd&rdquo; and the date are placeholders,
+  as is the sentence about eight pre-ticked rows — no suggestion has ever been run, because
+  the index it would read does not exist yet.</p>
+  <p><b>The ticks are real.</b> The eleven ticked rows are Pivot's actual concepts, so the
+  acceptance test can be checked against this page by eye, today, before anything is built.</p>
+</div>
+
+</div>
+</body>
+</html>
