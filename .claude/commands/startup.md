@@ -77,8 +77,10 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    and stop for instructions — never start new work on top of unexplained changes.
 
 2. **How far off master am I?** Run `npm run check:branch`. Report the ahead/behind
-   counts. Behind is the number that matters: it is what silently became 97 commits and
-   left the master team unable to test course builder.
+   counts. **Both numbers matter, and they are two different faults.** *Behind* is what
+   silently became 97 commits and left the master team unable to test course builder —
+   step 5. *Ahead* is work finished on this machine that has reached nobody else, which is
+   what produces that 97 in the first place — step 6.
 
 3. **Open the Handbook.** Run `npm run handbook`, republish the generated file to the
    EXISTING Handbook artifact (pass its URL — never create a second one), open that URL
@@ -142,5 +144,26 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
 5. **If the branch is behind master, propose catching it up** — merge `origin/master`
    in, then run the full test suite to prove the merge broke nothing. State the commit
    counts and what would come across. Wait for Mike's yes before merging.
+
+6. 🔴 **If the branch is AHEAD of master by 10 or more commits, propose a pull request —
+   before offering him anything else to work on.** State the count, name in plain English
+   what would go across, and ask the one yes/no question. On his yes: push this machine's
+   own branch (the pre-push hook runs lint, the full suite with coverage and the audit
+   gate, which is the proof the branch is releasable), then open the PR with `gh pr create
+   --base master`. Never merge it yourself — `master` is reached by pull request, and the
+   pre-push hook refuses a direct push.
+
+   **The threshold is 10 commits, and it is stated in `design/WORKING-AGREEMENT.md` — read
+   it from there rather than from this line, so one number governs both machines.**
+
+   **Why this step exists (Mike, 2026-09-18).** Step 5 fires when `master` moves ahead of
+   you. **Nothing fired when you moved ahead of `master`** — the common case, and the one
+   that does the damage. On the morning he asked, the desktop stood 21 ahead / 0 behind and
+   the laptop 49 ahead / 0 behind, and this checklist printed both numbers and moved on.
+   **A push is not a merge:** a machine can push faithfully every day, satisfy all of
+   `/shutdown`, and still drift to 97 commits. It is also why the Handbook keeps causing
+   arguments — that page is built from `origin/master`, so every unmerged commit is a
+   feature missing from the shared page, and the temptation is to publish a preview of one
+   branch instead (item 14.3). **Merging often is the fix; the Handbook is the symptom.**
 
 Then stop and ask what he wants to work on. Do not begin work in the same message.
