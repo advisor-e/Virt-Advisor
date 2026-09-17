@@ -14,7 +14,7 @@
 > before designing anything**: it is the measured survey of Mike's own templates that the new
 > direction rests on.
 >
-> To-do item **15.1**. Two artefacts, both registered in [`ARTEFACTS.md`](../ARTEFACTS.md):
+> To-do item **15.1**. Three artefacts, all registered in [`ARTEFACTS.md`](../ARTEFACTS.md):
 >
 > - ⛔ **SUPERSEDED — the session an advisor runs** —
 >   [`design/mockups/strategy-planner.html`](../mockups/strategy-planner.html),
@@ -37,10 +37,27 @@
 >   - ☐ **Four decisions still open**, Decision 2 asked and unanswered: does the advisor name the
 >     steps himself, or does the app group the ticked concepts? Pivot's step 5 sits on the agenda
 >     with no slides behind it, which is why the running order cannot be computed from the ticks.
+> - ☑ **The session scope menu — APPROVED TO BUILD FROM, 2026-09-17** —
+>   [`design/mockups/strategy-session-menu.html`](../mockups/strategy-session-menu.html), the
+>   **INPUT**: Mike's own Session Scope table with the `Include (Yes/No)` column made real, its
+>   34 described rows carrying **his wording read off the decks by machine**. Pivot's eleven
+>   concepts are the eleven ticked rows, so the acceptance test runs on the page. **Five decisions
+>   ruled**: **A** the menu is his table and its words are never rewritten · **B** the 18 agenda
+>   rows are name-only and their missing lines are his to write, never generated · **C** the AI
+>   pre-ticks with a reason, never unticks, and the scope follows the ticks · **D** his own
+>   "Where To Start??" flow is an optional second route in · **E** shared text is stored once and
+>   pointed at, never copied. 🔴 **Approval means it is what the build is measured against — open
+>   it beside the build and name every difference. It does not mean the build has started**, and
+>   two things must exist first: the **concept index** (the 52 rows as records) and **Decision F**,
+>   which concept each "Where To Start??" action means — Mike's mapping to write, not a yes/no.
 >
 > **Step 1 — scope the session.** The four Planning Domains, each opening Mike's own Session
-> Scope table from ADV.0 Planning Outcomes: Framework · What it explores · Helps your client
-> to… · Include. The advisor picks the client and ticks the frameworks.
+> Scope table: the advisor picks the client and ticks the frameworks. ⚠ **As BUILT this screen
+> predates the redirection, and two things about it are superseded by Decision A above**: it
+> takes its table from **ADV.0 Planning Outcomes**, which §3 and census §5 rule is never the
+> source — a deck's own contents table is — and its columns read *Framework · What it explores ·
+> Helps your client to… · Include*, where the deck's own are **Page · Framework · Concept
+> Summary · Helps Your Client To… · Include**. It also offers **5 frameworks of the 52**.
 >
 > **Step 2 — run the frameworks.** One card per chosen framework: the concept on the left so it
 > can be taught without leaving the screen, the capture on the right.
@@ -201,7 +218,7 @@ from a list of the nine**, and the wheel counts those. No model reads an objecti
 | **Voice recording** | A strategy session is a **Meeting Review meeting type** (Decision 10) — the Planner builds no recorder. It inherits that feature's three non-coding gates: staff consultation, a lawyer per market, and the OpenAI audio-terms letter. **The typed capture must stand alone until they clear.** |
 | **The ~100 Growth Aspect questions** | Item **15.2**, filed on Mike's yes. |
 | **The aspect descriptions on the wheel labels** | Mike's own deferral, 2026-09-16. |
-| **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down) · whether Sales & Marketing's "Where To Start??" routing flow becomes part of the session check. **None of this is designed. Do not assume it from the September drawing.** *(The document's assembly ORDER is no longer open — it is Pivot's anatomy, census §1.)* |
+| **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down). **None of this is designed. Do not assume it from the September drawing.** *(Two things have LEFT this row: the document's assembly ORDER is Pivot's anatomy, census §1; and the "Where To Start??" routing flow was ruled IN by Decision D on the menu drawing, 2026-09-17 — what remains of it is Decision F, the action-to-concept mapping, which is Mike's to write.)* |
 
 ### 🔴 The AI cannot suggest what to include, and the reason is structural
 
