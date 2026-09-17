@@ -147,6 +147,10 @@ own. It was tickable only on the superseded menu, which read ADV.0 rather than t
 - **"Where To Start??" and its action-to-concept mapping** — withdrawn by Mike, see the box at
   the top of this page.
 - **The ~100 Growth Aspect questions** — his own deferral, already filed as item **15.2**.
+- **Drafting the 18 missing *Helps Your Client To…* lines** — Mike asked for AI drafts on
+  2026-09-17, amending his own Decision B of that morning. Filed as item **15.3**, not
+  started: **a draft must never be storable as though it were his**, and that mechanism is
+  undecided. No line goes into the data until it is.
 - **Voice recording** — designed by his Decisions 10 and 11, but unbuildable until Meeting
   Review's three non-coding gates clear. It is not a stage anyone can start.
 - **Re-reading the decks to rebuild the concept index** — no request behind it and no accuracy

@@ -462,6 +462,27 @@
       "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant), and the four suites that reach it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes and wagesRegisterContents.routes.",
       "note": "NOT REPRODUCIBLE ON DEMAND - it failed once in three full runs on 2026-09-17, then passed alone and on both re-runs. The cause is traced rather than guessed: wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. THREE WAYS OUT, and choosing between them is the work: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. Nothing is blocked by it today.",
       "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end."
+    },
+    {
+      "ref": "15.3",
+      "name": "Eighteen rows of the session scope menu have no Helps Your Client To... line",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Eighteen of the 52 rows an advisor and client read together carry a name and nothing else. The other 34 each explain what the concept does and what it gets the client, in Mike's own words.",
+      "risk": "A client picking the scope sees a third of the menu with no explanation beside it, so those concepts get chosen less - not on merit but because nothing says what they are for. The counter-risk is larger and is why Decision B existed: an AI-written line here is indistinguishable from Mike's once it is in the file.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-17, in his own words after Stage 1 shipped: 'i want you to review the material and produce a few lines in the helps your client to column i can then review what you develop and edit from there. use the existing lines as inspiration and guidance.' This AMENDS his own Decision B of the same day - see the note."
+      },
+      "touches": "data/strategy-frameworks.json concepts[].helpsClientTo on the 18 agenda rows; server/utils/strategyFrameworks.js, which today treats a null description as correct and would need to carry a draft separately from an approved line; components/strategy/StrategyScopeMenu.vue, which renders an agenda row name-only; design/mockups/strategy-session-menu.html Decision B; and a mentor-tier editing screen, per the hub-page rule.",
+      "note": "MIKE'S OWN AMENDMENT TO DECISION B, 2026-09-17. Decision B, ruled that morning, reads 'never generated, never filled by AI'. He has now asked for AI DRAFTS he reviews and edits. THE PRINCIPLE IT PROTECTS IS UNCHANGED AND IS THE DESIGN PROBLEM: a draft must never be storable or renderable as though it were his. Recommended shape, undecided: a separate draft field plus an approved flag, so an unapproved line never reaches the column a client reads. NO LINE GOES INTO THE DATA UNTIL THAT IS SETTLED. Source: the decks in design/planning-templates/, read directly - never ADV.0. Voice: the 34 rows that already carry his line. He asked for A FEW lines to react to, not all 18.",
+      "comment": "2026-09-17 - filed on his instruction the moment he gave it, immediately after Stage 1 of 15.1 was committed. Not started: he asked for a note, and the draft-versus-approved mechanism is a design decision that needs his word before any line is written."
     }
   ]
 }
