@@ -36,9 +36,11 @@
 >     produces a web report *and* a separate exported deck has created two things that can
 >     disagree, and the page is a 16:9 frame from the start rather than a reflowing column
 >     squeezed into one later.
->   - ☐ **Four decisions still open**, **"Tick concepts, or tick steps"** asked and unanswered: does
->     the advisor name the steps himself, or does the app group the ticked concepts? Pivot's step 5 sits on the agenda
+>   - ☐ **ONE decision still open — "Tick concepts, or tick steps"**, asked 2026-09-17 and
+>     unanswered: does the advisor name the steps himself, or does the app group the ticked
+>     concepts? Pivot's step 5 sits on the agenda
 >     with no slides behind it, which is why the running order cannot be computed from the ticks.
+>     **The drawing's other three were settled by building them** — see §0 *What gates what*.
 > - ☑ **The session scope menu — APPROVED TO BUILD FROM, 2026-09-17** —
 >   [`design/mockups/strategy-session-menu.html`](../mockups/strategy-session-menu.html), the
 >   **INPUT**: Mike's own Session Scope table with the `Include (Yes/No)` column made real, its
@@ -96,9 +98,12 @@ accuracy or user experience, then DONT put it in the build design."*
 Four things that would otherwise have been built failed that test and are listed at the end
 rather than quietly dropped.**
 
-**Where the build actually stands:** the concept index is built (52 records, no screen). The old
-four-step screen is built but predates the redirection. Nothing an advisor types is captured
-anywhere.
+**Where the build actually stands:** the spine is built. The concept index holds 52 records and
+the session menu puts all 52 on a screen; 16 of them reach the real capture table read from
+Mike's own workbook, and what an advisor types there is saved box by box against the client's
+session (§4) and carries into the assembled document.
+**Five stages of the eight remain**, and the one immediately ahead — the advisor naming his own
+steps — waits on the open decision in *What gates what* below.
 
 ### The spine — after stage 3 an advisor can run the whole job
 
@@ -135,6 +140,14 @@ Loyalty, Packaging, Pricing**. **SWOT / PEST is no longer separately tickable**,
 correct: SWOT sits inside Strategic Orientation 1's section 2 and has never been a row of its
 own. It was tickable only on the superseded menu, which read ADV.0 rather than the decks.
 
+⛔ **`Enneagram based employment questions.docx` IS NOT COMING IN — Mike, 2026-09-18.** It sits in
+his `fill in tables` folder and in no copy here, so nothing has ever read it and no concept can be
+paired to it. He was asked directly and said no. **This is a decision, not a gap:** do not report
+it, do not file it, and do not offer again to bring it in. *(The other two files his folder holds
+and this repository does not — `Insights Summary (1).docx` and
+`Product Fit (Customer Orientation) (1).docx` — are byte-identical duplicates of files already
+here, so nothing is missing in them either.)*
+
 **Two named deviations, per the Save-the-Artefact rule:**
 
 1. **The "Suggest for this client" button is not built.** It is Stage 6 and needs the pre-tick
@@ -168,16 +181,17 @@ own. It was tickable only on the superseded menu, which read ADV.0 rather than t
 
 ### What gates what
 
-**Stage 1 is done.** **Stages 2 and 3 cannot start** until the four open decisions on **the
-assembled plan** ([`strategy-plan-output.html`](../mockups/strategy-plan-output.html)) are
-answered:
+**Stages 1, 2 and 3 are built.** Three of the four questions on **the assembled plan**
+([`strategy-plan-output.html`](../mockups/strategy-plan-output.html)) were settled by building
+them on Mike's instruction, and the built code — not this table — is where each answer now
+lives. **One is still open, and it is the only thing gating the work ahead.**
 
-| The question, as Mike sees it | What it decides |
+| The question, as Mike sees it | How it stands |
 |---|---|
-| **"Can a concept be used twice in one session?"** | the shape of the stored record — Stage 2 cannot be written without it |
-| **"Tick concepts, or tick steps?"** | the document's running order |
-| **"The discussion / action split"** | whether a step teaches everything then works it, or alternates |
-| **"What does the client keep?"** | whether one document exists in two states, blank and filled in |
+| **"Can a concept be used twice in one session?"** | ☑ **Yes**, settled by Stage 2. Porter's is visited twice — observations, then responses against what the client said — both writing into one table. |
+| **"The discussion / action split"** | ☑ **Split, with a per-step switch**, settled by Stage 3. A step announces itself twice, *Discussion* then *Action*; `step.teaches` drops the first where there is nothing to teach, which is how the Action Plan avoids a blank teaching page. |
+| **"What does the client keep?"** | ☑ **One document, two states**, settled by Stage 3. The same pages print blank as the session pack and filled in as the plan; an untouched table prints one line rather than two dozen empty rows. |
+| 🔴 **"Tick concepts, or tick steps?"** | ☐ **STILL OPEN — asked 2026-09-17, unanswered.** It decides the document's running order, and nothing after Stage 3 can be built without it. Until it is answered, `planSteps` in [`pages/strategy-planner.vue`](../../pages/strategy-planner.vue) puts everything scoped into one step — **a stated limit, never a decision that steps are one.** |
 
 ---
 
