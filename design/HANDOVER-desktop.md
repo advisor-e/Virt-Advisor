@@ -11,29 +11,41 @@
 
 ## 2026-09-17 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Five commits, all pushed** (`eda02e72` … `19d7c6a5`). Suite **11,907 green** (557 suites),
-lint 0, coverage and audit gates passed. Tree clean. **Eleven live items — 7.1 parked today.**
+**Three commits, all pushed** (`8760ef96`, `991c7c14`, `679eea18`). Suite **11,928 green**
+(558 suites), lint 0 errors, coverage and audit gates passed. Tree clean. **19 ahead of
+`master`, 0 behind. Twelve live items — 14.3 filed today.**
 
-**7.9 is HALF fixed, and the note now says which half.** The discouraging framing is gone from
-`discover.txt` and the shared `instruction[]` block — a fitting calculator is no longer a rare
-extra. Measured both sides on one 76-call bench: **4 of 19 → 5 of 19** reliably offered,
-wrong-model offers still 0.
+**7.9's root cause was NOT what its note said, and the real one was bigger.** SIX model
+names are also template titles, not the three assumed — and **Lease vs Buy**, **High-Level
+Budget** and **Dashboard Reports** differ from the library's own spelling by ONE character
+(a full stop, a hyphen, a plural). `isKnownTemplate` compares exactly, so the 7.7 guard
+flagged **genuine template recommendations as calculators**, telling the AI the advisor
+would find nothing in Advisor-e. It hit **28 of 38** live bench calls. `nearestTemplateTitle`
+now answers it from the catalogue, and `tests/unit/nameCollisions.test.js` **recomputes** the
+set — a seventh collision fails the build rather than being found in conversation.
 
-**Its diagnosis was wrong and is REPLACED, not annotated.** It blamed the "none of these fits"
-conservatism. Reading real answers disproves it: the AI names the model as a **TEMPLATE** under
-Best match, then writes *"Also worth considering: None."* — no page path is emitted, so the
-advisor cannot open the calculator. Three for three on wages, stock purchasing, sales dashboard.
-**THE REAL FIX — forcing the page path whenever a model is named — IS NOT STARTED.**
+**The miscount was itself the fault.** The code header said "two", every later note copied
+it, nobody re-derived it. That is why the fix is a test that computes, not a corrected
+sentence.
 
-**7.1 PARKED on Mike's instruction.** He settles the 18 template names himself in UAT, so it was
-never session work and was opening every startup at rank 1. Closure on
-`to-do-done-and-parked.md`. Recorded there too: a **separate 5-branch job, NOT blocked on those
-names** — `templates[]` is undefined on five `sp_` branches naming **Planning Outcomes Review**
-and **Lite Fundamentals**, both already in the library under those exact titles. Fill the arrays,
-then watch it serve on the running app.
+🔴 **READ `CLAUDE.md`'s new diagnostic block before touching this area.** Four verified
+commands to run BEFORE theorising when the AI "can't find" a document or model, plus:
+**`searchWords` never reaches the AI** (Model Guide filter only, item 4.36 — a session got
+this backwards today), and **a bench that omits the template list measures nothing** — it
+leaves the AI inventing names to fill "Best match", and a morning was spent reporting that
+harness artefact as a defect.
 
-⚠ **LAPTOP — I edited `data/report-model-summaries.json`, which is listed under your 7.5.** One
-sentence in its `instruction[]` array only; I did not touch model names, routes or summaries.
-Expect a possible conflict there and keep both sides. Also changed: `data/prompts/discover.txt`,
-`tests/unit/reportModelSummaries.test.js`. **Your branch is current — 25 ahead, handover dated
-today, read from the OTHER BRANCHES box.**
+**7.9 is `activeOn` DESKTOP.** Root cause fixed; calculators-not-offered is partly open.
+Measured 12 of 19 reliably offered, 0 invented names. **8 Levers is NOT a defect** — the AI
+finds the template *8 Profit Levers*, answers well, and stops; the machinery is correct.
+
+⚠ **LAPTOP — I touched `data/report-model-summaries.json`, which is under your 7.5.** One
+`searchWords` array on 8 Levers only (Mike's own phrase); no names, routes or summaries.
+Expect a possible conflict there and keep both sides.
+
+⚠ **The live Handbook is YOUR working-tree preview** (47 pages, banner: *"a preview, not the
+shared page"*). **Mike ruled it stays** — it shows Strategy Planner, which master has not yet.
+Nothing is at risk; that Brief is committed on your branch. **Filed as item 14.3:** the
+`--working-tree` flag is fine, but nothing stops a preview reaching the shared URL, and the
+guard belongs in the startup publish step. Your branch is current — 43 ahead, note dated
+today, read from the OTHER BRANCHES box.
