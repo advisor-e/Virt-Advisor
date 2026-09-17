@@ -11,36 +11,34 @@
 
 ## 2026-09-17 · Laptop · branch `feat/advisor-progress`
 
-**Five commits, all pushed** (`3b489c76` … `1401ae17`). Suite **12,141 green**, lint 0 errors,
-coverage and audit gates passed at push. **0 behind `master`, 44 ahead.** **15.1 and 7.5 stay
-active on this laptop; 15.3 is new and waits on Mike.**
+**Two commits, both pushed** (`efdfd5bc`, `40507a45`). Suite **12,158 green**, lint 0,
+coverage and audit gates passed. Tree clean. **47 ahead of `master`, 0 behind. 15.1 and 7.5
+stay active on this laptop.**
 
-☑ **15.1 STAGE 1 IS BUILT — the session scope menu.** His own Session Scope table with Include
-made real: five deck panels in his order, all 52 concepts, ticks crossing freely. The
-acceptance test is a test — Pivot's eleven tick across exactly two decks.
-`StrategySessionScope.vue` is DELETED, not left beside it. **The eight-stage plan is Brief §0**
-— read it before picking up 15.1.
+☑ **STAGES 2 AND 3 BUILT.** Capture reads Mike's own Word/Excel/PowerPoint fill-in workbooks
+(`npm run capture-tables`) — **16 of 52 concepts reach a real table where 2 did**. A concept
+can be **visited twice**: Porter's observations, then his responses against what the client
+actually said. Screen 4 is now the assembled document from his approved drawing.
 
-⚠ **An advisor can tick all 52 and only TWO reach a capture card.** The screen says so. SWOT /
-PEST is no longer separately tickable and that is correct — it is not a row on any scope table.
+🔴 **OPEN THE APPROVED ARTEFACT BEFORE BUILDING ANYTHING ON THIS FEATURE.** Four of today's
+five rejections came from not doing it: a Porter's diagram invented from scratch when
+`strategy-plan-output.html` p5 has one *drawn at fidelity*; four boxes when
+`strategy-planner.html` screen 2c has five with his own prompts; a sixth box no one asked
+for; and a PDF-reading extractor for content his data already held. **The deck PDFs are NOT
+a source — his decks curve their labels, so machine reading returns fragments.** That reader
+is deleted; do not rebuild it.
 
-⛔ **"WHERE TO START??" IS WITHDRAWN — Mike, 2026-09-17.** It diagnoses a sales approach.
-Decision D struck, Decision F void, corrected in the Brief, the drawing, the register and the
-list. **Do not re-raise it.**
+☐ **NEXT ON 15.1: the advisor cannot name his own steps.** The drawing has him naming five
+and dragging ticked concepts into them (Porter's into two, step 5 empty). Everything scoped
+currently prints in one step.
 
-☐ **15.3 — 18 drafted "Helps Your Client To…" lines WAIT ON MIKE**, in
-`design/AGENDA-HELPS-LINES.md`. He edits, marks `yes`, `npm run helps-lines -- --apply`. An
-unapproved line is never in the data file at all — that is structural, not a flag. **No Mentor
-Hub tab was built for it**: that needs `FirmManagerHub.vue`, which 7.2 has active on the
-desktop. Reason recorded in `ARTEFACTS.md`; the authoring screen stays undesigned and
-unapproved under Mike's gate of 2026-08-26.
+⚠ **TWELVE LOCALE LABELS ON THE PLAN DOCUMENT ARE OURS, NOT HIS** — *Session plan*,
+*Discussion points*, *Action points*, *not filled in*. Flagged to him at shutdown, unanswered.
+Two others were **deleted** today on his word: *"What this does in the room"* and *"Who and
+when"*, both AI inventions from the 2026-09-16 build.
 
-🔴 **STAGES 2 AND 3 CANNOT START** until Mike answers the four open decisions on
-`strategy-plan-output.html`. Decision 4 decides the stored record's shape.
-
-**DESKTOP — shared files I changed:** `locales/en.json` (new `strategyPlanner.menu` block,
-nothing existing touched), `server/restify-server.js` (one route mount line),
-`server/routes/strategyPlanner.js` (one new handler), `server/utils/strategyFrameworks.js`
-(additive), `data/strategy-frameworks.json` (added `decks`, plus `conceptId` on two
-frameworks), `package.json` (one script). **Nothing in `FirmManagerHub.vue`,
-`advisorEngine.js` or anything else 7.2 owns.**
+**DESKTOP — shared files I changed:** `locales/en.json`, `data/strategy-frameworks.json`
+(Porter's sixth field removed), `server/utils/strategyFrameworks.js` (`hasField` now accepts a
+concept id; a framework prefers its concept's own summary over the material's),
+`server/restify-server.js` (one route mount), `server/routes/strategyPlanner.js`,
+`package.json`. **Nothing in `FirmManagerHub.vue` or anything else 7.2 owns.**
