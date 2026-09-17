@@ -167,10 +167,23 @@ were waiting on us.
 - 🔴 **NOT A CHANGE OF MIND ABOUT THE CONTENT.** The fourteen branches are still wrong and the
   coaching is still withheld. What changed is only where the job lives: with him, in UAT, not on a
   list of work for this repository.
-- ⚠ **A second step exists and comes AFTER the names, never before.** 22 branches name their
-  template only in prose, which the ranking engine never reads; once the names resolve, those
-  `templates[]` arrays must be populated too. Detail in `logic-tables-history.md` §8. Do not start
-  it early — it has nothing to act on until Mike's names exist.
+- ⚠ **A second step exists, and it is SMALLER AND LESS BLOCKED than this page said.** Measured
+  against the data 2026-09-17, on Mike's question — **5 branches, not 22**, and they name **two
+  documents that already exist in the library** under exactly the titles the prose uses:
+  - **Planning Outcomes Review** — `sp_rec_planning_outcomes`.
+  - **Lite Fundamentals** — `sp_rec_lite_existing_no`, `sp_rec_lite_modified`, `sp_rec_lite_prospect`,
+    `sp_rec_lite_referral`.
+
+  All five are `sp_` (sales-process) branches whose `templates[]` is `undefined`, so the engine —
+  which reads only that array, never the prose — offers nothing while the advisor reads coaching
+  that names the document. 🔴 **This is NOT waiting on Mike's UAT names.** 7.1 is branches naming
+  documents that do not exist; this is the opposite, and nothing needs deciding. **It is still not
+  started**, for one reason: filling the arrays must be watched serving the document on the running
+  app before it is called fixed. No test can prove it — the same blind spot 7.9 was filed under.
+
+  *The "22" came from an AI note of 2026-08-26 and was repeated here unchecked. Of 254
+  recommendation nodes, 61 have no `templates[]`, but most are pure coaching — "Processing Style:
+  Activist" and the like — with no document to attach, and are correct as they stand.*
 - **Related, and the same shape:** *lease vs buy* and *loan estimator* are offered no template at
   all (item 7.9). Material that was never written is not a code defect.
 
