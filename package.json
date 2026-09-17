@@ -19,6 +19,7 @@
     "handbook": "node scripts/build-handbook.js",
     "code-size": "node scripts/count-code.js",
     "to-do": "node scripts/apply-to-do.js",
+    "helps-lines": "node scripts/apply-helps-lines.js",
     "feature": "node scripts/new-feature.js",
     "lint": "eslint --ext .js,.vue .",
     "lint:fix": "eslint --ext .js,.vue . --fix",

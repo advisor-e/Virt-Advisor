@@ -147,10 +147,13 @@ own. It was tickable only on the superseded menu, which read ADV.0 rather than t
 - **"Where To Start??" and its action-to-concept mapping** — withdrawn by Mike, see the box at
   the top of this page.
 - **The ~100 Growth Aspect questions** — his own deferral, already filed as item **15.2**.
-- **Drafting the 18 missing *Helps Your Client To…* lines** — Mike asked for AI drafts on
-  2026-09-17, amending his own Decision B of that morning. Filed as item **15.3**, not
-  started: **a draft must never be storable as though it were his**, and that mechanism is
-  undecided. No line goes into the data until it is.
+- **Drafting the 18 missing *Helps Your Client To…* lines** — this LEFT the removed list on
+  2026-09-17 when Mike asked for AI drafts, amending his own Decision B of that morning.
+  Item **15.3**, drafted and waiting on him. **The principle Decision B protects is honoured
+  structurally rather than by a flag: an unapproved line is never in the data file at all.**
+  All 18 live in [`design/AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md), on no screen;
+  he edits the text, marks a row `yes`, and `npm run helps-lines -- --apply` copies it
+  character for character into the data. It refuses to overwrite a line he already wrote.
 - **Voice recording** — designed by his Decisions 10 and 11, but unbuildable until Meeting
   Review's three non-coding gates clear. It is not a stage anyone can start.
 - **Re-reading the decks to rebuild the concept index** — no request behind it and no accuracy
