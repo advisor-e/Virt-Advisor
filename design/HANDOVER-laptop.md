@@ -9,36 +9,47 @@
 
 ---
 
-## 2026-09-17 · Laptop · branch `feat/advisor-progress`
+## 2026-09-18 · Laptop · branch `feat/advisor-progress`
 
-**Two commits, both pushed** (`efdfd5bc`, `40507a45`). Suite **12,158 green**, lint 0,
-coverage and audit gates passed. Tree clean. **47 ahead of `master`, 0 behind. 15.1 and 7.5
-stay active on this laptop.**
+**Three commits, all pushed.** Suite **12,168 green** (563 suites), lint 0, coverage and
+audit gates passed. Tree clean. **51 ahead of `master`, 0 behind. 15.1 and 7.5 stay active
+on this laptop.**
 
-☑ **STAGES 2 AND 3 BUILT.** Capture reads Mike's own Word/Excel/PowerPoint fill-in workbooks
-(`npm run capture-tables`) — **16 of 52 concepts reach a real table where 2 did**. A concept
-can be **visited twice**: Porter's observations, then his responses against what the client
-actually said. Screen 4 is now the assembled document from his approved drawing.
+☑ **THE CONCEPT REGISTER — Mike's own table, built on his instruction.** All 52 concepts,
+each beside the slide it comes from in his decks, with the page and the response form open
+to correction. [The register](https://claude.ai/artifact/DUzBW3SRo5nFUEWsJqxV9c) · rebuilt with
+`node scripts/build-concept-register.js --images <dir>`
 
-🔴 **OPEN THE APPROVED ARTEFACT BEFORE BUILDING ANYTHING ON THIS FEATURE.** Four of today's
-five rejections came from not doing it: a Porter's diagram invented from scratch when
-`strategy-plan-output.html` p5 has one *drawn at fidelity*; four boxes when
-`strategy-planner.html` screen 2c has five with his own prompts; a sixth box no one asked
-for; and a PDF-reading extractor for content his data already held. **The deck PDFs are NOT
-a source — his decks curve their labels, so machine reading returns fragments.** That reader
-is deleted; do not rebuild it.
+🔴 **WE CAN READ HIS DECKS. PyMuPDF is installed on this machine** and renders any page of
+any deck in `C:\Documents\Visual Code Projects\Strategy Planner`. **Look at the page before
+drawing anything.** The standing note that "the deck PDFs are NOT a source" is about
+machine-reading his *curved text*, and it is still true — it was never a reason not to LOOK.
 
-☐ **NEXT ON 15.1: the advisor cannot name his own steps.** The drawing has him naming five
-and dragging ticked concepts into them (Porter's into two, step 5 empty). Everything scoped
-currently prints in one step.
+☐ **HIS CORRECTIONS ARE IN `design/concept-register-corrections.json`, NOT APPLIED.**
+Seventeen of them, and he stopped partway — Sales & Marketing and Organisational Review are
+untouched. **Ask him before applying any of it; he has not finished deciding.**
 
-⚠ **TWELVE LOCALE LABELS ON THE PLAN DOCUMENT ARE OURS, NOT HIS** — *Session plan*,
-*Discussion points*, *Action points*, *not filled in*. Flagged to him at shutdown, unanswered.
-Two others were **deleted** today on his word: *"What this does in the room"* and *"Who and
-when"*, both AI inventions from the 2026-09-16 build.
+🔴 **PORTER'S IS DRAWN WRONG AND IS STILL WRONG.** Against his own slide (Strategic
+Orientation 2 **p13**): **three of the four forces are in the wrong position** — his order is
+Customers top, Suppliers right, Substitutes bottom, New Entrants left. His ring and his four
+colours are missing, our inward arrows are invented, and two of his bold statements are
+absent. `StrategyTeachingSlide.vue` says the diagram was *"COPIED, NOT REDRAWN"* — it was
+redrawn. **The assembled plan document draws no graphic at all**, where the approved drawing
+puts one on p5. Fixing both is the agreed next step and needs his go-ahead.
 
-**DESKTOP — shared files I changed:** `locales/en.json`, `data/strategy-frameworks.json`
-(Porter's sixth field removed), `server/utils/strategyFrameworks.js` (`hasField` now accepts a
-concept id; a framework prefers its concept's own summary over the material's),
-`server/restify-server.js` (one route mount), `server/routes/strategyPlanner.js`,
-`package.json`. **Nothing in `FirmManagerHub.vue` or anything else 7.2 owns.**
+⚠ **A WHOLE CATEGORY WAS INVISIBLE: response tables drawn ON A SLIDE.** The reader only ever
+opened the workbooks. 34 such pages now found across the 157 deck pages, and 21 concepts carry
+a suggested response page in the register. **8 of the 19 existing pairings name a form the app
+does not hold**, five of them near-misses on a name that was typed rather than picked.
+
+⚠ **THE SCAN TOOLS ARE NOT IN THIS REPOSITORY.** `render-slides.py` and `read-deck-pages.py`
+live in the session scratchpad and need Python, which this project does not otherwise use.
+`build-concept-register.js` is committed and depends on what they produce, so **the register
+rebuilds on this laptop and nowhere else.** Mike ruled 2026-09-18: leave it until the register
+has been worked through, then decide where it lives.
+
+⛔ **The Enneagram employment-questions workbook is NOT coming in — his word, asked directly.**
+Recorded in the Brief. Do not raise it as a gap.
+
+**DESKTOP — shared files I changed:** none. Two new scripts, two records, and the Brief's
+Strategy Planner page. **Nothing in `FirmManagerHub.vue` or anything else 7.2 or 7.9 owns.**
