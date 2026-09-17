@@ -64,6 +64,14 @@ a{color:var(--rs-accent)}
 .ask p{margin:0 0 7px}.ask p:last-child{margin:0}
 .ask .rec{font-weight:600;color:var(--rs-ink)}
 .ask .q{margin-top:9px;padding-top:9px;border-top:1px solid #bcdcf6;font-weight:600}
+/* A ruled decision keeps its recommendation BENEATH the ruling, so a later session
+   can see what was proposed as well as what was decided — the convention set by
+   design/mockups/strategy-planner.html. */
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask.ruled .q{border-top-color:#cbe7d2;font-weight:400;color:var(--rs-muted);font-size:12.5px}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px solid #cbe7d2}
 .mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
   font-size:13px;margin:18px 0}
 .mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
@@ -267,12 +275,20 @@ animals&rdquo; (§4 finding 4), and this screen is where it bites —
   two rows may point at one piece of text, and that is Decision B's second half.</p>
 </div>
 
-<h2>3. The decisions — four open</h2>
+<h2>3. The decisions — 1 ruled, 3 open</h2>
 <p>Each is one recommendation and one question a yes or no answers. Asked one at a
-time in chat; recorded here so the ruling and what was proposed both survive.</p>
+time in chat; recorded here so the ruling and what was proposed both survive — a
+later session can see which way a decision went, and whether it went against the
+recommendation.</p>
 
-<div class="ask">
-  <h3>Decision A — is the menu your own table, or a new screen?</h3>
+<div class="ask ruled">
+  <h3>Decision A — is the menu your own table, or a new screen? — RULED</h3>
+  <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-17. <b>The screen IS his
+  Session Scope table, with the Include column made real.</b> 🔴 The consequence
+  binds the build: same column order, same words, same page numbers, and
+  <b>Concept Summary and Helps Your Client To… are his text, never rewritten,
+  never summarised and never generated</b>. A build that improves the wording has
+  broken this ruling.</p>
   <p>Your Session Scope table already has the exact column a menu needs: <b>Include
   (Yes/No)</b>. Clients read this table in the room today, on paper.</p>
   <p class="rec">Recommendation: the screen IS your table, with the Include column
@@ -280,7 +296,7 @@ time in chat; recorded here so the ruling and what was proposed both survive.</p
   <p>What this rejects, recorded so it is not re-proposed: a card grid or a
   redesigned picker. It would look more like an app and less like the thing the
   advisor and the client are both already holding.</p>
-  <p class="q">Is the menu your own Session Scope table with the Include column made real?</p>
+  <p class="q">Asked as: is the menu your own Session Scope table with the Include column made real?</p>
 </div>
 
 <div class="ask">
