@@ -244,11 +244,7 @@
       },
       "touches": "data/report-model-summaries.json, whose instruction[] block IS the HOW TO USE THIS LIST rules - edit the rules there, not in code; server/utils/reportModels.js formatReportModelsForPrompt, which only renders that block into the 51,072-character prompt and holds no rule text itself; data/prompts/discover.txt STEP 1, which frames the calculator as an optional extra; and whatever measurement proves a change, which has to be live conversations.",
       "note": "🔴 NOT ABSENCE - UNRELIABILITY. The TEMPLATE choice is right every run; the calculator paired with it is what varies. Mike ruled 2026-09-18 that a fitting calculator is ALWAYS offered alongside a template, and the offer rule now names that case - the refusal rule (line 7) is untouched. MEASURED, 6 runs each: Working Capital Cycle 3/6 to 5/6, Sales Dashboard 1/6 to 3/6, links 6/24 to 9/24, substitutions 9 to 6. 8 Levers 0/6 unchanged and NOT a defect. WHAT REMAINS IS THE BUDGET SUBSTITUTION - a separate fault, now item 7.11. Tables in advisory-engine.md P2.",
-      "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings: 'eight never offered' is really three unreliable plus one non-defect, and the budget wording was tested as the cause and DISPROVED - a distinguishing sentence added to High-Level Budget's useWhen made the substitution WORSE (4/6 to 6/6) and was reverted the same hour. Mike's wording is untouched. WHAT REMAINS NEEDS A DECISION FROM HIM, not a bench: when should a calculator accompany a template that already answers the question?",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-17"
-      }
+      "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings, and Mike RULED that a fitting calculator is always offered alongside a template. Built and measured the same day: two of four questions improved, links 6/24 to 9/24. The budget wording was tested as a cause and DISPROVED TWICE - it is now item 7.11. Mike's authored prose is untouched. NO DEFINED NEXT STEP: either machine may take what is left."
     },
     {
       "ref": "7.11",

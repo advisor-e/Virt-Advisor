@@ -9,43 +9,38 @@
 
 ---
 
-## 2026-09-17 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-18 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Three commits, all pushed** (`8760ef96`, `991c7c14`, `679eea18`). Suite **11,928 green**
-(558 suites), lint 0 errors, coverage and audit gates passed. Tree clean. **19 ahead of
-`master`, 0 behind. Twelve live items — 14.3 filed today.**
+**Six commits, all pushed.** Suite **11,938 green** (558 suites), lint clean, coverage and audit
+gates passed. Tree clean. **Thirteen live items — 7.11 filed today.**
 
-**7.9's root cause was NOT what its note said, and the real one was bigger.** SIX model
-names are also template titles, not the three assumed — and **Lease vs Buy**, **High-Level
-Budget** and **Dashboard Reports** differ from the library's own spelling by ONE character
-(a full stop, a hyphen, a plural). `isKnownTemplate` compares exactly, so the 7.7 guard
-flagged **genuine template recommendations as calculators**, telling the AI the advisor
-would find nothing in Advisor-e. It hit **28 of 38** live bench calls. `nearestTemplateTitle`
-now answers it from the catalogue, and `tests/unit/nameCollisions.test.js` **recomputes** the
-set — a seventh collision fails the build rather than being found in conversation.
+🔴 **PR #99 IS OPEN AND THIS BRANCH IS IN IT** — [PR #99](https://github.com/advisor-e/Virt-Advisor/pull/99),
+26 commits. Mike asked why a pull request was not part of every startup; it now is. **`/startup`
+step 6 proposes one at 10+ commits ahead**, mirroring step 5's merge-when-behind, with the
+threshold stated once in `WORKING-AGREEMENT.md` so one number governs both machines. **Your branch
+is 49 ahead — expect that prompt on your next startup.**
 
-**The miscount was itself the fault.** The code header said "two", every later note copied
-it, nobody re-derived it. That is why the fix is a test that computes, not a corrected
-sentence.
+**7.9: Mike ruled a fitting calculator is ALWAYS offered alongside a template.** Built as one
+clause in the instruction block naming the case that was failing — *"INCLUDING WHEN YOU HAVE
+ALREADY RECOMMENDED A TEMPLATE"*. Measured on the running app, 6 runs per model, before and after:
+Working Capital Cycle **3/6 → 5/6**, Sales Dashboard **1/6 → 3/6**, links **6/24 → 9/24**,
+substitutions **9 → 6**. Line 7 (refuse a near-miss) untouched. **7.9's `activeOn` is CLEARED** —
+no defined next step, either machine may take it.
 
-🔴 **READ `CLAUDE.md`'s new diagnostic block before touching this area.** Four verified
-commands to run BEFORE theorising when the AI "can't find" a document or model, plus:
-**`searchWords` never reaches the AI** (Model Guide filter only, item 4.36 — a session got
-this backwards today), and **a bench that omits the template list measures nothing** — it
-leaves the AI inventing names to fill "Best match", and a morning was spent reporting that
-harness artefact as a defect.
+⚠ **I touched `data/report-model-summaries.json` again — one line of `instruction[]`, on Mike's
+approval. It is under your 7.5.** No names, routes or summaries. Expect a possible conflict there
+and keep both sides.
 
-**7.9 is `activeOn` DESKTOP.** Root cause fixed; calculators-not-offered is partly open.
-Measured 12 of 19 reliably offered, 0 invented names. **8 Levers is NOT a defect** — the AI
-finds the template *8 Profit Levers*, answers well, and stops; the machinery is correct.
+🔴 **TWO WORDING FIXES FAILED TODAY AND BOTH ARE RECORDED SO NOBODY RETRIES THEM.** A sentence
+added to High-Level Budget's `useWhen` made the substitution **worse** (4/6 → 6/6) and was reverted
+within the hour. **The budget fault is now item 7.11**, cause recorded: Mid-Level's `answers` opens
+*"the same question as the High-Level Budget, plus the one that usually matters more"*, so the AI
+is told one is strictly better. **That sentence is true and it is Mike's — do not edit it.**
 
-⚠ **LAPTOP — I touched `data/report-model-summaries.json`, which is under your 7.5.** One
-`searchWords` array on 8 Levers only (Mike's own phrase); no names, routes or summaries.
-Expect a possible conflict there and keep both sides.
+**8.1 is down to TWO gates, not three.** Both OpenAI letters were answered and **neither confirmed
+anything**; Mike ruled we have taken all fair and reasonable steps and closed the gate on that
+basis. Replies verbatim in `OPENAI-AUDIO-TERMS-EMAIL.md` §5. **Never call it confirmed.** The
+lawyer's review **no longer waits on anything**.
 
-⚠ **The live Handbook is YOUR working-tree preview** (47 pages, banner: *"a preview, not the
-shared page"*). **Mike ruled it stays** — it shows Strategy Planner, which master has not yet.
-Nothing is at risk; that Brief is committed on your branch. **Filed as item 14.3:** the
-`--working-tree` flag is fine, but nothing stops a preview reaching the shared URL, and the
-guard belongs in the startup publish step. Your branch is current — 43 ahead, note dated
-today, read from the OTHER BRANCHES box.
+**The live Handbook is still your working-tree preview** (47 pages). Mike ruled this morning it
+stays until PR #99 merges, rather than being overwritten twice in two days. Item 14.3 unchanged.
