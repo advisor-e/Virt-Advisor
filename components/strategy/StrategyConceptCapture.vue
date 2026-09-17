@@ -12,21 +12,35 @@ section.scc2
   //- Mike's own, off the deck's Session Scope table. Shown on the FIRST visit only:
   //- by the second the concept has been taught and repeating it pushes the boxes
   //- down the page.
-  section.scc2-concept(v-if="part === 1 && (conceptSummary || helpsClientTo)")
+  section.scc2-concept(v-if="part === 1 && (conceptSummary || helpsClientTo || slide)")
     //- ⚠ NO HEADINGS. Removed on Mike's instruction, 2026-09-17 — "What this does
     //- in the room" was written by an AI session and he had never seen it.
+    //- 🔴 HIS OWN SLIDE, not a drawing of it — his ruling of 2026-09-18.
+    figure.scc2-slide(v-if="slide")
+      img.scc2-img(:src="slide" :alt="name")
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
     p.scc2-concept-text(v-if="helpsClientTo") {{ helpsClientTo }}
-    //- Only when the concept really has no slide. It said this even after the
+    //- Only when the concept really has no slide — which now means no page of its
+    //- own in the deck, not "nobody has drawn it yet". It said this even after the
     //- diagram had just been shown, which is a screen contradicting itself in
     //- front of a client.
-    p.scc2-teaching(v-if="teachingForm") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
+    p.scc2-teaching(v-if="teachingForm && !slide") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
+
+  //- The page his client writes on, where the deck holds the table instead of a
+  //- workbook. No caption: the slide carries its own title in his words.
+  figure.scc2-response(v-if="responseSlide")
+    img.scc2-img(:src="responseSlide" :alt="name")
 
   //- 🔴 A CONCEPT WITH NO TABLE SAYS SO RATHER THAN SHOWING AN EMPTY ONE. Nothing
   //- is borrowed from another concept: a table an advisor puts in front of a client
   //- has to be the table Mike wrote.
+  //- ⚠ AND IT STOPS SAYING SO ONCE HIS RESPONSE PAGE IS ON SCREEN. Found by opening
+  //- the screen, 2026-09-18: (Our) Revenue Streams was displayed, with "there is no
+  //- fill-in table for this concept yet" printed directly beneath it. Both sentences
+  //- were true of different things — no WORKBOOK table, his own table right there —
+  //- and to an advisor with a client watching the screen simply contradicted itself.
   b-notification.scc2-none(
-    v-if="!capture.supplied"
+    v-if="!capture.supplied && !responseSlide"
     type="is-light"
     :closable="false"
   )
@@ -146,6 +160,21 @@ export default {
      * Named in the data; nothing draws one yet, so the card says so.
      */
     teachingForm: {
+      type: String,
+      default: ''
+    },
+
+    /**
+     * Mike's own slide for this concept, from `static/planning-slides/`. Empty
+     * where the deck gives the concept no page of its own.
+     */
+    slide: {
+      type: String,
+      default: ''
+    },
+
+    /** The deck page his client writes on, where there is one instead of a workbook. */
+    responseSlide: {
       type: String,
       default: ''
     },
@@ -424,6 +453,16 @@ export default {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #5b6f8a;
+}
+
+.scc2-slide { margin: 0 0 0.8rem; }
+.scc2-response { margin: 0 0 1rem; }
+.scc2-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #d5e1ee;
+  border-radius: 8px;
 }
 
 .scc2-concept-text {

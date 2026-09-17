@@ -362,3 +362,59 @@ describe('a malformed concept fails at load, not in a client meeting', () => {
       .toThrow(/no name/)
   })
 })
+
+describe('a concept carries Mike\'s own slide, or none at all', () => {
+  // Mike's ruling, 2026-09-18: *"continue the build - using the graphics and tables you
+  // now have."* The teaching graphic is his slide, rendered from his deck, not a drawing
+  // of it — after a hand-drawn Porter's put three of its four forces in the wrong place
+  // while a code comment claimed it had been copied.
+  //
+  // WHAT THIS CATCHES THAT UAT CANNOT. A wrong slide is still a slide. It renders, it is
+  // his artwork, it carries his branding — and a person reviewing the screen has no way to
+  // know the concept is showing the deck's AGENDA rather than its own page. The 18 concepts
+  // listed only on an agenda all inherited page 2 from it, so getting this wrong would put
+  // the same contents slide behind nine different concepts of Organisational Review and
+  // look entirely plausible in every one.
+  const good = {
+    id: 'x',
+    name: 'X',
+    planningDomain: 'strategic-orientation',
+    deck: 'strategic-orientation-2',
+    page: 13,
+    source: 'session-scope-table',
+    captureFormBasis: 'unmeasured'
+  }
+  const known = new Set(['x'])
+
+  it('names the page it is taught on', () => {
+    expect(frameworks.buildConcept(good, known).slide)
+      .toBe('/planning-slides/strategic-orientation-2-p13.jpg')
+  })
+
+  it('gives an agenda-only concept NO slide, rather than the agenda it was listed on', () => {
+    const agenda = Object.assign({}, good, { source: 'agenda', page: 2 })
+    expect(frameworks.buildConcept(agenda, known).slide).toBeNull()
+  })
+
+  it('carries the response page separately, where the deck holds the table', () => {
+    const withResponse = Object.assign({}, good, { page: 22, responsePage: 24 })
+    const built = frameworks.buildConcept(withResponse, known)
+    expect(built.slide).toBe('/planning-slides/strategic-orientation-2-p22.jpg')
+    expect(built.responseSlide).toBe('/planning-slides/strategic-orientation-2-p24.jpg')
+  })
+
+  it('rejects a response page that is not a page', () => {
+    expect(() => frameworks.buildConcept(
+      Object.assign({}, good, { responsePage: 0 }), known)).toThrow(/responsePage/)
+  })
+
+  it('pairs both Integration concepts to the one table Mike named', () => {
+    // His own words on the register, 2026-09-18: "you are missing the vertical and
+    // horizontal integration tasks page". One page answers both concepts, and that is
+    // correct rather than a clash.
+    const vertical = frameworks.getConcept('vertical-integration')
+    const horizontal = frameworks.getConcept('horizontal-integration')
+    expect(vertical.responseSlide).toBe('/planning-slides/strategic-orientation-2-p24.jpg')
+    expect(horizontal.responseSlide).toBe(vertical.responseSlide)
+  })
+})

@@ -19,6 +19,7 @@
   template(v-if="showTeaching")
     strategy-teaching-slide(
       :name="framework.name"
+      :slide="framework.slide"
       :shape="framework.shape"
       :subtitle="framework.captureInstruction"
       :concept-summary="framework.conceptSummary"
@@ -37,8 +38,18 @@
     //- ⚠ NO HEADINGS. "What this does in the room" and "Who and when" were written
     //- by an AI session in the 2026-09-16 build and Mike had never seen either.
     //- Removed on his instruction, 2026-09-17. What is left is his own sentence.
-    aside.scc-concept(v-if="showsConcept && framework.conceptSummary")
-      p.scc-concept-text {{ framework.conceptSummary }}
+    //- 🔴 AND HIS RESPONSE PAGE BESIDE THE BOXES, where the deck has one. Several
+    //- concepts are written up on a slide rather than in a workbook — the Vertical
+    //- & Horizontal Integration Tasks table, (Our) Revenue Streams, (Our) Volatility
+    //- Graph Observations — and the app could not see any of them, because the
+    //- template reader only ever opened the workbooks. Mike named four of them on
+    //- 2026-09-18 while working through the Concept Register.
+    //- ⚠ NO CAPTION. The slide carries its own title in his words; a label over it
+    //- would be ours.
+    aside.scc-concept(v-if="showsConcept && (framework.conceptSummary || framework.responseSlide)")
+      p.scc-concept-text(v-if="framework.conceptSummary") {{ framework.conceptSummary }}
+      figure.scc-response(v-if="framework.responseSlide")
+        img.scc-response-img(:src="framework.responseSlide" :alt="framework.name")
 
     //- A TABLE SHAPE — the Action Plan. Same fields underneath, laid out in rows.
     .scc-capture.is-actions(v-if="framework.shape === 'actions'")
@@ -331,6 +342,15 @@ export default {
 }
 .scc-concept-head:first-child { margin-top: 0; }
 .scc-concept-text { font-size: 0.8rem; margin: 0; color: #002b64; }
+
+.scc-response { margin: 0.6rem 0 0; }
+.scc-response-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #d5e1ee;
+  border-radius: 6px;
+}
 
 /* ── the three shapes ──────────────────────────────────────────────────────
    A shape is a grid rule. That is the whole of Decision 3 on this side. */

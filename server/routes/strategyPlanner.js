@@ -194,6 +194,12 @@ async function getConceptCapture (req, res) {
       helpsClientTo: concept.helpsClientTo || '',
       teachingForm: concept.teachingForm || '',
       deckPage: concept.page || null,
+      // 🔴 AND IT TRAVELS WITH MIKE'S OWN SLIDE. His ruling, 2026-09-18 — the
+      // concept is shown as it appears in his deck rather than redrawn. `slide`
+      // is the page that teaches it; `responseSlide` is the page his client
+      // writes on, where the deck has one instead of a workbook.
+      slide: concept.slide || null,
+      responseSlide: concept.responseSlide || null,
       capture: captureForms.captureForConcept(concept),
       timestamp: new Date().toISOString()
     })

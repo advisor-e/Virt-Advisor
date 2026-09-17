@@ -29,7 +29,9 @@
 >   drawn 2026-09-17, the output this redirection asks for. **All 31 pages of `Pivot.pdf`
 >   reproduced**, each block carrying the Pivot page it answers, so the acceptance test runs
 >   against the drawing rather than after a build. Its §5 states what it does *not* ask approval
->   for — chiefly how each of the 21 teaching forms is drawn, which stays open.
+>   for — chiefly how each of the 21 teaching forms is drawn. ☑ **That is no longer open, and the
+>   answer was not to draw them:** Mike's ruling of 2026-09-18 shows his own slide instead. §0
+>   stage 4.
 >   - ☑ **"Deck or web page" — ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
@@ -115,9 +117,18 @@ steps — waits on the open decision in *What gates what* below.
 
 ### Then — making it right rather than making it work
 
+🔴 **DO NOT REDRAW A CONCEPT. EVER.** The hand-drawn Porter's hub that stood here until
+2026-09-18 carried a comment saying it was Mike's approved drawing *"COPIED, NOT REDRAWN"*. It was
+redrawn, and against his actual slide — Strategic Orientation 2 **p13** — **three of the four
+forces were in the wrong position**: his are Customers top, Suppliers right, Substitutes bottom,
+New Entrants left. His ring and his four colours were gone, the inward arrows were invented, and
+two of his bold statements were missing. **Every gate passed the whole time**, because a gate
+compares code to a note and nothing compared the build to the slide. If a graphic looks wrong now,
+open his deck, look at the page, and correct the page number in the data.
+
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
-| **4** | **21 teaching forms** — every concept drawn as the slide draws it | *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides."* **Nothing else in this list serves that sentence.** | Pivot is **12 teaching slides to 9 capture slides** — mostly teaching. A plan of blank tables is not a plan an advisor can present. ⚠ The largest stage here: 21 forms, none drawn. |
+| **4** | ☑ **BUILT 2026-09-18 — and it is NOT 21 drawings. It is his slides.** `scripts/render-deck-slides.py` renders the pages the data asks for into `static/planning-slides/`; `slidePath()` in `strategyFrameworks.js` puts each concept's own page on the concept, and the response page beside it. **The hand-drawn Porter's hub is deleted.** | *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides."* · *"continue the build - using the graphics and tables you now have"* (2026-09-18) | 🔴 **The most faithful way to show a concept as it appears in his slides is to show his slide.** Measured before the work: concepts whose graphic matches his page went from **0 of 52** — the only one drawn was wrong — to **34 of 52**, every concept with a page we trust. The client's plan document went from **no drawing on any page** to one per teaching page. **21 hand-drawings became a rendering job**, after the one that was drawn by hand put three of its four forces in the wrong place. |
 | **5** | **9 capture forms** — every table the table his template actually is | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
 | **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |

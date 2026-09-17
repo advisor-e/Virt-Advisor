@@ -31,9 +31,16 @@ article.spd
     //- filled in, not taught, and printing a page with nothing but its title on it
     //- puts a blank slide in the middle of a document a client is shown.
     template(v-for="item in step.items")
-      section.spd-page.is-teach(v-if="item.summary || item.prompts.length" :key="'t' + i + item.key")
+      section.spd-page.is-teach(v-if="item.slide || item.summary || item.prompts.length" :key="'t' + i + item.key")
         p.spd-kind {{ $t('strategyPlanner.plan.teach') }}
         h3.spd-h {{ item.name }}
+        //- 🔴 MIKE'S OWN SLIDE ON THE PAGE. The approved drawing
+        //- (`design/mockups/strategy-plan-output.html` p5) puts the graphic here and
+        //- marks it "drawn at fidelity"; the build shipped with NO DRAWING AT ALL on
+        //- any page of the document a client is handed. His ruling, 2026-09-18:
+        //- use the graphics we now have.
+        figure.spd-figure(v-if="item.slide")
+          img.spd-img(:src="item.slide" :alt="item.name")
         p.spd-lead(v-if="item.summary") {{ item.summary }}
         ul.spd-prompts(v-if="item.prompts.length")
           li(v-for="p in item.prompts" :key="p.key")
@@ -50,6 +57,11 @@ article.spd
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
+        //- His own response page, where the deck holds the table rather than a
+        //- workbook — the Integration Tasks table, (Our) Revenue Streams, (Our)
+        //- Volatility Graph Observations. The client sees the page they filled in.
+        figure.spd-figure(v-if="item.responseSlide")
+          img.spd-img(:src="item.responseSlide" :alt="item.name")
         //- 🔴 A TABLE NOBODY TOUCHED IS ONE SENTENCE, NOT TWO DOZEN EMPTY ROWS. The
         //- Action Plan alone is 24 boxes; printed blank they fill a page and say
         //- nothing. Mike's rule, 2026-09-17: "how could anyone gain value from
@@ -173,6 +185,25 @@ export default {
   font-weight: 700;
   color: #002b64;
   margin: 0 0 10px;
+}
+
+/* The page is a 16:9 frame, so the slide inside it is bounded by height as well
+   as width — a tall image would otherwise push the text off the page. */
+.spd-figure {
+  margin: 0 0 0.6rem;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.spd-img {
+  display: block;
+  max-width: 100%;
+  max-height: 58%;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid #d5e1ee;
+  border-radius: 6px;
 }
 
 .spd-lead {

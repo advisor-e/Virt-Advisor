@@ -533,6 +533,7 @@
       "teachingForm": "vertical-chain",
       "captureForm": null,
       "captureTemplate": null,
+      "responsePage": 24,
       "captureFormBasis": "unmeasured"
     },
     {
@@ -547,6 +548,7 @@
       "teachingForm": "above-below-line",
       "captureForm": null,
       "captureTemplate": null,
+      "responsePage": 24,
       "captureFormBasis": "unmeasured"
     },
     {
@@ -645,6 +647,7 @@
       "teachingForm": "upstream-core-downstream",
       "captureForm": null,
       "captureTemplate": null,
+      "responsePage": 34,
       "captureFormBasis": "unmeasured"
     },
     {
@@ -673,6 +676,7 @@
       "teachingForm": "live-data-chart",
       "captureForm": null,
       "captureTemplate": null,
+      "responsePage": 37,
       "captureFormBasis": "unmeasured"
     },
     {
@@ -701,6 +705,7 @@
       "teachingForm": "equation",
       "captureForm": "banded-grid",
       "captureTemplate": "Profit Levers",
+      "responsePage": 41,
       "captureFormBasis": "measured"
     },
     {

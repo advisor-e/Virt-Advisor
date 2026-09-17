@@ -425,6 +425,10 @@ function buildConcept (raw, knownIds) {
     throw fail('BAD_CONCEPT', 'Concept "' + id +
       '" is marked measured but names no capture form and template.')
   }
+  if (raw.responsePage !== undefined &&
+    (!Number.isInteger(raw.responsePage) || raw.responsePage < 1)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" has an unusable responsePage.')
+  }
   if (raw.captureFormBasis === 'unmeasured' && raw.captureForm) {
     throw fail('BAD_CONCEPT', 'Concept "' + id + '" carries a capture form while marked ' +
       'unmeasured. Choosing one is a design decision — census §4 — not a data edit.')
@@ -460,8 +464,33 @@ function buildConcept (raw, knownIds) {
     teachingForm: raw.teachingForm || null,
     captureForm: raw.captureForm || null,
     captureTemplate: raw.captureTemplate || null,
-    captureFormBasis: raw.captureFormBasis
+    captureFormBasis: raw.captureFormBasis,
+    responsePage: raw.responsePage || null,
+    slide: slidePath(raw.deck, raw.source === 'agenda' ? null : raw.page),
+    responseSlide: slidePath(raw.deck, raw.responsePage)
   }
+}
+
+/**
+ * Where the app serves one of Mike's own slides from.
+ *
+ * 🔴 THE SLIDE IS THE TEACHING GRAPHIC — Mike's ruling, 2026-09-18. His decks are
+ * rendered by `scripts/render-deck-slides.py` into `static/planning-slides/` and
+ * shown as they are, rather than redrawn. Redrawing is what put three of Porter's
+ * four forces in the wrong position while a code comment claimed the diagram had
+ * been copied.
+ *
+ * A concept listed only on an agenda slide has no page of its own, so it gets no
+ * image: the agenda would be a picture of the wrong thing, which is worse than
+ * no picture at all.
+ *
+ * @param {string} deck  the deck id
+ * @param {number|null} page  the page, or null where there is none to trust
+ * @returns {string|null} a path under `static/`, or null
+ */
+function slidePath (deck, page) {
+  if (!deck || !Number.isInteger(page) || page < 1) { return null }
+  return '/planning-slides/' + deck + '-p' + String(page).padStart(2, '0') + '.jpg'
 }
 
 const CONCEPT_IDS = new Set(RAW_CONCEPTS.map(c => String((c && c.id) || '')))
@@ -728,6 +757,11 @@ function cloneFramework (f) {
     // module load, before CONCEPTS exists — doing it there threw on require and
     // took the whole backend down with it.
     conceptSummary: conceptSummaryFor(f.conceptId) || f.conceptSummary,
+    // Mike's own slide, and the page his client writes on. Resolved here for the
+    // same reason as the line above — CONCEPTS does not exist when FRAMEWORKS is
+    // built. A framework with no concept behind it has neither.
+    slide: (CONCEPT_BY_ID[f.conceptId] || {}).slide || null,
+    responseSlide: (CONCEPT_BY_ID[f.conceptId] || {}).responseSlide || null,
     planningDomains: f.planningDomains.slice(),
     fields: f.fields.map(x => Object.assign({}, x, {
       options: x.options ? x.options.slice() : null

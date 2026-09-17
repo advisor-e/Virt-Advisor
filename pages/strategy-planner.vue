@@ -73,6 +73,8 @@
       :concept-summary="visit.conceptSummary"
       :helps-client-to="visit.helpsClientTo"
       :teaching-form="visit.teachingForm"
+      :slide="visit.slide"
+      :response-slide="visit.responseSlide"
       :instruction="visitInstruction(visit)"
       :entries="entriesFor(visit.conceptId)"
       :eyebrow="visitEyebrow(index)"
@@ -260,6 +262,8 @@ export default {
             conceptSummary: loaded.conceptSummary || '',
             helpsClientTo: loaded.helpsClientTo || '',
             teachingForm: loaded.teachingForm || '',
+            slide: loaded.slide || '',
+            responseSlide: loaded.responseSlide || '',
             part,
             capture: loaded.capture
           })
@@ -356,6 +360,8 @@ export default {
           key: 'fw-' + f.id,
           name: f.name,
           summary: f.conceptSummary || '',
+          slide: f.slide || '',
+          responseSlide: f.responseSlide || '',
           instruction: f.captureInstruction || '',
           prompts: f.fields
             .filter(x => x.prompt)
@@ -368,10 +374,18 @@ export default {
         })
       })
 
-      // Then every concept captured through its own fill-in table.
+      // Then every concept captured through its own fill-in table — and every
+      // concept whose response is a PAGE OF THE DECK rather than a workbook.
+      //
+      // ⚠ THE SECOND HALF WAS MISSING AND IT DROPPED THE CONCEPT ALTOGETHER. This
+      // read `if (!capture.supplied) return`, which was right while a workbook was
+      // the only way to answer anything. Vertical Integration and Revenue Streams
+      // have no workbook, so the client's plan omitted them entirely — even though
+      // his own response page was on the advisor's screen a moment earlier. Found
+      // by walking the four screens, 2026-09-18; no test saw it.
       this.conceptVisits.forEach((visit) => {
         const capture = visit.capture || {}
-        if (!capture.supplied) { return }
+        if (!capture.supplied && !visit.slide && !visit.responseSlide) { return }
         const wanted = {}
         const part = (capture.parts || [])[visit.part - 1]
         if (part) { part.fieldKeys.forEach((k) => { wanted[k] = true }) }
@@ -379,6 +393,11 @@ export default {
           key: visit.key,
           name: visit.name + (capture.parts && capture.parts.length > 1 ? ' (' + visit.part + ')' : ''),
           summary: visit.conceptSummary || '',
+          // The teaching slide belongs to the FIRST visit. By the second the
+          // concept has been taught, and the page the client writes on is what
+          // matters — Porter's observations, then his responses.
+          slide: visit.part === 1 ? (visit.slide || '') : '',
+          responseSlide: visit.responseSlide || '',
           instruction: this.visitInstruction(visit),
           prompts: [],
           lines: (capture.fields || [])
@@ -396,6 +415,10 @@ export default {
         key: 'close-' + f.id,
         name: f.name,
         summary: '',
+        // Closing frameworks are filled in, not taught — they get no teaching
+        // page, so they get no teaching slide either.
+        slide: '',
+        responseSlide: f.responseSlide || '',
         instruction: f.captureInstruction || '',
         prompts: [],
         lines: f.fields.map(x => ({
@@ -510,6 +533,13 @@ export default {
           conceptSummary: b.conceptSummary,
           helpsClientTo: b.helpsClientTo,
           teachingForm: b.teachingForm,
+          // ⚠ THIS OBJECT IS A HAND-COPIED SUBSET, so a field added to the route
+          // reaches the screen only if it is named here too. Both of these were
+          // served, proxied and ignored for exactly that reason — the concept
+          // showed "the diagram is not on this screen yet" with the slide sitting
+          // in the response behind it.
+          slide: b.slide,
+          responseSlide: b.responseSlide,
           capture: b.capture
         })
       })

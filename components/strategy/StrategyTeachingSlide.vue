@@ -4,48 +4,24 @@ section.sts
   //- name and its capture instruction; printing them again put the same two lines
   //- on screen twice, one under the other.
 
-  //- 🔴 THE DIAGRAM IS MIKE'S APPROVED DRAWING, COPIED, NOT REDRAWN.
-  //- `design/mockups/strategy-plan-output.html` p5, marked "drawn at fidelity" and
-  //- approved 2026-09-17: Existing Rivalry in the centre, New Entrants above,
-  //- Substitutes below, Suppliers left, Customers right.
+  //- 🔴 THE GRAPHIC IS MIKE'S OWN SLIDE. Not a drawing of it — the slide itself,
+  //- rendered from his deck by `scripts/render-deck-slides.py`. His ruling,
+  //- 2026-09-18: *"continue the build - using the graphics and tables you now
+  //- have."*
   //-
-  //- ⚠ AND IT IS NOT DERIVED FROM ANYTHING. An earlier build read the force names
-  //- out of the deck's PDF, where they are drawn curved around the ring and so come
-  //- back in fragments — "Existing", "Rivalry", "New", "Entrants" — and then tried
-  //- to stitch them together again. Mike, 2026-09-17: *"who told you to split
-  //- existing rivalry and new entrants?"* Nobody did. They were never split in what
-  //- he gave us. Take the names from here and from `data/strategy-frameworks.json`,
-  //- never from the file.
-  .sts-hub(v-if="shape === 'forces'")
-    svg.sts-svg(viewBox="0 0 520 380" role="img" aria-label="Porter's five forces pressing on a central rivalry hub")
-      defs
-        marker#stsArrow(markerWidth="9" markerHeight="9" refX="7.2" refY="3" orient="auto")
-          path(d="M0 0 L7 3 L0 6 z" fill="#5b8fc7")
-
-      //- The four pressures press INWARD on the centre. That is the model: the
-      //- arrows are the meaning, not decoration.
-      g(stroke="#5b8fc7" stroke-width="2.4" fill="none" marker-end="url(#stsArrow)")
-        line(x1="260" y1="92" x2="260" y2="128")
-        line(x1="260" y1="288" x2="260" y2="252")
-        line(x1="150" y1="190" x2="186" y2="190")
-        line(x1="370" y1="190" x2="334" y2="190")
-
-      circle(cx="260" cy="190" r="62" fill="#002b64")
-      text(x="260" y="184" fill="#ffffff" font-size="17" font-weight="700" text-anchor="middle") Existing
-      text(x="260" y="206" fill="#ffffff" font-size="17" font-weight="700" text-anchor="middle") Rivalry
-
-      g(v-for="f in ring" :key="f.label")
-        circle(:cx="f.cx" :cy="f.cy" r="46" fill="#e6f2fb" stroke="#0070c0" stroke-width="2")
-        text(
-          v-for="(word, i) in f.words"
-          :key="word"
-          :x="f.cx"
-          :y="f.cy + 5 + (i - (f.words.length - 1) / 2) * 16"
-          fill="#002b64"
-          font-size="14"
-          font-weight="600"
-          text-anchor="middle"
-        ) {{ word }}
+  //- ⚠ WHAT THIS REPLACED, AND WHY IT HAD TO. This was a hand-drawn Porter's hub
+  //- carrying a comment that said it was his approved drawing COPIED, NOT REDRAWN.
+  //- It was redrawn, and against his actual slide — Strategic Orientation 2 p13 —
+  //- THREE OF THE FOUR FORCES WERE IN THE WRONG POSITION: his are Customers top,
+  //- Suppliers right, Substitutes bottom, New Entrants left. His ring and his four
+  //- colours were missing, the inward arrows were invented, and two of his bold
+  //- statements were absent. Every gate passed the whole time, because a gate
+  //- compares code to a note and nothing compared the build to the slide.
+  //-
+  //- 🔴 SO DO NOT REDRAW A CONCEPT, EVER. If a slide looks wrong, the answer is to
+  //- open his deck and look, then fix the page number in the data.
+  figure.sts-slide(v-if="slide")
+    img.sts-img(:src="slide" :alt="name")
 
   //- What the concept does, in Mike's own words from the deck's Session Scope
   //- table — the same two lines the menu screen shows before it is ticked.
@@ -86,8 +62,19 @@ export default {
   name: 'StrategyTeachingSlide',
 
   props: {
-    /** The framework's shape — `forces` is the only one with a drawing so far. */
-    shape: {
+    /**
+     * Mike's own slide for this concept, served from `static/planning-slides/`.
+     * Empty where the concept has no page we trust — a concept listed only on a
+     * deck's agenda has none, and showing it the agenda would be a picture of the
+     * wrong thing.
+     */
+    slide: {
+      type: String,
+      default: ''
+    },
+
+    /** The concept's name, which is the image's alt text. */
+    name: {
       type: String,
       default: ''
     },
@@ -116,25 +103,6 @@ export default {
 
   computed: {
     /**
-     * The four pressures around the hub, with their positions.
-     *
-     * 🔴 THE FIVE NAMES ARE MIKE'S AND ARE NOT DERIVED FROM ANYTHING. They are the
-     * five forces as his own material names them — four around the ring, Existing
-     * Rivalry at the centre. Never read them out of the deck PDF: it draws them
-     * curved, so they come back in fragments.
-     *
-     * @returns {Array<{label: string, words: string[], cx: number, cy: number}>}
-     */
-    ring () {
-      return [
-        { label: 'New Entrants', words: ['New', 'Entrants'], cx: 260, cy: 46 },
-        { label: 'Substitutes', words: ['Substitutes'], cx: 260, cy: 334 },
-        { label: 'Suppliers', words: ['Suppliers'], cx: 104, cy: 190 },
-        { label: 'Customers', words: ['Customers'], cx: 416, cy: 190 }
-      ]
-    },
-
-    /**
      * The prompts to speak to. Only fields that actually carry one; a box with no
      * prompt has nothing to say before it is filled in.
      * @returns {Array<{key: string, label: string, prompt: string}>}
@@ -154,16 +122,21 @@ export default {
   padding: 18px;
 }
 
-.sts-hub {
+.sts-slide {
   margin: 4px 0 6px;
 }
 
-.sts-svg {
+/* His slides are 16:9. The frame keeps that ratio so the page does not jump
+   while the image loads, and the border is the slide's own edge rather than a
+   card around it. */
+.sts-img {
   width: 100%;
-  max-width: 560px;
+  max-width: 100%;
   height: auto;
   display: block;
   margin: 0 auto;
+  border: 1px solid #d5e1ee;
+  border-radius: 8px;
 }
 
 .sts-concept {
