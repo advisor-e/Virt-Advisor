@@ -116,7 +116,35 @@ claim that those two questions have "no template either" is false.
 and the models heading.** The numbers are meaningless otherwise, and wrong in the direction
 that invents work.
 
-### What the corrected bench measured — 2026-09-17, 19 models × 2 runs
+### 🔴 2026-09-18 — six runs per model, on the RUNNING APP, and it overturned the reading below
+
+**The four "never offered" are not never. Three are UNRELIABLE and one is not a defect.** Measured
+through the real `/api/advisor/query` rather than a rebuilt context, six runs each, after asserting
+the models block (51,357 chars) and the template pre-filter both reach the AI:
+
+| Model | Before | After the rule change | What it was |
+| --- | --- | --- | --- |
+| Working Capital Cycle | 3/6 | **5/6** | the calculator dropped after a correct template |
+| Sales Dashboard | 1/6 (named 6/6) | **3/6** (named 6/6) | same — named in prose, no page path |
+| High-Level Budget | 2/6 | **1/6** | 🔴 a DIFFERENT fault — `/mid-level-budget` offered instead, 4/6 then 5/6 |
+| 8 Levers Model | 0/6 | 0/6 | **not a defect** — the AI answers with the template *8 Profit Levers* and stops |
+
+**The change:** the instruction block's offer rule now names the case that was failing — *"IF A MODEL
+ANSWERS THE QUESTION, NAMING IT IS NOT OPTIONAL — INCLUDING WHEN YOU HAVE ALREADY RECOMMENDED A
+TEMPLATE."* Every one of the 24 runs recommended a template correctly and then dropped the
+calculator; the refusal rule shouted in capitals while the offer rule whispered. Line 7 is
+**untouched** — a near-miss is still forbidden outright. Pinned in `reportModelSummaries.test.js`.
+
+Across the four: calculator links **6/24 → 9/24**, wrong-tool substitutions **9 → 6**.
+
+⚠ **THE BUDGET SUBSTITUTION IS A SEPARATE DEFECT AND WORDING DOES NOT FIX IT.** Proved twice on
+2026-09-18. A distinguishing sentence added to High-Level Budget's own `useWhen` made it **worse**
+(4/6 → 6/6) and was reverted the same hour: naming the competing model in the entry simply put it
+in front of the AI twice as often. The offer rule then moved it the wrong way too. The AI does not
+*forget* this calculator — it reaches for the wrong size of budget. Mike's authored prose is
+untouched and must not be edited to chase this.
+
+### What the earlier bench measured — 2026-09-17, 19 models × 2 runs
 
 **12 of 19 reliably offered** (an openable page path on every run), 3 sometimes, 4 never. **No
 invented template names.** The heading retry fired on 28 of 38 calls, so the AI names a model

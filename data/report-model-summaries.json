@@ -74,7 +74,7 @@
     "These are the calculation models built into this app. Each one has a working page an advisor can open.",
     "",
     "HOW TO USE THIS LIST:",
-    "- Mention a model when it directly answers the client situation being discussed - and when one does, mentioning it is expected, not optional. It is a tool, not a recommendation to make for its own sake; equally, a model that genuinely answers the question is part of a complete answer, and withholding it helps nobody. The test is fit, in both directions: do not stretch to one that nearly fits, and do not hold back one that does.",
+    "- IF A MODEL ANSWERS THE QUESTION, NAMING IT IS NOT OPTIONAL — INCLUDING WHEN YOU HAVE ALREADY RECOMMENDED A TEMPLATE. A template and a model are different things and the advisor is entitled to both: the template is the document they work through with the client, the model is the page that does the sums. Recommending the template is not a reason to leave the model out, and it is the most common way one gets dropped. The test is fit, in both directions: do not stretch to one that nearly fits, and do not hold back one that does.",
     "- When you do, give its exact page path from this list so the advisor can open it.",
     "- NEVER name a model that is not in this list, and never invent a page path.",
     "- WHAT A MODEL IS, SO YOU CAN TELL ONE FROM A TEMPLATE. A model has a series of variable input cells and a collection of sequential calculations that arrive at a report — in this list, that is what \"The advisor must be able to supply\" and \"Key calculation output\" describe. If something does not show both, it is NOT a model. Do not call it one. Templates are not models: they have no inputs, no calculation and no page.",

@@ -408,7 +408,13 @@ describe('the AI is INVITED to use the list, not merely given it — item 4.32',
     expect(discover).toMatch(/a normal part of a good answer, not a rare extra/)
 
     const instruction = require('../../data/report-model-summaries.json').instruction.join('\n')
-    expect(instruction).toMatch(/mentioning it is expected, not optional/)
+    expect(instruction).toMatch(/NAMING IT IS NOT OPTIONAL/)
+    // 🔴 The clause that carries the 2026-09-18 measurement, and the reason this line is
+    // pinned rather than left to read well: every one of the 24 bench runs recommended a
+    // TEMPLATE correctly and then dropped the calculator. Naming that case explicitly took
+    // Working Capital Cycle 3/6 → 5/6 and Sales Dashboard 1/6 → 3/6. Lose this clause and
+    // the rule reverts to the general exhortation that was already being half-obeyed.
+    expect(instruction).toMatch(/INCLUDING WHEN YOU HAVE ALREADY RECOMMENDED A TEMPLATE/)
     // The other direction is untouched: offering a near-miss is still forbidden outright.
     expect(instruction).toMatch(/never offer the closest one instead/)
   })
