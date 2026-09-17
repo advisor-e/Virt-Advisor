@@ -1,12 +1,28 @@
 # Letters to OpenAI — written confirmation that the terms cover submitted audio
 
-> **BOTH SENT 2026-09-12. Awaiting a written reply.** Two went out the same day, because the first
-> reached a desk with no authority to answer it.
+> ## 🔴 BOTH ROUTES ANSWERED, NEITHER CONFIRMED ANYTHING — AND MIKE CLOSED THIS GATE ON 2026-09-18
 >
-> | | Sent to | State |
+> **Not one of the five questions was answered.** Both replies are quoted verbatim in §5. Mike's
+> ruling, 2026-09-18: *"We have taken all fair and reasonable steps to comply — you will NEVER get a
+> single person to 'sign-off' on this within OpenAI and as an organisation they are extremely
+> difficult to navigate."*
+>
+> **THE GATE CLOSES ON THAT RULING, NOT ON A CONFIRMATION, AND THE DIFFERENCE IS THE WHOLE POINT.**
+> What this organisation relies on is: **OpenAI's published DPA and data-controls pages, plus two
+> documented attempts through both nominated channels that produced no specific answer.** That is a
+> defensible basis and it is the one most organisations end up on. It is **not** a bespoke written
+> confirmation that the terms cover audio, and nothing in this repository may imply that it is.
+>
+> | | Sent to | What came back |
 > |---|---|---|
-> | **§2 · The sales enquiry** | `openai.com/contact-sales` — the form, in two steps | **The live one.** Submitted by Mike; awaiting a human |
-> | **§3 · The first letter** | `privacy@openai.com` | Auto-acknowledged within the hour with ChatGPT account-data links. Unanswered |
+> | **§2 · The sales enquiry** | `openai.com/contact-sales` — the form, in two steps | **A qualification script** (§5.2): what projects, what timelines, what budget, book a call. No answer to any question asked |
+> | **§3 · The first letter** | `privacy@openai.com` | **A support deflection** (§5.1): two public URLs, and the five questions returned as *"require confirmation based on the applicable API endpoint and your organization's data-control configuration"* |
+>
+> ⚠ **THE ONE SUBSTANTIVE SENTENCE IN EITHER REPLY IS A WARNING, AND IT IS ON FILE.** OpenAI Support
+> wrote: *"rather than assuming that requirements for other API data types apply identically to
+> audio."* They are declining to confirm that the general API terms extend to audio — which is the
+> assumption the spoken consent wording rests on. It is recorded here because a later reader must
+> meet it, not discover it.
 >
 > 🔴 **THE ROUTE IS THE FINDING, AND IT SAVES THE NEXT ASK A DAY — BUT STATE IT PRECISELY.**
 > `privacy@openai.com` is **the contractual address of record**: the DPA names it as the **Data
@@ -301,7 +317,93 @@ out asking five, and two of the four were sharpened:
    question 2, or a "yes" on question 5 is not a detail to work around — the spoken consent wording
    in [`MEETING-CONSENT-WORDING.md`](MEETING-CONSENT-WORDING.md) would no longer be true, and that
    page and the code ship together by its own rule.
-5. **This closes ONE of the three gates that remain.** The other two are unaffected and still stand
-   between the code and a real client meeting: **the lawyer's review per market** — which waits on
-   this reply, since an answer here can change the wording a lawyer would be reading — and **the
-   staff consultation**, which waits on neither and runs on its own track.
+5. **This closed ONE of the three gates — on Mike's ruling of 2026-09-18, not on a reply.** The
+   other two are unaffected and still stand between the code and a real client meeting: **the
+   lawyer's review per market** and **the staff consultation**. ⚠ **The lawyer's review no longer
+   waits on anything.** It was held back only because an answer here could change the wording a
+   lawyer would be reading; both replies changed nothing, so that review is actionable now.
+
+---
+
+## 5. The replies — verbatim, 2026-09-18
+
+**Neither answers a single one of the five questions.** They are quoted in full because a
+paraphrase of a non-answer is worthless: what matters is exactly how little was confirmed, and a
+later reader — a lawyer, a regulator, the master team — needs the original words, not our reading
+of them.
+
+### 5.1 · OpenAI Support, replying to the `privacy@openai.com` letter
+
+> Hello,
+>
+> Thank you for reaching out to OpenAI Support.
+>
+> I understand the importance of confirming how client audio and transcripts are handled before you
+> begin using the transcription API, particularly because the recordings may contain sensitive
+> personal information and you need accurate information for your client consent process.
+>
+> For details about how data submitted through the OpenAI API is handled, including model training,
+> retention, abuse monitoring, and Zero Data Retention, please review:
+> Data controls in the OpenAI platform — https://platform.openai.com/docs/guides/your-data
+>
+> For information about the contractual handling of personal data, please also review:
+> OpenAI Data Processing Addendum — https://openai.com/policies/data-processing-addendum/
+>
+> Your questions regarding audio-specific Zero Data Retention eligibility, processing and storage
+> locations, applicable subprocessors, DPA coverage, and circumstances under which personnel or
+> contractors may access audio or transcripts require confirmation based on the applicable API
+> endpoint and your organization's data-control configuration.
+>
+> Because you need these points confirmed in writing before processing client recordings, I
+> recommend relying on the applicable contractual and account-specific confirmation rather than
+> assuming that requirements for other API data types apply identically to audio.
+>
+> I am here to help if you reach out again.
+>
+> Best,
+> Edward — OpenAI Support
+
+**Read what this does.** It restates the five questions accurately, confirms none of them, and
+hands back two public URLs. The sentence that matters is the second to last: OpenAI Support is
+saying **do not assume the general API terms cover audio.** The spoken consent wording rests on
+exactly that assumption, and this is now on file against it.
+
+### 5.2 · OpenAI Sales, replying to the contact-sales enquiry
+
+> Hi mike,
+>
+> Thank you for your recent inquiry into OpenAI's API offerings, in order to help you could you
+> give us some insight into the following areas;
+> What projects are you currently working on that include OpenAI's API?
+> Do you have specific timelines or deadlines you need to achieve?
+> Do you have a budget set aside for these projects or do you have a monetization strategy in place?
+> What are the future use cases you want to implement?
+> If you would like to discuss this further or delve into any other areas of interest, I'm available
+> to meet with you at your earliest convenience.
+>
+> Best,
+> Kalaiselvam — AI Sales Consultant | OpenAI
+
+**A qualification script.** Zero Data Retention eligibility — the single highest-value question in
+the letter, and the one OpenAI's own documentation directs to sales — is not addressed. The path
+offered is a discovery call about budget and monetisation.
+
+### 5.3 · What this organisation relies on, stated once
+
+**Mike's ruling, 2026-09-18**, in his words: *"We have taken all fair and reasonable steps to
+comply — you will NEVER get a single person to 'sign-off' on this within OpenAI and as an
+organisation they are extremely difficult to navigate. We will get ZERO help from sales."*
+
+**The basis is therefore:**
+
+1. **OpenAI's published terms** — the Data Processing Addendum and the data-controls documentation,
+   both read and summarised in §1.1.
+2. **Two documented attempts** through both channels OpenAI itself nominates — the contractual
+   address of record, and the only supported sales channel — neither of which produced a specific
+   answer.
+3. **No bespoke confirmation that the terms cover audio**, and an explicit support caution against
+   assuming they do.
+
+🔴 **NOBODY MAY DESCRIBE THIS AS CONFIRMED.** If asked what was relied on — by a client, a
+regulator, a lawyer or the master team — the honest answer is points 1 to 3 above, in that order.
+A record implying OpenAI answered would be false and would fail the moment either reply was read.

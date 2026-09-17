@@ -76,7 +76,7 @@
   "items": [
     {
       "ref": "8.1",
-      "name": "Meeting Review — three non-coding gates before a first real recording",
+      "name": "Meeting Review — two non-coding gates before a first real recording",
       "rankedByMike": false,
       "kind": "feature",
       "score": 3,
@@ -85,15 +85,15 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports. It is built, advisor and manager both. What remains is three things only he or a lawyer can do.",
-      "risk": "NO CODE IS OUTSTANDING. Three non-coding gates stand before a first real recording: staff consultation, a lawyer per market, and the OpenAI audio-terms letter - whose answers on training, retention and human review can falsify the spoken consent line. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
+      "risk": "NO CODE IS OUTSTANDING. TWO non-coding gates stand before a first real recording: the staff consultation, and a lawyer per market - which no longer waits on anything. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, transcription, audio destruction, the two reports, meeting-types slices 1-4, the MANAGER AGGREGATE (firm tier ALONE - P13), TRANSCRIPT EXPIRY on each meeting's own promised period, FOLLOW-THROUGH matched on the client, and the CLIENT COPY REQUEST - access, correction and early deletion. The CLIENT level of the pre-set is BUILT 2026-09-10 on the desktop (one shared list per client, every entry named, no manager screen - Mike's five rulings on the drawing). §4 ITEMS 3 AND 7 ARE CLOSED; THREE REMAIN and none is ours - staff consultation, the lawyer per market, and the OpenAI letter, SENT 2026-09-12 and awaiting reply. The /meeting-record banner is a real gate since 4.83 closed. Record: meeting-review-history.md §9.",
-      "comment": "2026-09-01 - filed; screens approved; slices 1-2 built. 2026-09-02 - slice 3, the types cascade, renumbered from 4.56; two rules Mike never made deleted (Brief P14). 2026-09-07 - the manager aggregate, transcript expiry and follow-through. 2026-09-08 - meeting-types slice 3 and slice 4's advisor half. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day on his instruction, closing §4 item 7. Two of its eight rulings reversed the recommendation: the advisor ALONE releases, so a request spanning several advisors is answered by each in turn. 2026-09-12 - the OpenAI letter sent; its reply closes DPIA finding A."
+      "note": "NO CODE OUTSTANDING - every slice is built, including the manager aggregate, transcript expiry, follow-through and the client copy request. §4 ITEMS 3, 5 AND 7 ARE CLOSED; TWO REMAIN and neither is ours: the staff consultation, and the lawyer per market, which NO LONGER WAITS ON ANYTHING. 🔴 ITEM 5 CLOSED 2026-09-18 ON MIKE'S RULING, NOT AN ANSWER - both OpenAI letters were replied to and neither confirmed any of the five questions. Relied on: their published terms plus two documented attempts. NEVER call it confirmed; Support cautioned against assuming the API terms cover audio. Record: meeting-review.md §4, OPENAI-AUDIO-TERMS-EMAIL.md §5.",
+      "comment": "2026-09-01 - filed; screens approved. 2026-09-02 to 09-08 - the slices, the types cascade, the manager aggregate, transcript expiry and follow-through. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day, closing §4 item 7. 2026-09-12 - both OpenAI letters sent. 2026-09-18 - both replied, neither answered; Mike ruled we have taken all fair and reasonable steps and closed the gate on that basis. DPIA finding A and IPP12 close the same way - a reasoned position, never an evidenced one - and the lawyer's review is where it gets tested."
     },
     {
       "ref": "11.1",
