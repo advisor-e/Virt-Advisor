@@ -28,6 +28,7 @@
  */
 
 const frameworks = require('../utils/strategyFrameworks')
+const captureForms = require('../utils/strategyCaptureForms')
 const store = require('../utils/strategySessionStore')
 const { sendError } = require('../utils/sendError')
 
@@ -138,6 +139,67 @@ async function getConcepts (req, res) {
   } catch (err) {
     console.error('[strategy-planner] getConcepts failed:', err.message)
     sendError(res, 500, 'CONCEPTS_ERROR', 'Could not load the session scope menu')
+  }
+}
+
+/**
+ * GET /api/strategy/concepts/:id/capture
+ *
+ * The table an advisor fills in for one concept, read from Mike's own fill-in
+ * template rather than authored here. Every label in the reply is a string from
+ * one of his documents.
+ *
+ * 🔴 A CONCEPT WITH NO TABLE SAYS SO. 36 of the 52 have none — 32 were never
+ * measured against a template (census §4 is explicit that choosing one is a design
+ * decision, not a reading) and 4 name a workbook that was never supplied. Those
+ * reply `supplied: false` with the reason. A borrowed table would put words in
+ * front of a client that Mike did not write.
+ *
+ * `parts` is how one concept is captured twice. Porter's carries 16 observation
+ * lines and 16 response lines in one table, which is why Pivot can put it on
+ * page 11 for *"observations ONLY. (For Now)"* and again on page 21 for the
+ * responses without the second visit overwriting the first.
+ *
+ * @route GET /api/strategy/concepts/:id/capture
+ * @param {object} req - firmAuth-verified; `params.id` is a concept id
+ * @param {object} res
+ * @returns {200} { success, conceptId, capture, timestamp }
+ * @returns {404} when no concept carries that id
+ */
+// Restify's own contract, not a style choice: a handler is either async with
+// (req, res) or callback-based with (req, res, next), and mounting one that is
+// neither throws at boot. This route reads two files already in memory, so it has
+// nothing to await; every other handler here is async and a lone callback
+// signature would be the odd one out. `tests/unit/serverMounts.test.js` proves it.
+// eslint-disable-next-line require-await
+async function getConceptCapture (req, res) {
+  const id = String((req.params && req.params.id) || '')
+  try {
+    const concept = frameworks.getConcept(id)
+    if (!concept) {
+      sendError(res, 404, 'NO_CONCEPT', 'No such concept')
+      return
+    }
+
+    res.send(200, {
+      success: true,
+      conceptId: concept.id,
+      name: concept.name,
+      // 🔴 THE CONCEPT TRAVELS WITH ITS TABLE. An advisor teaches the concept and
+      // then captures it; a card that carries only the boxes cannot be taught from,
+      // which is exactly what Mike found on 2026-09-17 — "how am I supposed to
+      // explain Porter's 5 Forces, I can't even see the concept". Both lines are
+      // his own, from the deck's Session Scope table.
+      conceptSummary: concept.conceptSummary || '',
+      helpsClientTo: concept.helpsClientTo || '',
+      teachingForm: concept.teachingForm || '',
+      deckPage: concept.page || null,
+      capture: captureForms.captureForConcept(concept),
+      timestamp: new Date().toISOString()
+    })
+  } catch (err) {
+    console.error('[strategy-planner] getConceptCapture failed:', err.message)
+    sendError(res, 500, 'CAPTURE_ERROR', 'Could not load the capture table')
   }
 }
 
@@ -345,7 +407,13 @@ async function putEntries (req, res) {
     return
   }
 
-  const invalid = entries.filter(e => !e || !frameworks.hasField(e.frameworkId, e.fieldKey))
+  // A box is legitimate if it belongs to one of the built frameworks (the closing
+  // cards) OR to a concept's own capture table read from Mike's workbooks. Both
+  // are whitelists; a key belonging to neither is still refused.
+  const invalid = entries.filter(e => !e || !(
+    frameworks.hasField(e.frameworkId, e.fieldKey) ||
+    captureForms.hasCaptureField(e.frameworkId, e.fieldKey, frameworks.getConcept)
+  ))
   if (invalid.length) {
     sendError(res, 400, 'UNKNOWN_FIELD',
       'A capture box in this save does not belong to its framework')
@@ -444,6 +512,7 @@ async function postTimeline (req, res) {
 module.exports = {
   getFrameworks,
   getConcepts,
+  getConceptCapture,
   createSession,
   getSession,
   listSessions,

@@ -19,8 +19,9 @@
 >
 > - ⛔ **SUPERSEDED — the session an advisor runs** —
 >   [`design/mockups/strategy-planner.html`](../mockups/strategy-planner.html),
->   **eleven decisions all ruled by Mike on 2026-09-16**. Its **rulings still bind** (Decision 5
->   especially) and that is the only reason it is kept. 🔴 **NEVER OPEN IT AS THE CURRENT DESIGN
+>   **eleven decisions all ruled by Mike on 2026-09-16**. Its **rulings still bind**
+>   (**"A framework that already has a calculator"** especially) and that is the only reason it is
+>   kept. 🔴 **NEVER OPEN IT AS THE CURRENT DESIGN
 >   AND NEVER SEND MIKE TO IT AS THE PLAN** — his instruction of 2026-09-17, after a republish of
 >   it surfaced where he expected the new drawing: *"make sure the old plan version never comes
 >   back."* Go to it for a ruling, never for the target.
@@ -29,29 +30,30 @@
 >   reproduced**, each block carrying the Pivot page it answers, so the acceptance test runs
 >   against the drawing rather than after a build. Its §5 states what it does *not* ask approval
 >   for — chiefly how each of the 21 teaching forms is drawn, which stays open.
->   - ☑ **Decision 1 ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
+>   - ☑ **"Deck or web page" — ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
 >     produces a web report *and* a separate exported deck has created two things that can
 >     disagree, and the page is a 16:9 frame from the start rather than a reflowing column
 >     squeezed into one later.
->   - ☐ **Four decisions still open**, Decision 2 asked and unanswered: does the advisor name the
->     steps himself, or does the app group the ticked concepts? Pivot's step 5 sits on the agenda
+>   - ☐ **Four decisions still open**, **"Tick concepts, or tick steps"** asked and unanswered: does
+>     the advisor name the steps himself, or does the app group the ticked concepts? Pivot's step 5 sits on the agenda
 >     with no slides behind it, which is why the running order cannot be computed from the ticks.
 > - ☑ **The session scope menu — APPROVED TO BUILD FROM, 2026-09-17** —
 >   [`design/mockups/strategy-session-menu.html`](../mockups/strategy-session-menu.html), the
 >   **INPUT**: Mike's own Session Scope table with the `Include (Yes/No)` column made real, its
 >   34 described rows carrying **his wording read off the decks by machine**. Pivot's eleven
 >   concepts are the eleven ticked rows, so the acceptance test runs on the page. **Five decisions
->   ruled**: **A** the menu is his table and its words are never rewritten · **B** an agenda row
->   carries only words Mike wrote · **C** the AI pre-ticks with a reason, never unticks, and the
->   scope follows the ticks · ⛔ **D WITHDRAWN, see below** · **E** shared text is stored once and
->   pointed at, never copied. 🔴 **Approval means it is
+>   ruled**: **"The menu is his table, word for word"** — its words are never rewritten ·
+>   **"An agenda row carries only Mike's words"** · **"The AI pre-ticks, never unticks"** — with a
+>   reason against each row, and the scope follows the ticks · ⛔ **"Where To Start??" — WITHDRAWN,
+>   see below** · **"Shared text is stored once"** and pointed at, never copied. 🔴 **Approval means it is
 >   what the build is measured against — open it beside the build and name every difference. It
 >   does not mean the screen has been built.**
 >   - ☑ **The concept index — BUILT 2026-09-17.** The first of the two prerequisites is done: see
 >     §8. The screen itself is not built.
->   - ⛔ **DECISION D IS WITHDRAWN AND DECISION F IS VOID — Mike, 2026-09-17.** In his words:
+>   - ⛔ **"WHERE TO START??" IS WITHDRAWN, AND THE ACTION-TO-CONCEPT MAPPING THAT DEPENDED ON IT
+>     IS VOID — Mike, 2026-09-17.** In his words:
 >     *"this has NOTHING to do with determining the place to start a strategic plan — it's a
 >     method for diagnosing a sales approach."* **"Where To Start??" is not part of this feature,
 >     the action-to-concept mapping is not to be written, and no session is to re-derive it.**
@@ -63,7 +65,8 @@
 >
 > **Step 1 — scope the session.** The four Planning Domains, each opening Mike's own Session
 > Scope table: the advisor picks the client and ticks the frameworks. ⚠ **As BUILT this screen
-> predates the redirection, and two things about it are superseded by Decision A above**: it
+> predates the redirection, and two things about it are superseded by "The menu is his table,
+> word for word" above**: it
 > takes its table from **ADV.0 Planning Outcomes**, which §3 and census §5 rule is never the
 > source — a deck's own contents table is — and its columns read *Framework · What it explores ·
 > Helps your client to… · Include*, where the deck's own are **Page · Framework · Concept
@@ -101,17 +104,17 @@ anywhere.
 
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
-| **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **Decision A** — the screen **is** his table, his words, his page numbers | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
-| **2** | **Capture** — one stored record per box, keyed on the visit, with the navigation timeline behind it | *"a strategic plan … that can easily expand over time"* — a plan cannot expand if nothing is kept | The feature's central defect. An advisor can capture **nothing** today and **nothing** survives to the next session, while the decks carry tables forward between sessions by design. |
-| **3** | **The assembled document** — the ticked concepts in Pivot's order: front matter, then per step a *Discussion* divider, its teaching slides, an *Action* divider, its capture slides. A failing objective carries its flag onto the page. | *"…into 1 seamless document"* · **Decision 1** — one continuous document of slide-shaped pages, **one artefact never two formats** · **Decision 6** — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* After this, **zero hand-assembled decks**. |
+| **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **"The menu is his table, word for word"** (the session scope menu) — the screen **is** his table, his words, his page numbers | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
+| **2** | ☑ **BUILT 2026-09-17 — capture across the scoped concepts.** `scripts/read-capture-tables.js` reads Mike's own fill-in workbooks into `data/strategy-capture-tables.json`; `server/utils/strategyCaptureForms.js` turns a grid into fields; `GET /api/strategy/concepts/:id/capture` serves them; `components/strategy/StrategyConceptCapture.vue` draws them | *"a strategic plan … that can easily expand over time"* — a plan cannot expand if nothing is kept | **16 of the 52 concepts now reach their real table, where 2 did.** Every label is his, read from the workbook rather than authored. A concept can be VISITED TWICE — Porter's observations then his responses — because one table carries both column sets, and the second visit shows what the client said in the first. |
+| **3** | **The assembled document** — the ticked concepts in Pivot's order: front matter, then per step a *Discussion* divider, its teaching slides, an *Action* divider, its capture slides. A failing objective carries its flag onto the page. | *"…into 1 seamless document"* · **"Deck or web page"** (the assembled plan) — one continuous document of slide-shaped pages, **one artefact never two formats** · **"Can a failing objective reach the plan"** (the session an advisor runs) — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* After this, **zero hand-assembled decks**. |
 
 ### Then — making it right rather than making it work
 
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
 | **4** | **21 teaching forms** — every concept drawn as the slide draws it | *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides."* **Nothing else in this list serves that sentence.** | Pivot is **12 teaching slides to 9 capture slides** — mostly teaching. A plan of blank tables is not a plan an advisor can present. ⚠ The largest stage here: 21 forms, none drawn. |
-| **5** | **9 capture forms** — every table the table his template actually is | **Decision 4** — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
-| **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **Decision C**, ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
+| **5** | **9 capture forms** — every table the table his template actually is | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
+| **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
 | **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
 
@@ -123,10 +126,12 @@ different Planning Domain, a deck mixing agenda and scope-table rows, and a conc
 deck. **The acceptance test is a test:** `strategyCapture.component.test.js` ticks Pivot's
 eleven and asserts they span exactly `strategic-orientation-2` and `sales-marketing`.
 
-🔴 **The advisor can tick all 52 and only TWO lead to a capture card** — `porters-5-forces` and
-`the-8-profit-levers`, the only built frameworks that answer a row on one of Mike's scope
-tables. The screen says so in its own footer and step 2 says so again, rather than showing two
-cards where eleven were scoped. **SWOT / PEST is no longer separately tickable**, and that is
+🔴 **16 of the 52 now lead to a capture, and the screen says which do not.** Stage 1 shipped with
+only TWO — `porters-5-forces` and `the-8-profit-levers` — because those were the only built
+frameworks answering a row on one of Mike's scope tables. Stage 2 added the other fourteen from
+his own fill-in workbooks. The remaining 36 say so rather than showing a blank grid: 32 were never
+measured against a template, and 4 name a workbook that was never supplied — **Branding, Customer
+Loyalty, Packaging, Pricing**. **SWOT / PEST is no longer separately tickable**, and that is
 correct: SWOT sits inside Strategic Orientation 1's section 2 and has never been a row of its
 own. It was tickable only on the superseded menu, which read ADV.0 rather than the decks.
 
@@ -148,24 +153,31 @@ own. It was tickable only on the superseded menu, which read ADV.0 rather than t
   the top of this page.
 - **The ~100 Growth Aspect questions** — his own deferral, already filed as item **15.2**.
 - **Drafting the 18 missing *Helps Your Client To…* lines** — this LEFT the removed list on
-  2026-09-17 when Mike asked for AI drafts, amending his own Decision B of that morning.
-  Item **15.3**, drafted and waiting on him. **The principle Decision B protects is honoured
+  2026-09-17 when Mike asked for AI drafts, amending his own **"An agenda row carries only Mike's
+  words"** ruling of that morning (the session scope menu).
+  Item **15.3**, drafted and waiting on him. **The principle that ruling protects is honoured
   structurally rather than by a flag: an unapproved line is never in the data file at all.**
   All 18 live in [`design/AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md), on no screen;
   he edits the text, marks a row `yes`, and `npm run helps-lines -- --apply` copies it
   character for character into the data. It refuses to overwrite a line he already wrote.
-- **Voice recording** — designed by his Decisions 10 and 11, but unbuildable until Meeting
+- **Voice recording** — designed by his **"Voice recording the session"** and **"How spoken words
+  reach the right box"** rulings (the session an advisor runs), but unbuildable until Meeting
   Review's three non-coding gates clear. It is not a stage anyone can start.
 - **Re-reading the decks to rebuild the concept index** — no request behind it and no accuracy
   gain: the index is pinned by tests and independently agrees with the approved drawing.
 
 ### What gates what
 
-**Stage 1 is done.** **Stages 2 and 3 cannot start** until the four open decisions on
-[`strategy-plan-output.html`](../mockups/strategy-plan-output.html) are answered — **Decision 4**
-decides the stored record's shape (a concept captured twice), and **Decisions 2, 3 and 5** decide
-the document's running order, its Discussion/Action split, and whether the client keeps one
-document in two states.
+**Stage 1 is done.** **Stages 2 and 3 cannot start** until the four open decisions on **the
+assembled plan** ([`strategy-plan-output.html`](../mockups/strategy-plan-output.html)) are
+answered:
+
+| The question, as Mike sees it | What it decides |
+|---|---|
+| **"Can a concept be used twice in one session?"** | the shape of the stored record — Stage 2 cannot be written without it |
+| **"Tick concepts, or tick steps?"** | the document's running order |
+| **"The discussion / action split"** | whether a step teaches everything then works it, or alternates |
+| **"What does the client keep?"** | whether one document exists in two states, blank and filled in |
 
 ---
 
@@ -213,8 +225,8 @@ drifted four concepts and a page offset out of step with the decks it indexes.
 
 ## 2. A concept is DATA, and never its own screen
 
-**Decision 3, and the rule everything else hangs off.** A concept is a record naming the form
-it uses; one component draws them all.
+**"One renderer, or three"** (the session an advisor runs) — **the rule everything else hangs
+off.** A concept is a record naming the form it uses; one component draws them all.
 
 🔴 **If a concept will not fit a form, add a FORM — never a component for that concept.** A
 form is a grid rule plus an entry in `STRATEGY_SHAPES`; it serves all 52. A component serves
@@ -300,8 +312,8 @@ in Task / Whom / When. Every read is scoped by firm, and a session in another fi
 
 ## 5. How spoken words will reach the right box
 
-**Decision 11, answering Mike's own question — *"how will it know to aportion text to specific
-questions?"***
+**"How spoken words reach the right box"** (the session an advisor runs), answering Mike's own
+question — ***"how will it know to aportion text to specific questions?"***
 
 **The field open when the words are spoken claims them**, from the navigation timeline. The AI
 tidies wording and **never decides placement**, so LLM output is still never trusted as
@@ -318,9 +330,9 @@ from a list of the nine**, and the wheel counts those. No model reads an objecti
 
 | | |
 |---|---|
-| **Decision 6's three objective tests** | Ruled *"flag it, never block"* and drawn as Yes/No badges. Not in the build. |
+| **The three objective tests** — *"Can a failing objective reach the plan"* (the session an advisor runs) | Ruled *"flag it, never block"* and drawn as Yes/No badges. Not in the build. |
 | **The Mentor Hub authoring tab** | Needs `FirmManagerHub.vue`, active on the desktop. |
-| **Voice recording** | A strategy session is a **Meeting Review meeting type** (Decision 10) — the Planner builds no recorder. It inherits that feature's three non-coding gates: staff consultation, a lawyer per market, and the OpenAI audio-terms letter. **The typed capture must stand alone until they clear.** |
+| **Voice recording** | A strategy session is a **Meeting Review meeting type** (*"Voice recording the session"*, the session an advisor runs) — the Planner builds no recorder. It inherits that feature's three non-coding gates: staff consultation, a lawyer per market, and the OpenAI audio-terms letter. **The typed capture must stand alone until they clear.** |
 | **The ~100 Growth Aspect questions** | Item **15.2**, filed on Mike's yes. |
 | **The aspect descriptions on the wheel labels** | Mike's own deferral, 2026-09-16. |
 | **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down). **None of this is designed. Do not assume it from the September drawing.** *(One thing has LEFT this row: the document's assembly ORDER is Pivot's anatomy, census §1. And one thing has left the FEATURE: the "Where To Start??" routing flow, withdrawn by Mike on 2026-09-17 — see the box at the top.)* |
@@ -353,7 +365,8 @@ To…* line in Mike's own words.
 **all 11 of Pivot's concepts resolve to their own record**, including the three that appeared
 nowhere at all. What the paragraph above describes is the state the engine was in before that
 build, and it is kept because it is what the index was measured against. **The AI-guided
-selection itself is still not built** — Decision C describes it and nothing implements it.
+selection itself is still not built** — *"The AI pre-ticks, never unticks"* describes it and
+nothing implements it.
 
 ⛔ **AND THE ANSWER IS NOT "WHERE TO START??".** An earlier reading of the census proposed Sales &
 Marketing page 4 as the nearest existing diagnostic. **Mike withdrew it on 2026-09-17** — it
@@ -419,19 +432,20 @@ and is pinned by `tests/unit/strategyConcepts.test.js`.
 | Capture form **measured** against one of his fill-in templates | 20 |
 
 🔴 **EVERY WORD IS HIS, READ OFF THE DECKS BY MACHINE — never retyped, never summarised.**
-Decision A. Ligatures are normalised to ASCII and nothing else is altered. Two deliberate wording
+*"The menu is his table, word for word"*. Ligatures are normalised to ASCII and nothing else is
+altered. Two deliberate wording
 pins in the test file guard it, and they exist because the failure has already happened once: the
 built `porters-five-forces` framework carries *"Look out for changes… so **they** can be ready"*,
 a third-person rewrite of the deck's *"To look out for changes… so **you** can be ready"*, taken
 from ADV.0. **A rewrite reads perfectly well in UAT. Only a comparison with the deck catches it.**
 
-**Decision B, as amended by Mike on 2026-09-17.** All 18 agenda rows have a null
+**"An agenda row carries only Mike's words", as amended by Mike on 2026-09-17.** All 18 agenda rows have a null
 `helpsClientTo` — that line is his. But **Organisational Review's agenda already prints a
 one-line description under each of its nine items** (*"Who reports to who?"*, *"What's MOST
 important to us?"*), so those nine carry it, read off the slide by machine. The ruling is
 unchanged in substance: an agenda row only ever carries words Mike wrote.
 
-**Decision E is honoured in the data, not just described.** Three cells the decks merge are stored
+**"Shared text is stored once" is honoured in the data, not just described.** Three cells the decks merge are stored
 once and pointed at with a `*Ref`, resolved when read: `price-for-delivery-medium` →
 `price-for-problem-solving` (both columns — one sentence written across the pair),
 `horizontal-integration` → `vertical-integration` (the Helps column), and
@@ -446,7 +460,7 @@ template it was matched to (`captureTemplate`) so the match is checkable; the re
 `unmeasured` with nothing in the field, and a test fails if a form ever appears on one.
 
 **What the index is NOT.** It is data with no screen on it. The session scope menu is not built,
-Decision C's AI pre-tick is not built, and no teaching or capture form is *drawn* — the index
+the *"The AI pre-ticks, never unticks"* pre-tick is not built, and no teaching or capture form is *drawn* — the index
 names a concept's form, it does not lay it out.
 
 ### 🔴 There is no extractor in this repository, and these are the five traps if one is ever written

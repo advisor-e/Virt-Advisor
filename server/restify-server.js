@@ -940,6 +940,9 @@ server.get('/api/model-choices', firmAuth, requireManagerRole, modelChoicesRoute
 server.get('/api/strategy/frameworks', firmAuth, strategyPlannerRoute.getFrameworks)
 // The session scope menu — the 52 concepts as five panels, grouped by deck (item 15.1).
 server.get('/api/strategy/concepts', firmAuth, strategyPlannerRoute.getConcepts)
+// The table an advisor fills in for one concept, read from Mike's own fill-in template.
+// `parts` is how Porter's is captured twice — observations, then responses.
+server.get('/api/strategy/concepts/:id/capture', firmAuth, strategyPlannerRoute.getConceptCapture)
 server.get('/api/strategy/sessions', firmAuth, strategyPlannerRoute.listSessions)
 server.post('/api/strategy/sessions', firmAuth, strategyPlannerRoute.createSession)
 server.get('/api/strategy/sessions/:id', firmAuth, strategyPlannerRoute.getSession)

@@ -255,8 +255,14 @@ function buildFramework (raw) {
     // has never been a row of its own — it was tickable only on the superseded menu, which
     // took its list from ADV.0 rather than from the decks.
     conceptId: raw.conceptId || null,
-    // Joined, never copied — see the module header.
+    // Joined, never copied — see the module header. ⚠ This is the MATERIAL's
+    // coaching text and it is only the fallback; `cloneFramework` prefers the
+    // concept's own line. It cannot be resolved here because FRAMEWORKS is built
+    // before CONCEPTS exists.
     conceptSummary: material.summary || '',
+    // ⚠ JOINED, BUT NOT ON THE SCREEN. "Who and when" was an AI-written heading and
+    // Mike had it removed on 2026-09-17. The underlying value is the material's own
+    // and stays joined through — deleting it broke the join the module promises.
     whoWhen: material.who_when || '',
     steps: Array.isArray(material.steps) ? material.steps.slice() : [],
     materialRef: { domain: raw.material.domain, id: raw.material.id }
@@ -353,7 +359,13 @@ function getFramework (id) {
  * @returns {boolean}
  */
 function hasField (frameworkId, fieldKey) {
-  const f = BY_ID[String(frameworkId || '')]
+  const id = String(frameworkId || '')
+  // 🔴 A CONCEPT ID IS ACCEPTED TOO. The session keys every capture on the CONCEPT,
+  // so a concept and its approved framework card write to one place rather than
+  // two — `porters-5-forces` and `porters-five-forces` are the same thing to an
+  // advisor. Without this the approved card's own boxes are refused on save and
+  // the advisor is told their typing was lost.
+  const f = BY_ID[id] || listFrameworks().find(x => x.conceptId === id)
   if (!f) { return false }
   return f.fields.some(x => x.key === String(fieldKey || ''))
 }
@@ -673,6 +685,19 @@ function listDecks () {
 }
 
 /**
+ * A concept's own summary — Mike's line from the deck's Session Scope table.
+ *
+ * @param {?string} conceptId
+ * @returns {string} '' when the framework names no concept, or the concept has none
+ */
+function conceptSummaryFor (conceptId) {
+  if (!conceptId) { return '' }
+  const c = CONCEPTS.find(x => x.id === conceptId)
+  if (!c) { return '' }
+  return conceptText(c, 'conceptSummary').text || ''
+}
+
+/**
  * @param {object} c a validated concept
  * @returns {object} a copy carrying the resolved text beside the raw record
  */
@@ -687,9 +712,22 @@ function cloneConcept (c) {
   })
 }
 
-/** @param {object} f @returns {object} */
+/**
+ * @param {object} f
+ * @returns {object}
+ */
 function cloneFramework (f) {
   return Object.assign({}, f, {
+    // 🔴 THE CONCEPT'S OWN LINE WINS OVER THE MATERIAL'S COACHING TEXT. A material
+    // can cover more than one concept — `strategy-porters-pine` is Porter's AND
+    // Pine's staircase — so its summary described "a dual-framework session that
+    // moves its offering up the economic value chain" on a card headed Porter's 5
+    // Forces. A client in the room hears that. Mike, 2026-09-17: get rid of it.
+    //
+    // Resolved HERE rather than in buildFramework because FRAMEWORKS is built at
+    // module load, before CONCEPTS exists — doing it there threw on require and
+    // took the whole backend down with it.
+    conceptSummary: conceptSummaryFor(f.conceptId) || f.conceptSummary,
     planningDomains: f.planningDomains.slice(),
     fields: f.fields.map(x => Object.assign({}, x, {
       options: x.options ? x.options.slice() : null

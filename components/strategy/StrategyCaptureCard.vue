@@ -5,17 +5,40 @@
       p.scc-eyebrow {{ eyebrow }}
       h3.scc-title {{ framework.name }}
       p.scc-instruction(v-if="framework.captureInstruction") {{ framework.captureInstruction }}
+      //- A way back to the concept that does not leave the step. The page's own
+      //- Back button returns to the scope screen, which is not what an advisor
+      //- mid-session wants when they only need the diagram again.
+      p.scc-reteach(v-if="teachable && !showTeaching")
+        a(href="#" @click.prevent="capturing = false") {{ $t('strategyPlanner.teaching.backToConcept') }}
 
-  .scc-body(:class="{ 'is-wide': !showsConcept }")
+  //- 🔴 THE CONCEPT GOES UP FIRST, AND THE BOXES WAIT BEHIND A BUTTON. Mike's
+  //- instruction, 2026-09-17: *"i want the graphic up so the advisor can speak to
+  //- it - then the responses are captured after the click of a button."* His own
+  //- slide gives the reason — grasp the concept in theory before relating it to
+  //- your own business.
+  template(v-if="showTeaching")
+    strategy-teaching-slide(
+      :name="framework.name"
+      :shape="framework.shape"
+      :subtitle="framework.captureInstruction"
+      :concept-summary="framework.conceptSummary"
+      :helps-client-to="framework.helpsClientTo"
+      :fields="framework.fields"
+    )
+    .scc-advance
+      b-button(type="is-primary" @click="capturing = true") {{ $t('strategyPlanner.teaching.captureNow') }}
+      p.scc-advance-hint {{ $t('strategyPlanner.teaching.talkFirst') }}
+
+  .scc-body(v-else :class="{ 'is-wide': !showsConcept }")
     //- The concept, so the advisor can teach the framework without leaving the screen.
     //- ⚠ NOT ON A TABLE. An Action Plan is filled in, not taught, and both closing
     //- frameworks point at the same material — so the panel appeared TWICE on screen 3,
     //- word for word. Found by looking at it; no test saw it.
-    aside.scc-concept(v-if="showsConcept")
-      p.scc-concept-head {{ $t('strategyPlanner.card.whatThisDoes') }}
+    //- ⚠ NO HEADINGS. "What this does in the room" and "Who and when" were written
+    //- by an AI session in the 2026-09-16 build and Mike had never seen either.
+    //- Removed on his instruction, 2026-09-17. What is left is his own sentence.
+    aside.scc-concept(v-if="showsConcept && framework.conceptSummary")
       p.scc-concept-text {{ framework.conceptSummary }}
-      p.scc-concept-head(v-if="framework.whoWhen") {{ $t('strategyPlanner.card.whoAndWhen') }}
-      p.scc-concept-text(v-if="framework.whoWhen") {{ framework.whoWhen }}
 
     //- A TABLE SHAPE — the Action Plan. Same fields underneath, laid out in rows.
     .scc-capture.is-actions(v-if="framework.shape === 'actions'")
@@ -91,8 +114,12 @@
  * while talking, and a request per character would put a client's half-formed sentence on
  * the wire dozens of times.
  */
+import StrategyTeachingSlide from '~/components/strategy/StrategyTeachingSlide.vue'
+
 export default {
   name: 'StrategyCaptureCard',
+
+  components: { StrategyTeachingSlide },
 
   props: {
     /** A framework as `/api/strategy/frameworks` returns it, joined to its material. */
@@ -104,10 +131,27 @@ export default {
     /** What is captured so far, keyed by field key. */
     entries: { type: Object, default: () => ({}) },
     /** Position in the session, e.g. "Strategic Orientation · framework 1 of 4". */
-    eyebrow: { type: String, default: '' }
+    eyebrow: { type: String, default: '' },
+    /** True when this framework is taught before it is captured. */
+    teachable: { type: Boolean, default: false }
+  },
+
+  data () {
+    return {
+      /** Set once the advisor has taught the concept and pressed the button. */
+      capturing: false
+    }
   },
 
   computed: {
+    /**
+     * Whether the concept is on screen rather than the capture boxes.
+     * @returns {boolean}
+     */
+    showTeaching () {
+      return !this.capturing && this.teachable
+    },
+
     /**
      * Taller boxes where a shape has few of them and the advisor writes at length.
      * @returns {number}
@@ -218,6 +262,28 @@ export default {
 </script>
 
 <style scoped>
+.scc-advance {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.scc-advance-hint {
+  color: #5b6f8a;
+  font-size: 13.5px;
+}
+
+.scc-reteach {
+  margin-top: 4px;
+  font-size: 13.5px;
+}
+
+.scc-reteach a {
+  color: #0070c0;
+}
+
 .scc {
   background: #fff;
   border: 1px solid #d5e1ee;

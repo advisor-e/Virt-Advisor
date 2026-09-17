@@ -1,0 +1,4064 @@
+{
+  "_readme": [
+    "GENERATED — do not edit. `npm run capture-tables` rewrites this file from",
+    "Mike's own fill-in templates in design/planning-templates/fill-in-tables/.",
+    "",
+    "Every string here is copied from one of those documents. Nothing is authored,",
+    "summarised or rephrased, because these are the tables a client fills in.",
+    "",
+    "A cell marked `blank: true` is a ruled line rather than words — Mike numbers",
+    "his blank lines (1, 2, 11 in Porter's; a, b, c in People vs Process) and a",
+    "reader that takes those for content fills the form with digits.",
+    "",
+    "This file is the GRID as the document draws it. Which cells become capture",
+    "fields is decided in server/utils/strategyCaptureForms.js, per capture form."
+  ],
+  "generatedFrom": "design/planning-templates/fill-in-tables",
+  "templateCount": 20,
+  "templates": {
+    "Blue Ocean Fronts": {
+      "file": "Blue Ocean Fronts.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "What Are Our ‘Red Water’ Competition Fronts?"
+                },
+                {
+                  "text": "What Are The Key Frustrations Of Our ‘Non-Customer’?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "1, Enter your thoughts here..."
+                },
+                {
+                  "text": "1,",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "2,",
+                  "blank": true
+                },
+                {
+                  "text": "2,",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "3,",
+                  "blank": true
+                },
+                {
+                  "text": "3,",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "4,",
+                  "blank": true
+                },
+                {
+                  "text": "4,",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What Are The ‘Red Water’ Competition Fronts That Are ‘Least Valued’ By Our Customers?"
+                },
+                {
+                  "text": "What Can We Provide That Might Entice A Non-Customer To Become A Customer Of Ours In Future?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "5,",
+                  "blank": true
+                },
+                {
+                  "text": "5,",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "6,",
+                  "blank": true
+                },
+                {
+                  "text": "6,",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "7,",
+                  "blank": true
+                },
+                {
+                  "text": "7,",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "8,",
+                  "blank": true
+                },
+                {
+                  "text": "8,",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Curve & Cycle Notes": {
+      "file": "Curve & Cycle Notes.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Where we ‘sit’ on the Diffusion Curve"
+                },
+                {
+                  "text": "Where we ‘sit’ on the Product Life Cycle"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Stage: Early Majority"
+                },
+                {
+                  "text": "Stage: Growth"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What we can anticipate"
+                },
+                {
+                  "text": "What we can anticipate"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Growth will start to slow down as more competitors enter the marketplace"
+                },
+                {
+                  "text": "We anticipate 2 years of slower growth before new replacement product options emerge"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Customer & Skills Review": {
+      "file": "Customer & Skills Review.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Review Section"
+                },
+                {
+                  "text": "Review Findings"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Customer 1 Profile Segment"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Age range"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Average spend per transaction"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Annual customer frequency"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Largest Single Transaction"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Most Popular Product"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Most Profitable Product Margin %"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Other"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Customer 2 Profile Segment"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Age range"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Average spend per transaction"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Annual customer frequency"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Largest Single Transaction"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Most Popular Product"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Most Profitable Product Margin %"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Other"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Review Section"
+                },
+                {
+                  "text": "Review Findings"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Customer 3 Profile Segment"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Age range"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Average spend per transaction"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Annual customer frequency"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Largest Single Transaction"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Most Popular Product"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Most Profitable Product Margin %"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Other"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Customer Types": {
+      "file": "Customer Types.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 11,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Farm Wagon"
+                },
+                {
+                  "text": "Other 1"
+                },
+                {
+                  "text": "Other 2"
+                },
+                {
+                  "text": "Other 3"
+                },
+                {
+                  "text": "Other 4"
+                },
+                {
+                  "text": "Other 5"
+                },
+                {
+                  "text": "Other 6"
+                },
+                {
+                  "text": "Other 7"
+                },
+                {
+                  "text": "Other 8"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Customer Profile Name"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Farmer Joe"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Age, Gender, Qualifications, Relationships"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "39 yr, Male, Trade Qualified, Married with 3 Kids"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "3 Key Concerns/ Common Problems"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Worker safety"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "3 Dominant Buying Motives"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Price"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Towing capability"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Loan vehicle available if repairs take longer than 5 days"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "columns": 11,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Farm Wagon"
+                },
+                {
+                  "text": "Other 1"
+                },
+                {
+                  "text": "Other 2"
+                },
+                {
+                  "text": "Other 3"
+                },
+                {
+                  "text": "Other 4"
+                },
+                {
+                  "text": "Other 5"
+                },
+                {
+                  "text": "Other 6"
+                },
+                {
+                  "text": "Other 7"
+                },
+                {
+                  "text": "Other 8"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "3 Legitimate Purchasing Constraints"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Terrain gradient"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Load Capacity"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "2wd Only"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What We Do That This Customer Truly Values"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Loan vehicle available if repairs take longer than 5 days"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Our Key Message (to this customer)"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Our price includes winter Farm King tyres"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Our Message Channels"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Small town rugby club sponsorship, 'subs' tent. (Shop branded ezi-up with sides)"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Other"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Insights Summary": {
+      "file": "Insights Summary.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "What We Do LESS Well"
+                },
+                {
+                  "text": "What We Do WELL"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "We don't follow up customers after purchase to see if they still need help"
+                },
+                {
+                  "text": "We do a great job of Identifying customer needs at time of sale"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What Resources We Need"
+                },
+                {
+                  "text": "Suggestions/ Ideas"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "We need a better range of electric hand tools to sell, we get asked for them all the time"
+                },
+                {
+                  "text": "We could run 'tips n tricks' classes - 30 min sessions, where we show how to use certain tools..."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Leadership Review_": {
+      "file": "Leadership Review_.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 1,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "What are the pro’s and con’s of a ‘Creativity’ Culture vs. a ‘Discipline’ Culture within your organisation?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What has your current leadership style attempted to reflect? (In terms of how you hope others behave in response)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Have you modelled or based your leadership style on anyone in particular? If so, how does their organisation/ industry differ to yours?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Is your desired business culture, industry/business needs, (safety / adherence to compliance laws etc) and your personality traits (in particular – dealing with conflict and forming logical/ linear thought processes) all in alignment? (meaning, are YOU best suited to developing a certain leadership style and is THAT style best suited to your business?)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "columns": 1,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "On a scale of 1 to 10, how would you rate the culture of your business? – What would need to be visibly evident in order to rank it higher?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How do you, as a leader, encourage diversity within your team? – Do you actively seek it when recruiting – do you hire people that will challenge you? (in a good way)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How inclusive are the meetings in your business? – Do you ensure the ‘quiet ones at the back’ are called upon for their opinion? Is the meeting introduced in a manner that ‘calls out the ghosts’ and gets things out in the open?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Do you demonstrate a healthy respect for everyone on your team , regardless of position? – Do you reflect on your own actions or seek/receive counsel from a respected peer in regards to your management and guidance of others?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How do you cope when team members disagree with your opinion? – Are you guilty (sometimes) of wanting to be right more than wanting the very best answer/idea/solution?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Marketing Answers": {
+      "file": "Marketing Answers.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "The Question"
+                },
+                {
+                  "text": "Our Answer (treat this as 'internal thoughts' - you don't need to write your answers as an 'outbound marketing statement' - these are here to help you get clear on your product/ service offer)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Who are we targeting"
+                },
+                {
+                  "text": "Our target profile customer looks like... Age, Demographics, Interests, Marital Status, Education etc that live near Croc infested waters"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Their key concerns/ common problems"
+                },
+                {
+                  "text": "They struggle to get rid of unwanted crocodiles; they're afraid of wrestling with them and they don't want to be seen to be 'unkind' to the local crocs."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Their legitimate purchasing constraints"
+                },
+                {
+                  "text": "They believe the Crocs will just get tired of hanging around and will move on their own at some stage anyway."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What makes us special"
+                },
+                {
+                  "text": "We deal with the whole process; we organise the permits, the transportation, the sanctuary loading fees - all in one simple bundled service offer."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What We DO For Our Customers (that they truly value & overcomes their purchasing constraints)"
+                },
+                {
+                  "text": "We remove the Croc and worry; they don't have to 'gamble' on the croc leaving on its own."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Our Message Channels"
+                },
+                {
+                  "text": "The best way to reach our target clients is by... (Facebook or Snapchat or Air NZ Magazine orHerald Newspaper or Easy Listening FM etc)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Operational Objectives List": {
+      "file": "Operational Objectives List.xlsx",
+      "format": "xlsx",
+      "tables": [
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "0",
+                  "blank": true
+                },
+                {
+                  "text": "Stage 1"
+                },
+                {
+                  "text": "Stage 2"
+                },
+                {
+                  "text": "Stage 3"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "4",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "5",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "6",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "7",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "8",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "9",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Org Chart": {
+      "file": "Org Chart.xlsx",
+      "format": "xlsx",
+      "tables": [
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "145",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Reporting Head"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "1.0"
+                },
+                {
+                  "text": "Board"
+                },
+                {
+                  "text": "Shareholders"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "2.0"
+                },
+                {
+                  "text": "CEO"
+                },
+                {
+                  "text": "Board"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "3.0"
+                },
+                {
+                  "text": "CFO"
+                },
+                {
+                  "text": "CEO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "4.0"
+                },
+                {
+                  "text": "COO"
+                },
+                {
+                  "text": "CEO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "5.0"
+                },
+                {
+                  "text": "Head Marketing"
+                },
+                {
+                  "text": "CEO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "6.0"
+                },
+                {
+                  "text": "Marketing Manager"
+                },
+                {
+                  "text": "Head Marketing"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "7.0"
+                },
+                {
+                  "text": "Social Media Assistant"
+                },
+                {
+                  "text": "Marketing Manager"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "8.0"
+                },
+                {
+                  "text": "Copy Writer"
+                },
+                {
+                  "text": "Social Media Assistant"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "9.0"
+                },
+                {
+                  "text": "Events Co-ordinator"
+                },
+                {
+                  "text": "Copy Writer"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "10.0"
+                },
+                {
+                  "text": "Head HR"
+                },
+                {
+                  "text": "COO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "11.0"
+                },
+                {
+                  "text": "Trainer"
+                },
+                {
+                  "text": "Head HR"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "12.0"
+                },
+                {
+                  "text": "Health & Safety Officer"
+                },
+                {
+                  "text": "Head HR"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "13.0"
+                },
+                {
+                  "text": "Head Sales"
+                },
+                {
+                  "text": "CEO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "14.0"
+                },
+                {
+                  "text": "Sales Manager"
+                },
+                {
+                  "text": "Head Sales"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "15.0"
+                },
+                {
+                  "text": "Salesperson"
+                },
+                {
+                  "text": "Sales Manager"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "16.0"
+                },
+                {
+                  "text": "Accountant"
+                },
+                {
+                  "text": "CFO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "17.0"
+                },
+                {
+                  "text": "Bookkeeper"
+                },
+                {
+                  "text": "Accountant"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "18.0"
+                },
+                {
+                  "text": "Factory Foreman"
+                },
+                {
+                  "text": "COO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "19.0"
+                },
+                {
+                  "text": "Head of Purchasing"
+                },
+                {
+                  "text": "COO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "20.0"
+                },
+                {
+                  "text": "Head of Inventory"
+                },
+                {
+                  "text": "COO"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "21.0"
+                },
+                {
+                  "text": "Snr Tech"
+                },
+                {
+                  "text": "Factory Foreman"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "22.0"
+                },
+                {
+                  "text": "Tech"
+                },
+                {
+                  "text": "Factory Foreman"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "23.0"
+                },
+                {
+                  "text": "Jnr Tech"
+                },
+                {
+                  "text": "Factory Foreman"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "24.0"
+                },
+                {
+                  "text": "Personal Assistant"
+                },
+                {
+                  "text": "Head of Purchasing"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "25.0"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "26.0"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "27.0"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "28.0"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "29.0"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "30.0"
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "148",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "149",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Our 10 Critical Marketing Statements_": {
+      "file": "Our 10 Critical Marketing Statements_.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "10 Critical Marketing Statement Prompts:"
+                },
+                {
+                  "text": "Our 10 Critical Marketing Statements:"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Who We Work With (Your target market or ‘A’ clients, if you prefer)"
+                },
+                {
+                  "text": "We specialise in helping 'croc-infested' home owners in the Orange County district."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Our One Big Promise (What they can expect to enjoy IF they deal with you- summed up in one brief sentence)"
+                },
+                {
+                  "text": "\"Poof! - and the big bad Croc is gone! (for good)\""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What They Enjoy As A Result (3 big things)"
+                },
+                {
+                  "text": "A.- Improved re-sales Values b.- Reduced Public Liability Premiums c.- Increased visits from Friends & Family"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What makes us Unique:"
+                },
+                {
+                  "text": "We make a plaster cast of the croc's feet, you can show your friends you had a visitor :) AND - We spread payments over 3 months and we file the 'crocodile removal' permit on your behalf - (saving you the hassle of dealing with local council) If the croc comes back - we remove it again for free."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How We Work with Our Clients:"
+                },
+                {
+                  "text": "We dangle Robert (one of our trained employees) from a large pole until the big crocs come rushing to grab him. Then, we leap out from behind the bushes and wrestle the croc to the ground. When we're done, we take a photo, a plaster cast of the croc's foot and sweep the drive before we go."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "The Magic Happens When (What your client needs to do to allow you to do your ‘best work’ - ‘their part in achieving excellence, if you prefer)"
+                },
+                {
+                  "text": "The magic happens when our customers show us the croc and then leave on a 2 day holiday. This way, we can lay a trap free from the concern of our customer wandering into the middle of things and getting stuck in the croc's throat..."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "The Big What & The Big Why (The common problem/s or opportunity/s [you deal with] and why it has relevance to them)"
+                },
+                {
+                  "text": "Due to global warming, crocodiles now look to sleep in the lounge or bathtub of homeowners. This raises stress in the home and is a slight health risk."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Why You Do What You Do (What drives you to provide your product or service - Why you care…)"
+                },
+                {
+                  "text": "My grandfather was a crocodile hunter and my best friend got eaten by one when he jumped in his shower cubicle. I never want another person to feel threatened by a crocodile in their own home again."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "It’s A Bit Like… (Your ‘Metaphor Story’ that helps people understand the problem/opportunity or any technical issue that causes confusion or slows the sales process)"
+                },
+                {
+                  "text": "It's a bit like wearing your seatbelt in your car; you don't expect to have a crash every time you drive and in fact, may go years without incident but if luck goes against you, it's the difference between life and death..."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How You Make Buying Easy (What ‘Risk Removal’ or Guarantee you offer; How you make payment/ selection / collection easy)"
+                },
+                {
+                  "text": "We take all major credit cards; you can enjoy our mthly payment plan for regular service and if we find a crocodile in your home, we'll transport it straight to a treatment centre for wayward crocodiles. You never have to meet it face to face but we will show photographic proof if requested."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "People vs Process": {
+      "file": "People vs Process.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "How do you know that your team KNOWS what has to be done? (What are your feedback loops)"
+                },
+                {
+                  "text": "a",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What’s your plan for developing the skills and resources of your team?"
+                },
+                {
+                  "text": "b",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What are your ‘internal indicators’ of how much your team ‘cares’?"
+                },
+                {
+                  "text": "c",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Which system ‘Concept’ best aligns with your target market? (Six Sigma, Lean, Constraints Theory)"
+                },
+                {
+                  "text": "d",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How do you prioritise the processes that need to be improved?"
+                },
+                {
+                  "text": "e",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How do you project manage / test / measure your process improvements?"
+                },
+                {
+                  "text": "f",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Porter's 5 Forces": {
+      "file": "Porter's 5 Forces.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "How Customers May Change"
+                },
+                {
+                  "text": "How We Plan To Respond"
+                },
+                {
+                  "text": "What Substitutes May Emerge"
+                },
+                {
+                  "text": "How We Plan To Respond"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "1,",
+                  "blank": true
+                },
+                {
+                  "text": "11",
+                  "blank": true
+                },
+                {
+                  "text": "21",
+                  "blank": true
+                },
+                {
+                  "text": "31",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "2,",
+                  "blank": true
+                },
+                {
+                  "text": "12",
+                  "blank": true
+                },
+                {
+                  "text": "22",
+                  "blank": true
+                },
+                {
+                  "text": "32",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "3,",
+                  "blank": true
+                },
+                {
+                  "text": "13",
+                  "blank": true
+                },
+                {
+                  "text": "23",
+                  "blank": true
+                },
+                {
+                  "text": "33",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "4,",
+                  "blank": true
+                },
+                {
+                  "text": "14",
+                  "blank": true
+                },
+                {
+                  "text": "24",
+                  "blank": true
+                },
+                {
+                  "text": "34",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How Suppliers May Change"
+                },
+                {
+                  "text": "How We Plan To Respond"
+                },
+                {
+                  "text": "What New Entrants May Emerge"
+                },
+                {
+                  "text": "How We Plan To Respond"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "5,",
+                  "blank": true
+                },
+                {
+                  "text": "15",
+                  "blank": true
+                },
+                {
+                  "text": "25",
+                  "blank": true
+                },
+                {
+                  "text": "35",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "6,",
+                  "blank": true
+                },
+                {
+                  "text": "16",
+                  "blank": true
+                },
+                {
+                  "text": "26",
+                  "blank": true
+                },
+                {
+                  "text": "36",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "7,",
+                  "blank": true
+                },
+                {
+                  "text": "17",
+                  "blank": true
+                },
+                {
+                  "text": "27",
+                  "blank": true
+                },
+                {
+                  "text": "37",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "8,",
+                  "blank": true
+                },
+                {
+                  "text": "18",
+                  "blank": true
+                },
+                {
+                  "text": "28",
+                  "blank": true
+                },
+                {
+                  "text": "38",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Product Fit (Customer Orientation)": {
+      "file": "Product Fit (Customer Orientation).docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Product Fit (Customer Orientation)"
+                },
+                {
+                  "text": "Product Fit (Competitor Comparison):"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Are you solving the most important problem for the most important customer?"
+                },
+                {
+                  "text": "Who are your main competitors?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Ask yourself “Am I hoping my customers will do something that they’re NOT motivated to do?”"
+                },
+                {
+                  "text": "What is their ‘flagship’ product?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?"
+                },
+                {
+                  "text": "How comparable is your product to theirs?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Based on the std Competition Fronts list, what are the areas your competitors appear to be focusing on?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "Re-above, Are these the fronts that your customer feedback (research) proves to be MOST VALUED by your TARGET customer?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "How can you best respond to competition?"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Productive Habits": {
+      "file": "Productive Habits.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Reason:"
+                },
+                {
+                  "text": "We're becoming more competitive. We have to improve our overall service standards....."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Trigger:"
+                },
+                {
+                  "text": "We lose one of our key clients to a competitor because we failed to be proactive in our dealings"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Micro Habit:"
+                },
+                {
+                  "text": "We plan to have a 'how's things going?' meeting with each of our top 25 clients within the next 60 days."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Effective Practice:"
+                },
+                {
+                  "text": "We complete a de-brief of the first 5 meetings to share client feedback and to maintain vigilance with those responsible for getting their allocated meetings completed"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Plan:"
+                },
+                {
+                  "text": "In 4 months time we will do a strategic review of our products, product bundling / packaging and pricing to ensure they are competitive going forward"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Profit Levers (1)": {
+      "file": "Profit Levers (1).docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Our (7) Aims"
+                },
+                {
+                  "text": "Task"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Gain their ATTENTION: (Amount of Foot Traffic)"
+                },
+                {
+                  "text": "Put flashing lights on top of our building. Get a price from China light shop"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Capture their INTEREST (Create Self Relevance) (Number of Prospects)"
+                },
+                {
+                  "text": "Explain how adrenal fatigue is responsible for their poor work performance; it's not their fault. Draft marketing e-book to explain this concept."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Secure their CUSTOM: (Number of Customers)"
+                },
+                {
+                  "text": "Use short term retail finance providers; clients arrange through their on-line App and once approved, can purchase from us."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Keep them WANTING MORE (Average Customer Spend + Average Customer Frequency)"
+                },
+                {
+                  "text": "Enclose a free sample product to upsell them next time and make them feel special. Get sample size products from our 3 main suppliers."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "BUY Materials/Stock FOR LESS + Sell FOR MORE (Sales Margin)"
+                },
+                {
+                  "text": "Negotiate for a cheaper price based on taking stock items we've refused until now. See if we can take some of our 'fringe' products on consignment on the basis of payment upon sale."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Achieve BRAND RECOGNITION (So They Seek Us Out) (Reduce Sales Activity Costs)"
+                },
+                {
+                  "text": "Endorse local musicians and comedy artists; pay them for guest appearances. Find out what their price is likely to be before making the final decision."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Reduce SPENDING/ OVERHEADS (Fixed Costs)"
+                },
+                {
+                  "text": "Stop buying chocolate biscuits, make all the coffee instant powder and tell staff they have to bring water bottle heaters into work in winter. Do a calculation to see how much this will actually save us before communicating to staff."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Progression of Economic Value": {
+      "file": "Progression of Economic Value.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 3,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Our Business Output (Delivery Promise)"
+                },
+                {
+                  "text": "Our Business Imperative Tasks"
+                },
+                {
+                  "text": "Our Consumer Sensitivity Tasks"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Our quality means cheaper in the long run"
+                },
+                {
+                  "text": "Quality Control"
+                },
+                {
+                  "text": "Monitor & Record Failures / ‘Comebacks’"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "1 Enter your thoughts here..."
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "2",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "3",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "4",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "5",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "6",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "7",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "SWOT Notes": {
+      "file": "SWOT Notes.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Strengths (Internal)"
+                },
+                {
+                  "text": "Weakness (Internal)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "We don't have to eat our vegetables anymore!"
+                },
+                {
+                  "text": "Our immune system is deficient"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Opportunities (External)"
+                },
+                {
+                  "text": "Threats (External)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "We could sell organic vegetables that taste better"
+                },
+                {
+                  "text": "Genetically modified seeds are cheaper and supported by our key distributors."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Sales Flowchart": {
+      "file": "Sales Flowchart.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 5,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "(Think of the logical 'Decision Stages' as a means to help you identify some of the stages in your sale process)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Step 1"
+                },
+                {
+                  "text": "Step 2"
+                },
+                {
+                  "text": "Step 3"
+                },
+                {
+                  "text": "Step 4"
+                },
+                {
+                  "text": "Step 5"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "prospect walks in."
+                },
+                {
+                  "text": "We say hello."
+                },
+                {
+                  "text": "Client asks for shoes."
+                },
+                {
+                  "text": "We check shoe applications and $budget."
+                },
+                {
+                  "text": "We show 5 types and narrow to 3"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Step 10"
+                },
+                {
+                  "text": "Step 9"
+                },
+                {
+                  "text": "Step 8"
+                },
+                {
+                  "text": "Step 7"
+                },
+                {
+                  "text": "Step 6"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Take customers money and load details into database"
+                },
+                {
+                  "text": "Ask how they would prefer to pay today?"
+                },
+                {
+                  "text": "We ask client which they prefer best"
+                },
+                {
+                  "text": "We narrow to 2"
+                },
+                {
+                  "text": "We test them on treadmill with each of the 3 types to check running impact"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Step 11"
+                },
+                {
+                  "text": "Step 12"
+                },
+                {
+                  "text": "Step 13"
+                },
+                {
+                  "text": "Step 14"
+                },
+                {
+                  "text": "Step 15"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Take photo of happy customer with their permission to show on facebook"
+                },
+                {
+                  "text": "Send thankyou email 2 weeks later and check they're still happy"
+                },
+                {
+                  "text": "testing 1"
+                },
+                {
+                  "text": "testing 2"
+                },
+                {
+                  "text": "testing 3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Strategic Statements": {
+      "file": "Strategic Statements.pptx",
+      "format": "pptx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Strategic Objective: (Desired end result {Singular} inclusive of on-going management plans.)"
+                },
+                {
+                  "text": "Strategy: (The Ethos or beliefs about how best to achieve the Strategic Objective. (effectively an ‘acid test’)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Complete your statement here"
+                },
+                {
+                  "text": "Complete your statement here"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Tension Point Scripts": {
+      "file": "Tension Point Scripts.docx",
+      "format": "docx",
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Known Tension Point"
+                },
+                {
+                  "text": "Scripted Response"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Customer Phones in with an enquiry after reading newspaper advert'"
+                },
+                {
+                  "text": "“Welcome to ABC Ltd, You’re speaking with _____(name)"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "A customer enters the shop."
+                },
+                {
+                  "text": "“Hi there, are you happy just looking or is there anything I can do to help?”"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Customer begins to engage with a product (tries it on, picks it up etc)"
+                },
+                {
+                  "text": "“I see you’ve found one of our popular items, (The colour suits you)Have you been searching for this product for long?”"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "The customer asks for a discount."
+                },
+                {
+                  "text": "“We’re not normally in the habit of offering discounts because we tend to put our most competitive price on the ticket. I’ll check with (my boss / the computer) for you but please don’t be offended if the answer is no.”"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "The customer complains about price increases."
+                },
+                {
+                  "text": "“You have every right to feel frustrated; it’s exactly how WE felt when we made the decision to adjust our prices. But like you, we’re getting hit from all sides; - we have to be fair to you, - but we also have to be fair to the business."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "2",
+                  "blank": true
+                },
+                {
+                  "text": "b",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "3",
+                  "blank": true
+                },
+                {
+                  "text": "c",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "4",
+                  "blank": true
+                },
+                {
+                  "text": "d",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "5",
+                  "blank": true
+                },
+                {
+                  "text": "e",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "6",
+                  "blank": true
+                },
+                {
+                  "text": "f",
+                  "blank": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

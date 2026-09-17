@@ -297,11 +297,6 @@
           "label": "Existing Rivalry",
           "prompt": "The centre of the model — what the other four press upon.",
           "centre": true
-        },
-        {
-          "key": "observations-response",
-          "label": "Observations & response",
-          "prompt": "Record your observations AND your response to the changing economic environment — the deck asks for both, and a response is the half most easily lost."
         }
       ],
       "explores": "How customer trends, supplier tactics, new entrants and substitute products can all impact your business at the same time."

@@ -5879,10 +5879,23 @@
       "notRunnable": "{count} concept you scoped has no capture screen yet, so it is not shown below. It is still recorded as part of this session's scope. | {count} concepts you scoped have no capture screen yet, so they are not shown below. They are still recorded as part of this session's scope."
     },
     "card": {
-      "whatThisDoes": "What this does in the room",
-      "whoAndWhen": "Who and when",
       "placeholder": "Record it as it comes up…",
       "choose": "Choose…"
+    },
+    "capture": {
+      "noTableMeasured": "There is no fill-in table for this concept yet. Talk it through and record it in your own notes.",
+      "templateNotSupplied": "The {template} table has not been supplied yet. Talk it through and record it in your own notes.",
+      "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck.",
+      "part": "(Part {n})",
+      "nothingToAnswer": "Nothing was captured in the first pass, so there is nothing to respond to yet."
+    },
+    "teaching": {
+      "yourBusiness": "Your business",
+      "pressureOn": "under pressure",
+      "captureNow": "Capture the responses",
+      "talkFirst": "Talk the concept through first — then capture what comes out of it.",
+      "slideOnly": "This concept is presented from the slide.",
+      "backToConcept": "← Back to the concept"
     },
     "errors": {
       "loadFailed": "The planning frameworks could not be loaded. Nothing has been lost — try again in a moment.",

@@ -44,15 +44,40 @@
     b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
       | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
 
+    //- 🔴 A CONCEPT WITH AN APPROVED CARD USES IT. Porter's was designed on
+    //- 2026-09-16 (strategy-planner.html screen 2c) as five force boxes, each
+    //- carrying the deck's own question, with Existing Rivalry as the centre — and
+    //- it was built. Replacing it with a grid derived from the Word template lost
+    //- all five prompts and the fifth force. Mike, 2026-09-17: "i saw much better
+    //- graphics in a design 6 or 8 sessions ago - what happened??"
     strategy-capture-card(
       v-for="(framework, index) in chosenFrameworks"
-      :key="framework.id"
+      :key="'fw-' + framework.id"
       :framework="framework"
-      :entries="entriesFor(framework.id)"
+      :entries="entriesFor(framework.conceptId || framework.id)"
       :eyebrow="cardEyebrow(index)"
+      :teachable="isTeachable(framework)"
       class="sp-card"
-      @field-opened="onFieldOpened"
-      @field-changed="onFieldChanged"
+      @field-opened="onFrameworkFieldOpened(framework, $event)"
+      @field-changed="onFrameworkFieldChanged(framework, $event)"
+    )
+
+    //- Everything else: the concept's own fill-in table, read from Mike's
+    //- workbooks. 47 of the 52 have no approved card of their own.
+    strategy-concept-capture(
+      v-for="(visit, index) in conceptVisits"
+      :key="visit.key"
+      :name="visit.name"
+      :capture="visit.capture"
+      :part="visit.part"
+      :concept-summary="visit.conceptSummary"
+      :helps-client-to="visit.helpsClientTo"
+      :teaching-form="visit.teachingForm"
+      :instruction="visitInstruction(visit)"
+      :entries="entriesFor(visit.conceptId)"
+      :eyebrow="visitEyebrow(index)"
+      @field-opened="onVisitFieldOpened(visit, $event)"
+      @field-changed="onVisitFieldChanged(visit, $event)"
     )
 
   template(v-if="!loading && step === 'objectives'")
@@ -128,6 +153,7 @@
  */
 import StrategyScopeMenu from '~/components/strategy/StrategyScopeMenu.vue'
 import StrategyCaptureCard from '~/components/strategy/StrategyCaptureCard.vue'
+import StrategyConceptCapture from '~/components/strategy/StrategyConceptCapture.vue'
 import StrategyGrowthWheel from '~/components/strategy/StrategyGrowthWheel.vue'
 import { isDevHost } from '~/utils/devHost'
 
@@ -137,7 +163,7 @@ const TOKEN_KEY = 'advisor_e_token'
 export default {
   name: 'StrategyPlannerPage',
 
-  components: { StrategyScopeMenu, StrategyCaptureCard, StrategyGrowthWheel },
+  components: { StrategyScopeMenu, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel },
 
   data () {
     return {
@@ -154,7 +180,16 @@ export default {
       /** The nine, from data/growth-fundamentals.json via the backend. */
       growthAspects: [],
       clients: [],
-      clientId: '',
+      /**
+       * 🔴 null, NOT ''. Buefy draws the "Choose a client…" placeholder option only
+       * while the bound value is null; an empty string is a value, so the option is
+       * skipped and the picker renders BLANK with no prompt in it. The advisor then
+       * ticks concepts, finds Start the session greyed out, and nothing on screen
+       * says a client is what is missing. Found by Mike on 2026-09-17, on the first
+       * click — every test was green, because a test reads `canStart` rather than
+       * looking at the box.
+       */
+      clientId: null,
       /**
        * CONCEPT ids ticked on the session scope menu — Mike's own 52, not framework ids.
        * Changed in Stage 1: the menu is now his Session Scope table (Decision A), and a
@@ -165,6 +200,13 @@ export default {
       sessionId: null,
       /** Captured text, keyed `frameworkId::fieldKey`. */
       entries: {},
+      /**
+       * Each ticked concept's real fill-in table, keyed by concept id, as
+       * `GET /api/strategy/concepts/:id/capture` returns it. Loaded when the
+       * advisor starts the session rather than at scope time — 52 requests to
+       * render a menu would be 52 requests nobody reads.
+       */
+      captures: {},
       /** Resolved in mounted — never at render time. */
       apiToken: ''
     }
@@ -186,9 +228,58 @@ export default {
       return this.frameworks.filter(f => f.conceptId && this.chosen.includes(f.conceptId))
     },
 
-    /** @returns {number} ticked concepts with no capture card built yet */
+    /**
+     * Every ticked concept as a VISIT — the unit the session actually runs.
+     *
+     * 🔴 A CONCEPT CAN APPEAR MORE THAN ONCE, AND THAT IS MIKE'S OWN DECK. Pivot puts
+     * Porter's on page 11 for *"record your observations ONLY. (For Now)"* and again on
+     * page 21 for the responses. Its table carries both — the observation columns and
+     * the response columns — so the two visits write to different boxes and the second
+     * never overwrites the first.
+     *
+     * Each visit opens one part. Mike's reason, 2026-09-17: you teach the concept, let
+     * it land, then ask how it applies — showing the response columns at visit one is
+     * asking somebody to answer before they understand the question.
+     *
+     * @returns {Array<{key: string, conceptId: string, name: string, part: number, capture: object}>}
+     */
+    conceptVisits () {
+      // A concept with an approved framework card is drawn by that card above,
+      // not twice.
+      const hasApprovedCard = {}
+      this.chosenFrameworks.forEach((f) => {
+        if (f.conceptId) { hasApprovedCard[f.conceptId] = true }
+      })
+
+      const visits = []
+      this.chosen.forEach((conceptId) => {
+        if (hasApprovedCard[conceptId]) { return }
+        const loaded = this.captures[conceptId]
+        if (!loaded) { return }
+        const parts = (loaded.capture && loaded.capture.parts) || []
+        const count = parts.length > 1 ? parts.length : 1
+        for (let part = 1; part <= count; part++) {
+          visits.push({
+            key: conceptId + '#' + part,
+            conceptId,
+            name: loaded.name,
+            conceptSummary: loaded.conceptSummary || '',
+            helpsClientTo: loaded.helpsClientTo || '',
+            teachingForm: loaded.teachingForm || '',
+            part,
+            capture: loaded.capture
+          })
+        }
+      })
+      return visits
+    },
+
+    /** @returns {number} ticked concepts whose fill-in table Mike has not supplied */
     conceptsWithoutACard () {
-      return this.chosen.length - this.chosenFrameworks.length
+      return this.chosen.filter((id) => {
+        const loaded = this.captures[id]
+        return !loaded || !loaded.capture || !loaded.capture.supplied
+      }).length
     },
 
     /** @returns {string} the chrome line: which client, and when */
@@ -312,6 +403,128 @@ export default {
     },
 
     /**
+     * Load each ticked concept's fill-in table.
+     *
+     * `Promise.allSettled` rather than `all` on purpose: one concept whose table
+     * fails to load must not take the other ten down with it. A concept that does
+     * not load simply has no card, which the count on screen already reports.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadCaptures () {
+      const wanted = this.chosen.filter(id => !this.captures[id])
+      if (!wanted.length) { return }
+
+      const results = await Promise.allSettled(wanted.map(async (id) => {
+        const res = await fetch(
+          '/api/strategy/concepts/' + encodeURIComponent(id) + '/capture',
+          { credentials: 'same-origin', headers: this.headers() }
+        )
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        return { id, body: await res.json() }
+      }))
+
+      results.forEach((r) => {
+        if (r.status !== 'fulfilled') { return }
+        const b = r.value.body
+        this.$set(this.captures, r.value.id, {
+          name: b.name,
+          conceptSummary: b.conceptSummary,
+          helpsClientTo: b.helpsClientTo,
+          teachingForm: b.teachingForm,
+          capture: b.capture
+        })
+      })
+    },
+
+    /**
+     * Position in the session, so an advisor knows where they are with a client
+     * watching.
+     * @param {number} index
+     * @returns {string}
+     */
+    visitEyebrow (index) {
+      return (index + 1) + ' / ' + this.conceptVisits.length
+    },
+
+    /**
+     * The instruction for this visit.
+     *
+     * A concept visited once carries none. A second visit carries the heading of
+     * the columns it opens — Mike's own "How We Plan To Respond" — which is what
+     * tells an advisor why they are back at the same table.
+     *
+     * @param {{part: number, capture: object}} visit
+     * @returns {string}
+     */
+    visitInstruction (visit) {
+      const parts = (visit.capture && visit.capture.parts) || []
+      if (parts.length < 2) { return '' }
+      const chosen = parts[visit.part - 1]
+      return (chosen && chosen.label) || ''
+    },
+
+    /**
+     * Whether this framework is taught before it is captured.
+     *
+     * A concept card is; a closing table like the Action Plan is filled in, not
+     * taught. The judgement is the shape's, and the shape is Mike's approved data.
+     *
+     * @param {{shape: string}} framework
+     * @returns {boolean}
+     */
+    isTeachable (framework) {
+      return framework.shape !== 'actions'
+    },
+
+    /**
+     * A box opened on an approved framework card.
+     *
+     * Keyed on the CONCEPT, not the framework, so a concept captured through its
+     * approved card and one captured through its own table land in the same place.
+     *
+     * @param {{id: string, conceptId: string}} framework
+     * @param {{frameworkId: string, fieldKey: string}} payload
+     */
+    onFrameworkFieldOpened (framework, payload) {
+      this.onFieldOpened({
+        frameworkId: framework.conceptId || framework.id,
+        fieldKey: payload.fieldKey
+      })
+    },
+
+    /**
+     * A box typed into on an approved framework card.
+     * @param {{id: string, conceptId: string}} framework
+     * @param {{frameworkId: string, fieldKey: string, value: string}} payload
+     */
+    onFrameworkFieldChanged (framework, payload) {
+      this.onFieldChanged({
+        frameworkId: framework.conceptId || framework.id,
+        fieldKey: payload.fieldKey,
+        value: payload.value
+      })
+    },
+
+    /**
+     * The advisor moved into a box on a visit.
+     * @param {{conceptId: string}} visit
+     * @param {{fieldKey: string}} payload
+     */
+    onVisitFieldOpened (visit, payload) {
+      this.onFieldOpened({ frameworkId: visit.conceptId, fieldKey: payload.fieldKey })
+    },
+
+    /**
+     * The advisor typed into a box on a visit.
+     * @param {{conceptId: string}} visit
+     * @param {{fieldKey: string, value: string}} payload
+     */
+    onVisitFieldChanged (visit, payload) {
+      this.onFieldChanged({ frameworkId: visit.conceptId, fieldKey: payload.fieldKey, value: payload.value })
+    },
+
+    /**
      * Everything captured for one framework, keyed by field.
      * @param {string} frameworkId
      * @returns {Object.<string,string>}
@@ -397,6 +610,7 @@ export default {
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
         const body = await res.json()
         this.sessionId = body.sessionId
+        await this.loadCaptures()
         this.step = 'run'
       } catch (e) {
         // ⚠ ITS OWN MESSAGE. The first build reused the capture-box message here, so a
