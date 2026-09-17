@@ -28,10 +28,15 @@
 |---|---|---|
 | Business Targets | the agenda, slide 2 | 5 |
 | Strategic Orientation 1 | the agenda, slide 2 — it has no contents table | 4 |
-| Strategic Orientation 2 | the Session Scope tables, slides 3–5 | 17 |
+| Strategic Orientation 2 | the Session Scope tables, slides 3–5 | 18 |
 | Sales & Marketing Review | the Session Scope tables, slides 2–3 | 16 |
 | Organisational Review | the agenda, slide 2 | 9 |
-| | | **51** |
+| | | **52** |
+
+🔴 **Strategic Orientation 2 is 18, and each count here was read off the deck itself.** Its
+Session Scope table runs across three slides — **7 on slide 3, 6 on slide 4, 5 on slide 5** —
+and the last row, *The 8 Profit Levers* on page 39, is easy to lose because Business Targets
+names it too. **Re-count from the slides, never from another document's total.**
 
 In Mike's words: *"if you don't see them listed in the pages or menus of the main 4 docs …
 then ignore them."* **80/20 Farm Plan, Business Dating and Growth Curve are included where
@@ -110,18 +115,18 @@ slides, 9 capture slides, 6 dividers, 3 front matter, 1 notes.**
 
 | | |
 |---|---|
-| Concepts in scope | **51** |
-| Concepts in Strategic Orientation 2 | **17** |
-| Distinct visual forms those 17 use | **13** |
+| Concepts in scope | **52** |
+| Concepts in Strategic Orientation 2 | **18** |
+| Distinct visual forms those 18 use | **13** |
 | *New* forms the remaining 34 added | **8** |
 | **Total form library** | **≈21** |
 
 **The bet holds, but only from the second deck onward.** The first deck looks close to one
-design per concept — 17 concepts, 13 forms — which is why reading only Strategic Orientation 2
+design per concept — 18 concepts, 13 forms — which is why reading only Strategic Orientation 2
 would have justified abandoning the design. Across the rest the reuse is heavy: matrices,
 prompt sheets, staged tables and annotated curves each serve four to six concepts.
 
-**21 forms for 51 concepts is the honest cost.** It is not small, and it is not 51.
+**21 forms for 52 concepts is the honest cost.** It is not small, and it is not 52.
 
 🔴 **BUT ALL 21 ARE *TEACHING* FORMS, AND THE CAPTURE FORMS ARE A DIFFERENT, SMALLER SET.**
 Established 2026-09-17 on the first of Mike's fill-in templates, which arrived after this
@@ -253,7 +258,7 @@ document every session is told to read first.)*
 ⚠ **But know what the table above does NOT cover.** Four of its rows — Branding, Pricing,
 Packaging/Bundling and Customer Loyalty — have no fill-in file; they are the deck's own
 prompt → answer sheets, read from the Sales & Marketing slides. **So the nine forms are
-measured across 24 things, not across all 51 concepts.** A concept outside those 24 has no
+measured across 24 things, not across all 52 concepts.** A concept outside those 24 has no
 measured capture form, and choosing one for it is a design decision rather than a reading —
 say which it is when the time comes.
 
@@ -291,7 +296,7 @@ Farmer Joe, the Binford 6000, a used-car dealership, a crocodile-removal service
 Page numbers are where each concept starts in its own deck; a concept owns the slides up to
 the next one.
 
-**Strategic Orientation 2** (42 pages, 17 concepts): 13 Porter's 5 Forces · 15 Product (Fit)
+**Strategic Orientation 2** (42 pages, 18 concepts): 13 Porter's 5 Forces · 15 Product (Fit)
 Review · 17 Progression of Economic Value · 20 Price for Problem Solving · 20 Price for
 Delivery Medium · 22 Vertical Integration · 23 Horizontal Integration · 25 Market Diffusion ·
 26 Boston Model · 27 Product Life Cycle · 28 Technology Points · 30 Sigmoid Curve · 31 Blue

@@ -62,7 +62,7 @@ it is what shaped the build. Counted from Mike's own Session Scope tables:
 
 | | |
 |---|---|
-| Concepts across the four Planning Domains | **51** |
+| Concepts across the four Planning Domains | **52** |
 | An advisor could capture, in the app | **0** |
 | Answers surviving to the next session | **0** |
 | Concepts with a supporting calculator | 3 |
@@ -70,13 +70,14 @@ it is what shaped the build. Counted from Mike's own Session Scope tables:
 The decks carry tables forward between sessions, so having nowhere to put anything was the
 feature's central defect rather than a missing nicety.
 
-🔴 **The measurement is what produced the shape: ONE capture machine, never 51 screens.**
+🔴 **The measurement is what produced the shape: ONE capture machine, never 52 screens.**
 Re-run the same count to measure the build.
 
-**The 51 is Mike's own scoping ruling of 2026-09-17** — the menu is the five main documents'
+**The 52 is Mike's own scoping ruling of 2026-09-17** — the menu is the five main documents'
 own contents pages and agendas, nothing else. It replaces an earlier count of 45, which was
 taken from ADV.0's index rather than from the decks themselves and was therefore inheriting
-that file's drift. `design/PLANNING-TEMPLATE-CENSUS.md` §1 holds the per-document breakdown
+that file's drift. **Strategic Orientation 2 contributes 18 of the 52**, counted off its own
+Session Scope table across slides 3–5. `design/PLANNING-TEMPLATE-CENSUS.md` §1 holds the per-document breakdown
 and what is deliberately excluded.
 
 🔴 **AND THE SECOND MEASUREMENT, WHICH IS WHY THE FEATURE EXISTS AT ALL.** Mike, 2026-09-17:
@@ -94,8 +95,8 @@ drifted four concepts and a page offset out of step with the decks it indexes.
 it uses; one component draws them all.
 
 🔴 **If a concept will not fit a form, add a FORM — never a component for that concept.** A
-form is a grid rule plus an entry in `STRATEGY_SHAPES`; it serves all 51. A component serves
-one, and 51 components is the build that never ends.
+form is a grid rule plus an entry in `STRATEGY_SHAPES`; it serves all 52. A component serves
+one, and 52 components is the build that never ends.
 
 **A table is expanded into ordinary fields** (`row-3-whom` is just a field key), so the store,
 the navigation timeline and the audit trail need no special case for it.
@@ -108,7 +109,7 @@ two different things, and that the second is far smaller than the first:
 
 | | | |
 |---|---|---|
-| **Teaching form** — drawn as the slide draws it | a ring, a staircase, a curve, a 2×2 | **21** across the 51 |
+| **Teaching form** — drawn as the slide draws it | a ring, a staircase, a curve, a 2×2 | **21** across the 52 |
 | **Capture form** — the table the client completes | almost always a grid | **9** across the 21 fill-in templates |
 
 **Nothing is ever filled in as a ring, a staircase or a curve.** The Org Chart proves it: what
@@ -131,7 +132,7 @@ the templates that use it — **the banded grid alone carries S.W.O.T, Porter's,
 Fronts, Insights Summary and the Profit Levers.**
 
 ⚠ **The five shapes built in September 2026 — `buckets`, `quadrants`, `forces`, `statements`,
-`actions` — cover about three of the 51 honestly, and TWO OF THEM ARE WRONG against Mike's own
+`actions` — cover about three of the 52 honestly, and TWO OF THEM ARE WRONG against Mike's own
 fill-in tables.** They are superseded, not merely incomplete; the old table is in the history
 page. See §6 for what each one gets wrong.
 
