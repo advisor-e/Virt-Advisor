@@ -54,8 +54,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 17 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 18 | **5.3** Four Wages Register test suites share one file and collide at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 19 | **15.3** Eighteen rows of the session scope menu have no Helps Your Client To... line ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 20 | **15.4** Twelve labels on the plan document are ours, not Mike's ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**Nineteen live items. Nine need Mike.** If this list passes about twenty, something is wrong.
+**Twenty live items. Ten need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
