@@ -102,9 +102,64 @@
       "description": "How you attract attention to your product or service, how you convert attention into interest and action, and how you finally secure their custom."
     }
   ],
+  "_decksReadme": [
+    "THE FIVE DOCUMENTS THE SESSION SCOPE MENU DRAWS AS PANELS - four Planning Domains",
+    "across five decks, because Strategic Orientation is ONE domain in TWO decks and only",
+    "the second of them carries a scope table. The menu groups by DECK, not by domain.",
+    "",
+    "THE ORDER IS MIKE'S OWN and it is this array's order, never a sort. It puts the two",
+    "agenda-only documents first, which is deliberate: hiding them behind the richer decks",
+    "would make the screen look better than it is. Approved drawing, section 1.",
+    "",
+    "A DECK IS NOT A DOMAIN AND MUST NOT BE COLLAPSED INTO ONE. Pivot.pdf - the acceptance",
+    "test - takes nine concepts from strategic-orientation-2 and two from sales-marketing,",
+    "so a menu that groups by domain would put nine of them under one heading with the",
+    "other deck's four agenda rows, which is not the table Mike's clients read.",
+    "",
+    "sourceLabel says where the rows came from, in the deck itself. It is OUR provenance",
+    "note, not Mike's wording, and it is data rather than a locale string because it is a",
+    "fact about one deck. The rows' own text is his and lives on the concepts.",
+    "",
+    "There is no rowSource field on purpose: whether a deck is an agenda or a scope table is",
+    "already on every concept, and the loader derives it and refuses a deck whose concepts",
+    "disagree. One fact, one home."
+  ],
+  "decks": [
+    {
+      "id": "business-targets",
+      "name": "Business Targets",
+      "planningDomain": "business-targets",
+      "sourceLabel": "the agenda, slide 2"
+    },
+    {
+      "id": "strategic-orientation-1",
+      "name": "Strategic Orientation 1",
+      "planningDomain": "strategic-orientation",
+      "sourceLabel": "the agenda, slide 2 — it has no contents table"
+    },
+    {
+      "id": "strategic-orientation-2",
+      "name": "Strategic Orientation 2",
+      "planningDomain": "strategic-orientation",
+      "sourceLabel": "Session Scope tables, slides 3–5"
+    },
+    {
+      "id": "sales-marketing",
+      "name": "Sales & Marketing Review",
+      "planningDomain": "sales-marketing-review",
+      "sourceLabel": "Session Scope tables, slides 2–3"
+    },
+    {
+      "id": "organisational-review",
+      "name": "Organisational Review",
+      "planningDomain": "organisational-review",
+      "sourceLabel": "the agenda, slide 2"
+    }
+  ],
   "frameworks": [
     {
       "id": "profit-levers",
+      "conceptId": "the-8-profit-levers",
       "name": "The 8 Profit Levers",
       "planningDomains": [
         "business-targets",
@@ -204,6 +259,7 @@
     },
     {
       "id": "porters-five-forces",
+      "conceptId": "porters-5-forces",
       "name": "Porter's 5 Forces",
       "planningDomains": [
         "strategic-orientation"

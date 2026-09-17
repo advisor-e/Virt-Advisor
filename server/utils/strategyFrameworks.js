@@ -247,6 +247,14 @@ function buildFramework (raw) {
     // Decision 5: a framework with an existing model runs it INSIDE the card, on the same
     // backend route as the standalone page. Absent for a framework that has no model.
     model: raw.model ? { route: raw.model.route } : null,
+    // 🔴 WHICH ROW OF THE SESSION SCOPE MENU THIS FRAMEWORK IS. The menu ticks CONCEPTS —
+    // Mike's own 52 — while a framework is a built capture card, and the two sets are not
+    // the same size: 52 against 3 tickable. This names the one concept whose tick runs this
+    // card, and null means the framework answers no row on any of his scope tables. Only
+    // SWOT / PEST is null, because SWOT is inside Strategic Orientation 1's section 2 and
+    // has never been a row of its own — it was tickable only on the superseded menu, which
+    // took its list from ADV.0 rather than from the decks.
+    conceptId: raw.conceptId || null,
     // Joined, never copied — see the module header.
     conceptSummary: material.summary || '',
     whoWhen: material.who_when || '',
@@ -522,13 +530,146 @@ function getConcept (id) {
 }
 
 /**
- * The concepts one Planning Domain offers — what the session scope menu renders.
+ * The concepts one Planning Domain offers.
+ *
+ * ⚠ THIS IS NOT WHAT THE SESSION SCOPE MENU RENDERS — use `listDecks()`. The menu groups by
+ * DECK, because Strategic Orientation is one domain in two decks and only the second carries
+ * a scope table. Grouping the menu by domain puts nine of Pivot's concepts under one heading
+ * with another deck's agenda rows, which is not the table Mike's clients read.
+ *
  * @param {string} planningDomain one of PLANNING_DOMAINS
  * @returns {object[]}
  */
 function conceptsForPlanningDomain (planningDomain) {
   const domain = String(planningDomain || '')
   return CONCEPTS.filter(c => c.planningDomain === domain).map(cloneConcept)
+}
+
+const RAW_DECKS = FRAMEWORK_DATA.decks || []
+
+/**
+ * The five documents the session scope menu draws as panels, validated at load.
+ *
+ * 🔴 THE ARRAY'S ORDER IS MIKE'S ORDER AND IS NEVER SORTED. It puts the two agenda-only
+ * documents first on purpose — the approved drawing's §1 — because hiding them behind the
+ * richer decks would make the screen look more complete than it is.
+ *
+ * @type {object[]}
+ */
+const DECKS = RAW_DECKS.map(function (raw) {
+  const id = String((raw && raw.id) || '')
+  if (!id) {
+    throw fail('BAD_DECK', 'A deck has no id.')
+  }
+  if (!raw.name) {
+    throw fail('BAD_DECK', 'Deck "' + id + '" has no name.')
+  }
+  if (!PLANNING_DOMAINS.includes(raw.planningDomain)) {
+    throw fail('BAD_DECK', 'Deck "' + id + '" names an unknown Planning Domain "' +
+      raw.planningDomain + '".')
+  }
+  if (!raw.sourceLabel) {
+    throw fail('BAD_DECK', 'Deck "' + id + '" does not say where its rows came from.')
+  }
+
+  const concepts = CONCEPTS.filter(c => c.deck === id)
+  // A deck with no rows is a panel with nothing in it. It means a deck id was renamed on one
+  // side and not the other, which would otherwise show as an empty box on the advisor's
+  // screen rather than as a fault.
+  if (!concepts.length) {
+    throw fail('BAD_DECK', 'Deck "' + id + '" has no concepts. Every panel on the session ' +
+      'scope menu must have rows.')
+  }
+  // Every concept in a deck must agree with the deck about its Planning Domain, or the
+  // domain shown on the panel heading is a different claim from the one the rows carry.
+  const strayDomain = concepts.find(c => c.planningDomain !== raw.planningDomain)
+  if (strayDomain) {
+    throw fail('BAD_DECK', 'Concept "' + strayDomain.id + '" sits in deck "' + id +
+      '" but names Planning Domain "' + strayDomain.planningDomain + '".')
+  }
+  // 🔴 DERIVED, NEVER AUTHORED. Whether a deck is an agenda or a scope table is already on
+  // every one of its concepts; storing it again on the deck would be a second copy that can
+  // drift from the first. A mixed deck is refused rather than guessed at, because the screen
+  // renders the two kinds of row differently.
+  const sources = concepts.map(c => c.source).filter((s, i, all) => all.indexOf(s) === i)
+  if (sources.length !== 1) {
+    throw fail('BAD_DECK', 'Deck "' + id + '" mixes row sources (' + sources.join(', ') +
+      '). The menu renders an agenda row and a scope-table row differently, so a deck ' +
+      'must be one or the other.')
+  }
+
+  return {
+    id,
+    name: String(raw.name),
+    planningDomain: raw.planningDomain,
+    sourceLabel: String(raw.sourceLabel),
+    rowSource: sources[0],
+    conceptCount: concepts.length
+  }
+})
+
+const DECK_IDS = new Set(DECKS.map(d => d.id))
+
+// Every concept must belong to a deck the menu draws, or it is in the index and on no
+// screen — the exact state the concept index was built to end.
+CONCEPTS.forEach(function (c) {
+  if (!c.deck || !DECK_IDS.has(c.deck)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + c.id + '" names deck "' + c.deck + '", which ' +
+      'is not one of the decks the session scope menu draws.')
+  }
+})
+
+// A framework's conceptId is the tick that runs it. Pointing at a concept that does not
+// exist would build a card no advisor could ever reach, and nothing else would notice.
+FRAMEWORKS.forEach(function (f) {
+  if (f.conceptId && !CONCEPT_BY_ID[f.conceptId]) {
+    throw fail('BAD_FRAMEWORK', 'Framework "' + f.id + '" names concept "' + f.conceptId +
+      '", which is not on the session scope menu.')
+  }
+  // A closing framework is never ticked, so it must not claim a row on the menu.
+  if (f.conceptId && f.closesTheSession) {
+    throw fail('BAD_FRAMEWORK', 'Framework "' + f.id + '" closes the session and cannot ' +
+      'also be a row the advisor ticks.')
+  }
+})
+
+/**
+ * The framework a ticked concept runs, or null when that concept has no capture card yet.
+ *
+ * ⚠ 50 OF THE 52 RETURN NULL TODAY, and that is the honest state rather than a defect.
+ * The menu offers Mike's whole library; three frameworks are built and only two of them
+ * answer a row on his scope tables. The screens that teach and capture the rest are the
+ * later stages of item 15.1 (Brief §0).
+ *
+ * @param {string} conceptId
+ * @returns {object|null}
+ */
+function frameworkForConcept (conceptId) {
+  const id = String(conceptId || '')
+  const found = FRAMEWORKS.find(f => f.conceptId === id)
+  return found ? cloneFramework(found) : null
+}
+
+/**
+ * The session scope menu, panel by panel — the five decks in Mike's order, each with its
+ * rows in the deck's own order.
+ *
+ * 🔴 EVERY CONCEPT APPEARS EXACTLY ONCE ACROSS THE PANELS, and the ticks cross freely
+ * between them. Pivot takes nine concepts from one deck and two from another, so a menu
+ * that made an advisor choose one panel and stay inside it could not produce the
+ * acceptance test.
+ *
+ * @returns {object[]} `{ id, name, planningDomain, planningDomainName, sourceLabel,
+ *   rowSource, conceptCount, concepts }` — copies, so a caller cannot mutate the loaded set
+ */
+function listDecks () {
+  return DECKS.map(function (deck) {
+    const domain = PLANNING_DOMAIN_RECORDS.find(d => d.id === deck.planningDomain)
+    return Object.assign({}, deck, {
+      planningDomainName: domain ? domain.name : deck.planningDomain,
+      concepts: CONCEPTS.filter(c => c.deck === deck.id).map(cloneConcept)
+    })
+  })
 }
 
 /**
@@ -572,6 +713,9 @@ module.exports = {
   listConcepts,
   getConcept,
   conceptsForPlanningDomain,
+  // The session scope menu — the 52 as five panels, in Mike's order
+  listDecks,
+  frameworkForConcept,
   CONCEPT_SOURCES,
   CAPTURE_BASES,
   // exported so a test can check an authored record without reaching into the file

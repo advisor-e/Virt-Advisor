@@ -5858,6 +5858,26 @@
       "noneYet": "These frameworks are authored but have not reached the Planner yet.",
       "chosenCount": "{count} chosen for this session"
     },
+    "menu": {
+      "heading": "Scope the session",
+      "hint": "Nothing is included until you leave it ticked.",
+      "includedOf": "{chosen} of {total} included",
+      "domainBadge": "{domain} domain",
+      "colInclude": "Include",
+      "colPage": "Page",
+      "colFramework": "Framework",
+      "colSummary": "Concept Summary",
+      "colHelps": "Helps Your Client To…",
+      "agendaOnly": "This deck is an agenda, not a scope table — it has no Concept Summary and no Helps Your Client To… column. Those two columns are empty here because Mike has not written them, and nothing else may.",
+      "sharedCell": "shared cell",
+      "sharedWithRow": "This text is one cell in the deck, shared with “{row}”. Editing it changes both rows.",
+      "sharedBothColumns": "The deck puts the same sentence in both of this row's columns.",
+      "totalIncluded": "{count} concept included | {count} concepts included",
+      "totalRest": "· {count} not included · order and steps come next",
+      "stageNotice": "Ticking records what this session will cover. The screens that teach each concept and capture the client's answers are still being built — nothing typed is kept yet.",
+      "noneLoaded": "The session scope menu could not be loaded.",
+      "notRunnable": "{count} concept you scoped has no capture screen yet, so it is not shown below. It is still recorded as part of this session's scope. | {count} concepts you scoped have no capture screen yet, so they are not shown below. They are still recorded as part of this session's scope."
+    },
     "card": {
       "whatThisDoes": "What this does in the room",
       "whoAndWhen": "Who and when",

@@ -101,7 +101,7 @@ anywhere.
 
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
-| **1** | **The session menu** — the approved drawing, reading the 52 records, across all four Planning Domains | *"an advisor can complete the initial session check"* · **Decision A** — the screen **is** his table, his words, his page numbers | The screen that exists today offers **5 concepts of 52** and takes its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room**, so drifted wording is wrong in front of a client. |
+| **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **Decision A** — the screen **is** his table, his words, his page numbers | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
 | **2** | **Capture** — one stored record per box, keyed on the visit, with the navigation timeline behind it | *"a strategic plan … that can easily expand over time"* — a plan cannot expand if nothing is kept | The feature's central defect. An advisor can capture **nothing** today and **nothing** survives to the next session, while the decks carry tables forward between sessions by design. |
 | **3** | **The assembled document** — the ticked concepts in Pivot's order: front matter, then per step a *Discussion* divider, its teaching slides, an *Action* divider, its capture slides. A failing objective carries its flag onto the page. | *"…into 1 seamless document"* · **Decision 1** — one continuous document of slide-shaped pages, **one artefact never two formats** · **Decision 6** — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* After this, **zero hand-assembled decks**. |
 
@@ -115,6 +115,33 @@ anywhere.
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
 | **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
 
+### What Stage 1 shipped, and the two differences from the drawing
+
+Built 2026-09-17: the five panels in Mike's order, all 52 rows, ticks crossing freely between
+panels. `listDecks()` refuses at load a deck with no rows, a deck whose concepts name a
+different Planning Domain, a deck mixing agenda and scope-table rows, and a concept naming no
+deck. **The acceptance test is a test:** `strategyCapture.component.test.js` ticks Pivot's
+eleven and asserts they span exactly `strategic-orientation-2` and `sales-marketing`.
+
+🔴 **The advisor can tick all 52 and only TWO lead to a capture card** — `porters-5-forces` and
+`the-8-profit-levers`, the only built frameworks that answer a row on one of Mike's scope
+tables. The screen says so in its own footer and step 2 says so again, rather than showing two
+cards where eleven were scoped. **SWOT / PEST is no longer separately tickable**, and that is
+correct: SWOT sits inside Strategic Orientation 1's section 2 and has never been a row of its
+own. It was tickable only on the superseded menu, which read ADV.0 rather than the decks.
+
+**Two named deviations, per the Save-the-Artefact rule:**
+
+1. **The "Suggest for this client" button is not built.** It is Stage 6 and needs the pre-tick
+   behind it; a button that does nothing is worse than no button.
+2. 🔴 **The drawing was CORRECTED to match the decks, not the build to match the drawing.** As
+   first drawn it split five agenda rows onto a sub-line — Business Targets' last two and
+   Strategic Orientation 1's first three — and on one of them moved *"(section 2)"* from
+   mid-sentence to the end. The slides do none of that: each is one line at one size and one
+   x-position. **Organisational Review's nine sub-lines are real** — its descriptions are a
+   second column on the slide at x=352.7 — and they stay. Pinned in
+   `strategyConcepts.test.js`, and the concept id `…-data-sectio` corroborates it.
+
 ### 🔴 What the test removed
 
 - **"Where To Start??" and its action-to-concept mapping** — withdrawn by Mike, see the box at
@@ -127,7 +154,7 @@ anywhere.
 
 ### What gates what
 
-**Stage 1 is clear to start.** **Stages 2 and 3 cannot start** until the four open decisions on
+**Stage 1 is done.** **Stages 2 and 3 cannot start** until the four open decisions on
 [`strategy-plan-output.html`](../mockups/strategy-plan-output.html) are answered — **Decision 4**
 decides the stored record's shape (a concept captured twice), and **Decisions 2, 3 and 5** decide
 the document's running order, its Discussion/Action split, and whether the client keeps one
@@ -450,9 +477,14 @@ each of the five above.
 
 ## 9. Where it lives
 
-`data/strategy-frameworks.json` · `server/utils/strategyFrameworks.js` ·
-`server/utils/strategySessionStore.js` · `server/routes/strategyPlanner.js` ·
-`components/strategy/` · `pages/strategy-planner.vue` · `config/db-schema.sql`
+`data/strategy-frameworks.json` (`planningDomains`, `decks`, `frameworks`, `concepts`) ·
+`server/utils/strategyFrameworks.js` · `server/utils/strategySessionStore.js` ·
+`server/routes/strategyPlanner.js` · `components/strategy/StrategyScopeMenu.vue`,
+`StrategyCaptureCard.vue`, `StrategyGrowthWheel.vue` · `pages/strategy-planner.vue` ·
+`config/db-schema.sql`
+
+⚠ **`StrategySessionScope.vue` was deleted in Stage 1**, not left beside its replacement. Two
+menus that disagree is the drift this feature exists to end.
 
 Tests: `strategyFrameworks` · `strategyConcepts` · `strategySessionStore` ·
 `strategyPlanner.routes` · `strategyCapture.component`.

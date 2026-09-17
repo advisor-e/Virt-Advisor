@@ -26,15 +26,32 @@
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
 const StrategyCaptureCard = require('~/components/strategy/StrategyCaptureCard.vue').default
-const StrategySessionScope = require('~/components/strategy/StrategySessionScope.vue').default
+const StrategyScopeMenu = require('~/components/strategy/StrategyScopeMenu.vue').default
 const frameworksModule = require('~/server/utils/strategyFrameworks')
 
 // The real authored frameworks, so the tests move when the data does.
 const SWOT = frameworksModule.getFramework('swot-pest')
 const PORTERS = frameworksModule.getFramework('porters-five-forces')
 const LEVERS = frameworksModule.getFramework('profit-levers')
-const DOMAINS = frameworksModule.listPlanningDomains()
-const ALL = frameworksModule.listFrameworks()
+const DECKS = frameworksModule.listDecks()
+
+/**
+ * Pivot's eleven concepts — the acceptance test, and the reason the menu is one list.
+ * Nine are in Strategic Orientation 2 and two in Sales & Marketing.
+ */
+const PIVOT_CONCEPTS = [
+  'porters-5-forces',
+  'progression-of-economic-value',
+  'vertical-integration',
+  'horizontal-integration',
+  'market-diffusion-theory',
+  'product-life-cycle',
+  'technology-points',
+  'sigmoid-curve',
+  'the-8-profit-levers',
+  '6-marketing-questions',
+  'a-i-d-c-r-a-advertisement-framework'
+]
 
 function mountCard (framework, entries) {
   return mountWithBuefy(StrategyCaptureCard, {
@@ -144,59 +161,113 @@ describe('saving happens on blur, and only when something changed', () => {
   })
 })
 
-describe('screen 1 — scoping the session', () => {
-  function mountScope (chosen) {
-    return mountWithBuefy(StrategySessionScope, {
-      propsData: { planningDomains: DOMAINS, frameworks: ALL, chosen: chosen || [] }
+describe('the session scope menu — item 15.1 Stage 1', () => {
+  function mountMenu (chosen) {
+    return mountWithBuefy(StrategyScopeMenu, {
+      propsData: { decks: DECKS, chosen: chosen || [] }
     })
   }
 
-  it('shows all four Planning Domains', () => {
-    expect(mountScope().findAll('.sss-domain')).toHaveLength(4)
+  it('draws one panel per document, in Mike\'s order', () => {
+    // Five documents, four Planning Domains: Strategic Orientation is one domain in two
+    // decks. Sorting them would move the two agenda-only decks out of the front, which
+    // the drawing puts there deliberately.
+    const w = mountMenu()
+    expect(w.findAll('.ssm-deck')).toHaveLength(5)
+    expect(w.findAll('.ssm-deckname').wrappers.map(x => x.text()))
+      .toEqual(DECKS.map(d => d.name))
   })
 
-  it('🔴 keeps a domain with no frameworks on screen rather than hiding it', () => {
-    // Organisational Review and Sales & Marketing Review are authored elsewhere and have
-    // not reached the Planner. Hiding them makes half a session look like a whole one.
-    const empty = mountScope().findAll('.sss-domain.is-empty')
-    expect(empty.length).toBe(2)
+  it('🔴 offers every one of the 52 concepts, not a subset', () => {
+    // The screen this replaced offered 5 of the 52, because it read a framework list
+    // rather than Mike's concept index.
+    expect(mountMenu().findAll('tbody tr')).toHaveLength(52)
   })
 
-  it('🔴 ticks nothing by itself — Decision 1', () => {
-    const w = mountScope()
-    expect(w.props('chosen')).toEqual([])
+  it('🔴 PRODUCES PIVOT — the acceptance test, across two decks', () => {
+    // `Pivot.pdf` is a deck Mike assembled by hand: nine concepts from Strategic
+    // Orientation 2 and two from Sales & Marketing. A menu that made an advisor open one
+    // panel at a time could not produce it, which is what the superseded screen did.
+    const w = mountMenu(PIVOT_CONCEPTS)
+
+    expect(w.findAll('input[type="checkbox"]:checked')).toHaveLength(11)
+    const decksTicked = DECKS
+      .filter(d => d.concepts.some(c => PIVOT_CONCEPTS.includes(c.id)))
+      .map(d => d.id)
+    expect(decksTicked).toEqual(['strategic-orientation-2', 'sales-marketing'])
+  })
+
+  it('🔴 ticks nothing by itself', () => {
+    // The AI pre-tick is Stage 6 and is not built. A default tick would take the scoping
+    // conversation away from the advisor, and a tester could not tell it was not theirs.
+    const w = mountMenu()
     expect(w.findAll('input[type="checkbox"]:checked')).toHaveLength(0)
   })
 
-  it('shows no Session Scope table until a domain is opened', () => {
-    expect(mountScope().find('.sss-table').exists()).toBe(false)
-  })
-
-  it('opens a domain\'s Session Scope table when it is clicked', async () => {
-    const w = mountScope()
-    // Strategic Orientation is the second card and holds all three frameworks.
-    await w.findAll('.sss-domain').at(1).trigger('click')
-
-    expect(w.find('.sss-table').exists()).toBe(true)
-    expect(w.findAll('tbody tr')).toHaveLength(3)
-  })
-
-  it('emits the WHOLE chosen list when one framework is ticked', async () => {
+  it('emits the WHOLE chosen list when one concept is ticked', async () => {
     // The parent holds one source of truth; this component stays presentational.
-    const w = mountScope(['swot-pest'])
-    await w.findAll('.sss-domain').at(1).trigger('click')
-    await w.findAll('input[type="checkbox"]').at(0).setChecked(true)
+    const w = mountMenu(['porters-5-forces'])
+    await w.findAll('input[type="checkbox"]').at(1).setChecked(true)
 
     const emitted = w.emitted('scope-changed')
     expect(emitted).toBeTruthy()
-    expect(emitted[0][0]).toContain('swot-pest')
+    expect(emitted[0][0]).toContain('porters-5-forces')
+    expect(emitted[0][0].length).toBe(2)
   })
 
-  it('closes the table when the open domain is clicked again', async () => {
-    const w = mountScope()
-    await w.findAll('.sss-domain').at(1).trigger('click')
-    await w.findAll('.sss-domain').at(1).trigger('click')
+  it('unticks without disturbing the rest of the list', async () => {
+    const w = mountMenu(PIVOT_CONCEPTS)
+    const first = w.findAll('input[type="checkbox"]:checked').at(0)
+    await first.setChecked(false)
 
-    expect(w.find('.sss-table').exists()).toBe(false)
+    expect(w.emitted('scope-changed')[0][0]).toHaveLength(10)
+  })
+
+  it('🔴 renders an agenda row name-only, with no empty description columns', () => {
+    // Decision B: three of the five documents are agendas. Mike has not written their
+    // Concept Summary or Helps Your Client To… lines and nothing else may, so the name
+    // takes the three columns rather than leaving cells that read as missing data.
+    const w = mountMenu()
+    const agendaDeck = w.findAll('.ssm-deck').at(0)
+    expect(agendaDeck.find('.ssm-nodesc').exists()).toBe(true)
+    expect(agendaDeck.findAll('td[colspan="3"]').length).toBe(5)
+  })
+
+  it('🔴 marks the three rows whose text is one shared cell — Decision E', () => {
+    // Editing one of these rewrites its neighbour. An editing screen that did not say so
+    // would silently change a row nobody was looking at.
+    const w = mountMenu()
+    expect(w.findAll('.ssm-shared')).toHaveLength(3)
+  })
+
+  it('counts what is ticked, per panel and overall', () => {
+    // The counts, not the sentence around them — `$t` is stubbed in these mounts, so
+    // reading the rendered string would assert the stub's format rather than the maths.
+    const w = mountMenu(PIVOT_CONCEPTS)
+    expect(w.vm.totalConcepts).toBe(52)
+    // Strategic Orientation 2 is the third panel and holds nine of Pivot's eleven; Sales
+    // & Marketing is the fourth and holds the other two.
+    expect(w.vm.chosenInDeck(DECKS[2])).toBe(9)
+    expect(w.vm.chosenInDeck(DECKS[3])).toBe(2)
+    expect(w.vm.chosenInDeck(DECKS[0])).toBe(0)
+  })
+
+  it('🔴 says on screen that nothing typed is kept yet', () => {
+    // Stage 1 is the menu alone. Without this the screen looks finished, and a UAT tester
+    // cannot tell a half-built feature from a working one by looking at it.
+    expect(mountMenu().find('.ssm-stage').exists()).toBe(true)
+  })
+
+  it('🔴 PINS MIKE\'S OWN WORDS ON A ROW — Decision A', () => {
+    // LOAD-BEARING STRING, and the only wording assertion here. Decision A: the menu is
+    // his Session Scope table and its text is never rewritten, summarised or improved.
+    // The failure has already happened once — the built `porters-five-forces` framework
+    // carries a third-person rewrite of this very sentence, taken from ADV.0. A rewrite
+    // reads perfectly well in UAT; only a comparison with the deck catches it.
+    const w = mountMenu()
+    expect(w.text()).toContain(
+      'To look out for changes in the market and anticipate how everyone will react; ' +
+      'so you can be ready to take advantage of the situation.'
+    )
   })
 })

@@ -105,6 +105,43 @@ async function getFrameworks (req, res) {
 }
 
 /**
+ * GET /api/strategy/concepts
+ *
+ * The session scope menu — the 52 concepts as the five panels the advisor ticks, in Mike's
+ * own order. Platform content, behind firmAuth like every other advisor-facing read.
+ *
+ * 🔴 GROUPED BY DECK, NEVER BY DOMAIN. Strategic Orientation is one Planning Domain in two
+ * decks and only the second carries a scope table. The acceptance test — Pivot.pdf — takes
+ * nine concepts from one deck and two from another, so the panels are documents and the
+ * ticks cross freely between them.
+ *
+ * 🔴 EVERY WORD IN A ROW IS MIKE'S, read off his decks by machine. Decision A: this route
+ * joins and counts, and it never rewrites, summarises or fills a blank. A null description
+ * is an agenda row whose line he has not written (Decision B) and is returned as null.
+ *
+ * @route GET /api/strategy/concepts
+ * @param {object} req - firmAuth-verified; takes no parameters
+ * @param {object} res
+ * @returns {200} { success, decks, conceptCount, timestamp }
+ */
+// eslint-disable-next-line require-await -- Restify refuses a plain (req, res) handler; see getFrameworks
+async function getConcepts (req, res) {
+  try {
+    const decks = frameworks.listDecks()
+    res.send(200, {
+      success: true,
+      decks,
+      // The advisor is told the size of the menu rather than left to count five panels.
+      conceptCount: decks.reduce((n, d) => n + d.conceptCount, 0),
+      timestamp: new Date().toISOString()
+    })
+  } catch (err) {
+    console.error('[strategy-planner] getConcepts failed:', err.message)
+    sendError(res, 500, 'CONCEPTS_ERROR', 'Could not load the session scope menu')
+  }
+}
+
+/**
  * POST /api/strategy/sessions
  *
  * Opens a planning session for one client. Decision 1: nothing is pre-ticked, so a
@@ -406,6 +443,7 @@ async function postTimeline (req, res) {
 
 module.exports = {
   getFrameworks,
+  getConcepts,
   createSession,
   getSession,
   listSessions,

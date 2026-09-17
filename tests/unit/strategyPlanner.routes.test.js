@@ -96,6 +96,65 @@ describe('GET /api/strategy/frameworks', () => {
   })
 })
 
+describe('GET /api/strategy/concepts — the session scope menu', () => {
+  it('returns the five panels, in Mike\'s order, holding all 52 concepts', () => {
+    const res = makeRes()
+    routes.getConcepts(req(), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.decks).toHaveLength(5)
+    expect(res._body.conceptCount).toBe(52)
+    expect(res._body.decks.reduce((n, d) => n + d.concepts.length, 0)).toBe(52)
+  })
+
+  it('🔴 groups by DECK, so Pivot\'s eleven are reachable in one pass', () => {
+    // Strategic Orientation is one Planning Domain in two decks, and Pivot takes nine
+    // concepts from the second of them and two from Sales & Marketing. Grouping by domain
+    // would put nine of them under a heading shared with another deck's agenda rows.
+    const res = makeRes()
+    routes.getConcepts(req(), res)
+
+    const ids = res._body.decks.map(d => d.id)
+    expect(ids).toEqual([
+      'business-targets',
+      'strategic-orientation-1',
+      'strategic-orientation-2',
+      'sales-marketing',
+      'organisational-review'
+    ])
+    const so = ids.filter(id => id.indexOf('strategic-orientation') === 0)
+    expect(so).toHaveLength(2)
+  })
+
+  it('🔴 returns an unwritten description as null rather than filling it', () => {
+    // Decision B: an agenda row's description is Mike's to write. A generated or inferred
+    // sentence would look exactly like his and could not be told apart afterwards.
+    const res = makeRes()
+    routes.getConcepts(req(), res)
+
+    const agenda = res._body.decks.filter(d => d.rowSource === 'agenda')
+    expect(agenda).toHaveLength(3)
+    agenda.forEach((deck) => {
+      deck.concepts.forEach((c) => {
+        expect(c.helpsClientTo).toBeNull()
+      })
+    })
+  })
+
+  it('resolves a shared cell rather than returning an empty one', () => {
+    // Decision E: Price For Delivery Medium holds no text of its own — both its columns
+    // are one cell in the deck, shared with the row above. A screen that rendered the raw
+    // record would show two blanks where Mike wrote a sentence.
+    const res = makeRes()
+    routes.getConcepts(req(), res)
+
+    const so2 = res._body.decks.find(d => d.id === 'strategic-orientation-2')
+    const shared = so2.concepts.find(c => c.id === 'price-for-delivery-medium')
+    expect(shared.conceptSummary).toBeTruthy()
+    expect(shared.conceptSummarySharedWith).toBe('price-for-problem-solving')
+  })
+})
+
 describe('the firm comes from the token, never from the request', () => {
   it('🔴 ignores a firmId in the body when opening a session', async () => {
     store.createSession.mockResolvedValue(11)
@@ -344,6 +403,18 @@ describe('every route handles both kinds of failure', () => {
     const res = makeRes()
 
     routes.getFrameworks(req(), res)
+
+    expect(res._status).toBe(500)
+    expect(JSON.stringify(res._body)).not.toContain('ENOENT')
+  })
+
+  it('reports a session scope menu that cannot be read, without leaking why', () => {
+    jest.spyOn(frameworksModule, 'listDecks').mockImplementation(() => {
+      throw new Error('ENOENT: data/strategy-frameworks.json')
+    })
+    const res = makeRes()
+
+    routes.getConcepts(req(), res)
 
     expect(res._status).toBe(500)
     expect(JSON.stringify(res._body)).not.toContain('ENOENT')

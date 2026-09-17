@@ -938,6 +938,8 @@ server.get('/api/model-choices', firmAuth, requireManagerRole, modelChoicesRoute
 // boundaries. A session belonging to another firm answers 404, not 403, so an id cannot
 // be probed for existence.
 server.get('/api/strategy/frameworks', firmAuth, strategyPlannerRoute.getFrameworks)
+// The session scope menu — the 52 concepts as five panels, grouped by deck (item 15.1).
+server.get('/api/strategy/concepts', firmAuth, strategyPlannerRoute.getConcepts)
 server.get('/api/strategy/sessions', firmAuth, strategyPlannerRoute.listSessions)
 server.post('/api/strategy/sessions', firmAuth, strategyPlannerRoute.createSession)
 server.get('/api/strategy/sessions/:id', firmAuth, strategyPlannerRoute.getSession)

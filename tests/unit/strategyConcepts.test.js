@@ -266,6 +266,30 @@ describe('the words are Mike\'s, not ours', () => {
     )
   })
 
+  it('🔴 keeps an agenda row on ONE line, brackets and all, as the slide sets it', () => {
+    // A SECOND DELIBERATE WORDING PIN, added 2026-09-17 because this one has already
+    // drifted once — in the approved drawing rather than in the data. As first drawn, the
+    // session scope menu split the bracketed half of five agenda rows onto a smaller
+    // sub-line, and on one row it MOVED "(section 2)" from mid-sentence to the end.
+    //
+    // The decks do not do that. Read with the text extractor, each of these is a single
+    // line at one size and one x-position — Business Targets p2 at x=64.8 size 12, and
+    // Strategic Orientation 1 p2 at x=72.3 size 12. Mike's ruling: "each concept needs to
+    // be presented AS IT CURRENTLY APPEARS in the slides."
+    //
+    // ⚠ Organisational Review is the genuine exception and is NOT pinned here: its
+    // descriptions are a real second column on the slide, at x=352.7, which is why those
+    // nine rows carry a conceptSummary and no other agenda row does.
+    expect(frameworks.getConcept('review-your-profit-lever-focus-how-you-plan-to-achieve-your').name)
+      .toBe('Review Your Profit Lever Focus (how you plan to achieve your objectives - ' +
+        'based on the profit levers)')
+    // The id itself corroborates it: it truncates to "…-data-sectio", so "(section 2)" was
+    // inside the name when the index was read off the deck, not appended afterwards.
+    expect(frameworks.getConcept('assess-current-position-by-reviewing-pre-meeting-data-sectio').name)
+      .toBe('Assess current position by reviewing (pre-meeting) data (section 2) & ' +
+        'Financial Performance Reports')
+  })
+
   it('keeps the deck\'s own punctuation rather than normalising it away', () => {
     // The decks set apostrophes as the curly U+2019 — Porter's, Senge's, Deming's. Three
     // form lookups keyed on a typed straight quote matched nothing and silently left those

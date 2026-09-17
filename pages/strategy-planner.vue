@@ -30,14 +30,20 @@
   b-loading(:is-full-page="false" :active="loading")
 
   template(v-if="!loading && step === 'scope'")
-    strategy-session-scope(
-      :planning-domains="planningDomains"
-      :frameworks="frameworks"
+    strategy-scope-menu(
+      :decks="decks"
       :chosen="chosen"
+      :session-label="sessionLabel"
       @scope-changed="onScopeChanged"
     )
 
   template(v-if="!loading && step === 'run'")
+    //- 🔴 SAYS WHAT IT CANNOT RUN. The advisor scoped concepts that have no capture card
+    //- built yet, and a step that silently showed only two of eleven would read as a bug
+    //- in the room. Stage 1 of item 15.1 — the cards are stages 4 and 5.
+    b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
+      | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
+
     strategy-capture-card(
       v-for="(framework, index) in chosenFrameworks"
       :key="framework.id"
@@ -120,7 +126,7 @@
  * `window.localStorage` — where the advisor's token lives — does not either. The page
  * would throw before rendering. See the note on `mounted` below.
  */
-import StrategySessionScope from '~/components/strategy/StrategySessionScope.vue'
+import StrategyScopeMenu from '~/components/strategy/StrategyScopeMenu.vue'
 import StrategyCaptureCard from '~/components/strategy/StrategyCaptureCard.vue'
 import StrategyGrowthWheel from '~/components/strategy/StrategyGrowthWheel.vue'
 import { isDevHost } from '~/utils/devHost'
@@ -131,7 +137,7 @@ const TOKEN_KEY = 'advisor_e_token'
 export default {
   name: 'StrategyPlannerPage',
 
-  components: { StrategySessionScope, StrategyCaptureCard, StrategyGrowthWheel },
+  components: { StrategyScopeMenu, StrategyCaptureCard, StrategyGrowthWheel },
 
   data () {
     return {
@@ -140,6 +146,8 @@ export default {
       loading: true,
       error: '',
       planningDomains: [],
+      /** The five panels of the session scope menu, in Mike's order. */
+      decks: [],
       frameworks: [],
       /** The two that close every session — never ticked, always present. */
       closingFrameworks: [],
@@ -147,7 +155,11 @@ export default {
       growthAspects: [],
       clients: [],
       clientId: '',
-      /** Framework ids ticked on screen 1. Decision 1: nothing is pre-ticked. */
+      /**
+       * CONCEPT ids ticked on the session scope menu — Mike's own 52, not framework ids.
+       * Changed in Stage 1: the menu is now his Session Scope table (Decision A), and a
+       * concept is the unit an advisor ticks.
+       */
       chosen: [],
       /** The open session's id, once one exists. */
       sessionId: null,
@@ -159,9 +171,29 @@ export default {
   },
 
   computed: {
-    /** @returns {object[]} the ticked frameworks, in authored order */
+    /**
+     * The ticked concepts that have a built capture card, in authored order.
+     *
+     * ⚠ FAR FEWER THAN THE ADVISOR TICKED, AND THAT IS THE TRUE STATE. The menu offers all
+     * 52 of Mike's concepts; two of them — Porter's 5 Forces and the 8 Profit Levers — have
+     * a framework behind them today. The rest are scoped and wait on the later stages of
+     * item 15.1. `conceptsWithoutACard` counts them so the screen can say so rather than
+     * quietly drop them.
+     *
+     * @returns {object[]}
+     */
     chosenFrameworks () {
-      return this.frameworks.filter(f => this.chosen.includes(f.id))
+      return this.frameworks.filter(f => f.conceptId && this.chosen.includes(f.conceptId))
+    },
+
+    /** @returns {number} ticked concepts with no capture card built yet */
+    conceptsWithoutACard () {
+      return this.chosen.length - this.chosenFrameworks.length
+    },
+
+    /** @returns {string} the chrome line: which client, and when */
+    sessionLabel () {
+      return this.clientId ? this.clientName : ''
     },
 
     /**
@@ -293,17 +325,29 @@ export default {
       return out
     },
 
-    /** Loads the frameworks and the four Planning Domains. */
+    /**
+     * Loads the frameworks, the Planning Domains, and the session scope menu itself.
+     *
+     * Two calls rather than one: the menu is Mike's 52 concepts grouped by deck, and the
+     * frameworks are the handful of built capture cards. They are different sets with
+     * different lifetimes, and folding them into one response would hide that.
+     */
     async loadFrameworks () {
       this.loading = true
       try {
-        const res = await fetch('/api/strategy/frameworks', { credentials: 'same-origin', headers: this.headers() })
-        if (!res.ok) { throw new Error('HTTP ' + res.status) }
-        const body = await res.json()
+        const [frameworkRes, conceptRes] = await Promise.all([
+          fetch('/api/strategy/frameworks', { credentials: 'same-origin', headers: this.headers() }),
+          fetch('/api/strategy/concepts', { credentials: 'same-origin', headers: this.headers() })
+        ])
+        if (!frameworkRes.ok) { throw new Error('HTTP ' + frameworkRes.status) }
+        if (!conceptRes.ok) { throw new Error('HTTP ' + conceptRes.status) }
+        const body = await frameworkRes.json()
+        const conceptBody = await conceptRes.json()
         this.planningDomains = body.planningDomains || []
         this.frameworks = body.frameworks || []
         this.closingFrameworks = body.closingFrameworks || []
         this.growthAspects = body.growthAspects || []
+        this.decks = conceptBody.decks || []
       } catch (e) {
         this.error = this.$t('strategyPlanner.errors.loadFailed')
       } finally {
