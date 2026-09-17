@@ -11,32 +11,34 @@
 
 ## 2026-09-17 · Laptop · branch `feat/advisor-progress`
 
-**Eight commits, all pushed** (`be111078` … `b0edacf1`). Suite **12,074 green**, lint 0, audit
-gate pass. **0 behind `master`, 24 ahead.** No application code was written — `design/` only.
+**Eleven commits, all pushed** (`13255d3e` … `5bd1b99c`). Suite **12,074 green**, lint 0,
+audit gate pass. **0 behind `master`, 36 ahead.** `design/` only — no application code.
 **15.1 and 7.5 stay active on this laptop.**
 
-🔴 **`design/mockups/strategy-planner.html` IS SUPERSEDED AND NOW SAYS SO** — in its browser
-title, its `h1`, a banner above everything, and its file header. Mike's instruction after a
-republish of it surfaced where he expected the new drawing: *"make sure the old plan version
-never comes back."* **Open it for a ruling, never as the design.** Not deleted — its eleven
-rulings live there, and a drawing that is gone cannot be checked against.
+🔴 **THE SCOPE IS 52, NOT 51.** Strategic Orientation 2's Session Scope table has **18 rows**
+(7+6+5 across slides 3–5), counted off the deck. The census listed all 18 under a heading
+saying 17. The other four documents were re-checked and are correct. Corrected everywhere.
 
-**15.1 — THE OUTPUT IS DRAWN.** [`strategy-plan-output.html`](mockups/strategy-plan-output.html):
-all 31 pages of `Pivot.pdf` reproduced, each block carrying the page it answers, so the
-acceptance test runs against the drawing. ☑ **Decision 1 ruled** — one continuous document of
-slide-shaped pages, **ONE artefact never two formats**. ☐ **Four open, Decision 2 asked and
-unanswered**: does the advisor name the steps, or does the app group the ticked concepts?
+☑ **THE MENU IS DRAWN AND APPROVED TO BUILD FROM** —
+[`mockups/strategy-session-menu.html`](mockups/strategy-session-menu.html),
+[published here](https://claude.ai/artifact/TYVeczM52XyjAXSD7utd1p). It is Mike's own Session Scope table with
+the Include column made real, its 34 described rows carrying his wording read off the decks
+by machine. **Five decisions ruled** — A his table, words never rewritten · B the 18 agenda
+rows name-only, their lines his to write · C the AI pre-ticks with a reason and changes
+nothing itself · D "Where To Start??" an optional second route in · E shared text stored
+once, never copied.
 
-**Read Pivot, not the notes about it.** Two findings changed the model, both in census §1:
-teaching and capture interleave **per STEP, never per concept**, and **a concept can be captured
-twice into the same table** (Porter's p11 observations, p21 responses) — so the capture record
-keys on the **visit**. The Brief's *"the plan carries the capture, never the teaching"* was wrong
-and is corrected; Pivot is 12 teaching slides to 9 capture.
+🔴 **THE ENGINE CANNOT PROPOSE CONCEPTS, AND IT IS STRUCTURAL** (Brief §6, measured). Its
+candidate set is 291 documents; **0 of Pivot's 11 concepts are entries** and 3 appear
+nowhere. Its best answer is the two decks — 34 concepts for a session needing 11. **The
+concept index is the prerequisite for the whole thing** and does not exist.
 
-**The impact test's 45 was wrong — it is 51.** ADV.0's index has drifted four concepts and a page
-offset. Corrected in `ARTEFACTS.md`, the Brief and both drawings, with the reason on the page.
+**TWO THINGS WAIT ON MIKE, both on 15.1's note:** Decision F — which concept each "Where To
+Start??" action means, his mapping to write, not a yes/no — and D2 on the output drawing,
+still asked and unanswered.
 
-**DESKTOP — shared files I changed:** `design/ARTEFACTS.md`,
-`design/features/strategy-planner.md`, `design/features/to-do-items.json` (15.1's note), and the
-two mockups. **Nothing in `components/FirmManagerHub.vue`, `server/advisorEngine.js`, or anything
-else 7.2 owns.**
+**DESKTOP — shared files I changed:** `design/ARTEFACTS.md`, `design/PLANNING-TEMPLATE-CENSUS.md`,
+`design/features/strategy-planner.md`, `design/features/to-do-items.json` (15.1's note only),
+and the two mockups. **Nothing in `FirmManagerHub.vue`, `advisorEngine.js` or anything else
+7.2 owns.** Your `to-do-items.json` conflict warning still stands — you removed four items,
+I edited 15.1's note; keep both sides.
