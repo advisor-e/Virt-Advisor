@@ -99,21 +99,14 @@
   //- Screen 4 — the plan. READ ONLY, and assembled from what was captured; it holds no
   //- state of its own, so it can never disagree with the session behind it.
   template(v-if="!loading && step === 'plan'")
-    article.sp-plan
-      h2.sp-plan-title {{ clientName }}
-      p.sp-plan-sub {{ $t('strategyPlanner.plan.subtitle') }}
-
-      section.sp-plan-sec(v-for="block in planBlocks" :key="block.id")
-        h3.sp-plan-h {{ block.name }}
-        p.sp-plan-empty(v-if="!block.lines.length") {{ $t('strategyPlanner.plan.nothingCaptured') }}
-        dl.sp-plan-dl(v-else)
-          template(v-for="line in block.lines")
-            dt(:key="line.key + '-t'") {{ line.label }}
-            dd(:key="line.key + '-d'") {{ line.value }}
-
-      section.sp-plan-sec
-        h3.sp-plan-h {{ $t('strategyPlanner.wheel.heading') }}
-        strategy-growth-wheel(:aspects="growthAspects" :counts="aspectCounts")
+    strategy-plan-document(
+      :client-name="clientName"
+      :decks="planDecks"
+      :steps="planSteps"
+    )
+    section.sp-section
+      h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
+      strategy-growth-wheel(:aspects="growthAspects" :counts="aspectCounts")
 </template>
 
 <script>
@@ -155,6 +148,7 @@ import StrategyScopeMenu from '~/components/strategy/StrategyScopeMenu.vue'
 import StrategyCaptureCard from '~/components/strategy/StrategyCaptureCard.vue'
 import StrategyConceptCapture from '~/components/strategy/StrategyConceptCapture.vue'
 import StrategyGrowthWheel from '~/components/strategy/StrategyGrowthWheel.vue'
+import StrategyPlanDocument from '~/components/strategy/StrategyPlanDocument.vue'
 import { isDevHost } from '~/utils/devHost'
 
 /** Where the master app leaves the advisor's token before our pages load. */
@@ -163,7 +157,7 @@ const TOKEN_KEY = 'advisor_e_token'
 export default {
   name: 'StrategyPlannerPage',
 
-  components: { StrategyScopeMenu, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel },
+  components: { StrategyScopeMenu, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel, StrategyPlanDocument },
 
   data () {
     return {
@@ -328,18 +322,102 @@ export default {
      * disagree with the session behind it.
      * @returns {Array<{id: string, name: string, lines: object[]}>}
      */
-    planBlocks () {
-      return this.chosenFrameworks.concat(this.closingFrameworks).map(f => ({
-        id: f.id,
-        name: f.name,
-        lines: f.fields
-          .map(field => ({
-            key: f.id + '::' + field.key,
-            label: field.label,
-            value: String(this.entries[f.id + '::' + field.key] || '').trim()
+    /**
+     * Which decks this session drew on, as one line for the title page.
+     * @returns {string}
+     */
+    planDecks () {
+      const names = {}
+      this.decks.forEach((d) => {
+        if (d.concepts && d.concepts.some(c => this.chosen.includes(c.id))) { names[d.name] = true }
+      })
+      return Object.keys(names).join(' · ')
+    },
+
+    /**
+     * The session as the steps the assembled document prints.
+     *
+     * ⚠ ONE STEP FOR NOW, AND THAT IS A STATED LIMIT. The approved drawing has the
+     * advisor name his own steps and drag ticked concepts into them — Pivot's five,
+     * with Porter's in two of them and step 5 holding nothing. That screen is not
+     * built, so everything scoped sits in one step and the document's SHAPE can be
+     * judged before the step-builder exists. It is not a decision that steps are
+     * unnecessary.
+     *
+     * @returns {Array<{name: string, items: object[]}>}
+     */
+    planSteps () {
+      const items = []
+
+      // The approved framework cards first, in their authored order.
+      this.chosenFrameworks.forEach((f) => {
+        const conceptId = f.conceptId || f.id
+        items.push({
+          key: 'fw-' + f.id,
+          name: f.name,
+          summary: f.conceptSummary || '',
+          instruction: f.captureInstruction || '',
+          prompts: f.fields
+            .filter(x => x.prompt)
+            .map(x => ({ key: x.key, label: x.label, prompt: x.prompt })),
+          lines: f.fields.map(x => ({
+            key: conceptId + '::' + x.key,
+            label: x.label,
+            value: (this.entries[conceptId + '::' + x.key] || '').trim()
           }))
-          .filter(line => line.value)
+        })
+      })
+
+      // Then every concept captured through its own fill-in table.
+      this.conceptVisits.forEach((visit) => {
+        const capture = visit.capture || {}
+        if (!capture.supplied) { return }
+        const wanted = {}
+        const part = (capture.parts || [])[visit.part - 1]
+        if (part) { part.fieldKeys.forEach((k) => { wanted[k] = true }) }
+        items.push({
+          key: visit.key,
+          name: visit.name + (capture.parts && capture.parts.length > 1 ? ' (' + visit.part + ')' : ''),
+          summary: visit.conceptSummary || '',
+          instruction: this.visitInstruction(visit),
+          prompts: [],
+          lines: (capture.fields || [])
+            .filter(f => !part || wanted[f.key])
+            .map(f => ({
+              key: visit.conceptId + '::' + f.key,
+              label: [f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
+              value: (this.entries[visit.conceptId + '::' + f.key] || '').trim()
+            }))
+        })
+      })
+
+      // The two that close every session are their own step, as they are in Pivot.
+      const closing = this.closingFrameworks.map(f => ({
+        key: 'close-' + f.id,
+        name: f.name,
+        summary: '',
+        instruction: f.captureInstruction || '',
+        prompts: [],
+        lines: f.fields.map(x => ({
+          key: f.id + '::' + x.key,
+          label: x.label,
+          value: (this.entries[f.id + '::' + x.key] || '').trim()
+        }))
       }))
+
+      // `teaches` says whether the step has anything to present before it is
+      // worked. Without it a step of pure tables printed a Discussion divider and
+      // then went straight to the tables, which reads as a missing page.
+      const withTeaches = list => ({
+        items: list,
+        teaches: list.some(x => x.summary || x.prompts.length)
+      })
+
+      const steps = [Object.assign({ name: this.$t('strategyPlanner.plan.stepOne') }, withTeaches(items))]
+      if (closing.length) {
+        steps.push(Object.assign({ name: this.$t('strategyPlanner.plan.stepClose') }, withTeaches(closing)))
+      }
+      return steps
     }
   },
 

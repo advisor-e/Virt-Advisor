@@ -5917,7 +5917,20 @@
     "plan": {
       "subtitle": "Everything captured in this session, in the order it was worked.",
       "nothingCaptured": "Nothing was captured for this framework.",
-      "untitled": "This planning session"
+      "untitled": "This planning session",
+      "sessionPlan": "Session plan",
+      "agenda": "What this session covers",
+      "conceptCount": "{count} concept | {count} concepts",
+      "onAgendaOnly": "on the agenda only",
+      "step": "Step {n}",
+      "discussionPoints": "Discussion points",
+      "actionPoints": "Action points",
+      "teach": "Teach",
+      "capture": "Capture",
+      "blank": "not filled in",
+      "stepOne": "Run the frameworks",
+      "stepClose": "Objectives and actions",
+      "notWorked": "Scoped for this session, not worked through yet."
     }
   }
 }
