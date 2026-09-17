@@ -391,11 +391,16 @@ npx jest tests/unit/nameCollisions.test.js
   `Lease vs Buy`/`Lease vs. Buy`, `High-Level Budget`/`High Level Budget`,
   `Dashboard Reports`/`Dashboard Report`. A name alone can NEVER say which was meant.
   `tests/unit/nameCollisions.test.js` recomputes the set; a seventh fails the build.
-- **A model not offered is usually a `searchWords` gap, not a bug.** Check the model's own
-  `searchWords` and `useWhen` against the question before concluding anything. **8 Levers
-  Model** is found by *"which profit drivers should they pull first"* and missed by
-  *"my client thinks more sales is the only way to grow profit"* — the situation its own
-  `useWhen` names.
+- 🔴 **`searchWords` NEVER REACHES THE AI.** It is the Model Guide's filter box and nothing
+  else (`components/ModelGuide.vue`, *"screen-only, never given to the AI. Item 4.36."*).
+  The AI gets the **prose** — `answers`, `useWhen`, `inputsNeeded`, `alsoOnScreen`, `limits`,
+  coach lines. So: **to change what an advisor can FIND by typing → `searchWords`; to change
+  what the AI reaches for → the prose**, which is authored content and Mike's call, never
+  edited to chase a bench result. A session got this backwards on 2026-09-17.
+- **A model not offered may not be a bug at all.** **8 Levers Model** is missed by *"my client
+  thinks more sales is the only way to grow profit"* — almost verbatim its own `useWhen` —
+  because the AI finds the **template** *8 Profit Levers*, answers well, and stops. The guard
+  handles that pair correctly; nothing in the machinery is broken.
 - **The question may simply be wrong for the model.** `High-Level Budget` answers *"are we
   hitting the budget we set"* — it does not BUILD a budget. Read `useWhen` before calling a
   correct refusal a miss.

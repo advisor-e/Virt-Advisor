@@ -139,6 +139,30 @@ not inferred:
 ⚠ **Two runs per model is too thin to separate a systematic miss from variance**, as the last row
 shows. Treat a 0/2 as a candidate to re-run, never as a proven never.
 
+### 🔴 `searchWords` NEVER REACHES THE AI — it is the Model Guide's filter box
+
+Checked 2026-09-17, because a session assumed the opposite and nearly "fixed" the AI by editing
+it. `formatReportModelsForPrompt` does not render it; its one consumer is
+[`components/ModelGuide.vue`](../../components/ModelGuide.vue) (~line 268), whose own comment
+says *"screen-only, never given to the AI. Item 4.36."*
+
+**What the AI actually gets** is the prose — `answers`, `useWhen` (rendered as *"Reach for it
+when"*), `inputsNeeded`, `alsoOnScreen`, `limits` and the coach lines. So:
+
+- **To change what an advisor can FIND by typing** → `searchWords`.
+- **To change what the AI reaches for** → the prose. That is authored content describing what
+  the model is *for*, so it is Mike's call, never an AI session's, and never edited to chase a
+  bench result.
+
+**The 8 Levers case, measured.** Asked *"my client thinks more sales is the only way to grow
+profit"* — almost verbatim its own `useWhen` — the AI offers **no calculator at all**, 3 runs of
+3. It is not confused: it finds the template **8 Profit Levers**, which is a genuinely good
+match, and simply stops there. The near-name is a coincidence of vocabulary, not a collision the
+guard mishandles — `8 Profit Levers` is a real template and passes, `8 Levers Model` is
+model-only and is correctly flagged under a template heading. **Nothing to fix in the
+machinery**; what is missing is the calculator offered *alongside* a template that already
+answers the question.
+
 **P3 · Domain detection is keyword-first, AI only as the backstop.** A confident keyword match
 (two or more hits) is used as-is with no AI. A tie asks the advisor. A thin single hit gets one
 cheap AI opinion — if it agrees the keyword stands, if it disagrees **both are shown to the
