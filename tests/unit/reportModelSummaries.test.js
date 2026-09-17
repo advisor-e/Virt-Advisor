@@ -393,21 +393,16 @@ describe('the AI is INVITED to use the list, not merely given it — item 4.32',
 
   it('🔴 BOTH KEEP THE BRAKE THAT STOPS 4.18 — a model is named on FIT, never reached for', () => {
     // An invitation without a brake is how the AI reaches for a tool nobody asked about.
-    // 🔴 THE BRAKE IS "unless it directly answers", NOT discouragement. Item 7.9, 2026-09-17:
-    // the discouraging half ("Most searches have no calculator", "no answer is worse for
-    // leaving it out") was measured at 8 of 19 calculators reliably offered across 30 live
-    // conversations — the AI withheld models that DID fit. That half is gone; this half
-    // stays, because 4.18 was the AI naming a model that did NOT fit and it is still real.
+    // 🔴 THE BRAKE IS "unless it directly answers", NOT discouragement — the discouraging
+    // half was removed for item 7.9 because it withheld models that DID fit.
     expect(discover).toMatch(/OMIT THIS WHOLE BLOCK, heading included, unless/)
     expect(discover).toMatch(/never stretch to the closest model/)
     expect(client).toMatch(/a recommendation is not worse for leaving it out/)
   })
 
   it('🔴 NEITHER MODE DISCOURAGES A MODEL THAT FITS — item 7.9', () => {
-    // The fault 7.9 measured was one-directional: every sentence framed the calculator as
-    // the exception, so the AI treated withholding as the safe choice. These pin the
-    // correction in the two places that framing lived, so it cannot creep back in one of
-    // them while the other looks right — which is how it survived the first time.
+    // Pinned in BOTH places the discouraging framing lived, so it cannot creep back into
+    // one while the other still looks right.
     expect(discover).not.toMatch(/Most searches have no calculator/)
     expect(discover).not.toMatch(/no answer is worse for leaving it out/)
     expect(discover).toMatch(/a normal part of a good answer, not a rare extra/)

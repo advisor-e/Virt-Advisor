@@ -153,39 +153,21 @@ have added new features since."*
   re-derive either.**
 
 **7.1 · The 14 branches that still name a page nobody can open.** ⏸ **Parked 2026-09-17 by Mike.**
-It is his own job, done in UAT, and it had been surfacing at the top of every startup as though it
-were waiting on us.
 
-- **What it was:** fourteen logic-table branches recommend documents the template library does not
-  hold, so the recommendation gate withholds or trims that coaching before an adviser sees it. The
-  gate is behaving correctly; the content names tools that are not there. The full list — 14
-  branches, 18 names — is [`../LOGIC-TABLE-TEMPLATES-NEEDED.md`](../LOGIC-TABLE-TEMPLATES-NEEDED.md).
-- **Why it is parked and not done:** 🔴 **Mike settles the 18 names himself, while testing in UAT**
-  (his ruling, 2026-09-10). It was never session work. Leaving it on the live list meant every
-  session opened on a score-4 item at rank 1 that no session was allowed to touch, and each one
-  spent its startup re-reporting it to him.
-- 🔴 **NOT A CHANGE OF MIND ABOUT THE CONTENT.** The fourteen branches are still wrong and the
-  coaching is still withheld. What changed is only where the job lives: with him, in UAT, not on a
-  list of work for this repository.
-- ⚠ **A second step exists, and it is SMALLER AND LESS BLOCKED than this page said.** Measured
-  against the data 2026-09-17, on Mike's question — **5 branches, not 22**, and they name **two
-  documents that already exist in the library** under exactly the titles the prose uses:
-  - **Planning Outcomes Review** — `sp_rec_planning_outcomes`.
-  - **Lite Fundamentals** — `sp_rec_lite_existing_no`, `sp_rec_lite_modified`, `sp_rec_lite_prospect`,
-    `sp_rec_lite_referral`.
+- **Still broken, just not ours.** Fourteen branches name documents the library does not hold, so
+  the gate withholds that coaching. **Mike settles the 18 names himself in UAT** (his ruling,
+  2026-09-10), so it is not session work and does not belong on the live list. The list is
+  [`../LOGIC-TABLE-TEMPLATES-NEEDED.md`](../LOGIC-TABLE-TEMPLATES-NEEDED.md).
+- ⚠ **A separate 5-branch job, NOT blocked on those names** (measured 2026-09-17). Their
+  `templates[]` is `undefined`, so the engine — which reads only that array, never the prose —
+  offers nothing while the advisor reads coaching naming the document. Both documents already exist
+  under these exact titles:
+  - **Planning Outcomes Review** — `sp_rec_planning_outcomes`
+  - **Lite Fundamentals** — `sp_rec_lite_existing_no`, `_modified`, `_prospect`, `_referral`
 
-  All five are `sp_` (sales-process) branches whose `templates[]` is `undefined`, so the engine —
-  which reads only that array, never the prose — offers nothing while the advisor reads coaching
-  that names the document. 🔴 **This is NOT waiting on Mike's UAT names.** 7.1 is branches naming
-  documents that do not exist; this is the opposite, and nothing needs deciding. **It is still not
-  started**, for one reason: filling the arrays must be watched serving the document on the running
-  app before it is called fixed. No test can prove it — the same blind spot 7.9 was filed under.
-
-  *The "22" came from an AI note of 2026-08-26 and was repeated here unchecked. Of 254
-  recommendation nodes, 61 have no `templates[]`, but most are pure coaching — "Processing Style:
-  Activist" and the like — with no document to attach, and are correct as they stand.*
-- **Related, and the same shape:** *lease vs buy* and *loan estimator* are offered no template at
-  all (item 7.9). Material that was never written is not a code defect.
+  Fill the five arrays, then **watch it serve the document on the running app** — no test can prove
+  it. *(The other 56 empty `templates[]` are pure coaching with no document to attach. Correct as
+  they stand.)*
 
 **Template Check queue, and the Logic Tables rewording.** Parked 2026-08-13 — sort them after
 UAT testing.
