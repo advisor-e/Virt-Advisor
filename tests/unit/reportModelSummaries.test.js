@@ -394,13 +394,13 @@ describe('the AI is INVITED to use the list, not merely given it — item 4.32',
   it('🔴 BOTH KEEP THE BRAKE THAT STOPS 4.18 — a model is named on FIT, never reached for', () => {
     // An invitation without a brake is how the AI reaches for a tool nobody asked about.
     // 🔴 THE BRAKE IS "unless it directly answers", NOT discouragement — the discouraging
-    // half was removed for item 7.9 because it withheld models that DID fit.
+    // half was removed for item 7.12 because it withheld models that DID fit.
     expect(discover).toMatch(/OMIT THIS WHOLE BLOCK, heading included, unless/)
     expect(discover).toMatch(/never stretch to the closest model/)
     expect(client).toMatch(/a recommendation is not worse for leaving it out/)
   })
 
-  it('🔴 NEITHER MODE DISCOURAGES A MODEL THAT FITS — item 7.9', () => {
+  it('🔴 NEITHER MODE DISCOURAGES A MODEL THAT FITS — item 7.12', () => {
     // Pinned in BOTH places the discouraging framing lived, so it cannot creep back into
     // one while the other still looks right.
     expect(discover).not.toMatch(/Most searches have no calculator/)

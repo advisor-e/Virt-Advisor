@@ -166,12 +166,12 @@ describe('modelChoiceScan — the catalogue is the authority', () => {
   })
 })
 
-// 🔴 ITEM 7.9. Measured 2026-09-17: asked the question `/stock-purchasing` answers, the AI
+// 🔴 ITEM 7.12. Measured 2026-09-17: asked the question `/stock-purchasing` answers, the AI
 // named "Stock Purchasing" while the catalogue holds "Stock Purchasing (Growth Pro)". The
 // exact-match-only lookup returned null and every net went quiet at once — the heading
 // check had no model to report, and the `[[MODEL:]]` marker counted the name as
 // `unverified` rather than as a real mention.
-describe('modelChoiceScan — the short form the AI actually writes (item 7.9)', () => {
+describe('modelChoiceScan — the short form the AI actually writes (item 7.12)', () => {
   const shortOf = name => name.replace(/\s*\([^)]*\)\s*$/, '').trim()
   const abbreviated = MODELS.filter(m => shortOf(m.name) !== m.name)
 

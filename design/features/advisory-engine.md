@@ -59,7 +59,7 @@ the correction twice the answer goes out with a note saying plainly that the nam
 calculator, not a template. `server/utils/templateHeadingCheck.js`.
 
 ⚠ **That check recognises a model by its EXACT catalogue name or route, and this is the seam
-item 7.9 turns on.** Measured 2026-09-17 against the shipped catalogues, the three "model named
+item 7.12 turns on.** Measured 2026-09-17 against the shipped catalogues, the three "model named
 but no page path" cases are three different things, not one:
 
 | What the AI wrote | What it is | What happens today |
@@ -126,7 +126,7 @@ the models block (51,357 chars) and the template pre-filter both reach the AI:
 | --- | --- | --- | --- |
 | Working Capital Cycle | 3/6 | **5/6** | the calculator dropped after a correct template |
 | Sales Dashboard | 1/6 (named 6/6) | **3/6** (named 6/6) | same — named in prose, no page path |
-| High-Level Budget | 2/6 | **1/6** | 🔴 a DIFFERENT fault — `/mid-level-budget` offered instead, 4/6 then 5/6 |
+| High-Level Budget | 2/6 | **1/6** | 🔴 a DIFFERENT fault — `/mid-level-budget` offered instead, 4/6 then 5/6. **Fixed later the same day — see item 7.11 below** |
 | 8 Levers Model | 0/6 | 0/6 | **not a defect** — the AI answers with the template *8 Profit Levers* and stops |
 
 **The change:** the instruction block's offer rule now names the case that was failing — *"IF A MODEL
@@ -137,12 +137,29 @@ calculator; the refusal rule shouted in capitals while the offer rule whispered.
 
 Across the four: calculator links **6/24 → 9/24**, wrong-tool substitutions **9 → 6**.
 
-⚠ **THE BUDGET SUBSTITUTION IS A SEPARATE DEFECT AND WORDING DOES NOT FIX IT.** Proved twice on
-2026-09-18. A distinguishing sentence added to High-Level Budget's own `useWhen` made it **worse**
-(4/6 → 6/6) and was reverted the same hour: naming the competing model in the entry simply put it
-in front of the AI twice as often. The offer rule then moved it the wrong way too. The AI does not
-*forget* this calculator — it reaches for the wrong size of budget. Mike's authored prose is
-untouched and must not be edited to chase this.
+✅ **THE BUDGET SUBSTITUTION IS A SEPARATE DEFECT (item 7.11), AND IT IS FIXED — 2026-09-18,
+`ddf2dcce`.** Measured on 6 live runs after the change: the right calculator **4/4** wherever one
+was offered, and High-Level Budget named as *Best match* **6/6**. Before: the wrong one 5/6.
+
+**What fixed it was the one sentence that caused it.** Mid-Level Budget's `answers` opened *"The
+same question as the High-Level Budget, plus the one that usually matters more"* — the AI was not
+*forgetting* the right calculator, it was being told in the second field it reads that one of the
+two is strictly better, and obeying. `useWhen` carries the correct steer back but is the sixth
+field. Instruction line 8 cannot catch it either: that forbids the closest model when **none**
+fits, and here one genuinely does. It now reads *"Whether the business is hitting its budget when
+the money does not arrive the month it is earned"* — the timing distinction as a condition of the
+question, not a ranking of one model over the other. Every other entry of the nineteen already
+opened by naming what it answers in its own right; this was the only one defined against another.
+
+🔴 **THIS PARAGRAPH PREVIOUSLY SAID WORDING DOES NOT FIX IT, AND THAT MIKE'S AUTHORED PROSE MUST
+NOT BE EDITED. BOTH WERE WRONG.** The prose is AI-authored — High-Level's `answers` entered in
+`0fdee54b`, Mid-Level's in `b8c2fa56` — and Mike's seven rulings of 2026-09-13 are all *screen*
+wording; `ARTEFACTS.md` line 108 records none on the summaries. Traced on his challenge after the
+claim sent a session looking for a workaround instead of the fix. ⚠ **The two failed attempts are
+still dead ends and stand as recorded:** a distinguishing sentence in High-Level's `useWhen` made
+it **worse** (4/6 → 6/6), reverted the same hour — naming the competing model in an entry puts it
+in front of the AI twice as often — and 7.12's offer rule moved it the wrong way too (4/6 → 5/6).
+Six runs is a small sample on behaviour that varies run to run; this wants watching in UAT.
 
 ### What the earlier bench measured — 2026-09-17, 19 models × 2 runs
 
@@ -150,7 +167,7 @@ untouched and must not be edited to chase this.
 invented template names.** The heading retry fired on 28 of 38 calls, so the AI names a model
 under a template heading roughly two calls in three and the guard is carrying that load.
 
-**Both questions item 7.9 was filed over now score 2/2** — *lease or buy a van* → **Lease vs
+**Both questions the laptop's item 7.9 was filed over now score 2/2** — *lease or buy a van* → **Lease vs
 Buy**, *loan repayments* → **The Loan Estimator**. So do **Stock Purchasing (Growth Pro)** and
 **Cost of Capital (WACC)**, the two the short-form fix targeted.
 

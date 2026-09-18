@@ -196,7 +196,7 @@ describe('templateHeadingCheck — the live case that produced item 7.7', () => 
   })
 })
 
-// 🔴 ITEM 7.9 — THE ORDER THAT KEEPS THE SHORT-FORM WIDENING SAFE.
+// 🔴 ITEM 7.12 — THE ORDER THAT KEEPS THE SHORT-FORM WIDENING SAFE.
 //
 // `resolveModelToken` now also resolves a model's name without its trailing parenthetical,
 // so "Stock Purchasing" reaches `/stock-purchasing`. That makes "Cost of Capital" — the

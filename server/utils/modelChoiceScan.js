@@ -97,7 +97,7 @@ function catalogue () {
     if (typeof m.name === 'string' && m.name) { byName.set(m.name.toLowerCase().trim(), m.route) }
   })
 
-  // 🔴 ITEM 7.9 — THE SHORT FORM THE AI ACTUALLY WRITES. Measured 2026-09-17: asked the
+  // 🔴 ITEM 7.12 — THE SHORT FORM THE AI ACTUALLY WRITES. Measured 2026-09-17: asked the
   // question `/stock-purchasing` answers, the AI named "Stock Purchasing" while the
   // catalogue holds "Stock Purchasing (Growth Pro)". Matching on the full name alone
   // returned null, and EVERY net went quiet at once — `templateHeadingCheck` skipped it
@@ -143,7 +143,7 @@ function _escape (s) {
  * One declared token to a real route, or null.
  *
  * Accepts the page path (what the instruction asks for), the model's name (what the AI
- * sometimes writes instead) and that name's unambiguous short form (item 7.9), because
+ * sometimes writes instead) and that name's unambiguous short form (item 7.12), because
  * rejecting any of the three would record a real mention as silence. Trailing slashes,
  * markdown emphasis and surrounding quotes are stripped first.
  *
