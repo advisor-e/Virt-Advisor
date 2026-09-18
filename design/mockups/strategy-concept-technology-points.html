@@ -1,0 +1,412 @@
+<title>Technology Points, Flattened</title>
+<!--
+  design/mockups/strategy-concept-technology-points.html
+
+  🔴 ITEM 15.7 — THE ONE CONCEPT THAT IS FLATTENED FROM A PHOTOGRAPH.
+
+  Every other drawn concept was copied from the vector paths in Mike's deck. This one
+  has none: Strategic Orientation 2 p28 carries a rendered 3-D JPEG (1213x824), and
+  Mike ruled on 2026-09-18 that it is REDRAWN FLAT rather than shown as the picture,
+  because the raster carries the Advisor-E.com logo INSIDE the artwork - in a
+  right-hand panel his slide crops off, together with a title, a DVD worked example
+  and a key to the six markers.
+
+  It is in its own file, as Porter's is, because it establishes a method the next
+  session needs to see: how a chart is recovered from pixels without tracing by eye.
+
+  HOW THE CHART WAS MEASURED, in order:
+    1. The six markers were found by connected-component search for ring-shaped
+       light-grey blobs. Six were found, all ~55px, none spurious, none placed by hand.
+    2. The 3-D view's two axis directions were derived from the blue axis arrows
+       ALONE - floor axis (1, 0.2267), vertical axis (-0.0119, -1) - and used to
+       flatten every measured point.
+    3. 🔴 THE FLATTENING VERIFIED ITSELF. His "CRITICAL PRICE POINT" line slopes
+       downhill on screen but is in truth a fixed price, so flattened it must come out
+       level. It does: 61.4% -> 61.9% of axis height across 620px. Nothing was fitted
+       to make that happen - the basis came from the axes, the line was never used.
+    4. The ribbon was independently traced column by column. It confirms markers
+       3, 4 and 5 to within 0.6% of the axis range. Markers 1 and 6 cannot be
+       column-traced - 1 sits on a vertical drop, 6 on the end cap - which is why the
+       six ring centres, not the trace, are the data.
+
+  Source: C:\Documents\Visual Code Projects\Strategy Planner\Advance.2B.Strategic Orientation.2.pdf
+  Page 28. Open it beside this to check "copied, not redrawn".
+
+  ⚠ His page is deliberately NOT embedded here. Embedding it would put the
+  advisor-e.com border and logo back into the artefact this drawing exists to remove.
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+<style>
+  :root {
+    --ground: #eef3f8; --card: #ffffff; --ink: #002b64; --body: #23405f;
+    --muted: #5b6f8a; --line: #d5e1ee; --accent: #0070c0;
+    --warn-bg: #fdf1e0; --warn-ink: #b56200; --warn-line: #e3b877;
+    --shadow: 0 12px 32px rgba(0, 43, 100, .10);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+      --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+      --warn-bg: #3a2810; --warn-ink: #ffb454; --warn-line: #6b4a18;
+      --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+    --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+    --warn-bg: #3a2810; --warn-ink: #ffb454; --warn-line: #6b4a18;
+    --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--body);
+    font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1180px; margin: 0 auto; padding-block: 28px 80px;
+    padding-left: 16px; padding-right: 16px;
+    display: flex; flex-direction: column; gap: 30px;
+  }
+  .eyebrow {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0;
+  }
+  h1 {
+    margin: 4px 0 0; font-size: clamp(26px, 4vw, 38px); line-height: 1.12;
+    letter-spacing: -.015em; color: var(--ink); text-wrap: balance;
+  }
+  .standfirst { margin: 8px 0 0; max-width: 70ch; }
+  h2 { margin: 0; font-size: 20px; color: var(--ink); letter-spacing: -.01em; }
+
+  .switch {
+    background: var(--card); border: 1px solid var(--line);
+    border-top: 3px solid var(--accent); border-radius: 14px; padding: 16px;
+    box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px;
+  }
+  .switch-label { font-size: 13.5px; color: var(--muted); margin: 0; }
+  .firms { display: flex; flex-wrap: wrap; gap: 8px; }
+  .firm {
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    border-radius: 999px; padding: 7px 15px; border: 1px solid var(--line);
+    background: transparent; color: var(--body);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .firm:hover { border-color: var(--accent); color: var(--ink); }
+  .firm:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .firm[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; flex: none; background: var(--sw); }
+
+  /* A slide is a printed sheet: white in both themes, as it prints in the plan. */
+  .sheet {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    overflow: hidden; box-shadow: var(--shadow);
+  }
+  .sheet svg { display: block; width: 100%; height: auto; }
+
+  figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  figcaption { font-size: 13px; color: var(--muted); }
+  figcaption b { color: var(--ink); }
+  .srcref {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11.5px; color: var(--muted);
+  }
+
+  .panel {
+    background: var(--warn-bg); border: 1px solid var(--warn-line);
+    border-left: 3px solid var(--warn-ink); border-radius: 14px; padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .panel h2 { color: var(--warn-ink); }
+  .panel b { color: var(--warn-ink); }
+  ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+  li { max-width: 76ch; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em;
+    background: var(--ground); border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 5px; color: var(--ink);
+  }
+  table { border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 6px 16px 6px 0; border-bottom: 1px solid var(--warn-line); }
+  th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--warn-ink); }
+  td { font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Strategy Planner · item 15.7 · the flat redraw</p>
+    <h1>Technology Points, Flattened</h1>
+    <p class="standfirst">
+      The last diagram in Strategic Orientation 2, and the only one that was never a drawing.
+      <b>Your page holds a photograph of a 3-D scene</b>, so there were no paths to copy — the
+      chart had to be measured out of the pixels instead. Your words on the left came out of the
+      page's text layer exactly, as always.
+    </p>
+  </header>
+
+  <section class="switch">
+    <p class="switch-label">Switch the firm and watch the bottom-left corner — where your logo used to be burned in.</p>
+    <div class="firms" id="firms" role="group" aria-label="Choose a firm">
+      <button class="firm" type="button" data-firm="0" aria-pressed="true" style="--sw:#0070c0">
+        <span class="swatch" aria-hidden="true"></span>Hartley &amp; Co
+      </button>
+      <button class="firm" type="button" data-firm="1" aria-pressed="false" style="--sw:#7a4b8f">
+        <span class="swatch" aria-hidden="true"></span>Northbridge Advisory
+      </button>
+      <button class="firm" type="button" data-firm="2" aria-pressed="false" style="--sw:#0f7a5a">
+        <span class="swatch" aria-hidden="true"></span>Kestrel Partners
+      </button>
+    </div>
+  </section>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Technology Points. Your four key stages and four paragraphs on the left; on the right a flat chart of retail value against market acceptance, with six numbered points, a level critical price point line, and a name brands capitulate band.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             LEFT COLUMN - every span read from the PDF text layer.
+             x, y, size, weight and colour are his; each line is pinned to
+             its own measured width with textLength.
+             ============================================================ -->
+        <g font-family="Open Sans, sans-serif">
+          <text x="46.2" y="78.8" font-size="50" fill="#002b64"
+                textLength="423.5" lengthAdjust="spacing">Technology Points</text>
+          <text x="46.2" y="110.0" font-size="22.9" fill="#002b64"
+                textLength="367.5" lengthAdjust="spacing">(Chris Anderson - Wired Magazine)</text>
+
+          <text x="46.2" y="165.2" font-size="20.8" font-weight="700" fill="#002b64"
+                textLength="213.1" lengthAdjust="spacing">The Four Key Stages:</text>
+
+          <circle cx="69.1" cy="183.7" r="4.5" fill="#002b64"></circle>
+          <text x="102.5" y="190.2" font-size="20.8" font-weight="700" fill="#002b64"
+                textLength="203.2" lengthAdjust="spacing">Critical Price Point*</text>
+
+          <circle cx="69.1" cy="208.7" r="4.5" fill="#002b64"></circle>
+          <text x="102.5" y="215.2" font-size="20.8" font-weight="700" fill="#002b64"
+                textLength="200.8" lengthAdjust="spacing">Market Acceptance</text>
+
+          <circle cx="69.1" cy="233.7" r="4.5" fill="#002b64"></circle>
+          <text x="102.5" y="240.2" font-size="20.8" font-weight="700" fill="#002b64"
+                textLength="354.7" lengthAdjust="spacing">Displacing Established Technology</text>
+
+          <circle cx="69.1" cy="258.6" r="4.5" fill="#002b64"></circle>
+          <text x="102.5" y="265.1" font-size="20.8" font-weight="700" fill="#002b64"
+                textLength="374.3" lengthAdjust="spacing">Becoming Ubiquitous (ever-present)</text>
+
+          <g font-size="20.8" fill="#434343">
+            <text x="46.2" y="315.1" textLength="583.6" lengthAdjust="spacing">New technologies often enter at a &#8216;Premium&#8217; price point</text>
+            <text x="46.2" y="340.1" textLength="583.7" lengthAdjust="spacing">due to the cost of developing the technology, higher</text>
+            <text x="46.2" y="365.1" textLength="583.6" lengthAdjust="spacing">manufacturing costs (due to smaller sales volumes) and the</text>
+            <text x="46.2" y="390.1" textLength="187.2" lengthAdjust="spacing">&#8216;uniqueness factor&#8217;.</text>
+
+            <text x="46.2" y="440.1" textLength="583.5" lengthAdjust="spacing">Once competitors release their (same or similar) versions</text>
+            <text x="46.2" y="465.1" textLength="583.5" lengthAdjust="spacing">then the race is on for the &#8216;critical price point&#8217; that will</text>
+            <text x="46.2" y="490.1" textLength="583.6" lengthAdjust="spacing">entice the &#8216;Early Majority&#8217; to demand the product/ service</text>
+            <text x="46.2" y="515.1" textLength="148.9" lengthAdjust="spacing">for themselves.</text>
+
+            <text x="46.2" y="565.1" textLength="583.6" lengthAdjust="spacing">The next focus is on manufacturing / delivery efficiencies</text>
+            <text x="46.2" y="590.1" textLength="583.6" lengthAdjust="spacing">that can permit a lower price point whilst maintaining (or</text>
+            <text x="46.2" y="615.1" textLength="252.3" lengthAdjust="spacing">improving) profit margins.</text>
+
+            <text x="46.2" y="665.1" textLength="583.5" lengthAdjust="spacing">The final &#8216;price point&#8217; issue is when &#8216;brand name&#8217; producers</text>
+            <text x="46.2" y="690.1" textLength="583.5" lengthAdjust="spacing">capitulate and withdraw from the market in search of the</text>
+            <text x="46.2" y="715.1" textLength="583.4" lengthAdjust="spacing">next &#8216;best thing&#8217;. (Opportunity still exists in the tail - argues</text>
+            <text x="46.2" y="740.1" textLength="155.1" lengthAdjust="spacing">Chris Anderson)</text>
+          </g>
+        </g>
+
+        <!-- ============================================================
+             THE CHART. Panel sits exactly where his picture placeholder
+             sits on the page: 318.3-702.2 x 22.1-375.4pt, scaled 2.0833.
+             Backdrop #525355 is his own scene grey, sampled off the render.
+             ============================================================ -->
+        <rect x="663" y="46" width="800" height="736" fill="#525355"></rect>
+
+        <!-- The three axes. Blue #335998 and gold #FFC211 are both sampled off his page.
+             ⚠ STATED DEVIATION: on his page the gold also wraps each ARROWHEAD, because each
+             axis is a 3-D prism and the gold is its lit edge. Flat there is no prism, and a
+             gold wedge on a flat arrowhead reads as a stray mark - so the gold is the shaft
+             edge only, on all three, consistently. -->
+        <!-- left: retail value, pointing up -->
+        <rect x="672" y="100" width="9" height="622" fill="#FFC211"></rect>
+        <polygon points="681,722 681,100 667,100 701,52 735,100 721,100 721,722" fill="#335998"></polygon>
+        <!-- bottom: market acceptance, pointing right -->
+        <rect x="681" y="713" width="724" height="9" fill="#FFC211"></rect>
+        <polygon points="681,722 1405,722 1405,708 1449,742 1405,776 1405,762 681,762" fill="#335998"></polygon>
+        <!-- right: cost of producing, pointing DOWN - his point is that it falls as acceptance rises.
+             ⚠ STATED DEVIATION: on his page this arrow crosses the bottom axis, because a 3-D scene
+             gives the two arrowheads different depths. Flat, they have none, and crossing read as a
+             collision - so it stops ON the baseline instead. -->
+        <rect x="1372" y="100" width="9" height="538" fill="#FFC211"></rect>
+        <polygon points="1381,100 1421,100 1421,638 1435,638 1401,690 1367,638 1381,638" fill="#335998"></polygon>
+
+        <!-- 'Name brands capitulate' band. Flattened x-range 62.7%-75.8% of the
+             acceptance axis; colour #999288 sampled off his band. -->
+        <rect x="1134.6" y="64" width="86.9" height="658" fill="#999288" opacity="0.9"></rect>
+        <text transform="translate(1178,300) rotate(-90)" text-anchor="middle"
+              font-family="Open Sans, sans-serif" font-size="23" font-weight="700"
+              letter-spacing="2.5" fill="#d8d2c6">
+          <tspan x="0" dy="-14">NAME BRANDS</tspan>
+          <tspan x="0" dy="30">CAPITULATE</tspan>
+        </text>
+
+        <!-- The critical price point. LEVEL - which is the whole proof that the
+             flattening is right. In his 3-D view it slopes; it should not. -->
+        <line x1="721" y1="415.6" x2="1345" y2="415.6" stroke="#F10132" stroke-width="7"></line>
+        <text x="836" y="405" font-family="Open Sans, sans-serif" font-size="22"
+              font-weight="700" letter-spacing="1.5" fill="#F10132">CRITICAL PRICE POINT</text>
+
+        <!-- The ribbon, through the six measured points. The elbow at 2 is his:
+             a vertical fall, then a near-level run. -->
+        <path d="M 784.5 224.2
+                 C 787 340, 792 445, 810.4 495
+                 C 860.4 491.2, 912.9 484.8, 960.3 483.5
+                 C 1007.7 482.2, 1058.0 482.3, 1094.6 487.2
+                 C 1131.2 492.1, 1152.9 498.6, 1179.8 512.7
+                 C 1206.7 526.9, 1230.6 552.3, 1256.0 572.1"
+              fill="none" stroke="#A90000" stroke-width="22"
+              stroke-linecap="round" stroke-linejoin="round"></path>
+
+        <!-- The six markers, found by machine, not placed. -->
+        <g fill="#A90000" stroke="#C4C5C7" stroke-width="9">
+          <circle cx="784.5" cy="224.2" r="22"></circle>
+          <circle cx="810.4" cy="495.0" r="22"></circle>
+          <circle cx="960.3" cy="483.5" r="22"></circle>
+          <circle cx="1094.6" cy="487.2" r="22"></circle>
+          <circle cx="1179.8" cy="512.7" r="22"></circle>
+          <circle cx="1256.0" cy="572.1" r="22"></circle>
+        </g>
+        <g font-family="Open Sans, sans-serif" font-size="30" font-weight="700"
+           fill="#ffffff" text-anchor="middle">
+          <text x="822" y="202">1</text>
+          <text x="778" y="543">2</text>
+          <text x="952" y="543">3</text>
+          <text x="1094" y="548">4</text>
+          <text x="1172" y="576">5</text>
+          <text x="1288" y="620">6</text>
+        </g>
+
+        <!-- Axis labels. These words are the one thing that could not be machine
+             read: they are pixels inside the photograph, not text. -->
+        <g font-family="Open Sans, sans-serif" font-size="26" font-weight="700"
+           fill="#ffffff" letter-spacing="2" text-anchor="middle">
+          <text transform="translate(710,411) rotate(-90)">RETAIL VALUE OF ITEM</text>
+          <text x="1043" y="751">MARKET ACCEPTANCE OF ITEM</text>
+          <text transform="translate(1410,400) rotate(90)">COST OF PRODUCING ITEM</text>
+        </g>
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Technology Points.</b> <span class="srcref">Strategic Orientation 2 · p28 · shape: flattened-3D-chart · YOUR ARTWORK WAS A PHOTOGRAPH</span><br>
+      Six stages of a price falling as a market accepts a technology, with the point at which
+      the brand names give up and leave.
+    </figcaption>
+  </figure>
+
+  <div class="panel">
+    <h2>What was measured, and what had to be read by eye</h2>
+    <ul>
+      <li>
+        <b>The six markers were found automatically</b> — a search for ring-shaped light-grey
+        blobs returned exactly six, all the same size, with nothing spurious. Not one of them
+        was placed by hand.
+      </li>
+      <li>
+        🔴 <b>The flattening proved itself.</b> The direction of your two axes was taken from the
+        blue arrows alone. Your <b>critical price point</b> line slopes downhill across the
+        picture, but it is a fixed price, so once flattened it has to come out level — and it
+        does, drifting <b>half of one per cent</b> across the whole width. Nothing was adjusted to
+        make that happen; the line was never used in the working.
+      </li>
+      <li>
+        <b>Where the six points landed</b>, as a share of each axis:
+        <table>
+          <tr><th>Point</th><th>Market acceptance</th><th>Retail value</th></tr>
+          <tr><td>1</td><td>9.6%</td><td>75.6%</td></tr>
+          <tr><td>2</td><td>13.5%</td><td>34.5%</td></tr>
+          <tr><td>3</td><td>36.3%</td><td>36.2%</td></tr>
+          <tr><td>4</td><td>56.6%</td><td>35.7%</td></tr>
+          <tr><td>5</td><td>69.5%</td><td>31.8%</td></tr>
+          <tr><td>6</td><td>81.1%</td><td>22.8%</td></tr>
+        </table>
+        A separate trace of the red ribbon, done independently, agrees with points 3, 4 and 5 to
+        within <b>0.6%</b>.
+      </li>
+      <li>
+        ⚠ <b>Three things are ours, not yours, and they are stated rather than hidden.</b>
+        <b>(a)</b> The words <i>inside</i> the chart — <i>Retail value of item</i>, <i>Critical
+        price point</i>, <i>Name brands capitulate</i> and the rest — are pixels in your
+        photograph, not text, so they were read off the image rather than extracted. Everything
+        outside the picture came out of the text layer exactly.
+        <b>(b)</b> <b>The 3-D room is gone</b> — the grey depth, the extruded ribbon, the
+        perspective floor. That is what flattening means and it is what you asked for; your scene
+        grey is kept behind the chart so the slide still reads as yours.
+        <b>(c)</b> The faint grid lines in your picture are <b>not reproduced</b>. They belong to
+        the 3-D room and carry no values, and drawing them onto a flat chart would imply a scale
+        that does not exist.
+      </li>
+      <li>
+        <b>What your slide already hides, and this keeps hiding.</b> The full photograph carries a
+        right-hand panel your slide crops off: a title, <i>"DVD sales as an example"</i>, a key
+        naming points 1, 2, 3 and 6 — and the orange <b>Advisor-E.com</b> logo. Your crop is
+        reproduced exactly, so none of it appears here. <b>That logo is the reason this page could
+        never be shown as a picture.</b>
+      </li>
+      <li>
+        <b>Your page is deliberately not shown beside it in this file.</b> Embedding it would put
+        the advisor-e.com border and logo straight back into the very artefact built to remove
+        them. To check the copy, open
+        <code>Advance.2B.Strategic Orientation.2.pdf</code> at <b>page 28</b>.
+      </li>
+      <li>
+        <b>This leaves 12 concepts</b>, and every one of them is a page of your prose with no
+        diagram on it at all — a much faster job than this one.
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    var FIRMS = [
+      { name: 'Hartley & Co', initials: 'H', colour: '#0070c0' },
+      { name: 'Northbridge Advisory', initials: 'N', colour: '#7a4b8f' },
+      { name: 'Kestrel Partners', initials: 'K', colour: '#0f7a5a' }
+    ]
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('.firm'))
+
+    function show (i) {
+      var f = FIRMS[i]
+      if (!f) { return }
+      Array.prototype.forEach.call(document.querySelectorAll('.firm-mark'), function (g) {
+        g.querySelector('.fm-disc').setAttribute('fill', f.colour)
+        g.querySelector('.fm-init').textContent = f.initials
+        g.querySelector('.fm-name').textContent = f.name
+      })
+      buttons.forEach(function (b) {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.firm) === i))
+      })
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { show(Number(b.dataset.firm)) })
+    })
+  }())
+</script>

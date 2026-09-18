@@ -108,8 +108,9 @@ session (§4) and carries into the assembled document.
 steps — waits on the open decision in *What gates what* below.
 
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
-its method is below.** The teaching graphic is drawn by us, never imported from his deck — one
-concept is approved, **1 of 52**, and 33 have a page we can draw from.
+its method is below.** The teaching graphic is drawn by us, never imported from his deck —
+**22 of the 34 concepts that have a page are drawn and approved**, across five artefacts.
+What remains is 12 pages of his prose carrying no diagram at all.
 
 ### The spine — after stage 3 an advisor can run the whole job
 
@@ -168,6 +169,10 @@ chart are **raster images pasted into his deck**. There is no vector to copy poi
 tracing a curve by eye is the one thing this method exists to forbid. So for those, **his own
 picture is used** — extracted from the PDF, which leaves it free of the advisor-e.com logo,
 because the branding is on the *page*, not in the artwork.
+
+⚠ **THAT LAST CLAUSE IS THE TEST, NOT A FOOTNOTE — AND IT DOES NOT HOLD FOR EVERY RASTER.**
+**Technology Points** is a raster too, and its logo is **inside the artwork**, so his picture
+cannot be used at any quality. See *Flattening a chart out of a photograph* below.
 
 **Check which you have before you start.** `page.get_drawings()` with the fill rule below; if a
 concept's graphic has no vector content, it is a picture.
@@ -243,6 +248,45 @@ until the two were side by side.
 concept does, and it cannot take a firm's colours. Only the chart is his image — the title, the
 prose and the firm's mark around it are drawn as normal.
 
+### 🔴 FLATTENING A CHART OUT OF A PHOTOGRAPH — when even his own picture cannot be used
+
+**Mike's ruling on Technology Points, 2026-09-18, and the reason it differs from the three
+above.** Those three are pictures we may use, because their branding is on the *page* and the
+extract comes out clean. **Technology Points does not.** The panel his slide crops off carries a
+title, *"DVD sales as an example"*, a key to the six markers — and the **Advisor-E.com logo burned
+into the artwork itself**. There is nothing to extract clean and nothing to trace, so the chart is
+**measured out of the pixels and redrawn flat**. Artefact:
+[`../mockups/strategy-concept-technology-points.html`](../mockups/strategy-concept-technology-points.html).
+
+**The test for which route a photograph takes is one question: is the branding on the page, or
+inside the image?** On the page → use his picture, reproduce his crop. Inside the image → flatten
+it by the four steps below. **Never trace a curve by eye; that is what this whole method forbids.**
+
+| | Step | Why it is not a formality |
+|---|---|---|
+| **1** | **Find the data points by search, not by clicking.** Connected-component search over the colour that marks them — here, ring-shaped light-grey blobs. Six returned, all ~55px, none spurious. | A point placed by hand is a point invented. The search either finds his markers or it does not, and it says which. |
+| **2** | **Derive the projection from the AXES ALONE.** The two arrows give the basis — floor `(1, 0.2267)`, vertical `(-0.0119, -1)` — and every point is flattened through it. | Taking the basis from anything you also intend to *check* makes the check circular. |
+| **3** | 🔴 **Find something in his picture that MUST come out level, and test it.** His *"CRITICAL PRICE POINT"* line slopes downhill on screen but is a fixed price. Flattened it reads **61.4% → 61.9%** across 620px. | **This is the whole reason the method can be trusted.** The basis came from the axes; the line was never used in the working, so agreeing is evidence rather than arithmetic. Without a test like this, a flattening is just a guess with coordinates. |
+| **4** | **Trace the connecting shape independently and see where it agrees.** The ribbon confirms markers 3, 4 and 5 to within **0.6%** of the axis range. | It also says where it *cannot* speak: markers 1 and 6 are on a vertical drop and an end cap, so a column-wise trace cannot centre them. **That is why the ring centres are the data and the trace is the witness** — not the other way round. |
+
+⚠ **Flattening always loses something, and the losses are named on the artefact, never hidden.**
+On Technology Points: the 3-D room (his scene grey `#525355` is kept behind the chart); the gold
+on each **arrowhead**, because it is a 3-D prism's lit edge and flat it reads as a stray mark, so
+it is the shaft edge only on all three; the right arrow **crossing** the baseline, which flat read
+as a collision, so it stops on it; and his faint grid lines, which belong to the room and carry no
+values.
+
+🔴 **AND ONE LIMIT THAT CANNOT BE ENGINEERED AWAY: the words inside a photograph are pixels.**
+*Retail value of item*, *Critical price point* and the rest are read off the image, because there
+is no text layer inside a JPEG. Everything **outside** the picture is extracted exactly, as always.
+**Say which is which on the artefact.**
+
+⚠ **Measure before believing your own eyes, in both directions.** Three faults here were caught
+only by the side-by-side — a label covering a letter, then colliding with the ribbon, then a stray
+gold streak. **A fourth was a false alarm:** the panel appeared to carry a lighter rectangle
+inside it, and sampling proved it uniform `(82,83,85)` throughout — an optical illusion from the
+blue bars. A drawing changed on that impression would have been changed for nothing.
+
 ---
 
 ### 🔴 A PAGE THAT IS ITS OWN CAPTURE FORM SHOWS THE WORKED EXAMPLE ONLY
@@ -287,7 +331,7 @@ skipped and claimed.
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
 | **4** | ⛔ **BUILT AND UNDONE THE SAME DAY, 2026-09-18 — his deck pages, imported as images.** `scripts/render-deck-slides.py` rendered them into `static/planning-slides/` and `slidePath()` put one on each concept. **Nobody asked for it**, and it could never be white-labelled. Script, 37 images and every field that served them are deleted. | It claimed *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides"* — but that is about **fidelity**, and it was read as a licence to choose the **technique**. A question was never put to him. | 🔴 **HIS RULING ON SEEING IT:** *"i never asked for this … they look cheap and more importantly, they lock in the Advisor-e logo and in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo - never advisor-e."* Every page of his decks carries `advisor-e.com`, the cyan border and his page number **burned into the pixels**. ⚠ **AND THE IMPACT TEST SCORED THE BREACH AS THE WIN:** the measure was *"concepts whose graphic matches his page: 0 of 52 → 34 of 52"*, and a measure that rewards reproducing his page exactly will always reward reproducing his branding with it. |
-| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above. ☑ **Porter's 5 Forces approved 2026-09-18, 1 of 52.** Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
+| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above — or, where his artwork is a photograph, by *Flattening a chart out of a photograph* below. ☑ **22 of 34 approved (2026-09-18): Porter's, then batches 1–4, then Technology Points.** Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
 | **5** | **9 capture forms** — every table the table his template actually is | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
 | **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
