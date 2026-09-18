@@ -444,8 +444,8 @@
       "name": "The deck-reading tool has no home, and the drawing method now depends on it",
       "rankedByMike": false,
       "kind": "defect",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
+      "score": 1,
+      "scoreReason": "internal only - build-time tooling no advisor or client ever meets",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
@@ -459,7 +459,7 @@
       },
       "touches": "Wherever a deck-reading tool ends up living; scripts/build-concept-register.js, which still expects a directory of rendered images and now has nothing producing one; and the five-step drawing method in design/features/strategy-planner.md section 0.",
       "note": "🔴 THE FACTS CHANGED ON 2026-09-18 AND THIS IS NOT THE ITEM IT WAS. It was filed as a committed .py nobody needed. The .py and its 37 images are gone, deleted with the deck-image import Mike rejected. What remains is the opposite shape: a deck reader is now REQUIRED by the approved drawing method, and exists only as an uncommitted step on one machine. Deleting the tool was never the answer; deciding where it lives still is.",
-      "comment": "2026-09-18 - rewritten in place rather than closed. Closing it would have recorded the removal of the .py as the fix, when that removal is what made the underlying question urgent."
+      "comment": "2026-09-18 - rewritten in place rather than closed. Closing it would have recorded the removal of the .py as the fix, when that removal is what made the underlying question urgent. 2026-09-18, later, on Mike's yes - RESCORED 5 to 1. The 5 was inherited from the item's earlier shape and survived the rewrite. A deck reader in a build process is not security, privacy or data integrity: no data is touched and no advisor meets it. By to-do.md's table it is a 1. The gap itself is unchanged and real."
     },
     {
       "ref": "15.6",
