@@ -11,37 +11,35 @@
 
 ## 2026-09-18 · Laptop · branch `feat/advisor-progress`
 
-**Four commits, all pushed.** Suite **12,173 green** (563 suites), lint 0, coverage and audit
-gates passed. Tree clean. **54 ahead of `master`, 0 behind. 22 live items — 15.5 and 15.6 filed
-today. 15.1 and 7.5 stay active on this laptop.**
+**Nine commits, all pushed.** Suite **12,200 green** (565 suites), lint 0, coverage and audit
+gates passed. Tree clean. **63 ahead of `master`, 0 behind. 20 live items.**
 
-🔴 **WE CAN READ HIS DECKS — PyMuPDF is installed here.** Any page of any deck in
-`C:\Documents\Visual Code Projects\Strategy Planner` renders in seconds. **Look at the page
-before drawing or claiming anything.** The old note that "the deck PDFs are NOT a source" is
-about machine-reading his *curved text* and is still true; it was never a reason not to LOOK.
+🔴 **THE DECK IMAGES ARE GONE, ON MIKE'S RULING.** The app was serving JPEGs of his own pages;
+they carry `advisor-e.com` **burned into the pixels** and a client always sees the ADVISOR'S
+firm logo. Script, 37 images and every `slide` field are deleted. `deck` / `page` /
+`responsePage` stay — they are the reference to the source, not an instruction to render.
 
-☑ **STAGE 4 BUILT, AND IT DELETED ITSELF.** Twenty-one hand-drawn teaching forms became one
-rendering job: the app now shows **his own slides** (`scripts/render-deck-slides.py` →
-`static/planning-slides/`, 37 committed images). **0 of 52 concepts had a correct graphic; 34 do
-now**, and the client's plan document has pictures for the first time. 🔴 **NEVER REDRAW A
-CONCEPT** — the one that was hand-drawn put three of Porter's four forces in the wrong place
-under a comment claiming it had been copied.
+☑ **21 OF 34 CONCEPTS DRAWN — every diagram and every table.** Four artefacts, all approved:
+[Porter's](https://claude.ai/artifact/Rbpn5M7yooCjfNQL9NNMhZ) ·
+[batch 1](https://claude.ai/artifact/LcQWXCKrZEUJSXTRooNgjg) ·
+[the charts](https://claude.ai/artifact/7bZKeohAmnvaD8q7vXeota) ·
+[the last diagrams](https://claude.ai/artifact/GVqRv4kkZWm6VbFYmyGU82) ·
+[the tables](https://claude.ai/artifact/FbwQ1fFqCBDQB72ADQPsJ2).
 
-☑ **THE CONCEPT REGISTER** — his 52 concepts each beside their slide, page and response form,
-editable. [The register](https://claude.ai/artifact/DUzBW3SRo5nFUEWsJqxV9c) ·
-`node scripts/build-concept-register.js --images <dir>`.
+🔴 **READ `strategy-planner.md` §0 BEFORE DRAWING ANYTHING.** Words, colours, positions and line
+widths all come off the PDF **by machine** — nothing by eye. **Seven tooling faults today, every
+one producing a drawing that rendered perfectly and was wrong**, and every one caught by putting
+it beside his page. No test caught any; none could.
 
-☐ **HIS PARTIAL PASS IS IN `design/concept-register-corrections.json`, `applied: false`.** He
-stopped after Strategic Orientation 2; Sales & Marketing and Organisational Review are untouched.
-**Ask before applying any of it** — that is item **15.6**.
+**NEXT ON 15.7:** Technology Points redrawn flat (his ruling — its 3D art has the logo inside the
+picture), then 12 pages of prose with no diagram at all. Faster than what is done.
 
-⚠ **Response tables drawn ON A SLIDE were invisible to the app** — the reader only opened
-workbooks. Four Mike named are wired (SO2 p24 answers both Integration concepts, p34, p37, p41);
-seventeen more are suggestions awaiting his pass.
+**PR #100 IS OPEN** — this branch, 63 commits. PR #99 merged mid-session and was merged in here;
+four closed items (7.2, 7.1, 7.4, 9.2) were deliberately **not** carried back.
 
-**NEXT ON 15.1: the advisor still cannot name his own steps**, so the plan prints one step.
+**7.9 IS SPENT.** Mike ruled both machines' 7.9 were one fault; **7.12 survives**, closure on the
+done page, ruling in `ITEM-NUMBERING.md`.
 
-**DESKTOP — shared files I changed:** none of yours. `data/strategy-frameworks.json`,
-`server/utils/strategyFrameworks.js`, `server/routes/strategyPlanner.js`, the four
-`components/strategy/` files and `pages/strategy-planner.vue`. **Nothing in `FirmManagerHub.vue`
-or anything else 7.2 or 7.9 owns.**
+**DESKTOP — shared files I changed:** `to-do-items.json`, `to-do-done-and-parked.md`,
+`ARTEFACTS.md`, `ITEM-NUMBERING.md`, `CODE-SIZE.md`. **No engine code, no `FirmManagerHub.vue`.**
+**7.5, 15.1 and 15.7 stay active on this laptop.**
