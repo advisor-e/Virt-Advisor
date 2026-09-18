@@ -161,6 +161,40 @@ rest."* The artefact is
 | **4** | **Sample the colours off a 150dpi render**, dominant colour per shape. Porter's: `#F47D2F` `#474747` `#75A157` `#519AD9` `#3A6FC8`, ink `#002B64`. | A colour named from memory is a guess wearing a hex code. |
 | **5** | **Match his fonts.** His decks set body text in **Open Sans** and circle labels in **Calibri**; use Open Sans and **Carlito**, which is metric-compatible with Calibri and is on Google Fonts. | Only Google Fonts loads in an artifact. A silent fallback changes every line width and moves the layout. |
 
+### ⚠ NOT EVERY CONCEPT CAN BE DRAWN — some of his artwork is a picture, not a drawing
+
+**Mike's ruling, 2026-09-18.** Market Diffusion, the Product Life Cycle and Deming's volatility
+chart are **raster images pasted into his deck**. There is no vector to copy point for point, and
+tracing a curve by eye is the one thing this method exists to forbid. So for those, **his own
+picture is used** — extracted from the PDF, which leaves it free of the advisor-e.com logo,
+because the branding is on the *page*, not in the artwork.
+
+**Check which you have before you start.** `page.get_drawings()` with the fill rule below; if a
+concept's graphic has no vector content, it is a picture.
+
+> 🔴 **`type` DECIDES WHETHER A FILL APPLIES, NEVER THE FILL COLOUR.** PyMuPDF reports fill
+> `(0,0,0)` on stroke-only paths, so a reader that trusts the colour treats every unfilled curve as
+> a filled black shape and drops it. **Four pages read as "no vector content" when they had
+> plenty**, the Sigmoid among them — and the Sigmoid would then have been traced by hand. `'s'` is
+> stroke, `'f'` fill, `'fs'` both.
+
+🔴 **AND EXTRACTING THE PICTURE IS NOT ENOUGH. HIS SLIDES CROP THEM, AND THE RAW EXTRACT PUTS BACK
+WHAT HE HIDES.** Both of these reached a drawing before being caught:
+
+- **Market Diffusion's** image carries a stray **"Header"** placeholder above the chart — a
+  leftover from whatever produced it. His slide crops it off.
+- **Deming's** is the entire Excel export: a *"Fee Volatility Chart"* title **and a four-row data
+  table listing every figure**. His slide shows neither.
+
+**Reproduce his crop, then put it beside his page.** Neither of those was visible in the extract
+until the two were side by side.
+
+⚠ **State the cost where it applies:** a picture does not sharpen with scale the way a drawn
+concept does, and it cannot take a firm's colours. Only the chart is his image — the title, the
+prose and the firm's mark around it are drawn as normal.
+
+---
+
 **Then: the firm's mark goes where his logo was, his page number does not travel** (the client's
 plan runs in the advisor's order, so his number would be wrong on the page), and the drawing is
 **saved as a mockup and approved before it ships** — beside his page at the same size, so
