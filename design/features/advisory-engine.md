@@ -58,6 +58,156 @@ answer is the one that is displayed, watched for invented wording, and recorded.
 the correction twice the answer goes out with a note saying plainly that the named item is a
 calculator, not a template. `server/utils/templateHeadingCheck.js`.
 
+⚠ **That check recognises a model by its EXACT catalogue name or route, and this is the seam
+item 7.12 turns on.** Measured 2026-09-17 against the shipped catalogues, the three "model named
+but no page path" cases are three different things, not one:
+
+| What the AI wrote | What it is | What happens today |
+| --- | --- | --- |
+| `Wages/Salary Review` | model only (`/wages-review`) | **Caught.** The check fires and the retry corrects it |
+| `Sales Dashboard` | **both** a model (`/sales-dashboard`) and a real template title | **Skipped on purpose** — `if (isKnownTemplate) continue`. The page-path case lives in `videoInjector` (4.33) |
+| `Stock Purchasing` | short form of `Stock Purchasing (Growth Pro)` | **Missed by everything.** `resolveModelToken` returns null, so the heading check skips it *and* a `[[MODEL:]]` carrying it counts as `unverified` rather than a real mention |
+
+🔴 **SIX model names sit in both catalogues, not three — and that miscount was itself the
+fault.** This paragraph said "three" (and `templateHeadingCheck`'s header said "two"), every
+later note repeated it, and nobody recomputed it from the data. Three of the six differ from
+the library's own spelling by a **single character**:
+
+| Model | Route | The real template title | Differs by |
+| --- | --- | --- | --- |
+| Working Capital Cycle | `/business-performance-report` | Working Capital Cycle | — identical |
+| Quick Position | `/quick-position` | Quick Position | — identical |
+| Sales Dashboard | `/sales-dashboard` | Sales Dashboard | — identical |
+| **Lease vs Buy** | `/lease-vs-buy` | **Lease vs. Buy** | a full stop |
+| **High-Level Budget** | `/high-level-budget` | **High Level Budget** | a hyphen |
+| **Dashboard Reports** | `/dashboard-reports` | **Dashboard Report** | a plural "s" |
+
+`isKnownTemplate` compares exactly, so the bottom three read as "not a template" and
+`checkTemplateHeadings` **flagged a genuine template recommendation as a calculator** — telling
+the AI the advisor *"would go looking in Advisor-e and find nothing"* when the document is in
+the library. Item 7.7's fault, produced in reverse by item 7.7's own guard, and it was firing
+on **28 of 38** bench calls.
+
+**Closed 2026-09-17:** `nearestTemplateTitle` (`tierLookup`) answers the question from the
+catalogue on every call, and `checkTemplateHeadings` skips a name that resolves to a real
+template. `tests/unit/nameCollisions.test.js` **recomputes the set** rather than trusting this
+table — a seventh collision fails the build. It also pins that an invented name is never
+rescued, so this can never become a licence to fabricate.
+
+A name alone can therefore never say which of the two was meant, for any of the six. Row 3 of
+the table above is the only real reach gap, and it is `resolveModelToken`'s matching, not a
+missing mechanism. Forcing a page path whenever a model is named duplicates row 1 and breaks
+row 2.
+
+🔴 **A BENCH THAT OMITS THE TEMPLATE LIST MEASURES NOTHING — and it lies in a way that looks
+like a finding.** Discover's prompt is assembled in two parts (`advisorEngine.js` ~3981–4138):
+the system message is `discover.txt` alone, and a **separate user message** carries the
+per-query pre-filtered template list *and then* the model block. A harness that sends only
+`discover.txt` + the models leaves the AI with **no templates to choose from** while the format
+still demands a **Best match** — so it invents plausible names to fill the block.
+
+Built that way on 2026-09-17, a bench "discovered" the retry fabricating template names
+(*"Lease vs Buy Decision"*, *"Inventory Management Review"*) and reported it as a defect worse
+than 7.9. It was the harness. The real pre-filter surfaces **Lease vs. Buy** and **Loan
+Estimator** for those exact queries — both are genuine library titles, and the long-standing
+claim that those two questions have "no template either" is false.
+
+**Before trusting any discover measurement, assert the context contains a known template title
+and the models heading.** The numbers are meaningless otherwise, and wrong in the direction
+that invents work.
+
+### 🔴 2026-09-18 — six runs per model, on the RUNNING APP, and it overturned the reading below
+
+**The four "never offered" are not never. Three are UNRELIABLE and one is not a defect.** Measured
+through the real `/api/advisor/query` rather than a rebuilt context, six runs each, after asserting
+the models block (51,357 chars) and the template pre-filter both reach the AI:
+
+| Model | Before | After the rule change | What it was |
+| --- | --- | --- | --- |
+| Working Capital Cycle | 3/6 | **5/6** | the calculator dropped after a correct template |
+| Sales Dashboard | 1/6 (named 6/6) | **3/6** (named 6/6) | same — named in prose, no page path |
+| High-Level Budget | 2/6 | **1/6** | 🔴 a DIFFERENT fault — `/mid-level-budget` offered instead, 4/6 then 5/6. **Fixed later the same day — see item 7.11 below** |
+| 8 Levers Model | 0/6 | 0/6 | **not a defect** — the AI answers with the template *8 Profit Levers* and stops |
+
+**The change:** the instruction block's offer rule now names the case that was failing — *"IF A MODEL
+ANSWERS THE QUESTION, NAMING IT IS NOT OPTIONAL — INCLUDING WHEN YOU HAVE ALREADY RECOMMENDED A
+TEMPLATE."* Every one of the 24 runs recommended a template correctly and then dropped the
+calculator; the refusal rule shouted in capitals while the offer rule whispered. Line 7 is
+**untouched** — a near-miss is still forbidden outright. Pinned in `reportModelSummaries.test.js`.
+
+Across the four: calculator links **6/24 → 9/24**, wrong-tool substitutions **9 → 6**.
+
+✅ **THE BUDGET SUBSTITUTION IS A SEPARATE DEFECT (item 7.11), AND IT IS FIXED — 2026-09-18,
+`ddf2dcce`.** Measured on 6 live runs after the change: the right calculator **4/4** wherever one
+was offered, and High-Level Budget named as *Best match* **6/6**. Before: the wrong one 5/6.
+
+**What fixed it was the one sentence that caused it.** Mid-Level Budget's `answers` opened *"The
+same question as the High-Level Budget, plus the one that usually matters more"* — the AI was not
+*forgetting* the right calculator, it was being told in the second field it reads that one of the
+two is strictly better, and obeying. `useWhen` carries the correct steer back but is the sixth
+field. Instruction line 8 cannot catch it either: that forbids the closest model when **none**
+fits, and here one genuinely does. It now reads *"Whether the business is hitting its budget when
+the money does not arrive the month it is earned"* — the timing distinction as a condition of the
+question, not a ranking of one model over the other. Every other entry of the nineteen already
+opened by naming what it answers in its own right; this was the only one defined against another.
+
+🔴 **THIS PARAGRAPH PREVIOUSLY SAID WORDING DOES NOT FIX IT, AND THAT MIKE'S AUTHORED PROSE MUST
+NOT BE EDITED. BOTH WERE WRONG.** The prose is AI-authored — High-Level's `answers` entered in
+`0fdee54b`, Mid-Level's in `b8c2fa56` — and Mike's seven rulings of 2026-09-13 are all *screen*
+wording; `ARTEFACTS.md` line 108 records none on the summaries. Traced on his challenge after the
+claim sent a session looking for a workaround instead of the fix. ⚠ **The two failed attempts are
+still dead ends and stand as recorded:** a distinguishing sentence in High-Level's `useWhen` made
+it **worse** (4/6 → 6/6), reverted the same hour — naming the competing model in an entry puts it
+in front of the AI twice as often — and 7.12's offer rule moved it the wrong way too (4/6 → 5/6).
+Six runs is a small sample on behaviour that varies run to run; this wants watching in UAT.
+
+### What the earlier bench measured — 2026-09-17, 19 models × 2 runs
+
+**12 of 19 reliably offered** (an openable page path on every run), 3 sometimes, 4 never. **No
+invented template names.** The heading retry fired on 28 of 38 calls, so the AI names a model
+under a template heading roughly two calls in three and the guard is carrying that load.
+
+**Both questions the laptop's item 7.9 was filed over now score 2/2** — *lease or buy a van* → **Lease vs
+Buy**, *loan repayments* → **The Loan Estimator**. So do **Stock Purchasing (Growth Pro)** and
+**Cost of Capital (WACC)**, the two the short-form fix targeted.
+
+**The four never offered are four different faults, not one.** Diagnosed by reading the replies,
+not inferred:
+
+| Model | What the AI did | What that means |
+| --- | --- | --- |
+| **8 Levers Model** | never named it; omitted the calculator block entirely | a genuine reach failure — the question never surfaces the model |
+| **High-Level Budget** | offered **Mid-Level Budget** instead, with its path | the forbidden "closest model" substitution the list bans in capitals |
+| **Sales Dashboard** | named it in prose, emitted **no page path** | the 7.9 shape proper, and the one the heading check cannot touch because the name is also a real template title |
+| **Working Capital Cycle** | named it, WITH `/business-performance-report` | **not a fault** — re-run offered it correctly; its 0/2 was run-to-run variance |
+
+⚠ **Two runs per model is too thin to separate a systematic miss from variance**, as the last row
+shows. Treat a 0/2 as a candidate to re-run, never as a proven never.
+
+### 🔴 `searchWords` NEVER REACHES THE AI — it is the Model Guide's filter box
+
+Checked 2026-09-17, because a session assumed the opposite and nearly "fixed" the AI by editing
+it. `formatReportModelsForPrompt` does not render it; its one consumer is
+[`components/ModelGuide.vue`](../../components/ModelGuide.vue) (~line 268), whose own comment
+says *"screen-only, never given to the AI. Item 4.36."*
+
+**What the AI actually gets** is the prose — `answers`, `useWhen` (rendered as *"Reach for it
+when"*), `inputsNeeded`, `alsoOnScreen`, `limits` and the coach lines. So:
+
+- **To change what an advisor can FIND by typing** → `searchWords`.
+- **To change what the AI reaches for** → the prose. That is authored content describing what
+  the model is *for*, so it is Mike's call, never an AI session's, and never edited to chase a
+  bench result.
+
+**The 8 Levers case, measured.** Asked *"my client thinks more sales is the only way to grow
+profit"* — almost verbatim its own `useWhen` — the AI offers **no calculator at all**, 3 runs of
+3. It is not confused: it finds the template **8 Profit Levers**, which is a genuinely good
+match, and simply stops there. The near-name is a coincidence of vocabulary, not a collision the
+guard mishandles — `8 Profit Levers` is a real template and passes, `8 Levers Model` is
+model-only and is correctly flagged under a template heading. **Nothing to fix in the
+machinery**; what is missing is the calculator offered *alongside* a template that already
+answers the question.
+
 **P3 · Domain detection is keyword-first, AI only as the backstop.** A confident keyword match
 (two or more hits) is used as-is with no AI. A tie asks the advisor. A thin single hit gets one
 cheap AI opinion — if it agrees the keyword stands, if it disagrees **both are shown to the
@@ -102,12 +252,15 @@ Verified against the live model; see
 
 ## 3. Design considerations
 
-**Design and build differ here, deliberately and on the record.** This is the one feature where
-the written design runs ahead of the code, and that gap is *intended* — the design is the
-destination. What is built and live: signal capture, **primary-issue confirmation** (below),
-strategy resolution, template scoring and the AI narrative. What is designed and **not** built:
-routing groups as a pre-filter. Do not read the design document as a description of the code,
-and do not "correct" the design down to what exists.
+**The design and the code now say the same thing.** Signal capture, **primary-issue
+confirmation** (below), strategy resolution, template scoring and the AI narrative are all built
+and live — primary-issue confirmation by item 4.97 (`server/utils/primaryIssueProposer.js`, wired
+in `server/advisorEngine.js`).
+
+**Routing groups are dead, not pending.** The registry ruled them removed on 2026-06-09
+(`design/virt-advisor-registry.md` — *"Routing groups are dead and removed"*, and Stage 3 of the
+old six-stage pipeline deleted with the 4-Table Governance Model that served it). They are not a
+gap, not a pre-filter waiting to be built, and nothing should be written to restore them.
 
 **Content filed into the wrong lane is invisible.** It renders, it saves, it passes tests, and
 it silently never reaches the decision it was written for — and every case found so far was
@@ -142,7 +295,7 @@ platform default. Nothing is single-tenant, and nothing new should be.
 |---|---|---|
 | 1 | Conversation and signal capture | `server/advisorEngine.js`, `server/utils/signals.js`, `problemSignals.js` |
 | 2 | Primary issue — proposed, then confirmed or reframed by the advisor | `server/utils/primaryIssueProposer.js`, wired in `advisorEngine.js` |
-| 3 | Routing groups | **designed, not in code** |
+| — | ~~Routing groups~~ — **deleted 2026-06-09**, not a missing stage | the registry's ruling |
 | 4 | Strategy resolution — engagement type, complexity ceiling, template budget | `server/utils/strategyResolver.js` |
 | 5 | Template selection — score and rank, no AI | `server/utils/templateResolver.js` |
 | 6 | AI narrative — copy only | `advisorEngine.js`, prompts in `data/prompts/` |
@@ -186,8 +339,9 @@ back to them once. It is never a menu — the selector card was removed in June 
 
 The confirmed label lands on `state.primaryIssue`, the decision trace (`primaryIssue.label` /
 `.how` / `.reason` / `.asked`), the Main issue row of the advisor's trace panel, and the
-Outcome Learning pool. `SCORING_VERSION` is unchanged at `2.2.0` — the step fills a field the
-scorer already read, rather than changing how anything is scored.
+Outcome Learning pool. The step itself changed no scoring — it fills a field the scorer already
+read. `SCORING_VERSION` is **`2.3.0`** (`server/utils/templateResolver.js`), raised by the signed
+pooled adjustment of 4.97 US2, which made a hold-back able to lift as well.
 
 ### The routing report
 
@@ -266,7 +420,8 @@ unknown**.
   Because the advisor's own calls are `personal: true`, that row names the primary in practice;
   the backup's wording is reachable at the call sites the second provider does answer for. The
   name is never written in code — it is whatever `AI_PRIMARY_NAME` is configured with.
-- Routing groups are complete for one domain only.
+- *(Routing groups were listed here as a gap. They are not one — the registry deleted the layer
+  on 2026-06-09. See §3.)*
 - **55 of the 220 client tools have a thin semantic profile** (recompiled 2026-09-16): 44 with
   no profile at all, 8 with an entry but no signals matched, 3 whose weights sum under 4. These
   affect scoring precision, not function — and **measured, the effect is small**: on the 51-case

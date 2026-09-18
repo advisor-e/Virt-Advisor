@@ -356,6 +356,62 @@ whole of it.
 
 Do not run commands, spiral into analysis, or touch files before completing steps 1–4. The rules hold you straight — rely on them every time.
 
+### 🔴 THE AI "CAN'T FIND" A DOCUMENT OR A MODEL? OPEN THE TWO CATALOGUES FIRST (binding)
+
+**Mike's ruling, 2026-09-17:** *"NEXT time the AI gets confused over the docs, make sure it
+checks what you've just checked to find out WHY there's a problem. By now — everything should
+be seen and understood."*
+
+**Whenever the AI names the wrong thing, names nothing, or is said to have "missed" a template
+or a calculator, these four commands come BEFORE any theory.** They take under a minute and
+they answer the question from the shipped data:
+
+```bash
+# 1. Is the name a template, a model, or BOTH?
+node -e "const {isKnownTemplate,nearestTemplateTitle}=require('./server/utils/tierLookup');
+const {resolveModelToken}=require('./server/utils/modelChoiceScan');
+const n='<the name>';console.log('template:',isKnownTemplate(n),'| nearest:',nearestTemplateTitle(n),'| model:',resolveModelToken(n))"
+
+# 2. What is the master library's own row? (READ ONLY — never edit this file)
+node -e "const j=require('./Central Frameworks/search_content_20260730041439.json');
+(Array.isArray(j)?j:Object.values(j)[0]).filter(r=>/<the name>/i.test(r.title||''))
+.forEach(r=>console.log(r.title,'|',r.subSection,'|',r.purpose))"
+
+# 3. What is the model told to answer, and what words reach it?
+node -e "const m=(require('./data/report-model-summaries.json').models||[])
+.find(x=>x.name==='<the name>');console.log(m.useWhen,'\n',m.searchWords)"
+
+# 4. Every collision, recomputed — never quoted from a comment
+npx jest tests/unit/nameCollisions.test.js
+```
+
+**Three things this repeatedly proves, so do not re-derive them by argument:**
+
+- **SIX model names are also template titles**, three of them differing by one character —
+  `Lease vs Buy`/`Lease vs. Buy`, `High-Level Budget`/`High Level Budget`,
+  `Dashboard Reports`/`Dashboard Report`. A name alone can NEVER say which was meant.
+  `tests/unit/nameCollisions.test.js` recomputes the set; a seventh fails the build.
+- 🔴 **`searchWords` NEVER REACHES THE AI.** It is the Model Guide's filter box and nothing
+  else (`components/ModelGuide.vue`, *"screen-only, never given to the AI. Item 4.36."*).
+  The AI gets the **prose** — `answers`, `useWhen`, `inputsNeeded`, `alsoOnScreen`, `limits`,
+  coach lines. So: **to change what an advisor can FIND by typing → `searchWords`; to change
+  what the AI reaches for → the prose**, which is authored content and Mike's call, never
+  edited to chase a bench result. A session got this backwards on 2026-09-17.
+- **A model not offered may not be a bug at all.** **8 Levers Model** is missed by *"my client
+  thinks more sales is the only way to grow profit"* — almost verbatim its own `useWhen` —
+  because the AI finds the **template** *8 Profit Levers*, answers well, and stops. The guard
+  handles that pair correctly; nothing in the machinery is broken.
+- **The question may simply be wrong for the model.** `High-Level Budget` answers *"are we
+  hitting the budget we set"* — it does not BUILD a budget. Read `useWhen` before calling a
+  correct refusal a miss.
+
+⚠ **A bench that omits the template list measures nothing.** Discover's prompt is two parts:
+`discover.txt` as the system message, and a **separate user message** carrying the pre-filtered
+templates *then* the model block (`advisorEngine.js` ~3981–4138). Omit the templates and the AI
+invents names to fill the "Best match" the format demands — then the harness reports its own
+artefact as a defect. **Assert the context contains a known template title and the models
+heading before trusting a single number.** See `design/features/advisory-engine.md` P2.
+
 ## 🔴 EVERY FAULT ENDS ONE OF TWO WAYS — FIXED NOW, OR ON THE LIST (binding)
 
 **Mike's ruling, 2026-09-15.** In his words: *"every time you find a fault you either fix it

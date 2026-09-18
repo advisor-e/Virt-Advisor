@@ -66,6 +66,19 @@ const DECLINE_TOKENS = new Set(['none', 'no model', 'no-model', 'nomodel', 'noth
 let _index = null
 
 /**
+ * A catalogue name with its trailing parenthetical removed — "Stock Purchasing (Growth
+ * Pro)" → "Stock Purchasing". Only a trailing one, so a name that merely contains
+ * brackets mid-string is untouched.
+ */
+const SHORT_FORM = /\s*\([^)]*\)\s*$/
+
+/** The short form of a name, or null when stripping changes nothing. */
+function _shortForm (name) {
+  const short = String(name || '').replace(SHORT_FORM, '').trim()
+  return (short && short !== String(name || '').trim()) ? short : null
+}
+
+/**
  * The catalogue, by route and by name, built once from the file the AI itself was given.
  *
  * Read from `loadReportModels` rather than from a list written out here, so a model added
@@ -83,6 +96,33 @@ function catalogue () {
     byRoute.set(m.route.toLowerCase(), m.route)
     if (typeof m.name === 'string' && m.name) { byName.set(m.name.toLowerCase().trim(), m.route) }
   })
+
+  // 🔴 ITEM 7.12 — THE SHORT FORM THE AI ACTUALLY WRITES. Measured 2026-09-17: asked the
+  // question `/stock-purchasing` answers, the AI named "Stock Purchasing" while the
+  // catalogue holds "Stock Purchasing (Growth Pro)". Matching on the full name alone
+  // returned null, and EVERY net went quiet at once — `templateHeadingCheck` skipped it
+  // (no model resolved, so nothing to report) and a `[[MODEL:]]` carrying the short form
+  // counted as `unverified` rather than as a real mention, hiding the miss from the
+  // model-choices screen too. One mismatch, two silent failures.
+  //
+  // ⚠ ADDED SECOND AND NEVER OVER A FULL NAME. A short form is registered only where no
+  // model's real name already claims it, so widening this can never re-point an exact
+  // match. Two models gain one today (Cost of Capital, Stock Purchasing); a third added
+  // later needs no edit here.
+  //
+  // ⚠ A SHORT FORM CLAIMED BY TWO MODELS IS DROPPED, NOT GUESSED. None collide today.
+  // Relying on that rather than enforcing it is how a twentieth model added later
+  // silently mis-attributes — the same reasoning as the route sort below.
+  const shortSeen = new Map()
+  models.forEach((m) => {
+    if (!m || typeof m.name !== 'string' || typeof m.route !== 'string' || !m.route) { return }
+    const short = _shortForm(m.name)
+    if (!short) { return }
+    const key = short.toLowerCase()
+    if (byName.has(key)) { return }
+    shortSeen.set(key, shortSeen.has(key) ? null : m.route)
+  })
+  shortSeen.forEach((route, key) => { if (route) { byName.set(key, route) } })
   // Longest first: a shorter route that is a prefix of a longer one must never win the
   // alternation. None collide today; relying on that rather than enforcing it is how a
   // nineteenth model added later silently mis-attributes.
@@ -102,9 +142,17 @@ function _escape (s) {
 /**
  * One declared token to a real route, or null.
  *
- * Accepts the page path (what the instruction asks for) and the model's name (what the AI
- * sometimes writes instead), because rejecting the second would record a real mention as
- * silence. Trailing slashes, markdown emphasis and surrounding quotes are stripped first.
+ * Accepts the page path (what the instruction asks for), the model's name (what the AI
+ * sometimes writes instead) and that name's unambiguous short form (item 7.12), because
+ * rejecting any of the three would record a real mention as silence. Trailing slashes,
+ * markdown emphasis and surrounding quotes are stripped first.
+ *
+ * ⚠ THIS DOES NOT DECIDE TEMPLATE-OR-MODEL, and must not be made to. SIX model names are
+ * also real template titles (three of them one character apart — see
+ * `tests/unit/nameCollisions.test.js`, which recomputes the set rather than trusting this
+ * comment). `checkTemplateHeadings` tests `isKnownTemplate` and `nearestTemplateTitle`
+ * BEFORE calling this, so a template of that name is left alone; that order is what keeps
+ * the widening safe.
  *
  * @param {string} token
  * @returns {string|null} the catalogue's own route, or null when nothing matches

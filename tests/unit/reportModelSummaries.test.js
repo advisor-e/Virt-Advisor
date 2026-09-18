@@ -391,11 +391,32 @@ describe('the AI is INVITED to use the list, not merely given it — item 4.32',
     })
   })
 
-  it('🔴 BOTH ARE TOLD IT IS OPTIONAL — the restraint is the half that stops 4.18', () => {
+  it('🔴 BOTH KEEP THE BRAKE THAT STOPS 4.18 — a model is named on FIT, never reached for', () => {
     // An invitation without a brake is how the AI reaches for a tool nobody asked about.
+    // 🔴 THE BRAKE IS "unless it directly answers", NOT discouragement — the discouraging
+    // half was removed for item 7.12 because it withheld models that DID fit.
     expect(discover).toMatch(/OMIT THIS WHOLE BLOCK, heading included, unless/)
-    expect(discover).toMatch(/no answer is worse for leaving it out/)
+    expect(discover).toMatch(/never stretch to the closest model/)
     expect(client).toMatch(/a recommendation is not worse for leaving it out/)
+  })
+
+  it('🔴 NEITHER MODE DISCOURAGES A MODEL THAT FITS — item 7.12', () => {
+    // Pinned in BOTH places the discouraging framing lived, so it cannot creep back into
+    // one while the other still looks right.
+    expect(discover).not.toMatch(/Most searches have no calculator/)
+    expect(discover).not.toMatch(/no answer is worse for leaving it out/)
+    expect(discover).toMatch(/a normal part of a good answer, not a rare extra/)
+
+    const instruction = require('../../data/report-model-summaries.json').instruction.join('\n')
+    expect(instruction).toMatch(/NAMING IT IS NOT OPTIONAL/)
+    // 🔴 The clause that carries the 2026-09-18 measurement, and the reason this line is
+    // pinned rather than left to read well: every one of the 24 bench runs recommended a
+    // TEMPLATE correctly and then dropped the calculator. Naming that case explicitly took
+    // Working Capital Cycle 3/6 → 5/6 and Sales Dashboard 1/6 → 3/6. Lose this clause and
+    // the rule reverts to the general exhortation that was already being half-obeyed.
+    expect(instruction).toMatch(/INCLUDING WHEN YOU HAVE ALREADY RECOMMENDED A TEMPLATE/)
+    // The other direction is untouched: offering a near-miss is still forbidden outright.
+    expect(instruction).toMatch(/never offer the closest one instead/)
   })
 
   it('🔴 DISCOVER’S CLOSING-LINE RULE STILL HOLDS FOR EVERY WORD THE ADVISOR READS', () => {

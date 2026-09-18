@@ -13,6 +13,14 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 }))
 jest.mock('../../server/utils/templateLibrary', () => ({ loadEffectiveTemplates: jest.fn() }))
 
+// 🔴 The script calls `dotenv.config()` at load (scripts/dev/seed-outcome-pool.js), which reads
+// the DEVELOPER'S OWN .env. Without this mock the "refuses without the secret" test below deletes
+// OUTCOME_POOL_SECRET and the script silently reads it straight back in, so the test asserts
+// nothing — it passed only on machines where nobody had the value set. Found 2026-09-17, the day
+// the secret was added to this machine's .env to run the quickstart, which the quickstart itself
+// instructs. The environment belongs to the test, never to whoever is running it.
+jest.mock('dotenv', () => ({ config: jest.fn() }))
+
 const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
 const { SIGNAL_TYPES } = require('../../server/utils/signals')
 const { POOL_PREFIX, guardContribution, computeAdjustments, MIN_FIRMS, MIN_CASES } = require('../../server/utils/outcomeLearning')

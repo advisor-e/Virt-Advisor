@@ -74,8 +74,10 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
 
 1. **Where am I?** — current branch, clean tree, right branch for this machine. Starting
    work on top of unexplained uncommitted changes is how work gets lost.
-2. **How far off master am I?** — `npm run check:branch`. *Behind* is the number that
-   matters. This is the step that catches drift at 3 commits instead of 97.
+2. **How far off master am I?** — `npm run check:branch`. **Both numbers matter, and they
+   are two different faults:** *behind* is drift caught at 3 commits instead of 97 (step 5),
+   *ahead* is finished work that has reached nobody else and is what creates that 97 in the
+   first place (step 6).
 3. **Open the Handbook** — `npm run handbook`, republished to its existing link and opened
    in the browser. It is rebuilt from `origin/master` every session, not from the machine's
    own branch, so both machines publish the same page, neither can overwrite the other, and
@@ -95,6 +97,25 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    the real note while looking perfectly fine. The check reads it from that machine's own
    branch and says outright when the note is older than the work there (item 14.2).
 5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
+6. 🔴 **Propose a pull request if AHEAD by 10 commits or more** — state the count and what
+   would go across, and wait for Mike's yes. **The threshold is 10; change the number here
+   and the checklist follows.**
+
+> 🔴 **Why step 6 exists (Mike, 2026-09-18).** He asked why a pull request was not already
+> part of every startup, and the answer was that **every step in this agreement was about
+> getting work safely onto your own branch, and none was about getting it off.** Step 5 fires
+> only when `master` has moved ahead of you. Nothing fired when *you* moved ahead of `master`
+> — which is the common case and the damaging one. On the morning this was written the desktop
+> stood 21 ahead / 0 behind and the laptop 49 ahead / 0 behind, and the checklist printed both
+> numbers and moved on. **Pushing is not merging:** a machine can push faithfully every day,
+> satisfy all of `/shutdown`, and still drift to 97 commits, because the branch is where the
+> work stops. That is exactly how July's 97 happened with nobody making a mistake.
+>
+> It is also why the Handbook keeps causing arguments. That page is built from `origin/master`,
+> so it can only ever show what has actually landed — every unmerged commit is a feature
+> missing from the shared front door, and the temptation is then to publish a preview of one
+> machine's branch instead (item 14.3). **Merging often is the fix; the Handbook is the
+> symptom.**
 
 ## End of session — either machine
 

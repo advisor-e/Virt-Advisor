@@ -9,39 +9,40 @@
 
 ---
 
-## 2026-09-16 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-18 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Six commits, all pushed** (`68f3d881` … `6d2933ea`). Suite **11,930 green** (556 suites),
-lint 0, `npm run build` succeeds. **Fifteen live items. 7.2 is 63 of 67** — `activeOn` KEPT,
-the four remaining tasks are in hand here.
+**Three commits, all pushed.** Suite **11,938 green** (558 suites), lint clean, coverage and
+audit gates passed. Tree clean. **Twelve live items — 7.11 closed today.** 28 ahead of `master`,
+0 behind; all of it is in **[PR #99](https://github.com/advisor-e/Virt-Advisor/pull/99)**.
 
-🔴 **READ `CLAUDE.md` → THE IMPACT TEST BEFORE SCOPING ANYTHING.** New binding rule, Mike's
-words: state the problem or gain, **the measurement, named before the work**, and what
-already does the job — or the work does not start. It came from him asking what US9 actually
-bought after it shipped. Measured: authoring three profiles moved the 51-case lab **5.6 →
-5.7**, the engine already picked a content-driven top recommendation in **51 of 51** with
-none authored, and the tool given a profile appeared **less** often (22 → 19). Not a licence
-to re-argue work he has asked for — report once, at scoping.
+🔴 **7.11 IS FIXED AND CLOSED** (`ddf2dcce`). The budget question offered the wrong calculator
+5/6; now the right one **4/4** wherever one is offered, right *Best match* **6/6**. The fix was
+one sentence — Mid-Level's `answers` opened *"the same question as the High-Level Budget, plus the
+one that usually matters more"*, so the AI was told one model was strictly better and obeyed.
+Full closure with both dead ends on `to-do-done-and-parked.md` §2.
 
-**US9 SHIPPED IN FULL**, on two rulings the same day: read-only first, then authoring once he
-was told plainly it changes what advisors are recommended with no test able to judge a
-weight. Template Profiles is live on the Mentor Hub; the engine reads authored profiles over
-the compiled file and **falls back to compiled if the store fails**.
+🔴 **THE REAL LESSON IS NOT ABOUT BUDGETS — IT COST A DAY.** 7.11's note claimed that sentence was
+Mike's and must not be edited. **It was AI-authored** (`0fdee54b`, `b8c2fa56`); his 2026-09-13
+rulings are all *screen* wording and `ARTEFACTS.md` line 108 records none on the summaries. Two
+earlier attempts failed because they worked *around* the sentence. Found only because Mike
+challenged it — *"find me exactly where the budget is described in my words"*. Corrected in the
+item, in `advisory-engine.md`, and searched for elsewhere: those were the only two copies.
+**Check a provenance claim before treating it as a constraint.**
 
-⚠ **MERGED `origin/master` IN — 84 commits.** This branch was 0 behind at startup and went
-behind mid-session when the laptop's PRs #94/#95 landed. No code conflicted; four record
-files did, all resolved keeping both sides. **The desktop's 7.5 is now 7.10** per Mike's
-ruling — the laptop took 7.5 the same day.
+🔴 **THE 7.9 CLASH IS RESOLVED — THIS MACHINE'S BECAME `7.12`** (`0c00000f`), by
+`ITEM-NUMBERING.md` 101-106: move whichever is quoted in fewer places. Ours 9 refs, yours 2.
+**Your 7.9 is untouched and stays.** ⚠ One line in `advisory-engine.md:153` is YOURS — *lease or
+buy a van*, *loan repayments* — I renumbered it, caught it, reverted it, and it now reads *"the
+laptop's item 7.9"*. Yesterday's and today's commit messages still say 7.9 for what is now 7.12;
+that is history and is recorded in `0c00000f`.
 
-⚠ **Item 9.2 fired again**, third time: `--help` is not a recognised lab flag, so it was read
-as a case filter, ran 0 cases and overwrote the real 51-session report. Restored from git.
-The item already carries this; nothing new to file.
+⚠ **I touched `data/report-model-summaries.json` again — Mid-Level's `answers` only, on Mike's
+approval. It is under your 7.5.** No names, routes or instruction lines. Expect a possible
+conflict there and keep both sides.
 
-**The AI-ON lab needs the Avast root**, not `.env`'s digicert bundle — export it to
-`NODE_EXTRA_CA_CERTS` or every OpenAI call fails *"unable to verify the first certificate"*.
+**7.12 (was our 7.9) is still open at 4 of 6.** Today's bench showed 2 runs naming the right model
+with no page path at all — the offer dropped, not the wrong model. `activeOn` is clear; either
+machine may take it.
 
-**LAPTOP:** shared files I touched — `locales/en.json`, `server/restify-server.js`,
-`server/advisorEngine.js`, `server/utils/outcomeBench.js`, `components/FirmManagerHub.vue`.
-The bench gained an optional trailing `profileMap` argument; every existing caller omits it
-and behaves exactly as before. Your note is dated **2026-09-13** while your branch merged
-twice on 2026-09-16 — stale for the sixth session running.
+**Handbook is the master-built page again** (built from `b1cdd494`), on Mike's ruling this
+session. Item 14.3 unchanged.

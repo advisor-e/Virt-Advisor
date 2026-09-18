@@ -76,7 +76,7 @@ Only the 14 live items moved. Every closed item stayed where it was.
 | 4.97 | **7.2** | The engine's middle, and the learning loop made true |
 | 4.98 | **7.3** | A second opinion from two AI providers |
 | 4.93 | **7.4** | Read this for me — plain guidance and an AI reading on the mentor's pages |
-| 4.58 | **8.1** | Meeting Review — three non-coding gates before a first real recording |
+| 4.58 | **8.1** | Meeting Review — two non-coding gates before a first real recording |
 | 4.87 | **9.1** | Learning from outcomes across consenting firms |
 | 4.99 | **9.2** | A part-measured lab run overwrites a full one |
 | 4.86 | **11.1** | Adviser Network runs on nine invented people |
