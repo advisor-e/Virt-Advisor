@@ -11,38 +11,52 @@
 
 ## 2026-09-18 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Three commits, all pushed.** Suite **11,938 green** (558 suites), lint clean, coverage and
-audit gates passed. Tree clean. **Twelve live items — 7.11 closed today.** 28 ahead of `master`,
-0 behind; all of it is in **[PR #99](https://github.com/advisor-e/Virt-Advisor/pull/99)**.
+**Six commits, all pushed.** Suite **12,200 green** (565 suites), lint 0, coverage and audit
+gates passed. Tree clean. **6 ahead of `master`, 0 behind. 20 live items.**
 
-🔴 **7.11 IS FIXED AND CLOSED** (`ddf2dcce`). The budget question offered the wrong calculator
-5/6; now the right one **4/4** wherever one is offered, right *Best match* **6/6**. The fix was
-one sentence — Mid-Level's `answers` opened *"the same question as the High-Level Budget, plus the
-one that usually matters more"*, so the AI was told one model was strictly better and obeyed.
-Full closure with both dead ends on `to-do-done-and-parked.md` §2.
+🔴 **BOTH MACHINES WERE MERGED TO `master` TODAY — PR #99 (29) and PR #100 (63).** They stood 29
+and 57 ahead of a `master` neither had reached. Both are in now, and the Handbook line read *"0
+commits"* for both machines for the first time. **This is the 97-commit drift caught at 92**, and
+it is why `/startup` step 6 exists. The six commits above are since that merge.
 
-🔴 **THE REAL LESSON IS NOT ABOUT BUDGETS — IT COST A DAY.** 7.11's note claimed that sentence was
-Mike's and must not be edited. **It was AI-authored** (`0fdee54b`, `b8c2fa56`); his 2026-09-13
-rulings are all *screen* wording and `ARTEFACTS.md` line 108 records none on the summaries. Two
-earlier attempts failed because they worked *around* the sentence. Found only because Mike
-challenged it — *"find me exactly where the budget is described in my words"*. Corrected in the
-item, in `advisory-engine.md`, and searched for elsewhere: those were the only two copies.
-**Check a provenance claim before treating it as a constraint.**
+🔴 **"CALCULATOR" IS GONE — MIKE'S RULING** (`b2fbaefb`). *"We have models and templates. A model
+includes CALCULATIONS but it is NOT a calculator."* It was **our** word and it had reached the
+advisor's screen. The block heading is now **`**A model that fits**`** and there are **zero**
+occurrences left in either prompt. ⚠ **The string is load-bearing twice** — the advisor reads it
+AND `buildRetryInstruction` names it back to the AI, so renaming one half would have broken the
+correction silently. Pinned in `reportModelSummaries.test.js`. **His workbook names stay** (*Quick
+Calculator*, *Hrly Rate & Tax Calculator*) — his source material.
 
-🔴 **THE 7.9 CLASH IS RESOLVED — THIS MACHINE'S BECAME `7.12`** (`0c00000f`), by
-`ITEM-NUMBERING.md` 101-106: move whichever is quoted in fewer places. Ours 9 refs, yours 2.
-**Your 7.9 is untouched and stays.** ⚠ One line in `advisory-engine.md:153` is YOURS — *lease or
-buy a van*, *loan repayments* — I renumbered it, caught it, reverted it, and it now reads *"the
-laptop's item 7.9"*. Yesterday's and today's commit messages still say 7.9 for what is now 7.12;
-that is history and is recorded in `0c00000f`.
+🔴 **7.12 IS A DIFFERENT ITEM NOW, AND THE OLD NOTES ARE DELETED** (`4269c663`, `de5d4875`).
+Mike's challenge: his original task was *"check the summary page, look it up… and where to find it
+in the perf report section"*. **The lookup half was never built.** Four sessions tuned prompt
+wording instead; each moved some models and moved others backwards. `/api/report/model-guide`
+already serves the records, `injectVideoInfo` is the working pattern for templates, and **his own
+ruling of 2026-08-22 is in `pages/model-guide.vue`** saying that page serves the AI as well as a
+person. **Build steps now in `advisory-engine.md` §4** — six steps, the three call sites
+(`advisorEngine.js` 3075 / 3937 / 4244) each paired with the raw buffer that still holds the
+`[[MODEL:]]` marker, and the collision warning moved BEFORE the build instruction. **A half-fix I
+built (`repairCalculatorLinks`) was deleted** — it covered 13 of 19 and could not touch the six
+collisions, including Sales Dashboard.
 
-⚠ **I touched `data/report-model-summaries.json` again — Mid-Level's `answers` only, on Mike's
-approval. It is under your 7.5.** No names, routes or instruction lines. Expect a possible
-conflict there and keep both sides.
+🔴 **OPENAI ANSWERED, AFTER this morning's ruling closed the gate** (`b3d7adeb`, `9b948c66`).
+§5.3 of `OPENAI-AUDIO-TERMS-EMAIL.md` holds it verbatim. **(a) Human access IS possible** —
+employees and third-party contractors, for abuse review. **Never write that no human can see it;
+the consent wording makes no such promise and must not gain one.** **(b) The clean transcription
+retention does NOT cover this feature** — we send the transcript on to `/v1/chat/completions` for
+the two reports, which carries **30-day abuse logs**. **Mike has SENT the reply letter**
+(`OPENAI-ZDR-REPLY-LETTER.md`) asking for ZDR on both endpoints and a written confirmation in four
+points. **A reply is expected — it is his thread, not ours.**
 
-**7.12 (was our 7.9) is still open at 4 of 6.** Today's bench showed 2 runs naming the right model
-with no page path at all — the offer dropped, not the wrong model. `activeOn` is clear; either
-machine may take it.
+**15.5 rescored 5 → 1** (`7d929679`). It claimed *"security, privacy or data integrity"* and is a
+build-time deck reader no advisor meets. The gap is unchanged and real; only its claim on
+attention moved.
 
-**Handbook is the master-built page again** (built from `b1cdd494`), on Mike's ruling this
-session. Item 14.3 unchanged.
+**LAPTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `advisory-engine.md`,
+`report-models.md`, `meeting-review.md`, `ARTEFACTS.md`, `CODE-SIZE.md`, and the two prompts
+(`discover.txt`, `client.txt`) plus `templateHeadingCheck.js` for the rename. **No `activeOn` is
+set on this machine.** Your 7.5, 15.1 and 15.7 are untouched.
+
+**NEXT:** 7.12 is unclaimed and ready to build from the written steps. **15.6 needs Mike** — eight
+concepts name a response form the app cannot find, five of them near-misses on a typed name, and
+his corrections file is deliberately unapplied.

@@ -42,7 +42,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 5 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 6 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | **laptop**, since 2026-09-16 |
 | 7 | **7.6** The AI declares its model choice only sometimes, so declines under-count ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 8 | **7.12** The right calculator is offered only sometimes, and sometimes the wrong one is ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 8 | **7.12** The model's page is recalled by the AI, not looked up ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 9 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 10 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 11 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
@@ -52,11 +52,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 15 | **5.3** Four Wages Register test suites share one file and collide at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 16 | **15.3** Eighteen rows of the session scope menu have no Helps Your Client To... line ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 17 | **15.4** Twelve labels on the plan document are ours, not Mike's ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 18 | **15.5** The deck-reading tool has no home, and the drawing method now depends on it ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
+| 18 | **15.5** The deck-reading tool has no home, and the drawing method now depends on it ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 19 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 20 | **15.7** Thirty-three concepts have no graphic, so the advisor teaches from nothing ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-18 |
 
-**Twenty live items. Ten need Mike.** If this list passes about twenty, something is wrong.
+**Twenty live items. Nine need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

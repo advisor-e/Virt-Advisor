@@ -52,7 +52,7 @@ const { resolveModelToken } = require('./modelChoiceScan')
 
 /**
  * The headings under which a name MUST be a template, exactly as `discover.txt`
- * formats them. The calculator block ("A calculator that fits") is deliberately absent:
+ * formats them. The model block ("A model that fits") is deliberately absent:
  * a model named there is the model being used correctly.
  */
 const TEMPLATE_HEADINGS = ['best match', 'also worth considering']
@@ -161,7 +161,7 @@ function buildRetryInstruction (offenders) {
   return '\n\n[CORRECTION — YOUR PREVIOUS ANSWER WAS NOT SENT]\n' + faults +
     '\n\nWrite the answer again. Under the template headings name ONLY templates that appear in the ' +
     'template list you were given. If one of the models above genuinely helps, it belongs in the ' +
-    '"A calculator that fits" block with its page path — or leave it out entirely. Keep the same ' +
+    '"A model that fits" block with its page path — or leave it out entirely. Keep the same ' +
     'format and the same closing line.' +
     // 🔴 SEEN ON THE FIRST LIVE RUN OF THIS CORRECTION, 2026-09-16. Told it could not use
     // the model it had chosen, the AI reached for a weak template rather than saying
