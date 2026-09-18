@@ -507,6 +507,28 @@
       "touches": "components/strategy/StrategyTeachingSlide.vue, which is the shell they render into; StrategyCaptureCard.vue and StrategyPlanDocument.vue, where the graphic and the response page belong; data/strategy-frameworks.json deck and page; and design/mockups, one approved drawing per concept.",
       "note": "🔴 HALF DONE: 33 OF 34 DRAWN AND APPROVED, NONE WIRED IN. StrategyTeachingSlide.vue renders no graphic, so an advisor still teaches from words alone - the fault this item was filed for. NEXT: the 33 drawings become components that TeachingSlide, CaptureCard and PlanDocument render. The 34th, Drafting Tender Proposals, is general reading, not drawn. METHOD FIXED - strategy-planner.md section 0. READ type AND opacity, never a colour alone. DROP CHROME BY ROLE - two filters of ours ate a header row and a table column. CHAIN PATH SEGMENTS - four lines are one shape. CLIP THE ARTWORK, NEVER THE PAGE REGION - his text ran inside one crop and every line printed twice.",
       "comment": "2026-09-18 - filed on his instruction after the imported deck pages were removed. Not a repeat of the deleted stage 4: that imported his pages as images and locked in the advisor-e.com logo, undone within hours of shipping. Technology Points proved the ruling right - the panel his slide crops off carries that same logo, so flattening it needed a second method measured out of the raster. The last eleven closed the drawing the same day. Five faults, none catchable by any test; the worst was a crop that pasted a photograph of his own text over the rendered text. Detail in ARTEFACTS.md."
+    },
+    {
+      "ref": "15.8",
+      "name": "Two stock images in the Strategy Planner have no licence check",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - nobody sees it until a rights-holder does, and then it decides how bad the break is",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "activeOn": null,
+      "why": "The Digital Funnel Storyboard and Packaging/Bundling carry third-party pictures from Mike's decks - a stock illustration and a Cartwright & Butler product photograph. His decks are internal training material; the client's plan is not.",
+      "risk": "A client's plan carries the ADVISOR FIRM'S own logo, so a rights-holder would see a commercial firm redistributing their image under someone else's brand. Nobody gets asked at build time - the drawings are approved, so wiring them in looks like finishing approved work. The counter-risk is small: both pictures are decoration and the concept teaches from Mike's words either way.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-18 - found while drawing batch 5, when both images turned out to be third-party rather than Mike's own artwork. He ruled they stay and said yes to filing the licence question. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "design/mockups/strategy-concept-batch-5.html, the two sheets carrying the images; StrategyTeachingSlide.vue and StrategyPlanDocument.vue, where they would reach a client; design/ARTEFACTS.md, which records the question; and whoever cleared the Enneagram exclusion in PLANNING-TEMPLATE-CENSUS.md section 1.",
+      "note": "🔴 MIKE RULED THE IMAGES STAY - 2026-09-18, against the recommendation to leave them out. THAT RULING IS NOT IN QUESTION. This item only makes sure the licence is answered BEFORE they reach a client document. NOT LIVE YET: the images sit in an approved drawing and nothing renders it - 15.7's other half is what would ship them, which is exactly when nobody would think to ask. THE PRECEDENT IS THE PROJECT'S OWN: the Enneagram file was excluded from the census on licence grounds. Mike's own artwork is unaffected - batch 2's three rasters are his.",
+      "comment": "2026-09-18 - filed on his yes at shutdown, after a check that every fault found today had reached an ending. This one had not: it was recorded on the artefact and in ARTEFACTS.md, which is a line in a document rather than a task."
     }
   ]
 }
