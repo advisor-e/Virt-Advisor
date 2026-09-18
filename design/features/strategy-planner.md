@@ -172,11 +172,19 @@ because the branding is on the *page*, not in the artwork.
 **Check which you have before you start.** `page.get_drawings()` with the fill rule below; if a
 concept's graphic has no vector content, it is a picture.
 
-> 🔴 **`type` DECIDES WHETHER A FILL APPLIES, NEVER THE FILL COLOUR.** PyMuPDF reports fill
-> `(0,0,0)` on stroke-only paths, so a reader that trusts the colour treats every unfilled curve as
-> a filled black shape and drops it. **Four pages read as "no vector content" when they had
-> plenty**, the Sigmoid among them — and the Sigmoid would then have been traced by hand. `'s'` is
-> stroke, `'f'` fill, `'fs'` both.
+> 🔴 **THE SAME TRAP THREE TIMES: A VALUE THAT IS DECLARED AND NEVER PAINTED.** Read `type` **and**
+> opacity, never a colour on its own.
+>
+> - **`type` decides whether a fill applies.** PyMuPDF reports fill `(0,0,0)` on stroke-only paths,
+>   so a reader that trusts the colour treats every unfilled curve as a filled black shape and
+>   drops it. **Four pages read as "no vector content" when they had plenty**, the Sigmoid among
+>   them — which would then have been traced by hand. `'s'` is stroke, `'f'` fill, `'fs'` both.
+> - **Opacity decides whether it paints at all.** Pine's five staged boxes declare a **black fill at
+>   opacity 0** with a gold stroke: the fill never appears. Ignoring opacity filled all five solid
+>   black and blacked out his blue arrows with them. A value at zero paints nothing.
+>
+> ⚠ **Neither was caught by a test and neither could be.** Both drawings rendered perfectly and
+> were simply wrong. Both were caught by the side-by-side.
 
 🔴 **AND EXTRACTING THE PICTURE IS NOT ENOUGH. HIS SLIDES CROP THEM, AND THE RAW EXTRACT PUTS BACK
 WHAT HE HIDES.** Both of these reached a drawing before being caught:

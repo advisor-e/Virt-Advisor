@@ -1,0 +1,568 @@
+<title>The Last Five Diagrams</title>
+<!--
+  design/mockups/strategy-concept-batch-3.html
+
+  🔴 BATCH 3 OF THE CONCEPT REBUILD (item 15.7) — THE LAST VECTOR DIAGRAMS, drawn by the five-step method in
+  design/features/strategy-planner.md section 0, approved by Mike 2026-09-18 on
+  Porter's 5 Forces.
+
+  Every number in every SVG below came out of the deck by machine - scripts read
+  the page size, each line's left edge, baseline, point size, font and colour, and
+  each vector shape's box, fill and stroke. Nothing is placed by eye. The four
+  shapes here were chosen because they are four DIFFERENT shapes, so what they
+  prove generalises: a quadrant matrix, a matrix with axes and side prose, a
+  typographic equation, and a vertical chain.
+
+  Source: C:\Documents\Visual Code Projects\Strategy Planner\Advance.2B.Strategic Orientation.2.pdf
+  Pages 35, 26, 39 and 22.
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Carlito:wght@400;700&display=swap">
+<style>
+  :root {
+    --ground: #eef3f8; --card: #ffffff; --ink: #002b64; --body: #23405f;
+    --muted: #5b6f8a; --line: #d5e1ee; --accent: #0070c0;
+    --warn-bg: #fdf1e0; --warn-ink: #b56200; --warn-line: #e3b877;
+    --shadow: 0 12px 32px rgba(0, 43, 100, .10);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+      --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+      --warn-bg: #3a2810; --warn-ink: #ffb454; --warn-line: #6b4a18;
+      --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+    --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+    --warn-bg: #3a2810; --warn-ink: #ffb454; --warn-line: #6b4a18;
+    --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--body);
+    font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1180px; margin: 0 auto; padding-block: 28px 80px;
+    padding-left: 16px; padding-right: 16px;
+    display: flex; flex-direction: column; gap: 30px;
+  }
+  .eyebrow {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0;
+  }
+  h1 {
+    margin: 4px 0 0; font-size: clamp(26px, 4vw, 38px); line-height: 1.12;
+    letter-spacing: -.015em; color: var(--ink); text-wrap: balance;
+  }
+  .standfirst { margin: 8px 0 0; max-width: 70ch; }
+  h2 { margin: 0; font-size: 20px; color: var(--ink); letter-spacing: -.01em; }
+
+  .switch {
+    background: var(--card); border: 1px solid var(--line);
+    border-top: 3px solid var(--accent); border-radius: 14px; padding: 16px;
+    box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px;
+  }
+  .switch-label { font-size: 13.5px; color: var(--muted); margin: 0; }
+  .firms { display: flex; flex-wrap: wrap; gap: 8px; }
+  .firm {
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    border-radius: 999px; padding: 7px 15px; border: 1px solid var(--line);
+    background: transparent; color: var(--body);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .firm:hover { border-color: var(--accent); color: var(--ink); }
+  .firm:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .firm[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; flex: none; background: var(--sw); }
+
+  /* A slide is a printed sheet: white in both themes, as it prints in the plan. */
+  .sheet {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    overflow: hidden; box-shadow: var(--shadow);
+  }
+  .sheet svg { display: block; width: 100%; height: auto; }
+
+  figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  figcaption { font-size: 13px; color: var(--muted); }
+  figcaption b { color: var(--ink); }
+  .srcref {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11.5px; color: var(--muted);
+  }
+
+  .panel {
+    background: var(--warn-bg); border: 1px solid var(--warn-line);
+    border-left: 3px solid var(--warn-ink); border-radius: 14px; padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .panel h2 { color: var(--warn-ink); }
+  .panel b { color: var(--warn-ink); }
+  ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+  li { max-width: 76ch; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em;
+    background: var(--ground); border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 5px; color: var(--ink);
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Strategy Planner · item 15.7 · batch 3</p>
+    <h1>The Last Five Diagrams</h1>
+    <p class="standfirst">
+      The five diagrams that were left. <b>Every one of these is drawn</b> — no pictures, nothing traced.
+      Each path is your own, copied point for point out of the deck, and each word comes from the text
+      layer. With these, <b>every diagram in Strategic Orientation 2 is done</b>.
+    </p>
+  </header>
+
+  <section class="switch">
+    <p class="switch-label">Switch the firm and watch the corner of all four.</p>
+    <div class="firms" id="firms" role="group" aria-label="Choose a firm">
+      <button class="firm" type="button" data-firm="0" aria-pressed="true" style="--sw:#0070c0">
+        <span class="swatch" aria-hidden="true"></span>Hartley &amp; Co
+      </button>
+      <button class="firm" type="button" data-firm="1" aria-pressed="false" style="--sw:#7a4b8f">
+        <span class="swatch" aria-hidden="true"></span>Northbridge Advisory
+      </button>
+      <button class="firm" type="button" data-firm="2" aria-pressed="false" style="--sw:#0f7a5a">
+        <span class="swatch" aria-hidden="true"></span>Kestrel Partners
+      </button>
+    </div>
+  </section>
+
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Progression of Economic Value: commodity, goods, services, experience and authenticity, each rung adding value, priced with coffee as the example.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 215.3 787.9 L 251.7 759.1 L 242.0 746.8 L 273.6 761.9 L 281.0 796.1 L 271.2 783.8 L 234.8 812.6 L 215.3 787.9" fill="#4472C4" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 245.1 678.7 L 493.1 678.7 L 493.1 724.1 L 245.1 724.1 Z" fill="none" stroke="#FFC000" stroke-width="9.4" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 298.2 758.6 L 433.6 758.6 L 433.6 804.0 L 298.2 804.0 Z" fill="none"></path>
+        <path d="M 411.2 644.5 L 458.2 607.5 L 447.5 594.0 L 484.4 608.6 L 490.0 647.8 L 479.4 634.4 L 432.5 671.4 L 411.2 644.5" fill="#4472C4" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 457.6 528.1 L 652.5 528.1 L 652.5 573.5 L 457.6 573.5 Z" fill="none" stroke="#FFC000" stroke-width="9.4" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 510.7 625.6 L 630.6 625.6 L 630.6 671.0 L 510.7 671.0 Z" fill="none"></path>
+        <path d="M 591.0 494.3 L 643.0 452.8 L 633.7 441.1 L 669.6 450.6 L 670.9 487.8 L 661.6 476.1 L 609.6 517.6 L 591.0 494.3" fill="#4472C4" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 661.3 377.5 L 814.3 377.5 L 814.3 423.0 L 661.3 423.0 Z" fill="none" stroke="#FFC000" stroke-width="9.4" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 687.9 475.0 L 823.2 475.0 L 823.2 520.4 L 687.9 520.4 Z" fill="none"></path>
+        <path d="M 776.3 342.0 L 822.0 303.5 L 812.4 292.0 L 846.9 302.0 L 850.9 337.7 L 841.3 326.3 L 795.6 364.8 L 776.3 342.0" fill="#4472C4" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 838.7 227.0 L 988.4 227.0 L 988.4 272.4 L 838.7 272.4 Z" fill="none" stroke="#FFC000" stroke-width="9.4" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 856.3 324.4 L 969.7 324.4 L 969.7 369.8 L 856.3 369.8 Z" fill="none"></path>
+        <path d="M 945.1 192.5 L 989.7 152.7 L 979.8 141.6 L 1014.5 150.6 L 1019.5 186.2 L 1009.6 175.0 L 965.0 214.8 L 945.1 192.5" fill="#4472C4" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 1022.3 167.4 L 1117.3 167.4 L 1117.3 212.8 L 1022.3 212.8 Z" fill="none"></path>
+        <path d="M 1042.4 102.9 L 1206.7 102.9 L 1206.7 148.4 L 1042.4 148.4 Z" fill="none" stroke="#70AD47" stroke-width="9.4" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 661.5 672.1 L 705.8 677.4 L 693.6 686.1 C 714.0 705.0, 736.6 714.6, 754.4 712.0 C 740.7 738.7, 703.3 735.0, 669.3 703.5 L 657.2 712.2 L 661.5 672.1" fill="#4472C4"></path>
+        <path d="M 744.4 723.7 C 767.9 706.9, 763.4 660.5, 734.4 619.9 L 758.7 602.6 C 787.7 643.1, 792.2 689.6, 768.7 706.4 L 744.4 723.7" fill="#365B9C"></path>
+        <path d="M 744.4 723.7 C 767.9 706.9, 763.4 660.5, 734.4 619.9 L 758.7 602.6 C 787.7 643.1, 792.2 689.6, 768.7 706.4 L 744.4 723.7 C 726.4 736.6, 696.3 728.5, 669.3 703.5 L 657.2 712.2 L 661.5 672.1 L 705.8 677.4 L 693.6 686.1 C 714.0 705.0, 736.6 714.6, 754.4 712.0" fill="none" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 811.2 658.9 L 1090.5 658.9 L 1090.5 704.3 L 811.2 704.3 Z" fill="none"></path>
+        <path d="M 822.2 660.4 L 1073.9 660.4 L 1073.9 700.1 L 822.2 700.1 L 822.2 660.4" fill="none"></path>
+        <path d="M 822.2 693.5 L 1073.9 693.5 L 1073.9 696.1 L 822.2 696.1 L 822.2 693.5" fill="#002B64"></path>
+        <path d="M 846.9 510.1 L 891.4 511.0 L 880.2 520.8 C 902.4 537.6, 925.8 544.9, 943.3 540.5 C 932.3 568.4, 894.7 568.5, 857.8 540.6 L 846.6 550.4 L 846.9 510.1" fill="#4472C4"></path>
+        <path d="M 934.5 553.2 C 956.2 534.1, 947.1 488.3, 914.2 450.9 L 936.6 431.1 C 969.6 468.6, 978.7 514.4, 957.0 533.4 L 934.5 553.2" fill="#365B9C"></path>
+        <path d="M 934.5 553.2 C 956.2 534.1, 947.1 488.3, 914.2 450.9 L 936.6 431.1 C 969.6 468.6, 978.7 514.4, 957.0 533.4 L 934.5 553.2 C 917.9 567.8, 887.1 562.8, 857.8 540.6 L 846.6 550.4 L 846.9 510.1 L 891.4 511.0 L 880.2 520.8 C 902.4 537.6, 925.8 544.9, 943.3 540.5" fill="none" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 969.7 534.4 L 1249.0 534.4 L 1249.0 579.8 L 969.7 579.8 Z" fill="none"></path>
+        <path d="M 980.7 535.9 L 1232.3 535.9 L 1232.3 575.6 L 980.7 575.6 L 980.7 535.9" fill="none"></path>
+        <path d="M 980.7 569.0 L 1232.3 569.0 L 1232.3 571.6 L 980.7 571.6 L 980.7 569.0" fill="#002B64"></path>
+        <path d="M 595.4 386.6 L 550.9 382.9 L 562.8 373.7 C 541.7 355.7, 518.8 346.9, 501.1 350.2 C 513.8 323.0, 551.3 325.3, 586.4 355.4 L 598.2 346.3 L 595.4 386.6" fill="#4472C4"></path>
+        <path d="M 510.6 338.1 C 487.8 355.7, 494.0 402.0, 524.5 441.4 L 500.9 459.7 C 470.4 420.3, 464.1 374.0, 486.9 356.4 L 510.6 338.1" fill="#365B9C"></path>
+        <path d="M 510.6 338.1 C 487.8 355.7, 494.0 402.0, 524.5 441.4 L 500.9 459.7 C 470.4 420.3, 464.1 374.0, 486.9 356.4 L 510.6 338.1 C 528.1 324.5, 558.5 331.5, 586.4 355.4 L 598.2 346.3 L 595.4 386.6 L 550.9 382.9 L 562.8 373.7 C 541.7 355.7, 518.8 346.9, 501.1 350.2" fill="none" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 771.3 251.6 L 727.5 243.3 L 740.2 235.4 C 721.2 215.2, 699.4 204.1, 681.4 205.4 C 696.9 179.7, 734.0 186.0, 765.7 219.7 L 778.4 211.9 L 771.3 251.6" fill="#4472C4"></path>
+        <path d="M 692.2 194.4 C 667.6 209.5, 668.9 256.2, 695.0 298.6 L 669.6 314.3 C 643.4 271.9, 642.1 225.2, 666.7 210.1 L 692.2 194.4" fill="#365B9C"></path>
+        <path d="M 692.2 194.4 C 667.6 209.5, 668.9 256.2, 695.0 298.6 L 669.6 314.3 C 643.4 271.9, 642.1 225.2, 666.7 210.1 L 692.2 194.4 C 711.0 182.8, 740.5 192.9, 765.7 219.7 L 778.4 211.9 L 771.3 251.6 L 727.5 243.3 L 740.2 235.4 C 721.2 215.2, 699.4 204.1, 681.4 205.4" fill="none" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 205.5 332.1 L 449.5 332.1 L 449.5 377.5 L 205.5 377.5 Z" fill="none"></path>
+        <path d="M 216.5 333.6 L 427.8 333.6 L 427.8 373.3 L 216.5 373.3 L 216.5 333.6" fill="none"></path>
+        <path d="M 216.5 366.7 L 427.8 366.7 L 427.8 369.3 L 216.5 369.3 L 216.5 366.7" fill="#002B64"></path>
+        <path d="M 393.2 187.1 L 637.2 187.1 L 637.2 232.5 L 393.2 232.5 Z" fill="none"></path>
+        <path d="M 404.2 188.6 L 615.5 188.6 L 615.5 228.3 L 404.2 228.3 L 404.2 188.6" fill="none"></path>
+        <path d="M 404.2 221.6 L 615.5 221.6 L 615.5 224.3 L 404.2 224.3 L 404.2 221.6" fill="#002B64"></path>
+        <path d="M 499.4 687.5 L 649.1 687.5 L 649.1 751.9 L 499.4 751.9 Z" fill="none"></path>
+        <path d="M 670.3 534.4 L 843.7 534.4 L 843.7 598.7 L 670.3 598.7 Z" fill="none"></path>
+        <path d="M 829.7 368.8 L 994.0 368.8 L 994.0 433.1 L 829.7 433.1 Z" fill="none"></path>
+        <path d="M 1084.2 209.0 L 1258.7 209.0 L 1258.7 273.4 L 1084.2 273.4 Z" fill="none"></path>
+        <path d="M 1015.8 244.7 L 1077.7 244.7" fill="none"></path>
+        <path d="M 1015.8 244.7 L 1068.4 244.7" fill="none" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 1068.4 247.3 L 1075.4 244.7 L 1068.4 242.1 L 1068.4 247.3" fill="#000000" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 1148.6 209.2 L 1148.6 173.8" fill="none"></path>
+        <path d="M 1148.6 209.2 L 1148.6 183.2" fill="none" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 1151.2 183.2 L 1148.6 176.1 L 1146.1 183.2 L 1151.2 183.2" fill="#000000" stroke="#000000" stroke-width="1.6"></path>
+        <path d="M 44.9 19.0 L 866.1 19.0 L 866.1 163.4 L 44.9 163.4 Z" fill="none"></path>
+        <path d="M 787.8 150.9 L 946.4 150.9 L 946.4 196.4 L 787.8 196.4 Z" fill="none"></path>
+        <text x="290.3" y="711.4" font-family="Open Sans, sans-serif" font-size="29.2" fill="#434343" textLength="157.5" lengthAdjust="spacing">Commodity</text>
+        <text x="309.2" y="791.3" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#FF0000" font-weight="700" textLength="84.1" lengthAdjust="spacing">Extract</text>
+        <text x="511.1" y="560.8" font-family="Open Sans, sans-serif" font-size="29.2" fill="#434343" textLength="88.0" lengthAdjust="spacing">Goods</text>
+        <text x="521.7" y="658.3" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#FF0000" font-weight="700" textLength="67.7" lengthAdjust="spacing">Make</text>
+        <text x="682.6" y="410.2" font-family="Open Sans, sans-serif" font-size="29.2" fill="#434343" textLength="110.4" lengthAdjust="spacing">Services</text>
+        <text x="698.8" y="507.7" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#FF0000" font-weight="700" textLength="85.9" lengthAdjust="spacing">Deliver</text>
+        <text x="854.8" y="253.6" font-family="Open Sans, sans-serif" font-size="22.9" fill="#434343" textLength="117.4" lengthAdjust="spacing">Experience</text>
+        <text x="867.2" y="357.1" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#FF0000" font-weight="700" textLength="66.2" lengthAdjust="spacing">Stage</text>
+        <text x="1033.2" y="200.1" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#FF0000" font-weight="700" textLength="49.4" lengthAdjust="spacing">Feel</text>
+        <text x="1054.7" y="131.6" font-family="Open Sans, sans-serif" font-size="25.0" fill="#434343" textLength="139.6" lengthAdjust="spacing">Authenticity</text>
+        <text x="822.2" y="691.6" font-family="Open Sans, sans-serif" font-size="29.2" fill="#002B64" font-weight="700" textLength="251.7" lengthAdjust="spacing">Commoditisation</text>
+        <text x="980.7" y="567.1" font-family="Open Sans, sans-serif" font-size="29.2" fill="#002B64" font-weight="700" textLength="251.7" lengthAdjust="spacing">Commoditisation</text>
+        <text x="216.5" y="364.8" font-family="Open Sans, sans-serif" font-size="29.2" fill="#002B64" font-weight="700" textLength="211.3" lengthAdjust="spacing">Customisation</text>
+        <text x="404.2" y="219.7" font-family="Open Sans, sans-serif" font-size="29.2" fill="#002B64" font-weight="700" textLength="211.3" lengthAdjust="spacing">Customisation</text>
+        <text x="510.4" y="714.2" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#ED7D31" textLength="112.3" lengthAdjust="spacing">Coffee Bean</text>
+        <text x="510.4" y="742.3" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#ED7D31" textLength="78.8" lengthAdjust="spacing">2-3c cup</text>
+        <text x="681.2" y="561.1" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#ED7D31" textLength="147.6" lengthAdjust="spacing">Grind/Packaged</text>
+        <text x="681.2" y="589.2" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#ED7D31" textLength="116.7" lengthAdjust="spacing">25 – 50c cup</text>
+        <text x="840.6" y="395.4" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#ED7D31" textLength="123.1" lengthAdjust="spacing">Corner Store</text>
+        <text x="840.6" y="423.6" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#ED7D31" textLength="127.6" lengthAdjust="spacing">$1.50 per cup</text>
+        <text x="1095.1" y="235.7" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#ED7D31" font-weight="700" textLength="92.0" lengthAdjust="spacing">Starbucks</text>
+        <text x="1095.1" y="263.8" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#ED7D31" font-weight="700" textLength="129.8" lengthAdjust="spacing">$4-$5 per cup</text>
+        <text x="55.9" y="94.5" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="716.7" lengthAdjust="spacing">Progression of Economic Value</text>
+        <text x="55.9" y="125.8" font-family="Open Sans, sans-serif" font-size="22.9" fill="#002B64" textLength="137.6" lengthAdjust="spacing">(Joseph Pine)</text>
+        <text x="798.7" y="179.6" font-family="Carlito, Calibri, sans-serif" font-size="25.0" fill="#0070C0" font-weight="700" textLength="133.6" lengthAdjust="spacing">(Connection)</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="1150" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="1150" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="1184" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Progression of Economic Value.</b> <span class="srcref">Strategic Orientation 2 · p17 · Joseph Pine · shape: ascending-staircase</span><br>
+      Twelve curved arrows, five staged boxes and his coffee pricing at every rung — from coffee bean at 2&ndash;3c a cup to Starbucks at $4&ndash;$5. All his own paths.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Horizontal Integration: products related remotely to the core product above the line, products supportive of introductions to it below.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 632.5 498.1 C 632.5 491.6, 637.8 486.3, 644.3 486.3 L 791.0 486.3 C 794.2 486.3, 797.2 487.5, 799.4 489.7 C 801.6 492.0, 802.9 495.0, 802.9 498.1 L 802.9 545.3 C 802.9 551.9, 797.6 557.1, 791.0 557.1 L 644.3 557.1 C 637.8 557.1, 632.5 551.9, 632.5 545.3 L 632.5 498.1" fill="#00FF99" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 820.3 497.0 C 820.3 490.5, 825.6 485.2, 832.1 485.2 L 978.9 485.2 C 982.0 485.2, 985.0 486.5, 987.2 488.7 C 989.5 490.9, 990.7 493.9, 990.7 497.0 L 990.7 544.3 C 990.7 550.8, 985.4 556.1, 978.9 556.1 L 832.1 556.1 C 825.6 556.1, 820.3 550.8, 820.3 544.3 L 820.3 497.0" fill="none" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 440.4 497.4 C 440.4 490.9, 445.7 485.6, 452.2 485.6 L 599.0 485.6 C 602.1 485.6, 605.1 486.8, 607.3 489.0 C 609.5 491.3, 610.8 494.3, 610.8 497.4 L 610.8 544.6 C 610.8 551.2, 605.5 556.4, 599.0 556.4 L 452.2 556.4 C 445.7 556.4, 440.4 551.2, 440.4 544.6 L 440.4 497.4" fill="none" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 1008.2 497.0 C 1008.2 490.5, 1013.5 485.2, 1020.0 485.2 L 1166.7 485.2 C 1169.9 485.2, 1172.9 486.5, 1175.1 488.7 C 1177.3 490.9, 1178.6 493.9, 1178.6 497.0 L 1178.6 544.3 C 1178.6 550.8, 1173.3 556.1, 1166.7 556.1 L 1020.0 556.1 C 1013.5 556.1, 1008.2 550.8, 1008.2 544.3 L 1008.2 497.0" fill="#0070C0" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 252.5 498.1 C 252.5 491.6, 257.8 486.3, 264.4 486.3 L 411.1 486.3 C 414.2 486.3, 417.2 487.5, 419.5 489.7 C 421.7 492.0, 422.9 495.0, 422.9 498.1 L 422.9 545.3 C 422.9 551.9, 417.6 557.1, 411.1 557.1 L 264.4 557.1 C 257.8 557.1, 252.5 551.9, 252.5 545.3 L 252.5 498.1" fill="none" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 131.4 620.1 C 131.4 606.2, 142.7 595.0, 156.5 595.0 L 1348.9 595.0 C 1355.6 595.0, 1362.0 597.6, 1366.7 602.3 C 1371.4 607.0, 1374.0 613.4, 1374.0 620.1 L 1374.0 720.5 C 1374.0 734.3, 1362.8 745.6, 1348.9 745.6 L 156.5 745.6 C 142.7 745.6, 131.4 734.3, 131.4 720.5 L 131.4 620.1" fill="none" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 630.1 309.8 C 630.1 303.3, 635.4 298.0, 641.9 298.0 L 788.7 298.0 C 791.8 298.0, 794.8 299.3, 797.0 301.5 C 799.3 303.7, 800.5 306.7, 800.5 309.8 L 800.5 357.1 C 800.5 363.6, 795.2 368.9, 788.7 368.9 L 641.9 368.9 C 635.4 368.9, 630.1 363.6, 630.1 357.1 L 630.1 309.8" fill="#00FF99" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 1007.2 309.8 C 1007.2 303.3, 1012.5 298.0, 1019.0 298.0 L 1165.7 298.0 C 1168.9 298.0, 1171.9 299.3, 1174.1 301.5 C 1176.3 303.7, 1177.6 306.7, 1177.6 309.8 L 1177.6 357.1 C 1177.6 363.6, 1172.3 368.9, 1165.7 368.9 L 1019.0 368.9 C 1012.5 368.9, 1007.2 363.6, 1007.2 357.1 L 1007.2 309.8" fill="#0070C0" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 253.1 313.1 C 253.1 306.6, 258.4 301.3, 264.9 301.3 L 411.6 301.3 C 414.8 301.3, 417.8 302.5, 420.0 304.7 C 422.2 307.0, 423.5 310.0, 423.5 313.1 L 423.5 360.3 C 423.5 366.9, 418.2 372.1, 411.6 372.1 L 264.9 372.1 C 258.4 372.1, 253.1 366.9, 253.1 360.3 L 253.1 313.1" fill="#0070C0" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 131.4 136.9 C 131.4 123.0, 142.7 111.8, 156.5 111.8 L 1348.9 111.8 C 1355.6 111.8, 1362.0 114.4, 1366.7 119.2 C 1371.4 123.9, 1374.0 130.2, 1374.0 136.9 L 1374.0 237.3 C 1374.0 251.2, 1362.8 262.4, 1348.9 262.4 L 156.5 262.4 C 142.7 262.4, 131.4 251.2, 131.4 237.3 L 131.4 136.9" fill="none" stroke="#31538F" stroke-width="2.1"></path>
+        <path d="M 248.3 431.4 L 1173.3 431.4" fill="none" stroke="#002B64" stroke-width="3.6"></path>
+        <path d="M 22.3 6.1 L 1316.0 6.1 L 1316.0 129.7 L 22.3 129.7 Z" fill="none"></path>
+        <text x="697.2" y="532.5" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="41.0" lengthAdjust="spacing">Tea</text>
+        <text x="859.6" y="531.5" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="91.8" lengthAdjust="spacing">Biscuits</text>
+        <text x="486.4" y="531.8" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="78.4" lengthAdjust="spacing">Coffee</text>
+        <text x="1040.6" y="531.5" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="105.4" lengthAdjust="spacing">Crockery</text>
+        <text x="277.6" y="532.5" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="120.1" lengthAdjust="spacing">Chocolate</text>
+        <text x="282.8" y="629.5" font-family="Open Sans, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="939.6" lengthAdjust="spacing">Experience Related, Supportive of Introductions to Core Product.</text>
+        <text x="300.9" y="663.9" font-family="Open Sans, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="903.4" lengthAdjust="spacing">Possibility of Supply, Management or Production Cost Savings.</text>
+        <text x="452.3" y="698.3" font-family="Open Sans, sans-serif" font-size="29.2" fill="#FF0000" font-weight="700" textLength="600.7" lengthAdjust="spacing">(note: one of these is not like the other...)</text>
+        <text x="438.2" y="732.7" font-family="Open Sans, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="628.9" lengthAdjust="spacing">{Perishable, Consumable, Low Price-Points}</text>
+        <text x="694.8" y="344.3" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="41.0" lengthAdjust="spacing">Tea</text>
+        <text x="1028.2" y="344.3" font-family="Carlito, Calibri, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="128.2" lengthAdjust="spacing">Magazines</text>
+        <text x="307.4" y="330.6" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#000000" font-weight="700" textLength="66.9" lengthAdjust="spacing">Stereo</text>
+        <text x="278.6" y="358.7" font-family="Carlito, Calibri, sans-serif" font-size="22.9" fill="#000000" font-weight="700" textLength="119.4" lengthAdjust="spacing">Headphones</text>
+        <text x="270.0" y="163.5" font-family="Open Sans, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="965.2" lengthAdjust="spacing">Experience Related (Remotely) But Not Supportive of Core Product</text>
+        <text x="523.5" y="197.9" font-family="Open Sans, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="458.3" lengthAdjust="spacing">Offer Nil &#8216;Scale or Cost&#8217; Benefits</text>
+        <text x="529.2" y="232.3" font-family="Open Sans, sans-serif" font-size="29.2" fill="#000000" font-weight="700" textLength="446.8" lengthAdjust="spacing">False Belief of &#8216;Diversified Risk&#8217;</text>
+        <text x="33.2" y="83.8" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="524.8" lengthAdjust="spacing">Horizontal Integration</text>
+        <text x="558.7" y="83.8" font-family="Open Sans, sans-serif" font-size="22.9" fill="#002B64" textLength="174.0" lengthAdjust="spacing">(Considerations)</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Horizontal Integration.</b> <span class="srcref">Strategic Orientation 2 · p23 · shape: above-below-line</span><br>
+      The two banner panels, the divider and his row of product boxes — including the deliberate odd one out he asks the client to spot.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Blue Ocean Strategy: the red water zone of standard competition fronts above the line, the uncontested fringes below.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 37.1 19.0 L 433.3 19.0 L 433.3 209.2 L 37.1 209.2 Z" fill="none"></path>
+        <path d="M 433.3 47.1 L 835.2 47.1 L 835.2 800.4 L 433.3 800.4 Z" fill="none"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="none"></path>
+        <path d="M 47.6 421.9 L 858.6 421.9" fill="none" stroke="#FF0000" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 858.6 610.4 L 858.6 237.2" fill="none" stroke="#9CC2E5" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 47.6 608.5 L 47.6 235.3" fill="none" stroke="#FF0000" stroke-width="1.6"></path>
+        <path d="M 83.8 452.1 L 387.5 452.1 L 387.5 723.2 L 83.8 723.2 Z" fill="none"></path>
+        <path d="M 920.0 61.7 L 1452.4 61.7 L 1452.4 786.8 L 920.0 786.8 Z" fill="none"></path>
+        <path d="M 1285.0 576.7 L 1379.2 576.7 L 1379.2 605.1 L 1285.0 605.1 L 1285.0 576.7" fill="none"></path>
+        <path d="M 1285.0 600.3 L 1379.2 600.3 L 1379.2 602.2 L 1285.0 602.2 L 1285.0 600.3" fill="#434343"></path>
+        <path d="M 846.9 610.4 L 846.9 237.2" fill="none" stroke="#FF0000" stroke-width="1.6"></path>
+        <text x="48.1" y="103.7" font-family="Open Sans, sans-serif" font-size="45.8" fill="#002B64" textLength="106.8" lengthAdjust="spacing">Blue</text>
+        <text x="48.1" y="153.7" font-family="Open Sans, sans-serif" font-size="45.8" fill="#002B64" textLength="324.0" lengthAdjust="spacing">Ocean Strategy</text>
+        <text x="444.3" y="69.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="208.1" lengthAdjust="spacing">Std Competition &#8216;Fronts&#8217;</text>
+        <text x="444.3" y="113.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FF0000" font-weight="700" textLength="160.7" lengthAdjust="spacing">(Red Water Zone)</text>
+        <text x="444.3" y="143.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="43.1" lengthAdjust="spacing">Price</text>
+        <text x="444.3" y="174.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="172.4" lengthAdjust="spacing">Quality / Endurance</text>
+        <text x="444.3" y="206.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="210.1" lengthAdjust="spacing">Convenience &amp; Location</text>
+        <text x="444.3" y="237.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="104.2" lengthAdjust="spacing">Consistency</text>
+        <text x="444.3" y="268.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="248.8" lengthAdjust="spacing">Availability / (Volume / Scale)</text>
+        <text x="444.3" y="299.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="186.6" lengthAdjust="spacing">Customer Experience</text>
+        <text x="444.3" y="331.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="207.2" lengthAdjust="spacing">Effectiveness (Accuracy)</text>
+        <text x="444.3" y="362.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="252.9" lengthAdjust="spacing">Efficiency (Reduced Wastage)</text>
+        <text x="444.3" y="393.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="277.0" lengthAdjust="spacing">Easier (Familiar or More Simple)</text>
+        <text x="444.3" y="456.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="179.4" lengthAdjust="spacing">Faster, Safer, Lighter</text>
+        <text x="444.3" y="487.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="265.8" lengthAdjust="spacing">Tastier, Quieter, Softer/Harder</text>
+        <text x="444.3" y="518.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="350.3" lengthAdjust="spacing">Cooler / Warmer / Smoother / Sharper /</text>
+        <text x="444.3" y="541.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="161.7" lengthAdjust="spacing">Aroma / Luxurious</text>
+        <text x="444.3" y="571.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="117.7" lengthAdjust="spacing">Higher Status</text>
+        <text x="444.3" y="603.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="289.7" lengthAdjust="spacing">Uniqueness / Tailored, Exclusivity</text>
+        <text x="444.3" y="634.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="134.8" lengthAdjust="spacing">Newest / Latest</text>
+        <text x="444.3" y="665.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="89.3" lengthAdjust="spacing">Aesthetics</text>
+        <text x="444.3" y="696.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="196.0" lengthAdjust="spacing">Shocking or Disruptive</text>
+        <text x="444.3" y="728.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="104.8" lengthAdjust="spacing">Humourous</text>
+        <text x="444.3" y="759.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#434343" textLength="182.6" lengthAdjust="spacing">Popularity vs. Private</text>
+        <text x="94.7" y="476.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="200.7" lengthAdjust="spacing">Competitors seek to</text>
+        <text x="94.7" y="501.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="251.9" lengthAdjust="spacing">differentiate against each</text>
+        <text x="94.7" y="526.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="243.6" lengthAdjust="spacing">other but stay within the</text>
+        <text x="94.7" y="551.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="281.2" lengthAdjust="spacing">confines or &#8216;normal&#8217; industry</text>
+        <text x="94.7" y="576.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="82.6" lengthAdjust="spacing">practice.</text>
+        <text x="94.7" y="626.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="285.7" lengthAdjust="spacing">Customer needs &amp; wants are</text>
+        <text x="94.7" y="651.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="189.6" lengthAdjust="spacing">considered but not</text>
+        <text x="94.7" y="676.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="207.9" lengthAdjust="spacing">completely centric to</text>
+        <text x="94.7" y="701.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF0000" textLength="184.8" lengthAdjust="spacing">business structure.</text>
+        <text x="931.0" y="120.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="501.1" lengthAdjust="spacing">The development of a NEW (Blue Ocean) strategy is</text>
+        <text x="931.0" y="149.0" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="505.6" lengthAdjust="spacing">aimed at identifying the key Frustrations / Concerns</text>
+        <text x="931.0" y="177.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="488.8" lengthAdjust="spacing">/ Frictions that cause customers NOT to purchase.</text>
+        <text x="931.0" y="205.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="193.1" lengthAdjust="spacing">(from ANY provider)</text>
+        <text x="931.0" y="261.5" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="480.0" lengthAdjust="spacing">You must seek to appeal to those customers that</text>
+        <text x="931.0" y="289.6" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="507.0" lengthAdjust="spacing">are on the &#8216;Fringes&#8217; of purchasing but don&#8217;t consider</text>
+        <text x="931.0" y="317.7" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="461.5" lengthAdjust="spacing">the standard industry offer as being of value or</text>
+        <text x="931.0" y="345.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="410.6" lengthAdjust="spacing">relevance to them (IN ITS CURRENT FORM)</text>
+        <text x="931.0" y="402.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="500.4" lengthAdjust="spacing">This would leave you serving in a parallel industry –</text>
+        <text x="931.0" y="430.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="509.4" lengthAdjust="spacing">often with the aim of Lower Internal costs – meeting</text>
+        <text x="931.0" y="458.3" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="479.2" lengthAdjust="spacing">a customer need/want that is currently not being</text>
+        <text x="931.0" y="486.5" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="309.6" lengthAdjust="spacing">met by any of your competitors.</text>
+        <text x="931.0" y="542.7" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="465.1" lengthAdjust="spacing">The most cited example is Cirque de Sole which</text>
+        <text x="931.0" y="570.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="493.9" lengthAdjust="spacing">reduced costs by removing animals from the show</text>
+        <text x="931.0" y="599.0" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="490.9" lengthAdjust="spacing">(in response to society backlash) yet increased the</text>
+        <text x="931.0" y="627.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="485.7" lengthAdjust="spacing">&#8216;Theatre Experience&#8217; within a &#8216;Circus Environment,</text>
+        <text x="931.0" y="655.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="437.7" lengthAdjust="spacing">thus allowing them to INCREASE ticket prices.</text>
+        <text x="931.0" y="711.5" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="514.0" lengthAdjust="spacing">Their shows were uncontested (directly) and allowed</text>
+        <text x="931.0" y="739.6" font-family="Open Sans, sans-serif" font-size="20.8" fill="#0000FF" textLength="258.2" lengthAdjust="spacing">them to &#8216;own the industry&#8217;.</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Blue Ocean Strategy.</b> <span class="srcref">Strategic Orientation 2 · p31 · shape: above-below-line</span><br>
+      His two lists split by the red line, and the commentary that says which side a business is competing on.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Revenue Streams: upstream examples, the core product or service, and downstream examples, with connectors between them.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 37.0 19.0 L 678.4 19.0 L 678.4 131.8 L 37.0 131.8 Z" fill="none"></path>
+        <path d="M 37.0 366.6 L 496.1 366.6 L 496.1 769.0 L 37.0 769.0 Z" fill="none"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="none"></path>
+        <path d="M 1059.4 665.4 L 1416.5 665.4 L 1416.5 818.2 L 1059.4 818.2 Z" fill="none"></path>
+        <path d="M 574.9 345.5 L 924.1 345.5 L 924.1 498.3 L 574.9 498.3 Z" fill="#9CC2E5" stroke="#9CC2E5" stroke-width="2.1"></path>
+        <path d="M 1063.4 498.3 L 1412.5 498.3 L 1412.5 651.1 L 1063.4 651.1 Z" fill="#FFD966" stroke="#9CC2E5" stroke-width="2.1"></path>
+        <path d="M 82.4 131.8 L 431.6 131.8 L 431.6 333.7 L 82.4 333.7 Z" fill="#F4B081" stroke="#9CC2E5" stroke-width="2.1"></path>
+        <path d="M 431.6 232.8 L 503.3 232.8 L 503.3 421.9 L 574.9 421.9" fill="none"></path>
+        <path d="M 431.6 232.8 L 503.3 232.8 L 503.3 421.9 L 537.4 421.9" fill="none" stroke="#2F5496" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 537.4 432.2 L 565.8 421.9 L 537.4 411.6 L 537.4 432.2" fill="#2F5496" stroke="#2F5496" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 924.1 421.9 L 993.7 421.9 L 993.7 574.7 L 1063.4 574.7" fill="none"></path>
+        <path d="M 924.1 421.9 L 993.7 421.9 L 993.7 574.7 L 1025.9 574.7" fill="none" stroke="#2F5496" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 1025.9 585.1 L 1054.2 574.7 L 1025.9 564.4 L 1025.9 585.1" fill="#2F5496" stroke="#2F5496" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <text x="47.9" y="91.3" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="405.6" lengthAdjust="spacing">Revenue Streams</text>
+        <text x="47.9" y="391.3" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="442.3" lengthAdjust="spacing">These sales occur independent of a car sale</text>
+        <text x="47.9" y="419.4" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="442.2" lengthAdjust="spacing">and may attract a potential car buyer in</text>
+        <text x="47.9" y="447.5" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="65.6" lengthAdjust="spacing">future.</text>
+        <text x="47.9" y="492.3" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="442.3" lengthAdjust="spacing">These sales are also designed to provide a</text>
+        <text x="47.9" y="521.0" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="442.3" lengthAdjust="spacing">diversified revenue stream for when the</text>
+        <text x="47.9" y="549.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="442.2" lengthAdjust="spacing">CORE product sales are struggling due to</text>
+        <text x="47.9" y="577.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="261.3" lengthAdjust="spacing">Economic or Supply issues.</text>
+        <text x="47.9" y="622.0" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="442.3" lengthAdjust="spacing">Therefore, these products must be price</text>
+        <text x="47.9" y="650.7" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="442.3" lengthAdjust="spacing">pointed accordingly and seek to meet a clear</text>
+        <text x="47.9" y="678.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="267.3" lengthAdjust="spacing">or existing market demand.</text>
+        <text x="47.9" y="723.6" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="442.2" lengthAdjust="spacing">(Another example of this could be a cafe to</text>
+        <text x="47.9" y="752.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="311.0" lengthAdjust="spacing">build regular prospect relations)</text>
+        <text x="1070.3" y="690.0" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="340.4" lengthAdjust="spacing">These sales are the direct result</text>
+        <text x="1070.3" y="718.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="340.4" lengthAdjust="spacing">(contingent) on the Core product</text>
+        <text x="1070.3" y="746.3" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="340.3" lengthAdjust="spacing">or service being sold in the first</text>
+        <text x="1070.3" y="774.4" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="340.4" lengthAdjust="spacing">instance. This is considered your</text>
+        <text x="1070.3" y="802.5" font-family="Open Sans, sans-serif" font-size="20.8" fill="#434343" textLength="170.1" lengthAdjust="spacing">typical &#8216;cross-sell&#8217;.</text>
+        <text x="631.2" y="401.7" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000" textLength="236.5" lengthAdjust="spacing">Core Product / Service</text>
+        <text x="619.0" y="457.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000" textLength="260.8" lengthAdjust="spacing">Example: Used Car Sales</text>
+        <text x="1100.7" y="525.0" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000" textLength="274.4" lengthAdjust="spacing">&#8216;Down Stream&#8217; (examples)</text>
+        <text x="1098.0" y="573.4" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000">●</text>
+        <text x="1149.3" y="573.4" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000" textLength="216.1" lengthAdjust="spacing">Finance &amp; Insurance</text>
+        <text x="1098.0" y="601.5" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000">●</text>
+        <text x="1149.3" y="601.5" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000" textLength="216.8" lengthAdjust="spacing">Alarms &amp; CD Players</text>
+        <text x="1098.0" y="629.7" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000">●</text>
+        <text x="1149.3" y="629.7" font-family="Open Sans, sans-serif" font-size="22.9" fill="#000000" textLength="171.0" lengthAdjust="spacing">Paint Protection</text>
+        <text x="146.5" y="156.5" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="220.9" lengthAdjust="spacing">&#8216;Up Stream&#8217; (examples)</text>
+        <text x="118.3" y="197.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="168.4" y="197.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="92.0" lengthAdjust="spacing">Car Wash</text>
+        <text x="118.3" y="222.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="168.4" y="222.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="125.1" lengthAdjust="spacing">Car Servicing</text>
+        <text x="118.3" y="247.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="168.4" y="247.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="214.3" lengthAdjust="spacing">Manufacturer Apparel</text>
+        <text x="118.3" y="272.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="168.4" y="272.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="152.2" lengthAdjust="spacing">Car Seat Covers</text>
+        <text x="118.3" y="297.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="168.4" y="297.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="209.4" lengthAdjust="spacing">Aftermarket Exhausts</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Revenue Streams.</b> <span class="srcref">Strategic Orientation 2 · p33 · shape: upstream-core-downstream</span><br>
+      Upstream, core and downstream, his connectors between them, and the prose saying why each stream exists.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Peter Senges Circles of Causality: a reinforcing loop of growth above the line, and the costs that loop sets off below.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 41.8 60.8 L 464.2 60.8 L 464.2 257.0 L 41.8 257.0 Z" fill="none"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="none"></path>
+        <path d="M 792.7 48.2 L 792.7 48.2 C 869.7 73.8, 919.4 148.6, 913.3 229.5 C 907.1 310.5, 846.7 376.9, 766.6 390.6 C 686.6 404.3, 607.5 361.8, 574.8 287.5 C 542.0 213.2, 564.1 126.1, 628.2 76.3 L 622.1 66.9 L 646.9 75.9 L 645.5 103.4 L 639.5 94.0 C 583.6 138.5, 565.1 215.3, 594.5 280.4 C 623.9 345.5, 693.7 382.3, 764.0 369.8 C 834.4 357.4, 887.3 298.7, 892.5 227.5 C 897.7 156.2, 853.9 90.5, 786.1 68.0 L 792.7 48.2" fill="#CCD3EA"></path>
+        <path d="M 653.8 43.6 C 653.8 35.9, 660.0 29.7, 667.6 29.7 L 805.9 29.7 C 809.6 29.7, 813.1 31.2, 815.7 33.8 C 818.3 36.4, 819.8 39.9, 819.8 43.6 L 819.8 98.9 C 819.8 106.5, 813.6 112.7, 805.9 112.7 L 667.6 112.7 C 660.0 112.7, 653.8 106.5, 653.8 98.9 L 653.8 43.6" fill="#4372C3" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 657.8 33.8 L 815.7 33.8 L 815.7 108.7 L 657.8 108.7 Z" fill="none"></path>
+        <path d="M 806.5 154.5 C 806.5 146.9, 812.6 140.7, 820.3 140.7 L 958.6 140.7 C 962.3 140.7, 965.8 142.1, 968.4 144.7 C 971.0 147.3, 972.5 150.8, 972.5 154.5 L 972.5 209.8 C 972.5 217.5, 966.3 223.7, 958.6 223.7 L 820.3 223.7 C 812.6 223.7, 806.5 217.5, 806.5 209.8 L 806.5 154.5" fill="#4372C3" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 810.5 144.7 L 968.4 144.7 L 968.4 219.6 L 810.5 219.6 Z" fill="none"></path>
+        <path d="M 748.1 334.0 C 748.1 326.4, 754.3 320.2, 762.0 320.2 L 900.3 320.2 C 904.0 320.2, 907.5 321.6, 910.1 324.2 C 912.7 326.8, 914.1 330.3, 914.1 334.0 L 914.1 389.3 C 914.1 397.0, 907.9 403.2, 900.3 403.2 L 762.0 403.2 C 754.3 403.2, 748.1 397.0, 748.1 389.3 L 748.1 334.0" fill="#4372C3" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 752.2 324.2 L 910.1 324.2 L 910.1 399.1 L 752.2 399.1 Z" fill="none"></path>
+        <path d="M 559.4 334.0 C 559.4 326.4, 565.6 320.2, 573.2 320.2 L 711.6 320.2 C 715.2 320.2, 718.7 321.6, 721.3 324.2 C 723.9 326.8, 725.4 330.3, 725.4 334.0 L 725.4 389.3 C 725.4 397.0, 719.2 403.2, 711.6 403.2 L 573.2 403.2 C 565.6 403.2, 559.4 397.0, 559.4 389.3 L 559.4 334.0" fill="#4372C3" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 563.4 324.2 L 721.3 324.2 L 721.3 399.1 L 563.4 399.1 Z" fill="none"></path>
+        <path d="M 501.1 154.5 C 501.1 146.9, 507.3 140.7, 514.9 140.7 L 653.2 140.7 C 656.9 140.7, 660.4 142.1, 663.0 144.7 C 665.6 147.3, 667.1 150.8, 667.1 154.5 L 667.1 209.8 C 667.1 217.5, 660.9 223.7, 653.2 223.7 L 514.9 223.7 C 507.3 223.7, 501.1 217.5, 501.1 209.8 L 501.1 154.5" fill="#4372C3" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 505.1 144.7 L 663.0 144.7 L 663.0 219.6 L 505.1 219.6 Z" fill="none"></path>
+        <path d="M 680.8 459.0 L 680.8 459.0 C 603.8 484.7, 554.1 559.4, 560.2 640.4 C 566.4 721.3, 626.8 787.7, 706.9 801.4 C 786.9 815.1, 866.0 772.6, 898.7 698.3 C 931.4 624.0, 909.4 537.0, 845.3 487.2 L 851.4 477.8 L 826.6 486.7 L 828.0 514.3 L 834.0 504.8 C 889.9 549.3, 908.4 626.1, 879.0 691.2 C 849.6 756.3, 779.8 793.2, 709.4 780.7 C 639.1 768.2, 586.2 709.6, 581.0 638.3 C 575.8 567.1, 619.6 501.4, 687.4 478.8 L 680.8 459.0" fill="#F7D5CB"></path>
+        <path d="M 653.7 454.4 C 653.7 446.8, 659.9 440.6, 667.6 440.6 L 805.9 440.6 C 809.6 440.6, 813.1 442.0, 815.7 444.6 C 818.3 447.2, 819.7 450.7, 819.7 454.4 L 819.7 509.7 C 819.7 517.4, 813.5 523.6, 805.9 523.6 L 667.6 523.6 C 659.9 523.6, 653.7 517.4, 653.7 509.7 L 653.7 454.4" fill="#BF9000" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 657.8 444.6 L 815.7 444.6 L 815.7 519.5 L 657.8 519.5 Z" fill="none"></path>
+        <path d="M 806.4 565.3 C 806.4 557.7, 812.6 551.5, 820.2 551.5 L 958.6 551.5 C 962.2 551.5, 965.8 553.0, 968.4 555.6 C 971.0 558.2, 972.4 561.7, 972.4 565.3 L 972.4 620.7 C 972.4 628.3, 966.2 634.5, 958.6 634.5 L 820.2 634.5 C 812.6 634.5, 806.4 628.3, 806.4 620.7 L 806.4 565.3" fill="#A5A5A5" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 810.5 555.6 L 968.4 555.6 L 968.4 630.5 L 810.5 630.5 Z" fill="none"></path>
+        <path d="M 748.1 744.8 C 748.1 737.2, 754.3 731.0, 761.9 731.0 L 900.3 731.0 C 903.9 731.0, 907.4 732.5, 910.0 735.1 C 912.6 737.7, 914.1 741.2, 914.1 744.8 L 914.1 800.2 C 914.1 807.8, 907.9 814.0, 900.3 814.0 L 761.9 814.0 C 754.3 814.0, 748.1 807.8, 748.1 800.2 L 748.1 744.8" fill="#FF0000" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 752.1 735.1 L 910.0 735.1 L 910.0 810.0 L 752.1 810.0 Z" fill="none"></path>
+        <path d="M 559.4 744.8 C 559.4 737.2, 565.5 731.0, 573.2 731.0 L 711.5 731.0 C 715.2 731.0, 718.7 732.5, 721.3 735.1 C 723.9 737.7, 725.4 741.2, 725.4 744.8 L 725.4 800.2 C 725.4 807.8, 719.2 814.0, 711.5 814.0 L 573.2 814.0 C 565.5 814.0, 559.4 807.8, 559.4 800.2 L 559.4 744.8" fill="#FF33CC" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 563.4 735.1 L 721.3 735.1 L 721.3 810.0 L 563.4 810.0 Z" fill="none"></path>
+        <path d="M 501.0 565.3 C 501.0 557.7, 507.2 551.5, 514.9 551.5 L 653.2 551.5 C 656.9 551.5, 660.4 553.0, 663.0 555.6 C 665.6 558.2, 667.0 561.7, 667.0 565.3 L 667.0 620.7 C 667.0 628.3, 660.8 634.5, 653.2 634.5 L 514.9 634.5 C 507.2 634.5, 501.0 628.3, 501.0 620.7 L 501.0 565.3" fill="#C55A11" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 505.1 555.6 L 663.0 555.6 L 663.0 630.5 L 505.1 630.5 Z" fill="none"></path>
+        <path d="M 380.1 421.9 L 1099.7 421.9" fill="none" stroke="#4472C4" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 1036.0 60.8 L 1453.4 60.8 L 1453.4 354.6 L 1036.0 354.6 Z" fill="none"></path>
+        <text x="52.8" y="106.8" font-family="Open Sans, sans-serif" font-size="47.9" fill="#002B64" textLength="310.3" lengthAdjust="spacing">Peter Senge&#8217;s</text>
+        <text x="52.8" y="158.4" font-family="Open Sans, sans-serif" font-size="47.9" fill="#002B64" textLength="216.2" lengthAdjust="spacing">Circles of</text>
+        <text x="52.8" y="210.0" font-family="Open Sans, sans-serif" font-size="47.9" fill="#002B64" textLength="200.7" lengthAdjust="spacing">Causality</text>
+        <text x="700.0" y="67.1" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="77.8" lengthAdjust="spacing">Increased</text>
+        <text x="664.7" y="87.4" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="143.9" lengthAdjust="spacing">Advertising Budget</text>
+        <text x="831.2" y="188.2" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="116.3" lengthAdjust="spacing">Increased Sales</text>
+        <text x="774.1" y="357.6" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="118.2" lengthAdjust="spacing">Increased Cash</text>
+        <text x="796.8" y="377.9" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="68.7" lengthAdjust="spacing">Available</text>
+        <text x="605.6" y="357.6" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="77.8" lengthAdjust="spacing">Increased</text>
+        <text x="571.1" y="377.9" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="142.5" lengthAdjust="spacing">Customer Demand</text>
+        <text x="513.7" y="178.1" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="144.9" lengthAdjust="spacing">Desire to Maintain</text>
+        <text x="536.0" y="198.4" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="96.0" lengthAdjust="spacing">Growth Rate</text>
+        <text x="677.3" y="467.8" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="123.0" lengthAdjust="spacing">Increased Stock</text>
+        <text x="680.9" y="488.1" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="115.9" lengthAdjust="spacing">Levels to Meet</text>
+        <text x="704.5" y="508.4" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="64.5" lengthAdjust="spacing">Demand</text>
+        <text x="823.4" y="578.7" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="136.2" lengthAdjust="spacing">Costs Increased =</text>
+        <text x="836.2" y="599.1" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="110.6" lengthAdjust="spacing">Reduced Cash</text>
+        <text x="855.0" y="619.4" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="68.7" lengthAdjust="spacing">Available</text>
+        <text x="772.9" y="758.2" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="120.5" lengthAdjust="spacing">Increased After</text>
+        <text x="782.3" y="778.6" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="101.6" lengthAdjust="spacing">Sales Service</text>
+        <text x="796.8" y="798.9" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="68.6" lengthAdjust="spacing">Required</text>
+        <text x="605.5" y="758.2" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="77.8" lengthAdjust="spacing">Increased</text>
+        <text x="581.8" y="778.6" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="125.3" lengthAdjust="spacing">Warehousing or</text>
+        <text x="589.1" y="798.9" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="106.4" lengthAdjust="spacing">Logistics costs</text>
+        <text x="527.7" y="578.7" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="116.8" lengthAdjust="spacing">Increased Staff</text>
+        <text x="528.2" y="599.1" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="115.9" lengthAdjust="spacing">Levels to Meet</text>
+        <text x="551.8" y="619.4" font-family="Carlito, Calibri, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="64.5" lengthAdjust="spacing">Demand</text>
+        <text x="1046.9" y="120.3" font-family="Open Sans, sans-serif" font-size="22.9" fill="#434343" textLength="401.2" lengthAdjust="spacing">&#8220;Every system has inherent toxicity;</text>
+        <text x="1046.9" y="151.6" font-family="Open Sans, sans-serif" font-size="22.9" fill="#434343" textLength="401.2" lengthAdjust="spacing">the predictable negative outcomes</text>
+        <text x="1046.9" y="182.8" font-family="Open Sans, sans-serif" font-size="22.9" fill="#434343" textLength="401.2" lengthAdjust="spacing">are not (necessarily) an indicator</text>
+        <text x="1046.9" y="214.1" font-family="Open Sans, sans-serif" font-size="22.9" fill="#434343" textLength="401.2" lengthAdjust="spacing">that your system is failing or has</text>
+        <text x="1046.9" y="245.3" font-family="Open Sans, sans-serif" font-size="22.9" fill="#434343" textLength="401.2" lengthAdjust="spacing">been poorly executed but rather, a</text>
+        <text x="1046.9" y="276.6" font-family="Open Sans, sans-serif" font-size="22.9" fill="#434343" textLength="401.3" lengthAdjust="spacing">natural consequence of the actions</text>
+        <text x="1046.9" y="307.8" font-family="Open Sans, sans-serif" font-size="22.9" fill="#434343" textLength="176.0" lengthAdjust="spacing">you have taken.&#8221;</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Peter Senge&#8217;s Circles of Causality.</b> <span class="srcref">Strategic Orientation 2 · p38 · shape: causal-loop</span><br>
+      Two loops of curved segments — the virtuous circle above, the consequences it sets off below, and his warning that they are one system.
+    </figcaption>
+  </figure>
+
+  <div class="panel">
+    <h2>What these five are, and what is left</h2>
+    <ul>
+      <li>
+        <b>All five are drawn, and none is traced.</b> Every arrow, box, connector and loop segment
+        is a path taken straight out of your deck — 30 of them on Pine's staircase alone. Where a
+        concept's artwork was a picture rather than a drawing, that was the previous batch and it
+        is named there; <b>none of these is a picture</b>.
+      </li>
+      <li>
+        <b>Every diagram in Strategic Orientation 2 is now done</b> — apart from Technology Points,
+        which you ruled is to be redrawn flat because its 3D illustration carries the Advisor-E
+        logo inside the picture itself and cannot be lifted out clean.
+      </li>
+      <li>
+        <b>What remains after that is the faster half:</b> 7 tables, which are one renderer reused,
+        and 12 pages that are your prose with no diagram on them at all.
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+
+<script>
+  (function () {
+    var FIRMS = [
+      { name: 'Hartley & Co', initials: 'H', colour: '#0070c0' },
+      { name: 'Northbridge Advisory', initials: 'N', colour: '#7a4b8f' },
+      { name: 'Kestrel Partners', initials: 'K', colour: '#0f7a5a' }
+    ]
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('.firm'))
+
+    function show (i) {
+      var f = FIRMS[i]
+      if (!f) { return }
+      Array.prototype.forEach.call(document.querySelectorAll('.firm-mark'), function (g) {
+        g.querySelector('.fm-disc').setAttribute('fill', f.colour)
+        g.querySelector('.fm-init').textContent = f.initials
+        g.querySelector('.fm-name').textContent = f.name
+      })
+      buttons.forEach(function (b) {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.firm) === i))
+      })
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { show(Number(b.dataset.firm)) })
+    })
+  }())
+</script>
