@@ -55,10 +55,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 18 | **5.3** Four Wages Register test suites share one file and collide at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 19 | **15.3** Eighteen rows of the session scope menu have no Helps Your Client To... line ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 20 | **15.4** Twelve labels on the plan document are ours, not Mike's ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 21 | **15.5** The Concept Register's slide renderer is Python, in a repository that uses none ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
+| 21 | **15.5** The deck-reading tool has no home, and the drawing method now depends on it ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
 | 22 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 23 | **15.7** Thirty-three concepts have no graphic, so the advisor teaches from nothing ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-18 |
 
-**22 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
+**23 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

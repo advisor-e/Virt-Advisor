@@ -465,33 +465,26 @@ function buildConcept (raw, knownIds) {
     captureForm: raw.captureForm || null,
     captureTemplate: raw.captureTemplate || null,
     captureFormBasis: raw.captureFormBasis,
-    responsePage: raw.responsePage || null,
-    slide: slidePath(raw.deck, raw.source === 'agenda' ? null : raw.page),
-    responseSlide: slidePath(raw.deck, raw.responsePage)
+    responsePage: raw.responsePage || null
   }
 }
 
-/**
- * Where the app serves one of Mike's own slides from.
+/*
+ * 🔴 WHY THERE IS NO `slide` FIELD HERE — Mike's ruling, 2026-09-18.
  *
- * 🔴 THE SLIDE IS THE TEACHING GRAPHIC — Mike's ruling, 2026-09-18. His decks are
- * rendered by `scripts/render-deck-slides.py` into `static/planning-slides/` and
- * shown as they are, rather than redrawn. Redrawing is what put three of Porter's
- * four forces in the wrong position while a code comment claimed the diagram had
- * been copied.
+ * Until this date a concept carried `slide` and `responseSlide`: paths to JPEGs of
+ * his own deck pages, rendered by a script into `static/planning-slides/` and shown
+ * as the teaching graphic. He had not asked for that, and it broke white-labelling:
+ * every page of his decks carries the advisor-e.com logo, the Advisor-e border and
+ * his own page number BURNED INTO THE PIXELS. Advisor-e always shows the ADVISOR'S
+ * firm logo in client dealings, never its own, and a raster of his slide can never
+ * do that. His words: *"they look cheap and more importantly, they lock in the
+ * Advisor-e logo."*
  *
- * A concept listed only on an agenda slide has no page of its own, so it gets no
- * image: the agenda would be a picture of the wrong thing, which is worse than
- * no picture at all.
- *
- * @param {string} deck  the deck id
- * @param {number|null} page  the page, or null where there is none to trust
- * @returns {string|null} a path under `static/`, or null
+ * `deck`, `page` and `responsePage` STAY. They are the reference to the source —
+ * which deck and which page a concept is taught from — and the rebuild needs them
+ * open beside it. They are not an instruction to render an image.
  */
-function slidePath (deck, page) {
-  if (!deck || !Number.isInteger(page) || page < 1) { return null }
-  return '/planning-slides/' + deck + '-p' + String(page).padStart(2, '0') + '.jpg'
-}
 
 const CONCEPT_IDS = new Set(RAW_CONCEPTS.map(c => String((c && c.id) || '')))
 
@@ -757,11 +750,6 @@ function cloneFramework (f) {
     // module load, before CONCEPTS exists — doing it there threw on require and
     // took the whole backend down with it.
     conceptSummary: conceptSummaryFor(f.conceptId) || f.conceptSummary,
-    // Mike's own slide, and the page his client writes on. Resolved here for the
-    // same reason as the line above — CONCEPTS does not exist when FRAMEWORKS is
-    // built. A framework with no concept behind it has neither.
-    slide: (CONCEPT_BY_ID[f.conceptId] || {}).slide || null,
-    responseSlide: (CONCEPT_BY_ID[f.conceptId] || {}).responseSlide || null,
     planningDomains: f.planningDomains.slice(),
     fields: f.fields.map(x => Object.assign({}, x, {
       options: x.options ? x.options.slice() : null

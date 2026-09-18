@@ -363,18 +363,19 @@ describe('a malformed concept fails at load, not in a client meeting', () => {
   })
 })
 
-describe('a concept carries Mike\'s own slide, or none at all', () => {
-  // Mike's ruling, 2026-09-18: *"continue the build - using the graphics and tables you
-  // now have."* The teaching graphic is his slide, rendered from his deck, not a drawing
-  // of it — after a hand-drawn Porter's put three of its four forces in the wrong place
-  // while a code comment claimed it had been copied.
+describe('a concept names the deck page it is taught from', () => {
+  // 🔴 THERE IS NO `slide` FIELD ANY MORE — Mike's ruling, 2026-09-18. A concept used to
+  // carry a path to a JPEG of his own deck page. He had not asked for that, and it cannot
+  // be white-labelled: his pages carry the advisor-e.com logo burned into the image, and a
+  // client is always shown the ADVISOR'S firm logo. The images and their renderer are gone.
   //
-  // WHAT THIS CATCHES THAT UAT CANNOT. A wrong slide is still a slide. It renders, it is
-  // his artwork, it carries his branding — and a person reviewing the screen has no way to
-  // know the concept is showing the deck's AGENDA rather than its own page. The 18 concepts
-  // listed only on an agenda all inherited page 2 from it, so getting this wrong would put
-  // the same contents slide behind nine different concepts of Organisational Review and
-  // look entirely plausible in every one.
+  // 🔴 WHAT WHOEVER REBUILDS THE GRAPHIC MUST KNOW, because the guard that used to enforce
+  // it went with the images: AN AGENDA-ONLY CONCEPT'S `page` IS NOT ITS TEACHING PAGE. The
+  // 18 concepts listed only on a deck's agenda all carry page 2, the agenda itself. Drawing
+  // from that number would put the same contents page behind nine different concepts of
+  // Organisational Review and look entirely plausible in every one. Check `source` first.
+  // There is no test for it below because there is now no code that resolves a page to a
+  // graphic — write one with the rebuild, not before it.
   const good = {
     id: 'x',
     name: 'X',
@@ -386,21 +387,17 @@ describe('a concept carries Mike\'s own slide, or none at all', () => {
   }
   const known = new Set(['x'])
 
-  it('names the page it is taught on', () => {
-    expect(frameworks.buildConcept(good, known).slide)
-      .toBe('/planning-slides/strategic-orientation-2-p13.jpg')
-  })
-
-  it('gives an agenda-only concept NO slide, rather than the agenda it was listed on', () => {
-    const agenda = Object.assign({}, good, { source: 'agenda', page: 2 })
-    expect(frameworks.buildConcept(agenda, known).slide).toBeNull()
-  })
-
   it('carries the response page separately, where the deck holds the table', () => {
     const withResponse = Object.assign({}, good, { page: 22, responsePage: 24 })
     const built = frameworks.buildConcept(withResponse, known)
-    expect(built.slide).toBe('/planning-slides/strategic-orientation-2-p22.jpg')
-    expect(built.responseSlide).toBe('/planning-slides/strategic-orientation-2-p24.jpg')
+    expect(built.page).toBe(22)
+    expect(built.responsePage).toBe(24)
+  })
+
+  it('serves no image path for a concept, so nothing can carry his logo to a client', () => {
+    const built = frameworks.buildConcept(good, known)
+    expect(built.slide).toBeUndefined()
+    expect(built.responseSlide).toBeUndefined()
   })
 
   it('rejects a response page that is not a page', () => {
@@ -414,7 +411,7 @@ describe('a concept carries Mike\'s own slide, or none at all', () => {
     // correct rather than a clash.
     const vertical = frameworks.getConcept('vertical-integration')
     const horizontal = frameworks.getConcept('horizontal-integration')
-    expect(vertical.responseSlide).toBe('/planning-slides/strategic-orientation-2-p24.jpg')
-    expect(horizontal.responseSlide).toBe(vertical.responseSlide)
+    expect(vertical.responsePage).toBe(24)
+    expect(horizontal.responsePage).toBe(vertical.responsePage)
   })
 })

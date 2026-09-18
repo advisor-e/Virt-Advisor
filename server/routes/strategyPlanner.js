@@ -193,13 +193,13 @@ async function getConceptCapture (req, res) {
       conceptSummary: concept.conceptSummary || '',
       helpsClientTo: concept.helpsClientTo || '',
       teachingForm: concept.teachingForm || '',
+      // Which page of which deck teaches this concept, and — where the deck holds
+      // the fill-in table instead of a workbook — the page the client writes on.
+      // These are REFERENCES to the source, not images: the route served JPEG
+      // paths until 2026-09-18 and no longer does, because Mike's deck pages carry
+      // the advisor-e.com logo and a client is always shown the advisor's own.
       deckPage: concept.page || null,
-      // 🔴 AND IT TRAVELS WITH MIKE'S OWN SLIDE. His ruling, 2026-09-18 — the
-      // concept is shown as it appears in his deck rather than redrawn. `slide`
-      // is the page that teaches it; `responseSlide` is the page his client
-      // writes on, where the deck has one instead of a workbook.
-      slide: concept.slide || null,
-      responseSlide: concept.responseSlide || null,
+      responsePage: concept.responsePage || null,
       capture: captureForms.captureForConcept(concept),
       timestamp: new Date().toISOString()
     })

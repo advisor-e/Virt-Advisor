@@ -107,6 +107,10 @@ session (§4) and carries into the assembled document.
 **Five stages of the eight remain**, and the one immediately ahead — the advisor naming his own
 steps — waits on the open decision in *What gates what* below.
 
+🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
+its method is below.** The teaching graphic is drawn by us, never imported from his deck — one
+concept is approved, **1 of 52**, and 33 have a page we can draw from.
+
 ### The spine — after stage 3 an advisor can run the whole job
 
 | | Stage | The request it serves | What it buys |
@@ -117,23 +121,63 @@ steps — waits on the open decision in *What gates what* below.
 
 ### Then — making it right rather than making it work
 
-⛔ **The green highlighter mark on Strategic Orientation 2 p34 STAYS — Mike, 2026-09-18.** His
-*(Our) Revenue Streams* page carries a highlight on its title; it renders on screen and would
-print in a client's plan. He was shown it and ruled it cosmetic. **It is in his deck, not in our
-code**, so there is nothing here to fix — do not report it, and do not re-render around it.
+⛔ **The green highlighter mark on Strategic Orientation 2 p34 — Mike ruled it cosmetic,
+2026-09-18. Do not report it again.** His *(Our) Revenue Streams* page carries a highlight on its
+title. It was visible while the app served his page as an image; now that the graphic is drawn
+rather than photographed it reaches a screen only if somebody copies it deliberately. **Do not.**
+It is a mark on his working deck, not part of the concept, and his ruling was that it does not
+matter either way — so it is not a defect to fix, not a detail to reproduce, and not a question to
+bring back to him.
 
-🔴 **DO NOT REDRAW A CONCEPT. EVER.** The hand-drawn Porter's hub that stood here until
-2026-09-18 carried a comment saying it was Mike's approved drawing *"COPIED, NOT REDRAWN"*. It was
-redrawn, and against his actual slide — Strategic Orientation 2 **p13** — **three of the four
-forces were in the wrong position**: his are Customers top, Suppliers right, Substitutes bottom,
-New Entrants left. His ring and his four colours were gone, the inward arrows were invented, and
-two of his bold statements were missing. **Every gate passed the whole time**, because a gate
-compares code to a note and nothing compared the build to the slide. If a graphic looks wrong now,
-open his deck, look at the page, and correct the page number in the data.
+### 🔴 HOW A CONCEPT IS DRAWN — the method, and it is not optional
+
+**Approved by Mike, 2026-09-18, on seeing Porter's 5 Forces built this way:** *"i like it, that's
+what ive been looking for - make sure your process is recorded so it can be applied to all the
+rest."* The artefact is
+[`../mockups/strategy-concept-porters.html`](../mockups/strategy-concept-porters.html).
+
+> **This section replaced a rule that read "DO NOT REDRAW A CONCEPT. EVER."** That rule was written
+> on 2026-09-18 after a hand-drawn Porter's went wrong, and the same day it was used to justify
+> importing his deck pages as images instead — which locked the **advisor-e.com logo** into a
+> client's document and had to be undone within hours. **Both extremes failed.** Drawing from
+> memory is wrong; photographing his page is wrong. The method below is the third answer, and the
+> only one that survived contact with him.
+
+**Two facts sit in tension, and the method exists to satisfy both.**
+
+1. The concept must appear **as it does in his deck** — his instruction, and non-negotiable.
+2. **A firm's own logo must be able to sit where Advisor-e's does.** His words, 2026-09-18:
+   *"in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo - never
+   advisor-e."* That rules out any image of his page, at any quality.
+
+**So a concept is drawn BY US, from his page, BY MACHINE. Five steps, in order:**
+
+| | Step | Why it is not a formality |
+|---|---|---|
+| **1** | **Open his actual page and look at it.** `deck` + `page` on the concept say which. Render it with PyMuPDF — installed on the laptop. | ⚠ **`source: 'agenda'` MEANS `page` IS NOT THE TEACHING PAGE.** The 18 agenda-only concepts all carry page 2, the deck's contents. Drawing from that number puts the same page behind nine different concepts and looks plausible in every one. |
+| **2** | **Take the words from the PDF's text layer.** `page.get_text('dict')`, never retyped. | Retyping is how *"can you please stick to what i gave you?"* happened three times in one day. A machine-read line cannot drift. |
+| **3** | **Take the page's own geometry.** `page.rect` gives the size — Strategic Orientation 2 is **720×405pt**, so a 1500px viewBox is a scale of **2.0833**. Multiply every line's `bbox` x and `origin` y and every `size` by it. | 🔴 **THE FIRST PORTER'S ATTEMPT SKIPPED THIS AND GUESSED THE PAGE WIDTH AT 540pt.** Every text block overran the sheet and collided with the ring. Positioning by eye fails silently and looks like a styling problem. |
+| **4** | **Sample the colours off a 150dpi render**, dominant colour per shape. Porter's: `#F47D2F` `#474747` `#75A157` `#519AD9` `#3A6FC8`, ink `#002B64`. | A colour named from memory is a guess wearing a hex code. |
+| **5** | **Match his fonts.** His decks set body text in **Open Sans** and circle labels in **Calibri**; use Open Sans and **Carlito**, which is metric-compatible with Calibri and is on Google Fonts. | Only Google Fonts loads in an artifact. A silent fallback changes every line width and moves the layout. |
+
+**Then: the firm's mark goes where his logo was, his page number does not travel** (the client's
+plan runs in the advisor's order, so his number would be wrong on the page), and the drawing is
+**saved as a mockup and approved before it ships** — beside his page at the same size, so
+*"copied, not redrawn"* is something he can check rather than something we assert.
+
+🔴 **WHAT THIS PREVENTS, STATED ONCE.** The hand-drawn Porter's that stood here until 2026-09-18
+carried a comment saying it was his approved drawing *"COPIED, NOT REDRAWN"*. It was not: against
+**Strategic Orientation 2 p13**, **three of the four forces were in the wrong position** — his are
+Customers top, Suppliers right, Substitutes bottom, New Entrants left — his ring and four colours
+were gone, the inward arrows were invented, and two of his bold statements were missing. **Every
+gate passed the whole time**, because a gate compares code to a note and nothing compared the build
+to the slide. Steps 2–4 above are the comparison, and they are done by machine so they cannot be
+skipped and claimed.
 
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
-| **4** | ☑ **BUILT 2026-09-18 — and it is NOT 21 drawings. It is his slides.** `scripts/render-deck-slides.py` renders the pages the data asks for into `static/planning-slides/`; `slidePath()` in `strategyFrameworks.js` puts each concept's own page on the concept, and the response page beside it. **The hand-drawn Porter's hub is deleted.** | *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides."* · *"continue the build - using the graphics and tables you now have"* (2026-09-18) | 🔴 **The most faithful way to show a concept as it appears in his slides is to show his slide.** Measured before the work: concepts whose graphic matches his page went from **0 of 52** — the only one drawn was wrong — to **34 of 52**, every concept with a page we trust. The client's plan document went from **no drawing on any page** to one per teaching page. **21 hand-drawings became a rendering job**, after the one that was drawn by hand put three of its four forces in the wrong place. |
+| **4** | ⛔ **BUILT AND UNDONE THE SAME DAY, 2026-09-18 — his deck pages, imported as images.** `scripts/render-deck-slides.py` rendered them into `static/planning-slides/` and `slidePath()` put one on each concept. **Nobody asked for it**, and it could never be white-labelled. Script, 37 images and every field that served them are deleted. | It claimed *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides"* — but that is about **fidelity**, and it was read as a licence to choose the **technique**. A question was never put to him. | 🔴 **HIS RULING ON SEEING IT:** *"i never asked for this … they look cheap and more importantly, they lock in the Advisor-e logo and in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo - never advisor-e."* Every page of his decks carries `advisor-e.com`, the cyan border and his page number **burned into the pixels**. ⚠ **AND THE IMPACT TEST SCORED THE BREACH AS THE WIN:** the measure was *"concepts whose graphic matches his page: 0 of 52 → 34 of 52"*, and a measure that rewards reproducing his page exactly will always reward reproducing his branding with it. |
+| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above. ☑ **Porter's 5 Forces approved 2026-09-18, 1 of 52.** Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
 | **5** | **9 capture forms** — every table the table his template actually is | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
 | **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |

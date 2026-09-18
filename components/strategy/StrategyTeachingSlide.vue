@@ -4,24 +4,31 @@ section.sts
   //- name and its capture instruction; printing them again put the same two lines
   //- on screen twice, one under the other.
 
-  //- 🔴 THE GRAPHIC IS MIKE'S OWN SLIDE. Not a drawing of it — the slide itself,
-  //- rendered from his deck by `scripts/render-deck-slides.py`. His ruling,
-  //- 2026-09-18: *"continue the build - using the graphics and tables you now
-  //- have."*
+  //- 🔴 THERE IS NO GRAPHIC HERE YET, AND THAT IS THE CURRENT STATE — Mike's
+  //- ruling, 2026-09-18. Until then this rendered a JPEG of his own deck page.
+  //- He had not asked for that, and it cannot be white-labelled: every page of
+  //- his decks carries the advisor-e.com logo and border burned into the pixels,
+  //- and Advisor-e always shows the ADVISOR'S firm logo to a client, never its
+  //- own. His words: *"they look cheap and more importantly, they lock in the
+  //- Advisor-e logo."* The images and their renderer are deleted.
   //-
-  //- ⚠ WHAT THIS REPLACED, AND WHY IT HAD TO. This was a hand-drawn Porter's hub
-  //- carrying a comment that said it was his approved drawing COPIED, NOT REDRAWN.
-  //- It was redrawn, and against his actual slide — Strategic Orientation 2 p13 —
-  //- THREE OF THE FOUR FORCES WERE IN THE WRONG POSITION: his are Customers top,
-  //- Suppliers right, Substitutes bottom, New Entrants left. His ring and his four
-  //- colours were missing, the inward arrows were invented, and two of his bold
-  //- statements were absent. Every gate passed the whole time, because a gate
-  //- compares code to a note and nothing compared the build to the slide.
+  //- ⚠ THE REBUILD DRAWS EACH CONCEPT AS A COMPONENT, so the firm's logo can sit
+  //- where his does. Two things govern it, and they pull against each other:
   //-
-  //- 🔴 SO DO NOT REDRAW A CONCEPT, EVER. If a slide looks wrong, the answer is to
-  //- open his deck and look, then fix the page number in the data.
-  figure.sts-slide(v-if="slide")
-    img.sts-img(:src="slide" :alt="name")
+  //- 1. The concept must appear AS IT DOES IN HIS DECK. `deck` and `page` on the
+  //-    concept say which page — open it and look.
+  //- 2. A drawing done from memory gets it WRONG. The hand-drawn Porter's hub
+  //-    that stood here before the images carried a comment claiming it was his
+  //-    approved drawing COPIED, NOT REDRAWN. It was redrawn, and against his
+  //-    actual slide — Strategic Orientation 2 p13 — THREE OF THE FOUR FORCES
+  //-    WERE IN THE WRONG POSITION: his are Customers top, Suppliers right,
+  //-    Substitutes bottom, New Entrants left. His ring and his four colours were
+  //-    missing, the inward arrows invented, two bold statements absent. Every
+  //-    gate passed throughout, because a gate compares code to a note and
+  //-    nothing compared the build to the slide.
+  //-
+  //- 🔴 SO: BUILD IT WITH HIS PAGE OPEN BESIDE IT, NEVER FROM MEMORY, and get the
+  //- drawing approved as a saved artefact before it ships.
 
   //- What the concept does, in Mike's own words from the deck's Session Scope
   //- table — the same two lines the menu screen shows before it is ticked.
@@ -47,14 +54,18 @@ section.sts
  * Mike's instruction, 2026-09-17: *"i want the graphic up so the advisor can speak
  * to it - then the responses are captured after the click of a button."*
  *
+ * ⚠ THE GRAPHIC IS NOT HERE. It was a JPEG of his own deck page and was removed on
+ * 2026-09-18 because it carries the advisor-e.com logo, which can never be the
+ * advisor's firm logo. The template comment says what replaces it. Until then this
+ * component is his words without his picture, and it says so on screen.
+ *
  * 🔴 EVERYTHING HERE COMES FROM WHAT HE GAVE US, AND NOTHING IS DERIVED. The
- * diagram is his approved drawing copied across; the prompts are the framework's
- * own fields from `data/strategy-frameworks.json`, which is his approved screen of
- * 2026-09-16; the two description lines are his Session Scope table. Three times on
- * 2026-09-17 a build read one of these out of a source file instead and got it
- * wrong — a diagram of its own invention, four forces instead of five, and force
- * names broken into fragments. His instruction: *"can you please stick to what i
- * gave you?"*
+ * prompts are the framework's own fields from `data/strategy-frameworks.json`,
+ * which is his approved screen of 2026-09-16; the two description lines are his
+ * Session Scope table. Three times on 2026-09-17 a build read one of these out of a
+ * source file instead and got it wrong — a diagram of its own invention, four
+ * forces instead of five, and force names broken into fragments. His instruction:
+ * *"can you please stick to what i gave you?"*
  *
  * Vue 2, Options API, Pug.
  */
@@ -62,18 +73,7 @@ export default {
   name: 'StrategyTeachingSlide',
 
   props: {
-    /**
-     * Mike's own slide for this concept, served from `static/planning-slides/`.
-     * Empty where the concept has no page we trust — a concept listed only on a
-     * deck's agenda has none, and showing it the agenda would be a picture of the
-     * wrong thing.
-     */
-    slide: {
-      type: String,
-      default: ''
-    },
-
-    /** The concept's name, which is the image's alt text. */
+    /** The concept's name. */
     name: {
       type: String,
       default: ''
@@ -120,23 +120,6 @@ export default {
   border: 1px solid #d5e1ee;
   border-radius: 14px;
   padding: 18px;
-}
-
-.sts-slide {
-  margin: 4px 0 6px;
-}
-
-/* His slides are 16:9. The frame keeps that ratio so the page does not jump
-   while the image loads, and the border is the slide's own edge rather than a
-   card around it. */
-.sts-img {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-  border: 1px solid #d5e1ee;
-  border-radius: 8px;
 }
 
 .sts-concept {

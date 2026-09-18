@@ -507,7 +507,7 @@
     },
     {
       "ref": "15.5",
-      "name": "The Concept Register's slide renderer is Python, in a repository that uses none",
+      "name": "The deck-reading tool has no home, and the drawing method now depends on it",
       "rankedByMike": false,
       "kind": "defect",
       "score": 5,
@@ -516,16 +516,16 @@
       "blocks": null,
       "waitingOn": "Us",
       "activeOn": null,
-      "why": "scripts/render-deck-slides.py renders Mike's deck pages into static/planning-slides so the app shows his own slides. Nothing else here is Python, and the Stack Constitution says a deviation is filed the moment it is introduced.",
-      "risk": "Accepted in silence it becomes the new normal, and the next tool that needs a language reaches for whatever is handy. The narrower risk is that the slides cannot be rebuilt anywhere but this laptop: the desktop has no Python and no copy of his decks, so a deck change there is unbuildable and the failure looks like a missing image rather than a missing tool.",
+      "why": "render-deck-slides.py is deleted with the imported images, but reading his decks did not stop being needed: the approved drawing method opens every page with PyMuPDF, and that step now lives nowhere in the repository.",
+      "risk": "A method the Brief calls mandatory runs on a tool only this laptop has and no file records. The desktop cannot draw a concept at all, and the failure reads as a missing library rather than a missing decision. The Stack Constitution says a deviation is filed the moment it is found, and this one has moved rather than gone.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-18 - the deviation was named in the proposal he approved ('the renderer needs a home... that's a deviation to log') and he said yes to filing it at shutdown the same day."
       },
-      "touches": "scripts/render-deck-slides.py, static/planning-slides (37 committed images), scripts/build-concept-register.js which reads the page titles the same engine produces, and design/features/strategy-planner.md section 0 stage 4.",
-      "note": "The images ARE committed, so no one needs the renderer to run the app - it runs only when Mike's decks change. Resolving this is not deleting the tool: it is deciding where a deck-reading tool lives, which was deferred on 2026-09-18 until the Concept Register has been worked through.",
-      "comment": ""
+      "touches": "Wherever a deck-reading tool ends up living; scripts/build-concept-register.js, which still expects a directory of rendered images and now has nothing producing one; and the five-step drawing method in design/features/strategy-planner.md section 0.",
+      "note": "🔴 THE FACTS CHANGED ON 2026-09-18 AND THIS IS NOT THE ITEM IT WAS. It was filed as a committed .py nobody needed. The .py and its 37 images are gone, deleted with the deck-image import Mike rejected. What remains is the opposite shape: a deck reader is now REQUIRED by the approved drawing method, and exists only as an uncommitted step on one machine. Deleting the tool was never the answer; deciding where it lives still is.",
+      "comment": "2026-09-18 - rewritten in place rather than closed. Closing it would have recorded the removal of the .py as the fix, when that removal is what made the underlying question urgent."
     },
     {
       "ref": "15.6",
@@ -548,6 +548,31 @@
       "touches": "design/concept-register-corrections.json (his partial pass, applied: false), data/strategy-frameworks.json captureTemplate on 19 concepts, data/strategy-capture-tables.json which holds the 20 forms, and scripts/build-concept-register.js which rebuilds the register.",
       "note": "FOUR of the eight name Branding, Customer Loyalty, Pricing and Packaging, workbooks never supplied - those are his to supply or to strike. The other four are name mismatches we can fix once he confirms. Seventeen response-page suggestions from the deck scan also await his pass. Do not apply his corrections without asking: the file is deliberately marked unapplied and his pass is unfinished.",
       "comment": ""
+    },
+    {
+      "ref": "15.7",
+      "name": "Thirty-three concepts have no graphic, so the advisor teaches from nothing",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off without it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-18"
+      },
+      "why": "Porter's 5 Forces is drawn and approved, 1 of 52. The other 33 concepts with a page we trust show his words with no picture, and the client's plan document prints without one.",
+      "risk": "An advisor talks a client through a framework with nothing on screen to point at, which is the opposite of Mike's own instruction that the graphic goes up first and the boxes wait behind a button. The plan the client keeps has no pictures on any page. Three concepts whose fill-in table is a deck page - Vertical Integration, Revenue Streams, Volatility Graph - drop out of the plan entirely until theirs is drawn.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-18 - on approving the first one: 'i like it, that's what ive been looking for - make sure your process is recorded so it can be applied to all the rest', then 'we start on the others'."
+      },
+      "touches": "components/strategy/StrategyTeachingSlide.vue, which is the shell they render into; StrategyCaptureCard.vue and StrategyPlanDocument.vue, where the graphic and the response page belong; data/strategy-frameworks.json deck and page; and design/mockups, one approved drawing per concept.",
+      "note": "🔴 THE METHOD IS FIXED AND IS NOT A MATTER OF TASTE - five steps in strategy-planner.md section 0, approved 2026-09-18. Words from the PDF text layer, colours sampled from a render, positions and sizes computed from the page's own coordinates, his fonts matched, never placed by eye. 18 agenda-only concepts carry page 2 and have NO page to draw from - check source before using page. Three deviations on the Porter's drawing are unruled: the border, the page number and the logo slot.",
+      "comment": "2026-09-18 - filed on his instruction after the imported deck pages were removed. Not a repeat of the deleted stage 4: that imported his pages as images and locked in the advisor-e.com logo, which is why it was undone within hours of shipping."
     }
   ]
 }
