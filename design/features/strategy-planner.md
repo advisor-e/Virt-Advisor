@@ -223,6 +223,31 @@ prose and the firm's mark around it are drawn as normal.
 
 ---
 
+### 🔴 A PAGE THAT IS ITS OWN CAPTURE FORM SHOWS THE WORKED EXAMPLE ONLY
+
+**Mike's correction, 2026-09-18:** *"the customer persona types matched to product fit is in fact a
+response capture form - it just gives the first persona type as an example."*
+
+**Customer (Persona) Types** (Sales & Marketing p12) is a grid of ten attribute rows against five
+customer columns. The first column, **Farm Wagon / Farmer Joe**, is his worked example. The other
+four — *Other 1* to *Other 4* — are **blank, and they are what the client fills in**: the app
+resolves them to **158 live fields**. Drawing the whole grid put the same empty columns on screen
+twice, once as a picture and once as something to type into.
+
+**So the teaching graphic stops at the example**, and the blank columns belong to the capture form
+where they can actually be used.
+
+⚠ **THIS APPLIES TO ONE CONCEPT, NOT TO EVERY CONCEPT THAT CAPTURES.** Six of the first 21 drawn
+also carry a capture form — Porter's (32 fields), the 8 Profit Levers (29), Progression of Economic
+Value (18), Blue Ocean (14), the 10 Critical Marketing Messages (11) — but **their teaching page is
+a diagram or is fully written**, with nothing blank on it. Checked before the change was made:
+only p12 has columns headed *"Other N"*. Applying the rule to the others would have deleted
+Porter's hub.
+
+**The test is not "does it capture?" but "is the teaching page itself the blank form?"**
+
+---
+
 **Then: the firm's mark goes where his logo was, his page number does not travel** (the client's
 plan runs in the advisor's order, so his number would be wrong on the page), and the drawing is
 **saved as a mockup and approved before it ships** — beside his page at the same size, so
