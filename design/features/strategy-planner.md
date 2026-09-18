@@ -190,6 +190,28 @@ concept's graphic has no vector content, it is a picture.
 >   found. That is a **flat** colour standing in for his gradient: a stated deviation, not a
 >   silent one.
 >
+>   🔴 **SAMPLING IS FOUR RULES, AND EVERY ONE OF THEM COST A WRONG DRAWING.** Each looked right
+>   on screen:
+>   1. **Average the samples; never demand an identical repeat.** A gradient never gives the same
+>      pixel twice, which is the one case sampling exists for. Asking for three matching pixels
+>      threw away **10 of 13 fills** on Horizontal Integration.
+>   2. **Sample a ring just inside the edge, not the middle, and drop the darkest quarter.** His
+>      banners carry navy text across the centre; averaging it in dragged a pale lavender panel
+>      down to a mid slate.
+>   3. **No outline and no readable fill means placeholder.** PowerPoint leaves invisible plates
+>      behind his title and his logo. Sampling read the page *through* them: **his logo came back
+>      as a blue block and his title got a cyan band** lifted off the border behind it. Everything
+>      he genuinely fills carries an outline. ⚠ The logo rule also needs a **width** guard — at
+>      "low and to the left" alone it ate the grey *Other* cells on the persona table.
+>   4. **A sample that matches the outline IS the outline.** On a shallow box the ring lands on its
+>      own border: Pine's five staged boxes are **white with a gold edge**, and sampling filled all
+>      five solid gold.
+>
+>   And **one segment is not an outline** — a diagonal line has a wide bounding box and no inside,
+>   which is how two of the Sigmoid's hatching strokes were handed fills. The item **count**
+>   separates them: a banner is a 9-segment outline, a hatching stroke is 1. `closePath` is not the
+>   test; his rounded banners report `False` and are plainly areas.
+>
 > ⚠ **None of these was caught by a test and none could be.** Every drawing rendered perfectly and
 > was simply wrong. All were caught by the side-by-side.
 
