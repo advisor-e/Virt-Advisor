@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Superseded — the 16 Sep session drawing</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   ⛔⛔ SUPERSEDED 2026-09-17 — DO NOT OPEN THIS AS THE CURRENT DESIGN. ⛔⛔
+
+   Mike redirected item 15.1 on 2026-09-17. THE SCREENS BELOW NO LONGER
+   DESCRIBE THE TARGET. The current drawing is THE ASSEMBLED PLAN —
+   design/mockups/strategy-plan-output.html, published at
+   https://claude.ai/artifact/2WufpS2R3XDP5LyZbtdZu3
+
+   ✅ WHAT IS STILL LIVE HERE, AND THE ONLY REASON THE PAGE EXISTS: the
+   ELEVEN RULINGS. They bind. Decision 5 especially — the models run inside
+   the card on the SAME backend route, never a second copy of the maths.
+
+   🔴 NEVER SEND MIKE TO THIS PAGE AS THE PLAN. His words, 2026-09-17, after a
+   republish of it surfaced here where he expected the new drawing: "make sure
+   the old plan version never comes back — there is NO WAY that should have
+   happened." The page is not deleted because a drawing that is gone cannot be
+   checked against, and because the rulings live here. It is instead LABELLED,
+   in the browser title, in the h1, and in a banner above everything else.
+   ============================================================================
+
+   STRATEGY PLANNER — the strategy domain's execution surface, to-do item 15.1.
+   Drawn 2026-09-16. NOTHING ON THIS PAGE IS BUILT. It is the artefact the build
+   will be measured against, per CLAUDE.md's Save-the-Artefact rule.
+
+   WHY IT EXISTS. Mike asked for "a strategy planner that allows an advisor to
+   have a preliminary conversation with their client to design a strategic plan
+   format", from thirteen source decks in C:/Documents/Visual Code Projects/
+   Strategy Planner. The engine already diagnoses planning need and routes to the
+   Planning Outcomes Review. The advisor then arrives at nothing — the session
+   still runs on slides, and the client's answers never reach the app.
+
+   🔴 THE IMPACT TEST, MEASURED BEFORE THIS WAS DRAWN (CLAUDE.md, 2026-09-16).
+   Counted from Mike's own Session Scope tables. CORRECTED 2026-09-17: the first
+   count read 45 and came from ADV.0 Planning Outcomes, whose index has drifted
+   four concepts and a page offset out of step with the decks it copies. Mike's
+   scoping ruling counts the five decks' OWN contents tables — 52. See
+   design/PLANNING-TEMPLATE-CENSUS.md §1 and §5.
+
+     · the four Planning Domains hold          52 frameworks / capture tables
+     · an advisor can capture, in the app       0
+     · answers surviving to the next session    0   (there is no store)
+     · frameworks with a supporting calculator  3   (8 Profit Levers, Deming's
+                                                     Volatility, Revenue Model)
+
+   The three calculators are NOT the capture. /eight-levers computes the lever
+   arithmetic; the deck's Profit Levers step is brainstormed activities sorted
+   under levers into a TASK / WHOM / WHEN sheet. Different thing entirely.
+
+   WHAT THE MEASUREMENT CHANGED ABOUT THIS DRAWING. The gain does not come from
+   building 52 screens. It comes from ONE capture machine plus ONE store, so all
+   52 become possible at once and a mentor adds the 53rd without a developer.
+   That is why screen 2 below is drawn THREE TIMES with three different table
+   shapes: if one renderer carries all three, the rest is data entry. If it
+   cannot, we have found that out on paper.
+
+   WHAT IS ALREADY TRUE IN THE CODE AND IS NOT RE-ASKED HERE:
+     · the route in exists — data/logic_trees.json → client_planning branches
+       three ways: startup, well established, or BLOCKED (keyed to psyche errors)
+     · the Session Scope table is MIKE'S OWN DESIGN, from ADV.0 Planning
+       Outcomes: Framework | Concept Summary | Helps Your Client To | Include
+       (Yes/No). Screen 1 renders his table; it does not invent a menu.
+     · the nine Growth Aspects and the nine Growth Curve stages are already data
+       — data/growth-fundamentals.json
+     · Orientation 1 already states the coverage check as a rule: "Objectives
+       should be tested against the '9 Growth Aspects'"
+     · 🔴 THE FRAMEWORKS SPAN THREE DOMAIN FILES, not one. Business Targets and
+       Strategic Orientation are in data/strategy-domain-support.json; Sales &
+       Marketing Review is in data/sales-marketing-domain-support.json;
+       Organisational Review is in data/staff-domain-support.json. A build over
+       the strategy file alone delivers half the session.
+
+   THE 9 GROWTH ASPECTS WHEEL (screen 3) — added 2026-09-16 on Mike's request,
+   "bright colourful pie graph, same as showing in original". The nine colours are
+   NOT chosen: they were extracted from the vector fills of his own
+   "9 Growth Aspects Graphic.pdf" — #00b1e0 #5b9bd5 #ff0000 #548135 #7030a0
+   #1f3864 #ec5012 #002b64 #00b050.
+
+   🔴 TWO HONEST LIMITS ON THAT, BOTH STATED TO MIKE:
+     · WHICH colour belongs to WHICH aspect is RECONSTRUCTED from the draw order
+       of the table rows beside the wheel, not proven. The pie itself is not in
+       the PDF's vector fills. If a segment is the wrong colour, that is why.
+     · The palette FAILS the CVD checks — #00b1e0 vs #5b9bd5 measure ΔE 6.5 at
+       normal vision, #002b64 vs #1f3864 are two near-identical navies. It is
+       legal here ONLY because every segment carries its own direct label, which
+       is why the labels are not optional and the list beside it stays.
+
+   DELIBERATE DEVIATION FROM THE ORIGINAL, recorded so the build is not measured
+   against the wrong thing: labels sit OUTSIDE the ring, horizontal. The original
+   curves them inside it. Curved text is unreadable at screen sizes and cannot be
+   selected, read aloud or translated.
+
+   VOICE RECORDING — added 2026-09-16 when Mike said "i want to be able to be
+   voice recorded". Decisions 10 and 11. The Planner builds NO recorder: a strategy
+   session becomes a Meeting Review meeting type, which inherits that feature's
+   three non-coding gates AND keeps this inside the single privacy exception
+   rather than opening a second one. Read Decision 10 before touching audio.
+
+   ✅ ALL ELEVEN DECISIONS WERE RULED BY MIKE ON 2026-09-16, asked one at a time.
+   Each ruling is in its own box below WITH THE RECOMMENDATION LEFT IN PLACE
+   BENEATH IT, so a later session can see what was proposed and what was decided.
+
+   🔴 ONE WENT AGAINST THE RECOMMENDATION — DECISION 5. A session building from
+   the recommendations builds the wrong thing. He refused link-out: "it needs to
+   feel inclusive, comprehensive and seamless. I dont want it to feel like
+   patchwork." The models run INSIDE the framework card, on the SAME backend
+   route as the standalone page. Seamless is the surface, never a second copy of
+   the maths.
+
+   WORDING IS NOW APPROVED, NOT PROPOSED: the screen heading "What do you want
+   from your session?" and the navigation entry "Strategy Planner" (Decision 2).
+   Do not reword either without asking him again.
+
+   ⚠ STILL OUTSTANDING, AND HE KNOWS: the aspect DESCRIPTIONS are missing from
+   the wheel's labels — "detail missing from the labels but we can add later"
+   (2026-09-16). They already exist in growth-fundamentals.json. This is a
+   deferral he made, not an oversight.
+   ============================================================================ */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+h1{font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 10px;letter-spacing:-.01em}
+h3{font-size:15px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 8px}
+.lede{font-size:16px;color:var(--rs-muted);max-width:80ch}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--rs-ink)}
+.ask.ruled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)}
+.ask.ruled h3{color:var(--rs-good)}
+.ask .ruling{font-weight:600;color:#1d6b2b;margin:0 0 9px;padding-bottom:9px;
+  border-bottom:1px solid #cbe7d2}
+
+.measure{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:4px solid var(--rs-crit);
+  border-radius:10px;padding:14px 16px;margin:18px 0}
+.measure h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-crit)}
+.mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 10px}
+.mg{border:1px solid var(--rs-line);border-radius:10px;padding:12px 13px;background:var(--rs-panel-2)}
+.mg .n{font-size:27px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.mg .l{font-size:12px;color:var(--rs-muted);margin-top:3px;line-height:1.4}
+.mg.zero{background:#e000000f;border-color:#f0b4b4}
+.mg.zero .n{color:var(--rs-crit)}
+
+/* ---------- SUPERSEDED banner — added 2026-09-17 ----------
+   Mike, 2026-09-17, after this page was republished and surfaced in front of
+   him where he expected the new one: "make sure the old plan version never
+   comes back — there is NO WAY that should have happened". The page cannot be
+   deleted (its eleven rulings bind, and a drawing that is gone cannot be
+   checked against), so it says what it is, at the top, before anything else. */
+.superseded{background:#fdeaea;border:2px solid var(--rs-crit);border-radius:12px;
+  padding:16px 18px;margin:0 0 22px}
+.superseded .sh{font-size:15px;font-weight:700;color:#a01414;margin:0 0 8px;
+  letter-spacing:.01em}
+.superseded p{font-size:13.5px;margin:0 0 8px;max-width:82ch}
+.superseded p:last-child{margin:0}
+.superseded .go{background:var(--rs-panel);border:1px solid #f0b4b4;border-radius:8px;
+  padding:10px 12px}
+.superseded .why{color:#6b3030;font-size:12.5px}
+.superseded a{color:var(--rs-accent);font-weight:600}
+.h1flag{font-size:.55em;font-weight:600;color:var(--rs-crit);white-space:nowrap}
+
+/* ---------- the screen ---------- */
+.screen{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden;margin:16px 0 8px}
+.rs-top{background:var(--rs-panel-2);border-bottom:1px solid var(--rs-line);padding:14px 18px;
+  display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.rs-top .t{flex:1 1 300px;min-width:0}
+.rs-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rs-muted)}
+.rs-title{font-size:19px;font-weight:700;margin:2px 0 0}
+.rs-sub{font-size:12.5px;color:var(--rs-muted);margin:3px 0 0;max-width:70ch}
+.sel{font-family:inherit;font-size:13px;border:1px solid var(--rs-line);border-radius:8px;
+  padding:7px 12px;background:var(--rs-panel);color:var(--rs-ink);flex:0 0 auto}
+.btn{font-family:inherit;font-size:13px;font-weight:600;border:1px solid var(--rs-accent);
+  border-radius:8px;padding:7px 14px;background:var(--rs-accent);color:#fff;flex:0 0 auto}
+.btn.ghost{background:var(--rs-panel);color:var(--rs-accent)}
+.body{padding:18px}
+.sec{margin:0 0 22px}
+.sec:last-child{margin-bottom:0}
+.sec h4{font-size:13px;font-weight:700;margin:0 0 4px;letter-spacing:.01em}
+.cap{font-size:12.5px;color:var(--rs-muted);margin:0 0 10px;max-width:80ch}
+.note{font-size:12.5px;color:var(--rs-muted);margin:12px 0 0;max-width:80ch}
+
+/* ---------- progress rail ---------- */
+.rail{display:flex;gap:0;border:1px solid var(--rs-line);border-radius:10px;overflow:hidden;
+  margin:0 0 18px;background:var(--rs-panel-2)}
+.rail div{flex:1 1 0;padding:9px 11px;font-size:12px;text-align:center;color:var(--rs-muted);
+  border-right:1px solid var(--rs-line)}
+.rail div:last-child{border-right:0}
+.rail div.on{background:var(--rs-accent);color:#fff;font-weight:600}
+.rail div.done{background:var(--rs-good-soft);color:#2f7d32;font-weight:600}
+
+/* ---------- domain cards ---------- */
+.doms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dom{border:1px solid var(--rs-line);border-radius:10px;padding:13px 14px;background:var(--rs-panel-2)}
+.dom .h{font-weight:700;font-size:13.5px;margin:0 0 3px}
+.dom .d{font-size:12.5px;color:var(--rs-muted);margin:0 0 8px}
+.dom .c{font-size:12px;font-weight:600;color:var(--rs-accent)}
+.dom.picked{background:#eefaf0;border-color:#a8dcb4}
+.dom.picked .c{color:#2f7d32}
+
+/* ---------- tables ---------- */
+.wrap{overflow-x:auto}
+table.g{width:100%;border-collapse:collapse;font-size:12.5px;min-width:600px}
+table.g th{text-align:left;font-weight:700;color:var(--rs-muted);font-size:11px;
+  letter-spacing:.07em;text-transform:uppercase;padding:7px 9px;border-bottom:1px solid var(--rs-line)}
+table.g td{padding:8px 9px;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.g tr:last-child td{border-bottom:0}
+table.g td.b{font-weight:600}
+table.g td.num,table.g th.num{text-align:right;white-space:nowrap}
+table.g td.inc{text-align:center;white-space:nowrap}
+.tick{display:inline-block;width:20px;height:20px;border-radius:5px;border:1px solid #a8dcb4;
+  background:#eefaf0;color:#2f7d32;font-size:12px;line-height:18px;text-align:center;font-weight:700}
+.untick{display:inline-block;width:20px;height:20px;border-radius:5px;border:1px solid var(--rs-line);
+  background:var(--rs-panel)}
+
+/* ---------- capture shapes ---------- */
+.quad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.qb{border:1px solid var(--rs-line);border-radius:10px;padding:11px 12px;background:var(--rs-panel-2);
+  min-height:118px}
+.qb .qh{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 6px}
+.qb .qp{font-size:11.5px;color:var(--rs-muted);margin:0 0 7px;font-style:italic}
+.qb ul{margin:0;padding-left:16px;font-size:12.5px}
+.qb li{margin:0 0 4px}
+.qb .empty{font-size:12px;color:var(--rs-muted);opacity:.7}
+
+.forces{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fb{border:1px solid var(--rs-line);border-radius:10px;padding:11px 12px;background:var(--rs-panel-2)}
+.fb.centre{background:#eef7ff;border-color:#9fd0f5}
+.fb .fh{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 6px}
+.fb .fp{font-size:11.5px;color:var(--rs-muted);margin:0 0 7px;font-style:italic}
+.fb .fv{font-size:12.5px}
+.fb .empty{font-size:12px;color:var(--rs-muted);opacity:.7}
+
+.levers{display:grid;grid-template-columns:1fr;gap:8px}
+.lv{display:grid;grid-template-columns:200px 1fr;gap:10px;border:1px solid var(--rs-line);
+  border-radius:10px;padding:10px 12px;background:var(--rs-panel-2);align-items:start}
+.lv .ln{font-weight:600;font-size:12.5px}
+.lv .laim{font-size:11px;color:var(--rs-muted);display:block;font-weight:400;margin-top:2px}
+.lv .lt{font-size:12.5px}
+.lv .empty{font-size:12px;color:var(--rs-muted);opacity:.7}
+.lv.filled{background:#eefaf0;border-color:#a8dcb4}
+
+.concept{border:1px solid var(--rs-line);border-radius:10px;padding:12px 14px;
+  background:var(--rs-panel);margin:0 0 12px}
+.concept .ch{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rs-muted);margin:0 0 5px}
+.concept p{font-size:12.5px;margin:0 0 6px}
+.concept p:last-child{margin:0}
+.split{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;
+  border-radius:20px;text-transform:uppercase}
+.tag.pass{background:var(--rs-good-soft);color:#2f7d32;border:1px solid #a8dcb4}
+.tag.fail{background:#e000000f;color:var(--rs-crit);border:1px solid #f0b4b4}
+.tag.data{background:#eef7ff;color:var(--rs-accent);border:1px solid #9fd0f5}
+
+.aspects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.asp{border:1px solid var(--rs-line);border-radius:9px;padding:9px 11px;background:var(--rs-panel-2);
+  font-size:12.5px}
+.asp .an{font-weight:600}
+.asp .ac{font-size:11.5px;color:var(--rs-muted);margin-top:2px}
+.asp.covered{background:#eefaf0;border-color:#a8dcb4}
+.asp.bare{background:var(--rs-warn-soft);border-color:#f3c893}
+.asp .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:7px;
+  vertical-align:-1px;border:1px solid #0002}
+
+/* ---------- the 9 Growth Aspects wheel ---------- */
+.wheelwrap{display:grid;grid-template-columns:minmax(0,470px) 1fr;gap:20px;align-items:start}
+.wheel{width:100%;height:auto;display:block;max-width:470px;margin:0 auto}
+.wheel text{font-family:var(--rs-font);font-size:12.5px;font-weight:600;fill:var(--rs-ink)}
+.wheel text.baretx{fill:var(--rs-muted);font-weight:400}
+.wheel .ctr-n{font-size:36px;font-weight:700;fill:var(--rs-ink)}
+.wheel .ctr-l{font-size:11px;font-weight:700;fill:var(--rs-muted);letter-spacing:.09em}
+
+@media(max-width:860px){
+  .wheelwrap{grid-template-columns:1fr}
+  .mgrid,.doms,.forces,.aspects{grid-template-columns:1fr}
+  .quad{grid-template-columns:1fr}
+  .split{grid-template-columns:1fr}
+  .lv{grid-template-columns:1fr}
+  .rail{flex-wrap:wrap}
+  .rail div{flex:1 1 40%}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="superseded">
+    <p class="sh">⛔ Superseded — this is not the current design</p>
+    <p><b>Mike redirected item 15.1 on 17 September 2026.</b> The screens on this page no longer
+      describe what is being built. It is kept because <b>its eleven rulings still bind</b>, and
+      because a drawing that is deleted cannot be checked against.</p>
+    <p class="go"><b>The current drawing is <i>The Assembled Plan</i></b> —
+      <code>design/mockups/strategy-plan-output.html</code>, published at
+      <a href="https://claude.ai/artifact/2WufpS2R3XDP5LyZbtdZu3">claude.ai/artifact/2WufpS2R3XDP5LyZbtdZu3</a>.
+      Go there for the target; come back here only for a ruling.</p>
+    <p class="why">Design from the OUTPUT, in his words: <i>"I want the final output to break down
+      to each concept/slide/s … into 1 seamless document that can easily expand over time"</i>, and
+      <i>"each concept needs to be presented AS IT CURRENTLY APPEARS in the slides."</i>
+      <b>Decision 5 is the ruling most easily lost</b> — the models run inside the card, on the same
+      backend route, never a second copy of the maths.</p>
+  </div>
+
+  <p class="eyebrow">To-do item 15.1 · drawn 16 Sep 2026 · superseded 17 Sep 2026 · nothing built</p>
+  <h1>Strategy Planner <span class="h1flag">— superseded</span></h1>
+  <p class="lede">The session an advisor actually runs with a client. <b>Read the box above before
+    reading anything below it.</b></p>
+
+  <div class="measure">
+    <h3>The impact test, measured before this was drawn</h3>
+    <p style="margin:0 0 10px;font-size:12.5px"><b>Corrected 2026-09-17: this figure read 45 when
+      the page was approved.</b> The 45 was counted from ADV.0 Planning Outcomes, whose index has
+      drifted four concepts and a page offset out of step with the decks it copies. Mike's scoping
+      ruling of 2026-09-17 counts the five decks' own contents tables: <b>52</b>. The four domain
+      cards below carry the same correction, because they are that number broken down —
+      <b>Business Targets 4→5, Strategic Orientation 18→21, Organisational Review 8→9, Sales &amp;
+      Marketing 15→16</b>. Nothing else on this page changed, and none of the eleven rulings below
+      turns on the count — the principle ruled was <i>a few capture shapes, never one screen per
+      framework</i>. See <code>design/PLANNING-TEMPLATE-CENSUS.md</code> §1 and §5.</p>
+    <div class="mgrid">
+      <div class="mg"><div class="n">52</div>
+        <div class="l">Frameworks across your four Planning Domains</div></div>
+      <div class="mg zero"><div class="n">0</div>
+        <div class="l">An advisor can capture in the app today</div></div>
+      <div class="mg zero"><div class="n">0</div>
+        <div class="l">Answers surviving to the next session</div></div>
+      <div class="mg"><div class="n">3</div>
+        <div class="l">Have a supporting calculator</div></div>
+    </div>
+    <p style="margin:0;font-size:12.5px">
+      <b>The three calculators are not the capture.</b> <code>/eight-levers</code> works out the
+      lever arithmetic; the deck's Profit Levers step is brainstormed activities sorted under
+      levers into a Task / Whom / When sheet. Only the <b>Revenue Model</b> is genuinely served
+      today, by the existing budget and forecast models — which is what the domain support
+      already insists on.</p>
+    <p style="margin:8px 0 0;font-size:12.5px">
+      <b>So the design is one machine, not fifty-one screens.</b> Screen 2 is drawn three times
+      below, with three deliberately different table shapes, to test exactly that.</p>
+  </div>
+
+  <div class="mock">
+    <h3>Read this before judging the wording</h3>
+    <p><b>Every label on this page is a proposal, not a decision.</b> Where a deck already
+      supplies the words, the deck's words are used and said to be the deck's. Everywhere else
+      the wording is mine and is waiting on you — the nine blue boxes are the questions, and
+      none has been ruled.</p>
+    <p>Sample content is invented (a fictional client, "Kestrel Joinery") so the shapes can be
+      judged. No real client appears anywhere.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       SCREEN 1 — SCOPE THE SESSION
+       ══════════════════════════════════════════════════════════════════ -->
+  <h2>Screen 1 · Scope the session</h2>
+  <p>This is your own Session Scope table from <b>ADV.0 Planning Outcomes</b>, rendered. The four
+    Planning Domains, each opening to its frameworks, each framework carrying its Concept Summary,
+    its "Helps Your Client To…" line and an <b>Include</b> decision. The app is not inventing a
+    menu; it is putting yours on a screen.</p>
+
+  <div class="screen">
+    <div class="rs-top">
+      <div class="t">
+        <div class="rs-eyebrow">Strategy Planner · Kestrel Joinery</div>
+        <div class="rs-title">What do you want from your session?</div>
+        <div class="rs-sub">Your role is to challenge what the client believes to be true. Their
+          role is to explore with an open heart and an open mind.</div>
+      </div>
+      <button class="btn ghost">Save and close</button>
+      <button class="btn">Start the session</button>
+    </div>
+    <div class="body">
+
+      <div class="rail">
+        <div class="on">1 · Scope</div>
+        <div>2 · Run the frameworks</div>
+        <div>3 · Objectives &amp; actions</div>
+        <div>4 · The plan</div>
+      </div>
+
+      <div class="sec">
+        <h4>The four Planning Domains</h4>
+        <p class="cap">Pick the domains this session covers. The descriptions are the deck's own
+          words.</p>
+        <div class="doms">
+          <div class="dom picked">
+            <div class="h">Business Targets</div>
+            <div class="d">Revenue, profit and personal income targets, debt ratio and risk
+              tolerance, work hours and leave expectations.</div>
+            <div class="c">5 frameworks · 2 included</div>
+          </div>
+          <div class="dom picked">
+            <div class="h">Strategic Orientation</div>
+            <div class="d">A challenging review of the business model — revenue streams,
+              application of assets, target market — with external insights and scenario
+              modelling.</div>
+            <div class="c">21 frameworks · 3 included</div>
+          </div>
+          <div class="dom">
+            <div class="h">Organisational Review</div>
+            <div class="d">Communication and reporting channels, divisional roles and individual
+              responsibilities, to improve efficiencies and team engagement.</div>
+            <div class="c">9 frameworks · not this session</div>
+          </div>
+          <div class="dom">
+            <div class="h">Sales &amp; Marketing Review</div>
+            <div class="d">How you attract attention, how you convert attention into interest and
+              action, and how you finally secure their custom.</div>
+            <div class="c">16 frameworks · not this session</div>
+          </div>
+        </div>
+        <p class="note"><b>The counts are real.</b> They are the frameworks each domain actually
+          names in its Session Scope tables. They also show why this cannot be built over one
+          file: <b>Organisational Review's nine live in <code>staff-domain-support.json</code> and
+          Sales &amp; Marketing's sixteen in <code>sales-marketing-domain-support.json</code></b>,
+          not in the strategy domain at all.</p>
+      </div>
+
+      <div class="sec">
+        <h4>Strategic Orientation — choose what to include</h4>
+        <p class="cap">Your table, unaltered: Framework · Concept Summary · Helps Your Client
+          To… · Include. Every word in the first three columns is already authored in the app.</p>
+        <div class="wrap">
+        <table class="g">
+          <thead><tr>
+            <th style="width:150px">Framework</th><th>What it explores</th>
+            <th>Helps your client to…</th><th class="inc" style="width:70px">Include</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="b">Porter's 5 Forces</td>
+              <td>How customer trends, supplier tactics, new entrants and substitutes can all
+                impact the business at the same time.</td>
+              <td>Look out for changes in the market and anticipate how everyone will react, so
+                they can be ready to take advantage.</td>
+              <td class="inc"><span class="tick">✓</span></td>
+            </tr>
+            <tr>
+              <td class="b">Progression of Economic Value</td>
+              <td>The business imperatives at each stage of the value chain, and how the bright
+                new thing becomes the minimum standard.</td>
+              <td>Identify what to focus on, depending on how they add value to their customer.</td>
+              <td class="inc"><span class="untick"></span></td>
+            </tr>
+            <tr>
+              <td class="b">Risk Reward Matrix</td>
+              <td>Risk categorised into knowns, partial unknowns and complete unknowns.</td>
+              <td>Identify opportunities in market expansion and product diversification by
+                testing one unknown at a time.</td>
+              <td class="inc"><span class="untick"></span></td>
+            </tr>
+            <tr>
+              <td class="b">Blue Ocean Strategy</td>
+              <td>How to attract customers who would not normally purchase the service or
+                product.</td>
+              <td>Explore ways to stand out from all their other competitors.</td>
+              <td class="inc"><span class="tick">✓</span></td>
+            </tr>
+            <tr>
+              <td class="b">The 8 Profit Levers</td>
+              <td>The accumulative effect of incremental changes in business activities.</td>
+              <td>Identify the little things that can contribute to massive business growth.</td>
+              <td class="inc"><span class="tick">✓</span></td>
+            </tr>
+            <tr>
+              <td class="b">SWOT / PEST</td>
+              <td>Internal position through strengths and weaknesses; the external macro
+                environment through political, economic, regulatory and tariff movement.</td>
+              <td>Establish a baseline of where they actually stand before anything is planned.</td>
+              <td class="inc"><span class="tick">✓</span></td>
+            </tr>
+            <tr>
+              <td class="b">Deming's Volatility</td>
+              <td>How volatility can be measured in terms of probability, and therefore predict
+                events better.</td>
+              <td>Develop more meaningful targets and reports.</td>
+              <td class="inc"><span class="untick"></span></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="note">Seven of twenty-one shown. <b>Deming's Volatility is left unticked
+          deliberately</b> — it already has a screen at <code>/volatility</code>, and the question
+          of whether an existing calculator should be reachable from inside a session is
+          Decision 5.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 1 · who decides what is included — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16: "as is - fine for now". The Include
+      column starts empty and the advisor ticks it with the client. The engine's diagnosis is
+      shown on the screen but ticks nothing on the advisor's behalf. "For now" is his word: this
+      is settled for the build, not settled forever.</p>
+    <p>The deck has the advisor and client tick the Include column together, in the room or as
+      pre-meeting preparation. The app could instead pre-tick from what the engine already
+      diagnosed, and let the advisor change it.</p>
+    <p class="rec">Recommendation: pre-tick nothing. The advisor ticks.</p>
+    <p>Pre-ticking would look helpful and quietly take the session away from the advisor — and
+      the deck is explicit that deciding the scope <i>is</i> part of the session ("Be clear on
+      what you want to walk away with BEFORE you start"). A suggestion the advisor must undo is
+      worse than a blank column they fill in with the client watching.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 2 · what this screen is called — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16. Screen heading is the deck's own
+      question, <b>"What do you want from your session?"</b>. Navigation entry is <b>"Strategy
+      Planner"</b>. Both are now approved wording and must not be reworded in the build without
+      asking him again.</p>
+    <p>The deck's own title for this step is <b>"What Do You Want From Your Session?"</b>, and the
+      template behind it is the <b>Planning Outcomes Review</b>.</p>
+    <p class="rec">Recommendation: use the deck's question as the screen heading, and call the
+      feature the <b>Strategy Planner</b> in navigation.</p>
+    <p>Your words in the room, your words on the screen. But "Strategy Planner" is my wording for
+      the menu entry, not yours — that is the part needing your ruling.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       SCREEN 2 — RUN A FRAMEWORK, THREE TIMES
+       ══════════════════════════════════════════════════════════════════ -->
+  <h2>Screen 2 · Run a framework</h2>
+  <p>One card, one framework. The concept sits on the left so the advisor can teach it without
+    leaving the screen; the capture sits on the right. <b>Drawn three times, on purpose.</b> These
+    are the three shapes you named — and they are genuinely different: sort-into-buckets, four
+    quadrants, five forces. If one renderer carries all three, the remaining 48 frameworks are
+    data entry rather than development.</p>
+
+  <!-- ---------- 2a · 8 Profit Levers ---------- -->
+  <h3>2a · The 8 Profit Levers — <span class="tag data">shape: sort into buckets</span></h3>
+  <div class="screen">
+    <div class="rs-top">
+      <div class="t">
+        <div class="rs-eyebrow">Strategic Orientation · framework 3 of 4</div>
+        <div class="rs-title">The 8 Profit Levers</div>
+        <div class="rs-sub">If you're running short of time you can identify just one task per
+          lever for now; do the rest when time provides.</div>
+      </div>
+      <button class="btn ghost">Back</button>
+      <button class="btn">Next framework</button>
+    </div>
+    <div class="body">
+      <div class="split">
+        <div>
+          <div class="concept">
+            <div class="ch">What this does in the room</div>
+            <p>Walks the client through their own customer's journey and surfaces the mini
+              decisions a customer makes in order to buy, and that the business must meet
+              profitably.</p>
+            <p>A framework for finding growth through incremental change rather than drastic
+              movement. Reach for it when the client is about to jump all-in on a single idea
+              without having explored what it does to the rest of the business.</p>
+          </div>
+          <div class="concept">
+            <div class="ch">The maths behind it</div>
+            <p>Foot-traffic × Prospects × Customers × Avg Spend × Frequency = <b>Total
+              Revenue</b></p>
+            <p>Sales Margin + Activity Driven Costs + Fixed Overheads = <b>Total Expenses</b></p>
+            <p style="color:var(--rs-muted);font-size:12px">Already built and computable at
+              <code>/eight-levers</code>. See Decision 5.</p>
+          </div>
+        </div>
+        <div>
+          <div class="sec" style="margin:0">
+            <h4>Quick-win actions, one per lever</h4>
+            <p class="cap">Brainstormed activities sorted under the lever they move. This is the
+              capture the app has never had.</p>
+            <div class="levers">
+              <div class="lv filled">
+                <div class="ln">Number of Foot-traffic
+                  <span class="laim">Gain their ATTENTION</span></div>
+                <div class="lt">Trade breakfast at the merchants' yard, monthly — Dave</div>
+              </div>
+              <div class="lv filled">
+                <div class="ln">Number of Prospects
+                  <span class="laim">Capture their INTEREST</span></div>
+                <div class="lt">Quote form on the site instead of a phone number — Ana</div>
+              </div>
+              <div class="lv">
+                <div class="ln">Number of Customers
+                  <span class="laim">Secure their CUSTOM</span></div>
+                <div class="empty">Nothing captured yet</div>
+              </div>
+              <div class="lv filled">
+                <div class="ln">Average Customer Spend
+                  <span class="laim">Secure their CUSTOM</span></div>
+                <div class="lt">Bundle hardware with every door order — Dave</div>
+              </div>
+              <div class="lv">
+                <div class="ln">Average Customer Frequency
+                  <span class="laim">Keep them WANTING MORE</span></div>
+                <div class="empty">Nothing captured yet</div>
+              </div>
+              <div class="lv filled">
+                <div class="ln">Sales Margin
+                  <span class="laim">Buy materials FOR LESS</span></div>
+                <div class="lt">Re-quote the two timber suppliers against each other — Ana</div>
+              </div>
+              <div class="lv">
+                <div class="ln">Activity Driven Costs
+                  <span class="laim">Reduce SPENDING</span></div>
+                <div class="empty">Nothing captured yet</div>
+              </div>
+              <div class="lv">
+                <div class="ln">Fixed Costs (Overheads)
+                  <span class="laim">Reduce SPENDING/OVERHEADS</span></div>
+                <div class="empty">Nothing captured yet</div>
+              </div>
+            </div>
+            <p class="note"><b>The eight levers and the aims beside them are the deck's, verbatim.</b>
+              Nothing here is invented. What the app adds is that the four filled rows survive the
+              meeting — today they live on a whiteboard photograph.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- 2b · SWOT / PEST ---------- -->
+  <h3>2b · SWOT / PEST — <span class="tag data">shape: four quadrants</span></h3>
+  <div class="screen">
+    <div class="rs-top">
+      <div class="t">
+        <div class="rs-eyebrow">Strategic Orientation · framework 4 of 4</div>
+        <div class="rs-title">SWOT / PEST</div>
+        <div class="rs-sub">You don't have to complete them in any set order — just record them as
+          they come to mind.</div>
+      </div>
+      <button class="btn ghost">Back</button>
+      <button class="btn">Finish the frameworks</button>
+    </div>
+    <div class="body">
+      <div class="split">
+        <div>
+          <div class="concept">
+            <div class="ch">What this does in the room</div>
+            <p>A dual analysis: <b>SWOT</b> for internal operational factors — personnel, POS
+              reports, efficiency — and <b>PEST</b> for the external macro-environment of
+              political, economic, regulatory and tariff movement.</p>
+            <p>Its value is the prompt set, which surfaces growth drag or joint venture potential
+              the owner has not thought to mention.</p>
+          </div>
+          <div class="concept">
+            <div class="ch">Log it as it arises</div>
+            <p>Record in the moment rather than reconstructing afterwards.</p>
+          </div>
+        </div>
+        <div>
+          <div class="quad">
+            <div class="qb">
+              <div class="qh">Strengths</div>
+              <div class="qp">Internal — personnel roles, communication lines, profit lines,
+                technology usage.</div>
+              <ul>
+                <li>Two joiners with 20+ years on heritage work</li>
+                <li>Own kiln — no drying lead time</li>
+              </ul>
+            </div>
+            <div class="qb">
+              <div class="qh">Weaknesses</div>
+              <div class="qp">Internal — POS report accuracy, growth drag, financial instruments
+                used to reduce risk.</div>
+              <ul>
+                <li>Quoting is Dave's head, nowhere else</li>
+                <li>No job costing after the quote is won</li>
+              </ul>
+            </div>
+            <div class="qb">
+              <div class="qh">Opportunities</div>
+              <div class="qp">External (PEST) — political, economic, interest rate, consumer
+                confidence, regulatory or tariff changes.</div>
+              <ul>
+                <li>Council heritage grants reinstated from April</li>
+              </ul>
+            </div>
+            <div class="qb">
+              <div class="qh">Threats</div>
+              <div class="qp">External (PEST) — the same prompts, read the other way.</div>
+              <div class="empty">Nothing captured yet</div>
+            </div>
+          </div>
+          <p class="note"><b>The italic prompts under each heading are the framework's authored
+            content</b>, already in <code>strategy-domain-support.json</code>. They are what makes
+            this a facilitated framework rather than an empty four-box grid — and they have never
+            been visible to anyone, in either direction.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- 2c · Porter's 5 Forces ---------- -->
+  <h3>2c · Porter's 5 Forces — <span class="tag data">shape: five forces around a centre</span></h3>
+  <div class="screen">
+    <div class="rs-top">
+      <div class="t">
+        <div class="rs-eyebrow">Strategic Orientation · framework 1 of 4</div>
+        <div class="rs-title">Porter's 5 Forces — where's the pressure coming from?</div>
+        <div class="rs-sub">You don't have to follow any particular order; just capture your
+          thoughts as you go.</div>
+      </div>
+      <button class="btn ghost">Back</button>
+      <button class="btn">Next framework</button>
+    </div>
+    <div class="body">
+      <div class="sec" style="margin:0 0 14px">
+        <div class="concept" style="margin:0">
+          <div class="ch">What this does in the room</div>
+          <p>Reads the competitive pressure on the business from five directions at once, so the
+            client can anticipate how everyone will react and be ready to take advantage rather
+            than surprised.</p>
+        </div>
+      </div>
+      <div class="forces">
+        <div class="fb">
+          <div class="fh">Customers</div>
+          <div class="fp">Are customers likely to pay premium prices for latest style, technology
+            or prestige? Are they concerned about your safety, environment or ethical impact?</div>
+          <div class="fv">Two big builders drive the price; homeowners don't.</div>
+        </div>
+        <div class="fb">
+          <div class="fh">New Entrants</div>
+          <div class="fp">How easy is it for new entrants to enter your marketplace? Could your
+            current supplier become your future competition?</div>
+          <div class="fv">Flat-pack importers now quoting heritage replicas.</div>
+        </div>
+        <div class="fb">
+          <div class="fh">Suppliers</div>
+          <div class="fp">Is there competition amongst your suppliers? Do they compete for your
+            business, and how easy would it be to shift?</div>
+          <div class="empty">Nothing captured yet</div>
+        </div>
+        <div class="fb">
+          <div class="fh">Substitutes</div>
+          <div class="fp">What are the alternatives to your product or service? Could your
+            customers solve their problem a different way?</div>
+          <div class="fv">uPVC. Cheaper, and the planners now allow it on side elevations.</div>
+        </div>
+        <div class="fb centre">
+          <div class="fh">Existing Rivalry</div>
+          <div class="fp">The centre of the model — what the other four press upon.</div>
+          <div class="fv">Three joineries within 20 miles, all quoting the same two builders.</div>
+        </div>
+        <div class="fb">
+          <div class="fh">Observations &amp; response</div>
+          <div class="fp">The deck's instruction: record your observations <i>and</i> your
+            response to the changing economic environment.</div>
+          <div class="empty">Nothing captured yet</div>
+        </div>
+      </div>
+      <p class="note"><b>All five prompts are Michael Porter's as your deck words them</b>, taken
+        from Advance.2B. The sixth box is the deck's own closing instruction, which asks for a
+        response and not just an observation — easy to lose if this were drawn as a plain
+        five-box grid.</p>
+    </div>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 3 · does one renderer really carry all three? — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16. <b>A framework is DATA that names
+      its capture shape; it is never its own screen.</b> Five shapes cover all 52: buckets,
+      quadrants, forces, a 2×2 placement, and a Task/Whom/When table. A mentor adds the 52nd by
+      typing. 🔴 A build that hand-writes a component per framework is building the thing this
+      ruling refused — check this box before adding any new .vue file under a framework's name.</p>
+    <p>The three cards above differ only in the <b>shape</b> of the capture area: buckets,
+      quadrants, forces. Everything else — the concept panel, the prompts, the progress rail, the
+      save behaviour — is identical.</p>
+    <p class="rec">Recommendation: build three capture shapes, not 52 screens. A framework becomes
+      a data record naming which shape it uses.</p>
+    <p>A fourth and fifth shape will be needed later (a 2×2 placement for the Heald Matrix and
+      Business Dating; a Task/Whom/When table). That is still five shapes for 52 frameworks, and a
+      mentor adds the 52nd by typing, not by asking for a developer.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 4 · free text, or structured fields — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16. Free text everywhere; Task / Whom /
+      When stays three real fields. 🔴 THE STORE THEREFORE HOLDS NAMED INDIVIDUALS AND A CLIENT'S
+      COMMERCIAL PLAN — it needs Meeting Review's treatment, and nothing in it reaches a model
+      without a fresh ruling from Mike. See Decision 10.</p>
+    <p>Every capture above is free text. The decks are all free text — they are conversation
+      worksheets, not forms.</p>
+    <p class="rec">Recommendation: free text everywhere, except Task / Whom / When.</p>
+    <p>Structured fields would make the data tidier and the session worse; an owner mid-thought
+      does not pick from a dropdown. Task / Whom / When is the exception because the deck itself
+      structures it, and because those three are what the follow-up is built from.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 5 · what happens when a framework already has a calculator — 🔴 RULED AGAINST THE
+      RECOMMENDATION</h3>
+    <p class="ruling">🔴 REVERSED — Mike, 2026-09-16: <i>"no, it needs to feel inclusive,
+      comprehensive and seamless. I dont want it to feel like patchwork."</i> <b>The model runs
+      INSIDE the framework card. The advisor never leaves the session.</b> A session that throws
+      the advisor out to another screen and back is the patchwork he refused.</p>
+    <p><b>How that is built WITHOUT the duplication the recommendation was protecting against —
+      this is not optional.</b> Seamless describes the <i>surface</i>, never the <i>maths</i>. The
+      card hosts the existing report component and calls <b>the same backend calculation route the
+      standalone page calls</b>. One engine, one golden test, two surfaces. 🔴 A build that
+      re-implements a lever, a variance or a forecast inside the Planner has created a second copy
+      of the sums, and the day one is corrected the other silently disagrees — that is exactly
+      what the Model Library's consistency guard exists to stop.</p>
+    <p><b>Two real costs of this ruling, named so they are not discovered late.</b> The report
+      components are built to fill a page, so each of the three needs a compact in-session layout —
+      that is new work, not reuse. And each embedded surface must be added to
+      <code>tests/unit/reportHeadlineConsistency.component.test.js</code>, or the in-session figure
+      and the Model Library figure can drift apart with nothing failing.</p>
+    <p>Three of the 52 already exist as models — 8 Profit Levers, Deming's Volatility, and the
+      Revenue Model. Today they are separate pages an advisor leaves the session to reach.</p>
+    <p class="rec">Recommendation: link out to the existing model, and keep its answer on the
+      session. Do not rebuild the maths.</p>
+    <p>The alternative — embedding the calculator in the card — duplicates a model that is already
+      tested and already governed by the Model Library's consistency guard. The risk of linking
+      out is losing the advisor mid-session, which the session's own progress rail answers.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       SCREEN 3 — OBJECTIVES, ACTIONS, AND THE COVERAGE CHECK
+       ══════════════════════════════════════════════════════════════════ -->
+  <h2>Screen 3 · Objectives, actions, and the coverage check</h2>
+  <p>Where the frameworks converge. This is Orientation 1's steps 3 to 6, and the part that turns
+    a good conversation into something the client can be held to.</p>
+
+  <div class="screen">
+    <div class="rs-top">
+      <div class="t">
+        <div class="rs-eyebrow">Strategy Planner · Kestrel Joinery</div>
+        <div class="rs-title">What we're aiming for, and who does what</div>
+        <div class="rs-sub">A clearly defined, desired result in a given campaign or engagement.</div>
+      </div>
+      <button class="btn ghost">Save and close</button>
+      <button class="btn">Produce the plan</button>
+    </div>
+    <div class="body">
+
+      <div class="rail">
+        <div class="done">1 · Scope</div>
+        <div class="done">2 · Run the frameworks</div>
+        <div class="on">3 · Objectives &amp; actions</div>
+        <div>4 · The plan</div>
+      </div>
+
+      <div class="sec">
+        <h4>Strategic Objective and Strategy</h4>
+        <p class="cap">The deck's 4-Box Strategic Language: a singular desired end result, then
+          the ethos behind how it will be reached.</p>
+        <div class="quad" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+          <div class="qb" style="min-height:0">
+            <div class="qh">Strategic Objective</div>
+            <div class="qp">Desired end result — singular — inclusive of ongoing management
+              plans.</div>
+            <div class="fv" style="font-size:12.5px">Be the only joinery the two heritage builders
+              call first, by the end of 2027.</div>
+          </div>
+          <div class="qb" style="min-height:0">
+            <div class="qh">Strategy</div>
+            <div class="qp">The ethos or belief about how best to achieve it — effectively an acid
+              test.</div>
+            <div class="fv" style="font-size:12.5px">Win on certainty, never on price. Every job
+              quoted, costed and reported back.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h4>Operational Objectives</h4>
+        <p class="cap">The deck's three tests, applied as each one is typed. An objective failing
+          any one of them is not an operational objective.</p>
+        <div class="wrap">
+        <table class="g">
+          <thead><tr>
+            <th>Operational Objective</th><th style="width:96px">Observable</th>
+            <th style="width:90px">Time-bound</th><th style="width:110px">Supports the
+            Objective</th><th style="width:80px">Whom</th><th style="width:96px">When</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Job costing completed on every won quote within 5 working days of completion</td>
+              <td><span class="tag pass">Yes</span></td>
+              <td><span class="tag pass">Yes</span></td>
+              <td><span class="tag pass">Yes</span></td>
+              <td>Ana</td><td>End of Nov</td>
+            </tr>
+            <tr>
+              <td>Achieve £48,000 per month in ongoing regular sales, averaged over three
+                months</td>
+              <td><span class="tag pass">Yes</span></td>
+              <td><span class="tag pass">Yes</span></td>
+              <td><span class="tag pass">Yes</span></td>
+              <td>Dave</td><td>End of Mar</td>
+            </tr>
+            <tr style="background:var(--rs-warn-soft)">
+              <td>Improve the workshop atmosphere</td>
+              <td><span class="tag fail">No</span></td>
+              <td><span class="tag fail">No</span></td>
+              <td><span class="tag fail">No</span></td>
+              <td>—</td><td>—</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="note"><b>The third row is the deck's own poor example</b>, left visible rather
+          than blocked. The deck teaches by contrast — "Make work environment nicer, improve
+          morale" against the Binford 6000 — so the screen should show the advisor <i>why</i> it
+          fails, not refuse to accept it. Whether it can be carried into the plan unfixed is
+          Decision 6.</p>
+      </div>
+
+      <div class="sec">
+        <h4>Coverage check — the nine Growth Aspects</h4>
+        <p class="cap">Orientation 1's own instruction: "Objectives should be tested against the
+          9 Growth Aspects to ensure strong organisational health." A check, not a menu — nobody
+          is required to score nine out of nine.</p>
+        <div class="wheelwrap">
+          <svg class="wheel" viewBox="0 0 570 520" role="img"
+               aria-label="The nine Growth Aspects as a wheel. Four are covered by an objective:
+                           Process Improvement, Customer Focus, Sales, Governance. Five are not.">
+            <defs>
+              <!-- "Not yet reached" — white hatch over the FULL colour, so the wheel stays as
+                   bright as the original and the untouched aspects are still obvious.
+                   Texture, not dimming: it survives printing and colour-blindness. -->
+              <pattern id="notyet" width="7" height="7" patternUnits="userSpaceOnUse"
+                       patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="7" stroke="#ffffff" stroke-width="3" opacity=".8"/>
+              </pattern>
+            </defs>
+
+            <!-- Segments, clockwise from 12 o'clock, in the order the deck lists them.
+                 Colours lifted from Mike's own '9 Growth Aspects Graphic.pdf'. -->
+            <path d="M263.26 90.03 A170 170 0 0 1 366.75 127.70 L310.24 197.74 A80 80 0 0 0 261.54 180.01 Z" fill="#00b1e0"/>
+            <path d="M371.75 131.89 A170 170 0 0 1 426.82 227.27 L338.50 244.60 A80 80 0 0 0 312.59 199.71 Z" fill="#5b9bd5"/>
+            <path d="M427.95 233.70 A170 170 0 0 1 408.83 342.16 L330.04 298.66 A80 80 0 0 0 339.04 247.62 Z" fill="#ff0000"/>
+            <path d="M405.57 347.81 A170 170 0 0 1 321.20 418.60 L288.80 334.64 A80 80 0 0 0 328.50 301.32 Z" fill="#548135"/>
+            <path d="M315.07 420.83 A170 170 0 0 1 204.93 420.83 L234.09 335.69 A80 80 0 0 0 285.91 335.69 Z" fill="#7030a0"/>
+            <path d="M198.80 418.60 A170 170 0 0 1 114.43 347.81 L191.50 301.32 A80 80 0 0 0 231.20 334.64 Z" fill="#1f3864"/>
+            <path d="M111.17 342.16 A170 170 0 0 1 92.05 233.70 L180.96 247.62 A80 80 0 0 0 189.96 298.66 Z" fill="#ec5012"/>
+            <path d="M93.18 227.27 A170 170 0 0 1 148.25 131.89 L207.41 199.71 A80 80 0 0 0 181.50 244.60 Z" fill="#002b64"/>
+            <path d="M153.25 127.70 A170 170 0 0 1 256.74 90.03 L258.46 180.01 A80 80 0 0 0 209.76 197.74 Z" fill="#00b050"/>
+
+            <!-- The five the plan has not reached yet, hatched over the top -->
+            <path d="M405.57 347.81 A170 170 0 0 1 321.20 418.60 L288.80 334.64 A80 80 0 0 0 328.50 301.32 Z" fill="url(#notyet)"/>
+            <path d="M315.07 420.83 A170 170 0 0 1 204.93 420.83 L234.09 335.69 A80 80 0 0 0 285.91 335.69 Z" fill="url(#notyet)"/>
+            <path d="M198.80 418.60 A170 170 0 0 1 114.43 347.81 L191.50 301.32 A80 80 0 0 0 231.20 334.64 Z" fill="url(#notyet)"/>
+            <path d="M111.17 342.16 A170 170 0 0 1 92.05 233.70 L180.96 247.62 A80 80 0 0 0 189.96 298.66 Z" fill="url(#notyet)"/>
+            <path d="M153.25 127.70 A170 170 0 0 1 256.74 90.03 L258.46 180.01 A80 80 0 0 0 209.76 197.74 Z" fill="url(#notyet)"/>
+
+            <!-- Direct labels. Identity never rests on colour alone. -->
+            <text x="325.67" y="79.58" text-anchor="start">Process Improvement</text>
+            <text x="426.28" y="164" text-anchor="start">Customer Focus</text>
+            <text x="449.08" y="293.34" text-anchor="start">Sales (Process)</text>
+            <text x="383.42" y="407.08" text-anchor="start" class="baretx">Authenticity</text>
+            <text x="260" y="452" text-anchor="middle" class="baretx">Inventory &amp; Equipment</text>
+            <text x="136.58" y="407.08" text-anchor="end" class="baretx">Team Focus</text>
+            <text x="70.92" y="293.34" text-anchor="end" class="baretx">Innovation</text>
+            <text x="93.72" y="164" text-anchor="end">Governance</text>
+            <text x="194.33" y="79.58" text-anchor="end" class="baretx">Harmony / Balance</text>
+
+            <!-- The count, in the hole -->
+            <text x="260" y="256" text-anchor="middle" class="ctr-n">4</text>
+            <text x="260" y="278" text-anchor="middle" class="ctr-l">OF 9 COVERED</text>
+          </svg>
+
+          <div>
+            <div class="aspects" style="grid-template-columns:1fr">
+              <div class="asp covered"><div class="an"><span class="sw" style="background:#00b1e0"></span>Process Improvement</div>
+                <div class="ac">1 objective</div></div>
+              <div class="asp covered"><div class="an"><span class="sw" style="background:#5b9bd5"></span>Customer Focus</div>
+                <div class="ac">2 objectives</div></div>
+              <div class="asp covered"><div class="an"><span class="sw" style="background:#ff0000"></span>Sales (Process)</div>
+                <div class="ac">1 objective</div></div>
+              <div class="asp bare"><div class="an"><span class="sw" style="background:#548135"></span>Authenticity</div>
+                <div class="ac">Nothing yet</div></div>
+              <div class="asp bare"><div class="an"><span class="sw" style="background:#7030a0"></span>Inventory &amp; Equipment</div>
+                <div class="ac">Nothing yet</div></div>
+              <div class="asp bare"><div class="an"><span class="sw" style="background:#1f3864"></span>Team Focus</div>
+                <div class="ac">Nothing yet</div></div>
+              <div class="asp bare"><div class="an"><span class="sw" style="background:#ec5012"></span>Innovation</div>
+                <div class="ac">Nothing yet</div></div>
+              <div class="asp covered"><div class="an"><span class="sw" style="background:#002b64"></span>Governance</div>
+                <div class="ac">1 objective</div></div>
+              <div class="asp bare"><div class="an"><span class="sw" style="background:#00b050"></span>Harmony / Balance</div>
+                <div class="ac">Nothing yet</div></div>
+            </div>
+          </div>
+        </div>
+        <p class="note"><b>The wheel is yours — the nine colours are lifted out of your own
+          "9 Growth Aspects Graphic" file, not chosen by me.</b> Two things about it need your
+          eye, and they are Decision 8. The list beside it stays: it is how the advisor reads the
+          actual counts, and it is what a screen reader and a printer get.</p>
+        <p class="note"><b>The nine names and descriptions are already in the app</b> —
+          <code>data/growth-fundamentals.json</code>. What is <i>not</i> in the app is the ~100
+          probing questions behind them, from your "9 Growth Aspect Questions" deck. Without those,
+          a hatched segment can say "nothing yet" but cannot help the advisor ask anything about
+          it. That is Decision 7.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 6 · can a failing objective reach the plan — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16: "flag it". <b>Warn, never block.</b>
+      A failing objective is accepted, shown why it fails, and carries its flag through to the
+      plan. 🔴 The flag must survive into the produced document — a warning that disappears at the
+      last step is the same as no warning.</p>
+    <p>An objective that fails one of the three tests is, by the deck's definition, not an
+      operational objective.</p>
+    <p class="rec">Recommendation: warn, never block.</p>
+    <p>Blocking would have the app overrule an advisor mid-meeting in front of their client, on a
+      judgement it cannot actually make — "supports the Strategic Objective" is not something
+      software can assess. The warning teaches; a block just gets worked around by retyping.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 7 · the ~100 Growth Aspect questions — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16. Out of this build, and
+      <b>FILED AS ITEM 15.2</b> on <code>design/features/to-do-items.json</code> — not merely
+      noted. The coverage check ships on the nine names alone.</p>
+    <p>Your "9 Growth Aspect Questions" deck holds roughly 100 probing questions across the nine
+      aspects. The app holds the nine names and one-line descriptions only.</p>
+    <p class="rec">Recommendation: not now. Ship the coverage check on the nine names, and file
+      the questions as their own job.</p>
+    <p>They are a large piece of authored content that would sit behind a dim segment, and the
+      coverage check works without them — it tells the advisor <i>where</i> the plan is thin,
+      which is the thing Orientation 1 actually asks for. Adding 100 questions to this build is
+      how a build stops ending.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 8 · two pairs of your nine colours are nearly the same — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16. <b>His nine colours are kept
+      exactly as they are.</b> 🔴 THE CONSEQUENCE IS BINDING: the palette fails the colour-blind
+      separation checks, so it is only safe because every segment is DIRECTLY LABELLED. The labels
+      and the list beside the wheel are not decoration and must never be removed to save space.</p>
+    <p>The colours above are yours, read straight out of the PDF. Measured rather than judged by
+      eye, two pairs sit very close together:</p>
+    <p style="margin:0 0 7px">
+      <span class="sw" style="display:inline-block;width:11px;height:11px;border-radius:3px;
+        background:#00b1e0;margin-right:5px"></span><code>#00b1e0</code> and
+      <span class="sw" style="display:inline-block;width:11px;height:11px;border-radius:3px;
+        background:#5b9bd5;margin:0 5px 0 8px"></span><code>#5b9bd5</code> — two blues, and
+      <span class="sw" style="display:inline-block;width:11px;height:11px;border-radius:3px;
+        background:#002b64;margin:0 5px 0 8px"></span><code>#002b64</code> and
+      <span class="sw" style="display:inline-block;width:11px;height:11px;border-radius:3px;
+        background:#1f3864;margin:0 5px 0 8px"></span><code>#1f3864</code> — two navies.</p>
+    <p>On a printed page at full size with the names written across them, that is fine. On a
+      screen at this size, four of your nine segments are hard to tell apart, and harder still for
+      a colour-blind viewer.</p>
+    <p class="rec">Recommendation: keep your colours exactly as they are.</p>
+    <p>Every segment carries its own name, so nothing here depends on telling two blues apart —
+      and it is your artwork, recognisable to anyone who has sat through the deck. Changing four
+      of the nine to fix a problem the labels already solve would cost you that recognition. Say
+      the word and I will re-space the two pairs instead.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 9 · should the wheel show coverage at all — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16. <b>Full colour throughout, with the
+      aspects the plan has not reached hatched.</b> Never faded: he asked for bright, and fading
+      was tried and rejected on sight.</p>
+    <p>Your original is a plain wheel — all nine segments bright, because it is a map of the nine
+      aspects, not a score. On screen 3 it is doing a second job: showing which aspects the plan
+      has actually reached.</p>
+    <p class="rec">Recommendation: full colour throughout, with the untouched ones hatched — as
+      drawn.</p>
+    <p>My first attempt faded the five untouched segments, and it made your wheel look washed out
+      — the opposite of what you asked for. Hatching keeps every segment at full strength, so the
+      wheel still reads as yours, while a white stripe says "not yet". It also survives being
+      printed in black and white, and works for a colour-blind viewer, which fading does not.</p>
+    <p>If you would rather it stayed completely clean like the original, the <b>4 of 9</b> in the
+      middle and the list beside it still carry the message on their own.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       WHAT IS NOT DRAWN
+       ══════════════════════════════════════════════════════════════════ -->
+  <div class="ask ruled">
+    <h3>Decision 10 · voice recording the session — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16, after asking for the session to be
+      voice recorded. <b>The Planner gets NO recorder of its own.</b> A strategy planning session
+      is a <b>Meeting Review meeting type</b>; Meeting Review records, transcribes, destroys the
+      audio and runs the clock, and the Planner captures the structure alongside it. He confirmed
+      a planning session counts as a meeting under the consent he approved.</p>
+    <p><b>Why it fits rather than being bolted on.</b> The approved spoken line already says "I'd
+      like to record <i>our meeting</i>" — no rewording, which matters because that wording is
+      fixed and a firm cannot edit it. Meeting types are already a cascading editable set
+      (<code>server/utils/meetingTypes.js</code>, <code>loadResolvedTypes</code>). And his earlier
+      ruling already routes this feature into Meeting Review's My Coaching Notes.</p>
+    <p>🔴 <b>IT INHERITS MEETING REVIEW'S THREE NON-CODING GATES</b> — staff consultation, a lawyer
+      per market, and the OpenAI audio-terms letter sent 2026-09-12 and still unanswered.
+      <b>Recording cannot go live before they clear.</b> The Planner's typed capture must therefore
+      work completely on its own, with recording arriving later. Do not design around a microphone
+      that is not switched on.</p>
+    <p>🔴 <b>IT STAYS INSIDE THE ONE PRIVACY EXCEPTION, AND DOES NOT CREATE A SECOND.</b>
+      CLAUDE.md scopes the transcript-to-model exception to Meeting Review alone and says outright
+      it is not precedent. This is covered because it <i>is</i> Meeting Review — not because the
+      exception was stretched.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 11 · how spoken words reach the right field — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-16. <b>The open field claims the words
+      spoken while it is open</b>, from the session's navigation timeline. The AI tidies wording
+      and NEVER decides placement. 🔴 A build that hands the transcript and the field list to a
+      model and asks it to sort them is building what this ruling refused — and it breaks the
+      standing rule that LLM output is never trusted as structured data. The store must keep the
+      navigation timeline: which field was open, from when, to when.</p>
+    <p>Mike's question, 2026-09-16: <i>"i want the words recorded into set fields - not a general
+      summary - else how will it know to aportion text to specific questions?"</i> He is right:
+      a transcript summarised as one block is useless to a screen made of Strengths, Suppliers and
+      Substitutes.</p>
+    <p class="rec">Recommendation: <b>the field that is open when the words are spoken claims
+      them.</b> Deterministic, from the session's own navigation, with AI only tidying the
+      wording — never deciding where it goes.</p>
+    <p>The Planner already knows what was on screen and when. The recording already knows the
+      clock. Joining those two apportions every passage without a single judgement call: <i>SWOT →
+      Strengths was open from 14:02 to 14:09, so that passage is Strengths.</i></p>
+    <p>The AI's only job is then to turn that passage of speech into the sentence an advisor would
+      have typed. That keeps it inside the standing rule that <b>LLM output is never trusted as
+      structured data</b> — the structure comes from the clock, not the model — and it produces
+      the Original / AI Suggestion / Final Approved Value trail the Engineering Standards require,
+      because the raw passage stays beside the tidied one and the advisor keeps or rejects it.</p>
+    <p><b>The honest cost, and it is real.</b> This only works if the advisor drives the Planner
+      as the conversation moves. Run the session on paper with a recorder going and you get a
+      transcript and nothing apportioned. Two things soften it: a passage can be dragged into a
+      different field afterwards, and the whole transcript stays readable, so nothing is ever lost
+      — only unsorted. It also means the store must keep a small <b>navigation timeline</b>: which
+      field was open, from when, to when.</p>
+  </div>
+
+  <h2>What is deliberately not drawn, and why</h2>
+
+  <div class="mock">
+    <h3>Screen 4 — the plan itself</h3>
+    <p>Not drawn, because it should not be new. <code>DashboardReportsWorkbench</code> and the
+      <code>DashboardReport*</code> page family already produce a multi-page client document with
+      a cover, selectable pages and a next-steps draft. The plan coming out of this session looks
+      like one of those, and drawing a second one invites building a second one.</p>
+    <p>If you would rather see it drawn before deciding, say so and it becomes screen 4.</p>
+  </div>
+
+  <div class="mock">
+    <h3>The facilitation feedback</h3>
+    <p>Not drawn here on your own ruling: it becomes new observation points inside Meeting
+      Review's existing <b>My Coaching Notes</b>, inheriting P2–P6, rather than a second report.
+      It belongs on Meeting Review's drawings, not this one.</p>
+  </div>
+
+  <div class="mock">
+    <h3>Who authors a framework — stated, not assumed</h3>
+    <p>Under the hub-page rule the default is <b>the mentor tier alone</b>. A framework is
+      platform content: it is Michael Porter's model and your deck's prompts, identical for every
+      firm. No firm needs its own Porter's.</p>
+    <p>Cascading stays available the moment a firm has a real reason to hold a different value —
+      which is exactly what the rule requires, and it is a judgement stated rather than assumed.</p>
+  </div>
+
+  <div class="mock">
+    <h3>The store</h3>
+    <p>There is no session store today — the only session-ish table in the schema is
+      <code>advisor_va_sessions</code>, which is the Virtual Advisor chat log. A client-level
+      capture store is the piece that makes the second number on this page move from 0, because
+      the decks carry tables forward between sessions.</p>
+    <p>It is not drawn because it has no screen. It is named here so it is not discovered
+      halfway through the build.</p>
+  </div>
+
+  <h2>The nine decisions, in the order they should be asked</h2>
+  <div class="wrap">
+  <table class="g">
+    <thead><tr><th style="width:44px">#</th><th>Decision</th><th style="width:230px">Recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="b">1</td><td>Who decides what is included in the session</td>
+          <td>Pre-tick nothing; the advisor ticks</td></tr>
+      <tr><td class="b">2</td><td>What the screen and the feature are called</td>
+          <td>The deck's question as the heading; "Strategy Planner" in navigation</td></tr>
+      <tr><td class="b">3</td><td>One renderer, three capture shapes</td>
+          <td>Three shapes now, five eventually — never 52 screens</td></tr>
+      <tr><td class="b">4</td><td>Free text or structured fields</td>
+          <td>Free text, except Task / Whom / When</td></tr>
+      <tr><td class="b">5</td><td>Frameworks that already have a calculator</td>
+          <td>🔴 REVERSED — runs inside the card; same backend route, never a second copy</td></tr>
+      <tr><td class="b">6</td><td>An objective that fails the three tests</td>
+          <td>Warn, never block</td></tr>
+      <tr><td class="b">7</td><td>The ~100 Growth Aspect questions</td>
+          <td>Not now — file as their own job</td></tr>
+      <tr><td class="b">8</td><td>Two pairs of the nine wheel colours are nearly identical</td>
+          <td>Keep your colours; the labels already carry identity</td></tr>
+      <tr><td class="b">9</td><td>Should the wheel show coverage, or stay clean like the original</td>
+          <td>Full colour throughout, untouched aspects hatched</td></tr>
+      <tr><td class="b">10</td><td>Voice recording the session</td>
+          <td>No new recorder — a Meeting Review meeting type</td></tr>
+      <tr><td class="b">11</td><td>How spoken words reach the right field</td>
+          <td>The open field claims them; AI tidies wording only</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="note" style="margin-top:18px"><b>✅ All eleven were ruled by Mike on 2026-09-16</b>,
+    asked one at a time as a single yes/no each. Every ruling is written into its own box above
+    with the recommendation left in place beneath it — so a later session can see what was
+    recommended and what was actually decided.</p>
+  <p class="note"><b>🔴 One went against the recommendation — Decision 5.</b> A session that
+    builds from the recommendations rather than the rulings builds the wrong thing.</p>
+  <p class="note"><b>⚠ One thing is knowingly unfinished:</b> the aspect descriptions are missing
+    from the wheel's labels. Mike's words, 2026-09-16 — <i>"detail missing from the labels but we
+    can add later"</i>. They already exist in <code>growth-fundamentals.json</code>. A deferral
+    he made, not an oversight to be reported back to him as news.</p>
+
+</div>
+</body>
+</html>

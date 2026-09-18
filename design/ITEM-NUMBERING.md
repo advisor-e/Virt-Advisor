@@ -61,8 +61,9 @@ Taken from what the 121 items inventoried on 2026-09-15 actually are, not from a
 | **12** | **Course Builder & quizzes** | Courses, quiz banks, CPD, advisor progress |
 | **13** | **Depreciation, tax & compliance rates** | Country rates, schedules, tax bands, compliance pages |
 | **14** | **Tooling & process** | The Handbook, this list, branch checks, skills, the test suite, governance |
+| **15** | **Strategy Planner** | The strategy domain's session surface: the planning menu, capture tables, carry-forward, the client plan report, facilitation observation points |
 
-**15 is the next free parent.**
+**16 is the next free parent.**
 
 ## 4. The live items, renumbered 2026-09-15
 
@@ -87,6 +88,28 @@ Only the 14 live items moved. Every closed item stayed where it was.
 live one moved. `4.93` in the code means **Mid-Level Budget** (closed) — those comments are
 correct and must not be touched. `4.96` is closed on the laptop's branch and live on the
 desktop's; the live one becomes `14.1`.
+
+### 🔴 2026-09-18 — both machines' `7.9` turn out to be ONE fault, and `7.9` is spent
+
+**This is not a renumbering, and that is the point.** Both machines filed a `7.9` on 2026-09-16,
+from the same instruction of Mike's, over the same 30 live `discover` calls, naming the same files.
+The laptop read it as **absence** (8 of 19 calculators never offered); the desktop read it as
+**unreliability** (the template right every run, the calculator beside it varying). **Two readings
+of one fault.**
+
+| Machine | Wording | Outcome |
+|---|---|---|
+| desktop, filed 2026-09-16 | The right calculator is offered only sometimes, and sometimes the wrong one is | **survives, as `7.12`** |
+| laptop, filed 2026-09-16 | Eight of nineteen calculators are not offered | **folded in; `7.9` is spent** |
+
+⚠ **The desktop renumbered its copy to `7.12` before the ruling could be applied**, so Mike's
+decision — given against *`7.9` vs `7.9`* — was **put to him again against *`7.9` vs `7.12`*** and
+confirmed. A session does not decide what he meant once the numbers have moved underneath him.
+
+🔴 **`7.9` IS SPENT AND IS NEVER REISSUED**, exactly as if it had been closed. §2's rule applies:
+a number is used up the moment it is used, whatever became of the item. The closure is on
+[`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md); the evidence is in
+[`features/advisory-engine.md`](features/advisory-engine.md) P2.
 
 ### 🔴 2026-09-16 — the desktop's `7.5` becomes `7.10`, ruled by Mike
 

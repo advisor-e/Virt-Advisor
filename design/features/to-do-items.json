@@ -244,7 +244,7 @@
       },
       "touches": "data/report-model-summaries.json, whose instruction[] block IS the HOW TO USE THIS LIST rules - edit the rules there, not in code; server/utils/reportModels.js formatReportModelsForPrompt, which only renders that block into the 51,072-character prompt and holds no rule text itself; data/prompts/discover.txt STEP 1, which frames the calculator as an optional extra; and whatever measurement proves a change, which has to be live conversations.",
       "note": "🔴 NOT ABSENCE - UNRELIABILITY. The TEMPLATE choice is right every run; the calculator paired with it is what varies. Mike ruled 2026-09-18 that a fitting calculator is ALWAYS offered alongside a template, and the offer rule now names that case - the refusal rule (line 7) is untouched. MEASURED, 6 runs each: Working Capital Cycle 3/6 to 5/6, Sales Dashboard 1/6 to 3/6, links 6/24 to 9/24, substitutions 9 to 6. 8 Levers 0/6 unchanged and NOT a defect. WHAT REMAINS IS THE BUDGET SUBSTITUTION - a separate fault, now item 7.11. Tables in advisory-engine.md P2.",
-      "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings, and Mike RULED that a fitting calculator is always offered alongside a template. Built and measured the same day: two of four questions improved, links 6/24 to 9/24. The budget wording was tested as a cause and DISPROVED TWICE - it is now item 7.11. Mike's authored prose is untouched. NO DEFINED NEXT STEP: either machine may take what is left."
+      "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings, and Mike RULED that a fitting calculator is always offered alongside a template. Built and measured the same day: two of four questions improved, links 6/24 to 9/24. The budget wording was tested as a cause and DISPROVED TWICE - it is now item 7.11. Mike's authored prose is untouched. NO DEFINED NEXT STEP: either machine may take what is left. 2026-09-18 - the laptop had filed this same fault as its own 7.9; Mike ruled they are ONE item and this one survives. Closure on the done page."
     },
     {
       "ref": "7.3",
@@ -329,6 +329,184 @@
       "touches": "scripts/build-handbook.js --working-tree and its WORKING_TREE banner, which are correct and stay; the publish step of .claude/commands/startup.md, which is where the guard belongs because the script cannot know where its output is sent; design/features/handbook.md.",
       "note": "THE FLAG IS NOT THE FAULT AND MUST NOT BE REMOVED - a preview of your own branch is useful and it labels itself honestly. The gap is that nothing refuses to PUBLISH one to the shared URL. Cheapest honest fix: the publish step reads the built file's banner and refuses when it says working tree. Checked 2026-09-17: the only page that differed was strategy-planner, committed and pushed on feat/advisor-progress, so nothing was at risk - it appears on the shared page the day that branch reaches master.",
       "comment": "2026-09-17 - Mike ruled the live preview stays rather than being overwritten: it shows one extra real feature and hiding it would gain nothing. This item is about the guard, not about that page."
+    },
+    {
+      "ref": "15.1",
+      "name": "The strategy domain has thirteen materials and no session to run them in",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-16"
+      },
+      "why": "The engine already diagnoses planning need, routes to the Planning Outcomes Review and names thirteen materials. The advisor arrives and there is no screen, so the session still runs on slides and the client's answers never reach the app.",
+      "risk": "Without it the planning routes lead nowhere: an advisor asking for a planning session is sent to materials that exist only as slide decks, and nothing said in the room carries forward to the next session or into the engine. The counter-risk is scale - close to fifty capture tables and forty concept cards, so the frameworks must be data a mentor authors, never code, or the build never ends.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
+      },
+      "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT. READ design/PLANNING-TEMPLATE-CENSUS.md, then the Brief; the build is staged in Brief section 0. STAGES 1-4 BUILT: the scope menu, capture from his workbooks, the assembled document, and the concepts shown as HIS OWN SLIDES rather than drawings - 34 of 52 carry a graphic where none was right before. NEVER REDRAW A CONCEPT; the hand-drawn one put three of Porter's four forces in the wrong place. Response tables drawn on a slide were invisible to the app until 2026-09-18: four Mike named are wired, seventeen more await his pass on the Concept Register. NEXT: the advisor cannot yet name his own steps.",
+      "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
+    },
+    {
+      "ref": "15.2",
+      "name": "The hundred questions behind the nine Growth Aspects",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The coverage wheel can say an aspect is untouched but cannot help the advisor ask anything about it. The hundred questions behind the nine aspects are what make the check useful in the room.",
+      "risk": "Without them an advisor sees a hatched segment and has nothing to say next, so the coverage check names a gap it cannot help close. The counter-risk is scale: a hundred questions authored onto a screen is a real content job, and folding it into 15.1 is how that build stops ending.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-16 - the 9 Growth Aspect Questions deck is one of the fourteen he supplied for the Strategy Planner; split out of 15.1 on his yes, as Decision 7 of the drawing. Not a new idea of ours."
+      },
+      "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
+      "note": "NOT IN THIS BUILD - Mike's ruling 2026-09-16 - 'the ~100 Growth Aspect questions', on design/mockups/strategy-planner.html, where the reasoning is recorded in full. The coverage check ships on the nine names alone and still does its job: it shows WHERE a plan is thin. Source is his '9 Growth Aspect Questions hyperlinked.pdf' - about 100 questions across the nine aspects. growth-fundamentals.json already holds the nine names and descriptions, so this adds questions beneath an existing structure rather than inventing one. Under the hub-page rule the screen starts at the mentor tier ALONE: platform content, identical for every firm.",
+      "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as the drawing's ruling on the ~100 Growth Aspect questions. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
+    },
+    {
+      "ref": "5.3",
+      "name": "Four Wages Register test suites share one file and collide at random",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The gate's dev-file fallback writes and deletes one real file, data/dev-wages-register.json, and four suites reach it from parallel Jest workers, so one worker's delete lands while another is opening the same path.",
+      "risk": "The pre-push hook runs the whole suite, so a push is blocked at random by a failure that has nothing to do with the code being pushed. Worse, once it is known as the flaky one, a REAL failure in the Wages Register gets waved through with a re-run.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-17 - hit while proving the concept index build. Failed once in three full runs and passed alone. Mike said yes to filing it."
+      },
+      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant), and the four suites that reach it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes and wagesRegisterContents.routes.",
+      "note": "NOT REPRODUCIBLE ON DEMAND - it failed once in three full runs on 2026-09-17, then passed alone and on both re-runs. The cause is traced rather than guessed: wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. THREE WAYS OUT, and choosing between them is the work: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. Nothing is blocked by it today.",
+      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end."
+    },
+    {
+      "ref": "15.3",
+      "name": "Eighteen rows of the session scope menu have no Helps Your Client To... line",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Eighteen of the 52 rows an advisor and client read together carry a name and nothing else. The other 34 each explain what the concept does and what it gets the client, in Mike's own words.",
+      "risk": "A client picking the scope sees a third of the menu with no explanation beside it, so those concepts get chosen less - not on merit but because nothing says what they are for. The counter-risk is larger and is why that ruling existed: an AI-written line here is indistinguishable from Mike's once it is in the file.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-17, in his own words after Stage 1 shipped: 'i want you to review the material and produce a few lines in the helps your client to column i can then review what you develop and edit from there. use the existing lines as inspiration and guidance.' This AMENDS his own Decision B of the same day - see the note."
+      },
+      "touches": "data/strategy-frameworks.json concepts[].helpsClientTo on the 18 agenda rows; server/utils/strategyFrameworks.js, which today treats a null description as correct and would need to carry a draft separately from an approved line; components/strategy/StrategyScopeMenu.vue, which renders an agenda row name-only; design/mockups/strategy-session-menu.html, the 'an agenda row carries only Mike's words' ruling; and a mentor-tier editing screen, per the hub-page rule.",
+      "note": "MIKE'S OWN AMENDMENT TO HIS 'AN AGENDA ROW CARRIES ONLY MIKE'S WORDS' RULING, 2026-09-17. That ruling, made that morning, reads 'never generated, never filled by AI'. He asked instead for AI DRAFTS he reviews and edits. THE PRINCIPLE IT PROTECTS IS HONOURED STRUCTURALLY: an unapproved line is never in the data file at all. All 18 drafts are written and waiting on him in design/AGENDA-HELPS-LINES.md - the only place one may exist, and on no screen. He edits the text, puts yes in the Approve column, and npm run helps-lines -- --apply copies it character for character into the data and records what was approved when. It refuses to overwrite a line he already wrote. WAITING ON MIKE.",
+      "comment": "2026-09-17 - filed on his instruction the moment he gave it, then built the same session on his follow-up: 'you draft it such that i can edit it and approve'. Drafted from the three agenda decks read directly, not from their titles; each row carries the page it came from so he can check it."
+    },
+    {
+      "ref": "15.4",
+      "name": "Twelve labels on the plan document are ours, not Mike's",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The assembled plan is the document a client is shown and takes away. Twelve of the words on it were written by us, not read off his decks or his workbooks like everything else on the page.",
+      "risk": "They read as Mike's once they are on a page beside his own wording, and nobody can tell the difference afterwards. The same thing already happened: What this does in the room and Who and when were AI-written in the 2026-09-16 build, survived eleven rulings on the drawing that carried them, and were only caught when he asked what they were.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-17 - he asked at shutdown whether a note had been created to make sure the labels are removed. They had been written into a commit message, a handover and another item's note, none of which is a task."
+      },
+      "touches": "locales/en.json strategyPlanner.plan.* - the twelve keys; components/strategy/StrategyPlanDocument.vue renders them. Nothing else reads them.",
+      "note": "HIS WORDS OR NONE. Every other string on this document is his, read off his decks and workbooks. These twelve are structural labels we wrote to hold the document together and they have no authority behind them. He either gives the wording, or says which are unnecessary and they go. NOT a job to be done without him.",
+      "comment": "2026-09-17 - filed on his yes at shutdown, after he asked whether anything guaranteed they would be dealt with. They were flagged in the Stage 3 commit and the handover; neither is a task, and the handover is replaced next session."
+    },
+    {
+      "ref": "15.5",
+      "name": "The deck-reading tool has no home, and the drawing method now depends on it",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": null,
+      "why": "render-deck-slides.py is deleted with the imported images, but reading his decks did not stop being needed: the approved drawing method opens every page with PyMuPDF, and that step now lives nowhere in the repository.",
+      "risk": "A method the Brief calls mandatory runs on a tool only this laptop has and no file records. The desktop cannot draw a concept at all, and the failure reads as a missing library rather than a missing decision. The Stack Constitution says a deviation is filed the moment it is found, and this one has moved rather than gone.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-18 - the deviation was named in the proposal he approved ('the renderer needs a home... that's a deviation to log') and he said yes to filing it at shutdown the same day."
+      },
+      "touches": "Wherever a deck-reading tool ends up living; scripts/build-concept-register.js, which still expects a directory of rendered images and now has nothing producing one; and the five-step drawing method in design/features/strategy-planner.md section 0.",
+      "note": "🔴 THE FACTS CHANGED ON 2026-09-18 AND THIS IS NOT THE ITEM IT WAS. It was filed as a committed .py nobody needed. The .py and its 37 images are gone, deleted with the deck-image import Mike rejected. What remains is the opposite shape: a deck reader is now REQUIRED by the approved drawing method, and exists only as an uncommitted step on one machine. Deleting the tool was never the answer; deciding where it lives still is.",
+      "comment": "2026-09-18 - rewritten in place rather than closed. Closing it would have recorded the removal of the .py as the fix, when that removal is what made the underlying question urgent."
+    },
+    {
+      "ref": "15.6",
+      "name": "Eight concepts name a response form the app cannot find",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off without it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "activeOn": null,
+      "why": "Eight of the nineteen pairings name a response form no copy of the app holds, and five are near-misses on a name that was typed rather than picked. Nine forms Mike supplied are paired to no concept.",
+      "risk": "A pairing that resolves to nothing sends an advisor to a document that cannot be found, in front of a client. It is the same failure that cost a desktop session a morning on 7.9, where six model names differed from the library by one character. The register exposes all seventeen and Mike has worked through about half; the corrections are saved and unapplied, so the fault survives until somebody applies them.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-18 - 'this table also fails to let me pair the appropriate response / data input form/page - include that so there's nil mistakes.' He worked through part of the register the same day and agreed at shutdown to file the rest."
+      },
+      "touches": "design/concept-register-corrections.json (his partial pass, applied: false), data/strategy-frameworks.json captureTemplate on 19 concepts, data/strategy-capture-tables.json which holds the 20 forms, and scripts/build-concept-register.js which rebuilds the register.",
+      "note": "FOUR of the eight name Branding, Customer Loyalty, Pricing and Packaging, workbooks never supplied - those are his to supply or to strike. The other four are name mismatches we can fix once he confirms. Seventeen response-page suggestions from the deck scan also await his pass. Do not apply his corrections without asking: the file is deliberately marked unapplied and his pass is unfinished.",
+      "comment": ""
+    },
+    {
+      "ref": "15.7",
+      "name": "Thirty-three concepts have no graphic, so the advisor teaches from nothing",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off without it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-18"
+      },
+      "why": "Porter's 5 Forces is drawn and approved, 1 of 52. The other 33 concepts with a page we trust show his words with no picture, and the client's plan document prints without one.",
+      "risk": "An advisor talks a client through a framework with nothing on screen to point at, which is the opposite of Mike's own instruction that the graphic goes up first and the boxes wait behind a button. The plan the client keeps has no pictures on any page. Three concepts whose fill-in table is a deck page - Vertical Integration, Revenue Streams, Volatility Graph - drop out of the plan entirely until theirs is drawn.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-18 - on approving the first one: 'i like it, that's what ive been looking for - make sure your process is recorded so it can be applied to all the rest', then 'we start on the others'."
+      },
+      "touches": "components/strategy/StrategyTeachingSlide.vue, which is the shell they render into; StrategyCaptureCard.vue and StrategyPlanDocument.vue, where the graphic and the response page belong; data/strategy-frameworks.json deck and page; and design/mockups, one approved drawing per concept.",
+      "note": "🔴 THE METHOD IS FIXED AND IS NOT A MATTER OF TASTE - strategy-planner.md section 0, approved 2026-09-18. Machine-read words, sampled colours, positions and line widths computed from the page. PROGRESS 21 OF 34: every diagram and every table is done. LEFT: Technology Points, redrawn flat on his ruling, and 12 pages of his prose with no diagram at all. READ type AND opacity, never a colour alone, and DROP CHROME BY ROLE - two filters of ours ate a header row and a whole table column. Gradients are invisible to the reader and are sampled off the rendered page.",
+      "comment": "2026-09-18 - filed on his instruction after the imported deck pages were removed. Not a repeat of the deleted stage 4: that imported his pages as images and locked in the advisor-e.com logo, which is why it was undone within hours of shipping."
     }
   ]
 }

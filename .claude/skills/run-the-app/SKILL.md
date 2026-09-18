@@ -34,6 +34,31 @@ npm run dev:all      # Nuxt (:3000) and Restify (:4000) together, ALLOW_DEV_AUTH
 Run it in the background; it does not exit. Nuxt takes ~30–60s for its first compile — wait for
 `Client: Compiled successfully` in the output before pointing a browser at it.
 
+### 🔴 NUXT HOT-RELOADS. RESTIFY DOES NOT. Restart it after ANY change under `server/`
+
+**This inverts the usual diagnosis, which is why it costs so much time.** Change a route or a
+backend utility and the browser keeps showing the OLD answer — so the screen looks broken, every
+clue points at the new frontend code, and there is nothing wrong with it.
+
+Found 2026-09-16 building the Strategy Planner: two new cards were missing from a screen and a
+list came back empty, for twenty minutes, because the backend was still serving the version it
+booted with. **The tests were green throughout — they load the module directly and never went
+near the running server.**
+
+**Check it in one call before debugging anything else**, and compare against what the code says:
+
+```bash
+curl -s -H "Authorization: Bearer dev-local-bypass" http://127.0.0.1:4000/api/<your-route>
+```
+
+Restart both (a stale Nuxt is never the problem, but restarting one means restarting the pair):
+
+```bash
+# PowerShell — stop whatever holds the two ports, then relaunch
+Get-NetTCPConnection -LocalPort 4000,3000 -State Listen | Select -Expand OwningProcess -Unique |
+  ForEach-Object { Stop-Process -Id $_ -Force }
+```
+
 A healthy boot prints three lines worth reading:
 
 | Line | What it means |

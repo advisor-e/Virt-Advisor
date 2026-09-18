@@ -336,6 +336,31 @@ profitability and feasibility situation first, as it has a solid number of cases
 lift"* — names a row and a reason. ⚠ **Still open and already on the list: 4.82**, nothing caps how
 many paid readings a user can trigger.
 
+**7.9 — eight of nineteen calculators were not offered when the advisor asked the question they
+answer.** ✅ **Folded into 7.12 on 2026-09-18, on Mike's ruling. Not renumbered, and not deleted —
+one fault that both machines filed at once.**
+
+Both were filed the same day, 2026-09-16, from the same instruction of his — *check it now* — after
+a lease-vs-buy miss surfaced while testing 7.8. Both measured the same thing over 30 live
+`discover` calls and named the same files. The laptop read it as **absence** (8 of 19 never
+offered); the desktop read it as **unreliability** (the template right every run, the calculator
+beside it varying). They are two readings of one fault, and both machines took the number 7.9 for
+it because neither can see the other's list until it merges.
+
+🔴 **THE SIX-RUN RE-MEASURE OVERTURNED BOTH READINGS, AND IT IS THE ONE TO QUOTE.** Two runs per
+model cannot separate a systematic miss from variance — Working Capital Cycle's 0/2 was variance,
+and re-running offered it correctly. **Both questions this item was filed over now score 2/2**:
+*lease or buy a van* → Lease vs Buy, *loan repayments* → The Loan Estimator. The full measurement,
+the four remaining misses diagnosed one by one, and the warning about thin runs are in
+[`advisory-engine.md`](advisory-engine.md) P2 — that is where the evidence lives, not here.
+
+⚠ **The desktop renumbered its copy to 7.12 rather than folding**, and that is what reached
+`master`. Mike's ruling was given against *7.9 vs 7.9* and re-confirmed against *7.9 vs 7.12*
+before this was applied, because a session should not decide what he meant when the numbers have
+moved underneath him. **7.9 is spent and is never reissued.**
+
+---
+
 **7.2 — the engine's middle, and the learning loop made true.**
 ✅ Closed 2026-09-17 on the desktop. Filed 2026-09-14 on Mike's instruction that every one of the
 Founder's Claims Audit's ten improvements become work. **Nine user stories, 66 tasks, all shipped**

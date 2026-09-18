@@ -5829,5 +5829,108 @@
     "orphanBody": "It is not applied and cannot be. If the template comes back under the same title it resumes; if it was renamed, the pool will learn the new title afresh.",
     "unreachable": "The server could not be reached. Check your connection and try again.",
     "failed": "That could not be done."
+  },
+  "strategyPlanner": {
+    "title": "What do you want from your session?",
+    "navTitle": "Strategy Planner",
+    "subtitle": "Your role is to challenge what the client believes to be true. Their role is to explore with an open heart and an open mind.",
+    "saveAndClose": "Save and close",
+    "startSession": "Start the session",
+    "back": "Back",
+    "nextFramework": "Next framework",
+    "rail": {
+      "scope": "1 · Scope",
+      "run": "2 · Run the frameworks",
+      "objectives": "3 · Objectives & actions",
+      "plan": "4 · The plan"
+    },
+    "scope": {
+      "domainsHeading": "The four Planning Domains",
+      "domainsCaption": "Pick the domains this session covers. The descriptions are the deck's own words.",
+      "chooseHeading": "{domain} — choose what to include",
+      "chooseCaption": "Framework · What it explores · Helps your client to… · Include.",
+      "colFramework": "Framework",
+      "colExplores": "What it explores",
+      "colHelps": "Helps your client to…",
+      "colInclude": "Include",
+      "count": "{count} framework | {count} frameworks",
+      "countNone": "None in the Planner yet",
+      "noneYet": "These frameworks are authored but have not reached the Planner yet.",
+      "chosenCount": "{count} chosen for this session"
+    },
+    "menu": {
+      "heading": "Scope the session",
+      "hint": "Nothing is included until you leave it ticked.",
+      "includedOf": "{chosen} of {total} included",
+      "domainBadge": "{domain} domain",
+      "colInclude": "Include",
+      "colPage": "Page",
+      "colFramework": "Framework",
+      "colSummary": "Concept Summary",
+      "colHelps": "Helps Your Client To…",
+      "agendaOnly": "This deck is an agenda, not a scope table — it has no Concept Summary and no Helps Your Client To… column. Those two columns are empty here because Mike has not written them, and nothing else may.",
+      "sharedCell": "shared cell",
+      "sharedWithRow": "This text is one cell in the deck, shared with “{row}”. Editing it changes both rows.",
+      "sharedBothColumns": "The deck puts the same sentence in both of this row's columns.",
+      "totalIncluded": "{count} concept included | {count} concepts included",
+      "totalRest": "· {count} not included · order and steps come next",
+      "stageNotice": "Ticking records what this session will cover. The screens that teach each concept and capture the client's answers are still being built — nothing typed is kept yet.",
+      "noneLoaded": "The session scope menu could not be loaded.",
+      "notRunnable": "{count} concept you scoped has no capture screen yet, so it is not shown below. It is still recorded as part of this session's scope. | {count} concepts you scoped have no capture screen yet, so they are not shown below. They are still recorded as part of this session's scope."
+    },
+    "card": {
+      "placeholder": "Record it as it comes up…",
+      "choose": "Choose…"
+    },
+    "capture": {
+      "noTableMeasured": "There is no fill-in table for this concept yet. Talk it through and record it in your own notes.",
+      "templateNotSupplied": "The {template} table has not been supplied yet. Talk it through and record it in your own notes.",
+      "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck.",
+      "part": "(Part {n})",
+      "nothingToAnswer": "Nothing was captured in the first pass, so there is nothing to respond to yet."
+    },
+    "teaching": {
+      "yourBusiness": "Your business",
+      "pressureOn": "under pressure",
+      "captureNow": "Capture the responses",
+      "talkFirst": "Talk the concept through first — then capture what comes out of it.",
+      "slideOnly": "This concept is presented from the slide.",
+      "backToConcept": "← Back to the concept"
+    },
+    "errors": {
+      "loadFailed": "The planning frameworks could not be loaded. Nothing has been lost — try again in a moment.",
+      "saveFailed": "That box could not be saved. What you typed is still on screen; try again before moving on.",
+      "startFailed": "The session could not be opened. Choose a client and try again — nothing you have ticked has been lost.",
+      "clientsFailed": "Your clients could not be loaded, so a session cannot be opened yet."
+    },
+    "chooseClient": "Which client?",
+    "toObjectives": "Objectives and actions",
+    "producePlan": "Produce the plan",
+    "wheel": {
+      "heading": "Coverage check — the nine Growth Aspects",
+      "caption": "Orientation 1's own instruction: objectives should be tested against the nine Growth Aspects to ensure strong organisational health. It is a check, not a score — nobody has to reach nine.",
+      "ofNine": "OF 9 COVERED",
+      "nothingYet": "Nothing yet",
+      "objectives": "{count} objective | {count} objectives",
+      "aria": "The nine Growth Aspects. {count} are covered by an objective: {names}."
+    },
+    "plan": {
+      "subtitle": "Everything captured in this session, in the order it was worked.",
+      "nothingCaptured": "Nothing was captured for this framework.",
+      "untitled": "This planning session",
+      "sessionPlan": "Session plan",
+      "agenda": "What this session covers",
+      "conceptCount": "{count} concept | {count} concepts",
+      "onAgendaOnly": "on the agenda only",
+      "step": "Step {n}",
+      "discussionPoints": "Discussion points",
+      "actionPoints": "Action points",
+      "teach": "Teach",
+      "capture": "Capture",
+      "blank": "not filled in",
+      "stepOne": "Run the frameworks",
+      "stepClose": "Objectives and actions",
+      "notWorked": "Scoped for this session, not worked through yet."
+    }
   }
 }

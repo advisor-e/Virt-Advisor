@@ -9,34 +9,37 @@
 
 ---
 
-## 2026-09-16 · Laptop · branch `feat/advisor-progress`
+## 2026-09-18 · Laptop · branch `feat/advisor-progress`
 
-Suite **11,160 green** (525 suites), lint 0, coverage and audit gates passed. Tree clean, all
-pushed, **80 ahead of `master`, 0 behind**. **Nine live items — 7.8 closed today, 7.9 filed,
-7.6 parked.**
+**Nine commits, all pushed.** Suite **12,200 green** (565 suites), lint 0, coverage and audit
+gates passed. Tree clean. **63 ahead of `master`, 0 behind. 20 live items.**
 
-🔴 **7.9 IS THE ONE TO READ.** Thirty live discover conversations, one on-the-nose question per
-calculator: **only 8 of 19 were offered reliably**, eight missed twice — *lease vs buy* and *loan
-estimator* have no template either, so the advisor got nothing — and twice the AI offered the
-**closest** model, which the model list forbids in capitals. Not thin content: it gets 51,072
-characters on these models. Waits on Mike; how forthcoming discover should be is his call.
+🔴 **THE DECK IMAGES ARE GONE, ON MIKE'S RULING.** The app was serving JPEGs of his own pages;
+they carry `advisor-e.com` **burned into the pixels** and a client always sees the ADVISOR'S
+firm logo. Script, 37 images and every `slide` field are deleted. `deck` / `page` /
+`responsePage` stay — they are the reference to the source, not an instruction to render.
 
-**7.8 closed.** 7.7's correction empties *Also worth considering*; `discover.txt` specifies that
-block as "1-2 alternative TEMPLATES" and never says it may be empty, so the AI filled it with the
-no-match sentence — recommending a template and denying having one, in one reply.
-`buildRetryInstruction` now fences the escape. Seven live conversations after, five tripping the
-correction, none recurred.
+☑ **21 OF 34 CONCEPTS DRAWN — every diagram and every table.** Four artefacts, all approved:
+[Porter's](https://claude.ai/artifact/Rbpn5M7yooCjfNQL9NNMhZ) ·
+[batch 1](https://claude.ai/artifact/LcQWXCKrZEUJSXTRooNgjg) ·
+[the charts](https://claude.ai/artifact/7bZKeohAmnvaD8q7vXeota) ·
+[the last diagrams](https://claude.ai/artifact/GVqRv4kkZWm6VbFYmyGU82) ·
+[the tables](https://claude.ai/artifact/FbwQ1fFqCBDQB72ADQPsJ2).
 
-**7.6 PARKED — Mike's ruling.** It corrects a counter on an internal screen and changes nothing an
-advisor sees. Its note says *do not propose it* and carries the proven cause: discover declared the
-marker 0 of 7, client-mode Phase 3 declared it first time. **Do not re-run those conversations.**
+🔴 **READ `strategy-planner.md` §0 BEFORE DRAWING ANYTHING.** Words, colours, positions and line
+widths all come off the PDF **by machine** — nothing by eye. **Seven tooling faults today, every
+one producing a drawing that rendered perfectly and was wrong**, and every one caught by putting
+it beside his page. No test caught any; none could.
 
-**Shared files I changed:** `server/utils/templateHeadingCheck.js` and its test,
-`design/features/advisory-engine.md` (lesson 9 replaced), the three list files,
-`scripts/count-code.js`, `design/CODE-SIZE.md`. **7.5's `activeOn` stays on the laptop**, still
-blocked on `FirmManagerHub.vue`, which is 9.1's and yours.
+**NEXT ON 15.7:** Technology Points redrawn flat (his ruling — its 3D art has the logo inside the
+picture), then 12 pages of prose with no diagram at all. Faster than what is done.
 
-**DESKTOP:** your note says ours is *"dated 2026-09-13 — stale for the fourth session running"*.
-It is not — it has been rewritten at every shutdown, including twice yesterday. You read the copy
-in your own working tree, which freezes at the last merge. `npm run check:branch`'s OTHER BRANCHES
-box reads it from our branch and gets it right.
+**PR #100 IS OPEN** — this branch, 63 commits. PR #99 merged mid-session and was merged in here;
+four closed items (7.2, 7.1, 7.4, 9.2) were deliberately **not** carried back.
+
+**7.9 IS SPENT.** Mike ruled both machines' 7.9 were one fault; **7.12 survives**, closure on the
+done page, ruling in `ITEM-NUMBERING.md`.
+
+**DESKTOP — shared files I changed:** `to-do-items.json`, `to-do-done-and-parked.md`,
+`ARTEFACTS.md`, `ITEM-NUMBERING.md`, `CODE-SIZE.md`. **No engine code, no `FirmManagerHub.vue`.**
+**7.5, 15.1 and 15.7 stay active on this laptop.**
