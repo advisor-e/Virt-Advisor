@@ -41,6 +41,13 @@ const TIER_RANK = { 'entry-level': 1, intermediate: 2, advanced: 3 }
 // Built once at require time: lowercase template title → tier
 const _titleToTier = new Map()
 
+/**
+ * Punctuation-and-plural-insensitive title → the catalogue's own title. Built in the same
+ * pass, so it can never describe a different set of templates than `_titleToTier`.
+ * See `nearestTemplateTitle` for what it is for and why it exists.
+ */
+const _shapeToTitle = new Map()
+
 ;(function buildIndex () {
   let templates
   try {
@@ -53,6 +60,10 @@ const _titleToTier = new Map()
     if (t.title && t.subSection !== undefined) {
       const tier = SUBSECTION_TIER[t.subSection] ?? null
       _titleToTier.set(t.title.toLowerCase().trim(), tier)
+      // First title wins: two templates whose shapes collide keep the earlier one rather
+      // than silently overwriting, the same discipline as the model short-form index.
+      const shape = _shape(t.title)
+      if (shape && !_shapeToTitle.has(shape)) { _shapeToTitle.set(shape, t.title) }
     }
   })
 })()
@@ -121,6 +132,46 @@ const EMPHASIS_AFTER = /^\s*(\*\*|__|\*|_|`|["”'’])/
 /** @param {string} title @returns {boolean} true if the catalogue knows this title. */
 function isKnownTemplate (title) {
   return typeof title === 'string' && _titleToTier.has(title.toLowerCase().trim())
+}
+
+/**
+ * A title's shape, ignoring the punctuation and plural that separate a name the AI wrote
+ * from the one the master export holds: "Lease vs Buy" / "Lease vs. Buy",
+ * "High-Level Budget" / "High Level Budget", "Dashboard Reports" / "Dashboard Report".
+ */
+function _shape (title) {
+  return String(title || '').toLowerCase().replace(/[^a-z0-9]+/g, '').replace(/s$/, '')
+}
+
+/**
+ * The real template title a name is a near-miss of, or null.
+ *
+ * 🔴 WHY THIS EXISTS (2026-09-17). SIX model names collide with real template titles,
+ * not the three long assumed — and three of the six differ ONLY by a full stop, a hyphen
+ * or an "s":
+ *
+ *     Lease vs Buy       /lease-vs-buy        ← template "Lease vs. Buy"
+ *     High-Level Budget  /high-level-budget   ← template "High Level Budget"
+ *     Dashboard Reports  /dashboard-reports   ← template "Dashboard Report"
+ *
+ * `isKnownTemplate` compares exactly, so each of those three read as "not a template",
+ * and `checkTemplateHeadings` flagged a GENUINE template recommendation as a calculator —
+ * telling the AI the advisor "would find nothing in Advisor-e" when the document is right
+ * there in the library. The inverse of the fault item 7.7 was built to stop, produced by
+ * the same guard.
+ *
+ * ⚠ THIS ONLY EVER PROTECTS A RECOMMENDATION, never permits one. It answers "is there a
+ * real template behind this name?" — and where there is, the name is left alone, which is
+ * what the AI was told to do in the first place.
+ *
+ * @param {string} title - the name as the AI wrote it
+ * @returns {string|null} the catalogue's own title, or null when nothing is close
+ */
+function nearestTemplateTitle (title) {
+  if (typeof title !== 'string' || !title.trim()) { return null }
+  const key = _shape(title)
+  if (!key) { return null }
+  return _shapeToTitle.get(key) || null
 }
 
 /**
@@ -239,6 +290,7 @@ module.exports = {
   resolveRecommendedTemplatesWithSource,
   stripTemplateMarker,
   isKnownTemplate,
+  nearestTemplateTitle,
   TEMPLATE_MARK_OPEN,
   TEMPLATE_MARK_CLOSE
 }

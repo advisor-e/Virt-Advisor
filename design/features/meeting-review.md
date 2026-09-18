@@ -56,10 +56,14 @@
 >
 > ✅ **§4 ITEM 3 IS CLOSED (2026-09-10) — the impact assessment is written**, against all fourteen
 > NZ information privacy principles: [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md).
-> **Four remain**, and two of them are now somebody's rather than nobody's: the letter to OpenAI
-> **was SENT 2026-09-12** and waits on their written reply (item 5), and **item 4.83 turns the
-> banner into a real gate** — a firm declares it understands the law where it operates, or Meeting
-> Review does not open for it. ⚠ **The staff consultation (item 4) is untouched by all of this and still stands.**
+> ✅ **§4 ITEM 5 IS CLOSED TOO (2026-09-18) — on Mike's ruling, NOT on an answer.** Both letters to
+> OpenAI were replied to and neither confirmed anything; what is relied on is their published terms
+> plus two documented attempts. Never call it confirmed — §5 of
+> [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) holds both replies verbatim.
+> **TWO REMAIN, and neither is ours:** the **lawyer's review per market** (item 2), which **no
+> longer waits on anything** now that the OpenAI answer will not come, and the **staff consultation**
+> (item 4), which never waited on it. **Item 4.83 turns the banner into a real gate** — a firm
+> declares it understands the law where it operates, or Meeting Review does not open for it.
 >
 > **The screens are drawn in [`../mockups/meeting-review.html`](../mockups/meeting-review.html)**
 > — seven of them, from the pre-set through to the manager's aggregate, registered in
@@ -356,20 +360,21 @@ their own client. It is worth building as a visible setting rather than a buried
 4. **Staff consultation.** Recording employees and generating performance findings about them is
    monitoring in employment-law terms, whoever owns the report. P2 makes the position defensible;
    it does not remove the obligation.
-5. 📧 **The transcription terms, for audio specifically — the letter was SENT 2026-09-12 and the
-   item now waits on OpenAI's written reply:
-   [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)** (drafted 2026-09-07,
-   rewritten 2026-09-10 on his instruction to be sendable). **It asks five things and nothing
-   else**, and the page names where to send it. ⚠ **The item closes on a written reply that names
-   audio** — not a phone call, not a public policy page. Smaller than this list first assumed: the
-   provider is OpenAI, already this app's contracted sub-processor (§3), so no new company and no
-   new data-processing agreement are introduced. What is needed **in writing** is that the existing
-   terms cover *submitted audio*, because a text prompt and an hour of a named client's financial
-   affairs are not the same undertaking. **Three of the five are the ones that can falsify the
-   spoken consent line rather than being details to work around:** a "no" on training, a long
-   retention period, or a "yes" on whether the provider's own people can listen to it.
-   🔴 **This is also what closes IPP12** — the assessment cannot evidence that principle until the
-   processing regions are named, so the letter and the assessment close each other.
+5. ✅ **The transcription terms, for audio specifically — CLOSED 2026-09-18 ON MIKE'S RULING, NOT ON
+   AN ANSWER.** Both letters went out 2026-09-12; both were replied to and **neither confirmed a
+   single one of the five questions.** Support returned two public URLs and said the questions
+   "require confirmation based on the applicable API endpoint"; sales sent a qualification script.
+   Verbatim in [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) §5.
+   **Mike's ruling:** *"We have taken all fair and reasonable steps to comply — you will NEVER get a
+   single person to 'sign-off' on this within OpenAI."*
+   🔴 **WHAT IS RELIED ON, AND IT MUST BE STATED THIS WAY:** OpenAI's published DPA and
+   data-controls pages, plus two documented attempts through both channels OpenAI itself nominates.
+   **Not a bespoke confirmation** — Support expressly cautioned against assuming the general API
+   terms extend to audio, and that caution is on file. Anyone describing this as confirmed is wrong
+   and the replies disprove them.
+   ⚠ **IPP12 therefore closes the same way** — a reasoned position a regulator can weigh, never an
+   evidenced one, and the **lawyer's review (item 2) is where it gets tested. That review no longer
+   waits on anything.**
 6. **Jurisdiction.** The app is already localised for more than one country, and the law on
    recording a conversation is not the same in all of them. ⚠ **This is the item item 4.83 changes
    the shape of** — it does not answer the question, and it never could, but it stops the answer

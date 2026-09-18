@@ -29,10 +29,17 @@
  * not one of our models is left alone: this parse reads AI prose, and a wider net would
  * fire on a heading it misread rather than on a real fault.
  *
- * ⚠ WHAT THIS CANNOT SEE. Two model names ARE genuine template titles — Working Capital
- * Cycle and Quick Position — so for those two a name can never say which was meant. That
- * case is handled where the live defect put it, beside the page path
- * (`videoInjector`, item 4.33). If the master export ever carries the doc/slide/sheet
+ * ⚠ WHAT THIS CANNOT SEE. SIX model names are genuine template titles — Working Capital
+ * Cycle, Quick Position, Sales Dashboard, and (once punctuation and plural are ignored)
+ * Lease vs Buy, High-Level Budget and Dashboard Reports — so for those six a name can
+ * never say which was meant. That case is handled where the live defect put it, beside
+ * the page path (`videoInjector`, item 4.33).
+ *
+ * 🔴 THE COUNT WAS WRONG HERE FOR WEEKS, AND THAT IS THE LESSON. This comment said "two",
+ * every later note repeated it, and nobody re-derived it from the data — so three
+ * templates whose titles differ by one character went on being flagged as calculators.
+ * `nearestTemplateTitle` now answers the question from the catalogue on every call, and
+ * `tests/unit/nameCollisions.test.js` recomputes the set rather than trusting this prose. If the master export ever carries the doc/slide/sheet
  * type per record it would make that exact rather than inferred; it does not today —
  * all 24 fields of `search_content_20260820053246.json` were checked, and `status` is
  * `"--"` on all 291 rows.
@@ -40,7 +47,7 @@
  * Node 14, CommonJS.
  */
 
-const { isKnownTemplate } = require('./tierLookup')
+const { isKnownTemplate, nearestTemplateTitle } = require('./tierLookup')
 const { resolveModelToken } = require('./modelChoiceScan')
 
 /**
@@ -114,6 +121,15 @@ function checkTemplateHeadings (text) {
 
   for (const found of namesUnderTemplateHeadings(text)) {
     if (isKnownTemplate(found.name)) { continue }
+    // 🔴 THE NEAR MISS, 2026-09-17. SIX model names collide with real template titles,
+    // and three differ from the library's own spelling by a single character:
+    // "Lease vs Buy" / "Lease vs. Buy", "High-Level Budget" / "High Level Budget",
+    // "Dashboard Reports" / "Dashboard Report". An exact-match test read all three as
+    // "not a template", so this guard flagged a GENUINE recommendation as a calculator
+    // and told the AI the advisor would find nothing in Advisor-e — when the document is
+    // in the library. That is this guard causing item 7.7's fault in reverse, and it was
+    // firing on 28 of 38 bench calls.
+    if (nearestTemplateTitle(found.name)) { continue }
     const route = resolveModelToken(found.name)
     if (!route) { continue }
     const key = found.name.toLowerCase()

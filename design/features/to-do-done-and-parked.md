@@ -152,6 +152,23 @@ have added new features since."*
   [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md). Only the version number in them is stale. **Do not
   re-derive either.**
 
+**7.1 · The 14 branches that still name a page nobody can open.** ⏸ **Parked 2026-09-17 by Mike.**
+
+- **Still broken, just not ours.** Fourteen branches name documents the library does not hold, so
+  the gate withholds that coaching. **Mike settles the 18 names himself in UAT** (his ruling,
+  2026-09-10), so it is not session work and does not belong on the live list. The list is
+  [`../LOGIC-TABLE-TEMPLATES-NEEDED.md`](../LOGIC-TABLE-TEMPLATES-NEEDED.md).
+- ⚠ **A separate 5-branch job, NOT blocked on those names** (measured 2026-09-17). Their
+  `templates[]` is `undefined`, so the engine — which reads only that array, never the prose —
+  offers nothing while the advisor reads coaching naming the document. Both documents already exist
+  under these exact titles:
+  - **Planning Outcomes Review** — `sp_rec_planning_outcomes`
+  - **Lite Fundamentals** — `sp_rec_lite_existing_no`, `_modified`, `_prospect`, `_referral`
+
+  Fill the five arrays, then **watch it serve the document on the running app** — no test can prove
+  it. *(The other 56 empty `templates[]` are pure coaching with no document to attach. Correct as
+  they stand.)*
+
 **Template Check queue, and the Logic Tables rewording.** Parked 2026-08-13 — sort them after
 UAT testing.
 
@@ -184,6 +201,179 @@ locked in the prompt. Either is fine; deciding by accident is not.
 ---
 
 ## 2. Closed recently, with what proved it
+
+**7.11 — a budget question was answered with the wrong size of budget model.**
+✅ Closed 2026-09-18, `ddf2dcce`. Asked whether a client is hitting their budget, the AI offered
+the Mid-Level Budget's page **5 times in 6**. Measured again on 6 live runs through the real
+`/api/advisor/query` after the change: the right calculator **4/4** wherever one was offered, and
+High-Level Budget named as *Best match* **6/6**.
+
+**One sentence caused it and one sentence fixed it.** Mid-Level's `answers` opened *"The same
+question as the High-Level Budget, plus the one that usually matters more"*. The AI was not
+forgetting the right calculator — it was being told, in the second field it reads for that model,
+that one of the two is strictly better, and obeying. `useWhen` carries the correct steer back but
+is the sixth field. Instruction line 8 could never catch it: that forbids the closest model when
+**none** fits, and here one genuinely does. It now reads *"Whether the business is hitting its
+budget when the money does not arrive the month it is earned"* — the timing distinction as a
+condition of the question rather than a ranking. Every other entry of the nineteen already opened
+by naming what it answers in its own right; this was the only one defined against another.
+
+🔴 **TWO EARLIER ATTEMPTS FAILED BECAUSE A FALSE NOTE SENT THEM AROUND THE SENTENCE INSTEAD OF AT
+IT.** The item read *"That sentence is TRUE and it is Mike's — the fix is not to edit it"*. The
+first half was right; the second was wrong, and it cost a day. Traced on Mike's own challenge —
+*"find me exactly where the budget is described in my words"*: the prose is AI-authored
+(`0fdee54b`, `b8c2fa56`), his seven rulings of 2026-09-13 are all **screen** wording, and
+`ARTEFACTS.md` line 108 records none on the summaries. **The lesson is not about budgets:** a
+provenance claim nobody checked was treated as a constraint by three sessions running.
+
+⚠ **The two dead ends remain real and must not be retried:** a distinguishing sentence in
+High-Level's `useWhen` made it **worse** (4/6 → 6/6), reverted the same hour — naming a competing
+model inside an entry puts it in front of the AI twice as often — and 7.12's offer rule moved it
+the wrong way too (4/6 → 5/6).
+
+⚠ **Six runs is a small sample on behaviour that varies run to run.** It is the same sample both
+failed attempts used, so the comparison is fair — it is not proof, and this wants watching in UAT.
+Separately, the same bench showed **7.12 still open at 4 of 6**: in 2 runs the AI named the right
+model and gave no page path at all. That is the offer being dropped, not this fault.
+
+**9.4 — the lab trusted a key that existed over a call that worked.**
+✅ Closed 2026-09-17, filed and fixed the same hour on Mike's instruction. Found while fixing
+9.2 (below) and deliberately kept out of it rather than widen an approved scope.
+
+`HAS_AI` was `!!process.env.OPENAI_API_KEY` — the key *existing*, never a call *succeeding* — and
+both call sites swallowed their own errors. So an expired key, exhausted credit or a missing CA
+root reported **AI ON**, passed the guard 9.2 had just added, and overwrote the measured report
+with AI-free numbers. **The Avast root has broken this exact script before**, which is the
+realistic way it fires.
+
+**The decision the item said was needed turned out to be already made, in the script's own words.**
+It detects these failures and prints *"This is a fault in the run, not a result: fix it and re-run
+before comparing anything"* — then handed the report to the writer as a full AI run anyway. The fix
+is that sentence enforced: `aiReallyRan` requires the key **and** zero failures, and the header now
+reads `ON` / `FAILED` / `OFF` rather than only the first and last. A `FAILED` header is not read as
+AI-measured, so a later good run can still replace it.
+
+**A second, quieter half was found in the same file:** a failed `readDistressAI` set `distress =
+null`, which is indistinguishable from a genuine *"not in distress"* — so swallowed errors were
+counted as measured negatives in the precision and recall figures. Now recorded separately and
+reported.
+
+🔴 **Proved by breaking it.** With the guard reverted, one run with an invalid key **destroyed the
+1,145-line report** — the original fault, reproduced exactly. Restored from git, guard replaced,
+and the same command is now refused with a message naming the key, the credit and
+`NODE_EXTRA_CA_CERTS`. Thirteen tests; a no-key run and a failed run are pinned to give different
+reasons, because they need different fixes.
+
+**9.2 — a part-measured lab run could overwrite a full one.**
+✅ Closed 2026-09-17 on the desktop. Filed 2026-09-14 after a run without the key replaced a real
+report and was caught by the **pre-commit hook** rather than by anything in the lab; it fired twice
+more before it was fixed.
+
+**The item recorded one cause. There were two, and the unnamed one was the trigger every time.**
+`parseArgs` caught any unrecognised argument in its filter branch, so **`--help` was read as a
+domain name**, matched no case and ran 0 of them — and the run still wrote the report.
+**Reproduced before the fix on 2026-09-17: one `--help` replaced 1,145 lines of AI-measured results
+with 21 lines of zeros.** Any typo did it: a misspelled domain, a singular `--adjustment`. An
+unknown flag now stops the run with a usage message before a case is replayed, and a filter
+matching nothing prints the real domain list and exits without writing.
+
+**The second cause was the one on the item:** the report was written whatever the run measured.
+`chooseReportPath` now refuses to replace a fuller report — AI off where the existing one had AI
+on, fewer cases, or any filtered run, which is a subset by definition. Those go to
+`SCENARIO-LAB-REPORT-partial.md` (gitignored, because it reads almost identically to the real
+report) and the console names the condition that withheld the write. It reads the existing
+report's own coverage header, so there is no new state to keep in step.
+
+🔴 **The tests were verified by breaking the code, not by going green.** There had been **no test
+of this script at all** — which is why the fault survived three occurrences. Ten now; the AI guard
+and the unknown-flag guard were each disabled in turn and each failed exactly its own test and
+nothing else. All five paths were also proved on the running script, and
+`design/SCENARIO-LAB-REPORT.md` came through the whole investigation **byte-identical to the
+committed version**.
+
+⚠ **One narrower weakness is deliberately NOT fixed and is not this item:** `HAS_AI` is
+`!!process.env.OPENAI_API_KEY` — it checks the key *exists*, never that a call *succeeded*. A run
+with a bad key or a missing CA root still reports `AI ON` and may overwrite. Put to Mike separately
+rather than widening an approved scope.
+
+**7.4 — "Read this for me": plain guidance and an AI reading on the mentor's pages.**
+✅ Closed 2026-09-17 on the desktop. Asked for by Mike on 2026-09-11 on the running app — *"I have
+no idea how I, as a mentor, am supposed to use this function and what I'm learning from it … I'm
+not seeing any AI interpretation of what's in front of me."* Built the same day from
+[`hub-page-guidance.html`](../mockups/hub-page-guidance.html).
+
+**What closed it: somebody finally pressed the button.** The item had sat since 2026-09-11 with one
+line of work left — *"run a reading on the built app and look at it"* — and nobody had. Three live
+readings on the production build, against local MySQL and a seeded pool of 31 reviews across five
+firms, **found two faults in the shipped feature.** Neither was reachable by the suite or by UAT,
+because nothing checked what the model is told.
+
+🔴 **The model could not tell a lift from a hold-back.** `outcomeLearningPayload` sent the legacy
+`holdBack` field, which carries a value only when the direction is negative, so **ten of eleven
+rows arrived as 0**. With only delivery volume left to reason from, the reading told the mentor to
+*"focus on Break-Even … suggesting it is currently effective"* — **the worst-performing row on the
+page**, 49 of 125 didn't land. The route returns `size` (signed) and `direction`, which is what the
+screen renders. Fixed, and the same page now reads *"Quick Fire Diagnosis … a positive lift of 8"*.
+The stored `hub-reading` prompt described the old field the same way and was corrected with it.
+**This was the pre-US2 assumption surviving in live code** — the identical sentence was corrected
+in two Briefs the same morning, which is how it was recognised.
+
+**The reading named domains by their ids** — *"domain: profit"* where the page says *"profitability
+and feasibility"*. Labels now come from `data/domains.json`, the single source the screen already
+reads. ⚠ **The engagement type and the industry were deliberately left alone, on Mike's correction:**
+education / facilitation / advice are the three Engagement Types, Advisor-e's own framework for how
+an advisor works with a client and critical to judging whether a template applies — content, not
+ids to be translated. A test pins that with the reason on it.
+
+**A third fault fell out sideways:** `seedOutcomePool`'s *"without the pool secret nothing is
+written"* deleted the variable, but the script's own `dotenv.config()` read it straight back from
+the developer's `.env` — so it asserted nothing on any machine following the quickstart. dotenv is
+mocked in that suite now. **A test measuring the machine instead of the code.**
+
+**The measurement, named before the work and met:** can a mentor answer *"what should I do about
+this?"* from what it says. The final reading — *"Focus on 'Quick Fire Diagnosis' in the
+profitability and feasibility situation first, as it has a solid number of cases and a positive
+lift"* — names a row and a reason. ⚠ **Still open and already on the list: 4.82**, nothing caps how
+many paid readings a user can trigger.
+
+**7.2 — the engine's middle, and the learning loop made true.**
+✅ Closed 2026-09-17 on the desktop. Filed 2026-09-14 on Mike's instruction that every one of the
+Founder's Claims Audit's ten improvements become work. **Nine user stories, 66 tasks, all shipped**
+— the primary issue proposed and confirmed by the advisor, the pooled adjustment made signed so it
+lifts as well as holds back, an out-of-sample bench, a provider fallback seam across all eight
+calling files, and Template Profiles authored on a screen at the mentor tier.
+
+🔴 **FIVE FAULTS WERE FOUND BY RUNNING THE APP. NONE BY THE SUITE.** A problem named from a single
+category word; plain agreement recorded as a correction; a function real MySQL refused; a hardcoded
+`'openai'` in the trace; and an editor that opened below the fold when Mike clicked Edit. That is
+the transferable part, and it is the basis of the 2026-09-14 rule — 11,930 passing tests and UAT
+both miss what one person driving the running app finds in minutes.
+
+🔴 **IT ALSO PRODUCED THE IMPACT TEST RULE, at its own expense.** US9 — Template Profiles — passed
+every gate this project had: Mike asked for it in his own words, there was an approved drawing, the
+suite was green. **Nobody asked what it would improve.** Measured afterwards on his challenge,
+authoring three profiles moved the 51-case lab's score separation **5.6 → 5.7**, the engine already
+picked a content-driven top recommendation in **51 of 51** cases with none authored, and the tool
+given a profile appeared in **fewer** recommendations (22 → 19). The measurement took twenty
+minutes and existed the whole time. Run first, it would have reshaped or ended the task before a
+line of code — which is now binding in `CLAUDE.md`.
+
+**What closed it: the last four tasks were documentation, and three were Briefs contradicting the
+code.** Verified against the source on 2026-09-17, not taken on trust: `advisory-engine.md` still
+listed primary-issue confirmation as *"designed and not built"* when `primaryIssueProposer.js` was
+wired and live, and still carried routing groups as a pipeline stage and an open gap although the
+registry deleted that layer on 2026-06-09. Both Briefs stated `SCORING_VERSION` **2.2.0** against
+the code's **2.3.0**. 🔴 **The one that mattered:** `outcome-learning.md` told a reader an
+adjustment *"can only hold a template back, never lift one, in this release"* — untrue since US2,
+on the exact mechanism that decides what an advisor is shown. The registry's `__none_of_these__`
+sentinel line was corrected too: the handler was deleted 2026-08-15, but the escape survives in the
+contradiction detector, so the principle stands and only the mechanism changed.
+
+**T060 and T064 were not done, deliberately.** T060 dropped on Mike's *"make it work but save where
+you can"* of 2026-09-16, after 7.2 consumed 75% of a week's token budget — the thin count is already
+on the screen. T064's quickstart walk-through is written and unrun: it needs a live AI session to
+re-prove ten stories each verified as it shipped. **Re-open T064 if the engine's scoring is touched
+again**, because that is when a walk of the running app earns its cost.
 
 **7.8 — the retry could recommend a template and deny having one in the same answer.**
 ✅ Closed 2026-09-16 on the laptop. A defect we found the same day 7.7 shipped, by running the app

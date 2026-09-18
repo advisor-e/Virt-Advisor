@@ -234,9 +234,15 @@ shown beside every adjustment.
 **P7 · A recommendation never waits on learning.** If the pool cannot be read, the engine runs
 without adjustments and the trace says so.
 
-**Ruled by Mike, 2026-09-10:** the floor is **5 contributing firms and 25 cases**, and an
-adjustment can only **hold a template back**, never lift one, in this release. Both are written into
-the spec (FR-008, FR-010). **Clarified with him the same day**, in the spec's Clarifications section:
+**Ruled by Mike, 2026-09-10:** the floor is **5 contributing firms and 25 cases**, written into
+the spec (FR-008, FR-010).
+
+🔴 **An adjustment LIFTS as well as holds back, since item 4.97 US2** (`SCORING_VERSION` 2.3.0).
+The 2026-09-10 ruling limited this release to hold-backs only; 4.97 US2 made the adjustment
+**signed** — positive to lift, negative to hold back — through exactly the machinery that used to
+only hold back: the same floor, the same mentor decision, the same cap (`±POOLED_HOLDBACK_MAX`),
+and the same protection for the advisor's own words, which outweigh a lift just as they outweigh a
+hold-back. The trace says which (`pooled:lifted-<n>` / `pooled:held_back-<n>`). **Clarified with him the same day**, in the spec's Clarifications section:
 no free text enters the pool, only the tick-box verdicts; an adjustment is keyed to a template and one
 situation dimension at a time; only "went less well" on a delivered template counts against it, and
 "not used at all" is neutral; recompute happens when the mentor opens the page or asks for it, and on
@@ -306,7 +312,7 @@ drawing, and the two benches the same evening.
 | The advisor's notice | the one line on the review panel in `components/VirtualAdvisor.vue`, shown when `outcomeContribution` on the case list is true (`mixins/caseMixin.js`) |
 | Mentor routes | `server/routes/outcomeLearning.js` — list, recompute, decision, history, restore, export under `mentorGuard`; a page load recomputes but never writes a version; a rejection without a reason is refused |
 | The mentor's screen | `components/mentor/MentorOutcomeLearning.vue`, the Outcome Learning tab under Rolled up from below at the mentor tier alone (`TAB_TIERS.outcomeLearning`); strings in `locales/en.json` `outcomeLearning.*`. The bench card says the benches have not been run until "Run the benches" is pressed |
-| The resolver | `pooledAdjustments` / `pooledSignalTypes` in `server/utils/templateResolver.js`, before the history clamp; `SCORING_VERSION` 2.2.0. A matched template's log entry carries `pooledMatched` (the ids that matched this session), and a held-back template stays in the scoring log even below 20th |
+| The resolver | `pooledAdjustments` / `pooledSignalTypes` in `server/utils/templateResolver.js`, before the history clamp; `SCORING_VERSION` 2.3.0 — signed since 4.97 US2, so the same machinery lifts and holds back. A matched template's log entry carries `pooledMatched` (the ids that matched this session), and a held-back template stays in the scoring log even below 20th |
 | The session and the trace | `server/utils/outcomeLearningSession.js`, wired in `server/advisorEngine.js`; `decisionTrace.outcomeLearning`. The line's situation and evidence come from `pooledMatched` alone — item 4.94, 2026-09-12: grouping by title had put "in profit" on a line for a session in sales |
 | Reason wording | `pooled:held_back-<n>`, `pooled:lifted-<n>`, `pooled:outweighed-<kind>` in `utils/traceReasonCodes.js`, `locales/en.json`, [`WORDING-TRACE-REASONS.md`](../WORDING-TRACE-REASONS.md) |
 | The advisor's panel | "Learned from outcomes" in `components/VirtualAdvisor.vue` |

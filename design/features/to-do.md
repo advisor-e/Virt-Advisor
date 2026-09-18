@@ -35,31 +35,29 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **7.2** The engine's middle, and the learning loop made true ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-14 |
-| 2 | **7.1** The 14 branches that still name a page nobody can open | 4 | — | **Mike** | — |
-| 3 | **8.1** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 4 | **11.1** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
-| 5 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 6 | **7.4** Read this for me - plain guidance and an AI reading on the mentor's pages ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 7 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 8 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 9 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | **laptop**, since 2026-09-16 |
-| 10 | **7.6** The AI declares its model choice only sometimes, so declines under-count ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 11 | **7.9** Eight of nineteen calculators are not offered when the advisor asks the question they answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 12 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 13 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 14 | **9.2** A part-measured lab run overwrites a full one ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 15 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 16 | **15.1** The strategy domain has thirteen materials and no session to run them in ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-16 |
-| 17 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 18 | **5.3** Four Wages Register test suites share one file and collide at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 19 | **15.3** Eighteen rows of the session scope menu have no Helps Your Client To... line ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 20 | **15.4** Twelve labels on the plan document are ours, not Mike's ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 21 | **15.5** The deck-reading tool has no home, and the drawing method now depends on it ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
-| 22 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 23 | **15.7** Thirty-three concepts have no graphic, so the advisor teaches from nothing ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-18 |
+| 1 | **8.1** Meeting Review — two non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 2 | **11.1** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
+| 3 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 4 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 5 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 6 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | **laptop**, since 2026-09-16 |
+| 7 | **7.6** The AI declares its model choice only sometimes, so declines under-count ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 8 | **7.12** The right calculator is offered only sometimes, and sometimes the wrong one is ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 9 | **7.9** Eight of nineteen calculators are not offered when the advisor asks the question they answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 10 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 11 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 12 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 13 | **14.3** A working-tree Handbook preview can be published over the shared link ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 14 | **15.1** The strategy domain has thirteen materials and no session to run them in ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-16 |
+| 15 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 16 | **5.3** Four Wages Register test suites share one file and collide at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 17 | **15.3** Eighteen rows of the session scope menu have no Helps Your Client To... line ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 18 | **15.4** Twelve labels on the plan document are ours, not Mike's ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 19 | **15.5** The deck-reading tool has no home, and the drawing method now depends on it ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
+| 20 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 21 | **15.7** Thirty-three concepts have no graphic, so the advisor teaches from nothing ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-18 |
 
-**23 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
+**21 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

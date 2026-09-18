@@ -41,18 +41,97 @@ const templates = require('../data/templates.json')
 
 const SCENARIOS = require('./scenario-lab-cases.json')
 
+const USAGE = `
+Scenario Lab — replays the fixed case set through the engine and writes
+design/SCENARIO-LAB-REPORT.md.
+
+  node scripts/scenario-lab.js                     all cases
+  node scripts/scenario-lab.js <domain|key>        only cases matching it
+  node scripts/scenario-lab.js --adjustments <f>   with live Outcome Learning adjustments
+  node scripts/scenario-lab.js --help              this message
+
+Set OPENAI_API_KEY to measure the AI layers; without it the run is PARTIAL and
+will not overwrite a fuller report.
+`
+
 // ── Arguments: an optional domain/key filter, and --adjustments <file> ──────
+/**
+ * 🔴 AN UNKNOWN --flag IS AN ERROR, NEVER A FILTER. It used to fall through to the filter
+ * branch below, so `--help` was read as a domain name, matched no case, ran 0 of them — and
+ * the run still wrote the report, replacing 1,145 lines of AI-measured results with 21 lines
+ * of zeros. Item 9.2; seen three times, most recently 2026-09-16. Anything starting with `-`
+ * that is not a known flag now stops the run before a single case is replayed.
+ * @param {string[]} argv - process.argv.slice(2)
+ * @returns {{filter: string|null, adjustmentsFile: string|null, help: boolean}}
+ */
 function parseArgs (argv) {
-  const out = { filter: null, adjustmentsFile: null }
+  const out = { filter: null, adjustmentsFile: null, help: false }
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--adjustments') {
+    const arg = argv[i]
+    if (arg === '--help' || arg === '-h') {
+      out.help = true
+    } else if (arg === '--adjustments') {
       out.adjustmentsFile = argv[i + 1] || null
       i += 1
+    } else if (arg.charAt(0) === '-') {
+      const err = new Error('unknown option: ' + arg)
+      err.usage = true
+      throw err
     } else if (!out.filter) {
-      out.filter = argv[i]
+      out.filter = arg
     }
   }
   return out
+}
+
+/**
+ * 🔴 A RUN THAT MEASURED LESS NEVER REPLACES ONE THAT MEASURED MORE (item 9.2).
+ *
+ * The report used to be written unconditionally, so a run with the AI layers off reported score
+ * separation 2.3 against the real 5.7 and silently became the record — and a filtered run wrote
+ * a subset over the full set. Nothing said so except a console line nobody had to read.
+ *
+ * The existing report states its own coverage in its header, so this reads what is there rather
+ * than keeping separate state: a run is allowed to overwrite when it is at least as complete —
+ * AI on if the old one had AI on, and no fewer cases. Anything less goes to a clearly named
+ * partial file and says why. A missing or unreadable report is not a reason to refuse; a first
+ * run must be able to write one.
+ *
+ * @param {string} mainPath - design/SCENARIO-LAB-REPORT.md
+ * @param {{cases: number, ai: boolean, filtered: boolean}} run - what THIS run measured
+ * @returns {{path: string, withheld: string|null}} where to write, and why not the main report
+ */
+function chooseReportPath (mainPath, run) {
+  const partial = mainPath.replace(/\.md$/, '-partial.md')
+
+  // A filter is a subset by definition — it can never stand as the full-set report.
+  if (run.filtered) {
+    return { path: partial, withheld: 'This run was filtered to a subset of the cases.' }
+  }
+
+  let existing = ''
+  try { existing = fs.readFileSync(mainPath, 'utf8') } catch (_e) { return { path: mainPath, withheld: null } }
+
+  // The header line this script writes: "Coverage: **51 sessions ...** AI layer ...: **ON**."
+  const header = existing.split('\n').slice(0, 12).join('\n')
+  const hadAi = /AI layer[^*]*\*\*ON\*\*/.test(header)
+  const casesMatch = header.match(/\*\*(\d+) sessions/)
+  const hadCases = casesMatch ? Number(casesMatch[1]) : 0
+
+  if (hadAi && !run.ai) {
+    // `run.ai` is "the layers ANSWERED", not "a key was set" — item 9.4. `failed` separates a
+    // broken environment from a deliberate no-key run, because they need different fixes.
+    return {
+      path: partial,
+      withheld: run.failed
+        ? 'The AI layers were configured but FAILED; the existing report measured them. Check the key, the credit and NODE_EXTRA_CA_CERTS.'
+        : 'The AI layers did not run; the existing report measured them.'
+    }
+  }
+  if (run.cases < hadCases) {
+    return { path: partial, withheld: `This run measured ${run.cases} cases; the existing report has ${hadCases}.` }
+  }
+  return { path: mainPath, withheld: null }
 }
 
 /**
@@ -185,9 +264,19 @@ function runScenario (sc, boosts, adjustments) {
 }
 
 async function main () {
-  const { filter, adjustmentsFile } = parseArgs(process.argv.slice(2))
+  const { filter, adjustmentsFile, help } = parseArgs(process.argv.slice(2))
+  if (help) { console.log(USAGE); return }
   const adjustments = loadAdjustments(adjustmentsFile)
   const scenarios = filter ? SCENARIOS.filter(s => s.domain === filter || s.key.includes(filter)) : SCENARIOS
+
+  // A filter that matches nothing is a typo, not a measurement. Stopping here means a
+  // mistyped domain cannot reach the writer at all (item 9.2).
+  if (!scenarios.length) {
+    console.error(`\nNo case matches "${filter}". Nothing was run and no report was written.`)
+    console.error(`Known domains: ${[...new Set(SCENARIOS.map(s => s.domain))].sort().join(', ')}\n`)
+    process.exitCode = 1
+    return
+  }
 
   const results = []
   for (const sc of scenarios) {
@@ -198,6 +287,7 @@ async function main () {
     // would understate it and read as an engine result — so failures are counted and
     // stated in the report rather than averaged in.
     let aiFailed = false
+    let distressFailed = false
     if (HAS_AI) {
       const fullText = [sc.opening, sc.situationDiagnostic, sc.clientAlreadyTried, sc.domainConfirmed].filter(Boolean).join(' ')
       try {
@@ -205,9 +295,13 @@ async function main () {
         boosts = (classified && classified.boosts) || {}
         aiFailed = !!(classified && classified.ok === false)
       } catch (_e) { boosts = {}; aiFailed = true }
-      try { distress = await readDistressAI(fullText) } catch (_e) { distress = null }
+      // 🔴 A FAILED DISTRESS READ IS NOT "NOT IN DISTRESS" (item 9.4). Both are `null` here,
+      // so a swallowed error used to count as a measured negative in the precision figures
+      // below. It is recorded separately and, like a classifier failure, stops this run
+      // replacing a measured one.
+      try { distress = await readDistressAI(fullText) } catch (_e) { distress = null; distressFailed = true }
     }
-    results.push({ sc, distress, boosts, aiFailed, run: runScenario(sc, boosts, adjustments) })
+    results.push({ sc, distress, boosts, aiFailed, distressFailed, run: runScenario(sc, boosts, adjustments) })
   }
 
   // ── Metrics ────────────────────────────────────────────────────────────────
@@ -264,13 +358,26 @@ async function main () {
   if (distinctionFailures > 0) {
     metrics.push(`- 🔴 **Distinction classifier FAILED on ${distinctionFailures}/${n} cases** — those sessions ran with no distinction lever at all, so every figure above understates it. This is a fault in the run, not a result: fix it and re-run before comparing anything.`)
   }
+  const distressFailures = results.filter(r => r.distressFailed).length
+  if (distressFailures > 0) {
+    metrics.push(`- 🔴 **Distress read FAILED on ${distressFailures}/${n} cases** — a failed read is not "not in distress", so the precision and recall figures above are measured over fewer cases than they claim. A fault in the run, not a result.`)
+  }
+  // 🔴 ITEM 9.4: the key EXISTING is not the AI having RUN. Every call above swallows its own
+  // error, so a run with an expired key, no credit or a missing CA root reported "AI ON" and
+  // was allowed to replace a properly measured report. The script already said these failures
+  // are "a fault in the run, not a result" — this is that sentence enforced. Any failure at all
+  // is enough: a partly-measured run is exactly what item 9.2 exists to keep out of the record.
+  const aiReallyRan = HAS_AI && distinctionFailures === 0 && distressFailures === 0
 
   // ── Report ─────────────────────────────────────────────────────────────────
   const lines = []
   lines.push('# Scenario Lab — Cross-Domain Case-Study Report')
   lines.push('')
   lines.push('> **Auto-generated** by `scripts/scenario-lab.js` over the fixed 50-case set (`scenario-lab-cases.json`). Re-run to refresh; do not hand-edit.')
-  lines.push(`> Coverage: **${n} sessions across all 14 content domains**. AI layer (firm distinctions + distress): **${HAS_AI ? 'ON' : 'OFF'}**. Outcome Learning adjustments: **${adjustmentsFile ? `${adjustments.length} from ${adjustmentsFile}` : 'none'}**.`)
+  // The header is what `chooseReportPath` reads on the NEXT run, so it must say ON only when
+  // the layers actually answered — not merely when a key was present (item 9.4).
+  const aiWord = aiReallyRan ? 'ON' : (HAS_AI ? 'FAILED' : 'OFF')
+  lines.push(`> Coverage: **${n} sessions across all 14 content domains**. AI layer (firm distinctions + distress): **${aiWord}**. Outcome Learning adjustments: **${adjustmentsFile ? `${adjustments.length} from ${adjustmentsFile}` : 'none'}**.`)
   lines.push('')
   lines.push('## Metrics (measure before vs after an engine change)')
   lines.push('')
@@ -327,11 +434,28 @@ async function main () {
   }
 
   const outPath = path.join(process.cwd(), 'design', 'SCENARIO-LAB-REPORT.md')
-  fs.writeFileSync(outPath, lines.join('\n'), 'utf8')
+  const target = chooseReportPath(outPath, { cases: n, ai: aiReallyRan, failed: HAS_AI && !aiReallyRan, filtered: !!filter })
+  fs.writeFileSync(target.path, lines.join('\n'), 'utf8')
 
-  console.log(`\n=== SCENARIO LAB — ${n} cases · AI ${HAS_AI ? 'ON' : 'OFF'} ===`)
+  console.log(`\n=== SCENARIO LAB — ${n} cases · AI ${aiWord} ===`)
   metrics.forEach(m => console.log(m.replace(/\*\*/g, '').replace(/^- /, '  ')))
-  console.log(`\nReport: design/SCENARIO-LAB-REPORT.md\n`)
+  if (target.withheld) {
+    console.log(`\n🔴 THE MAIN REPORT WAS NOT TOUCHED. ${target.withheld}`)
+    console.log(`   Written instead to: design/${path.basename(target.path)}`)
+    console.log('   Re-run without a filter, and with OPENAI_API_KEY set, to replace the main report.\n')
+  } else {
+    console.log(`\nReport: design/${path.basename(target.path)}\n`)
+  }
 }
 
-main()
+// Run only when invoked directly, so the guards above can be tested without replaying 51
+// sessions on import — the pattern the other scripts here already use.
+if (require.main === module) {
+  main().catch((err) => {
+    // An unknown flag is a usage error, not a crash: say what was wrong and how to run it.
+    if (err && err.usage) { console.error('\n' + err.message + '\n' + USAGE); process.exitCode = 1; return }
+    throw err
+  })
+}
+
+module.exports = { chooseReportPath, parseArgs }

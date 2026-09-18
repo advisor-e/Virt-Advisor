@@ -263,3 +263,11 @@ certs/
 # Visual-check screenshots (npm run visual). Pictures of the screens as they
 # rendered, for a person to look at -- regenerated on every run, never kept.
 visual-screenshots/
+
+# The Scenario Lab's PARTIAL report (item 9.2). Written when a run measured less
+# than the committed report -- AI layers off, or a filtered subset -- instead of
+# overwriting it. It is a diagnostic for the person who just ran it, and it reads
+# almost identically to the real report, so committing it would leave a stale
+# second copy that is easy to mistake for the measured one. The real report is
+# design/SCENARIO-LAB-REPORT.md and that IS committed.
+design/SCENARIO-LAB-REPORT-partial.md

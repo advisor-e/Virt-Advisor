@@ -75,53 +75,8 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "7.2",
-      "name": "The engine's middle, and the learning loop made true",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-14"
-      },
-      "why": "The Founder's Claims Audit named ten improvements and Mike asked for every one to become work: the primary issue confirmed, lift as well as hold-back, the cap made true, an honest bench, a provider fallback, template profiles on a screen.",
-      "risk": "Marketing sentences the code only partly enforces: the advisor's words do not always win, learning cannot lift, the bench is in-sample, every pooled row has a blank primary issue, and one AI provider failing stops every AI feature.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-14 - 'transfer your improvement suggestions (all of them) into fixes' and 'if you spot an area of improvement ... get it in the tasks'. Lift, fallback and the profile screen each ruled yes the same day."
-      },
-      "touches": "advisorEngine.js intake, caseStore, templateResolver and its seam, outcomeLearning and the benches, openaiClient.js, the Mentor Hub (Outcome Learning page and a new template-profile tab), the trace, the Scenario Lab, advisory-engine.md.",
-      "note": "US1 TO US9 COMPLETE, 63 OF 67. US9 SHIPPED IN FULL on Mike's two rulings of 2026-09-16: read-only first, then authoring once he was told plainly it changes what advisors are recommended, with no test able to judge a weight. Template Profiles is live - 220 tools on 205 pages, 55 thin - and the engine reads authored profiles over the compiled file, falling back if the store fails. T060 dropped on his 'save where you can'. FOUR LEFT, all writing: T061 and T065 correct two Briefs, T064 walks the quickstart, T066 closes this. MEASURED: authoring three profiles moved the lab 5.6 to 5.7, which produced the IMPACT TEST rule.",
-      "comment": "2026-09-14 - filed on Mike's instruction; spec, plan, four drawings, sixteen rulings the same day. FOUR FAULTS FOUND BY RUNNING IT, NONE BY THE SUITE: a problem named from one category word; agreement recorded as a correction; a function real MySQL refused; a hardcoded 'openai' in the trace. 2026-09-16 - US9 built, and a FIFTH found the same way when Mike clicked Edit and the editor opened below the fold. He then asked how this beats Advisory Distinctions; the measurement said barely, and that became a binding rule."
-    },
-    {
-      "ref": "7.1",
-      "name": "The 14 branches that still name a page nobody can open",
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Fourteen logic-table recommendations name documents the template library does not hold, so the gate withholds or cuts that advice before an adviser sees it.",
-      "risk": "Coaching Mike wrote is withheld from advisers and nothing on screen says so. The gate is behaving correctly; the content names tools that are not there.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
-      },
-      "touches": "data/logic_trees.json, the Mentor Hub logic tables, the Template Check screen where the real page names are settled, and tests/unit/recommendationGate.test.js, which pins 39 whole / 8 partial / 8 withheld.",
-      "note": "MIKE SETTLES THE 18 NAMES HIMSELF, IN UAT, by editing the logic tables while testing (his ruling, 2026-09-10). Not session work: do not propose it. The whole list is design/LOGIC-TABLE-TEMPLATES-NEEDED.md (14 branches, 18 names). A second step was found 2026-08-26: 22 branches name their template only in prose, which the ranking engine never reads, so once the names resolve their templates[] must be populated too, and not before. Detail in logic-tables-history.md §8.",
-      "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
-    },
-    {
       "ref": "8.1",
-      "name": "Meeting Review — three non-coding gates before a first real recording",
+      "name": "Meeting Review — two non-coding gates before a first real recording",
       "rankedByMike": false,
       "kind": "feature",
       "score": 3,
@@ -130,15 +85,15 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports. It is built, advisor and manager both. What remains is three things only he or a lawyer can do.",
-      "risk": "NO CODE IS OUTSTANDING. Three non-coding gates stand before a first real recording: staff consultation, a lawyer per market, and the OpenAI audio-terms letter - whose answers on training, retention and human review can falsify the spoken consent line. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
+      "risk": "NO CODE IS OUTSTANDING. TWO non-coding gates stand before a first real recording: the staff consultation, and a lawyer per market - which no longer waits on anything. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, transcription, audio destruction, the two reports, meeting-types slices 1-4, the MANAGER AGGREGATE (firm tier ALONE - P13), TRANSCRIPT EXPIRY on each meeting's own promised period, FOLLOW-THROUGH matched on the client, and the CLIENT COPY REQUEST - access, correction and early deletion. The CLIENT level of the pre-set is BUILT 2026-09-10 on the desktop (one shared list per client, every entry named, no manager screen - Mike's five rulings on the drawing). §4 ITEMS 3 AND 7 ARE CLOSED; THREE REMAIN and none is ours - staff consultation, the lawyer per market, and the OpenAI letter, SENT 2026-09-12 and awaiting reply. The /meeting-record banner is a real gate since 4.83 closed. Record: meeting-review-history.md §9.",
-      "comment": "2026-09-01 - filed; screens approved; slices 1-2 built. 2026-09-02 - slice 3, the types cascade, renumbered from 4.56; two rules Mike never made deleted (Brief P14). 2026-09-07 - the manager aggregate, transcript expiry and follow-through. 2026-09-08 - meeting-types slice 3 and slice 4's advisor half. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day on his instruction, closing §4 item 7. Two of its eight rulings reversed the recommendation: the advisor ALONE releases, so a request spanning several advisors is answered by each in turn. 2026-09-12 - the OpenAI letter sent; its reply closes DPIA finding A."
+      "note": "NO CODE OUTSTANDING - every slice is built, including the manager aggregate, transcript expiry, follow-through and the client copy request. §4 ITEMS 3, 5 AND 7 ARE CLOSED; TWO REMAIN and neither is ours: the staff consultation, and the lawyer per market, which NO LONGER WAITS ON ANYTHING. 🔴 ITEM 5 CLOSED 2026-09-18 ON MIKE'S RULING, NOT AN ANSWER - both OpenAI letters were replied to and neither confirmed any of the five questions. Relied on: their published terms plus two documented attempts. NEVER call it confirmed; Support cautioned against assuming the API terms cover audio. Record: meeting-review.md §4, OPENAI-AUDIO-TERMS-EMAIL.md §5.",
+      "comment": "2026-09-01 - filed; screens approved. 2026-09-02 to 09-08 - the slices, the types cascade, the manager aggregate, transcript expiry and follow-through. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day, closing §4 item 7. 2026-09-12 - both OpenAI letters sent. 2026-09-18 - both replied, neither answered; Mike ruled we have taken all fair and reasonable steps and closed the gate on that basis. DPIA finding A and IPP12 close the same way - a reasoned position, never an evidenced one - and the lawyer's review is where it gets tested."
     },
     {
       "ref": "11.1",
@@ -183,27 +138,6 @@
       "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T042 on the desktop: both hub screens from their ruled wording rows, the seed, industry suggestions, then the benches on Mike's yes, pressed on the running app. 2026-09-12 - T043 to T047: differences on the drawings, lint, suite and build green, the quickstart walked; 4.94 found and fixed the same hour. Handed to UAT."
     },
     {
-      "ref": "7.4",
-      "name": "Read this for me - plain guidance and an AI reading on the mentor's pages",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike opened Outcome Learning and could not tell how to use it or what it was telling him; the client reports carry an AI reading and the hub pages carried none.",
-      "risk": "A mentor who cannot read the page takes no decision on it, and the learning the platform gathered changes nothing. The counter-risk is a reading taken as a verdict, which the caveat under every reading and the backend's shape check answer.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-11 - 'I have no idea how I, as a mentor, am supposed to use this function and what I'm learning from it ... I'm not seeing any AI interpretation of what's in front of me. Is that possible we could create that?'"
-      },
-      "touches": "components/shared/HubGuidePanel.vue and HubReadingCard.vue, both mentor pages, server/utils/hubReading.js, the two reading routes, the hub-reading document on the AI Prompts tab, locales.",
-      "note": "BUILT 2026-09-11 from hub-page-guidance.html, approved the same day. Both pages open with How to use this page and carry What this is telling you, on the button, never on open; the model is sent only what the page shows; a reply missing the three fixed headings, or carrying a link or a name, is dropped whole. It never accepts or rejects anything. NOTHING BLOCKS THIS: the OpenAI account HAS credit, proved 2026-09-15 by a real gpt-4o-mini call from this desktop that answered. What remains is to run a reading on the built app and look at it.",
-      "comment": "2026-09-11 - raised by Mike on the running app after pressing Run the benches, drawn the same evening, ruled and built on his yes. 2026-09-15 - the 'no credits' blocker was STALE and had been carried for four days: Mike said the account was fine, a real call proved it. Moved from waiting on Mike to ours."
-    },
-    {
       "ref": "5.1",
       "name": "Wages/Salary Review - labour margin, and a register gated on due diligence",
       "rankedByMike": false,
@@ -221,7 +155,7 @@
         "detail": "2026-09-14 - 'buile the wages model into the perf report section', then 'look in here - C:\\Documents\\Visual Code Projects\\Perf Report and you will see a model named wages' when told it was not in the repository, then yes to drawing it before any code."
       },
       "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
-      "note": "THE REPORT'S THREE CHARTS ARE BUILT 2026-09-15 - drawn, approved, walked in a browser; the pie is Mike's own. seasonShare() is on the ENGINE, never the screen. NO DECISIONS REMAIN OPEN. THE REGISTER AND ITS TABLE ARE BUILT, and there is NO GATE - Mike removed the due-diligence condition 2026-09-15; it is one button plus the record of who opened it. The port does NOT reproduce the workbook's 63,154 - three faults in its liability column. ONE PIECE WAITS: the Firm Manager retention dial needs FirmManagerHub.vue, which is 7.2's and active on the desktop. THE PAYROLL READER IS ITS OWN ITEM, 5.2. Record: report-models.md, tax-rates.md.",
+      "note": "THE REPORT'S THREE CHARTS ARE BUILT 2026-09-15 - drawn, approved, walked in a browser; the pie is Mike's own. seasonShare() is on the ENGINE, never the screen. NO DECISIONS REMAIN OPEN. THE REGISTER AND ITS TABLE ARE BUILT, and there is NO GATE - Mike removed the due-diligence condition 2026-09-15; it is one button plus the record of who opened it. The port does NOT reproduce the workbook's 63,154 - three faults in its liability column. ONE PIECE WAITS: the Firm Manager retention dial needs FirmManagerHub.vue, which is 9.1's and active on the desktop. THE PAYROLL READER IS ITS OWN ITEM, 5.2. Record: report-models.md, tax-rates.md.",
       "comment": "2026-09-14 - filed, all nine decisions ruled, then the engine, all five steps, the report and the catalogue row in one day. Two rulings reversed our recommendation: the payroll import, and retention. Mike found the added-person sort fault by testing it himself. 2026-09-15 - the register's gate and table, then the report's four charts on his instruction and his own pie idea. Was 4.104; renumbered under design/ITEM-NUMBERING.md. TWICE IN ONE DAY RUNNING IT FOUND WHAT THE SUITE COULD NOT: three stores reached firmOverlay with no dev fallback, and the drawing carried a heading typed rather than read, so two cards shipped with the same title."
     },
     {
@@ -267,7 +201,7 @@
         "machine": "laptop",
         "since": "2026-09-16"
       },
-      "note": "DRAWN, ALL THREE DECISIONS RULED, AND THE RECORDING HALF BUILT - 2026-09-16, in that order. Artefact: design/mockups/model-choices.html. Built: modelChoiceScan.js, the marker in client.txt SECTION 12 and discover.txt, the strip and hold-back on all three response paths, advisor_model_choices with its dev-file fallback, logModelChoice, GET /api/model-choices scoped by tier, and 41 tests. ONE PIECE WAITS: the hub tab needs TAB_TIERS, NAV_GROUPS and a panel in FirmManagerHub.vue, which is 7.2's and active on the desktop. TWO DRAWN THINGS THE ROUTE DOES NOT YET SERVE, both on the drawing: the period selector, and the conversations-count in band 1. THE MARKER IS UNRELIABLE - that is item 7.6.",
+      "note": "DRAWN, ALL THREE DECISIONS RULED, AND THE RECORDING HALF BUILT - 2026-09-16, in that order. Artefact: design/mockups/model-choices.html. Built: modelChoiceScan.js, the marker in client.txt SECTION 12 and discover.txt, the strip and hold-back on all three response paths, advisor_model_choices with its dev-file fallback, logModelChoice, GET /api/model-choices scoped by tier, and 41 tests. ONE PIECE WAITS: the hub tab needs TAB_TIERS, NAV_GROUPS and a panel in FirmManagerHub.vue, which is 9.1's and active on the desktop. TWO DRAWN THINGS THE ROUTE DOES NOT YET SERVE, both on the drawing: the period selector, and the conversations-count in band 1. THE MARKER IS UNRELIABLE - that is item 7.6.",
       "comment": "2026-09-15 - filed on Mike's instruction after the first effectiveness test of the model summaries. 2026-09-16 - drawn, three decisions ruled one at a time, recording half built. TWO OF THE THREE WENT AGAINST THE RECOMMENDATION: his question about a manager's context widened the row from the domain alone to carry firm and advisor, which then reversed mentor-alone to all four tiers. RUNNING IT FOUND WHAT THE SUITE COULD NOT, again: the AI ignored the new marker in all three conversations until its instruction moved into the system prompts, and it is still unreliable - item 7.6."
     },
     {
@@ -290,6 +224,27 @@
       "touches": "data/prompts/client.txt SECTION 12 and data/prompts/discover.txt, where the instruction lives; server/utils/modelChoiceScan.js, which reads the marker; and the declines band of design/mockups/model-choices.html, which is what under-counts.",
       "note": "NOT SESSION WORK - MIKE'S RULING, 2026-09-16: it corrects a counter on an internal screen and changes nothing an advisor or a client sees, so it waits until the Model Choices screen has real use behind it. Do not propose it. THE CAUSE IS KNOWN, so nobody need re-run this: seven live discover conversations declared the marker 0 times, and client-mode Phase 3 declared it first time. The difference is structural, not wording - in Phase 3 the AI is already writing [[TEMPLATES:]] and SECTION 12 asks for a second line, while discover has no first marker and an absolute closing-line rule stated four times. REWORDING HAS FAILED TWICE. DO NOT RE-RAISE IT.",
       "comment": "2026-09-16 - filed on Mike's yes, the same day 7.5 was built. Found by running the app rather than by a test: every one of the passing tests proves our code handles what the AI sends, and none can prove the AI sends it - the same blind spot 7.5 was filed to close. Parked the same day, after seven more live conversations proved the cause and Mike ruled it not worth session work until the screen has real use."
+    },
+    {
+      "ref": "7.12",
+      "name": "The right calculator is offered only sometimes, and sometimes the wrong one is",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Measured over 30 live calls: the template choice is right every run, but the calculator paired with it varies - 1, 2 or 3 times in 6 on identical questions, and the wrong budget model 4 times in 6.",
+      "risk": "An advisor asking the same question twice gets different tools, and each answer reads perfectly well alone - so neither they nor UAT can see it. Twice the AI attached the wrong calculator to a correct template, including the wrong size of budget model, which the list forbids in capitals. Sales Dashboard is named correctly but gives no link to click 5 times in 6.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-16 - Mike asked for it to be checked now after a lease-vs-buy miss surfaced during item 7.8's testing; he said yes to filing what the check found. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "data/report-model-summaries.json, whose instruction[] block IS the HOW TO USE THIS LIST rules - edit the rules there, not in code; server/utils/reportModels.js formatReportModelsForPrompt, which only renders that block into the 51,072-character prompt and holds no rule text itself; data/prompts/discover.txt STEP 1, which frames the calculator as an optional extra; and whatever measurement proves a change, which has to be live conversations.",
+      "note": "🔴 NOT ABSENCE - UNRELIABILITY. The TEMPLATE choice is right every run; the calculator paired with it is what varies. Mike ruled 2026-09-18 that a fitting calculator is ALWAYS offered alongside a template, and the offer rule now names that case - the refusal rule (line 7) is untouched. MEASURED, 6 runs each: Working Capital Cycle 3/6 to 5/6, Sales Dashboard 1/6 to 3/6, links 6/24 to 9/24, substitutions 9 to 6. 8 Levers 0/6 unchanged and NOT a defect. WHAT REMAINS IS THE BUDGET SUBSTITUTION - a separate fault, now item 7.11. Tables in advisory-engine.md P2.",
+      "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings, and Mike RULED that a fitting calculator is always offered alongside a template. Built and measured the same day: two of four questions improved, links 6/24 to 9/24. The budget wording was tested as a cause and DISPROVED TWICE - it is now item 7.11. Mike's authored prose is untouched. NO DEFINED NEXT STEP: either machine may take what is left."
     },
     {
       "ref": "7.9",
@@ -355,27 +310,6 @@
       "comment": "2026-09-15 - filed after a wrong reading was corrected against the code: the dev firm was sharing when the '2 adjustments' was seen, so it was never evidence of a non-sharing firm receiving anything."
     },
     {
-      "ref": "9.2",
-      "name": "A part-measured lab run overwrites a full one",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The Scenario Lab writes its report whether or not the AI layers ran, so a run that measured less of the engine silently replaces one that measured all of it.",
-      "risk": "A lab run here silently reports the engine WITHOUT its AI layers and overwrites the report measured with them - score separation reads 2.3 against the real 5.7. Nothing says the layers were off unless someone reads the line that says so.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-14 - hit while measuring the resolver change for 7.2. A defect we found, not a feature nobody asked for; Mike said yes to filing it."
-      },
-      "touches": ".env on the desktop only (NODE_EXTRA_CA_CERTS), and scripts/scenario-lab.js which overwrites design/SCENARIO-LAB-REPORT.md whether or not the AI layers ran.",
-      "note": "THE ENVIRONMENT HALF IS DONE: NODE_EXTRA_CA_CERTS points at the Avast root and AI-backed scripts DO run here, proved 2026-09-15 by a real OpenAI call from a script on this desktop. ONLY THE CODE HALF IS LEFT, and it is the one that matters: the lab should REFUSE to overwrite the report when the AI layers did not run, or write to a clearly marked file, so a partial measurement cannot replace a full one. SEEN HAPPENING 2026-09-15 - an unrecognised flag made the lab run 0 cases with AI OFF and overwrite the real 51-session AI-ON report; restored from git. There is also no --help, so a wrong flag is read as a filter matching nothing.",
-      "comment": "2026-09-14 - filed at shutdown on Mike's yes, after a lab run without the key replaced a real report and was caught by the pre-commit hook rather than by anything in the lab itself. 2026-09-15 - the environment half was found ALREADY FIXED (a real OpenAI call runs here), so the item is now the code half alone and was renamed to it. It fired again the same day from a mistyped flag, caught by eye."
-    },
-    {
       "ref": "7.10",
       "name": "A page's templates are hidden behind whichever won the ID",
       "rankedByMike": false,
@@ -395,6 +329,27 @@
       "touches": "server/utils/templateRegistry.js, the page-to-entry Map that keeps one template per page; scripts/build-semantic-profiles.js, which writes one row per page and names only the winner; US9's template-profile screen in 7.2, which must list every template on a page.",
       "note": "THE SHARED PROFILE IS RIGHT AND MUST NOT BE 'FIXED' - Mike ruled 2026-09-16 that templates on one page SHARE one AI profile, because an advisor opening that page gets them all. This is not a rekey. What is missing is the many half: the registry should carry every template on a page, so a screen can show that this profile governs both Working Capital Cycle and Activity Ratios. Collisions grew 10 to 14 between the 25 June and 30 July exports, so more tools hide as the library grows. NEVER EDIT THE IDS - CLAUDE.md.",
       "comment": "2026-09-16 - found while running T060a for 7.2 US9; the compiler appeared to discover six new tools that were only collision winners changing places. Filed first as a keying defect, then corrected twice by Mike: the one-to-many page relationship is by design, and one shared profile per page is the behaviour he wants. RENUMBERED 7.5 to 7.10 on Mike's ruling of 2026-09-16: the laptop had taken 7.5 the same day for the model-choice record, and a number is spent for good once used."
+    },
+    {
+      "ref": "14.3",
+      "name": "A working-tree Handbook preview can be published over the shared link",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "npm run handbook --working-tree builds a preview of one machine's uncommitted branch. Nothing stops that file being published to the shared URL, so the page Mike opens can show one division's work in progress instead of the agreed origin/master build.",
+      "risk": "The page stops being the same for both machines, which is the one guarantee item 4.85 was built to give. A reader cannot tell a preview from the shared page without noticing the banner, and features present on the OTHER branch vanish from the index while it is live. Nothing is lost from git - the Briefs stay committed on their own branch - but the front door silently describes a state neither master nor the other machine is in.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-17 - found at desktop shutdown when a publish was refused: the live Handbook was a laptop working-tree preview, 47 pages, its own banner reading \"a preview, not the shared page\". Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "scripts/build-handbook.js --working-tree and its WORKING_TREE banner, which are correct and stay; the publish step of .claude/commands/startup.md, which is where the guard belongs because the script cannot know where its output is sent; design/features/handbook.md.",
+      "note": "THE FLAG IS NOT THE FAULT AND MUST NOT BE REMOVED - a preview of your own branch is useful and it labels itself honestly. The gap is that nothing refuses to PUBLISH one to the shared URL. Cheapest honest fix: the publish step reads the built file's banner and refuses when it says working tree. Checked 2026-09-17: the only page that differed was strategy-planner, committed and pushed on feat/advisor-progress, so nothing was at risk - it appears on the shared page the day that branch reaches master.",
+      "comment": "2026-09-17 - Mike ruled the live preview stays rather than being overwritten: it shows one extra real feature and hiding it would gain nothing. This item is about the guard, not about that page."
     },
     {
       "ref": "15.1",
