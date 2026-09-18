@@ -75,12 +75,12 @@ describe('templateHeadingCheck — the fault it was built for', () => {
     expect(out.offenders).toEqual([])
   })
 
-  it('passes the same model named in the calculator block, where it belongs', () => {
+  it('passes the same model named in the model block, where it belongs', () => {
     const text = [
       '**Best match**',
       `**${TEMPLATE}** — this is why it fits.`,
       '',
-      '**A calculator that fits**',
+      '**A model that fits**',
       `**${MODEL.name}** — what it would show the client — open it at ${MODEL.route}`,
       '',
       '**Is that what you had in mind, or would you like me to look for something else?**'

@@ -171,8 +171,11 @@ instruction predates the whole detour.
 attach a path — a name alone cannot say which was meant. Those six still need the AI to write its
 own path. `tests/unit/nameCollisions.test.js` recomputes the set.
 
-⚠ **"Calculator" is our word, not Mike's.** It reached the advisor's screen as the block heading in
-`discover.txt` without ever being approved. Settle the label with him before building.
+✅ **THE BLOCK IS "A model that fits" — Mike's ruling, 2026-09-18.** *"Calculator"* was our word,
+never approved, and it had reached the advisor's screen as the block heading in `discover.txt`.
+His words: *"we have models and templates. A model includes CALCULATIONS but it is NOT a
+calculator."* Renamed in both prompts and in `buildRetryInstruction`; pinned by
+`tests/unit/reportModelSummaries.test.js`. Never reintroduce it.
 
 ### What the earlier bench measured — 2026-09-17, 19 models × 2 runs
 
@@ -304,19 +307,21 @@ platform default. Nothing is single-tenant, and nothing new should be.
 
 ### 🔴 ITEM 7.12 — BUILD THE MODEL LOOKUP. Start here, in this order.
 
-**Read the two ⚠ warnings below BEFORE writing anything.** Step 0 is a question for Mike and
-one of them can waste the whole build if it is met halfway through.
+**Read the ⚠ warning below BEFORE writing anything** — it decides the shape of the resolver and
+can waste the whole build if it is met halfway through.
 
-**⚠ 0. ASK MIKE THE LABEL QUESTION FIRST.** *"Calculator"* is our word. It reached the advisor's
-screen as the block heading in [`data/prompts/discover.txt`](../../data/prompts/discover.txt)
-line 35 and he never approved it. It is user-facing wording, so it is his call and it is a
-blocker — changing it afterwards means touching the prompt, the injected sentence and their
-tests a second time.
+**✅ 0. THE LABEL IS SETTLED — Mike's ruling, 2026-09-18.** In his words: *"get rid of the name
+calculator — I fucking hate it. We have models and templates. A model includes CALCULATIONS but
+it is NOT a calculator."* The block heading is **`**A model that fits**`** and the word
+*calculator* is gone from both prompts. **Never reintroduce it in anything the advisor reads or
+the AI is told.** Where it survives elsewhere in this Brief it is quoting a past measurement, and
+in [`report-models.md`](report-models.md) it names Mike's own workbook sheets (*Quick
+Calculator*, *Hrly Rate & Tax Calculator*) — those are his source material and stay as written.
 
 **⚠ 1. THE SIX COLLISIONS DECIDE THE SHAPE OF THE RESOLVER — design for them from the start.**
 Six of the nineteen model names are also real template titles: Working Capital Cycle, Lease vs
 Buy, Quick Position, Dashboard Reports, High-Level Budget, **Sales Dashboard**. For those a name
-alone can NEVER say whether the AI meant the document or the calculator, so the lookup must
+alone can NEVER say whether the AI meant the template or the model, so the lookup must
 attach nothing and leave the AI's own path to stand. Guard with `isKnownTemplate` **and**
 `nearestTemplateTitle` (both in `tierLookup`), in that order, exactly as
 [`templateHeadingCheck.js`](../../server/utils/templateHeadingCheck.js) does — an exact-match
@@ -353,7 +358,7 @@ Drive real conversations through `/api/advisor/query` — see `.claude/skills/ru
 
 **What success looks like:** thirteen of nineteen models carry an openable path every time,
 because it is looked up. The other six still depend on the AI writing their own, and no lookup
-can change that without guessing between a document and a calculator.
+can change that without guessing between a template and a model.
 
 ### The pipeline, in order
 
