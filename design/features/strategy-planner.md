@@ -110,13 +110,19 @@ steps — waits on the open decision in *What gates what* below.
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
 its method is below.** The teaching graphic is drawn by us, never imported from his deck —
 **22 of the 34 concepts that have a page are drawn and approved**, across five artefacts.
-What remains is 12 pages of his prose carrying no diagram at all.
+☑ **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18.** The last eleven were surveyed by
+machine before any were drawn, rather than assumed: **7 were prose**, **2 carried a real panel**
+(Product Fit Review's rotated navy bar, Product Fit's hollow navy outline) and **2 carried a real
+picture** (the Digital Funnel Storyboard, Packaging/Bundling — whose image his slide crops).
+**Drafting Tender Proposals is the 34th and is not drawn:** his own summary calls it *"general
+reading rather than focused session"*, and its page 52 is the section's title card, with his
+content running on to p56. It keeps page 52, which is where a reader opens the deck.
 
 ### The spine — after stage 3 an advisor can run the whole job
 
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
-| **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **"The menu is his table, word for word"** (the session scope menu) — the screen **is** his table, his words, his page numbers | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
+| **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **"The menu is his table, word for word"** (the session scope menu) — the screen **is** his table, his words, and his page numbers **where he gives them** — ⚠ **Strategic Orientation 2's scope table HAS a page column and those numbers are his; Sales & Marketing's has NONE, so its 16 are ours, derived from the deck.** They are accurate, and every drawing checked so far confirms it — but do not go looking for a column of his to reconcile them against (found 2026-09-18). | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
 | **2** | ☑ **BUILT 2026-09-17 — capture across the scoped concepts.** `scripts/read-capture-tables.js` reads Mike's own fill-in workbooks into `data/strategy-capture-tables.json`; `server/utils/strategyCaptureForms.js` turns a grid into fields; `GET /api/strategy/concepts/:id/capture` serves them; `components/strategy/StrategyConceptCapture.vue` draws them | *"a strategic plan … that can easily expand over time"* — a plan cannot expand if nothing is kept | **16 of the 52 concepts now reach their real table, where 2 did.** Every label is his, read from the workbook rather than authored. A concept can be VISITED TWICE — Porter's observations then his responses — because one table carries both column sets, and the second visit shows what the client said in the first. |
 | **3** | ☑ **BUILT 2026-09-17 — the assembled document.** `components/strategy/StrategyPlanDocument.vue`, built from the approved drawing: front matter, the agenda, then per step a *Discussion* divider, its teaching pages, an *Action* divider, its capture pages. Screen 4 was a flat list of framework blocks and is now the document. ⚠ **One step, and that is a stated limit:** the advisor cannot yet name his own steps and drag concepts into them, so everything scoped sits in one. ☐ A failing objective does not yet carry its flag onto the page. | *"…into 1 seamless document"* · **"Deck or web page"** (the assembled plan) — one continuous document of slide-shaped pages, **one artefact never two formats** · **"Can a failing objective reach the plan"** (the session an advisor runs) — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* **It stores nothing of its own**, so it cannot disagree with the session behind it. An untouched table prints one line rather than two dozen blank rows. |
 
@@ -233,6 +239,19 @@ concept's graphic has no vector content, it is a picture.
 > **The page frame is a thin bar hard against an edge.** That is what makes it chrome. Note the
 > bottom rule is drawn in **two segments** either side of the logo, one only 95 wide.
 
+> 🔴 **AND A SHAPE IS ITS PATH, NEVER ITS BOUNDING BOX — two ways to get this wrong, both found
+> 2026-09-18 on Product Fit Review.**
+>
+> - **Drawing the box instead of the path.** His *Resistance* marker is a **rotated diagonal
+>   bar**. Rendered from its bounding box it becomes a solid navy rectangle across a third of
+>   the page — and it looks deliberate, which is why nothing queries it.
+> - **Chain consecutive segments into one subpath.** That bar is **four separate line items**
+>   forming one quadrilateral. Starting a new subpath per item leaves it **unfillable**, so it
+>   rendered hollow and his white *"Resistance"* disappeared against the white with it.
+>
+> **Rotated text needs the same care:** take the angle from the line's own `dir`, and do **not**
+> pin a rotated span to its bbox width — a rotated bbox is not an advance width.
+
 🔴 **AND EXTRACTING THE PICTURE IS NOT ENOUGH. HIS SLIDES CROP THEM, AND THE RAW EXTRACT PUTS BACK
 WHAT HE HIDES.** Both of these reached a drawing before being caught:
 
@@ -243,6 +262,14 @@ WHAT HE HIDES.** Both of these reached a drawing before being caught:
 
 **Reproduce his crop, then put it beside his page.** Neither of those was visible in the extract
 until the two were side by side.
+
+🔴 **AND CLIP THE ARTWORK, NEVER THE PAGE REGION IT SITS IN.** Rendering the page inside an
+image's *placement rect* is the easy way to reproduce a crop — and on **Packaging/Bundling** it
+was wrong: the tin's rect starts at **x=549** while his text column runs to **x=590.8**, so the
+clip captured a strip of his own prose. The result pasted **a photograph of his text on top of
+the rendered text**, and every line in the page printed twice. **Measure the artwork's own ink
+bounds** (the tin is x=604–690) and clip to those. ⚠ The symptom reads as a font or
+justification bug, and it survives every experiment aimed at one.
 
 ⚠ **State the cost where it applies:** a picture does not sharpen with scale the way a drawn
 concept does, and it cannot take a firm's colours. Only the chart is his image — the title, the
@@ -331,7 +358,7 @@ skipped and claimed.
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
 | **4** | ⛔ **BUILT AND UNDONE THE SAME DAY, 2026-09-18 — his deck pages, imported as images.** `scripts/render-deck-slides.py` rendered them into `static/planning-slides/` and `slidePath()` put one on each concept. **Nobody asked for it**, and it could never be white-labelled. Script, 37 images and every field that served them are deleted. | It claimed *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides"* — but that is about **fidelity**, and it was read as a licence to choose the **technique**. A question was never put to him. | 🔴 **HIS RULING ON SEEING IT:** *"i never asked for this … they look cheap and more importantly, they lock in the Advisor-e logo and in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo - never advisor-e."* Every page of his decks carries `advisor-e.com`, the cyan border and his page number **burned into the pixels**. ⚠ **AND THE IMPACT TEST SCORED THE BREACH AS THE WIN:** the measure was *"concepts whose graphic matches his page: 0 of 52 → 34 of 52"*, and a measure that rewards reproducing his page exactly will always reward reproducing his branding with it. |
-| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above — or, where his artwork is a photograph, by *Flattening a chart out of a photograph* below. ☑ **22 of 34 approved (2026-09-18): Porter's, then batches 1–4, then Technology Points.** Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
+| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above — or, where his artwork is a photograph, by *Flattening a chart out of a photograph* below. ☑ **DONE — 33 of 34 approved (2026-09-18): Porter's, batches 1–5 and Technology Points.** Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
 | **5** | **9 capture forms** — every table the table his template actually is | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
 | **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
