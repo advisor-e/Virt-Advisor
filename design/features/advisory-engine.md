@@ -302,6 +302,59 @@ platform default. Nothing is single-tenant, and nothing new should be.
 
 ## 4. For the coder
 
+### 🔴 ITEM 7.12 — BUILD THE MODEL LOOKUP. Start here, in this order.
+
+**Read the two ⚠ warnings below BEFORE writing anything.** Step 0 is a question for Mike and
+one of them can waste the whole build if it is met halfway through.
+
+**⚠ 0. ASK MIKE THE LABEL QUESTION FIRST.** *"Calculator"* is our word. It reached the advisor's
+screen as the block heading in [`data/prompts/discover.txt`](../../data/prompts/discover.txt)
+line 35 and he never approved it. It is user-facing wording, so it is his call and it is a
+blocker — changing it afterwards means touching the prompt, the injected sentence and their
+tests a second time.
+
+**⚠ 1. THE SIX COLLISIONS DECIDE THE SHAPE OF THE RESOLVER — design for them from the start.**
+Six of the nineteen model names are also real template titles: Working Capital Cycle, Lease vs
+Buy, Quick Position, Dashboard Reports, High-Level Budget, **Sales Dashboard**. For those a name
+alone can NEVER say whether the AI meant the document or the calculator, so the lookup must
+attach nothing and leave the AI's own path to stand. Guard with `isKnownTemplate` **and**
+`nearestTemplateTitle` (both in `tierLookup`), in that order, exactly as
+[`templateHeadingCheck.js`](../../server/utils/templateHeadingCheck.js) does — an exact-match
+test alone reads three of the six as "not a template" and misfired on **28 of 38** bench calls
+on 2026-09-17. `tests/unit/nameCollisions.test.js` recomputes the set; a seventh fails the build.
+
+**2. Take the model names from the marker, not from the prose.** The AI appends
+`[[MODEL: /debtor-drag]]`, and `resolveModelChoiceWithSource` already resolves it against the
+catalogue and falls back to a page-path scan. That is an exact record of what it named. Parsing
+the visible answer again is a second, worse parser of the same fact.
+
+**3. Attach the path the way templates already do it.**
+[`injectVideoInfo`](../../server/utils/videoInjector.js) is the working pattern: it looks a
+template's record up and writes a sentence into the answer *after* the AI has finished. Copy
+that shape.
+
+**4. The three call sites, with the raw buffer still in scope at each.** This matters: the
+marker is stripped from `visible` but survives on the buffer beside it, so the marker is
+readable at every one without re-plumbing.
+
+| Path | Line | Stripped text | Raw buffer holding the marker |
+|---|---|---|---|
+| Post-recommendation conversation | `advisorEngine.js:3075` | `visible` | `_postBuffer` |
+| Client-mode Phase 3 (streams) | `advisorEngine.js:3937` | `scrubbed` | `_p3Buffer` |
+| Main buffered answer | `advisorEngine.js:4244` | `visible` | `answer` |
+
+⚠ **Phase 3 genuinely streams** — it has already sent text when it reaches line 3937 and
+corrects itself with a `replace` event. The other two emit once, so nothing is on screen yet.
+An injected sentence must survive that replace rather than be appended twice.
+
+**5. Prove it on the running app, not on the suite.** This is engine behaviour: 12,200 passing
+tests never saw any of it, and six runs is a small sample on output that varies run to run.
+Drive real conversations through `/api/advisor/query` — see `.claude/skills/run-the-app`.
+
+**What success looks like:** thirteen of nineteen models carry an openable path every time,
+because it is looked up. The other six still depend on the AI writing their own, and no lookup
+can change that without guessing between a document and a calculator.
+
 ### The pipeline, in order
 
 | Stage | What happens | Where |
