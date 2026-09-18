@@ -202,6 +202,40 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.11 — a budget question was answered with the wrong size of budget model.**
+✅ Closed 2026-09-18, `ddf2dcce`. Asked whether a client is hitting their budget, the AI offered
+the Mid-Level Budget's page **5 times in 6**. Measured again on 6 live runs through the real
+`/api/advisor/query` after the change: the right calculator **4/4** wherever one was offered, and
+High-Level Budget named as *Best match* **6/6**.
+
+**One sentence caused it and one sentence fixed it.** Mid-Level's `answers` opened *"The same
+question as the High-Level Budget, plus the one that usually matters more"*. The AI was not
+forgetting the right calculator — it was being told, in the second field it reads for that model,
+that one of the two is strictly better, and obeying. `useWhen` carries the correct steer back but
+is the sixth field. Instruction line 8 could never catch it: that forbids the closest model when
+**none** fits, and here one genuinely does. It now reads *"Whether the business is hitting its
+budget when the money does not arrive the month it is earned"* — the timing distinction as a
+condition of the question rather than a ranking. Every other entry of the nineteen already opened
+by naming what it answers in its own right; this was the only one defined against another.
+
+🔴 **TWO EARLIER ATTEMPTS FAILED BECAUSE A FALSE NOTE SENT THEM AROUND THE SENTENCE INSTEAD OF AT
+IT.** The item read *"That sentence is TRUE and it is Mike's — the fix is not to edit it"*. The
+first half was right; the second was wrong, and it cost a day. Traced on Mike's own challenge —
+*"find me exactly where the budget is described in my words"*: the prose is AI-authored
+(`0fdee54b`, `b8c2fa56`), his seven rulings of 2026-09-13 are all **screen** wording, and
+`ARTEFACTS.md` line 108 records none on the summaries. **The lesson is not about budgets:** a
+provenance claim nobody checked was treated as a constraint by three sessions running.
+
+⚠ **The two dead ends remain real and must not be retried:** a distinguishing sentence in
+High-Level's `useWhen` made it **worse** (4/6 → 6/6), reverted the same hour — naming a competing
+model inside an entry puts it in front of the AI twice as often — and 7.12's offer rule moved it
+the wrong way too (4/6 → 5/6).
+
+⚠ **Six runs is a small sample on behaviour that varies run to run.** It is the same sample both
+failed attempts used, so the comparison is fair — it is not proof, and this wants watching in UAT.
+Separately, the same bench showed **7.12 still open at 4 of 6**: in 2 runs the AI named the right
+model and gave no page path at all. That is the offer being dropped, not this fault.
+
 **9.4 — the lab trusted a key that existed over a call that worked.**
 ✅ Closed 2026-09-17, filed and fixed the same hour on Mike's instruction. Found while fixing
 9.2 (below) and deliberately kept out of it rather than widen an approved scope.

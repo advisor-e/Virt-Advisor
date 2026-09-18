@@ -43,13 +43,12 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | **laptop**, since 2026-09-16 |
 | 7 | **7.6** The AI declares its model choice only sometimes, so declines under-count ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 8 | **7.12** The right calculator is offered only sometimes, and sometimes the wrong one is ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 9 | **7.11** A budget question is answered with the wrong size of budget model ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 10 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 11 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 12 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 13 | **14.3** A working-tree Handbook preview can be published over the shared link ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 9 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 10 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 11 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 12 | **14.3** A working-tree Handbook preview can be published over the shared link ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Thirteen live items. Seven need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Seven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

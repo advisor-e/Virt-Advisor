@@ -247,27 +247,6 @@
       "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings, and Mike RULED that a fitting calculator is always offered alongside a template. Built and measured the same day: two of four questions improved, links 6/24 to 9/24. The budget wording was tested as a cause and DISPROVED TWICE - it is now item 7.11. Mike's authored prose is untouched. NO DEFINED NEXT STEP: either machine may take what is left."
     },
     {
-      "ref": "7.11",
-      "name": "A budget question is answered with the wrong size of budget model",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Asked whether a client is hitting their budget, the AI offers the Mid-Level Budget's page 5 times in 6 and the High-Level Budget's own page once - the near-miss substitution the instruction block forbids outright.",
-      "risk": "The advisor opens a cashflow-timing model to answer a did-we-hit-target question, and finds out in front of their client. It is the exact consequence the refusal rule describes. UAT cannot catch it: the answer names the right template first and reads perfectly well, and the same question answers differently run to run.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-18 - measured twice while building Mike's always-offer ruling for 7.9; he said yes to filing it separately. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "data/report-model-summaries.json - the two budget entries' prose, which is AI-authored and was never ruled on, so it MAY be edited; server/utils/reportModels.js, which only renders it; and whatever measurement proves a change, which has to be live conversations.",
-      "note": "🔴 THE CAUSE IS NOT FORGETTING. Mid-Level's answers opens 'The same question as the High-Level Budget, plus the one that usually matters more', so the AI is told one is strictly better and upgrades. It is the second field read; useWhen steers back but is the sixth. Instruction line 8 forbids the closest model when NONE fits, so it cannot catch this. 🔴 THAT SENTENCE IS AI-AUTHORED AND MAY BE EDITED - traced 2026-09-18, correcting this note's own earlier claim it was Mike's. His 2026-09-13 rulings are all SCREEN wording; ARTEFACTS.md line 108 records none on the summaries. ⚠ Two attempts failed: High-Level's useWhen, 4/6 to 6/6; 7.12's offer rule, 4/6 to 5/6. Prove any change on 6 live runs.",
-      "comment": "2026-09-18 - filed on Mike's yes after being measured twice under 7.12 and surviving both. Separated because it has a different cause: the AI does not drop this calculator, it reaches for the wrong size of budget."
-    },
-    {
       "ref": "7.3",
       "name": "A second opinion from two AI providers",
       "rankedByMike": false,
