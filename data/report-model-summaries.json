@@ -865,7 +865,7 @@
       "name": "Mid-Level Budget",
       "category": "Budgeting",
       "modelClass": "report",
-      "answers": "The same question as the High-Level Budget, plus the one that usually matters more: WHEN the money moves. The advisor sets, with the client, what share of a month's sales is collected that month and over the next four, and what share of a month's stock purchases is paid over the same span. The budget is then built on cash actually collected rather than sales invoiced — which is how a business that is profitable on paper can still run out of money.",
+      "answers": "Whether the business is hitting its budget when the money does not arrive the month it is earned. The advisor sets, with the client, what share of a month's sales is collected that month and over the next four, and what share of a month's stock purchases is paid over the same span. The budget is then built on cash actually collected rather than sales invoiced — which is how a business that is profitable on paper can still run out of money.",
       "keyOutputs": [
         "Cash collected each month against sales invoiced, and what is still owed at year end",
         "One month's sale broken into the instalments it arrives in",
