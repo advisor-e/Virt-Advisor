@@ -151,15 +151,28 @@ the money does not arrive the month it is earned"* — the timing distinction as
 question, not a ranking of one model over the other. Every other entry of the nineteen already
 opened by naming what it answers in its own right; this was the only one defined against another.
 
-🔴 **THIS PARAGRAPH PREVIOUSLY SAID WORDING DOES NOT FIX IT, AND THAT MIKE'S AUTHORED PROSE MUST
-NOT BE EDITED. BOTH WERE WRONG.** The prose is AI-authored — High-Level's `answers` entered in
-`0fdee54b`, Mid-Level's in `b8c2fa56` — and Mike's seven rulings of 2026-09-13 are all *screen*
-wording; `ARTEFACTS.md` line 108 records none on the summaries. Traced on his challenge after the
-claim sent a session looking for a workaround instead of the fix. ⚠ **The two failed attempts are
-still dead ends and stand as recorded:** a distinguishing sentence in High-Level's `useWhen` made
-it **worse** (4/6 → 6/6), reverted the same hour — naming the competing model in an entry puts it
-in front of the AI twice as often — and 7.12's offer rule moved it the wrong way too (4/6 → 5/6).
-Six runs is a small sample on behaviour that varies run to run; this wants watching in UAT.
+🔴 **THE PAGE PATH IS NOT A WORDING PROBLEM AND NEVER WAS — ITEM 7.12, REFRAMED 2026-09-18 ON
+MIKE'S CHALLENGE.** His original task read *"check the summary page, look it up, compare to
+conversation and suggest the model name and where to find it in the perf report section"*. **The
+lookup half was never built.** The 19 models are injected as 51,072 characters of prose and the AI
+is asked to *recall* each page path; four sessions then tuned that prose, and each attempt moved
+some models and moved others backwards, because the AI answers differently run to run on identical
+input.
+
+**The app already holds the answer.** `/api/report/model-guide` serves the same records the Model
+Guide screen renders, every model has a live page, and `injectVideoInfo` is the working pattern for
+attaching a looked-up fact to an answer *after* the AI has written it — it does exactly this for
+templates, on all three engine paths. Models were never put in that machinery. **Mike ruled on
+2026-08-22 that the summary page serves "a firm manager choosing a model as well as the AI guiding
+an advisor, from the same records"** ([`pages/model-guide.vue`](../../pages/model-guide.vue)) — the
+instruction predates the whole detour.
+
+⚠ **SIX of the nineteen names are also real template titles**, so for those a lookup must NOT
+attach a path — a name alone cannot say which was meant. Those six still need the AI to write its
+own path. `tests/unit/nameCollisions.test.js` recomputes the set.
+
+⚠ **"Calculator" is our word, not Mike's.** It reached the advisor's screen as the block heading in
+`discover.txt` without ever being approved. Settle the label with him before building.
 
 ### What the earlier bench measured — 2026-09-17, 19 models × 2 runs
 

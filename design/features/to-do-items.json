@@ -227,24 +227,24 @@
     },
     {
       "ref": "7.12",
-      "name": "The right calculator is offered only sometimes, and sometimes the wrong one is",
+      "name": "The model's page is recalled by the AI, not looked up",
       "rankedByMike": false,
       "kind": "defect",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Measured over 30 live calls: the template choice is right every run, but the calculator paired with it varies - 1, 2 or 3 times in 6 on identical questions, and the wrong budget model 4 times in 6.",
-      "risk": "An advisor asking the same question twice gets different tools, and each answer reads perfectly well alone - so neither they nor UAT can see it. Twice the AI attached the wrong calculator to a correct template, including the wrong size of budget model, which the list forbids in capitals. Sales Dashboard is named correctly but gives no link to click 5 times in 6.",
+      "waitingOn": "Us",
+      "why": "Mike asked for the model to be looked up on the summary page and its place in the performance report section named. /api/report/model-guide already serves those records and nothing calls it. The AI is asked to recall each path instead.",
+      "risk": "A recalled path is right only sometimes, so an advisor is named a model and given no way to open it - 5 times in 6 on Sales Dashboard. Asking better cannot fix it: four sessions of prompt wording moved some models and moved others backwards. Templates do not have this fault, because injectVideoInfo looks their record up and attaches it.",
       "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-16 - Mike asked for it to be checked now after a lease-vs-buy miss surfaced during item 7.8's testing; he said yes to filing what the check found. A defect we found, not a feature nobody asked for."
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-18 - 'check the summary page, look it up, compare to conversation and suggest the model name and where to find it in the perf report section'. The same instruction is already in the code as his ruling of 2026-08-22, in pages/model-guide.vue: the page serves 'a firm manager choosing a model as well as the AI guiding an advisor, from the same records'."
       },
-      "touches": "data/report-model-summaries.json, whose instruction[] block IS the HOW TO USE THIS LIST rules - edit the rules there, not in code; server/utils/reportModels.js formatReportModelsForPrompt, which only renders that block into the 51,072-character prompt and holds no rule text itself; data/prompts/discover.txt STEP 1, which frames the calculator as an optional extra; and whatever measurement proves a change, which has to be live conversations.",
-      "note": "🔴 NOT ABSENCE - UNRELIABILITY. The TEMPLATE choice is right every run; the calculator paired with it is what varies. Mike ruled 2026-09-18 that a fitting calculator is ALWAYS offered alongside a template, and the offer rule now names that case - the refusal rule (line 7) is untouched. MEASURED, 6 runs each: Working Capital Cycle 3/6 to 5/6, Sales Dashboard 1/6 to 3/6, links 6/24 to 9/24, substitutions 9 to 6. 8 Levers 0/6 unchanged and NOT a defect. WHAT REMAINS IS THE BUDGET SUBSTITUTION - a separate fault, now item 7.11. Tables in advisory-engine.md P2.",
-      "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings, and Mike RULED that a fitting calculator is always offered alongside a template. Built and measured the same day: two of four questions improved, links 6/24 to 9/24. The budget wording was tested as a cause and DISPROVED TWICE - it is now item 7.11. Mike's authored prose is untouched. NO DEFINED NEXT STEP: either machine may take what is left. 2026-09-18 - the laptop had filed this same fault as its own 7.9; Mike ruled they are ONE item and this one survives. Closure on the done page."
+      "touches": "server/routes/report.js modelGuide and /api/report/model-guide, which already serve the records; server/utils/videoInjector.js injectVideoInfo, the working pattern for attaching a looked-up fact to an answer after the AI has written it; server/advisorEngine.js where that injector is already called on all three paths; data/report-model-summaries.json as the catalogue looked up rather than recited; and pages/model-library.vue as the performance report section a model is found in.",
+      "note": "🔴 DO NOT CHANGE PROMPT WORDING FOR THIS. Four sessions did; the wording is not the fault. Build the lookup: after the AI has written its answer, resolve each model it named and attach the path the app already knows. injectVideoInfo does exactly this for templates on all three engine paths - copy it. ⚠ SIX of the 19 names are also real template titles (Working Capital Cycle, Lease vs Buy, Quick Position, Dashboard Reports, High-Level Budget, Sales Dashboard); for those a name cannot say which was meant, so the AI must still write its own path. ⚠ 'Calculator' is OUR word - it reached the advisor's screen without approval. Settle the label with Mike first.",
+      "comment": "2026-09-18 - REWRITTEN. It was filed as unreliability in the AI's judgement and four sessions were spent on prompt wording; each moved some models and moved others backwards. Mike's own task had said to look the model up, and the lookup existed the whole time. The prompt-tuning history is deleted rather than kept: it describes a cause that was disproved, and leaving it sends the next session back to it. Measurements and dead ends are on to-do-done-and-parked.md if ever needed."
     },
     {
       "ref": "7.3",
