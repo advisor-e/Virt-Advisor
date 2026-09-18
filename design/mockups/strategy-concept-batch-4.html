@@ -1,0 +1,934 @@
+<title>The Seven Tables</title>
+<!--
+  design/mockups/strategy-concept-batch-4.html
+
+  🔴 BATCH 4 OF THE CONCEPT REBUILD (item 15.7) — THE TABLES, drawn by the five-step method in
+  design/features/strategy-planner.md section 0, approved by Mike 2026-09-18 on
+  Porter's 5 Forces.
+
+  Every number in every SVG below came out of the deck by machine - scripts read
+  the page size, each line's left edge, baseline, point size, font and colour, and
+  each vector shape's box, fill and stroke. Nothing is placed by eye. The four
+  shapes here were chosen because they are four DIFFERENT shapes, so what they
+  prove generalises: a quadrant matrix, a matrix with axes and side prose, a
+  typographic equation, and a vertical chain.
+
+  Source: C:\Documents\Visual Code Projects\Strategy Planner\Advance.2B.Strategic Orientation.2.pdf
+  Pages 35, 26, 39 and 22.
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Carlito:wght@400;700&display=swap">
+<style>
+  :root {
+    --ground: #eef3f8; --card: #ffffff; --ink: #002b64; --body: #23405f;
+    --muted: #5b6f8a; --line: #d5e1ee; --accent: #0070c0;
+    --warn-bg: #fdf1e0; --warn-ink: #b56200; --warn-line: #e3b877;
+    --shadow: 0 12px 32px rgba(0, 43, 100, .10);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+      --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+      --warn-bg: #3a2810; --warn-ink: #ffb454; --warn-line: #6b4a18;
+      --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+    --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+    --warn-bg: #3a2810; --warn-ink: #ffb454; --warn-line: #6b4a18;
+    --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--body);
+    font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1180px; margin: 0 auto; padding-block: 28px 80px;
+    padding-left: 16px; padding-right: 16px;
+    display: flex; flex-direction: column; gap: 30px;
+  }
+  .eyebrow {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0;
+  }
+  h1 {
+    margin: 4px 0 0; font-size: clamp(26px, 4vw, 38px); line-height: 1.12;
+    letter-spacing: -.015em; color: var(--ink); text-wrap: balance;
+  }
+  .standfirst { margin: 8px 0 0; max-width: 70ch; }
+  h2 { margin: 0; font-size: 20px; color: var(--ink); letter-spacing: -.01em; }
+
+  .switch {
+    background: var(--card); border: 1px solid var(--line);
+    border-top: 3px solid var(--accent); border-radius: 14px; padding: 16px;
+    box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px;
+  }
+  .switch-label { font-size: 13.5px; color: var(--muted); margin: 0; }
+  .firms { display: flex; flex-wrap: wrap; gap: 8px; }
+  .firm {
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    border-radius: 999px; padding: 7px 15px; border: 1px solid var(--line);
+    background: transparent; color: var(--body);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .firm:hover { border-color: var(--accent); color: var(--ink); }
+  .firm:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .firm[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; flex: none; background: var(--sw); }
+
+  /* A slide is a printed sheet: white in both themes, as it prints in the plan. */
+  .sheet {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    overflow: hidden; box-shadow: var(--shadow);
+  }
+  .sheet svg { display: block; width: 100%; height: auto; }
+
+  figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  figcaption { font-size: 13px; color: var(--muted); }
+  figcaption b { color: var(--ink); }
+  .srcref {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11.5px; color: var(--muted);
+  }
+
+  .panel {
+    background: var(--warn-bg); border: 1px solid var(--warn-line);
+    border-left: 3px solid var(--warn-ink); border-radius: 14px; padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .panel h2 { color: var(--warn-ink); }
+  .panel b { color: var(--warn-ink); }
+  ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+  li { max-width: 76ch; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em;
+    background: var(--ground); border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 5px; color: var(--ink);
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Strategy Planner · item 15.7 · batch 4</p>
+    <h1>The Seven Tables</h1>
+    <p class="standfirst">
+      Seven concepts across six pages — the tables. <b>Every cell border, band and fill is your own
+      path, and every word comes from the text layer.</b> One page teaches two concepts, which is why
+      six pages make seven.
+    </p>
+  </header>
+
+  <section class="switch">
+    <p class="switch-label">Switch the firm and watch the corner of all four.</p>
+    <div class="firms" id="firms" role="group" aria-label="Choose a firm">
+      <button class="firm" type="button" data-firm="0" aria-pressed="true" style="--sw:#0070c0">
+        <span class="swatch" aria-hidden="true"></span>Hartley &amp; Co
+      </button>
+      <button class="firm" type="button" data-firm="1" aria-pressed="false" style="--sw:#7a4b8f">
+        <span class="swatch" aria-hidden="true"></span>Northbridge Advisory
+      </button>
+      <button class="firm" type="button" data-firm="2" aria-pressed="false" style="--sw:#0f7a5a">
+        <span class="swatch" aria-hidden="true"></span>Kestrel Partners
+      </button>
+    </div>
+  </section>
+
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Ten critical marketing messages, each a coloured band with the message and what it has to answer.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 103.1 760.0 L 248.3 760.0 L 248.3 835.0 L 103.1 835.0 Z" fill="none"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="#3A3838"></path>
+        <path d="M 32.7 31.0 L 1396.9 31.0 L 1396.9 114.0 L 32.7 114.0 Z" fill="none"></path>
+        <path d="M 32.7 114.0 L 1462.7 114.0 L 1462.7 180.0 L 32.7 180.0 L 32.7 114.0" fill="#595959"></path>
+        <path d="M 32.7 180.0 L 1462.7 180.0 L 1462.7 245.9 L 32.7 245.9 L 32.7 180.0" fill="#3A3838"></path>
+        <path d="M 32.7 245.9 L 1462.7 245.9 L 1462.7 311.9 L 32.7 311.9 L 32.7 245.9" fill="#595959"></path>
+        <path d="M 32.7 311.9 L 1462.7 311.9 L 1462.7 377.8 L 32.7 377.8 L 32.7 311.9" fill="#3A3838"></path>
+        <path d="M 32.7 377.8 L 1462.7 377.8 L 1462.7 443.8 L 32.7 443.8 L 32.7 377.8" fill="#595959"></path>
+        <path d="M 32.7 443.8 L 1462.7 443.8 L 1462.7 530.0 L 32.7 530.0 L 32.7 443.8" fill="#3A3838"></path>
+        <path d="M 32.7 530.0 L 1462.7 530.0 L 1462.7 596.0 L 32.7 596.0 L 32.7 530.0" fill="#434343"></path>
+        <path d="M 32.7 596.0 L 1462.7 596.0 L 1462.7 661.9 L 32.7 661.9 L 32.7 596.0" fill="#3A3838"></path>
+        <path d="M 32.7 661.9 L 1462.7 661.9 L 1462.7 748.2 L 32.7 748.2 L 32.7 661.9" fill="#434343"></path>
+        <path d="M 32.7 748.2 L 1462.7 748.2 L 1462.7 811.7 L 32.7 811.7 L 32.7 748.2" fill="#3A3838"></path>
+        <path d="M 32.7 113.3 L 32.7 812.5" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 1462.7 113.3 L 1462.7 812.5" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 114.0 L 1463.5 114.0" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 180.0 L 1463.5 180.0" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 245.9 L 1463.5 245.9" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 311.9 L 1463.5 311.9" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 377.8 L 1463.5 377.8" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 443.8 L 1463.5 443.8" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 530.0 L 1463.5 530.0" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 596.0 L 1463.5 596.0" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 661.9 L 1463.5 661.9" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 748.2 L 1463.5 748.2" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <path d="M 31.9 811.7 L 1463.5 811.7" fill="none" stroke="#CCCCCC" stroke-width="1.6"></path>
+        <text x="43.6" y="88.4" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="730.9" lengthAdjust="spacing">10 Critical Marketing Messages</text>
+        <text x="37.4" y="154.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#FFD966" textLength="212.2" lengthAdjust="spacing">Who We Work With</text>
+        <text x="249.6" y="154.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#EFEFEF" textLength="489.5" lengthAdjust="spacing">(Your target market or &#8216;A&#8217; clients, if you prefer)</text>
+        <text x="37.4" y="220.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#00FFFF" textLength="224.3" lengthAdjust="spacing">Our One Big Promise</text>
+        <text x="261.9" y="220.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#D9D9D9" textLength="937.0" lengthAdjust="spacing"> (What they can expect to enjoy IF they deal with you- summed up in one brief sentence)</text>
+        <text x="37.4" y="286.8" font-family="Open Sans, sans-serif" font-size="22.9" fill="#F4B081" textLength="442.2" lengthAdjust="spacing">What They Enjoy As A Result (3 big things)</text>
+        <text x="37.4" y="352.8" font-family="Open Sans, sans-serif" font-size="22.9" fill="#A8D08C" textLength="252.0" lengthAdjust="spacing">What makes us Unique:</text>
+        <text x="37.4" y="418.7" font-family="Open Sans, sans-serif" font-size="22.9" fill="#9CC2E5" textLength="333.3" lengthAdjust="spacing">How We Work with Our Clients:</text>
+        <text x="37.4" y="480.8" font-family="Open Sans, sans-serif" font-size="22.9" fill="#D5A6BD" textLength="1414.3" lengthAdjust="spacing">The Magic Happens When (What your client needs to do to allow you to do your &#8216;best work&#8217; - &#8216;their part in achieving excellence, if you</text>
+        <text x="37.4" y="508.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#D5A6BD" textLength="72.9" lengthAdjust="spacing">prefer)</text>
+        <text x="37.4" y="570.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#FFFFFF" textLength="1278.2" lengthAdjust="spacing">The Big What &amp; The Big Why (The common problem/s or opportunity/s [you deal with] and why it has relevance to them)</text>
+        <text x="37.4" y="636.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#9CC2E5" textLength="1015.1" lengthAdjust="spacing">Why You Do What You Do (What drives you to provide your product or service - Why you care…)</text>
+        <text x="37.4" y="698.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#CCCC00" textLength="1356.7" lengthAdjust="spacing">It&#8217;s A Bit Like… (Your &#8216;Metaphor Story&#8217; that helps people understand the problem/opportunity or any technical issue that causes</text>
+        <text x="37.4" y="727.0" font-family="Open Sans, sans-serif" font-size="22.9" fill="#CCCC00" textLength="394.7" lengthAdjust="spacing">confusion or slows the sales process)</text>
+        <text x="37.4" y="787.9" font-family="Open Sans, sans-serif" font-size="22.9" fill="#C27BA0" textLength="1328.2" lengthAdjust="spacing">How You Make Buying Easy (What &#8216;Risk Removal&#8217; or Guarantee you offer; How you make payment/ selection / collection easy)</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="806" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="814" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="813" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>10 Critical Marketing Messages.</b> <span class="srcref">Sales &amp; Marketing · p10 · shape: banded rows</span><br>
+      Ten bands, each in its own colour, each pairing the message with the question it has to answer.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="A persona table: ten attribute rows against five customer columns, with Farm Wagon worked through as the example.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 103.1 760.0 L 248.3 760.0 L 248.3 835.0 L 103.1 835.0 Z" fill="#666666"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="none"></path>
+        <path d="M 32.7 31.0 L 1435.8 31.0 L 1435.8 105.3 L 32.7 105.3 Z" fill="none"></path>
+        <path d="M 347.8 114.0 L 570.9 114.0 L 570.9 154.8 L 347.8 154.8 L 347.8 114.0" fill="#434343"></path>
+        <path d="M 570.9 114.0 L 794.0 114.0 L 794.0 154.8 L 570.9 154.8 L 570.9 114.0" fill="#434343"></path>
+        <path d="M 794.0 114.0 L 1017.1 114.0 L 1017.1 154.8 L 794.0 154.8 L 794.0 114.0" fill="#434343"></path>
+        <path d="M 1017.1 114.0 L 1240.2 114.0 L 1240.2 154.8 L 1017.1 154.8 L 1017.1 114.0" fill="#434343"></path>
+        <path d="M 1240.2 114.0 L 1463.4 114.0 L 1463.4 154.8 L 1240.2 154.8 L 1240.2 114.0" fill="#434343"></path>
+        <path d="M 32.7 154.8 L 347.8 154.8 L 347.8 191.6 L 32.7 191.6 L 32.7 154.8" fill="#666666"></path>
+        <path d="M 32.7 191.6 L 347.8 191.6 L 347.8 286.7 L 32.7 286.7 L 32.7 191.6" fill="#666666"></path>
+        <path d="M 32.7 286.7 L 347.8 286.7 L 347.8 323.6 L 32.7 323.6 L 32.7 286.7" fill="#666666"></path>
+        <path d="M 32.7 323.6 L 347.8 323.6 L 347.8 353.2 L 32.7 353.2 L 32.7 323.6" fill="#434343"></path>
+        <path d="M 347.8 323.6 L 570.9 323.6 L 570.9 353.2 L 347.8 353.2 L 347.8 323.6" fill="#434343"></path>
+        <path d="M 570.9 323.6 L 794.0 323.6 L 794.0 353.2 L 570.9 353.2 L 570.9 323.6" fill="#434343"></path>
+        <path d="M 794.0 323.6 L 1017.1 323.6 L 1017.1 353.2 L 794.0 353.2 L 794.0 323.6" fill="#434343"></path>
+        <path d="M 1017.1 323.6 L 1240.2 323.6 L 1240.2 353.2 L 1017.1 353.2 L 1017.1 323.6" fill="#434343"></path>
+        <path d="M 1240.2 323.6 L 1463.4 323.6 L 1463.4 353.2 L 1240.2 353.2 L 1240.2 323.6" fill="#434343"></path>
+        <path d="M 32.7 353.2 L 347.8 353.2 L 347.8 390.1 L 32.7 390.1 L 32.7 353.2" fill="#666666"></path>
+        <path d="M 32.7 390.1 L 347.8 390.1 L 347.8 419.8 L 32.7 419.8 L 32.7 390.1" fill="#434343"></path>
+        <path d="M 347.8 390.1 L 570.9 390.1 L 570.9 419.8 L 347.8 419.8 L 347.8 390.1" fill="#434343"></path>
+        <path d="M 570.9 390.1 L 794.0 390.1 L 794.0 419.8 L 570.9 419.8 L 570.9 390.1" fill="#434343"></path>
+        <path d="M 794.0 390.1 L 1017.1 390.1 L 1017.1 419.8 L 794.0 419.8 L 794.0 390.1" fill="#434343"></path>
+        <path d="M 1017.1 390.1 L 1240.2 390.1 L 1240.2 419.8 L 1017.1 419.8 L 1017.1 390.1" fill="#434343"></path>
+        <path d="M 1240.2 390.1 L 1463.4 390.1 L 1463.4 419.8 L 1240.2 419.8 L 1240.2 390.1" fill="#434343"></path>
+        <path d="M 32.7 419.8 L 347.8 419.8 L 347.8 456.7 L 32.7 456.7 L 32.7 419.8" fill="#666666"></path>
+        <path d="M 32.7 456.7 L 347.8 456.7 L 347.8 486.3 L 32.7 486.3 L 32.7 456.7" fill="#434343"></path>
+        <path d="M 347.8 456.7 L 570.9 456.7 L 570.9 486.3 L 347.8 486.3 L 347.8 456.7" fill="#434343"></path>
+        <path d="M 570.9 456.7 L 794.0 456.7 L 794.0 486.3 L 570.9 486.3 L 570.9 456.7" fill="#434343"></path>
+        <path d="M 794.0 456.7 L 1017.1 456.7 L 1017.1 486.3 L 794.0 486.3 L 794.0 456.7" fill="#434343"></path>
+        <path d="M 1017.1 456.7 L 1240.2 456.7 L 1240.2 486.3 L 1017.1 486.3 L 1017.1 456.7" fill="#434343"></path>
+        <path d="M 1240.2 456.7 L 1463.4 456.7 L 1463.4 486.3 L 1240.2 486.3 L 1240.2 456.7" fill="#434343"></path>
+        <path d="M 32.7 486.3 L 347.8 486.3 L 347.8 581.4 L 32.7 581.4 L 32.7 486.3" fill="#666666"></path>
+        <path d="M 32.7 581.4 L 347.8 581.4 L 347.8 647.4 L 32.7 647.4 L 32.7 581.4" fill="#666666"></path>
+        <path d="M 32.7 647.4 L 347.8 647.4 L 347.8 771.5 L 32.7 771.5 L 32.7 647.4" fill="#666666"></path>
+        <path d="M 32.7 771.5 L 347.8 771.5 L 347.8 819.7 L 32.7 819.7 L 32.7 771.5" fill="#666666"></path>
+        <path d="M 32.7 154.0 L 32.7 820.5" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 347.8 154.0 L 347.8 820.5" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 570.9 154.0 L 570.9 820.5" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 794.0 154.0 L 794.0 820.5" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 1017.1 154.0 L 1017.1 820.5" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 1240.2 154.0 L 1240.2 820.5" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 1463.4 154.0 L 1463.4 820.5" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 154.8 L 1464.1 154.8" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 191.6 L 1464.1 191.6" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 286.7 L 1464.1 286.7" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 323.6 L 1464.1 323.6" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 353.2 L 1464.1 353.2" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 390.1 L 1464.1 390.1" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 419.8 L 1464.1 419.8" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 456.7 L 1464.1 456.7" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 486.3 L 1464.1 486.3" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 581.4 L 1464.1 581.4" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 647.4 L 1464.1 647.4" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <path d="M 31.9 771.5 L 1464.1 771.5" fill="none" stroke="#999999" stroke-width="1.6"></path>
+        <text x="43.6" y="84.0" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="1194.4" lengthAdjust="spacing">Customer (Persona) Types Matched to Product Fit -</text>
+        <text x="1239.5" y="84.0" font-family="Open Sans, sans-serif" font-size="39.6" fill="#002B64" textLength="157.6" lengthAdjust="spacing">Example</text>
+        <text x="404.0" y="139.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="110.6" lengthAdjust="spacing">Farm Wagon</text>
+        <text x="649.2" y="139.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="66.5" lengthAdjust="spacing">Other 1</text>
+        <text x="872.3" y="139.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="66.5" lengthAdjust="spacing">Other 2</text>
+        <text x="1095.4" y="139.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="66.5" lengthAdjust="spacing">Other 3</text>
+        <text x="1318.5" y="139.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="66.5" lengthAdjust="spacing">Other 4</text>
+        <text x="37.4" y="177.5" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="181.5" lengthAdjust="spacing">Customer Profile Name</text>
+        <text x="417.2" y="177.5" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="84.4" lengthAdjust="spacing">Farmer Joe</text>
+        <text x="37.4" y="231.7" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="218.9" lengthAdjust="spacing">Age, Gender, Qualifications,</text>
+        <text x="37.4" y="255.2" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="103.9" lengthAdjust="spacing">Relationships</text>
+        <text x="390.2" y="220.0" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="142.6" lengthAdjust="spacing">39 yr, Male, Trade</text>
+        <text x="363.5" y="243.4" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="196.0" lengthAdjust="spacing">Qualified, Married with 3</text>
+        <text x="443.1" y="266.9" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="32.5" lengthAdjust="spacing">Kids</text>
+        <text x="37.4" y="309.4" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="279.2" lengthAdjust="spacing">3 Key Concerns/ Common Problems</text>
+        <text x="405.4" y="309.4" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="107.8" lengthAdjust="spacing">Worker safety</text>
+        <text x="37.4" y="376.0" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="213.3" lengthAdjust="spacing">3 Dominant Buying Motives</text>
+        <text x="440.2" y="376.0" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="38.4" lengthAdjust="spacing">Price</text>
+        <text x="37.4" y="442.5" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="278.6" lengthAdjust="spacing">3 Legitimate Purchasing Constraints</text>
+        <text x="396.8" y="442.5" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="125.1" lengthAdjust="spacing">Terrain gradient</text>
+        <text x="37.4" y="526.4" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="298.8" lengthAdjust="spacing">What We Do That This Customer Truly</text>
+        <text x="37.4" y="549.9" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="50.9" lengthAdjust="spacing">Values</text>
+        <text x="368.0" y="514.7" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="187.1" lengthAdjust="spacing">Loan vehicle available if</text>
+        <text x="359.4" y="538.2" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="204.1" lengthAdjust="spacing">repairs take longer than 5</text>
+        <text x="441.5" y="561.6" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="35.7" lengthAdjust="spacing">days</text>
+        <text x="37.4" y="618.7" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="274.9" lengthAdjust="spacing">Our Key Message (to this customer)</text>
+        <text x="361.8" y="607.0" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="199.4" lengthAdjust="spacing">Our price includes winter</text>
+        <text x="399.0" y="630.4" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="120.7" lengthAdjust="spacing">Farm King tyres</text>
+        <text x="37.4" y="713.7" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="178.3" lengthAdjust="spacing">Our Message Channels</text>
+        <text x="373.6" y="678.6" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="175.7" lengthAdjust="spacing">Small town rugby club</text>
+        <text x="365.4" y="702.0" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="192.2" lengthAdjust="spacing">sponsorship, 'subs' tent.</text>
+        <text x="357.4" y="725.5" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="208.2" lengthAdjust="spacing">(Shop branded ezi-up with</text>
+        <text x="437.1" y="748.9" font-family="Open Sans, sans-serif" font-size="16.7" fill="#000000" textLength="44.5" lengthAdjust="spacing">sides)</text>
+        <text x="37.4" y="799.9" font-family="Open Sans, sans-serif" font-size="16.7" fill="#FFFFFF" textLength="45.3" lengthAdjust="spacing">Other</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="806" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="814" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="813" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Customer (Persona) Types Matched to Product Fit.</b> <span class="srcref">Sales &amp; Marketing · p12 · shape: attribute-rows-entity-columns</span><br>
+      Ten attribute rows against five customer columns, with <b>Farmer Joe</b> worked through as your example and the other four left for the client.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="The AIDCRA advertising model: attention, interest, desire, credibility, risk removal and action, each with what it must do and how.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 103.1 760.0 L 248.3 760.0 L 248.3 835.0 L 103.1 835.0 Z" fill="#666666"></path>
+        <path d="M 45.9 38.2 L 1396.9 38.2 L 1396.9 116.2 L 45.9 116.2 Z" fill="none"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="#666666"></path>
+        <path d="M 30.3 132.9 L 1455.3 132.9 L 1455.3 804.2 L 30.3 804.2 L 30.3 132.9" fill="#FFFFFF"></path>
+        <path d="M 30.3 132.9 L 267.8 132.9 L 267.8 172.9 L 30.3 172.9 L 30.3 132.9" fill="#000000"></path>
+        <path d="M 267.8 132.9 L 505.3 132.9 L 505.3 172.9 L 267.8 172.9 L 267.8 132.9" fill="#000000"></path>
+        <path d="M 505.3 132.9 L 742.8 132.9 L 742.8 172.9 L 505.3 172.9 L 505.3 132.9" fill="#000000"></path>
+        <path d="M 742.8 132.9 L 980.3 132.9 L 980.3 172.9 L 742.8 172.9 L 742.8 132.9" fill="#000000"></path>
+        <path d="M 980.3 132.9 L 1217.8 132.9 L 1217.8 172.9 L 980.3 172.9 L 980.3 132.9" fill="#000000"></path>
+        <path d="M 1217.8 132.9 L 1455.3 132.9 L 1455.3 172.9 L 1217.8 172.9 L 1217.8 132.9" fill="#000000"></path>
+        <path d="M 30.3 172.9 L 267.8 172.9 L 267.8 270.1 L 30.3 270.1 L 30.3 172.9" fill="#3F3F3F"></path>
+        <path d="M 267.8 172.9 L 505.3 172.9 L 505.3 270.1 L 267.8 270.1 L 267.8 172.9" fill="#3F3F3F"></path>
+        <path d="M 505.3 172.9 L 742.8 172.9 L 742.8 270.1 L 505.3 270.1 L 505.3 172.9" fill="#3F3F3F"></path>
+        <path d="M 742.8 172.9 L 980.3 172.9 L 980.3 270.1 L 742.8 270.1 L 742.8 172.9" fill="#3F3F3F"></path>
+        <path d="M 980.3 172.9 L 1217.8 172.9 L 1217.8 270.1 L 980.3 270.1 L 980.3 172.9" fill="#3F3F3F"></path>
+        <path d="M 1217.8 172.9 L 1455.3 172.9 L 1455.3 270.1 L 1217.8 270.1 L 1217.8 172.9" fill="#3F3F3F"></path>
+        <path d="M 30.3 270.1 L 267.8 270.1 L 267.8 804.2 L 30.3 804.2 L 30.3 270.1" fill="#666666"></path>
+        <path d="M 267.8 270.1 L 505.3 270.1 L 505.3 804.2 L 267.8 804.2 L 267.8 270.1" fill="#666666"></path>
+        <path d="M 505.3 270.1 L 742.8 270.1 L 742.8 804.2 L 505.3 804.2 L 505.3 270.1" fill="#666666"></path>
+        <path d="M 742.8 270.1 L 980.3 270.1 L 980.3 804.2 L 742.8 804.2 L 742.8 270.1" fill="#666666"></path>
+        <path d="M 980.3 270.1 L 1217.8 270.1 L 1217.8 804.2 L 980.3 804.2 L 980.3 270.1" fill="#666666"></path>
+        <path d="M 1217.8 270.1 L 1455.3 270.1 L 1455.3 804.2 L 1217.8 804.2 L 1217.8 270.1" fill="#666666"></path>
+        <path d="M 29.6 132.9 L 1456.1 132.9" fill="none" stroke="#000000" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 29.6 172.9 L 1456.1 172.9" fill="none" stroke="#000000" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 29.6 804.2 L 1456.1 804.2" fill="none" stroke="#000000" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <text x="56.9" y="93.1" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="673.4" lengthAdjust="spacing">A.I.D.C.R.A Advertising Model</text>
+        <text x="41.3" y="160.4" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FFFFFF" font-weight="700" textLength="100.4" lengthAdjust="spacing">Attention</text>
+        <text x="278.8" y="160.4" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FFFFFF" font-weight="700" textLength="83.1" lengthAdjust="spacing">Interest</text>
+        <text x="516.3" y="160.4" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FFFFFF" font-weight="700" textLength="66.2" lengthAdjust="spacing">Desire</text>
+        <text x="753.8" y="160.4" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FFFFFF" font-weight="700" textLength="107.6" lengthAdjust="spacing">Credibility</text>
+        <text x="991.3" y="160.4" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FFFFFF" font-weight="700" textLength="138.9" lengthAdjust="spacing">Risk Removal</text>
+        <text x="1228.8" y="160.4" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FFFFFF" font-weight="700" textLength="67.0" lengthAdjust="spacing">Action</text>
+        <text x="41.3" y="228.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="178.9" lengthAdjust="spacing">Grab Their Attention</text>
+        <text x="278.8" y="228.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="187.2" lengthAdjust="spacing">Create Self Relevance</text>
+        <text x="560.6" y="198.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="126.9" lengthAdjust="spacing">Wants / Needs</text>
+        <text x="527.0" y="217.9" font-family="Open Sans, sans-serif" font-size="16.7" fill="#C55A11" textLength="198.5" lengthAdjust="spacing">Getting , Having, Keeping</text>
+        <text x="551.2" y="238.3" font-family="Open Sans, sans-serif" font-size="16.7" fill="#C55A11" textLength="150.0" lengthAdjust="spacing">Experience/ Doing,</text>
+        <text x="526.9" y="258.6" font-family="Open Sans, sans-serif" font-size="16.7" fill="#C55A11" textLength="194.4" lengthAdjust="spacing">Knowing, Relating, Being.</text>
+        <text x="753.8" y="217.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="155.4" lengthAdjust="spacing">Achieve Status or</text>
+        <text x="753.8" y="239.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="203.0" lengthAdjust="spacing">Authority in their mind.</text>
+        <text x="991.3" y="206.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="203.6" lengthAdjust="spacing">Make it Safe &amp; Easy for</text>
+        <text x="991.3" y="228.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="188.7" lengthAdjust="spacing">them to take the first</text>
+        <text x="991.3" y="250.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="37.6" lengthAdjust="spacing">step</text>
+        <text x="1228.8" y="206.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="151.0" lengthAdjust="spacing">Tell them how to</text>
+        <text x="1228.8" y="228.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="85.8" lengthAdjust="spacing">purchase.</text>
+        <text x="1228.8" y="250.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="127.5" lengthAdjust="spacing">Clear &amp; Simple</text>
+        <text x="44.6" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="62.1" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="115.9" lengthAdjust="spacing">Bright Colour</text>
+        <text x="44.6" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C">•</text>
+        <text x="62.1" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="117.8" lengthAdjust="spacing">Unique Noise</text>
+        <text x="44.6" y="358.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF">•</text>
+        <text x="62.1" y="358.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="98.5" lengthAdjust="spacing">Sexy Image</text>
+        <text x="44.6" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081">•</text>
+        <text x="62.1" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="122.1" lengthAdjust="spacing">Bold Headline</text>
+        <text x="44.6" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="62.1" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="109.6" lengthAdjust="spacing">Humourous</text>
+        <text x="62.1" y="424.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="154.5" lengthAdjust="spacing">Statement, Catch</text>
+        <text x="62.1" y="445.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="157.2" lengthAdjust="spacing">Phrase or Graphic</text>
+        <text x="44.6" y="467.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5">•</text>
+        <text x="62.1" y="467.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="171.2" lengthAdjust="spacing">Energetic Presenter</text>
+        <text x="44.6" y="489.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C">•</text>
+        <text x="62.1" y="489.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="181.6" lengthAdjust="spacing">Placement of Advert</text>
+        <text x="62.1" y="511.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="131.4" lengthAdjust="spacing">(which page of</text>
+        <text x="62.1" y="533.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="125.6" lengthAdjust="spacing">newspaper or</text>
+        <text x="62.1" y="555.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="170.8" lengthAdjust="spacing">position on screen,</text>
+        <text x="62.1" y="577.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="133.4" lengthAdjust="spacing">Time on TV etc)</text>
+        <text x="44.6" y="599.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C">•</text>
+        <text x="62.1" y="599.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="94.0" lengthAdjust="spacing">Movement</text>
+        <text x="156.2" y="599.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="78.4" lengthAdjust="spacing"> (pop-up</text>
+        <text x="62.1" y="620.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="196.4" lengthAdjust="spacing">call to action on social</text>
+        <text x="62.1" y="642.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="163.8" lengthAdjust="spacing">media as example)</text>
+        <text x="282.1" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="299.6" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="127.3" lengthAdjust="spacing">Description of</text>
+        <text x="299.6" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="168.2" lengthAdjust="spacing">&#8216;common problem&#8217;</text>
+        <text x="299.6" y="358.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="131.4" lengthAdjust="spacing">solved by your</text>
+        <text x="299.6" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="69.0" lengthAdjust="spacing">product</text>
+        <text x="282.1" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5">•</text>
+        <text x="299.6" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="179.3" lengthAdjust="spacing">Description of client</text>
+        <text x="299.6" y="424.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="116.2" lengthAdjust="spacing">circumstance</text>
+        <text x="282.1" y="445.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="299.6" y="445.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="154.7" lengthAdjust="spacing">Consequences of</text>
+        <text x="299.6" y="467.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="169.0" lengthAdjust="spacing">having, not having,</text>
+        <text x="299.6" y="489.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="156.9" lengthAdjust="spacing">doing, not doing...</text>
+        <text x="519.6" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="537.1" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="120.3" lengthAdjust="spacing">Limited Offer</text>
+        <text x="537.1" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="78.1" lengthAdjust="spacing">(Scarcity)</text>
+        <text x="519.6" y="358.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="537.1" y="358.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="114.9" lengthAdjust="spacing">Bargain Price</text>
+        <text x="519.6" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="537.1" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="127.3" lengthAdjust="spacing">Description of</text>
+        <text x="537.1" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="192.3" lengthAdjust="spacing">&#8216;Customer Journey&#8217; or</text>
+        <text x="537.1" y="424.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="182.2" lengthAdjust="spacing">expected Transition.</text>
+        <text x="537.1" y="445.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="179.5" lengthAdjust="spacing">(How they struggled</text>
+        <text x="537.1" y="467.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="169.5" lengthAdjust="spacing">before but it&#8217;s easy</text>
+        <text x="537.1" y="489.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="196.6" lengthAdjust="spacing">and they&#8217;re successful</text>
+        <text x="537.1" y="511.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="42.8" lengthAdjust="spacing">now)</text>
+        <text x="519.6" y="533.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="537.1" y="533.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="140.8" lengthAdjust="spacing">Advantage over</text>
+        <text x="537.1" y="555.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="56.5" lengthAdjust="spacing">others</text>
+        <text x="519.6" y="577.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081">•</text>
+        <text x="537.1" y="577.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="104.1" lengthAdjust="spacing">Peer Status</text>
+        <text x="537.1" y="599.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="144.7" lengthAdjust="spacing">(admiration and</text>
+        <text x="537.1" y="620.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="64.5" lengthAdjust="spacing">appeal)</text>
+        <text x="519.6" y="642.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="537.1" y="642.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="191.6" lengthAdjust="spacing">Security &amp; Confidence</text>
+        <text x="519.6" y="664.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5">•</text>
+        <text x="537.1" y="664.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="138.4" lengthAdjust="spacing">Contribution to</text>
+        <text x="537.1" y="686.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="56.5" lengthAdjust="spacing">others</text>
+        <text x="519.6" y="708.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081">•</text>
+        <text x="537.1" y="708.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="78.4" lengthAdjust="spacing">Freedom</text>
+        <text x="519.6" y="730.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="537.1" y="730.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="121.2" lengthAdjust="spacing">Fear removed</text>
+        <text x="519.6" y="752.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C">•</text>
+        <text x="537.1" y="752.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="134.4" lengthAdjust="spacing">Get it Now/Fast</text>
+        <text x="757.1" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5">•</text>
+        <text x="774.6" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="159.3" lengthAdjust="spacing">Demonstration of</text>
+        <text x="774.6" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="195.8" lengthAdjust="spacing">how product works to</text>
+        <text x="774.6" y="358.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="137.6" lengthAdjust="spacing">meet customer</text>
+        <text x="774.6" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="116.6" lengthAdjust="spacing">needs/ wants</text>
+        <text x="757.1" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="774.6" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="195.1" lengthAdjust="spacing">Social Proof by way of</text>
+        <text x="774.6" y="424.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">-</text>
+        <text x="763.5" y="445.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="114.9" lengthAdjust="spacing">Testimonials,</text>
+        <text x="753.8" y="467.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="111.5" lengthAdjust="spacing">  References,</text>
+        <text x="753.8" y="489.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="125.1" lengthAdjust="spacing">  Case Studies,</text>
+        <text x="753.8" y="511.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="143.7" lengthAdjust="spacing">  Statistical Data,</text>
+        <text x="753.8" y="533.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="70.0" lengthAdjust="spacing">  E-book</text>
+        <text x="823.8" y="533.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">,</text>
+        <text x="757.1" y="555.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="774.6" y="555.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="186.9" lengthAdjust="spacing">Statement of Reason</text>
+        <text x="774.6" y="577.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="31.2" lengthAdjust="spacing">ex-</text>
+        <text x="805.9" y="577.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="162.8" lengthAdjust="spacing">&#8220;Anyone can learn</text>
+        <text x="774.6" y="599.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="186.1" lengthAdjust="spacing">to play golf using the</text>
+        <text x="774.6" y="620.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="159.0" lengthAdjust="spacing">Binford 3000 club</text>
+        <text x="774.6" y="642.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="80.5" lengthAdjust="spacing">BECAUSE</text>
+        <text x="855.2" y="642.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="108.1" lengthAdjust="spacing"> it increases</text>
+        <text x="774.6" y="664.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="158.2" lengthAdjust="spacing">the contact point,</text>
+        <text x="774.6" y="686.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="192.9" lengthAdjust="spacing">making your strike 20</text>
+        <text x="774.6" y="708.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="123.8" lengthAdjust="spacing">percent more</text>
+        <text x="774.6" y="730.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="81.6" lengthAdjust="spacing">accurate&#8221;</text>
+        <text x="994.6" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C">•</text>
+        <text x="1012.1" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="131.2" lengthAdjust="spacing">Free Trial Offer</text>
+        <text x="994.6" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="1012.1" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="110.6" lengthAdjust="spacing">Money Back</text>
+        <text x="1012.1" y="358.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="92.8" lengthAdjust="spacing">Guarantee</text>
+        <text x="994.6" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5">•</text>
+        <text x="1012.1" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="106.4" lengthAdjust="spacing">&#8216;Put it Right&#8217;</text>
+        <text x="1012.1" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="92.8" lengthAdjust="spacing">Guarantee</text>
+        <text x="994.6" y="424.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="1012.1" y="424.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="171.6" lengthAdjust="spacing">Evidence of Quality</text>
+        <text x="1012.1" y="445.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="152.3" lengthAdjust="spacing">Proof Procedures</text>
+        <text x="994.6" y="467.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081">•</text>
+        <text x="1012.1" y="467.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="184.7" lengthAdjust="spacing">30 min &#8216;free support&#8217;</text>
+        <text x="1012.1" y="489.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="128.3" lengthAdjust="spacing">on how to use</text>
+        <text x="1012.1" y="511.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="69.0" lengthAdjust="spacing">product</text>
+        <text x="994.6" y="533.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="1012.1" y="533.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="133.3" lengthAdjust="spacing">Free Suitability</text>
+        <text x="1012.1" y="555.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="109.0" lengthAdjust="spacing">Assessment</text>
+        <text x="1121.2" y="555.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="52.8" lengthAdjust="spacing">&#8220;If we</text>
+        <text x="1012.1" y="577.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="170.8" lengthAdjust="spacing">can&#8217;t find 5 ways to</text>
+        <text x="1012.1" y="599.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="159.1" lengthAdjust="spacing">improve your golf</text>
+        <text x="1012.1" y="620.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="146.1" lengthAdjust="spacing">swing there&#8217;s no</text>
+        <text x="1012.1" y="642.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="175.0" lengthAdjust="spacing">charge and you can</text>
+        <text x="1012.1" y="664.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="100.5" lengthAdjust="spacing">walk away.&#8221;</text>
+        <text x="994.6" y="686.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966">•</text>
+        <text x="1012.1" y="686.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="185.5" lengthAdjust="spacing">Shop open at special</text>
+        <text x="1012.1" y="708.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="109.1" lengthAdjust="spacing">hours so it&#8217;s</text>
+        <text x="1012.1" y="730.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="99.3" lengthAdjust="spacing">Convenient</text>
+        <text x="1116.4" y="730.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="18.9" lengthAdjust="spacing">or</text>
+        <text x="1140.2" y="730.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="60.6" lengthAdjust="spacing">Private</text>
+        <text x="1012.1" y="752.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="128.3" lengthAdjust="spacing">for you to try...</text>
+        <text x="1232.1" y="314.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="188.1" lengthAdjust="spacing">• 3 Steps you need to</text>
+        <text x="1243.4" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFD966" textLength="130.0" lengthAdjust="spacing">take right now</text>
+        <text x="1373.5" y="336.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="63.2" lengthAdjust="spacing">(first is</text>
+        <text x="1243.4" y="358.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="167.1" lengthAdjust="spacing">easy &amp; low effort, 2</text>
+        <text x="1410.7" y="351.4" font-family="Open Sans, sans-serif" font-size="12.5" fill="#FFFFFF" textLength="15.3" lengthAdjust="spacing">nd</text>
+        <text x="1243.4" y="380.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="185.6" lengthAdjust="spacing">is easy &amp; low effort, 3</text>
+        <text x="1429.2" y="373.2" font-family="Open Sans, sans-serif" font-size="12.5" fill="#FFFFFF" textLength="12.7" lengthAdjust="spacing">rd</text>
+        <text x="1243.4" y="402.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="172.8" lengthAdjust="spacing">is easy and low risk)</text>
+        <text x="1228.8" y="445.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="160.7" lengthAdjust="spacing">{Ex- 1. Check your</text>
+        <text x="1228.8" y="467.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="191.0" lengthAdjust="spacing">calendar to see when</text>
+        <text x="1228.8" y="489.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="169.6" lengthAdjust="spacing">you&#8217;d love to be on</text>
+        <text x="1228.8" y="511.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#A8D08C" textLength="73.2" lengthAdjust="spacing">holiday.</text>
+        <text x="1302.1" y="511.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="138.0" lengthAdjust="spacing">2. Decide if you</text>
+        <text x="1228.8" y="533.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="152.4" lengthAdjust="spacing">want Hot or Cold</text>
+        <text x="1228.8" y="555.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#9CC2E5" textLength="81.5" lengthAdjust="spacing">weather.</text>
+        <text x="1310.4" y="555.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="126.6" lengthAdjust="spacing">3. Click on the</text>
+        <text x="1228.8" y="577.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="212.1" lengthAdjust="spacing">&#8216;know more&#8217; button and</text>
+        <text x="1228.8" y="599.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="188.5" lengthAdjust="spacing">book a free chat with</text>
+        <text x="1228.8" y="620.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="213.1" lengthAdjust="spacing">one of our travel agents</text>
+        <text x="1228.8" y="642.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="154.3" lengthAdjust="spacing">about the special</text>
+        <text x="1228.8" y="664.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#F4B081" textLength="72.7" lengthAdjust="spacing">offers...}</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="806" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="814" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="813" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>A.I.D.C.R.A Advertising Model.</b> <span class="srcref">Sales &amp; Marketing · p14 · shape: staged-columns</span><br>
+      Six stages across, three bands down — the stage, what it must achieve, and the tactics under each. <b>167 separate pieces of text</b>, none of them typed by anyone.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Three pricing approaches — cost plus, competitor based and value based — each with its cons above and pros below.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 103.1 760.0 L 248.3 760.0 L 248.3 835.0 L 103.1 835.0 Z" fill="none"></path>
+        <path d="M 39.2 31.0 L 1265.1 31.0 L 1265.1 136.6 L 39.2 136.6 Z" fill="none"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="none"></path>
+        <path d="M 39.2 136.6 L 1459.8 136.6 L 1459.8 760.0 L 39.2 760.0 L 39.2 136.6" fill="#E8EBF5"></path>
+        <path d="M 39.2 136.6 L 130.7 136.6 L 130.7 202.7 L 39.2 202.7 L 39.2 136.6" fill="#3A3838"></path>
+        <path d="M 130.7 136.6 L 573.8 136.6 L 573.8 202.7 L 130.7 202.7 L 130.7 136.6" fill="#3A3838"></path>
+        <path d="M 573.8 136.6 L 1016.8 136.6 L 1016.8 202.7 L 573.8 202.7 L 573.8 136.6" fill="#3A3838"></path>
+        <path d="M 1016.8 136.6 L 1459.8 136.6 L 1459.8 202.7 L 1016.8 202.7 L 1016.8 136.6" fill="#3A3838"></path>
+        <path d="M 39.2 202.7 L 130.7 202.7 L 130.7 469.3 L 39.2 469.3 L 39.2 202.7" fill="#3A3838"></path>
+        <path d="M 130.7 202.7 L 573.8 202.7 L 573.8 469.3 L 130.7 469.3 L 130.7 202.7" fill="#3A3838"></path>
+        <path d="M 573.8 202.7 L 1016.8 202.7 L 1016.8 469.3 L 573.8 469.3 L 573.8 202.7" fill="#3A3838"></path>
+        <path d="M 1016.8 202.7 L 1459.8 202.7 L 1459.8 469.3 L 1016.8 469.3 L 1016.8 202.7" fill="#3A3838"></path>
+        <path d="M 39.2 469.3 L 130.7 469.3 L 130.7 760.0 L 39.2 760.0 L 39.2 469.3" fill="#666666"></path>
+        <path d="M 130.7 469.3 L 573.8 469.3 L 573.8 760.0 L 130.7 760.0 L 130.7 469.3" fill="#666666"></path>
+        <path d="M 573.8 469.3 L 1016.8 469.3 L 1016.8 760.0 L 573.8 760.0 L 573.8 469.3" fill="#666666"></path>
+        <path d="M 1016.8 469.3 L 1459.8 469.3 L 1459.8 760.0 L 1016.8 760.0 L 1016.8 469.3" fill="#666666"></path>
+        <path d="M 39.2 135.9 L 39.2 760.8" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 130.7 135.9 L 130.7 760.8" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 573.8 135.9 L 573.8 760.8" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 1016.8 135.9 L 1016.8 760.8" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 1459.8 135.9 L 1459.8 760.8" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 38.4 136.6 L 1460.6 136.6" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 38.4 202.7 L 1460.6 202.7" fill="none" stroke="#FFFFFF" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 38.4 469.3 L 1460.6 469.3" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 38.4 760.0 L 1460.6 760.0" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <text x="50.1" y="99.6" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="367.5" lengthAdjust="spacing">Pricing Options</text>
+        <text x="418.1" y="99.6" font-family="Open Sans, sans-serif" font-size="20.8" fill="#002B64" textLength="137.0" lengthAdjust="spacing">(Pro&#8217;s &amp; Con&#8217;s)</text>
+        <text x="272.3" y="177.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF9900" textLength="159.8" lengthAdjust="spacing">Cost Plus Pricing</text>
+        <text x="672.1" y="177.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF9900" textLength="246.1" lengthAdjust="spacing">Competitor Based Pricing</text>
+        <text x="1143.5" y="177.1" font-family="Open Sans, sans-serif" font-size="20.8" fill="#FF9900" textLength="189.4" lengthAdjust="spacing">Value Based Pricing</text>
+        <text x="50.1" y="343.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="46.7" lengthAdjust="spacing">Con&#8217;s</text>
+        <text x="164.6" y="299.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="379.7" lengthAdjust="spacing">Absolutely no regard for how the customer</text>
+        <text x="170.9" y="321.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="367.2" lengthAdjust="spacing">values your product or service, little or no</text>
+        <text x="159.8" y="343.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="389.4" lengthAdjust="spacing">regard to your competitors which leaves the</text>
+        <text x="142.6" y="364.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="423.8" lengthAdjust="spacing">&#8216;blind-spot&#8217; of never knowing what the customer</text>
+        <text x="200.5" y="386.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="303.1" lengthAdjust="spacing">can get for their money elsewhere.</text>
+        <text x="586.3" y="299.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="422.3" lengthAdjust="spacing">Assumes you&#8217;re comparing &#8216;like for like&#8217; in terms</text>
+        <text x="612.4" y="321.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="370.1" lengthAdjust="spacing">of delivery/experience and places you in a</text>
+        <text x="616.8" y="343.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="356.5" lengthAdjust="spacing">&#8216;battle of attrition&#8217; with your competitors.</text>
+        <text x="587.7" y="364.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="419.5" lengthAdjust="spacing">What happens if your &#8216;pockets aren&#8217;t as deep as</text>
+        <text x="764.6" y="386.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="61.2" lengthAdjust="spacing">theirs?&#8217;</text>
+        <text x="1038.2" y="277.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="404.6" lengthAdjust="spacing">Requires greater engagement in the SCOPING</text>
+        <text x="1113.2" y="299.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="249.9" lengthAdjust="spacing">aspect of your sales process.</text>
+        <text x="1071.5" y="321.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="338.1" lengthAdjust="spacing">Requires greater market awareness of</text>
+        <text x="1042.7" y="343.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="395.5" lengthAdjust="spacing">competitors and knowing your own points of</text>
+        <text x="1173.3" y="364.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="129.8" lengthAdjust="spacing">differentiation.</text>
+        <text x="1032.6" y="386.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="415.8" lengthAdjust="spacing">Must be willing to negotiate &#8216;hard&#8217; and let some</text>
+        <text x="1145.8" y="408.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="184.7" lengthAdjust="spacing">prospects walk away.</text>
+        <text x="50.1" y="621.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="42.3" lengthAdjust="spacing">Pro&#8217;s</text>
+        <text x="143.0" y="567.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="422.9" lengthAdjust="spacing">Simple system and easy to ensure that goods or</text>
+        <text x="189.5" y="588.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="325.1" lengthAdjust="spacing">services are sold for a profit (margin).</text>
+        <text x="152.6" y="632.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="403.7" lengthAdjust="spacing">Easy and predictable process which allows for</text>
+        <text x="153.1" y="654.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="402.7" lengthAdjust="spacing">easy &#8216;back-costing&#8217; to ensure all infrastructure</text>
+        <text x="253.2" y="676.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="197.9" lengthAdjust="spacing">costs are covered also.</text>
+        <text x="602.6" y="534.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="389.7" lengthAdjust="spacing">Gives you some understanding of what your</text>
+        <text x="630.2" y="556.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="334.7" lengthAdjust="spacing">customer can get for their money and</text>
+        <text x="601.8" y="578.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="391.3" lengthAdjust="spacing">therefore, some understanding of what they</text>
+        <text x="669.7" y="599.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="250.7" lengthAdjust="spacing">may be prepared to pay you.</text>
+        <text x="596.4" y="643.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="402.1" lengthAdjust="spacing">Ensures your &#8216;sales volume&#8217; should mirror the</text>
+        <text x="590.4" y="665.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="414.0" lengthAdjust="spacing">marketplace in general and allows you to focus</text>
+        <text x="594.4" y="687.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="406.1" lengthAdjust="spacing">on competing in other aspects (quality/service</text>
+        <text x="777.0" y="709.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="36.6" lengthAdjust="spacing">etc.)</text>
+        <text x="1123.9" y="545.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="233.5" lengthAdjust="spacing">Ensures you maximise the</text>
+        <text x="1065.9" y="567.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="344.4" lengthAdjust="spacing">profit-per-engagement with each client.</text>
+        <text x="1084.2" y="610.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="312.7" lengthAdjust="spacing">It &#8216;flushes out&#8217; the expectations and</text>
+        <text x="1053.7" y="632.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="373.6" lengthAdjust="spacing">measurement aspects of your client which</text>
+        <text x="1036.0" y="654.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="408.9" lengthAdjust="spacing">makes it easier to meet their expectations and</text>
+        <text x="1038.1" y="676.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="404.9" lengthAdjust="spacing">create better word of mouth referral business</text>
+        <text x="1198.2" y="698.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="80.1" lengthAdjust="spacing">in future.</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="806" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="814" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="813" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Pricing Options.</b> <span class="srcref">Sales &amp; Marketing · p37 · shape: pros-and-cons-grid</span><br>
+      Cost plus, competitor based and value based, each with its cons above its pros — your order, not the usual one.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Four sales channel options — commission only, salaried, licensed distributor and formal alliance — each with pros and cons.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 103.1 760.0 L 248.3 760.0 L 248.3 835.0 L 103.1 835.0 Z" fill="#3A3838"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="none"></path>
+        <path d="M 26.9 26.9 L 1116.7 26.9 L 1116.7 122.0 L 26.9 122.0 Z" fill="none"></path>
+        <path d="M 31.9 122.0 L 1467.1 122.0 L 1467.1 813.3 L 31.9 813.3 L 31.9 122.0" fill="#E8EBF5"></path>
+        <path d="M 31.9 122.0 L 128.5 122.0 L 128.5 189.6 L 31.9 189.6 L 31.9 122.0" fill="#3A3838"></path>
+        <path d="M 128.5 122.0 L 463.1 122.0 L 463.1 189.6 L 128.5 189.6 L 128.5 122.0" fill="#3A3838"></path>
+        <path d="M 463.1 122.0 L 797.8 122.0 L 797.8 189.6 L 463.1 189.6 L 463.1 122.0" fill="#3A3838"></path>
+        <path d="M 797.8 122.0 L 1132.4 122.0 L 1132.4 189.6 L 797.8 189.6 L 797.8 122.0" fill="#3A3838"></path>
+        <path d="M 1132.4 122.0 L 1467.1 122.0 L 1467.1 189.6 L 1132.4 189.6 L 1132.4 122.0" fill="#3A3838"></path>
+        <path d="M 31.9 189.6 L 128.5 189.6 L 128.5 503.1 L 31.9 503.1 L 31.9 189.6" fill="#666666"></path>
+        <path d="M 128.5 189.6 L 463.1 189.6 L 463.1 503.1 L 128.5 503.1 L 128.5 189.6" fill="#666666"></path>
+        <path d="M 463.1 189.6 L 797.8 189.6 L 797.8 503.1 L 463.1 503.1 L 463.1 189.6" fill="#666666"></path>
+        <path d="M 797.8 189.6 L 1132.4 189.6 L 1132.4 503.1 L 797.8 503.1 L 797.8 189.6" fill="#666666"></path>
+        <path d="M 1132.4 189.6 L 1467.1 189.6 L 1467.1 503.1 L 1132.4 503.1 L 1132.4 189.6" fill="#666666"></path>
+        <path d="M 31.9 503.1 L 128.5 503.1 L 128.5 813.3 L 31.9 813.3 L 31.9 503.1" fill="#3A3838"></path>
+        <path d="M 128.5 503.1 L 463.1 503.1 L 463.1 813.3 L 128.5 813.3 L 128.5 503.1" fill="#3A3838"></path>
+        <path d="M 463.1 503.1 L 797.8 503.1 L 797.8 813.3 L 463.1 813.3 L 463.1 503.1" fill="#3A3838"></path>
+        <path d="M 797.8 503.1 L 1132.4 503.1 L 1132.4 813.3 L 797.8 813.3 L 797.8 503.1" fill="#3A3838"></path>
+        <path d="M 1132.4 503.1 L 1467.1 503.1 L 1467.1 813.3 L 1132.4 813.3 L 1132.4 503.1" fill="#3A3838"></path>
+        <path d="M 31.9 121.3 L 31.9 814.1" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 128.5 121.3 L 128.5 814.1" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 463.1 121.3 L 463.1 814.1" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 797.8 121.3 L 797.8 814.1" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 1132.4 121.3 L 1132.4 814.1" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 1467.1 121.3 L 1467.1 814.1" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 31.1 122.0 L 1467.8 122.0" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 31.1 189.6 L 1467.8 189.6" fill="none" stroke="#FFFFFF" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M 31.1 503.1 L 1467.8 503.1" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <path d="M 31.1 813.3 L 1467.8 813.3" fill="none" stroke="#FFFFFF" stroke-width="2.1"></path>
+        <text x="37.8" y="90.3" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="839.7" lengthAdjust="spacing">Sales Distribution (Channel) Options</text>
+        <text x="210.8" y="150.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#9FC5E8" textLength="169.8" lengthAdjust="spacing">Commission Only</text>
+        <text x="213.8" y="175.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#9FC5E8" textLength="163.9" lengthAdjust="spacing">(tied) Sales Team</text>
+        <text x="564.0" y="150.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#9FC5E8" textLength="132.7" lengthAdjust="spacing">Salaried (tied)</text>
+        <text x="575.8" y="175.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#9FC5E8" textLength="109.2" lengthAdjust="spacing">Sales Team</text>
+        <text x="867.2" y="150.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#9FC5E8" textLength="195.6" lengthAdjust="spacing">Licensed Distributor</text>
+        <text x="891.6" y="175.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#9FC5E8" textLength="147.0" lengthAdjust="spacing">(Independents)</text>
+        <text x="1225.6" y="150.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#9FC5E8" textLength="148.2" lengthAdjust="spacing">Formal Alliance</text>
+        <text x="1201.8" y="175.8" font-family="Open Sans, sans-serif" font-size="20.8" fill="#9FC5E8" textLength="195.6" lengthAdjust="spacing">Licensed Distributor</text>
+        <text x="42.9" y="353.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="42.3" lengthAdjust="spacing">Pro&#8217;s</text>
+        <text x="142.8" y="265.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.8" lengthAdjust="spacing">• You have (some) control over the</text>
+        <text x="154.0" y="287.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">sales techniques coached and</text>
+        <text x="154.0" y="309.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="69.7" lengthAdjust="spacing">applied.</text>
+        <text x="142.8" y="331.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Your fixed costs are reduced so</text>
+        <text x="154.0" y="353.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.6" lengthAdjust="spacing">it&#8217;s possible to run a larger sales</text>
+        <text x="154.0" y="375.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="54.6" lengthAdjust="spacing">team,</text>
+        <text x="237.7" y="375.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="55.5" lengthAdjust="spacing">giving</text>
+        <text x="322.2" y="375.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="37.0" lengthAdjust="spacing">you</text>
+        <text x="388.3" y="375.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="68.4" lengthAdjust="spacing">greater</text>
+        <text x="154.0" y="397.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="107.9" lengthAdjust="spacing">(potentially)</text>
+        <text x="279.0" y="397.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="122.3" lengthAdjust="spacing">market-share</text>
+        <text x="418.5" y="397.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="38.2" lengthAdjust="spacing">and</text>
+        <text x="154.0" y="419.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">your cash flow is easier to</text>
+        <text x="154.0" y="440.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="75.2" lengthAdjust="spacing">manage.</text>
+        <text x="477.4" y="276.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Easier to recruit, much greater</text>
+        <text x="488.6" y="298.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">influence over minimum activity</text>
+        <text x="488.6" y="320.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">levels and attendance of training</text>
+        <text x="488.6" y="342.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="78.6" lengthAdjust="spacing">sessions.</text>
+        <text x="477.4" y="364.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.8" lengthAdjust="spacing">• Easier to make sales team better</text>
+        <text x="488.6" y="386.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="290.2" lengthAdjust="spacing">focused on customer experience.</text>
+        <text x="477.4" y="408.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Sales team members stay with</text>
+        <text x="488.6" y="430.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="185.6" lengthAdjust="spacing">your company longer</text>
+        <text x="812.1" y="265.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="305.9" lengthAdjust="spacing">• Gain exposure to more proficient</text>
+        <text x="823.3" y="287.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="277.5" lengthAdjust="spacing">sales people (hopefully) as they</text>
+        <text x="823.3" y="309.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="249.6" lengthAdjust="spacing">are in their own business by</text>
+        <text x="823.3" y="331.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="60.9" lengthAdjust="spacing">choice.</text>
+        <text x="812.1" y="353.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="284.5" lengthAdjust="spacing">• Not bearing any (direct) cost of</text>
+        <text x="823.3" y="375.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="275.0" lengthAdjust="spacing">recruitment or training prior to</text>
+        <text x="823.3" y="397.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="202.0" lengthAdjust="spacing">chance to assess them.</text>
+        <text x="812.1" y="419.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.6" lengthAdjust="spacing">• Provides quicker options to scale</text>
+        <text x="823.3" y="440.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="71.8" lengthAdjust="spacing">globally.</text>
+        <text x="1146.7" y="255.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="314.0" lengthAdjust="spacing">• You can have greater influence</text>
+        <text x="1157.9" y="276.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">over sales tactics, branding and</text>
+        <text x="1157.9" y="298.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">the after sales support provided</text>
+        <text x="1157.9" y="320.6" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="110.6" lengthAdjust="spacing">to customer.</text>
+        <text x="1146.7" y="342.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="87.9" lengthAdjust="spacing">• Possible</text>
+        <text x="1262.4" y="342.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="86.5" lengthAdjust="spacing">exposure</text>
+        <text x="1376.6" y="342.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="22.8" lengthAdjust="spacing">to</text>
+        <text x="1427.2" y="342.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="33.5" lengthAdjust="spacing">the</text>
+        <text x="1157.9" y="364.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="109.7" lengthAdjust="spacing">distributor&#8217;s</text>
+        <text x="1285.8" y="364.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="104.7" lengthAdjust="spacing">established</text>
+        <text x="1408.7" y="364.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="52.0" lengthAdjust="spacing">client</text>
+        <text x="1157.9" y="386.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="46.2" lengthAdjust="spacing">base.</text>
+        <text x="1146.7" y="408.1" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Able to conduct &#8216;due diligence&#8217; on</text>
+        <text x="1157.9" y="430.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">their current abilities and market</text>
+        <text x="1157.9" y="451.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="99.7" lengthAdjust="spacing">perception.</text>
+        <text x="42.9" y="665.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="46.7" lengthAdjust="spacing">Con&#8217;s</text>
+        <text x="142.8" y="588.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• You have a reduced &#8216;recruitment</text>
+        <text x="154.0" y="610.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.6" lengthAdjust="spacing">pool&#8217; and potential for greater</text>
+        <text x="154.0" y="632.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="191.9" lengthAdjust="spacing">team member &#8216;churn&#8217;.</text>
+        <text x="142.8" y="654.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Possible to inherit a cut-throat</text>
+        <text x="154.0" y="676.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="48.4" lengthAdjust="spacing">sales</text>
+        <text x="245.5" y="676.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="71.2" lengthAdjust="spacing">culture,</text>
+        <text x="359.9" y="676.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="96.9" lengthAdjust="spacing">potentially</text>
+        <text x="154.0" y="698.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="232.9" lengthAdjust="spacing">damaging your reputation.</text>
+        <text x="142.8" y="719.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="314.0" lengthAdjust="spacing">• Reduced influence over tactics</text>
+        <text x="154.0" y="741.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="185.2" lengthAdjust="spacing">used &amp; activity levels.</text>
+        <text x="477.4" y="588.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Fixed costs increase, cash flow is</text>
+        <text x="488.6" y="610.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">harder to manage and you&#8217;re</text>
+        <text x="488.6" y="632.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="51.6" lengthAdjust="spacing">more</text>
+        <text x="562.9" y="632.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="78.8" lengthAdjust="spacing">exposed</text>
+        <text x="664.4" y="632.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="22.8" lengthAdjust="spacing">to</text>
+        <text x="709.8" y="632.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="81.5" lengthAdjust="spacing">seasonal</text>
+        <text x="488.6" y="654.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="281.7" lengthAdjust="spacing">volatility or economic downturn.</text>
+        <text x="477.4" y="676.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Due to fixed costs, you&#8217;re forced</text>
+        <text x="488.6" y="698.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.6" lengthAdjust="spacing">to run a smaller team leaving you</text>
+        <text x="488.6" y="719.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="107.9" lengthAdjust="spacing">(potentially)</text>
+        <text x="615.6" y="719.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="64.9" lengthAdjust="spacing">unable</text>
+        <text x="699.6" y="719.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="22.8" lengthAdjust="spacing">to</text>
+        <text x="741.4" y="719.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="49.9" lengthAdjust="spacing">meet</text>
+        <text x="488.6" y="741.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="285.5" lengthAdjust="spacing">customer demand in busy times.</text>
+        <text x="812.1" y="566.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Harder to track sales activity</text>
+        <text x="823.3" y="588.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">inputs and therein forecast future</text>
+        <text x="823.3" y="610.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="76.5" lengthAdjust="spacing">revenue.</text>
+        <text x="812.1" y="632.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.8" lengthAdjust="spacing">• Little or no ability to forge direct</text>
+        <text x="823.3" y="654.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">customer relations so you risk</text>
+        <text x="823.3" y="676.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="186.8" lengthAdjust="spacing">losing future up-sells.</text>
+        <text x="812.1" y="698.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• You&#8217;re forced to fight for their</text>
+        <text x="823.3" y="719.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">&#8216;sales share&#8217; as they may be</text>
+        <text x="823.3" y="741.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">selling your competitors product</text>
+        <text x="823.3" y="763.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="40.2" lengthAdjust="spacing">also.</text>
+        <text x="1146.7" y="566.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Exposure to stock loss as they sell</text>
+        <text x="1157.9" y="588.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="302.7" lengthAdjust="spacing">units without making payment.</text>
+        <text x="1157.9" y="610.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="42.2" lengthAdjust="spacing">(this</text>
+        <text x="1224.4" y="610.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="40.2" lengthAdjust="spacing">also</text>
+        <text x="1288.8" y="610.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="67.1" lengthAdjust="spacing">applies</text>
+        <text x="1380.1" y="610.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="22.8" lengthAdjust="spacing">to</text>
+        <text x="1427.2" y="610.5" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="33.5" lengthAdjust="spacing">the</text>
+        <text x="1157.9" y="632.4" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="129.4" lengthAdjust="spacing">independent&#8217;s)</text>
+        <text x="1146.7" y="654.3" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• Harder to exit the relationship if</text>
+        <text x="1157.9" y="676.2" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="204.3" lengthAdjust="spacing">it&#8217;s not working for you.</text>
+        <text x="1146.7" y="698.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="87.9" lengthAdjust="spacing">• Possible</text>
+        <text x="1263.5" y="698.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="66.4" lengthAdjust="spacing">culture</text>
+        <text x="1358.7" y="698.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="49.4" lengthAdjust="spacing">clash</text>
+        <text x="1437.0" y="698.0" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="23.8" lengthAdjust="spacing">or</text>
+        <text x="1157.9" y="719.9" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="223.7" lengthAdjust="spacing">administration confusion.</text>
+        <text x="1146.7" y="741.8" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="313.9" lengthAdjust="spacing">• More time consuming to arrange</text>
+        <text x="1157.9" y="763.7" font-family="Open Sans, sans-serif" font-size="18.8" fill="#FFFFFF" textLength="111.6" lengthAdjust="spacing">and execute.</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="806" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="814" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="813" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Sales Distribution (Channel) Options.</b> <span class="srcref">Sales &amp; Marketing · p41 · shape: pros-and-cons-grid</span><br>
+      Four ways to put a sales force in the field, each with what it buys and what it costs you.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img" aria-label="Two tables: pricing by depth of problem solving from tell them to for them, and pricing by delivery medium from once to many to one to one.">
+        <rect width="1500" height="844" fill="#fff"></rect>
+        <path d="M 103.1 761.4 L 247.7 761.4 L 247.7 836.1 L 103.1 836.1 Z" fill="none"></path>
+        <path d="M 42.8 19.0 L 1396.9 19.0 L 1396.9 122.1 L 42.8 122.1 Z" fill="none"></path>
+        <path d="M 1059.4 782.0 L 1396.9 782.0 L 1396.9 827.0 L 1059.4 827.0 Z" fill="none"></path>
+        <path d="M 42.8 129.1 L 393.4 129.1 L 393.4 191.6 L 42.8 191.6 L 42.8 129.1" fill="#7FD3F1"></path>
+        <path d="M 393.4 129.1 L 743.9 129.1 L 743.9 191.6 L 393.4 191.6 L 393.4 129.1" fill="#00B1E0"></path>
+        <path d="M 743.9 129.1 L 1094.5 129.1 L 1094.5 191.6 L 743.9 191.6 L 743.9 129.1" fill="#0070C0"></path>
+        <path d="M 1094.5 129.1 L 1445.0 129.1 L 1445.0 191.6 L 1094.5 191.6 L 1094.5 129.1" fill="#002B64"></path>
+        <path d="M 42.8 191.6 L 393.4 191.6 L 393.4 254.1 L 42.8 254.1 L 42.8 191.6" fill="#7FD3F1"></path>
+        <path d="M 393.4 191.6 L 743.9 191.6 L 743.9 254.1 L 393.4 254.1 L 393.4 191.6" fill="#00B1E0"></path>
+        <path d="M 743.9 191.6 L 1094.5 191.6 L 1094.5 254.1 L 743.9 254.1 L 743.9 191.6" fill="#0070C0"></path>
+        <path d="M 1094.5 191.6 L 1445.0 191.6 L 1445.0 254.1 L 1094.5 254.1 L 1094.5 191.6" fill="#002B64"></path>
+        <path d="M 42.8 128.4 L 42.8 384.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 393.4 128.4 L 393.4 384.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 743.9 128.4 L 743.9 384.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 1094.5 128.4 L 1094.5 384.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 1445.0 128.4 L 1445.0 384.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.1 129.1 L 1445.8 129.1" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.1 191.6 L 1445.8 191.6" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.1 254.1 L 1445.8 254.1" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.1 384.1 L 1445.8 384.1" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.8 399.9 L 1396.9 399.9 L 1396.9 494.3 L 42.8 494.3 Z" fill="none"></path>
+        <path d="M 42.8 504.1 L 510.2 504.1 L 510.2 566.6 L 42.8 566.6 L 42.8 504.1" fill="#CCCCCC"></path>
+        <path d="M 510.2 504.1 L 977.6 504.1 L 977.6 566.6 L 510.2 566.6 L 510.2 504.1" fill="#666666"></path>
+        <path d="M 977.6 504.1 L 1445.0 504.1 L 1445.0 566.6 L 977.6 566.6 L 977.6 504.1" fill="#434343"></path>
+        <path d="M 42.8 566.6 L 510.2 566.6 L 510.2 629.1 L 42.8 629.1 L 42.8 566.6" fill="#CCCCCC"></path>
+        <path d="M 510.2 566.6 L 977.6 566.6 L 977.6 629.1 L 510.2 629.1 L 510.2 566.6" fill="#666666"></path>
+        <path d="M 977.6 566.6 L 1445.0 566.6 L 1445.0 629.1 L 977.6 629.1 L 977.6 566.6" fill="#434343"></path>
+        <path d="M 42.8 503.3 L 42.8 759.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 510.2 503.3 L 510.2 759.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 977.6 503.3 L 977.6 759.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 1445.0 503.3 L 1445.0 759.9" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.1 504.1 L 1445.8 504.1" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.1 566.6 L 1445.8 566.6" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.1 629.1 L 1445.8 629.1" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <path d="M 42.1 759.1 L 1445.8 759.1" fill="none" stroke="#9E9E9E" stroke-width="1.6"></path>
+        <text x="53.8" y="85.1" font-family="Open Sans, sans-serif" font-size="45.8" fill="#002B64" textLength="544.0" lengthAdjust="spacing">Price For Problem Solving</text>
+        <text x="157.5" y="167.2" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="121.1" lengthAdjust="spacing">Tell Them</text>
+        <text x="496.8" y="167.2" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="143.7" lengthAdjust="spacing">Show Them</text>
+        <text x="851.3" y="167.2" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="135.7" lengthAdjust="spacing">With Them</text>
+        <text x="1211.1" y="167.2" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="117.2" lengthAdjust="spacing">For Them</text>
+        <text x="138.6" y="229.7" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="158.8" lengthAdjust="spacing">Why for Free</text>
+        <text x="489.0" y="229.7" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="159.2" lengthAdjust="spacing">What for Fee</text>
+        <text x="784.1" y="229.7" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="270.0" lengthAdjust="spacing">How for Premium Fee</text>
+        <text x="1116.0" y="229.7" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="307.3" lengthAdjust="spacing">Sorted for Maximum Fee</text>
+        <text x="63.1" y="288.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="94.4" y="288.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="140.9" lengthAdjust="spacing">Reasons to act</text>
+        <text x="63.1" y="313.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="94.4" y="313.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="149.4" lengthAdjust="spacing">Causes of Issue</text>
+        <text x="63.1" y="338.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="94.4" y="338.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="241.7" lengthAdjust="spacing">Effects of Action/Inaction</text>
+        <text x="63.1" y="363.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="94.4" y="363.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="151.0" lengthAdjust="spacing">Documentation</text>
+        <text x="413.6" y="288.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="444.9" y="288.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="282.2" lengthAdjust="spacing">General actions to undertake</text>
+        <text x="413.6" y="313.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="444.9" y="313.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="242.4" lengthAdjust="spacing">General sequential order</text>
+        <text x="413.6" y="338.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="444.9" y="338.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="225.6" lengthAdjust="spacing">What success looks like</text>
+        <text x="413.6" y="363.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="444.9" y="363.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="146.7" lengthAdjust="spacing">Demonstration</text>
+        <text x="764.2" y="288.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="795.5" y="288.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="278.9" lengthAdjust="spacing">Specific actions to undertake</text>
+        <text x="764.2" y="313.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="795.5" y="313.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="239.1" lengthAdjust="spacing">Specific sequential order</text>
+        <text x="764.2" y="338.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="795.5" y="338.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="168.6" lengthAdjust="spacing">Mistakes to avoid</text>
+        <text x="764.2" y="363.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="795.5" y="363.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="237.0" lengthAdjust="spacing">Observation &amp; Feedback</text>
+        <text x="1114.7" y="288.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="1146.0" y="288.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="177.5" lengthAdjust="spacing">Detailed discovery</text>
+        <text x="1114.7" y="313.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="1146.0" y="313.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="184.3" lengthAdjust="spacing">Qualified diagnosis</text>
+        <text x="1114.7" y="338.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="1146.0" y="338.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="164.3" lengthAdjust="spacing">Tailored Solution</text>
+        <text x="1114.7" y="363.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="1146.0" y="363.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="223.3" lengthAdjust="spacing">Convenient &amp; Risk Free</text>
+        <text x="53.8" y="461.7" font-family="Open Sans, sans-serif" font-size="45.8" fill="#002B64" textLength="560.2" lengthAdjust="spacing">Price For Delivery Medium</text>
+        <text x="190.2" y="542.2" font-family="Open Sans, sans-serif" font-size="25.0" fill="#262626" font-weight="700" textLength="172.4" lengthAdjust="spacing">Once to Many</text>
+        <text x="664.1" y="542.2" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="159.6" lengthAdjust="spacing">One to Many</text>
+        <text x="1140.6" y="542.2" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="141.4" lengthAdjust="spacing">One to One</text>
+        <text x="141.4" y="604.7" font-family="Open Sans, sans-serif" font-size="25.0" fill="#262626" font-weight="700" textLength="270.1" lengthAdjust="spacing">Videos, Hard Copy etc</text>
+        <text x="607.1" y="604.7" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="273.4" lengthAdjust="spacing">Webinars/ Workshops</text>
+        <text x="1080.3" y="604.7" font-family="Open Sans, sans-serif" font-size="25.0" fill="#FFFFFF" font-weight="700" textLength="261.8" lengthAdjust="spacing">Zoom or Face to Face</text>
+        <text x="63.1" y="663.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="94.4" y="663.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="269.7" lengthAdjust="spacing">Presentation of Information</text>
+        <text x="63.1" y="688.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="94.4" y="688.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="382.2" lengthAdjust="spacing">Quizzes for measure of comprehension</text>
+        <text x="63.1" y="713.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="94.4" y="713.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="292.7" lengthAdjust="spacing">Useful for pre-session priming</text>
+        <text x="530.5" y="663.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="561.8" y="663.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="406.8" lengthAdjust="spacing">General presentation with ability to ask</text>
+        <text x="561.8" y="688.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="351.0" lengthAdjust="spacing">questions &amp; interact amongst peers.</text>
+        <text x="530.5" y="713.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="561.8" y="713.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="406.8" lengthAdjust="spacing">Great for mass (audience) skills transfer</text>
+        <text x="561.8" y="738.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="235.4" lengthAdjust="spacing">via peer based role play.</text>
+        <text x="997.9" y="663.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="1029.2" y="663.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="254.6" lengthAdjust="spacing">Specific feedback &amp; advice</text>
+        <text x="997.9" y="688.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000">●</text>
+        <text x="1029.2" y="688.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="406.9" lengthAdjust="spacing">Perfect for specific skills transfer via</text>
+        <text x="1029.2" y="713.2" font-family="Open Sans, sans-serif" font-size="20.8" fill="#000000" textLength="215.8" lengthAdjust="spacing">(guru based) role play.</text>
+        <g class="firm-mark">
+          <circle class="fm-disc" cx="110" cy="806" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="110" y="814" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="144" y="813" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      <b>Price For Problem Solving, and For Delivery Medium.</b> <span class="srcref">Strategic Orientation 2 · p20 · shape: staged-columns · TWO concepts on one page</span><br>
+      🔴 <b>One page, two concepts.</b> Both are scoped separately in the session menu and both land on this page — the only one in the set that teaches two things at once.
+    </figcaption>
+  </figure>
+
+  <div class="panel">
+    <h2>What these are, and what is left</h2>
+    <ul>
+      <li>
+        <b>All seven are drawn from your own vector paths.</b> Nothing here is a picture and nothing
+        is traced. The A.I.D.C.R.A model alone carries <b>167 separate pieces of text</b>, every one
+        of them generated from the text layer rather than typed.
+      </li>
+      <li>
+        🔴 <b>Strategic Orientation 2 p20 teaches TWO concepts on one page</b> — Price For Problem
+        Solving and Price For Delivery Medium. Both are scoped separately in the session menu and
+        both land here. It is the only page in the set that does this.
+      </li>
+      <li>
+        <b>What is left is 12 pages of your prose with no diagram at all</b>, plus Technology Points,
+        which you ruled is redrawn flat.
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+
+
+<script>
+  (function () {
+    var FIRMS = [
+      { name: 'Hartley & Co', initials: 'H', colour: '#0070c0' },
+      { name: 'Northbridge Advisory', initials: 'N', colour: '#7a4b8f' },
+      { name: 'Kestrel Partners', initials: 'K', colour: '#0f7a5a' }
+    ]
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('.firm'))
+
+    function show (i) {
+      var f = FIRMS[i]
+      if (!f) { return }
+      Array.prototype.forEach.call(document.querySelectorAll('.firm-mark'), function (g) {
+        g.querySelector('.fm-disc').setAttribute('fill', f.colour)
+        g.querySelector('.fm-init').textContent = f.initials
+        g.querySelector('.fm-name').textContent = f.name
+      })
+      buttons.forEach(function (b) {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.firm) === i))
+      })
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { show(Number(b.dataset.firm)) })
+    })
+  }())
+</script>

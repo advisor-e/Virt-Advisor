@@ -183,8 +183,28 @@ concept's graphic has no vector content, it is a picture.
 >   opacity 0** with a gold stroke: the fill never appears. Ignoring opacity filled all five solid
 >   black and blacked out his blue arrows with them. A value at zero paints nothing.
 >
-> ⚠ **Neither was caught by a test and neither could be.** Both drawings rendered perfectly and
-> were simply wrong. Both were caught by the side-by-side.
+> - **A gradient fill is invisible to the reader.** PyMuPDF cannot see one at all and reports the
+>   shape as stroke-only, which is indistinguishable from a genuinely hollow box. His decks are
+>   full of them — the Horizontal Integration banners, the Vertical Integration steps — and left
+>   alone they render **white**. **Sample the rendered page inside the shape** and use the colour
+>   found. That is a **flat** colour standing in for his gradient: a stated deviation, not a
+>   silent one.
+>
+> ⚠ **None of these was caught by a test and none could be.** Every drawing rendered perfectly and
+> was simply wrong. All were caught by the side-by-side.
+
+> 🔴 **AND DROP CHROME BY ROLE, NEVER BY COLOUR OR BY FILL.** Two filters written to work around
+> the misreadings above outlived them and became faults of their own:
+>
+> - **"Drop black fills"** ate the A.I.D.C.R.A model's whole header row — *Attention / Interest /
+>   Desire / Credibility / Risk Removal / Action*, white on black — leaving an empty band. Once
+>   `type` and opacity are read properly, a black fill that survives is a **real** one.
+> - **"Drop `#00B1E0`"** — the Advisor-e border cyan — deleted **column two of Price For Problem
+>   Solving**, taking *"Show Them"* and *"What for Fee"* with it, because the white text then sat
+>   on white. That colour is also a perfectly good cell colour.
+>
+> **The page frame is a thin bar hard against an edge.** That is what makes it chrome. Note the
+> bottom rule is drawn in **two segments** either side of the logo, one only 95 wide.
 
 🔴 **AND EXTRACTING THE PICTURE IS NOT ENOUGH. HIS SLIDES CROP THEM, AND THE RAW EXTRACT PUTS BACK
 WHAT HE HIDES.** Both of these reached a drawing before being caught:
