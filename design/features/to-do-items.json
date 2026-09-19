@@ -529,6 +529,27 @@
       "touches": "design/mockups/strategy-concept-batch-5.html, the two sheets carrying the images; StrategyTeachingSlide.vue and StrategyPlanDocument.vue, where they would reach a client; design/ARTEFACTS.md, which records the question; and whoever cleared the Enneagram exclusion in PLANNING-TEMPLATE-CENSUS.md section 1.",
       "note": "🔴 MIKE RULED THE IMAGES STAY - 2026-09-18, against the recommendation to leave them out. THAT RULING IS NOT IN QUESTION. This item only makes sure the licence is answered BEFORE they reach a client document. NOT LIVE YET: the images sit in an approved drawing and nothing renders it - 15.7's other half is what would ship them, which is exactly when nobody would think to ask. THE PRECEDENT IS THE PROJECT'S OWN: the Enneagram file was excluded from the census on licence grounds. Mike's own artwork is unaffected - batch 2's three rasters are his.",
       "comment": "2026-09-18 - filed on his yes at shutdown, after a check that every fault found today had reached an ending. This one had not: it was recorded on the artefact and in ARTEFACTS.md, which is a line in a document rather than a task."
+    },
+    {
+      "ref": "15.9",
+      "name": "Nobody has decided how a session's running order is chosen",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": true,
+      "blocks": "Every stage of the Strategy Planner after stage 3 - the step builder, and the assembled plan's running order.",
+      "waitingOn": "Mike",
+      "why": "Mike was asked on 2026-09-17 whether the advisor names a session's steps himself and places ticked concepts into them, or the app groups them for him. Unanswered, and the Brief says nothing after stage 3 can be built without it.",
+      "risk": "Until it is answered the plan document puts every scoped concept into one step - a stated limit, never a decision that steps are one. It cannot be guessed either way: Pivot, the acceptance test, has a step 5 with no slides behind it at all, so no rule reading the ticks can ever reproduce his own document.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-17 - the question was put to him on the approved assembled-plan drawing and is unanswered. Filed as an item on 2026-09-19 on his yes, because his own rule says an open question for Mike is an item on this list, never a line in a note - and it had been a line in a note for two days."
+      },
+      "touches": "pages/strategy-planner.vue planSteps, which today puts everything scoped in one step; components/strategy/StrategyPlanDocument.vue, which prints the steps; design/mockups/strategy-plan-output.html, the approved drawing the question sits on; and design/features/strategy-planner.md section 0 \"What gates what\".",
+      "note": "ONE QUESTION, ONE ANSWER, AND IT UNBLOCKS THE REST OF THE FEATURE. Recommended: the advisor names his own steps, because Pivot step 5 holds no concepts and no automatic grouping can produce that. Nothing is designed or built until he rules. Brief section 0 \"What gates what\" holds the other three questions on that drawing, all three settled by building them.",
+      "comment": ""
     }
   ]
 }

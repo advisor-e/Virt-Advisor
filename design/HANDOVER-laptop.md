@@ -9,35 +9,46 @@
 
 ---
 
-## 2026-09-18 · Laptop · branch `feat/advisor-progress`
+## 2026-09-19 · Laptop · branch `feat/advisor-progress`
 
-**Four commits, all pushed.** Suite **12,200 green** (565 suites), lint 0, coverage and audit
-gates passed. Tree clean. **4 ahead of `master`, 0 behind. 21 live items.**
+**Five commits, all pushed.** Suite **12,217 green** (566 suites), lint 0, coverage and audit
+gates passed. Tree clean. **9 ahead of `master`, 0 behind — all of it in
+[PR #102](https://github.com/advisor-e/Virt-Advisor/pull/102). 22 live items.**
 
-🔴 **15.7 IS HALF DONE, NOT DONE — READ ITS NOTE BEFORE PICKING IT UP.** All 34 concepts that
-have a page are now settled: **33 drawn and approved**, the 34th (Drafting Tender Proposals)
-ruled general reading and deliberately undrawn. **But NOT ONE drawing is wired in** —
-`StrategyTeachingSlide.vue` still renders no graphic, so on screen an advisor teaches from
-words alone. **That is the whole remaining half**, and I wrongly called the item finished
-mid-session before catching it at shutdown.
+🔴 **DESKTOP — THE GUARD WILL REFUSE YOUR NEXT LIST COMMIT, AND THAT IS IT WORKING.**
+`tests/unit/itemIdentity.test.js` makes a live number's **asked-on date immutable**, measured
+against `origin/master` so a later session cannot bury it. Your branch repointed `7.12` from
+*the right calculator is offered only sometimes* to *the model's page is recalled by the AI* —
+one row rewritten, so nothing was ever duplicated and every gate passed. **Mike ruled
+2026-09-19: `7.12` goes BACK (that defect is still open at 4 of 6 and exists nowhere on your
+list), and the new job takes `7.13`.** Both halves are yours to apply — `ITEM-NUMBERING.md` §4
+carries it. Measured first: 40 name changes in 60 days, 0 false alarms, 3 real ones.
 
-☑ **TWO NEW ARTEFACTS, both approved:**
-[Technology Points](https://claude.ai/artifact/4bHqaabo3SkXzryRWtDT6M) ·
-[the last eleven](https://claude.ai/artifact/2DBD5iyruuFyGt1YTpuCSD).
+🔴 **THE MICROPHONE FIX TOUCHES YOUR SCREENS.** `mixins/collaborate/speechMixin.js` had no
+`beforeDestroy`, so Discover, New Group, Marketplace, Profile and the message pane kept a live
+microphone after an advisor navigated away. Copied from the main mixin on Mike's ruling. **A
+test was asserting the bug** — it required a restart after a mic error, which is the loop
+itself; corrected.
 
-🔴 **THE METHOD GAINED THREE RULES** (`strategy-planner.md` §0) — each cost a wrong drawing that
-rendered perfectly: **a shape is its path, never its bbox** (his *Resistance* marker is a rotated
-bar); **chain segments into subpaths** (four lines are one shape, or it will not fill); and
-🔴 **clip the ARTWORK, never the page region** — one crop caught his text column and pasted a
-photograph of his own prose over the rendered text, printing every line twice. It reads exactly
-like a font bug and survives every experiment aimed at one.
+**STAGE 5 STARTED — 1 of the 9 capture forms.** The banded grid, drawn
+([artefact](https://claude.ai/artifact/Y11pqGSz6QZDNWpbawx7td)), approved, built; it serves five
+of Mike's tables. **Every capture box now carries the `voice.*` bar from "I have a client with a
+problem…"** — his ruling: *"i want app user consistency."* Not Meeting Review's recorder, so
+none of 8.1's gates apply. Drawing it found two live defects: Blue Ocean gave **14 boxes where
+his document rules 15** and had lost his first heading to his own placeholder; the Profit Levers
+gave **29 where it has 28**. Both fixed, both now counted against his workbook by test.
+**Eight forms remain.**
 
-**NEW ITEM 15.8** — the two third-party images Mike ruled stay (a stock illustration, a Cartwright
-& Butler tin) have no licence check, and 15.7's other half is what would put them in a client's
-document.
+**NEW ITEM 15.9 — the decision that gates everything after stage 3**, waiting on Mike since
+2026-09-17 and until today living only in a note. Do not design past stage 3 without it.
+
+⚠ **I claimed on the first drawing that Porter's loses its headings. It does not** — it uses its
+own approved five-force card and never reaches that renderer. Reasoned from code instead of
+opening the app; the correction is printed on the drawing.
 
 **DESKTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `ARTEFACTS.md`,
-`strategy-planner.md`, `PLANNING-TEMPLATE-CENSUS.md`, `CODE-SIZE.md`, and a **comment only** in
-`StrategyScopeMenu.vue` (its page numbers are Mike's for Strategic Orientation 2; Sales &
-Marketing's table has no page column, so those 16 are ours). **No engine code, no
-`FirmManagerHub.vue`.** **7.5, 15.1 and 15.7 stay active on this laptop.**
+`ITEM-NUMBERING.md`, `strategy-planner.md`, `CODE-SIZE.md`, `scripts/quick-gate.js` (one line),
+`tests/unit/quickGate.test.js` (two pinned lists), `mixins/speechMixin.js`,
+`mixins/collaborate/speechMixin.js`, `data/strategy-frameworks.json` (one corrupt line — Blue
+Ocean's *Helps Your Client To…* ended `"…competitors.tion Point'."`). **No `FirmManagerHub.vue`,
+no engine code.** **7.5, 15.1 and 15.7 stay active on this laptop.**
