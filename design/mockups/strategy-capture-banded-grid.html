@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Banded Grid</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+  .tbl { margin: 0 0 40px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 0 0 2px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .colhead { font-size: 12px; font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 8px; }
+  .colhead span { color: var(--line); margin: 0 8px; }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0 0 14px; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--wash); color: var(--ink); font-size: 13.5px;
+    padding: 9px 12px; border: 1px solid var(--line); border-bottom: 2px solid var(--accent);
+    vertical-align: top;
+  }
+  table.bg td { border: 1px solid var(--line); padding: 7px 10px; vertical-align: middle; }
+  .ln { display: inline-block; width: 22px; color: var(--eg); font-size: 11.5px; }
+  .box {
+    display: inline-block; width: calc(100% - 26px); height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+  }
+  th.sect { border-bottom: 2px solid var(--accent); }
+  .sect-title { display: block; font-size: 15px; font-weight: 700; color: var(--ink); }
+  .sect-eg { display: block; margin-top: 4px; font-size: 12.5px; font-style: italic; font-weight: 400; color: var(--eg); }
+  td.eg { background: #fafcfe; }
+  .egtext { color: var(--eg); font-size: 12.5px; font-style: italic; }
+  .egtag {
+    display: inline-block; margin-left: 8px; font-size: 9.5px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--eg);
+    border-radius: 3px; padding: 1px 5px; vertical-align: 2px;
+  }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 26px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .bad { border-left-color: #c0392b; background: #fdf3f2; }
+  h2.vh { margin: 0 0 8px; }
+  .vbar { display: flex; align-items: center; gap: 8px; margin: 0 0 7px; flex-wrap: wrap; }
+  .vb {
+    display: inline-flex; align-items: center; gap: 5px; border-radius: 6px;
+    padding: 4px 11px; font-size: 12.5px; font-weight: 600; cursor: default;
+  }
+  .vb.idle { border: 1px solid var(--line); color: var(--accent); background: #fff; }
+  .vb.stopb { background: #c0392b; color: #fff; }
+  .vlab { font-size: 12.5px; color: #c0392b; font-weight: 600; }
+  .vlab.ok { color: #16a34a; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #c0392b; }
+  .tick { display: inline-flex; }
+  td.rec { background: #fffaf9; }
+  .boxlive {
+    display: inline-block; width: calc(100% - 26px); min-height: 30px; vertical-align: middle;
+    border: 1px solid #c0392b; border-radius: 5px; background: #fff; padding: 5px 9px;
+    font-size: 13.5px; color: var(--eg); font-style: italic;
+  }
+  .boxfilled {
+    display: inline-block; width: calc(100% - 26px); min-height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe; padding: 5px 9px; font-size: 13.5px;
+  }
+  @media (max-width: 720px) {
+    table.bg, table.bg thead, table.bg tbody, table.bg th, table.bg td, table.bg tr { display: block; }
+    table.bg th { border-bottom: 1px solid var(--line); }
+    .box { width: 100%; }
+    .ln { width: auto; margin-right: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Strategy Planner &middot; stage 5 &middot; item 15.1</p>
+  <h1>The Banded Grid</h1>
+  <p class="lede">
+    <b>One capture form, five of your tables.</b> Every heading, worked example and line number
+    below is copied from your own fill-in documents &mdash; nothing on this page was written by
+    us. This is a drawing of how the form would look on screen, for approval before it is built.
+  </p>
+
+  <div class="note bad">
+    <h3>What the screen does today &mdash; measured in the running app, 2026-09-19</h3>
+    <ul>
+      <li><b>Blue Ocean Fronts loses one of your headings and one of your boxes.</b> On screen the
+        first block is headed <i>&ldquo;1, Enter your thoughts here&hellip;&rdquo;</i> &mdash; your
+        placeholder line, promoted to a heading &mdash; and your real heading, <i>What Are Our
+        &lsquo;Red Water&rsquo; Competition Fronts?</i>, is <b>nowhere on the page</b>. It offers
+        <b>14 boxes where your document gives 15</b>.</li>
+      <li><b>The 8 Profit Levers offers 29 boxes where your document has 28</b>, and the extra one
+        is your own column heading <i>&ldquo;Task&rdquo;</i> turned into a box to type in.</li>
+      <li>Both faults come from the same reading mistake, and both are fixed by the rule below.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>⚠ A correction to the first version of this page</h3>
+    <p style="margin:6px 0 0">Version 1 said <i>&ldquo;Porter's renders 32 text boxes with every
+      band heading lost&rdquo;</i>. <b>That was wrong.</b> Porter's does not use this renderer at
+      all &mdash; it has its own approved five-force card from 2026-09-16 and is untouched by any
+      of this. The tables that DO use this renderer already show your headings; the two faults
+      above are specific, and are what the screen was measured to do.</p>
+  </div>
+
+  <div class="note">
+    <h3>The rule this form follows</h3>
+    <ul>
+      <li>A row where <b>every cell carries words</b> is a <b>band</b> &mdash; its cells are the
+        column headings for the lines beneath it.</li>
+      <li>A <b>ruled line</b> is a box to fill in. Where you number your lines, the number is
+        shown beside the box rather than inside it.</li>
+      <li>A line that carries words is <b>your worked example</b> &mdash; shown, never typed into.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+  <h2 class="vh">Voice notes &mdash; the same bar the advisor already uses</h2>
+  <p class="lede">
+    <b>Nothing new is invented and no wording is ours.</b> This is the voice bar from
+    <i>&ldquo;I have a client with a problem&hellip;&rdquo;</i> &mdash; the same control, the same
+    three states, the same words, on every box. An advisor who has dictated an answer to the
+    Virtual Advisor already knows how to fill in a capture table.
+  </p>
+
+  <p class="colhead">Every box carries it, in the three states</p>
+  <table class="bg" style="--cols:1">
+    <thead><tr><th>How Customers May Change</th></tr></thead>
+    <tbody>
+      <tr><td>
+        <div class="vbar"><span class="vb idle"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z"></path></svg>Tap to Speak</span></div>
+        <span class="ln">1</span><span class="box"></span>
+      </td></tr>
+      <tr><td class="rec">
+        <div class="vbar"><span class="dot"></span><span class="vlab">Recording &mdash; speak now</span><span class="vb stopb"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>Stop Recording</span></div>
+        <span class="ln">2</span><span class="boxlive">trade customers now buy the consumables online and only come to us for the big orders</span>
+      </td></tr>
+      <tr><td>
+        <div class="vbar"><span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg></span><span class="vlab ok">Captured &mdash; review then Save</span><span class="vb idle"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z"></path></svg>Record again</span></div>
+        <span class="ln">3</span><span class="boxfilled">Trade customers now buy the consumables online and only come to us for the big orders.</span>
+      </td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <h3>What that means here</h3>
+    <ul>
+      <li><b>The words go straight into the box being spoken to.</b> Nothing has to work out
+        afterwards where a sentence belongs &mdash; the advisor picked the box by tapping it.</li>
+      <li><b>Nothing leaves the browser.</b> No audio is uploaded, nothing is stored and no
+        transcript is made, so <b>none of Meeting Review's consent gates apply</b> &mdash; exactly
+        as it is today in the Virtual Advisor.</li>
+      <li><b>The advisor reads it before it is kept</b>, and can edit it in the box or record
+        again. Same as the chat.</li>
+      <li>Where a browser has no speech support the bar is simply absent and the box is typed
+        into, which is what the rest of the app already does.</li>
+    </ul>
+  </div>
+
+  <div class="note bad">
+    <h3>One thing this is NOT, said plainly</h3>
+    <ul>
+      <li>This is <b>dictation into a box</b>, not a recording of the whole session. Recording a
+        meeting end to end is Meeting Review, and that is still behind the two non-coding gates in
+        item 8.1. If you want the session recorded as well as dictated, that is a second thing and
+        it is gated.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+<section class="tbl">
+  <h2>Porter's 5 Forces</h2>
+  <p class="src">Porter's 5 Forces.docx &middot; 4 columns · 2 bands · 32 numbered lines &middot; <b>32 boxes to fill in</b></p>
+<table class="bg" style="--cols:4"><thead><tr><th>How Customers May Change</th><th>How We Plan To Respond</th><th>What Substitutes May Emerge</th><th>How We Plan To Respond</th></tr></thead><tbody>
+<tr><td><span class="ln">1</span><span class="box"></span></td><td><span class="ln">11</span><span class="box"></span></td><td><span class="ln">21</span><span class="box"></span></td><td><span class="ln">31</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">2</span><span class="box"></span></td><td><span class="ln">12</span><span class="box"></span></td><td><span class="ln">22</span><span class="box"></span></td><td><span class="ln">32</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">3</span><span class="box"></span></td><td><span class="ln">13</span><span class="box"></span></td><td><span class="ln">23</span><span class="box"></span></td><td><span class="ln">33</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">4</span><span class="box"></span></td><td><span class="ln">14</span><span class="box"></span></td><td><span class="ln">24</span><span class="box"></span></td><td><span class="ln">34</span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:4"><thead><tr><th>How Suppliers May Change</th><th>How We Plan To Respond</th><th>What New Entrants May Emerge</th><th>How We Plan To Respond</th></tr></thead><tbody>
+<tr><td><span class="ln">5</span><span class="box"></span></td><td><span class="ln">15</span><span class="box"></span></td><td><span class="ln">25</span><span class="box"></span></td><td><span class="ln">35</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">6</span><span class="box"></span></td><td><span class="ln">16</span><span class="box"></span></td><td><span class="ln">26</span><span class="box"></span></td><td><span class="ln">36</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">7</span><span class="box"></span></td><td><span class="ln">17</span><span class="box"></span></td><td><span class="ln">27</span><span class="box"></span></td><td><span class="ln">37</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">8</span><span class="box"></span></td><td><span class="ln">18</span><span class="box"></span></td><td><span class="ln">28</span><span class="box"></span></td><td><span class="ln">38</span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+
+<section class="tbl">
+  <h2>The 8 Profit Levers</h2>
+  <p class="src">Profit Levers (1).docx &middot; 2 columns · 7 aims · 3 lines each — the shape `buckets` gets wrong today &middot; <b>28 boxes to fill in</b></p>
+  <p class="colhead">Our (7) Aims<span>&middot;</span>Task</p>
+<table class="bg" style="--cols:2"><thead><tr><th class="sect" colspan="2"><span class="sect-title">Gain their ATTENTION: (Amount of Foot Traffic)</span><span class="sect-eg">Task: Put flashing lights on top of our building. Get a price from China light shop</span></th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th class="sect" colspan="2"><span class="sect-title">Capture their INTEREST (Create Self Relevance) (Number of Prospects)</span><span class="sect-eg">Task: Explain how adrenal fatigue is responsible for their poor work performance; it's not their fault. Draft marketing e-book to explain this concept.</span></th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th class="sect" colspan="2"><span class="sect-title">Secure their CUSTOM: (Number of Customers)</span><span class="sect-eg">Task: Use short term retail finance providers; clients arrange through their on-line App and once approved, can purchase from us.</span></th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th class="sect" colspan="2"><span class="sect-title">Keep them WANTING MORE (Average Customer Spend + Average Customer Frequency)</span><span class="sect-eg">Task: Enclose a free sample product to upsell them next time and make them feel special. Get sample size products from our 3 main suppliers.</span></th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th class="sect" colspan="2"><span class="sect-title">BUY Materials/Stock FOR LESS + Sell FOR MORE (Sales Margin)</span><span class="sect-eg">Task: Negotiate for a cheaper price based on taking stock items we've refused until now. See if we can take some of our 'fringe' products on consignment on the basis of payment upon sale.</span></th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th class="sect" colspan="2"><span class="sect-title">Achieve BRAND RECOGNITION (So They Seek Us Out) (Reduce Sales Activity Costs)</span><span class="sect-eg">Task: Endorse local musicians and comedy artists; pay them for guest appearances. Find out what their price is likely to be before making the final decision.</span></th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th class="sect" colspan="2"><span class="sect-title">Reduce SPENDING/ OVERHEADS (Fixed Costs)</span><span class="sect-eg">Task: Stop buying chocolate biscuits, make all the coffee instant powder and tell staff they have to bring water bottle heaters into work in winter. Do a calculation to see how much this will actually save us before communicating to staff.</span></th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+
+<section class="tbl">
+  <h2>S.W.O.T</h2>
+  <p class="src">SWOT Notes.docx &middot; 2 columns · 2 bands · a worked example then 3 lines &middot; <b>12 boxes to fill in</b></p>
+<table class="bg" style="--cols:2"><thead><tr><th>Strengths (Internal)</th><th>Weakness (Internal)</th></tr></thead><tbody>
+
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th>We don't have to eat our vegetables anymore!</th><th>Our immune system is deficient</th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th>Opportunities (External)</th><th>Threats (External)</th></tr></thead><tbody>
+
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th>We could sell organic vegetables that taste better</th><th>Genetically modified seeds are cheaper and supported by our key distributors.</th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+
+<section class="tbl">
+  <h2>Insights Summary</h2>
+  <p class="src">Insights Summary.docx &middot; 2 columns · 2 bands · a worked example then 3 lines &middot; <b>12 boxes to fill in</b></p>
+<table class="bg" style="--cols:2"><thead><tr><th>What We Do LESS Well</th><th>What We Do WELL</th></tr></thead><tbody>
+
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th>We don't follow up customers after purchase to see if they still need help</th><th>We do a great job of Identifying customer needs at time of sale</th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th>What Resources We Need</th><th>Suggestions/ Ideas</th></tr></thead><tbody>
+
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th>We need a better range of electric hand tools to sell, we get asked for them all the time</th><th>We could run 'tips n tricks' classes - 30 min sessions, where we show how to use certain tools...</th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+
+<section class="tbl">
+  <h2>Blue Ocean Strategy</h2>
+  <p class="src">Blue Ocean Fronts.docx &middot; 2 columns · 2 bands · 4 numbered lines &middot; <b>15 boxes to fill in</b></p>
+<table class="bg" style="--cols:2"><thead><tr><th>What Are Our ‘Red Water’ Competition Fronts?</th><th>What Are The Key Frustrations Of Our ‘Non-Customer’?</th></tr></thead><tbody>
+<tr><td class="eg"><span class="ln"></span><span class="egtext">1, Enter your thoughts here...</span><span class="egtag">your example</span></td><td><span class="ln">1</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">2</span><span class="box"></span></td><td><span class="ln">2</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">3</span><span class="box"></span></td><td><span class="ln">3</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">4</span><span class="box"></span></td><td><span class="ln">4</span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th>What Are The ‘Red Water’ Competition Fronts That Are ‘Least Valued’ By Our Customers?</th><th>What Can We Provide That Might Entice A Non-Customer To Become A Customer Of Ours In Future?</th></tr></thead><tbody>
+<tr><td><span class="ln">5</span><span class="box"></span></td><td><span class="ln">5</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">6</span><span class="box"></span></td><td><span class="ln">6</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">7</span><span class="box"></span></td><td><span class="ln">7</span><span class="box"></span></td></tr>
+<tr><td><span class="ln">8</span><span class="box"></span></td><td><span class="ln">8</span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+
+  <hr class="rule">
+  <div class="note">
+    <h3>What this drawing does not ask approval for</h3>
+    <ul>
+      <li>The other eight capture forms &mdash; prompt&nbsp;&rarr;&nbsp;answer sheet, attribute
+        rows, staged columns and the rest. Each is its own drawing.</li>
+      <li>Colours and spacing, which follow the screens already built.</li>
+      <li>Whether Porter's keeps its approved five-force card. That card is not a banded grid and
+        is untouched here.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

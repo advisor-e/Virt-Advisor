@@ -108,9 +108,9 @@ session (§4) and carries into the assembled document.
 steps — waits on the open decision in *What gates what* below.
 
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
-its method is below.** The teaching graphic is drawn by us, never imported from his deck —
-**22 of the 34 concepts that have a page are drawn and approved**, across five artefacts.
-🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18 — BUT NOT ONE IS WIRED IN.** They
+its method is below.** The teaching graphic is drawn by us, never imported from his deck.
+🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — BUT NOT ONE
+IS WIRED IN.** They
 exist as approved artefacts; `StrategyTeachingSlide.vue` still renders no graphic, so on screen
 an advisor teaches from words alone. **Turning the 33 into components is the other half of 15.7
 and it is outstanding.** The last eleven were surveyed by
@@ -362,7 +362,32 @@ skipped and claimed.
 |---|---|---|---|
 | **4** | ⛔ **BUILT AND UNDONE THE SAME DAY, 2026-09-18 — his deck pages, imported as images.** `scripts/render-deck-slides.py` rendered them into `static/planning-slides/` and `slidePath()` put one on each concept. **Nobody asked for it**, and it could never be white-labelled. Script, 37 images and every field that served them are deleted. | It claimed *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides"* — but that is about **fidelity**, and it was read as a licence to choose the **technique**. A question was never put to him. | 🔴 **HIS RULING ON SEEING IT:** *"i never asked for this … they look cheap and more importantly, they lock in the Advisor-e logo and in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo - never advisor-e."* Every page of his decks carries `advisor-e.com`, the cyan border and his page number **burned into the pixels**. ⚠ **AND THE IMPACT TEST SCORED THE BREACH AS THE WIN:** the measure was *"concepts whose graphic matches his page: 0 of 52 → 34 of 52"*, and a measure that rewards reproducing his page exactly will always reward reproducing his branding with it. |
 | **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above — or, where his artwork is a photograph, by *Flattening a chart out of a photograph* below. 🔴 **DRAWN BUT NOT WIRED — 33 of 34 approved (2026-09-18): Porter's, batches 1–5 and Technology Points. This stage says "as components" and none of them is one yet**, so the advisor's screen is unchanged. Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
-| **5** | **9 capture forms** — every table the table his template actually is | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
+| **5** | **9 capture forms** — every table the table his template actually is. 🔴 **THE BANDED GRID IS BUILT — 1 of the 9, 2026-09-19**, drawn first and approved (`design/mockups/strategy-capture-banded-grid.html`). It serves five of his tables: S.W.O.T, Porter's, Blue Ocean Fronts, Insights Summary and the Profit Levers. **Every capture box now carries the `voice.*` bar from "I have a client with a problem…"** — Mike's ruling that day, *"i want voice recorded notes… make it the same here"*. **Eight forms remain.** | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields · **"app user consistency"** (2026-09-19) — the voice control is the one the advisor already uses, not a second one | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. 🔴 **AND DRAWING THE FIRST FORM FOUND TWO MORE, LIVE ON SCREEN** — see below. |
+
+#### 🔴 What drawing the banded grid found — two defects nothing was watching (2026-09-19)
+
+**Both were measured in the running app, not reasoned from the code**, after the first version of
+the drawing asserted something about Porter's that turned out to be false.
+
+| | On screen | His document | Now |
+|---|---|---|---|
+| **Blue Ocean Fronts** | 14 boxes, and its first block headed *"1, Enter your thoughts here…"* | 15 ruled lines, headed *What Are Our ‘Red Water’ Competition Fronts?* | **15 boxes, his heading restored** |
+| **The 8 Profit Levers** | 29 boxes, one of them his column name *"Task"* | 28 ruled lines | **28 boxes** |
+
+**One reading fault caused both:** a row holding a ruled line was treated as a heading row, and a
+heading row is skipped whole — so his heading was lost **and the box went with it**. The second
+half was a one-row table of column names read as a prompt sheet.
+`isLabelRow` and `fieldsOfTable` in `server/utils/strategyCaptureForms.js`.
+
+🔴 **THE SUITE WAS GREEN THROUGHOUT, AND THAT IS THE POINT.** No test counted boxes.
+`tests/unit/strategyCaptureForms.test.js` now **counts the blank cells in his workbook** and
+requires the screen to offer exactly that many — so a template he edits moves the expectation with
+it, and neither fault can return quietly. UAT cannot catch this: a form with one box missing looks
+perfectly reasonable to anyone who has not counted his page.
+
+⚠ **PORTER'S IS NOT AFFECTED BY ANY OF IT.** It uses its own approved five-force card of
+2026-09-16 and never reaches this renderer. The drawing's first version said otherwise; the
+correction is printed on the drawing itself rather than quietly swapped.
 | **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
 | **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |

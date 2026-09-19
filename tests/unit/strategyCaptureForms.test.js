@@ -165,3 +165,61 @@ describe('the extracted file is what the templates say', () => {
     )
   })
 })
+
+describe('a ruled line is a box, and a heading is never one', () => {
+  // 🔴 BOTH OF THESE WERE WRONG ON SCREEN UNTIL 2026-09-19, AND THE SUITE WAS GREEN.
+  // They are recomputed from the workbook, never pinned to a number typed here: the
+  // count comes from counting Mike's own blank cells, so a template he edits moves the
+  // expectation with it. UAT cannot catch either — a form with one box missing, or one
+  // box too many, looks perfectly reasonable to anybody who has not counted his page.
+
+  /** Every cell Mike ruled as a blank line, across a template's grids. */
+  const ruledLinesIn = (templateName) => {
+    const tpl = forms.resolveTemplate(templateName)
+    return tpl.tables.reduce(
+      (n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(c => c.blank).length, 0), 0)
+  }
+
+  const captureOf = id => forms.captureForConcept(concepts.find(c => c.id === id))
+
+  test('Blue Ocean offers a box for every line Mike ruled — a heading beside a line lost one', () => {
+    // His row 1 is "1, Enter your thoughts here…" beside a ruled line. Read as a
+    // heading row, the whole row was skipped and the line went with it.
+    const capture = captureOf('blue-ocean-strategy')
+    expect(capture.fields.length).toBe(ruledLinesIn('Blue Ocean Fronts'))
+  })
+
+  test('Blue Ocean keeps Mike\'s first heading, which his placeholder had displaced', () => {
+    // The heading is load-bearing: it is the question the client answers, and with it
+    // gone the first four boxes stood under his placeholder text instead.
+    const capture = captureOf('blue-ocean-strategy')
+    const headings = capture.fields.map(f => f.columnLabel)
+    expect(headings).toContain('What Are Our ‘Red Water’ Competition Fronts?')
+    expect(headings.join(' ')).not.toContain('Enter your thoughts here')
+  })
+
+  test('the Profit Levers offers no box that is one of Mike\'s column names', () => {
+    // His "Our (7) Aims | Task" sits in a one-row table of its own above the grid.
+    // Read as a prompt sheet, "Task" became somewhere to type.
+    const capture = captureOf('the-8-profit-levers')
+    expect(capture.fields.length).toBe(ruledLinesIn('Profit Levers (1)'))
+  })
+
+  test('every banded-grid concept offers exactly the lines its workbook rules', () => {
+    // The general form of all three above: across every concept whose capture form is
+    // the banded grid, the boxes on screen are the blank cells in Mike's document.
+    const banded = concepts.filter(c => c.captureForm === 'banded-grid' && c.captureTemplate)
+    expect(banded.length).toBeGreaterThan(0)
+    const wrong = banded
+      .map((c) => {
+        const capture = forms.captureForConcept(c)
+        if (!capture.supplied) { return null }
+        const want = ruledLinesIn(c.captureTemplate)
+        return capture.fields.length === want
+          ? null
+          : `${c.id}: ${capture.fields.length} boxes, workbook rules ${want} lines`
+      })
+      .filter(Boolean)
+    expect(wrong).toEqual([])
+  })
+})

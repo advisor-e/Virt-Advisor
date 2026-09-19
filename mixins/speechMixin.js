@@ -30,7 +30,8 @@ export default {
       speechSupported: false,
       recognition: null,
       profileRecordingField: null,
-      reviewRecordingField: null
+      reviewRecordingField: null,
+      voiceField: null
     }
   },
 
@@ -54,6 +55,13 @@ export default {
           this.$set(this.advisorProfile, this.profileRecordingField, transcript)
         } else if (this.reviewRecordingField) {
           this.$set(this.reviewDraft, this.reviewRecordingField, transcript)
+        } else if (this.voiceField) {
+          // Generic: dictate into a named box on a screen that has no profile or
+          // review draft of its own — a Strategy Planner capture table, where the
+          // boxes are read out of Mike's workbook and cannot be data properties.
+          // The host says where the words go, so this mixin never needs a fourth
+          // hard-coded target. `emitVoice` is how it hands them over.
+          this.emitVoice(this.voiceField, transcript)
         } else {
           this.inputText = transcript
         }
@@ -63,7 +71,8 @@ export default {
         // The component can go away while the engine is still winding down. Restarting
         // then leaves the microphone live on a screen the advisor has already left.
         if (this._speechDestroyed) { return }
-        if (this.isListening || this.profileRecordingField || this.reviewRecordingField) {
+        if (this.isListening || this.profileRecordingField || this.reviewRecordingField ||
+            this.voiceField) {
           this._recognitionRunning = true
           try { this.recognition.start() } catch (e) {}
         }
@@ -79,6 +88,7 @@ export default {
         this.isListening = false
         this.profileRecordingField = null
         this.reviewRecordingField = null
+        this.voiceField = null
       }
     }
   },
@@ -98,6 +108,7 @@ export default {
     this.isListening = false
     this.profileRecordingField = null
     this.reviewRecordingField = null
+    this.voiceField = null
     this.recognition.onresult = null
     this.recognition.onend = null
     this.recognition.onerror = null
@@ -106,6 +117,41 @@ export default {
   },
 
   methods: {
+    /**
+     * Where the words go when `voiceField` is the target.
+     *
+     * A host that uses `toggleVoiceField` overrides this. The default does nothing
+     * rather than guessing at a property, because a silent write to the wrong place
+     * is worse than no write at all.
+     *
+     * @param {string} field the value `toggleVoiceField` was called with
+     * @param {string} transcript what was heard so far, from the start of this take
+     */
+    emitVoice (field, transcript) {},
+
+    /**
+     * Dictate into a named box, one box at a time.
+     *
+     * The same three states the advisor already knows from "I have a client with a
+     * problem…": tap to speak, speak, captured. Tapping the box that is already
+     * recording stops it, exactly as the profile questions do.
+     *
+     * @param {string} field the box to dictate into
+     */
+    toggleVoiceField (field) {
+      if (!this.recognition) { return }
+      if (this.voiceField === field) {
+        this.recognition.stop()
+        this.voiceField = null
+      } else {
+        this.isListening = false
+        this.profileRecordingField = null
+        this.reviewRecordingField = null
+        this.voiceField = field
+        this._startRecognition()
+      }
+    },
+
     _startRecognition () {
       if (this._recognitionRunning) { return }
       this._recognitionRunning = true
