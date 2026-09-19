@@ -55,8 +55,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 18 | **15.5** The deck-reading tool has no home, and the drawing method now depends on it ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
 | 19 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 20 | **15.7** Thirty-three concepts have no graphic, so the advisor teaches from nothing ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-18 |
+| 21 | **15.8** Two stock images in the Strategy Planner have no licence check ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 22 | 🔒 **15.9** Nobody has decided how a session's running order is chosen ⚠ *not yet ranked by Mike* | 4 | Every stage of the Strategy Planner after stage 3 - the step builder, and the assembled plan's running order. | **Mike** | — |
 
-**Twenty live items. Ten need Mike.** If this list passes about twenty, something is wrong.
+**22 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

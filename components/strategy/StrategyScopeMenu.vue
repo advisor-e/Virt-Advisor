@@ -85,9 +85,15 @@
  * `design/mockups/strategy-session-menu.html`, five decisions ruled by Mike 2026-09-17.
  *
  * 🔴 THIS SCREEN IS MIKE'S OWN SESSION SCOPE TABLE WITH THE INCLUDE COLUMN MADE REAL —
- * Decision A. Same column order, same words, same page numbers. Every row's text is his,
- * read off his decks by machine; this component renders it and never rewrites, summarises,
- * truncates or fills a blank one. A build that improves the wording has broken the ruling.
+ * Decision A. Same column order, same words. Every row's text is his, read off his decks by
+ * machine; this component renders it and never rewrites, summarises, truncates or fills a
+ * blank one. A build that improves the wording has broken the ruling.
+ *
+ * ⚠ THE PAGE NUMBERS ARE HIS ONLY WHERE HE GIVES THEM (found 2026-09-18). Strategic
+ * Orientation 2's scope table carries a page column — those numbers are his. Sales &
+ * Marketing's table has three columns and NO page column, so its 16 numbers are OURS,
+ * derived from the deck. They are accurate, and every drawing checked so far confirms it;
+ * this note exists so nobody hunts for a column of his to reconcile them against.
  *
  * 🔴 FIVE PANELS, ONE LIST, TICKS CROSSING FREELY. The panels are documents, not Planning
  * Domains: Strategic Orientation is one domain in two decks. The acceptance test —

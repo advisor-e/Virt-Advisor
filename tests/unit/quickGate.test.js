@@ -26,7 +26,7 @@ describe('quick-gate — what runs for what', () => {
   })
 
   it('names the list tests when the list or its page changes — fs reads are invisible to Jest', () => {
-    expect(plan(['design/features/to-do-items.json']).named).toEqual(['tests/unit/toDoItems.test.js', 'tests/unit/applyToDo.test.js'])
+    expect(plan(['design/features/to-do-items.json']).named).toEqual(['tests/unit/toDoItems.test.js', 'tests/unit/applyToDo.test.js', 'tests/unit/itemIdentity.test.js'])
     expect(plan(['design/features/to-do.md']).named).toContain('tests/unit/applyToDo.test.js')
   })
 
@@ -46,7 +46,7 @@ describe('quick-gate — what runs for what', () => {
     const p = plan(['design\\features\\to-do-items.json', 'design/features/to-do.md'])
     // to-do.md is also a design/features page, so the folder rules ride along once.
     expect(p.named).toEqual([
-      'tests/unit/toDoItems.test.js', 'tests/unit/applyToDo.test.js',
+      'tests/unit/toDoItems.test.js', 'tests/unit/applyToDo.test.js', 'tests/unit/itemIdentity.test.js',
       'tests/unit/newFeature.test.js', 'tests/unit/designArtefacts.test.js', 'tests/unit/buildHandbook.test.js'
     ])
     expect(new Set(p.named).size).toBe(p.named.length)

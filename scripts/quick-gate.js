@@ -26,7 +26,7 @@ var path = require('path')
 
 /** Tests that read a file with `fs` rather than `require`, so the module graph cannot see the link. */
 var DATA_TESTS = [
-  { when: /^design\/features\/to-do(-items\.json|\.md|-done-and-parked\.md)$/, run: ['tests/unit/toDoItems.test.js', 'tests/unit/applyToDo.test.js'] },
+  { when: /^design\/features\/to-do(-items\.json|\.md|-done-and-parked\.md)$/, run: ['tests/unit/toDoItems.test.js', 'tests/unit/applyToDo.test.js', 'tests/unit/itemIdentity.test.js'] },
   { when: /^design\/(HANDOVER-[a-z]+\.md)$/, run: ['tests/unit/activeItems.test.js'] },
   // A Brief, its History, the index or a mockup: the folder rules (every Brief has a
   // companion and a row; every mockup is registered) and the Handbook build. Found
