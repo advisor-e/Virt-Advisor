@@ -16,11 +16,24 @@
  * follow. Hand-editing a file in `concepts/` breaks that guarantee and the
  * header of every generated file says so.
  *
- * ⚠ IT REFUSES A DRAWING CARRYING A PASTED-IN PICTURE. Five of the 33 hold a
- * photograph or an exported chart as base64 text inside the SVG — 307 KB
- * gzipped between them, which is the whole first-load budget. Those need their
- * image lifted out to a file first; the script stops rather than quietly
- * shipping one into the bundle.
+ * 🔴 A DRAWING MAY CARRY A PASTED-IN PICTURE, AND FIVE OF THE 33 DO — the
+ * concepts whose artwork is a photograph rather than a drawing. DO NOT PUT THE
+ * REFUSAL BACK. It stood here until 2026-09-20 on the grounds that those five
+ * weigh 307 KB gzipped against a 300 KB first-load budget, and that comparison
+ * is not one that applies: every drawing is a lazy import (`renderRegistry`),
+ * so no drawing is in the first-load bundle at all — the suite pins exactly
+ * that. They are five separate chunks, fetched one at a time when that concept
+ * is opened, the largest 120 KB, cached after. The same picture held in
+ * `static/` would weigh 118 KB, because base64 costs a third and gzip hands it
+ * straight back. Measured: wiring all five in moved first load 129.5 → 129.6 KB
+ * gzipped.
+ *
+ * 🔴 SO THE PICTURE STAYS INSIDE THE DRAWING — Mike's requirement, 2026-09-20:
+ * *"theres no point having a graphic if it wont push through to the clients
+ * plan."* That plan is printed, saved as a PDF and emailed on
+ * (`StrategyPlanDocument.vue`, `@media print`), and a graphic living at a URL
+ * reaches none of those. Inline, it is part of the document — and the component
+ * is character for character the artefact he approved, the firm mark aside.
  *
  * Usage: node scripts/build-concept-graphics.js [--check]
  *   --check  writes nothing; fails if any component is out of step with its
@@ -46,12 +59,11 @@ const OUT = path.join(ROOT, 'components', 'strategy', 'concepts')
  * second concept at the same component, rather than shipping the same drawing
  * twice under two names.
  *
- * 🔴 FIVE OF THE 33 APPROVED DRAWINGS ARE DELIBERATELY ABSENT and each is named
- * below where it would sit. They hold a photograph or an exported chart pasted
- * in as base64 — 307 KB gzipped between them against a 300 KB first-load budget
- * for the whole app — so their image has to be lifted out to a file before they
- * can be generated. The script refuses them either way; the notes are here so
- * nobody re-derives which five.
+ * ⚠ FIVE OF THESE CARRY A PASTED-IN PICTURE rather than a drawn graphic —
+ * Market Diffusion Theory, Product Life Cycle, E. Deming's Volatility Theory,
+ * the Digital Funnel Storyboard and Packaging/ Bundling. They are listed here
+ * like any other, because the picture travels inside the drawing; see the
+ * header for why it is not lifted out to a file.
  *
  * A sixth concept, Drafting Tender Proposals, has no drawing at all and is not
  * an omission: Mike's own summary calls it general guidance, and his tender
@@ -63,9 +75,10 @@ const DRAWINGS = [
   { file: 'strategy-concept-batch-1.html', svg: 3, conceptId: 'the-8-profit-levers' },
   { file: 'strategy-concept-batch-1.html', svg: 4, conceptId: 'vertical-integration' },
 
-  // batch-2 drawings 1, 2 and 4 — Market Diffusion Theory, Product Life Cycle
-  // and E. Deming's Volatility Theory — carry a pasted-in picture.
+  { file: 'strategy-concept-batch-2.html', svg: 1, conceptId: 'market-diffusion-theory' },
+  { file: 'strategy-concept-batch-2.html', svg: 2, conceptId: 'product-life-cycle' },
   { file: 'strategy-concept-batch-2.html', svg: 3, conceptId: 'sigmoid-curve' },
+  { file: 'strategy-concept-batch-2.html', svg: 4, conceptId: 'e-demings-volatility-theory' },
 
   { file: 'strategy-concept-batch-3.html', svg: 1, conceptId: 'progression-of-economic-value' },
   { file: 'strategy-concept-batch-3.html', svg: 2, conceptId: 'horizontal-integration' },
@@ -88,13 +101,13 @@ const DRAWINGS = [
   { file: 'strategy-concept-batch-5.html', svg: 1, conceptId: 'product-fit-review' },
   { file: 'strategy-concept-batch-5.html', svg: 2, conceptId: '6-marketing-questions' },
   { file: 'strategy-concept-batch-5.html', svg: 3, conceptId: 'product-fit' },
-  // batch-5 drawing 4 — Digital Funnel Storyboard — carries a pasted-in picture.
+  { file: 'strategy-concept-batch-5.html', svg: 4, conceptId: 'digital-funnel-storyboard' },
   { file: 'strategy-concept-batch-5.html', svg: 5, conceptId: 'outbound-messaging-plan' },
   { file: 'strategy-concept-batch-5.html', svg: 6, conceptId: 'inbound-landing-page-review' },
   { file: 'strategy-concept-batch-5.html', svg: 7, conceptId: 'sparketing-friction-review' },
   { file: 'strategy-concept-batch-5.html', svg: 8, conceptId: 'branding-review' },
   { file: 'strategy-concept-batch-5.html', svg: 9, conceptId: 'customer-loyalty-programme' },
-  // batch-5 drawing 10 — Packaging/ Bundling — carries a pasted-in picture.
+  { file: 'strategy-concept-batch-5.html', svg: 10, conceptId: 'packaging-bundling' },
   { file: 'strategy-concept-batch-5.html', svg: 11, conceptId: 'sales-process-review' },
 
   { file: 'strategy-concept-porters.html', svg: 1, conceptId: 'porters-5-forces' },
@@ -112,8 +125,30 @@ function servedConcepts (drawing) {
 }
 
 /**
+ * What the component calls itself — the file name behind a `Concept` prefix.
+ *
+ * 🔴 THE PREFIX IS NOT DECORATION. Two concept ids begin with a digit —
+ * `6-marketing-questions` and `10-marketing-messages` — and Vue refuses a
+ * component name that does not start with a letter, so both logged
+ * *"Invalid component name"* to the console on every session that opened them.
+ * Nothing broke (a drawing is loaded as an object, never resolved by name) and
+ * nobody in UAT would ever see it, which is exactly why it sat there. Found by
+ * reading the console while proving item 15.7, 2026-09-20.
+ *
+ * Every drawing takes the prefix rather than only the two, because a rule that
+ * applies to some names is one a later id quietly falls outside.
+ *
+ * @param {string} conceptId
+ * @returns {string}
+ */
+function registeredName (conceptId) {
+  return 'Concept' + componentName(conceptId)
+}
+
+/**
  * PascalCase component name from a concept id. `the-8-profit-levers` becomes
- * `The8ProfitLevers`.
+ * `The8ProfitLevers`. This is the FILE name; `registeredName` is what the
+ * component calls itself.
  *
  * @param {string} conceptId
  * @returns {string}
@@ -245,7 +280,7 @@ ${indented}
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: '${componentName(drawing.conceptId)}',
+  name: '${registeredName(drawing.conceptId)}',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */
@@ -321,15 +356,6 @@ function build (opts) {
   DRAWINGS.forEach((drawing) => {
     const html = fs.readFileSync(path.join(MOCKUPS, drawing.file), 'utf8')
     const svg = nthSvg(html, drawing.svg)
-
-    if (svg.indexOf('data:image/') !== -1) {
-      throw new Error(
-        drawing.conceptId + ': the drawing carries a pasted-in picture. Lift the ' +
-        'image out to static/ and point the SVG at it before generating — see the ' +
-        'header of this script.'
-      )
-    }
-
     const source = render(drawing, bindFirmMark(svg))
     const file = path.join(OUT, componentName(drawing.conceptId) + '.vue')
     const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null
@@ -378,9 +404,12 @@ function registryKey (id) {
 /**
  * The concept-id → drawing map, as lazy imports.
  *
- * 🔴 LAZY IS NOT AN OPTIMISATION HERE. The 33 drawings weigh 361 KB gzipped
- * between them and the first-load budget for the whole app is 300 KB, so a
- * drawing loads when its concept is opened and never before.
+ * 🔴 LAZY IS WHAT KEEPS THE DRAWINGS OUT OF THE FIRST LOAD, AND IT IS LOAD-
+ * BEARING. The 32 weigh 375 KB gzipped between them, the largest 120 KB, so
+ * a static list of components would put all of it into every page load.
+ * Measured at the 2026-09-20 build, wiring the last five in: first load
+ * 129.5 → 129.6 KB gzipped against a 300 KB budget, because a drawing arrives
+ * when its concept is opened and never before.
  *
  * @returns {string}
  */
@@ -455,4 +484,6 @@ if (require.main === module) {
   }
 }
 
-module.exports = { DRAWINGS, componentName, nthSvg, bindFirmMark, servedConcepts, sameDrawing, build }
+module.exports = {
+  DRAWINGS, componentName, registeredName, nthSvg, bindFirmMark, servedConcepts, sameDrawing, build
+}

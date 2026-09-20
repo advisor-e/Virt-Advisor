@@ -160,7 +160,7 @@
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: 'SalesChannelOptions',
+  name: 'ConceptSalesChannelOptions',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */

@@ -215,7 +215,7 @@
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: 'AIDCRAAdvertisementFramework',
+  name: 'ConceptAIDCRAAdvertisementFramework',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */

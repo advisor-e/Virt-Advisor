@@ -10,8 +10,8 @@
  * paraphrase and lost the original.
  *
  * It also guards two things a person cannot see at all: a sample firm hardcoded
- * into a client's document, and a 300 KB picture pasted into the first-load
- * bundle.
+ * into a client's document, and a drawing that stops being lazily loaded or
+ * grows past the weight one concept may cost.
  *
  * What is deliberately NOT asserted, per the 2026-08-24 testing rule: how a
  * drawing looks, what any label on it says, or that a file exists for its own
@@ -22,6 +22,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const zlib = require('zlib')
 
 const builder = require('../../scripts/build-concept-graphics')
 const { concepts } = require('../../data/strategy-frameworks.json')
@@ -133,17 +134,32 @@ describe('a drawing reaches the screen it was drawn for', () => {
   })
 })
 
-describe('the first-load budget survives the drawings', () => {
-  test('no drawing carries a pasted-in picture', () => {
-    builder.DRAWINGS.forEach((d) => {
-      const html = fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8')
-      const svg = builder.nthSvg(html, d.svg)
+describe('a drawing costs no more than one concept is worth', () => {
+  test('no single drawing exceeds the weight one concept may cost', () => {
+    // 🔴 THIS REPLACED A BAN ON PASTED-IN PICTURES, AND THE BAN WAS WRONG.
+    // It refused five drawings whose artwork is a photograph, on the grounds
+    // that they weigh 307 KB gzipped against a 300 KB first-load budget — but
+    // no drawing is in the first-load bundle at all. Each is its own lazy
+    // chunk, which the test below pins, so the figure that can actually hurt
+    // anyone is the largest SINGLE drawing, fetched once when that concept is
+    // opened and cached after. Measured at the 2026-09-20 build: first load
+    // 129.5 KB gzipped, every concept chunk outside it.
+    //
+    // So the guard is a per-drawing ceiling rather than a ban on a technique.
+    // A photograph belongs inside its drawing — that is what makes it survive
+    // into the client's printed plan (Mike, 2026-09-20) — but a drawing that
+    // arrived carrying an unscaled 5 MB original would be a real fault, and
+    // nobody in UAT could see it. The ceiling has room for the largest we
+    // have and none for that.
+    const CEILING_KB = 200
 
-      // Five of the 33 hold a photograph or an exported chart as base64 text,
-      // 307 KB gzipped between them against a 300 KB budget for the whole app.
-      // Their image has to be lifted out to a file before they can be generated.
-      expect(svg).not.toContain('data:image/')
-    })
+    const over = builder.DRAWINGS.map((d) => {
+      const html = fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8')
+      const kb = zlib.gzipSync(Buffer.from(builder.nthSvg(html, d.svg))).length / 1024
+      return { id: d.conceptId, kb: Math.round(kb) }
+    }).filter(r => r.kb > CEILING_KB)
+
+    expect(over).toEqual([])
   })
 
   test('no approved drawing is left out of the list without a reason', () => {
@@ -163,9 +179,10 @@ describe('the first-load budget survives the drawings', () => {
 
         for (let n = 1; n <= count; n++) {
           if (wired[file + '#' + n]) { continue }
-          // The only accepted reason to leave one out: its picture has to come
-          // out to a file first. Anything else is a drawing nobody wired.
-          if (builder.nthSvg(html, n).includes('data:image/')) { continue }
+          // There is no longer any accepted reason. This used to excuse a
+          // drawing carrying a pasted-in picture, which quietly exempted the
+          // five that most needed wiring; every approved drawing is now in the
+          // list, so anything unwired here is a drawing nobody wired.
           missed.push(file + ' drawing ' + n)
         }
       })

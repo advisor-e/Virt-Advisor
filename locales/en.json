@@ -5839,11 +5839,11 @@
     "back": "Back",
     "nextFramework": "Next framework",
     "rail": {
-      "scope": "1 · Scope",
-      "steps": "2 · Build the steps",
-      "run": "3 · Run the frameworks",
+      "scope": "1 · Scope session",
+      "steps": "2 · Build session",
+      "run": "3 · Run session",
       "objectives": "4 · Objectives & actions",
-      "plan": "5 · The plan"
+      "plan": "5 · Produce plan"
     },
     "steps": {
       "heading": "Build the session's steps",

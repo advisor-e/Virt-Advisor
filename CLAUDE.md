@@ -461,6 +461,37 @@ his word. Both were handled only because Mike asked why the rule had been ignore
 - 🔴 **Every decision point is one recommendation and one yes/no question.** Say what
   you recommend in plain English, say why, ask one question a bare yes or no answers.
   Never two options. No exceptions.
+- 🔴 **AND THE QUESTION ITSELF MUST BE EXACT — Mike's ruling, 2026-09-21.** In his words:
+  *"make your question more precise so i know exactly what im answering - leave no room for
+  confusion - it needs to be a yes or no answer with no doubt what the question is"*.
+  **A bare "yes" must be a complete instruction on its own.** Before asking, read the
+  question back as if you were him and check: does *yes* name one specific thing that will
+  happen, and does *no* mean the opposite of exactly that? If either needs a sentence of
+  context from further up the message to be understood, the question is not finished —
+  rewrite it until it stands alone.
+  - Name the thing, not the category: *"shall I rename the five rail labels to Scope
+    session, Build session, Run session, Objectives &amp; actions, Produce plan?"* — never
+    *"shall I fix the labels?"*
+  - No "and" hiding a second decision, and no "or" offering a choice — that is two
+    questions wearing one question mark, and it breaks the rule above.
+  - Never ask a question whose answer depends on him remembering a number, a file or a
+    recommendation stated paragraphs earlier. Repeat it inside the question.
+  - 🔴 **THE SHAPE, GIVEN BY MIKE 2026-09-21 — use it every time:**
+    **`<the question> — instead of <what "no" means>? Yes or no.`**
+    *"When the mentor's standard session loads into Build session, should each step arrive
+    with its concepts already placed inside it — instead of arriving as a name only with an
+    empty drop zone for you to fill? Yes or no."*
+    The clause after the dash states **what happens if he says NO**, so both answers are on
+    the page and neither has to be inferred. ⚠ **It must be the opposite of what the
+    question asks, never a restatement of it** — a clause that re-describes the *yes* turns
+    the sentence into a contradiction and is worse than no clause at all. `Yes or no.`
+    closes it as its own short sentence.
+- 🔴 **AND IT GOES LAST, IN THE NON-CODER SUMMARY — Mike's ruling, 2026-09-21.** In his
+  words: *"the question needs to be the last sentence in the non coder summary - every
+  time"*. **The question is the final sentence of the response**, at the end of the
+  Non-Coder Summary — never buried mid-message, never above the summary, never followed by
+  a closing remark. He reads the summary; a question anywhere else is a question he has to
+  hunt for. A response that asks nothing simply ends with the summary as usual.
 - Always ask for clarification on wording for labels/buttons before going ahead, don't make your own without asking.
 - Regularly ask if we should save changes and push to github; especially if you think the rate of coding is pushing the limits of your context window.
 - All planning and coding should be approached on the assumption that you are a very senior team of 3 software engineers and designers with more than 15 years experience; you all have a focus on providing auditable grade coding that meets design and coding best practices for consistent outputs. 

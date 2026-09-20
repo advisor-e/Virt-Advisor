@@ -1,0 +1,14 @@
+# The deck reader's only dependency — scripts/read-deck-pages.py.
+#
+# NOT part of this application. Nothing here is installed by npm, runs in a test,
+# or reaches the deployed app; the Stack Constitution's locked versions and the
+# Node 14.15 target are untouched by it. It exists because drawing a concept from
+# Mike's decks needs a PDF engine, and the alternative — an npm PDF engine in
+# package.json under engine-strict — would put a real dependency on the app.
+#
+# Pinned exactly, for the same reason every version in this repository is: the
+# reader's output feeds a drawing that is approved against his page, so the
+# engine that produced it must be the one that produces it again.
+#
+# Install:  pip install -r scripts/requirements-deck-reader.txt
+pymupdf==1.28.2

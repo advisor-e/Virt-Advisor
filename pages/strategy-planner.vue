@@ -46,11 +46,21 @@
 
   template(v-if="!loading && step === 'steps'")
     //- 🔴 SAYS WHY THE LIST IS SHORTER THAN WHAT HE TICKED, AND IT BELONGS HERE NOW.
-    //- An advisor ticks 52 concepts and this screen offers 18 cards, because only 16 of
-    //- the 52 have a fill-in table built. The notice used to sit on the next screen,
-    //- which was the first place the shortfall showed — since 2026-09-20 this screen is,
-    //- so an unexplained gap of 34 would be the first thing he meets. Found by opening
-    //- the screen rather than by any test.
+    //- Tick all 52 and this screen offers 42 cards: 12 of the 52 have neither a fill-in
+    //- table nor a drawing, so they are not offered at all, and two of the remaining 40
+    //- arrive as two cards each because a two-part table is visited twice. The notice used
+    //- to sit on the next screen, which was the first place the shortfall showed — since
+    //- 2026-09-20 this screen is, so an unexplained gap of 12 would be the first thing he
+    //- meets. Found by opening the screen rather than by any test.
+    //- ⚠ THIS COMMENT READ "18 cards … an unexplained gap of 34" UNTIL 2026-09-21. It was
+    //- written hours before item 15.7 wired in the last five drawings, which admitted every
+    //- drawn concept to this screen and overtook both numbers. Counted off the running
+    //- screen, not derived: 42 cards, notice at 12. Re-count them if a concept gains or
+    //- loses a table or a drawing.
+    //- ⚠ 16 — the count of concepts with a SUPPLIED fill-in table — is unchanged and is
+    //- not what this screen offers. `data/strategy-capture-tables.json` `templateCount`
+    //- is 20 and counts TEMPLATES, several of which serve more than one concept while
+    //- four concepts name a template that does not exist. Do not read one for the other.
     b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
       | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
 
@@ -404,6 +414,31 @@ export default {
     },
 
     /**
+     * Concept id → the display name of the deck it came from.
+     *
+     * 🔴 THE STEP BUILDER'S LEFT COLUMN IS UNREADABLE WITHOUT THIS. The approved
+     * drawing (`design/mockups/strategy-step-builder.html`) puts the deck under
+     * every card, because that is the only thing distinguishing forty-odd chips
+     * from each other. Both branches of `placeableCards` used to read a
+     * `deckName` field that exists nowhere — not in `data/strategy-frameworks.json`,
+     * not on a concept visit — so `card.deck` was always '' and the `v-if` that
+     * guards the label never fired. The column rendered as identical white boxes
+     * and still looked plausible, which is why no test caught it and Mike did.
+     *
+     * `this.decks` is the only place the two are joined, so the map is built from
+     * it rather than a second field being added to the payload.
+     *
+     * @returns {Object<string, string>}
+     */
+    deckNameByConcept () {
+      const byConcept = {}
+      this.decks.forEach((d) => {
+        (d.concepts || []).forEach((c) => { byConcept[c.id] = d.name })
+      })
+      return byConcept
+    },
+
+    /**
      * EVERY CARD THE ADVISOR CAN PLACE, in the order the session would otherwise run
      * them. This is the one list stage 2 offers and stage 3 and the document both read,
      * so a card cannot exist on one screen and not another.
@@ -426,7 +461,7 @@ export default {
           conceptId,
           hasTable: true,
           name: f.name,
-          deck: f.deckName || '',
+          deck: this.deckNameByConcept[conceptId] || '',
           tag: '',
           summary: f.conceptSummary || '',
           instruction: f.captureInstruction || '',
@@ -468,7 +503,7 @@ export default {
           // worked through" when there was never anything to work.
           hasTable,
           name: visit.name + (multi ? ' (' + visit.part + ')' : ''),
-          deck: visit.deckName || '',
+          deck: this.deckNameByConcept[visit.conceptId] || '',
           // The tag is what tells an advisor, on the step builder, that these two
           // chips are the SAME table visited twice rather than a duplicate to remove.
           tag: multi ? this.$t('strategyPlanner.capture.part', { n: visit.part }) : '',

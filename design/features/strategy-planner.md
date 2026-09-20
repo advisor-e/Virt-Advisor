@@ -34,9 +34,9 @@
 >   on 2026-09-18 on seeing Porter's built that way, §0 *How a concept is drawn*. 🔴 **NEVER an
 >   image of his slide:** that was tried the same day and undone within hours, because it locked
 >   the **advisor-e.com logo** into a client's document against his own ruling that a client always
->   sees the advisor's firm logo. **33 of the 34 are drawn and approved, and 28 of those are
->   wired in** — that is item 15.7, and §0 stage 4b is where it stands. The five left each hold a
->   pasted-in picture that has to come out to a file first.
+>   sees the advisor's firm logo. **33 of the 34 are drawn, approved and wired in** — that is item
+>   15.7, and §0 stage 4b is where it stands. The five whose artwork is a photograph rather than a
+>   drawing carry it **inside** the drawing, so it travels into the client's printed plan.
 >   - ☑ **"Deck or web page" — ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
@@ -117,24 +117,38 @@ the agenda only"*. **Five stages remain — 4b, 5, 6, 7 and 8.**
 
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
 its method is below.** The teaching graphic is drawn by us, never imported from his deck.
-🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — AND 28 OF
-THEM ARE WIRED IN, 2026-09-20.** `scripts/build-concept-graphics.js` lifts an
+🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — AND ALL 33
+ARE WIRED IN, 2026-09-20.** `scripts/build-concept-graphics.js` lifts an
 approved drawing out of its mockup into a component in `components/strategy/concepts/`, so what
 ships is provably what Mike approved rather than a redrawing of it; the one edit is the firm's
 mark, which becomes props. `StrategyConceptGraphic.vue` resolves a concept to its drawing and is
 rendered by the teaching slide, the concept capture card and the client's plan document — one
 resolver, so the advisor's screen and the client's document can never disagree. **The drawings
-load lazily**: the 33 weigh 361 KB gzipped against a 300 KB first-load budget for the whole app,
-so a drawing arrives when its concept is opened and never before.
+load lazily**: the 32 weigh 375 KB gzipped between them, the largest 120 KB, so a drawing arrives
+when its concept is opened and never before.
 
-**Proved in a browser, 2026-09-20: 27 drawings render on the run screen and 27 in the client's
-plan**, and the *"concepts have no capture screen yet"* notice fell **from 34 to 17** — which is
-the measure of the item, because that number is how many concepts an advisor scopes and then
-cannot run. **The five still out each hold a photograph or an exported chart pasted into the
-drawing as base64** — Market Diffusion Theory, Product Life Cycle, the Volatility Graph, the
-Digital Funnel Storyboard and Packaging/ Bundling, 307 KB gzipped between them against the 300 KB
-budget. The generator refuses them rather than shipping one into the bundle, and each is named in
-`DRAWINGS` where it would sit so nobody re-derives which five.
+**Proved in a browser, 2026-09-20: 33 drawings render on the run screen and 33 in the client's
+plan**, and the *"concepts have no capture screen yet"* notice fell **from 34 to 17 to 12** — which
+is the measure of the item, because that number is how many concepts an advisor scopes and then
+cannot run.
+
+🔴 **THE LAST FIVE CARRY A PHOTOGRAPH, AND IT TRAVELS INSIDE THE DRAWING. DO NOT LIFT IT OUT TO A
+FILE.** Market Diffusion Theory, Product Life Cycle, the Volatility Graph, the Digital Funnel
+Storyboard and Packaging/ Bundling hold a picture or an exported chart as base64. The generator
+refused them until 2026-09-20, on the grounds that they weigh 307 KB gzipped against a 300 KB
+first-load budget — **a comparison that does not apply to them**, because every drawing is a lazy
+import and none is in the first-load bundle at all. `tests/unit/conceptGraphics.test.js` pins that
+directly. **Measured on a real build, wiring all five in: first load 129.5 → 129.6 KB gzipped.**
+They are five separate chunks, fetched one at a time when that concept is opened, and the same
+picture held in `static/` would weigh 118 KB against the 120 KB it weighs here — base64 costs a
+third and gzip hands it straight back.
+
+**Mike's ruling that settles it, 2026-09-20:** *"theres no point having a graphic if it wont push
+through to the clients plan."* That plan is printed, saved as a PDF and emailed on, so a graphic
+living at a URL reaches none of those. Inline, it is part of the document — and the component is
+then character for character the artefact he approved, the firm mark aside. The guard that replaced
+the refusal is a **per-drawing ceiling**, which still catches an unscaled original nobody could see
+on a screen.
 
 🔴 **TWO FAULTS IN THE METHOD ITSELF, BOTH FOUND AND FIXED 2026-09-20.** Neither was visible on a
 screen, and the second was actively misleading:
@@ -239,7 +253,7 @@ rest."* The artefact is
 
 | | Step | Why it is not a formality |
 |---|---|---|
-| **1** | **Open his actual page and look at it.** `deck` + `page` on the concept say which. Render it with PyMuPDF — installed on the laptop. | ⚠ **`source: 'agenda'` MEANS `page` IS NOT THE TEACHING PAGE.** The 18 agenda-only concepts all carry page 2, the deck's contents. Drawing from that number puts the same page behind nine different concepts and looks plausible in every one. |
+| **1** | **Open his actual page and look at it.** `deck` + `page` on the concept say which. `python scripts/read-deck-pages.py <deck> <page>` writes the 150dpi render and everything steps 2–4 need beside it. | ⚠ **`source: 'agenda'` MEANS `page` IS NOT THE TEACHING PAGE.** The 18 agenda-only concepts all carry page 2, the deck's contents. Drawing from that number puts the same page behind nine different concepts and looks plausible in every one. |
 | **2** | **Take the words from the PDF's text layer.** `page.get_text('dict')`, never retyped — **one entry per SPAN, never per line**, and carry each span's own size, weight, italic and colour. | Retyping is how *"can you please stick to what i gave you?"* happened three times in one day. 🔴 **AND READING PER LINE IS NOT ENOUGH:** on the 8 Profit Levers page *"= Total Revenue"* is a small space followed by a **39.6pt bold navy** phrase. A reader that takes the first span drew it at **20.8pt grey** — the size of the space. Found 2026-09-18, in our own tooling. |
 | **3** | **Take the page's own geometry.** `page.rect` gives the size — Strategic Orientation 2 is **720×405pt**, so a 1500px viewBox is a scale of **2.0833**. Multiply every span's `bbox` x, `origin` y, width and `size` by it. | 🔴 **THE FIRST PORTER'S ATTEMPT SKIPPED THIS AND GUESSED THE PAGE WIDTH AT 540pt.** Every text block overran the sheet and collided with the ring. Positioning by eye fails silently and looks like a styling problem. |
 | **3b** | **Pin every prose line to its measured width** — `textLength` plus `lengthAdjust="spacing"`. And **size a box to the text it holds**, from those widths. | His body copy is **justified**; a ragged copy is visibly not his page. Pinning the width reproduces that *and* makes the block immune to font-metric differences — the lines sit where his sit. ⚠ The investor box on Vertical Integration was drawn **520 wide when his longest line needs 541** and sliced the text; only putting it beside his page showed it. |
@@ -437,7 +451,7 @@ skipped and claimed.
 |---|---|---|---|
 | **3b** | ☑ **THE STEP BUILDER — BUILT 2026-09-20.** [`StrategyStepBuilder.vue`](../../components/strategy/StrategyStepBuilder.vue) as a new stage **2** in the rail, taking it from four stages to five: the advisor names each step and puts ticked cards into it, by drag or by the picker on each card. Built from [`../mockups/strategy-step-builder.html`](../mockups/strategy-step-builder.html), **all five decisions ruled by Mike the same day, every one as recommended** — opens with everything unplaced · **never a locked button**, it reads *"Run 2 of 18"* and unplaced cards stay in the scope · the closing block is no longer a self-naming step, its two cards are placed like any other · names are **free text with nothing offered**. Stage 3 now groups its cards under his step names and runs them in his order. **Storage rides the session's existing `scope_json` — no schema change**, bounded at 40 steps, and a step's items are deliberately NOT validated against the scope so an untick cannot refuse a whole save. ⚠ **He places CARDS, not pages:** a concept bringing two teaching slides moves as one; only a two-part fill-in table splits, into the two cards that already existed. 🔴 **AN EMPTY STEP SURVIVES EVERY PATH** — held at three layers (store round trip, `planSteps`, the component) because a tidy-up at any one deletes Pivot's step 5. | 🔴 **Mike's own words, 2026-09-20:** *"I choose the number of stages, I choose the name i put on that stage, I choose the number of concepts/pages I put into each stage — correct? if not, thats what i want"*, and on the label, *"steps is fine"*. Carries out his ruling of the same day (item 15.9): **the advisor names the steps himself, and a step holding nothing still prints on the agenda.** | **Measured against Pivot before a line was drawn, and measured again in the running app after.** The app could make **one** step where Pivot needs five — and having no name of its own it borrowed the wizard's, so a client's agenda read *"Run the frameworks — 14 concepts"* and *"Objectives and actions — 2 concepts"*: **our internal screens, printed on their plan.** Driven end to end afterwards, the same agenda reads *"Identify the Resistance — 2 concepts"* and *"Do It & Review It — on the agenda only"*. 🔴 **RUNNING IT FOUND A FAULT THREE DAYS OLD AND NOT IN THE NEW CODE:** `PUT /api/strategy/sessions/:id/scope` rejected **every** real save with 400 `UNKNOWN_FRAMEWORK`, because it checked ticked ids with `getFramework()` while stage 1 had changed the menu to Mike's 52 **concepts** on 2026-09-17. Nothing had called the route — a session is opened through `POST /sessions`, which does not validate — so the step builder was its first caller. Fixed: an id may be a known framework **or** concept. The journey end to end is [`strategy-planner-walkthrough.html`](../mockups/strategy-planner-walkthrough.html). |
 | **4** | ⛔ **BUILT AND UNDONE THE SAME DAY, 2026-09-18 — his deck pages, imported as images.** `scripts/render-deck-slides.py` rendered them into `static/planning-slides/` and `slidePath()` put one on each concept. **Nobody asked for it**, and it could never be white-labelled. Script, 37 images and every field that served them are deleted. | It claimed *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides"* — but that is about **fidelity**, and it was read as a licence to choose the **technique**. A question was never put to him. | 🔴 **HIS RULING ON SEEING IT:** *"i never asked for this … they look cheap and more importantly, they lock in the Advisor-e logo and in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo - never advisor-e."* Every page of his decks carries `advisor-e.com`, the cyan border and his page number **burned into the pixels**. ⚠ **AND THE IMPACT TEST SCORED THE BREACH AS THE WIN:** the measure was *"concepts whose graphic matches his page: 0 of 52 → 34 of 52"*, and a measure that rewards reproducing his page exactly will always reward reproducing his branding with it. |
-| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above — or, where his artwork is a photograph, by *Flattening a chart out of a photograph* below. ✅ **DRAWN AND WIRED IN — 28 of 33 (2026-09-20).** They are components: `components/strategy/concepts/`, loaded through the generated `concepts/index.js` and served by `StrategyConceptGraphic` on all three surfaces. **Five with a pasted-in picture remain.** Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
+| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above — or, where his artwork is a photograph, by *Flattening a chart out of a photograph* below. ☑ **BUILT — 33 of 34 drawn and WIRED IN, 2026-09-20**: Porter's, batches 1–5 and Technology Points. Each is a component in `components/strategy/concepts/`, resolved by `StrategyConceptGraphic.vue` for the run screen, the capture card and the client's plan alike. Item **15.7, closed** — the full account is at the head of this section. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
 | **5** | **9 capture forms** — every table the table his template actually is. 🔴 **THE BANDED GRID IS BUILT — 1 of the 9, 2026-09-19**, drawn first and approved (`design/mockups/strategy-capture-banded-grid.html`). It serves five of his tables: S.W.O.T, Porter's, Blue Ocean Fronts, Insights Summary and the Profit Levers. **Every capture box now carries the `voice.*` bar from "I have a client with a problem…"** — Mike's ruling that day, *"i want voice recorded notes… make it the same here"*. **Eight forms remain.** | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields · **"app user consistency"** (2026-09-19) — the voice control is the one the advisor already uses, not a second one | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. 🔴 **AND DRAWING THE FIRST FORM FOUND TWO MORE, LIVE ON SCREEN** — see below. |
 
 #### 🔴 What drawing the banded grid found — two defects nothing was watching (2026-09-19)
@@ -824,15 +838,22 @@ names a concept's form, it does not lay it out.
 
 ### 🔴 There is no extractor in this repository, and these are the five traps if one is ever written
 
-The rows were read off the PDFs **once**, by a throwaway script that was deliberately **not
-kept**: it is Python, and this is a JavaScript-only repository under the Stack Constitution, so
-committing it would have been a stack deviation needing its own reconcile task.
+The rows were read off the PDFs **once**, by a throwaway script that was not kept.
 `tests/unit/strategyConcepts.test.js` **pins** the result; it does not re-derive it. **The data
 file is now the source**, and the audit trail is the decks plus the census.
 
-Re-extraction is therefore a fresh task with its own tooling decision. **Every one of these five
-produced a wrong index that looked entirely plausible**, which is why they are written down
-rather than left to be rediscovered:
+> **The tooling decision that paragraph left open has been taken (item 15.5, 2026-09-20).**
+> It used to end *"committing it would have been a stack deviation needing its own reconcile
+> task"* — and that reasoning is what left the drawing method with no tool at all, since the
+> method the same Brief calls mandatory opens every page with PyMuPDF. The reconcile task was
+> filed, and its answer is `scripts/read-deck-pages.py`: one committed reader, a pinned
+> `requirements-deck-reader.txt`, the deviation stated in its own docstring, and nothing it
+> writes ever committed or shipped. **Re-extracting the index is still a fresh task** — but it
+> is no longer blocked on deciding where a reader may live, and `--register` already emits the
+> word-level geometry rule 3 below needs.
+
+**Every one of these five produced a wrong index that looked entirely plausible**, which is why
+they are written down rather than left to be rediscovered:
 
 1. **Anchor rows on the FRAMEWORK column, never the page column.** The deck merges a page-number
    cell across two rows — Price For Problem Solving and Price For Delivery Medium both sit
@@ -862,6 +883,14 @@ each of the five above.
 `server/routes/strategyPlanner.js` · `components/strategy/StrategyScopeMenu.vue`,
 `StrategyCaptureCard.vue`, `StrategyGrowthWheel.vue` · `pages/strategy-planner.vue` ·
 `config/db-schema.sql`
+
+**The decks themselves are read by `scripts/read-deck-pages.py`** — the one tool that opens his
+PDFs, and the home item 15.5 was about. `<deck> <page>` reads a page for drawing it; `--register`
+writes the slides and `deck-pages.json` that `build-concept-register.js` requires; `--self-check`
+runs the reader against five facts this Brief recorded before the tool existed. 🔴 **It refuses to
+write inside the repository.** A render of his page carries `advisor-e.com` burned into the
+pixels, so its output is for looking at and sampling from, never for committing — his ruling of
+2026-09-18, held in code rather than in a comment.
 
 ⚠ **`StrategySessionScope.vue` was deleted in Stage 1**, not left beside its replacement. Two
 menus that disagree is the drift this feature exists to end.
