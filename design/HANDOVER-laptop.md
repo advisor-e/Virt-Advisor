@@ -11,38 +11,40 @@
 
 ## 2026-09-20 · Laptop · branch `feat/advisor-progress`
 
-**Suite 12,304 green** (570 suites), lint 0 errors, `npm run build` succeeds. **22 live items** —
-15.7 closed today. Take the ahead/behind counts from `npm run check:branch`, never from a number
-written here.
+**The branch is CLEAN and at `a882720c` — nothing from today is committed to it.** Suite
+12,304 green (570 suites), coverage met. Take the ahead/behind counts from
+`npm run check:branch`, never from a number written here.
 
-🔴 **15.7 CLOSED — ALL 33 DRAWINGS ARE WIRED.** 33 render on the advisor's run screen and 33 in the
-client's plan; the *"no capture screen yet"* notice fell **17 → 12**. The last five were Market
-Diffusion Theory, Product Life Cycle, E. Deming's Volatility Theory, the Digital Funnel Storyboard
-and Packaging/ Bundling, and each was opened and looked at in the assembled plan rather than counted.
+🔴 **READ THIS BEFORE TOUCHING 15.1. Mike found THREE drifts in this feature in one day and
+is angry.** Do not start work on it without asking him first.
 
-🔴 **THE ONE THING TO KNOW BEFORE YOU TOUCH THE GENERATOR: THE REFUSAL IS GONE, AND IT DOES NOT COME
-BACK.** `build-concept-graphics.js` used to throw on a drawing carrying a pasted-in picture, because
-the five weigh 307 KB gzipped against a 300 KB **first-load** budget. That comparison never applied
-to them — every drawing is a lazy import and no drawing is in the first-load bundle, which
-`conceptGraphics.test.js` pins three tests below where the ban sat. **Measured on a real build:
-first load 129.5 → 129.6 KB gzipped.** A file in `static/` would weigh 118 KB against the 120 KB it
-weighs inline. Mike's ruling is why it stays inline: *"theres no point having a graphic if it wont
-push through to the clients plan"* — the plan is printed, saved as PDF and emailed on. A
-**per-drawing ceiling** replaced the ban and still catches an unscaled original.
+🔴 **RULING THE DECISIONS INSIDE A DRAWING IS NEVER APPROVAL TO BUILD IT** — nor to publish
+it, nor to invent content in it. Each is its own question. **The proof, from our own record:**
+at **19:54** on 2026-09-16 commit `3e1ed8e7` wrote that `design/mockups/strategy-planner.html`
+was *"NOT YET APPROVED TO BUILD FROM — ruling on the questions inside a drawing is not the
+same as approving the drawing"*; at **21:09**, seventy-five minutes later, commit `1c73ec55`
+built the entire four-screen app from it. That page still names it as its design today.
 
-**Two Vue console warnings closed with it** — `6MarketingQuestions` and `10MarketingMessages` are
-not valid component names. Every generated drawing now registers as `Concept<Name>` via
-`registeredName()`; the file names are unchanged.
+🔴 **HIS INSTRUCTION OF 2026-09-17 — *"make sure the old plan version never comes back"* —
+MEANT DELETED.** It was read as *"mark it superseded and keep it for its rulings"*. He
+restated it today in plain terms and said his instruction had been ignored.
 
-**7.12 IS STILL YOURS TO PUT BACK.** Mike ruled 2026-09-19 that `7.12` is *the right calculator is
-offered only sometimes*; this laptop applied its half (`e33002be`) and your branch still points it
-elsewhere. `npm run check:branch` reports it every session until one of us moves.
+🔴 **"Filed on Mike's yes" IS NOT EVIDENCE** — `CLAUDE.md` already says so. Eleven of the
+twenty-two live items rested on that phrase alone, with no words of his anywhere, in the item
+or in the commit that filed it. Record his words, quoted, or an item does not survive an audit.
 
-**DESKTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `to-do-done-and-parked.md`,
-`strategy-planner.md`, `CODE-SIZE.md`, `scripts/build-concept-graphics.js`,
-`tests/unit/conceptGraphics.test.js`, `components/strategy/StrategyConceptGraphic.vue`, and **every
-file in `components/strategy/concepts/`** — the 27 existing ones changed one line each (the `name:`
-above), plus five new drawings and `index.js`. All of that directory is generated: on a conflict,
-take either side and run `node scripts/build-concept-graphics.js`.
-**No `FirmManagerHub.vue`, no engine code, no `report-model-summaries.json`.**
-**7.5 and 15.1 stay active on this laptop.**
+**THE DRIFT AUDIT AND THE DAY'S WORK ARE ON A SIDE BRANCH — `wip/2026-09-20-drift-audit`,
+commit `6b9cde93`, THIS LAPTOP ONLY, NOT PUSHED, ⛔ NOT FOR MASTER.** It holds the drawing
+deleted with all 23 references, and the list cut from 22 items to 11. Mike has ruled nothing
+on it; it is parked for him, not pending merge. `git branch -D` if he says bin it.
+
+⚠ **ITEM 15.1's NOTE IS WRONG ON THIS BRANCH.** It says the 33 drawings are *"NOT ONE IS
+WIRED IN"* and names stage 4b as next. They ARE wired in; 15.7 closed 2026-09-20. The same
+claim sits in the Brief's stage 4b row. Fixed this morning on his yes, then undone by the
+branch restore he approved. **Ask him before editing either.**
+
+⚠ **A drawing of mine is still published in his gallery with 17 invented lines in it**, two
+under his own name in his own worked-example column. He stopped the deletion; it is his call.
+
+**DESKTOP — shared files I changed on this branch: NONE.** Nothing is in hand. `activeOn` for
+7.5 and 15.1 is unchanged.
