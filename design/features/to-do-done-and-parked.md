@@ -202,6 +202,31 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.9 — nobody had decided how a session's running order is chosen.**
+✅ Closed 2026-09-20 by Mike's ruling. The question, put to him on the approved assembled-plan
+drawing on 2026-09-17: does the advisor name a session's steps himself and place ticked concepts
+into them, or does the app group them for him? **His answer: the advisor names them.** He ticks
+concepts, then names each step and drags ticked concepts into it, and **a step holding nothing
+still prints on the agenda.**
+
+**It could never have been guessed, and one page proves it.** `Pivot.pdf` — the deck Mike
+assembled by hand, and this feature's acceptance test — has a **step 5, *Do It & Review It*, with
+no slides behind it at all**. It is on page 3's agenda and nothing follows. No rule reading the
+tick list can produce a step that nothing was ticked into, so an app that groups the ticks cannot
+reproduce his own document. This is why the Brief refused to design past stage 3 without an
+answer rather than picking the likelier of two.
+
+**What it unblocks:** the step builder, and the assembled plan's running order — every stage of
+the Strategy Planner after stage 3. Until today `planSteps` in
+[`pages/strategy-planner.vue`](../../pages/strategy-planner.vue) put everything scoped into one
+step, recorded throughout as a stated limit and never as a decision that steps are one. **Nothing
+is built by this closure**; the ruling is now on the record so the build can be designed against
+it.
+
+**It was the last of the five decisions on the drawing.** The other four were ruled or settled by
+being built: deck-or-web-page (2026-09-17), the discussion/action split, a concept ticked into
+more than one step, and what the client keeps (all three by stages 2 and 3).
+
 **7.11 — a budget question was answered with the wrong size of budget model.**
 ✅ Closed 2026-09-18, `ddf2dcce`. Asked whether a client is hitting their budget, the AI offered
 the Mid-Level Budget's page **5 times in 6**. Measured again on 6 live runs through the real

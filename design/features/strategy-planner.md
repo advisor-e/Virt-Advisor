@@ -30,18 +30,22 @@
 >   reproduced**, each block carrying the Pivot page it answers, so the acceptance test runs
 >   against the drawing rather than after a build. Its §5 states what it does *not* ask approval
 >   for — chiefly how each of the 21 teaching forms is drawn. ☑ **That is no longer open, and the
->   answer was not to draw them:** Mike's ruling of 2026-09-18 shows his own slide instead. §0
->   stage 4.
+>   answer is that WE DRAW THEM, BY MACHINE, FROM HIS PAGE** — the five-step method Mike approved
+>   on 2026-09-18 on seeing Porter's built that way, §0 *How a concept is drawn*. 🔴 **NEVER an
+>   image of his slide:** that was tried the same day and undone within hours, because it locked
+>   the **advisor-e.com logo** into a client's document against his own ruling that a client always
+>   sees the advisor's firm logo. **33 of the 34 are drawn and approved; none is wired in** — that
+>   is item 15.7, and §0 stage 4b is where it stands.
 >   - ☑ **"Deck or web page" — ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
 >     produces a web report *and* a separate exported deck has created two things that can
 >     disagree, and the page is a 16:9 frame from the start rather than a reflowing column
 >     squeezed into one later.
->   - ☐ **ONE decision still open — "Tick concepts, or tick steps"**, asked 2026-09-17 and
->     unanswered: does the advisor name the steps himself, or does the app group the ticked
->     concepts? Pivot's step 5 sits on the agenda
->     with no slides behind it, which is why the running order cannot be computed from the ticks.
+>   - ☑ **"Tick concepts, or tick steps" — RULED BY MIKE 2026-09-20, as recommended: the advisor
+>     names the steps himself.** He ticks concepts, then names each step and drags ticked concepts
+>     into it, and **a step holding nothing still prints on the agenda**. Pivot's step 5 sits there
+>     with no slides behind it, which is why the running order can never be computed from the ticks.
 >     **The drawing's other three were settled by building them** — see §0 *What gates what*.
 > - ☑ **The session scope menu — APPROVED TO BUILD FROM, 2026-09-17** —
 >   [`design/mockups/strategy-session-menu.html`](../mockups/strategy-session-menu.html), the
@@ -105,7 +109,8 @@ the session menu puts all 52 on a screen; 16 of them reach the real capture tabl
 Mike's own workbook, and what an advisor types there is saved box by box against the client's
 session (§4) and carries into the assembled document.
 **Five stages of the eight remain**, and the one immediately ahead — the advisor naming his own
-steps — waits on the open decision in *What gates what* below.
+steps — was unblocked by Mike's ruling of 2026-09-20 in *What gates what* below. It is not
+designed.
 
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
 its method is below.** The teaching graphic is drawn by us, never imported from his deck.
@@ -453,14 +458,14 @@ here, so nothing is missing in them either.)*
 **Stages 1, 2 and 3 are built.** Three of the four questions on **the assembled plan**
 ([`strategy-plan-output.html`](../mockups/strategy-plan-output.html)) were settled by building
 them on Mike's instruction, and the built code — not this table — is where each answer now
-lives. **One is still open, and it is the only thing gating the work ahead.**
+lives. **The fourth was ruled by Mike on 2026-09-20, so nothing here gates the work ahead.**
 
 | The question, as Mike sees it | How it stands |
 |---|---|
 | **"Can a concept be used twice in one session?"** | ☑ **Yes**, settled by Stage 2. Porter's is visited twice — observations, then responses against what the client said — both writing into one table. |
 | **"The discussion / action split"** | ☑ **Split, with a per-step switch**, settled by Stage 3. A step announces itself twice, *Discussion* then *Action*; `step.teaches` drops the first where there is nothing to teach, which is how the Action Plan avoids a blank teaching page. |
 | **"What does the client keep?"** | ☑ **One document, two states**, settled by Stage 3. The same pages print blank as the session pack and filled in as the plan; an untouched table prints one line rather than two dozen empty rows. |
-| 🔴 **"Tick concepts, or tick steps?"** | ☐ **STILL OPEN — asked 2026-09-17, unanswered.** It decides the document's running order, and nothing after Stage 3 can be built without it. Until it is answered, `planSteps` in [`pages/strategy-planner.vue`](../../pages/strategy-planner.vue) puts everything scoped into one step — **a stated limit, never a decision that steps are one.** |
+| **"Tick concepts, or tick steps?"** | ☑ **The advisor names the steps**, ruled by Mike 2026-09-20. He ticks concepts, then names each step and drags ticked concepts into it, and **a step holding nothing still prints on the agenda** — which is the only way Pivot's step 5 *Do It & Review It*, with no slides behind it, can exist. `planSteps` in [`pages/strategy-planner.vue`](../../pages/strategy-planner.vue) still puts everything scoped into one step; that is now **work outstanding**, not an open question. |
 
 ---
 

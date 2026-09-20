@@ -5,34 +5,34 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-19 at commit `fa48a357`.**
+> **Measured 2026-09-20 at commit `3ac96e14`.**
 
-**Working code: 104,505 lines** across 495 files — blank lines and
+**Working code: 104,608 lines** across 495 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
-| Screens and components (`components`) | 165 | 51,093 | 16,299 |
-| The Restify backend (`server`) | 233 | 47,370 | 35,091 |
+| Screens and components (`components`) | 165 | 51,155 | 16,319 |
+| The Restify backend (`server`) | 233 | 47,373 | 35,103 |
 | Pages (`pages`) | 43 | 2,339 | 1,251 |
 | Front-end helpers (`utils`) | 31 | 2,132 | 1,853 |
-| Mixins (`mixins`) | 11 | 1,023 | 354 |
+| Mixins (`mixins`) | 11 | 1,061 | 401 |
 | Thin proxies to the backend (`server-middleware`) | 6 | 237 | 87 |
 | Configuration (`config`) | 1 | 114 | 165 |
 | Nuxt configuration (`nuxt.config.js`) | 1 | 95 | 130 |
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **495** | **104,505** | **55,288** |
+| **Total working code** | **495** | **104,608** | **55,367** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
-| JavaScript | 285 | 51,054 |
-| Vue screens and components | 210 | 53,451 |
+| JavaScript | 285 | 51,095 |
+| Vue screens and components | 210 | 53,513 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 55,288 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 575 files, 100,492 lines of test code.
+- **Comments and documentation** inside those same files: 55,367 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 576 files, 100,614 lines of test code.
 - **Locale strings**: 6,475 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 
