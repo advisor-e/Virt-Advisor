@@ -9,54 +9,45 @@
 
 ---
 
-## 2026-09-18 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-21 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Six commits, all pushed.** Suite **12,200 green** (565 suites), lint 0, coverage and audit
-gates passed. Tree clean. **6 ahead of `master`, 0 behind. 20 live items.**
+**Two commits, both pushed, and a PR to `master` opened.** Suite **12,341 green** (570 suites),
+lint 0, coverage and audit gates passed at push. Tree clean. **26 live items.**
 
-🔴 **BOTH MACHINES WERE MERGED TO `master` TODAY — PR #99 (29) and PR #100 (63).** They stood 29
-and 57 ahead of a `master` neither had reached. Both are in now, and the Handbook line read *"0
-commits"* for both machines for the first time. **This is the 97-commit drift caught at 92**, and
-it is why `/startup` step 6 exists. The six commits above are since that merge.
+🔴 **7.12 IS THE LAPTOP'S; THIS MACHINE'S JOB IS NOW 7.13.** The merge of `origin/master` did
+**not** clear the duplicate `check:branch` had been warning about — **it produced it**. Both
+machines had filed different work under 7.12, this branch's copy won the merge, and
+`tests/unit/itemIdentity.test.js` — which came across in that same merge — caught it on the first
+run. **Mike had already ruled on it** in [`ITEM-NUMBERING.md`](ITEM-NUMBERING.md) §2026-09-19:
+7.12 is **restored**, not renumbered, and the later-filed job takes the free number. Applied as
+ruled, not re-decided. ⚠ **Do not "fix" this again from the laptop** — both machines fixing it
+independently is how it started.
 
-🔴 **"CALCULATOR" IS GONE — MIKE'S RULING** (`b2fbaefb`). *"We have models and templates. A model
-includes CALCULATIONS but it is NOT a calculator."* It was **our** word and it had reached the
-advisor's screen. The block heading is now **`**A model that fits**`** and there are **zero**
-occurrences left in either prompt. ⚠ **The string is load-bearing twice** — the advisor reads it
-AND `buildRetryInstruction` names it back to the AI, so renaming one half would have broken the
-correction silently. Pinned in `reportModelSummaries.test.js`. **His workbook names stay** (*Quick
-Calculator*, *Hrly Rate & Tax Calculator*) — his source material.
+🔴 **ITEM 17 — THE SALES TRACKER, FILED AND SURVEYED.** Mike asked for a merge plan, then said to
+file it. **Brief: [`features/sales-tracker.md`](features/sales-tracker.md)**, with a history page
+and an index row — a feature page without its companion is **dropped from the Handbook silently**
+(`tests/unit/newFeature.test.js`). The app is `E:/Visual Code Projects/sales-tracker-nuxt-clean`,
+origin `advisor-e/sales-tracker-nuxt`, and the two are **in step**. Someone had already converted
+it off TypeScript, down from Nuxt 3 to Nuxt 2, into Pug and Buefy — **that is what "clean" means**,
+and the screens are genuinely on our stack.
 
-🔴 **7.13 — THE MODEL LOOKUP, AND THE OLD NOTES ARE DELETED** (`4269c663`, `de5d4875`).
-Mike's challenge: his original task was *"check the summary page, look it up… and where to find it
-in the perf report section"*. **The lookup half was never built.** Four sessions tuned prompt
-wording instead; each moved some models and moved others backwards. `/api/report/model-guide`
-already serves the records, `injectVideoInfo` is the working pattern for templates, and **his own
-ruling of 2026-08-22 is in `pages/model-guide.vue`** saying that page serves the AI as well as a
-person. **Build steps now in `advisory-engine.md` §4** — six steps, the three call sites
-(`advisorEngine.js` 3075 / 3937 / 4244) each paired with the raw buffer that still holds the
-`[[MODEL:]]` marker, and the collision warning moved BEFORE the build instruction. **A half-fix I
-built (`repairCalculatorLinks`) was deleted** — it covered 13 of 19 and could not touch the six
-collisions, including Sales Dashboard.
+**THE IMPACT TEST IS HALF ANSWERED AND THE BRIEF SAYS SO.** Mike ruled it serves the firm's **own
+advisors**, not their clients. **The measurement is NOT named, so no design begins.**
 
-🔴 **OPENAI ANSWERED, AFTER this morning's ruling closed the gate** (`b3d7adeb`, `9b948c66`).
-§5.3 of `OPENAI-AUDIO-TERMS-EMAIL.md` holds it verbatim. **(a) Human access IS possible** —
-employees and third-party contractors, for abuse review. **Never write that no human can see it;
-the consent wording makes no such promise and must not gain one.** **(b) The clean transcription
-retention does NOT cover this feature** — we send the transcript on to `/v1/chat/completions` for
-the two reports, which carries **30-day abuse logs**. **Mike has SENT the reply letter**
-(`OPENAI-ZDR-REPLY-LETTER.md`) asking for ZDR on both endpoints and a written confirmation in four
-points. **A reply is expected — it is his thread, not ours.**
+⚠ **THREE BLOCKERS, ALL READ FROM THE SOURCE, NOT FROM ITS DOCS:** Prisma across 33 files; all 36
+API files inside Nuxt `serverMiddleware`; the `openai` SDK. Zero tests. `.nvmrc` says Node 20.
+🔴 **Its own `CLAUDE.md` still describes the old Nuxt 3 app — never trust it, read the source.**
+**Recommended NOT to absorb wholesale — pipeline and COI only.**
 
-**15.5 rescored 5 → 1** (`7d929679`). It claimed *"security, privacy or data integrity"* and is a
-build-time deck reader no advisor meets. The gap is unchanged and real; only its claim on
-attention moved.
+**MIKE ASKED TWICE TODAY WHY SOMETHING WAS MISSING** — the Sales Tracker from the Handbook, and
+7.13 from the laptop's list. **Both had the same cause and neither was a fault:** this branch was
+9 commits ahead of `master`, and both the Handbook and the other machine read from `master`. The
+PR is the fix. **This is item 14.3's territory and `/startup` step 6's whole reason for existing.**
 
 **LAPTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `advisory-engine.md`,
-`report-models.md`, `meeting-review.md`, `ARTEFACTS.md`, `CODE-SIZE.md`, and the two prompts
-(`discover.txt`, `client.txt`) plus `templateHeadingCheck.js` for the rename. **No `activeOn` is
-set on this machine.** Your 7.5, 15.1 and 15.7 are untouched.
+`features/README.md`, and the two new `sales-tracker` pages. **No `activeOn` is set on this
+machine.** Your 7.5, 15.1 and 15.7 are untouched.
 
-**NEXT:** 7.13 is unclaimed and ready to build from the written steps. **15.6 needs Mike** — eight
-concepts name a response form the app cannot find, five of them near-misses on a typed name, and
-his corrections file is deliberately unapplied.
+**NEXT:** **7.13** is unclaimed and ready to build from the written steps in `advisory-engine.md`
+§4. **15.6 needs Mike** — eight concepts name a response form the app cannot find. **17 needs
+Mike's score and, before any design, the measurement.**
