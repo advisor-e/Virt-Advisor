@@ -12,7 +12,9 @@
 ## 2026-09-20 · Laptop · branch `feat/advisor-progress`
 
 **Suite 12,319 green** (570 suites), lint 0 errors, coverage and audit gates passed. Tree clean.
-🔴 **LEVEL WITH `master` — 0 ahead, 0 behind.**
+🔴 **LEVEL WITH `master` — anything this branch holds beyond it is housekeeping.** Take the
+counts from `npm run check:branch`, never from a number written here: it goes stale on the next
+save, and this line said *"0 ahead, 0 behind"* while two commits sat on top of it.
 **[PR #102](https://github.com/advisor-e/Virt-Advisor/pull/102) was merged on 2026-09-20**
 (`4b65b498`), taking all 21 commits across: the step builder and the concept drawings. **Merge
 `origin/master` in before you start** — your branch went 22 behind the moment it landed.
