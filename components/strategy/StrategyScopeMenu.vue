@@ -70,9 +70,12 @@
     span.ssm-sum {{ $tc('strategyPlanner.menu.totalIncluded', chosen.length, { count: chosen.length }) }}
     span.ssm-rest {{ $t('strategyPlanner.menu.totalRest', { count: totalConcepts - chosen.length }) }}
 
-  //- 🔴 THE SCREEN SAYS WHAT IT IS NOT. Ticking records the scope; the screens that teach
-  //- each concept and capture the answers are stages 2 to 5 and are not built. Without this
-  //- line the menu looks finished, which is the state a UAT tester cannot tell from done.
+  //- 🔴 THE SCREEN SAYS WHAT COMES NEXT, AND THAT ITS WORK IS KEPT.
+  //- ⚠ IT USED TO SAY THE OPPOSITE — "nothing typed is kept yet" — written while stages 2
+  //- to 5 were unbuilt and left standing after they shipped. An advisor was being told his
+  //- work would be lost when it would not, which is worse than saying nothing: the honest
+  //- reading is to stop using the screen. Corrected 2026-09-20 on Mike's ruling, found by
+  //- walking the journey rather than by any test.
   .ssm-stage {{ $t('strategyPlanner.menu.stageNotice') }}
 </template>
 

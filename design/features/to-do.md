@@ -56,8 +56,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 19 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 20 | **15.7** Thirty-three concepts have no graphic, so the advisor teaches from nothing ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-18 |
 | 21 | **15.8** Two stock images in the Strategy Planner have no licence check ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 22 | **15.10** Page 2 of six decks is missing from the plan the app produces ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**21 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
+**22 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

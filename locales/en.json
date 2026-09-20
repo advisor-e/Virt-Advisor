@@ -5897,7 +5897,7 @@
       "sharedBothColumns": "The deck puts the same sentence in both of this row's columns.",
       "totalIncluded": "{count} concept included | {count} concepts included",
       "totalRest": "· {count} not included · order and steps come next",
-      "stageNotice": "Ticking records what this session will cover. The screens that teach each concept and capture the client's answers are still being built — nothing typed is kept yet.",
+      "stageNotice": "Ticking records what this session will cover. You name the steps next, and everything you and the client type from there is saved against this session.",
       "noneLoaded": "The session scope menu could not be loaded.",
       "notRunnable": "{count} concept you scoped has no capture screen yet, so it is not shown below. It is still recorded as part of this session's scope. | {count} concepts you scoped have no capture screen yet, so they are not shown below. They are still recorded as part of this session's scope."
     },
