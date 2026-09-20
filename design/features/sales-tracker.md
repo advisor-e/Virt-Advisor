@@ -182,16 +182,46 @@ render, and they can be put beside whatever replaces them.
 | Buefy + Bulma | `openai` SDK → our REST client |
 | 8 pages, 7 components, 6 locales | **Multi-tenancy — see §1** |
 
-**Two bugs were found by driving it, and both are fixed or recorded:**
+### The two bugs found by driving it — diagnosis, not just the fix
 
-1. **`middleware/firm-manager.js` had no `process.server` guard**, so `/team` and `/lists`
-   redirected to `/login` on every server-rendered visit. **Fixed 2026-09-21** (one line, with a
-   comment). `middleware/auth.js` had the guard; this one did not.
-2. 🔴 **The landing page `/` is the Blog, and it requires no login.** A person typing the address
-   lands there, is never prompted to sign in, and every tab they click bounces them to `/login`.
-   **This is not a bug in the tabs — it is a missing front door.** It cost an hour of this session
-   and it must not survive the port. **In Virt Advisor the entry point is an authenticated hub
-   page, so this disappears by construction.**
+**Both presented as the same symptom — *"I click a tab and it throws me back to login"*. They were
+different faults, and the second was mine to find three theories sooner.**
+
+#### Bug 1 · `/team` and `/lists` always bounced · **FIXED**
+
+**Cause.** `middleware/firm-manager.js` had no `process.server` guard, so its role check ran during
+server-side rendering — where there is no cached auth state and the session cookie is not visible.
+It concluded *not authenticated* and redirected. `middleware/auth.js` has the guard on line 7; this
+file did not.
+
+**Fix.** One line, `if (process.server) return`, with a comment saying why. **Applied 2026-09-21 in
+the Sales Tracker repo — ⚠ still uncommitted there** (see §13).
+
+**Proof.** Driven in a real browser before and after: `/team` and `/lists` went from `KICKED` to
+`OK`, with 5 team rows rendering.
+
+#### Bug 2 · every tab bounced a visitor · **NOT A CODE FIX — a missing front door**
+
+**Cause.** `/` is the **Blog page and it requires no login.** A person who types the address lands
+there, is never prompted to sign in, and every tab they click correctly sends them to `/login`.
+Nothing is broken; there is simply no front door.
+
+**Why it took three wrong theories — recorded so nobody repeats them:**
+
+| Theory | Why it looked right | Why it was wrong |
+|---|---|---|
+| The `Secure` cookie flag | `csrf_token` really is `Secure` under `NODE_ENV=production`, and the site is plain HTTP | Chrome treats `localhost` as trustworthy and sends it anyway |
+| `Set-Cookie` being overwritten | `csrf.js:18` really does use `setHeader`, which replaces | Both cookies arrive; the raw headers show it |
+| A stale session after the password reset | Plausible, and 52 old sessions existed | A private window failed too |
+
+🔴 **THE METHOD THAT FOUND IT, AND THE LESSON.** Every test that "passed" used `curl`, which
+**ignores cookie rules a browser enforces** — so the *server* was proven fine while the *screens*
+were never proven at all. It was found within one run of driving a real browser **the way Mike
+actually used it: land on the address, click a tab, without logging in first.** Testing the ideal
+path proves nothing about the real one. This is [[feedback_walk_the_conversation]] exactly.
+
+**It must not survive the port**, and it does not: in Virt Advisor the entry point is an
+authenticated hub page, so a signed-out visitor never sees a working-looking screen.
 
 ---
 
@@ -338,8 +368,15 @@ theoretical one:
 from, never a place to work** — it lives only on `E:`, the drive flagged as an unreliable backup,
 and its own `CLAUDE.md` still describes a Nuxt 3 app that no longer exists.
 
-**The one-line fix from §0 is currently uncommitted in that repo.** It should be committed there so
-it is not lost, and it is needed in the port regardless.
+⚠ **THE BUG-1 FIX FROM §7 IS UNCOMMITTED AND EXISTS IN ONE PLACE ONLY** — the working tree at
+`E:/Visual Code Projects/sales-tracker-nuxt-clean/middleware/firm-manager.js`, on the drive above.
+**If that folder is lost, the fix is lost**, and the next person to run the app meets the same
+`/team` and `/lists` failure with nothing to say why.
+
+**It survives in two ways and needs only one of them:** committed in that repo (a one-line change
+with its comment), or carried into the port, where the same guard is needed on our own tier check.
+**The diagnosis in §7 is the part that must not be lost either way** — the fix is one line and could
+be rewritten in a minute; knowing *why* took most of a morning.
 
 ---
 
