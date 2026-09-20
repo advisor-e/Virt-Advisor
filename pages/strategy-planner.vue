@@ -404,6 +404,31 @@ export default {
     },
 
     /**
+     * Concept id → the display name of the deck it came from.
+     *
+     * 🔴 THE STEP BUILDER'S LEFT COLUMN IS UNREADABLE WITHOUT THIS. The approved
+     * drawing (`design/mockups/strategy-step-builder.html`) puts the deck under
+     * every card, because that is the only thing distinguishing forty-odd chips
+     * from each other. Both branches of `placeableCards` used to read a
+     * `deckName` field that exists nowhere — not in `data/strategy-frameworks.json`,
+     * not on a concept visit — so `card.deck` was always '' and the `v-if` that
+     * guards the label never fired. The column rendered as identical white boxes
+     * and still looked plausible, which is why no test caught it and Mike did.
+     *
+     * `this.decks` is the only place the two are joined, so the map is built from
+     * it rather than a second field being added to the payload.
+     *
+     * @returns {Object<string, string>}
+     */
+    deckNameByConcept () {
+      const byConcept = {}
+      this.decks.forEach((d) => {
+        (d.concepts || []).forEach((c) => { byConcept[c.id] = d.name })
+      })
+      return byConcept
+    },
+
+    /**
      * EVERY CARD THE ADVISOR CAN PLACE, in the order the session would otherwise run
      * them. This is the one list stage 2 offers and stage 3 and the document both read,
      * so a card cannot exist on one screen and not another.
@@ -426,7 +451,7 @@ export default {
           conceptId,
           hasTable: true,
           name: f.name,
-          deck: f.deckName || '',
+          deck: this.deckNameByConcept[conceptId] || '',
           tag: '',
           summary: f.conceptSummary || '',
           instruction: f.captureInstruction || '',
@@ -468,7 +493,7 @@ export default {
           // worked through" when there was never anything to work.
           hasTable,
           name: visit.name + (multi ? ' (' + visit.part + ')' : ''),
-          deck: visit.deckName || '',
+          deck: this.deckNameByConcept[visit.conceptId] || '',
           // The tag is what tells an advisor, on the step builder, that these two
           // chips are the SAME table visited twice rather than a duplicate to remove.
           tag: multi ? this.$t('strategyPlanner.capture.part', { n: visit.part }) : '',
