@@ -462,31 +462,6 @@
       "comment": ""
     },
     {
-      "ref": "15.7",
-      "name": "Five concepts have no graphic, so the advisor teaches those from nothing",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off without it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-18"
-      },
-      "why": "28 of the 33 concepts with a trusted page now carry their approved drawing, on the advisor's screen and in the client's plan. The five left hold a pasted-in photograph that must come out to a file first.",
-      "risk": "For those five an advisor still talks a client through a framework with nothing on screen to point at, which is the opposite of Mike's own instruction that the graphic goes up first and the boxes wait behind a button. Market Diffusion Theory, Product Life Cycle, the Volatility Graph, the Digital Funnel Storyboard and Packaging/ Bundling are the five. The Volatility Graph's fill-in table is a deck page, so it drops out of the plan entirely until its drawing lands.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-18 - on approving the first one: 'i like it, that's what ive been looking for - make sure your process is recorded so it can be applied to all the rest', then 'we start on the others'."
-      },
-      "touches": "components/strategy/StrategyTeachingSlide.vue, which is the shell they render into; StrategyCaptureCard.vue and StrategyPlanDocument.vue, where the graphic and the response page belong; data/strategy-frameworks.json deck and page; and design/mockups, one approved drawing per concept.",
-      "note": "🔴 28 OF 33 ARE IN; ONLY THE FIVE WITH A PASTED-IN PICTURE REMAIN. build-concept-graphics.js lifts a drawing from its approved mockup, so what ships is provably what Mike saw, and StrategyConceptGraphic serves all three surfaces. Proved in a browser 2026-09-20: 27 drawings on the run screen, 27 in the client's plan, and the 'no capture screen yet' notice fell from 34 concepts to 17. 🔴 MIKE LIFTED A CAP THE SAME DAY - placeableCards dropped any concept with no fill-in table; RULED 2026-09-20 a concept needs a table OR a drawing. Two faults in the method itself were fixed the same day - see the Brief. NEXT: lift the five images out to files. Detail: strategy-planner.md section 0.",
-      "comment": "2026-09-18 - filed on his instruction after the imported deck pages were removed. Not a repeat of the deleted stage 4: that imported his pages as images and locked in the advisor-e.com logo, undone within hours of shipping. Technology Points proved the ruling right - the panel his slide crops off carries that same logo, so flattening it needed a second method measured out of the raster. The last eleven closed the drawing the same day. Five faults, none catchable by any test; the worst was a crop that pasted a photograph of his own text over the rendered text. Detail in ARTEFACTS.md."
-    },
-    {
       "ref": "15.8",
       "name": "Two stock images in the Strategy Planner have no licence check",
       "rankedByMike": false,

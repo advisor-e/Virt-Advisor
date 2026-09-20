@@ -24,9 +24,11 @@ import { CONCEPT_GRAPHICS } from '~/components/strategy/concepts'
  * a gap to paper over — the screens then show Mike's own words, which is what all
  * 52 did before item 15.7. `hasConceptGraphic` is how a caller asks.
  *
- * 🔴 THE DRAWING LOADS ONLY WHEN ITS CONCEPT IS OPENED. The 33 weigh 361 KB
- * gzipped between them against a 300 KB first-load budget for the whole app, so
- * the registry holds lazy imports and never a static list of components.
+ * 🔴 THE DRAWING LOADS ONLY WHEN ITS CONCEPT IS OPENED. The 32 weigh 375 KB
+ * gzipped between them — five of them carry a photograph, the largest 120 KB —
+ * so the registry holds lazy imports and never a static list of components.
+ * Measured 2026-09-20: first load is 129.6 KB gzipped against a 300 KB budget,
+ * and no drawing is in it.
  *
  * ⚠ THE FIRM'S OWN BRANDING HAS NO SOURCE IN THIS APP. Advisor-e holds firm
  * identity, not us, so until it reaches a token the mark prints the same

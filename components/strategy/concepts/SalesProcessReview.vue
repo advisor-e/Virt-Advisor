@@ -50,7 +50,7 @@
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: 'SalesProcessReview',
+  name: 'ConceptSalesProcessReview',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */

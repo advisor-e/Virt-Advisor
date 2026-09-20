@@ -54,7 +54,7 @@
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: 'HorizontalIntegration',
+  name: 'ConceptHorizontalIntegration',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */

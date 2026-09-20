@@ -87,7 +87,7 @@
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: 'BlueOceanStrategy',
+  name: 'ConceptBlueOceanStrategy',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */

@@ -202,6 +202,35 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.7 — five concepts had no graphic, so the advisor taught those from nothing.**
+✅ Closed 2026-09-20. All 33 concepts with an approved drawing are wired: **33 render on the
+advisor's run screen and 33 in the client's plan**, and the *"no capture screen yet"* notice fell
+**17 → 12**. The five were Market Diffusion Theory, Product Life Cycle, E. Deming's Volatility
+Theory, the Digital Funnel Storyboard and Packaging/ Bundling. Each was opened and looked at in the
+assembled plan, not counted: Market Diffusion's stray *"Header"* cropped off, Deming's Excel title
+and data table gone, and Packaging's tin clipped to its own ink with no photograph of his text over
+the rendered text.
+
+🔴 **THE PICTURE TRAVELS INSIDE THE DRAWING, AND THAT WAS MIKE'S CALL.** The proposal was to lift
+each photograph out to `static/` and point the SVG at it. He refused it on the only ground that
+matters — *"theres no point having a graphic if it wont push through to the clients plan"* — and
+that plan is printed, saved as a PDF and emailed on. Re-examined,
+**the reason those five were ever refused did not hold:**
+[`build-concept-graphics.js`](../../scripts/build-concept-graphics.js) measured them (307 KB
+gzipped) against a 300 KB *first-load* budget, while every drawing is a lazy import and none is in
+the first-load bundle at all — which
+[`conceptGraphics.test.js`](../../tests/unit/conceptGraphics.test.js) pinned three tests further
+down the same file. **Measured on a real build: first load 129.5 → 129.6 KB gzipped.** A file in
+`static/` would weigh 118 KB against the 120 KB it weighs inline, because base64 costs a third and
+gzip hands it straight back. The refusal is gone; a **per-drawing ceiling** replaced it, which still
+catches an unscaled original nobody could see on a screen. Inline also makes the shipped component
+character for character the artefact he approved, the firm mark aside.
+
+**Two Vue console warnings went with it.** `6MarketingQuestions` and `10MarketingMessages` are not
+valid component names — a name must start with a letter — so both logged *"Invalid component name"*
+on every session that opened them. Nothing broke, and nobody in UAT would ever have seen it. Every
+generated drawing now registers as `Concept<Name>`.
+
 **15.5 — the deck-reading tool had no home, and the drawing method depended on it.**
 ✅ Closed 2026-09-20. `scripts/read-deck-pages.py` is committed, with
 `scripts/requirements-deck-reader.txt` pinning `pymupdf==1.28.2`. Three commands: `<deck> <page>`

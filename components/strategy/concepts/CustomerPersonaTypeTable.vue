@@ -114,7 +114,7 @@
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: 'CustomerPersonaTypeTable',
+  name: 'ConceptCustomerPersonaTypeTable',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */

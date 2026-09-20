@@ -51,7 +51,7 @@
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: 'CustomerLoyaltyProgramme',
+  name: 'ConceptCustomerLoyaltyProgramme',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */
