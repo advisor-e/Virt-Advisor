@@ -15,11 +15,11 @@
 Merged up to date with the desktop's PR #101 first. Suite 12,304→12,329 green (571 suites),
 coverage and audit gates passed. Take ahead/behind from `npm run check:branch`.
 
-🔴 **MIKE REJECTED THE BUILT STEP BUILDER ON SIGHT** — *"cluncky - ugly and lacks logic …
-sloppy work"*. New drawing: `design/mockups/strategy-session-process.html`, **four decisions
-all ruled by him 2026-09-21** (step arrives filled · AI proposes only · all four manager tiers
-author · the two closing blocks leave the screen). ⛔ **RULED IS NOT APPROVED TO BUILD.**
-Approving the drawing and building from it are each still to be asked. The page says so on its face.
+🔴 **BUILD SESSION HAS A REPLACEMENT DESIGN, AND MIKE APPROVED IT 2026-09-21** —
+`design/mockups/strategy-session-process.html`, **four decisions all ruled by him 2026-09-21**
+(step arrives filled · AI proposes only · all four manager tiers author · the two closing blocks
+leave the screen). ⛔ **APPROVED IS NOT CLEARED TO BUILD.** Building from it is still to be
+asked. The page says so on its face.
 
 🔴 **TWO NEW BINDING RULES ON HOW QUESTIONS ARE PUT TO HIM** — `CLAUDE.md`, echoed in
 `.claude/commands/startup.md`. A bare "yes" must be a complete instruction on its own, in the
