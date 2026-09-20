@@ -1,0 +1,499 @@
+<title>Session Processes</title>
+<meta name="description" content="Stage 2 redrawn: the session opens on the firm's standard process, concepts drag into steps, and the AI proposes — never decides.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --bright: #00b1e0; --eg: #6b7f99; --bg: #fff;
+    --good: #4ca52d; --crit: #c0392b; --warn: #ff9900;
+    --ai: #6b3fa0; --ai-bg: #f4effb; --ai-line: #c9b3e6;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    color: var(--body); background: var(--bg); margin: 0;
+    padding-block: 32px 80px; padding-inline: 16px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: clamp(24px, 4vw, 30px); margin: 0 0 6px; text-wrap: balance; }
+  h2 { color: var(--ink); font-size: clamp(18px, 3vw, 21px); margin: 34px 0 4px; text-wrap: balance; }
+  h3.sub { color: var(--ink); font-size: 16px; margin: 22px 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 22px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .note p:last-child { margin-bottom: 0; }
+  .bad { border-left-color: var(--crit); background: #fdf3f2; }
+  .bad h3 { color: var(--crit); }
+  .ok { border-left-color: var(--good); background: #eefaf0; }
+  .ok h3 { color: #1d6b2b; }
+
+  .measure { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--crit); border-radius: 10px; padding: 14px 16px; margin: 0 0 22px; }
+  .measure h3 { margin: 0 0 10px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--crit); }
+  .tablewrap { overflow-x: auto; }
+  table.m { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 460px; }
+  table.m th, table.m td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.m th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  table.m td:first-child { font-weight: 600; color: var(--ink); }
+  table.m td.n { font-variant-numeric: tabular-nums; font-weight: 700; }
+  td.now { color: var(--crit); }
+  td.want { color: #1d6b2b; }
+
+  .ask { background: #eef7ff; border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 13px 15px; margin: 18px 0; font-size: 13.5px; }
+  .ask h3 { margin: 0 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+  .ask p { margin: 0 0 7px; }
+  .ask p:last-child { margin: 0; }
+  .ask .rec { font-weight: 600; color: var(--ink); }
+  .ask .q { margin-top: 9px; padding-top: 9px; border-top: 1px solid #bcdcf6; font-weight: 600; }
+  .ask.ruled { background: #eefaf0; border-color: #a8dcb4; border-left-color: var(--good); }
+  .ask.ruled h3 { color: var(--good); }
+  .ask.ruled .q { border-top-color: #cbe7d2; font-weight: 400; color: var(--eg); font-size: 12.5px; }
+  .ask .ruling { font-weight: 600; color: #1d6b2b; margin: 0 0 9px; padding-bottom: 9px; border-bottom: 1px solid #cbe7d2; }
+
+  /* ---------- the drawn screen ---------- */
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; margin: 0 0 8px; background: #fff; }
+  .chrome { background: var(--wash); border-bottom: 1px solid var(--line); padding: 13px 18px; }
+  .chrome .ceyebrow { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 2px; }
+  .chrome .ctitle { color: var(--ink); font-size: 19px; font-weight: 700; margin: 0; }
+  .chrome .csub { color: var(--eg); font-size: 12.5px; margin: 2px 0 0; }
+  .rail { display: flex; gap: 6px; padding: 11px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rstep { font-size: 12px; font-weight: 600; color: var(--eg); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 4px 13px; }
+  .rstep.done { color: var(--good); border-color: #a8dcb4; background: #f3fbf5; }
+  .rstep.here { color: #fff; background: var(--accent); border-color: var(--accent); }
+
+  /* the process banner — the whole point of the redraw */
+  .proc {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    padding: 13px 18px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(90deg, #f3f9ff, #fff);
+  }
+  .proc-main { flex: 1 1 320px; min-width: 0; }
+  .proc-t { color: var(--ink); font-weight: 700; font-size: 14.5px; }
+  .proc-s { color: var(--eg); font-size: 12.5px; }
+  .prov {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid #a8dcb4; background: #f3fbf5; color: #1d6b2b; white-space: nowrap;
+  }
+  .prov.firm { border-color: #bcdcf6; background: #eef7ff; color: var(--accent); }
+  .btn { font-size: 12.5px; font-weight: 600; border-radius: 8px; padding: 6px 13px; border: 1px solid var(--accent); background: var(--accent); color: #fff; white-space: nowrap; }
+  .btn.ghost { background: #fff; color: var(--accent); }
+  .btn.quiet { background: #fff; color: var(--eg); border-color: var(--line); font-weight: 400; }
+
+  .body2 { display: grid; grid-template-columns: 286px 1fr; }
+  .tray { border-right: 1px solid var(--line); padding: 16px; background: #fcfdff; }
+  .board { padding: 16px 18px 22px; }
+  .panelhead { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--ink); margin: 0 0 3px; }
+  .panelsub { font-size: 12px; color: var(--eg); margin: 0 0 11px; }
+
+  .deckgroup { font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 14px 0 6px; padding-bottom: 3px; border-bottom: 1px solid var(--line); }
+  .deckgroup:first-of-type { margin-top: 0; }
+  .chip { display: block; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 7px 10px 7px 26px; margin: 0 0 7px; font-size: 13px; color: var(--ink); position: relative; }
+  .chip::before { content: "⠿"; position: absolute; left: 9px; top: 6px; color: #c3d2e2; font-size: 13px; letter-spacing: -2px; }
+  .chip .sub { display: block; font-size: 11px; color: var(--eg); }
+
+  .step { border: 1px solid var(--line); border-radius: 10px; margin: 0 0 12px; overflow: hidden; background: #fff; }
+  .stephead { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--wash); border-bottom: 1px solid var(--line); }
+  .stepn { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; flex: none; }
+  .stepname { color: var(--ink); font-weight: 700; font-size: 14px; flex: 1 1 auto; min-width: 0; }
+  .stepcount { font-size: 11.5px; color: var(--eg); white-space: nowrap; }
+  .stepbody { padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+  .placed { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 7px; padding: 6px 10px; font-size: 13px; color: var(--ink); background: #fff; }
+  .placed .sub { display: block; font-size: 11px; color: var(--eg); }
+
+  .drop { border: 1.5px dashed #a9c6e4; border-radius: 8px; padding: 12px; text-align: center; font-size: 12.5px; color: var(--accent); background: #f7fbff; }
+  .drop.live { border-color: var(--bright); background: #eaf8fd; color: var(--ink); font-weight: 600; }
+
+  /* the AI's proposal — never a decision */
+  .sugg { border: 1.5px dashed var(--ai-line); border-radius: 7px; background: var(--ai-bg); padding: 8px 10px; }
+  .sugg-t { font-size: 13px; color: var(--ink); font-weight: 600; }
+  .sugg-why { font-size: 11.5px; color: var(--ai); margin: 2px 0 7px; }
+  .sugg-act { display: flex; gap: 7px; flex-wrap: wrap; }
+  .mini { font-size: 11.5px; font-weight: 700; border-radius: 6px; padding: 3px 10px; border: 1px solid var(--good); background: #f3fbf5; color: #1d6b2b; }
+  .mini.no { border-color: var(--line); background: #fff; color: var(--eg); font-weight: 400; }
+  .ailabel { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ai); background: #fff; border: 1px solid var(--ai-line); border-radius: 999px; padding: 2px 8px; }
+
+  .aibar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border: 1px solid var(--ai-line); background: var(--ai-bg); border-radius: 9px; padding: 10px 12px; margin: 0 0 14px; }
+  .aibar p { margin: 0; font-size: 12.5px; flex: 1 1 260px; }
+  .aibar .ask-in { flex: 1 1 100%; border: 1px solid var(--ai-line); border-radius: 7px; background: #fff; padding: 7px 10px; font-size: 12.5px; color: var(--eg); }
+
+  /* cascade ladder */
+  .ladder { display: flex; flex-wrap: wrap; gap: 0; margin: 12px 0 0; }
+  .rung { flex: 1 1 150px; border: 1px solid var(--line); padding: 9px 11px; background: #fff; }
+  .rung:first-child { border-radius: 9px 0 0 9px; }
+  .rung:last-child { border-radius: 0 9px 9px 0; }
+  .rung + .rung { border-left: 0; }
+  .rung b { display: block; color: var(--ink); font-size: 12.5px; }
+  .rung span { font-size: 11.5px; color: var(--eg); }
+  .rung.owns { background: #f3fbf5; border-color: #a8dcb4; }
+  .rung.owns b { color: #1d6b2b; }
+
+  @media (max-width: 860px) {
+    .body2 { grid-template-columns: 1fr; }
+    .tray { border-right: 0; border-bottom: 1px solid var(--line); }
+    .ladder .rung { border-radius: 9px; border-left: 1px solid var(--line); }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner · Build session, redrawn · item 15.1</p>
+  <h1>Session Processes</h1>
+  <p class="lede">
+    <b>The screen where a session's steps arrive already suggested, and the advisor changes them.</b>
+    Today <i>Build session</i> opens on a blank <i>Step&nbsp;1</i> and forty-two unsorted cards, and every advisor
+    in every firm invents the running order from nothing. This draws what replaces it: a standard
+    process set by the mentor and handed down, concepts dragged into steps, and an AI that proposes
+    against the client in front of you — and never decides.
+  </p>
+  <p class="src">
+    Drawn 2026-09-21 on Mike's instruction: <i>"i should be able to create steps and then use droptab to pair
+    concepts - per step - suggestions from my ai guided conversation should appear which i can accept or
+    decline … it will need cascade functionality."</i>
+    Every concept and step name below is real — from Pivot and from the live concept index.
+    <b>This is a drawing for approval. Nothing here is built.</b>
+  </p>
+
+  <div class="note bad">
+    <h3>What this replaces, read off the running screen today</h3>
+    <ul>
+      <li><b>Stage 2 opens empty.</b> One unnamed step, and 42 cards in a single column.</li>
+      <li><b>Nothing suggests anything.</b> Not the order, not the grouping, not what suits this client.</li>
+      <li><b>Two cards belong to no deck</b> — <i>Strategic Objective and Strategy</i> and <i>Operational
+        Objectives and Tactics</i> are the app's own closing blocks, and the screen asks an advisor to
+        file them into a discussion step when they already have a stage of their own.</li>
+      <li><b>And it hides the artwork.</b> All 33 concept drawings render on <i>Run session</i> — but an
+        advisor only reaches <i>Run session</i> by getting through this screen first.</li>
+    </ul>
+  </div>
+
+  <div class="measure">
+    <h3>How we will know it worked — measured against Pivot, not against opinion</h3>
+    <div class="tablewrap">
+      <table class="m">
+        <thead><tr><th>From a cold start</th><th>Today</th><th>With a handed-down process</th></tr></thead>
+        <tbody>
+          <tr><td>Step names the advisor types</td><td class="n now">5 of 5</td><td class="n want">0 — he renames only what he wants</td></tr>
+          <tr><td>Cards he places by hand</td><td class="n now">42 of 42</td><td class="n want">only the ones he moves</td></tr>
+          <tr><td>Suggestions offered against this client</td><td class="n now">0</td><td class="n want">shown per step, with a reason</td></tr>
+          <tr><td>A firm's own house method, visible anywhere</td><td class="n now">nowhere</td><td class="n want">the mentor's screen, cascading</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:10px 0 0;font-size:12.5px;">
+      <b>Stated honestly:</b> this counts structure. Whether the screen is pleasant to use is a judgement
+      for Mike in UAT — the last step builder was measured this way, passed, and he rejected it on sight.
+      That is why this drawing exists before anything is built.
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Screen 1 — the advisor's Build session</h2>
+  <p class="lede">Shown part-way through: the firm's five steps have arrived, ten concepts are placed,
+    the AI has proposed two more and one is still waiting on an answer.</p>
+
+  <div class="screen">
+    <div class="chrome">
+      <p class="ceyebrow">Strategy Planner</p>
+      <p class="ctitle">Build the session's steps</p>
+      <p class="csub">Harbour Joinery Limited · planning session, 21 Sep 2026</p>
+    </div>
+    <div class="rail">
+      <span class="rstep done">1 · Scope session</span>
+      <span class="rstep here">2 · Build session</span>
+      <span class="rstep">3 · Run session</span>
+      <span class="rstep">4 · Objectives &amp; actions</span>
+      <span class="rstep">5 · Produce plan</span>
+    </div>
+
+    <div class="proc">
+      <div class="proc-main">
+        <div class="proc-t">Your firm's standard session — 5 steps</div>
+        <div class="proc-s">Loaded automatically. Rename, reorder, add or delete anything; nothing here is fixed.</div>
+      </div>
+      <span class="prov">▲ set by the mentor</span>
+      <button class="btn ghost" type="button">Start from blank instead</button>
+    </div>
+
+    <div class="body2">
+      <aside class="tray">
+        <p class="panelhead">Not yet in a step</p>
+        <p class="panelsub">32 waiting — drag one across, or use the box beneath it.</p>
+
+        <p class="deckgroup">Strategic Orientation 2 · 18</p>
+        <span class="chip">Vertical Integration<span class="sub">page 22</span></span>
+        <span class="chip">Boston Model<span class="sub">page 26</span></span>
+        <span class="chip">Sigmoid Curve<span class="sub">page 30</span></span>
+
+        <p class="deckgroup">Sales &amp; Marketing Review · 16</p>
+        <span class="chip">10 Marketing Messages<span class="sub">page 10</span></span>
+        <span class="chip">Digital Funnel Storyboard<span class="sub">page 17</span></span>
+
+        <p class="deckgroup">Organisational Review · 9</p>
+        <span class="chip">Understanding our Habit Drivers<span class="sub">the agenda</span></span>
+      </aside>
+
+      <section class="board">
+        <p class="panelhead">The session's steps</p>
+        <p class="panelsub">Drag to reorder. A step may hold nothing and still appear on the agenda.</p>
+
+        <div class="aibar">
+          <span class="ailabel">✦ AI</span>
+          <p><b>Three suggestions for Harbour Joinery</b>, from their last two conversations and the
+            issues you logged. Each says why. Nothing is added until you accept it.</p>
+          <div class="ask-in">Ask about this client — “they think price is the only lever…”</div>
+        </div>
+
+        <div class="step">
+          <div class="stephead">
+            <span class="stepn">1</span>
+            <span class="stepname">Identify the Resistance</span>
+            <span class="stepcount">4 concepts</span>
+          </div>
+          <div class="stepbody">
+            <div class="placed">Porter's 5 Forces <span class="sub">Strategic Orientation 2 · observations</span></div>
+            <div class="placed">Market Diffusion Theory <span class="sub">Strategic Orientation 2</span></div>
+            <div class="placed">Product Life Cycle <span class="sub">Strategic Orientation 2</span></div>
+            <div class="placed">Technology Points <span class="sub">Strategic Orientation 2</span></div>
+            <div class="sugg">
+              <span class="ailabel">✦ Suggested</span>
+              <div class="sugg-t" style="margin-top:5px;">The 8 Profit Levers</div>
+              <div class="sugg-why">They told you in June that more sales is the only way to grow profit.
+                This is the page that answers it.</div>
+              <div class="sugg-act">
+                <button class="mini" type="button">✓ Accept</button>
+                <button class="mini no" type="button">✕ Not this session</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stephead">
+            <span class="stepn">2</span>
+            <span class="stepname">Choose Your Competition Fronts</span>
+            <span class="stepcount">3 concepts</span>
+          </div>
+          <div class="stepbody">
+            <div class="placed">Porter's 5 Forces <span class="sub">Strategic Orientation 2 · responses — same table as step 1</span></div>
+            <div class="placed">Horizontal Integration <span class="sub">Strategic Orientation 2</span></div>
+            <div class="placed">Blue Ocean Strategy <span class="sub">Strategic Orientation 2</span></div>
+            <div class="drop live">Drop here</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stephead">
+            <span class="stepn">3</span>
+            <span class="stepname">Rehearse the Message</span>
+            <span class="stepcount">3 concepts</span>
+          </div>
+          <div class="stepbody">
+            <div class="placed">6 Marketing Questions <span class="sub">Sales &amp; Marketing Review</span></div>
+            <div class="placed">A.I.D.C.R.A Advertisement Framework <span class="sub">Sales &amp; Marketing Review</span></div>
+            <div class="placed">Sparketing (Friction) Review <span class="sub">Sales &amp; Marketing Review</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stephead">
+            <span class="stepn">4</span>
+            <span class="stepname">Trial the Prototype</span>
+            <span class="stepcount">nothing yet</span>
+          </div>
+          <div class="stepbody">
+            <div class="drop">Drag concepts here — or leave it empty and it still prints on the client's agenda</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stephead">
+            <span class="stepn">5</span>
+            <span class="stepname">Do It &amp; Review It</span>
+            <span class="stepcount">on the agenda only</span>
+          </div>
+          <div class="stepbody">
+            <div class="drop">Pivot's step 5 has no slides behind it and never has. Kept deliberately.</div>
+          </div>
+        </div>
+
+        <button class="btn quiet" type="button" style="width:100%;padding:9px;">+ Add a step</button>
+      </section>
+    </div>
+  </div>
+  <p class="src">The closing blocks — <i>Strategic Objective and Strategy</i>, <i>Operational Objectives
+    and Tactics</i> — are gone from this tray. They are stage 4, and Decision D below asks whether that
+    is right.</p>
+
+  <div class="note">
+    <h3>Four things to notice</h3>
+    <ul>
+      <li><b>The advisor starts with a process, not a blank page.</b> The badge says who set it —
+        <i>set by the mentor</i> — and <i>Start from blank instead</i> is one click away, so the
+        standard is a starting point and never a cage.</li>
+      <li><b>The tray is grouped by deck</b> with a count on each, so the left column reads as
+        structure instead of forty identical boxes.</li>
+      <li><b>A suggestion sits where it would land</b> — inside the step it belongs to, carrying the
+        reason in plain English, with <i>Accept</i> and <i>Not this session</i>. It is dashed and
+        tinted so nothing suggested can be mistaken for something chosen.</li>
+      <li><b>The conversation is a box on this screen</b>, not a separate place to go. What comes back
+        arrives as more suggestions in the steps, never as prose to read and act on.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Screen 2 — where the process is set, and how it comes down</h2>
+  <p class="lede">The mentor writes the standard session once. Each tier below may take it as it stands
+    or keep its own — and an advisor's changes never travel back up.</p>
+
+  <div class="screen">
+    <div class="chrome">
+      <p class="ceyebrow">Mentor Hub · Session Processes</p>
+      <p class="ctitle">The standard planning session</p>
+      <p class="csub">Used by every firm that has not written its own</p>
+    </div>
+    <div class="board">
+      <div class="ladder">
+        <div class="rung owns"><b>Mentor</b><span>writes it · 5 steps</span></div>
+        <div class="rung"><b>Global group manager</b><span>inherits</span></div>
+        <div class="rung"><b>Group manager</b><span>inherits</span></div>
+        <div class="rung"><b>Firm manager</b><span>own version · 6 steps</span></div>
+        <div class="rung"><b>Advisor</b><span>edits per session</span></div>
+      </div>
+      <p class="panelsub" style="margin-top:10px;">
+        The same ladder every cascading block already uses — <code>parentScopeOf</code> in
+        <code>server/utils/tierChain.js</code>. A tier with nothing of its own shows what it inherits and
+        says whose it is; overriding keeps version history and restore, as the Advisory Distinctions
+        table already does.
+      </p>
+
+      <div class="step" style="margin-top:14px;">
+        <div class="stephead">
+          <span class="stepn">1</span><span class="stepname">Identify the Resistance</span>
+          <span class="stepcount">suggests 4 concepts</span>
+        </div>
+        <div class="stepbody">
+          <div class="placed">Porter's 5 Forces · Market Diffusion Theory · Product Life Cycle · Technology Points</div>
+          <div class="sugg" style="border-style:solid;">
+            <div class="sugg-t">What this step is for</div>
+            <div class="sugg-why" style="color:var(--eg);">Written by the mentor. The advisor sees it as a
+              tooltip; the client never does.</div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="stephead">
+          <span class="stepn">2</span><span class="stepname">Choose Your Competition Fronts</span>
+          <span class="stepcount">suggests 5 concepts</span>
+        </div>
+      </div>
+      <button class="btn quiet" type="button" style="width:100%;padding:9px;">+ Add a step to the standard session</button>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>The decisions — all four ruled by Mike, 2026-09-21</h2>
+  <p class="lede">Asked one at a time in chat, one recommendation and one yes/no each.
+    <b>All four went as recommended.</b> The recommendation is kept beneath each ruling so a later
+    session can see what was proposed as well as what was decided.</p>
+  <div class="note bad">
+    <h3>Ruling these four is NOT approval to build this drawing</h3>
+    <p>Each is its own question and each is still to be asked: approving the drawing itself, and then
+      building from it. On 2026-09-16 a drawing recorded as <i>"NOT YET APPROVED TO BUILD FROM"</i> at
+      19:54 had a four-screen app built from it at 21:09. <b>Do not repeat that.</b></p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision A — does the standard process arrive already filled, or only named? — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-21. <b>A handed-down step arrives with its
+      concepts already placed inside it.</b> The advisor drags out anything he does not want for this
+      client; the scope he ticked on <i>Scope session</i> is never changed by it, and a concept dragged
+      out returns to the tray with whatever has been typed into its table untouched.</p>
+    <p class="rec">Recommendation kept, so a later session can see what was proposed as well as what was
+      decided: <b>name and concepts both</b>, because a named-but-empty step still leaves all 42
+      placements to do by hand, which is the cost being removed.</p>
+    <p class="q">Asked as: when the mentor's standard session loads into Build session, should each step
+      arrive with its concepts already placed inside it — instead of arriving as a name only with an
+      empty drop zone to fill?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision B — what the AI is allowed to do here — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-21. <b>The AI proposes and nothing else.</b>
+      It offers a concept into the step it would belong to with one line saying why; it never places,
+      never removes and never reorders. Nothing moves until the advisor presses Accept.
+      🔴 <b>Three consequences that bind the build:</b> (a) a declined suggestion is <i>recorded as
+      offered and refused</i>, so the same one does not return next session; (b) the suggestion and what
+      the advisor did with it are <b>both stored</b> — the Original / AI Suggestion / Final Approved
+      Value trail the engineering standards already require; (c) the reason line is model output and is
+      validated before it is shown, so a suggestion naming a concept that is not in scope is dropped
+      rather than drawn.</p>
+    <p class="rec">Recommendation kept: <b>it proposes into a step and writes one line of reason; it
+      never places, never removes, and never reorders.</b> This is the Build session twin of the scope
+      menu's <i>"The AI pre-ticks, never unticks"</i> — the AI proposes, the human decides.</p>
+    <p class="q">Asked as: should the AI only ever suggest a concept into a step, with nothing moving
+      until the advisor presses Accept — instead of placing concepts itself and leaving him to remove
+      the ones he does not want?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision C — which tiers may hold their own process — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-21. <b>All four manager tiers may write their
+      own standard session</b> — mentor, global group manager, group manager, firm manager. The advisor
+      edits only the session in front of him, and his changes never become the firm's standard by
+      accident. 🔴 <b>This is a stated judgement, not the default:</b> the standing rule is the mentor
+      tier alone unless a lower tier genuinely needs to differ, and a firm's planning method is exactly
+      what one firm does differently from another. <b>A tier that has written nothing shows what it
+      inherits and says whose it is</b>, so an inherited process is never mistaken for an authored one.</p>
+    <p class="rec">Recommendation kept: <b>all four managing tiers author, the advisor edits per session
+      only.</b> The ladder is the one every cascading block already uses — <code>parentScopeOf</code> in
+      <code>server/utils/tierChain.js</code> — so overriding brings version history and restore with it,
+      exactly as the Advisory Distinctions table already does.</p>
+    <p class="q">Asked as: should all four manager tiers each be able to write their own version of the
+      standard session — instead of only the mentor writing one, with every firm receiving that single
+      process?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision D — the two closing blocks — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-21. <b><i>Strategic Objective and Strategy</i>
+      and <i>Operational Objectives and Tactics</i> leave Build session entirely</b> and appear only on
+      <i>Objectives &amp; actions</i>, where they already live. They are the app's own closing blocks,
+      not concepts off any of Mike's decks — which is why they were the only two cards in the tray with
+      no deck beneath them. ⚠ <b>This reverses part of Decision 4 of 2026-09-20</b>, which made them
+      ordinary cards on an ordinary step so their names would stop reaching the client's agenda. That
+      reason stands and is satisfied better this way: out of the step builder, they name nothing on the
+      agenda at all.</p>
+    <p class="rec">Recommendation kept: <b>take them out of this screen.</b> They are the closing half of
+      every session, they already have their own stage, and asking an advisor to sort them alongside
+      concepts off the decks is what made the tray read as arbitrary.</p>
+    <p class="q">Asked as: should the two closing blocks be taken out of the Build session list so they
+      appear only on Objectives &amp; actions — instead of staying in the list as cards to file into a
+      step?</p>
+  </div>
+
+  <div class="note ok">
+    <h3>What this drawing does NOT decide</h3>
+    <ul>
+      <li><b>Where the AI's suggestions come from.</b> The concept index built 2026-09-17 makes them
+        possible — all 11 of Pivot's concepts resolve to their own record — but the selection itself is
+        stage 6 and unwritten. This screen draws where its answers land.</li>
+      <li><b>Wording.</b> Every label here is a placeholder until Mike gives the words.</li>
+      <li><b>The mentor's authoring screen in full.</b> Screen 2 shows the shape and the ladder; the
+        tab, its place in the hub, and version history follow the pattern already built, and are drawn
+        properly once Decision C is answered.</li>
+    </ul>
+  </div>
+
+</div>

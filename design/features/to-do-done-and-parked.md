@@ -202,6 +202,84 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.7 — five concepts had no graphic, so the advisor taught those from nothing.**
+✅ Closed 2026-09-20. All 33 concepts with an approved drawing are wired: **33 render on the
+advisor's run screen and 33 in the client's plan**, and the *"no capture screen yet"* notice fell
+**17 → 12**. The five were Market Diffusion Theory, Product Life Cycle, E. Deming's Volatility
+Theory, the Digital Funnel Storyboard and Packaging/ Bundling. Each was opened and looked at in the
+assembled plan, not counted: Market Diffusion's stray *"Header"* cropped off, Deming's Excel title
+and data table gone, and Packaging's tin clipped to its own ink with no photograph of his text over
+the rendered text.
+
+🔴 **THE PICTURE TRAVELS INSIDE THE DRAWING, AND THAT WAS MIKE'S CALL.** The proposal was to lift
+each photograph out to `static/` and point the SVG at it. He refused it on the only ground that
+matters — *"theres no point having a graphic if it wont push through to the clients plan"* — and
+that plan is printed, saved as a PDF and emailed on. Re-examined,
+**the reason those five were ever refused did not hold:**
+[`build-concept-graphics.js`](../../scripts/build-concept-graphics.js) measured them (307 KB
+gzipped) against a 300 KB *first-load* budget, while every drawing is a lazy import and none is in
+the first-load bundle at all — which
+[`conceptGraphics.test.js`](../../tests/unit/conceptGraphics.test.js) pinned three tests further
+down the same file. **Measured on a real build: first load 129.5 → 129.6 KB gzipped.** A file in
+`static/` would weigh 118 KB against the 120 KB it weighs inline, because base64 costs a third and
+gzip hands it straight back. The refusal is gone; a **per-drawing ceiling** replaced it, which still
+catches an unscaled original nobody could see on a screen. Inline also makes the shipped component
+character for character the artefact he approved, the firm mark aside.
+
+**Two Vue console warnings went with it.** `6MarketingQuestions` and `10MarketingMessages` are not
+valid component names — a name must start with a letter — so both logged *"Invalid component name"*
+on every session that opened them. Nothing broke, and nobody in UAT would ever have seen it. Every
+generated drawing now registers as `Concept<Name>`.
+
+**15.5 — the deck-reading tool had no home, and the drawing method depended on it.**
+✅ Closed 2026-09-20. `scripts/read-deck-pages.py` is committed, with
+`scripts/requirements-deck-reader.txt` pinning `pymupdf==1.28.2`. Three commands: `<deck> <page>`
+reads a page for drawing it, `--register` writes the 37 slides and `deck-pages.json` that
+[`build-concept-register.js`](../../scripts/build-concept-register.js) requires, `--self-check`
+runs the reader against facts the Brief recorded before the tool existed.
+
+🔴 **IT READS HIS PAGE AND REFUSES TO SHIP IT.** `refuse_inside_repo()` exits rather than write
+one byte inside the repository, because a render carries `advisor-e.com` burned into the pixels —
+Mike's ruling of 2026-09-18 held in code instead of in a comment. **The deleted
+`render-deck-slides.py` was recovered from `beacbea2` and deliberately NOT restored:** all it did
+was render his slides into `static/planning-slides/` for the app to serve, which is the breach he
+undid. The item was right that deleting the tool was not the answer, and bringing that one back
+would not have been either.
+
+**What proved it — the measurement named at scoping, before a line was written.** The reader had
+to rediscover facts already in the Brief, each learned by costing a wrong drawing:
+
+| | Recorded | Read |
+|---|---|---|
+| Strategic Orientation 2 page rect | 720×405pt, scale 2.0833 | **720×405pt, scale 2.0833** |
+| Porter's five colours | the approved drawing's own hexes | within **0.7%–2.1%** |
+| Porter's ink | `#002B64` | **`#002B64`** |
+| `= Total Revenue`, 8 Profit Levers | 39.6pt bold navy, not 20.8pt grey | **39.58pt bold `#002B64`** |
+| Sigmoid p30 read with `type` honoured | vector, not "no content" | **vector, 14 stroke-only paths** |
+| Pine p17 fills at opacity 0 | declared, never painted | **31 found, all refused** |
+
+🔴 **RUNNING IT FOUND TWO FAULTS IN THE READER AND ONE FACT NOBODY HAD WRITTEN DOWN.** The
+Advisor-e frame was missed as chrome — the test was a flat 6pt and his frame is 7.08pt, so both
+thresholds are now a fraction of the page and work on any deck. And the first version read vector
+fills, which on this page returns `#FFFFFF #00B1E0` and nothing else: **Porter's ring and its five
+circles are TEN IMAGES.** The only vector on the page is a white backing plate and the five pieces
+of Advisor-e's cyan frame — one of them 95.03 wide, which is the Brief's own *"one only 95 wide"*,
+confirmed independently. That is why step 4 says sample, and it is why the earlier hand-drawn
+Porter's went wrong.
+
+⚠ **The residual is stated, not hidden: colours land within about 2% of range, not exactly.** Four
+statistics were measured against the approved drawing — plain mean 5.8/255, modal bucket worse, a
+symmetric trimmed mean 3.9/255 — and the working is in `dominant()` so nobody re-derives it. The
+asymmetric trims scored 11.1 and 16.1, which is the evidence the trim removes halo and ink rather
+than sliding towards a known answer. **A sampled colour starts a drawing that is approved beside
+his page; it never finishes one.**
+
+**Found while proving it, and fixed the same session on Mike's yes:** the Concept Register told him
+**1** concept was drawn when the app draws **27**. `DRAWN_SHAPES = ['forces']` was correct when
+Porter's was the only drawing and went stale the moment item 15.7 wired the rest — on the one page
+whose purpose is reviewing them. It now reads `components/strategy/concepts/index.js`, which
+`build-concept-graphics.js` generates from the approved mockups, and throws rather than report zero.
+
 **15.9 — nobody had decided how a session's running order is chosen.**
 ✅ Closed 2026-09-20 by Mike's ruling. The question, put to him on the approved assembled-plan
 drawing on 2026-09-17: does the advisor name a session's steps himself and place ticked concepts

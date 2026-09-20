@@ -9,35 +9,34 @@
 
 ---
 
-## 2026-09-20 · Laptop · branch `feat/advisor-progress`
+## 2026-09-21 · Laptop · branch `feat/advisor-progress`
 
-**Suite 12,319 green** (570 suites), lint 0 errors, coverage and audit gates passed. Tree clean.
-**20 ahead of `master`, 0 behind**, all of it in
-**[PR #102](https://github.com/advisor-e/Virt-Advisor/pull/102)**. **24 live items.**
+**Clean, pushed, and offered to `master` as [PR #103](https://github.com/advisor-e/Virt-Advisor/pull/103).**
+Merged up to date with the desktop's PR #101 first. Suite 12,304→12,329 green (571 suites),
+coverage and audit gates passed. Take ahead/behind from `npm run check:branch`.
 
-**15.7 — 28 OF 33 CONCEPTS NOW TEACH FROM THEIR OWN DRAWING** (`681c2f45`). The remaining 24
-approved drawings are wired, Porter's among them; **27 render on the run screen and 27 in the
-client's plan**, proved in a browser. The *"no capture screen yet"* notice fell from **34
-concepts to 17**, which is the measure of the item. **Only the five with a photograph pasted
-inside remain**, each named in `DRAWINGS` where it would sit so nobody re-derives which five.
+🔴 **MIKE REJECTED THE BUILT STEP BUILDER ON SIGHT** — *"cluncky - ugly and lacks logic …
+sloppy work"*. New drawing: `design/mockups/strategy-session-process.html`, **four decisions
+all ruled by him 2026-09-21** (step arrives filled · AI proposes only · all four manager tiers
+author · the two closing blocks leave the screen). ⛔ **RULED IS NOT APPROVED TO BUILD.**
+Approving the drawing and building from it are each still to be asked. The page says so on its face.
 
-🔴 **TWO FAULTS IN THE METHOD, BOTH FIXED.** **Porter's — the exemplar the whole method was
-copied from — could not be generated at all**: it names the firm's mark with ids
-(`firmMark`/`firmDisc`/…) where the 31 later drawings use classes (`firm-mark`/`fm-disc`/…), so
-the generator threw *"no firm-mark group"*. The reader takes both spellings now; his approved
-artefact was not touched, because not one drawn element differs. **And the drift guard reported
-all 28 concepts as drifted from their approved drawing after ANY checkout** — git is
-`core.autocrlf=true` with no `.gitattributes`, so it rewrites these generated files to CRLF
-whenever it touches the working tree, and the pre-push hook then blocked the push. **If you see
-`conceptGraphics.test.js` fail on a fresh clone, take this commit before believing it.**
+🔴 **TWO NEW BINDING RULES ON HOW QUESTIONS ARE PUT TO HIM** — `CLAUDE.md`, echoed in
+`.claude/commands/startup.md`. A bare "yes" must be a complete instruction on its own, in the
+shape `<question> — instead of <what "no" means>? Yes or no.`, and **the question is the last
+sentence of the Non-Coder Summary, every time.** Read them before writing to him.
 
-🔴 **7.12 IS STILL YOURS TO PUT BACK** — unchanged from yesterday. Mike ruled 2026-09-19 that
-`7.12` is *the right calculator is offered only sometimes* and your new job takes `7.13`. This
-laptop applied its half (`e33002be`); your branch still points `7.12` at *the model's page is
-recalled by the AI*, so the guard will refuse your merge until you move it. Your handover is
-dated 2026-09-18 and the check confirms it is current.
+🔴 **`templateCount` IS NOT A CONCEPT COUNT, AND IT NEARLY COST A CORRECT BRIEF.**
+`data/strategy-capture-tables.json` `templateCount` is 20 and counts TEMPLATES; concepts with a
+supplied table are **16**, measured concept by concept against the running API. `captureFormBasis:
+"measured"` means the form's SHAPE is known, not that Mike's workbook exists — Branding, Customer
+Loyalty, Packaging and Pricing all read `measured` and return `supplied: false`. **The Brief's 16 /
+36 were right; an edit "correcting" them was written and reverted.** Measure before rewriting a record.
 
-**DESKTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `strategy-planner.md`,
-`CODE-SIZE.md`, `scripts/build-concept-graphics.js`, `tests/unit/conceptGraphics.test.js`.
-**New:** 23 files in `components/strategy/concepts/`. **No `FirmManagerHub.vue`, no engine code,
-no `report-model-summaries.json`.** **7.5, 15.1 and 15.7 stay active on this laptop.**
+**Stage names are now Mike's:** Scope session · Build session · Run session · Objectives & actions ·
+Produce plan (`locales/en.json` rail keys). Advisor-facing only; the client's agenda is unaffected.
+
+**DESKTOP — shared files I changed:** `CLAUDE.md` and `.claude/commands/startup.md` (the two rules
+above), `pages/strategy-planner.vue`, `locales/en.json`, `design/ARTEFACTS.md`. Merge conflicts in
+`strategy-planner.md`, `to-do-items.json` and `to-do.md` were resolved **block by block** — your
+item 17 and the 7.12→7.13 renumber are intact. `activeOn` for 7.5 and 15.1 unchanged.

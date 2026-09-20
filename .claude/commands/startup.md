@@ -56,6 +56,27 @@ record now says somebody looked.
 2026-09-04). Say what you recommend, say why, ask one question a bare yes or no answers.
 Never two options. No exceptions.
 
+🔴 **AND THE QUESTION ITSELF MUST BE EXACT** (Mike's ruling, 2026-09-21): *"make your
+question more precise so i know exactly what im answering - leave no room for confusion -
+it needs to be a yes or no answer with no doubt what the question is"*. **A bare "yes"
+must be a complete instruction on its own** — it names one specific thing that will
+happen, and "no" means the opposite of exactly that. Never a category (*"shall I fix the
+labels?"*), never an "and" hiding a second decision, and never a question that only makes
+sense if he remembers a number or a recommendation from further up the message. Put it
+inside the question.
+
+🔴 **THE SHAPE, GIVEN BY MIKE 2026-09-21 — use it every time:**
+**`<the question> — instead of <what "no" means>? Yes or no.`**
+The clause after the dash states **what happens if he says NO**, so both answers are on the
+page. ⚠ It must be the **opposite** of what the question asks, never a restatement — a
+clause re-describing the *yes* makes the sentence contradict itself.
+
+🔴 **AND IT GOES LAST, IN THE NON-CODER SUMMARY** (Mike's ruling, 2026-09-21): *"the
+question needs to be the last sentence in the non coder summary - every time"*. The
+question is the **final sentence of the response** — never buried mid-message, never above
+the summary, never followed by a closing remark. **`CLAUDE.md` holds both rules in full —
+read them there.**
+
 ---
 
 **The LIVE-APP / repo-change rule in `CLAUDE.md` still applies throughout.** Steps 1, 2 and

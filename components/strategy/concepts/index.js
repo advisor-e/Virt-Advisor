@@ -24,9 +24,21 @@ export const CONCEPT_GRAPHICS = {
     /* webpackChunkName: 'concept-vertical-integration' */
     '~/components/strategy/concepts/VerticalIntegration.vue'
   ),
+  'market-diffusion-theory': () => import(
+    /* webpackChunkName: 'concept-market-diffusion-theory' */
+    '~/components/strategy/concepts/MarketDiffusionTheory.vue'
+  ),
+  'product-life-cycle': () => import(
+    /* webpackChunkName: 'concept-product-life-cycle' */
+    '~/components/strategy/concepts/ProductLifeCycle.vue'
+  ),
   'sigmoid-curve': () => import(
     /* webpackChunkName: 'concept-sigmoid-curve' */
     '~/components/strategy/concepts/SigmoidCurve.vue'
+  ),
+  'e-demings-volatility-theory': () => import(
+    /* webpackChunkName: 'concept-e-demings-volatility-theory' */
+    '~/components/strategy/concepts/EDemingsVolatilityTheory.vue'
   ),
   'progression-of-economic-value': () => import(
     /* webpackChunkName: 'concept-progression-of-economic-value' */
@@ -88,6 +100,10 @@ export const CONCEPT_GRAPHICS = {
     /* webpackChunkName: 'concept-product-fit' */
     '~/components/strategy/concepts/ProductFit.vue'
   ),
+  'digital-funnel-storyboard': () => import(
+    /* webpackChunkName: 'concept-digital-funnel-storyboard' */
+    '~/components/strategy/concepts/DigitalFunnelStoryboard.vue'
+  ),
   'outbound-messaging-plan': () => import(
     /* webpackChunkName: 'concept-outbound-messaging-plan' */
     '~/components/strategy/concepts/OutboundMessagingPlan.vue'
@@ -107,6 +123,10 @@ export const CONCEPT_GRAPHICS = {
   'customer-loyalty-programme': () => import(
     /* webpackChunkName: 'concept-customer-loyalty-programme' */
     '~/components/strategy/concepts/CustomerLoyaltyProgramme.vue'
+  ),
+  'packaging-bundling': () => import(
+    /* webpackChunkName: 'concept-packaging-bundling' */
+    '~/components/strategy/concepts/PackagingBundling.vue'
   ),
   'sales-process-review': () => import(
     /* webpackChunkName: 'concept-sales-process-review' */
