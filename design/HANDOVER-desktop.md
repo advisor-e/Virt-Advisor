@@ -44,6 +44,14 @@ API files inside Nuxt `serverMiddleware`; the `openai` SDK. Zero tests. `.nvmrc`
 9 commits ahead of `master`, and both the Handbook and the other machine read from `master`. The
 PR is the fix. **This is item 14.3's territory and `/startup` step 6's whole reason for existing.**
 
+⛔ **AND A CORRECTION MADE HERE, SO IT IS NOT REPEATED.** This session was about to leave the
+laptop a note telling it to open a PR for its 7 pushed commits. **That was wrong and it was not
+done.** The laptop's own handover says its day's work sits on a local-only side branch that
+**Mike has ruled nothing on — "parked for him, not pending merge"**. Its 7 pushed commits are
+ordinary finished work and are clean, but **whether they go to `master` is Mike's call, never a
+nudge written into the other machine's note.** A sentence one session writes becoming the next
+session's orders is the failure `CLAUDE.md` names again and again.
+
 **LAPTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `advisory-engine.md`,
 `features/README.md`, and the two new `sales-tracker` pages. **No `activeOn` is set on this
 machine.** Your 7.5, 15.1 and 15.7 are untouched.
