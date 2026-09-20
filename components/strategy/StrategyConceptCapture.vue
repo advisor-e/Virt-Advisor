@@ -15,15 +15,20 @@ section.scc2
   section.scc2-concept(v-if="part === 1 && (conceptSummary || helpsClientTo)")
     //- ⚠ NO HEADINGS. Removed on Mike's instruction, 2026-09-17 — "What this does
     //- in the room" was written by an AI session and he had never seen it.
-    //- 🔴 NO SLIDE IMAGE. Removed 2026-09-18 — his deck pages carry the
-    //- advisor-e.com logo, and a client always sees the ADVISOR'S firm logo.
-    //- StrategyTeachingSlide.vue carries the full reason and what replaces it.
+    //- 🔴 THE DRAWING GOES ABOVE HIS WORDS, so the advisor speaks to it first. It
+    //- is ours, drawn from his page — never a photograph of it, which would lock
+    //- in the advisor-e.com logo where the ADVISOR'S firm logo belongs.
+    strategy-concept-graphic(
+      :concept-id="conceptId"
+      :firm-name="firmName"
+      :firm-colour="firmColour"
+    )
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
     p.scc2-concept-text(v-if="helpsClientTo") {{ helpsClientTo }}
-    //- The concept is taught from the deck until its graphic is rebuilt. With the
-    //- images gone this is true of every concept that has a teaching form, which
-    //- is the honest state rather than a gap being hidden.
-    p.scc2-teaching(v-if="teachingForm") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
+    //- Only where this concept has NO drawing yet is the advisor still sent to the
+    //- deck. Once it has one the sentence would be false, which is the fault this
+    //- whole item exists to close (item 15.7).
+    p.scc2-teaching(v-if="teachingForm && !hasGraphic") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
 
   //- 🔴 A CONCEPT WITH NO TABLE SAYS SO RATHER THAN SHOWING AN EMPTY ONE. Nothing
   //- is borrowed from another concept: a table an advisor puts in front of a client
@@ -33,7 +38,9 @@ section.scc2
   //- "there is no fill-in table for this concept yet" printed beneath it. With the
   //- deck images removed on 2026-09-18 there is no response page on screen to
   //- contradict, so the message is plainly true again and the guard has gone with
-  //- the images. It comes back when the rebuilt graphic lands.
+  //- the images. ⚠ IT DOES NOT COME BACK WITH THE TEACHING GRAPHIC, which is what
+  //- this line used to say — all 33 drawings are teaching pages. The guard returns
+  //- when the five response pages are drawn, which is item 15.11.
   b-notification.scc2-none(
     v-if="!capture.supplied"
     type="is-light"
@@ -123,9 +130,13 @@ section.scc2
  * Vue 2, Options API, Pug. Node/browser safe: no window access outside mounted.
  */
 import speechMixin from '~/mixins/speechMixin'
+import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
+import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyConceptCapture',
+
+  components: { StrategyConceptGraphic },
 
   mixins: [speechMixin],
 
@@ -179,11 +190,29 @@ export default {
 
     /**
      * Which drawing the deck teaches this concept with — `radial-hub` for Porter's.
-     * Named in the data; nothing draws one yet, so the card says so.
+     * Where no approved drawing exists yet, the card sends the advisor to the deck.
      */
     teachingForm: {
       type: String,
       default: ''
+    },
+
+    /** Which concept, so its approved drawing can be found. */
+    conceptId: {
+      type: String,
+      default: ''
+    },
+
+    /** The advisor firm's name, printed beside the mark on the drawing. */
+    firmName: {
+      type: String,
+      default: ''
+    },
+
+    /** The firm's colour, as a CSS colour. */
+    firmColour: {
+      type: String,
+      default: '#0070c0'
     },
 
     /** What is already captured, keyed by field key. */
@@ -194,6 +223,11 @@ export default {
   },
 
   computed: {
+    /** @returns {boolean} true where this concept has an approved drawing */
+    hasGraphic () {
+      return hasConceptGraphic(this.conceptId)
+    },
+
     /** @returns {number} how many visits this concept's table is split into */
     partCount () {
       const parts = (this.capture && this.capture.parts) || []

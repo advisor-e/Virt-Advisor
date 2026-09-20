@@ -34,8 +34,8 @@
 >   on 2026-09-18 on seeing Porter's built that way, §0 *How a concept is drawn*. 🔴 **NEVER an
 >   image of his slide:** that was tried the same day and undone within hours, because it locked
 >   the **advisor-e.com logo** into a client's document against his own ruling that a client always
->   sees the advisor's firm logo. **33 of the 34 are drawn and approved; none is wired in** — that
->   is item 15.7, and §0 stage 4b is where it stands.
+>   sees the advisor's firm logo. **33 of the 34 are drawn and approved, and the first four are
+>   wired in** — that is item 15.7, and §0 stage 4b is where it stands.
 >   - ☑ **"Deck or web page" — ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
@@ -116,11 +116,50 @@ the agenda only"*. **Five stages remain — 4b, 5, 6, 7 and 8.**
 
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
 its method is below.** The teaching graphic is drawn by us, never imported from his deck.
-🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — BUT NOT ONE
-IS WIRED IN.** They
-exist as approved artefacts; `StrategyTeachingSlide.vue` still renders no graphic, so on screen
-an advisor teaches from words alone. **Turning the 33 into components is the other half of 15.7
-and it is outstanding.** The last eleven were surveyed by
+🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — AND THE
+WIRING STARTED 2026-09-20 WITH THE FIRST FOUR.** `scripts/build-concept-graphics.js` lifts an
+approved drawing out of its mockup into a component in `components/strategy/concepts/`, so what
+ships is provably what Mike approved rather than a redrawing of it; the one edit is the firm's
+mark, which becomes props. `StrategyConceptGraphic.vue` resolves a concept to its drawing and is
+rendered by the teaching slide, the concept capture card and the client's plan document — one
+resolver, so the advisor's screen and the client's document can never disagree. **The drawings
+load lazily**: the 33 weigh 361 KB gzipped against a 300 KB first-load budget for the whole app,
+so a drawing arrives when its concept is opened and never before.
+
+🔴 **RUNNING IT FOUND A CAP THAT NO TEST COULD SEE, AND MIKE LIFTED IT THE SAME DAY.** Of the four
+wired, only **The 8 Profit Levers** reached a screen: `placeableCards` in
+[`../../pages/strategy-planner.vue`](../../pages/strategy-planner.vue) dropped any concept whose
+fill-in table Mike has not supplied, so Risk Reward Matrix, the Boston Model and Vertical
+Integration were excluded from the step builder, the run and the plan before a drawing was ever
+asked for. **Only 16 of the 52 concepts have a supplied table**, so that line capped the 33
+approved drawings at 16 however many were wired. ☑ **RULED 2026-09-20 — A CONCEPT NEEDS A TABLE
+*OR* A DRAWING.** The exclusion was right while there were no pictures; a concept with neither
+printed a title and nothing else. One with a drawing now prints Mike's own teaching page instead.
+
+**Three consequences, all of them about what a client reads.** A concept admitted on its drawing
+alone carries `hasTable: false`, and: the plan document prints its teaching page and **no capture
+page**, because *"Scoped for this session, not worked through yet"* is untrue where there was never
+anything to work; a step made only of such concepts **does not announce Action points** that never
+arrive; and the *"n concepts have no capture screen yet"* notice now counts only concepts with
+neither, or it would tell an advisor a concept was dropped while it sat on the screen in front of
+them. Pinned by `tests/unit/strategyPlanDocument.component.test.js`.
+
+⚠ **AND THE FIVE RESPONSE PAGES ARE NOT AMONG THE 33 — that is item 15.11, filed 2026-09-20.**
+Vertical Integration, Horizontal Integration, (Our) Revenue Streams and two others carry their
+fill-in table on a deck page — `responsePage` 24, 34, 37 and 41 — and every one of the 33 drawings
+is a *teaching* page. Three comments in the components promised the rebuilt graphic would restore
+those tables; **they were wrong and are corrected**, because a session reading one believes the gap
+is already handled. A response page is a capture surface rather than a picture, so it needs its own
+decision before the drawing method is applied.
+
+**The differences between the build and the approved artefacts, named as the rule requires — three,
+all deliberate:** the sample firm on every drawing (*Hartley & Co*, initial *H*, `#0070c0`) becomes
+three props; blank lines inside the SVG lose their whitespace, which the lint forbids and which
+draws nothing; and **with no firm branding anywhere in this app, the mark renders the same
+placeholder the Dashboard Report cover already uses** — the words *Firm logo* against an empty
+disc. Firm identity is Advisor-e's, not ours, and the props are the seam for it.
+
+The last eleven were surveyed by
 machine before any were drawn, rather than assumed: **7 were prose**, **2 carried a real panel**
 (Product Fit Review's rotated navy bar, Product Fit's hollow navy outline) and **2 carried a real
 picture** (the Digital Funnel Storyboard, Packaging/Bundling — whose image his slide crops).

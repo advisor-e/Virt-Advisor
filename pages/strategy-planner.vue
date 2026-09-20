@@ -108,6 +108,7 @@
           :concept-summary="card.visit.conceptSummary"
           :helps-client-to="card.visit.helpsClientTo"
           :teaching-form="card.visit.teachingForm"
+          :concept-id="card.visit.conceptId"
           :instruction="visitInstruction(card.visit)"
           :entries="entriesFor(card.visit.conceptId)"
           :eyebrow="card.eyebrow"
@@ -185,6 +186,7 @@ import StrategyConceptCapture from '~/components/strategy/StrategyConceptCapture
 import StrategyGrowthWheel from '~/components/strategy/StrategyGrowthWheel.vue'
 import StrategyPlanDocument from '~/components/strategy/StrategyPlanDocument.vue'
 import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
+import { hasConceptGraphic } from '~/components/strategy/concepts'
 import { isDevHost } from '~/utils/devHost'
 
 /** Where the master app leaves the advisor's token before our pages load. */
@@ -324,11 +326,22 @@ export default {
       return visits
     },
 
-    /** @returns {number} ticked concepts whose fill-in table Mike has not supplied */
+    /**
+     * Ticked concepts that genuinely cannot be run — no fill-in table AND no
+     * approved drawing.
+     *
+     * ⚠ THE NOTICE THIS FEEDS SAYS "not shown below", SO IT MUST NOT COUNT A
+     * CONCEPT THAT IS SHOWN. A concept admitted on its drawing alone (item 15.7)
+     * appears in the session, so counting it here would tell an advisor their
+     * concept had been dropped while it sat on the screen in front of them.
+     *
+     * @returns {number}
+     */
     conceptsWithoutACard () {
       return this.chosen.filter((id) => {
         const loaded = this.captures[id]
-        return !loaded || !loaded.capture || !loaded.capture.supplied
+        const hasTable = Boolean(loaded && loaded.capture && loaded.capture.supplied)
+        return !hasTable && !hasConceptGraphic(id)
       }).length
     },
 
@@ -400,7 +413,7 @@ export default {
      * Pivot runs them in different steps, an hour apart. That is Mike's ruling of
      * 2026-09-17 (a concept may be used twice), and it is why the key carries the visit.
      *
-     * @returns {Array<{key: string, name: string, deck: string, tag: string, summary: string, instruction: string, prompts: object[], lines: object[]}>}
+     * @returns {Array<{key: string, conceptId: string, name: string, deck: string, tag: string, summary: string, instruction: string, prompts: object[], lines: object[]}>}
      */
     placeableCards () {
       const cards = []
@@ -410,6 +423,8 @@ export default {
         const conceptId = f.conceptId || f.id
         cards.push({
           key: 'fw-' + f.id,
+          conceptId,
+          hasTable: true,
           name: f.name,
           deck: f.deckName || '',
           tag: '',
@@ -428,25 +443,30 @@ export default {
 
       // Then every concept captured through its own fill-in table.
       //
-      // 🔴 A CONCEPT WHOSE FILL-IN TABLE IS A PAGE OF THE DECK IS OMITTED AGAIN,
-      // AND THAT IS DELIBERATE UNTIL THE GRAPHIC IS REBUILT. Vertical Integration,
-      // (Our) Revenue Streams and (Our) Volatility Graph Observations have no
-      // workbook; their table is drawn on one of Mike's slides. Between 2026-09-18
-      // and the removal of the deck images later that day this line also admitted
-      // them, because the image gave them something to print. With the images gone
-      // they would print a title, an instruction and nothing else — a near-empty
-      // page in a document a client is handed, which is worse than leaving them
-      // out. `responsePage` on the concept records which page each one is; the
-      // rebuilt graphic brings them back.
+      // 🔴 A CONCEPT NEEDS A TABLE **OR** A DRAWING — Mike's ruling, 2026-09-20.
+      // This line used to demand a supplied workbook, which was right while there
+      // were no pictures: a concept with neither printed a title, an instruction
+      // and nothing else, a near-empty page in a document a client is handed. With
+      // the drawing wired in (item 15.7) such a concept now prints Mike's own
+      // teaching page, so excluding it loses real content instead of sparing the
+      // client a blank. Measured when the ruling was made: only 16 of the 52
+      // concepts have a workbook, so the old line capped the 33 approved drawings
+      // at 16 no matter how many were wired.
       this.conceptVisits.forEach((visit) => {
         const capture = visit.capture || {}
-        if (!capture.supplied) { return }
+        const hasTable = Boolean(capture.supplied)
+        if (!hasTable && !hasConceptGraphic(visit.conceptId)) { return }
         const wanted = {}
         const part = (capture.parts || [])[visit.part - 1]
         if (part) { part.fieldKeys.forEach((k) => { wanted[k] = true }) }
         const multi = capture.parts && capture.parts.length > 1
         cards.push({
           key: visit.key,
+          conceptId: visit.conceptId,
+          // A concept admitted on its drawing alone has nothing to fill in, and the
+          // client's document must not print a capture page saying it was "not
+          // worked through" when there was never anything to work.
+          hasTable,
           name: visit.name + (multi ? ' (' + visit.part + ')' : ''),
           deck: visit.deckName || '',
           // The tag is what tells an advisor, on the step builder, that these two
@@ -471,6 +491,10 @@ export default {
       this.closingFrameworks.forEach((f) => {
         cards.push({
           key: 'close-' + f.id,
+          // The two closing frameworks are ours, not a deck concept, so they have
+          // no drawing and never will — the graphic resolves to nothing.
+          conceptId: '',
+          hasTable: true,
           name: f.name,
           deck: '',
           tag: '',
@@ -561,7 +585,11 @@ export default {
           // `teaches` says whether the step has anything to present before it is
           // worked. Without it a step of pure tables printed a Discussion divider and
           // then went straight to the tables, which reads as a missing page.
-          teaches: items.some(x => x.summary || x.prompts.length)
+          teaches: items.some(x => x.summary || x.prompts.length),
+          // And the mirror of it: a step made only of concepts admitted on their
+          // drawing has nothing to work, so the Action divider would announce pages
+          // that never come. Mike's ruling of 2026-09-20 made that state possible.
+          works: items.some(x => x.hasTable !== false)
         }
       })
     }
@@ -650,7 +678,8 @@ export default {
           // ⚠ THIS OBJECT IS A HAND-COPIED SUBSET, so a field added to the route
           // reaches the screen only if it is named here too. The deck-image fields
           // were served, proxied and ignored for exactly that reason before anyone
-          // noticed. Whatever the rebuilt graphic needs must be named here as well.
+          // noticed. Whatever the response-page drawings need (item 15.11) must be
+          // named here as well.
           capture: b.capture
         })
       })
