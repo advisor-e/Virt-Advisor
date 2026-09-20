@@ -46,11 +46,21 @@
 
   template(v-if="!loading && step === 'steps'")
     //- 🔴 SAYS WHY THE LIST IS SHORTER THAN WHAT HE TICKED, AND IT BELONGS HERE NOW.
-    //- An advisor ticks 52 concepts and this screen offers 18 cards, because only 16 of
-    //- the 52 have a fill-in table built. The notice used to sit on the next screen,
-    //- which was the first place the shortfall showed — since 2026-09-20 this screen is,
-    //- so an unexplained gap of 34 would be the first thing he meets. Found by opening
-    //- the screen rather than by any test.
+    //- Tick all 52 and this screen offers 42 cards: 12 of the 52 have neither a fill-in
+    //- table nor a drawing, so they are not offered at all, and two of the remaining 40
+    //- arrive as two cards each because a two-part table is visited twice. The notice used
+    //- to sit on the next screen, which was the first place the shortfall showed — since
+    //- 2026-09-20 this screen is, so an unexplained gap of 12 would be the first thing he
+    //- meets. Found by opening the screen rather than by any test.
+    //- ⚠ THIS COMMENT READ "18 cards … an unexplained gap of 34" UNTIL 2026-09-21. It was
+    //- written hours before item 15.7 wired in the last five drawings, which admitted every
+    //- drawn concept to this screen and overtook both numbers. Counted off the running
+    //- screen, not derived: 42 cards, notice at 12. Re-count them if a concept gains or
+    //- loses a table or a drawing.
+    //- ⚠ 16 — the count of concepts with a SUPPLIED fill-in table — is unchanged and is
+    //- not what this screen offers. `data/strategy-capture-tables.json` `templateCount`
+    //- is 20 and counts TEMPLATES, several of which serve more than one concept while
+    //- four concepts name a template that does not exist. Do not read one for the other.
     b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
       | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
 
