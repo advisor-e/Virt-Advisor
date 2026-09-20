@@ -571,6 +571,27 @@
       "touches": "responsePage on five concepts in data/strategy-frameworks.json - pages 24, 34, 37 and 41 of Strategic Orientation 2; the five drawings themselves, by the method in design/features/strategy-planner.md section 0; scripts/build-concept-graphics.js, which today maps one drawing to one concept and would need to carry a second; and StrategyConceptCapture.vue, where the response page would render.",
       "note": "NOT A BUG IN THE WIRING - the 33 drawings are all teaching pages and always were, so this is work never scoped rather than work done wrong. THE THREE STALE COMMENTS ARE CORRECTED (2026-09-20) so no session reads them as a promise already kept. A drawing here is a CAPTURE surface, not a picture: boxes an advisor types into, laid over Mike's own page - which is why it needs a design decision before the method is applied, and why it is not simply five more of 15.7.",
       "comment": "2026-09-20 - filed on Mike's yes the same session it was found, rather than left in a handover. Found by asking why Vertical Integration's plan page offered nothing to fill in after its drawing landed."
+    },
+    {
+      "ref": "16",
+      "name": "A client's document carries no firm, so the white-label promise has nothing behind it",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The 33 concepts were redrawn so a client sees their own advisor's firm rather than Advisor-e. Nothing in this app holds a firm's name, logo or colour, so every document prints the words 'Firm logo' against an empty disc.",
+      "risk": "An advisor hands a client a plan with a placeholder where their brand belongs, which reads as unfinished software rather than a missing setting. It is also the reason the deck images were deleted on 2026-09-18 and 33 concepts redrawn - so the cost has been paid and the benefit has not arrived. Mike's own words: Advisor-e ALWAYS clones and shows that ADVISORS firm logo, never advisor-e.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-20 - found while wiring the first four drawings for 15.7: the mark is a prop and nothing above passes one in. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
+      "note": "🔴 THE SEAM EXISTS AND IS NOT THE WORK - every drawing already accepts a name and a colour, so nothing needs rebuilding. What is missing is a value to pass and somewhere to set it. TWO HALVES: the data may be Advisor-e's to supply, like the middle-tier role values, but a place to hold and edit it is ours either way. ⚠ ONE DECISION GATES IT AND IS ALREADY DRAWN, UNRULED: the Porter's artefact asks whether the mark is a monogram disc or a real logo image of unknown proportion - see ARTEFACTS.md, three deviations raised and none ruled.",
+      "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
     }
   ]
 }

@@ -58,8 +58,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 21 | **15.8** Two stock images in the Strategy Planner have no licence check ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 22 | **15.10** Page 2 of six decks is missing from the plan the app produces ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 23 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 24 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**23 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
+**24 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

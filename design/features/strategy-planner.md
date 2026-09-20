@@ -157,7 +157,9 @@ all deliberate:** the sample firm on every drawing (*Hartley & Co*, initial *H*,
 three props; blank lines inside the SVG lose their whitespace, which the lint forbids and which
 draws nothing; and **with no firm branding anywhere in this app, the mark renders the same
 placeholder the Dashboard Report cover already uses** — the words *Firm logo* against an empty
-disc. Firm identity is Advisor-e's, not ours, and the props are the seam for it.
+disc. **That is item 16**, filed 2026-09-20: the seam exists and takes a name and a colour, but
+nothing above passes one in and there is nowhere to set it, so the reason these 33 were redrawn
+has not yet arrived on a client's page.
 
 The last eleven were surveyed by
 machine before any were drawn, rather than assumed: **7 were prose**, **2 carried a real panel**
