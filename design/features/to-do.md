@@ -59,8 +59,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 22 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 23 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 24 | **17** An advisor leaves the app to track their own deals and referral partners ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-21 |
+| 25 | **5.4** Changing currency relabels figures and does not convert them ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**24 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
+**25 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

@@ -591,6 +591,27 @@
         "machine": "desktop",
         "since": "2026-09-21"
       }
+    },
+    {
+      "ref": "5.4",
+      "name": "Changing currency relabels figures and does not convert them",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off without it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A manager switching the firm currency sees only \"Reports now show Euro (€)\". Nothing says the figures are RELABELLED, not converted: 46,170 pounds becomes 46,170 euros at no exchange rate. The change reads as a conversion.",
+      "risk": "Every figure in every report silently misstates its own amount by whatever the exchange rate is, on a screen that looks like it did the work. It reaches a client in a funding pack or a fee proposal, and nothing on screen or in the wording contradicts the assumption. Correct behaviour for a firm entering figures in its own money; a wrong number the moment anyone expects a rate.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - he asked \"what if I am in Italy but want the currency to be in Euro?\", which proved the language/currency split works, and the check surfaced this. He was given the finding and the recommendation and said yes to filing it."
+      },
+      "touches": "components/ModelLibrary.vue, the currency selector block and its changeCurrency handler; locales/en.json modelLibrary.currency (label, managedNote, saved) plus the seven other locale files; data/currencies.json as the six supported codes; mixins/currencyMixin.js, which formats but never converts; and the ~40 report components reading firmCurrency.",
+      "note": "Found while answering Mike on the language/currency split. The selector and its toast are both silent on conversion - money(v, currency, locale) formats only and no exchange rate exists anywhere in the app. 🔴 WORDING IS MIKE'S AND MUST BE ASKED, NOT WRITTEN: the fix is one short line at the selector saying figures are relabelled, not converted. ⚠ SCOPE IS THE LINE ONLY - actually converting figures needs a rate source, a rate date and a per-client currency, which is a separate decision and NOT this item.",
+      "comment": "2026-09-22 - filed on Mike's yes. Related and NOT in scope: one currency per firm, not per client (an Italian firm advising a Swiss client reports in Euro, and CHF is not among the six); and whether the selector belongs in the Firm Manager Hub rather than on the Model Library screen. Both are his calls, neither filed."
     }
   ]
 }

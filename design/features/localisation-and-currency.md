@@ -55,6 +55,20 @@ the two cannot drift.
 **P8 · Never write a local money formatter.** The shared mixin gives every variant needed, in the
 firm's currency and the reader's language. Delete the local one you were about to write.
 
+**P9 · 🔴 CHANGING THE CURRENCY RELABELS THE FIGURES. IT DOES NOT CONVERT THEM.** `money(v,
+currency, locale)` formats; **no exchange rate exists anywhere in this app.** Switch a firm from GBP
+to EUR and `£46,170` becomes `€46,170` — the same number wearing a different symbol.
+
+That is **correct** for a firm entering figures in its own money, which is every firm today. It is a
+**wrong number** the moment anyone reads the change as a conversion — and nothing on screen says
+which it is. The selector's own confirmation, *"Reports now show Euro (€). This applies to every
+model in your account."*, is silent on the point.
+
+**On the live list as item 5.4** (found 2026-09-22 while answering Mike's *"what if I'm in Italy but
+want the currency to be in Euro?"* — the split held up, this did not). ⚠ **The fix is one short line
+of Mike's own wording at the selector. Actually converting figures is NOT that item**: it needs a
+rate source, a rate date and a per-client currency, and it is a separate decision of his.
+
 ---
 
 ## 3. Design considerations
@@ -72,6 +86,18 @@ free — the same mechanism as every other firm setting.
 
 **A missing translation must not produce a blank.** Falling back to the key, or to English, is
 always better than an empty label on a screen an advisor is using in front of someone.
+
+**One currency per FIRM, not per client — a stated boundary, not an oversight.** `/api/report/currency`
+holds a single value against the firm, so an Italian firm advising a Swiss client reports that client
+in Euro. **Swiss Francs are not among the six supported codes at all** (GBP, EUR, USD, NZD, AUD, CAD).
+This is fine while a firm's clients share its currency and wrong the day they do not. **Not filed:
+it is Mike's call whether firms work across currency borders, and he has not been asked.** Recorded
+here so the next session finds the limit rather than rediscovering it. *(Surfaced 2026-09-22.)*
+
+**The currency picker sits on the Model Library screen, not the Firm Manager Hub** — manager-gated by
+`requireManagerRole`, but beside the reports it governs rather than with the firm's other settings.
+Deliberate when built; worth knowing it is the one manager-owned setting outside the hub. **Not filed**
+for the same reason as above.
 
 ---
 
