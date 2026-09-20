@@ -239,7 +239,7 @@ rest."* The artefact is
 
 | | Step | Why it is not a formality |
 |---|---|---|
-| **1** | **Open his actual page and look at it.** `deck` + `page` on the concept say which. Render it with PyMuPDF — installed on the laptop. | ⚠ **`source: 'agenda'` MEANS `page` IS NOT THE TEACHING PAGE.** The 18 agenda-only concepts all carry page 2, the deck's contents. Drawing from that number puts the same page behind nine different concepts and looks plausible in every one. |
+| **1** | **Open his actual page and look at it.** `deck` + `page` on the concept say which. `python scripts/read-deck-pages.py <deck> <page>` writes the 150dpi render and everything steps 2–4 need beside it. | ⚠ **`source: 'agenda'` MEANS `page` IS NOT THE TEACHING PAGE.** The 18 agenda-only concepts all carry page 2, the deck's contents. Drawing from that number puts the same page behind nine different concepts and looks plausible in every one. |
 | **2** | **Take the words from the PDF's text layer.** `page.get_text('dict')`, never retyped — **one entry per SPAN, never per line**, and carry each span's own size, weight, italic and colour. | Retyping is how *"can you please stick to what i gave you?"* happened three times in one day. 🔴 **AND READING PER LINE IS NOT ENOUGH:** on the 8 Profit Levers page *"= Total Revenue"* is a small space followed by a **39.6pt bold navy** phrase. A reader that takes the first span drew it at **20.8pt grey** — the size of the space. Found 2026-09-18, in our own tooling. |
 | **3** | **Take the page's own geometry.** `page.rect` gives the size — Strategic Orientation 2 is **720×405pt**, so a 1500px viewBox is a scale of **2.0833**. Multiply every span's `bbox` x, `origin` y, width and `size` by it. | 🔴 **THE FIRST PORTER'S ATTEMPT SKIPPED THIS AND GUESSED THE PAGE WIDTH AT 540pt.** Every text block overran the sheet and collided with the ring. Positioning by eye fails silently and looks like a styling problem. |
 | **3b** | **Pin every prose line to its measured width** — `textLength` plus `lengthAdjust="spacing"`. And **size a box to the text it holds**, from those widths. | His body copy is **justified**; a ragged copy is visibly not his page. Pinning the width reproduces that *and* makes the block immune to font-metric differences — the lines sit where his sit. ⚠ The investor box on Vertical Integration was drawn **520 wide when his longest line needs 541** and sliced the text; only putting it beside his page showed it. |
@@ -824,15 +824,22 @@ names a concept's form, it does not lay it out.
 
 ### 🔴 There is no extractor in this repository, and these are the five traps if one is ever written
 
-The rows were read off the PDFs **once**, by a throwaway script that was deliberately **not
-kept**: it is Python, and this is a JavaScript-only repository under the Stack Constitution, so
-committing it would have been a stack deviation needing its own reconcile task.
+The rows were read off the PDFs **once**, by a throwaway script that was not kept.
 `tests/unit/strategyConcepts.test.js` **pins** the result; it does not re-derive it. **The data
 file is now the source**, and the audit trail is the decks plus the census.
 
-Re-extraction is therefore a fresh task with its own tooling decision. **Every one of these five
-produced a wrong index that looked entirely plausible**, which is why they are written down
-rather than left to be rediscovered:
+> **The tooling decision that paragraph left open has been taken (item 15.5, 2026-09-20).**
+> It used to end *"committing it would have been a stack deviation needing its own reconcile
+> task"* — and that reasoning is what left the drawing method with no tool at all, since the
+> method the same Brief calls mandatory opens every page with PyMuPDF. The reconcile task was
+> filed, and its answer is `scripts/read-deck-pages.py`: one committed reader, a pinned
+> `requirements-deck-reader.txt`, the deviation stated in its own docstring, and nothing it
+> writes ever committed or shipped. **Re-extracting the index is still a fresh task** — but it
+> is no longer blocked on deciding where a reader may live, and `--register` already emits the
+> word-level geometry rule 3 below needs.
+
+**Every one of these five produced a wrong index that looked entirely plausible**, which is why
+they are written down rather than left to be rediscovered:
 
 1. **Anchor rows on the FRAMEWORK column, never the page column.** The deck merges a page-number
    cell across two rows — Price For Problem Solving and Price For Delivery Medium both sit
@@ -862,6 +869,14 @@ each of the five above.
 `server/routes/strategyPlanner.js` · `components/strategy/StrategyScopeMenu.vue`,
 `StrategyCaptureCard.vue`, `StrategyGrowthWheel.vue` · `pages/strategy-planner.vue` ·
 `config/db-schema.sql`
+
+**The decks themselves are read by `scripts/read-deck-pages.py`** — the one tool that opens his
+PDFs, and the home item 15.5 was about. `<deck> <page>` reads a page for drawing it; `--register`
+writes the slides and `deck-pages.json` that `build-concept-register.js` requires; `--self-check`
+runs the reader against five facts this Brief recorded before the tool existed. 🔴 **It refuses to
+write inside the repository.** A render of his page carries `advisor-e.com` burned into the
+pixels, so its output is for looking at and sampling from, never for committing — his ruling of
+2026-09-18, held in code rather than in a comment.
 
 ⚠ **`StrategySessionScope.vue` was deleted in Stage 1**, not left beside its replacement. Two
 menus that disagree is the drift this feature exists to end.

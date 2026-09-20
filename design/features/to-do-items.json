@@ -440,28 +440,6 @@
       "comment": "2026-09-17 - filed on his yes at shutdown, after he asked whether anything guaranteed they would be dealt with. They were flagged in the Stage 3 commit and the handover; neither is a task, and the handover is replaced next session."
     },
     {
-      "ref": "15.5",
-      "name": "The deck-reading tool has no home, and the drawing method now depends on it",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": null,
-      "why": "render-deck-slides.py is deleted with the imported images, but reading his decks did not stop being needed: the approved drawing method opens every page with PyMuPDF, and that step now lives nowhere in the repository.",
-      "risk": "A method the Brief calls mandatory runs on a tool only this laptop has and no file records. The desktop cannot draw a concept at all, and the failure reads as a missing library rather than a missing decision. The Stack Constitution says a deviation is filed the moment it is found, and this one has moved rather than gone.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-18 - the deviation was named in the proposal he approved ('the renderer needs a home... that's a deviation to log') and he said yes to filing it at shutdown the same day."
-      },
-      "touches": "Wherever a deck-reading tool ends up living; scripts/build-concept-register.js, which still expects a directory of rendered images and now has nothing producing one; and the five-step drawing method in design/features/strategy-planner.md section 0.",
-      "note": "🔴 THE FACTS CHANGED ON 2026-09-18 AND THIS IS NOT THE ITEM IT WAS. It was filed as a committed .py nobody needed. The .py and its 37 images are gone, deleted with the deck-image import Mike rejected. What remains is the opposite shape: a deck reader is now REQUIRED by the approved drawing method, and exists only as an uncommitted step on one machine. Deleting the tool was never the answer; deciding where it lives still is.",
-      "comment": "2026-09-18 - rewritten in place rather than closed. Closing it would have recorded the removal of the .py as the fix, when that removal is what made the underlying question urgent."
-    },
-    {
       "ref": "15.6",
       "name": "Eight concepts name a response form the app cannot find",
       "rankedByMike": false,
