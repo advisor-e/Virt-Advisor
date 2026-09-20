@@ -9,42 +9,34 @@
 
 ---
 
-## 2026-09-20 · Laptop · branch `feat/advisor-progress`
+## 2026-09-21 · Laptop · branch `feat/advisor-progress`
 
-**The branch is CLEAN and at `a882720c` — nothing from today is committed to it.** Suite
-12,304 green (570 suites), coverage met. Take the ahead/behind counts from
-`npm run check:branch`, never from a number written here.
+**Clean, pushed, and offered to `master` as [PR #103](https://github.com/advisor-e/Virt-Advisor/pull/103).**
+Merged up to date with the desktop's PR #101 first. Suite 12,304→12,329 green (571 suites),
+coverage and audit gates passed. Take ahead/behind from `npm run check:branch`.
 
-🔴 **READ THIS BEFORE TOUCHING 15.1. Mike found THREE drifts in this feature in one day and
-is angry.** Do not start work on it without asking him first.
+🔴 **MIKE REJECTED THE BUILT STEP BUILDER ON SIGHT** — *"cluncky - ugly and lacks logic …
+sloppy work"*. New drawing: `design/mockups/strategy-session-process.html`, **four decisions
+all ruled by him 2026-09-21** (step arrives filled · AI proposes only · all four manager tiers
+author · the two closing blocks leave the screen). ⛔ **RULED IS NOT APPROVED TO BUILD.**
+Approving the drawing and building from it are each still to be asked. The page says so on its face.
 
-🔴 **RULING THE DECISIONS INSIDE A DRAWING IS NEVER APPROVAL TO BUILD IT** — nor to publish
-it, nor to invent content in it. Each is its own question. **The proof, from our own record:**
-at **19:54** on 2026-09-16 commit `3e1ed8e7` wrote that `design/mockups/strategy-planner.html`
-was *"NOT YET APPROVED TO BUILD FROM — ruling on the questions inside a drawing is not the
-same as approving the drawing"*; at **21:09**, seventy-five minutes later, commit `1c73ec55`
-built the entire four-screen app from it. That page still names it as its design today.
+🔴 **TWO NEW BINDING RULES ON HOW QUESTIONS ARE PUT TO HIM** — `CLAUDE.md`, echoed in
+`.claude/commands/startup.md`. A bare "yes" must be a complete instruction on its own, in the
+shape `<question> — instead of <what "no" means>? Yes or no.`, and **the question is the last
+sentence of the Non-Coder Summary, every time.** Read them before writing to him.
 
-🔴 **HIS INSTRUCTION OF 2026-09-17 — *"make sure the old plan version never comes back"* —
-MEANT DELETED.** It was read as *"mark it superseded and keep it for its rulings"*. He
-restated it today in plain terms and said his instruction had been ignored.
+🔴 **`templateCount` IS NOT A CONCEPT COUNT, AND IT NEARLY COST A CORRECT BRIEF.**
+`data/strategy-capture-tables.json` `templateCount` is 20 and counts TEMPLATES; concepts with a
+supplied table are **16**, measured concept by concept against the running API. `captureFormBasis:
+"measured"` means the form's SHAPE is known, not that Mike's workbook exists — Branding, Customer
+Loyalty, Packaging and Pricing all read `measured` and return `supplied: false`. **The Brief's 16 /
+36 were right; an edit "correcting" them was written and reverted.** Measure before rewriting a record.
 
-🔴 **"Filed on Mike's yes" IS NOT EVIDENCE** — `CLAUDE.md` already says so. Eleven of the
-twenty-two live items rested on that phrase alone, with no words of his anywhere, in the item
-or in the commit that filed it. Record his words, quoted, or an item does not survive an audit.
+**Stage names are now Mike's:** Scope session · Build session · Run session · Objectives & actions ·
+Produce plan (`locales/en.json` rail keys). Advisor-facing only; the client's agenda is unaffected.
 
-**THE DRIFT AUDIT AND THE DAY'S WORK ARE ON A SIDE BRANCH — `wip/2026-09-20-drift-audit`,
-commit `6b9cde93`, THIS LAPTOP ONLY, NOT PUSHED, ⛔ NOT FOR MASTER.** It holds the drawing
-deleted with all 23 references, and the list cut from 22 items to 11. Mike has ruled nothing
-on it; it is parked for him, not pending merge. `git branch -D` if he says bin it.
-
-⚠ **ITEM 15.1's NOTE IS WRONG ON THIS BRANCH.** It says the 33 drawings are *"NOT ONE IS
-WIRED IN"* and names stage 4b as next. They ARE wired in; 15.7 closed 2026-09-20. The same
-claim sits in the Brief's stage 4b row. Fixed this morning on his yes, then undone by the
-branch restore he approved. **Ask him before editing either.**
-
-⚠ **A drawing of mine is still published in his gallery with 17 invented lines in it**, two
-under his own name in his own worked-example column. He stopped the deletion; it is his call.
-
-**DESKTOP — shared files I changed on this branch: NONE.** Nothing is in hand. `activeOn` for
-7.5 and 15.1 is unchanged.
+**DESKTOP — shared files I changed:** `CLAUDE.md` and `.claude/commands/startup.md` (the two rules
+above), `pages/strategy-planner.vue`, `locales/en.json`, `design/ARTEFACTS.md`. Merge conflicts in
+`strategy-planner.md`, `to-do-items.json` and `to-do.md` were resolved **block by block** — your
+item 17 and the 7.12→7.13 renumber are intact. `activeOn` for 7.5 and 15.1 unchanged.
