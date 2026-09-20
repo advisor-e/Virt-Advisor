@@ -59,7 +59,7 @@ the correction twice the answer goes out with a note saying plainly that the nam
 calculator, not a template. `server/utils/templateHeadingCheck.js`.
 
 ⚠ **That check recognises a model by its EXACT catalogue name or route, and this is the seam
-item 7.12 turns on.** Measured 2026-09-17 against the shipped catalogues, the three "model named
+item 7.13 turns on.** Measured 2026-09-17 against the shipped catalogues, the three "model named
 but no page path" cases are three different things, not one:
 
 | What the AI wrote | What it is | What happens today |
@@ -151,15 +151,31 @@ the money does not arrive the month it is earned"* — the timing distinction as
 question, not a ranking of one model over the other. Every other entry of the nineteen already
 opened by naming what it answers in its own right; this was the only one defined against another.
 
-🔴 **THIS PARAGRAPH PREVIOUSLY SAID WORDING DOES NOT FIX IT, AND THAT MIKE'S AUTHORED PROSE MUST
-NOT BE EDITED. BOTH WERE WRONG.** The prose is AI-authored — High-Level's `answers` entered in
-`0fdee54b`, Mid-Level's in `b8c2fa56` — and Mike's seven rulings of 2026-09-13 are all *screen*
-wording; `ARTEFACTS.md` line 108 records none on the summaries. Traced on his challenge after the
-claim sent a session looking for a workaround instead of the fix. ⚠ **The two failed attempts are
-still dead ends and stand as recorded:** a distinguishing sentence in High-Level's `useWhen` made
-it **worse** (4/6 → 6/6), reverted the same hour — naming the competing model in an entry puts it
-in front of the AI twice as often — and 7.12's offer rule moved it the wrong way too (4/6 → 5/6).
-Six runs is a small sample on behaviour that varies run to run; this wants watching in UAT.
+🔴 **THE PAGE PATH IS NOT A WORDING PROBLEM AND NEVER WAS — ITEM 7.13, REFRAMED 2026-09-18 ON
+MIKE'S CHALLENGE.** His original task read *"check the summary page, look it up, compare to
+conversation and suggest the model name and where to find it in the perf report section"*. **The
+lookup half was never built.** The 19 models are injected as 51,072 characters of prose and the AI
+is asked to *recall* each page path; four sessions then tuned that prose, and each attempt moved
+some models and moved others backwards, because the AI answers differently run to run on identical
+input.
+
+**The app already holds the answer.** `/api/report/model-guide` serves the same records the Model
+Guide screen renders, every model has a live page, and `injectVideoInfo` is the working pattern for
+attaching a looked-up fact to an answer *after* the AI has written it — it does exactly this for
+templates, on all three engine paths. Models were never put in that machinery. **Mike ruled on
+2026-08-22 that the summary page serves "a firm manager choosing a model as well as the AI guiding
+an advisor, from the same records"** ([`pages/model-guide.vue`](../../pages/model-guide.vue)) — the
+instruction predates the whole detour.
+
+⚠ **SIX of the nineteen names are also real template titles**, so for those a lookup must NOT
+attach a path — a name alone cannot say which was meant. Those six still need the AI to write its
+own path. `tests/unit/nameCollisions.test.js` recomputes the set.
+
+✅ **THE BLOCK IS "A model that fits" — Mike's ruling, 2026-09-18.** *"Calculator"* was our word,
+never approved, and it had reached the advisor's screen as the block heading in `discover.txt`.
+His words: *"we have models and templates. A model includes CALCULATIONS but it is NOT a
+calculator."* Renamed in both prompts and in `buildRetryInstruction`; pinned by
+`tests/unit/reportModelSummaries.test.js`. Never reintroduce it.
 
 ### What the earlier bench measured — 2026-09-17, 19 models × 2 runs
 
@@ -288,6 +304,61 @@ platform default. Nothing is single-tenant, and nothing new should be.
 ---
 
 ## 4. For the coder
+
+### 🔴 ITEM 7.13 — BUILD THE MODEL LOOKUP. Start here, in this order.
+
+**Read the ⚠ warning below BEFORE writing anything** — it decides the shape of the resolver and
+can waste the whole build if it is met halfway through.
+
+**✅ 0. THE LABEL IS SETTLED — Mike's ruling, 2026-09-18.** In his words: *"get rid of the name
+calculator — I fucking hate it. We have models and templates. A model includes CALCULATIONS but
+it is NOT a calculator."* The block heading is **`**A model that fits**`** and the word
+*calculator* is gone from both prompts. **Never reintroduce it in anything the advisor reads or
+the AI is told.** Where it survives elsewhere in this Brief it is quoting a past measurement, and
+in [`report-models.md`](report-models.md) it names Mike's own workbook sheets (*Quick
+Calculator*, *Hrly Rate & Tax Calculator*) — those are his source material and stay as written.
+
+**⚠ 1. THE SIX COLLISIONS DECIDE THE SHAPE OF THE RESOLVER — design for them from the start.**
+Six of the nineteen model names are also real template titles: Working Capital Cycle, Lease vs
+Buy, Quick Position, Dashboard Reports, High-Level Budget, **Sales Dashboard**. For those a name
+alone can NEVER say whether the AI meant the template or the model, so the lookup must
+attach nothing and leave the AI's own path to stand. Guard with `isKnownTemplate` **and**
+`nearestTemplateTitle` (both in `tierLookup`), in that order, exactly as
+[`templateHeadingCheck.js`](../../server/utils/templateHeadingCheck.js) does — an exact-match
+test alone reads three of the six as "not a template" and misfired on **28 of 38** bench calls
+on 2026-09-17. `tests/unit/nameCollisions.test.js` recomputes the set; a seventh fails the build.
+
+**2. Take the model names from the marker, not from the prose.** The AI appends
+`[[MODEL: /debtor-drag]]`, and `resolveModelChoiceWithSource` already resolves it against the
+catalogue and falls back to a page-path scan. That is an exact record of what it named. Parsing
+the visible answer again is a second, worse parser of the same fact.
+
+**3. Attach the path the way templates already do it.**
+[`injectVideoInfo`](../../server/utils/videoInjector.js) is the working pattern: it looks a
+template's record up and writes a sentence into the answer *after* the AI has finished. Copy
+that shape.
+
+**4. The three call sites, with the raw buffer still in scope at each.** This matters: the
+marker is stripped from `visible` but survives on the buffer beside it, so the marker is
+readable at every one without re-plumbing.
+
+| Path | Line | Stripped text | Raw buffer holding the marker |
+|---|---|---|---|
+| Post-recommendation conversation | `advisorEngine.js:3075` | `visible` | `_postBuffer` |
+| Client-mode Phase 3 (streams) | `advisorEngine.js:3937` | `scrubbed` | `_p3Buffer` |
+| Main buffered answer | `advisorEngine.js:4244` | `visible` | `answer` |
+
+⚠ **Phase 3 genuinely streams** — it has already sent text when it reaches line 3937 and
+corrects itself with a `replace` event. The other two emit once, so nothing is on screen yet.
+An injected sentence must survive that replace rather than be appended twice.
+
+**5. Prove it on the running app, not on the suite.** This is engine behaviour: 12,200 passing
+tests never saw any of it, and six runs is a small sample on output that varies run to run.
+Drive real conversations through `/api/advisor/query` — see `.claude/skills/run-the-app`.
+
+**What success looks like:** thirteen of nineteen models carry an openable path every time,
+because it is looked up. The other six still depend on the AI writing their own, and no lookup
+can change that without guessing between a template and a model.
 
 ### The pipeline, in order
 

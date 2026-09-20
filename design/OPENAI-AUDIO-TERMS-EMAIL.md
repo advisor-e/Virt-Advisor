@@ -388,7 +388,100 @@ exactly that assumption, and this is now on file against it.
 the letter, and the one OpenAI's own documentation directs to sales — is not addressed. The path
 offered is a discovery call about budget and monetisation.
 
-### 5.3 · What this organisation relies on, stated once
+### 5.3 · OpenAI Sales, SECOND reply — 2026-09-18, and it answers
+
+🔴 **THIS ARRIVED AFTER §5.4's RULING WAS GIVEN AND IT OVERTURNS PART OF IT.** The same sales
+consultant whose first reply was a qualification script came back with substance. It is the only
+specific answer OpenAI has given on any of the five questions, and it is quoted in full because
+what it confirms and what it declines to confirm both matter.
+
+> Hi Mike,
+>
+> Thank you for clarifying, and I'm sorry the earlier response didn't directly address your
+> question.
+>
+> Yes—where audio or transcripts are retained by the API, they can be accessed or reviewed in
+> limited circumstances. OpenAI's published API policy limits access to:
+>
+> Authorized employees who need access for engineering support, investigating potential platform
+> abuse, or legal compliance.
+> Specialized third-party contractors, bound by confidentiality and security obligations, solely to
+> review for abuse and misuse.
+>
+> Access is restricted by technical access controls, and data is encrypted at rest and in transit.
+> This does not mean every recording or transcript is reviewed. API inputs and outputs are not used
+> to train our models unless you explicitly opt in. These points are covered in our API privacy
+> FAQ, including "Who can view stored API inputs, outputs, and fine-tuning data?"
+>
+> **How long is the data retained?**
+>
+> This depends on how your app uses the API:
+>
+> For the dedicated /v1/audio/transcriptions and /v1/audio/translations endpoints, the published
+> table lists no abuse-monitoring retention and no application-state retention.
+> If audio is sent through other endpoints, or the transcript is subsequently submitted for
+> summarisation or analysis, those requests follow their own retention rules. Standard
+> abuse-monitoring logs may contain inputs and outputs for up to 30 days, with longer retention
+> possible where required by law or reasonably necessary to prevent harm. Features that store files
+> or conversation state have separate retention rules.
+> The endpoint-by-endpoint retention table sets out these differences. The transcription entry alone
+> should not be treated as confirmation that human access is impossible throughout your app's entire
+> workflow.
+>
+> We also offer two additional controls for eligible customers:
+>
+> **Zero Data Retention (ZDR):** Excludes customer content from abuse-monitoring logs and changes
+> storage behaviour on supported endpoints. It requires approval and additional requirements;
+> endpoint, feature, and documented safety exceptions still apply.
+> **Data residency:** Allows eligible customer content to be stored in a supported region, with
+> in-region processing available only for supported regions and services. It does not cover all
+> system metadata or replace retention controls.
+>
+> If you'd like to explore either option, please let me know your preferred region and which API
+> endpoints/models your app uses, including any processing after transcription. If you also share
+> Edward's support case reference, I can help seek a specific written confirmation for your setup.
+>
+> Best regards,
+> Kalaiselvam — AI Sales Consultant | OpenAI
+
+#### What it confirms, and what it costs us
+
+**1. Human access IS possible — answered, for the first time.** Authorised employees (engineering
+support, abuse investigation, legal compliance) and **specialised third-party contractors** under
+confidentiality, solely reviewing for abuse and misuse. Not every recording is reviewed; access is
+technically controlled; data encrypted at rest and in transit; **inputs and outputs are not used
+for training unless we opt in.**
+
+**2. The transcription endpoints are clean.** `/v1/audio/transcriptions` and
+`/v1/audio/translations` carry **no abuse-monitoring retention and no application-state retention**.
+
+🔴 **3. AND THAT IS NOT OUR WORKFLOW.** Meeting Review does not stop at transcription — it sends
+the transcript on to a model to produce **two reports**
+([`features/meeting-review.md`](features/meeting-review.md)). That second call is a different
+endpoint, and by this reply it falls under **standard abuse-monitoring logs, inputs and outputs
+retained up to 30 days**, longer where legally required. His own sentence names the trap exactly:
+*"The transcription entry alone should not be treated as confirmation that human access is
+impossible throughout your app's entire workflow."* **The favourable transcription line does not
+cover the summarisation step, and our summarisation step carries the whole transcript.**
+
+**4. The audio-destruction commitment is unaffected.** §4 P-item and the consent wording turn on
+*us* destroying the audio once transcribed; that is our side of the boundary and this reply does
+not touch it. What it adds is that the **transcript** — not the audio — may sit in OpenAI's
+abuse logs for up to 30 days after the summarisation call.
+
+#### Two things offered that nobody has offered before
+
+- **Zero Data Retention** would exclude our content from those abuse-monitoring logs, which is
+  precisely the 30-day exposure in point 3. It **requires approval**, and he has asked for the
+  preferred region and the endpoints/models used *including any processing after transcription*.
+- **A specific written confirmation for our setup** — the bespoke answer §5.4 point 3 records as
+  missing — which he will chase **if given Edward's support case reference** (the §5.1 reply).
+
+⚠ **Both are asks of Mike, not of this repository, and neither blocks any code.** They are recorded
+here because they are the first route offered to a written answer, and because the case reference
+is a fact only we hold.
+
+### 5.4 · What this organisation relies on, stated once
 
 **Mike's ruling, 2026-09-18**, in his words: *"We have taken all fair and reasonable steps to
 comply — you will NEVER get a single person to 'sign-off' on this within OpenAI and as an
@@ -398,12 +491,22 @@ organisation they are extremely difficult to navigate. We will get ZERO help fro
 
 1. **OpenAI's published terms** — the Data Processing Addendum and the data-controls documentation,
    both read and summarised in §1.1.
-2. **Two documented attempts** through both channels OpenAI itself nominates — the contractual
-   address of record, and the only supported sales channel — neither of which produced a specific
-   answer.
-3. **No bespoke confirmation that the terms cover audio**, and an explicit support caution against
-   assuming they do.
+2. **Three documented attempts** through both channels OpenAI itself nominates — the contractual
+   address of record, and the only supported sales channel. ⚠ **The third produced a specific
+   answer** (§5.3); the first two did not.
+3. **A written answer on human access and retention, but still no bespoke confirmation for our
+   configuration** — and an explicit support caution (§5.1) against assuming the general terms
+   cover audio, which §5.3 then repeats in its own words about our *workflow* rather than the
+   endpoint.
 
 🔴 **NOBODY MAY DESCRIBE THIS AS CONFIRMED.** If asked what was relied on — by a client, a
 regulator, a lawyer or the master team — the honest answer is points 1 to 3 above, in that order.
-A record implying OpenAI answered would be false and would fail the moment either reply was read.
+A record implying OpenAI signed anything off would be false and would fail the moment the replies
+were read.
+
+⚠ **AND NOBODY MAY SAY "NO HUMAN CAN ACCESS IT".** §5.3 answers that question directly and the
+answer is that limited access exists, by employees and by third-party contractors. **The approved
+consent wording does not claim otherwise** — checked 2026-09-18 against
+[`MEETING-CONSENT-WORDING.md`](MEETING-CONSENT-WORDING.md), which says the recording is transcribed
+by software and used to produce a summary, and makes no promise about who may see it. Nothing Mike
+has approved is contradicted by this reply. **A future draft that adds such a promise would be.**

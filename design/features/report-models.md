@@ -372,7 +372,7 @@ optional. That is deliberate: a model recommended without its limits is how an a
 promises a client something the screen does not do.
 
 **And the AI is invited to use it** (item 4.32, Mike 2026-08-22: *"yes and both if its
-appropriate"*). `discover.txt` carries an **"A calculator that fits"** block inside its
+appropriate"*). `discover.txt` carries an **"A model that fits"** block inside its
 format; `client.txt` carries hard rule **R18**. Both are written as an invitation **with a
 brake**: only when a model directly answers the situation, always with its exact page path,
 only from the list, and never in place of a template.
@@ -435,7 +435,7 @@ keep arriving and finding nothing. That is where the next model should go, and w
 has to carry the work meanwhile.
 
 🔴 **THE SEARCH MODE'S CLOSING RULE STILL HOLDS FOR EVERY WORD THE ADVISOR READS.** *"MUST be
-the final line… End there. Full stop."* stands; the calculator block sits **above** it. That
+the final line… End there. Full stop."* stands; the model block sits **above** it. That
 rule exists so the AI stops talking.
 
 ⚠ **IT NOW CARRIES EXACTLY ONE CARVE-OUT, AND THIS PARAGRAPH IS WHY IT IS WRITTEN DOWN RATHER
