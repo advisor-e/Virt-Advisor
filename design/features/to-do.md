@@ -60,7 +60,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 23 | **15.10** Page 2 of six decks is missing from the plan the app produces ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 24 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 25 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 26 | **17** An advisor leaves the app to track their own deals and referral partners ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 26 | **17** An advisor leaves the app to track their own deals and referral partners ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-21 |
 
 **26 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->

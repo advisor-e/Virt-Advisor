@@ -633,7 +633,11 @@
       },
       "touches": "server/routes/ as 36 new Restify routes with raw mysql2 - the 36 Nitro-style files under its server/api/ cannot come across as they are; server/utils/db.js, our existing pool, replacing its Prisma client across 33 files; its prisma/schema.prisma as ten tables to convert to raw SQL migrations; server/utils/openaiClient.js replacing its openai SDK in 5 files; its 8 pages and 7 components, which are already Pug/Buefy and largely survive; locales/ for its six languages; and tests/, which it has NONE of.",
       "note": "🔴 MIKE WANTS ALL OF IT - his ruling 2026-09-21, all eight screens. BUILD PLAN: features/sales-tracker.md section 7 on - 7 stages, 12-21 days, each priced. 🔴 THE UNPRICED BLOCKER IS MULTI-TENANCY: no table has firm_id and pipeline/COI are firm-wide by comment, so one firm would see another firms prospects and fee values. Score-5 privacy, not a tidy-up. Start at stage 1+2: schema with firm_id, then Pipeline end to end. Prisma, the 36 Nuxt API files and the openai SDK all still have to go. ⚠ The app RUNS at localhost:3100 with real data - go and look before designing anything.",
-      "comment": "2026-09-21 - filed on Mikes yes, then he ruled he wants every screen, so the pipeline-and-COI recommendation is superseded. Ran the app and drove it in a browser: TWO BUGS FOUND. Their firm-manager middleware had no process.server guard so /team and /lists always bounced to login - fixed in their repo, uncommitted. And the landing page is the Blog, which needs no login, so every tab kicks a visitor out - that one cost an hour and dies in the port because our entry is an authenticated hub page."
+      "comment": "2026-09-21 - filed on Mikes yes, then he ruled he wants every screen, so the pipeline-and-COI recommendation is superseded. Ran the app and drove it in a browser: TWO BUGS FOUND. Their firm-manager middleware had no process.server guard so /team and /lists always bounced to login - fixed in their repo, uncommitted. And the landing page is the Blog, which needs no login, so every tab kicks a visitor out - that one cost an hour and dies in the port because our entry is an authenticated hub page.",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-21"
+      }
     }
   ]
 }
