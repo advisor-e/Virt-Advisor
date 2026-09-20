@@ -613,6 +613,27 @@
       "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
       "note": "🔴 THE SEAM EXISTS AND IS NOT THE WORK - every drawing already accepts a name and a colour, so nothing needs rebuilding. What is missing is a value to pass and somewhere to set it. TWO HALVES: the data may be Advisor-e's to supply, like the middle-tier role values, but a place to hold and edit it is ours either way. ⚠ ONE DECISION GATES IT AND IS ALREADY DRAWN, UNRULED: the Porter's artefact asks whether the mark is a monogram disc or a real logo image of unknown proportion - see ARTEFACTS.md, three deviations raised and none ruled.",
       "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
+    },
+    {
+      "ref": "17",
+      "name": "An advisor leaves the app to track their own deals and referral partners",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "it helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "A working Nuxt 2 app holds an advisor's own deal pipeline and referral partners. Mike ruled 2026-09-21 it serves the firm's own advisors, not their clients. Its screens are already Pug and Buefy; its back end breaks three locked rules.",
+      "risk": "An advisor keeps their own pipeline somewhere else - a spreadsheet or a second app - so the business development sits apart from the client work that feeds it. Against that: the port is a back-end REWRITE, not a copy, and taking it whole would drag a blog-writing tool and a language-admin screen into the app that nobody asked for.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-21 - 'look for work on github called sales tracker nuxt clean and plan how it could be merged into the virt advisor app'. He then confirmed filing it, chose parent 17 as a new subject, and answered the impact test himself: a tool for the firm's own advisors."
+      },
+      "touches": "server/routes/ as 36 new Restify routes with raw mysql2 - the 36 Nitro-style files under its server/api/ cannot come across as they are; server/utils/db.js, our existing pool, replacing its Prisma client across 33 files; its prisma/schema.prisma as ten tables to convert to raw SQL migrations; server/utils/openaiClient.js replacing its openai SDK in 5 files; its 8 pages and 7 components, which are already Pug/Buefy and largely survive; locales/ for its six languages; and tests/, which it has NONE of.",
+      "note": "🔴 SCOPE: PIPELINE + COI ONLY. The repo also holds a blog tool and a language-admin screen - a different product. 🔴 THE MEASUREMENT IS NOT NAMED and must be before any design; the gain is answered (the advisor), the measure is not. 🔴 THREE BLOCKERS, all verified in the code: Prisma across 33 files, all 36 API files inside Nuxt serverMiddleware, and the openai SDK. Zero tests. Its .nvmrc says Node 20. ⚠ Its own CLAUDE.md still describes the old Nuxt 3 app - read the source, never that. FULL ANALYSIS AND THE PORT PLAN: design/features/sales-tracker.md.",
+      "comment": "2026-09-21 - filed on Mike's yes after he asked for a merge plan. Estimate: SEVERAL WEEKS, not days - roughly 2,200 lines of back end rewritten, 4,000 lines of screens largely surviving. Recommended NOT to absorb wholesale. Nothing is designed or built until the measurement above is named."
     }
   ]
 }
