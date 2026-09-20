@@ -9,46 +9,37 @@
 
 ---
 
-## 2026-09-19 · Laptop · branch `feat/advisor-progress`
+## 2026-09-20 · Laptop · branch `feat/advisor-progress`
 
-**Five commits, all pushed.** Suite **12,217 green** (566 suites), lint 0, coverage and audit
-gates passed. Tree clean. **9 ahead of `master`, 0 behind — all of it in
-[PR #102](https://github.com/advisor-e/Virt-Advisor/pull/102). 22 live items.**
+**Seven commits, all pushed.** Suite **12,239 green** (567 suites), lint 0 errors, coverage and
+audit gates passed. Tree clean. **16 ahead of `master`, 0 behind — all of it in
+[PR #102](https://github.com/advisor-e/Virt-Advisor/pull/102), whose title still names only the
+18th's work. 22 live items.**
 
-🔴 **DESKTOP — THE GUARD WILL REFUSE YOUR NEXT LIST COMMIT, AND THAT IS IT WORKING.**
-`tests/unit/itemIdentity.test.js` makes a live number's **asked-on date immutable**, measured
-against `origin/master` so a later session cannot bury it. Your branch repointed `7.12` from
-*the right calculator is offered only sometimes* to *the model's page is recalled by the AI* —
-one row rewritten, so nothing was ever duplicated and every gate passed. **Mike ruled
-2026-09-19: `7.12` goes BACK (that defect is still open at 4 of 6 and exists nowhere on your
-list), and the new job takes `7.13`.** Both halves are yours to apply — `ITEM-NUMBERING.md` §4
-carries it. Measured first: 40 name changes in 60 days, 0 false alarms, 3 real ones.
+🔴 **7.12 IS STILL YOURS TO PUT BACK.** Mike ruled 2026-09-19 that `7.12` returns to *the right
+calculator is offered only sometimes* and your new job takes `7.13`. **This laptop applied its
+half** (`e33002be`); your branch still points `7.12` at *the model's page is recalled by the AI*,
+so `npm run check:branch` will keep printing the collision until you move it.
 
-🔴 **THE MICROPHONE FIX TOUCHES YOUR SCREENS.** `mixins/collaborate/speechMixin.js` had no
-`beforeDestroy`, so Discover, New Group, Marketplace, Profile and the message pane kept a live
-microphone after an advisor navigated away. Copied from the main mixin on Mike's ruling. **A
-test was asserting the bug** — it required a restart after a mic error, which is the loop
-itself; corrected.
+**STAGE 3b — THE STEP BUILDER — IS BUILT** (`7dbb8b08`), on Mike's ruling of 15.9 that morning and
+then all five decisions on its [drawing](https://claude.ai/artifact/F9pfW8vbXYqPC6t4NokMjh), every
+one as recommended. A new **stage 2** in the rail, so it is now five: Scope · Build the steps ·
+Run · Objectives · The plan. **Storage rides `scope_json` — no schema change.** An empty step is
+kept at three layers; deleting one anywhere deletes Pivot's step 5.
 
-**STAGE 5 STARTED — 1 of the 9 capture forms.** The banded grid, drawn
-([artefact](https://claude.ai/artifact/Y11pqGSz6QZDNWpbawx7td)), approved, built; it serves five
-of Mike's tables. **Every capture box now carries the `voice.*` bar from "I have a client with a
-problem…"** — his ruling: *"i want app user consistency."* Not Meeting Review's recorder, so
-none of 8.1's gates apply. Drawing it found two live defects: Blue Ocean gave **14 boxes where
-his document rules 15** and had lost his first heading to his own placeholder; the Profit Levers
-gave **29 where it has 28**. Both fixed, both now counted against his workbook by test.
-**Eight forms remain.**
+🔴 **RUNNING IT FOUND A FAULT THREE DAYS OLD THAT WAS NOT IN THE NEW CODE.**
+`PUT /api/strategy/sessions/:id/scope` rejected **every** real save — 400 `UNKNOWN_FRAMEWORK` —
+because it checked ticked ids with `getFramework()` while stage 1 changed the menu to the 52
+**concepts** on 2026-09-17. Nothing had ever called the route, so it sat unfound. **The suite was
+green throughout.** Two more the suite could not see: Mike's longer titles broke one word per line,
+and 52 ticked concepts offered 18 cards with nothing saying why.
 
-**NEW ITEM 15.9 — the decision that gates everything after stage 3**, waiting on Mike since
-2026-09-17 and until today living only in a note. Do not design past stage 3 without it.
-
-⚠ **I claimed on the first drawing that Porter's loses its headings. It does not** — it uses its
-own approved five-force card and never reaches that renderer. Reasoned from code instead of
-opening the app; the correction is printed on the drawing.
+**NEW ITEM 15.10** — *Our Session Objective*, page 2 of six of his decks, is missing from the plan.
+**Four decisions wait on Mike**, [drawn](https://claude.ai/artifact/VBb5zM8WhP4VraQrQCt9un). Also a
+deviation from the approved plan artefact: three front pages drawn, two built.
 
 **DESKTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `ARTEFACTS.md`,
-`ITEM-NUMBERING.md`, `strategy-planner.md`, `CODE-SIZE.md`, `scripts/quick-gate.js` (one line),
-`tests/unit/quickGate.test.js` (two pinned lists), `mixins/speechMixin.js`,
-`mixins/collaborate/speechMixin.js`, `data/strategy-frameworks.json` (one corrupt line — Blue
-Ocean's *Helps Your Client To…* ended `"…competitors.tion Point'."`). **No `FirmManagerHub.vue`,
-no engine code.** **7.5, 15.1 and 15.7 stay active on this laptop.**
+`strategy-planner.md`, `CODE-SIZE.md`, `locales/en.json`, `StrategyScopeMenu.vue`,
+`strategy-plan-output.html`. **New:** `StrategyStepBuilder.vue` and three drawings. **No
+`FirmManagerHub.vue`, no engine code, no `report-model-summaries.json`.** **7.5, 15.1 and 15.7
+stay active on this laptop.**
