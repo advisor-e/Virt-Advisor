@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Session, Start to Finish</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+    --good: #4ca52d; --crit: #c0392b; --warn: #ff9900;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 90px; line-height: 1.55;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 31px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 76ch; }
+  .lede b { color: var(--ink); }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 14px; }
+
+  /* the journey strip */
+  .strip { display: flex; gap: 7px; flex-wrap: wrap; margin: 20px 0 6px; }
+  .sp { flex: 1 1 150px; border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; background: #fff; }
+  .sp .k { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--eg); }
+  .sp .t { font-size: 13.5px; font-weight: 700; color: var(--ink); line-height: 1.3; margin-top: 2px; }
+  .sp .m { font-size: 11.5px; color: var(--eg); margin-top: 3px; }
+  .sp.prop { border-color: #ffd28a; background: #fffdf4; }
+  .sp.prop .k { color: #8a6d2f; }
+  .sp.out { border-color: #a8dcb4; background: #f7fdf8; }
+  .sp.out .k { color: #1d6b2b; }
+
+  /* phase blocks */
+  .phase { border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow); margin: 0 0 26px; overflow: hidden; background: #fff; }
+  .ph-head { padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--wash); display: flex; align-items: flex-start; gap: 13px; }
+  .ph-n { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; }
+  .ph-t { flex: 1 1 auto; }
+  .ph-t h2 { margin: 0; color: var(--ink); font-size: 20px; }
+  .ph-t p { margin: 2px 0 0; font-size: 12.5px; color: var(--eg); }
+  .tag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; border-radius: 3px; padding: 2px 7px; }
+  .t-built { background: #e6f5e9; color: #1d6b2b; border: 1px solid #a8dcb4; }
+  .t-prop { background: #fff4de; color: #8a6d2f; border: 1px solid #ffd28a; }
+  .phase.prop .ph-head { background: #fffdf4; }
+  .phase.prop .ph-n { background: var(--warn); color: #3d2f00; }
+  .phase.out .ph-head { background: #f7fdf8; }
+  .phase.out .ph-n { background: var(--good); }
+
+  .ph-body { padding: 16px 20px 20px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  h3.lbl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--accent); margin: 0 0 7px; }
+  ol.steps { margin: 0 0 6px; padding-left: 20px; }
+  ol.steps li { margin: 0 0 7px; font-size: 13.5px; }
+  ol.steps li b { color: var(--ink); }
+  ul.plain { margin: 0 0 6px; padding-left: 18px; }
+  ul.plain li { margin: 0 0 6px; font-size: 13.5px; }
+  .says { border-left: 3px solid var(--line); padding: 2px 0 2px 12px; margin: 0 0 9px; font-size: 13px; color: var(--eg); font-style: italic; }
+  .says b { color: var(--ink); font-style: normal; }
+
+  /* mini screens */
+  .mini { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; background: #fff; margin: 0 0 9px; }
+  .mini-bar { background: var(--wash); border-bottom: 1px solid var(--line); padding: 7px 11px; font-size: 11px; font-weight: 700; color: var(--ink); }
+  .mini-b { padding: 10px 11px; }
+  .row { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 5px 0; border-bottom: 1px solid #eef3f8; }
+  .row:last-child { border-bottom: 0; }
+  .tick { flex: 0 0 auto; width: 14px; height: 14px; border-radius: 3px; border: 1px solid #b9cde0; display: inline-block; }
+  .tick.on { background: var(--accent); border-color: var(--accent); position: relative; }
+  .tick.on::after { content: "✓"; color: #fff; font-size: 10px; position: absolute; left: 2px; top: -2px; }
+  .pgn { flex: 0 0 26px; color: var(--eg); font-size: 11px; }
+  .nm { flex: 1 1 auto; color: var(--ink); }
+  .ai { flex: 0 0 auto; font-size: 9.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; background: #e8f2fb; color: var(--accent); border-radius: 3px; padding: 1px 5px; }
+  .cap { display: block; border: 1px solid var(--line); border-radius: 5px; height: 21px; background: #fdfefe; margin: 4px 0; }
+  .capf { display: block; border: 1px solid var(--line); border-radius: 5px; background: #fdfefe; margin: 4px 0; padding: 3px 7px; font-size: 11.5px; color: var(--body); }
+  .voice { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; color: var(--accent); border: 1px solid var(--line); border-radius: 5px; padding: 2px 8px; }
+  .mini-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .chip2 { display: block; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 6px; padding: 4px 8px; margin: 0 0 5px; font-size: 11.5px; color: var(--ink); background: #fff; }
+  .stepbox { border: 1px solid var(--line); border-radius: 7px; margin: 0 0 7px; }
+  .stepbox .h { background: var(--wash); border-bottom: 1px solid var(--line); padding: 4px 8px; font-size: 11.5px; font-weight: 700; color: var(--ink); }
+  .stepbox .b { padding: 6px 8px; }
+  .noneb { border: 1px dashed #d8c39a; background: #fffdf6; border-radius: 6px; padding: 6px 8px; font-size: 11px; color: #8a6d2f; }
+
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 11px 15px; margin: 12px 0 0; font-size: 13px; }
+  .note b { color: var(--ink); }
+  .note.warn { background: #fffdf4; border-left-color: var(--warn); }
+  .note.bad { background: #fdf3f2; border-left-color: var(--crit); }
+  .note h4 { margin: 0 0 5px; font-size: 13px; color: var(--ink); }
+  .note.bad h4 { color: var(--crit); }
+  .note.warn h4 { color: #8a6d2f; }
+
+  /* the output pages */
+  table.pg { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.pg th, table.pg td { text-align: left; padding: 7px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.pg th { font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  table.pg td:first-child { font-weight: 700; color: var(--eg); white-space: nowrap; width: 76px; font-size: 12px; }
+  tr.div td:nth-child(2) { color: var(--accent); font-weight: 600; }
+  tr.new td { background: #f7fdf8; }
+  .hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+  h2.sec { color: var(--ink); font-size: 22px; margin: 0 0 4px; }
+  code { background: var(--wash); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-size: 12.5px; }
+  @media (max-width: 800px) { .grid, .mini-cols { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner &middot; item 15.1</p>
+  <h1>The Session, Start to Finish</h1>
+  <p class="lede">
+    <b>Every phase an advisor walks through, in order, from opening the app to handing the client
+    their plan.</b> What is on the screen, what they do, what the client sees, and what is kept.
+    The session used throughout is <b>Pivot</b> &mdash; fourteen concepts, five steps &mdash; so
+    every name on this page is yours.
+  </p>
+  <p class="src">
+    Read from the running code on 2026-09-20. Every quoted label is the app's real wording.
+    <b>Four phases are built and live. One is proposed and not built.</b> Each is marked.
+  </p>
+
+  <div class="strip">
+    <div class="sp"><span class="k">Built</span><div class="t">1 &middot; Scope</div><div class="m">Tick the concepts</div></div>
+    <div class="sp prop"><span class="k">Proposed</span><div class="t">2 &middot; Build the steps</div><div class="m">Name the phases</div></div>
+    <div class="sp"><span class="k">Built</span><div class="t">3 &middot; Run</div><div class="m">Teach and capture</div></div>
+    <div class="sp"><span class="k">Built</span><div class="t">4 &middot; Objectives</div><div class="m">Close the session</div></div>
+    <div class="sp out"><span class="k">Built</span><div class="t">5 &middot; The plan</div><div class="m">The client's document</div></div>
+  </div>
+  <p class="src" style="margin-top:8px">Today the rail has four stages. The proposed one would make five.</p>
+
+  <hr class="hr">
+
+  <!-- ============ PHASE 0 ============ -->
+  <div class="phase">
+    <div class="ph-head">
+      <span class="ph-n">0</span>
+      <div class="ph-t">
+        <h2>Opening the Planner <span class="tag t-built">Built</span></h2>
+        <p>Before the client arrives. About twenty seconds.</p>
+      </div>
+    </div>
+    <div class="ph-body">
+      <div class="grid">
+        <div>
+          <h3 class="lbl">What the advisor does</h3>
+          <ol class="steps">
+            <li>Opens <b>Strategy Planner</b> from the navigation.</li>
+            <li>The page opens headed <b>&ldquo;What do you want from your session?&rdquo;</b> &mdash;
+              your own slide title.</li>
+            <li>Picks the client from one dropdown: <b>&ldquo;Which client?&rdquo;</b></li>
+            <li>Presses <b>&ldquo;Start the session&rdquo;</b>. Nothing can start without a client,
+              because a plan belongs to somebody.</li>
+          </ol>
+        </div>
+        <div>
+          <h3 class="lbl">What is already on the screen</h3>
+          <p class="says"><b>The subtitle, permanently:</b> &ldquo;Your role is to challenge what the
+            client believes to be true. Their role is to explore with an open heart and an open
+            mind.&rdquo;</p>
+          <p style="font-size:13.5px;margin:0">That is your own page&nbsp;2 wording, and it is the
+            only part of it the app carries today.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE 1 ============ -->
+  <div class="phase">
+    <div class="ph-head">
+      <span class="ph-n">1</span>
+      <div class="ph-t">
+        <h2>Scope &mdash; ticking what the session covers <span class="tag t-built">Built</span></h2>
+        <p>Five to ten minutes, usually before the meeting. This is your own Session Scope table, made real.</p>
+      </div>
+    </div>
+    <div class="ph-body">
+      <div class="grid">
+        <div>
+          <h3 class="lbl">What the advisor sees</h3>
+          <div class="mini">
+            <div class="mini-bar">Scope the session &middot; Example client &middot; 14 of 52 included</div>
+            <div class="mini-b">
+              <div style="font-size:10.5px;color:var(--eg);margin-bottom:5px">Strategic Orientation 2 &middot; <b>Planning domain</b> &middot; 11 of 18 included</div>
+              <div class="row"><span class="tick on"></span><span class="pgn">p11</span><span class="nm">Porter's 5 Forces</span><span class="ai">AI</span></div>
+              <div class="row"><span class="tick on"></span><span class="pgn">p13</span><span class="nm">Market Diffusion</span><span class="ai">AI</span></div>
+              <div class="row"><span class="tick on"></span><span class="pgn">p14</span><span class="nm">Product Life Cycle</span></div>
+              <div class="row"><span class="tick"></span><span class="pgn">p16</span><span class="nm">Progression of Economic Value</span></div>
+              <div class="row"><span class="tick on"></span><span class="pgn">p17</span><span class="nm">Blue Ocean Strategy</span><span class="ai">AI</span></div>
+            </div>
+          </div>
+          <p class="src" style="margin:0">One panel per deck, in your order. Your five columns:
+            <b>Page · Framework · Concept Summary · Helps Your Client To… · Include.</b> Fifty-two
+            concepts across the four Planning Domains.</p>
+        </div>
+        <div>
+          <h3 class="lbl">What the advisor does</h3>
+          <ol class="steps">
+            <li><b>Reads what the AI already ticked.</b> It pre-ticks with a reason against each row
+              and <b>never unticks</b> anything &mdash; the advisor is always the one who removes.</li>
+            <li><b>Adjusts the ticks.</b> Ticks cross decks freely: Pivot takes nine concepts from
+              Strategic Orientation 2 and two from Sales &amp; Marketing Review.</li>
+            <li>Watches the counter: <b>&ldquo;14 of 52 included&rdquo;</b>.</li>
+          </ol>
+          <h3 class="lbl" style="margin-top:14px">What the client sees</h3>
+          <p style="font-size:13.5px;margin:0">Often this table itself, on the screen between them.
+            The words are yours, read off the decks &mdash; the app never rewrites them.</p>
+        </div>
+      </div>
+
+      <div class="note ok">
+        <h4>☑ One line on this screen was out of date, and was corrected the same day</h4>
+        <p style="margin:0">At the foot of the scope screen the app used to say: <i>&ldquo;The
+          screens that teach each concept and capture the client's answers are still being built
+          &mdash; nothing typed is kept yet.&rdquo;</i> <b>It had not been true since stage 2
+          shipped</b> &mdash; those screens exist and every box is saved against the client's
+          session &mdash; so an advisor was being told their work would be lost when it would not.
+          Found by walking this journey on 2026-09-20 and <b>fixed the same session on Mike's
+          ruling.</b> It now says what comes next and that the work is kept.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE 2 ============ -->
+  <div class="phase prop">
+    <div class="ph-head">
+      <span class="ph-n">2</span>
+      <div class="ph-t">
+        <h2>Build the steps &mdash; naming the phases of the session <span class="tag t-prop">Proposed, not built</span></h2>
+        <p>Two minutes, before the meeting. This is the new screen, and the only thing that changes.</p>
+      </div>
+    </div>
+    <div class="ph-body">
+      <div class="grid">
+        <div>
+          <h3 class="lbl">What the advisor sees</h3>
+          <div class="mini">
+            <div class="mini-bar">Build the session's steps</div>
+            <div class="mini-b">
+              <div class="mini-cols">
+                <div>
+                  <div style="font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--eg);margin-bottom:5px">Not yet in a step &middot; 2</div>
+                  <span class="chip2">6 Marketing Answers</span>
+                  <span class="chip2">A.I.D.C.R.A</span>
+                </div>
+                <div>
+                  <div class="stepbox"><div class="h">1 &middot; Identify the Resistance</div><div class="b" style="font-size:11px;color:var(--eg)">5 concepts</div></div>
+                  <div class="stepbox"><div class="h">2 &middot; Choose Your Competition Fronts</div><div class="b" style="font-size:11px;color:var(--eg)">6 concepts</div></div>
+                  <div class="stepbox"><div class="h">5 &middot; Do It &amp; Review It</div><div class="b"><div class="noneb">Nothing in it &mdash; still on the agenda</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="lbl">What the advisor does</h3>
+          <ol class="steps">
+            <li><b>Types a step name.</b> <i>Identify the Resistance.</i> Free text &mdash; nothing is
+              suggested and the AI writes none of it.</li>
+            <li><b>Drags five concepts into it</b> from the list on the left.</li>
+            <li>Repeats: <i>Choose Your Competition Fronts</i> (six), <i>Rehearse the Message</i>
+              (two), <i>Trial the Prototype</i> (one).</li>
+            <li><b>Adds a fifth step, names it <i>Do It &amp; Review It</i>, and leaves it empty</b>
+              &mdash; in your deck that step is a promise to the client, not a framework.</li>
+          </ol>
+          <div class="note" style="margin-top:4px">
+            <b>Porter's is one concept and two cards.</b> Observations go in step&nbsp;1, responses in
+            step&nbsp;2. Both write into the same table. The two cards already exist in the app;
+            this screen only decides where each one goes.
+          </div>
+        </div>
+      </div>
+      <div class="note">
+        <h4>Nothing is lost by getting it wrong</h4>
+        <p style="margin:0">A concept dragged out of a step goes back to the left-hand list, and
+          anything already typed into its table is untouched &mdash; the answers are stored against
+          the concept, never against the step.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE 3 ============ -->
+  <div class="phase">
+    <div class="ph-head">
+      <span class="ph-n">3</span>
+      <div class="ph-t">
+        <h2>Run the frameworks &mdash; the meeting itself <span class="tag t-built">Built</span></h2>
+        <p>The bulk of the session. Two to four hours, in the room with the client.</p>
+      </div>
+    </div>
+    <div class="ph-body">
+      <div class="grid">
+        <div>
+          <h3 class="lbl">What the advisor sees</h3>
+          <div class="mini">
+            <div class="mini-bar">Porter's 5 Forces</div>
+            <div class="mini-b">
+              <div class="mini-cols">
+                <div>
+                  <div style="font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--eg);margin-bottom:4px">Teach</div>
+                  <div style="font-size:11.5px;color:var(--body)">The concept in your words, with the
+                    diagram beside it, so it can be taught without leaving the screen.</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--eg);margin-bottom:4px">Capture</div>
+                  <span class="voice">🎙 Record</span>
+                  <span class="capf">Rivalry is fierce — four local firms…</span>
+                  <span class="cap"></span>
+                  <span class="cap"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="src" style="margin:0">Your fill-in table on the right, <b>read from your own
+            workbook</b> &mdash; every label is yours, none authored by us.</p>
+        </div>
+        <div>
+          <h3 class="lbl">What the advisor does</h3>
+          <ol class="steps">
+            <li><b>Teaches the concept</b> from the left of the screen.</li>
+            <li><b>Captures what the client says</b> on the right &mdash; typed, or spoken into the
+              voice bar that sits on every box, the same control used everywhere else in the app.</li>
+            <li>Moves to the next concept and repeats.</li>
+          </ol>
+          <div class="note warn" style="margin-top:4px">
+            <h4>This is where the step builder changes the day</h4>
+            <p style="margin:0"><b>Today</b> the fourteen cards come in whatever order the data
+              produces, so Porter's observations and Porter's responses sit next to each other.
+              <b>With steps</b>, the cards are grouped under your names and run in your order &mdash;
+              Porter's responses come an hour later, in step&nbsp;2, after the client has seen four
+              more concepts. That gap is why the responses are worth more than the observations.</p>
+          </div>
+        </div>
+      </div>
+      <div class="note">
+        <h4>Everything is saved as it is typed</h4>
+        <p style="margin:0">Box by box, against this client's session. If a save fails the message
+          says so and <b>keeps the words on screen</b> &mdash; an advisor mid-meeting is never
+          silently losing a box. The app also records which box was open when words were spoken, so
+          a recording can be apportioned later without any AI deciding where anything belongs.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE 4 ============ -->
+  <div class="phase">
+    <div class="ph-head">
+      <span class="ph-n">4</span>
+      <div class="ph-t">
+        <h2>Objectives &amp; actions &mdash; closing the session <span class="tag t-built">Built</span></h2>
+        <p>The last half hour, still in the room.</p>
+      </div>
+    </div>
+    <div class="ph-body">
+      <div class="grid">
+        <div>
+          <h3 class="lbl">What the advisor does</h3>
+          <ol class="steps">
+            <li><b>Writes the Strategic Objective</b> with the client, and the Strategy in the deck's
+              four-box language.</li>
+            <li><b>Fills in the Action Plan</b> as a table &mdash; the task, who owns it, when.</li>
+            <li><b>Picks a Growth Aspect for each action</b> from a list.</li>
+          </ol>
+        </div>
+        <div>
+          <h3 class="lbl">The coverage check</h3>
+          <p style="font-size:13.5px;margin:0 0 7px">The nine Growth Aspects wheel fills in, in your
+            own colours, showing what the session covered and what it missed &mdash; Strategic
+            Orientation 1's own instruction that objectives be tested against the nine.</p>
+          <div class="note" style="margin-top:0">
+            <b>No model reads an objective and guesses its aspect.</b> The advisor picks it. A guess
+            would be invisible when wrong.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE 5 ============ -->
+  <div class="phase out">
+    <div class="ph-head">
+      <span class="ph-n">5</span>
+      <div class="ph-t">
+        <h2>The plan &mdash; what the client walks away with <span class="tag t-built">Built</span></h2>
+        <p>Assembled instantly from everything above. The advisor types nothing here.</p>
+      </div>
+    </div>
+    <div class="ph-body">
+      <p style="font-size:13.5px;margin:0 0 12px"><b>One continuous document of slide-shaped pages.</b>
+        It scrolls as one document on screen and is your deck, page for page, when printed or put on
+        a projector. It stores nothing of its own, so it can never disagree with the session behind
+        it. An untouched table prints one line &mdash; <i>&ldquo;Scoped for this session, not worked
+        through yet&rdquo;</i> &mdash; rather than two dozen blank rows.</p>
+
+      <div class="grid">
+        <div>
+          <h3 class="lbl">The document today</h3>
+          <table class="pg">
+            <tr><th>Page</th><th>What is on it</th></tr>
+            <tr><td>1</td><td>Title &mdash; <i>Session plan</i>, the client, the decks</td></tr>
+            <tr><td>2</td><td><b>The agenda:</b> &ldquo;Run the frameworks &mdash; 14 concepts&rdquo; · &ldquo;Objectives and actions &mdash; 2 concepts&rdquo;</td></tr>
+            <tr class="div"><td>3</td><td>Step 1 · Run the frameworks · Discussion points</td></tr>
+            <tr><td>4–17</td><td>Fourteen concepts, taught</td></tr>
+            <tr class="div"><td>18</td><td>Step 1 · Run the frameworks · Action points</td></tr>
+            <tr><td>19–32</td><td>The same fourteen, worked</td></tr>
+            <tr class="div"><td>33</td><td>Step 2 · Objectives and actions · Action points</td></tr>
+            <tr><td>34–35</td><td>Strategic Objective, Action Plan</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3 class="lbl">The document with steps</h3>
+          <table class="pg">
+            <tr><th>Page</th><th>What is on it</th></tr>
+            <tr><td>1</td><td>Title</td></tr>
+            <tr class="new"><td>2</td><td><b>The agenda:</b> your five step names</td></tr>
+            <tr class="div new"><td>3</td><td>Step 1 · Identify the Resistance · Discussion points</td></tr>
+            <tr class="new"><td>4–8</td><td>Its five concepts, taught</td></tr>
+            <tr class="div new"><td>9</td><td>Step 1 · Identify the Resistance · Action points</td></tr>
+            <tr class="new"><td>10–14</td><td>The same five, worked</td></tr>
+            <tr><td>15…</td><td>Steps 2, 3 and 4, the same way</td></tr>
+            <tr class="div new"><td>last</td><td>Step 5 · Do It &amp; Review It &mdash; on the agenda, no pages behind it</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="note bad">
+        <h4>Two things are wrong with the left-hand column, and both are on pages a client reads</h4>
+        <ul class="plain" style="margin:6px 0 0">
+          <li><b>The agenda names our software.</b> <i>&ldquo;Run the frameworks&rdquo;</i> and
+            <i>&ldquo;Objectives and actions&rdquo;</i> are the labels on our own wizard. The app has
+            one step, no name of its own to give it, so it borrowed ours and printed them on your
+            client's plan.</li>
+          <li><b>The session has no shape.</b> Fourteen concepts taught in one unbroken run, then
+            fourteen tables worked in one unbroken run. Your Pivot teaches five and works five, then
+            teaches six and works six.</li>
+        </ul>
+      </div>
+
+      <div class="note warn">
+        <h4>⚠ And one page is missing from both columns</h4>
+        <p style="margin:0">Your <b>page 2 &mdash; &ldquo;Our Session Objective&rdquo;</b>, the
+          welcome, roles and housekeeping &mdash; is in six of your decks and in none of the app.
+          It is drawn separately and is not part of the step builder.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hr">
+
+  <h2 class="sec">The whole journey, in one line each</h2>
+  <table class="pg" style="margin-top:10px">
+    <tr><th>Phase</th><th>The advisor</th><th>Time</th><th>Status</th></tr>
+    <tr><td>0</td><td>Opens the Planner, picks the client, starts</td><td>20 seconds</td><td>Built</td></tr>
+    <tr><td>1</td><td>Ticks 14 of your 52 concepts; the AI has pre-ticked some with reasons</td><td>5–10 min</td><td>Built</td></tr>
+    <tr class="new"><td>2</td><td>Names five steps and drags the 14 concepts into four of them</td><td>2 min</td><td><b>Proposed</b></td></tr>
+    <tr><td>3</td><td>Teaches each concept and captures what the client says, in step order</td><td>2–4 hours</td><td>Built</td></tr>
+    <tr><td>4</td><td>Writes the objective, the strategy and the action plan; checks coverage</td><td>30 min</td><td>Built</td></tr>
+    <tr><td>5</td><td>Types nothing. The plan assembles and the client takes it away</td><td>instant</td><td>Built</td></tr>
+  </table>
+
+  <p class="src" style="margin-top:16px">The advisor gains one screen and about two minutes before a
+    meeting. In exchange the session has an argument instead of a list, and the client's document is
+    in your language instead of ours.</p>
+
+</div>
+</body>
+</html>

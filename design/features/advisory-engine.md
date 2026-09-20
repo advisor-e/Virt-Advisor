@@ -59,7 +59,7 @@ the correction twice the answer goes out with a note saying plainly that the nam
 calculator, not a template. `server/utils/templateHeadingCheck.js`.
 
 ⚠ **That check recognises a model by its EXACT catalogue name or route, and this is the seam
-item 7.12 turns on.** Measured 2026-09-17 against the shipped catalogues, the three "model named
+item 7.13 turns on.** Measured 2026-09-17 against the shipped catalogues, the three "model named
 but no page path" cases are three different things, not one:
 
 | What the AI wrote | What it is | What happens today |
@@ -151,7 +151,7 @@ the money does not arrive the month it is earned"* — the timing distinction as
 question, not a ranking of one model over the other. Every other entry of the nineteen already
 opened by naming what it answers in its own right; this was the only one defined against another.
 
-🔴 **THE PAGE PATH IS NOT A WORDING PROBLEM AND NEVER WAS — ITEM 7.12, REFRAMED 2026-09-18 ON
+🔴 **THE PAGE PATH IS NOT A WORDING PROBLEM AND NEVER WAS — ITEM 7.13, REFRAMED 2026-09-18 ON
 MIKE'S CHALLENGE.** His original task read *"check the summary page, look it up, compare to
 conversation and suggest the model name and where to find it in the perf report section"*. **The
 lookup half was never built.** The 19 models are injected as 51,072 characters of prose and the AI
@@ -305,7 +305,7 @@ platform default. Nothing is single-tenant, and nothing new should be.
 
 ## 4. For the coder
 
-### 🔴 ITEM 7.12 — BUILD THE MODEL LOOKUP. Start here, in this order.
+### 🔴 ITEM 7.13 — BUILD THE MODEL LOOKUP. Start here, in this order.
 
 **Read the ⚠ warning below BEFORE writing anything** — it decides the shape of the resolver and
 can waste the whole build if it is met halfway through.

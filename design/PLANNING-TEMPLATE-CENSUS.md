@@ -160,8 +160,11 @@ census was written. See §4 finding 6 — it is the most consequential thing in 
 
 Two entries resist all of the above and are recorded as themselves:
 
-- **Technology Points** is a rendered 3-D illustration, not a diagram. It may have to be
-  presented as the picture it is.
+- **Technology Points** is a rendered 3-D illustration, not a diagram. 🔴 **It is REDRAWN
+  FLAT and is never presented as the picture — Mike's ruling, 2026-09-18.** The raster
+  carries the **Advisor-E.com logo inside the artwork**, in a right-hand panel his slide
+  crops off, so the picture can never show an advisor's own firm mark. Method:
+  [`features/strategy-planner.md`](features/strategy-planner.md) §0.
 - **Business Owner Expectations** and **Business Development Stages** are a spreadsheet
   model (`BO Expectations.xlsx`, four sheets, interest calculations). They belong with the
   Report Models, not with the capture forms.

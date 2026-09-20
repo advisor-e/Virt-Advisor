@@ -335,11 +335,16 @@ async function listSessions (req, res) {
 /**
  * PUT /api/strategy/sessions/:id/scope
  *
- * Records what screen 1 ticked. Every framework named must be one the Planner actually
- * holds — a scope naming something unauthored would render an empty session.
+ * Records what screen 1 ticked, and the steps screen 2 named. Every framework named must be
+ * one the Planner actually holds — a scope naming something unauthored would render an empty
+ * session.
+ *
+ * ⚠ THE STEPS ARE BOUNDED, NOT VALIDATED AGAINST THE SCOPE, and the store says why: a step's
+ * items name *cards*, not frameworks, and a card that is no longer scoped renders nothing
+ * rather than refusing the whole save.
  *
  * @route PUT /api/strategy/sessions/:id/scope
- * @param {object} req - firmAuth-verified; body `{ domains: string[], frameworks: string[] }`
+ * @param {object} req - firmAuth-verified; body `{ domains: string[], frameworks: string[], steps?: Array<{name: string, items: string[]}> }`
  * @param {object} res
  * @returns {200} { success, timestamp }
  */
@@ -352,17 +357,25 @@ async function putScope (req, res) {
 
   const body = req.body || {}
   const chosen = Array.isArray(body.frameworks) ? body.frameworks : []
-  const unknown = chosen.filter(id => !frameworks.getFramework(id))
+
+  // 🔴 A SCOPE ID IS A CONCEPT OR A FRAMEWORK, AND CHECKING ONLY ONE REJECTED EVERY REAL
+  // SAVE. Stage 1 changed the menu on 2026-09-17 from the handful of authored frameworks
+  // to Mike's own 52 CONCEPTS, and this guard was left checking `getFramework` alone — so
+  // a scope of real ticked concepts came back 400 UNKNOWN_FRAMEWORK. Nothing called the
+  // route until the step builder did on 2026-09-20, which is why it sat unfound: the
+  // session is OPENED through POST /sessions, which does not validate.
+  const unknown = chosen.filter(id => !frameworks.getFramework(id) && !frameworks.getConcept(id))
   if (unknown.length) {
     sendError(res, 400, 'UNKNOWN_FRAMEWORK',
-      'The session names a framework that does not exist: ' + unknown.join(', '))
+      'The session names a framework or concept that does not exist: ' + unknown.join(', '))
     return
   }
 
   try {
     const done = await store.setScope(req.params.id, firmId, {
       domains: Array.isArray(body.domains) ? body.domains : [],
-      frameworks: chosen
+      frameworks: chosen,
+      steps: Array.isArray(body.steps) ? body.steps : []
     })
     if (!done) {
       sendError(res, 404, 'NOT_FOUND', 'No such planning session')

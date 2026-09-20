@@ -4,31 +4,21 @@ section.sts
   //- name and its capture instruction; printing them again put the same two lines
   //- on screen twice, one under the other.
 
-  //- 🔴 THERE IS NO GRAPHIC HERE YET, AND THAT IS THE CURRENT STATE — Mike's
-  //- ruling, 2026-09-18. Until then this rendered a JPEG of his own deck page.
-  //- He had not asked for that, and it cannot be white-labelled: every page of
-  //- his decks carries the advisor-e.com logo and border burned into the pixels,
-  //- and Advisor-e always shows the ADVISOR'S firm logo to a client, never its
-  //- own. His words: *"they look cheap and more importantly, they lock in the
-  //- Advisor-e logo."* The images and their renderer are deleted.
+  //- 🔴 THE GRAPHIC GOES UP FIRST, so the advisor speaks to it before a single
+  //- box is filled in — Mike's instruction, 2026-09-17. It is a drawing OF ours
+  //- from a page of HIS, never a photograph of his page: every page of his decks
+  //- carries the advisor-e.com logo burned into the pixels, and a client is
+  //- always shown the ADVISOR'S firm logo. His words on the images that briefly
+  //- stood here: *"they look cheap and more importantly, they lock in the
+  //- Advisor-e logo."*
   //-
-  //- ⚠ THE REBUILD DRAWS EACH CONCEPT AS A COMPONENT, so the firm's logo can sit
-  //- where his does. Two things govern it, and they pull against each other:
-  //-
-  //- 1. The concept must appear AS IT DOES IN HIS DECK. `deck` and `page` on the
-  //-    concept say which page — open it and look.
-  //- 2. A drawing done from memory gets it WRONG. The hand-drawn Porter's hub
-  //-    that stood here before the images carried a comment claiming it was his
-  //-    approved drawing COPIED, NOT REDRAWN. It was redrawn, and against his
-  //-    actual slide — Strategic Orientation 2 p13 — THREE OF THE FOUR FORCES
-  //-    WERE IN THE WRONG POSITION: his are Customers top, Suppliers right,
-  //-    Substitutes bottom, New Entrants left. His ring and his four colours were
-  //-    missing, the inward arrows invented, two bold statements absent. Every
-  //-    gate passed throughout, because a gate compares code to a note and
-  //-    nothing compared the build to the slide.
-  //-
-  //- 🔴 SO: BUILD IT WITH HIS PAGE OPEN BESIDE IT, NEVER FROM MEMORY, and get the
-  //- drawing approved as a saved artefact before it ships.
+  //- ⚠ A CONCEPT WITHOUT AN APPROVED DRAWING RENDERS NOTHING HERE and the panel
+  //- is his words alone, exactly as all 52 were before item 15.7.
+  strategy-concept-graphic(
+    :concept-id="conceptId"
+    :firm-name="firmName"
+    :firm-colour="firmColour"
+  )
 
   //- What the concept does, in Mike's own words from the deck's Session Scope
   //- table — the same two lines the menu screen shows before it is ticked.
@@ -48,16 +38,13 @@ section.sts
 </template>
 
 <script>
+import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
+
 /**
  * StrategyTeachingSlide — the concept on screen, so an advisor can teach it.
  *
  * Mike's instruction, 2026-09-17: *"i want the graphic up so the advisor can speak
  * to it - then the responses are captured after the click of a button."*
- *
- * ⚠ THE GRAPHIC IS NOT HERE. It was a JPEG of his own deck page and was removed on
- * 2026-09-18 because it carries the advisor-e.com logo, which can never be the
- * advisor's firm logo. The template comment says what replaces it. Until then this
- * component is his words without his picture, and it says so on screen.
  *
  * 🔴 EVERYTHING HERE COMES FROM WHAT HE GAVE US, AND NOTHING IS DERIVED. The
  * prompts are the framework's own fields from `data/strategy-frameworks.json`,
@@ -72,11 +59,31 @@ section.sts
 export default {
   name: 'StrategyTeachingSlide',
 
+  components: { StrategyConceptGraphic },
+
   props: {
     /** The concept's name. */
     name: {
       type: String,
       default: ''
+    },
+
+    /** Which concept, so its approved drawing can be found. */
+    conceptId: {
+      type: String,
+      default: ''
+    },
+
+    /** The advisor firm's name, printed beside the mark on the drawing. */
+    firmName: {
+      type: String,
+      default: ''
+    },
+
+    /** The firm's colour, as a CSS colour. */
+    firmColour: {
+      type: String,
+      default: '#0070c0'
     },
 
     /** Mike's one-line explanation, from the deck's Session Scope table. */

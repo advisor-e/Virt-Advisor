@@ -89,6 +89,40 @@ live one moved. `4.93` in the code means **Mid-Level Budget** (closed) — those
 correct and must not be touched. `4.96` is closed on the laptop's branch and live on the
 desktop's; the live one becomes `14.1`.
 
+### 🔴 2026-09-19 — `7.12` was OVERWRITTEN, not duplicated. It is put back; the new job is `7.13`
+
+**This is not a collision, and reading it as one is how it nearly went through.** Nobody filed a
+second `7.12`. On 2026-09-18 the desktop took the live row and pointed its number at different
+work — the whole change to the list was one line:
+
+```diff
+-  "name": "The right calculator is offered only sometimes, and sometimes the wrong one is",
++  "name": "The model's page is recalled by the AI, not looked up",
+```
+
+| Number | Job | Outcome |
+|---|---|---|
+| `7.12`, asked 2026-09-16 | The right calculator is offered only sometimes, and sometimes the wrong one is | **restored** — still open at 4 of 6 |
+| `7.13`, asked 2026-09-18 | The model's page is recalled by the AI, not looked up | **takes the free number** |
+
+🔴 **THE FIRST ROW IS THE POINT. `7.12` IS PUT BACK, NOT RENUMBERED.** The model-offer defect is
+unfixed, has no closure entry, and after that commit existed nowhere on the desktop's list. Had
+its branch merged, an open defect would have been **deleted from the shared list with no trace**.
+Recording this as a renumbering would have documented the deletion rather than undone it.
+
+**The desktop applies both halves** — the rows are on that machine's branch and this one must
+never edit them. Mike's ruling, given 2026-09-19.
+
+**Why it beat every gate, and what now stops it.** One row, one file, one machine: no number
+appeared twice, so `toDoItems.test.js` passed, and both machines held the identical file, so
+`check:branch` had nothing to compare. **Every control we had asks whether the two machines
+disagree; none asked whether a number had quietly changed meaning.**
+[`tests/unit/itemIdentity.test.js`](../tests/unit/itemIdentity.test.js) now does, at commit time,
+on the machine making the change. It guards **the date a job was asked for, never its name** —
+measured over 414 commits, a live item's `name` changed 40 times in 60 days as work progressed,
+while the asked-on date raised three alarms in 3,693 comparisons and not one false one. The other
+two it caught were `7.5` and `4.67` below.
+
 ### 🔴 2026-09-18 — both machines' `7.9` turn out to be ONE fault, and `7.9` is spent
 
 **This is not a renumbering, and that is the point.** Both machines filed a `7.9` on 2026-09-16,

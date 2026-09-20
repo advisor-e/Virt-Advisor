@@ -189,6 +189,12 @@ isListening: false,
     c.recognition.onresult({ results: [[{ transcript: 'nested text' }]] })
     expect(c.form.summary).toBe('nested text')
 
+    // onend restarts while a field is still recording — a pause mid-sentence must not
+    // end the take. `voiceField` is still 'form.summary' from above.
+    c._recognitionRunning = false
+    c.recognition.onend()
+    expect(c.recognition.start).toHaveBeenCalled()
+
     // onerror: ignore 'no-speech', stop listening on anything else.
     c.isListening = true
     c.recognition.onerror({ error: 'no-speech' })
@@ -196,10 +202,44 @@ isListening: false,
     c.recognition.onerror({ error: 'audio-capture' })
     expect(c.isListening).toBe(false)
 
-    // onend restarts while a field is still recording.
+    // 🔴 AND A REAL ERROR CLEARS EVERY TARGET, SO onend DOES NOT RESTART. This assertion
+    // used to read the other way round — it required a restart here, which is the
+    // endless start→error loop itself: one "Block" click pinned a CPU core because a
+    // field was left set and onend kept starting a recogniser that kept erroring.
+    // Corrected 2026-09-19 with the fix it was holding out of this file.
+    expect(c.voiceField).toBeNull()
+    expect(c.profileRecordingField).toBeNull()
+    expect(c.reviewRecordingField).toBeNull()
+    c.recognition.start.mockClear()
     c._recognitionRunning = false
     c.recognition.onend()
-    expect(c.recognition.start).toHaveBeenCalled()
+    expect(c.recognition.start).not.toHaveBeenCalled()
+  })
+
+  test('beforeDestroy releases the microphone and cannot be restarted by a late onend', () => {
+    // 🔴 THE FIX THIS FILE WENT WITHOUT. Five Collaborate screens kept a live microphone
+    // after the advisor navigated away, because `onend` fired on the destroyed instance
+    // and started the recogniser again. UAT cannot see this: the screen has gone.
+    function FakeSR () { this.start = jest.fn(); this.stop = jest.fn(); this.abort = jest.fn() }
+    global.window = { SpeechRecognition: FakeSR }
+
+    const c = { $i18n: { locale: 'en' }, $set: () => {}, isListening: true, voiceField: 'reply' }
+    mixin.mounted.call(c)
+    const late = c.recognition.onend
+
+    mixin.beforeDestroy.call(c)
+
+    expect(c.recognition.abort).toHaveBeenCalled()
+    expect(c.isListening).toBe(false)
+    expect(c.voiceField).toBeNull()
+    // The handlers are detached before the abort, so the abort cannot restart it.
+    expect(c.recognition.onend).toBeNull()
+
+    // Even an onend already in flight must not bring the microphone back.
+    c.recognition.start.mockClear()
+    c.isListening = true
+    late()
+    expect(c.recognition.start).not.toHaveBeenCalled()
   })
 
   test('defaults the recognition language to en-US for an unmapped locale', () => {

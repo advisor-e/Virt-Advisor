@@ -27,7 +27,7 @@ AND `buildRetryInstruction` names it back to the AI, so renaming one half would 
 correction silently. Pinned in `reportModelSummaries.test.js`. **His workbook names stay** (*Quick
 Calculator*, *Hrly Rate & Tax Calculator*) — his source material.
 
-🔴 **7.12 IS A DIFFERENT ITEM NOW, AND THE OLD NOTES ARE DELETED** (`4269c663`, `de5d4875`).
+🔴 **7.13 — THE MODEL LOOKUP, AND THE OLD NOTES ARE DELETED** (`4269c663`, `de5d4875`).
 Mike's challenge: his original task was *"check the summary page, look it up… and where to find it
 in the perf report section"*. **The lookup half was never built.** Four sessions tuned prompt
 wording instead; each moved some models and moved others backwards. `/api/report/model-guide`
@@ -57,6 +57,6 @@ attention moved.
 (`discover.txt`, `client.txt`) plus `templateHeadingCheck.js` for the rename. **No `activeOn` is
 set on this machine.** Your 7.5, 15.1 and 15.7 are untouched.
 
-**NEXT:** 7.12 is unclaimed and ready to build from the written steps. **15.6 needs Mike** — eight
+**NEXT:** 7.13 is unclaimed and ready to build from the written steps. **15.6 needs Mike** — eight
 concepts name a response form the app cannot find, five of them near-misses on a typed name, and
 his corrections file is deliberately unapplied.

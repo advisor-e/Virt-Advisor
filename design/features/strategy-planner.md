@@ -30,18 +30,23 @@
 >   reproduced**, each block carrying the Pivot page it answers, so the acceptance test runs
 >   against the drawing rather than after a build. Its §5 states what it does *not* ask approval
 >   for — chiefly how each of the 21 teaching forms is drawn. ☑ **That is no longer open, and the
->   answer was not to draw them:** Mike's ruling of 2026-09-18 shows his own slide instead. §0
->   stage 4.
+>   answer is that WE DRAW THEM, BY MACHINE, FROM HIS PAGE** — the five-step method Mike approved
+>   on 2026-09-18 on seeing Porter's built that way, §0 *How a concept is drawn*. 🔴 **NEVER an
+>   image of his slide:** that was tried the same day and undone within hours, because it locked
+>   the **advisor-e.com logo** into a client's document against his own ruling that a client always
+>   sees the advisor's firm logo. **33 of the 34 are drawn and approved, and 28 of those are
+>   wired in** — that is item 15.7, and §0 stage 4b is where it stands. The five left each hold a
+>   pasted-in picture that has to come out to a file first.
 >   - ☑ **"Deck or web page" — ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
 >     produces a web report *and* a separate exported deck has created two things that can
 >     disagree, and the page is a 16:9 frame from the start rather than a reflowing column
 >     squeezed into one later.
->   - ☐ **ONE decision still open — "Tick concepts, or tick steps"**, asked 2026-09-17 and
->     unanswered: does the advisor name the steps himself, or does the app group the ticked
->     concepts? Pivot's step 5 sits on the agenda
->     with no slides behind it, which is why the running order cannot be computed from the ticks.
+>   - ☑ **"Tick concepts, or tick steps" — RULED BY MIKE 2026-09-20, as recommended: the advisor
+>     names the steps himself.** He ticks concepts, then names each step and drags ticked concepts
+>     into it, and **a step holding nothing still prints on the agenda**. Pivot's step 5 sits there
+>     with no slides behind it, which is why the running order can never be computed from the ticks.
 >     **The drawing's other three were settled by building them** — see §0 *What gates what*.
 > - ☑ **The session scope menu — APPROVED TO BUILD FROM, 2026-09-17** —
 >   [`design/mockups/strategy-session-menu.html`](../mockups/strategy-session-menu.html), the
@@ -104,18 +109,98 @@ rather than quietly dropped.**
 the session menu puts all 52 on a screen; 16 of them reach the real capture table read from
 Mike's own workbook, and what an advisor types there is saved box by box against the client's
 session (§4) and carries into the assembled document.
-**Five stages of the eight remain**, and the one immediately ahead — the advisor naming his own
-steps — waits on the open decision in *What gates what* below.
+🔴 **STAGE 3b — THE STEP BUILDER — WAS BUILT ON 2026-09-20**, the day Mike ruled its gating
+question and then all five decisions on its drawing, every one as recommended. The advisor names
+his own steps, and **the client's agenda stops naming our screens**: where it read *"Run the
+frameworks — 14 concepts"* it now reads his own step names, with an empty step printing as *"on
+the agenda only"*. **Five stages remain — 4b, 5, 6, 7 and 8.**
 
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
-its method is below.** The teaching graphic is drawn by us, never imported from his deck — one
-concept is approved, **1 of 52**, and 33 have a page we can draw from.
+its method is below.** The teaching graphic is drawn by us, never imported from his deck.
+🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — AND 28 OF
+THEM ARE WIRED IN, 2026-09-20.** `scripts/build-concept-graphics.js` lifts an
+approved drawing out of its mockup into a component in `components/strategy/concepts/`, so what
+ships is provably what Mike approved rather than a redrawing of it; the one edit is the firm's
+mark, which becomes props. `StrategyConceptGraphic.vue` resolves a concept to its drawing and is
+rendered by the teaching slide, the concept capture card and the client's plan document — one
+resolver, so the advisor's screen and the client's document can never disagree. **The drawings
+load lazily**: the 33 weigh 361 KB gzipped against a 300 KB first-load budget for the whole app,
+so a drawing arrives when its concept is opened and never before.
+
+**Proved in a browser, 2026-09-20: 27 drawings render on the run screen and 27 in the client's
+plan**, and the *"concepts have no capture screen yet"* notice fell **from 34 to 17** — which is
+the measure of the item, because that number is how many concepts an advisor scopes and then
+cannot run. **The five still out each hold a photograph or an exported chart pasted into the
+drawing as base64** — Market Diffusion Theory, Product Life Cycle, the Volatility Graph, the
+Digital Funnel Storyboard and Packaging/ Bundling, 307 KB gzipped between them against the 300 KB
+budget. The generator refuses them rather than shipping one into the bundle, and each is named in
+`DRAWINGS` where it would sit so nobody re-derives which five.
+
+🔴 **TWO FAULTS IN THE METHOD ITSELF, BOTH FOUND AND FIXED 2026-09-20.** Neither was visible on a
+screen, and the second was actively misleading:
+
+- **Porter's could not be generated at all** — the first concept drawn, and the exemplar the
+  method was copied from. It names the firm's mark with ids (`firmMark`/`firmDisc`/`firmInitials`/
+  `firmName`) where the 31 drawings that followed use classes (`firm-mark`/`fm-disc`/`fm-init`/
+  `fm-name`), so the generator threw *"no firm-mark group"*. **The reader now accepts both
+  spellings**; the artefact Mike approved was not touched, because not one drawn element differs.
+- **The drift guard cried wolf on every concept after any checkout.** git is `core.autocrlf=true`
+  on both machines and the repo has no `.gitattributes`, so it rewrites these generated files to
+  CRLF whenever it puts them in the working tree — a clone, a branch switch, a merge from
+  `master`. Compared byte for byte, all 28 then read as **drifted from the drawing Mike approved**,
+  on a clean tree, and the pre-push hook blocked the push. **The comparison now ignores line
+  endings**, and leaves a matching file alone rather than rewriting it, so a checkout never shows
+  up as a change to review. A guard that fires falsely is worse than no guard, because this one
+  fires with the most alarming thing it can say.
+
+🔴 **RUNNING IT FOUND A CAP THAT NO TEST COULD SEE, AND MIKE LIFTED IT THE SAME DAY.** Of the four
+wired, only **The 8 Profit Levers** reached a screen: `placeableCards` in
+[`../../pages/strategy-planner.vue`](../../pages/strategy-planner.vue) dropped any concept whose
+fill-in table Mike has not supplied, so Risk Reward Matrix, the Boston Model and Vertical
+Integration were excluded from the step builder, the run and the plan before a drawing was ever
+asked for. **Only 16 of the 52 concepts have a supplied table**, so that line capped the 33
+approved drawings at 16 however many were wired. ☑ **RULED 2026-09-20 — A CONCEPT NEEDS A TABLE
+*OR* A DRAWING.** The exclusion was right while there were no pictures; a concept with neither
+printed a title and nothing else. One with a drawing now prints Mike's own teaching page instead.
+
+**Three consequences, all of them about what a client reads.** A concept admitted on its drawing
+alone carries `hasTable: false`, and: the plan document prints its teaching page and **no capture
+page**, because *"Scoped for this session, not worked through yet"* is untrue where there was never
+anything to work; a step made only of such concepts **does not announce Action points** that never
+arrive; and the *"n concepts have no capture screen yet"* notice now counts only concepts with
+neither, or it would tell an advisor a concept was dropped while it sat on the screen in front of
+them. Pinned by `tests/unit/strategyPlanDocument.component.test.js`.
+
+⚠ **AND THE FIVE RESPONSE PAGES ARE NOT AMONG THE 33 — that is item 15.11, filed 2026-09-20.**
+Vertical Integration, Horizontal Integration, (Our) Revenue Streams and two others carry their
+fill-in table on a deck page — `responsePage` 24, 34, 37 and 41 — and every one of the 33 drawings
+is a *teaching* page. Three comments in the components promised the rebuilt graphic would restore
+those tables; **they were wrong and are corrected**, because a session reading one believes the gap
+is already handled. A response page is a capture surface rather than a picture, so it needs its own
+decision before the drawing method is applied.
+
+**The differences between the build and the approved artefacts, named as the rule requires — three,
+all deliberate:** the sample firm on every drawing (*Hartley & Co*, initial *H*, `#0070c0`) becomes
+three props; blank lines inside the SVG lose their whitespace, which the lint forbids and which
+draws nothing; and **with no firm branding anywhere in this app, the mark renders the same
+placeholder the Dashboard Report cover already uses** — the words *Firm logo* against an empty
+disc. **That is item 16**, filed 2026-09-20: the seam exists and takes a name and a colour, but
+nothing above passes one in and there is nowhere to set it, so the reason these 33 were redrawn
+has not yet arrived on a client's page.
+
+The last eleven were surveyed by
+machine before any were drawn, rather than assumed: **7 were prose**, **2 carried a real panel**
+(Product Fit Review's rotated navy bar, Product Fit's hollow navy outline) and **2 carried a real
+picture** (the Digital Funnel Storyboard, Packaging/Bundling — whose image his slide crops).
+**Drafting Tender Proposals is the 34th and is not drawn:** his own summary calls it *"general
+reading rather than focused session"*, and its page 52 is the section's title card, with his
+content running on to p56. It keeps page 52, which is where a reader opens the deck.
 
 ### The spine — after stage 3 an advisor can run the whole job
 
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
-| **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **"The menu is his table, word for word"** (the session scope menu) — the screen **is** his table, his words, his page numbers | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
+| **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **"The menu is his table, word for word"** (the session scope menu) — the screen **is** his table, his words, and his page numbers **where he gives them** — ⚠ **Strategic Orientation 2's scope table HAS a page column and those numbers are his; Sales & Marketing's has NONE, so its 16 are ours, derived from the deck.** They are accurate, and every drawing checked so far confirms it — but do not go looking for a column of his to reconcile them against (found 2026-09-18). | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
 | **2** | ☑ **BUILT 2026-09-17 — capture across the scoped concepts.** `scripts/read-capture-tables.js` reads Mike's own fill-in workbooks into `data/strategy-capture-tables.json`; `server/utils/strategyCaptureForms.js` turns a grid into fields; `GET /api/strategy/concepts/:id/capture` serves them; `components/strategy/StrategyConceptCapture.vue` draws them | *"a strategic plan … that can easily expand over time"* — a plan cannot expand if nothing is kept | **16 of the 52 concepts now reach their real table, where 2 did.** Every label is his, read from the workbook rather than authored. A concept can be VISITED TWICE — Porter's observations then his responses — because one table carries both column sets, and the second visit shows what the client said in the first. |
 | **3** | ☑ **BUILT 2026-09-17 — the assembled document.** `components/strategy/StrategyPlanDocument.vue`, built from the approved drawing: front matter, the agenda, then per step a *Discussion* divider, its teaching pages, an *Action* divider, its capture pages. Screen 4 was a flat list of framework blocks and is now the document. ⚠ **One step, and that is a stated limit:** the advisor cannot yet name his own steps and drag concepts into them, so everything scoped sits in one. ☐ A failing objective does not yet carry its flag onto the page. | *"…into 1 seamless document"* · **"Deck or web page"** (the assembled plan) — one continuous document of slide-shaped pages, **one artefact never two formats** · **"Can a failing objective reach the plan"** (the session an advisor runs) — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* **It stores nothing of its own**, so it cannot disagree with the session behind it. An untouched table prints one line rather than two dozen blank rows. |
 
@@ -168,6 +253,10 @@ chart are **raster images pasted into his deck**. There is no vector to copy poi
 tracing a curve by eye is the one thing this method exists to forbid. So for those, **his own
 picture is used** — extracted from the PDF, which leaves it free of the advisor-e.com logo,
 because the branding is on the *page*, not in the artwork.
+
+⚠ **THAT LAST CLAUSE IS THE TEST, NOT A FOOTNOTE — AND IT DOES NOT HOLD FOR EVERY RASTER.**
+**Technology Points** is a raster too, and its logo is **inside the artwork**, so his picture
+cannot be used at any quality. See *Flattening a chart out of a photograph* below.
 
 **Check which you have before you start.** `page.get_drawings()` with the fill rule below; if a
 concept's graphic has no vector content, it is a picture.
@@ -228,6 +317,19 @@ concept's graphic has no vector content, it is a picture.
 > **The page frame is a thin bar hard against an edge.** That is what makes it chrome. Note the
 > bottom rule is drawn in **two segments** either side of the logo, one only 95 wide.
 
+> 🔴 **AND A SHAPE IS ITS PATH, NEVER ITS BOUNDING BOX — two ways to get this wrong, both found
+> 2026-09-18 on Product Fit Review.**
+>
+> - **Drawing the box instead of the path.** His *Resistance* marker is a **rotated diagonal
+>   bar**. Rendered from its bounding box it becomes a solid navy rectangle across a third of
+>   the page — and it looks deliberate, which is why nothing queries it.
+> - **Chain consecutive segments into one subpath.** That bar is **four separate line items**
+>   forming one quadrilateral. Starting a new subpath per item leaves it **unfillable**, so it
+>   rendered hollow and his white *"Resistance"* disappeared against the white with it.
+>
+> **Rotated text needs the same care:** take the angle from the line's own `dir`, and do **not**
+> pin a rotated span to its bbox width — a rotated bbox is not an advance width.
+
 🔴 **AND EXTRACTING THE PICTURE IS NOT ENOUGH. HIS SLIDES CROP THEM, AND THE RAW EXTRACT PUTS BACK
 WHAT HE HIDES.** Both of these reached a drawing before being caught:
 
@@ -239,9 +341,56 @@ WHAT HE HIDES.** Both of these reached a drawing before being caught:
 **Reproduce his crop, then put it beside his page.** Neither of those was visible in the extract
 until the two were side by side.
 
+🔴 **AND CLIP THE ARTWORK, NEVER THE PAGE REGION IT SITS IN.** Rendering the page inside an
+image's *placement rect* is the easy way to reproduce a crop — and on **Packaging/Bundling** it
+was wrong: the tin's rect starts at **x=549** while his text column runs to **x=590.8**, so the
+clip captured a strip of his own prose. The result pasted **a photograph of his text on top of
+the rendered text**, and every line in the page printed twice. **Measure the artwork's own ink
+bounds** (the tin is x=604–690) and clip to those. ⚠ The symptom reads as a font or
+justification bug, and it survives every experiment aimed at one.
+
 ⚠ **State the cost where it applies:** a picture does not sharpen with scale the way a drawn
 concept does, and it cannot take a firm's colours. Only the chart is his image — the title, the
 prose and the firm's mark around it are drawn as normal.
+
+### 🔴 FLATTENING A CHART OUT OF A PHOTOGRAPH — when even his own picture cannot be used
+
+**Mike's ruling on Technology Points, 2026-09-18, and the reason it differs from the three
+above.** Those three are pictures we may use, because their branding is on the *page* and the
+extract comes out clean. **Technology Points does not.** The panel his slide crops off carries a
+title, *"DVD sales as an example"*, a key to the six markers — and the **Advisor-E.com logo burned
+into the artwork itself**. There is nothing to extract clean and nothing to trace, so the chart is
+**measured out of the pixels and redrawn flat**. Artefact:
+[`../mockups/strategy-concept-technology-points.html`](../mockups/strategy-concept-technology-points.html).
+
+**The test for which route a photograph takes is one question: is the branding on the page, or
+inside the image?** On the page → use his picture, reproduce his crop. Inside the image → flatten
+it by the four steps below. **Never trace a curve by eye; that is what this whole method forbids.**
+
+| | Step | Why it is not a formality |
+|---|---|---|
+| **1** | **Find the data points by search, not by clicking.** Connected-component search over the colour that marks them — here, ring-shaped light-grey blobs. Six returned, all ~55px, none spurious. | A point placed by hand is a point invented. The search either finds his markers or it does not, and it says which. |
+| **2** | **Derive the projection from the AXES ALONE.** The two arrows give the basis — floor `(1, 0.2267)`, vertical `(-0.0119, -1)` — and every point is flattened through it. | Taking the basis from anything you also intend to *check* makes the check circular. |
+| **3** | 🔴 **Find something in his picture that MUST come out level, and test it.** His *"CRITICAL PRICE POINT"* line slopes downhill on screen but is a fixed price. Flattened it reads **61.4% → 61.9%** across 620px. | **This is the whole reason the method can be trusted.** The basis came from the axes; the line was never used in the working, so agreeing is evidence rather than arithmetic. Without a test like this, a flattening is just a guess with coordinates. |
+| **4** | **Trace the connecting shape independently and see where it agrees.** The ribbon confirms markers 3, 4 and 5 to within **0.6%** of the axis range. | It also says where it *cannot* speak: markers 1 and 6 are on a vertical drop and an end cap, so a column-wise trace cannot centre them. **That is why the ring centres are the data and the trace is the witness** — not the other way round. |
+
+⚠ **Flattening always loses something, and the losses are named on the artefact, never hidden.**
+On Technology Points: the 3-D room (his scene grey `#525355` is kept behind the chart); the gold
+on each **arrowhead**, because it is a 3-D prism's lit edge and flat it reads as a stray mark, so
+it is the shaft edge only on all three; the right arrow **crossing** the baseline, which flat read
+as a collision, so it stops on it; and his faint grid lines, which belong to the room and carry no
+values.
+
+🔴 **AND ONE LIMIT THAT CANNOT BE ENGINEERED AWAY: the words inside a photograph are pixels.**
+*Retail value of item*, *Critical price point* and the rest are read off the image, because there
+is no text layer inside a JPEG. Everything **outside** the picture is extracted exactly, as always.
+**Say which is which on the artefact.**
+
+⚠ **Measure before believing your own eyes, in both directions.** Three faults here were caught
+only by the side-by-side — a label covering a letter, then colliding with the ribbon, then a stray
+gold streak. **A fourth was a false alarm:** the panel appeared to carry a lighter rectangle
+inside it, and sampling proved it uniform `(82,83,85)` throughout — an optical illusion from the
+blue bars. A drawing changed on that impression would have been changed for nothing.
 
 ---
 
@@ -286,9 +435,35 @@ skipped and claimed.
 
 | | Stage | The request it serves | What it buys |
 |---|---|---|---|
+| **3b** | ☑ **THE STEP BUILDER — BUILT 2026-09-20.** [`StrategyStepBuilder.vue`](../../components/strategy/StrategyStepBuilder.vue) as a new stage **2** in the rail, taking it from four stages to five: the advisor names each step and puts ticked cards into it, by drag or by the picker on each card. Built from [`../mockups/strategy-step-builder.html`](../mockups/strategy-step-builder.html), **all five decisions ruled by Mike the same day, every one as recommended** — opens with everything unplaced · **never a locked button**, it reads *"Run 2 of 18"* and unplaced cards stay in the scope · the closing block is no longer a self-naming step, its two cards are placed like any other · names are **free text with nothing offered**. Stage 3 now groups its cards under his step names and runs them in his order. **Storage rides the session's existing `scope_json` — no schema change**, bounded at 40 steps, and a step's items are deliberately NOT validated against the scope so an untick cannot refuse a whole save. ⚠ **He places CARDS, not pages:** a concept bringing two teaching slides moves as one; only a two-part fill-in table splits, into the two cards that already existed. 🔴 **AN EMPTY STEP SURVIVES EVERY PATH** — held at three layers (store round trip, `planSteps`, the component) because a tidy-up at any one deletes Pivot's step 5. | 🔴 **Mike's own words, 2026-09-20:** *"I choose the number of stages, I choose the name i put on that stage, I choose the number of concepts/pages I put into each stage — correct? if not, thats what i want"*, and on the label, *"steps is fine"*. Carries out his ruling of the same day (item 15.9): **the advisor names the steps himself, and a step holding nothing still prints on the agenda.** | **Measured against Pivot before a line was drawn, and measured again in the running app after.** The app could make **one** step where Pivot needs five — and having no name of its own it borrowed the wizard's, so a client's agenda read *"Run the frameworks — 14 concepts"* and *"Objectives and actions — 2 concepts"*: **our internal screens, printed on their plan.** Driven end to end afterwards, the same agenda reads *"Identify the Resistance — 2 concepts"* and *"Do It & Review It — on the agenda only"*. 🔴 **RUNNING IT FOUND A FAULT THREE DAYS OLD AND NOT IN THE NEW CODE:** `PUT /api/strategy/sessions/:id/scope` rejected **every** real save with 400 `UNKNOWN_FRAMEWORK`, because it checked ticked ids with `getFramework()` while stage 1 had changed the menu to Mike's 52 **concepts** on 2026-09-17. Nothing had called the route — a session is opened through `POST /sessions`, which does not validate — so the step builder was its first caller. Fixed: an id may be a known framework **or** concept. The journey end to end is [`strategy-planner-walkthrough.html`](../mockups/strategy-planner-walkthrough.html). |
 | **4** | ⛔ **BUILT AND UNDONE THE SAME DAY, 2026-09-18 — his deck pages, imported as images.** `scripts/render-deck-slides.py` rendered them into `static/planning-slides/` and `slidePath()` put one on each concept. **Nobody asked for it**, and it could never be white-labelled. Script, 37 images and every field that served them are deleted. | It claimed *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides"* — but that is about **fidelity**, and it was read as a licence to choose the **technique**. A question was never put to him. | 🔴 **HIS RULING ON SEEING IT:** *"i never asked for this … they look cheap and more importantly, they lock in the Advisor-e logo and in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo - never advisor-e."* Every page of his decks carries `advisor-e.com`, the cyan border and his page number **burned into the pixels**. ⚠ **AND THE IMPACT TEST SCORED THE BREACH AS THE WIN:** the measure was *"concepts whose graphic matches his page: 0 of 52 → 34 of 52"*, and a measure that rewards reproducing his page exactly will always reward reproducing his branding with it. |
-| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above. ☑ **Porter's 5 Forces approved 2026-09-18, 1 of 52.** Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
-| **5** | **9 capture forms** — every table the table his template actually is | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. |
+| **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above — or, where his artwork is a photograph, by *Flattening a chart out of a photograph* below. 🔴 **DRAWN BUT NOT WIRED — 33 of 34 approved (2026-09-18): Porter's, batches 1–5 and Technology Points. This stage says "as components" and none of them is one yet**, so the advisor's screen is unchanged. Item **15.7**. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
+| **5** | **9 capture forms** — every table the table his template actually is. 🔴 **THE BANDED GRID IS BUILT — 1 of the 9, 2026-09-19**, drawn first and approved (`design/mockups/strategy-capture-banded-grid.html`). It serves five of his tables: S.W.O.T, Porter's, Blue Ocean Fronts, Insights Summary and the Profit Levers. **Every capture box now carries the `voice.*` bar from "I have a client with a problem…"** — Mike's ruling that day, *"i want voice recorded notes… make it the same here"*. **Eight forms remain.** | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields · **"app user consistency"** (2026-09-19) — the voice control is the one the advisor already uses, not a second one | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. 🔴 **AND DRAWING THE FIRST FORM FOUND TWO MORE, LIVE ON SCREEN** — see below. |
+
+#### 🔴 What drawing the banded grid found — two defects nothing was watching (2026-09-19)
+
+**Both were measured in the running app, not reasoned from the code**, after the first version of
+the drawing asserted something about Porter's that turned out to be false.
+
+| | On screen | His document | Now |
+|---|---|---|---|
+| **Blue Ocean Fronts** | 14 boxes, and its first block headed *"1, Enter your thoughts here…"* | 15 ruled lines, headed *What Are Our ‘Red Water’ Competition Fronts?* | **15 boxes, his heading restored** |
+| **The 8 Profit Levers** | 29 boxes, one of them his column name *"Task"* | 28 ruled lines | **28 boxes** |
+
+**One reading fault caused both:** a row holding a ruled line was treated as a heading row, and a
+heading row is skipped whole — so his heading was lost **and the box went with it**. The second
+half was a one-row table of column names read as a prompt sheet.
+`isLabelRow` and `fieldsOfTable` in `server/utils/strategyCaptureForms.js`.
+
+🔴 **THE SUITE WAS GREEN THROUGHOUT, AND THAT IS THE POINT.** No test counted boxes.
+`tests/unit/strategyCaptureForms.test.js` now **counts the blank cells in his workbook** and
+requires the screen to offer exactly that many — so a template he edits moves the expectation with
+it, and neither fault can return quietly. UAT cannot catch this: a form with one box missing looks
+perfectly reasonable to anyone who has not counted his page.
+
+⚠ **PORTER'S IS NOT AFFECTED BY ANY OF IT.** It uses its own approved five-force card of
+2026-09-16 and never reaches this renderer. The drawing's first version said otherwise; the
+correction is printed on the drawing itself rather than quietly swapped.
 | **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
 | **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
@@ -354,14 +529,14 @@ here, so nothing is missing in them either.)*
 **Stages 1, 2 and 3 are built.** Three of the four questions on **the assembled plan**
 ([`strategy-plan-output.html`](../mockups/strategy-plan-output.html)) were settled by building
 them on Mike's instruction, and the built code — not this table — is where each answer now
-lives. **One is still open, and it is the only thing gating the work ahead.**
+lives. **The fourth was ruled by Mike on 2026-09-20, so nothing here gates the work ahead.**
 
 | The question, as Mike sees it | How it stands |
 |---|---|
 | **"Can a concept be used twice in one session?"** | ☑ **Yes**, settled by Stage 2. Porter's is visited twice — observations, then responses against what the client said — both writing into one table. |
 | **"The discussion / action split"** | ☑ **Split, with a per-step switch**, settled by Stage 3. A step announces itself twice, *Discussion* then *Action*; `step.teaches` drops the first where there is nothing to teach, which is how the Action Plan avoids a blank teaching page. |
 | **"What does the client keep?"** | ☑ **One document, two states**, settled by Stage 3. The same pages print blank as the session pack and filled in as the plan; an untouched table prints one line rather than two dozen empty rows. |
-| 🔴 **"Tick concepts, or tick steps?"** | ☐ **STILL OPEN — asked 2026-09-17, unanswered.** It decides the document's running order, and nothing after Stage 3 can be built without it. Until it is answered, `planSteps` in [`pages/strategy-planner.vue`](../../pages/strategy-planner.vue) puts everything scoped into one step — **a stated limit, never a decision that steps are one.** |
+| **"Tick concepts, or tick steps?"** | ☑ **The advisor names the steps**, ruled by Mike 2026-09-20. He ticks concepts, then names each step and drags ticked concepts into it, and **a step holding nothing still prints on the agenda** — which is the only way Pivot's step 5 *Do It & Review It*, with no slides behind it, can exist. `planSteps` in [`pages/strategy-planner.vue`](../../pages/strategy-planner.vue) still puts everything scoped into one step; that is now **work outstanding**, not an open question. |
 
 ---
 

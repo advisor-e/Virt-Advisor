@@ -15,15 +15,20 @@ section.scc2
   section.scc2-concept(v-if="part === 1 && (conceptSummary || helpsClientTo)")
     //- ⚠ NO HEADINGS. Removed on Mike's instruction, 2026-09-17 — "What this does
     //- in the room" was written by an AI session and he had never seen it.
-    //- 🔴 NO SLIDE IMAGE. Removed 2026-09-18 — his deck pages carry the
-    //- advisor-e.com logo, and a client always sees the ADVISOR'S firm logo.
-    //- StrategyTeachingSlide.vue carries the full reason and what replaces it.
+    //- 🔴 THE DRAWING GOES ABOVE HIS WORDS, so the advisor speaks to it first. It
+    //- is ours, drawn from his page — never a photograph of it, which would lock
+    //- in the advisor-e.com logo where the ADVISOR'S firm logo belongs.
+    strategy-concept-graphic(
+      :concept-id="conceptId"
+      :firm-name="firmName"
+      :firm-colour="firmColour"
+    )
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
     p.scc2-concept-text(v-if="helpsClientTo") {{ helpsClientTo }}
-    //- The concept is taught from the deck until its graphic is rebuilt. With the
-    //- images gone this is true of every concept that has a teaching form, which
-    //- is the honest state rather than a gap being hidden.
-    p.scc2-teaching(v-if="teachingForm") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
+    //- Only where this concept has NO drawing yet is the advisor still sent to the
+    //- deck. Once it has one the sentence would be false, which is the fault this
+    //- whole item exists to close (item 15.7).
+    p.scc2-teaching(v-if="teachingForm && !hasGraphic") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
 
   //- 🔴 A CONCEPT WITH NO TABLE SAYS SO RATHER THAN SHOWING AN EMPTY ONE. Nothing
   //- is borrowed from another concept: a table an advisor puts in front of a client
@@ -33,7 +38,9 @@ section.scc2
   //- "there is no fill-in table for this concept yet" printed beneath it. With the
   //- deck images removed on 2026-09-18 there is no response page on screen to
   //- contradict, so the message is plainly true again and the guard has gone with
-  //- the images. It comes back when the rebuilt graphic lands.
+  //- the images. ⚠ IT DOES NOT COME BACK WITH THE TEACHING GRAPHIC, which is what
+  //- this line used to say — all 33 drawings are teaching pages. The guard returns
+  //- when the five response pages are drawn, which is item 15.11.
   b-notification.scc2-none(
     v-if="!capture.supplied"
     type="is-light"
@@ -65,6 +72,29 @@ section.scc2
             v-if="field.rowLabel"
             :for="inputId(field)"
           ) {{ field.rowLabel }}
+
+          //- 🔴 THE SAME VOICE BAR THE ADVISOR ALREADY USES — Mike, 2026-09-19:
+          //- "check the 'i have a client with a problem...' section - i want app user
+          //- consistency." Same three states, same icons and the same six strings from
+          //- `voice.*` as VirtualAdvisor's profile questions. Nothing is worded here.
+          //- Absent where the browser has no speech recognition, exactly as elsewhere.
+          .scc2-voice(v-if="speechSupported")
+            button.scc2-vb.is-idle(
+              v-if="voiceField !== field.key"
+              type="button"
+              @click="toggleVoiceField(field.key)"
+            )
+              svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor")
+                path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
+              | {{ valueOf(field) ? $t('voice.recordAgain') : $t('voice.tapToSpeak') }}
+            template(v-else)
+              span.scc2-vdot
+              span.scc2-vlab {{ $t('voice.recording') }}
+              button.scc2-vb.is-stop(type="button" @click="toggleVoiceField(field.key)")
+                svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
+                  rect(x="6" y="6" width="12" height="12" rx="2")
+                | {{ $t('voice.stopRecording') }}
+
           b-input(
             :id="inputId(field)"
             type="textarea"
@@ -99,8 +129,16 @@ section.scc2
  *
  * Vue 2, Options API, Pug. Node/browser safe: no window access outside mounted.
  */
+import speechMixin from '~/mixins/speechMixin'
+import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
+import { hasConceptGraphic } from '~/components/strategy/concepts'
+
 export default {
   name: 'StrategyConceptCapture',
+
+  components: { StrategyConceptGraphic },
+
+  mixins: [speechMixin],
 
   props: {
     /** The concept's own name, for the card heading. */
@@ -152,11 +190,29 @@ export default {
 
     /**
      * Which drawing the deck teaches this concept with — `radial-hub` for Porter's.
-     * Named in the data; nothing draws one yet, so the card says so.
+     * Where no approved drawing exists yet, the card sends the advisor to the deck.
      */
     teachingForm: {
       type: String,
       default: ''
+    },
+
+    /** Which concept, so its approved drawing can be found. */
+    conceptId: {
+      type: String,
+      default: ''
+    },
+
+    /** The advisor firm's name, printed beside the mark on the drawing. */
+    firmName: {
+      type: String,
+      default: ''
+    },
+
+    /** The firm's colour, as a CSS colour. */
+    firmColour: {
+      type: String,
+      default: '#0070c0'
     },
 
     /** What is already captured, keyed by field key. */
@@ -167,6 +223,11 @@ export default {
   },
 
   computed: {
+    /** @returns {boolean} true where this concept has an approved drawing */
+    hasGraphic () {
+      return hasConceptGraphic(this.conceptId)
+    },
+
     /** @returns {number} how many visits this concept's table is split into */
     partCount () {
       const parts = (this.capture && this.capture.parts) || []
@@ -322,12 +383,79 @@ export default {
     onInput (field, value) {
       // { fieldKey, value } — one box's whole current text, not a keystroke.
       this.$emit('field-changed', { fieldKey: field.key, value: value === null || value === undefined ? '' : String(value) })
+    },
+
+    /**
+     * Spoken words, for the box that was tapped.
+     *
+     * 🔴 THE BOX IS CHOSEN BY THE ADVISOR, NEVER WORKED OUT AFTERWARDS. Nothing reads
+     * a transcript and decides where a sentence belongs — the advisor tapped the box,
+     * so the words go there and nowhere else (Brief §5).
+     *
+     * Saved on the same event as typing, so a dictated answer and a typed one are the
+     * same thing to everything downstream — the store, the timeline, the plan.
+     *
+     * @param {string} fieldKey the box being dictated into
+     * @param {string} transcript what has been heard so far in this take
+     */
+    emitVoice (fieldKey, transcript) {
+      this.$emit('field-changed', { fieldKey, value: String(transcript || '') })
     }
   }
 }
 </script>
 
 <style scoped>
+/* The voice bar. Sized and coloured to match the one in VirtualAdvisor's profile
+   questions, so an advisor meets the same control in both places. */
+.scc2-voice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.scc2-vb {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 6px;
+  padding: 4px 11px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scc2-vb.is-idle {
+  border: 1px solid #d5e1ee;
+  background: #fff;
+  color: #0070c0;
+}
+
+.scc2-vb.is-idle:hover {
+  border-color: #0070c0;
+}
+
+.scc2-vb.is-stop {
+  border: 0;
+  background: #c0392b;
+  color: #fff;
+}
+
+.scc2-vdot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #c0392b;
+}
+
+.scc2-vlab {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #c0392b;
+}
+
 .scc2 {
   background: #fff;
   border: 1px solid #d5e1ee;

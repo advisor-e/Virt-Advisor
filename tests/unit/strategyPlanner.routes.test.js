@@ -296,6 +296,26 @@ describe('a box nobody authored is refused', () => {
     expect(store.setScope).not.toHaveBeenCalled()
   })
 
+  it('🔴 accepts the CONCEPT ids screen 1 actually ticks, not just frameworks', async () => {
+    // This route rejected every real save between 2026-09-17, when stage 1 changed the
+    // menu from the authored frameworks to Mike's own 52 concepts, and 2026-09-20. It
+    // went unfound because nothing called it — a session is OPENED through POST
+    // /sessions, which does not validate — until the step builder saved through it.
+    // The id below is a real concept read from the shipped data, so the test moves if
+    // the decks do rather than pinning a string.
+    const conceptId = require('../../server/utils/strategyFrameworks').listConcepts()[0].id
+    store.setScope.mockResolvedValue(true)
+    const res = makeRes()
+
+    await routes.putScope(req({
+      params: { id: 7 },
+      body: { frameworks: [conceptId], steps: [] }
+    }), res)
+
+    expect(res._status).toBe(200)
+    expect(store.setScope).toHaveBeenCalled()
+  })
+
   it('refuses an empty save rather than reporting success for nothing', async () => {
     const res = makeRes()
     await routes.putEntries(req({ params: { id: 7 }, body: { entries: [] } }), res)
@@ -575,7 +595,38 @@ describe('the happy paths a screen depends on', () => {
     expect(res._status).toBe(200)
     expect(store.setScope).toHaveBeenCalledWith(7, FIRM, {
       domains: ['strategic-orientation'],
-      frameworks: ['swot-pest']
+      frameworks: ['swot-pest'],
+      steps: []
+    })
+  })
+
+  it('records the steps the advisor named, INCLUDING one holding nothing', async () => {
+    // 🔴 Mike's ruling, 2026-09-20: a step with nothing in it still prints on the
+    // agenda — Pivot's step 5 has no slides behind it at all. A save that dropped the
+    // empty step would delete it every time the advisor moved on.
+    store.setScope.mockResolvedValue(true)
+    const res = makeRes()
+
+    await routes.putScope(req({
+      params: { id: 7 },
+      body: {
+        domains: ['strategic-orientation'],
+        frameworks: ['swot-pest'],
+        steps: [
+          { name: 'Identify the Resistance', items: ['fw-swot-pest'] },
+          { name: 'Do It & Review It', items: [] }
+        ]
+      }
+    }), res)
+
+    expect(res._status).toBe(200)
+    expect(store.setScope).toHaveBeenCalledWith(7, FIRM, {
+      domains: ['strategic-orientation'],
+      frameworks: ['swot-pest'],
+      steps: [
+        { name: 'Identify the Resistance', items: ['fw-swot-pest'] },
+        { name: 'Do It & Review It', items: [] }
+      ]
     })
   })
 })
