@@ -294,9 +294,12 @@ describe('the navigation timeline — Decision 11\'s mechanism', () => {
 describe('the scope screen 1 records', () => {
   it('starts empty, because Decision 1 pre-ticks nothing', async () => {
     // An empty scope is a REAL state — a session opened and not yet scoped — so it
-    // must read back as empty arrays rather than as a missing value.
+    // must read back as empty arrays rather than as a missing value. `steps: []` is
+    // the same thing for the step builder, and is NOT the same as "one step": a
+    // session saved before that screen existed has no steps, and the page decides
+    // what to show rather than this module inventing one nobody named.
     const session = await store.getSession(await openSession(), FIRM)
-    expect(session.scope).toEqual({ domains: [], frameworks: [] })
+    expect(session.scope).toEqual({ domains: [], frameworks: [], steps: [] })
   })
 
   it('records what the advisor ticked', async () => {
@@ -317,6 +320,64 @@ describe('the scope screen 1 records', () => {
 
     await expect(store.setScope(id, FIRM, { frameworks: tooMany }))
       .rejects.toMatchObject({ code: 'BAD_INPUT' })
+  })
+
+  it('🔴 keeps a step that holds nothing, because that is a real step', async () => {
+    // Mike's ruling, 2026-09-20. Pivot's step 5 "Do It & Review It" has no slides
+    // behind it and still appears on the agenda a client reads. A round trip that
+    // dropped it would delete the step every time the advisor moved on, and the
+    // screen would look like it had simply forgotten what he typed.
+    const id = await openSession()
+    await store.setScope(id, FIRM, {
+      frameworks: ['strategy-swot-pest'],
+      steps: [
+        { name: 'Identify the Resistance', items: ['fw-strategy-swot-pest'] },
+        { name: 'Do It & Review It', items: [] }
+      ]
+    })
+
+    const { steps } = (await store.getSession(id, FIRM)).scope
+    expect(steps).toHaveLength(2)
+    expect(steps[1]).toEqual({ name: 'Do It & Review It', items: [] })
+  })
+
+  it('a session saved before the step builder existed reads back with no steps', async () => {
+    // Not "one step" — none. The page decides what to show an advisor opening an
+    // older session; this module never invents a step nobody named.
+    const id = await openSession()
+    await store.setScope(id, FIRM, { frameworks: ['strategy-swot-pest'] })
+
+    expect((await store.getSession(id, FIRM)).scope.steps).toEqual([])
+  })
+
+  it('refuses more steps than a session a human can hold', async () => {
+    const id = await openSession()
+    const tooMany = new Array(41).fill({ name: 's', items: [] })
+
+    await expect(store.setScope(id, FIRM, { frameworks: [], steps: tooMany }))
+      .rejects.toMatchObject({ code: 'BAD_INPUT' })
+  })
+
+  it('bounds a step name and its items rather than refusing the save', async () => {
+    // A long name is the advisor typing, not an attack. It is cut to the column width
+    // and stored; refusing would lose the rest of the session with it.
+    const id = await openSession()
+    await store.setScope(id, FIRM, {
+      frameworks: [],
+      steps: [{ name: 'x'.repeat(400), items: ['y'.repeat(400)] }]
+    })
+
+    const { steps } = (await store.getSession(id, FIRM)).scope
+    expect(steps[0].name).toHaveLength(128)
+    expect(steps[0].items[0]).toHaveLength(128)
+  })
+
+  it('survives a step that is not an object at all', async () => {
+    const id = await openSession()
+    await store.setScope(id, FIRM, { frameworks: [], steps: [null, 'nope', 7] })
+
+    expect((await store.getSession(id, FIRM)).scope.steps)
+      .toEqual([{ name: '', items: [] }, { name: '', items: [] }, { name: '', items: [] }])
   })
 })
 
@@ -400,7 +461,7 @@ status: 'open',
 last_opened_at: 'x'
     }]])
 
-    expect((await store.getSession(7, FIRM)).scope).toEqual({ domains: [], frameworks: [] })
+    expect((await store.getSession(7, FIRM)).scope).toEqual({ domains: [], frameworks: [], steps: [] })
   })
 
   it('reports a re-scope of a session this firm does not own as not done', async () => {

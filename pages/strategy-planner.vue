@@ -13,7 +13,13 @@
       )
         option(v-for="c in clients" :key="c.id" :value="c.id") {{ c.name }}
       b-button(v-if="step === 'scope'" type="is-primary" :disabled="!canStart" @click="startSession") {{ $t('strategyPlanner.startSession') }}
-      b-button(v-if="step === 'run'" outlined type="is-primary" @click="step = 'scope'") {{ $t('strategyPlanner.back') }}
+      b-button(v-if="step === 'steps'" outlined type="is-primary" @click="step = 'scope'") {{ $t('strategyPlanner.back') }}
+      //- 🔴 NEVER DISABLED. Decision 3: an advisor may run a session with cards left
+      //- unplaced — they simply are not in it, and stay recorded in the scope. The
+      //- count is the guard, because a locked button strands him mid-meeting over a
+      //- concept he has decided against.
+      b-button(v-if="step === 'steps'" type="is-primary" @click="step = 'run'") {{ $t('strategyPlanner.steps.toRun', { placed: placedCardCount, total: placeableCards.length }) }}
+      b-button(v-if="step === 'run'" outlined type="is-primary" @click="step = 'steps'") {{ $t('strategyPlanner.back') }}
       b-button(v-if="step === 'run'" type="is-primary" @click="step = 'objectives'") {{ $t('strategyPlanner.toObjectives') }}
       b-button(v-if="step === 'objectives'" outlined type="is-primary" @click="step = 'run'") {{ $t('strategyPlanner.back') }}
       b-button(v-if="step === 'objectives'" type="is-primary" @click="step = 'plan'") {{ $t('strategyPlanner.producePlan') }}
@@ -21,6 +27,7 @@
 
   nav.sp-rail(aria-label="Session progress")
     div(:class="railClass('scope')") {{ $t('strategyPlanner.rail.scope') }}
+    div(:class="railClass('steps')") {{ $t('strategyPlanner.rail.steps') }}
     div(:class="railClass('run')") {{ $t('strategyPlanner.rail.run') }}
     div(:class="railClass('objectives')") {{ $t('strategyPlanner.rail.objectives') }}
     div(:class="railClass('plan')") {{ $t('strategyPlanner.rail.plan') }}
@@ -37,6 +44,23 @@
       @scope-changed="onScopeChanged"
     )
 
+  template(v-if="!loading && step === 'steps'")
+    //- 🔴 SAYS WHY THE LIST IS SHORTER THAN WHAT HE TICKED, AND IT BELONGS HERE NOW.
+    //- An advisor ticks 52 concepts and this screen offers 18 cards, because only 16 of
+    //- the 52 have a fill-in table built. The notice used to sit on the next screen,
+    //- which was the first place the shortfall showed — since 2026-09-20 this screen is,
+    //- so an unexplained gap of 34 would be the first thing he meets. Found by opening
+    //- the screen rather than by any test.
+    b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
+      | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
+
+    strategy-step-builder(
+      :cards="placeableCards"
+      :steps="planStepDefs"
+      :session-label="sessionLabel"
+      @steps-changed="onStepsChanged"
+    )
+
   template(v-if="!loading && step === 'run'")
     //- 🔴 SAYS WHAT IT CANNOT RUN. The advisor scoped concepts that have no capture card
     //- built yet, and a step that silently showed only two of eleven would read as a bug
@@ -44,41 +68,52 @@
     b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
       | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
 
-    //- 🔴 A CONCEPT WITH AN APPROVED CARD USES IT. Porter's was designed on
-    //- 2026-09-16 (strategy-planner.html screen 2c) as five force boxes, each
-    //- carrying the deck's own question, with Existing Rivalry as the centre — and
-    //- it was built. Replacing it with a grid derived from the Word template lost
-    //- all five prompts and the fifth force. Mike, 2026-09-17: "i saw much better
-    //- graphics in a design 6 or 8 sessions ago - what happened??"
-    strategy-capture-card(
-      v-for="(framework, index) in chosenFrameworks"
-      :key="'fw-' + framework.id"
-      :framework="framework"
-      :entries="entriesFor(framework.conceptId || framework.id)"
-      :eyebrow="cardEyebrow(index)"
-      :teachable="isTeachable(framework)"
-      class="sp-card"
-      @field-opened="onFrameworkFieldOpened(framework, $event)"
-      @field-changed="onFrameworkFieldChanged(framework, $event)"
-    )
+    //- 🔴 THE MEETING RUNS IN THE ADVISOR'S OWN ORDER, UNDER HIS OWN HEADINGS. Before
+    //- stage 2 existed these were two flat lists in whatever order the data produced,
+    //- so Porter's observations and Porter's responses sat next to each other. Pivot
+    //- runs them an hour apart, in different steps, and that gap is why the responses
+    //- are worth more than the observations.
+    p.sp-cap(v-if="!runSteps.length") {{ $t('strategyPlanner.steps.nothingToRun') }}
 
-    //- Everything else: the concept's own fill-in table, read from Mike's
-    //- workbooks. 47 of the 52 have no approved card of their own.
-    strategy-concept-capture(
-      v-for="(visit, index) in conceptVisits"
-      :key="visit.key"
-      :name="visit.name"
-      :capture="visit.capture"
-      :part="visit.part"
-      :concept-summary="visit.conceptSummary"
-      :helps-client-to="visit.helpsClientTo"
-      :teaching-form="visit.teachingForm"
-      :instruction="visitInstruction(visit)"
-      :entries="entriesFor(visit.conceptId)"
-      :eyebrow="visitEyebrow(index)"
-      @field-opened="onVisitFieldOpened(visit, $event)"
-      @field-changed="onVisitFieldChanged(visit, $event)"
-    )
+    section.sp-runstep(v-for="(runStep, i) in runSteps" :key="'rs' + i")
+      h4.sp-h {{ runStep.name }}
+
+      template(v-for="card in runStep.cards")
+        //- 🔴 A CONCEPT WITH AN APPROVED CARD USES IT. Porter's was designed on
+        //- 2026-09-16 (strategy-planner.html screen 2c) as five force boxes, each
+        //- carrying the deck's own question, with Existing Rivalry as the centre — and
+        //- it was built. Replacing it with a grid derived from the Word template lost
+        //- all five prompts and the fifth force. Mike, 2026-09-17: "i saw much better
+        //- graphics in a design 6 or 8 sessions ago - what happened??"
+        strategy-capture-card(
+          v-if="card.kind === 'framework'"
+          :key="card.key"
+          :framework="card.framework"
+          :entries="entriesFor(card.framework.conceptId || card.framework.id)"
+          :eyebrow="card.eyebrow"
+          :teachable="isTeachable(card.framework)"
+          class="sp-card"
+          @field-opened="onFrameworkFieldOpened(card.framework, $event)"
+          @field-changed="onFrameworkFieldChanged(card.framework, $event)"
+        )
+
+        //- Everything else: the concept's own fill-in table, read from Mike's
+        //- workbooks. 47 of the 52 have no approved card of their own.
+        strategy-concept-capture(
+          v-else
+          :key="card.key"
+          :name="card.visit.name"
+          :capture="card.visit.capture"
+          :part="card.visit.part"
+          :concept-summary="card.visit.conceptSummary"
+          :helps-client-to="card.visit.helpsClientTo"
+          :teaching-form="card.visit.teachingForm"
+          :instruction="visitInstruction(card.visit)"
+          :entries="entriesFor(card.visit.conceptId)"
+          :eyebrow="card.eyebrow"
+          @field-opened="onVisitFieldOpened(card.visit, $event)"
+          @field-changed="onVisitFieldChanged(card.visit, $event)"
+        )
 
   template(v-if="!loading && step === 'objectives'")
     strategy-capture-card(
@@ -149,6 +184,7 @@ import StrategyCaptureCard from '~/components/strategy/StrategyCaptureCard.vue'
 import StrategyConceptCapture from '~/components/strategy/StrategyConceptCapture.vue'
 import StrategyGrowthWheel from '~/components/strategy/StrategyGrowthWheel.vue'
 import StrategyPlanDocument from '~/components/strategy/StrategyPlanDocument.vue'
+import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
 import { isDevHost } from '~/utils/devHost'
 
 /** Where the master app leaves the advisor's token before our pages load. */
@@ -157,11 +193,18 @@ const TOKEN_KEY = 'advisor_e_token'
 export default {
   name: 'StrategyPlannerPage',
 
-  components: { StrategyScopeMenu, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel, StrategyPlanDocument },
+  components: { StrategyScopeMenu, StrategyStepBuilder, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel, StrategyPlanDocument },
 
   data () {
     return {
-      /** 'scope' | 'run' | 'objectives' | 'plan'. */
+      /**
+       * Which SCREEN is showing: 'scope' | 'steps' | 'run' | 'objectives' | 'plan'.
+       *
+       * 🔴 THIS IS NOT THE SESSION'S STEPS AND THE TWO MUST NEVER BE CONFLATED. This is
+       * the wizard's own position; the session's steps are `planStepDefs` below, named by
+       * the advisor and printed on the client's agenda. The drawing says so in as many
+       * words, because wiring one to the other is the obvious mistake to make here.
+       */
       step: 'scope',
       loading: true,
       error: '',
@@ -190,6 +233,19 @@ export default {
        * concept is the unit an advisor ticks.
        */
       chosen: [],
+      /**
+       * THE SESSION'S STEPS — what the advisor names on stage 2 and drags cards into.
+       * `[{ key, name, items: [cardKey] }]`, in the order they will run.
+       *
+       * 🔴 A STEP HOLDING NOTHING IS A REAL STEP. Mike's ruling, 2026-09-20: he names
+       * the steps, and one with nothing in it still prints on the agenda — Pivot's
+       * step 5 "Do It & Review It" has no slides behind it at all. Nothing may prune
+       * an empty entry from this list.
+       *
+       * `key` is a client-side handle so a name input keeps focus while it is typed;
+       * only `name` and `items` are saved, with the scope.
+       */
+      planStepDefs: [],
       /** The open session's id, once one exists. */
       sessionId: null,
       /** Captured text, keyed `frameworkId::fieldKey`. */
@@ -335,26 +391,28 @@ export default {
     },
 
     /**
-     * The session as the steps the assembled document prints.
+     * EVERY CARD THE ADVISOR CAN PLACE, in the order the session would otherwise run
+     * them. This is the one list stage 2 offers and stage 3 and the document both read,
+     * so a card cannot exist on one screen and not another.
      *
-     * ⚠ ONE STEP FOR NOW, AND THAT IS A STATED LIMIT. The approved drawing has the
-     * advisor name his own steps and drag ticked concepts into them — Pivot's five,
-     * with Porter's in two of them and step 5 holding nothing. That screen is not
-     * built, so everything scoped sits in one step and the document's SHAPE can be
-     * judged before the step-builder exists. It is not a decision that steps are
-     * unnecessary.
+     * A card is not the same as a concept: a concept whose fill-in table has two halves
+     * arrives here as TWO cards — Porter's observations and Porter's responses — because
+     * Pivot runs them in different steps, an hour apart. That is Mike's ruling of
+     * 2026-09-17 (a concept may be used twice), and it is why the key carries the visit.
      *
-     * @returns {Array<{name: string, items: object[]}>}
+     * @returns {Array<{key: string, name: string, deck: string, tag: string, summary: string, instruction: string, prompts: object[], lines: object[]}>}
      */
-    planSteps () {
-      const items = []
+    placeableCards () {
+      const cards = []
 
       // The approved framework cards first, in their authored order.
       this.chosenFrameworks.forEach((f) => {
         const conceptId = f.conceptId || f.id
-        items.push({
+        cards.push({
           key: 'fw-' + f.id,
           name: f.name,
+          deck: f.deckName || '',
+          tag: '',
           summary: f.conceptSummary || '',
           instruction: f.captureInstruction || '',
           prompts: f.fields
@@ -386,9 +444,14 @@ export default {
         const wanted = {}
         const part = (capture.parts || [])[visit.part - 1]
         if (part) { part.fieldKeys.forEach((k) => { wanted[k] = true }) }
-        items.push({
+        const multi = capture.parts && capture.parts.length > 1
+        cards.push({
           key: visit.key,
-          name: visit.name + (capture.parts && capture.parts.length > 1 ? ' (' + visit.part + ')' : ''),
+          name: visit.name + (multi ? ' (' + visit.part + ')' : ''),
+          deck: visit.deckName || '',
+          // The tag is what tells an advisor, on the step builder, that these two
+          // chips are the SAME table visited twice rather than a duplicate to remove.
+          tag: multi ? this.$t('strategyPlanner.capture.part', { n: visit.part }) : '',
           summary: visit.conceptSummary || '',
           instruction: this.visitInstruction(visit),
           prompts: [],
@@ -402,33 +465,105 @@ export default {
         })
       })
 
-      // The two that close every session are their own step, as they are in Pivot.
-      const closing = this.closingFrameworks.map(f => ({
-        key: 'close-' + f.id,
-        name: f.name,
-        summary: '',
-        instruction: f.captureInstruction || '',
-        prompts: [],
-        lines: f.fields.map(x => ({
-          key: f.id + '::' + x.key,
-          label: x.label,
-          value: (this.entries[f.id + '::' + x.key] || '').trim()
-        }))
-      }))
-
-      // `teaches` says whether the step has anything to present before it is
-      // worked. Without it a step of pure tables printed a Discussion divider and
-      // then went straight to the tables, which reads as a missing page.
-      const withTeaches = list => ({
-        items: list,
-        teaches: list.some(x => x.summary || x.prompts.length)
+      // The two that close every session. Decision 4, 2026-09-20: these are ordinary
+      // cards on an ordinary step the advisor names — they no longer bring a step of
+      // their own that names itself, because that label reached the client's agenda.
+      this.closingFrameworks.forEach((f) => {
+        cards.push({
+          key: 'close-' + f.id,
+          name: f.name,
+          deck: '',
+          tag: '',
+          summary: '',
+          instruction: f.captureInstruction || '',
+          prompts: [],
+          lines: f.fields.map(x => ({
+            key: f.id + '::' + x.key,
+            label: x.label,
+            value: (this.entries[f.id + '::' + x.key] || '').trim()
+          }))
+        })
       })
 
-      const steps = [Object.assign({ name: this.$t('strategyPlanner.plan.stepOne') }, withTeaches(items))]
-      if (closing.length) {
-        steps.push(Object.assign({ name: this.$t('strategyPlanner.plan.stepClose') }, withTeaches(closing)))
-      }
-      return steps
+      return cards
+    },
+
+    /**
+     * The meeting itself, grouped under the advisor's own step names and run in his
+     * order.
+     *
+     * ⚠ AN EMPTY STEP IS DROPPED HERE AND KEPT IN `planSteps`, AND THAT IS NOT A
+     * CONTRADICTION. There is nothing to work in the room for a step holding nothing —
+     * but it still belongs on the agenda the client reads, which is the document's job.
+     * Pivot's step 5 is exactly that case.
+     *
+     * ⚠ THE CLOSING CARDS ARE NOT RUN HERE. The Strategic Objective and Action Plan are
+     * captured on stage 4, as they always were; placing them on a step decides where
+     * they PRINT, not where they are filled in.
+     *
+     * @returns {Array<{name: string, cards: object[]}>}
+     */
+    runSteps () {
+      const frameworksByKey = {}
+      this.chosenFrameworks.forEach((f) => { frameworksByKey['fw-' + f.id] = f })
+      const visitsByKey = {}
+      this.conceptVisits.forEach((v) => { visitsByKey[v.key] = v })
+
+      return this.planStepDefs.map((def, i) => {
+        const cards = []
+        def.items.forEach((key) => {
+          if (frameworksByKey[key]) {
+            cards.push({ key, kind: 'framework', framework: frameworksByKey[key] })
+          } else if (visitsByKey[key]) {
+            cards.push({ key, kind: 'visit', visit: visitsByKey[key] })
+          }
+        })
+        return {
+          name: def.name || this.$t('strategyPlanner.steps.namePlaceholder', { n: i + 1 }),
+          // The position an advisor reads mid-meeting is his position WITHIN THIS STEP —
+          // "3 / 5" of the step he is working, not of the whole session.
+          cards: cards.map((c, j) => Object.assign({}, c, { eyebrow: (j + 1) + ' / ' + cards.length }))
+        }
+      }).filter(s => s.cards.length)
+    },
+
+    /** @returns {number} how many placeable cards the advisor has put into a step */
+    placedCardCount () {
+      const placed = {}
+      this.planStepDefs.forEach((s) => { s.items.forEach((k) => { placed[k] = true }) })
+      return this.placeableCards.filter(c => placed[c.key]).length
+    },
+
+    /**
+     * The session as the steps the assembled document prints — the advisor's own steps,
+     * in his order, each holding the cards he put in it.
+     *
+     * 🔴 A STEP HOLDING NOTHING IS KEPT. Mike's ruling, 2026-09-20. Pivot's step 5
+     * "Do It & Review It" has no slides behind it and still appears on the agenda a
+     * client reads; the document already prints that as "on the agenda only". Filtering
+     * empty steps out here would quietly delete the page this feature exists for.
+     *
+     * ⚠ A CARD LEFT UNPLACED IS NOT IN THE DOCUMENT. Decision 3: unplaced cards stay
+     * recorded in the session's scope and simply do not run, which is why the button on
+     * to stage 3 says "Run 11 of 14" rather than being greyed out.
+     *
+     * @returns {Array<{name: string, items: object[], teaches: boolean}>}
+     */
+    planSteps () {
+      const byKey = {}
+      this.placeableCards.forEach((c) => { byKey[c.key] = c })
+
+      return this.planStepDefs.map((def, i) => {
+        const items = def.items.map(k => byKey[k]).filter(Boolean)
+        return {
+          name: def.name || this.$t('strategyPlanner.steps.namePlaceholder', { n: i + 1 }),
+          items,
+          // `teaches` says whether the step has anything to present before it is
+          // worked. Without it a step of pure tables printed a Discussion divider and
+          // then went straight to the tables, which reads as a missing page.
+          teaches: items.some(x => x.summary || x.prompts.length)
+        }
+      })
     }
   },
 
@@ -483,15 +618,6 @@ export default {
     },
 
     /**
-     * "Strategic Orientation · framework 2 of 4" — where the advisor is in the session.
-     * @param {number} index
-     * @returns {string}
-     */
-    cardEyebrow (index) {
-      return (index + 1) + ' / ' + this.chosenFrameworks.length
-    },
-
-    /**
      * Load each ticked concept's fill-in table.
      *
      * `Promise.allSettled` rather than `all` on purpose: one concept whose table
@@ -528,16 +654,6 @@ export default {
           capture: b.capture
         })
       })
-    },
-
-    /**
-     * Position in the session, so an advisor knows where they are with a client
-     * watching.
-     * @param {number} index
-     * @returns {string}
-     */
-    visitEyebrow (index) {
-      return (index + 1) + ' / ' + this.conceptVisits.length
     },
 
     /**
@@ -687,6 +803,52 @@ export default {
       this.chosen = next
     },
 
+    /**
+     * Decision 2, 2026-09-20: the step builder opens with EVERYTHING UNPLACED and one
+     * empty step to rename. Seeding it with a step already holding the lot would invite
+     * the advisor to press on past the screen — which is the behaviour this feature
+     * exists to replace, wearing a new screen.
+     *
+     * Only ever seeds an empty list, so returning to stage 2 never discards work.
+     * @returns {void}
+     */
+    seedSteps () {
+      if (this.planStepDefs.length) { return }
+      this.planStepDefs = [{ key: 's1', name: '', items: [] }]
+    },
+
+    /**
+     * The step builder emits the whole list; the page owns it and saves it with the
+     * scope, so what is on screen and what is stored cannot drift apart.
+     *
+     * ⚠ A FAILED SAVE DOES NOT ROLL THE SCREEN BACK. The advisor keeps what he arranged
+     * and is told it did not save — the same rule the capture boxes follow, and for the
+     * same reason: silently undoing his work is worse than an error he can act on.
+     *
+     * @param {Array<{key: string, name: string, items: string[]}>} next
+     * @returns {Promise<void>}
+     */
+    async onStepsChanged (next) {
+      this.planStepDefs = next
+      if (!this.sessionId) { return }
+      try {
+        const res = await fetch('/api/strategy/sessions/' + this.sessionId + '/scope', {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: this.headers(true),
+          body: JSON.stringify({
+            domains: [],
+            frameworks: this.chosen,
+            steps: next.map(s => ({ name: s.name, items: s.items }))
+          })
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        this.error = ''
+      } catch (e) {
+        this.error = this.$t('strategyPlanner.errors.stepsSaveFailed')
+      }
+    },
+
     /** Opens the session and moves to the frameworks. */
     async startSession () {
       this.error = ''
@@ -704,7 +866,11 @@ export default {
         const body = await res.json()
         this.sessionId = body.sessionId
         await this.loadCaptures()
-        this.step = 'run'
+        // 🔴 THE CAPTURES MUST BE LOADED FIRST. `placeableCards` reads them to know
+        // which concepts have a two-part table, and a step builder opened before they
+        // arrive would offer one Porter's chip where the session has two.
+        this.seedSteps()
+        this.step = 'steps'
       } catch (e) {
         // ⚠ ITS OWN MESSAGE. The first build reused the capture-box message here, so a
         // failure to OPEN a session told the advisor a box had not saved — found by
