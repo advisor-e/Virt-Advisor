@@ -42,14 +42,74 @@ const OUT = path.join(ROOT, 'components', 'strategy', 'concepts')
  *
  * ⚠ ONE PAGE CAN TEACH TWO CONCEPTS — Strategic Orientation 2 p20 is Price For
  * Problem Solving and Price For Delivery Medium, scoped separately in the menu —
- * so this is a list of drawings, not a list of pages.
+ * so this is a list of drawings, not a list of pages. `alsoServes` points the
+ * second concept at the same component, rather than shipping the same drawing
+ * twice under two names.
+ *
+ * 🔴 FIVE OF THE 33 APPROVED DRAWINGS ARE DELIBERATELY ABSENT and each is named
+ * below where it would sit. They hold a photograph or an exported chart pasted
+ * in as base64 — 307 KB gzipped between them against a 300 KB first-load budget
+ * for the whole app — so their image has to be lifted out to a file before they
+ * can be generated. The script refuses them either way; the notes are here so
+ * nobody re-derives which five.
+ *
+ * A sixth concept, Drafting Tender Proposals, has no drawing at all and is not
+ * an omission: Mike's own summary calls it general guidance, and his tender
+ * notes run p53–p56. See the foot of `strategy-concept-batch-5.html`.
  */
 const DRAWINGS = [
   { file: 'strategy-concept-batch-1.html', svg: 1, conceptId: 'risk-reward-matrix' },
   { file: 'strategy-concept-batch-1.html', svg: 2, conceptId: 'boston-model' },
   { file: 'strategy-concept-batch-1.html', svg: 3, conceptId: 'the-8-profit-levers' },
-  { file: 'strategy-concept-batch-1.html', svg: 4, conceptId: 'vertical-integration' }
+  { file: 'strategy-concept-batch-1.html', svg: 4, conceptId: 'vertical-integration' },
+
+  // batch-2 drawings 1, 2 and 4 — Market Diffusion Theory, Product Life Cycle
+  // and E. Deming's Volatility Theory — carry a pasted-in picture.
+  { file: 'strategy-concept-batch-2.html', svg: 3, conceptId: 'sigmoid-curve' },
+
+  { file: 'strategy-concept-batch-3.html', svg: 1, conceptId: 'progression-of-economic-value' },
+  { file: 'strategy-concept-batch-3.html', svg: 2, conceptId: 'horizontal-integration' },
+  { file: 'strategy-concept-batch-3.html', svg: 3, conceptId: 'blue-ocean-strategy' },
+  { file: 'strategy-concept-batch-3.html', svg: 4, conceptId: 'revenue-streams' },
+  { file: 'strategy-concept-batch-3.html', svg: 5, conceptId: 'senges-circles-of-causality' },
+
+  { file: 'strategy-concept-batch-4.html', svg: 1, conceptId: '10-marketing-messages' },
+  { file: 'strategy-concept-batch-4.html', svg: 2, conceptId: 'customer-persona-type-table' },
+  { file: 'strategy-concept-batch-4.html', svg: 3, conceptId: 'a-i-d-c-r-a-advertisement-framework' },
+  { file: 'strategy-concept-batch-4.html', svg: 4, conceptId: 'pricing' },
+  { file: 'strategy-concept-batch-4.html', svg: 5, conceptId: 'sales-channel-options' },
+  {
+    file: 'strategy-concept-batch-4.html',
+    svg: 6,
+    conceptId: 'price-for-problem-solving',
+    alsoServes: ['price-for-delivery-medium']
+  },
+
+  { file: 'strategy-concept-batch-5.html', svg: 1, conceptId: 'product-fit-review' },
+  { file: 'strategy-concept-batch-5.html', svg: 2, conceptId: '6-marketing-questions' },
+  { file: 'strategy-concept-batch-5.html', svg: 3, conceptId: 'product-fit' },
+  // batch-5 drawing 4 — Digital Funnel Storyboard — carries a pasted-in picture.
+  { file: 'strategy-concept-batch-5.html', svg: 5, conceptId: 'outbound-messaging-plan' },
+  { file: 'strategy-concept-batch-5.html', svg: 6, conceptId: 'inbound-landing-page-review' },
+  { file: 'strategy-concept-batch-5.html', svg: 7, conceptId: 'sparketing-friction-review' },
+  { file: 'strategy-concept-batch-5.html', svg: 8, conceptId: 'branding-review' },
+  { file: 'strategy-concept-batch-5.html', svg: 9, conceptId: 'customer-loyalty-programme' },
+  // batch-5 drawing 10 — Packaging/ Bundling — carries a pasted-in picture.
+  { file: 'strategy-concept-batch-5.html', svg: 11, conceptId: 'sales-process-review' },
+
+  { file: 'strategy-concept-porters.html', svg: 1, conceptId: 'porters-5-forces' },
+  { file: 'strategy-concept-technology-points.html', svg: 1, conceptId: 'technology-points' }
 ]
+
+/**
+ * Every concept a drawing serves, in registry order.
+ *
+ * @param {{conceptId: string, alsoServes: string[]=}} drawing
+ * @returns {string[]}
+ */
+function servedConcepts (drawing) {
+  return [drawing.conceptId].concat(drawing.alsoServes || [])
+}
 
 /**
  * PascalCase component name from a concept id. `the-8-profit-levers` becomes
@@ -85,10 +145,40 @@ function nthSvg (html, n) {
 }
 
 /**
+ * How a drawing names its firm mark.
+ *
+ * The group holds a coloured disc, one letter, and the firm's name. Two
+ * spellings exist and both are read here.
+ *
+ * ⚠ PORTER'S USES THE OLDER ONE AND IS NOT TO BE REDRAWN FOR IT. It was the
+ * first concept drawn (2026-09-18) and named the mark with ids; the 31 drawings
+ * that followed, and this script, settled on classes. The difference is in the
+ * attribute names alone — not one drawn element differs — so the reader accepts
+ * both rather than editing an artefact Mike has approved. Found 2026-09-20,
+ * when the exemplar the whole method was built from turned out to be the one
+ * drawing the method could not read.
+ *
+ * @type {Array<{group: string, disc: string, init: string, name: string}>}
+ */
+const MARK_DIALECTS = [
+  { group: 'class="firm-mark"', disc: 'class="fm-disc"', init: 'class="fm-init"', name: 'class="fm-name"' },
+  { group: 'id="firmMark"', disc: 'id="firmDisc"', init: 'id="firmInitials"', name: 'id="firmName"' }
+]
+
+/**
+ * Make an attribute safe to drop into a regular expression.
+ *
+ * @param {string} attr
+ * @returns {string}
+ */
+function escapeAttr (attr) {
+  return attr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
  * Replace the drawing's sample firm with the three props.
  *
- * The mark is `<g class="firm-mark">` holding `.fm-disc` (the coloured circle),
- * `.fm-init` (one letter) and `.fm-name`. Everything else is left alone.
+ * Everything outside the mark is left alone.
  *
  * @param {string} svg
  * @returns {string}
@@ -96,20 +186,22 @@ function nthSvg (html, n) {
  *   document with no firm on it, and that is the fault this work exists to fix.
  */
 function bindFirmMark (svg) {
-  if (svg.indexOf('class="firm-mark"') === -1) {
+  const mark = MARK_DIALECTS.find(d => svg.indexOf(d.group) !== -1)
+
+  if (!mark) {
     throw new Error('no firm-mark group — the drawing cannot carry a firm logo')
   }
 
   let out = svg.replace(
-    /(<circle[^>]*class="fm-disc"[^>]*?)\sfill="[^"]*"/,
+    new RegExp('(<circle[^>]*' + escapeAttr(mark.disc) + '[^>]*?)\\sfill="[^"]*"'),
     '$1 :fill="firmColour"'
   )
   out = out.replace(
-    /(<text[^>]*class="fm-init"[^>]*>)[\s\S]*?(<\/text>)/,
+    new RegExp('(<text[^>]*' + escapeAttr(mark.init) + '[^>]*>)[\\s\\S]*?(</text>)'),
     '$1{{ firmInitial }}$2'
   )
   out = out.replace(
-    /(<text[^>]*class="fm-name"[^>]*>)[\s\S]*?(<\/text>)/,
+    new RegExp('(<text[^>]*' + escapeAttr(mark.name) + '[^>]*>)[\\s\\S]*?(</text>)'),
     '$1{{ firmName }}$2'
   )
 
@@ -192,6 +284,31 @@ export default {
 }
 
 /**
+ * Whether a generated file still holds the drawing this script would write.
+ *
+ * 🔴 LINE ENDINGS ARE NOT CONTENT, AND TREATING THEM AS CONTENT BROKE THE GUARD.
+ * This script writes LF; git is configured `core.autocrlf=true` here and there
+ * is no `.gitattributes`, so it rewrites these files to CRLF every time it puts
+ * them in the working tree — a fresh clone, a branch switch, a merge from
+ * `master`. A byte comparison then reported every concept as drifted from its
+ * approved drawing on a completely clean tree, which is the most alarming thing
+ * this guard can say and was false every time. The pre-push hook runs the whole
+ * suite, so the first person to merge `master` in was blocked, and the
+ * obvious-looking fix — regenerate — buried any real change under 27 files of
+ * line-ending churn. Found 2026-09-20.
+ *
+ * A match leaves the file alone rather than rewriting it, so a checkout's line
+ * endings never show up as a change to review.
+ *
+ * @param {string|null} current what is on disk, or null where nothing is
+ * @param {string} source what this script would write
+ * @returns {boolean}
+ */
+function sameDrawing (current, source) {
+  return current !== null && current.replace(/\r\n/g, '\n') === source.replace(/\r\n/g, '\n')
+}
+
+/**
  * Build every drawing.
  *
  * @param {{check: boolean}} opts
@@ -217,7 +334,7 @@ function build (opts) {
     const file = path.join(OUT, componentName(drawing.conceptId) + '.vue')
     const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null
 
-    if (current === source) { return }
+    if (sameDrawing(current, source)) { return }
     if (opts.check) { stale.push(path.relative(ROOT, file)); return }
 
     fs.mkdirSync(OUT, { recursive: true })
@@ -231,7 +348,7 @@ function build (opts) {
     ? fs.readFileSync(registryFile, 'utf8')
     : null
 
-  if (currentRegistry !== registry) {
+  if (!sameDrawing(currentRegistry, registry)) {
     if (opts.check) {
       stale.push(path.relative(ROOT, registryFile))
     } else {
@@ -245,6 +362,20 @@ function build (opts) {
 }
 
 /**
+ * A concept id as an object key.
+ *
+ * Nearly every id is hyphenated and has to be quoted; `pricing` is the one that
+ * does not, and the lint's `quote-props` refuses a quote it does not need. The
+ * generated file has to pass the same lint as a hand-written one.
+ *
+ * @param {string} id
+ * @returns {string}
+ */
+function registryKey (id) {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(id) ? id : "'" + id + "'"
+}
+
+/**
  * The concept-id → drawing map, as lazy imports.
  *
  * 🔴 LAZY IS NOT AN OPTIMISATION HERE. The 33 drawings weigh 361 KB gzipped
@@ -254,12 +385,19 @@ function build (opts) {
  * @returns {string}
  */
 function renderRegistry () {
-  const rows = DRAWINGS.map((d) => {
+  const rows = DRAWINGS.reduce((acc, d) => {
     const name = componentName(d.conceptId)
-    return "  '" + d.conceptId + "': () => import(\n" +
-      "    /* webpackChunkName: 'concept-" + d.conceptId + "' */\n" +
-      "    '~/components/strategy/concepts/" + name + ".vue'\n  )"
-  }).join(',\n')
+    // A drawing serving two concepts registers both against the same chunk, so
+    // the second concept shows the page rather than a second copy of it.
+    servedConcepts(d).forEach((id) => {
+      acc.push(
+        '  ' + registryKey(id) + ': () => import(\n' +
+        "    /* webpackChunkName: 'concept-" + d.conceptId + "' */\n" +
+        "    '~/components/strategy/concepts/" + name + ".vue'\n  )"
+      )
+    })
+    return acc
+  }, []).join(',\n')
 
   return `/**
  * ⚠ GENERATED — DO NOT EDIT. \`node scripts/build-concept-graphics.js\`.
@@ -284,6 +422,17 @@ export function hasConceptGraphic (conceptId) {
 `
 }
 
+/**
+ * Drawings and concepts are not the same count — one page can teach two — so
+ * the line says both rather than implying they agree.
+ *
+ * @returns {string}
+ */
+function tally () {
+  const concepts = DRAWINGS.reduce((n, d) => n + servedConcepts(d).length, 0)
+  return DRAWINGS.length + ' drawings, ' + concepts + ' concepts'
+}
+
 if (require.main === module) {
   const check = process.argv.indexOf('--check') !== -1
   try {
@@ -293,11 +442,12 @@ if (require.main === module) {
         console.error('Out of step with their drawings:\n  ' + result.stale.join('\n  '))
         process.exit(1)
       }
-      console.log(DRAWINGS.length + ' concept graphics match their approved drawings.')
+      console.log(tally() + ' match their approved drawings.')
     } else if (result.written.length) {
       console.log('Written:\n  ' + result.written.join('\n  '))
+      console.log(tally() + '.')
     } else {
-      console.log('Already up to date — ' + DRAWINGS.length + ' concept graphics.')
+      console.log('Already up to date — ' + tally() + '.')
     }
   } catch (err) {
     console.error(err.message)
@@ -305,4 +455,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { DRAWINGS, componentName, nthSvg, bindFirmMark, build }
+module.exports = { DRAWINGS, componentName, nthSvg, bindFirmMark, servedConcepts, sameDrawing, build }

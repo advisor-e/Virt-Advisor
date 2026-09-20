@@ -34,8 +34,9 @@
 >   on 2026-09-18 on seeing Porter's built that way, §0 *How a concept is drawn*. 🔴 **NEVER an
 >   image of his slide:** that was tried the same day and undone within hours, because it locked
 >   the **advisor-e.com logo** into a client's document against his own ruling that a client always
->   sees the advisor's firm logo. **33 of the 34 are drawn and approved, and the first four are
->   wired in** — that is item 15.7, and §0 stage 4b is where it stands.
+>   sees the advisor's firm logo. **33 of the 34 are drawn and approved, and 28 of those are
+>   wired in** — that is item 15.7, and §0 stage 4b is where it stands. The five left each hold a
+>   pasted-in picture that has to come out to a file first.
 >   - ☑ **"Deck or web page" — ruled by Mike 2026-09-17, as recommended** — the output is **one continuous
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
@@ -116,8 +117,8 @@ the agenda only"*. **Five stages remain — 4b, 5, 6, 7 and 8.**
 
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
 its method is below.** The teaching graphic is drawn by us, never imported from his deck.
-🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — AND THE
-WIRING STARTED 2026-09-20 WITH THE FIRST FOUR.** `scripts/build-concept-graphics.js` lifts an
+🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — AND 28 OF
+THEM ARE WIRED IN, 2026-09-20.** `scripts/build-concept-graphics.js` lifts an
 approved drawing out of its mockup into a component in `components/strategy/concepts/`, so what
 ships is provably what Mike approved rather than a redrawing of it; the one edit is the firm's
 mark, which becomes props. `StrategyConceptGraphic.vue` resolves a concept to its drawing and is
@@ -125,6 +126,32 @@ rendered by the teaching slide, the concept capture card and the client's plan d
 resolver, so the advisor's screen and the client's document can never disagree. **The drawings
 load lazily**: the 33 weigh 361 KB gzipped against a 300 KB first-load budget for the whole app,
 so a drawing arrives when its concept is opened and never before.
+
+**Proved in a browser, 2026-09-20: 27 drawings render on the run screen and 27 in the client's
+plan**, and the *"concepts have no capture screen yet"* notice fell **from 34 to 17** — which is
+the measure of the item, because that number is how many concepts an advisor scopes and then
+cannot run. **The five still out each hold a photograph or an exported chart pasted into the
+drawing as base64** — Market Diffusion Theory, Product Life Cycle, the Volatility Graph, the
+Digital Funnel Storyboard and Packaging/ Bundling, 307 KB gzipped between them against the 300 KB
+budget. The generator refuses them rather than shipping one into the bundle, and each is named in
+`DRAWINGS` where it would sit so nobody re-derives which five.
+
+🔴 **TWO FAULTS IN THE METHOD ITSELF, BOTH FOUND AND FIXED 2026-09-20.** Neither was visible on a
+screen, and the second was actively misleading:
+
+- **Porter's could not be generated at all** — the first concept drawn, and the exemplar the
+  method was copied from. It names the firm's mark with ids (`firmMark`/`firmDisc`/`firmInitials`/
+  `firmName`) where the 31 drawings that followed use classes (`firm-mark`/`fm-disc`/`fm-init`/
+  `fm-name`), so the generator threw *"no firm-mark group"*. **The reader now accepts both
+  spellings**; the artefact Mike approved was not touched, because not one drawn element differs.
+- **The drift guard cried wolf on every concept after any checkout.** git is `core.autocrlf=true`
+  on both machines and the repo has no `.gitattributes`, so it rewrites these generated files to
+  CRLF whenever it puts them in the working tree — a clone, a branch switch, a merge from
+  `master`. Compared byte for byte, all 28 then read as **drifted from the drawing Mike approved**,
+  on a clean tree, and the pre-push hook blocked the push. **The comparison now ignores line
+  endings**, and leaves a matching file alone rather than rewriting it, so a checkout never shows
+  up as a change to review. A guard that fires falsely is worse than no guard, because this one
+  fires with the most alarming thing it can say.
 
 🔴 **RUNNING IT FOUND A CAP THAT NO TEST COULD SEE, AND MIKE LIFTED IT THE SAME DAY.** Of the four
 wired, only **The 8 Profit Levers** reached a screen: `placeableCards` in

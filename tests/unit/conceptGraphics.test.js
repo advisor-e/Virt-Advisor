@@ -36,6 +36,25 @@ describe('every shipped drawing is the drawing Mike approved', () => {
     expect(stale).toEqual([])
   })
 
+  test('a checkout\'s line endings are not mistaken for a changed drawing', () => {
+    // 🔴 THE FALSE ALARM THAT TRAINS PEOPLE TO IGNORE THE ALARM. git is
+    // `core.autocrlf=true` on both machines and rewrites these generated files
+    // to CRLF whenever it touches the working tree — a clone, a branch switch, a
+    // merge from `master`. Compared byte for byte, every concept then reads as
+    // drifted from the drawing Mike approved, on a clean tree, and the pre-push
+    // hook blocks the push. Nobody can see this on a screen; it looks exactly
+    // like the real thing this guard is for.
+    const unix = '<template lang="pug">\n  .scg.\n    <svg></svg>\n</template>\n'
+    const windows = unix.replace(/\n/g, '\r\n')
+
+    expect(builder.sameDrawing(windows, unix)).toBe(true)
+    expect(builder.sameDrawing(unix, unix)).toBe(true)
+
+    // And it still catches the thing it exists for.
+    expect(builder.sameDrawing(unix.replace('.scg.', '.scg.x'), unix)).toBe(false)
+    expect(builder.sameDrawing(null, unix)).toBe(false)
+  })
+
   test('each drawing is lifted whole, not summarised', () => {
     builder.DRAWINGS.forEach((d) => {
       const html = fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8')
@@ -94,17 +113,22 @@ describe('a drawing reaches the screen it was drawn for', () => {
     concepts.forEach((c) => { known[c.id] = true })
 
     const unknown = builder.DRAWINGS
-      .map(d => d.conceptId)
+      .reduce((acc, d) => acc.concat(builder.servedConcepts(d)), [])
       .filter(id => !known[id])
 
     // A typo here is silent: the concept simply never shows its picture, and the
-    // screen looks exactly like a concept that has not been drawn yet.
+    // screen looks exactly like a concept that has not been drawn yet. This
+    // reads the concepts a drawing SERVES, so the second id on a shared page —
+    // Price For Delivery Medium — is checked like any other.
     expect(unknown).toEqual([])
   })
 
   test('no concept is registered twice', () => {
-    const ids = builder.DRAWINGS.map(d => d.conceptId)
+    const ids = builder.DRAWINGS
+      .reduce((acc, d) => acc.concat(builder.servedConcepts(d)), [])
 
+    // Two drawings claiming one concept would leave which of them ships to the
+    // order of this list, silently.
     expect(ids.length).toBe(new Set(ids).size)
   })
 })
@@ -122,6 +146,33 @@ describe('the first-load budget survives the drawings', () => {
     })
   })
 
+  test('no approved drawing is left out of the list without a reason', () => {
+    // 🔴 A FORGOTTEN DRAWING IS INVISIBLE. The concept falls back to Mike's
+    // words, which is exactly what a concept that has not been drawn yet does —
+    // so nothing on any screen distinguishes "not drawn" from "drawn, approved,
+    // and never wired up". A person in UAT cannot see the difference either.
+    const wired = {}
+    builder.DRAWINGS.forEach((d) => { wired[d.file + '#' + d.svg] = true })
+
+    const missed = []
+    fs.readdirSync(MOCKUPS)
+      .filter(f => /^strategy-concept-.*\.html$/.test(f))
+      .forEach((file) => {
+        const html = fs.readFileSync(path.join(MOCKUPS, file), 'utf8')
+        const count = (html.match(/<svg[\s\S]*?<\/svg>/g) || []).length
+
+        for (let n = 1; n <= count; n++) {
+          if (wired[file + '#' + n]) { continue }
+          // The only accepted reason to leave one out: its picture has to come
+          // out to a file first. Anything else is a drawing nobody wired.
+          if (builder.nthSvg(html, n).includes('data:image/')) { continue }
+          missed.push(file + ' drawing ' + n)
+        }
+      })
+
+    expect(missed).toEqual([])
+  })
+
   test('every drawing is loaded lazily, never imported into the main bundle', () => {
     const registry = fs.readFileSync(
       path.join(ROOT, 'components', 'strategy', 'concepts', 'index.js'),
@@ -130,7 +181,12 @@ describe('the first-load budget survives the drawings', () => {
 
     expect(registry).not.toMatch(/^import\s/m)
     builder.DRAWINGS.forEach((d) => {
-      expect(registry).toContain("'" + d.conceptId + "': () => import(")
+      builder.servedConcepts(d).forEach((id) => {
+        // Quoted or not — `pricing` is the one id the lint will not let us
+        // quote — what matters is that the id loads through `import()`.
+        const key = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        expect(registry).toMatch(new RegExp("^\\s*'?" + key + "'?: \\(\\) => import\\(", 'm'))
+      })
     })
   })
 })
