@@ -12,8 +12,11 @@
 ## 2026-09-20 · Laptop · branch `feat/advisor-progress`
 
 **Suite 12,319 green** (570 suites), lint 0 errors, coverage and audit gates passed. Tree clean.
-**20 ahead of `master`, 0 behind**, all of it in
-**[PR #102](https://github.com/advisor-e/Virt-Advisor/pull/102)**. **24 live items.**
+🔴 **LEVEL WITH `master` — 0 ahead, 0 behind.**
+**[PR #102](https://github.com/advisor-e/Virt-Advisor/pull/102) was merged on 2026-09-20**
+(`4b65b498`), taking all 21 commits across: the step builder and the concept drawings. **Merge
+`origin/master` in before you start** — your branch went 22 behind the moment it landed.
+**24 live items.**
 
 **15.7 — 28 OF 33 CONCEPTS NOW TEACH FROM THEIR OWN DRAWING** (`681c2f45`). The remaining 24
 approved drawings are wired, Porter's among them; **27 render on the run screen and 27 in the
