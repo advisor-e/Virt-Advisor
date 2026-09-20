@@ -428,7 +428,12 @@ describe('the AI is INVITED to use the list, not merely given it — item 4.32',
     expect(discover).toContain('End there. Full stop.')
     expect(discover).toMatch(/goes ABOVE that line — never after it/)
 
-    const calcAt = discover.indexOf('**A calculator that fits**')
+    // 🔴 THE HEADING IS "A model that fits" — Mike's ruling, 2026-09-18. "Calculator" was
+    // our word and he never approved it: a model CONTAINS calculations, it is not a
+    // calculator. This app has models and templates. The string is load-bearing twice
+    // over — it is what the advisor reads, and `buildRetryInstruction` names it back to
+    // the AI, so a rename that misses either half breaks the correction silently.
+    const calcAt = discover.indexOf('**A model that fits**')
     const closingAt = discover.indexOf('**Is that what you had in mind')
     expect(calcAt).toBeGreaterThan(-1)
     expect(calcAt).toBeLessThan(closingAt)

@@ -277,5 +277,5 @@ Rules:
 
 This line is stripped before the advisor sees it — it is never displayed, so never
 mention it, explain it or apologise for it. It exists because nothing else records which
-calculator an advisor was sent to: without it, the only way to check whether the right
+model an advisor was sent to: without it, the only way to check whether the right
 model was offered is for a person to sit and read conversations one at a time.

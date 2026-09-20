@@ -56,12 +56,24 @@
 >
 > ✅ **§4 ITEM 3 IS CLOSED (2026-09-10) — the impact assessment is written**, against all fourteen
 > NZ information privacy principles: [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md).
-> ✅ **§4 ITEM 5 IS CLOSED TOO (2026-09-18) — on Mike's ruling, NOT on an answer.** Both letters to
-> OpenAI were replied to and neither confirmed anything; what is relied on is their published terms
-> plus two documented attempts. Never call it confirmed — §5 of
-> [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) holds both replies verbatim.
+> ✅ **§4 ITEM 5 IS CLOSED TOO (2026-09-18) — on Mike's ruling, NOT on a sign-off.** What is relied
+> on is OpenAI's published terms plus three documented attempts. Never call it confirmed — §5 of
+> [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) holds all three replies verbatim.
+>
+> 🔴 **A THIRD REPLY ARRIVED THE SAME DAY, AFTER THAT RULING, AND IT ANSWERS (§5.3).** Two facts
+> from it bear on this feature and must not be paraphrased away:
+> **(a) HUMAN ACCESS IS POSSIBLE** — authorised employees and third-party contractors under
+> confidentiality, reviewing for abuse and misuse. **Never write that no human can see it.** The
+> approved consent wording makes no such promise and must never gain one.
+> **(b) THE CLEAN TRANSCRIPTION RETENTION DOES NOT COVER THIS FEATURE.** The audio endpoints keep
+> nothing — but Meeting Review sends the transcript **on** to a model for the two reports, and that
+> call falls under ordinary abuse-monitoring logs: **inputs and outputs up to 30 days**, longer
+> where law requires. OpenAI's own words: *"The transcription entry alone should not be treated as
+> confirmation that human access is impossible throughout your app's entire workflow."* Our
+> destroy-the-audio commitment is unaffected; it is the **transcript** that may sit in those logs.
+>
 > **TWO REMAIN, and neither is ours:** the **lawyer's review per market** (item 2), which **no
-> longer waits on anything** now that the OpenAI answer will not come, and the **staff consultation**
+> longer waits on anything** — and which now has (a) and (b) to test — and the **staff consultation**
 > (item 4), which never waited on it. **Item 4.83 turns the banner into a real gate** — a firm
 > declares it understands the law where it operates, or Meeting Review does not open for it.
 >
