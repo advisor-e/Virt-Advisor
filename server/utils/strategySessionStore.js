@@ -68,6 +68,12 @@ const MAX_VALUE = 20000
 /** More frameworks than the four Planning Domains hold, and a bound on one scope write. */
 const MAX_SCOPE_ENTRIES = 200
 
+/**
+ * A bound on the steps an advisor names. Pivot runs five; forty is far more than a session
+ * a human can hold and still small enough that a runaway client cannot fill the column.
+ */
+const MAX_STEPS = 40
+
 /** The two values `strategy_session_entries.source` accepts. */
 const SOURCES = ['typed', 'transcript']
 
@@ -129,9 +135,38 @@ function requireSessionId (value) {
 }
 
 /**
- * The chosen domains and framework ids from screen 1, bounded and stringified.
+ * One named step and the cards the advisor placed in it, bounded.
+ *
+ * 🔴 A STEP HOLDING NOTHING IS A REAL STEP, NOT AN EMPTY VALUE. Mike's ruling of
+ * 2026-09-20: he names the steps, and one with nothing in it still prints on the agenda —
+ * Pivot's step 5 "Do It & Review It" has no slides behind it at all. Anything here that
+ * dropped an empty `items` array would silently delete that step on the next save.
+ *
+ * @param {*} raw
+ * @returns {{name: string, items: string[]}}
+ */
+function normaliseStep (raw) {
+  const step = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}
+  const items = Array.isArray(step.items) ? step.items : []
+  return {
+    name: String(isNil(step.name) ? '' : step.name).slice(0, MAX_NAME),
+    items: items.slice(0, MAX_SCOPE_ENTRIES).map(k => String(k).slice(0, MAX_KEY))
+  }
+}
+
+/**
+ * The chosen domains and framework ids from screen 1, the steps the advisor named on
+ * screen 2, bounded and stringified.
+ *
  * An empty scope is a REAL state, not a missing value: Decision 1 pre-ticks nothing, so a
  * session exists before anything is chosen.
+ *
+ * ⚠ THE STEPS' ITEM KEYS ARE NOT CHECKED AGAINST THE SCOPE HERE, AND THAT IS DELIBERATE.
+ * A key names a *card* — `fw-<id>`, `<conceptId>#<part>`, `close-<id>` — and which cards
+ * exist depends on the concept records the frontend has loaded, which this module does not
+ * see. A key naming something no longer scoped simply renders nothing, which is the safe
+ * direction: the alternative is refusing a whole save because one concept was unticked.
+ *
  * @param {object} scope
  * @returns {string|null}
  * @throws {Error} err.code 'BAD_INPUT'
@@ -143,12 +178,17 @@ function encodeScope (scope) {
   }
   const frameworks = Array.isArray(scope.frameworks) ? scope.frameworks : []
   const domains = Array.isArray(scope.domains) ? scope.domains : []
+  const steps = Array.isArray(scope.steps) ? scope.steps : []
   if (frameworks.length > MAX_SCOPE_ENTRIES || domains.length > MAX_SCOPE_ENTRIES) {
     throw fail('BAD_INPUT', 'The session scope names too many entries.')
   }
+  if (steps.length > MAX_STEPS) {
+    throw fail('BAD_INPUT', 'The session names too many steps.')
+  }
   return JSON.stringify({
     domains: domains.map(d => String(d).slice(0, MAX_KEY)),
-    frameworks: frameworks.map(f => String(f).slice(0, MAX_KEY))
+    frameworks: frameworks.map(f => String(f).slice(0, MAX_KEY)),
+    steps: steps.map(normaliseStep)
   })
 }
 
@@ -156,10 +196,14 @@ function encodeScope (scope) {
  * mysql2 returns a JSON column already parsed on some driver versions and as a string on
  * others. Accept both rather than letting a driver upgrade change what callers receive.
  * @param {*} raw
- * @returns {{domains: string[], frameworks: string[]}}
+ * @returns {{domains: string[], frameworks: string[], steps: Array<{name: string, items: string[]}>}}
  */
 function decodeScope (raw) {
-  const empty = { domains: [], frameworks: [] }
+  // ⚠ `steps: []` IS THE RIGHT EMPTY, AND IT IS NOT THE SAME AS "ONE STEP". A session
+  // saved before the step builder existed has no `steps` key at all; it comes back as an
+  // empty list and the page decides what to do with that, rather than this module
+  // inventing a step nobody named.
+  const empty = { domains: [], frameworks: [], steps: [] }
   if (isNil(raw)) { return empty }
   let parsed = raw
   if (typeof raw === 'string') {
@@ -168,7 +212,8 @@ function decodeScope (raw) {
   if (!parsed || typeof parsed !== 'object') { return empty }
   return {
     domains: Array.isArray(parsed.domains) ? parsed.domains : [],
-    frameworks: Array.isArray(parsed.frameworks) ? parsed.frameworks : []
+    frameworks: Array.isArray(parsed.frameworks) ? parsed.frameworks : [],
+    steps: Array.isArray(parsed.steps) ? parsed.steps.map(normaliseStep) : []
   }
 }
 

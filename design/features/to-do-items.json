@@ -155,7 +155,7 @@
         "detail": "2026-09-14 - 'buile the wages model into the perf report section', then 'look in here - C:\\Documents\\Visual Code Projects\\Perf Report and you will see a model named wages' when told it was not in the repository, then yes to drawing it before any code."
       },
       "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
-      "note": "THE REPORT'S THREE CHARTS ARE BUILT 2026-09-15 - drawn, approved, walked in a browser; the pie is Mike's own. seasonShare() is on the ENGINE, never the screen. NO DECISIONS REMAIN OPEN. THE REGISTER AND ITS TABLE ARE BUILT, and there is NO GATE - Mike removed the due-diligence condition 2026-09-15; it is one button plus the record of who opened it. The port does NOT reproduce the workbook's 63,154 - three faults in its liability column. ONE PIECE WAITS: the Firm Manager retention dial needs FirmManagerHub.vue, which is 9.1's and active on the desktop. THE PAYROLL READER IS ITS OWN ITEM, 5.2. Record: report-models.md, tax-rates.md.",
+      "note": "THE REPORT'S THREE CHARTS ARE BUILT 2026-09-15 - drawn, approved, walked in a browser; the pie is Mike's own. seasonShare() is on the ENGINE, never the screen. NO DECISIONS REMAIN OPEN. THE REGISTER AND ITS TABLE ARE BUILT, and there is NO GATE - Mike removed the due-diligence condition 2026-09-15; it is one button plus the record of who opened it. The port does NOT reproduce the workbook's 63,154 - three faults in its liability column. ONE PIECE REMAINS: the Firm Manager retention dial in FirmManagerHub.vue - nobody holds that file; 9.1 shipped 2026-09-12. THE PAYROLL READER IS ITS OWN ITEM, 5.2. Record: report-models.md, tax-rates.md.",
       "comment": "2026-09-14 - filed, all nine decisions ruled, then the engine, all five steps, the report and the catalogue row in one day. Two rulings reversed our recommendation: the payroll import, and retention. Mike found the added-person sort fault by testing it himself. 2026-09-15 - the register's gate and table, then the report's four charts on his instruction and his own pie idea. Was 4.104; renumbered under design/ITEM-NUMBERING.md. TWICE IN ONE DAY RUNNING IT FOUND WHAT THE SUITE COULD NOT: three stores reached firmOverlay with no dev fallback, and the drawing carried a heading typed rather than read, so two cards shipped with the same title."
     },
     {
@@ -201,7 +201,7 @@
         "machine": "laptop",
         "since": "2026-09-16"
       },
-      "note": "DRAWN, ALL THREE DECISIONS RULED, AND THE RECORDING HALF BUILT - 2026-09-16, in that order. Artefact: design/mockups/model-choices.html. Built: modelChoiceScan.js, the marker in client.txt SECTION 12 and discover.txt, the strip and hold-back on all three response paths, advisor_model_choices with its dev-file fallback, logModelChoice, GET /api/model-choices scoped by tier, and 41 tests. ONE PIECE WAITS: the hub tab needs TAB_TIERS, NAV_GROUPS and a panel in FirmManagerHub.vue, which is 9.1's and active on the desktop. TWO DRAWN THINGS THE ROUTE DOES NOT YET SERVE, both on the drawing: the period selector, and the conversations-count in band 1. THE MARKER IS UNRELIABLE - that is item 7.6.",
+      "note": "DRAWN, ALL THREE DECISIONS RULED, AND THE RECORDING HALF BUILT - 2026-09-16, in that order. Artefact: design/mockups/model-choices.html. Built: modelChoiceScan.js, the marker in client.txt SECTION 12 and discover.txt, the strip and hold-back on all three response paths, advisor_model_choices with its dev-file fallback, logModelChoice, GET /api/model-choices scoped by tier, and 41 tests. ONE PIECE REMAINS: the hub tab needs TAB_TIERS, NAV_GROUPS and a panel in FirmManagerHub.vue - nobody holds that file; 9.1 shipped 2026-09-12. TWO DRAWN THINGS THE ROUTE DOES NOT YET SERVE, both on the drawing: the period selector, and the conversations-count in band 1. THE MARKER IS UNRELIABLE - that is item 7.6.",
       "comment": "2026-09-15 - filed on Mike's instruction after the first effectiveness test of the model summaries. 2026-09-16 - drawn, three decisions ruled one at a time, recording half built. TWO OF THE THREE WENT AGAINST THE RECOMMENDATION: his question about a manager's context widened the row from the domain alone to carry firm and advisor, which then reversed mentor-alone to all four tiers. RUNNING IT FOUND WHAT THE SUITE COULD NOT, again: the AI ignored the new marker in all three conversations until its instruction moved into the system prompts, and it is still unreliable - item 7.6."
     },
     {
@@ -352,7 +352,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT. READ design/PLANNING-TEMPLATE-CENSUS.md, then the Brief; the build is staged in Brief section 0. STAGES 1-4 BUILT: the scope menu, capture from his workbooks, the assembled document, and the concepts shown as HIS OWN SLIDES rather than drawings - 34 of 52 carry a graphic where none was right before. NEVER REDRAW A CONCEPT; the hand-drawn one put three of Porter's four forces in the wrong place. Response tables drawn on a slide were invisible to the app until 2026-09-18: four Mike named are wired, seventeen more await his pass on the Concept Register. NEXT: the advisor cannot yet name his own steps.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT. READ PLANNING-TEMPLATE-CENSUS.md then the Brief; the build is staged in Brief section 0, which carries the detail this note used to repeat. BUILT: stages 1, 2, 3 (scope menu, capture from his workbooks, the assembled document) and 3b, the step builder, 2026-09-20 - the client agenda is now his words, not our screen labels. Stage 5 started 2026-09-19: the banded grid, 1 of 9 forms; EIGHT FORMS REMAIN. 33 of 34 concepts are drawn but NOT ONE IS WIRED IN - that is 15.7. NEXT: stages 4b, 5, 6, 7, 8.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -485,7 +485,7 @@
     },
     {
       "ref": "15.7",
-      "name": "Thirty-three concepts have no graphic, so the advisor teaches from nothing",
+      "name": "Five concepts have no graphic, so the advisor teaches those from nothing",
       "rankedByMike": false,
       "kind": "feature",
       "score": 4,
@@ -497,16 +497,101 @@
         "machine": "laptop",
         "since": "2026-09-18"
       },
-      "why": "Porter's 5 Forces is drawn and approved, 1 of 52. The other 33 concepts with a page we trust show his words with no picture, and the client's plan document prints without one.",
-      "risk": "An advisor talks a client through a framework with nothing on screen to point at, which is the opposite of Mike's own instruction that the graphic goes up first and the boxes wait behind a button. The plan the client keeps has no pictures on any page. Three concepts whose fill-in table is a deck page - Vertical Integration, Revenue Streams, Volatility Graph - drop out of the plan entirely until theirs is drawn.",
+      "why": "28 of the 33 concepts with a trusted page now carry their approved drawing, on the advisor's screen and in the client's plan. The five left hold a pasted-in photograph that must come out to a file first.",
+      "risk": "For those five an advisor still talks a client through a framework with nothing on screen to point at, which is the opposite of Mike's own instruction that the graphic goes up first and the boxes wait behind a button. Market Diffusion Theory, Product Life Cycle, the Volatility Graph, the Digital Funnel Storyboard and Packaging/ Bundling are the five. The Volatility Graph's fill-in table is a deck page, so it drops out of the plan entirely until its drawing lands.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-18 - on approving the first one: 'i like it, that's what ive been looking for - make sure your process is recorded so it can be applied to all the rest', then 'we start on the others'."
       },
       "touches": "components/strategy/StrategyTeachingSlide.vue, which is the shell they render into; StrategyCaptureCard.vue and StrategyPlanDocument.vue, where the graphic and the response page belong; data/strategy-frameworks.json deck and page; and design/mockups, one approved drawing per concept.",
-      "note": "🔴 THE METHOD IS FIXED AND IS NOT A MATTER OF TASTE - strategy-planner.md section 0, approved 2026-09-18. Machine-read words, sampled colours, positions and line widths computed from the page. PROGRESS 21 OF 34: every diagram and every table is done. LEFT: Technology Points, redrawn flat on his ruling, and 12 pages of his prose with no diagram at all. READ type AND opacity, never a colour alone, and DROP CHROME BY ROLE - two filters of ours ate a header row and a whole table column. Gradients are invisible to the reader and are sampled off the rendered page.",
-      "comment": "2026-09-18 - filed on his instruction after the imported deck pages were removed. Not a repeat of the deleted stage 4: that imported his pages as images and locked in the advisor-e.com logo, which is why it was undone within hours of shipping."
+      "note": "🔴 28 OF 33 ARE IN; ONLY THE FIVE WITH A PASTED-IN PICTURE REMAIN. build-concept-graphics.js lifts a drawing from its approved mockup, so what ships is provably what Mike saw, and StrategyConceptGraphic serves all three surfaces. Proved in a browser 2026-09-20: 27 drawings on the run screen, 27 in the client's plan, and the 'no capture screen yet' notice fell from 34 concepts to 17. 🔴 MIKE LIFTED A CAP THE SAME DAY - placeableCards dropped any concept with no fill-in table; RULED 2026-09-20 a concept needs a table OR a drawing. Two faults in the method itself were fixed the same day - see the Brief. NEXT: lift the five images out to files. Detail: strategy-planner.md section 0.",
+      "comment": "2026-09-18 - filed on his instruction after the imported deck pages were removed. Not a repeat of the deleted stage 4: that imported his pages as images and locked in the advisor-e.com logo, undone within hours of shipping. Technology Points proved the ruling right - the panel his slide crops off carries that same logo, so flattening it needed a second method measured out of the raster. The last eleven closed the drawing the same day. Five faults, none catchable by any test; the worst was a crop that pasted a photograph of his own text over the rendered text. Detail in ARTEFACTS.md."
+    },
+    {
+      "ref": "15.8",
+      "name": "Two stock images in the Strategy Planner have no licence check",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - nobody sees it until a rights-holder does, and then it decides how bad the break is",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "activeOn": null,
+      "why": "The Digital Funnel Storyboard and Packaging/Bundling carry third-party pictures from Mike's decks - a stock illustration and a Cartwright & Butler product photograph. His decks are internal training material; the client's plan is not.",
+      "risk": "A client's plan carries the ADVISOR FIRM'S own logo, so a rights-holder would see a commercial firm redistributing their image under someone else's brand. Nobody gets asked at build time - the drawings are approved, so wiring them in looks like finishing approved work. The counter-risk is small: both pictures are decoration and the concept teaches from Mike's words either way.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-18 - found while drawing batch 5, when both images turned out to be third-party rather than Mike's own artwork. He ruled they stay and said yes to filing the licence question. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "design/mockups/strategy-concept-batch-5.html, the two sheets carrying the images; StrategyTeachingSlide.vue and StrategyPlanDocument.vue, where they would reach a client; design/ARTEFACTS.md, which records the question; and whoever cleared the Enneagram exclusion in PLANNING-TEMPLATE-CENSUS.md section 1.",
+      "note": "🔴 MIKE RULED THE IMAGES STAY - 2026-09-18, against the recommendation to leave them out. THAT RULING IS NOT IN QUESTION. This item only makes sure the licence is answered BEFORE they reach a client document. NOT LIVE YET: the images sit in an approved drawing and nothing renders it - 15.7's other half is what would ship them, which is exactly when nobody would think to ask. THE PRECEDENT IS THE PROJECT'S OWN: the Enneagram file was excluded from the census on licence grounds. Mike's own artwork is unaffected - batch 2's three rasters are his.",
+      "comment": "2026-09-18 - filed on his yes at shutdown, after a check that every fault found today had reached an ending. This one had not: it was recorded on the artefact and in ARTEFACTS.md, which is a line in a document rather than a task."
+    },
+    {
+      "ref": "15.10",
+      "name": "Page 2 of six decks is missing from the plan the app produces",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Six of Mike's decks open the meeting with Our Session Objective - welcome, roles, housekeeping, what today is for. None of its nine lines exists anywhere in the app, so the plan a client is handed skips it.",
+      "risk": "FOUR DECISIONS WAIT ON MIKE, drawn and published. Also a deviation from an approved artefact: the assembled-plan drawing records the front matter as Title, Session Objective, the agenda; the build shipped with two front pages and the note atop StrategyPlanDocument.vue still describes three.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-20 - found while walking him through the step builder. He ruled it be drawn rather than decided in chat: \"put it in a mock up page so i can read it properly - dont rush this - get the design right\". Filed on his yes at shutdown."
+      },
+      "touches": "design/mockups/strategy-session-objective-page.html, the drawing that carries the four decisions; components/strategy/StrategyPlanDocument.vue, whose front matter is two pages where its own note says three; design/ARTEFACTS.md; and wherever the standing wording is edited once a tier is chosen.",
+      "note": "READ THE DRAWING, NOT THIS. Census is machine-read: all 12 decks checked, SIX carry the page and every one puts it on page 2. Pivot, ADV.0 and Strategic Orientation 2 are word-for-word identical; Strategic Orientation 1 adds a deck agenda; Bizz Targets and Organisational Review differ in shape. Hence the proposal: EIGHT STANDING LINES, ONE TYPED PER SESSION. A real client name sits in Bizz Targets version and must never reach platform wording. Recommended tier: Mentor Hub alone.",
+      "comment": ""
+    },
+    {
+      "ref": "15.11",
+      "name": "Five concepts keep their fill-in table on a slide nobody has drawn",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Five concepts carry their response table on a deck page rather than in a workbook. Every one of the 33 approved drawings is a teaching page, so those five teach well and then have nothing to capture into.",
+      "risk": "A client is taught Vertical Integration and handed a page saying there is no table for it, when Mike wrote one - on Strategic Orientation 2 p24. It reads as the concept being unfinished rather than the app not having drawn his page. Three comments in the code say the rebuilt graphic restores these, which is how the gap stayed invisible: every session reading them believes it is already handled.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-20 - found while wiring the first four drawings for 15.7; the concept's responsePage is 24 and no drawing covers it. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "responsePage on five concepts in data/strategy-frameworks.json - pages 24, 34, 37 and 41 of Strategic Orientation 2; the five drawings themselves, by the method in design/features/strategy-planner.md section 0; scripts/build-concept-graphics.js, which today maps one drawing to one concept and would need to carry a second; and StrategyConceptCapture.vue, where the response page would render.",
+      "note": "NOT A BUG IN THE WIRING - the 33 drawings are all teaching pages and always were, so this is work never scoped rather than work done wrong. THE THREE STALE COMMENTS ARE CORRECTED (2026-09-20) so no session reads them as a promise already kept. A drawing here is a CAPTURE surface, not a picture: boxes an advisor types into, laid over Mike's own page - which is why it needs a design decision before the method is applied, and why it is not simply five more of 15.7.",
+      "comment": "2026-09-20 - filed on Mike's yes the same session it was found, rather than left in a handover. Found by asking why Vertical Integration's plan page offered nothing to fill in after its drawing landed."
+    },
+    {
+      "ref": "16",
+      "name": "A client's document carries no firm, so the white-label promise has nothing behind it",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The 33 concepts were redrawn so a client sees their own advisor's firm rather than Advisor-e. Nothing in this app holds a firm's name, logo or colour, so every document prints the words 'Firm logo' against an empty disc.",
+      "risk": "An advisor hands a client a plan with a placeholder where their brand belongs, which reads as unfinished software rather than a missing setting. It is also the reason the deck images were deleted on 2026-09-18 and 33 concepts redrawn - so the cost has been paid and the benefit has not arrived. Mike's own words: Advisor-e ALWAYS clones and shows that ADVISORS firm logo, never advisor-e.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-20 - found while wiring the first four drawings for 15.7: the mark is a prop and nothing above passes one in. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
+      "note": "🔴 THE SEAM EXISTS AND IS NOT THE WORK - every drawing already accepts a name and a colour, so nothing needs rebuilding. What is missing is a value to pass and somewhere to set it. TWO HALVES: the data may be Advisor-e's to supply, like the middle-tier role values, but a place to hold and edit it is ours either way. ⚠ ONE DECISION GATES IT AND IS ALREADY DRAWN, UNRULED: the Porter's artefact asks whether the mark is a monogram disc or a real logo image of unknown proportion - see ARTEFACTS.md, three deviations raised and none ruled.",
+      "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
     }
   ]
 }

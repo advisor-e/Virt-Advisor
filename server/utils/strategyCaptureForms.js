@@ -74,11 +74,19 @@ function resolveTemplate (name) {
  * then 1–4). A run of prose rows, as a prompt → answer sheet is, contains no
  * label rows beyond its header.
  *
+ * 🔴 A ROW THAT HOLDS A RULED LINE IS NEVER A LABEL ROW, whatever sits beside it.
+ * A label row is skipped whole, so calling one a label loses every box on it. Blue
+ * Ocean Fronts row 1 is `"1, Enter your thoughts here…" | <ruled line>`; it was read
+ * as a label and the client lost a box Mike's document gives them — 14 where the
+ * page has 15. Found 2026-09-19 by counting the drawing against the document.
+ *
  * @param {Array} rows
  * @param {number} i
  * @returns {boolean}
  */
 function isLabelRow (rows, i) {
+  const anyLine = rows[i].cells.some(c => c.blank)
+  if (anyLine) { return false }
   if (i === 0) { return true }
   const next = rows[i + 1]
   if (!next) { return false }
@@ -102,6 +110,14 @@ function isLabelRow (rows, i) {
 function fieldsOfTable (table, tableIndex) {
   const rows = table.rows
   const hasRuledLines = rows.some(r => r.cells.some(c => c.blank))
+
+  // 🔴 A ONE-ROW TABLE OF WORDS IS A HEADING, NOT A FORM. Mike's Profit Levers
+  // document puts its column names — "Our (7) Aims" | "Task" — in a table of their
+  // own above the grid. Read as a prompt sheet, its first column became the prompt
+  // and "Task" became a box to type into, so the screen offered 29 boxes where the
+  // document has 28 and one of them was his own heading. `columnNamesOfTemplate`
+  // below picks the row up as what it is. Found 2026-09-19.
+  if (!hasRuledLines && rows.length === 1) { return [] }
 
   const fields = []
   const columnLabels = []

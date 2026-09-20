@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Session Objective Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+    --good: #4ca52d; --crit: #c0392b; --warn: #ff9900;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+    /* sampled from his own page, never named from memory */
+    --his-title: #002b64; --his-body: #434343;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 34px 0 4px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+  .caption { font-size: 12.5px; color: var(--eg); margin: 0 0 24px; }
+  .caption b { color: var(--ink); }
+
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 22px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .note p:last-child { margin-bottom: 0; }
+  .bad { border-left-color: var(--crit); background: #fdf3f2; }
+  .bad h3 { color: var(--crit); }
+  .fix { border-left-color: var(--warn); background: #fffdf4; }
+  .fix h3 { color: #8a6d2f; }
+
+  /* his page, drawn as a slide */
+  .slide {
+    aspect-ratio: 16 / 9; width: 100%; max-width: 760px; border: 1px solid var(--line);
+    border-radius: 8px; box-shadow: var(--shadow); background: #fff; padding: 4.2% 5.6%;
+    margin: 0 0 8px; overflow: hidden;
+  }
+  .slide h3 { color: var(--his-title); font-weight: 400; font-size: clamp(17px, 3.33vw, 32px); margin: 0 0 3.2%; line-height: 1.15; }
+  .slide ul { margin: 0; padding: 0; list-style: none; }
+  .slide li {
+    color: var(--his-body); font-size: clamp(9px, 1.67vw, 16px); line-height: 1.5;
+    padding: 0 0 0 1.5em; position: relative; margin: 0 0 1.5%;
+  }
+  .slide li::before { content: "•"; position: absolute; left: .25em; }
+  .slide li.em { color: var(--his-title); font-weight: 700; }
+  .slide .welcome { color: var(--his-body); font-size: clamp(9px, 1.67vw, 16px); margin: 0 0 2%; }
+  .pagenum { position: relative; }
+
+  .hint { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-radius: 3px; padding: 1px 6px; margin-left: 8px; vertical-align: 2px; }
+  .h-std { background: var(--eg); color: #fff; }
+  .h-var { background: var(--warn); color: #3d2f00; }
+
+  table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 0 0 8px; }
+  table.t th, table.t td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.t th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  table.t td:first-child { font-weight: 600; color: var(--ink); }
+  .same { color: #1d6b2b; font-weight: 600; }
+  .diff { color: var(--warn); font-weight: 600; }
+
+  .ask { background: #eef7ff; border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 13px 15px; margin: 18px 0; font-size: 13.5px; }
+  .ask h3 { margin: 0 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+  .ask p { margin: 0 0 7px; }
+  .ask p:last-child { margin: 0; }
+  .ask .rec { font-weight: 600; color: var(--ink); }
+  .ask .q { margin-top: 9px; padding-top: 9px; border-top: 1px solid #bcdcf6; font-weight: 600; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 8px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: #fff; }
+  .card h3 { margin: 0 0 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--eg); }
+  .card.isbad { border-color: #e9b7b0; background: #fdf7f6; }
+  .card.isok { border-color: #a8dcb4; background: #f7fdf8; }
+  .card.isbad h3 { color: var(--crit); }
+  .card.isok h3 { color: #1d6b2b; }
+  .pg { margin: 0; padding: 0; list-style: none; }
+  .pg li { font-size: 13.5px; color: var(--ink); padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .pg li:last-child { border-bottom: 0; }
+  .pg .n { display: inline-block; width: 46px; color: var(--eg); font-size: 11.5px; font-weight: 700; }
+  .pg .missing { color: var(--crit); font-style: italic; }
+  .pg .added { color: #1d6b2b; font-weight: 600; }
+  code { background: var(--wash); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-size: 12.5px; }
+  @media (max-width: 860px) { .two { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner &middot; the plan document &middot; item 15.1</p>
+  <h1>The Session Objective Page</h1>
+  <p class="lede">
+    <b>Page 2 of six of your decks is missing from the plan the app produces.</b> It is the page
+    you talk to at the start of a meeting &mdash; welcome, roles, housekeeping, what today is for.
+    This drawing shows what the page actually is, how much of it is the same in every deck, and
+    asks four questions before anything is built.
+  </p>
+  <p class="src">Drawn 2026-09-20. Every line of your page below was read out of the PDF's own text
+    layer by machine, with your own sizes, weights and colours &mdash; not one word was retyped.</p>
+
+  <div class="note bad">
+    <h3>⚠ A correction to what I told you in chat, before anything else</h3>
+    <p style="margin:0 0 7px">I said the objective page <i>&ldquo;isn't lost &mdash; it prints near
+      the end, on page 34&rdquo;</i>. <b>That was wrong, and it made the problem sound smaller than
+      it is.</b></p>
+    <p style="margin:0">Page 34 carries the <b>Strategic Objective</b> &mdash; the business outcome
+      the client decides during the session. Your page 2 is a completely different thing: it is the
+      <b>meeting's ground rules</b>, spoken before any work starts. <b>None of its nine lines exists
+      anywhere in the app</b> &mdash; not in the data, not in the wording files, not in any screen.
+      The page is missing outright, not relocated.</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Your page, as it actually is</h2>
+  <p class="caption"><code>Pivot.pdf</code> page 2 &middot; 960&times;540pt &middot; title 32pt, body
+    16pt &middot; your two emphasised lines are bold and navy, the rest grey &mdash;
+    <b>all read from the file, none of it chosen by us.</b></p>
+
+  <div class="slide">
+    <h3>Our Session Objective</h3>
+    <p class="welcome">Welcome, it’s all about you and your business today…</p>
+    <ul>
+      <li>Everyone contributes to collaborative thinking.</li>
+      <li>Planned Breaks &amp; Housekeeping</li>
+      <li class="em">My/Our Role in the Planning Session is to Challenge What You Believe To Be True!</li>
+      <li class="em">Your Role is to be Ready To Explore Issues/ Ideas With an Open Heart and an Open Mind.</li>
+      <li>The Objective (expectations) for Today’s meeting is that we ‘Discover What We’ve Been Missing’!</li>
+      <li>Record what we learn.</li>
+      <li>Build an action plan going forward.</li>
+    </ul>
+  </div>
+  <p class="caption">The two navy lines are the two you chose to emphasise &mdash; both about
+    <b>roles</b>. That is the page doing its real job: it sets the contract for the room.</p>
+
+  <hr class="rule">
+
+  <h2>How much of it is the same every time</h2>
+  <p class="caption">All twelve planning decks were checked by machine. <b>Six carry this page, and
+    every one of them puts it on page 2.</b></p>
+
+  <table class="t">
+    <tr><th>Deck</th><th>Its page 2</th><th>Against Pivot's</th></tr>
+    <tr><td>Pivot</td><td>Our Session Objective &mdash; the nine lines above</td><td class="same">—</td></tr>
+    <tr><td>ADV.0 Planning Outcomes</td><td>Our Session Objective</td><td class="same">Identical, word for word</td></tr>
+    <tr><td>Strategic Orientation 2</td><td>Our Session Objective</td><td class="same">Identical</td></tr>
+    <tr><td>Strategic Orientation 1</td><td>Our Session Objective <b>+ a four-line agenda for that deck</b></td><td class="same">Same nine lines, plus an agenda</td></tr>
+    <tr><td>Bizz Targets</td><td><i>&ldquo;What Lies Ahead…&rdquo;</i> &mdash; shorter lines, a five-item agenda</td><td class="diff">Different wording throughout</td></tr>
+    <tr><td>Organisational Review</td><td>Agenda first, then <i>&ldquo;Session Objective:&rdquo;</i> as a <b>choice the client makes</b></td><td class="diff">Different shape entirely</td></tr>
+  </table>
+
+  <div class="note">
+    <h3>What that tells us, and it decides the whole design</h3>
+    <ul>
+      <li><b>Eight of the nine lines are standing wording.</b> Welcome, contributions, housekeeping,
+        the two role lines, record what we learn, build an action plan. Four decks carry them
+        identically; they are not written fresh for a session.</li>
+      <li><b>One line is genuinely about the day</b> &mdash; <i>&ldquo;The Objective (expectations)
+        for Today's meeting…&rdquo;</i>. Organisational Review proves it: there, the objective is an
+        open choice between <i>Internal Efficiencies</i>, <i>Team Engagement</i> or
+        <i>both</i>, with an instruction to spend 10&ndash;15 minutes deciding.</li>
+      <li><b>You personalise it when it matters.</b> Bizz Targets' version names the client inside
+        the line &mdash; <i>&ldquo;…collaborative thinking… (The Christchurch Engineers)&rdquo;</i>.
+        ⚠ <b>That is a real client's name sitting in a source deck.</b> It must never travel into
+        platform wording, and no drawing of ours reproduces it.</li>
+      <li><b>The agenda half is already solved.</b> Where a deck's page 2 also carries an agenda,
+        that agenda is exactly what the step builder now produces. This page is only the preamble.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Where it goes in the document</h2>
+  <div class="two">
+    <div class="card isbad">
+      <h3>The plan today</h3>
+      <ul class="pg">
+        <li><span class="n">p1</span> Title</li>
+        <li><span class="n">p2</span> <span class="missing">— the ground rules are missing —</span></li>
+        <li><span class="n">p2</span> The agenda</li>
+        <li><span class="n">p3+</span> Step 1, taught, then worked…</li>
+      </ul>
+    </div>
+    <div class="card isok">
+      <h3>Pivot, and the plan as proposed</h3>
+      <ul class="pg">
+        <li><span class="n">p1</span> Title</li>
+        <li><span class="n">p2</span> <span class="added">Our Session Objective</span></li>
+        <li><span class="n">p3</span> The agenda</li>
+        <li><span class="n">p4+</span> Step 1, taught, then worked…</li>
+      </ul>
+    </div>
+  </div>
+  <p class="caption">This is also the order your own approved plan drawing already records &mdash;
+    <b>&ldquo;1–3 &middot; Title · Session Objective · The Pivot Process&rdquo;</b>. The build shipped
+    with two front pages where the drawing has three, and the note at the top of the code still
+    describes three. <b>That is the deviation this page exists to close.</b></p>
+
+  <hr class="rule">
+
+  <h2>The decisions</h2>
+  <p class="lede" style="margin-bottom:4px">Four questions, each one recommendation and one answer a
+    yes or no settles. They will be asked one at a time.</p>
+
+  <div class="ask">
+    <h3>Decision 1 &mdash; does the page belong in the plan at all?</h3>
+    <p>It is a page the advisor <i>says</i> as much as one the client reads. The app could simply
+      not have it, and leave the advisor to open the meeting in their own words.</p>
+    <p class="rec">Recommendation: <b>yes, it belongs</b> &mdash; as page 2, before the agenda. Six
+      of your decks carry it, your approved drawing lists it, and a client who is handed the plan
+      afterwards gets the contract for the room alongside the work, exactly as your own deck does
+      it.</p>
+    <p class="q">Does the Session Objective page become page 2 of the plan?</p>
+  </div>
+
+  <div class="ask">
+    <h3>Decision 2 &mdash; which of it is fixed and which is typed each time</h3>
+    <p>Eight lines are the same in four decks. One is about today.</p>
+    <p class="rec">Recommendation: <b>the eight are standing wording; the one objective line is typed
+      per session</b>, in a single box on the scope screen, and left blank prints the page without
+      it. No client name is ever inserted automatically &mdash; your Bizz Targets version puts one
+      inside the sentence, and choosing where a client's name sits in your copy is writing your
+      copy.</p>
+    <p class="q">Are the eight lines standing, with only the objective line typed per session?</p>
+  </div>
+
+  <div class="ask">
+    <h3>Decision 3 &mdash; who can change the standing eight</h3>
+    <p>Your words today. Another firm may open a room differently, and the platform rule is that
+      anything shaping what a client sees is visible and editable on a screen, starting at the
+      mentor tier.</p>
+    <p class="rec">Recommendation: <b>build it on the Mentor Hub and there alone for now.</b> The
+      wording is platform content and is yours; a firm that genuinely opens its meetings
+      differently is the moment to cascade it down, not before. Stating that judgement rather than
+      assuming it is the rule.</p>
+    <p class="q">Is the wording editable on the Mentor Hub only, for now?</p>
+  </div>
+
+  <div class="ask">
+    <h3>Decision 4 &mdash; does the advisor see it on screen during the session</h3>
+    <p>In the room this page is spoken, not read silently. It could appear as the first thing on the
+      session screen, or only in the assembled document.</p>
+    <p class="rec">Recommendation: <b>document only, and no new screen.</b> The plan is what goes on
+      the projector, so the page is already in front of both of them when it matters. A second place
+      showing the same words is a second place they can disagree.</p>
+    <p class="q">Does the page live in the document only, with no separate screen?</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>What this drawing does not settle</h2>
+  <div class="two">
+    <div class="card">
+      <h3>The two decks that differ</h3>
+      <p style="font-size:13.5px;margin:0">Bizz Targets and Organisational Review word their page 2
+        differently, and Organisational Review makes the objective an explicit choice for the
+        client. <b>Nothing here proposes changing either deck</b>, and whether their wording ever
+        reaches the app is a separate question for you.</p>
+    </div>
+    <div class="card">
+      <h3>How the page is typeset</h3>
+      <p style="font-size:13.5px;margin:0">Drawn above at your sizes and colours to show what it is.
+        The finished page follows the plan document's own styling like every other page in it, which
+        is already approved and not reopened here.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

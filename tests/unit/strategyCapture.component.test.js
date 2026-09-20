@@ -252,9 +252,16 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
     expect(w.vm.chosenInDeck(DECKS[0])).toBe(0)
   })
 
-  it('🔴 says on screen that nothing typed is kept yet', () => {
-    // Stage 1 is the menu alone. Without this the screen looks finished, and a UAT tester
-    // cannot tell a half-built feature from a working one by looking at it.
+  it('🔴 tells the advisor on screen what happens to what he ticks', () => {
+    // The line itself is not asserted — its WORDING is not this test's business. What is
+    // held here is that the screen says SOMETHING about what comes next, because without
+    // it the menu reads as the whole feature.
+    //
+    // ⚠ It used to say "nothing typed is kept yet", written while stages 2 to 5 were
+    // unbuilt and left standing after they shipped — so an advisor was told his work
+    // would be lost when it would not. Corrected 2026-09-20. This test passed throughout,
+    // correctly: a sentence going out of date is not something an assertion can catch,
+    // and the wording is Mike's to rule on.
     expect(mountMenu().find('.ssm-stage').exists()).toBe(true)
   })
 

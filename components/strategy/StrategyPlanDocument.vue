@@ -34,33 +34,43 @@ article.spd
       section.spd-page.is-teach(v-if="item.summary || item.prompts.length" :key="'t' + i + item.key")
         p.spd-kind {{ $t('strategyPlanner.plan.teach') }}
         h3.spd-h {{ item.name }}
-        //- ⚠ THE GRAPHIC BELONGS HERE AND IS NOT BUILT YET. The approved drawing
-        //- (`design/mockups/strategy-plan-output.html` p5) puts it on this page and
-        //- marks it "drawn at fidelity". It was briefly a JPEG of Mike's own deck
-        //- page; removed 2026-09-18 because his pages carry the advisor-e.com logo
-        //- and a client is ALWAYS shown the advisor's firm logo. This page prints
-        //- without a picture until the concept is drawn as a component.
+        //- 🔴 THE GRAPHIC, where the approved drawing puts it
+        //- (`design/mockups/strategy-plan-output.html` p5). It carries the
+        //- ADVISOR'S firm mark, which is why it is drawn by us rather than
+        //- photographed from Mike's deck. A concept with no drawing yet prints
+        //- the page without one rather than leaving a hole (item 15.7).
+        strategy-concept-graphic(
+          :concept-id="item.conceptId"
+          :firm-name="firmName"
+          :firm-colour="firmColour"
+        )
         p.spd-lead(v-if="item.summary") {{ item.summary }}
         ul.spd-prompts(v-if="item.prompts.length")
           li(v-for="p in item.prompts" :key="p.key")
             b {{ p.label }}
             |  — {{ p.prompt }}
 
-    section.spd-page.is-divider(v-if="step.teaches" :key="'d2' + i")
+    section.spd-page.is-divider(v-if="step.teaches && step.works !== false" :key="'d2' + i")
       p.spd-step {{ $t('strategyPlanner.plan.step', { n: i + 1 }) }}
       h3.spd-divider-h {{ step.name }}
       p.spd-divider-kind {{ $t('strategyPlanner.plan.actionPoints') }}
 
+    //- 🔴 NO CAPTURE PAGE WHERE THERE IS NOTHING TO CAPTURE. A concept admitted on
+    //- its drawing alone (Mike's ruling, 2026-09-20) has no fill-in table at all,
+    //- and printing one would tell the client it was "not worked through yet" when
+    //- there was never anything to work. Its teaching page stands alone.
     template(v-for="item in step.items")
-      section.spd-page.is-capture(:key="'c' + i + item.key")
+      section.spd-page.is-capture(v-if="item.hasTable !== false" :key="'c' + i + item.key")
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
         //- ⚠ AND THE RESPONSE PAGE IS MISSING HERE TOO, for the same reason. Where
         //- the deck holds the fill-in table rather than a workbook — the Integration
         //- Tasks table, (Our) Revenue Streams, (Our) Volatility Graph Observations —
-        //- the client used to see that page. `responsePage` on the concept still
-        //- records which page it is; the rebuild draws it.
+        //- the client used to see that page. ⚠ THE TEACHING GRAPHIC DOES NOT
+        //- RESTORE IT — all 33 drawings are teaching pages, and this comment used
+        //- to say otherwise. `responsePage` records which page each table is;
+        //- drawing those five is item 15.11.
         //- 🔴 A TABLE NOBODY TOUCHED IS ONE SENTENCE, NOT TWO DOZEN EMPTY ROWS. The
         //- Action Plan alone is 24 boxes; printed blank they fill a page and say
         //- nothing. Mike's rule, 2026-09-17: "how could anyone gain value from
@@ -97,8 +107,12 @@ article.spd
  *
  * Vue 2, Options API, Pug.
  */
+import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
+
 export default {
   name: 'StrategyPlanDocument',
+
+  components: { StrategyConceptGraphic },
 
   props: {
     /** The client this plan belongs to. */
@@ -111,6 +125,18 @@ export default {
     decks: {
       type: String,
       default: ''
+    },
+
+    /** The advisor firm's name, printed beside the mark on every drawing. */
+    firmName: {
+      type: String,
+      default: ''
+    },
+
+    /** The firm's colour, as a CSS colour. */
+    firmColour: {
+      type: String,
+      default: '#0070c0'
     },
 
     /**

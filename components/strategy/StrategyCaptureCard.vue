@@ -15,12 +15,12 @@
   //- instruction, 2026-09-17: *"i want the graphic up so the advisor can speak to
   //- it - then the responses are captured after the click of a button."* The reason
   //- is his — grasp the concept in theory before relating it to your own business.
-  //- ⚠ THE GRAPHIC IS NOT THERE YET. The deck images were removed on 2026-09-18
-  //- (the advisor-e.com logo cannot be white-labelled) and the rebuilt drawing has
-  //- not landed. The teaching panel is his words until it does.
+  //- ⚠ THE DRAWING IS THE TEACHING SLIDE'S, resolved from the concept id. A
+  //- concept without one shows his words alone (item 15.7).
   template(v-if="showTeaching")
     strategy-teaching-slide(
       :name="framework.name"
+      :concept-id="framework.conceptId || framework.id"
       :shape="framework.shape"
       :subtitle="framework.captureInstruction"
       :concept-summary="framework.conceptSummary"
@@ -44,8 +44,9 @@
     //- & Horizontal Integration Tasks table, (Our) Revenue Streams, (Our) Volatility
     //- Graph Observations — and those pages were shown as deck images until
     //- 2026-09-18. They carry the advisor-e.com logo, so they went with the rest.
-    //- `responsePage` on the concept still records WHICH page each one is; the
-    //- rebuild draws it.
+    //- ⚠ AND THE 33 DRAWINGS DO NOT BRING IT BACK — every one of them is a
+    //- TEACHING page. `responsePage` still records which page each table is
+    //- (Strategic Orientation 2 pp. 24, 34, 37, 41); drawing them is item 15.11.
     aside.scc-concept(v-if="showsConcept && framework.conceptSummary")
       p.scc-concept-text(v-if="framework.conceptSummary") {{ framework.conceptSummary }}
 

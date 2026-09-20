@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Step Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+    --good: #4ca52d; --crit: #c0392b; --warn: #ff9900;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 34px 0 4px; }
+  h3.sub { color: var(--ink); font-size: 16px; margin: 22px 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+
+  /* ---- notes ---- */
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 22px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .note p:last-child { margin-bottom: 0; }
+  .bad { border-left-color: var(--crit); background: #fdf3f2; }
+  .bad h3 { color: var(--crit); }
+  .ok { border-left-color: var(--good); background: #eefaf0; }
+  .ok h3 { color: #1d6b2b; }
+
+  /* ---- the measurement ---- */
+  .measure { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--crit); border-radius: 10px; padding: 14px 16px; margin: 0 0 22px; }
+  .measure h3 { margin: 0 0 10px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--crit); }
+  table.m { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.m th, table.m td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.m th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  table.m td:first-child { font-weight: 600; color: var(--ink); }
+  table.m td.n { font-variant-numeric: tabular-nums; font-weight: 700; }
+  td.now { color: var(--crit); }
+  td.want { color: #1d6b2b; }
+
+  /* ---- decisions ---- */
+  .ask { background: #eef7ff; border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 13px 15px; margin: 18px 0; font-size: 13.5px; }
+  .ask h3 { margin: 0 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+  .ask p { margin: 0 0 7px; }
+  .ask p:last-child { margin: 0; }
+  .ask .rec { font-weight: 600; color: var(--ink); }
+  .ask .q { margin-top: 9px; padding-top: 9px; border-top: 1px solid #bcdcf6; font-weight: 600; }
+  .ask.ruled { background: #eefaf0; border-color: #a8dcb4; border-left-color: var(--good); }
+  .ask.ruled h3 { color: var(--good); }
+  .ask.ruled .q { border-top-color: #cbe7d2; font-weight: 400; color: var(--eg); font-size: 12.5px; }
+  .ask .ruling { font-weight: 600; color: #1d6b2b; margin: 0 0 9px; padding-bottom: 9px; border-bottom: 1px solid #cbe7d2; }
+
+  /* ---- the screen drawing ---- */
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; margin: 0 0 8px; background: #fff; }
+  .chrome { background: var(--wash); border-bottom: 1px solid var(--line); padding: 13px 18px; }
+  .chrome .ceyebrow { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 2px; }
+  .chrome .ctitle { color: var(--ink); font-size: 19px; font-weight: 700; margin: 0; }
+  .chrome .csub { color: var(--eg); font-size: 12.5px; margin: 2px 0 0; }
+
+  .rail { display: flex; gap: 6px; padding: 11px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rstep { font-size: 12px; font-weight: 600; color: var(--eg); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 4px 13px; }
+  .rstep.done { color: var(--good); border-color: #a8dcb4; background: #f3fbf5; }
+  .rstep.here { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .rstep.new { box-shadow: 0 0 0 3px #ff990033; }
+
+  .body2 { display: grid; grid-template-columns: 300px 1fr; gap: 0; }
+  .tray { border-right: 1px solid var(--line); padding: 16px 16px 22px; background: #fcfdff; }
+  .board { padding: 16px 18px 22px; }
+  .panelhead { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--ink); margin: 0 0 3px; }
+  .panelsub { font-size: 12px; color: var(--eg); margin: 0 0 11px; }
+
+  .chip { display: block; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 7px 10px 7px 26px; margin: 0 0 7px; font-size: 13px; color: var(--ink); position: relative; }
+  .chip::before { content: "⠿"; position: absolute; left: 9px; top: 6px; color: #c3d2e2; font-size: 13px; letter-spacing: -2px; }
+  .chip .deck { display: block; font-size: 11px; color: var(--eg); margin-top: 1px; }
+  .chip.visit { border-left: 3px solid var(--accent); }
+  .chip .vtag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--accent); border-radius: 3px; padding: 1px 5px; margin-left: 6px; vertical-align: 1px; }
+  .trayempty { border: 1px dashed var(--line); border-radius: 8px; padding: 14px 12px; text-align: center; color: var(--eg); font-size: 12.5px; font-style: italic; background: #fff; }
+
+  .stepcard { border: 1px solid var(--line); border-radius: 10px; background: #fff; margin: 0 0 11px; box-shadow: 0 1px 2px #002b640a; }
+  .stephead { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-bottom: 1px solid var(--line); background: var(--wash); border-radius: 10px 10px 0 0; }
+  .stepnum { flex: 0 0 auto; width: 23px; height: 23px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+  .stepname { flex: 1 1 auto; border: 1px solid transparent; border-radius: 6px; padding: 3px 7px; font-size: 14.5px; font-weight: 700; color: var(--ink); background: #fff; border-color: var(--line); }
+  .stepgrip { flex: 0 0 auto; color: #c3d2e2; font-size: 14px; letter-spacing: -2px; }
+  .stepbody { padding: 9px 11px 11px; }
+  .stepbody .chip { margin-bottom: 6px; }
+  .emptystep { border: 1px dashed #d8c39a; background: #fffdf6; border-radius: 8px; padding: 11px 12px; font-size: 12.5px; color: #8a6d2f; }
+  .emptystep b { color: #6f5411; }
+  .addstep { border: 1px dashed var(--line); border-radius: 10px; padding: 10px; text-align: center; color: var(--accent); font-size: 13px; font-weight: 600; background: #fff; }
+
+  .caption { font-size: 12.5px; color: var(--eg); margin: 0 0 26px; }
+  .caption b { color: var(--ink); }
+
+  /* ---- the agenda comparison ---- */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 8px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: #fff; }
+  .card.isbad { border-color: #e9b7b0; background: #fdf7f6; }
+  .card.isok { border-color: #a8dcb4; background: #f7fdf8; }
+  .card h3 { margin: 0 0 3px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+  .card.isbad h3 { color: var(--crit); }
+  .card.isok h3 { color: #1d6b2b; }
+  .card .who { font-size: 11.5px; color: var(--eg); margin: 0 0 10px; }
+  .ag { margin: 0; padding: 0; list-style: none; counter-reset: ag; }
+  .ag li { counter-increment: ag; font-size: 13.5px; color: var(--ink); padding: 5px 0 5px 26px; position: relative; border-bottom: 1px solid var(--line); }
+  .ag li:last-child { border-bottom: 0; }
+  .ag li::before { content: counter(ag) "."; position: absolute; left: 0; color: var(--eg); font-weight: 700; font-size: 12px; }
+  .ag .cnt { color: var(--eg); font-size: 12px; font-weight: 400; }
+  .ag .none { color: var(--warn); font-size: 12px; font-style: italic; }
+
+  ul.plain { padding-left: 18px; }
+  ul.plain li { margin: 0 0 5px; }
+  code { background: var(--wash); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-size: 12.5px; }
+
+  @media (max-width: 860px) {
+    .body2 { grid-template-columns: 1fr; }
+    .tray { border-right: 0; border-bottom: 1px solid var(--line); }
+    .two { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner &middot; the step builder &middot; item 15.1</p>
+  <h1>The Step Builder</h1>
+  <p class="lede">
+    <b>The screen where you name a session's steps and put each ticked concept into one.</b>
+    This is a drawing for approval before anything is built. Every concept and every step name on
+    it is taken from <b>Pivot</b> &mdash; the deck you assembled by hand &mdash; so the page can be
+    held up against your own document rather than against a description of it.
+  </p>
+  <p class="src">Drawn 2026-09-20, on your ruling of the same morning. Five decisions are asked at
+    the end, one at a time.</p>
+
+  <div class="ask ruled">
+    <h3>The rule this screen exists to carry out &mdash; your ruling, 2026-09-20</h3>
+    <p class="ruling">The advisor <b>names the steps himself</b>. He ticks concepts, then names
+      each step and drags ticked concepts into it &mdash; and <b>a step holding nothing still
+      prints on the agenda.</b></p>
+    <p>Pivot's step 5, <i>Do It &amp; Review It</i>, has no slides behind it at all. No rule
+      reading the tick list could ever produce it, which is why the app can never work the running
+      order out for itself. That single page is the whole reason this screen exists.</p>
+  </div>
+
+  <div class="note bad">
+    <h3>What the plan does today &mdash; read from the running code, 2026-09-20</h3>
+    <p style="margin:0 0 7px">The app can only make <b>one step</b>, plus a closing one. And
+      because it has no names of its own to give them, <b>it borrows the names of our own
+      screens</b> &mdash; so the agenda a client reads in the room currently says:</p>
+    <ul>
+      <li><b>&ldquo;Run the frameworks&rdquo;</b> &mdash; 14 concepts</li>
+      <li><b>&ldquo;Objectives and actions&rdquo;</b> &mdash; 2 concepts</li>
+    </ul>
+    <p style="margin:7px 0 0">Those are the labels on our wizard, printed onto your client's
+      document. A client is being shown the app's own internal steps and told they are the plan.</p>
+  </div>
+
+  <div class="measure">
+    <h3>How we will know it worked &mdash; measured against Pivot, not against opinion</h3>
+    <table class="m">
+      <tr><th>&nbsp;</th><th>Today</th><th>Pivot needs</th></tr>
+      <tr><td>Steps the app can produce</td><td class="n now">1 <span style="font-weight:400">(2 with the closing block)</span></td><td class="n want">5</td></tr>
+      <tr><td>Concepts you place into a step</td><td class="n now">0 of 14</td><td class="n want">14 of 14</td></tr>
+      <tr><td>A step with nothing in it, on the agenda</td><td class="n now">impossible</td><td class="n want">required &mdash; step 5</td></tr>
+      <tr><td>Porter's appearing in two different steps</td><td class="n now">both visits in the same step</td><td class="n want">steps 1 and 2</td></tr>
+      <tr><td>Step names that are yours, not ours</td><td class="n now">0 of 2</td><td class="n want">5 of 5</td></tr>
+    </table>
+    <p style="margin:10px 0 0;font-size:12.5px;color:var(--eg)"><b>Stated honestly:</b> this counts
+      structure. It does not measure whether the screen is pleasant to use, which is a judgement for
+      you in UAT and not something an assertion can settle.</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>The screen</h2>
+  <p class="caption">Shown part-way through, deliberately &mdash; <b>twelve concepts placed, two
+    still waiting</b> &mdash; so both halves of the screen are doing something. The finished state
+    is Pivot exactly.</p>
+
+  <div class="screen">
+    <div class="chrome">
+      <p class="ceyebrow">Strategy Planner</p>
+      <p class="ctitle">Build the session's steps</p>
+      <p class="csub">Example client &middot; drawn from Strategic Orientation 2 and Sales &amp; Marketing Review</p>
+    </div>
+
+    <div class="rail">
+      <span class="rstep done">1 &middot; Scope</span>
+      <span class="rstep here new">2 &middot; Build the steps</span>
+      <span class="rstep">3 &middot; Run the frameworks</span>
+      <span class="rstep">4 &middot; Objectives &amp; actions</span>
+      <span class="rstep">5 &middot; The plan</span>
+    </div>
+
+    <div class="body2">
+
+      <div class="tray">
+        <p class="panelhead">Not yet in a step</p>
+        <p class="panelsub">2 of 14 &mdash; drag each one across</p>
+
+        <span class="chip">6 Marketing Answers<span class="deck">Sales &amp; Marketing Review</span></span>
+        <span class="chip">A.I.D.C.R.A<span class="deck">Sales &amp; Marketing Review</span></span>
+
+        <p class="panelhead" style="margin-top:20px">Already placed</p>
+        <p class="panelsub">12 &mdash; drag back to take one out</p>
+        <div class="trayempty">They sit in their steps on the right.</div>
+      </div>
+
+      <div class="board">
+        <p class="panelhead">The session's steps</p>
+        <p class="panelsub">Name each one. Drag to reorder. A step may hold nothing.</p>
+
+        <div class="stepcard">
+          <div class="stephead">
+            <span class="stepnum">1</span>
+            <span class="stepname">Identify the Resistance</span>
+            <span class="stepgrip">⠿</span>
+          </div>
+          <div class="stepbody">
+            <span class="chip visit">Porter's 5 Forces<span class="vtag">Observations</span><span class="deck">Strategic Orientation 2</span></span>
+            <span class="chip">Market Diffusion<span class="deck">Strategic Orientation 2</span></span>
+            <span class="chip">Product Life Cycle<span class="deck">Strategic Orientation 2</span></span>
+            <span class="chip">Technology Points<span class="deck">Strategic Orientation 2</span></span>
+            <span class="chip">Sigmoid Curve<span class="deck">Strategic Orientation 2</span></span>
+          </div>
+        </div>
+
+        <div class="stepcard">
+          <div class="stephead">
+            <span class="stepnum">2</span>
+            <span class="stepname">Choose Your Competition Fronts</span>
+            <span class="stepgrip">⠿</span>
+          </div>
+          <div class="stepbody">
+            <span class="chip visit">Porter's 5 Forces<span class="vtag">Responses</span><span class="deck">Strategic Orientation 2 &middot; same table as step 1</span></span>
+            <span class="chip">Horizontal Integration<span class="deck">Strategic Orientation 2</span></span>
+            <span class="chip">Vertical Integration<span class="deck">Strategic Orientation 2</span></span>
+            <span class="chip">Progression of Economic Value<span class="deck">Strategic Orientation 2</span></span>
+            <span class="chip">Blue Ocean Strategy<span class="deck">Strategic Orientation 2</span></span>
+            <span class="chip">6 Marketing Questions<span class="deck">Sales &amp; Marketing Review</span></span>
+          </div>
+        </div>
+
+        <div class="stepcard">
+          <div class="stephead">
+            <span class="stepnum">3</span>
+            <span class="stepname">Rehearse the Message</span>
+            <span class="stepgrip">⠿</span>
+          </div>
+          <div class="stepbody">
+            <div class="trayempty" style="border-style:dashed;color:var(--accent)">Drop the two
+              remaining concepts here</div>
+          </div>
+        </div>
+
+        <div class="stepcard">
+          <div class="stephead">
+            <span class="stepnum">4</span>
+            <span class="stepname">Trial the Prototype</span>
+            <span class="stepgrip">⠿</span>
+          </div>
+          <div class="stepbody">
+            <span class="chip">Test Parameters<span class="deck">Sales &amp; Marketing Review</span></span>
+          </div>
+        </div>
+
+        <div class="stepcard">
+          <div class="stephead">
+            <span class="stepnum">5</span>
+            <span class="stepname">Do It &amp; Review It</span>
+            <span class="stepgrip">⠿</span>
+          </div>
+          <div class="stepbody">
+            <div class="emptystep"><b>Nothing in this step, and that is allowed.</b> It will still
+              appear on the agenda the client reads &mdash; exactly as it does in Pivot.</div>
+          </div>
+        </div>
+
+        <div class="addstep">+ Add a step</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="note">
+    <h3>Three things to notice</h3>
+    <ul>
+      <li><b>Porter's is one concept and two cards.</b> It appears in step 1 for observations and
+        step 2 for responses, and both write into the same table &mdash; which is how your Pivot
+        runs it. The two cards already exist in the app today; this screen only decides where each
+        one goes.</li>
+      <li><b>Step 5 holds nothing and still has a card.</b> Deleting the empty card is how you
+        remove a step; leaving it is how you keep it on the agenda.</li>
+      <li><b>Nothing is lost by getting it wrong.</b> A concept dragged out of a step goes back to
+        the left-hand list; what has already been typed into its table is untouched, because the
+        answers are stored against the concept, never against the step.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+  <h2>What the client ends up reading</h2>
+  <p class="caption">Page 3 of the finished document &mdash; the agenda, which is the first thing a
+    client looks at in the room.</p>
+
+  <div class="two">
+    <div class="card isbad">
+      <h3>Today</h3>
+      <p class="who">What this session covers</p>
+      <ol class="ag">
+        <li>Run the frameworks <span class="cnt">&mdash; 14 concepts</span></li>
+        <li>Objectives and actions <span class="cnt">&mdash; 2 concepts</span></li>
+      </ol>
+    </div>
+    <div class="card isok">
+      <h3>With the step builder</h3>
+      <p class="who">What this session covers</p>
+      <ol class="ag">
+        <li>Identify the Resistance <span class="cnt">&mdash; 5 concepts</span></li>
+        <li>Choose Your Competition Fronts <span class="cnt">&mdash; 6 concepts</span></li>
+        <li>Rehearse the Message <span class="cnt">&mdash; 2 concepts</span></li>
+        <li>Trial the Prototype <span class="cnt">&mdash; 1 concept</span></li>
+        <li>Do It &amp; Review It <span class="none">on the agenda only</span></li>
+      </ol>
+    </div>
+  </div>
+  <p class="caption"><b>The right-hand column is Pivot's page 3, line for line.</b> The document
+    that prints it is already built and already handles every line above, including the last one.</p>
+
+  <hr class="rule">
+
+  <h2>The decisions &mdash; all five ruled by Mike, 2026-09-20</h2>
+  <p class="lede" style="margin-bottom:4px">Each was one recommendation and one question a yes or no
+    answers, asked one at a time in chat. <b>All five went as recommended.</b> The recommendation is
+    kept beneath each ruling so a later session can see what was proposed as well as what was
+    decided.</p>
+
+  <div class="ask ruled">
+    <h3>The model, in Mike's own words &mdash; 2026-09-20</h3>
+    <p class="ruling">&ldquo;<b>I choose the number of stages, I choose the name i put on that stage,
+      I choose the number of concepts/pages I put into each stage</b> &mdash; correct? if not, thats
+      what i want.&rdquo;</p>
+    <p>Confirmed as drawn, and on the word itself: <i>&ldquo;steps is fine&rdquo;</i>. He chooses how
+      many, what each is called, what goes in each, and the order.</p>
+    <p>🔴 <b>ONE LIMIT, STATED HERE RATHER THAN DISCOVERED LATER.</b> He places <b>concepts</b>, not
+      individual pages. Where a concept brings two teaching slides, both travel with it into
+      whichever step it is placed in &mdash; one concept's slides cannot be split across two steps.
+      The single exception is already built: where a fill-in table has two halves, the concept gives
+      <b>two separate cards</b> (Porter's observations, Porter's responses) and each is placed on its
+      own. Page-level control is a larger thing and is not drawn.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 1 &mdash; where the step builder sits &mdash; RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED &mdash; Mike, 2026-09-20. <b>Its own stage, between Scope
+      and Run the frameworks.</b> The rail goes from four stages to five. Running the frameworks then
+      follows the steps in the order they were built.</p>
+    <p>It has to come after ticking and before running, because the order it sets is the order the
+      session is run in.</p>
+    <p class="rec">Recommendation: a <b>new stage 2</b>, between Scope and Run the frameworks &mdash;
+      so the rail becomes five stages, as drawn.</p>
+    <p class="q">Asked as: does the step builder become its own stage between Scope and Run?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 2 &mdash; what the screen looks like when it opens &mdash; RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED &mdash; Mike, 2026-09-20. <b>Everything starts unplaced</b>,
+      in the left-hand list, with one empty step named &ldquo;Step 1&rdquo; ready to be renamed.</p>
+    <p>Either every ticked concept starts in the left-hand list with no steps at all, or the app
+      opens with one step already holding everything, which you then split up.</p>
+    <p class="rec">Recommendation: <b>open with everything in the left-hand list and one empty step
+      named &ldquo;Step 1&rdquo;.</b> Starting from a single full step invites you to accept it and
+      move on, which is today's behaviour wearing a new screen. Starting empty makes the naming the
+      thing you do.</p>
+    <p class="q">Asked as: does the screen open with the concepts unplaced, rather than pre-filled into one step?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 3 &mdash; running with concepts still unplaced &mdash; RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED &mdash; Mike, 2026-09-20. <b>Allowed, and the count is
+      shown</b> &mdash; the button reads <i>&ldquo;Run 11 of 14&rdquo;</i> rather than being greyed
+      out. Unplaced concepts are not in the session and stay recorded in its scope.</p>
+    <p>An advisor may tick fourteen and place eleven, then move on.</p>
+    <p class="rec">Recommendation: <b>let him move on, and say so plainly on the screen.</b> Blocking
+      it would strand an advisor mid-meeting over a concept he decided against; a count he can read
+      is a better guard than a locked button.</p>
+    <p class="q">Asked as: may a session run with some ticked concepts left unplaced, with the count shown?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 4 &mdash; the objectives and actions block &mdash; RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED &mdash; Mike, 2026-09-20. <b>It becomes an ordinary,
+      renameable step on the board.</b> The Strategic Objective and Action Plan still come last, but
+      the step is his to name and to drag concepts into. 🔴 <b>Nothing on the client's agenda is
+      named by us any more.</b></p>
+    <p>The app adds a closing block called <i>&ldquo;Objectives and actions&rdquo;</i> after
+      everything else. Pivot has no such step &mdash; its step 5 is Mike's and it is named
+      <i>Do It &amp; Review It</i>.</p>
+    <p class="rec">Recommendation: <b>keep the closing block, but stop it naming itself.</b></p>
+    <p class="q">Asked as: does the closing block become an ordinary, renameable step on the board?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision 5 &mdash; step names &mdash; RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED &mdash; Mike, 2026-09-20. <b>Free text, and nothing
+      offered.</b> No suggested list, no wording pulled from the decks, and nothing written by the
+      AI.</p>
+    <p>His five names are sentences of his own. Nothing in the decks supplies them.</p>
+    <p class="rec">Recommendation: <b>free text, and nothing offered.</b> A step name is the argument
+      of the session, it is the first thing a client reads, and it is exactly the kind of wording
+      this project does not let us invent.</p>
+    <p class="q">Asked as: are step names free text only, with nothing suggested?</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>What this drawing does not settle</h2>
+  <div class="two">
+    <div class="card">
+      <h3>Where the steps are stored</h3>
+      <p style="font-size:13.5px;margin:0">The session already keeps a scope on
+        <code>strategy_sessions</code>. The steps would most likely sit beside it, but no statement
+        in that store has ever run against a real database, and nothing here asks you to approve a
+        storage shape.</p>
+    </div>
+    <div class="card">
+      <h3>How a step reorders on a phone</h3>
+      <p style="font-size:13.5px;margin:0">Dragging is drawn here as it works on a laptop, which is
+        where a planning session is actually run. A touch equivalent is a build detail, not a
+        decision for you.</p>
+    </div>
+  </div>
+  <div class="note" style="margin-top:16px">
+    <h3>And one word that must not be reused</h3>
+    <p style="margin:0">The page already uses <b>step</b> for its own four screens &mdash; Scope,
+      Run, Objectives, Plan. The session's steps are a different thing entirely. Whatever these are
+      called in the code, the two must never share a name, or a later session will wire one to the
+      other.</p>
+  </div>
+
+</div>
+</body>
+</html>

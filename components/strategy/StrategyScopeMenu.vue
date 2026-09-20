@@ -70,9 +70,12 @@
     span.ssm-sum {{ $tc('strategyPlanner.menu.totalIncluded', chosen.length, { count: chosen.length }) }}
     span.ssm-rest {{ $t('strategyPlanner.menu.totalRest', { count: totalConcepts - chosen.length }) }}
 
-  //- 🔴 THE SCREEN SAYS WHAT IT IS NOT. Ticking records the scope; the screens that teach
-  //- each concept and capture the answers are stages 2 to 5 and are not built. Without this
-  //- line the menu looks finished, which is the state a UAT tester cannot tell from done.
+  //- 🔴 THE SCREEN SAYS WHAT COMES NEXT, AND THAT ITS WORK IS KEPT.
+  //- ⚠ IT USED TO SAY THE OPPOSITE — "nothing typed is kept yet" — written while stages 2
+  //- to 5 were unbuilt and left standing after they shipped. An advisor was being told his
+  //- work would be lost when it would not, which is worse than saying nothing: the honest
+  //- reading is to stop using the screen. Corrected 2026-09-20 on Mike's ruling, found by
+  //- walking the journey rather than by any test.
   .ssm-stage {{ $t('strategyPlanner.menu.stageNotice') }}
 </template>
 
@@ -85,9 +88,15 @@
  * `design/mockups/strategy-session-menu.html`, five decisions ruled by Mike 2026-09-17.
  *
  * 🔴 THIS SCREEN IS MIKE'S OWN SESSION SCOPE TABLE WITH THE INCLUDE COLUMN MADE REAL —
- * Decision A. Same column order, same words, same page numbers. Every row's text is his,
- * read off his decks by machine; this component renders it and never rewrites, summarises,
- * truncates or fills a blank one. A build that improves the wording has broken the ruling.
+ * Decision A. Same column order, same words. Every row's text is his, read off his decks by
+ * machine; this component renders it and never rewrites, summarises, truncates or fills a
+ * blank one. A build that improves the wording has broken the ruling.
+ *
+ * ⚠ THE PAGE NUMBERS ARE HIS ONLY WHERE HE GIVES THEM (found 2026-09-18). Strategic
+ * Orientation 2's scope table carries a page column — those numbers are his. Sales &
+ * Marketing's table has three columns and NO page column, so its 16 numbers are OURS,
+ * derived from the deck. They are accurate, and every drawing checked so far confirms it;
+ * this note exists so nobody hunts for a column of his to reconcile them against.
  *
  * 🔴 FIVE PANELS, ONE LIST, TICKS CROSSING FREELY. The panels are documents, not Planning
  * Domains: Strategic Orientation is one domain in two decks. The acceptance test —
