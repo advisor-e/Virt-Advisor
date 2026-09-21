@@ -21,11 +21,16 @@
                 path(d="M3 20a6 6 0 0 1 12 0")
                 path(d="M16 7a3 3 0 0 1 0 6")
                 path(d="M18.5 20a5 5 0 0 0-2.5-4")
-              template(v-else)
+              template(v-else-if="card.icon === 'dashboard'")
                 path(d="M4 19V9")
                 path(d="M10 19V5")
                 path(d="M16 19v-7")
                 path(d="M3 21h18")
+              template(v-else)
+                path(d="M4 4h10l6 6v10H4z")
+                path(d="M14 4v6h6")
+                path(d="M8 14h8")
+                path(d="M8 17h5")
           .sth-cname {{ card.title }}
         p.sth-cdesc {{ card.description }}
         .sth-cgo
@@ -63,8 +68,9 @@ export default {
 
   computed: {
     /**
-     * The three advisor screens, in the order an advisor uses them: record the
-     * deal, record who sent it, then read what it all adds up to.
+     * The four advisor screens, in the order an advisor uses them: record the
+     * deal, record who sent it, read what it all adds up to — then write
+     * something that brings the next one in.
      * @returns {{route: string, title: string, description: string, icon: string, tint: string}[]}
      */
     cards () {
@@ -89,6 +95,13 @@ export default {
           description: this.$t('salesTrackerHome.cards.dashboard.description'),
           icon: 'dashboard',
           tint: 'linear-gradient(135deg,#b56200,#ff9900)'
+        },
+        {
+          route: '/sales-blog',
+          title: this.$t('salesTrackerHome.cards.blog.title'),
+          description: this.$t('salesTrackerHome.cards.blog.description'),
+          icon: 'blog',
+          tint: 'linear-gradient(135deg,#5b4b9e,#8a7ad0)'
         }
       ]
     }

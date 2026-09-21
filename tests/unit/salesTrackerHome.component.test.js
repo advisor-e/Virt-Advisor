@@ -37,9 +37,11 @@ function mountHome () {
 }
 
 describe('the advisor doorway', () => {
-  test('offers the three advisor screens', () => {
+  test('offers the four advisor screens', () => {
     const routes = mountHome().vm.cards.map(c => c.route)
-    expect(routes).toEqual(['/sales-pipeline', '/sales-coi', '/sales-tracker-dashboard'])
+    expect(routes).toEqual([
+      '/sales-pipeline', '/sales-coi', '/sales-tracker-dashboard', '/sales-blog'
+    ])
   })
 
   test('🔴 every card points at a page that actually exists', () => {
@@ -60,7 +62,16 @@ describe('the advisor doorway', () => {
 
   test('renders one clickable card per screen', () => {
     const links = mountHome().findAll('a.sth-card')
-    expect(links).toHaveLength(3)
+    expect(links).toHaveLength(4)
+  })
+
+  test('🔴 every card draws its own icon — none falls through to another screen\'s', () => {
+    // The icons are a `v-if` chain on `card.icon`, and the last branch used to be
+    // a bare `v-else`. A fourth card added without its own branch would silently
+    // wear the dashboard's bar chart, which looks deliberate and is not.
+    const shapes = mountHome().findAll('.sth-ico svg').wrappers
+      .map(w => w.html().replace(/\s+/g, ' '))
+    expect(new Set(shapes).size).toBe(shapes.length)
   })
 
   test('🔴 the doorway the master team links to is /sales-tracker, and it exists', () => {
