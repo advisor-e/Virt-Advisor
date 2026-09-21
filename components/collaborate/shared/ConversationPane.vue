@@ -130,7 +130,11 @@ export default {
       try {
         const res = await fetch('/api/translate/locale', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          // The route is firmAuth-guarded (2026-09-22). See mixins/localeMixin.js.
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + ((process.client && window.localStorage.getItem('advisor_e_token')) || 'dev-local-bypass')
+          },
           body: JSON.stringify({ texts: { t: m.text }, langCode: this.readerLocale, from: m.lang })
         })
         const data = await res.json()

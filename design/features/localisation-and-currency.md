@@ -46,6 +46,23 @@ Node 18 and would throw on the locked runtime.
 **P5 · Sanitise and cap untrusted text before it leaves for a third party, and validate the shape
 of the reply before using it.**
 
+**P5a · 🔴 THE TRANSLATION ROUTE IS SIGNED-IN-ONLY, because it spends a metered quota that twenty
+languages depend on.** `POST /api/translate/locale` carries `firmAuth` — not a manager role, since
+every caller is an ordinary reader choosing a language, and the route itself reads no identity. The
+guard is about **who may spend the quota**, not about scoping.
+
+⚠ **It was open to the whole internet until 2026-09-22**, sitting between `/api/health` and the
+first guarded route with no auth at all. The cost is not only the bill: **20 of our 28 languages are
+translated through it on demand**, so exhausting the daily allowance silently reverts those readers
+to English with nothing on screen to explain it. Pinned by `tests/unit/serverWiring.test.js`, which
+also asserts that **nothing but `/api/health` and the anonymous report maths is unguarded** — the
+report routes are figures-in-figures-out and hold no identity, which is why they are the one stated
+exception.
+
+**Every caller sends the token** (`mixins/localeMixin.js`, `mixins/collaborate/localeMixin.js`,
+`components/collaborate/shared/ConversationPane.vue`). None did before, so guarding the route without
+changing them would have broken language switching everywhere.
+
 **P6 · Currency: read by any signed-in firm user, written by managers only.** A read must never
 require a manager role and must never break a report — on any failure it degrades to the default.
 
