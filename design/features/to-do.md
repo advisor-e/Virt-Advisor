@@ -60,7 +60,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 23 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 24 | **17** An advisor leaves the app to track their own deals and referral partners ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-21 |
 | 25 | **13.1** Changing currency relabels figures and does not convert them ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 26 | **13.2** A client is reported in the firm currency, whatever they trade in ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 26 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 27 | **13.3** The currency picker is the one manager setting outside the hub ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
 **27 live items. Fourteen need Mike.** If this list passes about twenty, something is wrong.

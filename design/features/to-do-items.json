@@ -603,36 +603,36 @@
       "blocks": null,
       "waitingOn": "Us",
       "why": "A manager switching the firm currency sees only \"Reports now show Euro (€)\". Nothing says the figures are RELABELLED, not converted: 46,170 pounds becomes 46,170 euros at no exchange rate. The change reads as a conversion.",
-      "risk": "Every figure in every report silently misstates its own amount by whatever the exchange rate is, on a screen that looks like it did the work. It reaches a client in a funding pack or a fee proposal, and nothing on screen or in the wording contradicts the assumption. Correct behaviour for a firm entering figures in its own money; a wrong number the moment anyone expects a rate.",
+      "risk": "A manager reads the switch as a conversion and every figure in the report is out by whatever the rate is - on a screen that looks like it did the work, reaching a client in a funding pack or a fee proposal. Correct behaviour for a firm entering figures in its own money, which is every firm; a wrong reading the moment anyone expects a rate, and nothing on screen contradicts them.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-22 - he asked \"what if I am in Italy but want the currency to be in Euro?\", which proved the language/currency split works, and the check surfaced this. He was given the finding and the recommendation and said yes to filing it."
       },
       "touches": "components/ModelLibrary.vue, the currency selector block and its changeCurrency handler; locales/en.json modelLibrary.currency (label, managedNote, saved) plus the seven other locale files; data/currencies.json as the six supported codes; mixins/currencyMixin.js, which formats but never converts; and the ~40 report components reading firmCurrency.",
-      "note": "Found while answering Mike on the language/currency split. The selector and its toast are both silent on conversion - money(v, currency, locale) formats only and no exchange rate exists anywhere in the app. 🔴 WORDING IS MIKE'S AND MUST BE ASKED, NOT WRITTEN: the fix is one short line at the selector saying figures are relabelled, not converted. ⚠ SCOPE IS THE LINE ONLY - actually converting figures needs a rate source, a rate date and a per-client currency, which is a separate decision and NOT this item.",
+      "note": "Found while answering Mike on the language/currency split. The selector and its toast are both silent on the point - money(v, currency, locale) formats and nothing more. 🔴 WORDING IS MIKES AND MUST BE ASKED, NOT WRITTEN: one short line at the selector saying figures are relabelled, not converted. ⚠ SCOPE IS THE LINE ONLY. Applying a rate to a whole report is NOT wanted - Mike ruled 2026-09-22 that conversion belongs inside a model where a primary currency is already entered, which the forecast already does via fxAllowancePct. See 13.2 and the Brief P9.",
       "comment": "2026-09-22 - filed on Mike's yes. Numbered 5.4 at first, under Model Library, because the currency picker sits on that screen - filing by where the code lives, not by what the job is about. Moved to 13.1 the same day when he renamed parent 13 to Language, Tax & Currency, which gave this area the home it never had. Siblings 13.2 and 13.3 came from the same conversation."
     },
     {
       "ref": "13.2",
-      "name": "A client is reported in the firm currency, whatever they trade in",
+      "name": "Conversion is per model, and no model states which currency its figures are in",
       "rankedByMike": false,
       "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off without it",
+      "score": 2,
+      "scoreReason": "robustness - the figures are right, but nothing on screen says which currency they are in",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The firm currency is one value on the firm, so every client is reported in it. An Italian firm advising a Swiss client reports that client in Euro - and CHF is not one of the six codes.",
-      "risk": "A client reads their own figures in the wrong currency on a report their advisor hands them. Worse where a symbol is shared: NZD, AUD, CAD and USD all render as a dollar sign, so a wrong currency can look right on the page. Any firm with a cross-border client is affected and nothing warns either party.",
+      "why": "Mike ruled 2026-09-22 that currency is a FIRM setting and conversion belongs inside a model where a primary currency is already entered. The forecast already works that way via fxAllowancePct. No model SAYS so on screen.",
+      "risk": "A model carrying a foreign leg shows a converted figure beside an unconverted one with nothing distinguishing them, and an advisor cannot tell which is which. No wrong number today - the maths is right and every foreign leg has an fx input. The risk is the next model with a foreign leg being built with no input and nobody noticing.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-22 - in his own words, after both limits were shown to him as recorded boundaries rather than tasks: \"lets be clear - BOTH those issues must be fixed, add them to the to do list.\""
       },
-      "touches": "server/routes/currency.js and the firmOverlay config_key currency, one value per firm today; mixins/currencyMixin.js, whose firmCurrency becomes per-client; data/currencies.json for the codes to add; the ~40 report components reading firmCurrency; va_clients as the natural home for a client currency; components/ModelLibrary.vue where the picker sits.",
-      "note": "🔴 DESIGN DECISIONS BEFORE ANY CODE, all Mike's: does a client currency override the firm's or sit alongside it; which codes are added beyond the six; and what happens to figures entered before a client currency was set. ⚠ NOT CONVERSION - see 13.1. Relabelling per client is this item; applying an exchange rate is a third thing and is neither. Read localisation-and-currency.md P9 and section 3 first, where the limit is already written down.",
-      "comment": "2026-09-22 - surfaced while answering Mike on the language/currency split, recorded in the Brief as a stated boundary, then filed on his instruction that it must be fixed. Sibling of 13.1 and 13.3. 13.1, the wording line, should land first: it is true whatever is decided here."
+      "touches": "server/report/threeWayForecastModel.js, which owns fxAllowancePct and applies it to fxOnPurchases and fxOnSales; server/report/importShipmentModel.js, which deliberately defers exchange to the forecast and says so; the forecast intake screen where the percentage is entered; design/features/localisation-and-currency.md for the principle; design/ADDING-A-REPORT.md so a new model with a foreign leg is asked the question.",
+      "note": "✅ CHECKED 2026-09-22, AND THERE IS NO WRONG NUMBER: every model with a foreign leg already takes an fx input. All 30 files in server/report/ were scanned - only the forecast and the import model have one, both are fx-aware, and multiplePropertyModel matched only on the Google Sheets function Import Range. 🔴 SO THE JOB IS THE RULE AND THE LABEL, NOT THE MATHS: write Mikes rule into the localisation Brief and into ADDING-A-REPORT so the next foreign-leg model is asked, and say on screen which currency a converted figure is in. Wording is his.",
+      "comment": "2026-09-22 - filed first as a per-CLIENT currency needing a schema change and 40 components, scored 4. Mike corrected the shape the same day: currency stays at firm level, conversion is per model where a primary currency is already entered. The app already worked that way, so the item shrank to the rule and the label and dropped to score 2. Sibling of 13.1 and 13.3."
     },
     {
       "ref": "13.3",
