@@ -22,6 +22,7 @@
 'use strict'
 
 const captureTables = require('../../data/strategy-capture-tables.json')
+const deckCaptureTables = require('../../data/strategy-deck-capture-tables.json')
 const orgChart = require('./strategyOrgChart')
 
 /**
@@ -45,26 +46,29 @@ const TEMPLATE_ALIASES = {
 }
 
 /**
- * Templates named by a concept for which no workbook was supplied.
- *
- * These four are prompt → answer sheets in census §3 and have no file in
- * `design/planning-templates/fill-in-tables/`. They resolve to nothing on
- * purpose: a concept with no table is reported as having none, never given a
- * borrowed one, because a table an advisor puts in front of a client has to be
- * the table Mike wrote.
- */
-const TEMPLATES_NOT_SUPPLIED = ['Branding', 'Customer Loyalty', 'Packaging', 'Pricing']
-
-/**
  * Resolve a concept's `captureTemplate` to the extracted template.
  *
+ * 🔴 A TABLE COMES FROM A WORKBOOK **OR** FROM A DECK PAGE, and for four concepts it
+ * was always the second. This used to consult the workbooks alone and carry a list
+ * called `TEMPLATES_NOT_SUPPLIED` — Branding, Customer Loyalty, Packaging, Pricing —
+ * which told an advisor mid-session that *"the Branding table has not been supplied
+ * yet"*. It had been. His form is page 34 of the Sales & Marketing deck, facing the
+ * teaching page the app already shows, and the other three are pages 36, 38 and 40:
+ * 29 questions the app said did not exist. Mike, 2026-09-22: *"the content is right
+ * there and the forms are on the same page"*.
+ *
+ * The list is gone rather than emptied, because there is nothing left in it and a
+ * template a concept names that resolves to neither source is now a defect —
+ * `template-not-found` — not a gap in his material. `scripts/read-deck-capture-tables.js`
+ * writes the second source.
+ *
  * @param {string} name  as `captureTemplate` spells it
- * @returns {?{file: string, format: string, tables: Array}}  null when not supplied
+ * @returns {?{file: string, format: string, tables: Array}}  null when neither has it
  */
 function resolveTemplate (name) {
   if (!name) { return null }
   const key = TEMPLATE_ALIASES[name] || name
-  return captureTables.templates[key] || null
+  return captureTables.templates[key] || deckCaptureTables.templates[key] || null
 }
 
 /**
@@ -242,13 +246,25 @@ function fieldsOfTable (table, tableIndex, form) {
       row.cells.forEach((cell, c) => {
         if (cell.text && !cell.blank) { columnLabels[c] = cell.text }
       })
-      // A label row describes what follows; nothing is typed into it.
-      if (hasRuledLines) { return }
+      // 🔴 A LABEL ROW DESCRIBES WHAT FOLLOWS; NOTHING IS TYPED INTO IT — AND THAT IS
+      // TRUE WHETHER OR NOT THE TABLE HAS RULED LINES. This used to skip it only when
+      // `hasRuledLines`, which meant a heading survived as a box in exactly the
+      // templates Mike has WORKED THROUGH: fill an example into every cell and no cell
+      // is blank, so the table has no ruled lines and its heading fell through. 6
+      // Marketing Questions offered 7 boxes and 10 Marketing Messages offered 11 — the
+      // extra one asking an advisor to answer the words "The Question", with his
+      // opposite heading shown beneath as the worked example. The concept titles are the
+      // acceptance test, and `isLabelRow` has already decided this row is a heading;
+      // there was never a reason for the decision to be re-litigated by line style.
+      // Measured across all 20 templates before changing: four tables have no ruled
+      // lines and every one of them genuinely opens with a heading. Found 2026-09-22.
+      return
     }
 
-    // The row's own name, where it has one — a prompt, an aim, an attribute.
-    const rowLabel = (!hasRuledLines || !labelRow)
-      ? (row.cells[0] && row.cells[0].text && !row.cells[0].blank ? row.cells[0].text : '')
+    // The row's own name, where it has one — a prompt, an aim, an attribute. A label row
+    // has already returned above, so this is always a content row.
+    const rowLabel = row.cells[0] && row.cells[0].text && !row.cells[0].blank
+      ? row.cells[0].text
       : ''
 
     row.cells.forEach((cell, c) => {
@@ -306,11 +322,13 @@ function captureForConcept (concept) {
 
   const template = resolveTemplate(concept.captureTemplate)
   if (!template) {
+    // Every template a concept names now resolves, from a workbook or a deck page,
+    // and `templatesAllResolve` in the suite keeps it that way. So reaching here is
+    // a defect on our side — a renamed file, a typo — never a gap in Mike's
+    // material, and it must not tell an advisor his table "has not been supplied".
     return {
       supplied: false,
-      reason: TEMPLATES_NOT_SUPPLIED.includes(concept.captureTemplate)
-        ? 'template-not-supplied'
-        : 'template-not-found',
+      reason: 'template-not-found',
       template: concept.captureTemplate
     }
   }
@@ -389,6 +407,5 @@ module.exports = {
   captureForConcept,
   hasCaptureField,
   fieldsOfTable,
-  TEMPLATE_ALIASES,
-  TEMPLATES_NOT_SUPPLIED
+  TEMPLATE_ALIASES
 }

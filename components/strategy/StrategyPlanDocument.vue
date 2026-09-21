@@ -44,7 +44,22 @@ article.spd
           :firm-name="firmName"
           :firm-colour="firmColour"
         )
-        p.spd-lead(v-if="item.summary") {{ item.summary }}
+        //- 🔴 THE ADVISOR'S BLURB IS NOT THE CLIENT'S READING. `conceptSummary` is the
+        //- CONCEPT SUMMARY column of the scope menu — what an advisor reads to decide
+        //- whether to tick a concept ("This checklist guides you through a review
+        //- of…"). It was printed under every teaching page, so a client's own plan
+        //- carried the shopping-list description of the tool beneath Mike's page,
+        //- which had already said it properly. Found by him reading the PDF,
+        //- 2026-09-22. It is not in the approved drawing either
+        //- (`design/mockups/strategy-plan-output.html` p5: Teach → title → HIS
+        //- subtitle above the figure, nothing below it).
+        //-
+        //- ⚠ KEPT WHERE THERE IS NO DRAWING, and that is the whole of the condition.
+        //- 31 concepts have one and do not need it; 11 do not, and for those this
+        //- sentence is the only thing on the page — dropped there, the client loses
+        //- the page entirely, because a title-only teaching page is refused above.
+        //- It goes when their drawings land, not before.
+        p.spd-lead(v-if="item.summary && !drawn(item)") {{ item.summary }}
         ul.spd-prompts(v-if="item.prompts.length")
           li(v-for="p in item.prompts" :key="p.key")
             b {{ p.label }}
@@ -161,6 +176,7 @@ article.spd
  */
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
+import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyPlanDocument',
@@ -223,6 +239,19 @@ export default {
   },
 
   methods: {
+    /**
+     * Does this concept have one of Mike's approved drawings on its teaching page?
+     *
+     * The one thing that decides whether the client also gets the advisor's summary
+     * line beneath it — see the note beside `spd-lead` in the template.
+     *
+     * @param {{conceptId: string}} item
+     * @returns {boolean}
+     */
+    drawn (item) {
+      return hasConceptGraphic(item.conceptId)
+    },
+
     /**
      * Did the session put anything into this concept's table?
      *

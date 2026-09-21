@@ -5912,7 +5912,6 @@
     },
     "capture": {
       "noTableMeasured": "There is no fill-in table for this concept yet. Talk it through and record it in your own notes.",
-      "templateNotSupplied": "The {template} table has not been supplied yet. Talk it through and record it in your own notes.",
       "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck."
     },
     "orgChart": {

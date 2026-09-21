@@ -1,0 +1,386 @@
+{
+  "templates": {
+    "Branding": {
+      "file": "sales-marketing deck, page 34",
+      "format": "deck-page",
+      "deck": "sales-marketing",
+      "page": 34,
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Branding Considerations"
+                },
+                {
+                  "text": "Your Branding Ideas"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Can you define what your product or service DOES for your customer OR, defines YOU and WHAT YOU DO FOR OTHERS in one word?"
+                },
+                {
+                  "text": "(examples) Confidence: Beauty: Elegance: Energised: Safe: Calm: Coach:"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What does your business name suggest to your target market?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What colours have you chosen and why? (Have you checked the 'colour associations' to people's emotions?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What image or logo do you use to make recognition easy? (Is it transferable to print and fabric; does it 'scale up and down' for signage and letterhead?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Can you generate a Value Proposition statement (What it DOES for them or MAKES THEM FEEL) in less than 4 words (preferably 3 or less) to support your imagery?"
+                },
+                {
+                  "text": "Gives you Wings: Just do It: Lovin' It: Simplifying Advisory:"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Is there a sound or 'jingle' that supports your imagery?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "How does your pricing and packaging tactics support your brand position to your customer and again, differentiate you from your competition?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What financial and time budget do you have to carry the message to your market. (Even the most 'sticky' phrase and logo requires both Time & Repetition to make a difference to your business)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Customer Loyalty": {
+      "file": "sales-marketing deck, page 36",
+      "format": "deck-page",
+      "deck": "sales-marketing",
+      "page": 36,
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Customer Loyalty Considerations"
+                },
+                {
+                  "text": "Your Loyalty Ideas"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What current data do you have in terms of customer average spend, purchase frequency and product/service utilisation? (do they use a range of your products or just their favourite 1 or 2)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What is the calculated cost of securing a new customer for your business? (and if time is a factor - how long does it take to secure a new customer?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What is the focus of your loyalty programme? Is it to REDUCE the COST of GAINING a CUSTOMER or, to EXTEND the FREQUENCY and AVERAGE SPEND of your EXISTING customers. (Explain Why?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What are your average weekly/ monthly referrals and how are they tracked at present?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "To be considered 'Remarkable' you must do something that your customer is 'Able to make a Remark about'. What do you do that is worthy of being used in conversation by your customer?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What can you offer your customer (in return for Loyalty as you define it) that is VALUABLE AND UNIQUE? (To THEM)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Does you Loyalty Programme provide 'Status Levels' and if so, is the status revered by your customer?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What metrics do you use (Key Performance Indicators) to measure the effectiveness of your loyalty programme IN INCREASING BUSINESS PROFITS?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Pricing": {
+      "file": "sales-marketing deck, page 38",
+      "format": "deck-page",
+      "deck": "sales-marketing",
+      "page": 38,
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Pricing Considerations"
+                },
+                {
+                  "text": "Your Pricing Ideas"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Which of the three pricing philosophies do you abide by most?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What 'cost calculations' have you conducted to establish your pricing strategies? (What data have you collected to support these calculations?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What 'competitor calculations' have you conducted to establish your pricing strategies? (What data have you collected to support these calculations?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What 'customer value calculations' have you conducted to establish your pricing strategies? (What data have you collected to support these calculations?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What attempts have you made to COMBINE the three pricing philosophies into your product/ services prices?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What do you monitor to support your 'Price Elasticity' range? (What sets the 'upper and lower range' of your prices?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Packaging": {
+      "file": "sales-marketing deck, page 40",
+      "format": "deck-page",
+      "deck": "sales-marketing",
+      "page": 40,
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Packaging & Bundling Considerations"
+                },
+                {
+                  "text": "Your Packaging & Bundling Ideas"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What have you gained (by way of customer feedback) about the packaging or presentation of your product/ service?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What does your current packaging or presentation attempt to 'say' about your product/ service/ business? (Is it consistent with your branding/ positioning?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What has influenced your packaging choices? (Weight/Shipping Cost - Recycling/Environment Affect - Utility of 'container' uses (either for product or by customer post delivery) - Shelf Presentation as examples)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Do you use multiple distribution options? If so, would it make sense to have different packaging options to match the 'point of sale' requirements?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What are the 'bundling options' (for your product/service) on offer to your customers?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Do you bundle obscure or 'fringe sellers' to increase the cross-sell chances; or do you bundle 'top sellers' to reduce cost of sale. (Why?)"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "What is the metric you use (Key Performance Indicator) to assess the effectiveness of your bundling tactics?"
+                },
+                {
+                  "text": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

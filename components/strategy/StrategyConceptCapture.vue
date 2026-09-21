@@ -383,13 +383,19 @@ export default {
 
     /**
      * Said plainly, because an advisor reads it mid-session with a client beside
-     * them. The two reasons are different facts and must not read the same.
+     * them.
+     *
+     * 🔴 THIS USED TO HAVE A SECOND BRANCH SAYING A TABLE "HAS NOT BEEN SUPPLIED
+     * YET", NAMING IT. Four concepts reached it — Branding, Customer Loyalty,
+     * Pricing, Packaging — and for all four the sentence was false: Mike's forms are
+     * pages 34, 36, 38 and 40 of the Sales & Marketing deck and are now read from
+     * there. Nothing produces that reason any more, so the branch and its wording are
+     * gone rather than left to be shown to somebody one day.
+     *
      * @returns {string}
      */
     noTableMessage () {
-      return this.capture.reason === 'template-not-supplied'
-        ? this.$t('strategyPlanner.capture.templateNotSupplied', { template: this.capture.template })
-        : this.$t('strategyPlanner.capture.noTableMeasured')
+      return this.$t('strategyPlanner.capture.noTableMeasured')
     }
   },
 

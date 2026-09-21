@@ -96,6 +96,10 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    copy in this working tree.** That copy is frozen at the last merge and can be days behind
    the real note while looking perfectly fine. The check reads it from that machine's own
    branch and says outright when the note is older than the work there (item 14.2).
+   ⚠ **An absent OTHER BRANCHES box is an answer, not a failure**: it lists only branches
+   holding commits `master` does not, so it prints nothing when the other machine has merged
+   everything — and then, if step 2 reported this branch 0 behind, the copy in your working
+   tree came across with that merge and is the current note. Merge first if you are behind.
 5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
 6. 🔴 **Propose a pull request if AHEAD by 10 commits or more** — state the count and what
    would go across, and wait for Mike's yes. **The threshold is 10; change the number here

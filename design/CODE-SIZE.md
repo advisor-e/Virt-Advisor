@@ -5,14 +5,14 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-21 at commit `1d9b65a8`.**
+> **Measured 2026-09-22 at commit `c1716e7c`.**
 
-**Working code: 112,961 lines** across 552 files — blank lines and
+**Working code: 112,965 lines** across 552 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
-| Screens and components (`components`) | 210 | 57,480 | 17,878 |
+| Screens and components (`components`) | 210 | 57,484 | 17,878 |
 | The Restify backend (`server`) | 240 | 48,798 | 36,100 |
 | Pages (`pages`) | 46 | 2,659 | 1,713 |
 | Front-end helpers (`utils`) | 33 | 2,408 | 2,132 |
@@ -22,12 +22,12 @@ comment lines stripped; tests, design documents, data, scripts and locale string
 | Nuxt configuration (`nuxt.config.js`) | 1 | 96 | 136 |
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **552** | **112,961** | **58,674** |
+| **Total working code** | **552** | **112,965** | **58,674** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
 | JavaScript | 295 | 52,907 |
-| Vue screens and components | 257 | 60,054 |
+| Vue screens and components | 257 | 60,058 |
 
 **Beside the code, and not counted in it:**
 

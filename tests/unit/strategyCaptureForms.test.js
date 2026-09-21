@@ -66,15 +66,23 @@ describe('a concept with no measured template is told so, never given a borrowed
     })
   })
 
-  test('a concept whose workbook was never supplied says which one', () => {
-    const missing = withTemplate.filter(c => forms.TEMPLATES_NOT_SUPPLIED.includes(c.captureTemplate))
-    expect(missing.length).toBeGreaterThan(0)
-    missing.forEach((c) => {
-      const result = forms.captureForConcept(c)
-      expect(result.supplied).toBe(false)
-      expect(result.reason).toBe('template-not-supplied')
-      expect(result.template).toBe(c.captureTemplate)
-    })
+  test('🔴 every template a concept names resolves — from a workbook OR a deck page', () => {
+    // This replaced a test asserting the opposite: that four templates were "not
+    // supplied" and said so on screen. They were supplied — Branding, Customer
+    // Loyalty, Pricing and Packaging keep their form on pages 34, 36, 38 and 40 of
+    // the Sales & Marketing deck, facing the teaching page the app already shows, and
+    // the app told advisors mid-session that his table did not exist. 29 questions.
+    // Mike, 2026-09-22: "the content is right there and the forms are on the same page".
+    //
+    // Asserted across ALL of them rather than the four, so the next template read out
+    // of a deck is covered the day it is added, and a renamed workbook fails here
+    // instead of on a client's screen.
+    const unresolved = withTemplate
+      .map(c => (forms.resolveTemplate(c.captureTemplate) ? null : `${c.id}: ${c.captureTemplate}`))
+      .filter(Boolean)
+
+    expect(withTemplate.length).toBeGreaterThan(0)
+    expect(unresolved).toEqual([])
   })
 })
 
@@ -355,6 +363,47 @@ describe('a ruled line is a box, and a heading is never one', () => {
           : `${c.id}: ${capture.fields.length} boxes, workbook rules ${want} lines`
       })
       .filter(Boolean)
+    expect(wrong).toEqual([])
+  })
+
+  test('a template Mike has WORKED THROUGH offers no box that is one of his headings', () => {
+    // 🔴 THE ONE CASE THE RULE ABOVE DID NOT COVER, AND THE SUITE WAS GREEN THROUGHOUT.
+    // A heading used to be skipped only where the table carried ruled lines — so in the
+    // templates he has filled his own example into, where NO cell is blank and there are
+    // no ruled lines at all, the heading fell through and became somewhere to type. 6
+    // Marketing Questions offered 7 boxes and 10 Marketing Messages offered 11, the extra
+    // one asking an advisor to answer the words "The Question" with his opposite heading
+    // shown beneath it as the worked example.
+    //
+    // Recomputed from his workbook like the rest of this block: in a worked-through grid
+    // the first row is the headings and every row under it is one answer per answering
+    // column, so a template he edits moves the expectation with it. UAT cannot catch this
+    // — seven boxes on a six-question sheet looks entirely reasonable to anyone who has
+    // not counted his page.
+    // Every table of the template, so the count below can be the whole concept's boxes.
+    // A template mixing worked-through and ruled grids would need its fields split by
+    // table; none does, and this says so rather than assuming it.
+    const workedThrough = tpl => tpl.tables.length > 0 &&
+      tpl.tables.every(t => t.rows.length > 1 && !t.rows.some(r => r.cells.some(c => c.blank)))
+
+    const checked = []
+    const wrong = concepts
+      .filter(c => c.captureTemplate && c.captureForm)
+      .map((c) => {
+        const capture = forms.captureForConcept(c)
+        if (!capture.supplied || !capture.fields) { return null }
+        const tpl = forms.resolveTemplate(c.captureTemplate)
+        if (!workedThrough(tpl)) { return null }
+        checked.push(c.id)
+        const want = tpl.tables.reduce((n, t) => n + (t.rows.length - 1) * (t.columns - 1), 0)
+        return capture.fields.length === want
+          ? null
+          : `${c.id}: ${capture.fields.length} boxes, his rows ask ${want}`
+      })
+      .filter(Boolean)
+
+    // Without this the test passes by checking nothing the day a template is renamed.
+    expect(checked.length).toBeGreaterThan(0)
     expect(wrong).toEqual([])
   })
 })
