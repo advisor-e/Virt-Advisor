@@ -41,8 +41,16 @@
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
 >     produces a web report *and* a separate exported deck has created two things that can
->     disagree, and the page is a 16:9 frame from the start rather than a reflowing column
->     squeezed into one later.
+>     disagree, and the page is a fixed frame from the start rather than a reflowing column
+>     squeezed into one later. **It is that ruling that makes the client's PDF the document
+>     printed rather than a second one generated beside it** — §0 stage 3.
+>   - ☑ **THE FRAME IS A4 LANDSCAPE, NOT 16:9 — ruled by Mike 2026-09-21:** *"the majority of pages
+>     to be printed will be A4 size."* This supersedes the ratio alone; everything above still
+>     stands. A 16:9 page on an A4 sheet fills the width and leaves a fifth of every sheet blank.
+>     Measured that day on a 25-page plan: **at 16:9, 15 of 25 pages sat at the frame; at A4, 23 of
+>     25 do.** [`../mockups/strategy-plan-output.html`](../mockups/strategy-plan-output.html)
+>     Decision 1 carries the supersession; its §3 slides are still drawn at 16:9 and show the
+>     layout, not the ratio.
 >   - ☑ **"Tick concepts, or tick steps" — RULED BY MIKE 2026-09-20, as recommended: the advisor
 >     names the steps himself.** He ticks concepts, then names each step and drags ticked concepts
 >     into it, and **a step holding nothing still prints on the agenda**. Pivot's step 5 sits there
@@ -263,7 +271,7 @@ content running on to p56. It keeps page 52, which is where a reader opens the d
 |---|---|---|---|
 | **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **"The menu is his table, word for word"** (the session scope menu) — the screen **is** his table, his words, and his page numbers **where he gives them** — ⚠ **Strategic Orientation 2's scope table HAS a page column and those numbers are his; Sales & Marketing's has NONE, so its 16 are ours, derived from the deck.** They are accurate, and every drawing checked so far confirms it — but do not go looking for a column of his to reconcile them against (found 2026-09-18). | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
 | **2** | ☑ **BUILT 2026-09-17 — capture across the scoped concepts.** `scripts/read-capture-tables.js` reads Mike's own fill-in workbooks into `data/strategy-capture-tables.json`; `server/utils/strategyCaptureForms.js` turns a grid into fields; `GET /api/strategy/concepts/:id/capture` serves them; `components/strategy/StrategyConceptCapture.vue` draws them | *"a strategic plan … that can easily expand over time"* — a plan cannot expand if nothing is kept | **16 of the 52 concepts now reach their real table, where 2 did.** Every label is his, read from the workbook rather than authored. A concept can be VISITED TWICE — Porter's observations then his responses — because one table carries both column sets, and the second visit shows what the client said in the first. |
-| **3** | ☑ **BUILT 2026-09-17 — the assembled document.** `components/strategy/StrategyPlanDocument.vue`, built from the approved drawing: front matter, the agenda, then per step a *Discussion* divider, its teaching pages, an *Action* divider, its capture pages. Screen 4 was a flat list of framework blocks and is now the document. ⚠ **One step, and that is a stated limit:** the advisor cannot yet name his own steps and drag concepts into them, so everything scoped sits in one. ☐ A failing objective does not yet carry its flag onto the page. | *"…into 1 seamless document"* · **"Deck or web page"** (the assembled plan) — one continuous document of slide-shaped pages, **one artefact never two formats** · **"Can a failing objective reach the plan"** (the session an advisor runs) — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* **It stores nothing of its own**, so it cannot disagree with the session behind it. An untouched table prints one line rather than two dozen blank rows. |
+| **3** | ☑ **BUILT 2026-09-17 — the assembled document. ☑ AND IT LEAVES THE APP AS A PDF, 2026-09-21.** `components/strategy/StrategyPlanDocument.vue`, built from the approved drawing: front matter, the agenda, then per step a *Discussion* divider, its teaching pages, an *Action* divider, its capture pages. Screen 4 was a flat list of framework blocks and is now the document. **A *Print or save as PDF* button on Produce plan prints the document alone** — the page heading, the five-stage rail and the coverage wheel are the advisor's and are gated out, on **A4 landscape** (his 2026-09-21 ruling). The browser writes the file: no PDF library runs on the locked Node 14.15 ([`business-performance-report.md`](business-performance-report.md) P7), and its own dialog means a client's session is never sent anywhere to be rendered — which is also the only method the *one artefact, never two formats* ruling allows. ☐ A failing objective does not yet carry its flag onto the page. | *"…into 1 seamless document"* · **"Deck or web page"** (the assembled plan) — one continuous document of slide-shaped pages, **one artefact never two formats** · *"i want you to build the ability to export the final client version strategic planner as a pdf doc"* (2026-09-21) · **"Can a failing objective reach the plan"** (the session an advisor runs) — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* **It stores nothing of its own**, so it cannot disagree with the session behind it. An untouched table prints one line rather than two dozen blank rows. **Measured in a browser 2026-09-21, printing a real 25-page session to A4:** app furniture on the client's document went from three pieces to **none**, **23 of 25 pages land on exactly one sheet**, nothing is cropped, and an ordinary Ctrl+P is unchanged. 🔴 **TWO FAULTS NO TEST COULD SEE, both found by printing:** `.spd-page` carried **no ratio at all** while the comment above it claimed a slide-shaped frame was built; and a ratio is the wrong tool on paper — each page computed to *exactly* the sheet height, and a box as tall as its sheet rounds onto a second one, so **25 pages printed as 50 sheets, every other one blank**. The printed page now takes a floor in millimetres inside the sheet. ⚠ **Two pages still overflow** — item **15.12** — and the document has no room for the firm's logo, item **16.2**. |
 
 ### Then — making it right rather than making it work
 
@@ -980,8 +988,16 @@ each of the five above.
 `data/strategy-frameworks.json` (`planningDomains`, `decks`, `frameworks`, `concepts`) ·
 `server/utils/strategyFrameworks.js` · `server/utils/strategySessionStore.js` ·
 `server/routes/strategyPlanner.js` · `components/strategy/StrategyScopeMenu.vue`,
-`StrategyCaptureCard.vue`, `StrategyGrowthWheel.vue` · `pages/strategy-planner.vue` ·
-`config/db-schema.sql`
+`StrategyCaptureCard.vue`, `StrategyGrowthWheel.vue`, `StrategyPlanDocument.vue` ·
+`pages/strategy-planner.vue` · `config/db-schema.sql`
+
+🔴 **THE CLIENT'S PDF IS PRINT CSS, AND IT CANNOT BE SCOPED.** The `@page` sheet and the rules
+that hide the advisor's screen live in a **deliberately unscoped** `<style>` block at the foot of
+`pages/strategy-planner.vue`, gated on `body.sp-printing`, which `printPlan()` adds for the
+duration of one press. A scoped rule naming `body` compiles to `body[data-v-hash]` and matches
+nothing — it shipped that way once in the course certificate, and `scopedStylesCannotReachOutside`
+now fails the build for it. **The A4 millimetres live there too, not in the component**, because
+they are only correct on the sheet that block's `@page` asks for.
 
 **The decks themselves are read by `scripts/read-deck-pages.py`** — the one tool that opens his
 PDFs, and the home item 15.5 was about. `<deck> <page>` reads a page for drawing it; `--register`
@@ -995,7 +1011,10 @@ pixels, so its output is for looking at and sampling from, never for committing 
 menus that disagree is the drift this feature exists to end.
 
 Tests: `strategyFrameworks` · `strategyConcepts` · `strategySessionStore` ·
-`strategyPlanner.routes` · `strategyCapture.component`.
+`strategyPlanner.routes` · `strategyCapture.component` · `strategyPlanDocument.component` ·
+`strategyPlanPrint` — the print gate, which must be ON while the dialog reads the page and OFF
+afterwards **including when `print()` throws**, or an advisor is left with a blank screen
+mid-meeting. The button and its wording are deliberately not asserted (Mike, 2026-08-24).
 
 **The source material, in the repository since 2026-09-17** — read it before designing, not
 the summaries written from it: [`design/planning-templates/`](../planning-templates/) holds
