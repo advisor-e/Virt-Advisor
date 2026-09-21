@@ -84,9 +84,28 @@ function resolveTemplate (name) {
  * @param {number} i
  * @returns {boolean}
  */
+function isColumnHeaderRow (cells) {
+  // 🔴 A COLUMN-HEADER ROW OPENS WITH EMPTY CORNER CELLS, and the rule above could not
+  // see one. Customer Types heads its personas `blank | blank | Farm Wagon | Other 1 …`
+  // and Operational Objectives its stages `blank | Stage 1 | Stage 2 | Stage 3`; both
+  // carry a ruled line in the corner, so both rows were refused and EVERY column name
+  // was lost with them — 181 boxes with no persona on any of them, 25 with no stage.
+  // Found 2026-09-21 by counting the screen against his documents.
+  //
+  // The two conditions keep Blue Ocean Fronts out, which is what the rule above exists
+  // for: its `"1, Enter your thoughts here…" | <ruled line>` has words in the FIRST
+  // column and only one cell of them, so it is a content row and stays one.
+  const firstWord = cells.findIndex(c => c.text && !c.blank)
+  if (firstWord < 1) { return false }
+  const named = cells.slice(firstWord)
+  return named.length >= 2 && named.every(c => c.text && !c.blank)
+}
+
 function isLabelRow (rows, i) {
   const anyLine = rows[i].cells.some(c => c.blank)
-  if (anyLine) { return false }
+  // Only the table's own first row may be a header with empty corner cells; a row of
+  // words beside a ruled line anywhere further down is content, as Blue Ocean proved.
+  if (anyLine) { return i === 0 && isColumnHeaderRow(rows[i].cells) }
   if (i === 0) { return true }
   const next = rows[i + 1]
   if (!next) { return false }
@@ -107,7 +126,79 @@ function isLabelRow (rows, i) {
  * @param {number} tableIndex  a template can hold more than one table
  * @returns {Array<object>}  fields in reading order
  */
-function fieldsOfTable (table, tableIndex) {
+/**
+ * The fields of a grid whose ROWS are named and whose COLUMNS are the things being
+ * compared — Customer Types' nine personas against nine attributes.
+ *
+ * ⚠ THIS IS THE ONE PLACE THIS MODULE READS A TEMPLATE'S FORM NAME, AND THE HEADER
+ * ABOVE ARGUES AGAINST IT. Stated rather than slipped in. The general reading cannot
+ * settle this table on its own: Customer Types' second column is a 0.10-inch gutter and
+ * Operational Objectives' first column is where the advisor names each objective, and in
+ * the extracted grid the two are the same thing — every cell empty, no words anywhere.
+ * Only the width tells them apart, and width is not extracted. `captureForm` already
+ * carries the answer on every concept, authored from the census, so it is read here
+ * rather than a reading being invented that cannot be right.
+ *
+ * @param {{columns: number, rows: Array}} table
+ * @param {number} tableIndex
+ * @returns {Array<object>} fields in reading order
+ */
+function attributeRowFields (table, tableIndex) {
+  const rows = table.rows
+  const header = rows[0]
+  const entity = []
+  header.cells.forEach((cell, c) => {
+    if (cell.text && !cell.blank) { entity.push({ column: c, label: cell.text }) }
+  })
+  if (!entity.length) { return [] }
+
+  const fields = []
+  let attribute = ''
+
+  rows.forEach((row, r) => {
+    if (r === 0) { return }
+    // His attribute name carries down: a named row opens the attribute, the unnamed
+    // rows beneath it are its remaining lines. Four of them under "3 Key Concerns/
+    // Common Problems", three under "3 Dominant Buying Motives".
+    const first = row.cells[0]
+    if (first && first.text && !first.blank) { attribute = first.text }
+    // The rows above his first attribute are the document's own spacing.
+    if (!attribute) { return }
+
+    entity.forEach((col) => {
+      const cell = row.cells[col.column]
+      if (!cell) { return }
+      fields.push({
+        key: 't' + tableIndex + 'r' + r + 'c' + col.column,
+        row: r,
+        column: col.column,
+        columnLabel: col.label,
+        rowLabel: attribute,
+        example: '',
+        // His own worked answer arrives IN the box to be typed over — his ruling of
+        // 2026-09-21, and a departure from the banded grid's rule that a line carrying
+        // words is shown and never typed into. It applies where the example is a whole
+        // named COLUMN, never to a line inside one.
+        prefilled: (cell.text && !cell.blank) ? cell.text : ''
+      })
+    })
+  })
+
+  return fields
+}
+
+function fieldsOfTable (table, tableIndex, form) {
+  // 🔴 THE FORM NAME IS NOT ENOUGH ON ITS OWN, and reading it alone broke a table.
+  // Customer & Skills Review is authored `attribute-rows-entity-columns` and is nothing
+  // of the kind: its header is `Review Section | Review Findings`, one question and one
+  // answer, with NO corner cell. Read as a matrix it offered 54 boxes where his document
+  // asks 24. So the grid has to agree — an attribute-rows table heads its columns AFTER
+  // one or more empty corner cells, because those corner cells are the label column.
+  if (form === 'attribute-rows-entity-columns' &&
+      table.rows.length > 1 && isColumnHeaderRow(table.rows[0].cells)) {
+    return attributeRowFields(table, tableIndex)
+  }
+
   const rows = table.rows
   const hasRuledLines = rows.some(r => r.cells.some(c => c.blank))
 
@@ -204,7 +295,7 @@ function captureForConcept (concept) {
 
   const fields = []
   template.tables.forEach((table, i) => {
-    fieldsOfTable(table, i).forEach(f => fields.push(f))
+    fieldsOfTable(table, i, concept.captureForm).forEach(f => fields.push(f))
   })
 
   return {

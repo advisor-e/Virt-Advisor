@@ -45,6 +45,36 @@ section.scc2
   )
     | {{ noTableMessage }}
 
+  //- 🔴 A TABLE WHOSE COLUMNS MEAN SOMETHING IS DRAWN AS ONE — from
+  //- design/mockups/strategy-capture-two-dimensional-grid.html, approved by Mike
+  //- 2026-09-21. His attribute names hold still down the left while the persona or
+  //- stage columns scroll across, which is the pattern the report screens already use.
+  //- Until this, every column name was dropped on the way to the screen: 181 boxes on
+  //- Customer Types with no persona on any of them, 25 on Operational Objectives with
+  //- no stage.
+  .scc2-scroll(v-else-if="isGrid")
+    table.scc2-tdg
+      thead
+        tr
+          th.scc2-attr &nbsp;
+          th(v-for="col in gridColumns" :key="'h' + col.column") {{ col.label }}
+      tbody
+        template(v-for="group in gridRows")
+          tr(v-for="(line, i) in group.lines" :key="line.key")
+            //- His attribute name spans its own lines rather than repeating on each.
+            td.scc2-attr(v-if="i === 0" :rowspan="group.lines.length") {{ group.label }}
+            td(v-for="field in line.cells" :key="field.key")
+              strategy-capture-box(
+                :field="field"
+                :value="valueOf(field)"
+                :rows="rowsFor(field)"
+                :speech-supported="speechSupported"
+                :recording="voiceField === field.key"
+                @toggle-voice="toggleVoiceField"
+                @focus-field="onFocus"
+                @input-field="onInput"
+              )
+
   template(v-else)
     .scc2-grid
       .scc2-block(v-for="block in blocks" :key="block.key")
@@ -113,12 +143,13 @@ section.scc2
  */
 import speechMixin from '~/mixins/speechMixin'
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
+import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyConceptCapture',
 
-  components: { StrategyConceptGraphic },
+  components: { StrategyConceptGraphic, StrategyCaptureBox },
 
   mixins: [speechMixin],
 
@@ -229,6 +260,74 @@ export default {
     },
 
     /**
+     * Is this one of Mike's two-dimensional tables — attributes down, the things being
+     * compared across?
+     *
+     * ⚠ IT READS THE TEMPLATE'S FORM NAME, WHICH NOTHING ON THIS SCREEN DID BEFORE.
+     * Stated rather than slipped in, because the header above says there is no shape
+     * list here. There is now exactly one alternative layout, and it cannot be derived
+     * from the fields: Porter's also has four named columns and would become a grid,
+     * changing a screen approved on 2026-09-19. `captureForm` is authored per concept
+     * and already arrives in the payload, so it is what decides.
+     *
+     * @returns {boolean}
+     */
+    isGrid () {
+      return this.capture.supplied &&
+        ['attribute-rows-entity-columns', 'named-rows-staged-columns'].includes(this.capture.form) &&
+        this.gridColumns.length > 1
+    },
+
+    /**
+     * The columns of that grid, in his document's order.
+     *
+     * A column with no heading is his own — Operational Objectives leaves the first one
+     * blank and the advisor names each objective in it. Nothing is written for it here.
+     *
+     * @returns {Array<{column: number, label: string}>}
+     */
+    gridColumns () {
+      const seen = []
+      this.visitFields.forEach((f) => {
+        if (!seen.some(c => c.column === f.column)) {
+          seen.push({ column: f.column, label: f.columnLabel || '' })
+        }
+      })
+      return seen.sort((a, b) => a.column - b.column)
+    },
+
+    /**
+     * The rows of that grid, each carrying one box per column, grouped under the
+     * attribute they belong to so his name spans its lines rather than repeating.
+     *
+     * @returns {Array<{label: string, lines: Array<{key: string, cells: Array}>}>}
+     */
+    gridRows () {
+      const lines = []
+      const byRow = {}
+      this.visitFields.forEach((f) => {
+        const id = 't' + f.key.split('r')[0].slice(1) + 'r' + f.row
+        if (!byRow[id]) {
+          byRow[id] = { key: id, label: f.rowLabel || '', cells: [] }
+          lines.push(byRow[id])
+        }
+        byRow[id].cells.push(f)
+      })
+
+      // His attribute name spans its own lines: a run of consecutive lines carrying the
+      // same name is one group. An empty name groups alone, so nothing is merged that
+      // he did not name.
+      const groups = []
+      lines.forEach((line) => {
+        const last = groups[groups.length - 1]
+        if (last && line.label && last.label === line.label) { last.lines.push(line) } else {
+          groups.push({ label: line.label, lines: [line] })
+        }
+      })
+      return groups
+    },
+
+    /**
      * The fields grouped under their column heading, which is how the template itself
      * bands them.
      * @returns {Array<{key: string, label: string, fields: object[]}>}
@@ -275,7 +374,13 @@ export default {
      * @returns {string}
      */
     valueOf (field) {
-      return this.entries[field.key] || ''
+      // 🔴 HIS WORKED ANSWER ARRIVES IN THE BOX — Mike, 2026-09-21. It is a starting
+      // value to type over, not a placeholder: the advisor keeps it, edits it or clears
+      // it, and what they leave is what is saved. Only where nothing has been captured
+      // yet, so clearing a prefilled box stays cleared.
+      const saved = this.entries[field.key]
+      if (saved !== undefined && saved !== null) { return saved }
+      return field.prefilled || ''
     },
 
     /**
@@ -425,6 +530,54 @@ export default {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 12px;
+}
+
+/* 🔴 THE TWO-DIMENSIONAL TABLE — from design/mockups/strategy-capture-two-dimensional-grid.html,
+   approved 2026-09-21. The attribute column is held still with `position: sticky` while the
+   persona or stage columns scroll past it; twelve report screens here already scroll a wide
+   table (MidLevelBudget.vue, SalesDashboard.vue) but none pins a column, so this is new.
+   Columns are 430px because that is what one of Mike's answers and its voice bar need — at
+   186px they all fitted inside the page and it did not visibly scroll at all. */
+.scc2-scroll {
+  overflow-x: auto;
+  margin-top: 12px;
+  border: 1px solid #d5e1ee;
+  border-radius: 9px;
+}
+
+.scc2-tdg {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.scc2-tdg th,
+.scc2-tdg td {
+  width: 430px;
+  border: 1px solid #d5e1ee;
+  padding: 7px 10px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.scc2-tdg th {
+  background: #f1f6fb;
+  color: #002b64;
+  font-size: 13.5px;
+  border-bottom: 2px solid #0070c0;
+}
+
+.scc2-tdg th.scc2-attr,
+.scc2-tdg td.scc2-attr {
+  width: 258px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #f1f6fb;
+  color: #002b64;
+  font-weight: 600;
+  font-size: 13px;
+  border-right: 2px solid #0070c0;
 }
 
 .scc2-block-label {
