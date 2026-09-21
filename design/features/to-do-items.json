@@ -415,7 +415,7 @@
         "detail": "2026-09-17 - hit while proving the concept index build. Failed once in three full runs and passed alone. Mike said yes to filing it."
       },
       "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant), and the four suites that reach it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes and wagesRegisterContents.routes.",
-      "note": "NOT REPRODUCIBLE ON DEMAND - it failed once in three full runs on 2026-09-17, then passed alone and on both re-runs. The cause is traced rather than guessed: wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. THREE WAYS OUT, and choosing between them is the work: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. Nothing is blocked by it today.",
+      "note": "NOT REPRODUCIBLE ON DEMAND - it failed once in three full runs on 2026-09-17, then passed alone and on re-runs. Cause traced, not guessed: wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. THREE WAYS OUT, and choosing between them is the work: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. 🔴 2026-09-21 - A RANDOM FAILURE BLOCKED A COMMIT, the first time it cost anything: one test failed in the pre-commit hook, five runs after were green. The failing suite was NOT captured, so this item is not proved to be the cause.",
       "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end."
     },
     {
