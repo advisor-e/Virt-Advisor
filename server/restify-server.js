@@ -988,6 +988,11 @@ server.post('/api/strategy/sessions', firmAuth, strategyPlannerRoute.createSessi
 server.get('/api/strategy/sessions/:id', firmAuth, strategyPlannerRoute.getSession)
 server.put('/api/strategy/sessions/:id/scope', firmAuth, strategyPlannerRoute.putScope)
 server.put('/api/strategy/sessions/:id/entries', firmAuth, strategyPlannerRoute.putEntries)
+// The "Suggest for this client" button — Decision C, item 15.1 stage 6. It proposes and
+// changes nothing: the saved scope still follows the advisor's ticks, and the suggestion is
+// stored beside them as the audit trail rather than in place of them. Keyed on the CLIENT,
+// not a session: the button sits on Scope session, which is open before any session exists.
+server.post('/api/strategy/suggest', firmAuth, strategyPlannerRoute.postSuggest)
 // Decision 11's mechanism, not telemetry: which box was open, and when. It is what lets
 // a recording's words reach the right box without a model deciding anything.
 server.post('/api/strategy/sessions/:id/timeline', firmAuth, strategyPlannerRoute.postTimeline)

@@ -73,7 +73,12 @@
       :decks="decks"
       :chosen="chosen"
       :session-label="sessionLabel"
+      :suggested="suggested"
+      :suggesting="suggesting"
+      :suggest-state="suggestState"
+      :client-chosen="Boolean(clientId)"
       @scope-changed="onScopeChanged"
+      @suggest-requested="requestSuggestion"
     )
 
   template(v-if="!loading && step === 'steps'")
@@ -306,6 +311,19 @@ export default {
       planStepDefs: [],
       /** The open session's id, once one exists. */
       sessionId: null,
+      /**
+       * WHAT THE AI PROPOSED, AND ONLY THAT — `[{ id, reason }]`. Decision C, stage 6.
+       *
+       * 🔴 IT IS NEVER THE SCOPE. `chosen` above is the scope and is the only thing saved
+       * as one. This list exists so the screen can show which rows were proposed, why, and
+       * how many of them the advisor has since taken back off — the disagreement between
+       * the two lists is the advisor's judgement and is the point of keeping both.
+       */
+      suggested: [],
+      /** True while the suggestion is being fetched. */
+      suggesting: false,
+      /** '' | 'ok' | 'no-history' | 'nothing-matched' | 'failed' — what the bar says. */
+      suggestState: '',
       /** Captured text, keyed `frameworkId::fieldKey`. */
       entries: {},
       /**
@@ -1223,6 +1241,53 @@ export default {
       }
     },
 
+    /**
+     * Ask the AI which concepts suit this client — Decision C, stage 6.
+     *
+     * 🔴 IT TICKS NOTHING BY ITSELF, AND THAT IS THE RULING NOT A PRECAUTION. What comes
+     * back is added to `chosen` as pre-ticks the advisor can take straight back off, and
+     * `suggested` keeps the original list so the screen can show what was proposed and how
+     * much of it survived. A build that assigned the reply to `chosen` and kept no record
+     * would have broken Decision C(a) and C(b) at once.
+     *
+     * ⚠ IT NEVER UNTICKS. Concepts already chosen stay chosen even if the AI did not
+     * propose them — the union, never the reply.
+     *
+     * @returns {Promise<void>}
+     */
+    async requestSuggestion () {
+      if (this.suggesting || !this.clientId) { return }
+      this.suggesting = true
+      this.suggestState = ''
+      try {
+        const res = await fetch('/api/strategy/suggest', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: this.headers(true),
+          body: JSON.stringify({
+            clientId: this.clientId,
+            sessionId: this.sessionId || undefined
+          })
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        const body = await res.json()
+        const concepts = (body.suggestion && body.suggestion.concepts) || []
+
+        this.suggested = concepts
+        this.suggestState = body.reason === 'ok' ? 'ok' : body.reason
+
+        if (concepts.length) {
+          const add = concepts.map(c => c.id).filter(id => !this.chosen.includes(id))
+          if (add.length) { await this.onScopeChanged(this.chosen.concat(add)) }
+        }
+        this.error = ''
+      } catch (e) {
+        this.suggestState = 'failed'
+      } finally {
+        this.suggesting = false
+      }
+    },
+
     /** Opens the session and moves to the frameworks. */
     async startSession () {
       this.error = ''
@@ -1233,7 +1298,15 @@ export default {
           headers: this.headers(true),
           body: JSON.stringify({
             clientId: this.clientId,
-            scope: { domains: [], frameworks: this.chosen }
+            // A suggestion made before the session existed is written with the first
+            // ticks, so Decision C(b)'s trail survives the moment the session is opened.
+            scope: {
+              domains: [],
+              frameworks: this.chosen,
+              suggestion: this.suggested.length
+                ? { at: new Date().toISOString(), concepts: this.suggested }
+                : undefined
+            }
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }

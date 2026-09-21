@@ -6,8 +6,34 @@
     span.ssm-who(v-if="sessionLabel") {{ sessionLabel }}
     span.ssm-count {{ $t('strategyPlanner.menu.includedOf', { chosen: chosen.length, total: totalConcepts }) }}
 
+  //- Decision C's button. It proposes; it never applies. `suggesting` disables it so a
+  //- second press cannot race the first.
+  //- 🔴 AND `clientChosen` DISABLES IT UNTIL THERE IS A CLIENT TO SUGGEST FOR. Found by
+  //- opening the screen, 2026-09-22: the button was live with no client selected and
+  //- pressing it did nothing at all — no message, no error — because the page's handler
+  //- gives up silently without one. It now greys out exactly as "Build the session" does
+  //- two inches away, which is the same condition for the same reason.
   .ssm-bar
-    span.ssm-hint {{ $t('strategyPlanner.menu.hint') }}
+    b-button.ssm-suggest(
+      type="is-primary"
+      size="is-small"
+      :loading="suggesting"
+      :disabled="suggesting || !decks.length || !clientChosen"
+      @click="$emit('suggest-requested')"
+    ) {{ $t('strategyPlanner.menu.suggestButton') }}
+    span.ssm-hint(v-if="suggesting") {{ $t('strategyPlanner.menu.suggestRunning') }}
+    span.ssm-hint(v-else) {{ $t('strategyPlanner.menu.hint') }}
+
+  //- 🔴 THE BAR SAYS WHAT WAS PROPOSED, NEVER WHAT IS INCLUDED. Decision C(a): the count
+  //- in the chrome above follows the ticks. This line follows the suggestion, and the two
+  //- are allowed to disagree — that disagreement is the advisor's judgement, shown.
+  .ssm-sugg(v-if="suggestState === 'ok'")
+    | {{ $tc('strategyPlanner.menu.suggestBar', suggested.length, { count: suggested.length }) }}
+    span.ssm-sugg-off(v-if="untickedCount")
+      |  {{ $tc('strategyPlanner.menu.suggestUnticked', untickedCount, { count: untickedCount }) }}
+  .ssm-sugg.is-quiet(v-else-if="suggestState === 'no-history'") {{ $t('strategyPlanner.menu.suggestNoHistory') }}
+  .ssm-sugg.is-quiet(v-else-if="suggestState === 'nothing-matched'") {{ $t('strategyPlanner.menu.suggestNothing') }}
+  .ssm-sugg.is-bad(v-else-if="suggestState === 'failed'") {{ $t('strategyPlanner.menu.suggestFailed') }}
 
   p.ssm-empty(v-if="!decks.length") {{ $t('strategyPlanner.menu.noneLoaded') }}
 
@@ -56,11 +82,22 @@
               td.ssm-name(colspan="3")
                 | {{ concept.name }}
                 span.ssm-sub(v-if="concept.conceptSummary") {{ concept.conceptSummary }}
+                span.ssm-why(v-if="reasonFor(concept.id)")
+                  span.ssm-why-tag {{ $t('strategyPlanner.menu.suggestedBadge') }}
+                  |  {{ reasonFor(concept.id) }}
 
             template(v-else)
               td.ssm-name
                 | {{ concept.name }}
                 span.ssm-shared(v-if="sharedNote(concept)" :title="sharedNote(concept)") {{ $t('strategyPlanner.menu.sharedCell') }}
+                //- 🔴 THE AI'S LINE SITS UNDER THE NAME, NEVER IN A COLUMN OF ITS OWN.
+                //- Decision A binds the table to Mike's own five columns in his order, and
+                //- a sixth would break it. It is styled apart from his text on purpose: a
+                //- client reads this table in the room, and machine words must never be
+                //- mistakable for his.
+                span.ssm-why(v-if="reasonFor(concept.id)")
+                  span.ssm-why-tag {{ $t('strategyPlanner.menu.suggestedBadge') }}
+                  |  {{ reasonFor(concept.id) }}
               td {{ concept.conceptSummary }}
               td {{ concept.helpsClientTo }}
 
@@ -104,10 +141,13 @@
  * Marketing, so a menu that made an advisor open one panel at a time could not produce it.
  * That is precisely what the superseded `StrategySessionScope` did.
  *
- * ⚠ NOTHING IS PRE-TICKED HERE, and that is not Decision C being ignored. The AI
- * pre-tick is Stage 6 and is not built; the drawing's "Suggest for this client" button is
- * deliberately absent rather than present and dead. Recorded as a named deviation in the
- * Brief §0.
+ * 🔴 NOTHING IS PRE-TICKED WHEN THE SCREEN OPENS, AND THE AI NEVER UNTICKS — Decision C,
+ * built as stage 6 on 2026-09-22. The "Suggest for this client" button asks the backend;
+ * what comes back is a list of rows to tick and one line of reason against each. Three
+ * consequences bind this component: the count in the chrome follows `chosen` and never
+ * `suggested`; a suggested row the advisor unticks stays unticked and the bar says how
+ * many; and the reason line renders under the concept NAME rather than in a column of its
+ * own, because Decision A fixes the table to Mike's five columns in his order.
  *
  * ⚠ AN EMPTY DESCRIPTION IS NOT A GAP TO FILL. Decision B: three of the five documents are
  * agendas with no Concept Summary and no Helps Your Client To… line. Those rows render
@@ -128,13 +168,66 @@ export default {
     chosen: { type: Array, default: () => [] },
 
     /** Optional "client · session type, date" line for the chrome. */
-    sessionLabel: { type: String, default: '' }
+    sessionLabel: { type: String, default: '' },
+
+    /**
+     * What the AI proposed, as `[{ id, reason }]` — never what is included.
+     * Empty until the advisor presses the button.
+     */
+    suggested: { type: Array, default: () => [] },
+
+    /** True while the backend is being asked, so the button cannot be pressed twice. */
+    suggesting: { type: Boolean, default: false },
+
+    /**
+     * Whether a client has been chosen. The suggestion is built from THIS client's recent
+     * conversations, so without one there is nothing to suggest from and the button is
+     * disabled rather than live-but-inert.
+     */
+    clientChosen: { type: Boolean, default: false },
+
+    /**
+     * Which of the four things the suggestion bar says, or '' for nothing yet.
+     * `ok` — rows were proposed · `no-history` — the client has no conversations to read ·
+     * `nothing-matched` — it read them and proposed none · `failed` — it could not run.
+     */
+    suggestState: {
+      type: String,
+      default: '',
+      validator: v => ['', 'ok', 'no-history', 'nothing-matched', 'failed'].includes(v)
+    }
   },
 
   computed: {
     /** @returns {number} every concept the menu offers, across all five panels */
     totalConcepts () {
       return this.decks.reduce((n, deck) => n + (deck.conceptCount || 0), 0)
+    },
+
+    /**
+     * The reason line per concept id, built once rather than scanned per row — the menu
+     * renders 52 rows and `suggested` is scanned for each one otherwise.
+     * @returns {Object<string, string>}
+     */
+    reasonById () {
+      const map = {}
+      this.suggested.forEach((s) => {
+        if (s && s.id) { map[s.id] = String(s.reason || '') }
+      })
+      return map
+    },
+
+    /**
+     * How many suggested rows the advisor has taken back off.
+     *
+     * This is the number the drawing puts on the bar — "three were wrong and have been
+     * unticked". It is the visible proof of Decision C(a): the suggestion and the scope
+     * are different things, and the advisor's judgement is what separates them.
+     *
+     * @returns {number}
+     */
+    untickedCount () {
+      return this.suggested.filter(s => s && s.id && !this.chosen.includes(s.id)).length
     }
   },
 
@@ -145,6 +238,15 @@ export default {
      */
     isIncluded (id) {
       return this.chosen.includes(id)
+    },
+
+    /**
+     * The AI's one line for a row, or '' when it did not propose that row.
+     * @param {string} id a concept id
+     * @returns {string}
+     */
+    reasonFor (id) {
+      return this.reasonById[id] || ''
     },
 
     /**
@@ -240,8 +342,49 @@ export default {
   padding: 0.7rem 1.1rem;
   border-bottom: 1px solid #d5e1ee;
   background: #f1f6fb;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.9rem;
+  align-items: center;
 }
 .ssm-hint { font-size: 0.76rem; color: #5b6f8a; }
+
+/* The suggestion bar. Blue, because it is information about what was proposed — it is
+   not a warning, and the amber bands on this screen mean "Mike has not written this". */
+.ssm-sugg {
+  padding: 0.65rem 1.1rem;
+  font-size: 0.76rem;
+  color: #00457a;
+  background: #eef7ff;
+  border-bottom: 1px solid #9fd0f5;
+}
+.ssm-sugg.is-quiet { color: #5b6f8a; background: #f1f6fb; border-bottom-color: #d5e1ee; }
+.ssm-sugg.is-bad { color: #8a1b1b; background: #fdeaea; border-bottom-color: #f0a9a9; }
+.ssm-sugg-off { color: #00457a; }
+
+/* Machine words under the concept name, held visibly apart from Mike's own text: a
+   client reads this table in the room. */
+.ssm-why {
+  display: block;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: #00457a;
+  margin-top: 0.25rem;
+  line-height: 1.45;
+}
+.ssm-why-tag {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #0070c0;
+  background: #e6f2fb;
+  border: 1px solid #bcdcf6;
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+  margin-right: 0.15rem;
+}
 
 .ssm-deck { border-bottom: 1px solid #d5e1ee; }
 .ssm-deckhead {

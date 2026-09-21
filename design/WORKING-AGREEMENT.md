@@ -87,7 +87,7 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    [`HANDOVER-desktop.md`](HANDOVER-desktop.md) and [`HANDOVER-laptop.md`](HANDOVER-laptop.md),
    one per machine — so the two machines do not duplicate or contradict each other. Read the
    JSON rather than [`to-do.md`](features/to-do.md): the page is 850 lines of standing
-   explanation around a generated ten-row table, and is rebuilt from the JSON anyway.
+   explanation around a generated table, and is rebuilt from the JSON anyway.
    **Not `ACTIONS.md`** — frozen as an archive on 2026-08-24. **And there are no session
    notes to read**: the 85 files written before that date stay as history, none is written now.
    **An item whose `activeOn` names the other machine is off limits** — say so, and do not

@@ -117,6 +117,71 @@ rather than quietly dropped.**
 the session menu puts all 52 on a screen; 16 of them reach the real capture table read from
 Mike's own workbook, and what an advisor types there is saved box by box against the client's
 session (§4) and carries into the assembled document.
+🔴 **STAGE 6 — THE AI PRE-TICK — WAS BUILT ON 2026-09-22, AND NOTHING WAS DRAWN FOR IT BECAUSE
+THE DRAWING ALREADY EXISTED.** `design/mockups/strategy-session-menu.html` carries the *"Suggest
+for this client"* button, the *"Suggested, not applied…"* bar and **Decision C**, all approved by
+Mike on 2026-09-17. A second mockup would have created a rival artefact for a screen that already
+has one. What was never designed is the engine behind the button, which is what was built:
+`server/utils/strategyPretick.js`, `POST /api/strategy/suggest`, and the suggestion riding
+`scope_json` beside the ticks. **Driven in a browser, not just tested:** six concepts pre-ticked
+from a client's own conversation summary, each with one line of reason, the count moving 0 → 6 of 52.
+
+**MEASURED BEFORE A LINE WAS WRITTEN, on Mike's own Pivot client and the four strategy cases in
+`scripts/scenario-lab-cases.json`.** The impact test the 2026-09-16 ruling requires:
+
+| | |
+|---|---|
+| Separation across five client situations | pairwise overlap **0.14–0.50**; **1 concept of 52** common to all five |
+| Recall on Mike's Pivot client | **4 of Pivot's 9**, and **3 of the 4 were reached without the words appearing in his text** |
+| Concepts invented by the model | **0**, across five runs |
+| Baseline it replaces | **0 pre-ticked, 52 rows read by hand** |
+
+🔴 **THE FIRST MEASUREMENT WAS WRONG, AND THE BENCH SAID SO RATHER THAN A LATER SESSION.** Recall
+against the one-line lab case *"competitors have caught up"* scored **1 of 9** — because that
+sentence and Pivot's client are not the same client. Pivot works on the client's *message*, and
+nothing in that line mentions one. **Mike supplied the real client description and the same bench
+scored 4 of 9.** A number from the wrong input measures the input, never the engine.
+
+⚠ **THE MODEL REACHES THE RIGHT SUBJECT AND A DIFFERENT INSTRUMENT, and this is a CONTENT finding,
+not a defect.** Asked for a client who must test their marketing message, it chose *10 Marketing
+Messages* where Pivot uses *6 Marketing Questions*. The concept prose cannot separate those two for
+this purpose. **That prose is authored content and Mike's — it is never edited to chase a bench
+result** (CLAUDE.md). Related: item **15.3**, the eighteen rows with no *Helps Your Client To…* line.
+
+⚠ **TEN CONCEPTS CARRY NO TEXT AT ALL and are invisible to the pre-tick.** All ten are
+planning-*process* steps. Nine were never chosen in any of five runs; the tenth
+(*Choose Your Objectives*) was chosen on its NAME. They are still listed in the prompt, because
+hiding them would be the code deciding which of Mike's concepts an advisor may be offered.
+
+**THREE DIFFERENCES FROM THE APPROVED DRAWING, named as the rule requires:**
+
+1. **Where the reason line sits is ours.** The drawing says *"each with one line saying why"* and
+   never shows where. Decision A fixes the table to Mike's five columns in his order, so a sixth
+   was unavailable: it renders under the concept NAME with a small `SUGGESTED` tag, styled apart
+   from his text because a client reads this table in the room.
+2. **The bar's two halves are computed.** *"Eight rows were pre-ticked"* counts real rows, and
+   *"three were wrong and have been unticked"* appears only once the advisor unticks something.
+3. **Three states the drawing never had to show** — the client has no recorded conversations, the
+   model read them and matched nothing, the model could not be reached. **Wording approved by Mike
+   2026-09-22**; it lives in `locales/en.json` under `strategyPlanner.menu.suggest*`.
+
+🔴 **IT IS KEYED ON THE CLIENT, NOT THE SESSION, AND THAT IS THE FLOW.** The button sits on Scope
+session, which an advisor opens *before* pressing *Build the session* — so usually no session exists
+to hang a suggestion on. The route takes the client; a session id is used when there is one, and
+otherwise the screen carries the suggestion into `POST /sessions`. Stored exactly once either way.
+
+🔴 **A FAULT NO TEST COULD SEE, FOUND BY OPENING IT.** The button was live with no client chosen
+and pressing it did **nothing** — no message, no error — because the page's handler returns silently
+without one. A person reads that as *"the AI found nothing"*, which is the one thing they cannot tell
+apart from a broken button. It now greys out exactly as *Build the session* does beside it, pinned by
+`tests/unit/strategyCapture.component.test.js`.
+
+⚠ **THE SUGGESTION IS ONLY AS GOOD AS THE CLIENT'S RECORDED CONVERSATIONS**, which is the drawing's
+own input. A client with none gets an honest empty and the model is never called. A client with thin
+summaries gets a thin suggestion. Stated before the build rather than discovered after it.
+
+⚠ **NOT PROVED AGAINST A REAL DATABASE** — the laptop has none. Desktop or UAT work.
+
 🔴 **CAPTURE FORM 6 OF 9 — THE PARALLEL PROMPT PAIR — WAS DRAWN, RULED AND BUILT ON 2026-09-22**,
 in that order, and it was **the worst of the forms measured**. Artefact:
 [`design/mockups/strategy-capture-parallel-prompt-pair.html`](../mockups/strategy-capture-parallel-prompt-pair.html).
@@ -183,7 +248,8 @@ whitelist had to accept them — and both answers reach the client's plan, `Plan
 question and then all five decisions on its drawing, every one as recommended. The advisor names
 his own steps, and **the client's agenda stops naming our screens**: where it read *"Run the
 frameworks — 14 concepts"* it now reads his own step names, with an empty step printing as *"on
-the agenda only"*. **Four stages remain — 5, 6, 7 and 8.**
+the agenda only"*. **Two stages remain — 7 and 8** (stage 6 built 2026-09-22; stage 5 is six
+capture forms of nine, and its last three are not code jobs — see item **15.6**).
 
 🔴 **BUILD SESSION WAS REDRAWN AND REBUILT ON 2026-09-21**, from
 [`design/mockups/strategy-session-process.html`](../mockups/strategy-session-process.html) —
@@ -212,9 +278,11 @@ approved by Mike that day, its four decisions ruled the same day. **What is buil
 
 1. **The AI suggestion panel is not built.** Decision B is ruled and drawn — the AI proposes into a
    step with one line of reason, nothing moves until *Accept*, a decline is recorded as offered and
-   refused. **Where those suggestions come from is stage 6 and unwritten**, which the drawing
-   itself says under "What this drawing does NOT decide". Told to Mike before he approved the
-   build, not discovered afterwards.
+   refused. Told to Mike before he approved the build, not discovered afterwards.
+   ✅ **ITS BLOCKER IS GONE: this line used to end "where those suggestions come from is stage 6
+   and unwritten", and stage 6 was written on 2026-09-22.** `strategyPretick.js` produces a ranked
+   list of concepts each with one line of reason, which is the shape this panel needs. **The panel
+   itself is still unbuilt** — what changed is that it is now a build rather than a blocked one.
 2. **Every step's `purpose` ships empty.** The field exists and the mentor's screen edits it; the
    words are Mike's and he has not written them. An empty purpose is an unwritten one.
 
@@ -647,7 +715,7 @@ RETURN visit never appeared in Build session, the meeting or the client's plan. 
 it, watches the menu confirm it, and never sees it again. `goToStage` now fetches it and saves the
 scope before leaving. **The feature would have been broken by the thing it was built for.**
 
-| **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
+| **6** | ☑ **THE AI PRE-TICK — BUILT 2026-09-22.** `server/utils/strategyPretick.js` (the prompt, and the validator every reply passes through — 100% covered, as the standards require of anything that processes LLM output), `POST /api/strategy/suggest`, and the suggestion stored beside the ticks in `scope_json`. **No mockup was drawn: the screen's own approved drawing already carries the button, the bar and Decision C** — the full account, the measurement and the three deviations are at the head of this section. | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | **Measured, not asserted:** five client situations gave five different lists (overlap 0.14–0.50, one concept of 52 common to all), **4 of Pivot's 9 on Mike's own client** with 3 reached unprompted, and **0 invented concepts**. Against a baseline of **0 pre-ticked and 52 rows read by hand**. 🔴 **AND THE ADVISOR'S JOB CHANGES SHAPE:** it offers 5–10, not 20, so the work is **adding a few rather than cutting many** — the opposite of what "23 to cut by hand" implies, and the screen is built for it. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
 | **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
 
@@ -678,8 +746,11 @@ here, so nothing is missing in them either.)*
 
 **Two named deviations, per the Save-the-Artefact rule:**
 
-1. **The "Suggest for this client" button is not built.** It is Stage 6 and needs the pre-tick
-   behind it; a button that does nothing is worse than no button.
+1. ✅ **The "Suggest for this client" button — CLOSED 2026-09-22, stage 6.** It was deliberately
+   absent while the pre-tick behind it did not exist, on the grounds that a button that does
+   nothing is worse than no button. It is now built, and that grounds proved exact: the first
+   version shipped **live with no client chosen and did nothing at all**, which is how the fault
+   was found on a screen rather than in a test. It is disabled until a client is chosen.
 2. 🔴 **The drawing was CORRECTED to match the decks, not the build to match the drawing.** As
    first drawn it split five agenda rows onto a sub-line — Business Targets' last two and
    Strategic Orientation 1's first three — and on one of them moved *"(section 2)"* from
@@ -906,9 +977,14 @@ To…* line in Mike's own words.
 ✅ **That index now exists — built 2026-09-17, §8.** The measurement above was re-run against it:
 **all 11 of Pivot's concepts resolve to their own record**, including the three that appeared
 nowhere at all. What the paragraph above describes is the state the engine was in before that
-build, and it is kept because it is what the index was measured against. **The AI-guided
-selection itself is still not built** — *"The AI pre-ticks, never unticks"* describes it and
-nothing implements it.
+build, and it is kept because it is what the index was measured against.
+
+✅ **AND THE AI-GUIDED SELECTION ITSELF IS NOW BUILT — stage 6, 2026-09-22.** `strategyPretick.js`
+ranks over this index rather than over `templates.json`, which is exactly why it works now and
+could not before. Measured on Mike's own Pivot client: **4 of Pivot's 9**, five situations giving
+five different lists, no invented concepts. The account is in §0. *(This paragraph read "still not
+built" until that day; it is replaced rather than added to, because a Brief says how the product
+works now.)*
 
 ⛔ **AND THE ANSWER IS NOT "WHERE TO START??".** An earlier reading of the census proposed Sales &
 Marketing page 4 as the nearest existing diagnostic. **Mike withdrew it on 2026-09-17** — it
@@ -1001,9 +1077,12 @@ concept outside those 24 is a **design decision, not a reading**. Each measured 
 template it was matched to (`captureTemplate`) so the match is checkable; the rest are
 `unmeasured` with nothing in the field, and a test fails if a form ever appears on one.
 
-**What the index is NOT.** It is data with no screen on it. The session scope menu is not built,
-the *"The AI pre-ticks, never unticks"* pre-tick is not built, and no teaching or capture form is *drawn* — the index
-names a concept's form, it does not lay it out.
+**What the index is NOT.** It names a concept's form; it does not lay one out. Every teaching and
+capture form is drawn elsewhere — §0's method for the 33 graphics, and the nine capture shapes.
+
+*(This paragraph used to add "the session scope menu is not built, the pre-tick is not built".
+Both were true when the index shipped on 2026-09-17 and neither survived the week: the menu was
+built the same day, the pre-tick on 2026-09-22. Replaced rather than appended to.)*
 
 ### 🔴 There is no extractor in this repository, and these are the five traps if one is ever written
 

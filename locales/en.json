@@ -5904,7 +5904,15 @@
       "totalRest": "· {count} not included · order and steps come next",
       "stageNotice": "Ticking records what this session will cover. You name the steps next, and everything you and the client type from there is saved against this session.",
       "noneLoaded": "The session scope menu could not be loaded.",
-      "notRunnable": "{count} concept you scoped has no capture screen yet, so it is not shown below. It is still recorded as part of this session's scope. | {count} concepts you scoped have no capture screen yet, so they are not shown below. They are still recorded as part of this session's scope."
+      "notRunnable": "{count} concept you scoped has no capture screen yet, so it is not shown below. It is still recorded as part of this session's scope. | {count} concepts you scoped have no capture screen yet, so they are not shown below. They are still recorded as part of this session's scope.",
+      "suggestButton": "Suggest for this client",
+      "suggestRunning": "Reading this client's recent conversations…",
+      "suggestBar": "Suggested, not applied. {count} row was pre-ticked from this client's last two conversations, with one line saying why. | Suggested, not applied. {count} rows were pre-ticked from this client's last two conversations, each with one line saying why.",
+      "suggestUnticked": "{count} has been unticked — the count above follows the ticks, never the suggestion. | {count} have been unticked — the count above follows the ticks, never the suggestion.",
+      "suggestNoHistory": "This client has no recorded conversations yet, so there is nothing to suggest from. Tick the concepts yourself.",
+      "suggestNothing": "Nothing in the menu matched this client's recent conversations. Tick the concepts yourself.",
+      "suggestFailed": "The suggestion could not be produced just now. Tick the concepts yourself and try again later.",
+      "suggestedBadge": "Suggested"
     },
     "card": {
       "placeholder": "Record it as it comes up…",

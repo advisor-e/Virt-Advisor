@@ -185,11 +185,42 @@ function encodeScope (scope) {
   if (steps.length > MAX_STEPS) {
     throw fail('BAD_INPUT', 'The session names too many steps.')
   }
-  return JSON.stringify({
+  const encoded = {
     domains: domains.map(d => String(d).slice(0, MAX_KEY)),
     frameworks: frameworks.map(f => String(f).slice(0, MAX_KEY)),
     steps: steps.map(normaliseStep)
-  })
+  }
+  // 🔴 DECISION C(b): THE SUGGESTION AND THE TICKS ARE BOTH KEPT. Item 15.1 stage 6.
+  // The AI's pre-tick is the "AI Suggestion" half of the Original / AI Suggestion / Final
+  // Approved Value trail the engineering standards require, and `frameworks` above is the
+  // Final Approved Value. Keeping only the ticks would destroy the advisor's ability to
+  // see what was proposed and what they did with it, which is the whole point of storing
+  // it. It rides `scope_json` exactly as `steps` does — no schema change.
+  const suggestion = normaliseSuggestion(scope.suggestion)
+  if (suggestion) { encoded.suggestion = suggestion }
+  return JSON.stringify(encoded)
+}
+
+/**
+ * One stored AI suggestion, or null when there is none.
+ *
+ * ⚠ A SUGGESTION IS A RECORD OF WHAT WAS PROPOSED, NOT A SCOPE. Nothing here is ever read
+ * back as the session's ticks — Decision C(a). It is bounded by the same ceiling the
+ * validator applies, so a stored row cannot outgrow what the screen would ever show.
+ *
+ * @param {*} raw - `{ at, concepts: [{id, reason}] }`
+ * @returns {{at: string, concepts: Array<{id: string, reason: string}>}|null}
+ */
+function normaliseSuggestion (raw) {
+  if (isNil(raw) || typeof raw !== 'object' || Array.isArray(raw)) { return null }
+  const concepts = Array.isArray(raw.concepts) ? raw.concepts : []
+  return {
+    at: String(raw.at || '').slice(0, 40),
+    concepts: concepts.slice(0, MAX_SCOPE_ENTRIES).map(c => ({
+      id: String((c && c.id) || '').slice(0, MAX_KEY),
+      reason: String((c && c.reason) || '').slice(0, MAX_VALUE)
+    })).filter(c => c.id)
+  }
 }
 
 /**
@@ -203,7 +234,7 @@ function decodeScope (raw) {
   // saved before the step builder existed has no `steps` key at all; it comes back as an
   // empty list and the page decides what to do with that, rather than this module
   // inventing a step nobody named.
-  const empty = { domains: [], frameworks: [], steps: [] }
+  const empty = { domains: [], frameworks: [], steps: [], suggestion: null }
   if (isNil(raw)) { return empty }
   let parsed = raw
   if (typeof raw === 'string') {
@@ -213,7 +244,10 @@ function decodeScope (raw) {
   return {
     domains: Array.isArray(parsed.domains) ? parsed.domains : [],
     frameworks: Array.isArray(parsed.frameworks) ? parsed.frameworks : [],
-    steps: Array.isArray(parsed.steps) ? parsed.steps.map(normaliseStep) : []
+    steps: Array.isArray(parsed.steps) ? parsed.steps.map(normaliseStep) : [],
+    // A session that has never been suggested for has no `suggestion` key at all, and
+    // comes back as null — distinct from a suggestion that returned nothing.
+    suggestion: normaliseSuggestion(parsed.suggestion)
   }
 }
 
@@ -422,15 +456,32 @@ async function listSessionsForClient (clientId, firmId) {
 
 /**
  * Record what screen 1 ticked.
+ *
+ * 🔴 A SCOPE SAVE NEVER ERASES THE AI'S SUGGESTION. The two are written by different
+ * screens at different moments — the suggestion by the "Suggest for this client" button,
+ * the ticks whenever the advisor changes one — and `scope_json` is replaced whole on every
+ * save. Without this the first tick after a suggestion would delete the record of what was
+ * proposed, which is exactly the half of Decision C(b) that makes the trail a trail. A
+ * caller that means to replace the suggestion passes one; a caller that says nothing keeps
+ * what is there.
+ *
  * @param {number} sessionId
  * @param {string} firmId
- * @param {object} scope `{ domains: string[], frameworks: string[] }`
+ * @param {object} scope `{ domains: string[], frameworks: string[], steps?, suggestion? }`
  * @returns {Promise<boolean>} false when no such session belongs to this firm
  */
 async function setScope (sessionId, firmId, scope) {
   const id = requireSessionId(sessionId)
   const firm = requireId(firmId, 'firm id')
-  const scopeJson = encodeScope(scope)
+
+  let toEncode = scope
+  if (scope && typeof scope === 'object' && !Array.isArray(scope) && isNil(scope.suggestion)) {
+    const existing = await getSession(id, firm)
+    const kept = existing && existing.scope ? existing.scope.suggestion : null
+    if (kept) { toEncode = Object.assign({}, scope, { suggestion: kept }) }
+  }
+
+  const scopeJson = encodeScope(toEncode)
   try {
     const [res] = await db.execute(SQL_SET_SCOPE, [scopeJson, id, firm])
     return res.affectedRows > 0
@@ -444,6 +495,34 @@ async function setScope (sessionId, firmId, scope) {
     writeDev(state)
     return true
   }
+}
+
+/**
+ * Record what the AI proposed, leaving the advisor's ticks exactly as they are.
+ *
+ * The mirror image of `setScope`: that one keeps the suggestion while the ticks change,
+ * this one keeps the ticks while the suggestion changes. Decision C(a) — the saved scope
+ * follows the ticks and never the suggestion — is why this function cannot write
+ * `frameworks`, and a build where it does has broken the ruling.
+ *
+ * @param {number} sessionId
+ * @param {string} firmId
+ * @param {{at: string, concepts: Array<{id: string, reason: string}>}} suggestion
+ * @returns {Promise<boolean>} false when no such session belongs to this firm
+ */
+async function saveSuggestion (sessionId, firmId, suggestion) {
+  const id = requireSessionId(sessionId)
+  const firm = requireId(firmId, 'firm id')
+
+  const existing = await getSession(id, firm)
+  if (!existing) { return false }
+
+  return setScope(id, firm, {
+    domains: existing.scope.domains,
+    frameworks: existing.scope.frameworks,
+    steps: existing.scope.steps,
+    suggestion
+  })
 }
 
 /**
@@ -697,6 +776,7 @@ module.exports = {
   getSession,
   listSessionsForClient,
   setScope,
+  saveSuggestion,
   saveEntry,
   loadEntries,
   openField,

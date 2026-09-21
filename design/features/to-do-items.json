@@ -373,7 +373,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), and stage 5 forms 1-6 of 9, each drawn, ruled, then built. FORM 6, the parallel prompt pair, was the worst measured: 15 boxes for 9 questions, one asked SEVEN times, 3 of his questions on no screen. THREE FORMS REMAIN. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED: the column count (\"leave it - its fine\"); the unheaded column and four lines where three, pinned by tests; his blank rows are a gap, never boxes, and are not drawn on the artefacts either; two tables on Product Fit, not one. NEXT: stages 6-8.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, and STAGE 6 - the AI pre-tick - on 2026-09-22, which needed NO mockup because the scope menu's approved drawing already carries the button and Decision C. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED: the column count (\"leave it - its fine\"); the unheaded column and four lines where three, pinned by tests; his blank rows are a gap, never boxes, and are not drawn on the artefacts either; two tables on Product Fit, not one. NEXT: stages 7-8.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -715,6 +715,69 @@
       "touches": "components/FirmManagerHub.vue TAB_TIERS and NAV_GROUPS for the new tab; tests/unit/hubTabTiers.test.js, which fails the build until the key and its ruling are recorded; a new components/firm/ body component; components/ModelLibrary.vue where the picker sits today; server/routes/currency.js, already manager-gated and needing no change.",
       "note": "🔴 ONE QUESTION FOR MIKE BEFORE ANY CODE: does the picker MOVE to the hub, or appear in BOTH - the hub to set it, the Model Library read-only so a reader still sees which currency a report is in. Moving it outright removes that cue. ⚠ Tiers are a stated judgement, not an assumption: the firm tier, since currency is a firm decision and the mentor has no currency of its own. No backend change needed.",
       "comment": "2026-09-22 - surfaced while answering Mike on the language/currency split, recorded in the Brief as a stated boundary, then filed on his instruction that it must be fixed. Smallest of the three siblings in effort, but it waits on his move-or-mirror answer before anything is built."
+    },
+    {
+      "ref": "15.13",
+      "name": "No import button pulls the forecast and performance figures into a planning session",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "assessing the current position is a required part of formal planning",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Formal strategic planning starts by assessing the current position - staff, customer and supplier feedback, financial analysis, economic outlook. The three-way forecast and the performance reports already hold much of the financial half, and nothing carries it across.",
+      "risk": "An advisor retypes figures the app already holds, or skips the assessment. The review must also say what CANNOT be imported: staff, customer and supplier feedback and the economic outlook are named by Mike as part of the same component, and no report in this app holds any of them.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - in his own words: \"i want you to make a task to review the 3 way forecast model and the financial assessment reports / performance reports (in the perf reports section) to see what could be 'pulled in' by clicking an import button\"."
+      },
+      "touches": "The three-way forecast (parent 6) and the report models (parent 5) as sources; the Strategy Planner's session surface as the destination. Which reports expose a readable saved result, and in what shape, IS the review - nothing is known yet.",
+      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. The impact test is unrun and this must not start until it is. Its first output is a list of what each report can and cannot give a planning session.",
+      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.14 and 15.15). Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.14",
+      "name": "Wordsmith - turning what the client said into statements they can use",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "a facilitator tool, not a gate on the session",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "In a planning session the advisor and client talk an idea through and then have to write it down well. Wordsmith renders what they discussed into meaningful statements, or helps craft a powerful message.",
+      "risk": "It writes client-facing wording, so its output is never structured data and must be shown for approval before it lands anywhere. If it ever reads spoken content rather than the typed boxes, that is personal data - only Meeting Review is cleared to send that, and extending it is a fresh decision for Mike, never an inference from that one.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - in his own words: \"WORDSMITH - this is where the client and advisor just talk through their ideas and thoughts - click wordsmith to render what they talked about into meaningful statements or help craft powerful messages\"."
+      },
+      "touches": "The Strategy Planner's capture boxes and its facilitation half; a new Restify route for the model call; the voice bar already on every capture box. Whether it reads the typed boxes only, or spoken content, is undecided and decides its privacy position.",
+      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.15. The impact test and the hub-page judgement are both unrun.",
+      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.15). Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.15",
+      "name": "Devil's Advocate - challenging optimistic thinking in the room",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "a facilitator tool, not a gate on the session",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A planning conversation drifts optimistic and nobody in the room is paid to disagree. Devil's Advocate asks the hard questions and challenges over-optimistic thinking, backed by known business concepts and market analysis data.",
+      "risk": "It argues with the client in front of the advisor, so its tone and its evidence both matter. \"Market analysis data\" needs a named source: this app holds none, and an AI asserting market facts without one commits the exact error the feature exists to catch.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - in his own words: \"DEVIL'S ADVOCATE - where AI asks the hard questions and challenges overly optimistic thoughts, supported by known business concepts and market analysis data\"."
+      },
+      "touches": "The Strategy Planner's session surface; a new Restify route for the model call; the 52 concept records as the 'known business concepts' source. The market analysis data source is unidentified and is the first question this item must answer.",
+      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.14. The impact test and the hub-page judgement are both unrun.",
+      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }
