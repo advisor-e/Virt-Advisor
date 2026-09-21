@@ -147,6 +147,13 @@ export default {
     // The Wages/Salary Review's staff-register gate (item 5.1, Decision 6). Added WITH the
     // routes, not after them — the paragraph below is the standing reason why.
     { path: '/api/wages-register', handler: '~/server-middleware/apiProxy.js' },
+    // ⚠ THE FOURTH TIME, 2026-09-22 — item 17's Sales Tracker pipeline. Backend routes
+    // registered and serving (curl proved it), 122 tests green, and the screen showed
+    // "Could not load your pipeline" because this line was not here. Found in the first
+    // minute of opening the page in a browser; NOTHING in the suite could have caught it,
+    // because every test either calls the handler directly or stubs fetch. The warning
+    // below was already written, and being written was not enough.
+    { path: '/api/sales', handler: '~/server-middleware/apiProxy.js' },
     // 🔴 THESE TWO WERE MISSING UNTIL 2026-09-11, AND BOTH FEATURES WERE DEAD IN THE BROWSER.
     // Built 2026-09-10 with every backend route registered and serving; neither added its line
     // here, so every call got a Nuxt 404. That is the THIRD time — see /api/meeting below, and

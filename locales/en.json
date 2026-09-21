@@ -5954,5 +5954,92 @@
       "blank": "not filled in",
       "notWorked": "Scoped for this session, not worked through yet."
     }
+  },
+  "salesPipeline": {
+    "eyebrow": "Advisor-e · Your business development",
+    "title": "Your pipeline",
+    "lede": "The deals you are working. Yours alone unless you share one with your firm.",
+    "add": "Add a deal",
+    "empty": "No deals yet. Add the first one to start tracking it.",
+    "emptyFiltered": "No deals match what you are looking for.",
+    "loading": "Loading your pipeline…",
+    "stats": {
+      "deals": "Deals",
+      "active": "Active",
+      "meetings": "Meetings secured",
+      "proposals": "Proposals sent",
+      "secured": "Jobs secured",
+      "proposedValue": "Proposed",
+      "securedValue": "Secured"
+    },
+    "filters": {
+      "search": "Search a name, business or person",
+      "status": "Any status",
+      "owner": "Anyone",
+      "clear": "Clear"
+    },
+    "columns": {
+      "prospect": "Prospect",
+      "business": "Business",
+      "status": "Status",
+      "partner": "Partner",
+      "leadStaff": "Lead",
+      "industry": "Industry",
+      "meeting": "Meeting",
+      "proposal": "Proposal",
+      "proposalValue": "Proposed",
+      "secured": "Secured",
+      "securedValue": "Secured value",
+      "shared": "Shared",
+      "actions": ""
+    },
+    "form": {
+      "newTitle": "Add a deal",
+      "editTitle": "Edit the deal",
+      "prospectName": "Prospect name",
+      "businessName": "Business",
+      "prospectStatus": "Status",
+      "partner": "Partner",
+      "leadStaff": "Lead",
+      "supportStaff": "Support",
+      "industry": "Industry",
+      "email": "Email",
+      "contactPhone": "Phone",
+      "prospectSource": "Where it came from",
+      "coiInvolved": "Referred by",
+      "approachDate": "Approached",
+      "meetingDate": "Meeting date",
+      "secureMeeting": "Meeting secured",
+      "proposalSent": "Proposal sent",
+      "proposalValue": "Proposed value",
+      "jobSecured": "Job secured",
+      "dateSecured": "Date secured",
+      "jobSecuredValue": "Secured value",
+      "additionalWorkSecured": "Additional work",
+      "comments": "Notes",
+      "visibility": "Who can see this",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "visibility": {
+      "private": "Only me",
+      "firm": "My firm",
+      "privateHint": "Nobody else at your firm sees this deal.",
+      "firmHint": "Colleagues can read it. Only you can change it."
+    },
+    "confirmDelete": {
+      "title": "Delete this deal?",
+      "message": "{name} will be removed. This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Keep it"
+    },
+    "saved": "Saved.",
+    "deleted": "Deleted.",
+    "errors": {
+      "load": "Could not load your pipeline.",
+      "save": "Could not save the deal.",
+      "remove": "Could not delete the deal.",
+      "network": "Could not reach the server. Check your connection and try again."
+    }
   }
 }
