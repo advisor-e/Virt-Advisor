@@ -102,6 +102,11 @@ module.exports = {
     // by being met, not by being lowered.
     './server/utils/sanitiseInput.js': { statements: 100, branches: 100, functions: 100, lines: 100 },
     './server/utils/validateAIResponse.js': { statements: 100, branches: 100, functions: 100, lines: 100 },
+    // salesBlogEngine builds every blog prompt from advisor input and reads back
+    // the model's reply, so it is held at the same bar (item 17 stage 5). Both
+    // halves are invisible in UAT: a prompt-injection hole and a silently
+    // templated article each look exactly like a working blog tool.
+    './server/utils/salesBlogEngine.js': { statements: 100, branches: 100, functions: 100, lines: 100 },
 
     // ── FLOORS: below standard, ratcheted. Debt in design/COVERAGE-DEBT.md ──────────
     // Raised from 69/64/74/71 on 2026-07-30 (health.js 0→100%, cases.js 76→98.6%).

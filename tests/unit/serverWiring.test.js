@@ -137,9 +137,22 @@ describe('restify-server route table', () => {
       .map(r => `${r.method.toUpperCase()} ${r.path}`)
 
     expect(unguarded).toEqual([])
-    // 4 pipeline + 4 COI + metrics + team + 4 lists. A route added without its
-    // guard fails above.
-    expect(routesUnder('/api/sales')).toHaveLength(14)
+    // 4 pipeline + 4 COI + metrics + team + 4 lists + 12 blog (stage 5).
+    // A route added without its guard fails above.
+    expect(routesUnder('/api/sales')).toHaveLength(26)
+  })
+
+  test('🔴 NO blog route carries requireManagerRole — they are the advisor\'s own', () => {
+    // The mirror image of the Team roll-up below. A manager reading a colleague's
+    // deals is a stated ruling; a manager reading their half-written drafts is
+    // not, and nobody asked for it. Adding the role here would be a silent
+    // widening, so it fails the build instead.
+    const managerGated = routesUnder('/api/sales/blog')
+      .filter(r => r.handlers.includes(requireManagerRole))
+      .map(r => `${r.method.toUpperCase()} ${r.path}`)
+
+    expect(managerGated).toEqual([])
+    expect(routesUnder('/api/sales/blog')).toHaveLength(12)
   })
 
   test('🔴 the Team roll-up and every list WRITE are behind requireManagerRole', () => {

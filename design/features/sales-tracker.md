@@ -40,7 +40,7 @@
 > in scope. See §10.
 >
 > 🔴 **STAGE 5 WAS RE-MEASURED 2026-09-22, BEFORE ANY CODE, AND IT IS BIGGER THAN THIS PLAN SAID.**
-> It was priced as back end only — *"4 blog routes + 3 reference routes"*. There are **13 API
+> It was priced as back end only — *"4 blog routes + 3 reference routes"*. There are **12 API
 > files**, and the blog tool **has an 843-line screen**: `pages/index.vue`, which §3 had catalogued
 > as *"Entry / landing"*. It is not the landing page; `home.vue` is. **Stage 5 moves 3–5 → 5–8 days,
 > the total 16–25 → 18–28** (§11). Nothing is built yet.
@@ -48,6 +48,10 @@
 > **This is stage 3's lesson working.** That stage invented a layout because nobody opened the
 > source app first; the rule it left behind — *the source app is the specification* — is what found
 > this, one command into stage 5 instead of a day into it.
+>
+> ⏳ **STAGE 5's BACK END IS COMPLETE (2026-09-22).** Three tables wired, 12 Restify routes, the
+> two model calls on `aiProvider` under the `draft` role, **176 tests** with the engine at **100%
+> on all four measures**. Suite 13,140 green. **What remains of stage 5 is the screen.** See §10.
 
 ---
 
@@ -649,7 +653,46 @@ tracked — while the **identical markup one row above was correct**, because `r
 replaced wholesale. Every one of the 12,956 tests passed throughout. Fixed by declaring every
 field at create time, and guarded by `salesTeam.component.test.js`, mutation-verified.
 
-### Stage 5 — Blog tool · *the part I advised against, priced honestly*
+### Stage 5 — Blog tool · ⏳ **BACK END COMPLETE 2026-09-22; the screen remains**
+
+✅ **Built:** `server/utils/salesBlogStore.js` (three tables), `server/utils/salesBlogEngine.js`
+(the two model calls), `server/routes/salesBlog.js` (12 routes), registered in
+`restify-server.js`. **176 tests**, the engine at **100% on all four measures** and pinned in
+`jest.config.js`. Suite 13,140 green, lint 0 errors.
+⏳ **Remaining:** the 843-line screen (`pages/index.vue` in the source), repainted to brand.
+
+#### What changed from the source, and why
+
+| | The source app | Here |
+|---|---|---|
+| AI client | `openai` SDK — banned by req 7, and it does not run on Node 14.15 | `aiProvider.getClient('draft')`, the seam every other model call uses |
+| Model | hardcoded `gpt-4o` | not named — the role decides it |
+| Advisor input | concatenated straight into the prompt | `promptSafety.fenceUntrusted`, plus `stripInvisible` |
+| Access | `userId` alone | `advisor_id = ? AND firm_id = ?` on every read AND write |
+| Tests | none at all | 176, engine at 100% |
+
+🔴 **THE FENCING USES THE SHARED HELPER, NOT A LOCAL COPY — and a first draft of this file got
+that wrong.** It grew its own two-line `<<<`/`>>>` fence and would have been the only prompt
+builder here not using `promptSafety.fenceUntrusted`, which ten other backend files already use.
+Caught by finding `tests/unit/promptSafety.test.js` while checking something else. The shared
+helper is better twice over: its markers are `<<<ADVISOR_DATA`, distinctive where a bare `<<<`
+can occur in an advisor's own markdown; and it ships `stripInvisible`, which removes the
+zero-width and bidi characters a local fence passes straight to the model. **A guard that is
+nearly the house one is how a rule quietly drifts out of step with itself.**
+
+✅ **The template fallback is PORTED, not redesigned.** No key, an empty reply or any thrown
+error each return a markdown skeleton built from the advisor's own brief, with
+`source: 'template'` and the reason. **Both generate routes answer 200 on a model failure** — a
+500 would throw away an outline the advisor can still edit. A missing field is still a 400.
+
+⚠ **`isPinned` on a post, and `kind`, fail safe.** An unrecognised `kind` stores as `draft`,
+never `final`: publishing something unfinished is the damaging direction.
+
+🔴 **NO MANAGER ROLE ON ANY BLOG ROUTE**, the mirror image of stage 4's Team roll-up. A manager
+reading a colleague's *deals* is Mike's ruling of 2026-09-22; reading their half-written *drafts*
+is not, and nobody asked for it. `serverWiring.test.js` fails the build if one acquires the role.
+
+#### The original measurement, kept because it is why this stage grew
 
 🔴 **RE-MEASURED 2026-09-22, BEFORE ANY CODE — this stage was understated twice over.** The
 previous wording read *"4 blog routes + 3 reference routes"* and named no screen at all. Both
@@ -657,10 +700,10 @@ numbers were wrong, and the second one hid the largest screen in the source app.
 
 | | The old wording said | What is actually there |
 |---|---|---|
-| Back end | 7 routes | **13 API files** — 2 generate, 3 inputs, 4 posts, 3 references — plus `server/utils/openai.js` (119 lines) |
+| Back end | 7 routes | **12 API files** — 2 generate, 3 inputs, 4 posts, 3 references — plus `server/utils/openai.js` (119 lines) |
 | Screen | *(not mentioned)* | **`pages/index.vue`, 843 lines** — the blog tool IS a screen (§3) |
 
-**The work:** those 13 routes as Restify routes with raw `mysql2`, `openai.js` rewritten against
+**The work:** those 12 routes as Restify routes with raw `mysql2`, `openai.js` rewritten against
 `server/utils/openaiClient.js`, and the screen repainted to brand exactly as stages 2–4 were
 (§4a — 93 colours to 6, Open Sans 300). The three `va_sales_blog_*` tables **already exist and sit
 inert**, built in stage 1, so there is no schema work.
@@ -739,7 +782,7 @@ redraw on top of that.
 | 2 | Pipeline end to end, with tests | 2–4 | ✅ **DONE** | Built 2026-09-21 — backend, screen and 122 tests |
 | 3 | COI + Dashboard | 2–3 | ✅ **DONE** | Built 2026-09-21 — backend and both screens. The dashboard was rebuilt once: see §10 stage 3 |
 | 4 | Team + Lists | 1–2 | ✅ **DONE** | Built 2026-09-22 — 5 routes, both screens, 2 hub tabs, 120 tests |
-| 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **5–8** | 🔴 **Re-measured 2026-09-22**: 13 routes not 7, and an **843-line screen** the plan never counted (§10 stage 5) |
+| 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **5–8** | 🔴 **Re-measured 2026-09-22**: 12 routes not 7, and an **843-line screen** the plan never counted (§10 stage 5) |
 | 6 | **Language admin** | 2–3 | **2–3** | Unchanged — still recommended for dropping |
 | 7 | Locales, advisor pages, front door | 1–2 | **1–2** | Unchanged in size; **wholly different in shape** (§10 stage 7) |
 | | **TOTAL** | **12–21** | **18–28 days** | — |
@@ -748,7 +791,7 @@ redraw on top of that.
 have the same single cause: **the screens are a repaint, and the first estimate counted none of
 them.** 2026-09-21 found that for stages 2–4 (93 colours → 6, no font → Open Sans 300);
 2026-09-22 found the blog tool's own 843-line screen, which §3 had miscatalogued as a landing
-page, and 13 routes where the plan said 7.
+page, and 12 routes where the plan said 7.
 
 **Stages 5 and 6 are now 7–11 of those days — between a third and a half of the whole job — and
 both are the parts this survey recommended dropping.** Mike has said he wants everything, and that

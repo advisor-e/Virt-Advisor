@@ -112,6 +112,7 @@ const clientsRoute = require('./routes/clients')
 const salesPipelineRoute = require('./routes/salesPipeline')
 const salesCoiRoute = require('./routes/salesCoi')
 const salesTeamRoute = require('./routes/salesTeam')
+const salesBlogRoute = require('./routes/salesBlog')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const modelChoicesRoute = require('./routes/modelChoices')
@@ -445,6 +446,31 @@ server.put('/api/sales/lists/:key', firmAuth, requireManagerRole, salesTeamRoute
 // why stage 1 stored lists there rather than creating the source app's appconfig.
 server.get('/api/sales/lists/:key/history', firmAuth, requireManagerRole, salesTeamRoute.getListHistory)
 server.post('/api/sales/lists/:key/restore', firmAuth, requireManagerRole, salesTeamRoute.restoreList)
+
+// ── Sales Tracker — the blog tool (stage 5) ─────────────────────────────────
+// 🔴 NO MANAGER ROLE ON ANY OF THESE, DELIBERATELY. They are the advisor's own
+// briefs, drafts and source material — the opposite of the Team roll-up above,
+// where a manager deliberately sees every advisor's deals. A deal is firm
+// revenue; an unfinished draft is somebody's writing. Ownership is enforced in
+// the store's WHERE clause, not by the route's presence.
+server.get('/api/sales/blog/inputs', firmAuth, salesBlogRoute.listInputs)
+server.post('/api/sales/blog/inputs', firmAuth, salesBlogRoute.saveInput)
+server.del('/api/sales/blog/inputs/:id', firmAuth, salesBlogRoute.removeInput)
+
+server.get('/api/sales/blog/posts', firmAuth, salesBlogRoute.listPosts)
+server.post('/api/sales/blog/posts', firmAuth, salesBlogRoute.createPost)
+server.put('/api/sales/blog/posts/:id', firmAuth, salesBlogRoute.updatePost)
+server.del('/api/sales/blog/posts/:id', firmAuth, salesBlogRoute.removePost)
+
+server.get('/api/sales/blog/references', firmAuth, salesBlogRoute.listReferences)
+server.post('/api/sales/blog/references', firmAuth, salesBlogRoute.createReference)
+server.del('/api/sales/blog/references/:id', firmAuth, salesBlogRoute.removeReference)
+
+// The two model calls. Both answer 200 with `source: 'template'` when the model
+// is unavailable, rather than failing: the advisor still gets a usable outline
+// built from their own brief. See salesBlogEngine.js.
+server.post('/api/sales/blog/generate/draft', firmAuth, salesBlogRoute.generateDraft)
+server.post('/api/sales/blog/generate/final', firmAuth, salesBlogRoute.generateFinal)
 
 // ── Business Entity Reports — which models a client may open (stub, part 1) ──
 // design/features/business-entity-reports.md, approved by Mike 2026-09-03. The advisor's
