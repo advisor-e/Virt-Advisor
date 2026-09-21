@@ -46,8 +46,6 @@
     border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
   }
   .ph { color: #9fb0c4; font-size: 12.5px; }
-  .nobox { color: var(--bad); font-size: 12.5px; font-style: italic; }
-  tr.missingrow td { background: #fdf3f2; }
   .lbl { color: var(--body); }
   .none { color: #b6c4d4; font-style: italic; }
   .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 13px 17px; margin: 0 0 24px; }
@@ -62,6 +60,15 @@
   .rec { background: var(--wash); border-radius: 7px; padding: 10px 13px; margin: 10px 0 0; }
   .rec b { color: var(--ink); }
   .q { font-weight: 700; color: var(--ink); margin: 10px 0 0; }
+  .ruled-yes { background: #eef7ef; border-left: 3px solid #1f7a3d; border-radius: 0 7px 7px 0; padding: 11px 14px; margin: 12px 0 0; }
+  .ruled-yes b { color: #14532a; }
+  .ruledtag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #1f7a3d; border-radius: 3px; padding: 2px 6px; vertical-align: 2px; margin-left: 8px; }
+  /* 🔴 MIKE'S RULING, 2026-09-22: "we need a gap between content rows on the productive
+     habits but the additional small row spaces can be deleted." The five fields are five
+     separate things and read as such; his document's thin blank rows ARE that gap and are
+     never drawn as rows of their own. */
+  table.gapped { border-collapse: separate; border-spacing: 0 10px; }
+  table.gapped td { border-radius: 6px; }
   .foot { color: var(--eg); font-size: 12.5px; margin-top: 34px; }
   .two { display: grid; grid-template-columns: 1fr; gap: 0 28px; }
   @media (min-width: 900px) { .two { grid-template-columns: 1fr 1fr; } }
@@ -114,7 +121,11 @@
 
 
   <h3>Productive Habits &mdash; the names run <i>down</i> the first column</h3>
-  <p class="src">Productive Habits.docx &middot; one table, nine rows</p>
+  <p class="src">
+    Productive Habits.docx &middot; one table, nine rows. Drawn faithfully, thin rows and
+    all &mdash; but those thin rows are a <b>gap</b>, not rows, and the screen in section 3
+    does not reproduce them. Mike&rsquo;s ruling, 2026-09-22.
+  </p>
 <table class="bg src-grid">
   <tr>
     <td class="band"><span class="bandtext">Reason:</span></td>
@@ -257,6 +268,10 @@
       <li><b>Your worked example sits inside its own field&rsquo;s box</b>, as grey guide
         text the advisor types over &mdash; the same treatment the persona grid already
         uses, and never a heading of its own.</li>
+      <li><b>The fields are separated by a gap, and your thin blank rows are that gap</b>
+        &mdash; never drawn as rows of their own. <i>Mike&rsquo;s ruling, 2026-09-22:
+        &ldquo;we need a gap between content rows on the productive habits but the
+        additional small row spaces can be deleted.&rdquo;</i></li>
     </ul>
   </div>
 
@@ -276,8 +291,12 @@
 </table>
 
 
-  <h3>Productive Habits &mdash; <span class="count">4 boxes</span>, and a fifth field waiting on Decision 1</h3>
-<table class="bg fields">
+  <h3>Productive Habits &mdash; <span class="count">5 boxes</span>, the fifth added on Mike&rsquo;s ruling of 2026-09-22</h3>
+  <p class="src">
+    Five content rows with a gap between them &mdash; his ruling of 2026-09-22. The thin
+    blank rows in his document are that gap and are not drawn as rows.
+  </p>
+<table class="bg fields gapped">
   <tr><th>His field name</th><th>His worked example, shown inside the box</th><th>The box</th></tr>
   <tr>
     <td class="lbl">Reason:</td>
@@ -299,10 +318,10 @@
     <td class="lbl">We complete a de-brief of the first 5 meetings to share client feedback and to maintain vigilance with those responsible for getting their allocated meetings completed</td>
     <td><span class="box"><span class="ph">We complete a de-brief of the first 5 meetings to share client feedback and to maintain vigilance with those responsible for getting their allocated meetings completed</span></span></td>
   </tr>
-  <tr class="missingrow">
-    <td class="lbl">Plan:</td>
+  <tr>
+    <td class="lbl">Plan:<span class="ruledtag">Ruled</span></td>
     <td class="lbl">In 4 months time we will do a strategic review of our products, product bundling / packaging and pricing to ensure they are competitive going forward</td>
-    <td><span class="nobox">his document rules no line here &mdash; Decision 1</span></td>
+    <td><span class="box"><span class="ph">In 4 months time we will do a strategic review of our products, product bundling / packaging and pricing to ensure they are competitive going forward</span></span></td>
   </tr>
 </table>
 
@@ -310,9 +329,25 @@
   <hr class="rule">
 
   <h2>4. Two decisions, and both are yours</h2>
+  <div class="note">
+    <p style="margin:0">
+      <b>Both ruled by Mike on 2026-09-22, each as recommended, asked one at a time.</b>
+      Each ruling is printed at the head of its decision with the original recommendation
+      and the argument against it left in place beneath, unedited. A third ruling &mdash;
+      the gap between content rows &mdash; came in his own words the same day and is
+      recorded in section 3. <b>Approval to build from this drawing is a separate question
+      and has not been asked.</b>
+    </p>
+  </div>
 
   <div class="dec">
-    <h3>Decision 1 &mdash; <code>Plan:</code> has no line to write on</h3>
+    <h3>Decision 1 &mdash; <code>Plan:</code> has no line to write on<span class="ruledtag">Ruled 2026-09-22</span></h3>
+    <div class="ruled-yes">
+      <b>Mike ruled YES, 2026-09-22 &mdash; as recommended.</b> <code>Plan:</code> gets a box
+      to write in, like Reason, Trigger, Micro Habit and Effective Practice. So Productive
+      Habits captures <b>five fields, five boxes</b>. The recommendation and the argument
+      against it are left in place below, unedited.
+    </div>
     <p style="margin:0">
       Your four other fields each have a blank row beneath them. <b>Plan does not</b> &mdash;
       it is the last row of the table and your document simply ends there. So either the
@@ -334,7 +369,16 @@
   </div>
 
   <div class="dec">
-    <h3>Decision 2 &mdash; what &ldquo;Complete your statement here&rdquo; is</h3>
+    <h3>Decision 2 &mdash; what &ldquo;Complete your statement here&rdquo; is<span class="ruledtag">Ruled 2026-09-22</span></h3>
+    <div class="ruled-yes">
+      <b>Mike ruled YES, 2026-09-22 &mdash; as recommended.</b> The words are a
+      <b>prompt</b>: faint grey guide text inside the empty box, clearing the moment the
+      client types. They are never printed as fixed wording with a separate box beneath.
+      <b>This is what makes Strategic Statements two boxes rather than two printed lines</b>
+      &mdash; had it gone the other way, row 1 would be text and the boxes would be new
+      ones this form does not have. The recommendation and the argument are left in place
+      below, unedited.
+    </div>
     <p style="margin:0">
       Both boxes on your Strategic Statements slide carry those words. They may be a
       <b>prompt</b> &mdash; grey guide text that disappears as the client types &mdash; or
