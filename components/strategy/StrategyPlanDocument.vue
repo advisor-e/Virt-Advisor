@@ -55,7 +55,7 @@ article.spd
         //- subtitle above the figure, nothing below it).
         //-
         //- ⚠ KEPT WHERE THERE IS NO DRAWING, and that is the whole of the condition.
-        //- 31 concepts have one and do not need it; 11 do not, and for those this
+        //- 32 concepts have one and do not need it; 11 do not, and for those this
         //- sentence is the only thing on the page — dropped there, the client loses
         //- the page entirely, because a title-only teaching page is refused above.
         //- It goes when their drawings land, not before.

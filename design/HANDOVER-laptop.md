@@ -9,34 +9,42 @@
 
 ---
 
-## 2026-09-21 · Laptop · branch `feat/advisor-progress`
+## 2026-09-22 · Laptop · branch `feat/advisor-progress`
 
-**Clean, pushed, 4 ahead / 0 behind.** Suite **12,857 green** (587 suites), lint 0 errors,
+**Clean, pushed, 7 ahead / 0 behind.** Suite **12,869 green** (588 suites), lint 0 errors,
 coverage and audit gates passed at push. **NOTHING WAITS ON MIKE.**
 
-**THE CLIENT'S PLAN NOW LEAVES THE APP AS A PDF** — his request. A *Print or save as PDF*
-button on Produce plan, printing the document alone. Measured on a real 25-page session: app
-furniture on the client's document **3 → 0**, **23 of 25 pages on exactly one sheet**, nothing
-cropped, ordinary Ctrl+P unchanged. How and why: Brief §0 stage 3.
+**HIS FOUR FORMS WERE ON THE DECK PAGE ALL ALONG — 29 boxes now live.** Branding, Customer
+Loyalty, Pricing and Packaging were listed by hand in `TEMPLATES_NOT_SUPPLIED`, so an advisor
+was told mid-session that his table did not exist — while his form sat on the **facing page**
+of the deck we already read (Sales & Marketing p34/36/38/40). His words: *"the content is
+right there and the forms are on the same page"*. How: Brief §0 stage 5.
 
-🔴 **HE RULED A4 LANDSCAPE, superseding the 16:9 of his 2026-09-17 Decision 1.** The drawing
-carries the change; **its §3 slides are still 16:9 and show the layout, not the ratio — do not
-"fix" them.**
+🔴 **A CONSTANT IN OUR CODE IS NOT EVIDENCE ABOUT HIS CONTENT.** I reported the four as
+"not supplied" straight off that list without opening his deck. **Open his page first** —
+`python scripts/read-deck-pages.py <deck> <page>` — exactly as the drawing method already
+demands. This is the same failure family as item 7.9.
 
-🔴 **A RATIO IS THE WRONG TOOL ON PAPER.** Each page computed to exactly the sheet height, and a
-box as tall as its sheet rounds onto a second: 25 pages printed as **50 sheets, every other one
-blank**. Green suite throughout. **If you print a fixed-shape page, count the sheets, not the
-screen.**
+🔴 **READ AN EXTRACTION BACK; ROW COUNTS LIE.** Mine had the right number of rows and the
+wrong content twice: his **page number** landed in a client's answer box (it sits inside the
+grid's last rule), and PDF **ligatures** put *"deﬁne"* and *"diﬀerentiate"* on screen as his
+typos. Both pinned, mutation-verified.
 
-**DESKTOP — shared files I touched**: `locales/en.json` (`strategyPlanner.printPlan`),
-`CpdRecord.vue` and `scripts/build-handbook.js` (two wrong sentences corrected), and
-`scopedStylesCannotReachOutside.test.js`, now listing **three** printing screens — add yours
-there. **Your item 17 files untouched.** Your branch is **0 ahead / 12 behind `master`** — stages
-1–3 all merged, and your note read current from your own branch. Merge `master` in at `/startup`.
+**Form 4 of the nine needed NO SCREEN** — the impact test, run before designing, found the
+existing capture card already IS a prompt→answer sheet. The nine are nine **shapes of table**,
+not nine screens. **Five remain.**
 
-**NEW, both on Mike's yes:** **15.12** teaching pages repeat the drawing's questions and overflow
-the sheet (waits on him, a content call) · **16.2** no room for the firm's logo (ours, the layout
-half; item 16 is the brand itself).
+**The client's plan stopped carrying the advisor's shopping list** — `conceptSummary` is the
+scope menu's picking blurb and printed under every teaching page. Gone where a drawing exists
+(32), kept where none does (11), or the client loses the page.
 
-**`activeOn`: 7.5 and 15.1 laptop — both still in hand, neither touched today. 17 desktop.**
-**NEXT on 15.1:** stage 5, form 4 of 9 — six remain.
+**DESKTOP — shared files I touched**: `locales/en.json` (removed `templateNotSupplied`),
+`strategyCaptureForms.js`, `StrategyConceptCapture.vue`, `StrategyPlanDocument.vue`,
+`to-do-items.json` item 15.1, `CONTENT-ROUTING.md` (regenerated — `npm run routing` if a new
+data file fails its test), **and `.claude/commands/startup.md` + `WORKING-AGREEMENT.md`**: an
+absent OTHER BRANCHES box now says what it means. **Your item 17 files untouched.** Your branch
+read **0 ahead / 12 behind `master`** from its own branch, your note current at 2026-09-21.
+
+**`activeOn`: 7.5 and 15.1 laptop — both still in hand. 17 desktop.**
+**NEXT on 15.1:** stage 5, **form 5 of 9, the named-field-stack** — Strategic Statements reads
+2 boxes where his page has two side-by-side fields, and both are in the wrong column.
