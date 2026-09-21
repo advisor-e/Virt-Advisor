@@ -120,4 +120,63 @@ describe('restify-server route table', () => {
     expect(unguarded).toEqual([])
     expect(routesUnder('/api/firm-manager').length).toBeGreaterThan(20)
   })
+
+  test('🔴 the translation route is guarded — it spends a metered third-party quota', () => {
+    // It sat between /api/health and the first guarded route with NO auth at all,
+    // found 2026-09-22. The cost is not only the bill: 20 of our 28 languages are
+    // translated through it on demand, so exhausting the daily quota silently
+    // reverts those readers to English with nothing on screen to explain it.
+    const route = registered.find(r => r.path === '/api/translate/locale')
+    expect(route).toBeTruthy()
+    expect(route.handlers).toContain(firmAuth)
+  })
+
+  test('the Sales Tracker routes sit behind firmAuth — an advisor\'s own deals', () => {
+    const unguarded = routesUnder('/api/sales')
+      .filter(r => !r.handlers.includes(firmAuth))
+      .map(r => `${r.method.toUpperCase()} ${r.path}`)
+
+    expect(unguarded).toEqual([])
+    // 4 pipeline + 4 COI + metrics. A route added without its guard fails above.
+    expect(routesUnder('/api/sales')).toHaveLength(9)
+  })
+
+  test('🔴 the only unguarded routes are health and the anonymous report maths', () => {
+    /**
+     * The standing check on who may reach the backend without signing in.
+     *
+     * TWO KINDS OF OPEN ROUTE ARE LEGITIMATE and both are stated here rather than
+     * assumed, so a third kind appearing is a failure rather than a shrug:
+     *
+     *   - `/api/health`, which answers nothing about anybody.
+     *   - `/api/report/*`, the model maths: figures in, figures out. They hold no
+     *     identity, read no database and return only arithmetic on what the caller
+     *     already sent, so there is nothing to scope. That is a design decision,
+     *     not an oversight. `GET /api/report/model-guide` is in the same family and
+     *     says so at its wiring — "Platform content, no client data, so no
+     *     firmAuth" — the shared model records, identical for every firm.
+     *
+     * `/api/translate/locale` looked like the second kind and was not: it spends a
+     * METERED THIRD-PARTY QUOTA that 20 of our 28 languages depend on. It was open
+     * to the whole internet until 2026-09-22, and this test exists because nothing
+     * would have noticed.
+     */
+    const open = registered
+      .filter(r => r.path.indexOf('/api/') === 0)
+      .filter(r => r.handlers.length === 1)
+      .map(r => `${r.method.toUpperCase()} ${r.path}`)
+      .filter(p => !p.includes('/api/report/'))
+
+    expect(open).toEqual(['GET /api/health'])
+  })
+
+  test('an open report route computes only — it never reaches a store', () => {
+    // The justification for the exception above, checked rather than trusted: if a
+    // report route ever needed the database or an identity, it would need a guard,
+    // and the exception would be hiding it.
+    const reportRoute = require('../../server/routes/report')
+    const src = require('fs').readFileSync(require.resolve('../../server/routes/report'), 'utf8')
+    expect(typeof reportRoute).toBe('object')
+    expect(src).not.toMatch(/require\(['"]\.\.\/utils\/db['"]\)/)
+  })
 })

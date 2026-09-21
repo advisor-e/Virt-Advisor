@@ -218,7 +218,16 @@ server.opts('/*', (req, res, next) => { res.send(204); return next() })
 
 // ── Routes ──
 server.get('/api/health', healthRoute.get)
-server.post('/api/translate/locale', translateRoute.post)
+// 🔴 GUARDED 2026-09-22. It sat here between /api/health and the first guarded
+// route with NO auth at all — an unauthenticated, world-callable proxy to a
+// metered third-party service (MyMemory). The cost is not only the bill: 20 of
+// our 28 languages are translated through this route on demand, so exhausting
+// the daily quota silently reverts those readers to English with nothing on
+// screen to explain it.
+// `firmAuth` only, NOT requireManagerRole: every caller is an ordinary reader
+// choosing a language, which is exactly who this is for. The route itself reads
+// no identity — the guard is about who may spend the quota, not about scoping.
+server.post('/api/translate/locale', firmAuth, translateRoute.post)
 server.post('/api/advisor/query', firmAuth, advisorEngine)
 // The firm's Advisory Staircase wording for the in-session selector. READ open to
 // any firm user (every advisor is asked the staircase question); the WRITE lives on

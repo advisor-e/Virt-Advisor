@@ -2,9 +2,9 @@
 
 **History:** [`sales-tracker-history.md`](sales-tracker-history.md)
 
-> **Item 17 on [`to-do-items.json`](to-do-items.json).** Nothing is built yet. §1–6 are the survey
-> of an existing app; **§7 onward is the build plan.** Written from the running app, its source and
-> its database — never from the repository's own description of itself, which is stale.
+> **Item 17 on [`to-do-items.json`](to-do-items.json).** §1–6 are the survey of an existing app;
+> **§7 onward is the build plan.** Written from the running app, its source and its database —
+> never from the repository's own description of itself, which is stale.
 >
 > 🔴 **MIKE RULED 2026-09-21: HE WANTS ALL OF IT** — all eight screens, not the pipeline-and-COI
 > subset §6 recommends. **That decision stands and is not re-argued.** Each stage is priced so the
@@ -32,9 +32,10 @@
 >
 > **The estimate moves from 12–21 days to 16–25** (§11). The build itself is unchanged in intent.
 >
-> ✅ **STAGE 1 IS BUILT (2026-09-22)** — five tables, proven against a real MySQL: the foreign key
-> refuses an unknown firm, a new deal is **private by default**, and money is exact to the penny.
-> **Next is stage 2, Pipeline end to end.** See §10 stage 1 for what was built and what it dropped.
+> ✅ **STAGES 1 AND 2 ARE COMPLETE AND STAGE 3'S BACKEND IS BUILT (2026-09-22).** Five tables, the
+> pipeline store/routes/screen, the COI store and routes, and the dashboard maths — **252 tests,
+> all mutation-verified**, proven against a real MySQL and driven in a real browser.
+> **Next: the COI and Dashboard screens.** See §10.
 
 ---
 
@@ -488,8 +489,25 @@ mock for no behavioural gain.
 rather than truncated into a different figure, negatives are refused, and a non-finite number
 becomes `0.00` rather than `NaN` — which would fail the whole insert on one bad field.
 
-### Stage 3 — COI + Dashboard · *the rest of the core*
-5 COI routes and the metrics route, same pattern.
+### Stage 3 — COI + Dashboard · ✅ **BACKEND BUILT 2026-09-22, screens next**
+[`server/utils/salesCoiStore.js`](../../server/utils/salesCoiStore.js) ·
+[`server/utils/salesMetrics.js`](../../server/utils/salesMetrics.js) ·
+[`server/routes/salesCoi.js`](../../server/routes/salesCoi.js) — 4 COI routes and the metrics
+route, 98 tests. Coverage: metrics **100%**, store 97%, routes 93.5%.
+
+🔴 **THE DASHBOARD AGGREGATES THE STORES; IT NEVER QUERIES THE TABLES.** `salesMetrics` takes
+rows and returns figures — no database access, no identity handling — so it can only summarise
+what the two stores already filtered. **The access rule is enforced once, in SQL, and the
+dashboard cannot widen it.** The source app computes its dashboard from separate aggregates
+carrying no user filter at all: a second place to write the rule, and it got it wrong.
+
+**🔴 Every rate guards its denominator.** A conversion rate over zero approaches is not 0% and
+not 100% — it returns **null**, so the screen says *nothing to report*. A confident 0% on an
+empty pipeline tells an advisor their approach is failing when they have not started, and no
+tester can see that a percentage is wrong. Three more judgements, each with its test:
+**days-to-secure is a median** (10/20/30 plus one at 731 gives 25, where a mean gives ~198);
+**an undated win is skipped, never dated to today**; and **the COI rate is conversions over
+referrals**, not over partners, which would read 250%.
 
 🔴 **THE DASHBOARD IS THE HARDEST SCREEN, NOT THE EASIEST — corrected 2026-09-21.** This section
 read *"the easiest of the three and the most visible"*, which was true of its **backend** (read-only
@@ -572,8 +590,8 @@ redraw on top of that.
 | Stage | Work | Was | **Now** | Why it moved |
 |---|---|---|---|---|
 | 1 | Schema on the `va_courses` pattern | 1–2 | ✅ **DONE** | Built 2026-09-22 in well under a day — the convention already existed (§8), and two more tables dropped out |
-| 2 | Pipeline end to end, with tests | 2–4 | **3–5** | + repaint of the 847-line screen |
-| 3 | COI + Dashboard | 2–3 | **4–6** | + repaint ×2, **+ dashboard redrawn on our SVG charts** |
+| 2 | Pipeline end to end, with tests | 2–4 | ✅ **DONE** | Built 2026-09-22 — backend, screen and 122 tests |
+| 3 | COI + Dashboard | 2–3 | **backend ✅, screens 3–4** | Backend done; the dashboard is still redrawn on our SVG charts |
 | 4 | Team + Lists | 1–2 | **2–3** | + repaint ×2, + the Team hub tab and its `TAB_TIERS` test |
 | 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **3–5** | Unchanged — already priced honestly |
 | 6 | **Language admin** | 2–3 | **2–3** | Unchanged — still recommended for dropping |

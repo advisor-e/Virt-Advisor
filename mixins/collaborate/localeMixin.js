@@ -111,7 +111,11 @@ export default {
       const flat = flattenObj(this.$i18n.messages.en)
       const res = await fetch('/api/translate/locale', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // The route is firmAuth-guarded (2026-09-22). See the sibling mixin.
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + ((process.client && window.localStorage.getItem('advisor_e_token')) || 'dev-local-bypass')
+        },
         body: JSON.stringify({ texts: flat, langCode: lang.code })
       })
       if (!res.ok) { throw new Error(`HTTP ${res.status}`) }
