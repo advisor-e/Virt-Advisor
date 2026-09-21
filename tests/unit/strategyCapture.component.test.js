@@ -26,6 +26,7 @@
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
 const StrategyCaptureCard = require('~/components/strategy/StrategyCaptureCard.vue').default
+const StrategyConceptCapture = require('~/components/strategy/StrategyConceptCapture.vue').default
 const StrategyScopeMenu = require('~/components/strategy/StrategyScopeMenu.vue').default
 const frameworksModule = require('~/server/utils/strategyFrameworks')
 
@@ -158,6 +159,63 @@ describe('saving happens on blur, and only when something changed', () => {
     await box.trigger('blur')
 
     expect(w.emitted('field-changed')).toBeFalsy()
+  })
+})
+
+// 🔴 MIKE'S RULING, 2026-09-21, asked as its own question: his worked Farm Wagon column
+// arrives in the boxes for the advisor to type over, and is SCREEN-ONLY until they do.
+// An untouched column prints blank on the client's plan rather than printing his example,
+// because the alternative hands Farmer Joe and his farm wagon to a real client as though
+// they were that client's own customer.
+//
+// UAT cannot catch this: the advisor's screen looks identical either way, and the fault
+// only appears in a document the client takes away. The obvious "improvement" — seeding
+// the prefilled values into the session on load, so the screen and the plan agree — is
+// exactly what must not happen, which is why this is pinned rather than left to a comment.
+describe('a prefilled example is shown, and is not the client\'s answer', () => {
+  const CAPTURE = {
+    supplied: true,
+    template: 'Customer Types',
+    form: 'attribute-rows-entity-columns',
+    fields: [
+      {
+        key: 't0r2c2',
+        row: 2,
+        column: 2,
+        columnLabel: 'Farm Wagon',
+        rowLabel: 'Customer Profile Name',
+        example: '',
+        prefilled: 'Farmer Joe'
+      },
+      {
+        key: 't0r2c3',
+        row: 2,
+        column: 3,
+        columnLabel: 'Other 1',
+        rowLabel: 'Customer Profile Name',
+        example: '',
+        prefilled: ''
+      }
+    ]
+  }
+
+  const mountCapture = entries => mountWithBuefy(StrategyConceptCapture, {
+    propsData: { name: 'Customer (Persona) Type Table', capture: CAPTURE, entries: entries || {} }
+  })
+
+  it('shows his answer in the box', () => {
+    const w = mountCapture()
+    expect(w.vm.valueOf(CAPTURE.fields[0])).toBe('Farmer Joe')
+  })
+
+  it('🔴 saves nothing on its own — an untouched column reaches the plan as blank', () => {
+    const w = mountCapture()
+    expect(w.emitted('field-changed')).toBeFalsy()
+  })
+
+  it('what the advisor types wins, and clearing a prefilled box stays cleared', () => {
+    expect(mountCapture({ t0r2c2: 'Builder Bev' }).vm.valueOf(CAPTURE.fields[0])).toBe('Builder Bev')
+    expect(mountCapture({ t0r2c2: '' }).vm.valueOf(CAPTURE.fields[0])).toBe('')
   })
 })
 

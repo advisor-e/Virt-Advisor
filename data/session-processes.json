@@ -1,0 +1,86 @@
+{
+  "_readme": [
+    "THE STANDARD PLANNING SESSION — the process a mentor writes once and every tier",
+    "beneath inherits. Item 15.1, built from design/mockups/strategy-session-process.html,",
+    "approved by Mike 2026-09-21.",
+    "",
+    "WHAT THIS FILE IS. The PLATFORM's standard session: the shipped default, which is the",
+    "mentor's own starting point and what a firm receives when nobody above it has written",
+    "anything. It is the base the cascade resolves against, exactly as",
+    "data/advisory-staircase.json is for the Advisory Staircase. A tier's OWN process is",
+    "stored as a firm-overlay config, never here.",
+    "",
+    "WHY IT SHIPS FILLED. Decision A, ruled by Mike 2026-09-21: a handed-down step arrives",
+    "WITH ITS CONCEPTS ALREADY PLACED. Measured before the design: from a cold start an",
+    "advisor typed 5 of 5 step names and placed every card by hand. A named-but-empty step",
+    "removes the first cost and leaves the second, which is the larger one.",
+    "",
+    "🔴 EVERY STEP NAME HERE IS MIKE'S, off the Pivot deck, and appears on the approved",
+    "drawing. Nothing in this file is written by us. `purpose` is DELIBERATELY EMPTY on",
+    "every step: it is advisor-facing wording and therefore his, authored on the mentor's",
+    "screen rather than invented here. An empty purpose is an unwritten one, never a",
+    "missing one.",
+    "",
+    "🔴 ONE CONCEPT, ONE KEY, ONE STEP. Mike's ruling, 2026-09-21: a concept is listed",
+    "once, chosen once in Scope session, sorted once in Build session, and appears ONCE in",
+    "Run session and ONCE in the plan. A key may therefore appear in exactly one step of",
+    "this file, and the same concept may never be written twice under any spelling.",
+    "",
+    "🔴 `items` HOLDS CARD KEYS, the same vocabulary the advisor's own steps are saved in —",
+    "the concept's own id, or `fw-<id>` where the concept has an approved framework card.",
+    "A concept with a framework card is drawn by THAT card and never also as a concept",
+    "card, so Porter's 5 Forces is `fw-porters-five-forces` and nothing else.",
+    "",
+    "⚠ A KEY NAMING A CONCEPT THE ADVISOR DID NOT SCOPE IS SKIPPED, NEVER ADDED. Decision A",
+    "again: the scope ticked on Scope session is never changed by what is handed down. The",
+    "step arrives holding only what this client's scope already admits.",
+    "",
+    "⚠ NO CLOSING BLOCKS. Decision D, 2026-09-21: Strategic Statements and the Action Plan",
+    "leave Build session entirely and belong to Objectives & actions. A `close-` key here",
+    "would put them back on the screen the ruling took them off."
+  ],
+  "version": "1.0.0",
+  "lastUpdated": "2026-09-21",
+  "process": {
+    "name": "The standard planning session",
+    "steps": [
+      {
+        "name": "Identify the Resistance",
+        "purpose": "",
+        "items": [
+          "fw-porters-five-forces",
+          "market-diffusion-theory",
+          "product-life-cycle",
+          "technology-points"
+        ]
+      },
+      {
+        "name": "Choose Your Competition Fronts",
+        "purpose": "",
+        "items": [
+          "horizontal-integration",
+          "blue-ocean-strategy"
+        ]
+      },
+      {
+        "name": "Rehearse the Message",
+        "purpose": "",
+        "items": [
+          "6-marketing-questions",
+          "a-i-d-c-r-a-advertisement-framework",
+          "sparketing-friction-review"
+        ]
+      },
+      {
+        "name": "Trial the Prototype",
+        "purpose": "",
+        "items": []
+      },
+      {
+        "name": "Do It & Review It",
+        "purpose": "",
+        "items": []
+      }
+    ]
+  }
+}

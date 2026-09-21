@@ -17,32 +17,38 @@
 
       p.ssb-trayempty(v-if="!unplaced.length") {{ $t('strategyPlanner.steps.allPlaced') }}
 
-      .ssb-chip(
-        v-for="card in unplaced"
-        :key="card.key"
-        :draggable="true"
-        @dragstart="onDragStart(card.key, $event)"
-        @dragend="onDragEnd"
-      )
-        //- ⚠ THE PICKER SITS BELOW THE NAME, NOT BESIDE IT. Side by side, a select wide
-        //- enough to read a step name left the name a column a few characters wide, and
-        //- Mike's own titles — "Assess current position by reviewing (pre-meeting) data
-        //- (section 2) & Financial Performance Reports" — broke one word per line. Found
-        //- by opening the screen on 2026-09-20; no assertion would have caught it.
-        .ssb-chip-main
-          span.ssb-chip-name {{ card.name }}
-          span.ssb-chip-tag(v-if="card.tag") {{ card.tag }}
-          span.ssb-chip-deck(v-if="card.deck") {{ card.deck }}
-        b-select.ssb-move(
-          :value="''"
-          size="is-small"
-          expanded
-          :disabled="!steps.length"
-          :aria-label="$t('strategyPlanner.steps.moveTo')"
-          @input="place(card.key, $event)"
+      //- 🔴 GROUPED BY DECK, WITH A COUNT ON EACH — the approved drawing's own fix, and
+      //- one of the four things it names: "the left column reads as structure instead of
+      //- forty identical boxes". A flat list is what Mike rejected on sight.
+      template(v-for="group in trayGroups")
+        p.ssb-deckgroup(:key="'g' + group.key") {{ group.label }}
+
+        .ssb-chip(
+          v-for="card in group.cards"
+          :key="card.key"
+          :draggable="true"
+          @dragstart="onDragStart(card.key, $event)"
+          @dragend="onDragEnd"
         )
-          option(value="") {{ $t('strategyPlanner.steps.moveTo') }}
-          option(v-for="(step, i) in steps" :key="step.key" :value="step.key") {{ stepLabel(step, i) }}
+          //- ⚠ THE PICKER SITS BELOW THE NAME, NOT BESIDE IT. Side by side, a select wide
+          //- enough to read a step name left the name a column a few characters wide, and
+          //- Mike's own titles — "Assess current position by reviewing (pre-meeting) data
+          //- (section 2) & Financial Performance Reports" — broke one word per line. Found
+          //- by opening the screen on 2026-09-20; no assertion would have caught it.
+          .ssb-chip-main
+            span.ssb-chip-name {{ card.name }}
+            span.ssb-chip-tag(v-if="card.tag") {{ card.tag }}
+            span.ssb-chip-deck(v-if="card.deck") {{ card.deck }}
+          b-select.ssb-move(
+            :value="''"
+            size="is-small"
+            expanded
+            :disabled="!steps.length"
+            :aria-label="$t('strategyPlanner.steps.moveTo')"
+            @input="place(card.key, $event)"
+          )
+            option(value="") {{ $t('strategyPlanner.steps.moveTo') }}
+            option(v-for="(step, i) in steps" :key="step.key" :value="step.key") {{ stepLabel(step, i) }}
 
     //- RIGHT — the steps themselves. A step holding nothing is kept and says so:
     //- Mike's ruling of 2026-09-20, and Pivot's step 5 is exactly that.
@@ -67,6 +73,9 @@
             :aria-label="$t('strategyPlanner.steps.nameLabel', { n: i + 1 })"
             @input="rename(step.key, $event)"
           )
+          //- The count the approved drawing puts on every step head, so a step's weight
+          //- reads at a glance rather than by counting chips.
+          span.ssb-step-count {{ $tc('strategyPlanner.steps.stepCount', cardsIn(step).length, { count: cardsIn(step).length }) }}
           .ssb-step-tools
             b-button(
               size="is-small"
@@ -90,6 +99,19 @@
             ) ✕
 
         .ssb-step-body
+          //- The manager's note on what this step is for. Advisor-facing, never on the
+          //- client's agenda — and only editable on the authoring screen.
+          b-input.ssb-step-purpose(
+            v-if="showPurpose"
+            :value="step.purpose || ''"
+            size="is-small"
+            type="textarea"
+            rows="2"
+            :placeholder="$t('strategyPlanner.steps.purposePlaceholder')"
+            :aria-label="$t('strategyPlanner.steps.purposeLabel', { n: i + 1 })"
+            @input="setPurpose(step.key, $event)"
+          )
+
           //- 🔴 THE EMPTY STATE IS A FEATURE, NOT A PLACEHOLDER. It tells the advisor
           //- the step still reaches the client's agenda, so leaving it empty reads as
           //- a choice rather than as unfinished work.
@@ -172,7 +194,17 @@ export default {
     },
 
     /** The chrome line: which client this session belongs to. */
-    sessionLabel: { type: String, default: '' }
+    sessionLabel: { type: String, default: '' },
+
+    /**
+     * Show the "what this step is for" box on every step.
+     *
+     * 🔴 THE AUTHORING SCREEN ONLY. A manager writing the firm's standard session says
+     * what each step is for; the advisor running one reads it and does not edit it. Same
+     * component either way (Decision C's ladder is the only thing that differs), because
+     * two step builders would drift the moment one gained a fix the other did not.
+     */
+    showPurpose: { type: Boolean, default: false }
   },
 
   data () {
@@ -205,6 +237,45 @@ export default {
      */
     unplaced () {
       return this.cards.filter(c => !this.placed[c.key])
+    },
+
+    /**
+     * The waiting list grouped by the deck each concept came from, with a count on each.
+     *
+     * 🔴 THE APPROVED DRAWING'S OWN FIX, and one of the four things it names: "the tray is
+     * grouped by deck with a count on each, so the left column reads as structure instead
+     * of forty identical boxes." A flat column of identical chips is what Mike rejected on
+     * sight — this is the half of that rejection a layout change answers.
+     *
+     * ⚠ FIRST-SEEN ORDER, NOT ALPHABETICAL. `cards` arrives in the order the session would
+     * otherwise run, which is Mike's authored order; sorting the groups would replace his
+     * order with one nobody chose.
+     *
+     * ⚠ A CARD WITH NO DECK STILL APPEARS. It is grouped under an empty heading rather
+     * than dropped — losing a concept from the tray is worse than a heading with no words.
+     *
+     * @returns {Array<{key: string, label: string, cards: object[]}>}
+     */
+    trayGroups () {
+      const order = []
+      const byDeck = {}
+
+      this.unplaced.forEach((card) => {
+        const deck = card.deck || ''
+        if (!byDeck[deck]) {
+          byDeck[deck] = { key: 'd' + order.length, deck, cards: [] }
+          order.push(byDeck[deck])
+        }
+        byDeck[deck].cards.push(card)
+      })
+
+      return order.map(g => ({
+        key: g.key,
+        label: g.deck
+          ? this.$t('strategyPlanner.steps.deckGroup', { deck: g.deck, count: g.cards.length })
+          : this.$t('strategyPlanner.steps.deckGroupNone', { count: g.cards.length }),
+        cards: g.cards
+      }))
     }
   },
 
@@ -240,9 +311,38 @@ export default {
       this.$emit('steps-changed', next)
     },
 
-    /** @returns {Array<object>} a deep-enough copy to mutate before committing */
+    /**
+     * A deep-enough copy to mutate before committing.
+     *
+     * ⚠ `purpose` IS CARRIED THROUGH EVEN WHERE THIS SCREEN NEVER SHOWS IT. It is the
+     * mentor's note on what a step is for, and the advisor's screen does not edit it — but
+     * this component emits the WHOLE list on every change, so dropping the field here
+     * would silently erase a manager's writing the first time an advisor moved a card.
+     *
+     * @returns {Array<object>}
+     */
     clone () {
-      return this.steps.map(s => ({ key: s.key, name: s.name, items: s.items.slice() }))
+      return this.steps.map(s => ({
+        key: s.key,
+        name: s.name,
+        purpose: s.purpose || '',
+        items: s.items.slice()
+      }))
+    },
+
+    /**
+     * What this step is for — the manager's note, shown to the advisor as a tooltip and
+     * never to the client. Only the authoring screen edits it (`show-purpose`).
+     * @param {string} stepKey
+     * @param {string} purpose
+     * @returns {void}
+     */
+    setPurpose (stepKey, purpose) {
+      const next = this.clone()
+      const target = next.find(s => s.key === stepKey)
+      if (!target) { return }
+      target.purpose = purpose
+      this.commit(next)
     },
 
     /**
@@ -481,8 +581,24 @@ export default {
   justify-content: center;
 }
 .ssb-step-name { flex: 1 1 auto; }
+.ssb-step-count { flex: 0 0 auto; font-size: 0.72rem; color: #5b6f8a; white-space: nowrap; }
+
+/* The deck heading in the tray — the drawing's own treatment, so the left column reads
+   as structure rather than as one long column of identical boxes. */
+.ssb-deckgroup {
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #0070c0;
+  margin: 0.85rem 0 0.4rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid #d5e1ee;
+}
+.ssb-deckgroup:first-of-type { margin-top: 0; }
 .ssb-step-tools { flex: 0 0 auto; display: flex; }
 .ssb-step-body { padding: 0.55rem 0.6rem 0.6rem; }
+.ssb-step-purpose { margin-bottom: 0.5rem; }
 
 .ssb-step-empty {
   border: 1px dashed #d8c39a;

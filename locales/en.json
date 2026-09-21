@@ -5865,7 +5865,12 @@
       "addStep": "Add a step",
       "toRun": "Run {placed} of {total}",
       "noneYet": "Add a step and name it before you put anything in it.",
-      "nothingToRun": "Nothing has been placed into a step yet. Go back and build the steps first."
+      "nothingToRun": "Nothing has been placed into a step yet. Go back and build the steps first.",
+      "deckGroup": "{deck} · {count}",
+      "deckGroupNone": "Not from a deck · {count}",
+      "stepCount": "{count} concept | {count} concepts",
+      "purposePlaceholder": "What this step is for (the advisor sees it; the client never does)",
+      "purposeLabel": "What step {n} is for"
     },
     "scope": {
       "domainsHeading": "The four Planning Domains",
@@ -5908,9 +5913,7 @@
     "capture": {
       "noTableMeasured": "There is no fill-in table for this concept yet. Talk it through and record it in your own notes.",
       "templateNotSupplied": "The {template} table has not been supplied yet. Talk it through and record it in your own notes.",
-      "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck.",
-      "part": "(Part {n})",
-      "nothingToAnswer": "Nothing was captured in the first pass, so there is nothing to respond to yet."
+      "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck."
     },
     "teaching": {
       "yourBusiness": "Your business",
@@ -5952,8 +5955,42 @@
       "teach": "Teach",
       "capture": "Capture",
       "blank": "not filled in",
-      "notWorked": "Scoped for this session, not worked through yet."
+      "notWorked": "Scoped for this session, not worked through yet.",
+      "closingHeading": "Objectives and actions"
+    },
+    "process": {
+      "handedDown": "Your firm's standard session — {count} steps",
+      "editable": "Loaded automatically. Rename, reorder, add or delete anything; nothing here is fixed.",
+      "startBlank": "Start from blank instead",
+      "byMentor": "set by the mentor",
+      "byGlobalGroupManager": "set by your global group manager",
+      "byGroupManager": "set by your group manager",
+      "byFirmManager": "set by your firm manager"
     }
+  },
+  "sessionProcess": {
+    "yoursLede": "This is your own standard session. Every tier beneath you receives it, and an advisor may change it for a single client without changing this.",
+    "inheritedLede": "You are using the standard session set by {whose}. Change anything below and press Save to hold your own instead.",
+    "save": "Save this standard session",
+    "revert": "Go back to the inherited session",
+    "revertConfirm": "Your own standard session will stop being used, and the one from the level above will be handed down instead. Earlier versions stay in the history.",
+    "revertYes": "Go back to inheriting",
+    "showHistory": "Version history",
+    "hideHistory": "Hide version history",
+    "noHistory": "Nothing has been saved at this level yet.",
+    "versionCol": "Version",
+    "savedCol": "Saved",
+    "restore": "Restore",
+    "tierMentor": "Mentor",
+    "tierGlobalGroupManager": "Global group manager",
+    "tierGroupManager": "Group manager",
+    "tierFirmManager": "Firm manager",
+    "rungOwns": "writes it · {count} steps",
+    "unreachable": "The server could not be reached. Check your connection and try again.",
+    "saveFailed": "That could not be saved.",
+    "shippedMentorLede": "This is the standard session that ships with the platform, and it is yours to shape. Every tier beneath you receives it until they write their own. Change anything below and press Save.",
+    "shippedLede": "You are using the standard session that ships with the platform — nobody above you has written their own. Change anything below and press Save to hold your own instead.",
+    "rungInherits": "inherits"
   },
   "salesPipeline": {
     "eyebrow": "Advisor-e · Your business development",

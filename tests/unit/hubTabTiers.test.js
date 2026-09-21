@@ -105,8 +105,14 @@ const MENTOR_BEFORE = [
  *   ALONE, and stated rather than assumed:** consent is a firm's own undertaking, and the
  *   tiers above contribute no reviews and receive no adjustment, so they have nothing to
  *   switch (spec FR-014). The mentor's page for the same feature is a separate tab.
+ * - `sessionProcess` — Mike, 2026-09-21, Decision C of `design/mockups/strategy-session-process.html`
+ *   (item 15.1): *"all four manager tiers may write their own standard session"*. **NOT the
+ *   default-is-mentor-alone case of 2026-08-24** — that default was put to him and he ruled
+ *   against it, and the reason is printed on the drawing: a firm's planning method is exactly
+ *   what one firm does differently from another. ⚠ The ADVISOR is not a tier here: he edits the
+ *   session in front of one client, and his changes never become the firm's standard.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -157,8 +163,11 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   template's signals and profile), built READ-ONLY on his ruling of 2026-09-16. ⚠ MENTOR ALONE:
  *   a profile says what a template is FOR, which does not change from firm to firm; a firm's own
  *   vocabulary already reaches scoring through Advisory Distinctions, which every tier has.
+ * - `sessionProcess` — the same ruling as the firm's (Decision C, 2026-09-21). The mentor is
+ *   where the cascade starts: a tier that has written nothing inherits the nearest one above,
+ *   and the shipped platform session is the mentor's own starting point.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -264,10 +273,15 @@ describe('hub tab matrix — the two new tiers', () => {
     // that day, overriding the default-is-mentor-alone rule for this feature. It is the first
     // tab that makes the two middle tiers differ, so the group tier's own count is asserted
     // beside it rather than assumed to match.
-    expect(conditional).toHaveLength(12)
+    //
+    // 🔴 THIRTEEN SINCE 2026-09-21, NOT TWELVE. Session Processes (item 15.1) was ruled onto
+    // all four manager tiers by Mike that day — Decision C, against the mentor-alone default
+    // he was offered. So the global tier now shows 19: six unconditional plus thirteen
+    // conditional, and the group tier 12.
+    expect(conditional).toHaveLength(13)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(18)
-    expect(tabsAt('group')).toHaveLength(11)
+    expect(unconditional.concat(conditional)).toHaveLength(19)
+    expect(tabsAt('group')).toHaveLength(12)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

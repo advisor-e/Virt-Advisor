@@ -981,7 +981,7 @@ server.get('/api/strategy/frameworks', firmAuth, strategyPlannerRoute.getFramewo
 // The session scope menu — the 52 concepts as five panels, grouped by deck (item 15.1).
 server.get('/api/strategy/concepts', firmAuth, strategyPlannerRoute.getConcepts)
 // The table an advisor fills in for one concept, read from Mike's own fill-in template.
-// `parts` is how Porter's is captured twice — observations, then responses.
+// The WHOLE table: a concept appears once and is worked once (Mike, 2026-09-21).
 server.get('/api/strategy/concepts/:id/capture', firmAuth, strategyPlannerRoute.getConceptCapture)
 server.get('/api/strategy/sessions', firmAuth, strategyPlannerRoute.listSessions)
 server.post('/api/strategy/sessions', firmAuth, strategyPlannerRoute.createSession)
@@ -991,6 +991,26 @@ server.put('/api/strategy/sessions/:id/entries', firmAuth, strategyPlannerRoute.
 // Decision 11's mechanism, not telemetry: which box was open, and when. It is what lets
 // a recording's words reach the right box without a model deciding anything.
 server.post('/api/strategy/sessions/:id/timeline', firmAuth, strategyPlannerRoute.postTimeline)
+
+// The standard planning session a tier writes and every tier beneath inherits (item 15.1,
+// design/mockups/strategy-session-process.html, approved by Mike 2026-09-21).
+//
+// 🔴 THE READ IS firmAuth ALONE AND THE WRITES ARE NOT, and that split IS Decision C. An
+// ADVISOR must read it — his Build session opens on the process handed down to him, which
+// is Decision A and the whole cost the drawing removes. Only the four MANAGING tiers write
+// one: the advisor edits the session in front of him and his changes never travel back up.
+//
+// The tier a write lands on is `req.firmId`, resolved from the verified token — so one
+// screen serves the mentor, both middle tiers and a firm manager, each writing their own.
+server.get('/api/strategy/session-process', firmAuth, strategyPlannerRoute.getSessionProcess)
+server.put('/api/strategy/session-process', firmAuth, requireManagerRole, strategyPlannerRoute.putSessionProcess)
+// Back to inheriting the level above. Without it, authoring once is a one-way door and a
+// firm silently stops receiving every later improvement to the mentor's session.
+server.del('/api/strategy/session-process', firmAuth, requireManagerRole, strategyPlannerRoute.deleteSessionProcess)
+// The whole concept library as card keys, for the authoring screen's tray.
+server.get('/api/strategy/session-process/cards', firmAuth, requireManagerRole, strategyPlannerRoute.getSessionProcessCards)
+server.get('/api/strategy/session-process/versions', firmAuth, requireManagerRole, strategyPlannerRoute.getSessionProcessVersions)
+server.post('/api/strategy/session-process/versions/:id/restore', firmAuth, requireManagerRole, strategyPlannerRoute.restoreSessionProcessVersion)
 
 // Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
 // The mentor authors the platform set every firm receives as its default; plain CRUD

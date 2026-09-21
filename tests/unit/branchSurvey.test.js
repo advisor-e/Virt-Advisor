@@ -259,6 +259,17 @@ describe('branch-survey — the other machine handover note', () => {
       expect(s).not.toContain('current')
     })
 
+    it('🔴 REFUSES TO CALL A FORWARD-DATED NOTE CURRENT', () => {
+      // The real 2026-09-21 shape: the desktop's note headed 2026-09-22 with every commit
+      // on its branch dated the 21st. A typed date ahead of the work cannot prove
+      // freshness, and calling it current is how a genuinely stale note passes unseen.
+      const s = handoverNote({ machine: 'desktop', handoverDate: '2026-09-22', lastCommit: '2026-09-21' })
+      expect(s).toContain('LATER')
+      expect(s).toContain('2026-09-22')
+      expect(s).toContain('2026-09-21')
+      expect(s).not.toContain('current, and read')
+    })
+
     it('says so plainly when the branch carries no note at all', () => {
       const s = handoverNote({ machine: 'desktop', handoverDate: null, lastCommit: '2026-09-15' })
       expect(s).toContain('no handover')

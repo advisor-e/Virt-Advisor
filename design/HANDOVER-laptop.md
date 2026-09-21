@@ -11,32 +11,30 @@
 
 ## 2026-09-21 · Laptop · branch `feat/advisor-progress`
 
-**Clean, pushed, and offered to `master` as [PR #103](https://github.com/advisor-e/Virt-Advisor/pull/103).**
-Merged up to date with the desktop's PR #101 first. Suite 12,304→12,329 green (571 suites),
-coverage and audit gates passed. Take ahead/behind from `npm run check:branch`.
+**Clean, pushed, 3 ahead of `master`, 0 behind.** Suite **12,374 green** (574 suites), lint 0,
+coverage and audit gates passed at push. Take ahead/behind from `npm run check:branch`.
 
-🔴 **MIKE REJECTED THE BUILT STEP BUILDER ON SIGHT** — *"cluncky - ugly and lacks logic …
-sloppy work"*. New drawing: `design/mockups/strategy-session-process.html`, **four decisions
-all ruled by him 2026-09-21** (step arrives filled · AI proposes only · all four manager tiers
-author · the two closing blocks leave the screen). ⛔ **RULED IS NOT APPROVED TO BUILD.**
-Approving the drawing and building from it are each still to be asked. The page says so on its face.
+🔴 **A CONCEPT APPEARS ONCE — MIKE'S RULING, 2026-09-21, AND CODE WAS DELETED FOR IT.**
+`partsOfFields` and the `parts` payload are **gone** from `server/utils/strategyCaptureForms.js`,
+with the `part` prop, the `(Part 1)`/`(Part 2)` titles and the field filter. **Anything reading
+`capture.parts` now reads undefined.** A card key is the concept id — no `#1` suffix.
 
-🔴 **TWO NEW BINDING RULES ON HOW QUESTIONS ARE PUT TO HIM** — `CLAUDE.md`, echoed in
-`.claude/commands/startup.md`. A bare "yes" must be a complete instruction on its own, in the
-shape `<question> — instead of <what "no" means>? Yes or no.`, and **the question is the last
-sentence of the Non-Coder Summary, every time.** Read them before writing to him.
+🔴 **BUILD SESSION IS BUILT FROM THE APPROVED DRAWING** — `strategy-session-process.html`,
+approved **and** built 2026-09-21. A standard session cascades all four managing tiers
+(`server/utils/sessionProcess.js`, inherit-or-own through `parentScopeOf`), and a new hub tab
+**Session Processes** authors it. **The AI suggestion panel is NOT built** — stage 6, unwritten.
 
-🔴 **`templateCount` IS NOT A CONCEPT COUNT, AND IT NEARLY COST A CORRECT BRIEF.**
-`data/strategy-capture-tables.json` `templateCount` is 20 and counts TEMPLATES; concepts with a
-supplied table are **16**, measured concept by concept against the running API. `captureFormBasis:
-"measured"` means the form's SHAPE is known, not that Mike's workbook exists — Branding, Customer
-Loyalty, Packaging and Pricing all read `measured` and return `supplied: false`. **The Brief's 16 /
-36 were right; an edit "correcting" them was written and reverted.** Measure before rewriting a record.
+⚠ **TWO THINGS BUILT WITHOUT A SPECIFIC YES, recorded rather than buried:** the tray's deck
+grouping with counts, and the concept count on each step head. Both are on the approved drawing;
+Mike was told at the time and did not object.
 
-**Stage names are now Mike's:** Scope session · Build session · Run session · Objectives & actions ·
-Produce plan (`locales/en.json` rail keys). Advisor-facing only; the client's agenda is unaffected.
+**DESKTOP — shared files I changed:** `components/FirmManagerHub.vue` (TAB_TIERS, NAV_GROUPS, a
+panel), `locales/en.json`, `server/restify-server.js`, `server/routes/strategyPlanner.js`,
+`server/utils/strategyCaptureForms.js`, `design/ARTEFACTS.md`. ⚠ **Tab counts moved in two
+guards** — `hubTabTiers.test.js` (firm 18→19) and `mentorHubScope.component.test.js` (group 17→18).
 
-**DESKTOP — shared files I changed:** `CLAUDE.md` and `.claude/commands/startup.md` (the two rules
-above), `pages/strategy-planner.vue`, `locales/en.json`, `design/ARTEFACTS.md`. Merge conflicts in
-`strategy-planner.md`, `to-do-items.json` and `to-do.md` were resolved **block by block** — your
-item 17 and the 7.12→7.13 renumber are intact. `activeOn` for 7.5 and 15.1 unchanged.
+**`activeOn` UNCHANGED ON MIKE'S INSTRUCTION TODAY.** 7.5 and 15.1 both still laptop — he was
+asked about 7.5 and said *"dont touch it now"*.
+
+**NEXT on 15.1:** stages 5, 6, 7, 8. Each step's `purpose` ships empty because that wording is
+Mike's.

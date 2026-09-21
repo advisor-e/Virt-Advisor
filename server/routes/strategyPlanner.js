@@ -30,6 +30,9 @@
 const frameworks = require('../utils/strategyFrameworks')
 const captureForms = require('../utils/strategyCaptureForms')
 const store = require('../utils/strategySessionStore')
+const sessionProcess = require('../utils/sessionProcess')
+const { tierOfScope } = require('../utils/tierChain')
+const { loadFirmConfig, saveFirmConfig, getVersionHistory, restoreVersion } = require('../utils/firmOverlay')
 const { sendError } = require('../utils/sendError')
 
 /**
@@ -155,10 +158,12 @@ async function getConcepts (req, res) {
  * reply `supplied: false` with the reason. A borrowed table would put words in
  * front of a client that Mike did not write.
  *
- * `parts` is how one concept is captured twice. Porter's carries 16 observation
- * lines and 16 response lines in one table, which is why Pivot can put it on
- * page 11 for *"observations ONLY. (For Now)"* and again on page 21 for the
- * responses without the second visit overwriting the first.
+ * 🔴 THE WHOLE TABLE COMES BACK, AND A CONCEPT IS WORKED ONCE. Mike's ruling,
+ * 2026-09-21: a concept is listed once, chosen once, sorted once, and appears once
+ * in Run session and once in the plan. This route used to return a `parts` split as
+ * well, so Porter's 16 observation lines and 16 response lines could be opened as
+ * two separate visits; that split is deleted and the advisor gets Mike's table as
+ * he wrote it, in one place.
  *
  * @route GET /api/strategy/concepts/:id/capture
  * @param {object} req - firmAuth-verified; `params.id` is a concept id
@@ -528,6 +533,259 @@ async function postTimeline (req, res) {
   }
 }
 
+/**
+ * GET /api/strategy/session-process
+ *
+ * The standard planning session this caller works to, and WHOSE it is.
+ *
+ * 🔴 READ BY THE ADVISOR AS WELL AS BY A MANAGER, deliberately, and that is the whole
+ * point of Decision A: the advisor's Build session opens on a process already handed down
+ * rather than on a blank step. So this sits behind `firmAuth` alone — the WRITE below is
+ * what carries the manager gate.
+ *
+ * 🔴 THE SCOPE COMES FROM THE TOKEN. `req.firmId` is resolved by firmAuth; a scope in a
+ * query string would let one firm read another tier's unpublished session.
+ *
+ * @route GET /api/strategy/session-process
+ * @param {object} req - firmAuth-verified; takes no parameters
+ * @param {object} res
+ * @returns {200} { success, process, source, inherited, ownedHere, timestamp }
+ */
+async function getSessionProcess (req, res) {
+  try {
+    const scope = firmOf(req)
+    const resolved = await sessionProcess.resolveProcess(scope, loadFirmConfig)
+    res.send(200, {
+      success: true,
+      process: resolved.process,
+      // Whose session this is — the scope, its tier, and whether it was ever authored at
+      // all or is the shipped platform default. Decision C: a tier that has written
+      // nothing shows what it inherits and says whose it is.
+      source: resolved.source,
+      // 🔴 AND WHICH TIER THE CALLER IS, WHICH `source` CANNOT SAY. With the shipped
+      // default in force, `source` reads "mentor" for everybody — so without this the
+      // mentor's own screen told the mentor it was inheriting from somebody else. Found
+      // by opening the screen on 2026-09-21; every test was green.
+      tier: scope ? tierOfScope(scope) : null,
+      inherited: resolved.inherited,
+      // Does THIS caller's own level hold it? What the manager's screen needs to decide
+      // between "edit yours" and "you are inheriting this".
+      ownedHere: !resolved.inherited && !resolved.source.shipped,
+      timestamp: new Date().toISOString()
+    })
+  } catch (err) {
+    console.error('[strategy-planner] getSessionProcess failed:', err.message)
+    sendError(res, 500, 'SESSION_PROCESS_ERROR', 'Could not load the standard session')
+  }
+}
+
+/**
+ * GET /api/strategy/session-process/cards
+ *
+ * Every card a standard session could hold — the whole library, with no client and no
+ * scope in it. This is what the authoring screen offers a manager to drag into steps.
+ *
+ * 🔴 THE SAME KEY VOCABULARY THE ADVISOR'S SCREEN USES, built on the backend so there is
+ * one place that decides what a card key looks like. A concept with an approved framework
+ * card is `fw-<frameworkId>` and is NOT also offered as a concept card: Mike's ruling of
+ * 2026-09-21 is that a concept appears once, and offering both would let a manager put the
+ * same concept in two steps under two names.
+ *
+ * ⚠ `hasTable` IS RETURNED RATHER THAN FILTERED ON. Whether a concept with no table is
+ * still placeable depends on whether an approved DRAWING exists, and that registry is a
+ * frontend module. The caller applies `isPlaceableConcept`, which is the one home for that
+ * rule and is shared with the advisor's screen.
+ *
+ * ⚠ NO CLOSING BLOCKS. Decision D took them off this screen entirely.
+ *
+ * @route GET /api/strategy/session-process/cards
+ * @param {object} req - firmAuth-verified, manager role; takes no parameters
+ * @param {object} res
+ * @returns {200} { success, cards, timestamp }
+ */
+// eslint-disable-next-line require-await -- Restify refuses a plain (req, res) handler
+async function getSessionProcessCards (req, res) {
+  try {
+    // The deck's own NAME, not its id: the tray groups by it, and an id there reads as
+    // gibberish — the exact defect found on the advisor's screen on 2026-09-21.
+    const deckNameByConcept = {}
+    frameworks.listDecks().forEach((deck) => {
+      (deck.concepts || []).forEach((c) => { deckNameByConcept[c.id] = deck.name })
+    })
+
+    const cards = []
+    const frameworkByConcept = {}
+
+    frameworks.listFrameworks()
+      .filter(f => !f.closesTheSession && f.conceptId)
+      .forEach((f) => {
+        frameworkByConcept[f.conceptId] = true
+        cards.push({
+          key: 'fw-' + f.id,
+          conceptId: f.conceptId,
+          name: f.name,
+          deck: deckNameByConcept[f.conceptId] || '',
+          hasTable: true
+        })
+      })
+
+    frameworks.listConcepts().forEach((concept) => {
+      if (frameworkByConcept[concept.id]) { return }
+      const capture = captureForms.captureForConcept(concept)
+      cards.push({
+        key: concept.id,
+        conceptId: concept.id,
+        name: concept.name,
+        deck: deckNameByConcept[concept.id] || '',
+        hasTable: Boolean(capture.supplied)
+      })
+    })
+
+    res.send(200, { success: true, cards, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[strategy-planner] getSessionProcessCards failed:', err.message)
+    sendError(res, 500, 'SESSION_PROCESS_ERROR', 'Could not load the concept library')
+  }
+}
+
+/**
+ * PUT /api/strategy/session-process
+ *
+ * Write THIS tier's own standard session. Mounted behind `requireManagerRole`, so an
+ * advisor cannot reach it: Decision C gives authoring to the four managing tiers and
+ * leaves the advisor editing only the session in front of him.
+ *
+ * ⚠ THE BODY IS UNTRUSTED AND IS VALIDATED BEFORE ANYTHING IS STORED. A malformed process
+ * saved here would reach an advisor mid-meeting and a client's printed plan.
+ *
+ * @route PUT /api/strategy/session-process
+ * @param {object} req - firmAuth-verified, manager role; body { name?, steps: [...] }
+ * @param {object} res
+ * @returns {200} { success, process, timestamp }
+ */
+async function putSessionProcess (req, res) {
+  try {
+    const scope = firmOf(req)
+    if (!scope) {
+      sendError(res, 400, 'BAD_INPUT', 'No scope on this token')
+      return
+    }
+
+    const checked = sessionProcess.validateProcess(req.body)
+    if (!checked.ok) {
+      sendError(res, 400, 'BAD_INPUT', checked.error)
+      return
+    }
+
+    await sessionProcess.saveOwnProcess(scope, checked.process, req.advisorId || 'unknown', saveFirmConfig)
+    res.send(200, { success: true, process: checked.process, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[strategy-planner] putSessionProcess failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not save the standard session')
+  }
+}
+
+/**
+ * DELETE /api/strategy/session-process
+ *
+ * Stop holding one of your own and go back to inheriting the level above.
+ *
+ * 🔴 WITHOUT THIS, AUTHORING IS A ONE-WAY DOOR. A firm that writes its own session once
+ * could never return to the mentor's, and would silently stop receiving every later
+ * improvement to it — the frozen-private-copy failure the Advisory Staircase was rebuilt
+ * to escape in July.
+ *
+ * ⚠ NOTHING IS DESTROYED. The rows stay in `firm_framework_versions` as inactive versions,
+ * so the session is still in the history and can be restored.
+ *
+ * @route DELETE /api/strategy/session-process
+ * @param {object} req - firmAuth-verified, manager role
+ * @param {object} res
+ * @returns {200} { success, process, source, inherited, ownedHere, timestamp }
+ */
+async function deleteSessionProcess (req, res) {
+  try {
+    const scope = firmOf(req)
+    if (!scope) {
+      sendError(res, 400, 'BAD_INPUT', 'No scope on this token')
+      return
+    }
+
+    await sessionProcess.clearOwnProcess(scope, saveFirmConfig)
+    const resolved = await sessionProcess.resolveProcess(scope, loadFirmConfig)
+    res.send(200, {
+      success: true,
+      process: resolved.process,
+      source: resolved.source,
+      tier: scope ? tierOfScope(scope) : null,
+      inherited: resolved.inherited,
+      ownedHere: !resolved.inherited && !resolved.source.shipped,
+      timestamp: new Date().toISOString()
+    })
+  } catch (err) {
+    console.error('[strategy-planner] deleteSessionProcess failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not return to the inherited session')
+  }
+}
+
+/**
+ * GET /api/strategy/session-process/versions
+ *
+ * Every version this scope has saved, newest first — the same history and restore the
+ * Advisory Distinctions table already gives, which is what the drawing means by "the
+ * cascade needs no new plumbing".
+ *
+ * @route GET /api/strategy/session-process/versions
+ * @param {object} req - firmAuth-verified, manager role
+ * @param {object} res
+ * @returns {200} { success, versions, timestamp }
+ */
+async function getSessionProcessVersions (req, res) {
+  try {
+    const scope = firmOf(req)
+    if (!scope) {
+      sendError(res, 400, 'BAD_INPUT', 'No scope on this token')
+      return
+    }
+    const versions = await getVersionHistory(scope, sessionProcess.CONFIG_KEY)
+    res.send(200, { success: true, versions, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[strategy-planner] getSessionProcessVersions failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load the session history')
+  }
+}
+
+/**
+ * POST /api/strategy/session-process/versions/:id/restore
+ *
+ * Put an earlier saved version back in force at this scope.
+ *
+ * 🔴 THE SCOPE IS THE TOKEN'S, NOT THE URL'S. `restoreVersion` is given `req.firmId` and
+ * the version id together, and its own SQL requires the row to belong to that scope AND
+ * that config key — so a version id guessed from another tier restores nothing rather than
+ * crossing a boundary.
+ *
+ * @route POST /api/strategy/session-process/versions/:id/restore
+ * @param {object} req - firmAuth-verified, manager role; `:id` the version row id
+ * @param {object} res
+ * @returns {200} { success, process, timestamp }
+ */
+async function restoreSessionProcessVersion (req, res) {
+  try {
+    const scope = firmOf(req)
+    if (!scope) {
+      sendError(res, 400, 'BAD_INPUT', 'No scope on this token')
+      return
+    }
+    await restoreVersion(scope, sessionProcess.CONFIG_KEY, req.params.id)
+    const resolved = await sessionProcess.resolveProcess(scope, loadFirmConfig)
+    res.send(200, { success: true, process: resolved.process, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[strategy-planner] restoreSessionProcessVersion failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not restore that version')
+  }
+}
+
 module.exports = {
   getFrameworks,
   getConcepts,
@@ -537,5 +795,11 @@ module.exports = {
   listSessions,
   putScope,
   putEntries,
-  postTimeline
+  postTimeline,
+  getSessionProcess,
+  getSessionProcessCards,
+  putSessionProcess,
+  deleteSessionProcess,
+  getSessionProcessVersions,
+  restoreSessionProcessVersion
 }
