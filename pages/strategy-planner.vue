@@ -1,10 +1,23 @@
 <template lang="pug">
 .sp
   header.sp-top
-    .sp-top-text
+    //- 🔴 THE QUESTION BELONGS TO SCOPE SESSION AND IS SHOWN THERE ALONE. Mike's ruling,
+    //- 2026-09-21. It used to head all five stages, so an advisor was asked "What do you
+    //- want from your session?" while building the steps, running the meeting, writing the
+    //- objectives and producing the plan — four screens where it is the wrong question.
+    //- ⚠ THE OTHER FOUR ARE NOT LEFT WITHOUT A HEADING. Hiding it outright would leave
+    //- those pages with no h1 at all, which is a worse fault wearing a tidier hat. They
+    //- take the page's own name instead, which is already-approved wording — no new words
+    //- were invented — and the numbered rail beneath names the stage.
+    //- ⚠ Found by opening the screen on 2026-09-21, not by a test, and deliberately not
+    //- guarded by one: a heading on the wrong screen is what a person in UAT sees in five
+    //- seconds (Mike's testing ruling, 2026-08-24).
+    .sp-top-text(v-if="step === 'scope'")
       p.sp-eyebrow {{ $t('strategyPlanner.navTitle') }}
       h1.sp-title {{ $t('strategyPlanner.title') }}
       p.sp-sub {{ $t('strategyPlanner.subtitle') }}
+    .sp-top-text(v-else)
+      h1.sp-title {{ $t('strategyPlanner.navTitle') }}
     .sp-top-actions
       b-select(
         v-if="step === 'scope'"
