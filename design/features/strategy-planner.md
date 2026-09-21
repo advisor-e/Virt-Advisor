@@ -117,6 +117,35 @@ rather than quietly dropped.**
 the session menu puts all 52 on a screen; 16 of them reach the real capture table read from
 Mike's own workbook, and what an advisor types there is saved box by box against the client's
 session (§4) and carries into the assembled document.
+🔴 **CAPTURE FORM 5 OF 9 — THE NAMED-FIELD STACK — WAS DRAWN, RULED AND BUILT ON 2026-09-22**, in
+that order. Artefact:
+[`design/mockups/strategy-capture-named-field-stack.html`](../mockups/strategy-capture-named-field-stack.html).
+**Two of his concepts were rendering the wrong half of his page, and the suite was green
+throughout** — because nothing had ever counted these two tables against his own documents.
+**Strategic Statements offered 1 box where his slide gives 2**, so the client's Strategic
+Objective statement had nowhere to go; **Productive Habits offered 8 for 5 named fields**, four
+of them inside the dark `#434343` band his document prints the field NAMES in, and `Plan:` never
+reached the screen at all. One cause: the general reader has no rule for a table whose first
+column is a name band and whose worked example sits *beside* the name rather than inside the
+line, so with no ruled lines it assumed column 0 was a prompt — true of the six prompt → answer
+sheets and false here.
+
+**It is read by FORM NAME, and that is measured rather than asserted:** six of his other tables
+are structurally identical to Strategic Statements to a machine — Marketing Answers, the 10
+Critical Marketing Statements, Branding, Customer Loyalty, Pricing and Packaging — and in every
+one his first column holds the QUESTIONS. Nothing in the grid separates them, exactly as with the
+persona grid. ☑ **THREE RULINGS BY MIKE, 2026-09-22:** `Plan:` **gets a box** like its four
+siblings — ⚠ **the one box on this form that is his ruling and not his document**, since his
+table simply ends there, which is why the box is keyed to the field's own row rather than to the
+line beneath it; *"Complete your statement here"* **is a prompt**, grey guide text inside the
+empty box, **which is what makes Strategic Statements two boxes rather than two printed lines**;
+and, in his own words, ***"we need a gap between content rows on the productive habits but the
+additional small row spaces can be deleted"*** — so his thin blank rows are dropped by the reader
+and the space is put back by the screen, **in one column**, because his five fields are an ORDER
+and the default grid had flowed them four across. 🔴 **DRIVEN IN A BROWSER, NOT JUST TESTED:** both
+concepts scoped, placed and run, typed into, left and returned to — the keys CHANGED, so the save
+whitelist had to accept them — and both answers reach the client's plan, `Plan:` included.
+
 🔴 **STAGE 3b — THE STEP BUILDER — WAS BUILT ON 2026-09-20**, the day Mike ruled its gating
 question and then all five decisions on its drawing, every one as recommended. The advisor names
 his own steps, and **the client's agenda stops naming our screens**: where it read *"Run the

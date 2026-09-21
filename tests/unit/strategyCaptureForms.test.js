@@ -386,6 +386,15 @@ describe('a ruled line is a box, and a heading is never one', () => {
     const workedThrough = tpl => tpl.tables.length > 0 &&
       tpl.tables.every(t => t.rows.length > 1 && !t.rows.some(r => r.cells.some(c => c.blank)))
 
+    // 🔴 "ONE ANSWER PER ANSWERING COLUMN" IS `columns - 1` ONLY WHERE HIS FIRST COLUMN
+    // IS THE PROMPT — which is the prompt → answer sheet, and was every worked-through
+    // template until 2026-09-22. On the named-field stack row 0 names EVERY column and
+    // every one of them answers, so his Strategic Statements slide asks for two. Left as
+    // `columns - 1` this test asserted the very defect the form was built to remove: it
+    // was green while his Strategic Objective statement had nowhere on the screen to go.
+    const answeringColumns = (c, t) =>
+      c.captureForm === forms.NAMED_FIELD_STACK ? t.columns : t.columns - 1
+
     const checked = []
     const wrong = concepts
       .filter(c => c.captureTemplate && c.captureForm)
@@ -395,7 +404,8 @@ describe('a ruled line is a box, and a heading is never one', () => {
         const tpl = forms.resolveTemplate(c.captureTemplate)
         if (!workedThrough(tpl)) { return null }
         checked.push(c.id)
-        const want = tpl.tables.reduce((n, t) => n + (t.rows.length - 1) * (t.columns - 1), 0)
+        const want = tpl.tables.reduce(
+          (n, t) => n + (t.rows.length - 1) * answeringColumns(c, t), 0)
         return capture.fields.length === want
           ? null
           : `${c.id}: ${capture.fields.length} boxes, his rows ask ${want}`
@@ -404,6 +414,146 @@ describe('a ruled line is a box, and a heading is never one', () => {
 
     // Without this the test passes by checking nothing the day a template is renamed.
     expect(checked.length).toBeGreaterThan(0)
+    expect(wrong).toEqual([])
+  })
+})
+
+describe('the named-field stack — his name, his worked example, one box', () => {
+  // 🔴 CAPTURE FORM 5 OF 9, from design/mockups/strategy-capture-named-field-stack.html,
+  // all three decisions ruled by Mike on 2026-09-22. Both faults below were live on a
+  // screen an advisor runs in front of a client, and the suite was green throughout —
+  // because nothing had ever counted these two tables against his own documents.
+  //
+  // Recomputed from his workbook like the rest of this file, never pinned to a number
+  // typed here: a document he edits moves the expectation with it.
+
+  const captureOf = id => forms.captureForConcept(concepts.find(c => c.id === id))
+  const stackConcepts = concepts.filter(c => c.captureForm === forms.NAMED_FIELD_STACK)
+
+  /** His own field names, read off the template rather than listed here. */
+  const namesAcross = tpl => tpl.tables[0].rows[0].cells
+    .filter(c => c.text && !c.blank).map(c => c.text)
+  const namesDown = tpl => tpl.tables[0].rows
+    .filter(r => r.cells[0] && r.cells[0].text && !r.cells[0].blank)
+    .map(r => r.cells[0].text)
+
+  test('both of his templates are on this form, and nothing else is', () => {
+    // Without this the whole block passes by checking nothing the day a concept is
+    // re-authored onto another form.
+    expect(stackConcepts.map(c => c.captureTemplate).sort())
+      .toEqual(['Productive Habits', 'Strategic Statements'])
+  })
+
+  test('Strategic Statements offers a box for every statement his slide asks for', () => {
+    // 🔴 IT OFFERED ONE WHERE HIS SLIDE GIVES TWO. His row 0 heads both columns —
+    // Strategic Objective and Strategy — and the general reading treats column 0 of a
+    // table with no ruled lines as the PROMPT column, which is true of the six prompt →
+    // answer sheets and false here. His Strategic Objective statement had nowhere to go.
+    const tpl = forms.resolveTemplate('Strategic Statements')
+    const capture = captureOf('determine-the-business-strategic-objective-and-document-the')
+    expect(capture.fields).toHaveLength(namesAcross(tpl).length)
+  })
+
+  test('each of his two headings reaches the box beneath it, and neither is lost', () => {
+    // The count alone would pass with both boxes under one heading. His headings are the
+    // question the client answers, so a box under the wrong one is the wrong statement.
+    const tpl = forms.resolveTemplate('Strategic Statements')
+    const capture = captureOf('determine-the-business-strategic-objective-and-document-the')
+    expect(capture.fields.map(f => f.columnLabel)).toEqual(namesAcross(tpl))
+  })
+
+  test('Productive Habits offers one box per named field, his last one included', () => {
+    // 🔴 IT OFFERED EIGHT FOR FIVE FIELDS — two per field, one of them inside the dark
+    // band his document prints the field NAMES in — and dropped Plan entirely, because
+    // his table simply ends after it with no blank row beneath.
+    const tpl = forms.resolveTemplate('Productive Habits')
+    const capture = captureOf('understanding-our-habit-drivers')
+    expect(capture.fields.map(f => f.columnLabel)).toEqual(namesDown(tpl))
+  })
+
+  test('🔴 his LAST field gets a box, and that box is Mike\'s ruling not his document', () => {
+    // Mike's ruling, 2026-09-22. This is the one box on this form that his grid does not
+    // itself rule: keying each box to the blank line BENEATH its name would have been a
+    // faithful reading of the document and would have silently dropped the one field the
+    // session exists to produce. The assertion is here so that stays a decision somebody
+    // made rather than something a later reading quietly undoes.
+    const tpl = forms.resolveTemplate('Productive Habits')
+    const rows = tpl.tables[0].rows
+    const last = rows.length - 1
+
+    // His document really does end on a named row with no line under it — proved here
+    // rather than asserted, so this test says something true if he edits the file.
+    expect(rows[last].cells[0].text).toBeTruthy()
+    expect(rows[last].cells.some(c => c.blank)).toBe(false)
+
+    const capture = captureOf('understanding-our-habit-drivers')
+    expect(capture.fields.map(f => f.columnLabel)).toContain(rows[last].cells[0].text)
+  })
+
+  test('no box sits in the column his document prints the field names in', () => {
+    // The dark #434343 band down his first column is printed wording, not a writing
+    // area. Four of the eight boxes were in it.
+    const capture = captureOf('understanding-our-habit-drivers')
+    expect(capture.fields.every(f => f.column > 0)).toBe(true)
+  })
+
+  test('no box is headed by one of his worked-example sentences', () => {
+    // The second half of the same fault: his example sentence became a column NAME over
+    // the box beside it, so the client read "We're becoming more competitive…" as the
+    // heading of a field. An example belongs inside its own box as guide text —
+    // Mike's ruling on Decision 2, 2026-09-22.
+    stackConcepts.forEach((c) => {
+      const capture = forms.captureForConcept(c)
+      const examples = capture.fields.map(f => f.example).filter(Boolean)
+      capture.fields.forEach((f) => {
+        expect(examples).not.toContain(f.columnLabel)
+      })
+    })
+  })
+
+  test('every box carries one of his own field names — none is unlabelled', () => {
+    // Both his documents name every field, so unlike the banded grid there is never a
+    // box here without a heading. A box with no name is a client asked to write
+    // something with nothing saying what.
+    stackConcepts.forEach((c) => {
+      const capture = forms.captureForConcept(c)
+      expect(capture.fields.length).toBeGreaterThan(0)
+      expect(capture.fields.every(f => !!f.columnLabel)).toBe(true)
+    })
+  })
+
+  test('⚠ the form is defined for two-column tables, and a third would be dropped', () => {
+    // Both of his are two columns. The reading takes his name from column 0 and the box
+    // from column 1, so a third column would vanish with nothing on screen to show it.
+    // This fails the build rather than letting that happen quietly.
+    stackConcepts.forEach((c) => {
+      const tpl = forms.resolveTemplate(c.captureTemplate)
+      tpl.tables.forEach((t) => {
+        expect(t.columns).toBe(2)
+      })
+    })
+  })
+
+  test('the prompt → answer sheets are untouched — his questions never became boxes', () => {
+    // The regression this form could have caused. Six of his sheets are structurally
+    // IDENTICAL to Strategic Statements — two columns, headings on row 0, no blank cells
+    // — and in every one the first column holds his QUESTIONS. That is why the form is
+    // read by name and not guessed from the grid.
+    //
+    // Leadership Review is excluded by its own shape, not by name: his is a ONE-column
+    // table of question, line, question, so its boxes are correctly in column 0.
+    const sheets = concepts.filter(c => c.captureForm === 'prompt-answer-sheet' && c.captureTemplate)
+    expect(sheets.length).toBeGreaterThan(0)
+    const wrong = sheets
+      .map((c) => {
+        const capture = forms.captureForConcept(c)
+        if (!capture.supplied) { return null }
+        const tpl = forms.resolveTemplate(c.captureTemplate)
+        if (tpl.tables.every(t => t.columns < 2)) { return null }
+        const inPromptColumn = capture.fields.filter(f => f.column === 0).length
+        return inPromptColumn === 0 ? null : `${c.captureTemplate}: ${inPromptColumn} boxes on his questions`
+      })
+      .filter(Boolean)
     expect(wrong).toEqual([])
   })
 })

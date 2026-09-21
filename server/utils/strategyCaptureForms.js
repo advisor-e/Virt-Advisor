@@ -192,7 +192,98 @@ function attributeRowFields (table, tableIndex) {
   return fields
 }
 
+/**
+ * The fields of a table that is a STACK OF NAMED FIELDS — his name, his worked
+ * example, and one box.
+ *
+ * 🔴 IT IS READ BY FORM NAME, AND THE REASON IS MEASURED RATHER THAN ASSERTED. Six
+ * of Mike's other tables are structurally IDENTICAL to Strategic Statements — two
+ * columns, headings on row 0, not one blank cell between them: Marketing Answers,
+ * the 10 Critical Marketing Statements, Branding, Customer Loyalty, Pricing and
+ * Packaging. In every one of those his first column holds the QUESTIONS and must
+ * never become a box. Nothing in the grid separates them, so the form name the
+ * concept already carries is the only honest signal, exactly as it is for the
+ * persona grid above.
+ *
+ * Two orientations, and the grid says which — his own two documents are one each:
+ *
+ * - **No ruled lines → the names run ACROSS row 0** (Strategic Statements). Row 1
+ *   is one box per column, HIS FIRST COLUMN INCLUDED. The general reading below
+ *   assumes column 0 is a prompt when a table has no ruled lines, which is true of
+ *   the six sheets above and false here: it offered 1 box where his slide gives 2,
+ *   so his Strategic Objective statement had nowhere to go at all.
+ * - **Ruled lines → the names run DOWN column 0** (Productive Habits), each on the
+ *   dark band his document shades `#434343`. That band is printed wording, never a
+ *   writing area; the general reading put a box inside it and headed the box beside
+ *   it with his whole worked-example SENTENCE, offering 8 boxes for 5 fields.
+ *
+ * 🔴 EVERY NAMED ROW GETS A BOX, INCLUDING THE LAST — Mike's ruling, 2026-09-22.
+ * His four other fields have a blank row beneath them and `Plan:` does not, because
+ * it is the last row and the table simply ends there. Keying the box to the line
+ * BENEATH each name would therefore have dropped Plan, which is the one field the
+ * session exists to produce. So the box is keyed to the field's own row: uniform,
+ * and there is no field his grid cannot carry one for. ⚠ `Plan:`'s box is the only
+ * box on this form that is his RULING rather than his DOCUMENT.
+ *
+ * 🔴 AND HIS BLANK ROWS ARE A GAP, NOT ROWS — his words, 2026-09-22: *"we need a gap
+ * between content rows on the productive habits but the additional small row spaces
+ * can be deleted."* They are skipped here and the spacing is the screen's.
+ *
+ * ⚠ DEFINED FOR TWO-COLUMN TABLES, which is what both of his are.
+ * `namedFieldStackIsTwoColumns` in the suite fails the build if a third column ever
+ * arrives, rather than letting it be dropped silently.
+ *
+ * @param {{columns: number, rows: Array}} table
+ * @param {number} tableIndex
+ * @returns {Array<object>} fields in reading order
+ */
+function namedFieldStackFields (table, tableIndex) {
+  const rows = table.rows
+  const hasRuledLines = rows.some(r => r.cells.some(c => c.blank))
+  const fields = []
+
+  const push = (r, c, name, cell) => {
+    fields.push({
+      key: 't' + tableIndex + 'r' + r + 'c' + c,
+      row: r,
+      column: c,
+      // His field name. Both his documents name every field, so unlike the banded
+      // grid there is never a box here without one.
+      columnLabel: name,
+      rowLabel: '',
+      // His worked example, shown inside the box as guide text the advisor types
+      // over — Mike's ruling on Decision 2, 2026-09-22. Never a heading of its own.
+      example: (cell && !cell.blank && cell.text) ? cell.text : ''
+    })
+  }
+
+  if (!hasRuledLines) {
+    const head = rows[0]
+    const body = rows[1]
+    if (!head || !body) { return [] }
+    head.cells.forEach((name, c) => {
+      if (!name.text || name.blank) { return }
+      push(1, c, name.text, body.cells[c])
+    })
+    return fields
+  }
+
+  rows.forEach((row, r) => {
+    const name = row.cells[0]
+    if (!name || !name.text || name.blank) { return }
+    push(r, 1, name.text, row.cells[1])
+  })
+  return fields
+}
+
+/** The stack of named fields — Strategic Statements and Productive Habits. */
+const NAMED_FIELD_STACK = 'named-field-stack'
+
 function fieldsOfTable (table, tableIndex, form) {
+  if (form === NAMED_FIELD_STACK) {
+    return namedFieldStackFields(table, tableIndex)
+  }
+
   // 🔴 THE FORM NAME IS NOT ENOUGH ON ITS OWN, and reading it alone broke a table.
   // Customer & Skills Review is authored `attribute-rows-entity-columns` and is nothing
   // of the kind: its header is `Review Section | Review Findings`, one question and one
@@ -407,5 +498,6 @@ module.exports = {
   captureForConcept,
   hasCaptureField,
   fieldsOfTable,
+  NAMED_FIELD_STACK,
   TEMPLATE_ALIASES
 }

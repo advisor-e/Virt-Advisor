@@ -95,7 +95,7 @@ section.scc2
               )
 
   template(v-else)
-    .scc2-grid
+    .scc2-grid(:class="{ 'is-stack': isNamedFieldStack }")
       .scc2-block(v-for="block in blocks" :key="block.key")
         p.scc2-block-label(v-if="block.label") {{ block.label }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
@@ -168,6 +168,9 @@ import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 /** The one capture form that is a small application rather than a page of boxes. */
 const ORG_CHART_FORM = 'parent-child-list'
+
+/** His name, his worked example, one box — Strategic Statements, Productive Habits. */
+const NAMED_FIELD_STACK = 'named-field-stack'
 
 export default {
   name: 'StrategyConceptCapture',
@@ -292,6 +295,31 @@ export default {
      */
     isOrgChart () {
       return this.capture.supplied && this.capture.form === ORG_CHART_FORM
+    },
+
+    /**
+     * Is this a stack of named fields — Strategic Statements, Productive Habits?
+     *
+     * 🔴 MIKE'S RULING, 2026-09-22, in his own words: *"we need a gap between content
+     * rows on the productive habits but the additional small row spaces can be
+     * deleted."* His document's thin blank rows are that gap; the reader drops them
+     * and this puts the space back on the screen.
+     *
+     * 🔴 AND IT IS ONE COLUMN, WHICH IS THE OTHER HALF OF THE SAME RULING. The default
+     * grid flows blocks into as many columns as fit, and on this form each field is its
+     * own block — so his five fields landed four across, side by side. They are an
+     * ORDER: you find the Reason, name the Trigger, choose the Micro Habit, define the
+     * Effective Practice, then write the Plan. Read across four columns that sequence
+     * is gone, and a gap between rows means nothing when there is one row.
+     *
+     * ⚠ IT READS THE TEMPLATE'S FORM NAME, as `isOrgChart` and `isGrid` above do and
+     * for the same reason: it cannot be derived from the fields. Strategic Statements'
+     * two fields are indistinguishable from any other two-box table.
+     *
+     * @returns {boolean}
+     */
+    isNamedFieldStack () {
+      return this.capture.supplied && this.capture.form === NAMED_FIELD_STACK
     },
 
     /**
@@ -603,6 +631,16 @@ export default {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 12px;
+}
+
+/* 🔴 THE NAMED-FIELD STACK — Mike's ruling, 2026-09-22: "we need a gap between content
+   rows on the productive habits but the additional small row spaces can be deleted."
+   One column so his five fields keep their order, and a wider gap so they read as five
+   separate things rather than one block of boxes. The reasoning is on `isNamedFieldStack`
+   and on design/mockups/strategy-capture-named-field-stack.html. */
+.scc2-grid.is-stack {
+  grid-template-columns: 1fr;
+  gap: 22px;
 }
 
 /* 🔴 THE TWO-DIMENSIONAL TABLE — from design/mockups/strategy-capture-two-dimensional-grid.html,
