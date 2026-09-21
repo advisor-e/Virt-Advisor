@@ -211,11 +211,16 @@ dashboards redrawn on our own SVG components, and 93 colours repainted to 6 on b
 with **no tests at all** and ships with full coverage, the blog engine at 100%.
 
 **Stage 6 was SKIPPED, and it is the one departure from *"Mike wants all of it"*.** Its language
-admin — seven routes and an AI translate button — would have stood a second translation system
-beside our own `localisation-and-currency`. Put to him on 2026-09-22 with that reason and the fact
-that **we translate nothing into any language today** (the seven non-English locales hold 8 keys
-against English's 54, and `fallbackLocale: 'en'` shows a French reader English words rather than
-broken keys). **He ruled: go to stage 7.**
+admin — seven routes and an AI translate button — would have stood **a second translation system
+beside a working one**. **He ruled: go to stage 7.**
+
+⚠ **The reason he was given was understated and is corrected here.** He was told *"we translate
+nothing into any language today"*, read off the seven near-empty static locale files. The app in
+fact translates into **all 28 languages** on demand from `en.json`. **The ruling is unaffected and
+better supported** — and the misreading became its own fix: the policy is now stated in
+`localisation-and-currency.md` §1a, in `locales/README.md` where the folder is actually opened, and
+pinned by `tests/unit/languagePolicy.test.js`. **It was the second time that folder has been read
+that way.**
 
 **Stage 7 needed no work, and that was verified against the code rather than the plan** — the
 advisor pages, the Team roll-up's hub tab (`salesTeam: ['firm']`) and the locale merge had all been

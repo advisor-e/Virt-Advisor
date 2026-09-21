@@ -735,12 +735,19 @@ have no prompt-injection guard, which our rules require (`wrap user input in exp
 language and currency handling** (`localisation-and-currency.md`), so porting it means running two
 translation systems side by side.
 
-**This is the one departure from *"Mike wants all of it"*, and he made it himself.** Put to him at
-the stage, with the recommendation and one further fact: **we translate nothing into any language
-today.** The seven non-English locales hold 8 top-level keys against English's 54, and
-`plugins/i18n.js` sets `fallbackLocale: 'en'`, so a French reader sees English words rather than
-broken keys. A translation admin would have managed a system nobody uses. **His answer: "go to
-stage 7."**
+**This is the one departure from *"Mike wants all of it"*, and he made it himself. His answer:
+"go to stage 7."**
+
+⚠ **The reason he was given was understated, and the correct one is stronger.** He was told *"we
+translate nothing into any language today"* — read off the seven near-empty static locale files.
+**That is wrong**: the app translates into **all 28 languages**, on demand, from `en.json` through
+a live guarded route, and those seven files are a partial head start rather than the extent of it
+(`design/features/localisation-and-currency.md` §1a — corrected 2026-09-22, the *second* time this
+folder has been misread this way).
+
+**The ruling is unaffected and is in fact better supported.** Stage 6 would not have been a tool
+for languages nobody uses; it would have been a **second translation system beside a working one.**
+The recommendation to skip it was right for a stronger reason than the one given.
 
 ### Stage 7 — Locales, the advisor's pages, and the front door · ✅ **ALREADY COMPLETE 2026-09-22**
 
