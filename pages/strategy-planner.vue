@@ -37,6 +37,14 @@
       b-button(v-if="step === 'objectives'" outlined type="is-primary" @click="step = 'run'") {{ $t('strategyPlanner.back') }}
       b-button(v-if="step === 'objectives'" type="is-primary" @click="step = 'plan'") {{ $t('strategyPlanner.producePlan') }}
       b-button(v-if="step === 'plan'" outlined type="is-primary" @click="step = 'objectives'") {{ $t('strategyPlanner.back') }}
+      //- 🔴 THE CLIENT'S DOCUMENT LEAVES THE APP HERE, AND ONLY HERE. Mike's request,
+      //- 2026-09-21. The browser writes the PDF — Business Performance Report P7: no PDF
+      //- library runs on the locked Node 14.15, and the browser's own dialog means a
+      //- client's session never leaves the machine to be rendered. It is also the only
+      //- method his own ruling of 2026-09-17 allows: "there is ONE artefact, never two
+      //- formats", so this prints the document already on screen rather than generating
+      //- a second one that could disagree with it.
+      b-button(v-if="step === 'plan'" type="is-primary" @click="printPlan") {{ $t('strategyPlanner.printPlan') }}
 
   //- 🔴 THE RAIL IS THE WAY THROUGH THE SESSION, NOT A PROGRESS PICTURE. Mike's request,
   //- 2026-09-21: *"enable me to be able to click on the step banner (scope, build etc) in any
@@ -1303,6 +1311,39 @@ export default {
       } catch (e) {
         this.error = this.$t('strategyPlanner.errors.saveFailed')
       }
+    },
+
+    /**
+     * Hand the client their plan — the assembled document, and nothing else.
+     *
+     * The browser writes the PDF. That is not a shortcut: no PDF library runs on the
+     * locked Node 14.15 (Business Performance Report P7, ruled 2026-09-06), and using
+     * the browser's own dialog means a client's session is never sent anywhere to be
+     * rendered. It is also what Mike's ruling of 2026-09-17 requires — "there is ONE
+     * artefact, never two formats" — so what prints is the document already on screen.
+     *
+     * The body class is what separates the document from the screen around it: the
+     * heading, the five-stage rail and the coverage wheel are the advisor's, not the
+     * client's. See the UNSCOPED print block at the foot of this file for why it cannot
+     * be a scoped rule. It is added for the duration of this press alone, so an ordinary
+     * Ctrl+P anywhere in the app behaves exactly as it did before.
+     *
+     * HONEST LIMIT: the advisor saves the file themselves, so nothing here holds a copy
+     * of what was actually given to the client, and the margins depend on their own
+     * browser's print settings.
+     *
+     * @returns {void}
+     */
+    printPlan () {
+      if (!process.client || typeof window === 'undefined' || !window.print) { return }
+      document.body.classList.add('sp-printing')
+      try {
+        window.print()
+      } finally {
+        // Always removed, including if print() throws: a page left in printing mode
+        // renders blank to the advisor still sitting in front of it.
+        document.body.classList.remove('sp-printing')
+      }
     }
   }
 }
@@ -1446,5 +1487,86 @@ export default {
 @media (max-width: 860px) {
   .sp-rail { flex-wrap: wrap; }
   .sp-rail-step { flex: 1 1 45%; }
+}
+</style>
+
+<!--
+  UNSCOPED, DELIBERATELY — the only rules on this page that are, and it is structural
+  rather than a shortcut.
+
+  Printing ONE section of a bigger screen means hiding everything around it, and
+  everything around it belongs to other components. A scoped rule cannot reach them:
+  Vue rewrites a scoped selector to match only this component's own elements, so a rule
+  written against `body` compiles to `body[data-v-hash]` and matches nothing at all.
+  That is not a theory — it shipped, in CourseBuilder's certificate, and
+  `tests/unit/scopedStylesCannotReachOutside.test.js` now fails the build for it.
+
+  `visibility`, not `display`, for the general sweep: display:none on an ancestor cannot
+  be undone further down, so the document — nested inside Nuxt's own wrappers — could
+  never be shown again. visibility can be turned back on, which is what makes this work.
+
+  Everything is gated behind `body.sp-printing`, which exists only for the duration of
+  the advisor's own press, so an ordinary Ctrl+P anywhere in the app is unaffected.
+-->
+<style>
+/* 🔴 A4 LANDSCAPE, NAMED — Mike's ruling, 2026-09-21: "the majority of pages to be
+   printed will be A4 size." Landscape because the document is a deck (his 2026-09-17
+   ruling: "it is his deck page for page when printed"), and every one of the 33 concept
+   drawings is a landscape 1500x844.
+
+   ⚠ THIS DELIBERATELY DIFFERS FROM THE SIX REPORT SCREENS, and the difference is the
+   point rather than drift. Business Performance Report P7 sets orientation and NEVER a
+   paper size, so an advisor on US Letter is not overridden — right for a report, which
+   reflows to whatever sheet it is given. This document cannot reflow: `.spd-page` is a
+   fixed A4-landscape frame, so if the sheet is not A4 the page no longer matches it.
+   The shape and the paper have to be named together or neither is worth naming.
+   ⚠ HONEST LIMIT: an advisor who chooses Letter in their own print dialog gets the
+   document scaled to fit. Nothing is lost or cropped; the margins simply grow.
+
+   `@page` has no selector and cannot be gated behind the body class. It rides in this
+   page's own stylesheet, so it reaches /strategy-planner and no other route. */
+@page { size: A4 landscape; margin: 0; }
+
+@media print {
+  body.sp-printing * { visibility: hidden !important; }
+  body.sp-printing .spd,
+  body.sp-printing .spd * { visibility: visible !important; }
+
+  /* A visibility:hidden element still occupies its space, so the heading, the stage
+     rail and the coverage wheel would push blank sheets ahead of and behind the
+     client's document. They are siblings, not ancestors, so collapsing them outright
+     cannot take the document with them.
+     🔴 THE COVERAGE WHEEL IS THE ADVISOR'S, NOT THE CLIENT'S. It appears nowhere in
+     the approved drawing (design/mockups/strategy-plan-output.html §3), which is the
+     whole of the reason it is not in the printed plan. */
+  body.sp-printing .sp > *:not(.spd) { display: none !important; }
+
+  /* The page's reading width and its gutters are for a screen. A printed sheet has
+     @page margins of its own, and keeping both would inset every slide twice. */
+  body.sp-printing .sp { max-width: none; margin: 0; padding: 0; }
+
+  /* The 18px that separates the pages while scrolling would otherwise print as a band
+     at the top of every sheet after the first. */
+  body.sp-printing .spd { gap: 0; }
+
+  /* 🔴 A RATIO IS THE WRONG TOOL ON PAPER, AND IT DOUBLED THE DOCUMENT. Measured
+     2026-09-21: with the screen's `aspect-ratio: 297/210` left in force, each page
+     computed to EXACTLY the height of the A4 sheet — and a box exactly as tall as its
+     sheet rounds onto a second one. 25 document pages printed as 50 sheets, every other
+     one blank. Nothing looked wrong on screen, and no test could see it.
+
+     On paper the sheet is the authority, so the page gets a floor in millimetres and no
+     ratio: 208mm inside a 210mm sheet. A page with little on it fills its sheet and
+     stops; one with too much still grows and splits, which is visible and honest rather
+     than silently cropped. `border-box` is stated rather than inherited, because the
+     padding is what the 2mm of clearance would otherwise be spent on.
+
+     GATED, like everything else here, so an ordinary Ctrl+P is left exactly as it was —
+     these millimetres are only correct on the A4 sheet the `@page` above asks for. */
+  body.sp-printing .spd-page {
+    aspect-ratio: auto;
+    box-sizing: border-box;
+    min-height: 208mm;
+  }
 }
 </style>

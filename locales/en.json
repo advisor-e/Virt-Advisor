@@ -5951,6 +5951,7 @@
     "chooseClient": "Which client?",
     "toObjectives": "Objectives and actions",
     "producePlan": "Produce the plan",
+    "printPlan": "Print or save as PDF",
     "wheel": {
       "heading": "Coverage check — the nine Growth Aspects",
       "caption": "Orientation 1's own instruction: objectives should be tested against the nine Growth Aspects to ensure strong organisational health. It is a check, not a score — nobody has to reach nine.",
