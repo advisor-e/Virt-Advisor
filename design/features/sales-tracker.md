@@ -32,12 +32,14 @@
 >
 > **The estimate moves from 12–21 days to 16–25** (§11). The build itself is unchanged in intent.
 >
-> ✅ **STAGES 1–4 ARE COMPLETE (stages 1–3 on 2026-09-21, stage 4 on 2026-09-22).** Five tables,
-> the pipeline and COI stores/routes/screens, the Sales Dashboard, and the manager's half — the
-> firm-wide Team roll-up and the ten dropdown lists, on their own pages **and as two Firm
-> Manager Hub tabs**. **Mutation-verified**, proven against a real MySQL and driven in a real
-> browser. **Next: stage 5, the blog tool** — the part the survey advised against and Mike ruled
-> in scope. See §10.
+> ✅ **THE FEATURE IS COMPLETE AND MERGED — 2026-09-22, [PR #109](https://github.com/advisor-e/Virt-Advisor/pull/109).**
+> Stages 1–5 built (1–3 on 2026-09-21; 4 and 5 on 2026-09-22): five tables, the pipeline and COI,
+> the Sales Dashboard, the firm-wide Team roll-up and ten dropdown lists, and the blog tool. Eight
+> screens, **mutation-verified**, proven against a real MySQL and **driven in a real browser** —
+> which is how all three of the faults in §10 were found, none of them by 13,182 tests.
+>
+> **Stage 6 was skipped on Mike's ruling** and **stage 7 needed no work** — stages 2–5 had already
+> done it. Both are recorded in §10 with what was checked. Closure: `to-do-done-and-parked.md` §2.
 >
 > 🔴 **STAGE 5 WAS RE-MEASURED 2026-09-22, BEFORE ANY CODE, AND IT IS BIGGER THAN THIS PLAN SAID.**
 > It was priced as back end only — *"4 blog routes + 3 reference routes"*. There are **12 API
@@ -653,13 +655,22 @@ tracked — while the **identical markup one row above was correct**, because `r
 replaced wholesale. Every one of the 12,956 tests passed throughout. Fixed by declaring every
 field at create time, and guarded by `salesTeam.component.test.js`, mutation-verified.
 
-### Stage 5 — Blog tool · ⏳ **BACK END COMPLETE 2026-09-22; the screen remains**
+### Stage 5 — Blog tool · ✅ **COMPLETE 2026-09-22 — back end AND the screen**
 
 ✅ **Built:** `server/utils/salesBlogStore.js` (three tables), `server/utils/salesBlogEngine.js`
 (the two model calls), `server/routes/salesBlog.js` (12 routes), registered in
 `restify-server.js`. **176 tests**, the engine at **100% on all four measures** and pinned in
-`jest.config.js`. Suite 13,140 green, lint 0 errors.
-⏳ **Remaining:** the 843-line screen (`pages/index.vue` in the source), repainted to brand.
+`jest.config.js`.
+✅ **The screen**, built the same day: `components/SalesBlog.vue` (997 lines) and
+`pages/sales-blog.vue`, an **advisor** page — the hub has no advisor scope, and these are the
+advisor's own drafts. A fourth card on `/sales-tracker` opens it. Model output is sanitised with
+`isomorphic-dompurify` before `v-html`; this is the component's own renderer and the locked
+`VirtualAdvisor` pipeline is untouched.
+
+⚠ **Opening it found what the suite did not**: the doorway's icon chain ended in a bare `v-else`,
+so the fourth card silently wore the dashboard's bar chart. Fixed, and pinned by a test asserting
+every card draws a **different** icon. One defect was recorded rather than fixed — `is-primary` and
+`is-info` on two adjacent buttons, an instance of item **16.1**.
 
 #### What changed from the source, and why
 
@@ -718,13 +729,37 @@ anything that validates LLM output**, and this app has **no tests at all**. Its 
 have no prompt-injection guard, which our rules require (`wrap user input in explicit delimiters`)
 — it concatenates the advisor's topic, audience and CTA straight into the prompt string.
 
-### Stage 6 — Language admin · *the other part I advised against*
-7 `languages/*` routes including a `translate.post` that calls OpenAI. **Virt Advisor already has
-language and currency handling** (`localisation-and-currency.md`). **Recommendation: drop this
-entirely and use ours** — porting it means running two translation systems side by side.
+### Stage 6 — Language admin · 🔴 **SKIPPED ON MIKE'S RULING, 2026-09-22**
 
-### Stage 7 — Locales, the advisor's pages, and the front door
-Merge the 6 locale files into ours.
+7 `languages/*` routes including a `translate.post` that calls OpenAI. **Virt Advisor already has
+language and currency handling** (`localisation-and-currency.md`), so porting it means running two
+translation systems side by side.
+
+**This is the one departure from *"Mike wants all of it"*, and he made it himself.** Put to him at
+the stage, with the recommendation and one further fact: **we translate nothing into any language
+today.** The seven non-English locales hold 8 top-level keys against English's 54, and
+`plugins/i18n.js` sets `fallbackLocale: 'en'`, so a French reader sees English words rather than
+broken keys. A translation admin would have managed a system nobody uses. **His answer: "go to
+stage 7."**
+
+### Stage 7 — Locales, the advisor's pages, and the front door · ✅ **ALREADY COMPLETE 2026-09-22**
+
+**Nothing was built, because stages 2–5 had already done all three parts as they went.** Checked
+against the code rather than against this plan — which is the lesson of finding 4 below, a plan
+sentence nobody verified:
+
+| Part | State |
+|---|---|
+| The advisor's pages | ✅ Eight `pages/sales*.vue`. The four not on the doorway are correct: `sales-dashboard` is item 4.95's **client** workbook, and `sales-team`/`sales-lists` are manager screens reached through the hub |
+| The Team roll-up as a hub tab | ✅ `salesTeam: ['firm']` in `TAB_TIERS`, its panel, and the `hubTabTiers` key |
+| Merge the 6 locale files | ✅ **341 `$t()` calls across the sales screens, no hardcoded English** |
+| The front door | ✅ Dead by construction — see below |
+
+**The front-door bug (§7 bug 2) does not survive the port, and that was verified, not assumed.**
+The doorway carries no auth code at all, which looks wrong for a minute: it is correct, because the
+page renders four links and fetches nothing, so it holds no data to protect. **Every screen behind
+it gates on the backend** (`firmAuth`, plus `requireManagerRole` on the manager screens). The source
+app's fault was the reverse — it hid pages with a client-side redirect and left its endpoints open.
 
 🔴 **THE SCREENS ARE ADVISOR PAGES, NOT HUB TABS. An earlier draft of this plan said the opposite
 and it was wrong — corrected 2026-09-21 on Mike's challenge.**
@@ -782,10 +817,10 @@ redraw on top of that.
 | 2 | Pipeline end to end, with tests | 2–4 | ✅ **DONE** | Built 2026-09-21 — backend, screen and 122 tests |
 | 3 | COI + Dashboard | 2–3 | ✅ **DONE** | Built 2026-09-21 — backend and both screens. The dashboard was rebuilt once: see §10 stage 3 |
 | 4 | Team + Lists | 1–2 | ✅ **DONE** | Built 2026-09-22 — 5 routes, both screens, 2 hub tabs, 120 tests |
-| 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **5–8** | 🔴 **Re-measured 2026-09-22**: 12 routes not 7, and an **843-line screen** the plan never counted (§10 stage 5) |
-| 6 | **Language admin** | 2–3 | **2–3** | Unchanged — still recommended for dropping |
-| 7 | Locales, advisor pages, front door | 1–2 | **1–2** | Unchanged in size; **wholly different in shape** (§10 stage 7) |
-| | **TOTAL** | **12–21** | **18–28 days** | — |
+| 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | ✅ **DONE** | Built 2026-09-22 — 12 routes, the 997-line screen, 176 tests. Re-measured first: 12 routes not 7, and an **843-line screen** the plan never counted (§10 stage 5) |
+| 6 | **Language admin** | 2–3 | 🔴 **SKIPPED** | Mike's ruling 2026-09-22 — a second translation system beside ours, managing languages nobody uses (§10 stage 6) |
+| 7 | Locales, advisor pages, front door | 1–2 | ✅ **NIL** | Stages 2–5 had already done all three parts; verified against the code (§10 stage 7) |
+| | **TOTAL** | **12–21** | **COMPLETE** | Stages 6 and 7 — the 3–5 days this table still carried — cost nothing in the end |
 
 **The honest movement is +6 days over two corrections.** Nothing was padded, and both movements
 have the same single cause: **the screens are a repaint, and the first estimate counted none of
@@ -793,9 +828,10 @@ them.** 2026-09-21 found that for stages 2–4 (93 colours → 6, no font → Op
 2026-09-22 found the blog tool's own 843-line screen, which §3 had miscatalogued as a landing
 page, and 12 routes where the plan said 7.
 
-**Stages 5 and 6 are now 7–11 of those days — between a third and a half of the whole job — and
-both are the parts this survey recommended dropping.** Mike has said he wants everything, and that
-stands; the number is here so the choice stays informed rather than forgotten.
+**Stages 5 and 6 were 7–11 of those days — between a third and a half of the whole job — and both
+were the parts this survey recommended dropping.** That number was kept here so the choice stayed
+informed rather than forgotten, and in the end it did its job: stage 5 was built as Mike ruled, and
+**stage 6 he skipped himself** when it was put to him at the stage with the measurement beside it.
 
 **Not included, and genuinely unknown:** whatever the master team needs for the real firm data.
 This plan builds against our own MySQL, as everything else here does.
