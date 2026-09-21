@@ -55,12 +55,19 @@
      (MidLevelBudget.vue, SalesDashboard.vue), with the attribute column held still */
   .scroll { overflow-x: auto; margin: 0 0 14px; border: 1px solid var(--line); border-radius: 9px; }
   .scroll table.bg { margin: 0; border: 0; }
-  table.tdg { table-layout: fixed; min-width: 1180px; }
+
+  /* 🔴 ONE PERSONA COLUMN BESIDE THE EXAMPLE, AND THE REST OFF THE EDGE — Mike,
+     2026-09-21: "I should only see ... the header points down the left, then the first
+     example and room for other one, and other two and other three should be hidden that
+     I have to scroll across to get to." 260 + 430 + 430 fills the 1120px page exactly,
+     so Other 2 begins past the edge rather than peeking. A box 430px wide also holds a
+     real answer and the voice bar without wrapping to three lines. */
+  table.tdg { table-layout: fixed; min-width: 2408px; }
   table.tdg th.attr, table.tdg td.attr {
-    width: 260px; position: sticky; left: 0; z-index: 2;
+    width: 258px; position: sticky; left: 0; z-index: 2;
     background: var(--wash); border-right: 2px solid var(--accent);
   }
-  table.tdg th, table.tdg td { width: 186px; }
+  table.tdg th, table.tdg td { width: 430px; }
   td.attr { color: var(--ink); font-weight: 600; font-size: 13px; vertical-align: top; }
   .boxpre {
     display: inline-block; width: 100%; min-height: 30px; vertical-align: middle;
@@ -129,6 +136,10 @@
       <li><b>Your attribute names stay put down the left</b> &mdash; <i>Customer Profile Name</i> down
         to <i>Other</i> &mdash; <b>and the persona columns scroll across</b>. This is
         the pattern this app already uses on twelve report screens.</li>
+      <li><b>The screen opens on three columns only</b>: your attributes, <i>Farm Wagon</i>
+        and <i>Other 1</i>. <i>Other 2</i> onwards are off the right-hand
+        edge until the advisor scrolls to them. Each column is wide enough to hold a real answer and
+        its voice bar, which is what puts the rest past the edge.</li>
       <li><b>5 persona columns</b>: <i>Farm Wagon</i> then
         <i>Other 1</i>&ndash;<i>Other 4</i>.</li>
       <li><b>Farm Wagon is editable</b>, arriving with your own answers already in the
@@ -169,7 +180,7 @@
 <section class="tbl">
   <h2>Customer Types</h2>
   <p class="src">Customer Types.docx &middot; one continuous table &middot; 5 persona columns (Farm Wagon, prefilled and editable, then Other 1&ndash;Other 4) &middot; 17 attribute lines &middot; <b>85 boxes to fill in</b></p>
-  <p class="colhead">Your attribute names stay put &middot; the persona columns scroll across</p>
+  <p class="colhead">Your attribute names stay put &middot; Other 2 onwards sit off the edge until you scroll</p>
 <div class="scroll">
 <table class="bg tdg"><thead><tr><th class="attr">&nbsp;</th><th>Farm Wagon<span class="egtag">prefilled &middot; editable</span></th><th>Other 1</th><th>Other 2</th><th>Other 3</th><th>Other 4</th></tr></thead><tbody>
 <tr><td class="attr" rowspan="1">Customer Profile Name</td><td><span class="boxpre">Farmer Joe</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
