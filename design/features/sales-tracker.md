@@ -442,17 +442,51 @@ The guard test pins each of those properties and was **mutation-verified**: flip
 **Still open, and it is Mike's:** whether a firm manager sees their advisors' pipelines by default.
 `visibility` carries either answer with no schema change; stage 4's Team screen is where it shows.
 
-### Stage 2 — Pipeline, end to end · *the proof* · **NEXT**
-One vertical slice: ✅ migration (stage 1, done) → 4 Restify routes (`GET/POST/PATCH/DELETE`) with
-raw SQL scoped on **`advisor_id` + `firm_id` + `visibility`**, both ids from the verified JWT and
-never from the body → the page **repainted to brand** (§4a) and wired to `API_BASE_URL` → tests to
-our ≥90% route bar.
-**Why first:** it proves the pattern. Every later screen is this again with different columns.
-**Ship nothing else until this works against a real firm id.**
+### Stage 2 — Pipeline, end to end · *the proof* · **BACKEND BUILT 2026-09-22, screen next**
+✅ migration (stage 1) → ✅ **4 Restify routes + the store** → ⏳ the page, repainted to brand (§4a).
+
+| | |
+|---|---|
+| [`server/utils/salesPipelineStore.js`](../../server/utils/salesPipelineStore.js) | Raw `mysql2`, no ORM. The access rules live here |
+| [`server/routes/salesPipeline.js`](../../server/routes/salesPipeline.js) | `GET` · `POST` · `PUT /:id` · `DELETE /:id`, all behind `firmAuth` |
+| [`tests/unit/salesPipelineStore.test.js`](../../tests/unit/salesPipelineStore.test.js) | 44 tests — the SQL |
+| [`tests/unit/salesPipeline.routes.test.js`](../../tests/unit/salesPipeline.routes.test.js) | 55 tests — the contract |
+
+**Coverage: routes 99%, store 97%** — both past the ≥90% route bar.
+
+**The access rule, in one line:** an advisor sees **their own deals at any visibility plus their
+firm's deals marked `firm`**, and may **change only their own**. That asymmetry is deliberate — a
+shared deal is readable by a colleague and editable only by its owner.
 
 ⚠ **"`firm_id` scoping" is not enough and this line used to say only that.** A route filtering on
 the firm alone returns every advisor's deals to every colleague — the exact fault §8 exists to
 prevent. The filter is the advisor **and** the firm, widened only by `visibility`.
+
+#### Three faults in the source app that did NOT come across
+
+Each was read from its code, and each is pinned by a test that was **mutation-verified** — the
+rule was broken on purpose and the test caught it:
+
+1. **No firm filter.** Its list route says so itself: *"Pipeline is shared across the firm - no
+   userId filter"*. In a multi-tenant app that is one firm reading another's prospects.
+2. **An IDOR on update.** `[id].patch.js` runs `updateMany({ where: { id } })` behind a plain
+   "is signed in" check, on an **auto-increment integer**. Anyone could edit anyone's deal by
+   guessing a number. Ours checks ownership in SQL *and* uses UUIDs.
+3. **16 of 34 fields editable.** Its update schema omits `industry`, `meetingDate`, `dateSecured`,
+   `supportStaff` and 13 more — creatable, never editable. Ours drives validation off the store's
+   single `COLUMNS` list, so the two cannot drift.
+
+#### Two decisions worth recording
+
+**`PUT`, not `PATCH`, though the body is a partial update.** Every partial update in
+`restify-server.js` is a `PUT` — 36 of them — and `PATCH` appears nowhere. My first attempt used
+`PATCH` and `tests/unit/serverWiring.test.js` **failed the build**, because its mock stubs exactly
+the verbs the app uses. The guard was right: adding a verb for one route means widening a shared
+mock for no behavioural gain.
+
+**Money is validated at the route, not left to MySQL.** A value past `DECIMAL(14,2)` is **refused**
+rather than truncated into a different figure, negatives are refused, and a non-finite number
+becomes `0.00` rather than `NaN` — which would fail the whole insert on one bad field.
 
 ### Stage 3 — COI + Dashboard · *the rest of the core*
 5 COI routes and the metrics route, same pattern.
