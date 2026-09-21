@@ -109,6 +109,7 @@ const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
 const clientsRoute = require('./routes/clients')
+const salesPipelineRoute = require('./routes/salesPipeline')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const modelChoicesRoute = require('./routes/modelChoices')
@@ -385,6 +386,23 @@ server.post('/api/cases/promote', firmAuth, requireManagerRole, casesRoute.promo
 server.get('/api/clients', firmAuth, clientsRoute.listClients)
 server.post('/api/clients', firmAuth, clientsRoute.createClient)
 server.put('/api/clients/:id', firmAuth, clientsRoute.renameClient)
+
+// ── Sales Tracker — the advisor's own pipeline (item 17 stage 2) ─────────────
+// design/features/sales-tracker.md §10. `firmAuth` only, NOT requireManagerRole:
+// Mike ruled 2026-09-21 this is the advisor's own tool, so an ordinary advisor is
+// exactly who these routes are for. Both the owner and the tenant come from the
+// verified JWT inside every handler; a deal is PRIVATE until its owner shares it,
+// and only its owner may change it whatever it is shared to.
+// ⚠ A firm manager reading their advisors' pipelines (Mike, 2026-09-22) is the
+// Team roll-up in stage 4, behind a manager guard — deliberately not these routes.
+server.get('/api/sales/pipeline', firmAuth, salesPipelineRoute.listEntries)
+server.post('/api/sales/pipeline', firmAuth, salesPipelineRoute.createEntry)
+// PUT, not PATCH, although the body is a partial update: every other partial
+// update in this file is a PUT (36 of them, and PATCH appears nowhere), and
+// tests/unit/serverWiring.test.js mocks exactly the verbs the app uses. Adding a
+// verb for one route would mean widening that mock for no behavioural gain.
+server.put('/api/sales/pipeline/:id', firmAuth, salesPipelineRoute.updateEntry)
+server.del('/api/sales/pipeline/:id', firmAuth, salesPipelineRoute.deleteEntry)
 
 // ── Business Entity Reports — which models a client may open (stub, part 1) ──
 // design/features/business-entity-reports.md, approved by Mike 2026-09-03. The advisor's

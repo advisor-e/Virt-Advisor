@@ -55,6 +55,25 @@ the two cannot drift.
 **P8 · Never write a local money formatter.** The shared mixin gives every variant needed, in the
 firm's currency and the reader's language. Delete the local one you were about to write.
 
+**P9 · 🔴 CHANGING THE FIRM'S CURRENCY RELABELS THE FIGURES. IT DOES NOT CONVERT THEM.** `money(v,
+currency, locale)` formats and nothing more. Switch a firm from GBP to EUR and `£46,170` becomes
+`€46,170` — the same number wearing a different symbol.
+
+That is **correct** for a firm entering figures in its own money, which is every firm. It is a
+**wrong reading** the moment anyone takes the change for a conversion — and nothing on screen says
+which it is. The selector's own confirmation, *"Reports now show Euro (€). This applies to every
+model in your account."*, is silent on the point.
+
+⚠ **This does NOT mean the app cannot convert.** It can, in the one place that makes sense — inside a
+model, from a rate the advisor enters, once a primary currency is known. See §3's ruling on firm-level
+currency versus in-model conversion. **The firm setting is a label; `fxAllowancePct` is the maths.**
+Keeping those two apart is the whole of this principle.
+
+**On the live list as item 13.1** (found 2026-09-22 while answering Mike's *"what if I'm in Italy but
+want the currency to be in Euro?"* — the split held up, this did not). ⚠ **The fix is one short line
+of Mike's own wording at the selector**, and nothing else: applying a rate to a whole report is not
+this item and is not wanted.
+
 ---
 
 ## 3. Design considerations
@@ -72,6 +91,50 @@ free — the same mechanism as every other firm setting.
 
 **A missing translation must not produce a blank.** Falling back to the key, or to English, is
 always better than an empty label on a screen an advisor is using in front of someone.
+
+**🔴 CURRENCY IS SET AT FIRM LEVEL. CONVERSION LIVES INSIDE A MODEL. — Mike's ruling, 2026-09-22,
+and it is the answer to "what about a client who trades in something else".** In his words:
+
+> *"currency would be needed at firm level — conversion would only be required in a specific model
+> where a primary currency had already been entered"*
+
+So there are **two separate things**, and conflating them is how this went wrong once already:
+
+| | Where it lives | What it does |
+|---|---|---|
+| **Currency** | The **firm**, one value (`/api/report/currency`) | Which money every report is denominated in |
+| **Conversion** | **Inside a model**, per model | What a foreign leg costs once a primary currency is known |
+
+✅ **THE APP ALREADY WORKS THIS WAY, which is why this is a principle rather than a build.**
+`server/report/threeWayForecastModel.js` takes an **`fxAllowancePct`** the advisor enters and applies
+it exactly where foreign money arises — `fxOnPurchases` on imported stock, `fxOnSales` on overseas
+collections, and off the debtor too. `server/report/importShipmentModel.js` states the boundary in
+its own header: *"It does not apply the exchange allowance… Those are the forecast engine's, they are
+built, tested and approved, and computing them twice is how two models start disagreeing."*
+
+**Checked 2026-09-22 against all 30 files in `server/report/`: no model has a foreign leg without an
+fx input.** (`multiplePropertyModel.js` matches a search for *"imported"* only on the Google Sheets
+function `Import Range`.) **There is no wrong number today.**
+
+⚠ **So a per-CLIENT currency is NOT the answer, and an earlier version of this section said it was** —
+filed as a schema change touching `va_clients` and ~40 report components. An Italian firm reports its
+Swiss client in Euro because **Euro is the firm's currency**, and the Swiss leg of any model is a
+conversion input, not a second firm setting. **What remains is item `13.2`: write this rule where a
+new model will meet it, and say on screen which currency a converted figure is in.**
+
+**The currency picker sits on the Model Library screen, not the Firm Manager Hub — 🔴 ON THE LIST AS
+`13.3`.** Manager-gated by `requireManagerRole`, but beside the reports it governs rather than with
+the firm's other settings. It is the one manager-owned setting outside the hub.
+
+> ⚠ **Both were written here as *"recorded boundaries, not filed"* and that was wrong.** They were
+> surfaced to Mike as things we had noticed and deliberately not turned into tasks. His answer:
+> ***"lets be clear - BOTH those issues must be fixed, add them to the to do list."***
+>
+> **The lesson is narrow and worth keeping.** Recording a limit in a Brief is not the same as
+> handling it. `CLAUDE.md`'s rule — *a fault ends fixed now or on the list with his yes* — has no
+> third ending called "written down in the design document", and that is exactly what this section
+> had invented. The rule was followed in surfacing them and then quietly broken in filing them
+> nowhere.
 
 ---
 

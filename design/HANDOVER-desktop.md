@@ -9,53 +9,91 @@
 
 ---
 
-## 2026-09-21 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-22 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Two commits, both pushed, and a PR to `master` opened.** Suite **12,341 green** (570 suites),
-lint 0, coverage and audit gates passed at push. Tree clean. **26 live items.**
+**Item 17 stages 1 AND 2 BUILT, proven in a real browser, and offered to `master` by pull
+request.** Suite **12,516 green** (575 suites), lint 0 errors, coverage and audit gates passed.
+Tree clean, everything pushed.
 
-🔴 **7.12 IS THE LAPTOP'S; THIS MACHINE'S JOB IS NOW 7.13.** The merge of `origin/master` did
-**not** clear the duplicate `check:branch` had been warning about — **it produced it**. Both
-machines had filed different work under 7.12, this branch's copy won the merge, and
-`tests/unit/itemIdentity.test.js` — which came across in that same merge — caught it on the first
-run. **Mike had already ruled on it** in [`ITEM-NUMBERING.md`](ITEM-NUMBERING.md) §2026-09-19:
-7.12 is **restored**, not renumbered, and the later-filed job takes the free number. Applied as
-ruled, not re-decided. ⚠ **Do not "fix" this again from the laptop** — both machines fixing it
-independently is how it started.
+### 🔴 THE PLAN WAS WRONG IN FOUR PLACES AND WAS CORRECTED BEFORE ANY CODE
 
-🔴 **ITEM 17 — THE SALES TRACKER, FILED AND SURVEYED.** Mike asked for a merge plan, then said to
-file it. **Brief: [`features/sales-tracker.md`](features/sales-tracker.md)**, with a history page
-and an index row — a feature page without its companion is **dropped from the Handbook silently**
-(`tests/unit/newFeature.test.js`). The app is `E:/Visual Code Projects/sales-tracker-nuxt-clean`,
-origin `advisor-e/sales-tracker-nuxt`, and the two are **in step**. Someone had already converted
-it off TypeScript, down from Nuxt 3 to Nuxt 2, into Pug and Buefy — **that is what "clean" means**,
-and the screens are genuinely on our stack.
+Mike asked for the hub code, the stack rules and the colour/font rules to be read before
+building, then for the plan to be re-checked against them. It did not survive that. All four are
+in [`features/sales-tracker.md`](features/sales-tracker.md):
 
-**THE IMPACT TEST IS HALF ANSWERED AND THE BRIEF SAYS SO.** Mike ruled it serves the firm's **own
-advisors**, not their clients. **The measurement is NOT named, so no design begins.**
+1. **The screens are a REPAINT, not a port** — 93 distinct colours, 3 on brand, **no
+   `font-family` at all**, against `BRAND-TOKENS.md`'s *"every screen"* (§4a).
+2. **Their dashboard needs Chart.js.** We have six hand-built SVG charts and no chart library,
+   by design. Stage 3 is the hardest screen, not *"the easiest"*.
+3. ✅ **`va_courses` already answered multi-tenancy**, better than `firm_id` alone.
+4. 🔴 **"Add the screens to the Firm Manager Hub" was WRONG and nobody asked for it.**
+   `HUB_SCOPES` has no advisor scope and the hub is behind `requireManagerRole`, so it would
+   have built the tool where its own users cannot open it. **An AI session wrote it into the
+   Brief and a session was an hour from building from it**; Mike caught it by asking to see the
+   instruction. The mechanism is diagnosed in
+   [`features/sales-tracker-history.md`](features/sales-tracker-history.md) §5 — **freshness is
+   not authority.**
 
-⚠ **THREE BLOCKERS, ALL READ FROM THE SOURCE, NOT FROM ITS DOCS:** Prisma across 33 files; all 36
-API files inside Nuxt `serverMiddleware`; the `openai` SDK. Zero tests. `.nvmrc` says Node 20.
-🔴 **Its own `CLAUDE.md` still describes the old Nuxt 3 app — never trust it, read the source.**
-**Recommended NOT to absorb wholesale — pipeline and COI only.**
+**Estimate re-priced 12–21 → 16–25 days.**
 
-**MIKE ASKED TWICE TODAY WHY SOMETHING WAS MISSING** — the Sales Tracker from the Handbook, and
-7.13 from the laptop's list. **Both had the same cause and neither was a fault:** this branch was
-9 commits ahead of `master`, and both the Handbook and the other machine read from `master`. The
-PR is the fix. **This is item 14.3's territory and `/startup` step 6's whole reason for existing.**
+### What is built
 
-⛔ **AND A CORRECTION MADE HERE, SO IT IS NOT REPEATED.** This session was about to leave the
-laptop a note telling it to open a PR for its 7 pushed commits. **That was wrong and it was not
-done.** The laptop's own handover says its day's work sits on a local-only side branch that
-**Mike has ruled nothing on — "parked for him, not pending merge"**. Its 7 pushed commits are
-ordinary finished work and are clean, but **whether they go to `master` is Mike's call, never a
-nudge written into the other machine's note.** A sentence one session writes becoming the next
-session's orders is the failure `CLAUDE.md` names again and again.
+| | |
+|---|---|
+| `config/db-migration-sales-tracker.sql` | **5 tables**, not the plan's 8 |
+| `server/utils/salesPipelineStore.js` · `server/routes/salesPipeline.js` | Raw `mysql2`, 4 routes |
+| `components/sales/SalesPipeline.vue` · `pages/sales-pipeline.vue` | The screen, repainted |
+| 4 test files | **154 tests**; routes 99% / store 97% coverage |
 
-**LAPTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `advisory-engine.md`,
-`features/README.md`, and the two new `sales-tracker` pages. **No `activeOn` is set on this
-machine.** Your 7.5, 15.1 and 15.7 are untouched.
+**Two tables dropped beyond the `user`/`session` recommendation** — their `auditlog` and
+`appconfig` duplicate our `audit_log` and `firm_framework_versions`, and ours are better.
 
-**NEXT:** **7.13** is unclaimed and ready to build from the written steps in `advisory-engine.md`
-§4. **15.6 needs Mike** — eight concepts name a response form the app cannot find. **17 needs
-Mike's score and, before any design, the measurement.**
+**The access rule:** an advisor sees their own deals at any visibility plus their firm's shared
+ones, and may change **only their own**. Mutation-verified seven ways across the schema, store
+and screen.
+
+### 🔴 THE FAULT THE 12,000 TESTS COULD NOT CATCH — AND IT IS THE FOURTH TIME
+
+The screen rendered perfectly and said *"Could not load your pipeline"*. The backend was serving
+(curl proved it), but **`nuxt.config.js` had no proxy line for `/api/sales`**. Every test either
+calls the handler directly or stubs `fetch`; none goes through the running Nuxt server.
+
+**That file already carried a warning naming the three previous times.** Being written was not
+enough. ⚠ **When you add a backend route, add its proxy line in the same change** — and open the
+page before calling it done. [[feedback_walk_the_conversation]].
+
+**Also found by looking, not by testing:** the "Who can see this" control sat **below the fold**
+of the add form (measured y=942, scroll area ends 909). Moved to the top on Mike's ruling; now
+y=118. Nothing leaked — the default is private — but a privacy choice nobody sees is not a choice.
+
+### Two harness gaps that made a SECURITY test pass while asserting nothing
+
+Both commented where they are set up, because this is the dangerous kind of green:
+
+1. **`process.client` is undefined under jest** — Nuxt sets it in the browser. The component's
+   SSR guard refused to read the token, so every row looked like the caller's own.
+2. **jsdom's `window.localStorage` is READ-ONLY.** A plain assignment is silently ignored and the
+   real, empty store answers. `defineProperty` replaces it — and re-defining per test does not
+   take, so the token lives in a variable the getter reads.
+
+### Mike's rulings today, all recorded
+
+- **A firm manager DOES see their advisors' pipelines** — stage 4's Team roll-up, behind a
+  manager guard. Deliberately not in these routes.
+- **Currency is the FIRM's; conversion lives inside a model** where a primary currency is already
+  entered. The forecast already works that way via `fxAllowancePct`. Parent **13 renamed to
+  Language, Tax & Currency**, and `5.4` moved to `13.1` before the freeze could set.
+- **Both currency limits must be fixed** — now `13.2` and `13.3`, not "recorded boundaries".
+
+### NEXT
+
+**Stage 3 — COI + Dashboard.** COI is Pipeline again with different columns; the **dashboard is
+the hard one** and is redrawn on `components/base/`'s six SVG charts, not ported.
+
+🔴 **Waiting on Mike, and it blocks nothing:** does the currency picker MOVE to the Firm Manager
+Hub or appear in BOTH (13.3), and the wording for 13.1's one-line notice.
+
+**LAPTOP — shared files I changed:** `to-do-items.json` (13.1/13.2/13.3 and item 17), `to-do.md`,
+`ITEM-NUMBERING.md`, `localisation-and-currency.md`, `nuxt.config.js` (one proxy line),
+`locales/en.json` (a new `salesPipeline` block), `.gitignore`. **Your 7.5, 15.1 and 15.7 are
+untouched**, and so is every other item's `activeOn`.
