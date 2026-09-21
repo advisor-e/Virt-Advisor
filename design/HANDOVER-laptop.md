@@ -11,30 +11,32 @@
 
 ## 2026-09-21 · Laptop · branch `feat/advisor-progress`
 
-**Clean, pushed, 3 ahead of `master`, 0 behind.** Suite **12,374 green** (574 suites), lint 0,
-coverage and audit gates passed at push. Take ahead/behind from `npm run check:branch`.
+**Clean, 0 ahead / 0 behind after PR #105 merged.** Suite **12,573 green** (578 suites),
+lint 0, coverage and audit passed at push. Take ahead/behind from `npm run check:branch`.
 
-🔴 **A CONCEPT APPEARS ONCE — MIKE'S RULING, 2026-09-21, AND CODE WAS DELETED FOR IT.**
-`partsOfFields` and the `parts` payload are **gone** from `server/utils/strategyCaptureForms.js`,
-with the `part` prop, the `(Part 1)`/`(Part 2)` titles and the field filter. **Anything reading
-`capture.parts` now reads undefined.** A card key is the concept id — no `#1` suffix.
+🔴 **STAGE 5 FORM 2 IS BUILT — THE TWO-DIMENSIONAL GRID.** Drawn, approved and built
+2026-09-21 from [`../mockups/strategy-capture-two-dimensional-grid.html`](mockups/strategy-capture-two-dimensional-grid.html).
+Customer Types went from 181 boxes with **no persona name on any of them** to 153 each
+carrying a persona and an attribute; Operational Objectives from 25 unlabelled to 24 under
+his three stages. Cause: `isLabelRow` refused any row holding a ruled line, and his header
+rows open with empty corner cells.
 
-🔴 **BUILD SESSION IS BUILT FROM THE APPROVED DRAWING** — `strategy-session-process.html`,
-approved **and** built 2026-09-21. A standard session cascades all four managing tiers
-(`server/utils/sessionProcess.js`, inherit-or-own through `parentScopeOf`), and a new hub tab
-**Session Processes** authors it. **The AI suggestion panel is NOT built** — stage 6, unwritten.
+⚠ **TWO DEPARTURES, both on Mike's instruction, both stated in the code.** The example
+column is **editable** here, against the banded grid's *shown, never typed into*; and it is
+**screen-only until typed**, so an untouched column prints blank on the client's plan —
+pinned by three tests, do not "fix" it by seeding entries on load. And the reader and the
+screen now consult `captureForm`, which neither did before.
 
-⚠ **TWO THINGS BUILT WITHOUT A SPECIFIC YES, recorded rather than buried:** the tray's deck
-grouping with counts, and the concept count on each step head. Both are on the approved drawing;
-Mike was told at the time and did not object.
+**DESKTOP — shared files I changed:** `server/utils/strategyCaptureForms.js`,
+`components/strategy/StrategyConceptCapture.vue`, new
+`components/strategy/StrategyCaptureBox.vue`, `scripts/branch-survey.js`,
+`design/ARTEFACTS.md`, `design/features/strategy-planner.md`, `to-do-items.json`.
 
-**DESKTOP — shared files I changed:** `components/FirmManagerHub.vue` (TAB_TIERS, NAV_GROUPS, a
-panel), `locales/en.json`, `server/restify-server.js`, `server/routes/strategyPlanner.js`,
-`server/utils/strategyCaptureForms.js`, `design/ARTEFACTS.md`. ⚠ **Tab counts moved in two
-guards** — `hubTabTiers.test.js` (firm 18→19) and `mentorHubScope.component.test.js` (group 17→18).
+⚠ **Your handover is headed 2026-09-22 with every commit on your branch dated the 21st** —
+`check:branch` now says so, which is the `branch-survey.js` change above.
 
-**`activeOn` UNCHANGED ON MIKE'S INSTRUCTION TODAY.** 7.5 and 15.1 both still laptop — he was
-asked about 7.5 and said *"dont touch it now"*.
+**`activeOn`: 7.5 and 15.1 both still laptop. Item 17 is marked yours** (desktop, since
+2026-09-21) — it was unclaimed while you were two stages into building it.
 
-**NEXT on 15.1:** stages 5, 6, 7, 8. Each step's `purpose` ships empty because that wording is
-Mike's.
+**NEXT on 15.1:** seven capture forms remain, the Org Chart worst. **Three things wait on
+Mike and are on the live list under 15.1**, not here.
