@@ -38,6 +38,16 @@
 > Manager Hub tabs**. **Mutation-verified**, proven against a real MySQL and driven in a real
 > browser. **Next: stage 5, the blog tool** — the part the survey advised against and Mike ruled
 > in scope. See §10.
+>
+> 🔴 **STAGE 5 WAS RE-MEASURED 2026-09-22, BEFORE ANY CODE, AND IT IS BIGGER THAN THIS PLAN SAID.**
+> It was priced as back end only — *"4 blog routes + 3 reference routes"*. There are **13 API
+> files**, and the blog tool **has an 843-line screen**: `pages/index.vue`, which §3 had catalogued
+> as *"Entry / landing"*. It is not the landing page; `home.vue` is. **Stage 5 moves 3–5 → 5–8 days,
+> the total 16–25 → 18–28** (§11). Nothing is built yet.
+>
+> **This is stage 3's lesson working.** That stage invented a layout because nobody opened the
+> source app first; the rule it left behind — *the source app is the specification* — is what found
+> this, one command into stage 5 instead of a day into it.
 
 ---
 
@@ -108,13 +118,18 @@ Eight pages, of which **Pipeline** and **COI** are the reason to look at it at a
 | `pipeline.vue` | 847 | The advisor's deals — stages, values, close dates |
 | `coi.vue` | 428 | Centres of influence: referral partners and what they send |
 | `dashboard.vue` | 1,033 | Charts and conversion rates over both |
-| `index.vue` | 843 | Entry / landing |
+| `index.vue` | 843 | 🔴 **The blog tool itself** — the whole screen, not a landing page |
 | `lists.vue` | 430 | The dropdown values behind the other screens |
 | `team.vue` | 189 | Team roll-up |
 | `home.vue`, `login.vue` | 300 | Landing and sign-in |
 
 Behind them: **ten MySQL tables**, **36 API files**, six translated languages, and a
 **blog-writing tool** that calls OpenAI.
+
+🔴 **`index.vue` IS THE BLOG TOOL, and this table used to call it "Entry / landing".** The landing
+page is `home.vue`, which is in the row below it. The mistake mattered: it hid the blog tool's
+entire screen, so stage 5 was costed as back-end work alone. Found 2026-09-22 by opening the
+source before building — the check stage 3's lesson exists to enforce (§10 stage 3).
 
 ⚠ **THE BLOG TOOL AND THE LANGUAGE-ADMIN SCREEN ARE A DIFFERENT PRODUCT**, and between them they
 are roughly a third of the back end — **5 to 8 of the 16–25 days** (stages 5 and 6 below).
@@ -635,12 +650,30 @@ replaced wholesale. Every one of the 12,956 tests passed throughout. Fixed by de
 field at create time, and guarded by `salesTeam.component.test.js`, mutation-verified.
 
 ### Stage 5 — Blog tool · *the part I advised against, priced honestly*
-4 blog routes + 3 reference routes + `server/utils/openai.js` (119 lines) rewritten against
-`server/utils/openaiClient.js`.
+
+🔴 **RE-MEASURED 2026-09-22, BEFORE ANY CODE — this stage was understated twice over.** The
+previous wording read *"4 blog routes + 3 reference routes"* and named no screen at all. Both
+numbers were wrong, and the second one hid the largest screen in the source app.
+
+| | The old wording said | What is actually there |
+|---|---|---|
+| Back end | 7 routes | **13 API files** — 2 generate, 3 inputs, 4 posts, 3 references — plus `server/utils/openai.js` (119 lines) |
+| Screen | *(not mentioned)* | **`pages/index.vue`, 843 lines** — the blog tool IS a screen (§3) |
+
+**The work:** those 13 routes as Restify routes with raw `mysql2`, `openai.js` rewritten against
+`server/utils/openaiClient.js`, and the screen repainted to brand exactly as stages 2–4 were
+(§4a — 93 colours to 6, Open Sans 300). The three `va_sales_blog_*` tables **already exist and sit
+inert**, built in stage 1, so there is no schema work.
+
+✅ **One thing the source gets right, and it must be kept.** Every AI path already has a **template
+fallback**: no key, an empty response, or a thrown error each fall back to locally-built markdown
+and report `source: 'template'` with the reason. That satisfies our *"every LLM call has a graceful
+fallback"* rule as written — port the behaviour, do not redesign it.
+
 🔴 **This is the strictest work in the whole plan**: our standards require **100% test coverage on
 anything that validates LLM output**, and this app has **no tests at all**. Its OpenAI calls also
-have no prompt-injection guard, which our rules require (`wrap user input in explicit delimiters`).
-**It is roughly a third of the back end for a feature nobody has named a use for.**
+have no prompt-injection guard, which our rules require (`wrap user input in explicit delimiters`)
+— it concatenates the advisor's topic, audience and CTA straight into the prompt string.
 
 ### Stage 6 — Language admin · *the other part I advised against*
 7 `languages/*` routes including a `translate.post` that calls OpenAI. **Virt Advisor already has
@@ -706,22 +739,20 @@ redraw on top of that.
 | 2 | Pipeline end to end, with tests | 2–4 | ✅ **DONE** | Built 2026-09-21 — backend, screen and 122 tests |
 | 3 | COI + Dashboard | 2–3 | ✅ **DONE** | Built 2026-09-21 — backend and both screens. The dashboard was rebuilt once: see §10 stage 3 |
 | 4 | Team + Lists | 1–2 | ✅ **DONE** | Built 2026-09-22 — 5 routes, both screens, 2 hub tabs, 120 tests |
-| 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **3–5** | Unchanged — already priced honestly |
+| 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **5–8** | 🔴 **Re-measured 2026-09-22**: 13 routes not 7, and an **843-line screen** the plan never counted (§10 stage 5) |
 | 6 | **Language admin** | 2–3 | **2–3** | Unchanged — still recommended for dropping |
 | 7 | Locales, advisor pages, front door | 1–2 | **1–2** | Unchanged in size; **wholly different in shape** (§10 stage 7) |
-| | **TOTAL** | **12–21** | **16–25 days** | — |
+| | **TOTAL** | **12–21** | **18–28 days** | — |
 
-**The honest movement is +4 days.** Three stages grew, one shrank, and nothing was padded: the
-repaint is a real, countable job (93 colours → 6, no font → Open Sans 300, across eight screens)
-that the first estimate simply did not contain.
+**The honest movement is +6 days over two corrections.** Nothing was padded, and both movements
+have the same single cause: **the screens are a repaint, and the first estimate counted none of
+them.** 2026-09-21 found that for stages 2–4 (93 colours → 6, no font → Open Sans 300);
+2026-09-22 found the blog tool's own 843-line screen, which §3 had miscatalogued as a landing
+page, and 13 routes where the plan said 7.
 
-**Stages 5 and 6 remain 5–8 of those days** — still between a quarter and a third of the whole job,
-and still the two parts this survey recommended dropping. Mike has said he wants everything, and
-that stands; the number is here so the choice stays informed.
-
-**Stages 5 and 6 are 5–8 of those days — between a third and a half of the whole job — and both
-are parts this survey recommended dropping.** Mike has said he wants everything, and that stands;
-the number is here so the choice stays informed rather than forgotten.
+**Stages 5 and 6 are now 7–11 of those days — between a third and a half of the whole job — and
+both are the parts this survey recommended dropping.** Mike has said he wants everything, and that
+stands; the number is here so the choice stays informed rather than forgotten.
 
 **Not included, and genuinely unknown:** whatever the master team needs for the real firm data.
 This plan builds against our own MySQL, as everything else here does.
