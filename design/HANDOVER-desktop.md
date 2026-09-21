@@ -11,79 +11,34 @@
 
 ## 2026-09-21 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Item 17 stage 3 COMPLETE — the COI screen and the Sales Dashboard.** Both driven in a browser
-against seeded data. Suite green on every affected suite (327 across the eight run).
+**Item 17 stage 3 COMPLETE** — the COI screen and the Sales Dashboard, both driven in a browser.
+Clean, pushed, 7 ahead / 0 behind. Suite 12,724 green. Merged the laptop's 15.1 work on the way.
+**Next: stage 4, Team + Lists.**
 
-### 🔴 READ THIS BEFORE PORTING ANY OF HIS OTHER SCREENS
+### 🔴 READ HIS SCREEN BEFORE PORTING IT — stages 4–7 are five more of them
 
-**The first dashboard I built was thrown away, and rightly.** The plan said the dashboard is
-*"redrawn on our six SVG chart components"* and said **nothing about what the screen looked
-like** — so I read that as a free hand and designed one: a waterfall chart of my own invention,
-his **two funnels collapsed into one**, his rings and COI table dropped, the page renamed.
+**My first dashboard was thrown away, and rightly.** The plan said *"redrawn on our six SVG chart
+components"* and said **nothing about what the screen looked like**, so I read that as a free hand
+and designed one — inventing a chart, collapsing his two funnels into one, dropping his rings.
+His `pages/dashboard.vue` had been on `E:` the whole time, 938 lines, fully designed, unopened.
 
-His answer: *"i want what i had in the first place - i spent a lot of time to get it right - all
-you had to do was wire it"*, and then *"dont change shit - get it looking the same"*.
+**A plan naming a CONSTRAINT is not a licence to invent a layout. His app is the specification.**
+What was copied, and the three forced differences (charts, address, currency): Brief §10 stage 3.
 
-**The lesson, and it cost most of a session: a plan that names a CONSTRAINT is not a licence to
-invent a layout. His app IS the specification — open the screen before you write the one that
-replaces it.** His `pages/dashboard.vue` had been sitting on `E:`, 938 lines, fully designed,
-the whole time.
+🔴 **His two funnels split on `salesStyle`** — Campaign vs Total Needs, the point of the screen.
+The field was already in our table from stage 1 and simply never read.
+`salesDashboardMetrics.test.js` fails if they are collapsed again; mutation-verified.
 
-**Stages 4–7 are five more of his screens.** Read each one first.
+### A test that passed while asserting nothing — fixed (`def402ed`)
 
-### What is built (item 17)
+`salesPipeline.component.test.js` asserted on an **empty** money box, and `Number('')` is `0` — so
+its NaN guard could be deleted with all 25 tests still green. The COI equivalent had the same
+hole. Both now bite. ⚠ **When a test and its comment agree, neither is evidence** — delete the
+thing it guards and see what goes red.
 
-| | |
-|---|---|
-| Stage 1 | 5 tables (`db-migration-sales-tracker.sql`), proven on real MySQL |
-| Stage 2 | Pipeline store, routes and **screen** |
-| Stage 3 | COI store, routes and **screen** · **Sales Dashboard**, backend and screen |
-| Next | **Stage 4 — Team + Lists**, the firm-manager pages |
+### Notes
 
-**The dashboard is a faithful copy** of his own: his seven stat cards, both rings-and-averages
-blocks, his COI panel, his charts row, **his CSS unchanged** (deliberately NOT re-themed to our
-brand tokens) and his wording verbatim under `salesTrackerDashboard` in `locales/en.json`.
-
-🔴 **HIS TWO FUNNELS SPLIT ON `salesStyle`** — Campaign vs Total Needs, each with its own four
-rates, average fee and average days. That field was **already in our table and store** from
-stage 1 and simply was not being read. `dashboard()` in `salesMetrics.js` ports his
-`metrics.get.js` field for field; `salesDashboardMetrics.test.js` (22 tests, mutation-verified)
-fails if they are ever collapsed again.
-
-⚠ **His rounding and his zeroes are kept on purpose.** `wholeRate` gives a whole number and **0**
-for an empty denominator, where our `rate` gives `null` — because his rings are DRAWN from the
-number and a ring needs one. Both live side by side; `compute()` and its contract are untouched.
-
-### The three forced differences, all stated in the Brief
-
-1. **Charts** — his are Chart.js + vue-chartjs; the locked stack forbids both, so they are drawn
-   on `components/base/` carrying **his** colours. His two vertical bars are horizontal: we have
-   no vertical bar component.
-2. **Address** — `/sales-tracker-dashboard`, because `/sales-dashboard` is item 4.95's Sales
-   Dashboard **model**, a different screen. The page still calls itself *"Sales Dashboard"*.
-3. **Money** — `currencyMixin`, not his hardcoded `en-NZ`/`NZD`, which would show every firm New
-   Zealand dollars.
-
-### A test that passed while asserting nothing — FIXED, and worth knowing about
-
-🔴 **`salesPipeline.component.test.js` did not actually test its NaN guard.** Deleting the guard
-in `payload()` left all 25 tests green. The cause: it asserted on an **empty** money box, and
-`Number('')` is `0`. The values that really reach NaN are `undefined` and unparseable text.
-
-Found by deleting the guard on purpose while checking whether the COI screen's equivalent test
-had the same hole — it did. **Both fixed and mutation-verified** (`def402ed`): 26 green, and
-removing the guard now fails one.
-
-⚠ **The header comment said "empty money box" too, so the test matched the WORDING rather than
-the risk.** That is the transferable part: when a test and its comment agree, neither is
-evidence. Delete the thing it guards and see whether anything goes red.
-
-### Seeded dev data
-
-Seven deals and four referral partners are in the local MySQL from testing, under
-`dev-advisor-001` / `dev-firm-001`. Harmless, but they are not real.
-
-**LAPTOP — shared files I changed:** `locales/en.json` (added `salesCoi` and
-`salesTrackerDashboard`), `server/utils/salesMetrics.js` (added, removed nothing),
-`server/routes/salesCoi.js`, `to-do-items.json` item 17, `sales-tracker.md`.
-**Your 7.5 and 15.1 are untouched.**
+- **Seeded dev data**: 7 deals and 4 partners in local MySQL under `dev-advisor-001`. Not real.
+- **LAPTOP — shared files I touched**: `locales/en.json` (added `salesCoi`,
+  `salesTrackerDashboard`), `salesMetrics.js` (added only), `salesCoi.js`, `to-do-items.json`
+  item 17, `sales-tracker.md`. **Your 7.5 and 15.1 untouched.**

@@ -79,14 +79,14 @@ const COLUMNS = [
 
 const TEXT_LIMITS = {
   coiName: 255,
-email: 255,
-cell: 80,
-entity: 255,
-position: 255,
+  email: 255,
+  cell: 80,
+  entity: 255,
+  position: 255,
   industry: 120,
-other: 255,
-leadRelationshipPartner: 255,
-relationshipSupport: 255
+  other: 255,
+  leadRelationshipPartner: 255,
+  relationshipSupport: 255
 }
 
 /** A DB row → the shape the screen reads. */
