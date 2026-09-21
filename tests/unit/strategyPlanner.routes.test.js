@@ -371,6 +371,56 @@ describe('the navigation timeline — Decision 11\'s mechanism', () => {
     expect(res._status).toBe(200)
     expect(store.closeOpenField).toHaveBeenCalledWith(7, FIRM)
   })
+
+  // 🔴 THE PAIR OF WHITELISTS MUST BE CHECKED IN BOTH ROUTES, AND FOR FOUR DAYS ONLY ONE WAS.
+  // When the concepts' own tables arrived on 2026-09-17 the SAVE route learnt about them and
+  // this one did not, so every box on those 16 concepts saved perfectly and had its timeline
+  // entry refused with a 400. The page swallows a timeline failure deliberately — an error
+  // banner mid-sentence costs the advisor more than the gap does — so nothing on any screen
+  // said so, and Decision 11's mechanism was recording nothing for most of a session. Found
+  // 2026-09-21 by watching the network, not by any assertion.
+  const realFrameworks = jest.requireActual('../../server/utils/strategyFrameworks')
+  const realForms = jest.requireActual('../../server/utils/strategyCaptureForms')
+
+  it('opens a box on a concept read from Mike\'s own workbook', async () => {
+    const concept = realFrameworks.listConcepts()
+      .find(c => c.captureTemplate && realForms.captureForConcept(c).fields.length)
+    const fieldKey = realForms.captureForConcept(concept).fields[0].key
+    store.openField.mockResolvedValue(true)
+    const res = makeRes()
+
+    await routes.postTimeline(req({
+      params: { id: 7 },
+      body: { frameworkId: concept.id, fieldKey }
+    }), res)
+
+    expect({ concept: concept.id, status: res._status }).toEqual({ concept: concept.id, status: 200 })
+  })
+
+  it('opens a role box on the Org Chart, whose rows are not fixed positions at all', async () => {
+    store.openField.mockResolvedValue(true)
+    const res = makeRes()
+
+    await routes.postTimeline(req({
+      params: { id: 7 },
+      body: { frameworkId: 'design-the-organisational-hierarchy-chart', fieldKey: 'orgrole-31-name' }
+    }), res)
+
+    expect(res._status).toBe(200)
+  })
+
+  it('still refuses a box that belongs to neither list', async () => {
+    // Widening the guard must not have turned it into no guard.
+    const res = makeRes()
+
+    await routes.postTimeline(req({
+      params: { id: 7 },
+      body: { frameworkId: 'porters-5-forces', fieldKey: 'orgrole-1-name' }
+    }), res)
+
+    expect(res._status).toBe(400)
+    expect(store.openField).not.toHaveBeenCalled()
+  })
 })
 
 describe('a real fault still says so', () => {

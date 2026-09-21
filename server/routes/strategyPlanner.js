@@ -505,7 +505,18 @@ async function postTimeline (req, res) {
     if (body.close === true) {
       done = await store.closeOpenField(req.params.id, firmId)
     } else {
-      if (!frameworks.hasField(body.frameworkId, body.fieldKey)) {
+      // 🔴 BOTH WHITELISTS, THE SAME PAIR `putEntries` CHECKS. This route checked only the
+      // built frameworks, so every box on the 16 concepts read from Mike's own workbooks was
+      // refused here while its SAVE succeeded — the timeline half of the pair was never
+      // updated when those tables arrived on 2026-09-17. Nothing on screen said so, because
+      // the page swallows a timeline failure on purpose (an error banner mid-sentence costs
+      // the advisor more than the gap does), so this was invisible in both directions for
+      // four days: Decision 11's mechanism silently recording nothing for most of a session.
+      // Found 2026-09-21 by watching the network while driving the Org Chart Builder, and
+      // proved against the running server with a Porter's box, which has nothing to do with
+      // it. ⚠ THE TWO LISTS MUST BE CHANGED TOGETHER — that is the whole lesson here.
+      if (!frameworks.hasField(body.frameworkId, body.fieldKey) &&
+          !captureForms.hasCaptureField(body.frameworkId, body.fieldKey, frameworks.getConcept)) {
         sendError(res, 400, 'UNKNOWN_FIELD',
           'That capture box does not belong to its framework')
         return

@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Org Chart Builder — redrawn</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #002B64; --blue: #0070C0; --cyan: #00B1E0; --sky: #7FD3F1;
+    --ink: #002B64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --eg: #6b7f99; --bg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--blue); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+  .tbl { margin: 0 0 40px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 0 0 2px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .note { background: var(--wash); border-left: 3px solid var(--blue); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 26px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .bad { border-left-color: #c0392b; background: #fdf3f2; }
+  .said { border-left-color: #8a6100; background: #fdf8ec; }
+  .said i { color: #6b4e00; }
+
+  /* ---- the builder ---- */
+  .app { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 0 0 14px; box-shadow: 0 6px 18px rgba(0,43,100,.06); }
+  .bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 12px 16px; background: linear-gradient(90deg, #f3f9ff, #fff);
+    border-bottom: 1px solid var(--line);
+  }
+  .btn {
+    display: inline-block; font-size: 12.5px; font-weight: 600; border-radius: 7px;
+    padding: 7px 14px; border: 1px solid var(--blue); color: #fff; background: var(--blue);
+  }
+  .btn.ghost { background: #fff; color: var(--blue); }
+  .count { margin-left: auto; font-size: 12px; color: var(--eg); }
+  .count b { color: var(--navy); }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--navy); color: #fff; font-size: 12px;
+    letter-spacing: .06em; text-transform: uppercase; padding: 9px 12px;
+    vertical-align: middle;
+  }
+  table.bg td { border-top: 1px solid #eef3f9; padding: 8px 10px; vertical-align: middle; }
+  table.bg tbody tr:nth-child(even) { background: #fafcfe; }
+  th:first-child, td.num { width: 46px; text-align: center; }
+  th:last-child, td.act { width: 44px; text-align: center; }
+  .box {
+    display: inline-block; width: 100%; height: 32px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 6px; background: #fdfefe;
+  }
+  .boxpre {
+    display: inline-block; width: 100%; min-height: 32px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 6px; background: #fdfefe;
+    padding: 6px 9px; font-size: 12.5px; color: var(--ink);
+  }
+  td.num { color: var(--eg); font-size: 12px; }
+  .rm { color: #c0392b; font-size: 17px; line-height: 1; opacity: .55; }
+  .sel {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    width: 100%; min-height: 32px; border: 1px solid var(--line); border-radius: 6px;
+    background: #fdfefe; padding: 5px 9px; font-size: 12.5px; color: var(--body);
+  }
+  .sel.is-nobody { color: var(--eg); font-style: italic; }
+  .caret {
+    flex: 0 0 auto; width: 0; height: 0; margin-left: 4px;
+    border-left: 4.5px solid transparent; border-right: 4.5px solid transparent;
+    border-top: 5.5px solid var(--eg);
+  }
+
+  /* ---- the chart ---- */
+  .chart {
+    overflow-x: auto; border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px 20px; margin: 0 0 14px; background: linear-gradient(180deg,#fbfdff,#fff);
+    box-shadow: 0 6px 18px rgba(0,43,100,.06);
+  }
+  .chart svg { display: block; margin: 0 auto; }
+  .key { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--eg); margin: 0 0 16px; }
+  .key span { display: inline-flex; align-items: center; gap: 6px; }
+  .key i { width: 13px; height: 13px; border-radius: 4px; display: inline-block; }
+  .flag {
+    display: flex; gap: 9px; align-items: flex-start;
+    border: 1px solid #f0d8a8; background: #fdf8ec; border-radius: 9px;
+    padding: 10px 13px; margin: 0 0 14px; font-size: 13px;
+  }
+  .flag .dot { color: #d79a1d; font-size: 15px; line-height: 1.2; }
+
+  /* ---- the plan page ---- */
+  .page { background:#fff; border:1px solid var(--line); border-radius:12px; padding:26px 30px; box-shadow:0 8px 22px rgba(0,43,100,.06); margin: 0 0 14px; }
+  .page .kind { font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#5b6f8a; margin:0 0 6px; }
+  .page h3 { font-size:21px; color:var(--ink); margin:0 0 12px; }
+  .page svg { width: 100%; height: auto; display: block; }
+  table.plan { width:100%; border-collapse:collapse; margin-top:14px; font-size:13px; }
+  table.plan th { text-align:left; font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#5b6f8a; border-bottom:1px solid var(--line); padding:0 8px 5px; }
+  table.plan td { color:var(--body); border-bottom:1px solid #eef3f9; padding:5px 8px; }
+  table.plan td.blank { color:#aab6c4; font-style:italic; }
+
+  /* the decisions */
+  .dec { border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 0 0 16px; }
+  .dec h3 { margin: 0 0 4px; color: var(--ink); font-size: 16px; }
+  .dec .rec { margin: 8px 0 0; }
+  .dec .rec b { color: var(--ink); }
+  .dec .against { margin: 6px 0 0; color: var(--eg); font-size: 13px; }
+  .dec.is-ruled { border-color: #a8d5b8; }
+  .dec .ruled {
+    margin: 10px 0 0; padding: 9px 12px; border-radius: 7px; font-weight: 600;
+    background: #eef7f0; color: #1e5c33; border-left: 3px solid #4a9c63;
+  }
+  .dec .ruled .who { display: block; font-weight: 400; font-size: 12px; color: #4a7a58; margin-top: 3px; }
+  .dec .open { margin: 10px 0 0; padding: 9px 12px; border-radius: 7px; background: var(--wash); color: var(--eg); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Strategy Planner &middot; stage 5 &middot; capture form 3 of 9 &middot; item 15.1 &middot; REDRAWN</p>
+  <h1>The Org Chart Builder &mdash; redrawn</h1>
+  <p class="lede">
+    <b>This supersedes <i>strategy-capture-parent-child-list.html</i>, which was approved on
+    2026&#8209;09&#8209;21, built the same day, and found wanting the moment Mike used it.</b>
+    That drawing was faithful to <i>Org Chart.xlsx</i> and the build was faithful to the drawing.
+    Both were correct and the screen was still wrong, which is the finding worth keeping: a
+    document traced onto a screen is not a screen.
+  </p>
+  <p class="lede" style="margin-top:10px">
+    <b>Status, 2026&#8209;09&#8209;21:</b> ☑ <b>all five decisions ruled</b>, each as recommended,
+    asked one at a time &mdash; they are at the foot of this page with the arguments against them
+    kept beside them. ☐ <b>The drawing itself is NOT yet approved to build from</b>, which is a
+    separate question, exactly as it was for the drawing this replaces.
+    <b>The screen built on 2026&#8209;09&#8209;21 is still running and is untouched.</b>
+  </p>
+
+  <div class="note said">
+    <h3>What he said, having used it</h3>
+    <ul>
+      <li><i>&ldquo;no ability to enter their role which is critical in an organisational chart&rdquo;</i>
+        &mdash; he typed <i>billy smith</i>, <i>bobby moors</i> and <i>jason gunn</i> into the only
+        text box there is, the one headed <b>Role</b>. There was nowhere to say what they do.</li>
+      <li><i>&ldquo;1 person does not have to report to anyone - nil needs to be an option&rdquo;</i>
+        &mdash; <b>it already was one, and the word for it was hiding.</b> The empty choice read
+        <i>&ldquo;Reports to&hellip;&rdquo;</i>, which is a prompt telling you to pick somebody, not a
+        choice meaning nobody.</li>
+      <li><i>&ldquo;it looks boring - lacks colour and is not engaging - looks very cheap&rdquo;</i>
+        &mdash; the old drawing used one accent and pale grey rules on white. Of the brand palette
+        &mdash; Navy, Blue, Cyan, Sky &mdash; it used navy for text and blue for a single border.</li>
+    </ul>
+  </div>
+
+  <div class="note bad">
+    <h3>What that produced on screen, measured</h3>
+    <ul>
+      <li><b>Three people, no jobs.</b> The chart he built said <i>billy smith</i> reports to
+        <i>bobby moors</i>. It could not say either of them was a Managing Director.</li>
+      <li><b>A 176&nbsp;px-wide chart in a 1,000&nbsp;px panel</b> &mdash; the box sized itself to the
+        panel, not to the drawing, so most of it was empty white.</li>
+      <li><b>Every row double height</b>, because the voice bar sits above the box rather than beside
+        it. Three roles filled the screen.</li>
+      <li><b>Nothing told him which way was up.</b> Every box was the same pale outline, so the top
+        of the chart looked exactly like the bottom of it.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+  <section class="tbl">
+    <h2>1 &middot; What the advisor sees first</h2>
+    <p class="src">One empty role. <b>Three columns where there were two</b>, and the Reporting Head
+      already says <i>Nobody</i> rather than asking a question.</p>
+    <div class="app">
+      <div class="bar">
+        <span class="btn">+ Add a role</span>
+        <span class="btn ghost">Start from the example</span>
+        <span class="count"><b>0</b> roles</span>
+      </div>
+      <table class="bg"><thead><tr><th>#</th><th>Role</th><th>Name</th><th>Reporting Head</th><th></th></tr></thead><tbody><tr><td class="num">1</td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="sel is-nobody">Nobody<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr></tbody></table>
+    </div>
+    <p class="src"><b>Role</b> and <b>Name</b> are the change. <i>Reporting Head</i> is his own
+      heading, read from the workbook; <i>Role</i> was ruled ours on 2026&#8209;09&#8209;21 and
+      <b>Name is the second word of ours on this screen</b> &mdash; recorded here so it is never
+      mistaken for his document.</p>
+  </section>
+
+  <section class="tbl">
+    <h2>2 &middot; His own three, with their jobs</h2>
+    <p class="src">The people he typed this morning, now able to say what they do &middot; the top of
+      the chart reports to <i>Nobody</i>, which is a choice and not a gap</p>
+    <div class="app">
+      <div class="bar">
+        <span class="btn">+ Add a role</span>
+        <span class="btn ghost">Clear all</span>
+        <span class="count"><b>3</b> roles &middot; <b>3</b> levels &middot; <b>1</b> at the top</span>
+      </div>
+      <table class="bg"><thead><tr><th>#</th><th>Role</th><th>Name</th><th>Reporting Head</th><th></th></tr></thead><tbody><tr><td class="num">1</td><td><span class="boxpre">Managing Director</span></td><td><span class="boxpre">bobby moors</span></td><td><span class="sel is-nobody">Nobody<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">2</td><td><span class="boxpre">Operations Manager</span></td><td><span class="boxpre">billy smith</span></td><td><span class="sel">Managing Director<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">3</td><td><span class="boxpre">Site Supervisor</span></td><td><span class="boxpre">jason gunn</span></td><td><span class="sel">Operations Manager<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section class="tbl">
+    <h2>3 &middot; A role nobody is in yet</h2>
+    <p class="src">A client redesigning their structure has positions before they have people. The
+      Name is optional; the chart shows the role alone.</p>
+    <div class="app">
+      <div class="bar">
+        <span class="btn">+ Add a role</span>
+        <span class="btn ghost">Clear all</span>
+        <span class="count"><b>3</b> roles &middot; <b>2</b> levels &middot; <b>1</b> unfilled</span>
+      </div>
+      <table class="bg"><thead><tr><th>#</th><th>Role</th><th>Name</th><th>Reporting Head</th><th></th></tr></thead><tbody><tr><td class="num">1</td><td><span class="boxpre">Managing Director</span></td><td><span class="boxpre">bobby moors</span></td><td><span class="sel is-nobody">Nobody<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">2</td><td><span class="boxpre">Operations Manager</span></td><td><span class="boxpre">billy smith</span></td><td><span class="sel">Managing Director<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">3</td><td><span class="boxpre">Quality Manager</span></td><td><span class="box"></span></td><td><span class="sel">Managing Director<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section class="tbl">
+    <h2>4 &middot; The chart, coloured by how far down it is</h2>
+    <p class="src">His own 24 roles &middot; <b>the tree below is computed by the built code from
+      <i>Org Chart.xlsx</i></b> and only re-sized here, so this drawing cannot show a structure the
+      app cannot produce &middot; the panel scrolls sideways</p>
+    <div class="key">
+      <span><i style="background:#002B64"></i> the top</span>
+      <span><i style="background:#0A4A8F"></i></span>
+      <span><i style="background:#0070C0"></i></span>
+      <span><i style="background:#2E90D9"></i></span>
+      <span><i style="background:#00B1E0"></i></span>
+      <span><i style="background:#7FD3F1"></i></span>
+      <span><i style="background:#C7E9F8"></i> the front line</span>
+      <span><i style="background:#F4F8FC;border:1px dashed #9DB6CE"></i> outside the chart</span>
+    </div>
+    <div class="chart"><svg width="1904" height="844" viewBox="0 -112 1904 844" role="img" aria-label="Organisational hierarchy chart, coloured by level">
+<path d="M952 -60 V-30 H952 V0" fill="none" stroke="#9DB6CE" stroke-width="1.6" stroke-dasharray="5 4"/>
+<path d="M952 52 V82 H952 V112" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M952 164 V194 H88 V224" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M952 164 V194 H904 V224" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M952 164 V194 H1624 V224" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1624 276 V306 H1624 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1624 388 V418 H1624 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1624 500 V530 H1624 V560" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1624 612 V642 H1624 V672" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M904 276 V306 H376 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M376 388 V418 H280 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M376 388 V418 H472 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M952 164 V194 H1816 V224" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1816 276 V306 H1816 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1816 388 V418 H1816 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M88 276 V306 H88 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M88 388 V418 H88 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M904 276 V306 H856 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M904 276 V306 H1240 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M904 276 V306 H1432 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M856 388 V418 H664 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M856 388 V418 H856 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M856 388 V418 H1048 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1240 388 V418 H1240 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<g><rect x="864" y="-112" width="176" height="52" rx="9" fill="#F4F8FC" stroke="#9DB6CE" stroke-width="1.2" stroke-dasharray="5 4"/><text x="952" y="-87" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="600" fill="#41607F">Shareholders</text><text x="952" y="-72" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="10.5" fill="#7A93AD">not one of your roles</text></g>
+<g><rect x="864" y="0" width="176" height="52" rx="9" fill="#002B64"/><text x="952" y="31" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Board</text></g>
+<g><rect x="864" y="112" width="176" height="52" rx="9" fill="#0A4A8F"/><text x="952" y="134" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">CEO</text><text x="952" y="151" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#AFD2EE">Alan Whitcombe</text></g>
+<g><rect x="0" y="224" width="176" height="52" rx="9" fill="#0070C0"/><text x="88" y="246" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">CFO</text><text x="88" y="263" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#CFE6F7">Priya Raman</text></g>
+<g><rect x="816" y="224" width="176" height="52" rx="9" fill="#0070C0"/><text x="904" y="246" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">COO</text><text x="904" y="263" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#CFE6F7">Dev Okonkwo</text></g>
+<g><rect x="1536" y="224" width="176" height="52" rx="9" fill="#0070C0"/><text x="1624" y="246" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head Marketing</text><text x="1624" y="263" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#CFE6F7">Jess Turnbull</text></g>
+<g><rect x="1536" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="1624" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Marketing Manager</text><text x="1624" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Sam Ellery</text></g>
+<g><rect x="1536" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="1624" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Social Media Assistant</text><text x="1624" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Kiri Ngata</text></g>
+<g><rect x="1536" y="560" width="176" height="52" rx="9" fill="#7FD3F1"/><text x="1624" y="591" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Copy Writer</text></g>
+<g><rect x="1536" y="672" width="176" height="52" rx="9" fill="#C7E9F8"/><text x="1624" y="694" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Events Co-ordinator</text><text x="1624" y="711" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#1C6489">Tom Barr</text></g>
+<g><rect x="288" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="376" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head HR</text><text x="376" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Moana Peters</text></g>
+<g><rect x="192" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="280" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Trainer</text><text x="280" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Ruth Delaney</text></g>
+<g><rect x="384" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="472" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Health &amp; Safety Officer</text><text x="472" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Colin Fry</text></g>
+<g><rect x="1728" y="224" width="176" height="52" rx="9" fill="#0070C0"/><text x="1816" y="246" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head Sales</text><text x="1816" y="263" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#CFE6F7">Nina Bartlett</text></g>
+<g><rect x="1728" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="1816" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Sales Manager</text><text x="1816" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Hemi Walker</text></g>
+<g><rect x="1728" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="1816" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Salesperson</text><text x="1816" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Gary Loft</text></g>
+<g><rect x="0" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="88" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Accountant</text><text x="88" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Wei Chen</text></g>
+<g><rect x="0" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="88" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Bookkeeper</text><text x="88" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Sandra Poole</text></g>
+<g><rect x="768" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="856" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Factory Foreman</text><text x="856" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Bruce Tane</text></g>
+<g><rect x="1152" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="1240" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head of Purchasing</text><text x="1240" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Aroha Skipper</text></g>
+<g><rect x="1344" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="1432" y="367" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head of Inventory</text></g>
+<g><rect x="576" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="664" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Snr Tech</text><text x="664" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Pete Vance</text></g>
+<g><rect x="768" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="856" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Tech</text><text x="856" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Lucy Marsh</text></g>
+<g><rect x="960" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="1048" y="479" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Jnr Tech</text></g>
+<g><rect x="1152" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="1240" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Personal Assistant</text><text x="1240" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Fiona Gale</text></g>
+</svg></div>
+    <p class="src"><b>Depth is the one thing an org chart is for</b>, and on the old drawing every box
+      looked the same. Navy at the top through to Sky at the front line makes seven levels readable
+      without counting lines. <b>Every colour is from <i>BRAND-TOKENS.md</i></b>; none is invented
+      here. <b>That is decision E below.</b></p>
+    <div class="flag">
+      <span class="dot">&#9679;</span>
+      <span><b>A notice, never a block</b>, unchanged from the approved drawing and from his ruling of
+        2026&#8209;09&#8209;08. <i>Board</i> reports to <i>Shareholders</i>, which is not one of the 24
+        roles, so it is drawn above the chart as an outside parent and the session carries on.</span>
+    </div>
+  </section>
+
+  <section class="tbl">
+    <h2>5 &middot; What the client receives</h2>
+    <p class="src">Decision E of 2026&#8209;09&#8209;21, unchanged &mdash; the drawn chart with the list
+      beneath it, scaled to the page rather than cropped. The list now carries three columns.</p>
+    <div class="page">
+      <p class="kind">Capture</p>
+      <h3>Design the Organisational Hierarchy Chart</h3>
+      <svg width="1904" height="844" viewBox="0 -112 1904 844" role="img" aria-label="Organisational hierarchy chart, coloured by level">
+<path d="M952 -60 V-30 H952 V0" fill="none" stroke="#9DB6CE" stroke-width="1.6" stroke-dasharray="5 4"/>
+<path d="M952 52 V82 H952 V112" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M952 164 V194 H88 V224" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M952 164 V194 H904 V224" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M952 164 V194 H1624 V224" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1624 276 V306 H1624 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1624 388 V418 H1624 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1624 500 V530 H1624 V560" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1624 612 V642 H1624 V672" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M904 276 V306 H376 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M376 388 V418 H280 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M376 388 V418 H472 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M952 164 V194 H1816 V224" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1816 276 V306 H1816 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1816 388 V418 H1816 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M88 276 V306 H88 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M88 388 V418 H88 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M904 276 V306 H856 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M904 276 V306 H1240 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M904 276 V306 H1432 V336" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M856 388 V418 H664 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M856 388 V418 H856 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M856 388 V418 H1048 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<path d="M1240 388 V418 H1240 V448" fill="none" stroke="#9DB6CE" stroke-width="1.6"/>
+<g><rect x="864" y="-112" width="176" height="52" rx="9" fill="#F4F8FC" stroke="#9DB6CE" stroke-width="1.2" stroke-dasharray="5 4"/><text x="952" y="-87" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="600" fill="#41607F">Shareholders</text><text x="952" y="-72" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="10.5" fill="#7A93AD">not one of your roles</text></g>
+<g><rect x="864" y="0" width="176" height="52" rx="9" fill="#002B64"/><text x="952" y="31" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Board</text></g>
+<g><rect x="864" y="112" width="176" height="52" rx="9" fill="#0A4A8F"/><text x="952" y="134" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">CEO</text><text x="952" y="151" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#AFD2EE">Alan Whitcombe</text></g>
+<g><rect x="0" y="224" width="176" height="52" rx="9" fill="#0070C0"/><text x="88" y="246" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">CFO</text><text x="88" y="263" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#CFE6F7">Priya Raman</text></g>
+<g><rect x="816" y="224" width="176" height="52" rx="9" fill="#0070C0"/><text x="904" y="246" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">COO</text><text x="904" y="263" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#CFE6F7">Dev Okonkwo</text></g>
+<g><rect x="1536" y="224" width="176" height="52" rx="9" fill="#0070C0"/><text x="1624" y="246" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head Marketing</text><text x="1624" y="263" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#CFE6F7">Jess Turnbull</text></g>
+<g><rect x="1536" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="1624" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Marketing Manager</text><text x="1624" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Sam Ellery</text></g>
+<g><rect x="1536" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="1624" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Social Media Assistant</text><text x="1624" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Kiri Ngata</text></g>
+<g><rect x="1536" y="560" width="176" height="52" rx="9" fill="#7FD3F1"/><text x="1624" y="591" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Copy Writer</text></g>
+<g><rect x="1536" y="672" width="176" height="52" rx="9" fill="#C7E9F8"/><text x="1624" y="694" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Events Co-ordinator</text><text x="1624" y="711" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#1C6489">Tom Barr</text></g>
+<g><rect x="288" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="376" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head HR</text><text x="376" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Moana Peters</text></g>
+<g><rect x="192" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="280" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Trainer</text><text x="280" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Ruth Delaney</text></g>
+<g><rect x="384" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="472" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Health &amp; Safety Officer</text><text x="472" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Colin Fry</text></g>
+<g><rect x="1728" y="224" width="176" height="52" rx="9" fill="#0070C0"/><text x="1816" y="246" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head Sales</text><text x="1816" y="263" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#CFE6F7">Nina Bartlett</text></g>
+<g><rect x="1728" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="1816" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Sales Manager</text><text x="1816" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Hemi Walker</text></g>
+<g><rect x="1728" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="1816" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Salesperson</text><text x="1816" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Gary Loft</text></g>
+<g><rect x="0" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="88" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Accountant</text><text x="88" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Wei Chen</text></g>
+<g><rect x="0" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="88" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Bookkeeper</text><text x="88" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Sandra Poole</text></g>
+<g><rect x="768" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="856" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Factory Foreman</text><text x="856" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Bruce Tane</text></g>
+<g><rect x="1152" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="1240" y="358" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head of Purchasing</text><text x="1240" y="375" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#DCEEFA">Aroha Skipper</text></g>
+<g><rect x="1344" y="336" width="176" height="52" rx="9" fill="#2E90D9"/><text x="1432" y="367" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">Head of Inventory</text></g>
+<g><rect x="576" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="664" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Snr Tech</text><text x="664" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Pete Vance</text></g>
+<g><rect x="768" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="856" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Tech</text><text x="856" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Lucy Marsh</text></g>
+<g><rect x="960" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="1048" y="479" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Jnr Tech</text></g>
+<g><rect x="1152" y="448" width="176" height="52" rx="9" fill="#00B1E0"/><text x="1240" y="470" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="12.5" font-weight="700" fill="#00294F">Personal Assistant</text><text x="1240" y="487" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11" fill="#0B4A72">Fiona Gale</text></g>
+</svg>
+      <table class="plan">
+        <thead><tr><th>#</th><th>Role</th><th>Name</th><th>Reporting Head</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Board</td><td class="blank">not filled in</td><td>Shareholders</td></tr>
+          <tr><td>2</td><td>CEO</td><td>Alan Whitcombe</td><td>Board</td></tr>
+          <tr><td>3</td><td>CFO</td><td>Priya Raman</td><td>CEO</td></tr>
+          <tr><td>4</td><td>COO</td><td>Dev Okonkwo</td><td>CEO</td></tr>
+          <tr><td colspan="4" class="blank">&hellip; and the remaining 20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src">⚠ <b>The names in this drawing are OURS, not his.</b> <i>Org Chart.xlsx</i> supplies
+      roles only and no people at all. They are here so the Name column can be seen doing its job, and
+      they are the same kind of clearly-labelled sample as <i>Hartley &amp; Co</i> on the 33 concept
+      drawings.</p>
+  </section>
+
+  <hr class="rule">
+  <h2>Five decisions</h2>
+  <p class="lede">Each with the recommendation and the argument against it, as on the drawing this
+    replaces, and <b>each ruling kept beside them</b> so the build can be laid against this page
+    afterwards and every difference named. Asked one at a time. <b>Ruling these is not approval to
+    build from this page</b> &mdash; that is its own question.</p>
+
+  <div class="dec is-ruled">
+    <h3>A &middot; Three columns, or two with the person inside the role box?</h3>
+    <p>An org chart names a position and the person in it. His sheet has one column and he filled it with people, because that was the only box on the screen.</p>
+    <p class="rec"><b>Recommended:</b> three columns &mdash; <i>Role</i>, <i>Name</i>, <i>Reporting Head</i>. A role and a person are two facts, and the chart box shows both because a client recognises the names. Two facts in one box cannot be sorted, reported on, or left half-filled for a vacancy.</p>
+    <p class="against"><b>Against:</b> it is a third column on a table that was two, and his own sheet has neither of the first two headed.</p>
+    <p class="ruled">☑ RULED: the table has THREE columns &mdash; <i>Role</i>, <i>Name</i>, <i>Reporting Head</i>.<span class="who">Mike, 2026&#8209;09&#8209;21. As recommended. ⚠ <i>Name</i> is therefore the SECOND word on this screen that is ours rather than his &mdash; <i>Role</i> was the first, ruled the same day.</span></p>
+  </div>
+
+  <div class="dec is-ruled">
+    <h3>B &middot; Must every role have a person in it?</h3>
+    <p>A client redesigning their structure has positions before they have people, and an advisor sitting with them will draw the shape first.</p>
+    <p class="rec"><b>Recommended:</b> no. <b>Name is optional</b>, and a role with nobody in it prints the role alone &mdash; no word like &ldquo;vacant&rdquo; is invented for it.</p>
+    <p class="against"><b>Against:</b> a chart of empty boxes tells you less, and nothing on screen will then say whether a blank means unfilled or unanswered.</p>
+    <p class="ruled">☑ RULED: <i>Name</i> is OPTIONAL. A role with nobody in it is drawn, with the job title alone and no invented word beneath it.<span class="who">Mike, 2026&#8209;09&#8209;21. As recommended. ⚠ The argument against stands and is not solved by this ruling: a blank Name still cannot say whether the position is unfilled or simply not yet typed. Nothing on the screen distinguishes them, and nothing pretends to.</span></p>
+  </div>
+
+  <div class="dec is-ruled">
+    <h3>C &middot; What the &ldquo;reports to nobody&rdquo; choice is called</h3>
+    <p>It already exists and already works. It reads <i>&ldquo;Reports to&hellip;&rdquo;</i>, which is a prompt telling you to choose somebody &mdash; which is exactly why he could not find it.</p>
+    <p class="rec"><b>Recommended:</b> call it <b><i>Nobody</i></b>, and make it what a new role already says rather than something you must go and select. The word appears in a list of people&rsquo;s names, so it reads as one of the choices.</p>
+    <p class="against"><b>Against:</b> &ldquo;Nobody&rdquo; is blunt, and it is a word of ours on a screen where the third column heading is his.</p>
+    <p class="ruled">☑ RULED: the choice reads <i>Nobody</i>, and it is what a new role STARTS on rather than something to go and select.<span class="who">Mike, 2026&#8209;09&#8209;21. As recommended, and asked as a wording question rather than decided. ⚠ THE OPTION WAS NEVER MISSING &mdash; it worked before this ruling and the word was the whole defect. A screen can hide a thing it already does.</span></p>
+  </div>
+
+  <div class="dec is-ruled">
+    <h3>D &middot; Does Reporting Head name the ROLE or the PERSON?</h3>
+    <p>With two columns there is now something to choose between. His own sheet names roles &mdash; <i>Board</i>, <i>CEO</i> &mdash; and his worked example has no people in it at all.</p>
+    <p class="rec"><b>Recommended:</b> the <b>role</b>. It is what his document does; it survives a person leaving; and it is already what the built code stores, so nothing captured so far is lost.</p>
+    <p class="against"><b>Against:</b> in the room an advisor talks about people, not positions, and will look for a name in that list.</p>
+    <p class="ruled">☑ RULED: <i>Reporting Head</i> lists ROLES. The chart is built out of positions, and a person leaving changes one name rather than breaking the structure.<span class="who">Mike, 2026&#8209;09&#8209;21. As recommended. ⚠ The argument against is real and is only half answered: the chart BOX carries both lines, so the pairing is visible once built &mdash; but in the dropdown itself an advisor thinking about a person still has to translate to their title. Nothing here removes that step.</span></p>
+  </div>
+
+  <div class="dec is-ruled">
+    <h3>E &middot; Colour the chart by level</h3>
+    <p>On the old drawing every box was the same pale outline, so the top of the chart looked exactly like the bottom. Depth is the one thing an org chart exists to show.</p>
+    <p class="rec"><b>Recommended:</b> colour each level, Navy at the top through to Sky at the front line. <b>Every colour is already in <i>BRAND-TOKENS.md</i></b>. It is information, not decoration: seven levels become readable without tracing a line.</p>
+    <p class="against"><b>Against:</b> seven bands is a lot of colour on one screen, and a plan printed in black and white loses the distinction entirely &mdash; the lines still carry it, but the effect goes.</p>
+    <p class="ruled">☑ RULED: the chart is COLOURED BY LEVEL, Navy at the top through to Sky at the front line.<span class="who">Mike, 2026&#8209;09&#8209;21. As recommended, and it is the ruling that answers what he actually asked for &mdash; <i>&ldquo;it looks boring - lacks colour and is not engaging - looks very cheap&rdquo;</i>. ⚠ THE PRINTED COST IS ACCEPTED, NOT SOLVED: a client&rsquo;s plan printed in black and white loses every band. The connecting lines still carry the structure so nothing becomes wrong, but the thing that makes seven levels readable on screen is the first thing a photocopier takes away.</span></p>
+  </div>
+
+  <hr class="rule">
+  <div class="note">
+    <h3>What this drawing does not ask approval for</h3>
+    <ul>
+      <li><b>The record shape underneath it</b>, which does not change. A roster plus one key per box
+        already carries a third column without a migration.</li>
+      <li><b>The voice bar</b>, approved 2026&#8209;09&#8209;19 and unchanged. It is left off these
+        tables only so the shape can be read &mdash; <b>but it is why every row is double height
+        today</b>, and moving it beside the box rather than above it is a change this page does not
+        ask for either.</li>
+      <li><b>The notice rules</b> &mdash; outside parents, circles, more than one top &mdash; ruled and
+        built, unchanged here.</li>
+      <li><b>The other six capture forms.</b> Each is its own drawing.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

@@ -83,10 +83,29 @@ describe('every supplied table produces fields an advisor can actually type into
     .map(c => ({ concept: c, capture: forms.captureForConcept(c) }))
     .filter(r => r.capture.supplied)
 
+  // 🔴 ONE FORM HAS NO FIELDS BY DESIGN, AND IT IS EXCEPTED BY NAME RATHER THAN BY
+  // LOOSENING THE RULE. Mike ruled the Org Chart a mini-app on 2026-09-21: its rows are
+  // people the advisor adds and removes, so there is no fixed list of boxes to enumerate.
+  // Every other supplied template must still produce fields — a template that quietly
+  // stopped producing any would otherwise reach an advisor as a card with nothing on it.
+  const boxed = supplied.filter(r => r.capture.form !== 'parent-child-list')
+
   test('there is at least one, and each has fields', () => {
-    expect(supplied.length).toBeGreaterThan(0)
-    supplied.forEach((r) => {
+    expect(boxed.length).toBeGreaterThan(0)
+    boxed.forEach((r) => {
       expect(r.capture.fields.length).toBeGreaterThan(0)
+    })
+  })
+
+  test('the one form with no fields carries its own shape instead', () => {
+    const miniApp = supplied.filter(r => r.capture.form === 'parent-child-list')
+    expect(miniApp.length).toBe(1)
+    miniApp.forEach((r) => {
+      expect(r.capture.fields).toEqual([])
+      // Without these the screen has no example to load and no heading of Mike's to put
+      // over the second column, and it would render as an empty card.
+      expect(r.capture.orgChart.example.length).toBeGreaterThan(0)
+      expect(r.capture.orgChart.headLabel).toBeTruthy()
     })
   })
 

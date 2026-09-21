@@ -22,6 +22,7 @@
 'use strict'
 
 const captureTables = require('../../data/strategy-capture-tables.json')
+const orgChart = require('./strategyOrgChart')
 
 /**
  * Concepts name their template in `captureTemplate`; the template is a file on
@@ -314,6 +315,25 @@ function captureForConcept (concept) {
     }
   }
 
+  // 🔴 ONE FORM IS NOT A GRID OF BOXES AT ALL, AND IT CANNOT BE READ AS ONE. Mike ruled the
+  // Org Chart a mini-app on 2026-09-21 — "which is why the original is in a spreadsheet".
+  // Read positionally it offers 49 boxes, 32 of them from a column that is empty top to
+  // bottom in his sheet, and the save guard below would REFUSE role 31 because his document
+  // has 30 rows. So this form carries no `fields` and the screen builds the list instead.
+  // Its record shape and its guard are `utils/orgChart.js`.
+  if (concept.captureForm === orgChart.FORM) {
+    return {
+      supplied: true,
+      template: concept.captureTemplate,
+      file: template.file,
+      form: concept.captureForm,
+      // Empty, and true: there are no fixed boxes to enumerate. Everything on the screen
+      // comes from the roster the advisor builds.
+      fields: [],
+      orgChart: orgChart.captureShape()
+    }
+  }
+
   const fields = []
   template.tables.forEach((table, i) => {
     fieldsOfTable(table, i, concept.captureForm).forEach(f => fields.push(f))
@@ -342,6 +362,13 @@ function captureForConcept (concept) {
  * It stays a whitelist: a key that is not a real box on that concept's table is
  * still refused, so nothing arbitrary reaches the store.
  *
+ * 🔴 AND THE ORG CHART IS WHY THIS GUARD NEEDED A SECOND SHAPE, NOT A LOOSER ONE. Its rows
+ * are people the advisor adds and removes, so there is no list of positions to check against
+ * — his sheet stops at row 30 and the 31st name would have been refused with "your typing
+ * could not be saved". `isOrgChartKey` is still a whitelist: the roster, or `orgrole-<n>-name`
+ * / `orgrole-<n>-head` with n inside a fixed ceiling, and nothing else. It is reachable ONLY
+ * from a concept authored on that form, so no other concept gains a key it should not have.
+ *
  * @param {string} conceptId
  * @param {string} fieldKey
  * @param {function(string): ?object} getConcept  injected to avoid a require cycle
@@ -353,6 +380,7 @@ function hasCaptureField (conceptId, fieldKey, getConcept) {
   if (!concept) { return false }
   const capture = captureForConcept(concept)
   if (!capture.supplied) { return false }
+  if (capture.form === orgChart.FORM) { return orgChart.isOrgChartKey(fieldKey) }
   return capture.fields.some(f => f.key === fieldKey)
 }
 

@@ -58,12 +58,13 @@ repository sees; the two never both appear, and the build stops if they would.
 | 21 | **15.10** Page 2 of six decks is missing from the plan the app produces ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 22 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 23 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 24 | **17** An advisor leaves the app to track their own deals and referral partners ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-21 |
-| 25 | **13.1** Changing currency relabels figures and does not convert them ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 26 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 27 | **13.3** The currency picker is the one manager setting outside the hub ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 24 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 25 | **17** An advisor leaves the app to track their own deals and referral partners ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-21 |
+| 26 | **13.1** Changing currency relabels figures and does not convert them ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 27 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 28 | **13.3** The currency picker is the one manager setting outside the hub ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
-**27 live items. Fourteen need Mike.** If this list passes about twenty, something is wrong.
+**28 live items. Fourteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

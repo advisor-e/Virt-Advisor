@@ -25,7 +25,11 @@ section.scc2
     //- Only where this concept has NO drawing yet is the advisor still sent to the
     //- deck. Once it has one the sentence would be false, which is the fault this
     //- whole item exists to close (item 15.7).
-    p.scc2-teaching(v-if="teachingForm && !hasGraphic") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
+    //- ⚠ AND NOT ON THE ORG CHART, where it would be false. The approved drawing says it
+    //- outright: that concept has no drawn teaching page and none is proposed, because
+    //- "for this concept the builder is the whole screen" — the chart the advisor's list
+    //- draws IS the diagram, so sending them to the deck for it is wrong.
+    p.scc2-teaching(v-if="teachingForm && !hasGraphic && !isOrgChart") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
 
   //- 🔴 A CONCEPT WITH NO TABLE SAYS SO RATHER THAN SHOWING AN EMPTY ONE. Nothing
   //- is borrowed from another concept: a table an advisor puts in front of a client
@@ -44,6 +48,21 @@ section.scc2
     :closable="false"
   )
     | {{ noTableMessage }}
+
+  //- 🔴 ONE OF MIKE'S NINE CAPTURE FORMS IS NOT A TABLE OF BOXES AT ALL — from
+  //- design/mockups/strategy-capture-parent-child-list.html, five decisions ruled by him
+  //- 2026-09-21. His Org Chart is the one template of the twenty that is a spreadsheet
+  //- rather than a Word document, and his ruling was that it therefore needs to be built
+  //- "like a 'mini-app' in order to function": rows are people the advisor adds and
+  //- removes, one column is a picker constrained by another, and the chart his deck
+  //- teaches is drawn from what is typed.
+  strategy-org-chart-builder(
+    v-else-if="isOrgChart"
+    :entries="entries"
+    :shape="capture.orgChart || {}"
+    @field-opened="onBuilderFieldOpened"
+    @fields-changed="onBuilderFieldsChanged"
+  )
 
   //- 🔴 A TABLE WHOSE COLUMNS MEAN SOMETHING IS DRAWN AS ONE — from
   //- design/mockups/strategy-capture-two-dimensional-grid.html, approved by Mike
@@ -144,12 +163,16 @@ section.scc2
 import speechMixin from '~/mixins/speechMixin'
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
+import StrategyOrgChartBuilder from '~/components/strategy/StrategyOrgChartBuilder.vue'
 import { hasConceptGraphic } from '~/components/strategy/concepts'
+
+/** The one capture form that is a small application rather than a page of boxes. */
+const ORG_CHART_FORM = 'parent-child-list'
 
 export default {
   name: 'StrategyConceptCapture',
 
-  components: { StrategyConceptGraphic, StrategyCaptureBox },
+  components: { StrategyConceptGraphic, StrategyCaptureBox, StrategyOrgChartBuilder },
 
   mixins: [speechMixin],
 
@@ -257,6 +280,18 @@ export default {
     visitFields () {
       if (!this.capture.supplied) { return [] }
       return this.capture.fields || []
+    },
+
+    /**
+     * Is this his Org Chart — the one form that is a mini-app?
+     *
+     * ⚠ IT READS THE TEMPLATE'S FORM NAME, for the same reason `isGrid` does: it cannot be
+     * derived from the fields, because this form deliberately has none.
+     *
+     * @returns {boolean}
+     */
+    isOrgChart () {
+      return this.capture.supplied && this.capture.form === ORG_CHART_FORM
     },
 
     /**
@@ -402,6 +437,30 @@ export default {
       if (example.length > 220) { return 4 }
       if (example.length > 80) { return 3 }
       return 2
+    },
+
+    /**
+     * The Org Chart Builder moved into a box. Passed straight through, so a role's name box
+     * claims spoken words exactly as every other box does.
+     * @param {{fieldKey: string}} payload
+     */
+    onBuilderFieldOpened (payload) {
+      // { fieldKey } — which box is now open
+      this.$emit('field-opened', payload)
+    },
+
+    /**
+     * The Org Chart Builder saved one or more boxes.
+     *
+     * 🔴 IT IS A BATCH BECAUSE ADDING A ROLE IS TWO WRITES AND LOADING HIS EXAMPLE IS 49.
+     * The roster and the box it makes real have to land together, or a reload would show a
+     * name with no row to put it on.
+     *
+     * @param {{entries: Array<{fieldKey: string, value: string}>}} payload
+     */
+    onBuilderFieldsChanged (payload) {
+      // { entries: [{ fieldKey, value }] } — saved together, in one request
+      this.$emit('fields-changed', payload)
     },
 
     /**

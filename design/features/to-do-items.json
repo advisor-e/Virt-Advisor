@@ -373,7 +373,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), and stage 5 forms 1 and 2 of 9. FORM 3, THE ORG CHART BUILDER, IS DRAWN and its five decisions RULED 2026-09-21 - not yet approved to build from, its own question. He ruled it a mini-app, not a form. SIX REMAIN. NOTHING ELSE WAITS ON MIKE. THREE RULINGS NEVER TO BE RE-RAISED: the column count (\"leave it - its fine\"); the unheaded column and four lines where three, BUILT as his documents have them, pinned by tests; his blank spacer rows, a gap not boxes under the 2026-09-19 rule. NEXT: stages 5-8.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), and stage 5 forms 1-3 of 9. FORM 3, THE ORG CHART BUILDER, BUILT TWICE 2026-09-21 - the REDRAW shipped. THE STAGE RAIL IS CLICKABLE IN ANY ORDER, his request. SIX FAULTS FOUND BY OPENING IT, all fixed - see the Brief. SIX REMAIN. NOTHING WAITS ON MIKE. THREE RULINGS NEVER TO BE RE-RAISED: the column count (\"leave it - its fine\"); the unheaded column and four lines where three, as his documents have them, pinned by tests; his blank spacer rows, a gap not boxes. NEXT: stages 5-8.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -566,6 +566,27 @@
       "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
       "note": "🔴 THE SEAM EXISTS AND IS NOT THE WORK - every drawing already accepts a name and a colour, so nothing needs rebuilding. What is missing is a value to pass and somewhere to set it. TWO HALVES: the data may be Advisor-e's to supply, like the middle-tier role values, but a place to hold and edit it is ours either way. ⚠ ONE DECISION GATES IT AND IS ALREADY DRAWN, UNRULED: the Porter's artefact asks whether the mark is a monogram disc or a real logo image of unknown proportion - see ARTEFACTS.md, three deviations raised and none ruled.",
       "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
+    },
+    {
+      "ref": "16.1",
+      "name": "Primary buttons show the library's violet where the brand file says blue",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "it looks unfinished",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "BRAND-TOKENS.md names Blue #0070C0 as \"Primary interactive (buttons, sliders, links) on light\". Buefy ships its own violet #7957D5 and nuxt.config.js loads buefy.css unmodified, so every type=\"is-primary\" button renders violet.",
+      "risk": "One screen shows both at once and a client sees it. Measured on Run session 2026-09-21: the header button is #7957D5 while the stage rail and the Org Chart toolbar are #0070C0, because those two were written against the brand file and the buttons were not. It reads as a half-finished theme rather than a setting nobody chose, and the Strategy Planner is the screen an advisor runs in front of a client.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-21 - measured while building the Org Chart toolbar to its approved drawing, which specifies #0070C0. Filed on Mike's yes at shutdown rather than fixed inside that commit."
+      },
+      "touches": "84 files under components/ and pages/ use type=\"is-primary\"; the fix is one override of Buefy's  rather than 84 edits, so the work is choosing where that override lives and seeing the whole app recoloured before it ships.",
+      "note": "NOT A ONE-LINE FIX EVEN THOUGH THE CHANGE IS ONE LINE. Overriding Buefy's primary recolours every button in the app at once, so Mike sees it before it ships - which is why it was not folded into the 2026-09-21 commit. TWO THINGS ALREADY BRAND BLUE AND NOT TO BE CHANGED BACK: the stage rail's current segment, and the Org Chart Builder toolbar, which follows its approved drawing. The desktop logged the same brand-token gap for the sales tracker screens on 2026-09-22.",
+      "comment": "2026-09-21 - found by measuring three buttons on one screen, not by reading the code. Pre-existing and app-wide: it has been this way since Buefy was adopted, and BRAND-TOKENS.md post-dates it."
     },
     {
       "ref": "17",
