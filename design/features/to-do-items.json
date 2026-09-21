@@ -577,6 +577,10 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-21"
+      },
       "why": "A working Nuxt 2 app holds an advisor's own deal pipeline and referral partners. Mike ruled 2026-09-21 it serves the firm's own advisors, not their clients. Its screens are already Pug and Buefy; its back end breaks three locked rules.",
       "risk": "An advisor keeps their own pipeline somewhere else - a spreadsheet or a second app - so the business development sits apart from the client work that feeds it. Against that: the port is a back-end REWRITE, not a copy, and taking it whole would drag a blog-writing tool and a language-admin screen into the app that nobody asked for.",
       "askedBy": {
