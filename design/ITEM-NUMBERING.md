@@ -59,11 +59,44 @@ Taken from what the 121 items inventoried on 2026-09-15 actually are, not from a
 | **10** | **Firm Manager Hub & tier cascade** | The four hubs, their tabs, the cascade, firm overlays, the staircase |
 | **11** | **Adviser Network / Collaborate** | The people layer, groups, messaging |
 | **12** | **Course Builder & quizzes** | Courses, quiz banks, CPD, advisor progress |
-| **13** | **Depreciation, tax & compliance rates** | Country rates, schedules, tax bands, compliance pages |
+| **13** | **Language, Tax & Currency** | Country rates, schedules, tax bands, compliance pages · **and everything about the words a reader sees and the money a figure is in**: the locale files, the languages, the translation route, the currency setting and the currency list |
 | **14** | **Tooling & process** | The Handbook, this list, branch checks, skills, the test suite, governance |
 | **15** | **Strategy Planner** | The strategy domain's session surface: the planning menu, capture tables, carry-forward, the client plan report, facilitation observation points |
 
-**16 is the next free parent.**
+**16 is taken and 17 is the Sales Tracker. 18 is the next free parent.**
+
+### 🔴 2026-09-22 — parent 13 renamed, because localisation had no home
+
+**Mike's ruling, in his own words: *"rename 13 to be Language, Tax & Currency"*.** It was
+*Depreciation, tax & compliance rates*.
+
+**The gap it closes.** Language and currency had **no parent at all**, despite owning a Brief
+([`features/localisation-and-currency.md`](features/localisation-and-currency.md)) — eight locale
+files, 28 languages, six currencies, a translation route and a manager-gated currency setting, and
+nowhere on this list to put a job about any of it. Every other Brief maps to a parent; that one
+mapped to none.
+
+**What that produced, and it is why this is recorded rather than just done.** On 2026-09-22 item
+`5.4` — the currency wording line — was filed under **5, Model Library**, for the weak reason that
+the currency *picker* sits on the Model Library screen. **That is filing by where the code lives,
+not by what the job is about**, which is exactly the drift §1 exists to stop. When there is no right
+parent, a session picks the nearest one and the number stops meaning anything.
+
+**Why 13 rather than a new parent 18.** 13 already held country-specific *money* rules — tax bands,
+rates per country. Language and currency are the same family of concern: what a figure is
+denominated in, and what words surround it. A new parent would have split one subject across two
+numbers.
+
+✅ **`5.4` MOVED TO `13.1` the same day, and the freeze rule does not stop it.** §2 freezes items
+numbered **before 2026-09-15**; `5.4` was filed on 2026-09-22, referenced in two documents written
+the same hour and in no code at all. Moving it cost two edits. **Had it been left a week it would
+have been frozen in the wrong place for good** — which is the argument for renaming the parent the
+moment the gap is seen rather than at a tidier time.
+
+*(`5.4` also collided with a deleted 2026-08-15 item of the same number — see §2's note on the
+closed `5.1`–`5.5` family. Permitted by that ruling, but it makes the move doubly worth doing.)*
+
+**New jobs about language, tax, rates or currency take `13.x`.**
 
 ## 4. The live items, renumbered 2026-09-15
 

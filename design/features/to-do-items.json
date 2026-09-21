@@ -593,7 +593,7 @@
       }
     },
     {
-      "ref": "5.4",
+      "ref": "13.1",
       "name": "Changing currency relabels figures and does not convert them",
       "rankedByMike": false,
       "kind": "defect",
@@ -611,7 +611,49 @@
       },
       "touches": "components/ModelLibrary.vue, the currency selector block and its changeCurrency handler; locales/en.json modelLibrary.currency (label, managedNote, saved) plus the seven other locale files; data/currencies.json as the six supported codes; mixins/currencyMixin.js, which formats but never converts; and the ~40 report components reading firmCurrency.",
       "note": "Found while answering Mike on the language/currency split. The selector and its toast are both silent on conversion - money(v, currency, locale) formats only and no exchange rate exists anywhere in the app. 🔴 WORDING IS MIKE'S AND MUST BE ASKED, NOT WRITTEN: the fix is one short line at the selector saying figures are relabelled, not converted. ⚠ SCOPE IS THE LINE ONLY - actually converting figures needs a rate source, a rate date and a per-client currency, which is a separate decision and NOT this item.",
-      "comment": "2026-09-22 - filed on Mike's yes. Related and NOT in scope: one currency per firm, not per client (an Italian firm advising a Swiss client reports in Euro, and CHF is not among the six); and whether the selector belongs in the Firm Manager Hub rather than on the Model Library screen. Both are his calls, neither filed."
+      "comment": "2026-09-22 - filed on Mike's yes. Numbered 5.4 at first, under Model Library, because the currency picker sits on that screen - filing by where the code lives, not by what the job is about. Moved to 13.1 the same day when he renamed parent 13 to Language, Tax & Currency, which gave this area the home it never had. Siblings 13.2 and 13.3 came from the same conversation."
+    },
+    {
+      "ref": "13.2",
+      "name": "A client is reported in the firm currency, whatever they trade in",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off without it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The firm currency is one value on the firm, so every client is reported in it. An Italian firm advising a Swiss client reports that client in Euro - and CHF is not one of the six codes.",
+      "risk": "A client reads their own figures in the wrong currency on a report their advisor hands them. Worse where a symbol is shared: NZD, AUD, CAD and USD all render as a dollar sign, so a wrong currency can look right on the page. Any firm with a cross-border client is affected and nothing warns either party.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - in his own words, after both limits were shown to him as recorded boundaries rather than tasks: \"lets be clear - BOTH those issues must be fixed, add them to the to do list.\""
+      },
+      "touches": "server/routes/currency.js and the firmOverlay config_key currency, one value per firm today; mixins/currencyMixin.js, whose firmCurrency becomes per-client; data/currencies.json for the codes to add; the ~40 report components reading firmCurrency; va_clients as the natural home for a client currency; components/ModelLibrary.vue where the picker sits.",
+      "note": "🔴 DESIGN DECISIONS BEFORE ANY CODE, all Mike's: does a client currency override the firm's or sit alongside it; which codes are added beyond the six; and what happens to figures entered before a client currency was set. ⚠ NOT CONVERSION - see 13.1. Relabelling per client is this item; applying an exchange rate is a third thing and is neither. Read localisation-and-currency.md P9 and section 3 first, where the limit is already written down.",
+      "comment": "2026-09-22 - surfaced while answering Mike on the language/currency split, recorded in the Brief as a stated boundary, then filed on his instruction that it must be fixed. Sibling of 13.1 and 13.3. 13.1, the wording line, should land first: it is true whatever is decided here."
+    },
+    {
+      "ref": "13.3",
+      "name": "The currency picker is the one manager setting outside the hub",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - nobody sees it until they go looking for the setting",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Currency is manager-gated and account-wide, so it belongs with the firm's other settings. It sits on the Model Library screen instead, so a manager looking for it in the Firm Manager Hub does not find it.",
+      "risk": "A manager cannot find a setting that is theirs, in the one place every comparable setting lives. It also breaks the pattern the hub exists to hold - one place a firm is configured - and that is how the next setting ends up in the wrong place too.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - in his own words, after both limits were shown to him as recorded boundaries rather than tasks: \"lets be clear - BOTH those issues must be fixed, add them to the to do list.\""
+      },
+      "touches": "components/FirmManagerHub.vue TAB_TIERS and NAV_GROUPS for the new tab; tests/unit/hubTabTiers.test.js, which fails the build until the key and its ruling are recorded; a new components/firm/ body component; components/ModelLibrary.vue where the picker sits today; server/routes/currency.js, already manager-gated and needing no change.",
+      "note": "🔴 ONE QUESTION FOR MIKE BEFORE ANY CODE: does the picker MOVE to the hub, or appear in BOTH - the hub to set it, the Model Library read-only so a reader still sees which currency a report is in. Moving it outright removes that cue. ⚠ Tiers are a stated judgement, not an assumption: the firm tier, since currency is a firm decision and the mentor has no currency of its own. No backend change needed.",
+      "comment": "2026-09-22 - surfaced while answering Mike on the language/currency split, recorded in the Brief as a stated boundary, then filed on his instruction that it must be fixed. Smallest of the three siblings in effort, but it waits on his move-or-mirror answer before anything is built."
     }
   ]
 }

@@ -64,7 +64,7 @@ That is **correct** for a firm entering figures in its own money, which is every
 which it is. The selector's own confirmation, *"Reports now show Euro (€). This applies to every
 model in your account."*, is silent on the point.
 
-**On the live list as item 5.4** (found 2026-09-22 while answering Mike's *"what if I'm in Italy but
+**On the live list as item 13.1** (found 2026-09-22 while answering Mike's *"what if I'm in Italy but
 want the currency to be in Euro?"* — the split held up, this did not). ⚠ **The fix is one short line
 of Mike's own wording at the selector. Actually converting figures is NOT that item**: it needs a
 rate source, a rate date and a per-client currency, and it is a separate decision of his.
@@ -87,17 +87,25 @@ free — the same mechanism as every other firm setting.
 **A missing translation must not produce a blank.** Falling back to the key, or to English, is
 always better than an empty label on a screen an advisor is using in front of someone.
 
-**One currency per FIRM, not per client — a stated boundary, not an oversight.** `/api/report/currency`
-holds a single value against the firm, so an Italian firm advising a Swiss client reports that client
-in Euro. **Swiss Francs are not among the six supported codes at all** (GBP, EUR, USD, NZD, AUD, CAD).
-This is fine while a firm's clients share its currency and wrong the day they do not. **Not filed:
-it is Mike's call whether firms work across currency borders, and he has not been asked.** Recorded
-here so the next session finds the limit rather than rediscovering it. *(Surfaced 2026-09-22.)*
+**One currency per FIRM, not per client — 🔴 ON THE LIST AS `13.2`, Mike's ruling 2026-09-22.**
+`/api/report/currency` holds a single value against the firm, so an Italian firm advising a Swiss
+client reports that client in Euro. **Swiss Francs are not among the six supported codes at all**
+(GBP, EUR, USD, NZD, AUD, CAD). Fine while a firm's clients share its currency; wrong the day they
+do not.
 
-**The currency picker sits on the Model Library screen, not the Firm Manager Hub** — manager-gated by
-`requireManagerRole`, but beside the reports it governs rather than with the firm's other settings.
-Deliberate when built; worth knowing it is the one manager-owned setting outside the hub. **Not filed**
-for the same reason as above.
+**The currency picker sits on the Model Library screen, not the Firm Manager Hub — 🔴 ON THE LIST AS
+`13.3`.** Manager-gated by `requireManagerRole`, but beside the reports it governs rather than with
+the firm's other settings. It is the one manager-owned setting outside the hub.
+
+> ⚠ **Both were written here as *"recorded boundaries, not filed"* and that was wrong.** They were
+> surfaced to Mike as things we had noticed and deliberately not turned into tasks. His answer:
+> ***"lets be clear - BOTH those issues must be fixed, add them to the to do list."***
+>
+> **The lesson is narrow and worth keeping.** Recording a limit in a Brief is not the same as
+> handling it. `CLAUDE.md`'s rule — *a fault ends fixed now or on the list with his yes* — has no
+> third ending called "written down in the design document", and that is exactly what this section
+> had invented. The rule was followed in surfacing them and then quietly broken in filing them
+> nowhere.
 
 ---
 
