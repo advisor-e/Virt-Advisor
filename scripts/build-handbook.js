@@ -172,9 +172,22 @@ function provenance (source) {
     return { machine: MACHINE_BY_BRANCH[branch], branch, ahead: count === null ? null : parseInt(count, 10) }
   })
   const label = source.name.replace(/^origin\//, '')
+
+  /**
+   * How many commits a machine holds, in words that read.
+   *
+   * It said "1 commits" — on the Handbook's own first line, and in the commonest
+   * state there is: exactly one ahead is where a machine lands on its first commit
+   * after every merge. Found 2026-09-21. Deliberately not pinned by a test; wording
+   * is what a reader sees in five seconds (Mike's testing ruling, 2026-08-24).
+   *
+   * @param {number|null} n commits ahead, or null when git could not say.
+   * @returns {string} e.g. "1 commit", "12 commits", "an unknown number of commits".
+   */
+  const held = n => (n === null ? 'an unknown number of commits' : n + (n === 1 ? ' commit' : ' commits'))
+
   const text = 'Built from ' + label + ' ' + hash + ', ' + shortDate(date) +
-    machines.map(m => ' · ' + m.machine + ' holds ' +
-      (m.ahead === null ? 'an unknown number of' : String(m.ahead)) + ' commits ' + label + ' does not').join('')
+    machines.map(m => ' · ' + m.machine + ' holds ' + held(m.ahead) + ' ' + label + ' does not').join('')
   return { hash, date, machines, text }
 }
 
