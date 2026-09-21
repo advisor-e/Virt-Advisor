@@ -769,6 +769,42 @@ with its comment), or carried into the port, where the same guard is needed on o
 **The diagnosis in §7 is the part that must not be lost either way** — the fix is one line and could
 be rewritten in a minute; knowing *why* took most of a morning.
 
+### 🔴 THE STUB FOR THE MASTER TEAM — one link, and the whole feature is reachable
+
+**Mike, 2026-09-22:** *"when this gets introduced to the master app we need a 'stub' the master
+coding team can place the landing page/doorway into a page within the main advisor-e app"*.
+
+**This app has no navigation of its own.** `layouts/default.vue` is `div > nuxt` and nothing more:
+every screen here is reached by Advisor-e deep-linking into it. So a screen nobody links to cannot
+be found at all — which is exactly what had happened to the advisor's three Sales Tracker screens
+until this page was built.
+
+| What the master team places | Where it goes |
+|---|---|
+| **One link to `/sales-tracker`** | Wherever an advisor's tools are listed in Advisor-e |
+
+That address is the advisor's landing page ([`pages/sales-tracker.vue`](../../pages/sales-tracker.vue)
+→ [`SalesTrackerHome.vue`](../../components/sales/SalesTrackerHome.vue)), and it opens onto the
+three advisor screens:
+
+| Card | Address | Who |
+|---|---|---|
+| My pipeline | `/sales-pipeline` | any advisor — `firmAuth` only |
+| My referral partners | `/sales-coi` | any advisor — `firmAuth` only |
+| My sales dashboard | `/sales-tracker-dashboard` | any advisor — `firmAuth` only |
+
+🔴 **ONE LINK, NOT FOUR, AND THAT IS THE POINT OF A STUB.** Adding a fourth advisor screen later
+changes this landing page and **never their link** — no second integration conversation.
+
+⚠ **THE MANAGER'S TWO SCREENS ARE NOT ON IT, DELIBERATELY.** The Team roll-up and the Lists are
+Firm Manager Hub tabs behind `requireManagerRole`; a card here would hand every advisor a door
+that answers 403. A manager reaches them through the hub they already open
+(`/firm-manager` → *Your Team In Action*), so the master team has nothing extra to place for those.
+
+Pinned by `tests/unit/salesTrackerHome.component.test.js`: every card points at a page that
+exists, neither manager screen is offered, and `/sales-tracker` itself is asserted by name — so a
+rename that would break their link fails the build here first.
+
 ---
 
 ## 14. What I would do first, tomorrow morning

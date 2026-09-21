@@ -6173,6 +6173,27 @@
       "network": "Could not reach the server. Check your connection and try again."
     }
   },
+  "salesTrackerHome": {
+    "eyebrow": "Advisor-e · Your business development",
+    "title": "Sales Tracker",
+    "lede": "Your own prospects, the people who refer you work, and what it is all adding up to. What you record here is yours — a colleague sees a deal only if you choose to share it.",
+    "open": "Open",
+    "managerNote": "Your firm manager sees the team's figures and sets the dropdown values, from the Firm Manager Hub.",
+    "cards": {
+      "pipeline": {
+        "title": "My pipeline",
+        "description": "Every prospect you are working — who they are, where the conversation has got to, and what it is worth."
+      },
+      "coi": {
+        "title": "My referral partners",
+        "description": "The people who send you work, what they have referred, and what came of it."
+      },
+      "dashboard": {
+        "title": "My sales dashboard",
+        "description": "Your conversion rates, average fees and where deals are being won or lost."
+      }
+    }
+  },
   "salesTeam": {
     "eyebrow": "Advisor-e · Firm manager",
     "title": "Your team's pipeline",
