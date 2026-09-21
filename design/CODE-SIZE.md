@@ -5,35 +5,35 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-21 at commit `7b9c7dcb`.**
+> **Measured 2026-09-21 at commit `66f0d45e`.**
 
-**Working code: 108,272 lines** across 530 files — blank lines and
+**Working code: 109,140 lines** across 534 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
-| Screens and components (`components`) | 200 | 54,710 | 16,966 |
-| The Restify backend (`server`) | 233 | 47,389 | 35,142 |
-| Pages (`pages`) | 43 | 2,432 | 1,379 |
+| Screens and components (`components`) | 201 | 55,159 | 17,052 |
+| The Restify backend (`server`) | 235 | 47,794 | 35,400 |
+| Pages (`pages`) | 44 | 2,445 | 1,394 |
 | Front-end helpers (`utils`) | 31 | 2,132 | 1,853 |
 | Mixins (`mixins`) | 11 | 1,061 | 401 |
 | Thin proxies to the backend (`server-middleware`) | 6 | 237 | 87 |
 | Configuration (`config`) | 1 | 114 | 165 |
-| Nuxt configuration (`nuxt.config.js`) | 1 | 95 | 130 |
+| Nuxt configuration (`nuxt.config.js`) | 1 | 96 | 136 |
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **530** | **108,272** | **56,181** |
+| **Total working code** | **534** | **109,140** | **56,546** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
-| JavaScript | 286 | 51,215 |
-| Vue screens and components | 244 | 57,057 |
+| JavaScript | 288 | 51,621 |
+| Vue screens and components | 246 | 57,519 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 56,181 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 581 files, 101,136 lines of test code.
-- **Locale strings**: 6,497 non-blank lines across the language files. Words on screens, not logic.
+- **Comments and documentation** inside those same files: 56,546 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 585 files, 102,138 lines of test code.
+- **Locale strings**: 6,584 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 
 **How a line is classified.** A line is a comment if, once trimmed, it starts with `//`, `*`,
