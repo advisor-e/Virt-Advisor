@@ -341,6 +341,45 @@ describe('a failure says so — it never leaves a silently empty screen', () => 
   })
 })
 
+describe('the privacy choice is where an advisor will see it', () => {
+  /**
+   * 🔴 IT USED TO BE THE LAST FIELD ON THE FORM, below the fold.
+   *
+   * Measured in a browser on 2026-09-22: the control sat at y=942 while the
+   * modal's scrollable body ended at 909. It worked perfectly and an advisor
+   * adding their first deal never saw it. Nothing leaked — the default is
+   * private — but a privacy choice nobody knows they have is not a choice.
+   *
+   * A jsdom mount has no layout, so position cannot be asserted here. DOM ORDER
+   * can, and it is what put the control off-screen: pinning that it comes before
+   * the field grid is what stops it drifting back down.
+   */
+  test('🔴 the visibility control comes BEFORE the field grid in the form', async () => {
+    const w = await mountWith([])
+    w.vm.formOpen = true
+    await w.vm.$nextTick()
+    const body = w.find('.modal-card-body')
+    expect(body.exists()).toBe(true)
+    const html = body.html()
+    const visAt = html.indexOf('sp-vis-top')
+    const gridAt = html.indexOf('sp-grid')
+    expect(visAt).toBeGreaterThan(-1)
+    expect(gridAt).toBeGreaterThan(-1)
+    expect(visAt).toBeLessThan(gridAt)
+  })
+
+  test('it says what the choice MEANS, not only what it is called', async () => {
+    const w = await mountWith([])
+    w.vm.formOpen = true
+    w.vm.draft.visibility = 'private'
+    await w.vm.$nextTick()
+    // The hint is the half that makes the choice usable: "Only me" alone does not
+    // say whether a manager can read it.
+    expect(w.find('.sp-vis-hint').exists()).toBe(true)
+    expect(w.find('.sp-vis-hint').text()).toBeTruthy()
+  })
+})
+
 describe('server-side rendering safety', () => {
   test('no window, document or localStorage outside mounted()', () => {
     const src = componentSource()

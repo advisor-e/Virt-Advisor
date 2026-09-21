@@ -91,6 +91,18 @@
       header.modal-card-head
         p.modal-card-title {{ draft.id ? $t('salesPipeline.form.editTitle') : $t('salesPipeline.form.newTitle') }}
       section.modal-card-body
+        //- 🔴 WHO CAN SEE THIS COMES FIRST, and it used to be the last field on the
+        //- form. Measured in a browser 2026-09-22: it sat at y=942 while the
+        //- scrollable body ended at 909, so an advisor adding their first deal never
+        //- saw the control that decides who can read it. Nothing leaked — the default
+        //- is private — but a privacy choice nobody knows they have is not a choice.
+        //- Moved on Mike's ruling the same day.
+        .sp-vis-top
+          b-field.sp-vis(:label="$t('salesPipeline.form.visibility')")
+            b-select(v-model="draft.visibility" size="is-small" expanded)
+              option(value="private") {{ $t('salesPipeline.visibility.private') }}
+              option(value="firm") {{ $t('salesPipeline.visibility.firm') }}
+          p.sp-vis-hint {{ draft.visibility === 'firm' ? $t('salesPipeline.visibility.firmHint') : $t('salesPipeline.visibility.privateHint') }}
         .sp-grid
           b-field(:label="$t('salesPipeline.form.prospectName')")
             b-input(v-model="draft.prospectName" size="is-small" required)
@@ -130,11 +142,6 @@
           b-checkbox(v-model="draft.jobSecured" size="is-small") {{ $t('salesPipeline.form.jobSecured') }}
         b-field.sp-notes(:label="$t('salesPipeline.form.comments')")
           b-input(v-model="draft.comments" type="textarea" rows="3" size="is-small")
-        b-field.sp-vis(:label="$t('salesPipeline.form.visibility')")
-          b-select(v-model="draft.visibility" size="is-small" expanded)
-            option(value="private") {{ $t('salesPipeline.visibility.private') }}
-            option(value="firm") {{ $t('salesPipeline.visibility.firm') }}
-        p.sp-vis-hint {{ draft.visibility === 'firm' ? $t('salesPipeline.visibility.firmHint') : $t('salesPipeline.visibility.privateHint') }}
       footer.modal-card-foot
         b-button(size="is-small" @click="formOpen = false") {{ $t('salesPipeline.form.cancel') }}
         b-button(type="is-primary" size="is-small" :loading="saving" :disabled="!canSave" @click="save") {{ $t('salesPipeline.form.save') }}
@@ -551,8 +558,21 @@ export default {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;
 }
 .sp-checks { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 14px; }
-.sp-notes, .sp-vis { margin-top: 14px; }
-.sp-vis-hint { font-size: 13px; color: var(--sp-muted); margin-top: -6px; }
+.sp-notes { margin-top: 14px; }
+
+/* The privacy choice, at the top of the form and set apart from the fields below
+   it — a tinted band so it reads as a decision about the deal rather than another
+   box to fill in. Brand blue on its own tint; no new colour. */
+.sp-vis-top {
+  background: #ebf4fa;
+  border: 1px solid var(--sp-line);
+  border-left: 3px solid var(--sp-blue);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+.sp-vis { margin-bottom: 4px; }
+.sp-vis-hint { font-size: 13px; color: var(--sp-muted); margin: 0; }
 
 @media (max-width: 860px) {
   .sp { padding: 20px 16px 64px; }
