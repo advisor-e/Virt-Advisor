@@ -78,6 +78,32 @@ article.spd
         //- not worked is part of the record — it just says so in a line.
         p.spd-untouched(v-if="!hasAnswers(item)") {{ $t('strategyPlanner.plan.notWorked') }}
 
+        //- 🔴 THE ORG CHART PRINTS AS A CHART, WITH THE LIST BENEATH IT — Decision E,
+        //- ruled by Mike 2026-09-21. The chart is the thing his deck teaches and the
+        //- thing a client recognises; the list beneath it is what makes the chart
+        //- checkable and survives being read aloud or printed in black and white.
+        //- ⚠ AND IT IS SCALED, NEVER CROPPED. His own example is 1628px wide at seven
+        //- levels, which was the stated condition on that ruling.
+        template(v-else-if="item.orgChart")
+          strategy-org-chart(:roles="item.orgChart" fit)
+          table.spd-org
+            thead
+              tr
+                th.spd-org-n #
+                //- "Role" and "Name" are the two ruled words of ours; the heading beside
+                //- them is Mike's own, read off Org Chart.xlsx and carried here with the
+                //- data rather than written on this page.
+                th {{ $t('strategyPlanner.orgChart.role') }}
+                th {{ $t('strategyPlanner.orgChart.person') }}
+                th {{ item.orgChartHead }}
+            tbody
+              tr(v-for="(role, n) in item.orgChart" :key="role.id")
+                td.spd-org-n {{ n + 1 }}
+                td {{ role.name }}
+                //- A role nobody is in yet is a real answer, not a gap — Decision B.
+                td(:class="{ 'is-blank': !role.person }") {{ role.person || $t('strategyPlanner.plan.blank') }}
+                td(:class="{ 'is-blank': !role.reportsTo }") {{ role.reportsTo || $t('strategyPlanner.orgChart.nobody') }}
+
         //- Where SOMETHING was captured, every box prints, filled or not: the blank
         //- ones are what the client has still to answer, and that is the plan
         //- expanding over time rather than a gap.
@@ -129,11 +155,12 @@ article.spd
  * Vue 2, Options API, Pug.
  */
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
+import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
 
 export default {
   name: 'StrategyPlanDocument',
 
-  components: { StrategyConceptGraphic },
+  components: { StrategyConceptGraphic, StrategyOrgChart },
 
   props: {
     /** The client this plan belongs to. */
@@ -194,10 +221,16 @@ export default {
     /**
      * Did the session put anything into this concept's table?
      *
-     * @param {{lines: Array<{value: string}>}} item
+     * ⚠ THE ORG CHART ANSWERS THIS DIFFERENTLY, AND IT HAS TO. Its "lines" are role names
+     * against who they report to, and the topmost role reports to nobody — so a chart of one
+     * role has no line with a value in it and would have printed "not worked through yet"
+     * with the client's own chart sitting above the sentence.
+     *
+     * @param {{lines: Array<{value: string}>, orgChart: ?Array}} item
      * @returns {boolean}
      */
     hasAnswers (item) {
+      if (item.orgChart) { return item.orgChart.length > 0 }
       return (item.lines || []).some(l => l.value)
     }
   }
@@ -343,6 +376,41 @@ export default {
 }
 
 .spd-lines dd.is-blank {
+  color: #aab6c4;
+  font-style: italic;
+}
+
+/* The list beneath the chart — Decision E. Plain and printable: it is what makes the
+   drawn chart checkable when the page is read aloud or printed in black and white. */
+.spd-org {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+}
+
+.spd-org th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5b6f8a;
+  border-bottom: 1px solid #d5e1ee;
+  padding: 0 8px 5px;
+}
+
+.spd-org td {
+  color: #23405f;
+  border-bottom: 1px solid #eef3f9;
+  padding: 5px 8px;
+}
+
+.spd-org .spd-org-n {
+  width: 44px;
+  color: #8a97a8;
+}
+
+.spd-org td.is-blank {
   color: #aab6c4;
   font-style: italic;
 }

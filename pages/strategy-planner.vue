@@ -38,12 +38,23 @@
       b-button(v-if="step === 'objectives'" type="is-primary" @click="step = 'plan'") {{ $t('strategyPlanner.producePlan') }}
       b-button(v-if="step === 'plan'" outlined type="is-primary" @click="step = 'objectives'") {{ $t('strategyPlanner.back') }}
 
+  //- 🔴 THE RAIL IS THE WAY THROUGH THE SESSION, NOT A PROGRESS PICTURE. Mike's request,
+  //- 2026-09-21: *"enable me to be able to click on the step banner (scope, build etc) in any
+  //- order i want to make it easier if i forget something"*. An advisor who realises
+  //- mid-meeting that a concept was never scoped had to walk back one Back button at a time,
+  //- then forward again through every screen.
+  //- ⚠ REAL BUTTONS, NOT CLICKABLE DIVS. These are the only way to reach four of the five
+  //- screens now, so a keyboard or a screen reader has to be able to use them.
   nav.sp-rail(aria-label="Session progress")
-    div(:class="railClass('scope')") {{ $t('strategyPlanner.rail.scope') }}
-    div(:class="railClass('steps')") {{ $t('strategyPlanner.rail.steps') }}
-    div(:class="railClass('run')") {{ $t('strategyPlanner.rail.run') }}
-    div(:class="railClass('objectives')") {{ $t('strategyPlanner.rail.objectives') }}
-    div(:class="railClass('plan')") {{ $t('strategyPlanner.rail.plan') }}
+    button.sp-rail-step(
+      v-for="stage in railStages"
+      :key="stage.key"
+      type="button"
+      :class="railClass(stage.key)"
+      :disabled="!canOpenStage(stage.key)"
+      :aria-current="step === stage.key ? 'step' : null"
+      @click="goToStage(stage.key)"
+    ) {{ $t(stage.label) }}
 
   b-notification(v-if="error" type="is-danger" :closable="true" @close="error = ''") {{ error }}
 
@@ -145,6 +156,7 @@
           :eyebrow="card.eyebrow"
           @field-opened="onVisitFieldOpened(card.visit, $event)"
           @field-changed="onVisitFieldChanged(card.visit, $event)"
+          @fields-changed="onVisitFieldsChanged(card.visit, $event)"
         )
 
   template(v-if="!loading && step === 'objectives'")
@@ -220,9 +232,13 @@ import StrategyPlanDocument from '~/components/strategy/StrategyPlanDocument.vue
 import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
 import { isPlaceableConcept } from '~/utils/strategyCards'
 import { isDevHost } from '~/utils/devHost'
+import { rolesFrom, namedRoles } from '~/utils/orgChart'
 
 /** Where the master app leaves the advisor's token before our pages load. */
 const TOKEN_KEY = 'advisor_e_token'
+
+/** The one capture form that captures a structure rather than words. */
+const ORG_CHART_FORM = 'parent-child-list'
 
 export default {
   name: 'StrategyPlannerPage',
@@ -390,6 +406,26 @@ export default {
       }).length
     },
 
+    /**
+     * The five stages, in order, and the one place that order is written down.
+     *
+     * 🔴 IT IS BOTH THE RAIL AND THE PROGRESS RULE. `railClass` reads this rather than
+     * keeping a second list — the second list is exactly what went wrong before, when
+     * `steps` was in the rail and missing from the order, so the rail marked Build session
+     * done before the advisor had been there.
+     *
+     * @returns {Array<{key: string, label: string}>}
+     */
+    railStages () {
+      return [
+        { key: 'scope', label: 'strategyPlanner.rail.scope' },
+        { key: 'steps', label: 'strategyPlanner.rail.steps' },
+        { key: 'run', label: 'strategyPlanner.rail.run' },
+        { key: 'objectives', label: 'strategyPlanner.rail.objectives' },
+        { key: 'plan', label: 'strategyPlanner.rail.plan' }
+      ]
+    },
+
     /** @returns {string} the chrome line: which client, and when */
     sessionLabel () {
       return this.clientId ? this.clientName : ''
@@ -526,9 +562,21 @@ export default {
         const capture = visit.capture || {}
         const hasTable = Boolean(capture.supplied)
         if (!isPlaceableConcept(hasTable, visit.conceptId)) { return }
+        // 🔴 THE ORG CHART CARRIES A STRUCTURE, NOT A SET OF BOXES. Decision E, ruled by
+        // Mike 2026-09-21: the client's plan carries the drawn chart with the list of roles
+        // beneath it. Its capture has no `fields` by design, so its lines are built from the
+        // roles the advisor entered instead — and the chart itself travels beside them, so
+        // the document draws the same one the advisor watched build.
+        const orgRoles = capture.form === ORG_CHART_FORM
+          ? namedRoles(rolesFrom(this.entriesFor(visit.conceptId)))
+          : null
         cards.push({
           key: visit.key,
           conceptId: visit.conceptId,
+          orgChart: orgRoles,
+          // His own column heading, read off the workbook, so the client's plan heads the
+          // list with the same word the advisor typed under.
+          orgChartHead: (capture.orgChart && capture.orgChart.headLabel) || '',
           // A concept admitted on its drawing alone has nothing to fill in, and the
           // client's document must not print a capture page saying it was "not
           // worked through" when there was never anything to work.
@@ -547,12 +595,21 @@ export default {
           prompts: [],
           // The WHOLE table. It used to be filtered to one part's field keys, which is
           // what made a second visit show different boxes from the first.
-          lines: (capture.fields || [])
-            .map(f => ({
-              key: visit.conceptId + '::' + f.key,
-              label: [f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
-              value: (this.entries[visit.conceptId + '::' + f.key] || '').trim()
+          lines: orgRoles
+            ? orgRoles.map(r => ({
+              key: visit.conceptId + '::orgrole-' + r.id,
+              // The role and the person in it are one line of the list; who they report to
+              // is its value. The document draws its own three-column table from `orgChart`
+              // above — these lines are what everything else downstream reads.
+              label: r.person ? r.name + ' · ' + r.person : r.name,
+              value: r.reportsTo
             }))
+            : (capture.fields || [])
+              .map(f => ({
+                key: visit.conceptId + '::' + f.key,
+                label: [f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
+                value: (this.entries[visit.conceptId + '::' + f.key] || '').trim()
+              }))
         })
       })
 
@@ -761,12 +818,94 @@ export default {
     /**
      * @param {string} step
      * @returns {object} class bindings for one rail segment
+     *
+     * 🔴 `steps` WAS MISSING FROM THIS ORDER AND THE RAIL HAD BEEN LYING SINCE BUILD SESSION
+     * WAS ADDED. `indexOf` returned -1 for it, so on Scope — the very first screen — segment
+     * 2 rendered as DONE because `-1 < 0`, and on Build session segment 1 rendered as
+     * untouched because nothing was less than -1. Measured on screen 2026-09-21 while making
+     * the rail clickable; no test could see it and it is the kind of thing a person reads
+     * past, because a green segment looks like progress rather than a mistake.
      */
     railClass (step) {
-      const order = ['scope', 'run', 'objectives', 'plan']
+      const order = this.railStages.map(s => s.key)
       const here = order.indexOf(this.step)
       const mine = order.indexOf(step)
-      return { 'sp-rail-step': true, 'is-on': mine === here, 'is-done': mine < here }
+      return { 'is-on': mine === here, 'is-done': mine >= 0 && here >= 0 && mine < here }
+    },
+
+    /**
+     * May this stage be opened from where the advisor is now?
+     *
+     * 🔴 A STATED JUDGEMENT, NOT A HIDDEN RULE. Any stage may be opened in any order — that
+     * is the whole request — but the last four have nothing to show until a session exists:
+     * they read `sessionId` to save what is typed, and opening Run session before one is
+     * open would draw an empty meeting and quietly discard anything typed into it.
+     *
+     * @param {string} stage
+     * @returns {boolean}
+     */
+    canOpenStage (stage) {
+      return stage === 'scope' || Boolean(this.sessionId)
+    },
+
+    /**
+     * Move to a stage, in whatever order the advisor asks for it.
+     *
+     * 🔴 LEAVING SCOPE IS NOT JUST A SCREEN CHANGE, AND THIS IS THE WHOLE POINT OF THE
+     * REQUEST. Mike asked for this so he could go back when he had *"forgot something"* —
+     * which means ticking another concept. Two things have to happen before anything
+     * downstream reads that tick, and neither used to happen outside `startSession`:
+     *
+     *   1. **Its capture table has to be fetched.** `conceptVisits` skips a concept with
+     *      nothing in `captures`, so a newly ticked one would be SILENTLY ABSENT from Build
+     *      session, the meeting and the client's plan — the advisor ticks it, sees it
+     *      confirmed on the menu, and it never appears again.
+     *   2. **The scope has to be saved.** It reaches the backend with the steps, so
+     *      re-scoping and then not touching the steps would leave the session's stored scope
+     *      behind what is on screen.
+     *
+     * ⚠ THE STEPS ARE NOT RE-SEEDED. `seedSteps` only ever fills an empty list, so a return
+     * visit to Scope never discards the arrangement the advisor has already built; the new
+     * concept simply arrives in the tray as unplaced.
+     *
+     * @param {string} stage
+     * @returns {Promise<void>}
+     */
+    async goToStage (stage) {
+      if (stage === this.step || !this.canOpenStage(stage)) { return }
+      if (this.step === 'scope') {
+        await this.loadCaptures()
+        this.seedSteps()
+        await this.saveScope()
+      }
+      this.step = stage
+    },
+
+    /**
+     * Record what is ticked, without touching the advisor's steps.
+     *
+     * ⚠ A FAILED SAVE DOES NOT ROLL THE SCREEN BACK, the same rule the capture boxes and the
+     * step builder follow: the advisor keeps what they chose and is told it did not save.
+     *
+     * @returns {Promise<void>}
+     */
+    async saveScope () {
+      if (!this.sessionId) { return }
+      try {
+        const res = await fetch('/api/strategy/sessions/' + this.sessionId + '/scope', {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: this.headers(true),
+          body: JSON.stringify({
+            domains: [],
+            frameworks: this.chosen,
+            steps: this.planStepDefs.map(s => ({ name: s.name, items: s.items }))
+          })
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+      } catch (e) {
+        this.error = this.$t('strategyPlanner.errors.stepsSaveFailed')
+      }
     },
 
     /**
@@ -867,6 +1006,25 @@ export default {
      */
     onVisitFieldChanged (visit, payload) {
       this.onFieldChanged({ frameworkId: visit.conceptId, fieldKey: payload.fieldKey, value: payload.value })
+    },
+
+    /**
+     * Several boxes on a visit, saved together.
+     *
+     * 🔴 THE ORG CHART BUILDER NEEDS THIS AND NOTHING ELSE DOES. Adding a role writes the
+     * roster and the box it makes real, and those two have to land in the same request or a
+     * reload shows a name with no row to put it on; loading Mike's 24-role example is 49
+     * writes, which is inside the route's ceiling of 60 for one save.
+     *
+     * @param {{conceptId: string}} visit
+     * @param {{entries: Array<{fieldKey: string, value: string}>}} payload
+     */
+    onVisitFieldsChanged (visit, payload) {
+      this.onFieldsChanged((payload.entries || []).map(e => ({
+        frameworkId: visit.conceptId,
+        fieldKey: e.fieldKey,
+        value: e.value
+      })))
     },
 
     /**
@@ -1112,18 +1270,34 @@ export default {
      * @param {{frameworkId: string, fieldKey: string, value: string}} payload
      */
     async onFieldChanged (payload) {
-      if (!this.sessionId) { return }
+      await this.onFieldsChanged([payload])
+    },
+
+    /**
+     * One or more boxes, saved in a single request.
+     *
+     * ⚠ A FAILED SAVE DOES NOT ROLL THE SCREEN BACK — the same rule the step builder
+     * follows, and for the same reason: the advisor keeps what they typed and is told it did
+     * not save, because silently undoing their work mid-session is worse than an error they
+     * can act on.
+     *
+     * @param {Array<{frameworkId: string, fieldKey: string, value: string}>} payload
+     */
+    async onFieldsChanged (payload) {
+      const entries = Array.isArray(payload) ? payload : []
+      if (!this.sessionId || !entries.length) { return }
       this.error = ''
-      const key = payload.frameworkId + '::' + payload.fieldKey
       // Optimistic: the advisor sees their own words stay put while the save runs.
-      this.$set(this.entries, key, payload.value)
+      entries.forEach((e) => {
+        this.$set(this.entries, e.frameworkId + '::' + e.fieldKey, e.value)
+      })
 
       try {
         const res = await fetch('/api/strategy/sessions/' + this.sessionId + '/entries', {
           method: 'PUT',
           credentials: 'same-origin',
           headers: this.headers(true),
-          body: JSON.stringify({ entries: [payload] })
+          body: JSON.stringify({ entries })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
       } catch (e) {
@@ -1136,14 +1310,35 @@ export default {
 
 <style scoped>
 .sp { max-width: 1120px; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; position: relative; }
+/* 🔴 THE PRIMARY BUTTON SITS IN THE SAME PLACE ON ALL FIVE SCREENS, and until 2026-09-21 it
+   did not. Measured across the stages it wandered 166px sideways — 970, 1136, 1050, 1088 —
+   and dropped 61px between Scope and everything after it, so the button an advisor was about
+   to press was never twice in the same place. Mike found it by clicking through.
+
+   Two causes, and both are fixed here. `.sp-top-actions` had NO rule at all, so its buttons
+   sat wherever their own widths left them: "Build the session" ended 123px short of the page
+   edge because the client picker shares that row, while the other three ended flush with it.
+   And `align-items: flex-end` hung the row off the BOTTOM of a header that is three lines
+   deep on Scope and one line everywhere else.
+
+   ⚠ DO NOT RESTORE `flex-end` TO "line the button up with the title". That is what produced
+   the 61px drop, and no test can see it — a button in the wrong place renders perfectly. */
 .sp-top {
   display: flex;
   gap: 1rem;
-  align-items: flex-end;
+  align-items: flex-start;
   flex-wrap: wrap;
   margin-bottom: 1rem;
 }
 .sp-top-text { flex: 1 1 320px; min-width: 0; }
+.sp-top-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
 .sp-eyebrow {
   font-size: 0.66rem;
   font-weight: 700;
@@ -1163,17 +1358,28 @@ export default {
   background: #f1f6fb;
   margin-bottom: 1.2rem;
 }
+/* Each segment is a real button now (Mike's request, 2026-09-21), so it resets the
+   browser's own button chrome and then keeps exactly the look it had as a div. */
 .sp-rail-step {
   flex: 1 1 0;
   padding: 0.55rem 0.7rem;
   font-size: 0.75rem;
+  font-family: inherit;
   text-align: center;
   color: #5b6f8a;
+  border: 0;
   border-right: 1px solid #d5e1ee;
+  background: transparent;
+  cursor: pointer;
 }
 .sp-rail-step:last-child { border-right: 0; }
 .sp-rail-step.is-on { background: #0070c0; color: #fff; font-weight: 600; }
 .sp-rail-step.is-done { background: rgba(76, 165, 45, 0.1); color: #2f7d32; font-weight: 600; }
+/* It has to LOOK clickable, or an advisor who was told they can jump about still will not. */
+.sp-rail-step:hover:not(:disabled):not(.is-on) { background: #e3eefa; color: #002b64; }
+.sp-rail-step:focus-visible { outline: 2px solid #0070c0; outline-offset: -2px; }
+/* Before a session is open there is nothing behind the last four to show. */
+.sp-rail-step:disabled { cursor: default; opacity: 0.45; }
 
 .sp-card { margin-bottom: 1.1rem; }
 .sp-section { margin: 1.4rem 0; }

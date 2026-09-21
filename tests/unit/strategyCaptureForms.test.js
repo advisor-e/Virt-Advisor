@@ -83,10 +83,29 @@ describe('every supplied table produces fields an advisor can actually type into
     .map(c => ({ concept: c, capture: forms.captureForConcept(c) }))
     .filter(r => r.capture.supplied)
 
+  // 🔴 ONE FORM HAS NO FIELDS BY DESIGN, AND IT IS EXCEPTED BY NAME RATHER THAN BY
+  // LOOSENING THE RULE. Mike ruled the Org Chart a mini-app on 2026-09-21: its rows are
+  // people the advisor adds and removes, so there is no fixed list of boxes to enumerate.
+  // Every other supplied template must still produce fields — a template that quietly
+  // stopped producing any would otherwise reach an advisor as a card with nothing on it.
+  const boxed = supplied.filter(r => r.capture.form !== 'parent-child-list')
+
   test('there is at least one, and each has fields', () => {
-    expect(supplied.length).toBeGreaterThan(0)
-    supplied.forEach((r) => {
+    expect(boxed.length).toBeGreaterThan(0)
+    boxed.forEach((r) => {
       expect(r.capture.fields.length).toBeGreaterThan(0)
+    })
+  })
+
+  test('the one form with no fields carries its own shape instead', () => {
+    const miniApp = supplied.filter(r => r.capture.form === 'parent-child-list')
+    expect(miniApp.length).toBe(1)
+    miniApp.forEach((r) => {
+      expect(r.capture.fields).toEqual([])
+      // Without these the screen has no example to load and no heading of Mike's to put
+      // over the second column, and it would render as an empty card.
+      expect(r.capture.orgChart.example.length).toBeGreaterThan(0)
+      expect(r.capture.orgChart.headLabel).toBeTruthy()
     })
   })
 
@@ -239,7 +258,34 @@ describe('a column that Mike named reaches the box beneath it', () => {
     // not decide: the grid has to agree with it.
     const capture = captureOf('assess-current-position-by-reviewing-pre-meeting-data-sectio')
     expect(capture.fields.some(f => f.prefilled)).toBe(false)
-    expect(capture.fields.length).toBeLessThan(40)
+  })
+
+  test('🔴 his blank spacer rows are a gap, not six questions he never asked', () => {
+    // The 2026-09-19 rule, not a new one: the screen offers exactly the boxes his
+    // document rules. He puts a blank row between each customer segment; read as lines
+    // they offered SIX boxes more than his sheet asks, under no heading at all.
+    //
+    // Counted from his workbook rather than typed here, so a segment he adds moves the
+    // expectation with it.
+    const tpl = forms.resolveTemplate('Customer & Skills Review')
+    const questions = tpl.tables.reduce((n, t) => n + t.rows.filter(
+      (r, i) => i > 0 && r.cells[0].text && !r.cells[0].blank).length, 0)
+
+    const capture = captureOf('assess-current-position-by-reviewing-pre-meeting-data-sectio')
+    expect(capture.fields).toHaveLength(questions)
+    expect(capture.fields.every(f => f.columnLabel)).toBe(true)
+  })
+
+  test('a blank row everywhere else is still a line — the wide version of that rule was measured', () => {
+    // Dropping every empty row takes 32 boxes off Porter's, 28 off the Profit Levers and
+    // 14 off Blue Ocean. Those counts are the reason the gap rule is narrow, and this is
+    // what catches a later session widening it.
+    const ruled = name => forms.resolveTemplate(name).tables
+      .reduce((n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(c => c.blank).length, 0), 0)
+
+    expect(captureOf('porters-5-forces').fields.length).toBe(ruled("Porter's 5 Forces"))
+    expect(captureOf('the-8-profit-levers').fields.length).toBe(ruled('Profit Levers (1)'))
+    expect(captureOf('blue-ocean-strategy').fields.length).toBe(ruled('Blue Ocean Fronts'))
   })
 })
 

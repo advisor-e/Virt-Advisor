@@ -373,7 +373,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT. READ PLANNING-TEMPLATE-CENSUS.md then the Brief; the build is staged in Brief section 0, which carries the detail this note used to repeat. BUILT: stages 1, 2, 3 (scope menu, capture from his workbooks, the assembled document) and 3b, the step builder, 2026-09-20 - the client agenda is now his words, not our screen labels. Stage 4b is DONE - 33 of 34 concepts drawn AND wired in, 2026-09-20; that was 15.7, now closed. Stage 5 started 2026-09-19: the banded grid, 1 of 9 forms. NEXT: stages 5, 6, 7, 8.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), and stage 5 forms 1-3 of 9. FORM 3, THE ORG CHART BUILDER, BUILT TWICE 2026-09-21 - the REDRAW shipped. THE STAGE RAIL IS CLICKABLE IN ANY ORDER, his request. SIX FAULTS FOUND BY OPENING IT, all fixed - see the Brief. SIX REMAIN. NOTHING WAITS ON MIKE. THREE RULINGS NEVER TO BE RE-RAISED: the column count (\"leave it - its fine\"); the unheaded column and four lines where three, as his documents have them, pinned by tests; his blank spacer rows, a gap not boxes. NEXT: stages 5-8.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -415,7 +415,7 @@
         "detail": "2026-09-17 - hit while proving the concept index build. Failed once in three full runs and passed alone. Mike said yes to filing it."
       },
       "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant), and the four suites that reach it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes and wagesRegisterContents.routes.",
-      "note": "NOT REPRODUCIBLE ON DEMAND - it failed once in three full runs on 2026-09-17, then passed alone and on both re-runs. The cause is traced rather than guessed: wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. THREE WAYS OUT, and choosing between them is the work: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. Nothing is blocked by it today.",
+      "note": "NOT REPRODUCIBLE ON DEMAND - it failed once in three full runs on 2026-09-17, then passed alone and on re-runs. Cause traced, not guessed: wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. THREE WAYS OUT, and choosing between them is the work: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. 🔴 2026-09-21 - A RANDOM FAILURE BLOCKED A COMMIT, the first time it cost anything: one test failed in the pre-commit hook, five runs after were green. The failing suite was NOT captured, so this item is not proved to be the cause.",
       "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end."
     },
     {
@@ -568,6 +568,27 @@
       "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
     },
     {
+      "ref": "16.1",
+      "name": "Primary buttons show the library's violet where the brand file says blue",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "it looks unfinished",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "BRAND-TOKENS.md names Blue #0070C0 as \"Primary interactive (buttons, sliders, links) on light\". Buefy ships its own violet #7957D5 and nuxt.config.js loads buefy.css unmodified, so every type=\"is-primary\" button renders violet.",
+      "risk": "One screen shows both at once and a client sees it. Measured on Run session 2026-09-21: the header button is #7957D5 while the stage rail and the Org Chart toolbar are #0070C0, because those two were written against the brand file and the buttons were not. It reads as a half-finished theme rather than a setting nobody chose, and the Strategy Planner is the screen an advisor runs in front of a client.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-21 - measured while building the Org Chart toolbar to its approved drawing, which specifies #0070C0. Filed on Mike's yes at shutdown rather than fixed inside that commit."
+      },
+      "touches": "84 files under components/ and pages/ use type=\"is-primary\"; the fix is one override of Buefy's  rather than 84 edits, so the work is choosing where that override lives and seeing the whole app recoloured before it ships.",
+      "note": "NOT A ONE-LINE FIX EVEN THOUGH THE CHANGE IS ONE LINE. Overriding Buefy's primary recolours every button in the app at once, so Mike sees it before it ships - which is why it was not folded into the 2026-09-21 commit. TWO THINGS ALREADY BRAND BLUE AND NOT TO BE CHANGED BACK: the stage rail's current segment, and the Org Chart Builder toolbar, which follows its approved drawing. The desktop logged the same brand-token gap for the sales tracker screens on 2026-09-22.",
+      "comment": "2026-09-21 - found by measuring three buttons on one screen, not by reading the code. Pre-existing and app-wide: it has been this way since Buefy was adopted, and BRAND-TOKENS.md post-dates it."
+    },
+    {
       "ref": "17",
       "name": "An advisor leaves the app to track their own deals and referral partners",
       "rankedByMike": false,
@@ -590,11 +611,7 @@
       },
       "touches": "server/routes/ as 36 new Restify routes with raw mysql2, replacing its server/api/; server/utils/db.js instead of its Prisma client; config/db-schema.sql for the va_courses pattern; server/utils/openaiClient.js instead of its openai SDK; its 8 pages and 7 components, repainted, landing in pages/ as ADVISOR pages - not the hub, which has no advisor scope; components/base/ for the SVG charts replacing Chart.js; FirmManagerHub.vue TAB_TIERS and hubTabTiers.test.js for the Team roll-up alone; locales/; and tests/, which it has NONE of.",
       "note": "🔴 MIKE WANTS ALL OF IT - all eight screens, his ruling 2026-09-21. PLAN: features/sales-tracker.md section 7 on, 16-25 days. ✅ STAGES 1, 2 AND 3 COMPLETE: the schema, the pipeline store/routes/screen, the COI store/routes/screen, and the Sales Dashboard - backend and screen both. NEXT: stage 4, Team + Lists. 🔴 THE DASHBOARD IS A FAITHFUL COPY OF MIKE'S OWN dashboard.vue, and the first attempt was not: it invented a waterfall chart and collapsed his two funnels (Campaign vs Total Needs, split on salesStyle) into one. Deleted and rebuilt on his ruling - \"dont change shit - get it looking the same\". Brief section 10 stage 3 holds what was copied and the three forced differences.",
-      "comment": "2026-09-21 - stage 3 screens built. THE LESSON: the plan said \"redrawn on our six SVG chart components\" and said nothing about what the screen LOOKED like, so a session designed one. His dashboard already existed, fully designed, 938 lines on E:, and nobody opened it before building the replacement. A plan naming a CONSTRAINT is not a licence to invent a layout; the source app is the specification. Earlier, 2026-09-22: the plan was re-read and FOUR things in it were wrong, one of them Mike's own catch - it told a session to put these advisor screens on the Firm Manager Hub, which has no advisor scope. sales-tracker-history.md section 5.",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-21"
-      }
+      "comment": "2026-09-21 - stage 3 screens built. THE LESSON: the plan said \"redrawn on our six SVG chart components\" and said nothing about what the screen LOOKED like, so a session designed one. His dashboard already existed, fully designed, 938 lines on E:, and nobody opened it before building the replacement. A plan naming a CONSTRAINT is not a licence to invent a layout; the source app is the specification. Earlier, 2026-09-22: the plan was re-read and FOUR things in it were wrong, one of them Mike's own catch - it told a session to put these advisor screens on the Firm Manager Hub, which has no advisor scope. sales-tracker-history.md section 5."
     },
     {
       "ref": "13.1",

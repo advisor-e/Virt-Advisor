@@ -5835,7 +5835,7 @@
     "navTitle": "Strategy Planner",
     "subtitle": "Your role is to challenge what the client believes to be true. Their role is to explore with an open heart and an open mind.",
     "saveAndClose": "Save and close",
-    "startSession": "Start the session",
+    "startSession": "Build the session",
     "back": "Back",
     "nextFramework": "Next framework",
     "rail": {
@@ -5914,6 +5914,24 @@
       "noTableMeasured": "There is no fill-in table for this concept yet. Talk it through and record it in your own notes.",
       "templateNotSupplied": "The {template} table has not been supplied yet. Talk it through and record it in your own notes.",
       "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck."
+    },
+    "orgChart": {
+      "addRole": "+ Add a role",
+      "startFromExample": "Start from the example",
+      "clearAll": "Clear all",
+      "role": "Role",
+      "person": "Name",
+      "nobody": "Nobody",
+      "outsideNote": "not one of your roles",
+      "removeRole": "Remove this role",
+      "roleCount": "{count} role | {count} roles",
+      "levelCount": "{count} level | {count} levels",
+      "countLine": "{roles} · {levels}",
+      "chartLabel": "Organisational hierarchy chart",
+      "nameSeparator": ", ",
+      "noticeOutside": "{names} is named as a Reporting Head but is not one of the roles below, so it is drawn above the chart as an outside parent. | {names} are named as Reporting Heads but are not roles below, so they are drawn above the chart as outside parents.",
+      "noticeLoop": "{names} report to each other in a circle, so the chart cannot place them under anyone.",
+      "noticeTops": "The chart has {count} tops: {names}."
     },
     "teaching": {
       "yourBusiness": "Your business",

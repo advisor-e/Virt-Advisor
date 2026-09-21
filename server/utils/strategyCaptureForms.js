@@ -22,6 +22,7 @@
 'use strict'
 
 const captureTables = require('../../data/strategy-capture-tables.json')
+const orgChart = require('./strategyOrgChart')
 
 /**
  * Concepts name their template in `captureTemplate`; the template is a file on
@@ -210,10 +211,31 @@ function fieldsOfTable (table, tableIndex, form) {
   // below picks the row up as what it is. Found 2026-09-19.
   if (!hasRuledLines && rows.length === 1) { return [] }
 
+  // 🔴 A ROW WITH NOTHING ON IT AT ALL, IN A TWO-COLUMN QUESTION SHEET, IS THE GAP
+  // BETWEEN HIS GROUPS — NOT A QUESTION. Customer & Skills Review asks 24 questions and
+  // puts a blank row between each customer segment; read as lines, those three rows
+  // offered six more boxes than his document does, under no heading at all. This is the
+  // same rule as 2026-09-19's, not a new one: the screen offers exactly the boxes his
+  // document rules, no more and no fewer.
+  //
+  // ⚠ NARROW ON PURPOSE, AND THE WIDE VERSION WAS MEASURED BEFORE THIS WAS WRITTEN. A
+  // blank row is USUALLY a real line: dropping every one of them takes 32 boxes off
+  // Porter's, 28 off the Profit Levers and 14 off Blue Ocean. It is a gap only where the
+  // table is two columns, every row of it either asks a question in the first column or
+  // is entirely empty, and the questions outnumber the empties two to one. Measured
+  // across all 20 templates: Customer & Skills Review is the only one this touches.
+  const body = rows.slice(1)
+  const asks = body.filter(r => r.cells[0] && r.cells[0].text && !r.cells[0].blank).length
+  const empties = body.filter(r => r.cells.every(c => c.blank)).length
+  const isQuestionSheet = table.columns === 2 &&
+    asks + empties === body.length &&
+    empties > 0 && asks >= empties * 2
+
   const fields = []
   const columnLabels = []
 
   rows.forEach((row, r) => {
+    if (isQuestionSheet && r > 0 && row.cells.every(c => c.blank)) { return }
     const labelRow = isLabelRow(rows, r)
 
     if (labelRow) {
@@ -293,6 +315,25 @@ function captureForConcept (concept) {
     }
   }
 
+  // 🔴 ONE FORM IS NOT A GRID OF BOXES AT ALL, AND IT CANNOT BE READ AS ONE. Mike ruled the
+  // Org Chart a mini-app on 2026-09-21 — "which is why the original is in a spreadsheet".
+  // Read positionally it offers 49 boxes, 32 of them from a column that is empty top to
+  // bottom in his sheet, and the save guard below would REFUSE role 31 because his document
+  // has 30 rows. So this form carries no `fields` and the screen builds the list instead.
+  // Its record shape and its guard are `utils/orgChart.js`.
+  if (concept.captureForm === orgChart.FORM) {
+    return {
+      supplied: true,
+      template: concept.captureTemplate,
+      file: template.file,
+      form: concept.captureForm,
+      // Empty, and true: there are no fixed boxes to enumerate. Everything on the screen
+      // comes from the roster the advisor builds.
+      fields: [],
+      orgChart: orgChart.captureShape()
+    }
+  }
+
   const fields = []
   template.tables.forEach((table, i) => {
     fieldsOfTable(table, i, concept.captureForm).forEach(f => fields.push(f))
@@ -321,6 +362,13 @@ function captureForConcept (concept) {
  * It stays a whitelist: a key that is not a real box on that concept's table is
  * still refused, so nothing arbitrary reaches the store.
  *
+ * 🔴 AND THE ORG CHART IS WHY THIS GUARD NEEDED A SECOND SHAPE, NOT A LOOSER ONE. Its rows
+ * are people the advisor adds and removes, so there is no list of positions to check against
+ * — his sheet stops at row 30 and the 31st name would have been refused with "your typing
+ * could not be saved". `isOrgChartKey` is still a whitelist: the roster, or `orgrole-<n>-name`
+ * / `orgrole-<n>-head` with n inside a fixed ceiling, and nothing else. It is reachable ONLY
+ * from a concept authored on that form, so no other concept gains a key it should not have.
+ *
  * @param {string} conceptId
  * @param {string} fieldKey
  * @param {function(string): ?object} getConcept  injected to avoid a require cycle
@@ -332,6 +380,7 @@ function hasCaptureField (conceptId, fieldKey, getConcept) {
   if (!concept) { return false }
   const capture = captureForConcept(concept)
   if (!capture.supplied) { return false }
+  if (capture.form === orgChart.FORM) { return orgChart.isOrgChartKey(fieldKey) }
   return capture.fields.some(f => f.key === fieldKey)
 }
 

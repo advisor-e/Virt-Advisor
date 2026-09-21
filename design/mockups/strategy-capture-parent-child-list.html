@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Org Chart Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+  .tbl { margin: 0 0 40px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 0 0 2px; }
+  h3.step { color: var(--ink); font-size: 16px; margin: 0 0 4px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .colhead { font-size: 12px; font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 8px; }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0 0 14px; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--wash); color: var(--ink); font-size: 13.5px;
+    padding: 9px 12px; border: 1px solid var(--line); border-bottom: 2px solid var(--accent);
+    vertical-align: top;
+  }
+  table.bg td { border: 1px solid var(--line); padding: 7px 10px; vertical-align: middle; }
+  .box {
+    display: inline-block; width: 100%; height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+  }
+  .boxpre {
+    display: inline-block; width: 100%; min-height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+    padding: 5px 9px; font-size: 12.5px; color: var(--body);
+  }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 26px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .bad { border-left-color: #c0392b; background: #fdf3f2; }
+
+  /* ---- the builder itself ---- */
+  .app { border: 1px solid var(--line); border-radius: 11px; overflow: hidden; margin: 0 0 14px; }
+  .bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 11px 14px; background: var(--wash); border-bottom: 1px solid var(--line);
+  }
+  .btn {
+    display: inline-block; font-size: 12.5px; font-weight: 600; border-radius: 6px;
+    padding: 6px 12px; border: 1px solid var(--accent); color: #fff; background: var(--accent);
+  }
+  .btn.ghost { background: #fff; color: var(--accent); }
+  .count { margin-left: auto; font-size: 12px; color: var(--eg); }
+  table.pcl { table-layout: fixed; margin: 0; }
+  table.pcl th, table.pcl td { border-left: 0; border-right: 0; }
+  table.pcl th:first-child, table.pcl td:first-child { width: 54px; }
+  table.pcl th:last-child, table.pcl td:last-child { width: 46px; }
+  td.num { color: var(--eg); font-size: 12px; text-align: center; }
+  td.act { text-align: center; }
+  .rm { color: #c0392b; font-size: 17px; line-height: 1; opacity: .55; }
+  .sel {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    width: 100%; min-height: 30px; border: 1px solid var(--line); border-radius: 5px;
+    background: #fdfefe; padding: 4px 9px; font-size: 12.5px; color: var(--body);
+  }
+  .sel.empty { color: #9fb3c8; }
+  /* a drawn caret, not a glyph: the small-triangle character renders as a dash at
+     this size in Chrome and reads as a stray hyphen rather than a picker */
+  .caret {
+    flex: 0 0 auto; width: 0; height: 0; margin-left: 4px;
+    border-left: 4.5px solid transparent; border-right: 4.5px solid transparent;
+    border-top: 5.5px solid var(--eg);
+  }
+
+  /* ---- the chart the list draws ---- */
+  .chart { overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; padding: 18px 16px; margin: 0 0 14px; background: #fff; }
+  .chart svg { display: block; }
+  .flag {
+    display: flex; gap: 9px; align-items: flex-start;
+    border: 1px solid #f0d8a8; background: #fdf8ec; border-radius: 9px;
+    padding: 10px 13px; margin: 0 0 14px; font-size: 13px;
+  }
+  .flag b { color: #8a6100; }
+  .flag .dot { color: #d79a1d; font-size: 15px; line-height: 1.2; }
+
+  /* the decisions */
+  .dec { border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 0 0 16px; }
+  .dec h3 { margin: 0 0 4px; color: var(--ink); font-size: 16px; }
+  .dec .rec { margin: 8px 0 0; }
+  .dec .rec b { color: var(--ink); }
+  .dec .against { margin: 6px 0 0; color: var(--eg); font-size: 13px; }
+  .dec .q { margin: 10px 0 0; padding: 9px 12px; background: var(--wash); border-radius: 7px; color: var(--ink); font-weight: 600; }
+  /* a ruling, kept beside the recommendation and the argument against it, so the
+     build can be laid against this page afterwards and every difference named */
+  .dec .ruled {
+    margin: 10px 0 0; padding: 9px 12px; border-radius: 7px; font-weight: 600;
+    background: #eef7f0; color: #1e5c33; border-left: 3px solid #4a9c63;
+  }
+  .dec .ruled .who { display: block; font-weight: 400; font-size: 12px; color: #4a7a58; margin-top: 3px; }
+  @media (max-width: 720px) {
+    .count { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Strategy Planner &middot; stage 5 &middot; capture form 3 of 9 &middot; item 15.1</p>
+  <h1>The Org Chart Builder</h1>
+  <p class="lede">
+    <b>One capture form, one of your tables &mdash; and the only one of the nine that is a small
+    application rather than a page of boxes.</b> Every role, every reporting line, the one column
+    heading and every count below is read from <i>Org Chart.xlsx</i> by a script, exactly as the
+    banded grid and the two-dimensional grid were; nothing of yours was typed onto this page. This is
+    a drawing of how the screen would work, for approval before it is built.
+  </p>
+  <p class="lede" style="margin-top:10px">
+    <b>Status, 2026&#8209;09&#8209;21:</b> ☑ <b>all five decisions ruled</b>, each as recommended
+    &mdash; they are at the foot of this page with the arguments against them kept beside them.
+    ☐ <b>The drawing itself is NOT yet approved to build from</b>, which is a separate question.
+    Nothing in the application has been changed.
+  </p>
+
+  <div class="note bad">
+    <h3>What the screen does today &mdash; measured against your spreadsheet</h3>
+    <ul>
+      <li><b>49 boxes, and 32 of them come from a column that is empty from
+        top to bottom in your sheet</b> and carries no heading. An advisor is handed
+        32 places to type that correspond to nothing in your document.</li>
+      <li><b>42 boxes are labelled only with a row number</b> &mdash;
+        <i>1.0</i>, <i>2.0</i>, on to
+        <i>30.0</i> &mdash; and <b>7 carry no label at
+        all</b>. Nothing on the screen says which box is a job title and which is who that person
+        reports to.</li>
+      <li><b>Your 24-role worked example is thrown away entirely</b> &mdash;
+        <i>Board</i>, <i>CEO</i>, <i>CFO</i>,
+        down to <i>Personal Assistant</i>. Not one of them reaches the screen, so the one thing that shows an advisor what an answer
+        looks like is the one thing they never see.</li>
+      <li><b>Your one heading, &ldquo;Reporting Head&rdquo;, never reaches
+        the screen either</b> &mdash; the same reading fault that lost the persona names on Customer
+        Types, in a table nobody re-checked afterwards.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>☑ Why this one is not a form &mdash; your ruling, 2026&#8209;09&#8209;21</h3>
+    <p style="margin:0 0 6px"><i>&ldquo;seeing as this needs to be dynamic &mdash; perhaps it needs to
+      be built like a &lsquo;mini-app&rsquo; in order to function? &hellip; which is why the original
+      is in a spreadsheet&rdquo;</i></p>
+    <ul>
+      <li><b>Your file types say it.</b> Of the 20 templates you supplied,
+        <b>17 are Word documents</b> and only <b>2 are spreadsheets</b> &mdash; this is one of them.
+        A Word document is a form with a fixed number of blanks. You reached for a spreadsheet
+        because an org chart is a list that grows, with a relationship between two of its columns.</li>
+      <li><b>Every other capture form saves a box by its position in your table</b> &mdash; table 0,
+        row 5, column 3 &mdash; and the save is checked against exactly the positions your document
+        contains. Your sheet has 30 numbered rows. <b>An advisor adding role
+        31 would save to a position your sheet does not have, and the save would be
+        refused.</b> A fixed grid does not merely look wrong here; it breaks at the
+        31st name.</li>
+      <li><b>One answer is constrained by another.</b> &ldquo;Reporting Head&rdquo;
+        has to name a role that already exists. No other form has a field whose valid answers depend
+        on what was typed in a different row.</li>
+      <li><b>It can be wrong in ways a text box cannot notice</b> &mdash; two people reporting to each
+        other, two chief executives, somebody reporting to nobody.</li>
+      <li><b>And it produces something.</b> The other eight capture words. This one captures a
+        structure, from which the chart your deck teaches can be drawn.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+  <section class="tbl">
+    <h2>1 &middot; What the advisor sees first</h2>
+    <p class="src">One empty role, and two ways to begin. Nothing is prefilled.</p>
+    <div class="app">
+      <div class="bar">
+        <span class="btn">+ Add a role</span>
+        <span class="btn ghost">Start from the example</span>
+        <span class="count">0 roles</span>
+      </div>
+      <table class="bg pcl">
+        <thead><tr><th>#</th><th>Role</th><th>Reporting Head</th><th></th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td><span class="box"></span></td><td><span class="sel empty">Reports to&hellip;<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src">The <b>Role</b> column carries no heading in your sheet; it is named here because
+      the second column is named in yours and an unnamed column beside a named one reads as a
+      mistake. <b>That is decision B below.</b></p>
+  </section>
+
+  <section class="tbl">
+    <h2>2 &middot; The same screen with your own example loaded</h2>
+    <p class="src">Org Chart.xlsx &middot; 24 roles &middot;
+      &ldquo;Reporting Head&rdquo; is a picker of roles already entered,
+      never free text &middot; the number on the left is worked out by the app</p>
+    <div class="app">
+      <div class="bar">
+        <span class="btn">+ Add a role</span>
+        <span class="btn ghost">Clear all</span>
+        <span class="count">24 roles &middot; 7 levels</span>
+      </div>
+      <table class="bg pcl">
+        <thead><tr><th>#</th><th>Role</th><th>Reporting Head</th><th></th></tr></thead>
+        <tbody>
+<tr><td class="num">1</td><td><span class="boxpre">Board</span></td><td><span class="sel">Shareholders<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">2</td><td><span class="boxpre">CEO</span></td><td><span class="sel">Board<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">3</td><td><span class="boxpre">CFO</span></td><td><span class="sel">CEO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">4</td><td><span class="boxpre">COO</span></td><td><span class="sel">CEO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">5</td><td><span class="boxpre">Head Marketing</span></td><td><span class="sel">CEO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">6</td><td><span class="boxpre">Marketing Manager</span></td><td><span class="sel">Head Marketing<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">7</td><td><span class="boxpre">Social Media Assistant</span></td><td><span class="sel">Marketing Manager<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">8</td><td><span class="boxpre">Copy Writer</span></td><td><span class="sel">Social Media Assistant<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">9</td><td><span class="boxpre">Events Co-ordinator</span></td><td><span class="sel">Copy Writer<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">10</td><td><span class="boxpre">Head HR</span></td><td><span class="sel">COO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">11</td><td><span class="boxpre">Trainer</span></td><td><span class="sel">Head HR<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">12</td><td><span class="boxpre">Health &amp; Safety Officer</span></td><td><span class="sel">Head HR<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">13</td><td><span class="boxpre">Head Sales</span></td><td><span class="sel">CEO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">14</td><td><span class="boxpre">Sales Manager</span></td><td><span class="sel">Head Sales<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">15</td><td><span class="boxpre">Salesperson</span></td><td><span class="sel">Sales Manager<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">16</td><td><span class="boxpre">Accountant</span></td><td><span class="sel">CFO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">17</td><td><span class="boxpre">Bookkeeper</span></td><td><span class="sel">Accountant<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">18</td><td><span class="boxpre">Factory Foreman</span></td><td><span class="sel">COO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">19</td><td><span class="boxpre">Head of Purchasing</span></td><td><span class="sel">COO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">20</td><td><span class="boxpre">Head of Inventory</span></td><td><span class="sel">COO<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">21</td><td><span class="boxpre">Snr Tech</span></td><td><span class="sel">Factory Foreman<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">22</td><td><span class="boxpre">Tech</span></td><td><span class="sel">Factory Foreman<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">23</td><td><span class="boxpre">Jnr Tech</span></td><td><span class="sel">Factory Foreman<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+<tr><td class="num">24</td><td><span class="boxpre">Personal Assistant</span></td><td><span class="sel">Head of Purchasing<span class="caret"></span></span></td><td class="act"><span class="rm" title="Remove this role">&times;</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tbl">
+    <h2>3 &middot; The chart, drawn from that list as it is typed</h2>
+    <p class="src">Nothing here is entered twice. Every box and every line below is computed from the
+      24 rows above &middot; 7 levels &middot; the panel scrolls sideways</p>
+    <div class="chart">
+      <svg width="1628" height="688" viewBox="0 -92 1628 688" role="img" aria-label="Organisational hierarchy chart">
+<g><rect x="738" y="-92" width="152" height="38" rx="6" fill="#fbfcfd" stroke="#cbd9e8" stroke-width="1" stroke-dasharray="4 3"/><text x="814" y="-69" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#6b7f99">Shareholders</text></g><path d="M814 -54 V0" fill="none" stroke="#cbd9e8" stroke-width="1.5" stroke-dasharray="4 3"/>
+<path d="M76 314 V341 H76 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M76 222 V249 H76 V276" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M814 130 V157 H76 V184" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M322 314 V341 H240 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M322 314 V341 H404 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M773 222 V249 H322 V276" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M732 314 V341 H568 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M732 314 V341 H732 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M732 314 V341 H896 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M773 222 V249 H732 V276" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M1060 314 V341 H1060 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M773 222 V249 H1060 V276" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M773 222 V249 H1224 V276" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M814 130 V157 H773 V184" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M1388 498 V525 H1388 V552" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M1388 406 V433 H1388 V460" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M1388 314 V341 H1388 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M1388 222 V249 H1388 V276" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M814 130 V157 H1388 V184" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M1552 314 V341 H1552 V368" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M1552 222 V249 H1552 V276" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M814 130 V157 H1552 V184" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<path d="M814 38 V65 H814 V92" fill="none" stroke="#cbd9e8" stroke-width="1.5"/>
+<g><rect x="0" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="76" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Bookkeeper</text></g>
+<g><rect x="0" y="276" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="76" y="299" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Accountant</text></g>
+<g><rect x="0" y="184" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="76" y="207" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">CFO</text></g>
+<g><rect x="164" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="240" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Trainer</text></g>
+<g><rect x="328" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="404" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Health &amp; Safety Officer</text></g>
+<g><rect x="246" y="276" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="322" y="299" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Head HR</text></g>
+<g><rect x="492" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="568" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Snr Tech</text></g>
+<g><rect x="656" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="732" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Tech</text></g>
+<g><rect x="820" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="896" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Jnr Tech</text></g>
+<g><rect x="656" y="276" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="732" y="299" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Factory Foreman</text></g>
+<g><rect x="984" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1060" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Personal Assistant</text></g>
+<g><rect x="984" y="276" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1060" y="299" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Head of Purchasing</text></g>
+<g><rect x="1148" y="276" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1224" y="299" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Head of Inventory</text></g>
+<g><rect x="697" y="184" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="773" y="207" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">COO</text></g>
+<g><rect x="1312" y="552" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1388" y="575" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Events Co-ordinator</text></g>
+<g><rect x="1312" y="460" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1388" y="483" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Copy Writer</text></g>
+<g><rect x="1312" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1388" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Social Media Assistant</text></g>
+<g><rect x="1312" y="276" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1388" y="299" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Marketing Manager</text></g>
+<g><rect x="1312" y="184" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1388" y="207" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Head Marketing</text></g>
+<g><rect x="1476" y="368" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1552" y="391" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Salesperson</text></g>
+<g><rect x="1476" y="276" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1552" y="299" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Sales Manager</text></g>
+<g><rect x="1476" y="184" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="1552" y="207" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Head Sales</text></g>
+<g><rect x="738" y="92" width="152" height="38" rx="6" fill="#fdfefe" stroke="#d5e1ee" stroke-width="1"/><text x="814" y="115" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">CEO</text></g>
+<g><rect x="738" y="0" width="152" height="38" rx="6" fill="#eaf3fb" stroke="#0070c0" stroke-width="1.6"/><text x="814" y="23" text-anchor="middle" font-family="Open Sans, sans-serif" font-size="11.5" fill="#002b64">Board</text></g>
+      </svg>
+    </div>
+    <div class="flag">
+      <span class="dot">&#9679;</span>
+      <span><b>A notice, never a block.</b> Your own example raises one:
+        <i>Board</i> reports to <i>Shareholders</i>, and
+        <i>Shareholders</i> is not one of the 24 roles &mdash; so it is
+        drawn above the chart as an outside parent rather than treated as an error. The same applies
+        to two people reporting to each other or to a second chief executive: the screen says so and
+        carries on. This follows your ruling of 2026&#8209;09&#8209;08 that a check
+        <i>&ldquo;never blocks the advisor&rdquo;</i>, and it is not a decision below.</span>
+    </div>
+  </section>
+
+  <div class="note">
+    <h3>The rule this form follows</h3>
+    <ul>
+      <li><b>A row is a person, not a position on a page.</b> Rows are added and removed, and the
+        number on the left is worked out rather than typed.</li>
+      <li><b>A column that names another row is a picker, never free text.</b> It offers the roles
+        already entered, and never the role in its own row.</li>
+      <li><b>A column blank in its header and blank in every row is a gutter</b>, not part of the
+        form &mdash; the rule you approved for the two-dimensional grid. Your sheet has
+        1.</li>
+      <li><b>A structure that cannot be right is flagged and never blocked</b>, and what the advisor
+        typed is always kept.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+  <h2>☑ All five decisions ruled by Mike, 2026&#8209;09&#8209;21 &mdash; each as recommended</h2>
+  <p class="lede">Asked one at a time, as he asked. <b>The recommendation and the argument against it
+    are kept beside each ruling</b>, so the build can be laid against this page afterwards and every
+    difference named. <b>Ruling these five is not approval to build from this drawing</b> &mdash;
+    that is its own question.</p>
+
+  <div class="dec">
+    <h3>A &middot; Does the screen open empty, or with your 24 roles already in it?</h3>
+    <p>On Customer Types you ruled that your worked column arrives filled in and is typed over. That
+      was one column. Here your example is an entire company&rsquo;s chart &mdash;
+      24 roles from <i>Board</i> to
+      <i>Personal Assistant</i>.</p>
+    <p class="rec"><b>Recommended:</b> open empty, with <i>Start from the example</i> loading all
+      24 in one click. An org chart is the client&rsquo;s own, so roles that are not
+      theirs are 24 deletions before they can begin &mdash; where Customer Types was
+      one column to type over. The example is still one click away, so it does the job your worked
+      examples exist to do.</p>
+    <p class="against"><b>Against:</b> it is one more click, and an advisor who does not press it
+      never sees your example at all.</p>
+    <p class="ruled">☑ RULED: the screen opens EMPTY, with <i>Start from the example</i> loading all
+      24 roles in one click.
+      <span class="who">Mike, 2026&#8209;09&#8209;21 &mdash; &ldquo;yes - empty&rdquo;. As recommended.</span></p>
+  </div>
+
+  <div class="dec">
+    <h3>B &middot; Your Role column has no heading. Do we give it one?</h3>
+    <p>Your sheet names the third column &ldquo;Reporting Head&rdquo; and
+      leaves the second one unheaded. On 2026&#8209;09&#8209;21 you ruled that Operational
+      Objectives&rsquo; unheaded column stays unheaded, because a heading we invent is
+      indistinguishable from yours once it is on the page. <b>This case differs in one way:</b> there
+      the whole row was unheaded, so nothing looked missing; here one column is named and the one
+      beside it is not.</p>
+    <p class="rec"><b>Recommended:</b> head it <i>Role</i>. It is the word your own
+      <i>Design the Organisational Hierarchy Chart</i> and your summary <i>&ldquo;Who reports to who?&rdquo;</i>
+      already use, and a blank heading beside a filled one reads as a fault rather than as your
+      document.</p>
+    <p class="against"><b>Against:</b> it is a word of ours on a screen where every other word is
+      yours, and your 2026&#8209;09&#8209;21 ruling points the other way.</p>
+    <p class="ruled">☑ RULED: the column is headed <i>Role</i>.
+      <span class="who">Mike, 2026&#8209;09&#8209;21. As recommended. ⚠ This is the ONE word on this
+      screen that is ours rather than his &mdash; recorded here so it is never mistaken for his
+      document.</span></p>
+  </div>
+
+  <div class="dec">
+    <h3>C &middot; Your empty fourth column &mdash; 32 of today&rsquo;s 49 boxes</h3>
+    <p>Your sheet has a fourth column with no heading and nothing in it in any of its
+      32 rows. Today it becomes 32 boxes to type into.</p>
+    <p class="rec"><b>Recommended:</b> drop it, so an advisor types a role and who it reports to and
+      nothing else. Under the rule you approved for the two-dimensional grid it is a gutter, not part
+      of the form.</p>
+    <p class="against"><b>Against:</b> it is your spreadsheet, and you may have left it there as room
+      for a note against each person.</p>
+    <p class="ruled">☑ RULED: the empty fourth column is DROPPED. An advisor types a role and who it
+      reports to, and nothing else.
+      <span class="who">Mike, 2026&#8209;09&#8209;21. As recommended. This alone removes
+      32 of today&rsquo;s 49 boxes.</span></p>
+  </div>
+
+  <div class="dec">
+    <h3>D &middot; The number down the left &mdash; typed, or worked out?</h3>
+    <p>Your sheet numbers the rows <i>1.0</i> to
+      <i>30.0</i>. Once roles can be added and removed, a
+      number that was typed goes stale the first time somebody deletes a row above it.</p>
+    <p class="rec"><b>Recommended:</b> the app keeps the number and renumbers on every change; the
+      advisor never types it. A stale number in a client&rsquo;s document is a small error that looks
+      like carelessness.</p>
+    <p class="against"><b>Against:</b> your sheet numbers in tenths (<i>1.0</i>),
+      which allows a role to be inserted between two others without renumbering, and a computed
+      number loses that.</p>
+    <p class="ruled">☑ RULED: the app works out the number and renumbers on every change. The
+      advisor never types it.
+      <span class="who">Mike, 2026&#8209;09&#8209;21. As recommended. ⚠ His tenths
+      (<i>1.0</i>, <i>2.0</i>) are therefore NOT carried
+      across &mdash; a role is inserted by adding it and choosing who it reports to.</span></p>
+  </div>
+
+  <div class="dec">
+    <h3>E &middot; What does the client&rsquo;s plan carry &mdash; the chart, the list, or both?</h3>
+    <p>Every other capture form prints what the advisor typed. This one can print a drawn chart as
+      well, because the structure is captured rather than described.</p>
+    <p class="rec"><b>Recommended:</b> the chart, with the list beneath it. The chart is the thing
+      your deck teaches and the thing a client recognises; the list beneath it is what makes the
+      chart checkable and survives being read aloud or printed in black and white.</p>
+    <p class="against"><b>Against:</b> a wide chart on a printed page shrinks, and a
+      7-level chart is already 1628px wide on screen.</p>
+    <p class="ruled">☑ RULED: the client&rsquo;s plan carries the drawn chart, with the list of roles
+      beneath it.
+      <span class="who">Mike, 2026&#8209;09&#8209;21. As recommended. ⚠ The chart must therefore
+      survive being printed: at 7 levels his own example is 1628px wide, so the
+      plan page has to scale it rather than crop it.</span></p>
+  </div>
+
+  <hr class="rule">
+  <div class="note">
+    <h3>What this drawing does not ask approval for</h3>
+    <ul>
+      <li><b>The other six capture forms</b> &mdash; prompt&nbsp;&rarr;&nbsp;answer sheet, named-field
+        stack, parallel prompt pair, small comparison grid, snaking step sequence and the banded-grid
+        corrections. Each is its own drawing.</li>
+      <li><b>The voice bar</b>, approved 2026&#8209;09&#8209;19. Every box drawn here carries it,
+        unchanged; it is left off this page only so the shape can be read.</li>
+      <li><b>The teaching page.</b> <i>Design the Organisational Hierarchy Chart</i> is one of the
+        agenda-only concepts, so it has no drawn teaching page and none is proposed here. For this
+        concept the builder is the whole screen.</li>
+      <li><b>Colours and spacing</b>, which follow the banded grid and the two-dimensional grid.</li>
+      <li><b>The four templates you have not supplied</b> &mdash; Branding, Customer Loyalty,
+        Pricing, Packaging. That is item 15.6 and it waits on you, not on this.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

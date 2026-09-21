@@ -24,8 +24,9 @@
 
   b-input(
     :id="'scb-' + field.key"
-    type="textarea"
-    :rows="rows"
+    :type="singleLine ? 'text' : 'textarea'"
+    :rows="singleLine ? null : rows"
+    :size="singleLine ? 'is-small' : null"
     :value="value"
     :placeholder="field.example"
     @focus="$emit('focus-field', field)"
@@ -37,11 +38,11 @@
 /**
  * StrategyCaptureBox — one box of a capture table, with the voice bar above it.
  *
- * WHY IT EXISTS. The capture screen now draws two layouts: Mike's banded tables as
- * blocks, and his two-dimensional tables as a grid (approved 2026-09-21). Both put the
- * same box in every cell, and his ruling of 2026-09-19 is that the voice control is the
- * one the advisor already uses — so it lives in one place rather than being written
- * twice and drifting apart.
+ * WHY IT EXISTS. The capture screen now draws three layouts: Mike's banded tables as
+ * blocks, his two-dimensional tables as a grid (approved 2026-09-21), and the Org Chart
+ * Builder's list of roles (approved 2026-09-21). All three put the same box in every cell,
+ * and his ruling of 2026-09-19 is that the voice control is the one the advisor already
+ * uses — so it lives in one place rather than being written three times and drifting apart.
  *
  * 🔴 IT WORDS NOTHING. Every string is `voice.*` from the locale file, already in use in
  * the Virtual Advisor, and the placeholder is Mike's own worked example off the template.
@@ -79,6 +80,19 @@ export default {
 
     /** Is this the box currently being dictated into? */
     recording: {
+      type: Boolean,
+      default: false
+    },
+
+    /**
+     * One line rather than a paragraph — a role name, not an answer to a prompt.
+     *
+     * The Org Chart drawing shows a 30px box on every row, because a role is a few words
+     * and thirty stacked textareas would be a page of scrolling. The voice bar above it is
+     * unchanged, which is the whole reason this prop lives here rather than that screen
+     * drawing its own box.
+     */
+    singleLine: {
       type: Boolean,
       default: false
     }
