@@ -46,23 +46,34 @@
 
   template(v-if="!loading && step === 'steps'")
     //- 🔴 SAYS WHY THE LIST IS SHORTER THAN WHAT HE TICKED, AND IT BELONGS HERE NOW.
-    //- Tick all 52 and this screen offers 42 cards: 12 of the 52 have neither a fill-in
-    //- table nor a drawing, so they are not offered at all, and two of the remaining 40
-    //- arrive as two cards each because a two-part table is visited twice. The notice used
-    //- to sit on the next screen, which was the first place the shortfall showed — since
-    //- 2026-09-20 this screen is, so an unexplained gap of 12 would be the first thing he
-    //- meets. Found by opening the screen rather than by any test.
-    //- ⚠ THIS COMMENT READ "18 cards … an unexplained gap of 34" UNTIL 2026-09-21. It was
-    //- written hours before item 15.7 wired in the last five drawings, which admitted every
-    //- drawn concept to this screen and overtook both numbers. Counted off the running
-    //- screen, not derived: 42 cards, notice at 12. Re-count them if a concept gains or
-    //- loses a table or a drawing.
+    //- Tick all 52 and this screen offers 40 cards — 2 approved framework cards and 38
+    //- concepts — because 12 of the 52 have neither a fill-in table nor a drawing and are
+    //- not offered at all. The notice used to sit on the next screen, which was the first
+    //- place the shortfall showed — since 2026-09-20 this screen is, so an unexplained gap
+    //- would be the first thing he meets. Found by opening the screen, not by a test.
+    //- ⚠ COUNTED OFF THE RUNNING SCREEN ON 2026-09-21 — 2 + 38 + 12 = 52 — AFTER A DERIVED
+    //- COUNT GOT IT WRONG. A script that scanned the drawings registry read 39 and 13,
+    //- because one of the 33 entries (`pricing`) is an unquoted key and the pattern wanted
+    //- quotes. The app said 40 and the script said 39; the app was right. Re-count by
+    //- opening the screen, never by scanning that file.
     //- ⚠ 16 — the count of concepts with a SUPPLIED fill-in table — is unchanged and is
     //- not what this screen offers. `data/strategy-capture-tables.json` `templateCount`
     //- is 20 and counts TEMPLATES, several of which serve more than one concept while
     //- four concepts name a template that does not exist. Do not read one for the other.
     b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
       | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
+
+    //- 🔴 THE PROCESS BANNER — Decision A and Decision C on one line, where the approved
+    //- drawing puts them. It says the session arrived rather than being invented, and it
+    //- says WHOSE it is, so an inherited process is never mistaken for the firm's own.
+    //- `Start from blank instead` is one click away on purpose: a standard session is a
+    //- starting point and never a cage.
+    .sp-proc(v-if="processSource && !startedFromBlank")
+      .sp-proc-main
+        b.sp-proc-t {{ $t('strategyPlanner.process.handedDown', { count: sessionProcess ? sessionProcess.steps.length : 0 }) }}
+        span.sp-proc-s {{ $t('strategyPlanner.process.editable') }}
+      span.sp-proc-who {{ processOwnerLabel }}
+      b-button(size="is-small" outlined type="is-primary" @click="startFromBlank") {{ $t('strategyPlanner.process.startBlank') }}
 
     strategy-step-builder(
       :cards="placeableCards"
@@ -79,10 +90,8 @@
       | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
 
     //- 🔴 THE MEETING RUNS IN THE ADVISOR'S OWN ORDER, UNDER HIS OWN HEADINGS. Before
-    //- stage 2 existed these were two flat lists in whatever order the data produced,
-    //- so Porter's observations and Porter's responses sat next to each other. Pivot
-    //- runs them an hour apart, in different steps, and that gap is why the responses
-    //- are worth more than the observations.
+    //- stage 2 existed this was a flat list in whatever order the data produced, with no
+    //- headings a client would recognise from the agenda they were handed.
     p.sp-cap(v-if="!runSteps.length") {{ $t('strategyPlanner.steps.nothingToRun') }}
 
     section.sp-runstep(v-for="(runStep, i) in runSteps" :key="'rs' + i")
@@ -108,18 +117,17 @@
         )
 
         //- Everything else: the concept's own fill-in table, read from Mike's
-        //- workbooks. 47 of the 52 have no approved card of their own.
+        //- workbooks. Only 2 of the 52 have an approved framework card of their own
+        //- (Porter's 5 Forces and the 8 Profit Levers) — counted 2026-09-21.
         strategy-concept-capture(
           v-else
           :key="card.key"
           :name="card.visit.name"
           :capture="card.visit.capture"
-          :part="card.visit.part"
           :concept-summary="card.visit.conceptSummary"
           :helps-client-to="card.visit.helpsClientTo"
           :teaching-form="card.visit.teachingForm"
           :concept-id="card.visit.conceptId"
-          :instruction="visitInstruction(card.visit)"
           :entries="entriesFor(card.visit.conceptId)"
           :eyebrow="card.eyebrow"
           @field-opened="onVisitFieldOpened(card.visit, $event)"
@@ -149,6 +157,7 @@
       :client-name="clientName"
       :decks="planDecks"
       :steps="planSteps"
+      :closing="closingCards"
     )
     section.sp-section
       h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
@@ -196,7 +205,7 @@ import StrategyConceptCapture from '~/components/strategy/StrategyConceptCapture
 import StrategyGrowthWheel from '~/components/strategy/StrategyGrowthWheel.vue'
 import StrategyPlanDocument from '~/components/strategy/StrategyPlanDocument.vue'
 import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
-import { hasConceptGraphic } from '~/components/strategy/concepts'
+import { isPlaceableConcept } from '~/utils/strategyCards'
 import { isDevHost } from '~/utils/devHost'
 
 /** Where the master app leaves the advisor's token before our pages load. */
@@ -269,6 +278,23 @@ export default {
        * render a menu would be 52 requests nobody reads.
        */
       captures: {},
+      /**
+       * THE STANDARD SESSION HANDED DOWN TO THIS FIRM — `{ name, steps }`, or null when
+       * nothing above has written one and the fetch failed. Decision A, 2026-09-21: it is
+       * what Build session opens on, rather than a blank step.
+       *
+       * ⚠ READ-ONLY HERE. The advisor edits `planStepDefs`, never this — his changes
+       * belong to one session and never travel back up to the firm's standard (Decision C).
+       */
+      sessionProcess: null,
+      /**
+       * Whose the handed-down session is: `{ scopeId, tier, shipped }`. Decision C — a
+       * tier that has written nothing shows what it inherits AND SAYS WHOSE IT IS, so an
+       * inherited process is never mistaken for one the firm authored.
+       */
+      processSource: null,
+      /** Set when the advisor presses "Start from blank instead", for this session only. */
+      startedFromBlank: false,
       /** Resolved in mounted — never at render time. */
       apiToken: ''
     }
@@ -291,23 +317,24 @@ export default {
     },
 
     /**
-     * Every ticked concept as a VISIT — the unit the session actually runs.
+     * Every ticked concept, ONCE — the unit the session runs.
      *
-     * 🔴 A CONCEPT CAN APPEAR MORE THAN ONCE, AND THAT IS MIKE'S OWN DECK. Pivot puts
-     * Porter's on page 11 for *"record your observations ONLY. (For Now)"* and again on
-     * page 21 for the responses. Its table carries both — the observation columns and
-     * the response columns — so the two visits write to different boxes and the second
-     * never overwrites the first.
+     * 🔴 A CONCEPT APPEARS EXACTLY ONCE, EVERYWHERE. Mike's ruling, 2026-09-21: *"each
+     * concept … are only listed once. they appear as an option and get selected in scope,
+     * sorted into the correct order in build session — of course — appear ONCE in the run
+     * session and ONCE in the produce plan."*
      *
-     * Each visit opens one part. Mike's reason, 2026-09-17: you teach the concept, let
-     * it land, then ask how it applies — showing the response columns at visit one is
-     * asking somebody to answer before they understand the question.
+     * This used to split a concept into one visit per PART of its capture table, so
+     * Porter's could be worked twice — observations first, responses an hour later. That
+     * is deleted, along with the split that produced it. The card key is the concept id
+     * itself, with no visit number, because there is only ever one.
      *
-     * @returns {Array<{key: string, conceptId: string, name: string, part: number, capture: object}>}
+     * @returns {Array<{key: string, conceptId: string, name: string, capture: object}>}
      */
     conceptVisits () {
-      // A concept with an approved framework card is drawn by that card above,
-      // not twice.
+      // A concept with an approved framework card is drawn by that card above, and must
+      // not also appear here — that would be the same concept twice, which the ruling
+      // above forbids outright.
       const hasApprovedCard = {}
       this.chosenFrameworks.forEach((f) => {
         if (f.conceptId) { hasApprovedCard[f.conceptId] = true }
@@ -318,20 +345,15 @@ export default {
         if (hasApprovedCard[conceptId]) { return }
         const loaded = this.captures[conceptId]
         if (!loaded) { return }
-        const parts = (loaded.capture && loaded.capture.parts) || []
-        const count = parts.length > 1 ? parts.length : 1
-        for (let part = 1; part <= count; part++) {
-          visits.push({
-            key: conceptId + '#' + part,
-            conceptId,
-            name: loaded.name,
-            conceptSummary: loaded.conceptSummary || '',
-            helpsClientTo: loaded.helpsClientTo || '',
-            teachingForm: loaded.teachingForm || '',
-            part,
-            capture: loaded.capture
-          })
-        }
+        visits.push({
+          key: conceptId,
+          conceptId,
+          name: loaded.name,
+          conceptSummary: loaded.conceptSummary || '',
+          helpsClientTo: loaded.helpsClientTo || '',
+          teachingForm: loaded.teachingForm || '',
+          capture: loaded.capture
+        })
       })
       return visits
     },
@@ -351,7 +373,7 @@ export default {
       return this.chosen.filter((id) => {
         const loaded = this.captures[id]
         const hasTable = Boolean(loaded && loaded.capture && loaded.capture.supplied)
-        return !hasTable && !hasConceptGraphic(id)
+        return !isPlaceableConcept(hasTable, id)
       }).length
     },
 
@@ -443,10 +465,10 @@ export default {
      * them. This is the one list stage 2 offers and stage 3 and the document both read,
      * so a card cannot exist on one screen and not another.
      *
-     * A card is not the same as a concept: a concept whose fill-in table has two halves
-     * arrives here as TWO cards — Porter's observations and Porter's responses — because
-     * Pivot runs them in different steps, an hour apart. That is Mike's ruling of
-     * 2026-09-17 (a concept may be used twice), and it is why the key carries the visit.
+     * 🔴 ONE CONCEPT, ONE CARD. Mike's ruling, 2026-09-21: a concept is listed once,
+     * chosen once, sorted once, and appears once in Run session and once in the plan. A
+     * concept with an approved framework card is that card; every other scoped concept is
+     * one concept card. Nothing here may ever emit two cards for one concept.
      *
      * @returns {Array<{key: string, conceptId: string, name: string, deck: string, tag: string, summary: string, instruction: string, prompts: object[], lines: object[]}>}
      */
@@ -490,11 +512,7 @@ export default {
       this.conceptVisits.forEach((visit) => {
         const capture = visit.capture || {}
         const hasTable = Boolean(capture.supplied)
-        if (!hasTable && !hasConceptGraphic(visit.conceptId)) { return }
-        const wanted = {}
-        const part = (capture.parts || [])[visit.part - 1]
-        if (part) { part.fieldKeys.forEach((k) => { wanted[k] = true }) }
-        const multi = capture.parts && capture.parts.length > 1
+        if (!isPlaceableConcept(hasTable, visit.conceptId)) { return }
         cards.push({
           key: visit.key,
           conceptId: visit.conceptId,
@@ -502,16 +520,21 @@ export default {
           // client's document must not print a capture page saying it was "not
           // worked through" when there was never anything to work.
           hasTable,
-          name: visit.name + (multi ? ' (' + visit.part + ')' : ''),
+          name: visit.name,
           deck: this.deckNameByConcept[visit.conceptId] || '',
-          // The tag is what tells an advisor, on the step builder, that these two
-          // chips are the SAME table visited twice rather than a duplicate to remove.
-          tag: multi ? this.$t('strategyPlanner.capture.part', { n: visit.part }) : '',
+          // ⚠ NO PART TAG. A concept appears once (Mike, 2026-09-21), so there is never a
+          // second chip of the same table to tell apart from the first.
+          tag: '',
           summary: visit.conceptSummary || '',
-          instruction: this.visitInstruction(visit),
+          // ⚠ NO INSTRUCTION ON A CONCEPT CARD, and that is the true state rather than an
+          // omission: no concept in data/strategy-frameworks.json carries one. The only
+          // instruction that ever appeared here was the second visit's column heading,
+          // and there is no second visit.
+          instruction: '',
           prompts: [],
+          // The WHOLE table. It used to be filtered to one part's field keys, which is
+          // what made a second visit show different boxes from the first.
           lines: (capture.fields || [])
-            .filter(f => !part || wanted[f.key])
             .map(f => ({
               key: visit.conceptId + '::' + f.key,
               label: [f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
@@ -520,31 +543,55 @@ export default {
         })
       })
 
-      // The two that close every session. Decision 4, 2026-09-20: these are ordinary
-      // cards on an ordinary step the advisor names — they no longer bring a step of
-      // their own that names itself, because that label reached the client's agenda.
-      this.closingFrameworks.forEach((f) => {
-        cards.push({
-          key: 'close-' + f.id,
-          // The two closing frameworks are ours, not a deck concept, so they have
-          // no drawing and never will — the graphic resolves to nothing.
-          conceptId: '',
-          hasTable: true,
-          name: f.name,
-          deck: '',
-          tag: '',
-          summary: '',
-          instruction: f.captureInstruction || '',
-          prompts: [],
-          lines: f.fields.map(x => ({
-            key: f.id + '::' + x.key,
-            label: x.label,
-            value: (this.entries[f.id + '::' + x.key] || '').trim()
-          }))
-        })
-      })
-
+      // 🔴 THE TWO CLOSING BLOCKS ARE NOT HERE, AND THAT IS DECISION D (Mike, 2026-09-21).
+      // Strategic Statements and the Action Plan leave Build session entirely and appear
+      // only on Objectives & actions, where they are already captured. They are the app's
+      // own closing blocks rather than concepts off any of Mike's decks — which is why
+      // they were the only two cards in the tray with no deck beneath them, and why the
+      // tray read as arbitrary with them in it.
+      //
+      // ⚠ THIS REVERSES PART OF DECISION 4 OF 2026-09-20, which made them ordinary cards
+      // on an ordinary step so their names would stop reaching the client's agenda. That
+      // reason stands and is served better this way: out of the step builder, they name
+      // nothing on the agenda at all.
+      //
+      // ⚠ THEY ARE STILL IN THE CLIENT'S PLAN. `closingCards` below builds them for the
+      // assembled document, which prints them as its own closing block. Removing them
+      // from this list must never remove them from the plan.
       return cards
+    },
+
+    /**
+     * The two closing blocks as the assembled document prints them — outside the advisor's
+     * steps, because Decision D took them off the screen where steps are built.
+     *
+     * 🔴 THIS IS WHAT STOPS DECISION D LOSING CONTENT. Before it, these two rode into the
+     * document inside whichever step the advisor filed them under. With them gone from
+     * `placeableCards` they would reach no step and vanish from the client's plan — the
+     * Strategic Objective and the Action Plan, which are the two things the session exists
+     * to produce.
+     *
+     * @returns {Array<object>} the same card shape the document's step items use
+     */
+    closingCards () {
+      return this.closingFrameworks.map(f => ({
+        key: 'close-' + f.id,
+        // Ours, not a deck concept, so there is no drawing and never will be — the
+        // graphic resolves to nothing and the page prints without one.
+        conceptId: '',
+        hasTable: true,
+        name: f.name,
+        deck: '',
+        tag: '',
+        summary: '',
+        instruction: f.captureInstruction || '',
+        prompts: [],
+        lines: f.fields.map(x => ({
+          key: f.id + '::' + x.key,
+          label: x.label,
+          value: (this.entries[f.id + '::' + x.key] || '').trim()
+        }))
+      }))
     },
 
     /**
@@ -584,6 +631,35 @@ export default {
           cards: cards.map((c, j) => Object.assign({}, c, { eyebrow: (j + 1) + ' / ' + cards.length }))
         }
       }).filter(s => s.cards.length)
+    },
+
+    /**
+     * Whose standard session this advisor received — the badge on the process banner.
+     *
+     * 🔴 DECISION C SAYS IT MUST SAY WHOSE IT IS, so there is no neutral fallback here
+     * that reads as "somebody set this". A tier we cannot name answers with the shipped
+     * platform wording, which is the truthful one: nobody in this firm's chain authored it.
+     *
+     * ⚠ THE FOUR TIER NAMES ARE THE SETTLED ONES and are never abbreviated or reinvented
+     * — mentor, global group manager, group manager, firm manager.
+     *
+     * @returns {string}
+     */
+    processOwnerLabel () {
+      const src = this.processSource
+      if (!src) { return '' }
+      // 🔴 `shipped` IS NOT A SEPARATE CASE HERE, AND TREATING IT AS ONE PUT THE WORDS
+      // "THE STANDARD SESSION" ON THE BADGE where the approved drawing says "set by the
+      // mentor". The shipped default IS the mentor's — `source.tier` already says so — so
+      // the badge names a tier whatever the advisor is looking at. Found by opening the
+      // screen on 2026-09-21; the suite was green.
+      const byTier = {
+        mentor: 'strategyPlanner.process.byMentor',
+        global_group_manager: 'strategyPlanner.process.byGlobalGroupManager',
+        group_manager: 'strategyPlanner.process.byGroupManager',
+        firm_manager: 'strategyPlanner.process.byFirmManager'
+      }
+      return byTier[src.tier] ? this.$t(byTier[src.tier]) : ''
     },
 
     /** @returns {number} how many placeable cards the advisor has put into a step */
@@ -638,7 +714,7 @@ export default {
    */
   async mounted () {
     this.apiToken = this.resolveApiToken()
-    await Promise.all([this.loadFrameworks(), this.loadClients()])
+    await Promise.all([this.loadFrameworks(), this.loadClients(), this.loadSessionProcess()])
   },
 
   methods: {
@@ -718,23 +794,6 @@ export default {
           capture: b.capture
         })
       })
-    },
-
-    /**
-     * The instruction for this visit.
-     *
-     * A concept visited once carries none. A second visit carries the heading of
-     * the columns it opens — Mike's own "How We Plan To Respond" — which is what
-     * tells an advisor why they are back at the same table.
-     *
-     * @param {{part: number, capture: object}} visit
-     * @returns {string}
-     */
-    visitInstruction (visit) {
-      const parts = (visit.capture && visit.capture.parts) || []
-      if (parts.length < 2) { return '' }
-      const chosen = parts[visit.part - 1]
-      return (chosen && chosen.label) || ''
     },
 
     /**
@@ -868,17 +927,89 @@ export default {
     },
 
     /**
-     * Decision 2, 2026-09-20: the step builder opens with EVERYTHING UNPLACED and one
-     * empty step to rename. Seeding it with a step already holding the lot would invite
-     * the advisor to press on past the screen — which is the behaviour this feature
-     * exists to replace, wearing a new screen.
+     * Build session opens on the standard process handed down to this firm, each step
+     * already holding its concepts.
+     *
+     * 🔴 DECISION A, RULED BY MIKE 2026-09-21, AND IT REPLACES DECISION 2 OF 2026-09-20.
+     * That earlier ruling opened the screen with everything unplaced and one empty step to
+     * rename, so the advisor would not simply press past it. Measured afterwards, that
+     * cost 5 of 5 step names typed and 42 of 42 cards placed by hand from a cold start —
+     * and he rejected the screen it produced. A handed-down step now arrives WITH ITS
+     * CONCEPTS ALREADY PLACED; he drags out whatever does not suit this client.
+     *
+     * 🔴 THE SCOPE HE TICKED IS NEVER CHANGED BY WHAT ARRIVES. Same ruling. A standard
+     * step naming a concept this session did not scope contributes NOTHING — the key is
+     * dropped here rather than added to `chosen`, so the handed-down process can widen a
+     * session only if the advisor widens it himself on Scope session.
+     *
+     * ⚠ AN EMPTY STEP SURVIVES THE FILTER. Pivot's steps 4 and 5 carry no concepts at all
+     * and still print on the client's agenda (Mike, 2026-09-20). Dropping a step because
+     * nothing in it was scoped would delete the page this feature exists for.
      *
      * Only ever seeds an empty list, so returning to stage 2 never discards work.
      * @returns {void}
      */
     seedSteps () {
       if (this.planStepDefs.length) { return }
-      this.planStepDefs = [{ key: 's1', name: '', items: [] }]
+
+      const handedDown = this.sessionProcess
+      if (!handedDown || !Array.isArray(handedDown.steps) || !handedDown.steps.length) {
+        // Nothing to hand down — a tier may legitimately have written none, and the
+        // honest fallback is the blank step the advisor names himself.
+        this.planStepDefs = [{ key: 's1', name: '', items: [] }]
+        return
+      }
+
+      const inScope = {}
+      this.placeableCards.forEach((c) => { inScope[c.key] = true })
+
+      this.planStepDefs = handedDown.steps.map((s, i) => ({
+        key: 's' + (i + 1),
+        name: s.name || '',
+        items: (s.items || []).filter(k => inScope[k])
+      }))
+    },
+
+    /**
+     * Throw the handed-down process away for this session and start from one empty step.
+     *
+     * The drawing puts this one click from the process banner, and the reason is on it:
+     * a standard session is a starting point and never a cage. It touches only this
+     * session — the firm's own standard is untouched, which is why nothing is saved
+     * anywhere but the session's own scope.
+     *
+     * @returns {void}
+     */
+    startFromBlank () {
+      this.startedFromBlank = true
+      this.onStepsChanged([{ key: 's1', name: '', items: [] }])
+    },
+
+    /**
+     * The standard planning session this firm works to, and whose it is.
+     *
+     * ⚠ FAILURE IS NOT AN ERROR BANNER. A session can be run without a handed-down
+     * process — that is exactly today's behaviour — so a fetch that fails leaves
+     * `sessionProcess` null and `seedSteps` falls back to the blank step. Stopping the
+     * advisor from opening a session because a convenience did not load would be worse
+     * than the convenience being absent.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadSessionProcess () {
+      try {
+        const res = await fetch('/api/strategy/session-process', {
+          credentials: 'same-origin',
+          headers: this.headers()
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        const body = await res.json()
+        this.sessionProcess = body.process || null
+        this.processSource = body.source || null
+      } catch (e) {
+        this.sessionProcess = null
+        this.processSource = null
+      }
     },
 
     /**
@@ -930,9 +1061,10 @@ export default {
         const body = await res.json()
         this.sessionId = body.sessionId
         await this.loadCaptures()
-        // 🔴 THE CAPTURES MUST BE LOADED FIRST. `placeableCards` reads them to know
-        // which concepts have a two-part table, and a step builder opened before they
-        // arrive would offer one Porter's chip where the session has two.
+        // 🔴 THE CAPTURES MUST BE LOADED FIRST. `placeableCards` reads them to know which
+        // concepts have a fill-in table at all, and `seedSteps` filters the handed-down
+        // process against that list — opened before they arrive, every step would come in
+        // empty and the advisor would be handed a blank session.
         this.seedSteps()
         this.step = 'steps'
       } catch (e) {
@@ -1034,6 +1166,41 @@ export default {
 .sp-section { margin: 1.4rem 0; }
 .sp-h { font-size: 0.85rem; font-weight: 700; margin: 0 0 0.2rem; color: #002b64; }
 .sp-cap { font-size: 0.8rem; color: #5b6f8a; margin: 0 0 0.8rem; max-width: 80ch; }
+
+/* The process banner, from the approved drawing: what arrived, whose it is, and the
+   way out of it. It sits directly above the step builder and shares its top border. */
+.sp-proc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border: 1px solid #d5e1ee;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(90deg, #f3f9ff, #fff);
+}
+.sp-proc-main { flex: 1 1 20rem; min-width: 0; }
+.sp-proc-t { display: block; color: #002b64; font-size: 0.95rem; }
+.sp-proc-s { display: block; color: #5b6f8a; font-size: 0.8rem; }
+
+/* The provenance badge. Decision C: an inherited process must never be mistaken for
+   one this firm authored, so it is stated rather than implied by its absence. */
+.sp-proc-who {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1d6b2b;
+  background: #f3fbf5;
+  border: 1px solid #a8dcb4;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  white-space: nowrap;
+}
 
 .sp-plan {
   background: #fff;

@@ -273,6 +273,15 @@ section.firm-manager-hub.section
       //- not to be made plural. design/mockups/client-record-request.html.
       //- 🔴 NOT A CLIENT PORTAL — there is no client sign-in in this application. A request
       //- arrives by email or in the room and somebody at the firm records it here.
+      //- ── Tab: Session Processes (item 15.1) ─────────────────────────────
+      //- The standard planning session this tier writes and every tier beneath
+      //- inherits. From design/mockups/strategy-session-process.html screen 2,
+      //- approved by Mike 2026-09-21 with its four decisions ruled the same day.
+      //- All four managing tiers, on Decision C — see TAB_TIERS.sessionProcess,
+      //- where the judgement against the mentor-alone default is stated.
+      div.hub-panel(v-if="showsTab('sessionProcess')" v-show="activeTab === 'sessionProcess'")
+        firm-session-process(:api-token="apiToken")
+
       div.hub-panel(v-if="showsTab('clientCopyRequests')" v-show="activeTab === 'clientCopyRequests'")
         firm-client-copy-requests(:api-token="apiToken")
 
@@ -935,6 +944,7 @@ import CountryRateSchedules from '~/components/firm/CountryRateSchedules.vue'
 import FirmTaxRates from '~/components/firm/FirmTaxRates.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
+import FirmSessionProcess from '~/components/firm/FirmSessionProcess.vue'
 import FirmClientCopyRequests from '~/components/firm/FirmClientCopyRequests.vue'
 import FirmCompliance from '~/components/firm/FirmCompliance.vue'
 import FirmOutcomeConsent from '~/components/firm/FirmOutcomeConsent.vue'
@@ -1233,6 +1243,15 @@ const TAB_TIERS = {
   // aspirational one.
   aiPrompts: ['mentor', 'global', 'group', 'firm'],
 
+  // 🔴 ALL FOUR MANAGING TIERS, AND IT IS A STATED JUDGEMENT AGAINST THE DEFAULT. The
+  // standing rule since 2026-08-24 is the mentor tier ALONE unless a lower tier genuinely
+  // needs to hold a different value. Mike ruled otherwise here on 2026-09-21 (Decision C
+  // of design/mockups/strategy-session-process.html), and the reason is on the drawing: a
+  // firm's planning method is exactly what one firm does differently from another. The
+  // advisor is NOT on this list — he edits the session in front of him and his changes
+  // never become the firm's standard.
+  sessionProcess: ['mentor', 'global', 'group', 'firm'],
+
   // 🔴 ALL FOUR MANAGER TIERS, WIDENED FROM TWO ON MIKE'S INSTRUCTION, 2026-09-02, in his
   // own words: the observation points are "editable and creatable by firm managers also —
   // obviously, we start several as a mentor, they cascade down to global group and group
@@ -1426,7 +1445,16 @@ const NAV_GROUPS = [
       // anonymised and opt-in, and filing them beside Advisor Network would say the
       // opposite of what that consent gate exists to say. See "Rolled up from below",
       // and TAB_TIERS.teamCaseStudies for why no tier above the firm has this one.
-      { key: 'teamCaseStudies', label: 'Team Case Studies' }
+      { key: 'teamCaseStudies', label: 'Team Case Studies' },
+      // The standard planning session this tier hands down (item 15.1, Decision C, Mike
+      // 2026-09-21). Label is the approved drawing's own — "Session Processes".
+      //
+      // ⚠ THE GROUP IS A JUDGEMENT, STATED RATHER THAN ASSUMED. It is NOT under "Your AI
+      // coach" because no AI touches it — the AI's part of that screen is stage 6 and
+      // unwritten. It is how this firm's advisors run a planning meeting, which is what
+      // this heading is for. Appended at the END, as every addition here is: appending
+      // moves nothing already on a manager's screen.
+      { key: 'sessionProcess', label: 'Session Processes' }
     ]
   },
   {
@@ -1544,7 +1572,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

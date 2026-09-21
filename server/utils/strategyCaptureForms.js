@@ -164,76 +164,6 @@ function fieldsOfTable (table, tableIndex) {
 }
 
 /**
- * Split a table's fields into the visits a session makes to it.
- *
- * 🔴 THIS IS WHY A CONCEPT CAN BE CAPTURED TWICE. Pivot puts Porter's on page 11
- * for *"record your observations ONLY. (For Now)"* and again on page 21 for the
- * responses — and the reason it can is that the table has two kinds of column.
- * The observations and the responses are DIFFERENT COLUMNS of one table, so the
- * second visit never overwrites the first.
- *
- * A column whose label repeats across blocks while others vary is a response
- * column: "How We Plan To Respond" sits beside four different "may change"
- * headings. That is the split, read off the table rather than declared.
- *
- * @param {Array<object>} fields
- * @returns {Array<{index: number, label: string, fieldKeys: string[]}>}
- */
-function partsOfFields (fields) {
-  const byColumn = {}
-  fields.forEach((f) => {
-    if (!byColumn[f.column]) { byColumn[f.column] = [] }
-    if (f.columnLabel && !byColumn[f.column].includes(f.columnLabel)) {
-      byColumn[f.column].push(f.columnLabel)
-    }
-  })
-
-  // A label used by more than one column is that column's job, not its subject.
-  const labelCounts = {}
-  Object.keys(byColumn).forEach((c) => {
-    byColumn[c].forEach((label) => {
-      labelCounts[label] = (labelCounts[label] || 0) + 1
-    })
-  })
-
-  const shared = Object.keys(labelCounts).filter(l => labelCounts[l] > 1)
-  if (shared.length !== 1) {
-    return [{ index: 1, label: '', fieldKeys: fields.map(f => f.key) }]
-  }
-
-  const secondLabel = shared[0]
-  const second = fields.filter(f => f.columnLabel === secondLabel)
-  const first = fields.filter(f => f.columnLabel !== secondLabel)
-  if (!second.length || !first.length) {
-    return [{ index: 1, label: '', fieldKeys: fields.map(f => f.key) }]
-  }
-
-  // 🔴 EACH RESPONSE KEEPS THE OBSERVATION IT ANSWERS. On Mike's table the
-  // response column sits immediately right of the force it belongs to — "How We
-  // Plan To Respond" beside "How Customers May Change", then again beside "What
-  // Substitutes May Emerge". Without this the second visit is one undifferentiated
-  // column of boxes and an advisor cannot tell which force they are responding to,
-  // which is the pairing his table exists to hold.
-  second.forEach((f) => {
-    const left = fields
-      .filter(o => o.row === f.row && o.column < f.column && o.columnLabel && o.columnLabel !== secondLabel)
-      .sort((a, b) => b.column - a.column)[0]
-    f.pairedWith = left ? left.columnLabel : ''
-    // 🔴 AND THE BOX IT ANSWERS, BY KEY. Without this the second visit is a second
-    // blank grid of the same shape as the first, and Mike's verdict on that is the
-    // right one: nobody gains anything from the same form twice. With it, the
-    // advisor sees what the client actually said and responds to THAT — which is
-    // what his table does by putting the two columns side by side.
-    f.pairedFieldKey = left ? left.key : ''
-  })
-
-  return [
-    { index: 1, label: '', fieldKeys: first.map(f => f.key) },
-    { index: 2, label: secondLabel, fieldKeys: second.map(f => f.key) }
-  ]
-}
-
-/**
  * The capture table for one concept, ready to render.
  *
  * @param {object} concept  a row of `concepts` in data/strategy-frameworks.json
@@ -242,9 +172,14 @@ function partsOfFields (fields) {
  *   reason?: string,
  *   template?: string,
  *   form?: string,
- *   fields?: Array<object>,
- *   parts?: Array<object>
+ *   fields?: Array<object>
  * }}
+ *
+ * 🔴 ONE CONCEPT, ONE CARD, AND THE WHOLE TABLE ON IT. Mike's ruling, 2026-09-21: a
+ * concept is listed once, chosen once in Scope session, sorted once in Build session, and
+ * appears once in Run session and once in the plan. This used to return a `parts` split as
+ * well, which existed so Porter's could be visited twice — observation columns first,
+ * response columns an hour later. That is gone, with the function that computed it.
  */
 function captureForConcept (concept) {
   if (!concept || !concept.captureTemplate) {
@@ -277,8 +212,7 @@ function captureForConcept (concept) {
     template: concept.captureTemplate,
     file: template.file,
     form: concept.captureForm || '',
-    fields,
-    parts: partsOfFields(fields)
+    fields
   }
 }
 
@@ -315,7 +249,6 @@ module.exports = {
   captureForConcept,
   hasCaptureField,
   fieldsOfTable,
-  partsOfFields,
   TEMPLATE_ALIASES,
   TEMPLATES_NOT_SUPPLIED
 }

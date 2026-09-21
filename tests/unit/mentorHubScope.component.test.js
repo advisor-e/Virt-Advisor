@@ -408,7 +408,12 @@ describe('the hub menu — the sidebar itself', () => {
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(18)
+    //
+    // ⚠ 19 SINCE 2026-09-21, when Session Processes joined (item 15.1, Decision C — Mike
+    // ruled all four manager tiers, against the mentor-alone default he was offered). It is
+    // appended to the END of "Your Team In Action", so the four index assertions below are
+    // untouched, which is what "appended" is asserted to mean here.
+    expect(tabLabels(wrapper)).toHaveLength(19)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -509,11 +514,16 @@ describe('the hub menu — the sidebar itself', () => {
     // 4.83) — named onto all four manager tiers by Mike, with the cascade asked for in the
     // same sentence. His ruling again, and the first time a HEADING has moved rather than an
     // entry within one.
+    //
+    // ⚠ AND TO 18 ON 2026-09-21, when Session Processes joined "Your Team In Action" (item
+    // 15.1, Decision C). Mike ruled all four manager tiers, against the mentor-alone default
+    // he was offered, because a firm's planning method is what one firm does differently.
+    // His ruling again, and appended rather than inserted.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(17)
+    expect(tabLabels(wrapper)).toHaveLength(18)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

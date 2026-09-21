@@ -115,6 +115,39 @@ his own steps, and **the client's agenda stops naming our screens**: where it re
 frameworks — 14 concepts"* it now reads his own step names, with an empty step printing as *"on
 the agenda only"*. **Five stages remain — 4b, 5, 6, 7 and 8.**
 
+🔴 **BUILD SESSION WAS REDRAWN AND REBUILT ON 2026-09-21**, from
+[`design/mockups/strategy-session-process.html`](../mockups/strategy-session-process.html) —
+approved by Mike that day, its four decisions ruled the same day. **What is built:**
+
+- **A standard session cascades down all four managing tiers.** `server/utils/sessionProcess.js`
+  climbs `parentScopeOf` and stops at the first tier that has written one; the shipped platform
+  session (`data/session-processes.json` — Pivot's five steps, his own names) is what a firm gets
+  when nobody above it has. **Inherit-or-own, the whole process** — never row by row, because the
+  steps are an ORDER and overriding step 3 of somebody else's order produces a process nobody
+  designed.
+- **Every resolve says WHOSE it is** (Decision C), on the advisor's process banner and on the
+  manager's ladder. An inherited session can never be mistaken for an authored one.
+- **A step arrives with its concepts already placed** (Decision A), filtered to what this client's
+  scope admits. The scope the advisor ticked is never widened by what is handed down, and
+  *Start from blank instead* is one click away.
+- **The two closing blocks left Build session** (Decision D) for *Objectives & actions*. They are
+  still printed in the client's plan, from the document's own closing block — the ruling moved
+  where they are filed, never whether the client receives them.
+- **The authoring screen is a Firm Manager hub tab, `Session Processes`, at all four managing
+  tiers** — a stated judgement against the mentor-alone default of 2026-08-24, which Mike was
+  offered and ruled against. It **reuses the advisor's step builder** rather than drawing a second
+  one; the only difference is that a manager writes what each step is for.
+
+⚠ **TWO DIFFERENCES FROM THE APPROVED DRAWING, NAMED RATHER THAN LEFT TO BE FOUND:**
+
+1. **The AI suggestion panel is not built.** Decision B is ruled and drawn — the AI proposes into a
+   step with one line of reason, nothing moves until *Accept*, a decline is recorded as offered and
+   refused. **Where those suggestions come from is stage 6 and unwritten**, which the drawing
+   itself says under "What this drawing does NOT decide". Told to Mike before he approved the
+   build, not discovered afterwards.
+2. **Every step's `purpose` ships empty.** The field exists and the mentor's screen edits it; the
+   words are Mike's and he has not written them. An empty purpose is an unwritten one.
+
 🔴 **STAGE 4 WAS BUILT WRONG AND WAS UNDONE ON 2026-09-18. It is being rebuilt as stage 4b, and
 its method is below.** The teaching graphic is drawn by us, never imported from his deck.
 🔴 **THE DRAWING IS DONE — 33 of the 34 approved 2026-09-18, across seven artefacts — AND ALL 33
@@ -547,7 +580,7 @@ lives. **The fourth was ruled by Mike on 2026-09-20, so nothing here gates the w
 
 | The question, as Mike sees it | How it stands |
 |---|---|
-| **"Can a concept be used twice in one session?"** | ☑ **Yes**, settled by Stage 2. Porter's is visited twice — observations, then responses against what the client said — both writing into one table. |
+| **"Can a concept be used twice in one session?"** | 🔴 **No — ruled by Mike, 2026-09-21:** *"each concept … are only listed once. they appear as an option and get selected in scope, sorted into the correct order in build session … appear ONCE in the run session and ONCE in the produce plan."* A concept carries one card holding its whole table. The two-visit split that let Porter's be worked twice is deleted, with the code behind it. |
 | **"The discussion / action split"** | ☑ **Split, with a per-step switch**, settled by Stage 3. A step announces itself twice, *Discussion* then *Action*; `step.teaches` drops the first where there is nothing to teach, which is how the Action Plan avoids a blank teaching page. |
 | **"What does the client keep?"** | ☑ **One document, two states**, settled by Stage 3. The same pages print blank as the session pack and filled in as the plan; an untouched table prints one line rather than two dozen empty rows. |
 | **"Tick concepts, or tick steps?"** | ☑ **The advisor names the steps**, ruled by Mike 2026-09-20. He ticks concepts, then names each step and drags ticked concepts into it, and **a step holding nothing still prints on the agenda** — which is the only way Pivot's step 5 *Do It & Review It*, with no slides behind it, can exist. `planSteps` in [`pages/strategy-planner.vue`](../../pages/strategy-planner.vue) still puts everything scoped into one step; that is now **work outstanding**, not an open question. |

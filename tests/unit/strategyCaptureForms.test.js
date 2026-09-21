@@ -1,5 +1,5 @@
 /**
- * The capture tables, and the visit that makes Porter's work twice.
+ * The capture tables — one per concept, whole.
  *
  * 🔴 THESE TESTS RECOMPUTE, THEY DO NOT PIN A NUMBER SOMEBODY TYPED. The lesson is
  * item 7.9's: a code header said "two collisions", every later note copied it, and
@@ -11,7 +11,7 @@
  * What is deliberately NOT asserted, per the testing rule: how a table looks, what
  * any label says, or that a file exists. A person in UAT sees all three instantly.
  * What UAT cannot see is a concept silently losing its table because a file was
- * renamed, or Porter's collapsing to one visit and overwriting the observations.
+ * renamed, or half a table going missing from the card an advisor works from.
  */
 
 'use strict'
@@ -106,51 +106,44 @@ describe('every supplied table produces fields an advisor can actually type into
       .map(r => r.concept.id + ': ' + r.capture.fields.length)
     expect(oversized).toEqual([])
   })
-
-  test('every field key belongs to exactly one part', () => {
-    supplied.forEach((r) => {
-      const inParts = []
-      r.capture.parts.forEach(p => p.fieldKeys.forEach(k => inParts.push(k)))
-      expect(inParts.slice().sort()).toEqual(r.capture.fields.map(f => f.key).sort())
-    })
-  })
 })
 
-describe('Porter\'s is captured TWICE, which is the whole reason parts exist', () => {
-  const porters = concepts.find(c => c.id === 'porters-5-forces')
-  const capture = forms.captureForConcept(porters)
+// 🔴 MIKE'S RULING, 2026-09-21: "each concept … are only listed once. they appear as an
+// option and get selected in scope, sorted into the correct order in build session … appear
+// ONCE in the run session and ONCE in the produce plan."
+//
+// This file used to hold four tests asserting the OPPOSITE — that Porter's table split into
+// an observation part and a response part so the concept could be worked twice. The split
+// and the function behind it are deleted. These guards catch it coming back, which matters
+// because it was subtle: it produced a second card that looked like a duplicate to remove.
+describe('a concept is captured ONCE, with its whole table', () => {
+  const everySupplied = withTemplate
+    .map(c => ({ concept: c, capture: forms.captureForConcept(c) }))
+    .filter(r => r.capture.supplied)
 
-  test('it splits into two parts', () => {
-    // Pivot puts Porter's on page 11 for "record your observations ONLY. (For Now)"
-    // and on page 21 for the responses. One part means the second visit has nowhere
-    // of its own to write and the first visit is overwritten.
-    expect(capture.parts.length).toBe(2)
-  })
-
-  test('the two parts are different fields, not the same ones twice', () => {
-    const [first, second] = capture.parts
-    const overlap = first.fieldKeys.filter(k => second.fieldKeys.includes(k))
-    expect(overlap).toEqual([])
-    expect(first.fieldKeys.length).toBeGreaterThan(0)
-    expect(second.fieldKeys.length).toBeGreaterThan(0)
-  })
-
-  test('the second part is the response columns', () => {
-    // This one string is pinned deliberately: it is the column heading on Mike's own
-    // Porter's table, and it is what tells the two visits apart. If it changes, the
-    // split it drives has changed too and somebody must look.
-    expect(capture.parts[1].label).toBe('How We Plan To Respond')
-  })
-
-  test('every response field sits under that heading and no observation field does', () => {
-    const byKey = {}
-    capture.fields.forEach((f) => { byKey[f.key] = f })
-    capture.parts[1].fieldKeys.forEach((k) => {
-      expect(byKey[k].columnLabel).toBe('How We Plan To Respond')
+  test('no capture carries a parts split any more', () => {
+    expect(everySupplied.length).toBeGreaterThan(0)
+    everySupplied.forEach((r) => {
+      expect(r.capture.parts).toBeUndefined()
     })
-    capture.parts[0].fieldKeys.forEach((k) => {
-      expect(byKey[k].columnLabel).not.toBe('How We Plan To Respond')
-    })
+  })
+
+  test('the module no longer exposes a way to split a table into visits', () => {
+    expect(forms.partsOfFields).toBeUndefined()
+  })
+
+  test("Porter's table comes back whole, observations and responses together", () => {
+    const porters = concepts.find(c => c.id === 'porters-5-forces')
+    const capture = forms.captureForConcept(porters)
+
+    expect(capture.supplied).toBe(true)
+    // Both kinds of column are present in the ONE set of fields the advisor now sees.
+    // This string is pinned deliberately: it is the column heading on Mike's own Porter's
+    // table, and its presence here is what proves the response columns were not dropped
+    // along with the split that used to separate them.
+    const labels = capture.fields.map(f => f.columnLabel)
+    expect(labels).toContain('How We Plan To Respond')
+    expect(labels.some(l => l && l !== 'How We Plan To Respond')).toBe(true)
   })
 })
 

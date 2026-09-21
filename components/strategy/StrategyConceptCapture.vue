@@ -3,16 +3,13 @@ section.scc2
   header.scc2-head
     p.scc2-eyebrow(v-if="eyebrow") {{ eyebrow }}
     h3.scc2-title {{ cardTitle }}
-    //- The instruction is the advisor's, typed against this visit. Mike's own is
-    //- "record your observations ONLY. (For Now)" — the sentence that makes visit
-    //- one different from visit two.
+    //- The instruction is the advisor's, from the deck.
     p.scc2-instruction(v-if="instruction") {{ instruction }}
 
   //- 🔴 THE CONCEPT, SO IT CAN BE TAUGHT WITHOUT LEAVING THE SCREEN. Both lines are
-  //- Mike's own, off the deck's Session Scope table. Shown on the FIRST visit only:
-  //- by the second the concept has been taught and repeating it pushes the boxes
-  //- down the page.
-  section.scc2-concept(v-if="part === 1 && (conceptSummary || helpsClientTo)")
+  //- Mike's own, off the deck's Session Scope table. Always shown: a concept appears
+  //- once, so there is no later visit for them to be held back from.
+  section.scc2-concept(v-if="conceptSummary || helpsClientTo")
     //- ⚠ NO HEADINGS. Removed on Mike's instruction, 2026-09-17 — "What this does
     //- in the room" was written by an AI session and he had never seen it.
     //- 🔴 THE DRAWING GOES ABOVE HIS WORDS, so the advisor speaks to it first. It
@@ -49,25 +46,10 @@ section.scc2
     | {{ noTableMessage }}
 
   template(v-else)
-    //- Only when it adds something. On a second visit the instruction above IS
-    //- the part's heading, and printing it twice reads as a mistake.
-    p.scc2-part(v-if="partLabel && partLabel !== instruction") {{ partLabel }}
-
-    //- 🔴 NOTHING TO RESPOND TO IS NOT AN EMPTY FORM, IT IS A SENTENCE. Before
-    //- this, a second visit drew every box with "Nothing was recorded here
-    //- earlier." above it — sixteen times — which is the same duplicated grid the
-    //- part split exists to remove, wearing a different hat.
-    p.scc2-waiting(v-if="!blocks.length") {{ $t('strategyPlanner.capture.nothingToAnswer') }}
-
     .scc2-grid
       .scc2-block(v-for="block in blocks" :key="block.key")
         p.scc2-block-label(v-if="block.label") {{ block.label }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
-          //- 🔴 A SECOND VISIT ANSWERS THE FIRST. Where this box responds to one
-          //- filled in earlier, that line is shown above it — the client's own
-          //- words, read-only. A response typed against a blank space is a second
-          //- identical form, which is worth nothing to anybody.
-          p.scc2-said(v-if="field.pairedFieldKey") {{ answeredText(field) }}
           label.scc2-field-label(
             v-if="field.rowLabel"
             :for="inputId(field)"
@@ -154,17 +136,7 @@ export default {
       validator: c => !!c && typeof c.supplied === 'boolean'
     },
 
-    /**
-     * Which part of the table this visit opens, 1-based. A table with one part
-     * ignores it; Porter's part 2 shows only the response columns.
-     */
-    part: {
-      type: Number,
-      default: 1,
-      validator: n => Number.isInteger(n) && n >= 1
-    },
-
-    /** The advisor's instruction for THIS visit, e.g. "observations ONLY. (For Now)". */
+    /** The advisor's instruction for this concept, from the deck. */
     instruction: {
       type: String,
       default: ''
@@ -228,82 +200,44 @@ export default {
       return hasConceptGraphic(this.conceptId)
     },
 
-    /** @returns {number} how many visits this concept's table is split into */
-    partCount () {
-      const parts = (this.capture && this.capture.parts) || []
-      return parts.length > 1 ? parts.length : 1
-    },
-
     /**
-     * The card's heading.
+     * The card's heading — the concept's name, and nothing appended to it.
      *
-     * 🔴 "(Part 1)" AND "(Part 2)" ARE NOT DECORATION. Both visits to Porter's
-     * draw the same four force headings — one for what may change, one for how we
-     * respond — so without the part in the title an advisor sees the identical
-     * form twice, one under the other, and cannot tell which is which. Mike found
-     * exactly that on 2026-09-17. The approved drawing
-     * (`design/mockups/strategy-plan-output.html`, p11 and p21) titles them this
-     * way for the same reason.
+     * 🔴 THERE IS NO "(Part 1)" / "(Part 2)" ANY MORE. Mike's ruling, 2026-09-21: a
+     * concept is listed once, scoped once, sorted once, and appears ONCE in Run session
+     * and ONCE in the plan. The part suffix existed only to tell two visits of the same
+     * concept apart, and there are no longer two.
      *
      * @returns {string}
      */
     cardTitle () {
-      if (this.partCount < 2) { return this.name }
-      return this.name + ' ' + this.$t('strategyPlanner.capture.part', { n: this.part })
+      return this.name
     },
 
     /**
-     * The fields this visit opens, in reading order.
+     * Every field of the concept's table, in reading order.
+     *
+     * ⚠ THE WHOLE TABLE, NOT A SLICE OF IT. This used to open one part — Porter's
+     * observation columns on the first visit, the response columns on a later one. With
+     * one card per concept the advisor gets Mike's table as he wrote it, in one place.
+     *
      * @returns {Array<object>}
      */
     visitFields () {
       if (!this.capture.supplied) { return [] }
-      const parts = this.capture.parts || []
-      const chosen = parts[this.part - 1] || parts[0]
-      if (!chosen) { return this.capture.fields || [] }
-      const wanted = {}
-      chosen.fieldKeys.forEach((k) => { wanted[k] = true })
-      const fields = (this.capture.fields || []).filter(f => wanted[f.key])
-
-      // 🔴 A RESPONSE BOX ONLY EXISTS WHERE THERE IS SOMETHING TO RESPOND TO. The
-      // second visit answers the first — an empty observation has no response, and
-      // drawing a box for it puts the same blank grid on screen twice. Mike's
-      // verdict, 2026-09-17: "how could anyone gain value from having this
-      // repeated? if you see it again, it's a fuck up."
-      return fields.filter(f => !f.pairedFieldKey || this.answeredText(f))
+      return this.capture.fields || []
     },
 
     /**
-     * The heading this visit sits under, where the part has one. Porter's second
-     * visit is headed by Mike's own column label, "How We Plan To Respond".
-     * @returns {string}
-     */
-    partLabel () {
-      if (!this.capture.supplied) { return '' }
-      const parts = this.capture.parts || []
-      const chosen = parts[this.part - 1]
-      return (chosen && chosen.label) || ''
-    },
-
-    /**
-     * The visit's fields grouped under their column heading, which is how the
-     * template itself bands them.
+     * The fields grouped under their column heading, which is how the template itself
+     * bands them.
      * @returns {Array<{key: string, label: string, fields: object[]}>}
      */
     blocks () {
       const order = []
       const byLabel = {}
       this.visitFields.forEach((f) => {
-        // On a second visit the part IS the column label, so repeating it on every
-        // block would say nothing. What the advisor needs instead is the
-        // observation each response answers — `pairedWith`, Mike's own force
-        // heading from the column to its left.
-        // The block still names the force. What tells the two visits apart is not
-        // the heading — it is that every box on the second one sits under the
-        // client's own words from the first.
-        const label = this.partLabel
-          ? (f.pairedWith || f.rowLabel || '')
-          : (f.columnLabel || f.rowLabel || '')
+        const label = f.columnLabel || f.rowLabel || ''
         if (!byLabel[label]) {
           byLabel[label] = { key: 'b' + order.length, label, fields: [] }
           order.push(byLabel[label])
@@ -342,15 +276,6 @@ export default {
      */
     valueOf (field) {
       return this.entries[field.key] || ''
-    },
-
-    /**
-     * What the client said in the earlier visit that this box answers.
-     * @param {object} field
-     * @returns {string}
-     */
-    answeredText (field) {
-      return (this.entries[field.pairedFieldKey] || '').trim()
     },
 
     /**
