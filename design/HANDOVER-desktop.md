@@ -64,14 +64,19 @@ number and a ring needs one. Both live side by side; `compute()` and its contrac
 3. **Money** — `currencyMixin`, not his hardcoded `en-NZ`/`NZD`, which would show every firm New
    Zealand dollars.
 
-### One fault found in YESTERDAY's work, still open
+### A test that passed while asserting nothing — FIXED, and worth knowing about
 
-🔴 **`tests/unit/salesPipeline.component.test.js` does not actually test its NaN guard.** Delete
-the guard in `SalesPipeline.vue`'s `payload()` and all 25 tests still pass. The cause: the test
-asserts on an EMPTY box, and `Number('')` is `0` — the values that really reach NaN are
-`undefined` and unparseable text. **Mutation-verified both ways.** The COI screen's equivalent
-test was rewritten and now bites; the pipeline one was not touched, as it is outside what Mike
-approved this session. **Put it to him before doing anything else with it.**
+🔴 **`salesPipeline.component.test.js` did not actually test its NaN guard.** Deleting the guard
+in `payload()` left all 25 tests green. The cause: it asserted on an **empty** money box, and
+`Number('')` is `0`. The values that really reach NaN are `undefined` and unparseable text.
+
+Found by deleting the guard on purpose while checking whether the COI screen's equivalent test
+had the same hole — it did. **Both fixed and mutation-verified** (`def402ed`): 26 green, and
+removing the guard now fails one.
+
+⚠ **The header comment said "empty money box" too, so the test matched the WORDING rather than
+the risk.** That is the transferable part: when a test and its comment agree, neither is
+evidence. Delete the thing it guards and see whether anything goes red.
 
 ### Seeded dev data
 
