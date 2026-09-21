@@ -184,4 +184,196 @@ function compute (deals, cois) {
   }
 }
 
-module.exports = { compute, rate, countBy, sumBy, securedByMonth, sum }
+/* ------------------------------------------------------------------------- *
+ * THE DASHBOARD AS MIKE BUILT IT
+ *
+ * Everything below is a faithful port of his own dashboard's figures
+ * (`server/api/dashboard/metrics.get.js` in advisor-e/sales-tracker-nuxt),
+ * which `compute()` above did not carry across. His screen needs them and the
+ * screen is copied exactly, so the maths is copied exactly too.
+ *
+ * 🔴 THE TWO FUNNELS ARE THE POINT OF HIS DASHBOARD. Deals are split on
+ * `salesStyle` — **Campaign** versus **Total Needs** — and every rate is shown
+ * for each separately, so the two ways of selling can be compared. `compute()`
+ * above collapsed them into a single funnel, losing that distinction entirely.
+ * `sales_style` was already in our table; it simply was not being read.
+ *
+ * ⚠ HIS ROUNDING AND HIS ZEROES ARE KEPT, DELIBERATELY. His rates are whole
+ * numbers via `Math.round`, and an empty denominator gives **0**, not null —
+ * the opposite of the convention in `compute()` above. That is not an oversight
+ * here: his screen draws a progress RING from the percentage, and a ring has to
+ * have a number to draw. Changing it would change his screen, which is the one
+ * thing this port must not do.
+ * ------------------------------------------------------------------------- */
+
+/** His rate: a whole percentage, and 0 when there is nothing to divide by. */
+function wholeRate (part, whole) {
+  return whole ? Math.round((part / whole) * 100) : 0
+}
+
+/**
+ * The average fee and average days-to-secure across a set of won deals.
+ * A faithful port of his `calculateFunnelStats`.
+ *
+ * @param {object[]} entries - the WON deals of one sales style
+ * @returns {{avgFee: number, avgDaysElapsed: number}}
+ */
+function funnelStats (entries) {
+  if (!entries.length) { return { avgFee: 0, avgDaysElapsed: 0 } }
+
+  const totalFee = sum(entries, 'jobSecuredValue')
+  const avgFee = Math.round(totalFee / entries.length)
+
+  const days = entries
+    .filter(e => e.approachDate && e.dateSecured)
+    .map((e) => {
+      const start = new Date(e.approachDate).getTime()
+      const end = new Date(e.dateSecured).getTime()
+      return (isNaN(start) || isNaN(end)) ? null : Math.round((end - start) / 86400000)
+    })
+    .filter(d => d !== null && d >= 0)
+
+  const avgDaysElapsed = days.length
+    ? Math.round(days.reduce((a, b) => a + b, 0) / days.length)
+    : 0
+
+  return { avgFee, avgDaysElapsed }
+}
+
+/**
+ * One sales style's funnel: the four counts, plus its average fee and days.
+ *
+ * ⚠ THE STAGE COUNTS ARE INDEPENDENT, NOT NESTED — his rule, kept. A deal with
+ * `proposalSent` but no `secureMeeting` counts toward proposals and not
+ * meetings, so a rate can exceed 100% if the data says so. That is his
+ * behaviour and it is honest: it shows the data as entered rather than quietly
+ * correcting it.
+ *
+ * @param {object[]} deals - the deals of ONE sales style
+ * @returns {object} the funnel block his screen reads
+ */
+function styleFunnel (deals) {
+  const won = deals.filter(d => d.jobSecured)
+  const stats = funnelStats(won)
+  return {
+    approaches: deals.filter(d => d.approachStyle).length,
+    meetings: deals.filter(d => d.secureMeeting).length,
+    proposals: deals.filter(d => d.proposalSent).length,
+    secured: won.length,
+    avgFee: stats.avgFee,
+    avgDaysElapsed: stats.avgDaysElapsed
+  }
+}
+
+/**
+ * Secured value by month, keyed on the APPROACH date — his choice, kept.
+ * (`securedByMonth` above keys on the date secured, which is a different
+ * question; both now exist and neither is changed.)
+ *
+ * @param {object[]} deals
+ * @returns {{month: string, value: number}[]} oldest first
+ */
+function monthlySecuredTrend (deals) {
+  const map = new Map()
+  deals.forEach((d) => {
+    if (!d.approachDate) { return }
+    const t = new Date(d.approachDate)
+    if (isNaN(t.getTime())) { return }
+    const month = t.getUTCFullYear() + '-' + String(t.getUTCMonth() + 1).padStart(2, '0')
+    const n = Number(d.jobSecuredValue)
+    map.set(month, (map.get(month) || 0) + (Number.isFinite(n) ? n : 0))
+  })
+  return Array.from(map.entries())
+    .map(([month, value]) => ({ month, value }))
+    .sort((a, b) => a.month.localeCompare(b.month))
+}
+
+/**
+ * Every figure Mike's dashboard draws, from rows the caller may already see.
+ *
+ * @param {object[]} deals - pipeline rows, already access-filtered by the store
+ * @param {object[]} cois - COI rows, already access-filtered by the store
+ * @returns {object} the dashboard payload, in HIS shape
+ */
+function dashboard (deals, cois) {
+  const d = Array.isArray(deals) ? deals : []
+  const c = Array.isArray(cois) ? cois : []
+
+  // His two sales styles. Anything with neither value sits in no funnel at all,
+  // exactly as his loop leaves it.
+  const campaign = d.filter(x => x.salesStyle === 'Campaign')
+  const totalNeeds = d.filter(x => x.salesStyle === 'Total Needs')
+
+  // A referral only counts when the named COI is one this advisor actually
+  // holds — his `validCoiNames` check, matched case-insensitively as he does.
+  const known = new Set(c.map(x => String(x.coiName || '').trim().toLowerCase()).filter(Boolean))
+  let coiReferrals = 0
+  let coiConverted = 0
+  let coiProposalFee = 0
+  let coiSecuredFee = 0
+  d.forEach((x) => {
+    const name = String(x.coiInvolved || '').trim().toLowerCase()
+    if (!name || !known.has(name)) { return }
+    coiReferrals++
+    const p = Number(x.proposalValue)
+    coiProposalFee += Number.isFinite(p) ? p : 0
+    if (x.jobSecured) {
+      coiConverted++
+      const s = Number(x.jobSecuredValue)
+      coiSecuredFee += Number.isFinite(s) ? s : 0
+    }
+  })
+
+  // His status-progression counts: how many COIs have got past each gate.
+  const past = f => c.filter(x => Number(x[f]) > 0).length
+
+  return {
+    approaches: d.filter(x => x.approachStyle).length,
+    meetingsSecured: d.filter(x => x.secureMeeting).length,
+    proposalsSent: d.filter(x => x.proposalSent).length,
+    totalProspects: d.length,
+    activeProspects: d.filter(x => String(x.prospectStatus || '') === 'Active').length,
+    securedJobs: d.filter(x => x.jobSecured).length,
+    totalProposalValue: sum(d, 'proposalValue'),
+    totalSecuredValue: sum(d, 'jobSecuredValue'),
+    workSecured: sum(d, 'jobSecuredValue'),
+    totalCoi: c.length,
+    totalReferrals: sum(c, 'totalReferrals'),
+    totalConverted: sum(c, 'totalConverted'),
+    statusBreakdown: countBy(d, 'prospectStatus').map(r => ({ status: r.label, count: r.value })),
+    sourceBreakdown: countBy(d, 'prospectSource').map(r => ({ source: r.label, count: r.value })),
+    staffSecuredBreakdown: sumBy(d, 'leadStaff', 'jobSecuredValue')
+      .map(r => ({ leadStaff: r.label, value: r.value })),
+    monthlySecuredTrend: monthlySecuredTrend(d),
+    coiIndustryBreakdown: countBy(c, 'industry')
+      .map(r => ({ industry: r.label, relationships: r.value })),
+    campaignFunnel: styleFunnel(campaign),
+    totalNeedsFunnel: styleFunnel(totalNeeds),
+    coiPerformance: {
+      total: c.length,
+      couldWe: past('couldWe'),
+      howWouldWe: past('howWouldWe'),
+      willWe: past('willWe'),
+      testReview: past('testReview'),
+      totalReferrals: coiReferrals,
+      totalConverted: coiConverted,
+      totalProposalFeeValue: coiProposalFee,
+      totalSecuredFeeValue: coiSecuredFee
+    }
+  }
+}
+
+module.exports = {
+  compute,
+  rate,
+  countBy,
+  sumBy,
+  securedByMonth,
+  sum,
+  // Mike's dashboard
+  dashboard,
+  styleFunnel,
+  funnelStats,
+  monthlySecuredTrend,
+  wholeRate
+}

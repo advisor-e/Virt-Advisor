@@ -210,8 +210,15 @@ async function deleteEntry (req, res) {
  * queries carrying no user filter at all — a second place to get it wrong, and it
  * did.
  *
+ * 🔴 IT RETURNS TWO SHAPES, AND `dashboard` IS THE ONE THE SCREEN DRAWS.
+ * `dashboard` is Mike's own dashboard payload — his two funnels split on
+ * `salesStyle`, his averages, his breakdowns — ported field for field so his
+ * screen renders exactly as he built it. `metrics` is the earlier single-funnel
+ * shape; it is kept because it is a published contract with tests against it,
+ * and removing a field is a change nobody asked for.
+ *
  * @route GET /api/sales/metrics
- * @returns {200} { success: true, metrics: object }
+ * @returns {200} { success: true, dashboard: object, metrics: object }
  * @returns {403} NO_ADVISOR_IDENTITY · {500} DB_ERROR
  */
 async function getMetrics (req, res) {
@@ -224,7 +231,11 @@ async function getMetrics (req, res) {
       pipelineStore.listForAdvisor(advisorId, firmId),
       store.listForAdvisor(advisorId, firmId)
     ])
-    res.send(200, { success: true, metrics: metrics.compute(deals, cois) })
+    res.send(200, {
+      success: true,
+      dashboard: metrics.dashboard(deals, cois),
+      metrics: metrics.compute(deals, cois)
+    })
   } catch (err) {
     console.error('[salesCoi] getMetrics failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not work out your figures')

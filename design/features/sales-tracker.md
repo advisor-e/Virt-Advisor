@@ -489,11 +489,62 @@ mock for no behavioural gain.
 rather than truncated into a different figure, negatives are refused, and a non-finite number
 becomes `0.00` rather than `NaN` — which would fail the whole insert on one bad field.
 
-### Stage 3 — COI + Dashboard · ✅ **BACKEND BUILT 2026-09-22, screens next**
+### Stage 3 — COI + Dashboard · ✅ **COMPLETE 2026-09-21 — backend AND both screens**
 [`server/utils/salesCoiStore.js`](../../server/utils/salesCoiStore.js) ·
 [`server/utils/salesMetrics.js`](../../server/utils/salesMetrics.js) ·
 [`server/routes/salesCoi.js`](../../server/routes/salesCoi.js) — 4 COI routes and the metrics
 route, 98 tests. Coverage: metrics **100%**, store 97%, routes 93.5%.
+
+**The two screens**: [`components/sales/SalesCoi.vue`](../../components/sales/SalesCoi.vue) at
+`/sales-coi`, and [`SalesDashboardScreen.vue`](../../components/sales/SalesDashboardScreen.vue)
+at `/sales-tracker-dashboard`, with his three components copied beside them (`StatCard`,
+`ChartCard`, `LoadingSpinner`). Both driven in a browser against seeded data.
+
+> ## 🔴 THE DASHBOARD IS A FAITHFUL COPY OF MIKE'S OWN — and the first attempt was not
+>
+> **His ruling, 2026-09-21:** *"i want what i had in the first place - i spent a lot of time to
+> get it right - all you had to do was wire it - not fuck with it and start changing it."* And
+> then: *"build it as close as possible to what i provided … dont change shit - get it looking
+> the same."*
+>
+> **What the first attempt did wrong, all of it unasked:** it invented a waterfall chart that
+> appears nowhere in his design or in this plan; it **collapsed his two funnels into one**,
+> losing the Campaign / Total Needs distinction that is the whole point of the screen; it
+> dropped his progress rings, his avg-fee and avg-days cards and his COI stats table; and it
+> renamed the page *"My Pipeline Insights"*. It was deleted entire and rebuilt from
+> `pages/dashboard.vue`.
+>
+> **Two lessons, and the second is the expensive one.** A plan that says *"redraw on our six SVG
+> components"* names the CONSTRAINT, not the design — it is not a licence to invent a layout.
+> And **the source app is the specification**: read the screen being ported before writing the
+> one replacing it. Nothing in §4a or §10 said what this screen looked like, and nobody noticed
+> that until Mike opened it.
+>
+> **What is copied:** every section in his order, his seven stat cards, both rings-and-averages
+> blocks with his eight ring colours, his COI panel, his charts row, his CSS unchanged
+> (deliberately NOT re-themed to our brand tokens), and his wording verbatim in
+> `locales/en.json` under `salesTrackerDashboard`.
+>
+> **The three deliberate differences, each forced and each stated:**
+>
+> | | |
+> |---|---|
+> | **The charts** | His seven are Chart.js + vue-chartjs. We cannot add either (§4a, and `engine-strict` on Node 14.15), so they are drawn on `components/base/` carrying **his** colours. His two VERTICAL bar charts are horizontal — we have no vertical bar component. |
+> | **The address** | `/sales-tracker-dashboard`, because `/sales-dashboard` is item 4.95's Sales Dashboard **model** — a different screen reading a CLIENT's workbook. The page still calls itself *"Sales Dashboard"*, his title. |
+> | **Money** | `currencyMixin`, not his hardcoded `Intl.NumberFormat('en-NZ', { currency: 'NZD' })`, which would show every firm on earth New Zealand dollars. |
+
+🔴 **HIS TWO FUNNELS SPLIT ON `salesStyle` — 'Campaign' vs 'Total Needs'.** Two ways of selling,
+reported separately so they can be compared, each with its own four rates, average fee and
+average days. `sales_style` was **already in our table and our store** from stage 1; it simply
+was not being read. `dashboard()` in `salesMetrics.js` is a field-for-field port of his
+`server/api/dashboard/metrics.get.js`, and `tests/unit/salesDashboardMetrics.test.js` (22 tests)
+fails if the two funnels are ever collapsed again — mutation-verified.
+
+⚠ **HIS ROUNDING AND HIS ZEROES ARE KEPT, AGAINST THE CONVENTION ABOVE.** `wholeRate` returns a
+whole number and **0** for an empty denominator, where `rate` returns `null`. That is deliberate:
+his rings are DRAWN from the percentage and a ring needs a number. Both live side by side and
+neither was changed — `compute()` and its published contract are untouched, because removing a
+field nobody asked about is its own kind of unasked change.
 
 🔴 **THE DASHBOARD AGGREGATES THE STORES; IT NEVER QUERIES THE TABLES.** `salesMetrics` takes
 rows and returns figures — no database access, no identity handling — so it can only summarise
@@ -509,13 +560,12 @@ tester can see that a percentage is wrong. Three more judgements, each with its 
 **an undated win is skipped, never dated to today**; and **the COI rate is conversions over
 referrals**, not over partners, which would read 250%.
 
-🔴 **THE DASHBOARD IS THE HARDEST SCREEN, NOT THE EASIEST — corrected 2026-09-21.** This section
-read *"the easiest of the three and the most visible"*, which was true of its **backend** (read-only
-aggregation) and false of the screen. Its 1,033 lines are built on **Chart.js + vue-chartjs**, which
-we do not have and will not add (§4a). It is **redrawn on our six SVG chart components**, and that
-is the single largest screen-side job in the plan.
-
-The backend half of this stage is still the easy half.
+🔴 **THE DASHBOARD WAS THE HARDEST SCREEN, AND NOT FOR THE REASON THIS SECTION GAVE.** It read
+*"the easiest of the three and the most visible"*, which was true of its **backend** (read-only
+aggregation) and false of the screen; that much was corrected before the build. What the
+correction still missed is that the difficulty was never the charts — **it was that nobody had
+read his screen**, so "redraw it on our components" sounded like a free hand. It is not. See the
+box above.
 
 ### Stage 4 — Team + Lists · *firm-manager pages*
 `team/summary` and the 2 list routes. **`middleware/firm-manager.js` becomes our own tier check**

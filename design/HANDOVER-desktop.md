@@ -9,73 +9,76 @@
 
 ---
 
-## 2026-09-22 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-21 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**PR #104 MERGED.** Item 17 **stages 1 and 2 complete, stage 3's backend built**. Suite **12,618
-green** (578 suites), lint 0 errors, `npm run build` seen to succeed. Tree clean, all pushed.
+**Item 17 stage 3 COMPLETE — the COI screen and the Sales Dashboard.** Both driven in a browser
+against seeded data. Suite green on every affected suite (327 across the eight run).
 
-### 🔴 THE SECURITY HOLE THAT NEARLY BECAME A HANDOVER LINE
+### 🔴 READ THIS BEFORE PORTING ANY OF HIS OTHER SCREENS
 
-`POST /api/translate/locale` had **no auth guard at all** — it sat between `/api/health` and the
-first guarded route, an open proxy to a metered third-party service. **20 of our 28 languages are
-translated through it on demand**, so exhausting the quota reverts those readers to English with
-nothing on screen to say why.
+**The first dashboard I built was thrown away, and rightly.** The plan said the dashboard is
+*"redrawn on our six SVG chart components"* and said **nothing about what the screen looked
+like** — so I read that as a free hand and designed one: a waterfall chart of my own invention,
+his **two funnels collapsed into one**, his rings and COI table dropped, the page renamed.
 
-I found it in the morning, asked, and the conversation moved on before the answer came. **It only
-surfaced again because the shutdown checklist audits every fault against "fixed or filed".** Now
-guarded, with all three callers sending the token (none did — guarding alone would have broken
-language switching). Proven live both ways: anonymous refused, signed-in returns `"Bonjour"`.
+His answer: *"i want what i had in the first place - i spent a lot of time to get it right - all
+you had to do was wire it"*, and then *"dont change shit - get it looking the same"*.
 
-`serverWiring.test.js` now asserts **nothing but `/api/health` and the anonymous report maths is
-unguarded**, so the next one fails the build. Writing that test found 22 report routes that are
-open *by design* — figures in, figures out, no identity — and the exception is now stated rather
-than assumed.
+**The lesson, and it cost most of a session: a plan that names a CONSTRAINT is not a licence to
+invent a layout. His app IS the specification — open the screen before you write the one that
+replaces it.** His `pages/dashboard.vue` had been sitting on `E:`, 938 lines, fully designed,
+the whole time.
+
+**Stages 4–7 are five more of his screens.** Read each one first.
 
 ### What is built (item 17)
 
 | | |
 |---|---|
 | Stage 1 | 5 tables (`db-migration-sales-tracker.sql`), proven on real MySQL |
-| Stage 2 | Pipeline store, routes and **screen** — driven in a browser |
-| Stage 3 | COI store and routes, dashboard maths — **screens outstanding** |
-| Tests | **252**, all mutation-verified |
+| Stage 2 | Pipeline store, routes and **screen** |
+| Stage 3 | COI store, routes and **screen** · **Sales Dashboard**, backend and screen |
+| Next | **Stage 4 — Team + Lists**, the firm-manager pages |
 
-**The rule throughout:** an advisor sees their own rows at any visibility plus their firm's shared
-ones, and may change **only their own**. Enforced in SQL; the dashboard aggregates the stores and
-never queries the tables, so it cannot widen it.
+**The dashboard is a faithful copy** of his own: his seven stat cards, both rings-and-averages
+blocks, his COI panel, his charts row, **his CSS unchanged** (deliberately NOT re-themed to our
+brand tokens) and his wording verbatim under `salesTrackerDashboard` in `locales/en.json`.
 
-### Two faults found by LOOKING, not by testing
+🔴 **HIS TWO FUNNELS SPLIT ON `salesStyle`** — Campaign vs Total Needs, each with its own four
+rates, average fee and average days. That field was **already in our table and store** from
+stage 1 and simply was not being read. `dashboard()` in `salesMetrics.js` ports his
+`metrics.get.js` field for field; `salesDashboardMetrics.test.js` (22 tests, mutation-verified)
+fails if they are ever collapsed again.
 
-1. **The missing `/api/sales` proxy line** — the screen rendered perfectly and loaded nothing.
-   **The fourth time**; `nuxt.config.js` already carried a warning naming the other three.
-   ⚠ **Add a backend route's proxy line in the same change, and open the page before calling it
-   done.**
-2. **The privacy control sat below the fold** of the add form (y=942, scroll area ends 909). Moved
-   to the top on Mike's ruling.
+⚠ **His rounding and his zeroes are kept on purpose.** `wholeRate` gives a whole number and **0**
+for an empty denominator, where our `rate` gives `null` — because his rings are DRAWN from the
+number and a ring needs one. Both live side by side; `compute()` and its contract are untouched.
 
-### Two harness gaps that made SECURITY tests pass while asserting nothing
+### The three forced differences, all stated in the Brief
 
-`process.client` is undefined under jest, and jsdom's `window.localStorage` is read-only — a plain
-assignment is ignored. Both commented where they are set up.
+1. **Charts** — his are Chart.js + vue-chartjs; the locked stack forbids both, so they are drawn
+   on `components/base/` carrying **his** colours. His two vertical bars are horizontal: we have
+   no vertical bar component.
+2. **Address** — `/sales-tracker-dashboard`, because `/sales-dashboard` is item 4.95's Sales
+   Dashboard **model**, a different screen. The page still calls itself *"Sales Dashboard"*.
+3. **Money** — `currencyMixin`, not his hardcoded `en-NZ`/`NZD`, which would show every firm New
+   Zealand dollars.
 
-### Mike's rulings today
+### One fault found in YESTERDAY's work, still open
 
-- A firm manager **does** see their advisors' pipelines — stage 4's Team roll-up, behind a manager
-  guard. Deliberately not in these routes.
-- **Currency is the firm's; conversion lives inside a model** where a primary currency is already
-  entered. Parent **13 renamed to Language, Tax & Currency**; `13.1`/`13.2`/`13.3` filed.
-- **"Put the screens on the Firm Manager Hub" was wrong** — he caught it by asking to see the
-  instruction. Diagnosed in `sales-tracker-history.md` §5.
+🔴 **`tests/unit/salesPipeline.component.test.js` does not actually test its NaN guard.** Delete
+the guard in `SalesPipeline.vue`'s `payload()` and all 25 tests still pass. The cause: the test
+asserts on an EMPTY box, and `Number('')` is `0` — the values that really reach NaN are
+`undefined` and unparseable text. **Mutation-verified both ways.** The COI screen's equivalent
+test was rewritten and now bites; the pipeline one was not touched, as it is outside what Mike
+approved this session. **Put it to him before doing anything else with it.**
 
-### NEXT
+### Seeded dev data
 
-**The COI and Dashboard screens.** COI is Pipeline again with different columns; the dashboard is
-**redrawn on `components/base/`'s six SVG charts**, not ported — that is the largest screen job left.
+Seven deals and four referral partners are in the local MySQL from testing, under
+`dev-advisor-001` / `dev-firm-001`. Harmless, but they are not real.
 
-🔴 **Waiting on Mike, blocking nothing:** `13.3` — does the currency picker MOVE to the hub or
-appear in BOTH? And `13.1`'s one-line wording is his to give.
-
-**LAPTOP — shared files I changed:** `to-do-items.json`, `to-do.md`, `ITEM-NUMBERING.md`,
-`localisation-and-currency.md`, `nuxt.config.js`, `locales/en.json`, `.gitignore`,
-`server/restify-server.js`, and the two locale mixins + `ConversationPane.vue` for the token.
-**Your 7.5, 15.1 and 15.7 are untouched.**
+**LAPTOP — shared files I changed:** `locales/en.json` (added `salesCoi` and
+`salesTrackerDashboard`), `server/utils/salesMetrics.js` (added, removed nothing),
+`server/routes/salesCoi.js`, `to-do-items.json` item 17, `sales-tracker.md`.
+**Your 7.5 and 15.1 are untouched.**
