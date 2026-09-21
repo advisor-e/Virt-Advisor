@@ -111,6 +111,7 @@ const casesRoute = require('./routes/cases')
 const clientsRoute = require('./routes/clients')
 const salesPipelineRoute = require('./routes/salesPipeline')
 const salesCoiRoute = require('./routes/salesCoi')
+const salesTeamRoute = require('./routes/salesTeam')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const modelChoicesRoute = require('./routes/modelChoices')
@@ -425,6 +426,25 @@ server.del('/api/sales/coi/:id', firmAuth, salesCoiRoute.deleteEntry)
 // never queries the tables itself, so it can only ever summarise what this advisor
 // may already see — the access rule cannot drift between the lists and the summary.
 server.get('/api/sales/metrics', firmAuth, salesCoiRoute.getMetrics)
+
+// ── Sales Tracker — the Team roll-up and the firm's lists (stage 4) ──────────
+// 🔴 THE TEAM ROLL-UP IS THE ONE SALES READ THAT CROSSES THE ADVISOR BOUNDARY:
+// it returns EVERY deal in the firm, private ones included — Mike's ruling,
+// 2026-09-22. `requireManagerRole` is therefore the access boundary and runs on
+// the SERVER, in front of the route. The source app gated only its page, with a
+// client-side redirect, leaving its equivalent endpoint open to anyone signed in.
+server.get('/api/sales/team', firmAuth, requireManagerRole, salesTeamRoute.getTeamSummary)
+
+// The ten dropdown lists. READING is open to every advisor — the pipeline and COI
+// screens build their dropdowns from it, so gating the read would empty them for
+// the people who use them. CHANGING one is the manager's, because a list is
+// firm-wide: one advisor must not retitle everyone's prospect stages.
+server.get('/api/sales/lists', firmAuth, salesTeamRoute.getLists)
+server.put('/api/sales/lists/:key', firmAuth, requireManagerRole, salesTeamRoute.saveList)
+// Version history and restore come free from firm_framework_versions, which is
+// why stage 1 stored lists there rather than creating the source app's appconfig.
+server.get('/api/sales/lists/:key/history', firmAuth, requireManagerRole, salesTeamRoute.getListHistory)
+server.post('/api/sales/lists/:key/restore', firmAuth, requireManagerRole, salesTeamRoute.restoreList)
 
 // ── Business Entity Reports — which models a client may open (stub, part 1) ──
 // design/features/business-entity-reports.md, approved by Mike 2026-09-03. The advisor's

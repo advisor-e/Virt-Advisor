@@ -6173,6 +6173,68 @@
       "network": "Could not reach the server. Check your connection and try again."
     }
   },
+  "salesTeam": {
+    "eyebrow": "Advisor-e · Firm manager",
+    "title": "Your team's pipeline",
+    "lede": "Every deal your advisors are working, by the person leading it. This view includes deals an advisor has kept private.",
+    "loading": "Loading the team summary…",
+    "unassigned": "Not assigned",
+    "unassignedNote": "Deals with no lead staff recorded",
+    "truncated": "This firm has more deals than this summary can show at once, so the totals below are incomplete.",
+    "footnote": "Approach rate is how many of the prospects an advisor could approach they actually approached — prospects still awaiting research are not counted, because they are not ready to approach yet. A low rate means time spent finding opportunities that never became conversations. A rate shows a dash when there is nothing to work it out from.",
+    "stats": {
+      "members": "People selling",
+      "prospects": "Prospects held",
+      "proposalValue": "Proposals out",
+      "securedValue": "Work secured"
+    },
+    "columns": {
+      "member": "Team member",
+      "prospects": "Prospects",
+      "approaches": "Approached / able to",
+      "meetings": "Meetings",
+      "proposals": "Proposals",
+      "proposalValue": "Proposal value",
+      "secured": "Secured",
+      "securedValue": "Secured value",
+      "approachRate": "Approach rate",
+      "avgProposal": "Avg proposal",
+      "securedRate": "Close rate",
+      "firmTotal": "Firm total"
+    },
+    "empty": {
+      "title": "No deals recorded yet",
+      "body": "Once your advisors add prospects to their pipelines, their figures appear here."
+    },
+    "errors": {
+      "load": "Could not load the team summary.",
+      "forbidden": "This view is for firm managers. Ask your firm manager if you need access."
+    }
+  },
+  "salesLists": {
+    "eyebrow": "Advisor-e · Firm manager",
+    "title": "Your Sales Tracker lists",
+    "lede": "The values your advisors pick from on their pipeline and referral partner screens. Changing a list here changes it for everyone in your firm.",
+    "loading": "Loading your lists…",
+    "itemCount": "{count} value | {count} values",
+    "emptyList": "This list has no values yet.",
+    "addPlaceholder": "Add a value…",
+    "add": "Add",
+    "save": "Save this list",
+    "revert": "Undo changes",
+    "unsaved": "Unsaved changes",
+    "saved": "{list} saved.",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "footnote": "The order you set here is the order your advisors see in their dropdowns.",
+    "errors": {
+      "load": "Could not load your lists.",
+      "save": "Could not save that list.",
+      "duplicate": "\"{value}\" is already in this list.",
+      "forbidden": "Only a firm manager can change these lists."
+    }
+  },
   "salesTrackerDashboard": {
     "badge": "Analytics",
     "title": "Sales Dashboard",

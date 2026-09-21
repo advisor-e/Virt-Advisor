@@ -363,6 +363,152 @@ function dashboard (deals, cois) {
   }
 }
 
+/** The five prospect statuses the roll-up counts, and the key each becomes. */
+const STATUS_COLUMNS = [
+  ['Active', 'active'],
+  ['Await Research', 'awaitResearch'],
+  ['Completed', 'completed'],
+  ['Dead', 'dead'],
+  ['On Hold', 'onHold']
+]
+
+/** A blank or missing lead staff groups under one honest label, never silently dropped. */
+const UNASSIGNED = 'Unassigned'
+
+/**
+ * The status meaning "found, but the research is not finished yet".
+ *
+ * 🔴 IT IS THE ONE STATUS EXCLUDED FROM THE APPROACH RATE'S DENOMINATOR, because a
+ * prospect still being researched is not yet available to approach. Counting them
+ * would penalise an advisor for having a full research queue.
+ */
+const AWAITING_RESEARCH = 'Await Research'
+
+/**
+ * Has this prospect actually been approached?
+ *
+ * 🔴 AN APPROACH DATE, NOT AN APPROACH STYLE — Mike's ruling, 2026-09-22. The
+ * source app counts `approachStyle`, which the pipeline screen fills in on
+ * creation, so its rate reads ~100% for everyone and measures nothing. A DATE is
+ * only present once somebody actually made contact.
+ *
+ * @param {object} deal
+ * @returns {boolean}
+ */
+function wasApproached (deal) {
+  if (!deal.approachDate) { return false }
+  const d = new Date(deal.approachDate)
+  return !isNaN(d.getTime())
+}
+
+/**
+ * Is this prospect available to approach — research done, contact not blocked by
+ * still being a research job?
+ * @param {object} deal
+ * @returns {boolean}
+ */
+function isApproachable (deal) {
+  return String(deal.prospectStatus || '').trim() !== AWAITING_RESEARCH
+}
+
+/**
+ * The Team roll-up: every deal in a firm, grouped by the staff member leading it.
+ *
+ * 🔴 THE ROWS MUST ALREADY BE THE WHOLE FIRM'S. This counts what it is given, the
+ * same division as `dashboard()` — `salesTeamStore.listForFirm` does the reading
+ * and the route gates it on the manager role. Handing this an advisor's own list
+ * produces a roll-up of one person, which is exactly the source app's bug.
+ *
+ * ⚠ RATES RETURN null ON AN EMPTY DENOMINATOR, not 0 — the convention of this
+ * module (see the header). The source app returns 0 for both of its averages, so
+ * a staff member with no proposals reads as a 0% close rate rather than as having
+ * nothing to judge yet. A manager comparing their team on that number would be
+ * comparing a real failure against an absence of data.
+ *
+ * @param {object[]} deals - EVERY pipeline row in the firm, access-filtered by the store
+ * @returns {{rows: object[], totals: object}} rows sorted by staff name, plus firm totals
+ */
+function teamSummary (deals) {
+  const list = Array.isArray(deals) ? deals : []
+  const byStaff = new Map()
+
+  for (const deal of list) {
+    const key = String(deal.leadStaff || '').trim() || UNASSIGNED
+    if (!byStaff.has(key)) {
+      byStaff.set(key, {
+        leadStaff: key,
+        prospects: 0,
+        approachable: 0,
+        approachesMade: 0,
+        secureMeetings: 0,
+        proposalsSent: 0,
+        totalProposalValue: 0,
+        engagementsSecured: 0,
+        totalSecuredValue: 0,
+        active: 0,
+        awaitResearch: 0,
+        completed: 0,
+        dead: 0,
+        onHold: 0
+      })
+    }
+    const item = byStaff.get(key)
+    item.prospects += 1
+    // The approach rate compares what COULD have been approached with what was.
+    item.approachable += isApproachable(deal) ? 1 : 0
+    item.approachesMade += wasApproached(deal) ? 1 : 0
+    item.secureMeetings += deal.secureMeeting ? 1 : 0
+    item.proposalsSent += deal.proposalSent ? 1 : 0
+    item.engagementsSecured += deal.jobSecured ? 1 : 0
+
+    const proposal = Number(deal.proposalValue)
+    item.totalProposalValue += Number.isFinite(proposal) ? proposal : 0
+    const secured = Number(deal.jobSecuredValue)
+    item.totalSecuredValue += Number.isFinite(secured) ? secured : 0
+
+    const status = String(deal.prospectStatus || '').trim()
+    const match = STATUS_COLUMNS.find(([label]) => label === status)
+    if (match) { item[match[1]] += 1 }
+  }
+
+  const rows = Array.from(byStaff.values())
+    .map(item => Object.assign({}, item, {
+      // 🔴 Of the prospects this person COULD approach, how many they did.
+      // Mike's ruling, 2026-09-22: it exists to find an advisor who spends their
+      // time finding opportunities and never starts the sale. Prospects still
+      // awaiting research are excluded — they are not yet available to approach.
+      approachRate: rate(item.approachesMade, item.approachable),
+      // Of the proposals they sent, how many became engagements.
+      securedRate: rate(item.engagementsSecured, item.proposalsSent),
+      // Average size of a proposal they sent — null when they have sent none.
+      avgProposalValue: item.proposalsSent
+        ? Math.round(item.totalProposalValue / item.proposalsSent)
+        : null
+    }))
+    .sort((a, b) => {
+      // Unassigned sorts last: it is a bucket, not a colleague.
+      if (a.leadStaff === UNASSIGNED) { return 1 }
+      if (b.leadStaff === UNASSIGNED) { return -1 }
+      return a.leadStaff.localeCompare(b.leadStaff)
+    })
+
+  const totals = {
+    teamMembers: rows.filter(r => r.leadStaff !== UNASSIGNED).length,
+    prospects: sum(rows, 'prospects'),
+    approachable: sum(rows, 'approachable'),
+    approachesMade: sum(rows, 'approachesMade'),
+    secureMeetings: sum(rows, 'secureMeetings'),
+    proposalsSent: sum(rows, 'proposalsSent'),
+    totalProposalValue: sum(rows, 'totalProposalValue'),
+    engagementsSecured: sum(rows, 'engagementsSecured'),
+    totalSecuredValue: sum(rows, 'totalSecuredValue')
+  }
+  totals.approachRate = rate(totals.approachesMade, totals.approachable)
+  totals.securedRate = rate(totals.engagementsSecured, totals.proposalsSent)
+
+  return { rows, totals }
+}
+
 module.exports = {
   compute,
   rate,
@@ -375,5 +521,11 @@ module.exports = {
   styleFunnel,
   funnelStats,
   monthlySecuredTrend,
-  wholeRate
+  wholeRate,
+  // The Team roll-up (stage 4)
+  teamSummary,
+  wasApproached,
+  isApproachable,
+  UNASSIGNED,
+  AWAITING_RESEARCH
 }

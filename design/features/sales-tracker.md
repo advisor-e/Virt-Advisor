@@ -32,10 +32,12 @@
 >
 > **The estimate moves from 12–21 days to 16–25** (§11). The build itself is unchanged in intent.
 >
-> ✅ **STAGES 1 AND 2 ARE COMPLETE AND STAGE 3'S BACKEND IS BUILT (2026-09-22).** Five tables, the
-> pipeline store/routes/screen, the COI store and routes, and the dashboard maths — **252 tests,
-> all mutation-verified**, proven against a real MySQL and driven in a real browser.
-> **Next: the COI and Dashboard screens.** See §10.
+> ✅ **STAGES 1–4 ARE COMPLETE (stages 1–3 on 2026-09-21, stage 4 on 2026-09-22).** Five tables,
+> the pipeline and COI stores/routes/screens, the Sales Dashboard, and the manager's half — the
+> firm-wide Team roll-up and the ten dropdown lists, on their own pages **and as two Firm
+> Manager Hub tabs**. **Mutation-verified**, proven against a real MySQL and driven in a real
+> browser. **Next: stage 5, the blog tool** — the part the survey advised against and Mike ruled
+> in scope. See §10.
 
 ---
 
@@ -400,7 +402,7 @@ the same shape. **The rewrite is Prisma → SQL inside each handler, not a restr
 
 **The order is not negotiable: nothing above stage 2 can be trusted until stage 2 is done.**
 
-### Stage 1 — The schema, on our existing convention · ✅ **BUILT 2026-09-22**
+### Stage 1 — The schema, on our existing convention · ✅ **BUILT 2026-09-21**
 [`config/db-migration-sales-tracker.sql`](../../config/db-migration-sales-tracker.sql) · guard
 [`tests/unit/salesTrackerSchema.test.js`](../../tests/unit/salesTrackerSchema.test.js) (32 tests)
 
@@ -422,7 +424,7 @@ does the job better. That is the §8 finding repeating itself: *read our schema 
 
 #### 🔴 Proven against a real database, not by reading it
 
-Run on the local MySQL 8.4 `virt_advisor` on 2026-09-22 — **the migration is not a proposal that has
+Run on the local MySQL 8.4 `virt_advisor` on 2026-09-21 — **the migration is not a proposal that has
 never been executed:**
 
 - **All 5 tables created.** `va_sales_pipeline` 38 columns / 6 keys, `va_sales_coi` 22 / 5.
@@ -443,8 +445,9 @@ The guard test pins each of those properties and was **mutation-verified**: flip
 **Still open, and it is Mike's:** whether a firm manager sees their advisors' pipelines by default.
 `visibility` carries either answer with no schema change; stage 4's Team screen is where it shows.
 
-### Stage 2 — Pipeline, end to end · *the proof* · **BACKEND BUILT 2026-09-22, screen next**
-✅ migration (stage 1) → ✅ **4 Restify routes + the store** → ⏳ the page, repainted to brand (§4a).
+### Stage 2 — Pipeline, end to end · *the proof* · ✅ **COMPLETE 2026-09-21**
+✅ migration (stage 1) → ✅ **4 Restify routes + the store** → ✅ the page, repainted to brand (§4a):
+[`components/sales/SalesPipeline.vue`](../../components/sales/SalesPipeline.vue) at `/sales-pipeline`.
 
 | | |
 |---|---|
@@ -567,9 +570,69 @@ correction still missed is that the difficulty was never the charts — **it was
 read his screen**, so "redraw it on our components" sounded like a free hand. It is not. See the
 box above.
 
-### Stage 4 — Team + Lists · *firm-manager pages*
-`team/summary` and the 2 list routes. **`middleware/firm-manager.js` becomes our own tier check**
-(`firm_manager` in our role model), not theirs. Their bug from §0 does not get ported.
+### Stage 4 — Team + Lists · ✅ **COMPLETE 2026-09-22 — backend AND both screens**
+[`server/utils/salesTeamStore.js`](../../server/utils/salesTeamStore.js) ·
+[`server/utils/salesListsStore.js`](../../server/utils/salesListsStore.js) ·
+[`server/routes/salesTeam.js`](../../server/routes/salesTeam.js) — 5 routes, 120 tests.
+Coverage: routes 98.8% statements / 100% functions.
+
+**The two screens**: [`components/sales/SalesTeam.vue`](../../components/sales/SalesTeam.vue) and
+[`SalesLists.vue`](../../components/sales/SalesLists.vue), at `/sales-team` and `/sales-lists`
+**and as two Firm Manager Hub tabs** — Mike's ask, 2026-09-22: *"make sure the firm manager hub
+is running too - so i can see the lists and report"*. One component, two doorways: it takes the
+hub's token through an optional `apiToken` prop and falls back to the advisor's own on the page.
+
+> ## 🔴 THEIR TEAM SCREEN DOES NOT WORK, AND THE BUG IS NOT THE ROLE CHECK
+>
+> This section used to say only *"their bug from §0 does not get ported"*, meaning the
+> middleware. There are **two** faults stacked, and the second is the one that matters:
+>
+> 1. **The role check gates the PAGE, not the data.** `middleware/firm-manager.js` opens
+>    `if (process.server) return` — a client-side redirect, so `/api/team/summary` stays open
+>    to anyone signed in. Ours is `requireManagerRole` in front of the route.
+> 2. 🔴 **The query is wrong and the screen is meaningless.** `summary.get.js` line 13 filters
+>    `where: { userId: user.id }` — it aggregates **only the manager's own deals** and then
+>    groups them by `leadStaff`. A team roll-up that cannot see the team. Ours filters by
+>    **firm**, and `tests/unit/salesTeamSummary.test.js` fails if it is ever narrowed back —
+>    mutation-verified.
+
+🔴 **A FIRM MANAGER SEES EVERY DEAL IN THE FIRM, PRIVATE ONES INCLUDED — Mike's ruling,
+2026-09-22.** This is the open question stage 1 left behind, now answered. It is the one sales
+read that crosses the advisor boundary, which is why the role gate is server-side and the firm
+filter is in the SQL rather than in a handler. `salesTeamStore.listForFirm` is the only place
+it happens.
+
+🔴 **THE APPROACH RATE IS MIKE'S MEASURE, NOT THE SOURCE APP'S — his ruling, 2026-09-22.** In
+his words: *"the % of prospects identified and research completed (available sales approach
+opportunities) vs the actual number of those prospects approached — helps a manager identify an
+advisor who spends time looking for client opportunities but never starting the sales process
+with them."*
+
+- **Approached** = an `approachDate` is recorded. **NOT `approachStyle`**, which the pipeline
+  screen fills in on creation — the source app's `avgApproachConversion` counts that, so its
+  rate reads ~100% for everyone and measures nothing. Found by opening the screen, not by a test.
+- **Available** = every prospect whose status is not `Await Research`. A full research queue is
+  not held against an advisor.
+- The screen shows **both halves** (`2 / 3`) beside the percentage, so the figure can be read
+  rather than taken on trust.
+
+⚠ **THE LANGUAGES SECTION OF THEIR LISTS SCREEN IS DELIBERATELY NOT BUILT.** Their
+`pages/lists.vue` carries an *"add a language, AI translates the whole app"* block — that is
+stage 6, recommended for dropping because we already have 28 languages against their 6. Its
+absence is a scope decision, pinned by a test so no later session quietly adds it.
+
+**The ten lists ride `firm_framework_versions`**, as stage 1 decided — so version history and
+restore came free and are exposed as two extra routes. Their `appconfig` upsert keys on
+`(userId, configKey)`, so every manager who edits a list creates their own row and the app
+dedupes in JavaScript; ours keys on the firm.
+
+#### A bug only the screen could show
+
+The firm-total row rendered `7` where it should read `7 / 8`. The cause was **Vue 2
+reactivity** — `totals` was declared `{}`, so a field arriving later from the server was never
+tracked — while the **identical markup one row above was correct**, because `rows` is an array
+replaced wholesale. Every one of the 12,956 tests passed throughout. Fixed by declaring every
+field at create time, and guarded by `salesTeam.component.test.js`, mutation-verified.
 
 ### Stage 5 — Blog tool · *the part I advised against, priced honestly*
 4 blog routes + 3 reference routes + `server/utils/openai.js` (119 lines) rewritten against
@@ -639,10 +702,10 @@ redraw on top of that.
 
 | Stage | Work | Was | **Now** | Why it moved |
 |---|---|---|---|---|
-| 1 | Schema on the `va_courses` pattern | 1–2 | ✅ **DONE** | Built 2026-09-22 in well under a day — the convention already existed (§8), and two more tables dropped out |
-| 2 | Pipeline end to end, with tests | 2–4 | ✅ **DONE** | Built 2026-09-22 — backend, screen and 122 tests |
-| 3 | COI + Dashboard | 2–3 | **backend ✅, screens 3–4** | Backend done; the dashboard is still redrawn on our SVG charts |
-| 4 | Team + Lists | 1–2 | **2–3** | + repaint ×2, + the Team hub tab and its `TAB_TIERS` test |
+| 1 | Schema on the `va_courses` pattern | 1–2 | ✅ **DONE** | Built 2026-09-21 in well under a day — the convention already existed (§8), and two more tables dropped out |
+| 2 | Pipeline end to end, with tests | 2–4 | ✅ **DONE** | Built 2026-09-21 — backend, screen and 122 tests |
+| 3 | COI + Dashboard | 2–3 | ✅ **DONE** | Built 2026-09-21 — backend and both screens. The dashboard was rebuilt once: see §10 stage 3 |
+| 4 | Team + Lists | 1–2 | ✅ **DONE** | Built 2026-09-22 — 5 routes, both screens, 2 hub tabs, 120 tests |
 | 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **3–5** | Unchanged — already priced honestly |
 | 6 | **Language admin** | 2–3 | **2–3** | Unchanged — still recommended for dropping |
 | 7 | Locales, advisor pages, front door | 1–2 | **1–2** | Unchanged in size; **wholly different in shape** (§10 stage 7) |

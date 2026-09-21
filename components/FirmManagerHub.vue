@@ -285,6 +285,22 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('clientCopyRequests')" v-show="activeTab === 'clientCopyRequests'")
         firm-client-copy-requests(:api-token="apiToken")
 
+      //- ── Tabs: Team Pipeline and Sales Tracker Lists (item 17 stage 4) ───
+      //- The Sales Tracker's manager half, on Mike's ask of 2026-09-22 — "make sure
+      //- the firm manager hub is running too so i can see the lists and report".
+      //- The SAME components the standalone pages render; they take the hub's token
+      //- through the prop and fall back to the advisor's own when mounted at
+      //- /sales-team and /sales-lists. Firm only — see TAB_TIERS.salesTeam, where
+      //- the judgement against the mentor-alone default is stated.
+      //- 🔴 The roll-up shows every deal in the firm, PRIVATE ONES INCLUDED (Mike,
+      //- 2026-09-22). The gate is the backend's — /api/sales/team sits behind
+      //- requireManagerRole — never this tab's presence.
+      div.hub-panel(v-if="showsTab('salesTeam')" v-show="activeTab === 'salesTeam'")
+        sales-team(:api-token="apiToken")
+
+      div.hub-panel(v-if="showsTab('salesLists')" v-show="activeTab === 'salesLists'")
+        sales-lists(:api-token="apiToken")
+
       //- Compliance (item 4.83, slice 1) — what a tier publishes about a firm's legal
       //- obligations, and what every tier beneath it receives. Asked for by Mike on
       //- 2026-09-10, naming all four manager tiers himself and asking for the cascade.
@@ -946,6 +962,11 @@ import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmSessionProcess from '~/components/firm/FirmSessionProcess.vue'
 import FirmClientCopyRequests from '~/components/firm/FirmClientCopyRequests.vue'
+// The Sales Tracker's two manager screens (item 17 stage 4). Not under
+// components/firm/ because the SAME two components serve the standalone pages at
+// /sales-team and /sales-lists — one screen, two doorways, never two copies.
+import SalesTeam from '~/components/sales/SalesTeam.vue'
+import SalesLists from '~/components/sales/SalesLists.vue'
 import FirmCompliance from '~/components/firm/FirmCompliance.vue'
 import FirmOutcomeConsent from '~/components/firm/FirmOutcomeConsent.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
@@ -1079,6 +1100,23 @@ const TAB_TIERS = {
   // genuinely different screen — listSharedForFirm, their own advisors in full and
   // not anonymised — which is why the tab survives here and nowhere else.
   teamCaseStudies: ['firm'],
+
+  // 🔴 THE FIRM ALONE, AND THE JUDGEMENT IS STATED RATHER THAN ASSUMED (the default
+  // since 2026-08-24 is the mentor alone; this is neither). The Sales Tracker's two
+  // manager screens — item 17 stage 4, on Mike's ask of 2026-09-22.
+  //
+  // A firm is the ONLY tier with a real answer here. Both screens read
+  // `va_sales_pipeline`, whose every row carries one `firm_id`: the roll-up groups one
+  // firm's advisors, and the lists are the dropdown values that firm's advisors pick
+  // from. The mentor has no advisors of its own selling, and a brand or a country has
+  // no shared prospect list — a group-level roll-up would be a table of firms, which is
+  // a different screen nobody has asked for.
+  //
+  // Cascading becomes mandatory the day a group has a real reason to see its firms'
+  // figures side by side. Nothing here blocks that: the store already scopes by firm
+  // and `parentScopeOf` already walks the chain, so adding a tier is the whole change.
+  salesTeam: ['firm'],
+  salesLists: ['firm'],
 
   adoption: ['mentor', 'global', 'group'],
 
@@ -1454,7 +1492,20 @@ const NAV_GROUPS = [
       // unwritten. It is how this firm's advisors run a planning meeting, which is what
       // this heading is for. Appended at the END, as every addition here is: appending
       // moves nothing already on a manager's screen.
-      { key: 'sessionProcess', label: 'Session Processes' }
+      { key: 'sessionProcess', label: 'Session Processes' },
+      // The Sales Tracker's two manager screens (item 17 stage 4, Mike 2026-09-22 —
+      // "so i can see the lists and report"). Under THIS heading rather than "Your AI
+      // coach" because no AI touches either: they are how this firm's advisors are
+      // selling, which is what this heading is for. Appended at the END, as every
+      // addition here is — appending moves nothing already on a manager's screen.
+      //
+      // ⚠ The three ADVISOR Sales Tracker screens stay off this menu on purpose. The
+      // hub sits behind requireManagerRole, so a tab would put an advisor's own tool
+      // where its users cannot reach it (Mike's ruling 2026-09-21). These two are the
+      // manager's half and belong here; /sales-pipeline, /sales-coi and
+      // /sales-tracker-dashboard stay the advisor's own pages.
+      { key: 'salesTeam', label: 'Team Pipeline' },
+      { key: 'salesLists', label: 'Sales Tracker Lists' }
     ]
   },
   {
@@ -1572,7 +1623,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
   mixins: [traceReasonMixin],
 

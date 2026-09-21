@@ -39,8 +39,9 @@
  * signed-in person could edit any row by guessing an incrementing integer. Our ids
  * are UUIDs *and* every mutation is ownership-checked; either alone would be thin.
  *
- * ⚠ A FIRM MANAGER SEEING THEIR ADVISORS' PIPELINES IS MIKE'S RULING OF 2026-09-22
- * AND IS **NOT** IMPLEMENTED HERE. It belongs to the Team roll-up (stage 4), which
+ * ⚠ A FIRM MANAGER SEES EVERY DEAL IN THEIR FIRM, private ones included — Mike's
+ * ruling, 2026-09-22 — AND IT IS **NOT** IMPLEMENTED HERE. It belongs to the Team
+ * roll-up (stage 4), which
  * reads across the firm behind a manager-role guard. This store is the advisor's
  * own view, and widening it here would hand every advisor the manager's reach.
  *
