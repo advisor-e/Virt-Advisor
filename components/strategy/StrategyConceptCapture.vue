@@ -378,6 +378,14 @@ export default {
       // value to type over, not a placeholder: the advisor keeps it, edits it or clears
       // it, and what they leave is what is saved. Only where nothing has been captured
       // yet, so clearing a prefilled box stays cleared.
+      //
+      // 🔴 AND IT IS SCREEN-ONLY UNTIL SOMEBODY TYPES — MIKE'S RULING, 2026-09-21, asked
+      // as its own question. Nothing writes the prefilled value into the session, so an
+      // untouched column prints BLANK on the client's plan rather than printing his
+      // example. That difference is deliberate: the alternative hands Farmer Joe and his
+      // farm wagon to a real client as though they were that client's own customer.
+      // DO NOT "fix" this by seeding entries on load. Pinned by
+      // tests/unit/strategyCapture.component.test.js.
       const saved = this.entries[field.key]
       if (saved !== undefined && saved !== null) { return saved }
       return field.prefilled || ''
