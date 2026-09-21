@@ -32,10 +32,26 @@
 >
 > **The estimate moves from 12–21 days to 16–25** (§11). The build itself is unchanged in intent.
 >
-> ✅ **STAGES 1 AND 2 ARE COMPLETE AND STAGE 3'S BACKEND IS BUILT (2026-09-22).** Five tables, the
-> pipeline store/routes/screen, the COI store and routes, and the dashboard maths — **252 tests,
-> all mutation-verified**, proven against a real MySQL and driven in a real browser.
-> **Next: the COI and Dashboard screens.** See §10.
+> ✅ **STAGES 1–4 ARE COMPLETE (stages 1–3 on 2026-09-21, stage 4 on 2026-09-22).** Five tables,
+> the pipeline and COI stores/routes/screens, the Sales Dashboard, and the manager's half — the
+> firm-wide Team roll-up and the ten dropdown lists, on their own pages **and as two Firm
+> Manager Hub tabs**. **Mutation-verified**, proven against a real MySQL and driven in a real
+> browser. **Next: stage 5, the blog tool** — the part the survey advised against and Mike ruled
+> in scope. See §10.
+>
+> 🔴 **STAGE 5 WAS RE-MEASURED 2026-09-22, BEFORE ANY CODE, AND IT IS BIGGER THAN THIS PLAN SAID.**
+> It was priced as back end only — *"4 blog routes + 3 reference routes"*. There are **12 API
+> files**, and the blog tool **has an 843-line screen**: `pages/index.vue`, which §3 had catalogued
+> as *"Entry / landing"*. It is not the landing page; `home.vue` is. **Stage 5 moves 3–5 → 5–8 days,
+> the total 16–25 → 18–28** (§11). Nothing is built yet.
+>
+> **This is stage 3's lesson working.** That stage invented a layout because nobody opened the
+> source app first; the rule it left behind — *the source app is the specification* — is what found
+> this, one command into stage 5 instead of a day into it.
+>
+> ⏳ **STAGE 5's BACK END IS COMPLETE (2026-09-22).** Three tables wired, 12 Restify routes, the
+> two model calls on `aiProvider` under the `draft` role, **176 tests** with the engine at **100%
+> on all four measures**. Suite 13,140 green. **What remains of stage 5 is the screen.** See §10.
 
 ---
 
@@ -106,13 +122,18 @@ Eight pages, of which **Pipeline** and **COI** are the reason to look at it at a
 | `pipeline.vue` | 847 | The advisor's deals — stages, values, close dates |
 | `coi.vue` | 428 | Centres of influence: referral partners and what they send |
 | `dashboard.vue` | 1,033 | Charts and conversion rates over both |
-| `index.vue` | 843 | Entry / landing |
+| `index.vue` | 843 | 🔴 **The blog tool itself** — the whole screen, not a landing page |
 | `lists.vue` | 430 | The dropdown values behind the other screens |
 | `team.vue` | 189 | Team roll-up |
 | `home.vue`, `login.vue` | 300 | Landing and sign-in |
 
 Behind them: **ten MySQL tables**, **36 API files**, six translated languages, and a
 **blog-writing tool** that calls OpenAI.
+
+🔴 **`index.vue` IS THE BLOG TOOL, and this table used to call it "Entry / landing".** The landing
+page is `home.vue`, which is in the row below it. The mistake mattered: it hid the blog tool's
+entire screen, so stage 5 was costed as back-end work alone. Found 2026-09-22 by opening the
+source before building — the check stage 3's lesson exists to enforce (§10 stage 3).
 
 ⚠ **THE BLOG TOOL AND THE LANGUAGE-ADMIN SCREEN ARE A DIFFERENT PRODUCT**, and between them they
 are roughly a third of the back end — **5 to 8 of the 16–25 days** (stages 5 and 6 below).
@@ -400,7 +421,7 @@ the same shape. **The rewrite is Prisma → SQL inside each handler, not a restr
 
 **The order is not negotiable: nothing above stage 2 can be trusted until stage 2 is done.**
 
-### Stage 1 — The schema, on our existing convention · ✅ **BUILT 2026-09-22**
+### Stage 1 — The schema, on our existing convention · ✅ **BUILT 2026-09-21**
 [`config/db-migration-sales-tracker.sql`](../../config/db-migration-sales-tracker.sql) · guard
 [`tests/unit/salesTrackerSchema.test.js`](../../tests/unit/salesTrackerSchema.test.js) (32 tests)
 
@@ -422,7 +443,7 @@ does the job better. That is the §8 finding repeating itself: *read our schema 
 
 #### 🔴 Proven against a real database, not by reading it
 
-Run on the local MySQL 8.4 `virt_advisor` on 2026-09-22 — **the migration is not a proposal that has
+Run on the local MySQL 8.4 `virt_advisor` on 2026-09-21 — **the migration is not a proposal that has
 never been executed:**
 
 - **All 5 tables created.** `va_sales_pipeline` 38 columns / 6 keys, `va_sales_coi` 22 / 5.
@@ -443,8 +464,9 @@ The guard test pins each of those properties and was **mutation-verified**: flip
 **Still open, and it is Mike's:** whether a firm manager sees their advisors' pipelines by default.
 `visibility` carries either answer with no schema change; stage 4's Team screen is where it shows.
 
-### Stage 2 — Pipeline, end to end · *the proof* · **BACKEND BUILT 2026-09-22, screen next**
-✅ migration (stage 1) → ✅ **4 Restify routes + the store** → ⏳ the page, repainted to brand (§4a).
+### Stage 2 — Pipeline, end to end · *the proof* · ✅ **COMPLETE 2026-09-21**
+✅ migration (stage 1) → ✅ **4 Restify routes + the store** → ✅ the page, repainted to brand (§4a):
+[`components/sales/SalesPipeline.vue`](../../components/sales/SalesPipeline.vue) at `/sales-pipeline`.
 
 | | |
 |---|---|
@@ -567,17 +589,134 @@ correction still missed is that the difficulty was never the charts — **it was
 read his screen**, so "redraw it on our components" sounded like a free hand. It is not. See the
 box above.
 
-### Stage 4 — Team + Lists · *firm-manager pages*
-`team/summary` and the 2 list routes. **`middleware/firm-manager.js` becomes our own tier check**
-(`firm_manager` in our role model), not theirs. Their bug from §0 does not get ported.
+### Stage 4 — Team + Lists · ✅ **COMPLETE 2026-09-22 — backend AND both screens**
+[`server/utils/salesTeamStore.js`](../../server/utils/salesTeamStore.js) ·
+[`server/utils/salesListsStore.js`](../../server/utils/salesListsStore.js) ·
+[`server/routes/salesTeam.js`](../../server/routes/salesTeam.js) — 5 routes, 120 tests.
+Coverage: routes 98.8% statements / 100% functions.
 
-### Stage 5 — Blog tool · *the part I advised against, priced honestly*
-4 blog routes + 3 reference routes + `server/utils/openai.js` (119 lines) rewritten against
-`server/utils/openaiClient.js`.
+**The two screens**: [`components/sales/SalesTeam.vue`](../../components/sales/SalesTeam.vue) and
+[`SalesLists.vue`](../../components/sales/SalesLists.vue), at `/sales-team` and `/sales-lists`
+**and as two Firm Manager Hub tabs** — Mike's ask, 2026-09-22: *"make sure the firm manager hub
+is running too - so i can see the lists and report"*. One component, two doorways: it takes the
+hub's token through an optional `apiToken` prop and falls back to the advisor's own on the page.
+
+> ## 🔴 THEIR TEAM SCREEN DOES NOT WORK, AND THE BUG IS NOT THE ROLE CHECK
+>
+> This section used to say only *"their bug from §0 does not get ported"*, meaning the
+> middleware. There are **two** faults stacked, and the second is the one that matters:
+>
+> 1. **The role check gates the PAGE, not the data.** `middleware/firm-manager.js` opens
+>    `if (process.server) return` — a client-side redirect, so `/api/team/summary` stays open
+>    to anyone signed in. Ours is `requireManagerRole` in front of the route.
+> 2. 🔴 **The query is wrong and the screen is meaningless.** `summary.get.js` line 13 filters
+>    `where: { userId: user.id }` — it aggregates **only the manager's own deals** and then
+>    groups them by `leadStaff`. A team roll-up that cannot see the team. Ours filters by
+>    **firm**, and `tests/unit/salesTeamSummary.test.js` fails if it is ever narrowed back —
+>    mutation-verified.
+
+🔴 **A FIRM MANAGER SEES EVERY DEAL IN THE FIRM, PRIVATE ONES INCLUDED — Mike's ruling,
+2026-09-22.** This is the open question stage 1 left behind, now answered. It is the one sales
+read that crosses the advisor boundary, which is why the role gate is server-side and the firm
+filter is in the SQL rather than in a handler. `salesTeamStore.listForFirm` is the only place
+it happens.
+
+🔴 **THE APPROACH RATE IS MIKE'S MEASURE, NOT THE SOURCE APP'S — his ruling, 2026-09-22.** In
+his words: *"the % of prospects identified and research completed (available sales approach
+opportunities) vs the actual number of those prospects approached — helps a manager identify an
+advisor who spends time looking for client opportunities but never starting the sales process
+with them."*
+
+- **Approached** = an `approachDate` is recorded. **NOT `approachStyle`**, which the pipeline
+  screen fills in on creation — the source app's `avgApproachConversion` counts that, so its
+  rate reads ~100% for everyone and measures nothing. Found by opening the screen, not by a test.
+- **Available** = every prospect whose status is not `Await Research`. A full research queue is
+  not held against an advisor.
+- The screen shows **both halves** (`2 / 3`) beside the percentage, so the figure can be read
+  rather than taken on trust.
+
+⚠ **THE LANGUAGES SECTION OF THEIR LISTS SCREEN IS DELIBERATELY NOT BUILT.** Their
+`pages/lists.vue` carries an *"add a language, AI translates the whole app"* block — that is
+stage 6, recommended for dropping because we already have 28 languages against their 6. Its
+absence is a scope decision, pinned by a test so no later session quietly adds it.
+
+**The ten lists ride `firm_framework_versions`**, as stage 1 decided — so version history and
+restore came free and are exposed as two extra routes. Their `appconfig` upsert keys on
+`(userId, configKey)`, so every manager who edits a list creates their own row and the app
+dedupes in JavaScript; ours keys on the firm.
+
+#### A bug only the screen could show
+
+The firm-total row rendered `7` where it should read `7 / 8`. The cause was **Vue 2
+reactivity** — `totals` was declared `{}`, so a field arriving later from the server was never
+tracked — while the **identical markup one row above was correct**, because `rows` is an array
+replaced wholesale. Every one of the 12,956 tests passed throughout. Fixed by declaring every
+field at create time, and guarded by `salesTeam.component.test.js`, mutation-verified.
+
+### Stage 5 — Blog tool · ⏳ **BACK END COMPLETE 2026-09-22; the screen remains**
+
+✅ **Built:** `server/utils/salesBlogStore.js` (three tables), `server/utils/salesBlogEngine.js`
+(the two model calls), `server/routes/salesBlog.js` (12 routes), registered in
+`restify-server.js`. **176 tests**, the engine at **100% on all four measures** and pinned in
+`jest.config.js`. Suite 13,140 green, lint 0 errors.
+⏳ **Remaining:** the 843-line screen (`pages/index.vue` in the source), repainted to brand.
+
+#### What changed from the source, and why
+
+| | The source app | Here |
+|---|---|---|
+| AI client | `openai` SDK — banned by req 7, and it does not run on Node 14.15 | `aiProvider.getClient('draft')`, the seam every other model call uses |
+| Model | hardcoded `gpt-4o` | not named — the role decides it |
+| Advisor input | concatenated straight into the prompt | `promptSafety.fenceUntrusted`, plus `stripInvisible` |
+| Access | `userId` alone | `advisor_id = ? AND firm_id = ?` on every read AND write |
+| Tests | none at all | 176, engine at 100% |
+
+🔴 **THE FENCING USES THE SHARED HELPER, NOT A LOCAL COPY — and a first draft of this file got
+that wrong.** It grew its own two-line `<<<`/`>>>` fence and would have been the only prompt
+builder here not using `promptSafety.fenceUntrusted`, which ten other backend files already use.
+Caught by finding `tests/unit/promptSafety.test.js` while checking something else. The shared
+helper is better twice over: its markers are `<<<ADVISOR_DATA`, distinctive where a bare `<<<`
+can occur in an advisor's own markdown; and it ships `stripInvisible`, which removes the
+zero-width and bidi characters a local fence passes straight to the model. **A guard that is
+nearly the house one is how a rule quietly drifts out of step with itself.**
+
+✅ **The template fallback is PORTED, not redesigned.** No key, an empty reply or any thrown
+error each return a markdown skeleton built from the advisor's own brief, with
+`source: 'template'` and the reason. **Both generate routes answer 200 on a model failure** — a
+500 would throw away an outline the advisor can still edit. A missing field is still a 400.
+
+⚠ **`isPinned` on a post, and `kind`, fail safe.** An unrecognised `kind` stores as `draft`,
+never `final`: publishing something unfinished is the damaging direction.
+
+🔴 **NO MANAGER ROLE ON ANY BLOG ROUTE**, the mirror image of stage 4's Team roll-up. A manager
+reading a colleague's *deals* is Mike's ruling of 2026-09-22; reading their half-written *drafts*
+is not, and nobody asked for it. `serverWiring.test.js` fails the build if one acquires the role.
+
+#### The original measurement, kept because it is why this stage grew
+
+🔴 **RE-MEASURED 2026-09-22, BEFORE ANY CODE — this stage was understated twice over.** The
+previous wording read *"4 blog routes + 3 reference routes"* and named no screen at all. Both
+numbers were wrong, and the second one hid the largest screen in the source app.
+
+| | The old wording said | What is actually there |
+|---|---|---|
+| Back end | 7 routes | **12 API files** — 2 generate, 3 inputs, 4 posts, 3 references — plus `server/utils/openai.js` (119 lines) |
+| Screen | *(not mentioned)* | **`pages/index.vue`, 843 lines** — the blog tool IS a screen (§3) |
+
+**The work:** those 12 routes as Restify routes with raw `mysql2`, `openai.js` rewritten against
+`server/utils/openaiClient.js`, and the screen repainted to brand exactly as stages 2–4 were
+(§4a — 93 colours to 6, Open Sans 300). The three `va_sales_blog_*` tables **already exist and sit
+inert**, built in stage 1, so there is no schema work.
+
+✅ **One thing the source gets right, and it must be kept.** Every AI path already has a **template
+fallback**: no key, an empty response, or a thrown error each fall back to locally-built markdown
+and report `source: 'template'` with the reason. That satisfies our *"every LLM call has a graceful
+fallback"* rule as written — port the behaviour, do not redesign it.
+
 🔴 **This is the strictest work in the whole plan**: our standards require **100% test coverage on
 anything that validates LLM output**, and this app has **no tests at all**. Its OpenAI calls also
-have no prompt-injection guard, which our rules require (`wrap user input in explicit delimiters`).
-**It is roughly a third of the back end for a feature nobody has named a use for.**
+have no prompt-injection guard, which our rules require (`wrap user input in explicit delimiters`)
+— it concatenates the advisor's topic, audience and CTA straight into the prompt string.
 
 ### Stage 6 — Language admin · *the other part I advised against*
 7 `languages/*` routes including a `translate.post` that calls OpenAI. **Virt Advisor already has
@@ -639,26 +778,24 @@ redraw on top of that.
 
 | Stage | Work | Was | **Now** | Why it moved |
 |---|---|---|---|---|
-| 1 | Schema on the `va_courses` pattern | 1–2 | ✅ **DONE** | Built 2026-09-22 in well under a day — the convention already existed (§8), and two more tables dropped out |
-| 2 | Pipeline end to end, with tests | 2–4 | ✅ **DONE** | Built 2026-09-22 — backend, screen and 122 tests |
-| 3 | COI + Dashboard | 2–3 | **backend ✅, screens 3–4** | Backend done; the dashboard is still redrawn on our SVG charts |
-| 4 | Team + Lists | 1–2 | **2–3** | + repaint ×2, + the Team hub tab and its `TAB_TIERS` test |
-| 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **3–5** | Unchanged — already priced honestly |
+| 1 | Schema on the `va_courses` pattern | 1–2 | ✅ **DONE** | Built 2026-09-21 in well under a day — the convention already existed (§8), and two more tables dropped out |
+| 2 | Pipeline end to end, with tests | 2–4 | ✅ **DONE** | Built 2026-09-21 — backend, screen and 122 tests |
+| 3 | COI + Dashboard | 2–3 | ✅ **DONE** | Built 2026-09-21 — backend and both screens. The dashboard was rebuilt once: see §10 stage 3 |
+| 4 | Team + Lists | 1–2 | ✅ **DONE** | Built 2026-09-22 — 5 routes, both screens, 2 hub tabs, 120 tests |
+| 5 | **Blog tool** (incl. 100% LLM test bar) | 3–5 | **5–8** | 🔴 **Re-measured 2026-09-22**: 12 routes not 7, and an **843-line screen** the plan never counted (§10 stage 5) |
 | 6 | **Language admin** | 2–3 | **2–3** | Unchanged — still recommended for dropping |
 | 7 | Locales, advisor pages, front door | 1–2 | **1–2** | Unchanged in size; **wholly different in shape** (§10 stage 7) |
-| | **TOTAL** | **12–21** | **16–25 days** | — |
+| | **TOTAL** | **12–21** | **18–28 days** | — |
 
-**The honest movement is +4 days.** Three stages grew, one shrank, and nothing was padded: the
-repaint is a real, countable job (93 colours → 6, no font → Open Sans 300, across eight screens)
-that the first estimate simply did not contain.
+**The honest movement is +6 days over two corrections.** Nothing was padded, and both movements
+have the same single cause: **the screens are a repaint, and the first estimate counted none of
+them.** 2026-09-21 found that for stages 2–4 (93 colours → 6, no font → Open Sans 300);
+2026-09-22 found the blog tool's own 843-line screen, which §3 had miscatalogued as a landing
+page, and 12 routes where the plan said 7.
 
-**Stages 5 and 6 remain 5–8 of those days** — still between a quarter and a third of the whole job,
-and still the two parts this survey recommended dropping. Mike has said he wants everything, and
-that stands; the number is here so the choice stays informed.
-
-**Stages 5 and 6 are 5–8 of those days — between a third and a half of the whole job — and both
-are parts this survey recommended dropping.** Mike has said he wants everything, and that stands;
-the number is here so the choice stays informed rather than forgotten.
+**Stages 5 and 6 are now 7–11 of those days — between a third and a half of the whole job — and
+both are the parts this survey recommended dropping.** Mike has said he wants everything, and that
+stands; the number is here so the choice stays informed rather than forgotten.
 
 **Not included, and genuinely unknown:** whatever the master team needs for the real firm data.
 This plan builds against our own MySQL, as everything else here does.
@@ -705,6 +842,42 @@ and its own `CLAUDE.md` still describes a Nuxt 3 app that no longer exists.
 with its comment), or carried into the port, where the same guard is needed on our own tier check.
 **The diagnosis in §7 is the part that must not be lost either way** — the fix is one line and could
 be rewritten in a minute; knowing *why* took most of a morning.
+
+### 🔴 THE STUB FOR THE MASTER TEAM — one link, and the whole feature is reachable
+
+**Mike, 2026-09-22:** *"when this gets introduced to the master app we need a 'stub' the master
+coding team can place the landing page/doorway into a page within the main advisor-e app"*.
+
+**This app has no navigation of its own.** `layouts/default.vue` is `div > nuxt` and nothing more:
+every screen here is reached by Advisor-e deep-linking into it. So a screen nobody links to cannot
+be found at all — which is exactly what had happened to the advisor's three Sales Tracker screens
+until this page was built.
+
+| What the master team places | Where it goes |
+|---|---|
+| **One link to `/sales-tracker`** | Wherever an advisor's tools are listed in Advisor-e |
+
+That address is the advisor's landing page ([`pages/sales-tracker.vue`](../../pages/sales-tracker.vue)
+→ [`SalesTrackerHome.vue`](../../components/sales/SalesTrackerHome.vue)), and it opens onto the
+three advisor screens:
+
+| Card | Address | Who |
+|---|---|---|
+| My pipeline | `/sales-pipeline` | any advisor — `firmAuth` only |
+| My referral partners | `/sales-coi` | any advisor — `firmAuth` only |
+| My sales dashboard | `/sales-tracker-dashboard` | any advisor — `firmAuth` only |
+
+🔴 **ONE LINK, NOT FOUR, AND THAT IS THE POINT OF A STUB.** Adding a fourth advisor screen later
+changes this landing page and **never their link** — no second integration conversation.
+
+⚠ **THE MANAGER'S TWO SCREENS ARE NOT ON IT, DELIBERATELY.** The Team roll-up and the Lists are
+Firm Manager Hub tabs behind `requireManagerRole`; a card here would hand every advisor a door
+that answers 403. A manager reaches them through the hub they already open
+(`/firm-manager` → *Your Team In Action*), so the master team has nothing extra to place for those.
+
+Pinned by `tests/unit/salesTrackerHome.component.test.js`: every card points at a page that
+exists, neither manager screen is offered, and `/sales-tracker` itself is asserted by name — so a
+rename that would break their link fails the build here first.
 
 ---
 
