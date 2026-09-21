@@ -109,10 +109,28 @@ describe('a step-builder card knows its deck', () => {
     expect(byName['Product Fit']).toBe('Sales & Marketing Review')
   })
 
-  test('the closing cards carry no deck, because they come from none', () => {
-    const closing = cards().filter(c => !c.conceptId)
+  // 🔴 DECISION D, RULED BY MIKE 2026-09-21: the two closing blocks leave Build session
+  // entirely. This test used to assert the opposite — that a closing card WAS offered,
+  // carrying an empty deck — which was correct under Decision 4 of 2026-09-20 and is the
+  // behaviour the later ruling reversed.
+  test('no closing card is offered on the step builder at all', () => {
+    expect(cards().filter(c => !c.conceptId)).toEqual([])
+  })
+
+  // 🔴 AND THE RULING MUST NOT COST THE CLIENT THE TWO THINGS THE SESSION PRODUCES. They
+  // moved off ONE SCREEN; they are still printed in the plan, from `closingCards`. Without
+  // this the Strategic Objective and the Action Plan could vanish from a client's document
+  // and every other assertion here would still pass.
+  test('the closing blocks still reach the assembled plan, with no deck', () => {
+    const stub = pageStub()
+    const closing = Page.computed.closingCards.call(stub)
 
     expect(closing.length).toBe(1)
+    expect(closing[0].name).toBe('Strategic Objective and Strategy')
     expect(closing[0].deck).toBe('')
+    expect(closing[0].conceptId).toBe('')
+    // It is printed as a capture page, so the document must not skip it as "nothing to
+    // work" the way a drawing-only concept is skipped.
+    expect(closing[0].hasTable).toBe(true)
   })
 })

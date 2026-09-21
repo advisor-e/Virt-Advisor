@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Two-Dimensional Grid</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+  .tbl { margin: 0 0 40px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 0 0 2px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .colhead { font-size: 12px; font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 8px; }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0 0 14px; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--wash); color: var(--ink); font-size: 13.5px;
+    padding: 9px 12px; border: 1px solid var(--line); border-bottom: 2px solid var(--accent);
+    vertical-align: top;
+  }
+  table.bg td { border: 1px solid var(--line); padding: 7px 10px; vertical-align: middle; }
+  .ln { display: inline-block; width: 22px; color: var(--eg); font-size: 11.5px; }
+  .box {
+    display: inline-block; width: calc(100% - 26px); height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+  }
+  .egtext { color: var(--eg); font-size: 12.5px; font-style: italic; }
+  .egnone { color: var(--line); }
+  .egtag {
+    display: inline-block; margin-left: 8px; font-size: 9.5px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--eg);
+    border-radius: 3px; padding: 1px 5px; vertical-align: 2px;
+  }
+  td.eg { background: #fafcfe; }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 26px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .bad { border-left-color: #c0392b; background: #fdf3f2; }
+
+  /* the scrolling grid — the pattern the report screens already use
+     (MidLevelBudget.vue, SalesDashboard.vue), with the attribute column held still */
+  .scroll { overflow-x: auto; margin: 0 0 14px; border: 1px solid var(--line); border-radius: 9px; }
+  .scroll table.bg { margin: 0; border: 0; }
+
+  /* 🔴 ONE PERSONA COLUMN BESIDE THE EXAMPLE, AND THE REST OFF THE EDGE — Mike,
+     2026-09-21: "I should only see ... the header points down the left, then the first
+     example and room for other one, and other two and other three should be hidden that
+     I have to scroll across to get to." 260 + 430 + 430 fills the 1120px page exactly,
+     so Other 2 begins past the edge rather than peeking. A box 430px wide also holds a
+     real answer and the voice bar without wrapping to three lines. */
+  table.tdg { table-layout: fixed; min-width: 2408px; }
+  table.tdg th.attr, table.tdg td.attr {
+    width: 258px; position: sticky; left: 0; z-index: 2;
+    background: var(--wash); border-right: 2px solid var(--accent);
+  }
+  table.tdg th, table.tdg td { width: 430px; }
+  td.attr { color: var(--ink); font-weight: 600; font-size: 13px; vertical-align: top; }
+  .boxpre {
+    display: inline-block; width: 100%; min-height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+    padding: 5px 9px; font-size: 12.5px; color: var(--body);
+  }
+  table.tdg2 th.noheading { background: #f7fafd; border-bottom: 2px solid var(--line); }
+  table.tdg .box { width: 100%; }
+
+  /* the decisions */
+  .dec { border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 0 0 16px; }
+  .dec h3 { margin: 0 0 4px; color: var(--ink); font-size: 16px; }
+  .dec .rec { margin: 8px 0 0; }
+  .dec .rec b { color: var(--ink); }
+  .dec .q { margin: 10px 0 0; padding: 9px 12px; background: var(--wash); border-radius: 7px; color: var(--ink); font-weight: 600; }
+  @media (max-width: 720px) {
+    /* The scrolling grid keeps its shape and scrolls; only the simple tables stack. */
+    table.bg:not(.tdg), table.bg:not(.tdg) thead, table.bg:not(.tdg) tbody,
+    table.bg:not(.tdg) th, table.bg:not(.tdg) td, table.bg:not(.tdg) tr { display: block; }
+    table.bg:not(.tdg) th { border-bottom: 1px solid var(--line); }
+    table.bg:not(.tdg) .box { width: 100%; }
+    .ln { width: auto; margin-right: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Strategy Planner &middot; stage 5 &middot; capture form 2 of 9 &middot; item 15.1</p>
+  <h1>The Two-Dimensional Grid</h1>
+  <p class="lede">
+    <b>One capture form, two of your tables &mdash; the two where a column means something.</b>
+    Every heading, attribute name and worked example below is read from your own workbooks by a
+    script, exactly as the banded grid was; nothing of yours was typed onto this page. This is a
+    drawing of how the form would look on screen, for approval before it is built.
+  </p>
+
+  <div class="note bad">
+    <h3>What the screen does today &mdash; measured against your documents, 2026-09-21</h3>
+    <ul>
+      <li><b>Customer Types offers 181 boxes and not one of them carries a persona
+        name.</b> Your column headings &mdash; <i>Farm Wagon</i>, then the
+        <i>Other</i> columns &mdash; never reach the screen, and <b>99 boxes carry
+        no label at all</b>. An advisor sees a wall of empty boxes and cannot tell which persona or
+        which attribute any one of them is for.</li>
+      <li><b>Operational Objectives offers 25 boxes, 25 of them with no
+        label whatever.</b> <i>Stage 1</i>, <i>Stage 2</i>, <i>Stage 3</i> are in your sheet and are
+        dropped, so the three stages are indistinguishable on screen.</li>
+      <li><b>Your worked Farm Wagon column is thrown away too</b> &mdash;
+        <i>&ldquo;Farmer Joe&rdquo;</i>, <i>&ldquo;39 yr, Male, Trade Qualified, Married with 3 Kids&rdquo;</i>, <i>&ldquo;Worker safety&rdquo;</i>. It is read as neither a label nor a box, so
+        the example that shows an advisor what an answer looks like is the one thing they never
+        see.</li>
+      <li><b>One cause, and it is provable.</b> A row is only read as column headings if no cell in
+        it is a ruled line. Your header rows begin with empty corner cells, so the row is not read as
+        headings at all and every name on it is lost. That rule was added in September for a good
+        reason &mdash; it stopped a real box being swallowed on Blue Ocean Fronts &mdash; and this is
+        its blind side.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>☑ What you have ruled, 2026-09-21 &mdash; drawn above exactly as you asked</h3>
+    <ul>
+      <li><b>One continuous table</b>, not two. Your document holds two tables, but they carry
+        identical headings and your attributes run straight on, so the split is your page's rather
+        than the form's.</li>
+      <li><b>Your attribute names stay put down the left</b> &mdash; <i>Customer Profile Name</i> down
+        to <i>Other</i> &mdash; <b>and the persona columns scroll across</b>. This is
+        the pattern this app already uses on twelve report screens.</li>
+      <li><b>The screen opens on three columns only</b>: your attributes, <i>Farm Wagon</i>
+        and <i>Other 1</i>. <i>Other 2</i> onwards are off the right-hand
+        edge until the advisor scrolls to them. Each column is wide enough to hold a real answer and
+        its voice bar, which is what puts the rest past the edge.</li>
+      <li><b>5 persona columns</b>: <i>Farm Wagon</i> then
+        <i>Other 1</i>&ndash;<i>Other 4</i>.</li>
+      <li><b>Farm Wagon is editable</b>, arriving with your own answers already in the
+        boxes for the advisor to type over &mdash; so it is the first of the five personas, not a
+        read-only example beside them.</li>
+    </ul>
+  </div>
+
+  <div class="note bad">
+    <h3>⚠ Your copy of the document and this repository's copy do not match &mdash; and the app
+      reads this one</h3>
+    <p style="margin:6px 0 0">You have <b>5 persona columns</b> in front of you.
+      The <code>Customer Types.docx</code> committed here has <b>9</b> &mdash;
+      <i>Farm Wagon</i> then <i>Other 1</i> to
+      <i>Other 8</i> &mdash; read from the document's own table
+      markup rather than from our extraction of it. <b>This drawing follows yours.</b> The build
+      reads the committed file, so it will produce 8 blank columns unless your copy
+      replaces it. <b>Nothing is decided here</b> &mdash; it is stated so it is not lost, and
+      sending your copy settles it.</p>
+  </div>
+
+  <div class="note">
+    <h3>The rule this form follows</h3>
+    <ul>
+      <li><b>A column with a name is a thing being compared</b> &mdash; a persona, a stage. Its name
+        sits at the head of the column and every box beneath it belongs to it.</li>
+      <li><b>A row with a name is the attribute being asked for</b>, and it carries down: a named
+        row followed by unnamed rows means that attribute has that many lines.</li>
+      <li><b>A column of yours that is filled in is your worked example</b> &mdash; shown beside the
+        advisor's own column, never typed into. Same rule the banded grid already follows.</li>
+      <li><b>A column that is blank in your header and blank in every row is a gutter</b>, not a
+        column of the form. Customer Types has one, and today it becomes boxes.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+<section class="tbl">
+  <h2>Customer Types</h2>
+  <p class="src">Customer Types.docx &middot; one continuous table &middot; 5 persona columns (Farm Wagon, prefilled and editable, then Other 1&ndash;Other 4) &middot; 17 attribute lines &middot; <b>85 boxes to fill in</b></p>
+  <p class="colhead">Your attribute names stay put &middot; Other 2 onwards sit off the edge until you scroll</p>
+<div class="scroll">
+<table class="bg tdg"><thead><tr><th class="attr">&nbsp;</th><th>Farm Wagon<span class="egtag">prefilled &middot; editable</span></th><th>Other 1</th><th>Other 2</th><th>Other 3</th><th>Other 4</th></tr></thead><tbody>
+<tr><td class="attr" rowspan="1">Customer Profile Name</td><td><span class="boxpre">Farmer Joe</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td class="attr" rowspan="1">Age, Gender, Qualifications, Relationships</td><td><span class="boxpre">39 yr, Male, Trade Qualified, Married with 3 Kids</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td class="attr" rowspan="4">3 Key Concerns/ Common Problems</td><td><span class="boxpre">Worker safety</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td class="attr" rowspan="3">3 Dominant Buying Motives</td><td><span class="boxpre">Price</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td><span class="boxpre">Towing capability</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td><span class="boxpre">Loan vehicle available if repairs take longer than 5 days</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td class="attr" rowspan="4">3 Legitimate Purchasing Constraints</td><td><span class="boxpre">Terrain gradient</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td><span class="boxpre">Load Capacity</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td><span class="boxpre">2wd Only</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td class="attr" rowspan="1">What We Do That This Customer Truly Values</td><td><span class="boxpre">Loan vehicle available if repairs take longer than 5 days</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td class="attr" rowspan="1">Our Key Message (to this customer)</td><td><span class="boxpre">Our price includes winter Farm King tyres</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td class="attr" rowspan="1">Our Message Channels</td><td><span class="boxpre">Small town rugby club sponsorship, 'subs' tent. (Shop branded ezi-up with sides)</span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+<tr><td class="attr" rowspan="1">Other</td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td></tr>
+</tbody></table>
+</div>
+</section>
+
+<section class="tbl">
+  <h2>Operational Objectives List</h2>
+  <p class="src">Operational Objectives List.xlsx &middot; 4 columns &middot; Stage 1 &middot; Stage 2 &middot; Stage 3 &middot; the first column carries no heading in your sheet &middot; 6 rows &middot; <b>24 boxes to fill in</b></p>
+<table class="bg tdg2"><thead><tr><th class="noheading">&nbsp;</th><th>Stage 1</th><th>Stage 2</th><th>Stage 3</th></tr></thead><tbody>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+
+
+  <div class="note">
+    <h3>⚠ Two of your tables were filed under this form and read differently &mdash; said rather than quietly moved</h3>
+    <ul>
+      <li><b>Customer &amp; Skills Review is not two-dimensional.</b> It is
+        <i>Review Section</i> against
+        <i>Review Findings</i> &mdash; one
+        question, one answer, 24 of them. It already renders correctly, with one
+        exception: the 3 blank rows you use to separate one customer segment from the
+        next each become boxes, so the screen offers 30 where your document asks
+        24. <b>Decision A below.</b></li>
+      <li><b>Progression of Economic Value is a banded grid, not this form.</b> Its three headings
+        &mdash; <i>Our Business Output (Delivery Promise)</i> &middot; <i>Our Business Imperative Tasks</i> &middot; <i>Our Consumer Sensitivity Tasks</i> &mdash; already reach the screen.
+        But your worked first line (<i>Our quality means cheaper in the long run</i>) is dropped, and your placeholder
+        <i>1 Enter your thoughts here...</i> is being used as a label for the boxes beside it &mdash; the
+        same fault the banded grid drawing caught on Blue Ocean Fronts in September, in a table nobody
+        re-checked. <b>It is fixed by the same rule and needs no new form.</b></li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+  <h2>What needs your word &mdash; two decisions</h2>
+  <p class="lede">The shape of the Customer Types screen is settled by your ruling above and is no
+    longer a question. These two are about the other tables.</p>
+
+  <div class="dec">
+    <h3>A &middot; Your blank separator rows &mdash; a gap, or boxes?</h3>
+    <p>Customer &amp; Skills Review has 3 fully blank rows, each sitting between one
+      customer segment and the next. Today each one becomes a box to type into, under no heading.</p>
+    <p class="rec"><b>Recommended:</b> print them as a gap and offer no box. A blank row between
+      groups is how a Word table breathes; read as a question it asks the advisor something you never
+      asked. This takes that screen from 30 boxes to 24.</p>
+    <p class="q">Should a fully blank row between two groups of your questions print as a gap with no
+      box &mdash; instead of continuing to offer a box to type into as it does today? Yes or no.</p>
+  </div>
+
+  <div class="dec">
+    <h3>B &middot; The unheaded first column, and a count that does not match its own name</h3>
+    <p>Two small readings of your documents, neither of which we will decide for you:</p>
+    <ul>
+      <li>Operational Objectives' first column <b>has no heading in your sheet</b> &mdash; the
+        advisor names each objective there, and the column above is empty. Drawn above exactly as
+        your sheet is.</li>
+      <li><i>3 Key Concerns/ Common Problems</i> and <i>3 Legitimate Purchasing Constraints</i> each
+        give <b>four</b> lines in your document, not three.</li>
+    </ul>
+    <p class="rec"><b>Recommended:</b> leave both exactly as your documents are &mdash; no heading
+      written by us, and four lines where your table rules four. Every other word on these screens is
+      yours, and a heading we invent is indistinguishable from yours once it is on the page.</p>
+    <p class="q">Should both stay exactly as your documents are &mdash; the first column unheaded and
+      four lines where the name says three &mdash; instead of us writing a heading for that column and
+      trimming those attributes to three lines? Yes or no.</p>
+  </div>
+
+  <hr class="rule">
+  <div class="note">
+    <h3>What this drawing does not ask approval for</h3>
+    <ul>
+      <li><b>The other six capture forms</b> &mdash; prompt&nbsp;&rarr;&nbsp;answer sheet, named-field
+        stack, parallel prompt pair, small comparison grid, snaking step sequence and the parent&nbsp;&rarr;&nbsp;child
+        list. Each is its own drawing, and the Org Chart in particular reads badly today
+        (49 boxes, most of them labelled only with your row numbers) and
+        needs one of its own.</li>
+      <li><b>The voice bar</b>, already approved on 2026-09-19. Every box drawn here carries it, in
+        the same three states, and nothing about it changes.</li>
+      <li><b>Colours and spacing</b>, which follow the banded grid and the screens already built.</li>
+      <li><b>The four templates you have not supplied</b> &mdash; Branding, Customer Loyalty,
+        Pricing, Packaging. That is item 15.6 and it waits on you, not on this.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

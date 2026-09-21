@@ -144,6 +144,15 @@ function handoverNote (row) {
     return row.machine + ' handover dated ' + date + ', OLDER than its last commit (' +
       last + ') — treat it as incomplete'
   }
+  if (last && date > last) {
+    // A note dated AFTER its own newest commit. The date is TYPED by the session that
+    // wrote the note, never derived, so a forward-dated one reads as "current" for ever
+    // however stale the work behind it becomes — which is the exact failure the line
+    // below was added to prevent. Found 2026-09-21: the desktop's note said 2026-09-22
+    // against commits from the 21st, and this function called it current.
+    return row.machine + ' handover dated ' + date + ', LATER than its last commit (' +
+      last + ') — that date is typed, so it cannot prove the note is current'
+  }
   return row.machine + ' handover dated ' + date + ' — current, and read from ITS branch'
 }
 

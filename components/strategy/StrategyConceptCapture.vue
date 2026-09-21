@@ -3,16 +3,13 @@ section.scc2
   header.scc2-head
     p.scc2-eyebrow(v-if="eyebrow") {{ eyebrow }}
     h3.scc2-title {{ cardTitle }}
-    //- The instruction is the advisor's, typed against this visit. Mike's own is
-    //- "record your observations ONLY. (For Now)" — the sentence that makes visit
-    //- one different from visit two.
+    //- The instruction is the advisor's, from the deck.
     p.scc2-instruction(v-if="instruction") {{ instruction }}
 
   //- 🔴 THE CONCEPT, SO IT CAN BE TAUGHT WITHOUT LEAVING THE SCREEN. Both lines are
-  //- Mike's own, off the deck's Session Scope table. Shown on the FIRST visit only:
-  //- by the second the concept has been taught and repeating it pushes the boxes
-  //- down the page.
-  section.scc2-concept(v-if="part === 1 && (conceptSummary || helpsClientTo)")
+  //- Mike's own, off the deck's Session Scope table. Always shown: a concept appears
+  //- once, so there is no later visit for them to be held back from.
+  section.scc2-concept(v-if="conceptSummary || helpsClientTo")
     //- ⚠ NO HEADINGS. Removed on Mike's instruction, 2026-09-17 — "What this does
     //- in the room" was written by an AI session and he had never seen it.
     //- 🔴 THE DRAWING GOES ABOVE HIS WORDS, so the advisor speaks to it first. It
@@ -48,26 +45,41 @@ section.scc2
   )
     | {{ noTableMessage }}
 
+  //- 🔴 A TABLE WHOSE COLUMNS MEAN SOMETHING IS DRAWN AS ONE — from
+  //- design/mockups/strategy-capture-two-dimensional-grid.html, approved by Mike
+  //- 2026-09-21. His attribute names hold still down the left while the persona or
+  //- stage columns scroll across, which is the pattern the report screens already use.
+  //- Until this, every column name was dropped on the way to the screen: 181 boxes on
+  //- Customer Types with no persona on any of them, 25 on Operational Objectives with
+  //- no stage.
+  .scc2-scroll(v-else-if="isGrid")
+    table.scc2-tdg
+      thead
+        tr
+          th.scc2-attr &nbsp;
+          th(v-for="col in gridColumns" :key="'h' + col.column") {{ col.label }}
+      tbody
+        template(v-for="group in gridRows")
+          tr(v-for="(line, i) in group.lines" :key="line.key")
+            //- His attribute name spans its own lines rather than repeating on each.
+            td.scc2-attr(v-if="i === 0" :rowspan="group.lines.length") {{ group.label }}
+            td(v-for="field in line.cells" :key="field.key")
+              strategy-capture-box(
+                :field="field"
+                :value="valueOf(field)"
+                :rows="rowsFor(field)"
+                :speech-supported="speechSupported"
+                :recording="voiceField === field.key"
+                @toggle-voice="toggleVoiceField"
+                @focus-field="onFocus"
+                @input-field="onInput"
+              )
+
   template(v-else)
-    //- Only when it adds something. On a second visit the instruction above IS
-    //- the part's heading, and printing it twice reads as a mistake.
-    p.scc2-part(v-if="partLabel && partLabel !== instruction") {{ partLabel }}
-
-    //- 🔴 NOTHING TO RESPOND TO IS NOT AN EMPTY FORM, IT IS A SENTENCE. Before
-    //- this, a second visit drew every box with "Nothing was recorded here
-    //- earlier." above it — sixteen times — which is the same duplicated grid the
-    //- part split exists to remove, wearing a different hat.
-    p.scc2-waiting(v-if="!blocks.length") {{ $t('strategyPlanner.capture.nothingToAnswer') }}
-
     .scc2-grid
       .scc2-block(v-for="block in blocks" :key="block.key")
         p.scc2-block-label(v-if="block.label") {{ block.label }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
-          //- 🔴 A SECOND VISIT ANSWERS THE FIRST. Where this box responds to one
-          //- filled in earlier, that line is shown above it — the client's own
-          //- words, read-only. A response typed against a blank space is a second
-          //- identical form, which is worth nothing to anybody.
-          p.scc2-said(v-if="field.pairedFieldKey") {{ answeredText(field) }}
           label.scc2-field-label(
             v-if="field.rowLabel"
             :for="inputId(field)"
@@ -131,12 +143,13 @@ section.scc2
  */
 import speechMixin from '~/mixins/speechMixin'
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
+import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyConceptCapture',
 
-  components: { StrategyConceptGraphic },
+  components: { StrategyConceptGraphic, StrategyCaptureBox },
 
   mixins: [speechMixin],
 
@@ -154,17 +167,7 @@ export default {
       validator: c => !!c && typeof c.supplied === 'boolean'
     },
 
-    /**
-     * Which part of the table this visit opens, 1-based. A table with one part
-     * ignores it; Porter's part 2 shows only the response columns.
-     */
-    part: {
-      type: Number,
-      default: 1,
-      validator: n => Number.isInteger(n) && n >= 1
-    },
-
-    /** The advisor's instruction for THIS visit, e.g. "observations ONLY. (For Now)". */
+    /** The advisor's instruction for this concept, from the deck. */
     instruction: {
       type: String,
       default: ''
@@ -228,82 +231,112 @@ export default {
       return hasConceptGraphic(this.conceptId)
     },
 
-    /** @returns {number} how many visits this concept's table is split into */
-    partCount () {
-      const parts = (this.capture && this.capture.parts) || []
-      return parts.length > 1 ? parts.length : 1
-    },
-
     /**
-     * The card's heading.
+     * The card's heading — the concept's name, and nothing appended to it.
      *
-     * 🔴 "(Part 1)" AND "(Part 2)" ARE NOT DECORATION. Both visits to Porter's
-     * draw the same four force headings — one for what may change, one for how we
-     * respond — so without the part in the title an advisor sees the identical
-     * form twice, one under the other, and cannot tell which is which. Mike found
-     * exactly that on 2026-09-17. The approved drawing
-     * (`design/mockups/strategy-plan-output.html`, p11 and p21) titles them this
-     * way for the same reason.
+     * 🔴 THERE IS NO "(Part 1)" / "(Part 2)" ANY MORE. Mike's ruling, 2026-09-21: a
+     * concept is listed once, scoped once, sorted once, and appears ONCE in Run session
+     * and ONCE in the plan. The part suffix existed only to tell two visits of the same
+     * concept apart, and there are no longer two.
      *
      * @returns {string}
      */
     cardTitle () {
-      if (this.partCount < 2) { return this.name }
-      return this.name + ' ' + this.$t('strategyPlanner.capture.part', { n: this.part })
+      return this.name
     },
 
     /**
-     * The fields this visit opens, in reading order.
+     * Every field of the concept's table, in reading order.
+     *
+     * ⚠ THE WHOLE TABLE, NOT A SLICE OF IT. This used to open one part — Porter's
+     * observation columns on the first visit, the response columns on a later one. With
+     * one card per concept the advisor gets Mike's table as he wrote it, in one place.
+     *
      * @returns {Array<object>}
      */
     visitFields () {
       if (!this.capture.supplied) { return [] }
-      const parts = this.capture.parts || []
-      const chosen = parts[this.part - 1] || parts[0]
-      if (!chosen) { return this.capture.fields || [] }
-      const wanted = {}
-      chosen.fieldKeys.forEach((k) => { wanted[k] = true })
-      const fields = (this.capture.fields || []).filter(f => wanted[f.key])
-
-      // 🔴 A RESPONSE BOX ONLY EXISTS WHERE THERE IS SOMETHING TO RESPOND TO. The
-      // second visit answers the first — an empty observation has no response, and
-      // drawing a box for it puts the same blank grid on screen twice. Mike's
-      // verdict, 2026-09-17: "how could anyone gain value from having this
-      // repeated? if you see it again, it's a fuck up."
-      return fields.filter(f => !f.pairedFieldKey || this.answeredText(f))
+      return this.capture.fields || []
     },
 
     /**
-     * The heading this visit sits under, where the part has one. Porter's second
-     * visit is headed by Mike's own column label, "How We Plan To Respond".
-     * @returns {string}
+     * Is this one of Mike's two-dimensional tables — attributes down, the things being
+     * compared across?
+     *
+     * ⚠ IT READS THE TEMPLATE'S FORM NAME, WHICH NOTHING ON THIS SCREEN DID BEFORE.
+     * Stated rather than slipped in, because the header above says there is no shape
+     * list here. There is now exactly one alternative layout, and it cannot be derived
+     * from the fields: Porter's also has four named columns and would become a grid,
+     * changing a screen approved on 2026-09-19. `captureForm` is authored per concept
+     * and already arrives in the payload, so it is what decides.
+     *
+     * @returns {boolean}
      */
-    partLabel () {
-      if (!this.capture.supplied) { return '' }
-      const parts = this.capture.parts || []
-      const chosen = parts[this.part - 1]
-      return (chosen && chosen.label) || ''
+    isGrid () {
+      return this.capture.supplied &&
+        ['attribute-rows-entity-columns', 'named-rows-staged-columns'].includes(this.capture.form) &&
+        this.gridColumns.length > 1
     },
 
     /**
-     * The visit's fields grouped under their column heading, which is how the
-     * template itself bands them.
+     * The columns of that grid, in his document's order.
+     *
+     * A column with no heading is his own — Operational Objectives leaves the first one
+     * blank and the advisor names each objective in it. Nothing is written for it here.
+     *
+     * @returns {Array<{column: number, label: string}>}
+     */
+    gridColumns () {
+      const seen = []
+      this.visitFields.forEach((f) => {
+        if (!seen.some(c => c.column === f.column)) {
+          seen.push({ column: f.column, label: f.columnLabel || '' })
+        }
+      })
+      return seen.sort((a, b) => a.column - b.column)
+    },
+
+    /**
+     * The rows of that grid, each carrying one box per column, grouped under the
+     * attribute they belong to so his name spans its lines rather than repeating.
+     *
+     * @returns {Array<{label: string, lines: Array<{key: string, cells: Array}>}>}
+     */
+    gridRows () {
+      const lines = []
+      const byRow = {}
+      this.visitFields.forEach((f) => {
+        const id = 't' + f.key.split('r')[0].slice(1) + 'r' + f.row
+        if (!byRow[id]) {
+          byRow[id] = { key: id, label: f.rowLabel || '', cells: [] }
+          lines.push(byRow[id])
+        }
+        byRow[id].cells.push(f)
+      })
+
+      // His attribute name spans its own lines: a run of consecutive lines carrying the
+      // same name is one group. An empty name groups alone, so nothing is merged that
+      // he did not name.
+      const groups = []
+      lines.forEach((line) => {
+        const last = groups[groups.length - 1]
+        if (last && line.label && last.label === line.label) { last.lines.push(line) } else {
+          groups.push({ label: line.label, lines: [line] })
+        }
+      })
+      return groups
+    },
+
+    /**
+     * The fields grouped under their column heading, which is how the template itself
+     * bands them.
      * @returns {Array<{key: string, label: string, fields: object[]}>}
      */
     blocks () {
       const order = []
       const byLabel = {}
       this.visitFields.forEach((f) => {
-        // On a second visit the part IS the column label, so repeating it on every
-        // block would say nothing. What the advisor needs instead is the
-        // observation each response answers — `pairedWith`, Mike's own force
-        // heading from the column to its left.
-        // The block still names the force. What tells the two visits apart is not
-        // the heading — it is that every box on the second one sits under the
-        // client's own words from the first.
-        const label = this.partLabel
-          ? (f.pairedWith || f.rowLabel || '')
-          : (f.columnLabel || f.rowLabel || '')
+        const label = f.columnLabel || f.rowLabel || ''
         if (!byLabel[label]) {
           byLabel[label] = { key: 'b' + order.length, label, fields: [] }
           order.push(byLabel[label])
@@ -341,16 +374,21 @@ export default {
      * @returns {string}
      */
     valueOf (field) {
-      return this.entries[field.key] || ''
-    },
-
-    /**
-     * What the client said in the earlier visit that this box answers.
-     * @param {object} field
-     * @returns {string}
-     */
-    answeredText (field) {
-      return (this.entries[field.pairedFieldKey] || '').trim()
+      // 🔴 HIS WORKED ANSWER ARRIVES IN THE BOX — Mike, 2026-09-21. It is a starting
+      // value to type over, not a placeholder: the advisor keeps it, edits it or clears
+      // it, and what they leave is what is saved. Only where nothing has been captured
+      // yet, so clearing a prefilled box stays cleared.
+      //
+      // 🔴 AND IT IS SCREEN-ONLY UNTIL SOMEBODY TYPES — MIKE'S RULING, 2026-09-21, asked
+      // as its own question. Nothing writes the prefilled value into the session, so an
+      // untouched column prints BLANK on the client's plan rather than printing his
+      // example. That difference is deliberate: the alternative hands Farmer Joe and his
+      // farm wagon to a real client as though they were that client's own customer.
+      // DO NOT "fix" this by seeding entries on load. Pinned by
+      // tests/unit/strategyCapture.component.test.js.
+      const saved = this.entries[field.key]
+      if (saved !== undefined && saved !== null) { return saved }
+      return field.prefilled || ''
     },
 
     /**
@@ -500,6 +538,54 @@ export default {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 12px;
+}
+
+/* 🔴 THE TWO-DIMENSIONAL TABLE — from design/mockups/strategy-capture-two-dimensional-grid.html,
+   approved 2026-09-21. The attribute column is held still with `position: sticky` while the
+   persona or stage columns scroll past it; twelve report screens here already scroll a wide
+   table (MidLevelBudget.vue, SalesDashboard.vue) but none pins a column, so this is new.
+   Columns are 430px because that is what one of Mike's answers and its voice bar need — at
+   186px they all fitted inside the page and it did not visibly scroll at all. */
+.scc2-scroll {
+  overflow-x: auto;
+  margin-top: 12px;
+  border: 1px solid #d5e1ee;
+  border-radius: 9px;
+}
+
+.scc2-tdg {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.scc2-tdg th,
+.scc2-tdg td {
+  width: 430px;
+  border: 1px solid #d5e1ee;
+  padding: 7px 10px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.scc2-tdg th {
+  background: #f1f6fb;
+  color: #002b64;
+  font-size: 13.5px;
+  border-bottom: 2px solid #0070c0;
+}
+
+.scc2-tdg th.scc2-attr,
+.scc2-tdg td.scc2-attr {
+  width: 258px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #f1f6fb;
+  color: #002b64;
+  font-weight: 600;
+  font-size: 13px;
+  border-right: 2px solid #0070c0;
 }
 
 .scc2-block-label {

@@ -85,6 +85,27 @@ article.spd
           template(v-for="line in item.lines")
             dt(:key="line.key + 't'") {{ line.label }}
             dd(:key="line.key + 'd'" :class="{ 'is-blank': !line.value }") {{ line.value || $t('strategyPlanner.plan.blank') }}
+
+  //- 🔴 THE CLOSING BLOCKS, PRINTED AFTER THE STEPS AND OUTSIDE THEM. Decision D,
+  //- 2026-09-21, took Strategic Statements and the Action Plan off Build session, so
+  //- they no longer sit inside a step the advisor named. They are still the two things
+  //- the session produces, so the document prints them here as its own closing block —
+  //- the ruling moved WHERE they are filed, never whether the client receives them.
+  template(v-if="closing.length")
+    section.spd-page.is-divider
+      p.spd-step {{ $t('strategyPlanner.rail.objectives') }}
+      h3.spd-divider-h {{ $t('strategyPlanner.plan.closingHeading') }}
+
+    template(v-for="item in closing")
+      section.spd-page.is-capture(:key="'x' + item.key")
+        p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
+        h3.spd-h {{ item.name }}
+        p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
+        p.spd-untouched(v-if="!hasAnswers(item)") {{ $t('strategyPlanner.plan.notWorked') }}
+        dl.spd-lines(v-else)
+          template(v-for="line in item.lines")
+            dt(:key="line.key + 't'") {{ line.label }}
+            dd(:key="line.key + 'd'" :class="{ 'is-blank': !line.value }") {{ line.value || $t('strategyPlanner.plan.blank') }}
 </template>
 
 <script>
@@ -150,6 +171,22 @@ export default {
       type: Array,
       required: true,
       validator: s => Array.isArray(s) && s.every(x => x && typeof x.name === 'string' && Array.isArray(x.items))
+    },
+
+    /**
+     * The two blocks that close every session — Strategic Statements and the Action Plan.
+     *
+     * 🔴 A SEPARATE PROP BECAUSE DECISION D (2026-09-21) TOOK THEM OUT OF THE STEPS. They
+     * used to arrive inside whichever step the advisor filed them under; they are now
+     * captured on Objectives & actions and printed here, after the steps, as the
+     * document's own closing block. An empty list simply prints nothing.
+     *
+     * @type {Array<{key: string, name: string, instruction: string, lines: Array<object>}>}
+     */
+    closing: {
+      type: Array,
+      default: () => [],
+      validator: c => Array.isArray(c) && c.every(x => x && typeof x.name === 'string' && Array.isArray(x.lines))
     }
   },
 
