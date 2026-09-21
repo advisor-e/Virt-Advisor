@@ -117,6 +117,39 @@ rather than quietly dropped.**
 the session menu puts all 52 on a screen; 16 of them reach the real capture table read from
 Mike's own workbook, and what an advisor types there is saved box by box against the client's
 session (§4) and carries into the assembled document.
+🔴 **CAPTURE FORM 6 OF 9 — THE PARALLEL PROMPT PAIR — WAS DRAWN, RULED AND BUILT ON 2026-09-22**,
+in that order, and it was **the worst of the forms measured**. Artefact:
+[`design/mockups/strategy-capture-parallel-prompt-pair.html`](../mockups/strategy-capture-parallel-prompt-pair.html).
+Two concepts read the same page — *Product Fit Review* (Strategic Orientation 2) and *Product Fit*
+(Sales & Marketing), from `Product Fit (Customer Orientation).docx`. **His page asks 9 questions and
+rules 9 lines. The screen offered 15 BOXES, and 3 of his questions reached no screen at all** — one
+question put to the client **seven times**, another four.
+
+**The cause is the shape, and it is why form 5's fix did not reach this.** His page is **two
+INDEPENDENT lists side by side, of different lengths**: the left asks 3 and stops at row 6, the
+right asks 6 and runs to row 12. In Word they sit inside one two-column table, so they look like
+one list. They are not. So **(a)** the left column's empty tail was read as ruled lines, each
+phantom box headed with his *last* left-hand question because that was the most recent heading the
+reader had seen; and **(b)** `isLabelRow` refuses any row holding a blank cell — which from row 7
+down is every remaining right-hand question — so they were read as *content*: not a heading, not a
+box, gone.
+
+☑ **MIKE RULED IT SPLIT, and went further than the recommendation**, which had been to keep his two
+headings over one list: *"it might be easier to split the tables into 2 - 1- customer orientation
+and 2-competitor comparison."* **His ruling keeps the STRUCTURE**, which is what his file actually
+contains, and **removes the fault at its source rather than working around it.** The reader walks
+each column as its own list and **a list ends where it ends**; `columnLabel` carries his table
+heading and `rowLabel` his question, so `blocks` in `StrategyConceptCapture.vue` renders his two
+tables with **no second grouping invented for it**. ☑ **AND A SECOND INSTRUCTION, APPLIED RATHER
+THAN ASKED:** *"get rid of the small mini-gaps or rows … im looking at original in word — no such
+gaps — either way — get rid of them."* His blank writing rows are no longer drawn as rows on
+**either** drawing. ⚠ Stated plainly, because it is easy to record the opposite: **those rows ARE
+in the .docx** — they are the lines under each question, which in Word read as answer space rather
+than as gaps. Drawing them as separate ruled rows made them look like structure they are not. They
+were never boxes and never headings in the app either. **No ruling changed and no count moved.**
+🔴 **DRIVEN IN A BROWSER:** scoped, placed and run — two tables, **3 then 6, nine boxes**, every
+question his and none repeated.
+
 🔴 **CAPTURE FORM 5 OF 9 — THE NAMED-FIELD STACK — WAS DRAWN, RULED AND BUILT ON 2026-09-22**, in
 that order. Artefact:
 [`design/mockups/strategy-capture-named-field-stack.html`](../mockups/strategy-capture-named-field-stack.html).

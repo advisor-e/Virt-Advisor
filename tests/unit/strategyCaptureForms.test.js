@@ -418,6 +418,102 @@ describe('a ruled line is a box, and a heading is never one', () => {
   })
 })
 
+describe('the parallel prompt pair — two independent lists, not rows of one table', () => {
+  // 🔴 CAPTURE FORM 6 OF 9, from design/mockups/strategy-capture-parallel-prompt-pair.html,
+  // ruled by Mike on 2026-09-22. THE WORST OF THE FORMS MEASURED: his page asks 9 questions
+  // and the screen offered 15 BOXES, one of them put to the client seven times, while 3 of
+  // his questions reached no screen at all. Both concepts on this form were affected and the
+  // suite was green throughout.
+  //
+  // Recomputed from his document like the rest of this file.
+
+  const TEMPLATE = 'Product Fit (Customer Orientation)'
+  const stackConcepts = concepts.filter(c => c.captureForm === forms.PARALLEL_PROMPT_PAIR)
+  const captureOf = c => forms.captureForConcept(c)
+  const tableOf = () => forms.resolveTemplate(TEMPLATE).tables[0]
+
+  /** His questions in one column: a cell with words below row 0. */
+  const questionsIn = (column) => {
+    const t = tableOf()
+    return t.rows
+      .filter((r, i) => i > 0 && r.cells[column] && r.cells[column].text && !r.cells[column].blank)
+      .map(r => r.cells[column].text)
+  }
+  const allQuestions = () => tableOf().rows[0].cells
+    .map((_, c) => questionsIn(c)).reduce((a, b) => a.concat(b), [])
+
+  test('both concepts are on this form, and both read the same page of his', () => {
+    // Without this the block passes by checking nothing the day a concept is re-authored.
+    expect(stackConcepts.length).toBe(2)
+    stackConcepts.forEach((c) => { expect(c.captureTemplate).toBe(TEMPLATE) })
+  })
+
+  test('a box for every question his page asks, and not one more', () => {
+    // 🔴 15 BOXES FOR 9 QUESTIONS. The left column's questions run out at row 6 and every
+    // blank cell beneath was read as a line to write on.
+    stackConcepts.forEach((c) => {
+      expect(captureOf(c).fields).toHaveLength(allQuestions().length)
+    })
+  })
+
+  test('every question he asks is on the screen, in his order', () => {
+    // 🔴 THREE OF HIS QUESTIONS REACHED NO SCREEN. A row where one cell is blank and the
+    // other carries words is never a label row, so from row 7 down his right-hand questions
+    // were read as content — not a heading, not a box. This asserts the whole list rather
+    // than a count, because a count alone passes with the wrong questions in it.
+    stackConcepts.forEach((c) => {
+      expect(captureOf(c).fields.map(f => f.rowLabel)).toEqual(allQuestions())
+    })
+  })
+
+  test('no question is asked twice', () => {
+    // One question was put to the client SEVEN times, another four, because each phantom box
+    // carried the most recent heading the reader had seen.
+    stackConcepts.forEach((c) => {
+      const asked = captureOf(c).fields.map(f => f.rowLabel)
+      expect(new Set(asked).size).toBe(asked.length)
+    })
+  })
+
+  test('🔴 his two tables survive as two groups — Mike\'s ruling of 2026-09-22', () => {
+    // "it might be easier to split the tables into 2 - 1- customer orientation and
+    // 2-competitor comparison." Every box carries its own table's heading, and there are
+    // exactly as many groups as his page has headed columns — read from row 0, not typed.
+    const headings = tableOf().rows[0].cells
+      .filter(c => c.text && !c.blank).map(c => c.text)
+    stackConcepts.forEach((c) => {
+      const groups = captureOf(c).fields.map(f => f.columnLabel)
+      expect([...new Set(groups)]).toEqual(headings)
+      expect(groups.every(Boolean)).toBe(true)
+    })
+  })
+
+  test('each of his lists keeps its own length — they are not padded to match', () => {
+    // The two lists are different lengths and that is the point: reading them as rows of one
+    // table is what invented six boxes. Counted per column from his document.
+    stackConcepts.forEach((c) => {
+      const fields = captureOf(c).fields
+      tableOf().rows[0].cells.forEach((head, col) => {
+        if (!head.text || head.blank) { return }
+        expect(fields.filter(f => f.columnLabel === head.text)).toHaveLength(questionsIn(col).length)
+      })
+    })
+  })
+
+  test('a box never lands on one of his question cells', () => {
+    // His question is the label; the blank line beneath it in the same column is the box.
+    // A key pointing at a cell that carries words would save the client's answer on top of
+    // his question's position and read back as though he had never asked it.
+    const t = tableOf()
+    stackConcepts.forEach((c) => {
+      captureOf(c).fields.forEach((f) => {
+        const cell = t.rows[f.row] && t.rows[f.row].cells[f.column]
+        expect(cell && !!cell.blank).toBe(true)
+      })
+    })
+  })
+})
+
 describe('the named-field stack — his name, his worked example, one box', () => {
   // 🔴 CAPTURE FORM 5 OF 9, from design/mockups/strategy-capture-named-field-stack.html,
   // all three decisions ruled by Mike on 2026-09-22. Both faults below were live on a

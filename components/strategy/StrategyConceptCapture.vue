@@ -95,7 +95,7 @@ section.scc2
               )
 
   template(v-else)
-    .scc2-grid(:class="{ 'is-stack': isNamedFieldStack }")
+    .scc2-grid(:class="{ 'is-stack': isStackedForm }")
       .scc2-block(v-for="block in blocks" :key="block.key")
         p.scc2-block-label(v-if="block.label") {{ block.label }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
@@ -169,8 +169,21 @@ import { hasConceptGraphic } from '~/components/strategy/concepts'
 /** The one capture form that is a small application rather than a page of boxes. */
 const ORG_CHART_FORM = 'parent-child-list'
 
-/** His name, his worked example, one box — Strategic Statements, Productive Habits. */
-const NAMED_FIELD_STACK = 'named-field-stack'
+/**
+ * The forms that come down the page in ONE COLUMN, with a gap between their groups.
+ *
+ * 🔴 BOTH ARE MIKE'S RULINGS OF 2026-09-22, and the default grid gets both wrong for
+ * the same reason: it flows blocks into as many columns as fit.
+ *
+ * - `named-field-stack` — *"we need a gap between content rows on the productive
+ *   habits"*. His five fields are an ORDER (Reason → Trigger → Micro Habit →
+ *   Effective Practice → Plan) and each is its own block, so they landed four across.
+ * - `parallel-prompt-pair` — *"it might be easier to split the tables into 2 - 1-
+ *   customer orientation and 2-competitor comparison"*. Two blocks flowing side by
+ *   side would put his two tables back beside each other, which is the arrangement
+ *   that caused the defect and is unreadable at phone width besides.
+ */
+const STACKED_FORMS = ['named-field-stack', 'parallel-prompt-pair']
 
 export default {
   name: 'StrategyConceptCapture',
@@ -298,19 +311,12 @@ export default {
     },
 
     /**
-     * Is this a stack of named fields — Strategic Statements, Productive Habits?
+     * Does this form come down the page in one column, with a gap between its groups?
      *
-     * 🔴 MIKE'S RULING, 2026-09-22, in his own words: *"we need a gap between content
-     * rows on the productive habits but the additional small row spaces can be
-     * deleted."* His document's thin blank rows are that gap; the reader drops them
-     * and this puts the space back on the screen.
-     *
-     * 🔴 AND IT IS ONE COLUMN, WHICH IS THE OTHER HALF OF THE SAME RULING. The default
-     * grid flows blocks into as many columns as fit, and on this form each field is its
-     * own block — so his five fields landed four across, side by side. They are an
-     * ORDER: you find the Reason, name the Trigger, choose the Micro Habit, define the
-     * Effective Practice, then write the Plan. Read across four columns that sequence
-     * is gone, and a gap between rows means nothing when there is one row.
+     * The two forms and the rulings behind them are on `STACKED_FORMS` above. The
+     * effect here is the same for both: one column, so his order survives and the
+     * card reads at phone width, and a wider gap so his groups read as separate
+     * things rather than one block of boxes.
      *
      * ⚠ IT READS THE TEMPLATE'S FORM NAME, as `isOrgChart` and `isGrid` above do and
      * for the same reason: it cannot be derived from the fields. Strategic Statements'
@@ -318,8 +324,8 @@ export default {
      *
      * @returns {boolean}
      */
-    isNamedFieldStack () {
-      return this.capture.supplied && this.capture.form === NAMED_FIELD_STACK
+    isStackedForm () {
+      return this.capture.supplied && STACKED_FORMS.includes(this.capture.form)
     },
 
     /**
@@ -633,11 +639,12 @@ export default {
   margin-top: 12px;
 }
 
-/* 🔴 THE NAMED-FIELD STACK — Mike's ruling, 2026-09-22: "we need a gap between content
-   rows on the productive habits but the additional small row spaces can be deleted."
-   One column so his five fields keep their order, and a wider gap so they read as five
-   separate things rather than one block of boxes. The reasoning is on `isNamedFieldStack`
-   and on design/mockups/strategy-capture-named-field-stack.html. */
+/* 🔴 THE STACKED FORMS — one column, with a gap between the groups. Both are Mike's
+   rulings of 2026-09-22 and the reasoning is on `STACKED_FORMS` in the script above:
+   the named-field stack keeps his five fields in their order, and the parallel prompt
+   pair keeps his two tables one after the other rather than back side by side.
+   design/mockups/strategy-capture-named-field-stack.html and
+   design/mockups/strategy-capture-parallel-prompt-pair.html. */
 .scc2-grid.is-stack {
   grid-template-columns: 1fr;
   gap: 22px;

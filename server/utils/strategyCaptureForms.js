@@ -276,12 +276,91 @@ function namedFieldStackFields (table, tableIndex) {
   return fields
 }
 
+/**
+ * The fields of a table that is TWO INDEPENDENT LISTS SIDE BY SIDE — his Product Fit
+ * page, where the left column asks about the client's own customers and the right
+ * about their competitors.
+ *
+ * 🔴 THEY ARE NOT ROWS OF ONE TABLE, AND READING THEM AS ROWS IS THE WHOLE DEFECT.
+ * In Word the two sit inside one two-column table, so they look like one list. They
+ * are not: the left asks 3 questions and stops at row 6, the right asks 6 and runs to
+ * row 12. Read positionally his page offered **15 boxes for 9 questions** — one
+ * question put to the client SEVEN times — and **3 of his questions reached no screen
+ * at all**. Two faults, one cause:
+ *
+ * - **The left column's empty tail became boxes.** Every blank cell below its last
+ *   question was read as a line to write on, each headed with his LAST left-hand
+ *   question, because that was the most recent heading the general reader had seen.
+ * - **`isLabelRow` refuses any row holding a blank cell** — which from row 7 down is
+ *   every remaining right-hand question. They were read as content: not a heading,
+ *   not a box, gone. *"Based on the std Competition Fronts list…"*, *"Re-above, Are
+ *   these the fronts…"* and *"How can you best respond to competition?"* were on his
+ *   page and on no screen.
+ *
+ * 🔴 MIKE RULED IT SPLIT, 2026-09-22, and went further than the recommendation:
+ * *"it might be easier to split the tables into 2 - 1- customer orientation and
+ * 2-competitor comparison."* So this walks each column as its own list and **a list
+ * ends where it ends** — trailing blanks are empty page, and carry no heading down
+ * with them. `columnLabel` is his table heading and `rowLabel` his question, which is
+ * what makes the screen render his two tables: `blocks` in
+ * `StrategyConceptCapture.vue` already groups by `columnLabel`, so no second grouping
+ * had to be invented for it.
+ *
+ * ⚠ A QUESTION WITH NO LINE BENEATH IT STILL GETS A BOX, keyed to its own cell. That
+ * does not arise in his document — every question here has one — and it is the same
+ * answer his `Plan:` ruling gave on the named-field stack: a list's last question is
+ * not dropped because the page ran out.
+ *
+ * @param {{columns: number, rows: Array}} table
+ * @param {number} tableIndex
+ * @returns {Array<object>} fields in reading order — his first list, then his second
+ */
+function parallelPromptPairFields (table, tableIndex) {
+  const rows = table.rows
+  const head = rows[0]
+  if (!head) { return [] }
+  const fields = []
+
+  head.cells.forEach((groupCell, c) => {
+    const group = (groupCell.text && !groupCell.blank) ? groupCell.text : ''
+    rows.forEach((row, r) => {
+      if (r === 0) { return }
+      const cell = row.cells[c]
+      // A blank cell is either his writing line, taken below, or — past this column's
+      // last question — empty page. Neither is a field in its own right.
+      if (!cell || cell.blank || !cell.text) { return }
+      const below = rows[r + 1] && rows[r + 1].cells[c]
+      const boxRow = (below && below.blank) ? r + 1 : r
+      fields.push({
+        key: 't' + tableIndex + 'r' + boxRow + 'c' + c,
+        row: boxRow,
+        column: c,
+        // His table heading — what groups the questions into his two tables.
+        columnLabel: group,
+        // His question, shown above the box it belongs to.
+        rowLabel: cell.text,
+        // His page carries no worked example on this form; every answer cell is blank.
+        example: ''
+      })
+    })
+  })
+
+  return fields
+}
+
 /** The stack of named fields — Strategic Statements and Productive Habits. */
 const NAMED_FIELD_STACK = 'named-field-stack'
+
+/** Two independent lists side by side — his Product Fit page. */
+const PARALLEL_PROMPT_PAIR = 'parallel-prompt-pair'
 
 function fieldsOfTable (table, tableIndex, form) {
   if (form === NAMED_FIELD_STACK) {
     return namedFieldStackFields(table, tableIndex)
+  }
+
+  if (form === PARALLEL_PROMPT_PAIR) {
+    return parallelPromptPairFields(table, tableIndex)
   }
 
   // 🔴 THE FORM NAME IS NOT ENOUGH ON ITS OWN, and reading it alone broke a table.
@@ -499,5 +578,6 @@ module.exports = {
   hasCaptureField,
   fieldsOfTable,
   NAMED_FIELD_STACK,
+  PARALLEL_PROMPT_PAIR,
   TEMPLATE_ALIASES
 }
