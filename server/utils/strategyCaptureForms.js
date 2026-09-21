@@ -210,10 +210,31 @@ function fieldsOfTable (table, tableIndex, form) {
   // below picks the row up as what it is. Found 2026-09-19.
   if (!hasRuledLines && rows.length === 1) { return [] }
 
+  // 🔴 A ROW WITH NOTHING ON IT AT ALL, IN A TWO-COLUMN QUESTION SHEET, IS THE GAP
+  // BETWEEN HIS GROUPS — NOT A QUESTION. Customer & Skills Review asks 24 questions and
+  // puts a blank row between each customer segment; read as lines, those three rows
+  // offered six more boxes than his document does, under no heading at all. This is the
+  // same rule as 2026-09-19's, not a new one: the screen offers exactly the boxes his
+  // document rules, no more and no fewer.
+  //
+  // ⚠ NARROW ON PURPOSE, AND THE WIDE VERSION WAS MEASURED BEFORE THIS WAS WRITTEN. A
+  // blank row is USUALLY a real line: dropping every one of them takes 32 boxes off
+  // Porter's, 28 off the Profit Levers and 14 off Blue Ocean. It is a gap only where the
+  // table is two columns, every row of it either asks a question in the first column or
+  // is entirely empty, and the questions outnumber the empties two to one. Measured
+  // across all 20 templates: Customer & Skills Review is the only one this touches.
+  const body = rows.slice(1)
+  const asks = body.filter(r => r.cells[0] && r.cells[0].text && !r.cells[0].blank).length
+  const empties = body.filter(r => r.cells.every(c => c.blank)).length
+  const isQuestionSheet = table.columns === 2 &&
+    asks + empties === body.length &&
+    empties > 0 && asks >= empties * 2
+
   const fields = []
   const columnLabels = []
 
   rows.forEach((row, r) => {
+    if (isQuestionSheet && r > 0 && row.cells.every(c => c.blank)) { return }
     const labelRow = isLabelRow(rows, r)
 
     if (labelRow) {

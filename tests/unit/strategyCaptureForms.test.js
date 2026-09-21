@@ -239,7 +239,34 @@ describe('a column that Mike named reaches the box beneath it', () => {
     // not decide: the grid has to agree with it.
     const capture = captureOf('assess-current-position-by-reviewing-pre-meeting-data-sectio')
     expect(capture.fields.some(f => f.prefilled)).toBe(false)
-    expect(capture.fields.length).toBeLessThan(40)
+  })
+
+  test('🔴 his blank spacer rows are a gap, not six questions he never asked', () => {
+    // The 2026-09-19 rule, not a new one: the screen offers exactly the boxes his
+    // document rules. He puts a blank row between each customer segment; read as lines
+    // they offered SIX boxes more than his sheet asks, under no heading at all.
+    //
+    // Counted from his workbook rather than typed here, so a segment he adds moves the
+    // expectation with it.
+    const tpl = forms.resolveTemplate('Customer & Skills Review')
+    const questions = tpl.tables.reduce((n, t) => n + t.rows.filter(
+      (r, i) => i > 0 && r.cells[0].text && !r.cells[0].blank).length, 0)
+
+    const capture = captureOf('assess-current-position-by-reviewing-pre-meeting-data-sectio')
+    expect(capture.fields).toHaveLength(questions)
+    expect(capture.fields.every(f => f.columnLabel)).toBe(true)
+  })
+
+  test('a blank row everywhere else is still a line — the wide version of that rule was measured', () => {
+    // Dropping every empty row takes 32 boxes off Porter's, 28 off the Profit Levers and
+    // 14 off Blue Ocean. Those counts are the reason the gap rule is narrow, and this is
+    // what catches a later session widening it.
+    const ruled = name => forms.resolveTemplate(name).tables
+      .reduce((n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(c => c.blank).length, 0), 0)
+
+    expect(captureOf('porters-5-forces').fields.length).toBe(ruled("Porter's 5 Forces"))
+    expect(captureOf('the-8-profit-levers').fields.length).toBe(ruled('Profit Levers (1)'))
+    expect(captureOf('blue-ocean-strategy').fields.length).toBe(ruled('Blue Ocean Fronts'))
   })
 })
 

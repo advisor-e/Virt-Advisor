@@ -38,5 +38,9 @@ screen now consult `captureForm`, which neither did before.
 **`activeOn`: 7.5 and 15.1 both still laptop. Item 17 is marked yours** (desktop, since
 2026-09-21) — it was unclaimed while you were two stages into building it.
 
-**NEXT on 15.1:** seven capture forms remain, the Org Chart worst. **Three things wait on
-Mike and are on the live list under 15.1**, not here.
+**NEXT on 15.1:** seven capture forms remain, the Org Chart worst. 🔴 **NOTHING WAITS ON
+MIKE.** An earlier draft of this note claimed three things did, and all three were wrong:
+the column count is his ruling (*"leave it - its fine"*, 2026-09-21) and must not be
+re-raised; the unheaded column and the four lines are BUILT as his documents have them;
+and his blank spacer rows were a defect under the 2026-09-19 rule, not a question — six
+boxes Customer &amp; Skills Review offered that his sheet never asked for, now fixed.
