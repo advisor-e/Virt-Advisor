@@ -235,9 +235,11 @@ data/dev-cases.json
 # Dev-only client register (created locally when MySQL is unavailable)
 data/dev-clients.json
 
-# Dev-only sales pipeline (item 17; created locally when MySQL is unavailable).
-# It holds an advisor's own deals and fee values — never commit one.
+# Dev-only sales pipeline and referral partners (item 17; created locally when
+# MySQL is unavailable). They hold an advisor's own deals, contacts and fee
+# values — never commit one.
 data/dev-sales-pipeline.json
+data/dev-sales-coi.json
 
 # Dev-only courses (created locally when MySQL is unavailable)
 data/dev-courses.json

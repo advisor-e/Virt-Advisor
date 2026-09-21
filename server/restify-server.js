@@ -110,6 +110,7 @@ const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
 const clientsRoute = require('./routes/clients')
 const salesPipelineRoute = require('./routes/salesPipeline')
+const salesCoiRoute = require('./routes/salesCoi')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const modelChoicesRoute = require('./routes/modelChoices')
@@ -217,7 +218,16 @@ server.opts('/*', (req, res, next) => { res.send(204); return next() })
 
 // ── Routes ──
 server.get('/api/health', healthRoute.get)
-server.post('/api/translate/locale', translateRoute.post)
+// 🔴 GUARDED 2026-09-22. It sat here between /api/health and the first guarded
+// route with NO auth at all — an unauthenticated, world-callable proxy to a
+// metered third-party service (MyMemory). The cost is not only the bill: 20 of
+// our 28 languages are translated through this route on demand, so exhausting
+// the daily quota silently reverts those readers to English with nothing on
+// screen to explain it.
+// `firmAuth` only, NOT requireManagerRole: every caller is an ordinary reader
+// choosing a language, which is exactly who this is for. The route itself reads
+// no identity — the guard is about who may spend the quota, not about scoping.
+server.post('/api/translate/locale', firmAuth, translateRoute.post)
 server.post('/api/advisor/query', firmAuth, advisorEngine)
 // The firm's Advisory Staircase wording for the in-session selector. READ open to
 // any firm user (every advisor is asked the staircase question); the WRITE lives on
@@ -403,6 +413,18 @@ server.post('/api/sales/pipeline', firmAuth, salesPipelineRoute.createEntry)
 // verb for one route would mean widening that mock for no behavioural gain.
 server.put('/api/sales/pipeline/:id', firmAuth, salesPipelineRoute.updateEntry)
 server.del('/api/sales/pipeline/:id', firmAuth, salesPipelineRoute.deleteEntry)
+
+// Centres of influence — the referral partners who send an advisor work (stage 3).
+// Same guard and the same ownership rule as the pipeline above.
+server.get('/api/sales/coi', firmAuth, salesCoiRoute.listEntries)
+server.post('/api/sales/coi', firmAuth, salesCoiRoute.createEntry)
+server.put('/api/sales/coi/:id', firmAuth, salesCoiRoute.updateEntry)
+server.del('/api/sales/coi/:id', firmAuth, salesCoiRoute.deleteEntry)
+
+// The dashboard's figures. It aggregates rows the two stores already filtered and
+// never queries the tables itself, so it can only ever summarise what this advisor
+// may already see — the access rule cannot drift between the lists and the summary.
+server.get('/api/sales/metrics', firmAuth, salesCoiRoute.getMetrics)
 
 // ── Business Entity Reports — which models a client may open (stub, part 1) ──
 // design/features/business-entity-reports.md, approved by Mike 2026-09-03. The advisor's

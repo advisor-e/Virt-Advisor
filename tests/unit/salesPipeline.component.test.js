@@ -20,8 +20,11 @@
  *      like money. The source app hardcodes USD for every firm on earth
  *      (`new Intl.NumberFormat("en-US", { currency: "USD" })`) and nothing on its
  *      screen says so.
- *   3. That an empty money box saves as 0 rather than NaN, and that a failed call
- *      produces a message rather than a silently empty table.
+ *   3. That an ABSENT money value saves as 0 rather than NaN, and that a failed
+ *      call produces a message rather than a silently empty table. ⚠ Note the
+ *      word ABSENT: this once read "empty money box", and the test matched that
+ *      wording rather than the risk — `Number('')` is 0, so the guard could be
+ *      deleted with every test still green.
  *   4. That the summary figures follow the filter. A total that ignored the
  *      filter beside a table that obeyed it reads as a contradiction, and only
  *      ever with the right combination of rows.
@@ -227,14 +230,35 @@ describe('the summary follows what is on screen', () => {
 })
 
 describe('the form sends what the routes accept', () => {
-  test('🔴 an empty money box sends 0, not NaN', async () => {
+  test('an empty money box sends 0', async () => {
     const w = await mountWith([])
     w.vm.draft = Object.assign(w.vm.emptyDraft(), {
       prospectName: 'A', prospectStatus: 'New', proposalValue: ''
     })
     const body = w.vm.payload()
     expect(body.proposalValue).toBe(0)
-    expect(Number.isNaN(body.proposalValue)).toBe(false)
+  })
+
+  test('🔴 an ABSENT money value sends 0, never NaN', async () => {
+    // ⚠ THIS TEST USED TO ASSERT ON AN EMPTY BOX, AND SO PROVED NOTHING.
+    // `Number('')` is 0, so the guard in `payload()` could be deleted outright
+    // and all 25 tests here still passed — found 2026-09-21 by deleting it.
+    // The values that actually reach NaN are `undefined` and unparseable text,
+    // and a NaN reaches MySQL as NULL on a NOT NULL column, failing the whole
+    // insert on one bad field. Mutation-verified: removing the guard now fails.
+    const w = await mountWith([])
+    w.vm.draft = Object.assign(w.vm.emptyDraft(), {
+      prospectName: 'A',
+      prospectStatus: 'New',
+      proposalValue: undefined,
+      jobSecuredValue: undefined,
+      additionalWorkSecured: undefined
+    })
+    const body = w.vm.payload()
+    ;['proposalValue', 'jobSecuredValue', 'additionalWorkSecured'].forEach((f) => {
+      expect(body[f]).toBe(0)
+      expect(Number.isNaN(body[f])).toBe(false)
+    })
   })
 
   test('a typed money value is sent as a Number, not the input\'s string', async () => {
