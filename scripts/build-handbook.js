@@ -249,7 +249,7 @@ function escapeHtml (text) {
  *
  * @param {string} markdown  the index file's contents
  * @returns {Array<{name: string, items: Array<{slug: string, title: string,
- *   file: string, source: string}>}>}
+ *   number: number|null, file: string, source: string}>}>}
  */
 function parseIndex (markdown) {
   const groups = []
@@ -268,17 +268,25 @@ function parseIndex (markdown) {
     const cells = line.split('|').slice(1, -1)
     if (!cells.length) return
 
-    const link = cells[0].match(/\[([^\]]+)\]\((\.\.\/)?([A-Za-z0-9._-]+)\.md[^)]*\)/i)
-    if (!link) return // a header row, or a cell with no page in it
+    // The Brief is the FIRST cell holding a link. A numbered row puts the page number
+    // in cell 0, so the link moves to cell 1; an unnumbered row still works unchanged.
+    const LINK = /\[([^\]]+)\]\((\.\.\/)?([A-Za-z0-9._-]+)\.md[^)]*\)/i
+    const at = cells.findIndex(cell => LINK.test(cell))
+    if (at === -1) return // a header row, or a row with no page in it
 
+    const link = cells[at].match(LINK)
     const title = link[1].replace(/[*`]/g, '').trim()
     if (/^(brief|history)$/i.test(title)) return // the table's own header row
 
+    // The `#` column — the page number a task's number comes from (Mike, 2026-09-23).
+    // Only ever cell 0, and only ever a bare integer, so nothing else can be read as one.
+    const numbered = at > 0 && cells[0].replace(/[*`\s]/g, '').match(/^(\d+)$/)
     const fromDesign = Boolean(link[2])
     const name = link[3]
     current.items.push({
       slug: fromDesign ? designSlug(name) : name,
       title,
+      number: numbered ? Number(numbered[1]) : null,
       file: name + '.md',
       source: fromDesign ? 'design' : 'features'
     })
@@ -466,8 +474,14 @@ function renderQueueData (data) {
  * @param {function(string): string} read  slug → markdown
  */
 function renderPage (page, read, pages) {
-  let out = '<article class="page" id="page-' + page.slug + '" data-page="' + page.slug + '" hidden>'
-  out += '<header class="pagehead"><div class="eyebrow">' + escapeHtml(page.group) +
+  let out = '<article class="page" id="page-' + page.slug + '" data-page="' + page.slug +
+    '"' + (page.number === null ? '' : ' data-number="' + page.number + '"') + ' hidden>'
+  // "the handbook will show the page number on that page at all times" — Mike, 2026-09-23.
+  // It sits in the eyebrow because that line is on screen for the whole page, and a task
+  // number is read off it: page 17 → 17.1, 17.2.
+  out += '<header class="pagehead"><div class="eyebrow">' +
+    (page.number === null ? '' : '<span class="pagenum">Page ' + page.number + '</span> · ') +
+    escapeHtml(page.group) +
     '</div><h1>' + escapeHtml(page.title) + '</h1></header>'
   const prose = renderMarkdown(read(page), page.source, pages)
   out += '<div class="prose">' +
@@ -561,17 +575,33 @@ function build (outPath, options) {
     const companion = item.source === 'design' ? null : companionOf(item.slug, known)
     if (companion) rendered.add(companion)
     pages.push({
-      slug: item.slug, title: item.title, group: group.name, companion,
+      slug: item.slug, title: item.title, number: item.number, group: group.name, companion,
       source: item.source, file: item.file
     })
   }))
+
+  // A page number is a task's number (Mike, 2026-09-23), so two pages on one number means
+  // two features answering to the same task family. Refused outright, like a slug collision.
+  const byNumber = new Map()
+  pages.forEach(page => {
+    if (page.number === null) return
+    const held = byNumber.get(page.number)
+    if (held) {
+      throw new Error(
+        'Handbook index: page number ' + page.number + ' is on both "' + held + '" and "' +
+        page.title + '". A number is a task family — take the next free one from ' +
+        '`npm run check:branch`, never from your own branch. design/PAGE-NUMBERS.md'
+      )
+    }
+    byNumber.set(page.number, page.title)
+  })
 
   // A page nothing points at is a page nobody will read. Never drop it silently.
   // The index itself is the source of the rail, not a page in it.
   const unlisted = Array.from(known)
     .filter(slug => slug !== INDEX_SLUG && !rendered.has(slug))
     .sort()
-    .map(slug => ({ slug, title: slug, group: 'Unlisted', companion: null, source: 'features', file: slug + '.md' }))
+    .map(slug => ({ slug, title: slug, number: null, group: 'Unlisted', companion: null, source: 'features', file: slug + '.md' }))
 
   const allPages = pages.concat(unlisted)
   const navGroups = groups.concat(

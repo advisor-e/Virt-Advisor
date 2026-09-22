@@ -24,6 +24,12 @@
  * decimals are the jobs in it (7 is the AI engine, so 7.1 and 7.2 are engine jobs). See
  * design/ITEM-NUMBERING.md.
  *
+ * 🔴 AND SINCE 2026-09-23 THAT SUBJECT IS A HANDBOOK PAGE — Mike's ruling. The twelve
+ * subjects seeded the page numbers, so every number already in use kept its meaning and no
+ * live task was renumbered; what changed is where a NEW number comes from. It is no longer
+ * "one past the highest ref" — it is one past the highest PAGE, read from the `#` column of
+ * design/features/README.md on every branch. See design/PAGE-NUMBERS.md.
+ *
  * 🔴 THAT RULING IS WHY THE CEILING ALONE WAS NOT ENOUGH, AND 7.5 COLLIDED ON 2026-09-16 —
  * the twelfth. A ceiling answers "what new SUBJECT is free", and from 2026-09-15 almost
  * every new job takes a DECIMAL of a subject that already exists. Nothing compared those
@@ -32,7 +38,7 @@
  * changed the 15th, it collided on the 16th.
  *
  * So this file now answers both halves, and a third question neither half asked:
- *   - the next free PARENT, for a subject that has none (the original ceiling);
+ *   - the next free PAGE, for a job whose feature has none (was: the next free parent);
  *   - the next free DECIMAL of every subject in use, read across every branch;
  *   - and whether a number ALREADY names two different jobs, which is the only one of the
  *     three that reports a fault rather than preventing one.
@@ -52,6 +58,21 @@
 
 var LIVE_LIST = 'design/features/to-do-items.json'
 var ARCHIVE = 'design/features/to-do-done-and-parked.md'
+
+/**
+ * The Handbook index — the one register of page numbers since Mike's ruling of
+ * 2026-09-23. A task's number IS its page's number, so "what new number is free" is a
+ * question about pages, not about items, and it must be read across every branch for
+ * exactly the reason the item ceiling is: a page added on the other machine is invisible
+ * here until it reaches `master`. See design/PAGE-NUMBERS.md.
+ */
+var INDEX = 'design/features/README.md'
+
+/** The `#` column of a numbered index row: the number, then a cell holding a link. */
+var PAGE_NUMBER = /^\|\s*\**\s*(\d+)\s*\**\s*\|[^|]*\[[^\]]+\]\(/gm
+
+/** Below this, every number is spent: 1 is unused and 2-4 are the closed families. */
+var FIRST_PAGE = 5
 
 /** `"ref": "4.100"` on the live list. */
 var LIVE_REF = /"ref"\s*:\s*"(\d+\.\d+)"/g
@@ -331,6 +352,10 @@ function nextAfter (ref) {
  * The old families are counted like any other: 4.x means 4 is spent, so the ceiling
  * clears them without needing to know their history.
  *
+ * ⚠ SINCE 2026-09-23 A NEW SUBJECT IS A NEW HANDBOOK PAGE, so a session does not take a
+ * number from here — it takes {@link nextPage}. Kept because the item refs still have to
+ * be swept for a parent nobody has paged, which is a fault to report, not a number to use.
+ *
  * @param {string[]} refs every ref in use anywhere
  * @returns {number} the lowest whole number no subject has taken
  */
@@ -339,6 +364,42 @@ function nextParent (refs) {
   ;(refs || []).forEach(function (r) {
     var n = parseInt(String(r).split('.')[0], 10)
     if (!isNaN(n) && n > top) { top = n }
+  })
+  return top + 1
+}
+
+/**
+ * Every page number the Handbook index holds.
+ *
+ * Read from the markdown rather than from the built Handbook, because the index is what
+ * both machines edit and what git can show for any branch.
+ *
+ * @param {string} markdown the index file's contents
+ * @returns {number[]} the numbers in the `#` column, in the order they appear
+ */
+function pageNumbersIn (markdown) {
+  var found = []
+  var text = String(markdown || '')
+  var rx = new RegExp(PAGE_NUMBER.source, 'gm')
+  var m
+  while ((m = rx.exec(text)) !== null) { found.push(parseInt(m[1], 10)) }
+  return found
+}
+
+/**
+ * The number a NEW Handbook page takes — and therefore the number its tasks take.
+ *
+ * It is the highest in use plus one, never the lowest gap: a page number is spent for
+ * good once used (Mike, 2026-09-23), exactly as an item number is, so a page that is
+ * deleted or folded into another never hands its number on.
+ *
+ * @param {number[]} numbers every page number in use anywhere
+ * @returns {number} the next free page number
+ */
+function nextPage (numbers) {
+  var top = FIRST_PAGE - 1
+  ;(numbers || []).forEach(function (n) {
+    if (typeof n === 'number' && !isNaN(n) && n > top) { top = n }
   })
   return top + 1
 }
@@ -390,11 +451,22 @@ function describeCeiling (rows) {
     lines.push('')
   }
 
-  lines.push('A WHOLE NUMBER IS A SUBJECT; ITS DECIMALS ARE THE JOBS IN IT.')
+  var everyPage = []
+  known.forEach(function (row) {
+    (row.pages || []).forEach(function (n) { everyPage.push(n) })
+  })
+
+  lines.push('A WHOLE NUMBER IS A HANDBOOK PAGE; ITS DECIMALS ARE THE JOBS ON IT.')
   lines.push('')
-  lines.push('  Job on an EXISTING subject   the next free decimal, in the table below')
-  lines.push('                               (what each subject is: design/ITEM-NUMBERING.md)')
-  lines.push('  A subject that has none      ' + nextParent([ceiling]) + '  — the next free parent')
+  lines.push('  Job on an EXISTING page      the next free decimal, in the table below')
+  lines.push('                               (which page is which: design/features/README.md)')
+  if (everyPage.length > 0) {
+    lines.push('  A job with no page yet       THE FEATURE EARNS A PAGE FIRST — then it takes')
+    lines.push('                               page ' + nextPage(everyPage) +
+      ', the next free one. design/PAGE-NUMBERS.md')
+  } else {
+    lines.push('  A page number could not be read from ' + INDEX + ' on any branch.')
+  }
   lines.push('')
   lines.push('Take the number from here, never from your own branch — the other machine\'s')
   lines.push('numbers are invisible to you until its work reaches `master`.')
@@ -444,6 +516,17 @@ function entriesOn (gitSafe, ref) {
 }
 
 /**
+ * The page numbers one branch's Handbook index holds.
+ *
+ * @param {function(string[]): (string|null)} gitSafe a non-throwing git runner
+ * @param {string} ref a branch or remote-tracking ref to read from
+ * @returns {number[]} the numbers in use there; empty when the index cannot be read
+ */
+function pagesOn (gitSafe, ref) {
+  return pageNumbersIn(gitSafe(['show', ref + ':' + INDEX]) || '')
+}
+
+/**
  * The highest ref one branch holds.
  *
  * @param {function(string[]): (string|null)} gitSafe a non-throwing git runner
@@ -479,21 +562,26 @@ function ceilingLines (gitSafe, currentBranch, isCandidate, local) {
   var topOf = function (entries) {
     return entries === null ? null : highest(entries.map(function (e) { return e.ref }))
   }
-  var row = function (label, entries) {
-    return { label: label, highest: topOf(entries), entries: entries || [] }
+  var row = function (label, entries, pages) {
+    return { label: label, highest: topOf(entries), entries: entries || [], pages: pages || [] }
   }
 
   var mine = local
     ? entriesIn(local.live || '', local.archive || '')
     : entriesOn(gitSafe, 'HEAD')
-  var rows = [row('this branch (' + currentBranch + ')', mine)]
+  // This branch's index is read from disk for the same reason its list is: a session
+  // that has just added a page has not committed it, and HEAD would offer the number back.
+  var myPages = local && typeof local.index === 'string'
+    ? pageNumbersIn(local.index)
+    : pagesOn(gitSafe, 'HEAD')
+  var rows = [row('this branch (' + currentBranch + ')', mine, myPages)]
 
   var raw = gitSafe(['for-each-ref', '--format=%(refname:short)', 'refs/remotes/origin'])
   if (raw) {
     raw.split('\n').forEach(function (entry) {
       var name = String(entry).trim()
       if (!isCandidate(name, currentBranch)) { return }
-      rows.push(row(name, entriesOn(gitSafe, name)))
+      rows.push(row(name, entriesOn(gitSafe, name), pagesOn(gitSafe, name)))
     })
   }
 
@@ -507,6 +595,9 @@ module.exports = {
   highest: highest,
   nextAfter: nextAfter,
   nextParent: nextParent,
+  pageNumbersIn: pageNumbersIn,
+  nextPage: nextPage,
+  pagesOn: pagesOn,
   nextFreeBySubject: nextFreeBySubject,
   sameJob: sameJob,
   clashes: clashes,

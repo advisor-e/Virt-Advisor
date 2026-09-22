@@ -171,7 +171,9 @@ function ceilingReport (currentBranch) {
     }
     lines = refCeiling.ceilingLines(gitSafe, currentBranch, branchSurvey.isCandidate, {
       live: read('to-do-items.json'),
-      archive: read('to-do-done-and-parked.md')
+      archive: read('to-do-done-and-parked.md'),
+      // The page-number register (Mike, 2026-09-23) — a task's number is its page's.
+      index: read('README.md')
     })
   } catch (err) {
     return

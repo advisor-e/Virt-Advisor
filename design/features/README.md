@@ -9,64 +9,72 @@ History is reached only from the foot of the Brief.
 generated from these files, with the history behind a gate and the whole thing editable. Ask
 Claude for the link.
 
+🔴 **THE `#` COLUMN IS THE PAGE NUMBER, AND IT IS WHERE TASK NUMBERS COME FROM.** Mike's ruling,
+2026-09-23: a task belongs to a Handbook page, and it takes that page's number — Sales Tracker is
+**17**, so a job on it is `17.1`, `17.2`, and nothing that is not a Sales Tracker job may start
+with `17`. A new feature earns a page before it can be given a task number. **A number is never
+reused**, and it never changes when the index is reordered. This table is the one register of
+them; the rule and the record are in [`../PAGE-NUMBERS.md`](../PAGE-NUMBERS.md), which holds no
+second copy of the numbers. `1`–`4` are never allocated.
+
 ---
 
 ## Start here
 
-| | |
-|---|---|
-| **[The To-Do List](to-do.md)** | The whole live list — who each item waits on, and how it was verified. [Done & parked](to-do-done-and-parked.md) |
-| **[Product Principles](product-principles.md)** | The tests a thing must pass to earn a place in the product at all. Read before proposing any feature. |
-| **[What Each Hub Page Is For](../HUB-PAGE-PURPOSES.md)** | Twelve tabs, one question each — and the names are not a reliable guide to which. Read before deciding where a piece of content belongs. Every row says whether it was checked against the code or only against a Brief. |
-| **[Design Logic](../ADVISOR-E-DESIGN-LOGIC.md)** | Where Virt Advisor ends and Advisor-e begins, and how the tier logic applies to every feature built here. |
-| **[The Working Agreement](../WORKING-AGREEMENT.md)** | How a session starts and ends, and how the two machines and the master team stay in step. Binding. |
+| # | | |
+|---|---|---|
+| 18 | **[The To-Do List](to-do.md)** | The whole live list — who each item waits on, and how it was verified. [Done & parked](to-do-done-and-parked.md) |
+| 19 | **[Product Principles](product-principles.md)** | The tests a thing must pass to earn a place in the product at all. Read before proposing any feature. |
+| 20 | **[What Each Hub Page Is For](../HUB-PAGE-PURPOSES.md)** | Twelve tabs, one question each — and the names are not a reliable guide to which. Read before deciding where a piece of content belongs. Every row says whether it was checked against the code or only against a Brief. |
+| 21 | **[Design Logic](../ADVISOR-E-DESIGN-LOGIC.md)** | Where Virt Advisor ends and Advisor-e begins, and how the tier logic applies to every feature built here. |
+| 22 | **[The Working Agreement](../WORKING-AGREEMENT.md)** | How a session starts and ends, and how the two machines and the master team stay in step. Binding. |
 
 ## Checkable records
 
 *Kept in `design/` because generators and tests write to them there. Listed here so they
 can be read in one place — the Handbook does not move them.*
 
-| | |
-|---|---|
-| **[The Tier Cascade Map](../TIER-CASCADE-MAP.md)** | For each thing the Hub does: does it cascade down the tiers, and does anything report back up? Read out of the code. |
-| **[Approved Artefacts](../ARTEFACTS.md)** | The register of what Mike has actually approved. If a thing is not in that table, nothing should be built from it. Guarded by a test. |
-| **[Content Routing](../CONTENT-ROUTING.md)** | What reaches a client recommendation, and what is filed into a lane where it becomes invisible. Regenerated from the code by `npm run routing`. |
-| **[Deployed Versions](../DEPLOYED-VERSIONS.md)** | Which commit is running in which environment, who put it there, and when. |
-| **[Code Size](../CODE-SIZE.md)** | How much working code there is, by area, with comments, tests and locale strings shown beside it. Recomputed every time the Handbook is built. |
-| **[The Handbook](handbook.md)** | How this handbook is built, published, opened and edited — and why a new feature starts as a page in it. [history](handbook-history.md) |
+| # | | |
+|---|---|---|
+| 23 | **[The Tier Cascade Map](../TIER-CASCADE-MAP.md)** | For each thing the Hub does: does it cascade down the tiers, and does anything report back up? Read out of the code. |
+| 24 | **[Approved Artefacts](../ARTEFACTS.md)** | The register of what Mike has actually approved. If a thing is not in that table, nothing should be built from it. Guarded by a test. |
+| 25 | **[Content Routing](../CONTENT-ROUTING.md)** | What reaches a client recommendation, and what is filed into a lane where it becomes invisible. Regenerated from the code by `npm run routing`. |
+| 26 | **[Deployed Versions](../DEPLOYED-VERSIONS.md)** | Which commit is running in which environment, who put it there, and when. |
+| 27 | **[Code Size](../CODE-SIZE.md)** | How much working code there is, by area, with comments, tests and locale strings shown beside it. Recomputed every time the Handbook is built. |
+| 14 | **[The Handbook](handbook.md)** | How this handbook is built, published, opened and edited — and why a new feature starts as a page in it. [history](handbook-history.md) |
 
 ## The AI engine
 
-| Brief | History |
-|---|---|
-| [Virtual Advisor](virtual-advisor.md) — the conversation screen | [history](virtual-advisor-history.md) |
-| [Advisory Engine](advisory-engine.md) — how a recommendation is decided | [history](advisory-engine-history.md) |
-| [Logic Tables](logic-tables.md) — the advisory thinking, written down | [history](logic-tables-history.md) |
-| [Domain Support](domain-support.md) — the material the AI draws on | [history](domain-support-history.md) |
-| [Advisory Distinctions](advisory-distinctions.md) — teaching the engine, without code | [history](advisory-distinctions-history.md) |
-| [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
-| [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
-| [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
-| [Founder's Claims Audit & Outcome Learning](outcome-learning.md) — three marketing claims read against the code, and the task that came out of it | [history](outcome-learning-history.md) |
-| [Strategy Planner](strategy-planner.md) — the planning session an advisor runs with a client, and the first thing that keeps what was said in the room | [history](strategy-planner-history.md) |
+| # | Brief | History |
+|---|---|---|
+| 28 | [Virtual Advisor](virtual-advisor.md) — the conversation screen | [history](virtual-advisor-history.md) |
+| 7 | [Advisory Engine](advisory-engine.md) — how a recommendation is decided | [history](advisory-engine-history.md) |
+| 29 | [Logic Tables](logic-tables.md) — the advisory thinking, written down | [history](logic-tables-history.md) |
+| 30 | [Domain Support](domain-support.md) — the material the AI draws on | [history](domain-support-history.md) |
+| 31 | [Advisory Distinctions](advisory-distinctions.md) — teaching the engine, without code | [history](advisory-distinctions-history.md) |
+| 32 | [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
+| 33 | [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
+| 34 | [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
+| 9 | [Founder's Claims Audit & Outcome Learning](outcome-learning.md) — three marketing claims read against the code, and the task that came out of it | [history](outcome-learning-history.md) |
+| 15 | [Strategy Planner](strategy-planner.md) — the planning session an advisor runs with a client, and the first thing that keeps what was said in the room | [history](strategy-planner-history.md) |
 
 ## Hub pages — mentor & firm
 
 *One page per tab, so a single hub screen can be reviewed on its own.*
 
-| Brief | History |
-|---|---|
-| [The Hub itself](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
-| [Coaching Reference](coaching-reference.md) — 🔴 **REMOVED 2026-08-20**, tab and all; kept as the record of why | [history](coaching-reference-history.md) |
-| [Quizzes](quizzes.md) | [history](quizzes-history.md) |
-| [Adviser Network](adviser-network.md) | [history](adviser-network-history.md) |
-| [Adoption](adoption.md) — mentor & middle tiers | [history](adoption-history.md) |
-| [Case Reviews](case-reviews.md) — mentor & middle tiers | [history](case-reviews-history.md) |
-| [Template Check](template-check.md) — **mentor only** | [history](template-check-history.md) |
-| [AI Prompts](ai-prompts.md) — The prompt templates a manager can tune — locked method, three declared variables | [history](ai-prompts-history.md) |
-| [Depreciation Rates](depreciation-rates.md) — the depreciation rates a firm's forecasts use, read from its tax authority's own documents | [history](depreciation-rates-history.md) |
-| [Tax Rates](tax-rates.md) — the company tax rate, GST rate, filing cycle and accounting basis a client's forecast is computed on, per country | [history](tax-rates-history.md) |
-| [Compliance](compliance.md) — what a tier publishes to the tiers beneath it about their legal obligations, and the declaration that will gate Meeting Review. **Built 2026-09-10 — and the gate is live, per firm: a firm that has ticked records as before, one that has not cannot start.** | [history](compliance-history.md) |
+| # | Brief | History |
+|---|---|---|
+| 10 | [The Hub itself](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
+| 35 | [Coaching Reference](coaching-reference.md) — 🔴 **REMOVED 2026-08-20**, tab and all; kept as the record of why | [history](coaching-reference-history.md) |
+| 36 | [Quizzes](quizzes.md) | [history](quizzes-history.md) |
+| 11 | [Adviser Network](adviser-network.md) | [history](adviser-network-history.md) |
+| 37 | [Adoption](adoption.md) — mentor & middle tiers | [history](adoption-history.md) |
+| 38 | [Case Reviews](case-reviews.md) — mentor & middle tiers | [history](case-reviews-history.md) |
+| 39 | [Template Check](template-check.md) — **mentor only** | [history](template-check-history.md) |
+| 40 | [AI Prompts](ai-prompts.md) — The prompt templates a manager can tune — locked method, three declared variables | [history](ai-prompts-history.md) |
+| 41 | [Depreciation Rates](depreciation-rates.md) — the depreciation rates a firm's forecasts use, read from its tax authority's own documents | [history](depreciation-rates-history.md) |
+| 42 | [Tax Rates](tax-rates.md) — the company tax rate, GST rate, filing cycle and accounting basis a client's forecast is computed on, per country | [history](tax-rates-history.md) |
+| 43 | [Compliance](compliance.md) — what a tier publishes to the tiers beneath it about their legal obligations, and the declaration that will gate Meeting Review. **Built 2026-09-10 — and the gate is live, per firm: a firm that has ticked records as before, one that has not cannot start.** | [history](compliance-history.md) |
 
 *Also on the Hub but covered elsewhere: Domain Support, Logic Tables, Advisory Staircase, Logic
 Lab and Logic-Lab Report (above, under the engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).
@@ -74,47 +82,48 @@ Templates & Videos is dormant — templates are Advisor-e's.*
 
 ## Reports & models
 
-| Brief | History |
-|---|---|
-| [Model Library](model-library.md) — the reports landing page | [history](model-library-history.md) |
-| [Report Models](report-models.md) — every model screen | [history](report-models-history.md) |
-| [The Economic Analysis Prompt](../ECONOMIC-ANALYSIS-PROMPT.md) — the tick that sends the AI to research a client's market, for a funding pack. The first report model in this app to call the AI. **Approved and built — all three slices, 2026-09-06.** | — |
-| [What the Prompt Produced](../ECONOMIC-ANALYSIS-TEST-RUNS.md) — four live runs against two fictional businesses: what it costs, how long it takes, and the citation fault they found and fixed. **Evidence, not a design.** | — |
-| [Business Performance Report](business-performance-report.md) — the client's own performance report — 7 to 15 pages built from the accounts and every model in this section | [history](business-performance-report-history.md) |
+| # | Brief | History |
+|---|---|---|
+| 5 | [Model Library](model-library.md) — the reports landing page | [history](model-library-history.md) |
+| 44 | [Report Models](report-models.md) — every model screen | [history](report-models-history.md) |
+| 6 | [The Economic Analysis Prompt](../ECONOMIC-ANALYSIS-PROMPT.md) — the tick that sends the AI to research a client's market, for a funding pack. The first report model in this app to call the AI. **Approved and built — all three slices, 2026-09-06.** | — |
+| 45 | [What the Prompt Produced](../ECONOMIC-ANALYSIS-TEST-RUNS.md) — four live runs against two fictional businesses: what it costs, how long it takes, and the citation fault they found and fixed. **Evidence, not a design.** | — |
+| 46 | [Business Performance Report](business-performance-report.md) — the client's own performance report — 7 to 15 pages built from the accounts and every model in this section | [history](business-performance-report-history.md) |
 
 ## Learning
 
-| Brief | History |
-|---|---|
-| [Course Builder](course-builder.md) | [history](course-builder-history.md) |
-| [Quizzes](quizzes.md) | [history](quizzes-history.md) |
-| [Advisor Progress & CPD](advisor-progression.md) | [history](advisor-progression-history.md) |
-| [Meeting Review](meeting-review.md) — recording a client meeting, and the two reports that come out of it. ⚠ **Design for approval — nothing built.** | [history](meeting-review-history.md) |
-| [Business Entity Reports](business-entity-reports.md) — a client's own view of the reports, which models the advisor has opened to them, and how a client's edits are shown. **Part 1, the stub, is built; part 2 is item 4.62.** | [history](business-entity-reports-history.md) |
+| # | Brief | History |
+|---|---|---|
+| 12 | [Course Builder](course-builder.md) | [history](course-builder-history.md) |
+| 36 | [Quizzes](quizzes.md) | [history](quizzes-history.md) |
+| 47 | [Advisor Progress & CPD](advisor-progression.md) | [history](advisor-progression-history.md) |
+| 8 | [Meeting Review](meeting-review.md) — recording a client meeting, and the two reports that come out of it. ⚠ **Design for approval — nothing built.** | [history](meeting-review-history.md) |
+| 48 | [Business Entity Reports](business-entity-reports.md) — a client's own view of the reports, which models the advisor has opened to them, and how a client's edits are shown. **Part 1, the stub, is built; part 2 is item 4.62.** | [history](business-entity-reports-history.md) |
 
 ## Management
 
-| Brief | History |
-|---|---|
-| [Firm Manager Hub](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
-| [The Tier Cascade](tier-cascade.md) — what flows down, what reports up | [history](tier-cascade-history.md) |
-| [Search-Content Cascade Plan](../SEARCH-CONTENT-CASCADE-PLAN.md) — the master template library moves into the cascading database. **All four phases built on our side (2026-09-09); Advisor-e's call into the push endpoint is the master team's.** | — |
+| # | Brief | History |
+|---|---|---|
+| 10 | [Firm Manager Hub](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
+| 49 | [The Tier Cascade](tier-cascade.md) — what flows down, what reports up | [history](tier-cascade-history.md) |
+| 50 | [Search-Content Cascade Plan](../SEARCH-CONTENT-CASCADE-PLAN.md) — the master template library moves into the cascading database. **All four phases built on our side (2026-09-09); Advisor-e's call into the push endpoint is the master team's.** | — |
 
 ## The adviser network
 
-| Brief | History |
-|---|---|
-| [Adviser Network](adviser-network.md) — the manager console | [history](adviser-network-history.md) |
-| [Groups & Messaging](collaborate-groups.md) — the adviser-facing side | [history](collaborate-groups-history.md) |
-| [People Data Layer](collaborate-data-layer.md) — the database seam | [history](collaborate-data-layer-history.md) |
-| [Sales Tracker](sales-tracker.md) — an advisor's own deal pipeline and referral partners, surveyed from an existing app. **Item 17 — nothing is built, and the measurement is not yet named.** | [history](sales-tracker-history.md) |
+| # | Brief | History |
+|---|---|---|
+| 11 | [Adviser Network](adviser-network.md) — the manager console | [history](adviser-network-history.md) |
+| 51 | [Groups & Messaging](collaborate-groups.md) — the adviser-facing side | [history](collaborate-groups-history.md) |
+| 52 | [People Data Layer](collaborate-data-layer.md) — the database seam | [history](collaborate-data-layer-history.md) |
+| 17 | [Sales Tracker](sales-tracker.md) — an advisor's own deal pipeline and referral partners, surveyed from an existing app. **Page 17 — nothing is built, and the measurement is not yet named.** | [history](sales-tracker-history.md) |
 
 ## Across the app
 
-| Brief | History |
-|---|---|
-| [Case Studies & Clients](cases-and-clients.md) | [history](cases-and-clients-history.md) |
-| [Language & Currency](localisation-and-currency.md) | [history](localisation-and-currency-history.md) |
+| # | Brief | History |
+|---|---|---|
+| 53 | [Case Studies & Clients](cases-and-clients.md) | [history](cases-and-clients-history.md) |
+| 13 | [Language & Currency](localisation-and-currency.md) | [history](localisation-and-currency-history.md) |
+| 16 | [White-Label & Firm Brand](white-label.md) — the advisor firm's name, colour and logo on a client's document | [history](white-label-history.md) |
 
 ---
 
