@@ -63,8 +63,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 26 | **13.1** Changing currency relabels figures and does not convert them ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 27 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 28 | **13.3** The currency picker is the one manager setting outside the hub ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 29 | **13.4** An advisor cannot set a currency for one client ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**28 live items. Fourteen need Mike.** If this list passes about twenty, something is wrong.
+**29 live items. Fourteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

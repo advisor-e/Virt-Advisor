@@ -125,8 +125,13 @@ exception.
 `components/collaborate/shared/ConversationPane.vue`). None did before, so guarding the route without
 changing them would have broken language switching everywhere.
 
-**P6 · Currency: read by any signed-in firm user, written by managers only.** A read must never
-require a manager role and must never break a report — on any failure it degrades to the default.
+**P6 · Currency: read by any signed-in firm user, the FIRM's value written by managers only.** A
+read must never require a manager role and must never break a report — on any failure it degrades
+to the default.
+
+⚠ **A client-level override is Mike's ruling of 2026-09-22 and is NOT yet built** (`13.4`). When it
+lands, the manager-only write still governs the **firm's** value; the advisor's is the **client's**,
+and the resolution order is client → firm → platform default. See §3.
 
 **P7 · The supported currency list has one source**, shared by the backend and the picker, so
 the two cannot drift.
@@ -183,6 +188,28 @@ So there are **two separate things**, and conflating them is how this went wrong
 |---|---|---|
 | **Currency** | The **firm**, one value (`/api/report/currency`) | Which money every report is denominated in |
 | **Conversion** | **Inside a model**, per model | What a foreign leg costs once a primary currency is known |
+
+🔴 **AND THE FIRM'S CURRENCY CASCADES TO THE CLIENT, WHERE THE ADVISOR MAY EDIT IT — Mike, 2026-09-22.**
+In his words:
+
+> *"currency is selected at firm manager level and cascades down to the client level model library
+> but at client level (which is where the advisor uses it - for the benefit of their clients) the
+> currency can again be edited by the advisor - if required"*
+
+So there are **three levels, not two** — the firm sets one, it cascades to every client, and the
+advisor overrides it for a client that needs it. **On the live list as `13.4`; the client half does
+not exist yet** (`currencyMixin` holds one `firmCurrency` and every report reads it).
+
+⚠ **THIS DOES NOT REOPEN THE RULING BELOW, AND A READER MUST NOT TAKE IT THAT WAY.** What he
+rejected earlier the same day was a per-client currency **as a second firm-level setting**, with the
+conversion maths that implies. This is a **label** — which money this client's reports are
+denominated in — defaulting to the firm's. **Conversion still lives inside a model on
+`fxAllowancePct`, exactly as ruled.** The two are compatible because one is what a figure is
+*called* and the other is what a figure is *worth*.
+
+🔴 **It also makes `13.1` load-bearing.** A firm-wide relabel is defensible: every figure was
+entered in the firm's own money. **An advisor switching one client to Euro is far likelier to
+believe the figures converted** — so the warning line ships with `13.4` or before it.
 
 ✅ **THE APP ALREADY WORKS THIS WAY, which is why this is a principle rather than a build.**
 `server/report/threeWayForecastModel.js` takes an **`fxAllowancePct`** the advisor enters and applies
