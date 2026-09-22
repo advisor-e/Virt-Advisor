@@ -2095,11 +2095,52 @@ export default {
    mean nothing here. Re-seated rather than re-drawn, so one firm never renders two
    different marks. */
 .sp-brand { position: relative; height: 34px; margin: 0 0 0.75rem; }
-.sp-brand .spm { position: static; height: 34px; background: none; padding: 0; max-width: none; }
-.sp-brand >>> .spm-disc { height: 28px; font-size: 13px; }
-.sp-brand >>> .spm-name { font-size: 14px; }
-.sp-brand >>> .spm-logo { height: 34px; }
-.sp-brand >>> .spm-foot { display: none; }
+/* The mark seats itself for a SHEET — absolutely placed into the gap in the firm's
+   bottom bar, and showing the logo box alone because his deck's logo carries the firm's
+   name inside the image. In a screen header it is an ordinary element in the flow, and
+   the name has to be spelled out beside it: a bare disc with a letter in it tells an
+   advisor nothing. Re-seated, never re-drawn, so one firm never renders two marks. */
+.sp-brand .spm {
+  position: static;
+  height: 34px;
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  overflow: visible;
+}
+.sp-brand >>> .spm-disc { height: 30px; font-size: 14px; }
+.sp-brand >>> .spm-name {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #002b64;
+  white-space: nowrap;
+}
+.sp-brand >>> .spm-logo { height: 34px; width: auto; }
+
+/* 🔴 A VIOLET BUTTON BESIDE A FIRM-COLOURED RAIL IS THE INCONSISTENCY ITSELF. Buefy
+   ships its own #7957D5 for `is-primary` and the planner loaded it unmodified, so the
+   stage rail followed the firm while every button beside it did not. Within the planner
+   they take the firm's colour, from the same custom property everything else reads.
+   ⚠ Scoped to the planner deliberately — the same violet is on 84 files app-wide and
+   correcting it everywhere is item 16.1, which is its own job. */
+.sp >>> .button.is-primary {
+  background-color: var(--sp-firm, #0070c0);
+  border-color: var(--sp-firm, #0070c0);
+  color: #fff;
+}
+.sp >>> .button.is-primary.is-outlined {
+  background-color: transparent;
+  color: var(--sp-firm, #0070c0);
+}
+.sp >>> .button.is-primary:hover:not([disabled]),
+.sp >>> .button.is-primary:focus:not([disabled]) {
+  background-color: var(--sp-firm, #0070c0);
+  border-color: var(--sp-firm, #0070c0);
+  filter: brightness(0.92);
+}
 
 .sp-top {
   display: flex;
