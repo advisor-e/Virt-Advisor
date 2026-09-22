@@ -11,10 +11,15 @@
 
 ## 2026-09-22 · Laptop · branch `feat/advisor-progress`
 
-**Clean, pushed, 18 ahead / 0 behind.** Suite **13,327 green** (599 suites), lint 0 errors.
-Merged your PR #109 on the way — item 17 stages 4 and 5 came across cleanly, one conflict and
-it was `CODE-SIZE.md`, regenerated rather than hand-merged. **PR #108 IS OPEN and MERGEABLE**
-with 18 commits. **NOTHING WAITS ON MIKE.**
+🔴 **PR #108 IS MERGED — `master` HAS ALL OF IT, and this branch is level with it (0 ahead,
+0 behind at `0926ef66`).** Mike merged it himself at the end of the session, nineteen commits.
+**So there is nothing to pull from this branch: merge `master` down and you have it.**
+Clean tree, suite **13,327 green** (599 suites), lint 0 errors. Merged your PR #109 on the way —
+item 17 stages 4 and 5 came across cleanly, one conflict and it was `CODE-SIZE.md`, regenerated
+rather than hand-merged. **NOTHING WAITS ON MIKE.**
+
+⚠ **YOU WILL BE ~20 BEHIND `master` WHEN YOU OPEN.** That is this merge, not drift on your side,
+and `npm run check:branch` will say so before you can push. Merge `master` in first.
 
 **STAGE 6 IS BUILT — the AI pre-tick.** `server/utils/strategyPretick.js` (the prompt and the
 validator every reply passes through, 100% covered), `POST /api/strategy/suggest`, and the
