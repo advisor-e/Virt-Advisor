@@ -29,6 +29,7 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 }))
 jest.mock('../../server/utils/clientStore', () => ({ getById: jest.fn() }))
 
+const fs = require('fs')
 const overlay = require('../../server/utils/firmOverlay')
 const clientStore = require('../../server/utils/clientStore')
 const {
@@ -164,12 +165,19 @@ describe('a failing store never throws', () => {
     spy.mockRestore()
   })
 
+  // A failing overlay drops through `devFallbackAllowed` to the gitignored dev file
+  // `data/dev-firm-currency.json`. That file is whatever a developer's own machine
+  // happens to hold, so a stale entry for FIRM there answers instead of the platform
+  // default and this test passes or fails by machine. Stub the read, as
+  // `currency.routes.test.js` does, so the assertion is about the code and not the disk.
   test('a total overlay failure still answers with the platform default', async () => {
     clientStore.getById.mockResolvedValue({ id: CLIENT, firmId: FIRM })
     overlay.loadFirmConfig.mockRejectedValue(new Error('db down'))
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const devFile = jest.spyOn(fs, 'readFileSync').mockReturnValue('{}')
     const r = await readClientCurrency(FIRM, CLIENT)
     expect(r.currency).toBe(DEFAULT_CURRENCY)
+    devFile.mockRestore()
     spy.mockRestore()
   })
 
@@ -177,10 +185,12 @@ describe('a failing store never throws', () => {
     clientStore.getById.mockRejectedValue(new Error('db down'))
     overlay.loadFirmConfig.mockRejectedValue(new Error('db down'))
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const devFile = jest.spyOn(fs, 'readFileSync').mockReturnValue('{}')
     const res = makeMockRes()
     await getForClient(makeReq(), res)
     expect(res._status).toBe(200)
     expect(res._body.currency).toBe(DEFAULT_CURRENCY)
+    devFile.mockRestore()
     spy.mockRestore()
   })
 })

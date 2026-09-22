@@ -1,14 +1,19 @@
 <template lang="pug">
-article.spd
+article.spd(:style="frameStyle")
   //- FRONT MATTER — the first three pages of Pivot: title, the session objective,
   //- then the agenda. The agenda lists every step the advisor named, including one
   //- with nothing in it: a step is a thing he names, not a container the ticks make.
   section.spd-page.is-title
+    strategy-plan-mark(v-bind="markProps" big)
+    strategy-plan-frame(:split=false)
     p.spd-kind {{ $t('strategyPlanner.plan.sessionPlan') }}
     h2.spd-title {{ clientName }}
     p.spd-sub(v-if="decks") {{ decks }}
 
   section.spd-page.is-agenda
+    strategy-plan-mark(v-bind="markProps")
+    strategy-plan-frame(split)
+    p.spd-foot(v-if="runningFoot") {{ runningFoot }}
     h3.spd-h {{ $t('strategyPlanner.plan.agenda') }}
     ol.spd-agenda
       li.spd-agenda-item(v-for="(step, i) in steps" :key="'a' + i")
@@ -21,6 +26,9 @@ article.spd
   //- stops there.
   template(v-for="(step, i) in steps")
     section.spd-page.is-divider(:key="'d' + i")
+      strategy-plan-mark(v-bind="markProps")
+      strategy-plan-frame(split)
+      p.spd-foot(v-if="runningFoot") {{ runningFoot }}
       p.spd-step {{ $t('strategyPlanner.plan.step', { n: i + 1 }) }}
       h3.spd-divider-h {{ step.name }}
       //- A step announces itself twice only where there IS something to teach
@@ -32,6 +40,9 @@ article.spd
     //- puts a blank slide in the middle of a document a client is shown.
     template(v-for="item in step.items")
       section.spd-page.is-teach(v-if="item.summary || item.prompts.length" :key="'t' + i + item.key")
+        strategy-plan-mark(v-bind="markProps")
+        strategy-plan-frame(split)
+        p.spd-foot(v-if="runningFoot") {{ runningFoot }}
         p.spd-kind {{ $t('strategyPlanner.plan.teach') }}
         h3.spd-h {{ item.name }}
         //- 🔴 THE GRAPHIC, where the approved drawing puts it
@@ -67,6 +78,9 @@ article.spd
             |  — {{ p.prompt }}
 
     section.spd-page.is-divider(v-if="step.teaches && step.works !== false" :key="'d2' + i")
+      strategy-plan-mark(v-bind="markProps")
+      strategy-plan-frame(split)
+      p.spd-foot(v-if="runningFoot") {{ runningFoot }}
       p.spd-step {{ $t('strategyPlanner.plan.step', { n: i + 1 }) }}
       h3.spd-divider-h {{ step.name }}
       p.spd-divider-kind {{ $t('strategyPlanner.plan.actionPoints') }}
@@ -77,6 +91,9 @@ article.spd
     //- there was never anything to work. Its teaching page stands alone.
     template(v-for="item in step.items")
       section.spd-page.is-capture(v-if="item.hasTable !== false" :key="'c' + i + item.key")
+        strategy-plan-mark(v-bind="markProps")
+        strategy-plan-frame(split)
+        p.spd-foot(v-if="runningFoot") {{ runningFoot }}
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
@@ -135,11 +152,17 @@ article.spd
   //- the ruling moved WHERE they are filed, never whether the client receives them.
   template(v-if="closing.length")
     section.spd-page.is-divider
+      strategy-plan-mark(v-bind="markProps")
+      strategy-plan-frame(split)
+      p.spd-foot(v-if="runningFoot") {{ runningFoot }}
       p.spd-step {{ $t('strategyPlanner.rail.objectives') }}
       h3.spd-divider-h {{ $t('strategyPlanner.plan.closingHeading') }}
 
     template(v-for="item in closing")
       section.spd-page.is-capture(:key="'x' + item.key")
+        strategy-plan-mark(v-bind="markProps")
+        strategy-plan-frame(split)
+        p.spd-foot(v-if="runningFoot") {{ runningFoot }}
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
@@ -177,12 +200,14 @@ article.spd
  */
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
+import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
+import StrategyPlanFrame from '~/components/strategy/StrategyPlanFrame.vue'
 import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyPlanDocument',
 
-  components: { StrategyConceptGraphic, StrategyOrgChart },
+  components: { StrategyConceptGraphic, StrategyOrgChart, StrategyPlanMark, StrategyPlanFrame },
 
   props: {
     /** The client this plan belongs to. */
@@ -249,6 +274,41 @@ export default {
     }
   },
 
+  computed: {
+    /**
+     * The firm's mark, bound once and spread onto every sheet — item 16.2.
+     * @returns {{name: string, logo: string, colour: string}}
+     */
+    markProps () {
+      return {
+        name: this.firmName,
+        logo: this.firmLogo,
+        colour: this.firmColour
+      }
+    },
+
+    /**
+     * The running foot beside the mark on every page but the title — the client and
+     * what the document is, as the approved drawing carries it.
+     * @returns {string} empty where there is no client, so a page never prints a
+     *   lone separator.
+     */
+    runningFoot () {
+      if (!this.clientName) { return '' }
+      return this.clientName + ' · ' + this.$t('strategyPlanner.plan.sessionPlan')
+    },
+
+    /**
+     * The page frame's colour, as a CSS custom property on the document root.
+     * @returns {{'--spd-firm': string}} the firm's colour, which the border reads.
+     *   Mike's ruling, 2026-09-22: the border returns in the advisor firm's colour.
+     *   His own page uses Advisor-e's cyan there; on a client's document it is theirs.
+     */
+    frameStyle () {
+      return { '--spd-firm': this.firmColour }
+    }
+  },
+
   methods: {
     /**
      * Does this concept have one of Mike's approved drawings on its teaching page?
@@ -309,13 +369,137 @@ export default {
    for text. The real drawings are whole deck pages, so clipping here would silently cut
    Mike's own teaching content off a client's document. A page whose content will not fit
    grows instead, and the one page in 25 that does is visible rather than truncated. */
+/* 🔴 THE FRAME AND THE PAGE NUMBER ARE MIKE'S OWN DECK PAGE — item 16.2, drawn and
+   approved at `design/mockups/strategy-plan-firm-mark.html`, measured off
+   `Advance.6.Organisational Review.pdf` (720x405pt):
+     border  inset 3.9pt (0.54% of width), bar 7.1pt (0.99%), SQUARE corners
+     number  Calibri 9pt #888888 at x=660.7, y=382.8 — 91.76% / 94.52%
+   His cyan #00B1E0 is replaced by the firm's colour, which is the whole of this item.
+   The bottom border's two segments are made by the mark's own white plate sitting on
+   the line — see `StrategyPlanMark.vue`.
+   ⚠ ONE RECORDED DEVIATION FROM THE DRAWING: the drawing is his 16:9 page; these
+   sheets stay `297/210` because A4 is his later ruling for THIS document
+   (2026-09-21), measured — 24 of 25 pages sit at that frame. The border is expressed
+   as a share of the page, so it holds at either ratio. */
+/* ⚠ `border-width` DOES NOT ACCEPT PERCENTAGES — a percentage there is invalid and is
+   dropped silently, leaving a 3px default. The bar is sized in container-query units
+   instead, against `.spd`, which is the page's own width; the px value before it is the
+   fallback for a browser without container queries. */
+.spd { counter-reset: spdpage; container-type: inline-size; }
+
+/* 🔴 THE FRAME IS NOT A CSS BORDER, AND IT CANNOT BE. A CSS border sits hard on the
+   element's edge, so it can do none of the three things his page does:
+     - RELIEF OUTSIDE IT. His bars are INSET 3.9pt from the sheet, leaving white all the
+       way round. A border has nothing outside it.
+     - A BREAK FOR THE LOGO. His bottom edge is two bars with a gap between them. A
+       border is one unbroken rectangle.
+     - THE LOGO SITTING ON IT. His mark straddles the bottom line, inside the gap. A
+       border is painted outside the area a child can occupy.
+   So the frame is an inset box of its own, exactly as the approved drawing draws it, and
+   the mark paints over it because it comes later in the document order.
+   Found 2026-09-22 — Mike: "border has no relief around the outside, border has no break
+   in lower left corner - logo not inside border section bottom left." */
+/* The frame is `StrategyPlanFrame` — five bars ported from the approved drawing. A CSS
+   border lived here and could not be inset from the sheet, could not break for the logo,
+   and could not be stood on. See that component. */
+
 .spd-page {
+  position: relative;
+  counter-increment: spdpage;
   background: #fff;
-  border: 1px solid #d5e1ee;
-  border-radius: 12px;
+  border: 0;
+  border-radius: 0;                     /* his corners are square */
+  /* ⚠ THE FOOT MUST CLEAR THE MARK. The mark is absolutely positioned at the bottom of
+     the sheet, and a page that outgrows its frame — which this component deliberately
+     allows rather than clipping Mike's teaching content — put its last line underneath
+     the firm's own logo. Seen by opening the app. */
   padding: 26px 30px;
+  padding-bottom: 7cqw;
   aspect-ratio: 297 / 210;
   box-shadow: 0 8px 22px rgba(0, 43, 100, 0.06);
+}
+
+/* His page number, on every sheet, from the document's own counter. */
+.spd-page::after {
+  content: counter(spdpage);
+  position: absolute;
+  left: 91.764%;                        /* 660.7 / 720 */
+  top: 94.519%;                         /* 382.8 / 405 */
+  font-size: 12px;
+  font-size: 1.25cqw;                   /* his 9pt */
+  color: #888888;
+}
+
+/* The title page carries the mark at the top, so nothing interrupts its border and it
+   needs no number — his own title page has none. */
+.spd-page.is-title::after { content: none; }
+
+/* ── copied from the approved drawing, `.deck .note` ── */
+.spd-foot {
+  position: absolute;
+  left: 3.986%;
+  top: 84.173%;
+  margin: 0;
+  font-size: 11px;
+  font-size: 1.25cqw;
+  color: #434343;
+}
+.spd-page.is-divider .spd-foot { color: #cfe0f2; }
+.spd-page.is-teach .spd-foot { display: none; }
+
+/* 🔴 THE MARK'S WHITE PLATE IS A GAP IN THE BORDER, AND ONLY A WHITE SHEET HAS ONE.
+   On the navy step dividers it rendered as a white rectangle floating over the dark
+   page — found by opening the app, invisible to every assertion. There the border is
+   the page's own edge, so the plate goes and the name knocks out to white.
+   `.spm` is the child's ROOT element, so it carries this component's scope id and a
+   plain descendant selector reaches it; its inner spans need `>>>`. */
+/* 🔴 THE PLATE IS WHAT BREAKS THE BOTTOM BAR, so it stays on EVERY sheet — it just has
+   to be the colour of the sheet it breaks. On a white page that is white; on a navy step
+   divider it is the navy, or the break would read as a white brick rather than a gap.
+   It was switched OFF on dividers, which removed the break there entirely. */
+
+.spd-page.is-divider >>> .spm-name { color: #fff; }
+
+/* 🔴 DECISION A, RULED WITH THE DRAWING — A TEACHING PAGE CARRIES ONE FRAME AND ONE
+   MARK, AND BOTH COME FROM THE DRAWING INSIDE IT. Each of the 33 concept drawings is a
+   whole deck page and already carries this exact firm-coloured frame and the firm's
+   mark. With the sheet drawing its own as well, a client saw TWO blue frames a few
+   millimetres apart and the firm's mark TWICE on one page. Seen by opening the app;
+   no assertion could see it.
+   The border is kept at full width and made transparent rather than removed, so the
+   content box does not shift between a teaching page and any other. */
+.spd-page.is-teach .spf { display: none; }
+.spd-page.is-teach .spm { display: none; }
+/* ⚠ AND IT RECLAIMS THE FOOT. The deep bottom padding exists to keep a growing page's
+   last line out from under the mark — a teaching page has no mark, so the padding only
+   pushed it over the sheet. Measured in a generated PDF: with it, one teaching page
+   split across two sheets and a client's plan ran to 14 sheets instead of 13. */
+.spd-page.is-teach { padding-bottom: 26px; }
+
+/* 🔴 HIS TITLE PAGE, from Advance.6.Organisational Review.pdf: the mark centred at the
+   top, then the title at y=200.4 of 405 (49.48%) and the subtitle at y=304.1 (75.09%),
+   both centred, both Open Sans REGULAR — his title is not bold.
+   Found by opening the app: with the text left-aligned at the top as it was, the mark
+   landed underneath it in the middle of the sheet instead of leading the page. */
+.spd-page.is-title { text-align: center; }
+.spd-page.is-title .spd-kind { position: absolute; left: 0; right: 0; top: 43%; margin: 0; }
+.spd-page.is-title .spd-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 49.48%;
+  font-size: 34px;
+  font-size: 6.25cqw;            /* his 45pt of a 720-wide page */
+  font-weight: 400;
+}
+.spd-page.is-title .spd-sub {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 75.09%;
+  margin: 0;
+  font-size: 15px;
+  font-size: 2.5cqw;             /* his 18pt */
 }
 
 .spd-kind {
@@ -339,9 +523,14 @@ export default {
   margin-top: 6px;
 }
 
+/* 🔴 HIS PAGE HEADING — 24pt Open Sans REGULAR in #002B64 at x=25.4, y=21.3 of a
+   720x405 page (Advance.6.Organisational Review.pdf). It was 21px bold, which is the
+   app's own voice rather than his deck's, and it is the reason a printed plan still did
+   not look like his pages once the border and the mark were on it. */
 .spd-h {
-  font-size: 21px;
-  font-weight: 700;
+  font-size: 18px;
+  font-size: 3.333cqw;
+  font-weight: 400;
   color: #002b64;
   margin: 0 0 10px;
 }
@@ -352,20 +541,37 @@ export default {
 }
 
 .spd-agenda {
-  padding-left: 20px;
+  padding-left: 0;
+  list-style: none;
 }
 
+/* 🔴 HIS AGENDA IS TWO COLUMNS, NOT A NUMBERED LIST. On his own agenda page the item
+   sits at x=42.7 and what it gets the client sits at x=352.7 of a 720-wide page — two
+   aligned columns a client reads across, which is the whole point of the page. It was
+   a decimal list with the count trailing the name inline; the approved drawing shows
+   the two columns and this is what a side-by-side comparison found missing. */
 .spd-agenda-item {
-  list-style: decimal;
+  list-style: none;
   color: #23405f;
   margin-bottom: 8px;
+  display: grid;
+  /* His bullet sits at x=30 and the item at x=42.7 of a 720-wide page. Measured against
+     the built page the item was landing at 5.42%w against his 5.93%, so the bullet
+     column is widened to put it on his mark. */
+  grid-template-columns: 2.6% 46.0% 1fr;     /* his bullet, item and outcome columns */
+  align-items: baseline;
+}
+
+.spd-agenda-item::before {
+  content: '\2022';
+  color: #23405f;
 }
 
 .spd-agenda-count,
 .spd-agenda-none {
   color: #5b6f8a;
   font-size: 13.5px;
-  margin-left: 8px;
+  margin-left: 0;
 }
 
 .spd-agenda-none {
@@ -487,7 +693,19 @@ export default {
   .spd-page {
     box-shadow: none;
     page-break-after: always;
-    border: 0;
+
+    /* 🔴 `border: 0` USED TO LIVE HERE AND IT STRIPPED THE FIRM'S BRANDING OFF THE ONE
+       OUTPUT THAT MATTERS. It was right when the border was a grey hairline that only
+       separated pages on screen; since item 16.2 the border IS the advisor firm's mark
+       on a document the client keeps, so removing it in print removed the whole point.
+       Found 2026-09-22 — Mike: "the pdfs do not show the changes - why?" */
+
+    /* And without this a browser drops every background colour when printing, which
+       takes the initials disc, the navy step dividers and the white plate that makes
+       the gap in his bottom border. `DashboardReportPage.vue` already does this for
+       the Business Performance Report; the plan did not. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 </style>

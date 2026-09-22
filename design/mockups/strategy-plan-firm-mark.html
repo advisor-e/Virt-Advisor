@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Firm's Mark on the Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Carlito:wght@400;700&display=swap">
+<style>
+/* ============================================================================
+   THE FIRM'S MARK ON THE PRINTED PLAN — to-do item 16.2.
+   Drawn 2026-09-22. NOTHING ON THIS PAGE IS BUILT.
+
+   🔴 THE SOURCE, NAMED BY MIKE AND READ BY MACHINE:
+      C:\Documents\Visual Code Projects\Strategy Planner\Advance.6.Organisational Review.pdf
+      25 pages, 720 x 405pt (16:9).
+
+   Three earlier drafts guessed at what "the original layout" meant and copied
+   things inside this repository instead of asking. They were wrong. Mike:
+   "it isnt in the strategy planner folder so why look there?? ... and next time
+   - dont guess - ask!" THE ORIGINAL IS HIS OWN DECK PAGE. Nothing else.
+
+   EVERY NUMBER BELOW IS EXTRACTED FROM THAT FILE, never placed by eye - the
+   five-step method in design/features/strategy-planner.md "How a concept is
+   drawn", which is the same method the 33 concept drawings were built with:
+     - geometry from the page's own coordinates (720x405pt, x1.778 to 1280x720px)
+     - colours sampled, not remembered
+     - type from the PDF's own spans - Open Sans, and Carlito for the page number
+       (metric-compatible with his Calibri)
+
+   WHAT HIS PAGE ALREADY DEFINES, and what this item is therefore only FILLING:
+     - the BORDER: #00B1E0, inset 3.9pt, bar 7.1pt, square corners, and on a
+       content page THE BOTTOM BORDER IS **TWO SEGMENTS**, not one - a short stub
+       in the corner (x 3.89 -> 49.51, 45.61pt wide), then the LOGO in the gap
+       (x 49.5 -> 118.9), then the long run (x 119.19 -> 715.62). The border turns
+       the corner, stops for the mark and resumes. Mike spotted the stub missing
+       from the first version of this drawing; it had been filtered out of the
+       extraction by a >50pt size threshold. Extract with NO size filter.
+     - the LOGO, twice over: 202.8 x 110.1pt CENTRED at the top of the title page,
+       and 69.4 x 37.7pt at x=49.5 y=364.6 on every page after it - bottom left,
+       sitting OVER the bottom border.
+     - the TYPE: 45pt navy #002B64 centred title page; 18pt #434343 subtitle;
+       24pt navy top-left on a content page; 10pt body, #434343 left column and
+       #002B64 right column; page number Calibri 9pt #888888 at x=660.7.
+
+   🔴 THE MEASUREMENT, NAMED BEFORE THE DESIGN: print the plan for a dev firm and
+   count the sheets carrying the firm's mark and the firm's colour. 0 and 0 today.
+   Every sheet after. Proved by printing 2026-09-21; measured the same way.
+   ============================================================================ */
+:root{
+  --cyan:#00B1E0;       /* his border, sampled */
+  --navy:#002B64;       /* his headings */
+  --body:#434343;       /* his body copy */
+  --pno:#888888;        /* his page number */
+  --ground:#eef3f8; --paper:#fff; --line:#d5e1ee; --muted:#5b6f8a;
+  --blue:#0070c0; --good:#4ca52d; --danger:#e00000; --caution:#ff9900;
+  --sans:'Open Sans',system-ui,'Segoe UI',Arial,sans-serif;
+  --firm:#7a4b8f;       /* the example firm, Ashgrove Advisory */
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--body);font-family:var(--sans);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1240px;margin:0 auto;padding:28px 22px 72px}
+h1{font-size:32px;line-height:1.15;margin:0 0 6px;color:var(--navy);font-weight:700}
+h2.sec{font-size:20px;margin:42px 0 10px;color:var(--navy)}
+h3.sub3{font-size:15px;margin:22px 0 8px;color:var(--navy)}
+p{margin:0 0 12px;max-width:78ch} ul{margin:0 0 12px;padding-left:20px} li{margin:0 0 5px;max-width:78ch}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;background:#eaf2f9;
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:0 0 8px}
+.lede{font-size:16px;color:var(--muted);max-width:80ch}
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--blue);border-radius:10px;
+  padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--blue)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600;color:var(--navy)}
+.ask .q{margin-top:9px;padding-top:9px;border-top:1px solid #bcdcf6;font-weight:600}
+.ask.settled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--good)}
+.ask.settled h3{color:#2f6b19}
+.tw{overflow-x:auto;margin:0 0 16px}
+table.doc{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+table.doc th,table.doc td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+table.doc th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}
+table.doc td:first-child{font-weight:600}
+table.doc td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.measure{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--danger);
+  border-radius:10px;padding:14px 16px;margin:18px 0}
+.measure h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--danger)}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 10px}
+.mg{border:1px solid var(--line);border-radius:10px;padding:12px 13px;background:#f3f8fc}
+.mg .n{font-size:27px;font-weight:700;color:var(--navy);line-height:1.1}
+.mg .l{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+/* ==========================================================================
+   HIS PAGE. 720x405pt rendered at 1180x664 (x1.6389 from pt).
+   Every value carries its source measurement in a comment.
+   ========================================================================== */
+.deck{position:relative;width:100%;aspect-ratio:720/405;background:#fff;
+  box-shadow:0 2px 14px rgba(0,43,100,.10);overflow:hidden;color:var(--body);
+  font-family:var(--sans);container-type:inline-size}
+
+/* The border: four bars, not a CSS border, because HIS bottom bar is interrupted
+   by the logo. Inset 3.9/720 = 0.542%; bar 7.1/720 = 0.986% of the page WIDTH. */
+.deck .bd{position:absolute;background:var(--cyan)}
+.deck .bd.t{left:.542%;right:.542%;top:.963%;height:1.753%}      /* 3.9,3.9 -> 715.6,11.0 */
+.deck .bd.l{left:.542%;top:2.716%;bottom:2.716%;width:.944%}     /* 3.9,11 -> 10.7,394 */
+.deck .bd.r{right:.542%;top:2.716%;bottom:2.716%;width:.944%}    /* 708.8 -> 715.6 */
+.deck .bd.b{left:.542%;right:.542%;bottom:.963%;height:1.753%}   /* 3.9,394 -> 715.6,401.1 */
+/* 🔴 ON A CONTENT PAGE THE BOTTOM BORDER IS **TWO SEGMENTS**, NOT ONE, and the logo
+   sits in the gap between them:
+       left stub   x 3.89 -> 49.51   (45.61pt wide)   = left .542%, width 6.334%
+       [ the logo  x 49.5 -> 118.9 ]
+       right run   x 119.19 -> 715.62                 = left 16.554%
+   Mike spotted the stub missing from the first version of this drawing. It is a real
+   part of his page — the border turns the corner, stops for the mark, and resumes. */
+.deck.content .bd.b{left:16.554%}
+.deck .bd.bl{display:none}
+.deck.content .bd.bl{display:block;left:.542%;width:6.334%;bottom:.963%;height:1.753%}
+
+/* The logo, title page: 202.8 x 110.1 at 258.3,54.2 — centred (centre 359.75 of 720). */
+.deck .mark.big{position:absolute;left:35.875%;top:13.383%;width:28.167%;height:27.185%}
+/* The logo, content page: 69.4 x 37.7 at 49.5,364.6 — bottom left, OVER the border. */
+.deck .mark.small{position:absolute;left:6.875%;top:90.025%;width:9.639%;height:9.309%}
+.mark{display:grid;place-items:center;border-radius:2px;overflow:hidden}
+.mark.firm{background:linear-gradient(97deg,#7a4b8f,#a878bd);color:#fff;font-weight:700;
+  letter-spacing:.08em}
+.mark.firm.big{font-size:min(3.4cqw,40px)} .mark.firm.small{font-size:min(1.15cqw,14px)}
+.mark.ae{background:#f2fafd;border:1px dashed var(--cyan);color:var(--cyan);font-weight:600}
+.mark.ae.big{font-size:min(1.9cqw,22px)} .mark.ae.small{font-size:min(.85cqw,10px)}
+/* The initials disc, where a firm holds no logo — Mike's ruling 2026-09-22.
+   It fills the SAME box, so nothing reflows between one firm and another. */
+.mark.disc{background:#f3edf6;display:flex;gap:4%;align-items:center;justify-content:center;
+  color:var(--firm);font-weight:600}
+.mark.disc i{border-radius:50%;background:var(--firm);color:#fff;display:grid;place-items:center;
+  font-style:normal;font-weight:700;aspect-ratio:1;height:64%}
+.mark.disc.big{font-size:min(2.1cqw,26px)} .mark.disc.small{font-size:min(.95cqw,11px)}
+
+/* Type, from his own spans. 45pt/720 -> 6.25cqw; 24pt -> 3.333cqw; 18pt -> 2.5cqw;
+   10pt -> 1.389cqw; 9pt -> 1.25cqw. */
+.deck .t-title{position:absolute;left:0;right:0;top:49.48%;text-align:center;color:var(--navy);
+  font-size:6.25cqw;font-weight:400;line-height:1.1}                 /* 45pt, y=200.4 */
+.deck .t-sub{position:absolute;left:0;right:0;top:75.09%;text-align:center;color:var(--body);
+  font-size:2.5cqw;font-weight:400}                                   /* 18pt, y=304.1 */
+.deck .t-h{position:absolute;left:3.528%;top:5.259%;color:var(--navy);font-size:3.333cqw;
+  font-weight:400;margin:0}                                           /* 24pt at 25.4,21.3 */
+.deck .body{position:absolute;left:4.167%;right:3.5%;top:16.469%;font-size:1.389cqw;line-height:1.85}
+                                                  /* his first row y0=66.7 of 405 */
+/* THREE columns, because his bullet is its own column: bullet at x=30, left text
+   at x=42.7, right text at x=352.7. Against a body box running 30 -> 694.8pt
+   (width 664.8) that is 1.91% for the bullet and 46.63% for the left column. */
+.deck .body .two{display:grid;grid-template-columns:1.91% 46.63% 1fr;column-gap:0;align-items:baseline}
+.deck .body .l{color:var(--body)} .deck .body .r{color:var(--navy)}   /* his right column is navy */
+.deck .body .bullets{list-style:none;margin:0;padding:0}
+.deck .body .bullets li{margin:0;max-width:none}
+.deck .body .bullets li::before{content:'\2022';color:var(--body)}
+/* His note sits at x=28.7, y=340.9 — anchored from the TOP, not the foot, because the
+   foot is where the border and the mark live and a bottom anchor drifts against them. */
+.deck .note{position:absolute;left:3.986%;top:84.173%;font-size:1.25cqw;color:var(--body)}
+/* His instruction band: green highlight, justified — page 4 of the deck. */
+.deck .band{background:#3ff23f;color:var(--body);font-size:1.944cqw;line-height:2;text-align:justify;
+  padding:0 .2em}
+/* Anchored LEFT at his x0=660.7 (91.764%), not from the right edge: his number is
+   left-aligned at that x, so a right anchor would shift it as the digits grow. */
+.deck .pno{position:absolute;left:91.764%;top:94.519%;font-family:Carlito,Calibri,var(--sans);
+  font-size:1.25cqw;color:var(--pno)}                     /* Calibri 9pt #888888, x=660.7 y=382.8 */
+/* The firm-branded version: his cyan becomes the firm's colour. Nothing else moves. */
+.deck.firmed .bd{background:var(--firm)}
+.deck .tbl{width:100%;border-collapse:collapse;font-size:1.25cqw}
+.deck .tbl th,.deck .tbl td{border:1px solid #c9d8e8;padding:.35em .5em;text-align:left}
+.deck .tbl th{background:#f2f7fb;color:var(--navy);font-weight:600}
+.deck .fig{position:absolute;left:8%;right:8%;top:17%;bottom:16%;border:1px solid var(--line);
+  background:#f7fbfd;display:grid;place-items:center;text-align:center;color:var(--muted);
+  font-size:1.45cqw}
+
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.pair .cap{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+.pair .cap b{color:var(--navy)}
+.one{margin:14px 0}
+@media (max-width:900px){.pair{grid-template-columns:1fr}table.doc{min-width:420px}}
+</style>
+</head>
+<body>
+<main class="shell">
+
+<p class="eyebrow">To-do item 16.2 · drawn from Advance.6.Organisational Review.pdf · 2026-09-22</p>
+<h1>The firm's mark on the printed plan</h1>
+<p class="lede">Mike's own deck page already defines the border and both logo positions. This drawing
+takes that page exactly as it is and changes two things: the cyan becomes the advisor firm's colour,
+and the advisor-e.com logo becomes the firm's. <b>Nothing moves.</b></p>
+
+<div class="mock">
+  <h3>Nothing here is built, and nothing here is invented</h3>
+  <p>The source is <code>C:\Documents\Visual Code Projects\Strategy Planner\Advance.6.Organisational
+  Review.pdf</code> — 25 pages, 720×405pt. Every coordinate, colour and type size below was
+  extracted from that file by machine, never placed by eye, using the same five-step method the 33
+  concept drawings were built with.</p>
+</div>
+
+<h2 class="sec">What his page already defines</h2>
+
+<div class="tw">
+<table class="doc">
+  <thead><tr><th>Element</th><th>Measured in his file</th><th>What this item changes</th></tr></thead>
+  <tbody>
+    <tr><td>Border</td><td class="num">#00B1E0 · inset 3.9pt · bar 7.1pt · square corners</td><td>the colour becomes the firm's</td></tr>
+    <tr><td>Bottom border</td><td class="num"><b>TWO segments</b> — stub 3.89→49.51 (45.61 wide), logo in the gap, run 119.19→715.62</td><td>nothing — both kept</td></tr>
+    <tr><td>Logo, title page</td><td class="num">202.8 × 110.1 at 258.3, 54.2 — centred</td><td>the firm's logo fills it</td></tr>
+    <tr><td>Logo, every other page</td><td class="num">69.4 × 37.7 at 49.5, 364.6 — bottom left, over the border</td><td>the firm's logo fills it</td></tr>
+    <tr><td>Title page type</td><td class="num">Open Sans 45pt #002B64 centred · subtitle 18pt #434343</td><td>nothing</td></tr>
+    <tr><td>Page type</td><td class="num">Open Sans 24pt #002B64 top-left · body 10pt, left #434343, right #002B64</td><td>nothing</td></tr>
+    <tr><td>Page number</td><td class="num">Calibri 9pt #888888 at x=660.7</td><td>nothing — drawn in Carlito, metric-compatible</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 class="sec">His title page, and the same page branded</h2>
+
+<div class="pair">
+  <div>
+    <div class="deck">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="mark ae big">advisor-e.com logo</div>
+      <div class="t-title">Organisational Review</div>
+      <div class="t-sub">Getting clear on Who, What, Why…</div>
+    </div>
+    <p class="cap"><b>His page, as it is.</b> Cyan frame, logo centred at the top, 45pt navy title.</p>
+  </div>
+  <div>
+    <div class="deck firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="mark firm big">ASHGROVE</div>
+      <div class="t-title">Session Plan</div>
+      <div class="t-sub">Harbour Joinery · 22 September 2026</div>
+    </div>
+    <p class="cap"><b>The client's plan.</b> Same frame, same box, same type. The colour and the logo
+    are the firm's.</p>
+  </div>
+</div>
+
+<h2 class="sec">His agenda page, and the plan's</h2>
+
+<div class="pair">
+  <div>
+    <div class="deck content">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
+      <h2 class="t-h">Agenda:</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li class="two"><span class="l">Review the Development Stages of the Organisation</span><span class="r">Where are we headed?</span></li>
+          <li class="two"><span class="l">Review Internal Insights Data</span><span class="r">What our team say about the organisation</span></li>
+          <li class="two"><span class="l">Review Your Understanding of People/Process Basics</span><span class="r">Are we doing the basics (already)?</span></li>
+          <li class="two"><span class="l">Define the Leadership Style Necessary for Success</span><span class="r">How best to lead our team</span></li>
+          <li class="two"><span class="l">Define the Cultural Core Values</span><span class="r">What's MOST important to us?</span></li>
+        </ul>
+      </div>
+      <div class="note">(Take 10-15 mins to allocate time to each agenda item above)</div>
+      <div class="mark ae small">advisor-e</div>
+      <div class="pno">2</div>
+    </div>
+    <p class="cap"><b>His page, as it is.</b> The bottom border is <b>two segments</b> — it turns the
+    corner, runs 45.6pt, stops for the logo, then resumes at x=119.19 and runs to the far corner.
+    Page number bottom-right in grey.</p>
+  </div>
+  <div>
+    <div class="deck content firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
+      <h2 class="t-h">What this session covers</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li class="two"><span class="l">Where the business stands</span><span class="r">3 concepts</span></li>
+          <li class="two"><span class="l">Who we compete against</span><span class="r">2 concepts</span></li>
+          <li class="two"><span class="l">Where the margin goes</span><span class="r">4 concepts</span></li>
+          <li class="two"><span class="l">What we do next</span><span class="r">on the agenda only</span></li>
+        </ul>
+      </div>
+      <div class="note">Harbour Joinery · Session plan · 22 September 2026</div>
+      <div class="mark firm small">ASHGROVE</div>
+      <div class="pno">2</div>
+    </div>
+    <p class="cap"><b>The plan's agenda.</b> Identical geometry — including the corner stub and the
+    gap the logo makes between the two bottom segments.</p>
+  </div>
+</div>
+
+<h2 class="sec">The remaining sheet kinds, in his layout</h2>
+
+<div class="pair">
+  <div>
+    <div class="deck content firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
+      <h2 class="t-h">Porter's Five Forces</h2>
+      <div class="fig">The concept drawing — 1500×844, already drawn from his deck<br>and already carrying the firm's frame and mark</div>
+      <div class="mark firm small">ASHGROVE</div>
+      <div class="pno">4</div>
+    </div>
+    <p class="cap"><b>A teaching page.</b> The drawing inside already has this exact frame, so the
+    page does not draw a second one around it.</p>
+  </div>
+  <div>
+    <div class="deck content firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
+      <h2 class="t-h">Porter's Five Forces</h2>
+      <div class="body" style="top:19%">
+        <table class="tbl">
+          <thead><tr><th>Force</th><th>What we heard</th></tr></thead>
+          <tbody>
+            <tr><td>Rivalry</td><td>Three joinery firms inside 20km</td></tr>
+            <tr><td>Threat of new entrants</td><td>Low — the plant cost is the barrier</td></tr>
+            <tr><td>Buyer power</td><td>Two builders are 40% of revenue</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mark firm small">ASHGROVE</div>
+      <div class="pno">5</div>
+    </div>
+    <p class="cap"><b>A capture page.</b> His table, his frame, the firm's mark.</p>
+  </div>
+</div>
+
+<h3 class="sub3">A firm with no logo on file</h3>
+<p>The initials disc is the fallback, never the design — Mike's ruling, 2026-09-22. It fills the same
+two boxes, so nothing reflows between one firm and another.</p>
+
+<div class="pair">
+  <div>
+    <div class="deck firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="mark disc big"><i>A</i> Ashgrove Advisory</div>
+      <div class="t-title">Session Plan</div>
+      <div class="t-sub">Harbour Joinery · 22 September 2026</div>
+    </div>
+    <p class="cap">Title page, no logo held.</p>
+  </div>
+  <div>
+    <div class="deck content firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
+      <h2 class="t-h">What this session covers</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li class="two"><span class="l">Where the business stands</span><span class="r">3 concepts</span></li>
+          <li class="two"><span class="l">Who we compete against</span><span class="r">2 concepts</span></li>
+        </ul>
+      </div>
+      <div class="mark disc small"><i>A</i> Ashgrove</div>
+      <div class="pno">2</div>
+    </div>
+    <p class="cap">Content page, no logo held.</p>
+  </div>
+</div>
+
+<h2 class="sec">What the plan prints today</h2>
+
+<div class="measure">
+  <h3>Measured in the code, 2026-09-22</h3>
+  <div class="mgrid">
+    <div class="mg"><div class="n">0</div><div class="l">of the plan's own sheets carry any firm mark</div></div>
+    <div class="mg"><div class="n">0</div><div class="l">use the firm's colour — the page borders are hardcoded greys</div></div>
+    <div class="mg"><div class="n">3</div><div class="l">firm props <code>pages/strategy-planner.vue</code> fails to bind</div></div>
+    <div class="mg"><div class="n">33</div><div class="l">concept drawings that ARE branded and print the placeholder anyway</div></div>
+  </div>
+  <p style="margin:0;font-size:13px">An empty <code>firmName</code> makes <code>markName</code> in
+  <code>StrategyConceptGraphic.vue</code> fall back to the <b>literal words “Firm logo”</b> and
+  <code>markInitial</code> to an <b>empty string</b>. A client's plan prints a plain blue circle with
+  no letter in it, beside a caption saying a logo should be there.</p>
+</div>
+
+<h2 class="sec">The decisions</h2>
+
+<div class="ask settled">
+  <h3>Settled by his own page — no decision needed</h3>
+  <p>The border's colour, thickness and inset; the interruption at the foot; both logo positions and
+  sizes; every type size and colour. All measured from
+  <code>Advance.6.Organisational Review.pdf</code>. Nothing here was chosen by us.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision A — a teaching page must not carry two frames</h3>
+  <p>The 33 concept drawings are whole deck pages and <b>already carry this exact frame and mark</b>.
+  Draw another around the sheet and a client sees two coloured frames millimetres apart.</p>
+  <p class="rec">Recommended: on a teaching page the drawing's own frame <b>is</b> the page's frame,
+  and the sheet adds nothing. Every other sheet draws it. The teaching page above shows this.</p>
+  <p class="q">One frame per sheet, the teaching page's coming from the drawing inside it?</p>
+</div>
+
+<div class="ask">
+  <h3>Decision B — one route, no screen, ship on the firm's name alone</h3>
+  <p><code>firmBrand()</code> is built but <b>on no route</b>, which is why nothing binds. Its query is
+  <code>SELECT id, name</code> <b>always</b> and only adds the logo and colour columns when
+  configured — so <b>the firm's real name works today</b>; only the image and the colour wait on the
+  master team.</p>
+  <p class="rec">Recommended: one Restify route; <b>no screen</b>, because the values live on the firm
+  profile page in Advisor-e (his 2026-08-15 ruling). Ship on the name alone — the words “Firm logo”
+  leave the plan on day one and the logo and colour arrive later with nothing more to build.</p>
+  <p class="q">One backend route, no new screen, shipped without waiting for Advisor-e?</p>
+</div>
+
+<h2 class="sec">What gets built, if this is approved</h2>
+
+<div class="tw">
+<table class="doc">
+  <thead><tr><th>Where</th><th>What changes</th></tr></thead>
+  <tbody>
+    <tr><td>server/routes/report.js</td><td>a route serving <code>firmBrand()</code> for the firm on the token — try/catch, safe generic error, never a stack trace or raw SQL</td></tr>
+    <tr><td>pages/strategy-planner.vue</td><td>fetches it once and binds <code>:firm-name</code>, <code>:firm-colour</code>, <code>:firm-logo</code> — the second fault filed on 16.2</td></tr>
+    <tr><td>StrategyPlanDocument.vue</td><td>his page frame on every sheet: the four border bars with the foot interrupted, the logo box top-centre on the title page and bottom-left after it, his type scale, the page number bottom-right</td></tr>
+    <tr><td>tests</td><td>the mark and the frame render on every sheet kind; the teaching page does <b>not</b> double-frame; a firm with no logo gets the disc in the same box; a failed brand call still prints the plan</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="mock">
+  <h3>Before this ships</h3>
+  <p>Open this page beside the build <b>and beside his deck</b>, and name every difference. Checking
+  a measurement is not the same as looking at the two pages side by side — that is what went wrong
+  three times before this version.</p>
+</div>
+
+</main>
+</body>
+</html>
