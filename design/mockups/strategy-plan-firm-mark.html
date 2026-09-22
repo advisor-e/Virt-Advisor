@@ -145,7 +145,8 @@ table.doc td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
   font-size:2.5cqw;font-weight:400}                                   /* 18pt, y=304.1 */
 .deck .t-h{position:absolute;left:3.528%;top:5.259%;color:var(--navy);font-size:3.333cqw;
   font-weight:400;margin:0}                                           /* 24pt at 25.4,21.3 */
-.deck .body{position:absolute;left:4.167%;right:3.5%;top:16.2%;font-size:1.389cqw;line-height:1.85}
+.deck .body{position:absolute;left:4.167%;right:3.5%;top:16.469%;font-size:1.389cqw;line-height:1.85}
+                                                  /* his first row y0=66.7 of 405 */
 /* THREE columns, because his bullet is its own column: bullet at x=30, left text
    at x=42.7, right text at x=352.7. Against a body box running 30 -> 694.8pt
    (width 664.8) that is 1.91% for the bullet and 46.63% for the left column. */
@@ -154,12 +155,16 @@ table.doc td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .deck .body .bullets{list-style:none;margin:0;padding:0}
 .deck .body .bullets li{margin:0;max-width:none}
 .deck .body .bullets li::before{content:'\2022';color:var(--body)}
-.deck .note{position:absolute;left:3.986%;bottom:12%;font-size:1.25cqw;color:var(--body)}
+/* His note sits at x=28.7, y=340.9 — anchored from the TOP, not the foot, because the
+   foot is where the border and the mark live and a bottom anchor drifts against them. */
+.deck .note{position:absolute;left:3.986%;top:84.173%;font-size:1.25cqw;color:var(--body)}
 /* His instruction band: green highlight, justified — page 4 of the deck. */
 .deck .band{background:#3ff23f;color:var(--body);font-size:1.944cqw;line-height:2;text-align:justify;
   padding:0 .2em}
-.deck .pno{position:absolute;right:6.85%;top:94.5%;font-family:Carlito,Calibri,var(--sans);
-  font-size:1.25cqw;color:var(--pno)}                                  /* Calibri 9pt #888888 at 660.7 */
+/* Anchored LEFT at his x0=660.7 (91.764%), not from the right edge: his number is
+   left-aligned at that x, so a right anchor would shift it as the digits grow. */
+.deck .pno{position:absolute;left:91.764%;top:94.519%;font-family:Carlito,Calibri,var(--sans);
+  font-size:1.25cqw;color:var(--pno)}                     /* Calibri 9pt #888888, x=660.7 y=382.8 */
 /* The firm-branded version: his cyan becomes the firm's colour. Nothing else moves. */
 .deck.firmed .bd{background:var(--firm)}
 .deck .tbl{width:100%;border-collapse:collapse;font-size:1.25cqw}

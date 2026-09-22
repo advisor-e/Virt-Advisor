@@ -121,6 +121,7 @@ const reportRoute = require('./routes/report')
 const economicAnalysisRoute = require('./routes/economicAnalysis')
 const nextStepsDraftRoute = require('./routes/nextStepsDraft')
 const currencyRoute = require('./routes/currency')
+const firmBrandRoute = require('./routes/firmBrand')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
 const depreciationRatesRoute = require('./routes/depreciationRates')
@@ -319,6 +320,12 @@ server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.
 // relabel figures and convert nothing (item 13.1).
 server.get('/api/report/currency/client/:clientId', firmAuth, currencyRoute.getForClient)
 server.post('/api/report/currency/client/:clientId', firmAuth, currencyRoute.setForClient)
+// The advisor firm's brand for a client's document (item 16.2). READ open to any firm
+// user, like the currency above, because the client's own page renders the same
+// documents. There is NO write route and no screen: the logo and colour live on the
+// firm profile page in Advisor-e (Mike, 2026-08-15 and 2026-09-22), so our side is a
+// stub connection to theirs. Never fails a document — see server/routes/firmBrand.js.
+server.get('/api/report/firm/brand', firmOrEntityAuth, firmBrandRoute.get)
 // The property model's tax rules, resolved through the tier chain. READ open to any
 // signed-in user — every advisor opening the Multiple Property Assessment needs it, and
 // they may type over any of it for the client in front of them (Mike, 2026-08-17); a

@@ -246,11 +246,18 @@
   //- Screen 4 — the plan. READ ONLY, and assembled from what was captured; it holds no
   //- state of its own, so it can never disagree with the session behind it.
   template(v-if="!loading && step === 'plan'")
+    //- 🔴 THE THREE FIRM PROPS ARE NOT OPTIONAL — item 16.2. Without them `firmName`
+    //- falls back to '' and `StrategyConceptGraphic` prints the literal words "Firm
+    //- logo" beside a circle with no letter in it, on every teaching page of a
+    //- document the client keeps. They were missing until 2026-09-22.
     strategy-plan-document(
       :client-name="clientName"
       :decks="planDecks"
       :steps="planSteps"
       :closing="closingCards"
+      :firm-name="firmBrand.name || ''"
+      :firm-colour="firmBrand.colour || undefined"
+      :firm-logo="firmBrand.logo || ''"
     )
     section.sp-section
       h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
@@ -341,6 +348,15 @@ export default {
       step: 'scope',
       loading: true,
       error: '',
+      /**
+       * The advisor firm's brand for the printed plan — item 16.2. Fetched once on
+       * mount from `GET /api/report/firm/brand`. Nulls are the honest resting state:
+       * `firmLogo` null means the firm holds no logo and the initials disc shows
+       * (Mike's ruling, 2026-09-22), and `firmColour` null means the page border
+       * falls back to the platform colour. The route answers 200 with nulls on any
+       * failure, so a plan always prints.
+       */
+      firmBrand: { name: null, logo: null, colour: null },
       planningDomains: [],
       /** The five panels of the session scope menu, in Mike's order. */
       decks: [],
@@ -995,7 +1011,9 @@ export default {
    */
   async mounted () {
     this.apiToken = this.resolveApiToken()
-    await Promise.all([this.loadFrameworks(), this.loadClients(), this.loadSessionProcess()])
+    await Promise.all([
+      this.loadFrameworks(), this.loadClients(), this.loadSessionProcess(), this.loadFirmBrand()
+    ])
 
     // 🔴 A REFRESH COMES BACK TO THE SESSION — stage 7. `loadClients` has already set
     // `clientId` from the address if one is there, and the watcher has fetched that
@@ -1007,6 +1025,33 @@ export default {
   },
 
   methods: {
+    /**
+     * The advisor firm's brand for the printed plan — item 16.2.
+     *
+     * ⚠ IT NEVER BLOCKS THE PAGE. A brand is decoration on a screen whose figures
+     * matter, so a failure leaves the nulls in place and the plan prints with the
+     * initials disc and the platform border colour. There is no error message and no
+     * retry: a logo that did not load is not something an advisor can act on.
+     *
+     * @returns {Promise<void>} resolves once `firmBrand` holds whatever could be read.
+     */
+    async loadFirmBrand () {
+      try {
+        const res = await fetch('/api/report/firm/brand', {
+          credentials: 'same-origin', headers: this.headers()
+        })
+        if (!res.ok) { return }
+        const body = await res.json()
+        this.firmBrand = {
+          name: typeof body.name === 'string' ? body.name : null,
+          logo: typeof body.logo === 'string' ? body.logo : null,
+          colour: typeof body.colour === 'string' ? body.colour : null
+        }
+      } catch (e) {
+        // Deliberately silent — see the note above.
+      }
+    },
+
     /**
      * Same resolution as pages/dashboard-reports.vue: a loopback host always uses the dev
      * bypass; otherwise the token the master app stored. With no token the backend

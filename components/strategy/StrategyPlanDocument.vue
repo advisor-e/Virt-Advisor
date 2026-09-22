@@ -1,14 +1,16 @@
 <template lang="pug">
-article.spd
+article.spd(:style="frameStyle")
   //- FRONT MATTER — the first three pages of Pivot: title, the session objective,
   //- then the agenda. The agenda lists every step the advisor named, including one
   //- with nothing in it: a step is a thing he names, not a container the ticks make.
   section.spd-page.is-title
+    strategy-plan-mark(v-bind="markProps" big)
     p.spd-kind {{ $t('strategyPlanner.plan.sessionPlan') }}
     h2.spd-title {{ clientName }}
     p.spd-sub(v-if="decks") {{ decks }}
 
   section.spd-page.is-agenda
+    strategy-plan-mark(v-bind="markProps")
     h3.spd-h {{ $t('strategyPlanner.plan.agenda') }}
     ol.spd-agenda
       li.spd-agenda-item(v-for="(step, i) in steps" :key="'a' + i")
@@ -21,6 +23,7 @@ article.spd
   //- stops there.
   template(v-for="(step, i) in steps")
     section.spd-page.is-divider(:key="'d' + i")
+      strategy-plan-mark(v-bind="markProps")
       p.spd-step {{ $t('strategyPlanner.plan.step', { n: i + 1 }) }}
       h3.spd-divider-h {{ step.name }}
       //- A step announces itself twice only where there IS something to teach
@@ -32,6 +35,7 @@ article.spd
     //- puts a blank slide in the middle of a document a client is shown.
     template(v-for="item in step.items")
       section.spd-page.is-teach(v-if="item.summary || item.prompts.length" :key="'t' + i + item.key")
+        strategy-plan-mark(v-bind="markProps")
         p.spd-kind {{ $t('strategyPlanner.plan.teach') }}
         h3.spd-h {{ item.name }}
         //- 🔴 THE GRAPHIC, where the approved drawing puts it
@@ -67,6 +71,7 @@ article.spd
             |  — {{ p.prompt }}
 
     section.spd-page.is-divider(v-if="step.teaches && step.works !== false" :key="'d2' + i")
+      strategy-plan-mark(v-bind="markProps")
       p.spd-step {{ $t('strategyPlanner.plan.step', { n: i + 1 }) }}
       h3.spd-divider-h {{ step.name }}
       p.spd-divider-kind {{ $t('strategyPlanner.plan.actionPoints') }}
@@ -77,6 +82,7 @@ article.spd
     //- there was never anything to work. Its teaching page stands alone.
     template(v-for="item in step.items")
       section.spd-page.is-capture(v-if="item.hasTable !== false" :key="'c' + i + item.key")
+        strategy-plan-mark(v-bind="markProps")
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
@@ -135,11 +141,13 @@ article.spd
   //- the ruling moved WHERE they are filed, never whether the client receives them.
   template(v-if="closing.length")
     section.spd-page.is-divider
+      strategy-plan-mark(v-bind="markProps")
       p.spd-step {{ $t('strategyPlanner.rail.objectives') }}
       h3.spd-divider-h {{ $t('strategyPlanner.plan.closingHeading') }}
 
     template(v-for="item in closing")
       section.spd-page.is-capture(:key="'x' + item.key")
+        strategy-plan-mark(v-bind="markProps")
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
@@ -177,12 +185,13 @@ article.spd
  */
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
+import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
 import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyPlanDocument',
 
-  components: { StrategyConceptGraphic, StrategyOrgChart },
+  components: { StrategyConceptGraphic, StrategyOrgChart, StrategyPlanMark },
 
   props: {
     /** The client this plan belongs to. */
@@ -249,6 +258,26 @@ export default {
     }
   },
 
+  computed: {
+    /**
+     * The firm's mark, bound once and spread onto every sheet — item 16.2.
+     * @returns {{name: string, logo: string, colour: string}}
+     */
+    markProps () {
+      return { name: this.firmName, logo: this.firmLogo, colour: this.firmColour }
+    },
+
+    /**
+     * The page frame's colour, as a CSS custom property on the document root.
+     * @returns {{'--spd-firm': string}} the firm's colour, which the border reads.
+     *   Mike's ruling, 2026-09-22: the border returns in the advisor firm's colour.
+     *   His own page uses Advisor-e's cyan there; on a client's document it is theirs.
+     */
+    frameStyle () {
+      return { '--spd-firm': this.firmColour }
+    }
+  },
+
   methods: {
     /**
      * Does this concept have one of Mike's approved drawings on its teaching page?
@@ -309,13 +338,75 @@ export default {
    for text. The real drawings are whole deck pages, so clipping here would silently cut
    Mike's own teaching content off a client's document. A page whose content will not fit
    grows instead, and the one page in 25 that does is visible rather than truncated. */
+/* 🔴 THE FRAME AND THE PAGE NUMBER ARE MIKE'S OWN DECK PAGE — item 16.2, drawn and
+   approved at `design/mockups/strategy-plan-firm-mark.html`, measured off
+   `Advance.6.Organisational Review.pdf` (720x405pt):
+     border  inset 3.9pt (0.54% of width), bar 7.1pt (0.99%), SQUARE corners
+     number  Calibri 9pt #888888 at x=660.7, y=382.8 — 91.76% / 94.52%
+   His cyan #00B1E0 is replaced by the firm's colour, which is the whole of this item.
+   The bottom border's two segments are made by the mark's own white plate sitting on
+   the line — see `StrategyPlanMark.vue`.
+   ⚠ ONE RECORDED DEVIATION FROM THE DRAWING: the drawing is his 16:9 page; these
+   sheets stay `297/210` because A4 is his later ruling for THIS document
+   (2026-09-21), measured — 24 of 25 pages sit at that frame. The border is expressed
+   as a share of the page, so it holds at either ratio. */
+/* ⚠ `border-width` DOES NOT ACCEPT PERCENTAGES — a percentage there is invalid and is
+   dropped silently, leaving a 3px default. The bar is sized in container-query units
+   instead, against `.spd`, which is the page's own width; the px value before it is the
+   fallback for a browser without container queries. */
+.spd { counter-reset: spdpage; container-type: inline-size; }
+
 .spd-page {
+  position: relative;
+  counter-increment: spdpage;
   background: #fff;
-  border: 1px solid #d5e1ee;
-  border-radius: 12px;
-  padding: 26px 30px;
+  border: 8px solid var(--spd-firm, #0070c0);
+  border-width: 0.986cqw;               /* 7.1 / 720 of his page */
+  border-radius: 0;                     /* his corners are square */
+  padding: 26px 30px 44px;              /* the foot clears the mark */
   aspect-ratio: 297 / 210;
   box-shadow: 0 8px 22px rgba(0, 43, 100, 0.06);
+}
+
+/* His page number, on every sheet, from the document's own counter. */
+.spd-page::after {
+  content: counter(spdpage);
+  position: absolute;
+  left: 91.764%;                        /* 660.7 / 720 */
+  top: 94.519%;                         /* 382.8 / 405 */
+  font-size: 12px;
+  font-size: 1.25cqw;                   /* his 9pt */
+  color: #888888;
+}
+
+/* The title page carries the mark at the top, so nothing interrupts its border and it
+   needs no number — his own title page has none. */
+.spd-page.is-title::after { content: none; }
+
+/* 🔴 HIS TITLE PAGE, from Advance.6.Organisational Review.pdf: the mark centred at the
+   top, then the title at y=200.4 of 405 (49.48%) and the subtitle at y=304.1 (75.09%),
+   both centred, both Open Sans REGULAR — his title is not bold.
+   Found by opening the app: with the text left-aligned at the top as it was, the mark
+   landed underneath it in the middle of the sheet instead of leading the page. */
+.spd-page.is-title { text-align: center; }
+.spd-page.is-title .spd-kind { position: absolute; left: 0; right: 0; top: 43%; margin: 0; }
+.spd-page.is-title .spd-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 49.48%;
+  font-size: 34px;
+  font-size: 6.25cqw;            /* his 45pt of a 720-wide page */
+  font-weight: 400;
+}
+.spd-page.is-title .spd-sub {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 75.09%;
+  margin: 0;
+  font-size: 15px;
+  font-size: 2.5cqw;             /* his 18pt */
 }
 
 .spd-kind {
