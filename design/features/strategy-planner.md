@@ -379,13 +379,32 @@ is already handled. A response page is a capture surface rather than a picture, 
 decision before the drawing method is applied.
 
 **The differences between the build and the approved artefacts, named as the rule requires — three,
-all deliberate:** the sample firm on every drawing (*Hartley & Co*, initial *H*, `#0070c0`) becomes
-three props; blank lines inside the SVG lose their whitespace, which the lint forbids and which
-draws nothing; and **with no firm branding anywhere in this app, the mark renders the same
-placeholder the Dashboard Report cover already uses** — the words *Firm logo* against an empty
-disc. **That is item 16**, filed 2026-09-20: the seam exists and takes a name and a colour, but
-nothing above passes one in and there is nowhere to set it, so the reason these 33 were redrawn
-has not yet arrived on a client's page.
+all deliberate:** the sample firm on every drawing (*Hartley & Co*, initial *H*, `#0070c0`, and its
+placeholder logo) becomes **five props**; blank lines inside the SVG lose their whitespace, which
+the lint forbids and which draws nothing; and **until Advisor-e names the two columns, the mark
+renders the same placeholder the Dashboard Report cover already uses** — the words *Firm logo*
+against an empty disc.
+
+🔴 **THE MARK AND THE BORDER WERE RULED ON 2026-09-22, AND ALL 32 DRAWINGS CARRY BOTH.** Mike's
+instruction was that it is not a per-drawing choice — *"there is NO reason why you would have some
+and not others"*.
+
+- **The logo IS the mark.** A firm's real logo sits in a **fixed-height box** with
+  `preserveAspectRatio="xMinYMid meet"`, so any proportion fits without stretching or cropping —
+  which is the whole answer to *"a real logo is an image of unknown proportion"*, the reason the
+  monogram disc existed. The disc, the initial and the name are the **fallback**, shown only when a
+  firm holds no logo, and all three are guarded so a logo never prints with initials over it.
+- **The border returns in the firm's colour.** It only became necessary because of the first
+  ruling: the colour drove exactly one element, the disc, so ruling the disc into a fallback would
+  have left a branded firm's colour appearing nowhere at all.
+- **The data is Advisor-e's, and no screen here edits it.** *"Advisor-e already picks up the colour
+  and brands the border to suit"*; it lives on the **firm profile page** in the master app. Our
+  side is the stub — `firmBrand()` in [`server/utils/firmsDirectory.js`](../../server/utils/firmsDirectory.js),
+  the one and only reader of the `firms` table, behind seam **Q-FIRM-BRAND** in
+  [`config/integration.js`](../../config/integration.js) and **question 8** of the integration email.
+
+**That is item 16**, filed 2026-09-20. What remains on it is not ours: until the master team names
+the two columns the stub returns nulls and every page falls back, which is the state it ships in.
 
 The last eleven were surveyed by
 machine before any were drawn, rather than assumed: **7 were prose**, **2 carried a real panel**

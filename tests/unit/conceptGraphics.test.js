@@ -93,7 +93,11 @@ describe('a client document can never print somebody else\'s firm', () => {
     })
   })
 
-  test('every drawing binds all three parts of the mark', () => {
+  test('every drawing binds all five parts of the mark', () => {
+    // Five since Mike's rulings of 2026-09-22: the logo became the mark and the
+    // border came back in the firm's colour. A regenerate that bound four of
+    // five on one drawing would ship a single unbranded page among 33, which is
+    // exactly the kind of thing nobody notices until a client has it.
     builder.DRAWINGS.forEach((d) => {
       const file = path.join(
         ROOT, 'components', 'strategy', 'concepts',
@@ -104,6 +108,80 @@ describe('a client document can never print somebody else\'s firm', () => {
       expect(shipped).toContain(':fill="firmColour"')
       expect(shipped).toContain('{{ firmInitial }}')
       expect(shipped).toContain('{{ firmName }}')
+      expect(shipped).toContain(':href="firmLogo"')
+      expect(shipped).toContain(':stroke="firmColour"')
+    })
+  })
+
+  test('the disc, the initial and the name are ALL guarded as the fallback', () => {
+    // Mike, 2026-09-22: the logo IS the mark and the disc is what a firm without
+    // one falls back to. Guard two of the three and a firm with a logo gets the
+    // logo AND its initials printed over the top of it.
+    builder.DRAWINGS.forEach((d) => {
+      const file = path.join(
+        ROOT, 'components', 'strategy', 'concepts',
+        builder.componentName(d.conceptId) + '.vue'
+      )
+      const shipped = fs.readFileSync(file, 'utf8')
+
+      expect((shipped.match(/v-if="!firmLogo"/g) || []).length).toBe(3)
+      expect((shipped.match(/v-if="firmLogo"/g) || []).length).toBe(1)
+    })
+  })
+
+  test('A LOGO OF ANY PROPORTION FITS — the box never stretches or crops it', () => {
+    // This single attribute is the whole answer to the objection the monogram
+    // disc existed for: "a real logo is an image of unknown proportion".
+    // preserveAspectRatio="none" would stretch every logo to the box and look
+    // deliberate, and no test of colour or position would catch it.
+    builder.DRAWINGS.forEach((d) => {
+      const file = path.join(
+        ROOT, 'components', 'strategy', 'concepts',
+        builder.componentName(d.conceptId) + '.vue'
+      )
+      const shipped = fs.readFileSync(file, 'utf8')
+      const image = /<image[^>]*class="fm-logo"[^>]*>/.exec(shipped)
+
+      expect(image).not.toBeNull()
+      expect(image[0]).toContain('preserveAspectRatio="xMinYMid meet"')
+    })
+  })
+})
+
+describe('the firm border is on every drawing, identically', () => {
+  const MOCKUPS = path.join(ROOT, 'design', 'mockups')
+  const files = fs.readdirSync(MOCKUPS).filter(f => /^strategy-concept-.*\.html$/.test(f))
+
+  test('every drawing has one, and its geometry matches the page it borders', () => {
+    // Mike, 2026-09-22, on being shown one drawing bordered: "there is NO reason
+    // why you would have some and not others". Every viewBox is 0 0 1500 844, so
+    // one geometry is correct everywhere and a drawing carrying a different one
+    // has been hand-edited away from the migration.
+    let svgs = 0
+    let borders = 0
+
+    files.forEach((f) => {
+      const src = fs.readFileSync(path.join(MOCKUPS, f), 'utf8')
+      svgs += (src.match(/<svg /g) || []).length
+      const found = src.match(/<rect class="firm-border"[^>]*>/g) || []
+      borders += found.length
+      found.forEach((rect) => {
+        expect(rect).toContain('x="5" y="5" width="1490" height="834"')
+        expect(rect).toContain('fill="none"')
+      })
+    })
+
+    expect(svgs).toBe(32)
+    expect(borders).toBe(svgs)
+  })
+
+  test('the border is drawn LAST, so nothing paints over it', () => {
+    // A border added before the artwork is a border a full-bleed panel hides,
+    // and the page then looks unbranded for a reason no colour check finds.
+    files.forEach((f) => {
+      const src = fs.readFileSync(path.join(MOCKUPS, f), 'utf8')
+      const re = /<rect class="firm-border"[^>]*><\/rect>\s*<\/svg>/g
+      expect((src.match(re) || []).length).toBe((src.match(/<svg /g) || []).length)
     })
   })
 })

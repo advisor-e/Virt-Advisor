@@ -196,8 +196,23 @@ function nthSvg (html, n) {
  * @type {Array<{group: string, disc: string, init: string, name: string}>}
  */
 const MARK_DIALECTS = [
-  { group: 'class="firm-mark"', disc: 'class="fm-disc"', init: 'class="fm-init"', name: 'class="fm-name"' },
-  { group: 'id="firmMark"', disc: 'id="firmDisc"', init: 'id="firmInitials"', name: 'id="firmName"' }
+  {
+    group: 'class="firm-mark"',
+    disc: 'class="fm-disc"',
+    init: 'class="fm-init"',
+    name: 'class="fm-name"',
+    logo: 'class="fm-logo"'
+  },
+  {
+    group: 'id="firmMark"',
+    disc: 'id="firmDisc"',
+    init: 'id="firmInitials"',
+    name: 'id="firmName"',
+    // The one drawing on the id dialect still uses the class for its logo box:
+    // the migration of 2026-09-22 added that element to all 32 uniformly, and
+    // there was no reason to reproduce a dialect that exists only by accident.
+    logo: 'class="fm-logo"'
+  }
 ]
 
 /**
@@ -229,21 +244,41 @@ function bindFirmMark (svg) {
 
   let out = svg.replace(
     new RegExp('(<circle[^>]*' + escapeAttr(mark.disc) + '[^>]*?)\\sfill="[^"]*"'),
-    '$1 :fill="firmColour"'
+    '$1 v-if="!firmLogo" :fill="firmColour"'
   )
   out = out.replace(
-    new RegExp('(<text[^>]*' + escapeAttr(mark.init) + '[^>]*>)[\\s\\S]*?(</text>)'),
-    '$1{{ firmInitial }}$2'
+    new RegExp('(<text[^>]*' + escapeAttr(mark.init) + ')([^>]*>)[\\s\\S]*?(</text>)'),
+    '$1 v-if="!firmLogo"$2{{ firmInitial }}$3'
   )
   out = out.replace(
-    new RegExp('(<text[^>]*' + escapeAttr(mark.name) + '[^>]*>)[\\s\\S]*?(</text>)'),
-    '$1{{ firmName }}$2'
+    new RegExp('(<text[^>]*' + escapeAttr(mark.name) + ')([^>]*>)[\\s\\S]*?(</text>)'),
+    '$1 v-if="!firmLogo"$2{{ firmName }}$3'
+  )
+
+  // THE LOGO IS THE MARK AND THE DISC IS THE FALLBACK — Mike's ruling,
+  // 2026-09-22. The drawing carries a placeholder logo so the artefact can show
+  // the box working; here that sample href becomes the prop, exactly as the
+  // sample firm name does. The three fallback elements above take `v-if` rather
+  // than being deleted, because a firm holding no logo still needs them.
+  out = out.replace(
+    new RegExp('(<image[^>]*' + escapeAttr(mark.logo) + '[^>]*?)\\shref="[^"]*"'),
+    '$1 v-if="firmLogo" :href="firmLogo"'
+  )
+
+  // The border, in the firm's colour. Mike's second ruling the same day: the
+  // colour drove ONE element before this — the disc — so ruling the disc into a
+  // fallback would have left a branded firm's colour showing nowhere at all.
+  out = out.replace(
+    /(<rect[^>]*class="firm-border"[^>]*?)\sstroke="[^"]*"/g,
+    '$1 :stroke="firmColour"'
   )
 
   if (out.indexOf(':fill="firmColour"') === -1 ||
       out.indexOf('{{ firmInitial }}') === -1 ||
-      out.indexOf('{{ firmName }}') === -1) {
-    throw new Error('firm-mark found but one of its three parts did not bind')
+      out.indexOf('{{ firmName }}') === -1 ||
+      out.indexOf(':href="firmLogo"') === -1 ||
+      out.indexOf(':stroke="firmColour"') === -1) {
+    throw new Error('firm-mark found but one of its five parts did not bind')
   }
   return out
 }
@@ -295,10 +330,28 @@ export default {
       default: ''
     },
 
-    /** The firm's colour, as a CSS colour. */
+    /** The firm's colour, as a CSS colour. Brands the page border and the disc. */
     firmColour: {
       type: String,
       default: '#0070c0'
+    },
+
+    /**
+     * The firm's real logo, as an absolute http(s) URL.
+     *
+     * Mike's ruling, 2026-09-22: this IS the mark. The initials disc and the
+     * printed name are the fallback shown only when a firm holds no logo. The
+     * box is a fixed height with preserveAspectRatio="xMinYMid meet", so a logo
+     * of any proportion is scaled to fit and never stretched or cropped.
+     *
+     * Supplied by \`firmBrand()\` in server/utils/firmsDirectory.js, which reads
+     * it from Advisor-e's own firm profile record and returns null for anything
+     * that is not an http(s) URL — so an empty string here is the safe state,
+     * not a missing value.
+     */
+    firmLogo: {
+      type: String,
+      default: ''
     }
   }
 }

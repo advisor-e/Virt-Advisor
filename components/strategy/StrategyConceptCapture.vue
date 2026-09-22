@@ -19,6 +19,7 @@ section.scc2
       :concept-id="conceptId"
       :firm-name="firmName"
       :firm-colour="firmColour"
+      :firm-logo="firmLogo"
     )
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
     p.scc2-concept-text(v-if="helpsClientTo") {{ helpsClientTo }}
@@ -251,10 +252,20 @@ export default {
       default: ''
     },
 
-    /** The firm's colour, as a CSS colour. */
+    /** The firm's colour, as a CSS colour. Brands the page border and the disc. */
     firmColour: {
       type: String,
       default: '#0070c0'
+    },
+
+    /**
+     * The firm's real logo, as an absolute http(s) URL. Empty means the firm
+     * holds none and the drawing falls back to the initials disc - Mike's
+     * ruling, 2026-09-22. Sourced by firmBrand() from Advisor-e's firm profile.
+     */
+    firmLogo: {
+      type: String,
+      default: ''
     },
 
     /** What is already captured, keyed by field key. */
