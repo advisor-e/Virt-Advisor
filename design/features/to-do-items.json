@@ -692,28 +692,6 @@
       "comment": "2026-09-22 - surfaced while answering Mike on the language/currency split, recorded in the Brief as a stated boundary, then filed on his instruction that it must be fixed. Smallest of the three siblings in effort, but it waits on his move-or-mirror answer before anything is built."
     },
     {
-      "ref": "13.4",
-      "name": "An advisor cannot set a currency for one client",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "it is how an advisor serves a client who reports in other money",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": null,
-      "why": "Mike ruled 2026-09-22 that the firm's currency cascades to the client-level Model Library, where the advisor may edit it per client. The client half does not exist at all - currencyMixin holds one firmCurrency and every report reads it.",
-      "risk": "The advisor works at client level, for that client's benefit, and has no way to say a client reports in other money. Against that: a client-level LABEL is more dangerous than a firm one, because an advisor switching one client to Euro is far likelier to believe the figures converted - see 13.1, which becomes load-bearing rather than tidy.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - in his own words: \"currency is selected at firm manager level and cascades down to the client level model library but at client level (which is where the advisor uses it - for the benefit of their clients) the currency can again be edited by the advisor - if required\". Filed on his yes."
-      },
-      "touches": "mixins/currencyMixin.js, which holds the single firmCurrency every report reads; server/routes/currency.js and its firmOverlay store, which is firm-scoped only - there is no saveClientConfig today; a client-scoped store beside it keyed on va_clients; components/ModelLibrary.vue for the advisor's edit; the ~40 report components reading firmCurrency; and 13.1's warning line, which this makes necessary.",
-      "note": "🔴 NOT THE PER-CLIENT CURRENCY MIKE REJECTED ON 2026-09-22 - read 13.2's comment before assuming it is. That one was a second FIRM-level setting per client, and he replaced it with currency-at-firm plus conversion-inside-a-model. This is his own later instruction and it does not touch that ruling: the client value is a LABEL saying which money this client's reports are in, the cascade default is the firm's, and conversion stays inside models on fxAllowancePct. ⚠ STORED AGAINST THE CLIENT, not per advisor per client - so every advisor on that client sees one currency. ⚠ ONE SCREEN DECISION IS OPEN: where the advisor edits it.",
-      "comment": "2026-09-22 - filed on Mike's yes, the fourth in the currency family and the only one that adds a capability rather than a rule, a label or a move. Sibling of 13.1 (the relabel-not-convert warning, which this makes urgent), 13.2 and 13.3."
-    },
-    {
       "ref": "15.13",
       "name": "No import button pulls the forecast and performance figures into a planning session",
       "rankedByMike": false,

@@ -92,7 +92,9 @@ describe('ClientAccessSwitch — when it appears', () => {
     const wrapper = mountWithBuefy(ClientAccessSwitch, { propsData: { modelRoute: '/volatility' } })
     await settle(wrapper)
     expect(wrapper.find('.cas').exists()).toBe(true)
-    expect(wrapper.findAll('option').length).toBe(2)
+    // Scoped to the CLIENT picker: since item 13.4 the header also carries a currency
+    // select, and a bare `option` count silently counted both lists as clients.
+    expect(wrapper.find('.cas-client').findAll('option').length).toBe(2)
     expect(wrapper.text()).toContain('clientReports.switch.hintNoClient')
     // Both buttons are inert until a client is chosen.
     wrapper.findAll('.cas-btn').wrappers.forEach(b => expect(b.attributes('disabled')).toBeDefined())

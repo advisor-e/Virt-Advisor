@@ -314,6 +314,11 @@ server.post('/api/report/economic-analysis/:runId/include', firmAuth, economicAn
 // (account-wide setting). Persistence via firmOverlay (config_key 'currency').
 server.get('/api/report/currency', firmOrEntityAuth, currencyRoute.get)
 server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.set)
+// A CLIENT's own currency (item 13.4). Advisor-level by Mike's ruling — the manager
+// sets the firm's, the advisor may override it for one client. Both are labels: they
+// relabel figures and convert nothing (item 13.1).
+server.get('/api/report/currency/client/:clientId', firmAuth, currencyRoute.getForClient)
+server.post('/api/report/currency/client/:clientId', firmAuth, currencyRoute.setForClient)
 // The property model's tax rules, resolved through the tier chain. READ open to any
 // signed-in user — every advisor opening the Multiple Property Assessment needs it, and
 // they may type over any of it for the client in front of them (Mike, 2026-08-17); a

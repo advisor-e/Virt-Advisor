@@ -39,6 +39,34 @@ export async function setClientAccess (clientId, route, state, token) {
   return await res.json()
 }
 
+/**
+ * The currency ONE CLIENT's figures are labelled in — the client's own choice when it
+ * has one, otherwise the firm's (item 13.4, approved 2026-09-22).
+ * @param {string} clientId
+ * @param {string} token
+ * @returns {Promise<{currency: string, isDefault: boolean, source: 'client'|'firm'|'default'}>}
+ */
+export async function getClientCurrency (clientId, token) {
+  const res = await fetch(`/api/report/currency/client/${encodeURIComponent(clientId)}`, { headers: authHeaders(token) })
+  if (!res.ok) { throw new Error(`Failed to load client currency (${res.status})`) }
+  return await res.json()
+}
+
+/**
+ * Set, or CLEAR, one client's currency. Clearing returns the client to the firm's.
+ * @param {string} clientId
+ * @param {string} currency - a supported code, or '' to inherit the firm's again
+ * @param {string} token
+ * @returns {Promise<{saved: true, currency: string, source: string}>} what now applies
+ */
+export async function setClientCurrency (clientId, currency, token) {
+  const res = await fetch(`/api/report/currency/client/${encodeURIComponent(clientId)}`, {
+    method: 'POST', headers: authHeaders(token), body: JSON.stringify({ currency })
+  })
+  if (!res.ok) { throw new Error(`Failed to save client currency (${res.status})`) }
+  return await res.json()
+}
+
 async function parse (res, what) {
   if (!res.ok) {
     const err = new Error(`${what} (${res.status})`)
