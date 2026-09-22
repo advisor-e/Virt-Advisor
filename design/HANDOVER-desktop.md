@@ -11,52 +11,45 @@
 
 ## 2026-09-22 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**ITEM 17 IS COMPLETE AND MERGED — [PR #109](https://github.com/advisor-e/Virt-Advisor/pull/109).**
-Clean, pushed, 0 behind. Suite **13,342 green** (600 suites) — **after merging your PR #108 in**.
-Nothing is in hand on this machine; `activeOn` is clear. **Your 7.5 and 15.1 untouched.**
+**Clean and pushed. Suite 13,445 green (606 suites)** at the last push, lint 0 errors,
+audit gate clean. Merged your PR #114 on the way — item 16's stub, the 32 logo boxes and
+15.1 stage 7 all came across; one conflict, `to-do.md`, **regenerated not hand-merged**.
+Your note read from YOUR branch: dated 2026-09-22, current. **`activeOn` clear here.**
 
-⚠ **YOUR 20 COMMITS CAME ACROSS AT MY SHUTDOWN and the list conflicted — resolved by keeping BOTH
-sides.** We both appended to `to-do-items.json` today: my `13.4` against your `15.13/15.14/15.15`.
-All four survive, 34 items, refs verified unique. `to-do.md` and `CODE-SIZE.md` also conflicted and
-were **regenerated from source**, not hand-merged. **Handbook republished** from the master that
-now holds your work — it refused my first attempt because you had published yours minutes earlier.
+### 13.4 IS BUILT — a client's own currency, drawn and approved first
 
-Stage 5's screen was built, then stage 6 **skipped on Mike's ruling** and stage 7 found **already
-done** — stages 2–5 had absorbed all three of its parts. Closure in `to-do-done-and-parked.md` §2.
+Cascade **client → firm → platform default**, resolved in one place (`readClientCurrency`).
+**No schema change:** `client-currency:<clientId>` on the existing `firmOverlay`, IDOR-guarded
+through `clientStore.getById`. **Advisor-level write**, unlike the manager-gated firm setting —
+Mike's ruling. Artefact: `design/mockups/client-currency-picker.html`, approved before a line
+was written; one deviation recorded in `ARTEFACTS.md` (a CSS class).
 
-### 🔴 LANGUAGES — I had this BACKWARDS, and so did a session before me
+🔴 **THE ITEM'S OWN `touches` WOULD HAVE SENT ME TO THE WRONG SCREEN.** It named
+`components/ModelLibrary.vue`. That screen is firm-wide and holds **no client at all** — no
+`savedReport`, no `ReportHeader`, no `clientId`. The control went on the **report header**
+(`ClientAccessSwitch.vue`), which already has the client, so it reached **all eleven**
+client-aware reports at once instead of being built eleven times.
 
-**The app translates into all 28 languages.** Only `en.json` is authored; any unshipped language is
-POSTed to `/api/translate/locale`, translated once and cached per browser. **The eight static locale
-files are a partial HEAD START, not the supported list** — their emptiness is expected, not a
-backlog. I told Mike the opposite and it went into a ruling's stated reason before I caught it.
+🔴 **A CLIENT'S CURRENCY IS NEVER CACHED — do not "optimise" that away.** `currencyMixin`
+caches the firm's in ONE `advisor_e_currency` key for the whole app. Cache a client's there and
+the next client paints with the previous one's symbol: figures correct, currency wrong,
+invisible to anyone looking at one client at a time. Pinned by a test.
 
-Because that folder has now been misread twice, the fix is three surfaces, not a paragraph:
-`localisation-and-currency.md` **§1a**, a new **`locales/README.md`** where the misreading actually
-happens, and **`tests/unit/languagePolicy.test.js`** (5 tests, mutation-verified). **Stage 6's
-ruling is unaffected and better supported** — it would have been a *second* translation system.
+### Also closed: 13.1, and two stale records
 
-### NEW 13.4 — a client-level currency, on Mike's ruling
+**13.1 was already built** — the relabel line shipped in `9fe59f97` this morning and the list
+still carried it as our work. Closed. **Items 16 and 16.2 corrected**: 16 said a place to hold
+the brand was ours either way, which is the opposite of Mike's ruling — replaced, and it now
+waits on the master team's two column names, not on him.
 
-*"currency is selected at firm manager level and cascades down to the client level model library
-but at client level … the currency can again be edited by the advisor."* Three levels, not two.
-**The client half does not exist at all** — `currencyMixin` holds one `firmCurrency`, and
-`firmOverlay` is firm-scoped with no `saveClientConfig`. Backend work, not a screen change.
+**LAPTOP — shared files I touched**: `locales/en.json` (a `clientReports.currency` block),
+`design/features/to-do-items.json`, `to-do.md`, `to-do-done-and-parked.md`, `ARTEFACTS.md`,
+`design/features/localisation-and-currency.md`, `server/routes/currency.js`,
+`server/restify-server.js`, `mixins/currencyMixin.js`, `mixins/savedReport.js`,
+`utils/clientReports.js`, `components/base/ClientAccessSwitch.vue`, `ReportHeader.vue`.
+**Your strategy files untouched.**
 
-🔴 **It is NOT the per-client currency he rejected earlier the same day** (see 13.2's comment) —
-that was a second *firm-level* setting carrying conversion maths; this is a **label**, defaulting
-to the firm's, with conversion still inside models on `fxAllowancePct`. The item says so itself.
-**13.1 is now load-bearing** and ships with it: a client-level relabel reads as a conversion far
-more readily than a firm-wide one.
-
-### Notes
-
-- **LAPTOP — shared files I touched**: `locales/en.json` (a `salesBlog` block),
-  `components/FirmManagerHub.vue` (untouched today; stage 4's tab counts were yesterday),
-  `design/features/localisation-and-currency.md` (§1a, §3, P6),
-  `design/features/to-do-items.json`, `to-do.md`, `CODE-SIZE.md`.
-- **Three faults found by OPENING the app, none by 13,197 tests** — recorded in the closure entry.
-  One defect deliberately filed rather than fixed: `SalesBlog.vue` puts `is-primary` and `is-info`
-  on two adjacent buttons, an instance of **16.1**.
-- **Open for Mike on 13.4 when he ranks it**: where the advisor edits the client's currency.
-  Stored against the **client**, not per advisor per client.
+⚠ **16.2 IS STILL OPEN AND ITS SECOND HALF IS NOT IN ITS TITLE:** `pages/strategy-planner.vue`
+mounts `StrategyPlanDocument` with **no** `:firm-name`, `:firm-colour` or `:firm-logo`, so every
+drawing in a printed plan renders the placeholder even now item 16 has merged. Your ground, not
+mine — it is on the item.
