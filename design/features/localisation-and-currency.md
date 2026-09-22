@@ -29,10 +29,72 @@ adviser-written text is untrusted input and a third party's reply is untrusted o
 
 ---
 
+## 1a. 🔴 HOW LANGUAGES ARE DEALT WITH — the whole policy, in one place
+
+**Ruled settled by Mike, 2026-09-22.** This section exists because the position was correct in the
+code and written down nowhere, so each session re-derived it from the locale folder and **two in a
+row got it backwards.** Read this before concluding anything about translation.
+
+**ONE FILE IS AUTHORED. EVERY LANGUAGE COMES FROM IT.**
+
+| | |
+|---|---|
+| **Authored by us** | `locales/en.json` — English, and **only** English |
+| **Shipped as static files** | 8 (`de en es fr it nl pl pt`) — a head start for common languages, **not** a list of what is supported |
+| **Offered to a reader** | **28** (`data/languages.json`) |
+| **Translated on demand** | the other **20** — `ar az ca cs da el eo fi he hi hu id ja ko ru sk sv tr uk zh` |
+
+**The mechanism** (`mixins/localeMixin.js`): a reader picks a language we do not ship, the whole
+English locale is POSTed to `/api/translate/locale`, translated once, and cached in `localStorage`
+under `va_locale_<code>`. The cost is paid **once per browser**, not once per visit.
+
+### What this means for anyone writing code here
+
+🔴 **A string in `en.json` can become any of 28 languages. A string hardcoded in a template stays
+English for ever.** That is why hardcoded UI text is a **defect**, not untidiness — it is the one
+way to make a screen permanently monolingual, and no test can see it as anything but a passing
+string.
+
+✅ **You do not translate anything by hand, and you do not add locale files.** Write the English,
+put it in `en.json`, and all 28 languages follow. Adding a 29th language is a row in
+`data/languages.json` — not a translation project.
+
+### ⚠ The two wrong conclusions this section exists to stop
+
+**"The other seven locale files are nearly empty — translation is unfinished."** They hold 8
+top-level keys against English's 54, which looks alarming and is not. Those files are a partial
+head start; everything missing from them is translated on demand like the other twenty. **Nothing
+is unfinished and there is no backlog of translation work.** *(Read exactly this way twice —
+2026-09-22 being the second.)*
+
+**"The app cannot translate, so it needs a translation tool."** It can, it does, and it has since
+before item 17. This is why **stage 6 of the Sales Tracker was skipped** (Mike's ruling,
+2026-09-22): its language admin would have stood a **second** translation system beside a working
+one. If a future port arrives carrying its own translation machinery, the answer is the same.
+
+### Where it can genuinely go wrong — and these are real
+
+- **The quota is shared and metered.** 20 languages depend on one third-party allowance.
+  Exhausting it **silently reverts those readers to English** with nothing on screen to say why.
+  This is why `/api/translate/locale` is signed-in-only (P5a) — the guard is about who may spend
+  the quota, not about scoping.
+- **A failure must never blank a label.** Falling back to the key, or to English, always beats an
+  empty string on a screen an advisor is holding in front of a client.
+- **Chunking is load-bearing, not tidiness** — see §3. An oversized request once reverted an entire
+  language to English.
+
+**Language is the reader's, currency is the firm's, and they never move together** — §1. An advisor
+in Auckland reading in Spanish still reports in New Zealand dollars.
+
+---
+
 ## 2. Key principles — the non-negotiables
 
 **P1 · All user-facing text goes through the wording layer.** No hardcoded English in a template
 or in logic. This is a stack requirement, not a preference.
+
+**P1a · 🔴 It is the ONLY thing you do.** English into `en.json`, and 28 languages follow from it
+— see §1a. Never hand-translate, never add a locale file, never build a second translation path.
 
 **P2 · Version 8 of the wording library only.** The reader-facing calls are the version-8 ones.
 Do not reach for a version-9 API — this is a Vue 2 application and they do not exist here.
@@ -63,8 +125,13 @@ exception.
 `components/collaborate/shared/ConversationPane.vue`). None did before, so guarding the route without
 changing them would have broken language switching everywhere.
 
-**P6 · Currency: read by any signed-in firm user, written by managers only.** A read must never
-require a manager role and must never break a report — on any failure it degrades to the default.
+**P6 · Currency: read by any signed-in firm user, the FIRM's value written by managers only.** A
+read must never require a manager role and must never break a report — on any failure it degrades
+to the default.
+
+⚠ **A client-level override is Mike's ruling of 2026-09-22 and is NOT yet built** (`13.4`). When it
+lands, the manager-only write still governs the **firm's** value; the advisor's is the **client's**,
+and the resolution order is client → firm → platform default. See §3.
 
 **P7 · The supported currency list has one source**, shared by the backend and the picker, so
 the two cannot drift.
@@ -121,6 +188,28 @@ So there are **two separate things**, and conflating them is how this went wrong
 |---|---|---|
 | **Currency** | The **firm**, one value (`/api/report/currency`) | Which money every report is denominated in |
 | **Conversion** | **Inside a model**, per model | What a foreign leg costs once a primary currency is known |
+
+🔴 **AND THE FIRM'S CURRENCY CASCADES TO THE CLIENT, WHERE THE ADVISOR MAY EDIT IT — Mike, 2026-09-22.**
+In his words:
+
+> *"currency is selected at firm manager level and cascades down to the client level model library
+> but at client level (which is where the advisor uses it - for the benefit of their clients) the
+> currency can again be edited by the advisor - if required"*
+
+So there are **three levels, not two** — the firm sets one, it cascades to every client, and the
+advisor overrides it for a client that needs it. **On the live list as `13.4`; the client half does
+not exist yet** (`currencyMixin` holds one `firmCurrency` and every report reads it).
+
+⚠ **THIS DOES NOT REOPEN THE RULING BELOW, AND A READER MUST NOT TAKE IT THAT WAY.** What he
+rejected earlier the same day was a per-client currency **as a second firm-level setting**, with the
+conversion maths that implies. This is a **label** — which money this client's reports are
+denominated in — defaulting to the firm's. **Conversion still lives inside a model on
+`fxAllowancePct`, exactly as ruled.** The two are compatible because one is what a figure is
+*called* and the other is what a figure is *worth*.
+
+🔴 **It also makes `13.1` load-bearing.** A firm-wide relabel is defensible: every figure was
+entered in the firm's own money. **An advisor switching one client to Euro is far likelier to
+believe the figures converted** — so the warning line ships with `13.4` or before it.
 
 ✅ **THE APP ALREADY WORKS THIS WAY, which is why this is a principle rather than a build.**
 `server/report/threeWayForecastModel.js` takes an **`fxAllowancePct`** the advisor enters and applies
