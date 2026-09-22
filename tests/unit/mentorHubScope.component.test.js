@@ -303,7 +303,23 @@ describe('the two tiers are recognisably the same screen', () => {
   // two are one object from two sides: the library is what a template IS, the profile is what
   // it ANSWERS. Mentor-only as a stated judgement (a profile says what a tool is FOR, which
   // does not vary by firm). Built READ-ONLY on Mike's ruling of 2026-09-16.
+  //
+  // 🔴 AMENDED 2026-09-23, AND THE SHAPE OF THIS CHANGED RATHER THAN ITS LENGTH.
+  // `modelChoices.tab` is appended at the END of "Rolled up from below" (item 7.5,
+  // Decision 3, Mike 2026-09-16) and it is NOT mentor-only — it is all four tiers,
+  // because Decision 2 put the firm and the advisor on every row, which gave a firm
+  // manager their own rows to read.
+  //
+  // So the LAST tab in the menu is no longer a mentor-only one, which is the assumption
+  // the tail test below was built on. The tail is therefore taken as the mentor-only run
+  // ENDING AT modelChoices rather than at the end of the list — `sliceEnd` below. This is
+  // the first time a shared tab has sat under this heading, and it is also why a FIRM
+  // MANAGER now sees the heading "Rolled up from below" for the first time: the other
+  // three entries all stop at the group tier. Named on the drawing before it was found.
   const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab', 'semanticProfiles.tab', 'outcomeLearning.tab']
+
+  /** Tabs every tier sees that sit AFTER the mentor-only run, newest last. */
+  const SHARED_AFTER_TAIL = ['modelChoices.tab']
   //
   // ⚠ AMENDED 2026-09-08: `Industry Benchmarks` joins it — the Stats NZ benchmarker release in
   // force and the two-file upload that replaces it (Mike, 2026-09-08, item 4.70 stage 3; the
@@ -351,8 +367,17 @@ describe('the two tiers are recognisably the same screen', () => {
     // run is the tail of the menu rather than names scattered through a band of twelve.
     // (Sliced by the list's own length: the hardcoded -4 turned this into a count
     // pin that broke the day a fifth mentor-only tab was ruled on.)
+    //
+    // ⚠ SINCE 2026-09-23 THE RUN NO LONGER REACHES THE END OF THE MENU. Model Choices is
+    // appended after it and every tier sees it, so the slice stops where that begins —
+    // taken from the list's own length rather than a number, for the same reason the -4
+    // above was removed.
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
-    expect(mentor.slice(-MENTOR_ONLY_TAIL.length)).toEqual(MENTOR_ONLY_TAIL)
+    const sliceEnd = mentor.length - SHARED_AFTER_TAIL.length
+    expect(mentor.slice(sliceEnd - MENTOR_ONLY_TAIL.length, sliceEnd)).toEqual(MENTOR_ONLY_TAIL)
+    // And the shared tabs really are after it, rather than the slice above having
+    // silently matched an earlier run of the same names.
+    expect(mentor.slice(sliceEnd)).toEqual(SHARED_AFTER_TAIL)
   })
 })
 
@@ -411,9 +436,20 @@ describe('the hub menu — the sidebar itself', () => {
     // 2026-09-10 for the firm tier alone and drawn beside Compliance because consent is a
     // firm's own undertaking in the same way its declaration is. Appended at the end of the
     // last group the firm sees, so the four index assertions below are untouched.
+    //
+    // 🔴 A FIFTH HEADING SINCE 2026-09-23, AND IT IS THE FIRST TIME A FIRM MANAGER HAS EVER
+    // SEEN "Rolled up from below". Model Choices (item 7.5) was ruled onto all four manager
+    // tiers by Mike on 2026-09-16 — Decision 3, which REVERSED the mentor-alone recommendation
+    // once Decision 2 gave each tier its own rows to read. Every other entry under that heading
+    // stops at the group tier, which is why the heading has never appeared here before.
+    //
+    // ⚠ IT IS ACCURATE RATHER THAN CONVENIENT — the rows ARE rolled up from a firm manager's
+    // own advisors — and it was named on the drawing before it was found, and put to Mike as
+    // a visible change to a firm manager's hub. It is appended LAST, so nothing already on
+    // their screen moved.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual([
-      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance'
+      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
     ])
     //
     // ⚠ 19 SINCE 2026-09-21, when Session Processes joined (item 15.1, Decision C — Mike
@@ -425,7 +461,11 @@ describe('the hub menu — the sidebar itself', () => {
     // Pipeline and Sales Tracker Lists (item 17 stage 4, Mike: "so i can see the lists and
     // report"). Both appended to the END of the same group, for the same reason: appending
     // moves nothing already on a manager's screen, and the index assertions below still hold.
-    expect(tabLabels(wrapper)).toHaveLength(21)
+    //
+    // ⚠ 22 SINCE 2026-09-23, when Model Choices joined (item 7.5, Decision 3 — all four
+    // manager tiers). Appended as the very last tab, under a heading the firm sees for the
+    // first time, so the four index assertions below are untouched once again.
+    expect(tabLabels(wrapper)).toHaveLength(22)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -445,8 +485,13 @@ describe('the hub menu — the sidebar itself', () => {
     //
     // The rule the old test was really protecting — an empty group is DROPPED, not drawn
     // empty, because one gap in a list of twelve reads as a bug — is unchanged and is
-    // still covered: the firm sees no "Rolled up from below" heading at all (asserted in
-    // the test above), which is the same mechanism from the other side.
+    // still covered: the FIRM sees no Property Tax Rules entry under Model Inputs it is
+    // not entitled to, and a group with nothing in it never renders.
+    //
+    // ⚠ THIS PARAGRAPH USED TO CITE "the firm sees no 'Rolled up from below' heading at
+    // all" as the proof, and that stopped being true on 2026-09-23 when Model Choices was
+    // built onto all four tiers (item 7.5, Mike's Decision 3 of 2026-09-16). The mechanism
+    // it was pointing at is unchanged; the example was replaced rather than annotated.
     //
     // ⚠ A "Compliance" HEADING JOINED THE LIST ON 2026-09-10 with the tab of the same name
     // (item 4.83), which Mike named onto all four tiers. It is drawn at the mentor too,
@@ -531,11 +576,16 @@ describe('the hub menu — the sidebar itself', () => {
     // 15.1, Decision C). Mike ruled all four manager tiers, against the mentor-alone default
     // he was offered, because a firm's planning method is what one firm does differently.
     // His ruling again, and appended rather than inserted.
+    //
+    // ⚠ AND TO 19 ON 2026-09-23, when Model Choices joined the END of "Rolled up from below"
+    // (item 7.5, Decision 3 — Mike ruled all four manager tiers on 2026-09-16, reversing the
+    // mentor-alone recommendation once each tier had its own rows to read). His ruling again,
+    // and appended rather than inserted: this group manager's existing eighteen have not moved.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(18)
+    expect(tabLabels(wrapper)).toHaveLength(19)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

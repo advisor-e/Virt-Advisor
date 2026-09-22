@@ -738,6 +738,19 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('outcomeLearning')" v-show="activeTab === 'outcomeLearning'")
         mentor-outcome-learning(:api-token="apiToken")
 
+      //- ── Tab: Model Choices (item 7.5) ──────────────────────────────
+      //- Which calculation model the AI sent an advisor to, and when it said none
+      //- fits. Until this existed, the ONLY way to check the AI's judgement was for
+      //- somebody to sit and read conversations — which happened once, on
+      //- 2026-09-15, and two of three found faults.
+      //- 🔴 IT REPORTS, IT DOES NOT SCORE. Anything grading the AI's choice would be
+      //- a second AI marking the first one's homework, and nobody could check THAT.
+      //- All four tiers, each scoped by the route to its own level — see
+      //- TAB_TIERS.modelChoices. design/mockups/model-choices.html, all three
+      //- decisions ruled by Mike 2026-09-16.
+      div.hub-panel(v-if="showsTab('modelChoices')" v-show="activeTab === 'modelChoices'")
+        mentor-model-choices(:api-token="apiToken")
+
       //- ── Tab: Team Case Studies (manager review) ────────────────────
       //- FIRM SCOPE ONLY, and hidden rather than widened. The mentor already has
       //- the correct cross-firm version in the Case Reviews tab below, which shows
@@ -978,6 +991,7 @@ import FirmTemplateLibrary from '~/components/firm/FirmTemplateLibrary.vue'
 // off) — the server role-gates every /api/mentor call regardless.
 import MentorReview from '~/components/MentorReview.vue'
 import MentorAdoption from '~/components/mentor/MentorAdoption.vue'
+import MentorModelChoices from '~/components/mentor/MentorModelChoices.vue'
 import MentorOutcomeLearning from '~/components/mentor/MentorOutcomeLearning.vue'
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
@@ -1117,6 +1131,25 @@ const TAB_TIERS = {
   // and `parentScopeOf` already walks the chain, so adding a tier is the whole change.
   salesTeam: ['firm'],
   salesLists: ['firm'],
+
+  // 🔴 ALL FOUR MANAGER TIERS, RULED BY MIKE 2026-09-16 (Decision 3 of
+  // design/mockups/model-choices.html), and the ruling REVERSED the recommendation
+  // put to him, which was the mentor alone. The argument for mentor-alone was that
+  // no other tier could act on what the page shows; Decision 2 — the firm and the
+  // advisor on every row — removed it, because a firm manager now has their own
+  // rows to read. The 2026-08-10 roll-up ruling then applies plainly.
+  //
+  // Each tier is scoped to its own level by the route, never by this list:
+  // `req.firmId` comes from the verified token and a firmId in the request is never
+  // read. Hiding a tab is navigation; refusing a row is a permission, and this
+  // feature has both.
+  //
+  // ⚠ ONE CONSEQUENCE, NAMED ON THE DRAWING BEFORE IT WAS FOUND: "Rolled up from
+  // below" has never appeared on a firm manager's screen — all three items in it
+  // today stop at the group tier. A firm manager sees that heading for the first
+  // time, with this one entry under it. It is accurate — it IS rolled up from their
+  // advisors — and it was put to Mike as a visible change to their hub.
+  modelChoices: ['mentor', 'global', 'group', 'firm'],
 
   adoption: ['mentor', 'global', 'group'],
 
@@ -1587,7 +1620,15 @@ const NAV_GROUPS = [
       // Item 4.87. Beside Case Reviews and Template Check because it is the same kind of
       // thing — what the firms' reviews add up to — as the drawing places it. Mentor only;
       // see TAB_TIERS.outcomeLearning.
-      { key: 'outcomeLearning', i18n: 'outcomeLearning.tab' }
+      { key: 'outcomeLearning', i18n: 'outcomeLearning.tab' },
+      // 🔴 THIS GROUP, AND NOT "Your AI coach" — Mike's ruling of 2026-09-16, which
+      // reversed the recommendation. "Your AI coach" is where a manager EDITS what the
+      // AI knows; this heading is where they READ BACK what it did, and it already
+      // holds the three reports this most resembles. Item 7.5.
+      //
+      // At the END of the group, as every addition here is: appending moves nothing
+      // already on a manager's screen. All four tiers — see TAB_TIERS.modelChoices.
+      { key: 'modelChoices', i18n: 'modelChoices.tab' }
     ]
   }
 ]
@@ -1623,7 +1664,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
   mixins: [traceReasonMixin],
 

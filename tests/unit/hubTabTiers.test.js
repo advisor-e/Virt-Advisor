@@ -124,8 +124,17 @@ const MENTOR_BEFORE = [
  *   ⚠ The THREE ADVISOR Sales Tracker screens are deliberately not hub tabs at any tier: the
  *   hub sits behind `requireManagerRole`, so a tab would put an advisor's own tool where its
  *   users cannot reach it (Mike's ruling 2026-09-21).
+ * - `modelChoices` — Mike, 2026-09-16, Decision 3 of `design/mockups/model-choices.html`
+ *   (item 7.5). 🔴 **ALL FOUR TIERS, AND THE RULING REVERSED THE RECOMMENDATION PUT TO HIM**,
+ *   which was the mentor alone. The argument for mentor-alone was that no other tier could act
+ *   on what the page shows; **Decision 2 — the firm and the advisor on every row — removed it**,
+ *   because a firm manager now has their own rows to read, and the roll-up ruling of 2026-08-10
+ *   then applies plainly. Each tier is scoped by the route to its own level, never by this list.
+ *   ⚠ **This is the first entry in "Rolled up from below" a FIRM MANAGER has ever seen** — the
+ *   other three stop at the group tier. Named on the drawing before it was found, and put to
+ *   Mike as a visible change to their hub.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -179,8 +188,12 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  * - `sessionProcess` — the same ruling as the firm's (Decision C, 2026-09-21). The mentor is
  *   where the cascade starts: a tier that has written nothing inherits the nearest one above,
  *   and the shipped platform session is the mentor's own starting point.
+ * - `modelChoices` — the same ruling as the firm's (Decision 3, 2026-09-16). The mentor reads
+ *   every firm, which is the view the drawing itself is drawn as. ⚠ The model summaries this
+ *   page audits are PLATFORM content no other tier may edit — that was the argument for mentor
+ *   alone, and Mike ruled against it once each tier had its own rows to read.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -291,10 +304,16 @@ describe('hub tab matrix — the two new tiers', () => {
     // all four manager tiers by Mike that day — Decision C, against the mentor-alone default
     // he was offered. So the global tier now shows 19: six unconditional plus thirteen
     // conditional, and the group tier 12.
-    expect(conditional).toHaveLength(13)
+    //
+    // 🔴 FOURTEEN SINCE 2026-09-23, NOT THIRTEEN. Model Choices (item 7.5) was ruled onto all
+    // four manager tiers by Mike on 2026-09-16 — Decision 3, which REVERSED the mentor-alone
+    // recommendation put to him once Decision 2 gave each tier its own rows to read. The tab
+    // was built on 2026-09-23, the day the hub file came free. So the global tier now shows
+    // 20: six unconditional plus fourteen conditional, and the group tier 13.
+    expect(conditional).toHaveLength(14)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(19)
-    expect(tabsAt('group')).toHaveLength(12)
+    expect(unconditional.concat(conditional)).toHaveLength(20)
+    expect(tabsAt('group')).toHaveLength(13)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

@@ -427,7 +427,29 @@ moved into the prompts, and **0 in 3** again after the closing-line contradictio
 so that contradiction, the obvious culprit, **is not the cause**. Nearly every row recorded came from
 the fallback. A model that is *named* is caught every time; a **decline under-counts**. ⚠ The client-mode Phase 3 path is **not yet
 tested** — SECTION 11's template marker works reliably there and SECTION 12 sits beside it, so it may
-already be sound. **The screen is not built:** its hub tab needs `FirmManagerHub.vue`.
+already be sound.
+
+🔴 **THE SCREEN IS BUILT (2026-09-23) — the Model Choices tab, at all four manager tiers.**
+[`../../components/mentor/MentorModelChoices.vue`](../../components/mentor/MentorModelChoices.vue),
+at the end of the Hub's *"Rolled up from below"* group, reading `GET /api/model-choices` scoped to
+the caller's own verified tier. It draws the drawing's four bands: the period's counts, which model
+was named for which advisory domain, the declines, and the individual rows.
+
+**It reports and it never scores.** Nothing on the page grades the AI's choice, and a pairing that
+happened once carries no warning — anything marking the AI's judgement would be a second AI marking
+the first one's homework, with nobody able to check that one.
+
+**The declines band is a gap map, not a fault list** (Mike, 2026-09-16). Nineteen models answer to
+twenty-two advisory domains, so a domain that keeps appearing there has no calculator at all and the
+AI is answering correctly every time — what it marks is where advisors keep arriving and finding
+nothing, which is both where the next model should go and where human coaching must carry the work.
+
+⚠ **TWO THINGS ON THE DRAWING THE ROUTE DOES NOT SERVE, both named there before any code was
+written and both recorded in [`../ARTEFACTS.md`](../ARTEFACTS.md):** the period selector (the route
+returns the most recent 2,000 rows and takes no date range) and band 1's *"conversations where a
+model could have been named"* (it counts client conversations, which live in `advisor_va_sessions` —
+a second read). The tile is omitted rather than filled from a number that is to hand and means
+something else.
 
 ⚠ **THE SCREEN'S OWN SECOND USE, and it is not an afterthought.** Nineteen models answer to
 twenty-two advisory domains, so a run of declines in one domain is a **gap map** — where advisors
