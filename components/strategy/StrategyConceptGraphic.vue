@@ -5,6 +5,7 @@ component.scgw(
   :firm-name="markName"
   :firm-initial="markInitial"
   :firm-colour="firmColour"
+  :firm-logo="firmLogo"
 )
 </template>
 
@@ -30,10 +31,17 @@ import { CONCEPT_GRAPHICS } from '~/components/strategy/concepts'
  * Measured 2026-09-20: first load is 129.6 KB gzipped against a 300 KB budget,
  * and no drawing is in it.
  *
- * ⚠ THE FIRM'S OWN BRANDING HAS NO SOURCE IN THIS APP. Advisor-e holds firm
- * identity, not us, so until it reaches a token the mark prints the same
- * placeholder the Dashboard Report cover already uses. The props are the seam;
- * nothing here invents a name or a colour.
+ * ⚠ THE FIRM'S OWN BRANDING IS ADVISOR-E'S, AND IT NOW HAS A SOURCE.
+ * `firmBrand()` in server/utils/firmsDirectory.js reads the name, logo and
+ * colour off Advisor-e's firm profile record (seam Q-FIRM-BRAND). Until the
+ * master team names the two columns it returns nulls, and the mark prints the
+ * same placeholder the Dashboard Report cover already uses. The props are the
+ * seam; nothing here invents a name, a logo or a colour.
+ *
+ * 🔴 THE LOGO IS THE MARK; THE DISC IS THE FALLBACK — Mike, 2026-09-22. A firm
+ * with a logo shows it, in a fixed-height box that holds any proportion; a firm
+ * without shows the initials disc and its name, as every drawing did before.
+ * The firm's colour brands the page border either way.
  *
  * Vue 2, Options API, Pug.
  */
@@ -53,10 +61,19 @@ export default {
       default: ''
     },
 
-    /** The firm's colour, as a CSS colour. */
+    /** The firm's colour, as a CSS colour. Brands the page border and the disc. */
     firmColour: {
       type: String,
       default: '#0070c0'
+    },
+
+    /**
+     * The firm's real logo, as an absolute http(s) URL. Empty means the firm
+     * holds none, and the drawing falls back to the initials disc.
+     */
+    firmLogo: {
+      type: String,
+      default: ''
     }
   },
 

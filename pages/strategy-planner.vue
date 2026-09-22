@@ -68,6 +68,58 @@
 
   b-loading(:is-full-page="false" :active="loading")
 
+  //- 🔴 THE DOOR — stage 7, Decision A, from design/mockups/strategy-session-resume.html.
+  //- An advisor who left this screen for ANY reason used to come back to a blank one with
+  //- no way into the session they had been running, and a second `Build the session` opened
+  //- an empty duplicate for the same client. Our pages carry no navigation of their own, so
+  //- leaving is never a door we built — they vanish. This is on the ARRIVAL screen because
+  //- that is where they always land.
+  //- ⚠ IT OFFERS. IT NEVER RESUMES BY ITSELF. A new meeting with the same client is an
+  //- ordinary thing to want, and guessing wrong in front of a client cannot be undone in
+  //- the room. Not a modal either: an advisor who wants a fresh session ignores this.
+  //- ⚠ IT SAYS WHOSE THE SESSION IS. The route is scoped to the FIRM, not to one advisor,
+  //- so a colleague's session for this client appears here — useful, never silent.
+  .sp-resume(v-if="!loading && step === 'scope' && mostRecentSession")
+    .sp-resume-main
+      p.sp-resume-t {{ $t('strategyPlanner.resume.heading', { client: clientName, when: sessionWhen(mostRecentSession) }) }}
+      p.sp-resume-facts {{ sessionFacts(mostRecentSession) }}
+    .sp-resume-acts
+      b-button(type="is-primary" @click="reopenSession(mostRecentSession.id)") {{ $t('strategyPlanner.resume.reopen') }}
+      b-button(outlined @click="dismissResume") {{ $t('strategyPlanner.resume.startNew') }}
+      a.sp-resume-more(
+        v-if="earlierSessions.length"
+        href="#"
+        @click.prevent="showEarlier = !showEarlier"
+      ) {{ $tc('strategyPlanner.resume.earlier', earlierSessions.length, { count: earlierSessions.length }) }}
+
+  //- Behind the bar's own link, because a regular client accumulates sessions and the bar
+  //- must stay one line. Nothing here is closed or archived — see Decision C, dropped.
+  .sp-slist(v-if="!loading && step === 'scope' && showEarlier && earlierSessions.length")
+    .sp-srow(v-for="s in earlierSessions" :key="s.id")
+      span.sp-swhen {{ sessionWhen(s) }}
+      span.sp-swhat {{ sessionFacts(s) }}
+      b-button(size="is-small" outlined @click="reopenSession(s.id)") {{ $t('strategyPlanner.resume.reopenShort') }}
+
+  //- 🔴 THE SESSION'S OWN CONTROLS — Mike's two requests of 2026-09-22, and the stamp that
+  //- Decisions D and E put beside them. Shown once a session exists and never on Scope
+  //- before one does, because there is nothing yet to save or to leave.
+  //- ⚠ `Leave session` IS NOT RENDERED UNTIL ADVISOR-E ANSWERS QUESTION 9. Our pages have
+  //- no menu of their own, so the way out is theirs; seam Q-RETURN-URL in
+  //- config/integration.js. A button that looks live and goes nowhere cannot be told apart
+  //- from a broken app — the same rule that fixed `Suggest for this client`.
+  .sp-sessbar(v-if="!loading && sessionId && step !== 'scope'")
+    span.sp-saved(v-if="saveStampKey" :class="'is-' + saveState")
+      | {{ $t(saveStampKey) }}{{ saveStampTime ? ' ' + saveStampTime : '' }}
+    span.sp-sessbar-spacer
+    b-button(size="is-small" outlined @click="saveSessionNow") {{ $t('strategyPlanner.save.button') }}
+
+  //- 🔴 REOPENED, AND IT SAYS WHERE — Decision B. Landing deep in a session is quick, and
+  //- disorienting without this: it names the concept and offers one click back to the start.
+  .sp-reopened(v-if="!loading && reopenedAt && step === 'run'")
+    p
+      | {{ $t('strategyPlanner.resume.landed', { concept: reopenedAt.name }) }}
+      a.sp-resume-more(href="#" @click.prevent="goToStage('scope')") {{ $t('strategyPlanner.resume.backToScope') }}
+
   template(v-if="!loading && step === 'scope'")
     strategy-scope-menu(
       :decks="decks"
@@ -151,6 +203,7 @@
           class="sp-card"
           @field-opened="onFrameworkFieldOpened(card.framework, $event)"
           @field-changed="onFrameworkFieldChanged(card.framework, $event)"
+          @field-typing="onFrameworkFieldTyping(card.framework, $event)"
         )
 
         //- Everything else: the concept's own fill-in table, read from Mike's
@@ -170,6 +223,7 @@
           @field-opened="onVisitFieldOpened(card.visit, $event)"
           @field-changed="onVisitFieldChanged(card.visit, $event)"
           @fields-changed="onVisitFieldsChanged(card.visit, $event)"
+          @field-typing="onVisitFieldTyping(card.visit, $event)"
         )
 
   template(v-if="!loading && step === 'objectives'")
@@ -182,6 +236,7 @@
       class="sp-card"
       @field-opened="onFieldOpened"
       @field-changed="onFieldChanged"
+      @field-typing="onFieldTyping($event)"
     )
     section.sp-section
       h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
@@ -252,6 +307,21 @@ const TOKEN_KEY = 'advisor_e_token'
 
 /** The one capture form that captures a structure rather than words. */
 const ORG_CHART_FORM = 'parent-child-list'
+
+/**
+ * How long the advisor stops typing before the open box is written out — Decision D,
+ * "yes - auto save" (Mike, 2026-09-22).
+ *
+ * 🔴 IT IS A PAUSE AND NOT A KEYSTROKE, and the difference is the whole of that day's
+ * defect: until it was fixed, every character typed was its own `PUT /entries` and its
+ * own database write — 62 for a 62-character sentence. This writes once, after the
+ * advisor stops. 1.2 seconds is long enough that ordinary typing never trips it and
+ * short enough that "Unsaved changes" is gone before anyone reads it.
+ *
+ * ⚠ Leaving the box saves too, through Buefy's `lazy` — this closes the OTHER hole, an
+ * advisor who types an answer and then walks away without clicking anything at all.
+ */
+const AUTOSAVE_PAUSE_MS = 1200
 
 export default {
   name: 'StrategyPlannerPage',
@@ -350,6 +420,52 @@ export default {
       processSource: null,
       /** Set when the advisor presses "Start from blank instead", for this session only. */
       startedFromBlank: false,
+
+      // ── THE DOOR — stage 7, from design/mockups/strategy-session-resume.html ──────
+      //
+      // 🔴 WHY ANY OF THIS EXISTS. Until 2026-09-22 an advisor who left this screen for
+      // ANY reason — Advisor-e's menu, a phone call, a closed lid, a mis-clicked back
+      // button — came back to a blank Scope screen with no way into the session they had
+      // been running, and a second `Build the session` opened an empty duplicate for the
+      // same client. Everything they had typed was stored and unreachable. Our pages carry
+      // no navigation of their own, so leaving is never a door we built: they vanish. That
+      // is why the way back is on the ARRIVAL screen, where they always land.
+
+      /**
+       * That client's sessions, newest first, from `GET /api/strategy/sessions?clientId=`.
+       * Empty until a client is chosen. Decision A.
+       */
+      clientSessions: [],
+      /** True while that list is being fetched, so the bar does not flash in and out. */
+      loadingSessions: false,
+      /** Decision A — the earlier-sessions list, behind the bar's own link. */
+      showEarlier: false,
+      /**
+       * Set when a session was REOPENED rather than started: `{ conceptId, name }` or null.
+       * Decision B — it is what the green banner names, so landing deep in a session is
+       * never disorienting.
+       */
+      reopenedAt: null,
+
+      // ── THE SAVED STAMP — Decisions D and E ──────────────────────────────────────
+      //
+      // 🔴 D IS "yes - auto save" (Mike, 2026-09-22) AND E IS WHAT KEEPS IT HONEST. A
+      // stamp that only ever reads "Saved" lies at the one moment it matters — beside a
+      // sentence the advisor has just typed and not yet left. So it has three states, and
+      // the app writes the open box out after a PAUSE so "unsaved" lasts seconds.
+      //
+      // ⚠ A PAUSE, NEVER A KEYSTROKE. Saving per keystroke is the defect fixed the same
+      // day (see `onFieldChanged`); this must never become that again.
+
+      /** '' | 'unsaved' | 'saving' | 'saved' — what the stamp says. Decision E. */
+      saveState: '',
+      /** When the last successful save landed, for the stamp's time. */
+      lastSavedAt: null,
+      /** The open box's latest text, not yet written out: `{ frameworkId, fieldKey, value }`. */
+      pendingEntry: null,
+      /** The pause timer. Cleared on save, on leaving the box, and before unmount. */
+      autoSaveTimer: null,
+
       /** Resolved in mounted — never at render time. */
       apiToken: ''
     }
@@ -799,7 +915,76 @@ export default {
           works: items.some(x => x.hasTable !== false)
         }
       })
+    },
+
+    // ── THE DOOR — stage 7 ───────────────────────────────────────────────────────
+
+    /**
+     * The session the bar offers — this client's newest, or null.
+     *
+     * 🔴 RECENCY IS THE WHOLE RULE, AND THAT IS DELIBERATE. Decision C — a "finished"
+     * flag — was DROPPED by Mike on 2026-09-22: the bar only appears once a client is
+     * chosen, so it is never choosing between people, and it names the session's date so
+     * the advisor can see for themselves whether it is this week's work or last quarter's.
+     * The route returns them newest first.
+     *
+     * @returns {object|null}
+     */
+    mostRecentSession () {
+      if (this.sessionId || !this.clientSessions.length) { return null }
+      return this.clientSessions[0]
+    },
+
+    /** @returns {Array<object>} everything but the one the bar offers. */
+    earlierSessions () {
+      return this.clientSessions.slice(1)
+    },
+
+    /**
+     * What the Saved stamp says — Decision E, ruled by Mike 2026-09-22.
+     *
+     * 🔴 IT IS ALLOWED TO SAY SOMETHING OTHER THAN "Saved", WHICH IS THE POINT. A stamp
+     * that only ever showed a green tick would be lying beside a sentence the advisor has
+     * just typed and not yet left, which is the one moment it matters.
+     *
+     * @returns {string} '' when there is no session to stamp
+     */
+    saveStampKey () {
+      if (!this.sessionId || !this.saveState) { return '' }
+      return 'strategyPlanner.save.' + this.saveState
+    },
+
+    /** @returns {string} the time on the stamp, or '' when it has nothing to show. */
+    saveStampTime () {
+      if (this.saveState !== 'saved' || !this.lastSavedAt) { return '' }
+      return this.lastSavedAt.toLocaleTimeString(this.$i18n.locale, {
+        hour: 'numeric',
+        minute: '2-digit'
+      })
     }
+  },
+
+  watch: {
+    /**
+     * A client was chosen — look for the sessions they already have. Decision A.
+     *
+     * ⚠ The bar is the ONLY thing that changes. Nothing is reopened, nothing is started,
+     * and what the advisor has already ticked is untouched: a silent resume is exactly
+     * what the ruling refused, because guessing wrong in front of a client cannot be
+     * undone in the room.
+     */
+    clientId () {
+      this.loadClientSessions()
+    }
+  },
+
+  /**
+   * ⚠ THE PAUSE TIMER MUST NOT OUTLIVE THE PAGE. A pending auto-save firing after the
+   * advisor has navigated away would write into a component that no longer exists, and
+   * on a slow line that is precisely when it would happen.
+   */
+  beforeDestroy () {
+    if (this.autoSaveTimer) { clearTimeout(this.autoSaveTimer); this.autoSaveTimer = null }
   },
 
   /**
@@ -811,6 +996,14 @@ export default {
   async mounted () {
     this.apiToken = this.resolveApiToken()
     await Promise.all([this.loadFrameworks(), this.loadClients(), this.loadSessionProcess()])
+
+    // 🔴 A REFRESH COMES BACK TO THE SESSION — stage 7. `loadClients` has already set
+    // `clientId` from the address if one is there, and the watcher has fetched that
+    // client's sessions. An id in the address is the advisor's own last state, put there
+    // by `rememberSessionInUrl`, so it is reopened rather than merely offered: they did
+    // not choose to leave, the browser did.
+    const fromUrl = this.$route.query.sessionId
+    if (fromUrl) { await this.reopenSession(fromUrl) }
   },
 
   methods: {
@@ -1011,6 +1204,37 @@ export default {
     onFrameworkFieldChanged (framework, payload) {
       this.onFieldChanged({
         frameworkId: framework.conceptId || framework.id,
+        fieldKey: payload.fieldKey,
+        value: payload.value
+      })
+    },
+
+    /**
+     * Typing on a framework card — the Saved stamp's signal, never a write.
+     *
+     * ⚠ It resolves the SAME id as the save above. A typing signal keyed differently from
+     * the save it precedes would leave the box permanently "unsaved" on screen after it
+     * had in fact saved, because the two would never cancel each other out.
+     *
+     * @param {{id: string, conceptId?: string}} framework
+     * @param {{fieldKey: string, value: string}} payload
+     */
+    onFrameworkFieldTyping (framework, payload) {
+      this.onFieldTyping({
+        frameworkId: framework.conceptId || framework.id,
+        fieldKey: payload.fieldKey,
+        value: payload.value
+      })
+    },
+
+    /**
+     * Typing on a concept's own fill-in table — the Saved stamp's signal, never a write.
+     * @param {{conceptId: string}} visit
+     * @param {{fieldKey: string, value: string}} payload
+     */
+    onVisitFieldTyping (visit, payload) {
+      this.onFieldTyping({
+        frameworkId: visit.conceptId,
         fieldKey: payload.fieldKey,
         value: payload.value
       })
@@ -1312,12 +1536,27 @@ export default {
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
         const body = await res.json()
         this.sessionId = body.sessionId
+        // Stage 7: this is a new session, not a reopened one, so no banner — and the bar
+        // goes now that `mostRecentSession` sees a session id.
+        this.reopenedAt = null
+        this.markSaved()
+        this.rememberSessionInUrl()
         await this.loadCaptures()
         // 🔴 THE CAPTURES MUST BE LOADED FIRST. `placeableCards` reads them to know which
         // concepts have a fill-in table at all, and `seedSteps` filters the handed-down
         // process against that list — opened before they arrive, every step would come in
         // empty and the advisor would be handed a blank session.
         this.seedSteps()
+
+        // 🔴 THE SEEDED STEPS ARE SAVED AT ONCE, AND WERE NOT UNTIL 2026-09-22. Only
+        // `onStepsChanged` wrote them, so an advisor who accepted the handed-down session
+        // unchanged had an arrangement that existed on screen and NOWHERE ELSE. Two things
+        // went wrong with that, and both were found by opening the app rather than by any
+        // test: the reopen bar read "0 steps named" beside a session visibly holding five,
+        // which is the line an advisor judges a session by; and reopening rebuilt the steps
+        // from the firm's CURRENT standard instead of restoring the ones actually run, so a
+        // standard edited in between would hand back a different session without saying so.
+        await this.saveScope()
         this.step = 'steps'
       } catch (e) {
         // ⚠ ITS OWN MESSAGE. The first build reused the capture-box message here, so a
@@ -1325,6 +1564,319 @@ export default {
         // pressing the button rather than by any test.
         this.error = this.$t('strategyPlanner.errors.startFailed')
       }
+    },
+
+    // ── THE DOOR — stage 7 ───────────────────────────────────────────────────────
+
+    /**
+     * That client's own sessions, newest first — Decision A.
+     *
+     * 🔴 THE BAR ONLY EVER APPEARS ONCE A CLIENT IS CHOSEN, WHICH IS WHY THERE IS NO
+     * "finished" FLAG ANYWHERE IN THIS FILE. Mike dropped Decision C on exactly that
+     * ground: the app is never choosing between people, only between one client's
+     * sessions in date order, and the bar names the date. A flag somebody had to SET as a
+     * meeting broke up would be forgotten, and a record confidently wrong about what is
+     * finished is worse than no record at all.
+     *
+     * ⚠ THE ROUTE IS SCOPED TO THE FIRM, NOT THE ADVISOR. A colleague's session for the
+     * same client appears here — covering for someone away is real — so the bar says
+     * WHOSE it is and never pretends it is yours.
+     *
+     * Failure is silent by design: no bar rather than an error banner on a screen the
+     * advisor has only just opened. They can still start a session, which is the state
+     * the app was in before any of this existed.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadClientSessions () {
+      this.clientSessions = []
+      this.showEarlier = false
+      if (!this.clientId) { return }
+
+      this.loadingSessions = true
+      try {
+        const res = await fetch(
+          '/api/strategy/sessions?clientId=' + encodeURIComponent(this.clientId),
+          { credentials: 'same-origin', headers: this.headers() }
+        )
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        const body = await res.json()
+        this.clientSessions = Array.isArray(body.sessions) ? body.sessions : []
+      } catch (e) {
+        this.clientSessions = []
+      } finally {
+        this.loadingSessions = false
+      }
+    },
+
+    /**
+     * "Start a new session" on the bar — Decision A's other half.
+     *
+     * It does NOT open a session. It puts the bar away so the advisor can get on with
+     * scoping, and `Build the session` opens one exactly as it always has. Opening one
+     * here would strand them: a session exists, nothing is ticked, and the screen would
+     * have skipped the only stage where ticking happens.
+     *
+     * @returns {void}
+     */
+    dismissResume () {
+      this.clientSessions = []
+      this.showEarlier = false
+    },
+
+    /**
+     * When a session was, for the bar and the earlier-sessions list.
+     * @param {{startedAt: string}} session
+     * @returns {string}
+     */
+    sessionWhen (session) {
+      const when = this.storeTime(session && session.startedAt)
+      if (!when) { return this.$t('strategyPlanner.resume.whenUnknown') }
+      return this.$d(when, 'long')
+    },
+
+    /**
+     * Read a time out of the session store — and it is NOT a plain `new Date()`.
+     *
+     * 🔴 THE STORE STRIPS THE `Z`, DELIBERATELY, AND THE BROWSER THEN READS UTC AS LOCAL.
+     * `now()` in `server/utils/strategySessionStore.js` writes
+     * `new Date().toISOString().replace('T', ' ').replace('Z', '')` so the value matches
+     * MySQL's `DATETIME` column. The instant is UTC; nothing in the string says so. Passed
+     * to `new Date()` in a browser it is taken as local time, and in New Zealand that is
+     * **twelve hours out** — the stamp read "Saved 4:10 AM" beside a save made at 4:10 PM,
+     * and a session started late in the evening would show the wrong DAY on the bar.
+     *
+     * Found 2026-09-22 by opening the screen. No test saw it and none could have without
+     * being told what the right answer was, which is why the fix lives here, once, rather
+     * than at each call site.
+     *
+     * ⚠ IT MUST ALSO ACCEPT A PROPER ISO STRING. With a real MySQL behind it the same
+     * field can arrive already carrying its `Z`, and adding a second one would push the
+     * time out again in the other direction.
+     *
+     * @param {string|Date} value
+     * @returns {Date|null} null when there is nothing usable to show
+     */
+    storeTime (value) {
+      if (!value) { return null }
+      if (value instanceof Date) { return isNaN(value.getTime()) ? null : value }
+      const text = String(value).trim()
+      // Already carries a zone (trailing Z, or +hh:mm / -hh:mm) — parse it as it stands.
+      const zoned = /(?:Z|[+-]\d{2}:?\d{2})$/.test(text)
+      const iso = zoned ? text : text.replace(' ', 'T') + 'Z'
+      const when = new Date(iso)
+      return isNaN(when.getTime()) ? null : when
+    },
+
+    /**
+     * What is in a session, in one line — the whole basis on which an advisor decides
+     * whether this is the meeting they are continuing.
+     *
+     * 🔴 THIS LINE IS WHY THERE IS NO "finished" FLAG. Mike dropped Decision C because the
+     * date and these counts already tell an advisor what they need. Do not reduce it.
+     *
+     * @param {object} session
+     * @returns {string}
+     */
+    sessionFacts (session) {
+      const scope = (session && session.scope) || {}
+      const name = session && session.advisorName
+      const concepts = (scope.frameworks || []).length
+      const steps = (scope.steps || []).length
+      // ⚠ EACH COUNT IS PLURALISED ON ITS OWN. The first build read "1 concepts scoped",
+      // because the whole line was one `$t` with the numbers dropped into it — found by
+      // opening the screen on 2026-09-22, which is where a wrong word is always found.
+      return this.$t('strategyPlanner.resume.facts', {
+        concepts: this.$tc('strategyPlanner.resume.conceptsScoped', concepts, { count: concepts }),
+        steps: this.$tc('strategyPlanner.resume.stepsNamed', steps, { count: steps }),
+        who: name
+          ? this.$t('strategyPlanner.resume.startedBy', { name })
+          : this.$t('strategyPlanner.resume.startedByUnknown')
+      })
+    },
+
+    /**
+     * Reopen one of this client's sessions — the whole point of stage 7.
+     *
+     * 🔴 NOTHING HERE IS NEW MACHINERY. `GET /sessions/:id` has returned the session, its
+     * entries and its timeline since the store was written, and no screen had ever called
+     * it. The session already holds the ticks, the advisor's own named steps and which
+     * concepts sit in each, the AI's suggestion, every typed box and the field-level
+     * timeline. This puts them back on the screen.
+     *
+     * ⚠ THE CAPTURES MUST BE LOADED BEFORE THE STEPS ARE RESTORED, for the same reason
+     * `startSession` loads them first: `placeableCards` reads them to know which concepts
+     * have a fill-in table at all, and a step restored before they arrive would come back
+     * empty — the advisor's own arrangement, silently thrown away.
+     *
+     * @param {number|string} id the session to reopen
+     * @returns {Promise<void>}
+     */
+    async reopenSession (id) {
+      this.error = ''
+      this.loading = true
+      try {
+        const res = await fetch('/api/strategy/sessions/' + encodeURIComponent(id), {
+          credentials: 'same-origin',
+          headers: this.headers()
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        const body = await res.json()
+        const session = body.session || {}
+        const scope = session.scope || {}
+
+        this.sessionId = session.id
+        this.chosen = Array.isArray(scope.frameworks) ? scope.frameworks.slice() : []
+        this.suggested = (scope.suggestion && Array.isArray(scope.suggestion.concepts))
+          ? scope.suggestion.concepts.slice()
+          : []
+
+        // Every typed box, keyed exactly as the screen keys them.
+        const entries = {}
+        ;(body.entries || []).forEach((e) => {
+          entries[e.frameworkId + '::' + e.fieldKey] = e.value
+        })
+        this.entries = entries
+
+        await this.loadCaptures()
+
+        // The advisor's own steps, restored as saved. `seedSteps` is NOT called: it fills
+        // an empty list from the firm's standard, which would overwrite the arrangement
+        // this session already holds. A session saved before the step builder existed has
+        // no steps at all, and only then does the standard seed it.
+        const savedSteps = Array.isArray(scope.steps) ? scope.steps : []
+        this.planStepDefs = savedSteps.length
+          ? savedSteps.map((s, i) => ({ key: 's' + (i + 1), name: s.name || '', items: (s.items || []).slice() }))
+          : []
+        if (!this.planStepDefs.length) { this.seedSteps() }
+
+        this.reopenedAt = this.landingConcept(body.timeline)
+        this.step = this.reopenedAt ? 'run' : 'scope'
+        this.markSaved(session.lastOpenedAt)
+        this.rememberSessionInUrl()
+      } catch (e) {
+        this.error = this.$t('strategyPlanner.errors.reopenFailed')
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Where a reopened session lands — Decision B, ruled by Mike 2026-09-22: straight back
+     * to the concept the advisor was working on, not to the beginning.
+     *
+     * 🔴 THE STAGE ITSELF IS NOT STORED ANYWHERE, AND DOES NOT NEED TO BE. The timeline
+     * records the FIELD and CONCEPT last open — `frameworkId`, `fieldKey`, `openedAt` —
+     * and a concept with an open field can only ever have been open on Run session. A
+     * claim that the timeline "records where they were" was corrected before this was
+     * drawn; do not go looking for a stage column.
+     *
+     * A session that was scoped and never run has no timeline, and then the honest
+     * landing is Scope — which is where its advisor actually stopped.
+     *
+     * @param {Array<{frameworkId: string, openedAt: string}>} timeline newest last
+     * @returns {{conceptId: string, name: string}|null}
+     */
+    landingConcept (timeline) {
+      const rows = Array.isArray(timeline) ? timeline : []
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const id = rows[i] && rows[i].frameworkId
+        if (!id) { continue }
+        // Only a concept still in scope can be landed on. One unticked since has no card
+        // to open, and landing on nothing is worse than landing at the beginning.
+        if (!this.chosen.includes(id)) { continue }
+        // ⚠ MATCH ON `conceptId` AND READ `name`. The first build matched `key` — which
+        // for an approved framework card is `fw-<id>`, never the concept id the timeline
+        // records — and read `label`, which no card has. Both failed silently to the id,
+        // so the banner read "Reopened where you left off — porters-5-forces". Found by
+        // opening the screen; nothing in 13,000 assertions was looking at that word.
+        const card = this.placeableCards.find(c => c.conceptId === id)
+        return { conceptId: id, name: (card && card.name) || id }
+      }
+      return null
+    },
+
+    /**
+     * Put the session in the address bar, so a refresh comes back to it.
+     *
+     * Invisible plumbing, and the drawing says so: it decides nothing, it simply means the
+     * one thing an advisor does by reflex — reload the page — stops costing them the
+     * session. `replace` rather than `push`, so the back button still leaves the app
+     * rather than walking backwards through session ids.
+     *
+     * @returns {void}
+     */
+    rememberSessionInUrl () {
+      if (!process.client || !this.sessionId) { return }
+      const q = Object.assign({}, this.$route.query, {
+        sessionId: String(this.sessionId),
+        clientId: this.clientId || undefined
+      })
+      this.$router.replace({ query: q }).catch(() => { /* same route, nothing to do */ })
+    },
+
+    /**
+     * The advisor is typing — Decisions D and E. NOTHING IS SENT HERE.
+     *
+     * 🔴 THIS IS THE HALF THAT MUST NEVER BECOME A SAVE. It runs on every keystroke, and
+     * its only jobs are to say "unsaved" honestly and to start the pause timer. The
+     * network call happens once, in `flushPending`, after the advisor stops.
+     *
+     * @param {{frameworkId: string, fieldKey: string, value: string}} payload
+     * @returns {void}
+     */
+    onFieldTyping (payload) {
+      if (!this.sessionId) { return }
+      this.pendingEntry = payload
+      this.saveState = 'unsaved'
+      if (this.autoSaveTimer) { clearTimeout(this.autoSaveTimer) }
+      this.autoSaveTimer = setTimeout(() => { this.flushPending() }, AUTOSAVE_PAUSE_MS)
+    },
+
+    /**
+     * Write out the open box, if it holds anything not yet saved.
+     *
+     * Called by the pause timer, by `Save session`, and before leaving the session — the
+     * three moments at which an unsaved box would otherwise be at risk.
+     *
+     * @returns {Promise<void>}
+     */
+    async flushPending () {
+      if (this.autoSaveTimer) { clearTimeout(this.autoSaveTimer); this.autoSaveTimer = null }
+      const pending = this.pendingEntry
+      if (!pending) { return }
+      this.pendingEntry = null
+      await this.onFieldsChanged([pending])
+    },
+
+    /**
+     * `Save session` — Mike's request, 2026-09-22: "i should also be able to 'save
+     * session' at any time and return to continue."
+     *
+     * ⚠ IT IS NOT THEATRE, AND IT WOULD HAVE BEEN BEFORE THAT DAY'S FIX. Answers now save
+     * when the advisor leaves a box or pauses, so the box they are TYPING IN genuinely is
+     * not written out yet — this commits it, and the scope with it, and stamps the time.
+     *
+     * @returns {Promise<void>}
+     */
+    async saveSessionNow () {
+      if (!this.sessionId) { return }
+      this.saveState = 'saving'
+      await this.flushPending()
+      await this.saveScope()
+      if (!this.error) { this.markSaved() }
+    },
+
+    /**
+     * Record a successful save for the stamp.
+     * @param {string} [at] an ISO time to use instead of now (a reopened session's own)
+     * @returns {void}
+     */
+    markSaved (at) {
+      // ⚠ `storeTime`, never `new Date()` — the store's own format has no timezone on it.
+      // See the note there; this read "Saved 4:10 AM" for a 4:10 PM save until 2026-09-22.
+      this.lastSavedAt = (at ? this.storeTime(at) : null) || new Date()
+      this.saveState = 'saved'
     },
 
     /**
@@ -1348,6 +1900,17 @@ export default {
 
     /**
      * A box changed. Saved on blur, never per keystroke.
+     *
+     * 🔴 WHAT MAKES THAT TRUE IS THE `lazy` PROP ON THE TWO CAPTURE INPUTS, AND FROM THE
+     * DAY THIS COMMENT WAS WRITTEN UNTIL 2026-09-22 IT WAS NOT THERE. Buefy's Input emits
+     * `input` from the NATIVE input event unless `lazy` is set, so every character typed
+     * into a box arrived here as its own save: one `PUT /entries` and one database write
+     * each, roughly 200 for a 200-character answer. They are also fired without awaiting
+     * one another, so on a slow line an early short value can land after a later one and
+     * store a half-typed sentence. Remove `lazy` from StrategyConceptCapture.vue or
+     * StrategyCaptureBox.vue and all of that comes back, silently and invisibly on screen.
+     * tests/unit/strategyCaptureSaveRate.test.js exists to stop that.
+     *
      * @param {{frameworkId: string, fieldKey: string, value: string}} payload
      */
     async onFieldChanged (payload) {
@@ -1373,6 +1936,16 @@ export default {
         this.$set(this.entries, e.frameworkId + '::' + e.fieldKey, e.value)
       })
 
+      // 🔴 THE BOX IS NO LONGER PENDING ONCE IT IS ON ITS WAY. Without this, leaving a box
+      // saves it and the pause timer then saves the identical value a second later — two
+      // writes for one answer, which is a smaller version of the defect this replaced.
+      if (this.pendingEntry && entries.some(e =>
+        e.frameworkId === this.pendingEntry.frameworkId && e.fieldKey === this.pendingEntry.fieldKey)) {
+        this.pendingEntry = null
+        if (this.autoSaveTimer) { clearTimeout(this.autoSaveTimer); this.autoSaveTimer = null }
+      }
+      this.saveState = 'saving'
+
       try {
         const res = await fetch('/api/strategy/sessions/' + this.sessionId + '/entries', {
           method: 'PUT',
@@ -1381,8 +1954,14 @@ export default {
           body: JSON.stringify({ entries })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        this.markSaved()
       } catch (e) {
         this.error = this.$t('strategyPlanner.errors.saveFailed')
+        // ⚠ THE STAMP MUST NOT SAY "Saved" AFTER A FAILURE. Decision E is about the stamp
+        // telling the truth; a green tick over a save that did not happen is the exact lie
+        // it exists to prevent. The words are still on screen — a failed save never rolls
+        // the advisor back — so "unsaved" is the accurate word for them.
+        this.saveState = 'unsaved'
       }
     },
 
@@ -1502,6 +2081,65 @@ export default {
 
 /* The process banner, from the approved drawing: what arrived, whose it is, and the
    way out of it. It sits directly above the step builder and shares its top border. */
+/* ── THE DOOR — stage 7, from design/mockups/strategy-session-resume.html ──────────
+   The bar an advisor meets on arriving at a client they have worked with before, the
+   list of that client's earlier sessions behind its link, the session's own Save
+   control with the stamp that Decisions D and E put beside it, and the banner naming
+   where a reopened session landed (Decision B). */
+.sp-resume {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #9fd0f5;
+  border-left: 4px solid #0070c0;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #eef7ff, #fbfdff);
+}
+.sp-resume-main { flex: 1 1 21rem; min-width: 0; }
+.sp-resume-t { color: #002b64; font-weight: 700; font-size: 0.95rem; }
+.sp-resume-facts { color: #5b6f8a; font-size: 0.8rem; margin-top: 0.15rem; }
+.sp-resume-acts { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.sp-resume-more { font-size: 0.8rem; color: #0070c0; font-weight: 600; }
+
+.sp-slist { border: 1px solid #d5e1ee; border-radius: 10px; margin-bottom: 1rem; overflow: hidden; }
+.sp-srow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid #d5e1ee;
+}
+.sp-srow:last-child { border-bottom: 0; }
+.sp-swhen { flex: 0 0 11rem; color: #002b64; font-weight: 600; font-size: 0.85rem; }
+.sp-swhat { flex: 1 1 15rem; color: #5b6f8a; font-size: 0.8rem; }
+
+.sp-sessbar { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 0.9rem; }
+.sp-sessbar-spacer { flex: 1 1 2rem; }
+
+/* 🔴 THE STAMP IS ALLOWED TO SAY SOMETHING OTHER THAN "Saved" — Decision E. The dot is
+   coloured by state for exactly that reason: a green tick beside a sentence the advisor
+   has just typed and not yet left would be a lie at the one moment it matters. */
+.sp-saved { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+.sp-saved::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.sp-saved.is-saved { color: #1d6b2b; }
+.sp-saved.is-saving { color: #5b6f8a; }
+.sp-saved.is-unsaved { color: #a76b00; }
+
+.sp-reopened {
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid #a8dcb4;
+  border-left: 4px solid #4ca52d;
+  border-radius: 10px;
+  background: #f3fbf5;
+  color: #1d6b2b;
+  font-size: 0.85rem;
+}
+
 .sp-proc {
   display: flex;
   flex-wrap: wrap;

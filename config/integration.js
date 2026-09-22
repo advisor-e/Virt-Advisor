@@ -209,8 +209,77 @@ const CROSS_ORG = {
 // page inside the master dashboard, this one addresses a purchased marketplace tool.
 // Same host, different routes — confirm both with the master team before go-live.
 
+// SEAM (Q-RETURN-URL): where "Leave session" sends an advisor — Advisor-e's own main
+// menu. Mike's request, 2026-09-22: "i also want a 'leave session' button so i can
+// navigate back to the main advisor-e menu and look at other tools etc, then navigate
+// back to the page and reopen session." Our pages have NO navigation of their own
+// (layouts/default.vue is four lines), so the way back out is theirs, not ours.
+//
+// TWO WAYS IN, and the master team picks whichever is less work — question 9 of
+// design/MASTER-TEAM-INTEGRATION-EMAIL.md offers both:
+//
+//   (a) THEY APPEND `?returnUrl=…` to the link they already place to our page. Nothing
+//       is typed here, and it follows a white-labelled brand automatically, because the
+//       link that opened us came from that brand's own menu.
+//   (b) THEY SEND ONE FIXED URL, which is typed into `menuUrl` below.
+//
+// 🔴 (a) IS AN OPEN-REDIRECT SURFACE AND IS NEVER TRUSTED AS IT ARRIVES. A `returnUrl`
+// comes out of the address bar, so anyone can put anything in it — including a lookalike
+// login page, which is the one thing an advisor mid-session would not question. Any
+// implementation MUST check the host against `menuHostAllowList` before navigating, and
+// fall back to hiding the button rather than following an unrecognised host. A button
+// that goes nowhere is a nuisance; a button that goes somewhere hostile is a breach.
+//
+// ⚠ UNANSWERED, BOTH ARE NULL AND THE BUTTON IS NOT SHOWN AT ALL. That is deliberate and
+// it is the same rule the "Suggest for this client" button was fixed under on 2026-09-22:
+// a control that looks live and does nothing reads as a broken app, and a person cannot
+// tell it apart from a real failure.
+
 const ADVISOR_E = {
-  pageBaseUrl: process.env.ADVISOR_E_PAGE_BASE || 'https://app.advisor-e.com/p/'
+  pageBaseUrl: process.env.ADVISOR_E_PAGE_BASE || 'https://app.advisor-e.com/p/',
+
+  // (b) — one absolute http(s) URL, or null while unanswered.
+  menuUrl: process.env.ADVISOR_E_MENU_URL || null,
+
+  // (a) — hosts a `returnUrl` may point at. Empty means "trust none", which is the
+  // safe direction to fail and the shipped state.
+  menuHostAllowList: (process.env.ADVISOR_E_MENU_HOSTS || '')
+    .split(',')
+    .map(h => h.trim().toLowerCase())
+    .filter(Boolean)
+}
+
+// ── Firm branding on a client's document (item 16) ───────────────────────────
+// SEAM (Q-FIRM-BRAND): a firm's logo and brand colour are ADVISOR-E'S DATA, held
+// on the FIRM PROFILE PAGE in the master app. Mike, 2026-09-22: "Advisor-e already
+// picks up the colour and brands the border to suit." We never keep a copy of it
+// and we build no screen to edit one — this is a stub connection, nothing more.
+//
+// WHY IT MATTERS: the 33 strategy concept drawings are white-labelled — a client
+// sees their own advisor's firm, never Advisor-e. Every drawing already accepts a
+// name, a logo and a colour; without these two values it prints the words "Firm
+// logo" against an empty disc.
+//
+// These name COLUMNS on the `firms` table that server/utils/firmsDirectory.js
+// already reads — the one and only place this backend touches that table. The
+// master team either adds the two columns to ours, points the foreign keys at
+// their own firms table (config/db-schema.sql already invites exactly that), or
+// exposes a view carrying them. All three satisfy this seam unchanged.
+//
+// LEAVING THEM NULL IS SAFE AND IS THE SHIPPED STATE: the brand read resolves the
+// firm's name only, every drawing falls back to the initials disc, and no SQL for
+// these columns is ever built. Nothing waits on the master team to boot.
+//
+// ⚠ A COLUMN NAME CANNOT BE A BOUND PARAMETER, so whatever is typed here is
+// interpolated into SQL. firmsDirectory.js validates both against a strict
+// identifier pattern and REFUSES to build a statement from anything else — see
+// `assertColumnName` there. Type a plain column name; never a fragment of SQL.
+//
+// TODO (master team): confirm the two column names on the firm profile record.
+
+const FIRM_BRAND = {
+  logoColumn: process.env.FIRM_BRAND_LOGO_COLUMN || null, // e.g. 'logo_url' — absolute http(s) URL of the firm's logo image
+  colourColumn: process.env.FIRM_BRAND_COLOUR_COLUMN || null // e.g. 'brand_colour' — the border colour as #rrggbb
 }
 
 // ── Outreach anti-spam guardrails (Collaborate plan §4) ──────────────────────
@@ -309,5 +378,5 @@ const AI = {
 }
 
 module.exports = {
-  AUTH, DB, DRIVE, PUSH, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, OUTREACH, INVITE, AI
+  AUTH, DB, DRIVE, PUSH, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, FIRM_BRAND, OUTREACH, INVITE, AI
 }

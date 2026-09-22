@@ -33,12 +33,15 @@
             <text x="33.2" y="83.8" font-family="Open Sans, sans-serif" font-size="50.0" fill="#002B64" textLength="524.8" lengthAdjust="spacing">Horizontal Integration</text>
             <text x="558.7" y="83.8" font-family="Open Sans, sans-serif" font-size="22.9" fill="#002B64" textLength="174.0" lengthAdjust="spacing">(Considerations)</text>
             <g class="firm-mark">
-              <circle class="fm-disc" cx="110" cy="800" r="22" :fill="firmColour"></circle>
-              <text class="fm-init" x="110" y="808" text-anchor="middle" fill="#fff"
+
+              <image class="fm-logo" x="88" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" v-if="firmLogo" :href="firmLogo"></image>
+              <circle class="fm-disc" cx="110" cy="800" r="22" v-if="!firmLogo" :fill="firmColour"></circle>
+              <text class="fm-init" v-if="!firmLogo" x="110" y="808" text-anchor="middle" fill="#fff"
                     font-family="Open Sans, sans-serif" font-size="20" font-weight="700">{{ firmInitial }}</text>
-              <text class="fm-name" x="144" y="807" fill="#002B64"
+              <text class="fm-name" v-if="!firmLogo" x="144" y="807" fill="#002B64"
                     font-family="Open Sans, sans-serif" font-size="21" font-weight="600">{{ firmName }}</text>
             </g>
+            <rect class="firm-border" x="5" y="5" width="1490" height="834" rx="8" fill="none" :stroke="firmColour" stroke-width="10"></rect>
           </svg>
 </template>
 
@@ -69,10 +72,28 @@ export default {
       default: ''
     },
 
-    /** The firm's colour, as a CSS colour. */
+    /** The firm's colour, as a CSS colour. Brands the page border and the disc. */
     firmColour: {
       type: String,
       default: '#0070c0'
+    },
+
+    /**
+     * The firm's real logo, as an absolute http(s) URL.
+     *
+     * Mike's ruling, 2026-09-22: this IS the mark. The initials disc and the
+     * printed name are the fallback shown only when a firm holds no logo. The
+     * box is a fixed height with preserveAspectRatio="xMinYMid meet", so a logo
+     * of any proportion is scaled to fit and never stretched or cropped.
+     *
+     * Supplied by `firmBrand()` in server/utils/firmsDirectory.js, which reads
+     * it from Advisor-e's own firm profile record and returns null for anything
+     * that is not an http(s) URL — so an empty string here is the safe state,
+     * not a missing value.
+     */
+    firmLogo: {
+      type: String,
+      default: ''
     }
   }
 }
