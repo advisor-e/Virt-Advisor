@@ -11,45 +11,45 @@
 
 ## 2026-09-22 · Laptop · branch `feat/advisor-progress`
 
-**Clean, pushed, 13 ahead / 0 behind.** Suite **12,886 green** (588 suites), lint 0 errors.
-**PR #108 IS OPEN** — https://github.com/advisor-e/Virt-Advisor/pull/108, 12 commits, the
-first pull request since the 10-commit rule was written. **NOTHING WAITS ON MIKE.**
+**Clean, pushed, 18 ahead / 0 behind.** Suite **13,327 green** (599 suites), lint 0 errors.
+Merged your PR #109 on the way — item 17 stages 4 and 5 came across cleanly, one conflict and
+it was `CODE-SIZE.md`, regenerated rather than hand-merged. **PR #108 IS OPEN and MERGEABLE**
+with 18 commits. **NOTHING WAITS ON MIKE.**
 
-**CAPTURE FORMS 5 AND 6 ARE BUILT — six of nine done, three remain.** Both were measured
-against his own documents before anything was designed, and both were wrong on a live screen
-while the suite was green, because nothing had ever counted these tables against his files.
+**STAGE 6 IS BUILT — the AI pre-tick.** `server/utils/strategyPretick.js` (the prompt and the
+validator every reply passes through, 100% covered), `POST /api/strategy/suggest`, and the
+suggestion stored beside the ticks in `scope_json`. **NO MOCKUP WAS DRAWN AND NONE SHOULD BE:**
+the scope menu's own approved drawing already carries the button, the bar and Decision C, so a
+second would have been a rival artefact. Measured before anything was designed — five client
+situations gave five different lists, **4 of Pivot's 9** on Mike's own client description,
+**0 invented concepts**. Keyed on the CLIENT, not the session: the button sits on Scope session,
+which opens before any session exists.
 
-| | his document | was | now |
-|---|---|---|---|
-| Strategic Statements | 2 statements | 1 box | **2** |
-| Productive Habits | 5 named fields | 8 boxes, `Plan` absent | **5** |
-| Product Fit ×2 concepts | 9 questions | 15 boxes, 3 lost | **9** |
+🔴 **NUXT CAN RELOAD HALF A CHANGE, AND RESTARTING BOTH SERVERS DOES NOT FIX IT.** A newly added
+prop read as *"not defined on the instance"* while the file declared it and the unit tests
+passed — the template had recompiled and the `<script>` block came from cache. Three restarts.
+**Now in `run-the-app` with the one `page.evaluate` probe that proves it rather than guessing.**
+The fix is to touch the file's timestamp.
 
-🔴 **HIS RULING SPLIT PRODUCT FIT INTO TWO TABLES, AND IT SAVED WORK.** Recommendation was
-group headings over one list; he said *"split the tables into 2"*. Because `columnLabel` now
-carries his table heading and `rowLabel` his question, `blocks` renders both tables with **no
-new grouping invented**. His structure was the better engineering answer.
+🔴 **ITEM 5.3 IS WIDER THAN IT SAID, AND ITS FIRST FIX IS WEAKER THAN IT LOOKED.**
+`strategySessionStore.test.js` hit the same Windows EPERM and blocked two pushes — **and that
+store already has the per-process env override 5.3 lists as candidate fix one.** Widened on
+Mike's yes. Retry once before investigating.
 
-🔴 **A PAGE THAT LOOKS LIKE ONE TABLE MAY BE TWO.** Product Fit's two lists sit side by side
-in one Word table at different lengths — 3 left, 6 right. Read as rows, the left column's
-empty tail became six phantom boxes all headed with his last question, and `isLabelRow`
-silently ate three real ones. **Count his questions, never his cells.**
-
-**His blank writing rows are no longer drawn as rows on either artefact** — his instruction.
-⚠ They ARE in the .docx; they are answer space, not gaps. Do not "restore" them.
-
-🔴 **ITEM 5.3 IS PROVED, NOT SUSPECTED.** It blocked this session's first push —
-`wagesRegisterGate.test.js:373` → `_save` → `_writeDev`. Captured this time; note rewritten.
-**Expect random push failures until one of its three fixes is chosen.** Retry once first.
-
-**DESKTOP — shared files I touched**: `server/utils/strategyCaptureForms.js`,
-`components/strategy/StrategyConceptCapture.vue` (`isNamedFieldStack` → `isStackedForm`),
-`tests/unit/strategyCaptureForms.test.js`, `strategy-planner.md`, `ARTEFACTS.md`,
-`to-do-items.json` items 15.1 and 5.3, `design/CODE-SIZE.md` (generated). **Your item 17
-files untouched.** Your branch read **3 ahead / 0 behind `master`** from its own branch,
-your note dated 2026-09-21 — older than your last commit, so read as work in hand.
+**DESKTOP — shared files I touched**: `locales/en.json`, `design/features/to-do-items.json`,
+`design/ARTEFACTS.md`, `design/CODE-SIZE.md`, `server/utils/strategySessionStore.js`,
+`server/routes/strategyPlanner.js`, `server/restify-server.js`,
+`components/strategy/StrategyScopeMenu.vue`, `pages/strategy-planner.vue`,
+`tests/unit/strategyCapture.component.test.js`, `.claude/commands/startup.md`,
+`design/WORKING-AGREEMENT.md`, `.claude/skills/run-the-app/SKILL.md`. **Your item 17 files
+untouched.** Your branch read **4 ahead / 0 behind `master`** from its own branch, your note
+dated 2026-09-22 — current.
 
 **`activeOn`: 7.5 and 15.1 laptop — both still in hand. 17 desktop.**
-**NEXT on 15.1:** stage 5's last three forms are NOT code jobs — two of them
-(Curve & Cycle Notes, Sales Flowchart) are named by **no concept**, which is item 15.6. So
-the real next step is **stages 6–8**, or 15.6's pairing pass, which waits on Mike.
+**NEXT on 15.1: stages 7 and 8.** Three items filed on Mike's own instruction, all **NOT
+ASSESSED** and none started: **15.13** (import the three-way forecast and performance figures
+into a planning session), **15.14** Wordsmith, **15.15** Devil's Advocate.
+
+⚠ **LOCAL TO THIS LAPTOP, NOT IN GIT:** `data/dev-cases.json` carries a seeded conversation
+summary on Harbour Joinery, written to drive the pre-tick in a browser. **Fabricated — never
+read it as real client history.**
