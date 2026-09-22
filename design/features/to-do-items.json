@@ -672,27 +672,6 @@
       "comment": "2026-09-21 - stage 3 screens built. THE LESSON: the plan said \"redrawn on our six SVG chart components\" and said nothing about what the screen LOOKED like, so a session designed one. His dashboard already existed, fully designed, 938 lines on E:, and nobody opened it before building the replacement. A plan naming a CONSTRAINT is not a licence to invent a layout; the source app is the specification. Earlier, 2026-09-22: the plan was re-read and FOUR things in it were wrong, one of them Mike's own catch - it told a session to put these advisor screens on the Firm Manager Hub, which has no advisor scope. sales-tracker-history.md section 5."
     },
     {
-      "ref": "13.1",
-      "name": "Changing currency relabels figures and does not convert them",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off without it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A manager switching the firm currency sees only \"Reports now show Euro (€)\". Nothing says the figures are RELABELLED, not converted: 46,170 pounds becomes 46,170 euros at no exchange rate. The change reads as a conversion.",
-      "risk": "A manager reads the switch as a conversion and every figure in the report is out by whatever the rate is - on a screen that looks like it did the work, reaching a client in a funding pack or a fee proposal. Correct behaviour for a firm entering figures in its own money, which is every firm; a wrong reading the moment anyone expects a rate, and nothing on screen contradicts them.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - he asked \"what if I am in Italy but want the currency to be in Euro?\", which proved the language/currency split works, and the check surfaced this. He was given the finding and the recommendation and said yes to filing it."
-      },
-      "touches": "components/ModelLibrary.vue, the currency selector block and its changeCurrency handler; locales/en.json modelLibrary.currency (label, managedNote, saved) plus the seven other locale files; data/currencies.json as the six supported codes; mixins/currencyMixin.js, which formats but never converts; and the ~40 report components reading firmCurrency.",
-      "note": "Found while answering Mike on the language/currency split. The selector and its toast are both silent on the point - money(v, currency, locale) formats and nothing more. 🔴 WORDING IS MIKES AND MUST BE ASKED, NOT WRITTEN: one short line at the selector saying figures are relabelled, not converted. ⚠ SCOPE IS THE LINE ONLY. Applying a rate to a whole report is NOT wanted - Mike ruled 2026-09-22 that conversion belongs inside a model where a primary currency is already entered, which the forecast already does via fxAllowancePct. See the Brief P9. 🔴 13.4 MAKES THIS URGENT: a client-level currency reads as a conversion far more readily, so this line ships with it.",
-      "comment": "2026-09-22 - filed on Mike's yes. Numbered 5.4 at first, under Model Library, because the currency picker sits on that screen - filing by where the code lives, not by what the job is about. Moved to 13.1 the same day when he renamed parent 13 to Language, Tax & Currency, which gave this area the home it never had. Siblings 13.2 and 13.3 came from the same conversation."
-    },
-    {
       "ref": "13.2",
       "name": "Conversion is per model, and no model states which currency its figures are in",
       "rankedByMike": false,

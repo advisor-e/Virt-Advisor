@@ -202,6 +202,34 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.1 — changing currency relabelled figures and did not say so.**
+✅ Closed 2026-09-22 in [`9fe59f97`](https://github.com/advisor-e/Virt-Advisor/commit/9fe59f97).
+A manager switching the firm currency saw only *"Reports now show Euro (€)"*, while £46,170 became
+€46,170 at no exchange rate — correct behaviour for a firm entering figures in its own money, and a
+wrong reading the moment anyone expected a rate.
+
+**The wording is Mike's and was asked for, not written** — the item's own note said so in capitals,
+because this is a sentence a client may read in a funding pack. It ships as
+`modelLibrary.currency.relabelNote`: *"Figures are relabelled, not converted — the amounts do not
+change."* It shows to **both roles** — the manager who can change the setting and the advisor who
+cannot — at [`ModelLibrary.vue`](../../components/ModelLibrary.vue) line 48, and the same sentence
+closes the confirmation toast.
+
+**Pinned by its own test file**, `tests/unit/currencyRelabelWording.test.js`, which asserts the
+exact string. That is deliberate and is the narrow case the testing rule allows: wording Mike
+approved, where a drift changes what a reader believes about the numbers. One deliberate pin beside
+the data it protects, not forty incidental ones.
+
+⚠ **Scope was the line only, and that was the point.** Applying a rate to a whole report is **not**
+wanted — Mike ruled 2026-09-22 that conversion belongs inside a model where a primary currency is
+already entered, which the three-way forecast already does via `fxAllowancePct`. Siblings **13.2**,
+**13.3** and **13.4** remain open and were each checked against the code when this closed.
+
+*Found stale on 2026-09-22: the live list still carried this as work waiting on us, hours after it
+shipped. A session went to start it and found it already on screen.*
+
+---
+
 **17 — an advisor left the app to track their own deals and referral partners.**
 ✅ Closed 2026-09-22, merged in [PR #109](https://github.com/advisor-e/Virt-Advisor/pull/109).
 Eight screens, ported from the `sales-tracker-nuxt-clean` app Mike found on GitHub and asked to be
