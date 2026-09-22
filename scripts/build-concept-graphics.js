@@ -265,20 +265,34 @@ function bindFirmMark (svg) {
     '$1 v-if="firmLogo" :href="firmLogo"'
   )
 
-  // The border, in the firm's colour. Mike's second ruling the same day: the
+  // The frame, in the firm's colour. Mike's second ruling the same day: the
   // colour drove ONE element before this — the disc — so ruling the disc into a
   // fallback would have left a branded firm's colour showing nowhere at all.
+  //
+  // 🔴 FIVE BARS, NOT ONE RECT, SINCE 2026-09-23. The drawings carried a single
+  // rounded rect — rx=8, inset 0.333%, bar 0.667%, unbroken at the foot — and
+  // Mike's own page is square, inset 0.542%, bar 0.986%, with the foot BROKEN so
+  // the logo stands in the gap. Measured across all 32: not one matched. The
+  // geometry now comes from `design/mockups/strategy-plan-firm-mark.html`, which
+  // he approved on 2026-09-22 after it was machine-extracted from his PDF.
+  //
+  // ⚠ A ROUNDED RECT AND A CSS BORDER FAIL FOR THE SAME REASON — neither can
+  // break for the logo. That is why this is five filled bars and not a stroke.
+  const bars = (out.match(/<rect[^>]*class="firm-bar[^>]*?\sfill="[^"]*"/g) || []).length
   out = out.replace(
-    /(<rect[^>]*class="firm-border"[^>]*?)\sstroke="[^"]*"/g,
-    '$1 :stroke="firmColour"'
+    /(<rect[^>]*class="firm-bar[^>]*?)\sfill="[^"]*"/g,
+    '$1 :fill="firmColour"'
   )
 
   if (out.indexOf(':fill="firmColour"') === -1 ||
       out.indexOf('{{ firmInitial }}') === -1 ||
       out.indexOf('{{ firmName }}') === -1 ||
       out.indexOf(':href="firmLogo"') === -1 ||
-      out.indexOf(':stroke="firmColour"') === -1) {
-    throw new Error('firm-mark found but one of its five parts did not bind')
+      bars !== 5) {
+    throw new Error(
+      'firm-mark found but one of its five parts did not bind' +
+      (bars !== 5 ? ' — expected 5 frame bars, found ' + bars : '')
+    )
   }
   return out
 }

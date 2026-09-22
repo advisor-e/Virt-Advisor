@@ -39,9 +39,25 @@ article.spd(:style="frameStyle")
     //- filled in, not taught, and printing a page with nothing but its title on it
     //- puts a blank slide in the middle of a document a client is shown.
     template(v-for="item in step.items")
+      //- 🔴 A TEACHING PAGE DRAWS NO FRAME AND NO MARK, AND THAT IS DECISION A —
+      //- `design/mockups/strategy-plan-firm-mark.html`, approved 2026-09-22. The concept
+      //- drawing below IS the sheet: it carries this exact frame and this exact mark, so a
+      //- second pair would print two identical borders millimetres apart on the document a
+      //- client keeps. Every OTHER sheet kind draws them; this one must not.
+      //- ⚠ It drew both until 2026-09-23. It was hidden while the drawing's own frame was a
+      //- different shape — rounded and thinner — so the pair read as one frame and a border,
+      //- rather than as the duplicate it was. Correcting the 32 drawings the same day is what
+      //- exposed it. Do not "restore" these two lines unconditionally.
+      //-
+      //- 🔴 UNLESS THE CONCEPT HAS NO DRAWING YET, AND THEN THE PAGE MUST DRAW THEM. 20 of the
+      //- 52 concepts have no approved drawing (item 15.7) and their teaching page prints Mike's
+      //- words alone — nothing inside it carries a frame, so removing the page's outright left
+      //- a bare unbranded sheet in the middle of a client's plan. Found by printing the plan
+      //- and counting, minutes after the duplicate was removed; no test saw it either way.
       section.spd-page.is-teach(v-if="item.summary || item.prompts.length" :key="'t' + i + item.key")
-        strategy-plan-mark(v-bind="markProps")
-        strategy-plan-frame(split)
+        template(v-if="!drawn(item)")
+          strategy-plan-mark(v-bind="markProps")
+          strategy-plan-frame(split)
         p.spd-foot(v-if="runningFoot") {{ runningFoot }}
         p.spd-kind {{ $t('strategyPlanner.plan.teach') }}
         h3.spd-h {{ item.name }}

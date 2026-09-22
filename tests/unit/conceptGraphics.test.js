@@ -95,9 +95,14 @@ describe('a client document can never print somebody else\'s firm', () => {
 
   test('every drawing binds all five parts of the mark', () => {
     // Five since Mike's rulings of 2026-09-22: the logo became the mark and the
-    // border came back in the firm's colour. A regenerate that bound four of
+    // frame came back in the firm's colour. A regenerate that bound four of
     // five on one drawing would ship a single unbranded page among 33, which is
     // exactly the kind of thing nobody notices until a client has it.
+    //
+    // ⚠ THE FRAME IS FIVE FILLED BARS, NOT A STROKED RECT, since 2026-09-23 —
+    // his own page breaks its foot so the logo stands in the gap, and a single
+    // rect cannot break. All five must take the colour: four out of five is a
+    // grey line down one edge of a client's page.
     builder.DRAWINGS.forEach((d) => {
       const file = path.join(
         ROOT, 'components', 'strategy', 'concepts',
@@ -109,7 +114,10 @@ describe('a client document can never print somebody else\'s firm', () => {
       expect(shipped).toContain('{{ firmInitial }}')
       expect(shipped).toContain('{{ firmName }}')
       expect(shipped).toContain(':href="firmLogo"')
-      expect(shipped).toContain(':stroke="firmColour"')
+
+      const bars = shipped.match(/<rect class="firm-bar[^>]*:fill="firmColour"[^>]*>/g) || []
+      expect(d.conceptId + ' bars:' + bars.length).toBe(d.conceptId + ' bars:5')
+      expect(shipped).not.toContain('class="firm-border"')
     })
   })
 
@@ -148,39 +156,73 @@ describe('a client document can never print somebody else\'s firm', () => {
   })
 })
 
-describe('the firm border is on every drawing, identically', () => {
+describe('the firm frame is on every drawing, identically', () => {
   const MOCKUPS = path.join(ROOT, 'design', 'mockups')
   const files = fs.readdirSync(MOCKUPS).filter(f => /^strategy-concept-.*\.html$/.test(f))
 
-  test('every drawing has one, and its geometry matches the page it borders', () => {
+  // 🔴 THE GEOMETRY IS MIKE'S OWN PAGE, AND THESE FIVE NUMBERS ARE WHY THIS TEST
+  // EXISTS. Until 2026-09-23 every drawing carried ONE rounded rect — rx=8, inset
+  // 0.333%, bar 0.667%, unbroken at the foot — and a note on the approved artefact
+  // said the drawings "already carry this exact frame". Measured, not one of the 32
+  // did. That single unchecked sentence is why the frame ported into
+  // StrategyPlanFrame.vue on 2026-09-22 never appeared on a teaching page: the page
+  // is told to use the drawing's frame, and the drawing's was the wrong one.
+  //
+  // Converted from `design/mockups/strategy-plan-firm-mark.html`, rules `.deck .bd.*`
+  // (machine-extracted from Advance.6.Organisational Review.pdf, 720x405pt) into the
+  // drawings' own 1500x844 viewBox — the same 16:9, so a percentage maps directly.
+  const BARS = [
+    ['is-t', 'x="8.13" y="8.13" width="1483.74" height="14.8"'],
+    ['is-l', 'x="8.13" y="22.92" width="14.16" height="798.16"'],
+    ['is-r', 'x="1477.71" y="22.92" width="14.16" height="798.16"'],
+    ['is-bl', 'x="8.13" y="821.07" width="95.01" height="14.8"'],
+    ['is-brun', 'x="248.31" y="821.07" width="1243.56" height="14.8"']
+  ]
+
+  test('every drawing carries the five bars of his page, to the same numbers', () => {
     // Mike, 2026-09-22, on being shown one drawing bordered: "there is NO reason
     // why you would have some and not others". Every viewBox is 0 0 1500 844, so
     // one geometry is correct everywhere and a drawing carrying a different one
     // has been hand-edited away from the migration.
     let svgs = 0
-    let borders = 0
+    const counts = {}
 
     files.forEach((f) => {
       const src = fs.readFileSync(path.join(MOCKUPS, f), 'utf8')
       svgs += (src.match(/<svg /g) || []).length
-      const found = src.match(/<rect class="firm-border"[^>]*>/g) || []
-      borders += found.length
-      found.forEach((rect) => {
-        expect(rect).toContain('x="5" y="5" width="1490" height="834"')
-        expect(rect).toContain('fill="none"')
+      BARS.forEach(([cls, geometry]) => {
+        const found = src.match(new RegExp('<rect class="firm-bar ' + cls + '"[^>]*>', 'g')) || []
+        counts[cls] = (counts[cls] || 0) + found.length
+        found.forEach((rect) => { expect(rect).toContain(geometry) })
       })
     })
 
     expect(svgs).toBe(32)
-    expect(borders).toBe(svgs)
+    BARS.forEach(([cls]) => expect(cls + ':' + counts[cls]).toBe(cls + ':' + svgs))
   })
 
-  test('the border is drawn LAST, so nothing paints over it', () => {
-    // A border added before the artwork is a border a full-bleed panel hides,
+  test('the foot is TWO bars with a gap, never one — the logo stands in the gap', () => {
+    // A rounded rect and a CSS border fail for the same reason and both were tried:
+    // neither can break. The stub ends at x=103.14 and the run starts at x=248.31,
+    // so the gap is real and the mark is not painted over a line.
+    const stubEnd = 8.13 + 95.01
+    const runStart = 248.31
+
+    expect(runStart).toBeGreaterThan(stubEnd)
+
+    files.forEach((f) => {
+      const src = fs.readFileSync(path.join(MOCKUPS, f), 'utf8')
+      // Nothing may reintroduce the single unbroken rect this replaced.
+      expect(src).not.toContain('class="firm-border"')
+    })
+  })
+
+  test('the frame is drawn LAST, so nothing paints over it', () => {
+    // A frame added before the artwork is a frame a full-bleed panel hides,
     // and the page then looks unbranded for a reason no colour check finds.
     files.forEach((f) => {
       const src = fs.readFileSync(path.join(MOCKUPS, f), 'utf8')
-      const re = /<rect class="firm-border"[^>]*><\/rect>\s*<\/svg>/g
+      const re = /<rect class="firm-bar is-brun"[^>]*><\/rect>\s*<\/svg>/g
       expect((src.match(re) || []).length).toBe((src.match(/<svg /g) || []).length)
     })
   })

@@ -78,17 +78,27 @@ describe('the logo is the mark and the disc is the fallback', () => {
     expect(wrapper.find('.fm-name').text()).toBe('Ashgrove Advisory')
   })
 
-  test('THE BORDER IS BRANDED EITHER WAY — a logo does not replace the colour', () => {
+  test('THE FRAME IS BRANDED EITHER WAY — a logo does not replace the colour', () => {
     // The fault that produced this ruling: the firm's colour drove ONE element,
     // the disc, so ruling the disc into a fallback left a branded firm's colour
     // with nowhere to appear at all.
+    //
+    // ⚠ FIVE BARS SINCE 2026-09-23, not one stroked rect. Mike's page breaks its
+    // foot so the logo stands in the gap, and neither a rounded rect nor a CSS
+    // border can break — both were tried. All five take the colour, so a firm
+    // whose colour reached only four would show a grey line on one edge.
     const withLogo = mountWithBuefy(RiskRewardMatrix, {
       propsData: Object.assign({}, FIRM, { firmLogo: LOGO })
     })
     const without = mountWithBuefy(RiskRewardMatrix, { propsData: FIRM })
 
-    expect(withLogo.find('.firm-border').attributes('stroke')).toBe('#7a4b8f')
-    expect(without.find('.firm-border').attributes('stroke')).toBe('#7a4b8f')
+    ;[withLogo, without].forEach((wrapper) => {
+      const bars = wrapper.findAll('.firm-bar')
+      expect(bars.length).toBe(5)
+      for (let i = 0; i < bars.length; i++) {
+        expect(bars.at(i).attributes('fill')).toBe('#7a4b8f')
+      }
+    })
   })
 
   test('the wrapper passes the logo down, so a caller sets it in ONE place', () => {
