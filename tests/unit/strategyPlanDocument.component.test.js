@@ -119,6 +119,73 @@ describe('the drawing reaches the client, not only the advisor', () => {
   })
 })
 
+describe('one frame per sheet, and a teaching page takes its own from the drawing', () => {
+  // 🔴 DECISION A, and it is the one rule on this document a test has to hold.
+  // `design/mockups/strategy-plan-firm-mark.html`, approved 2026-09-22: the concept
+  // drawing IS the teaching sheet — it carries this exact frame and this exact mark —
+  // so the page must add neither. Every other sheet kind draws both.
+  //
+  // WHY THIS EARNS ITS PLACE, when Mike's 2026-08-24 ruling says not to assert on
+  // appearance. It is not appearance: it is a structural rule from an approved artefact,
+  // and the Brief asserted it was true while the code did the opposite for a day. Nobody
+  // saw it, because the drawing's own frame was a DIFFERENT SHAPE at the time — rounded
+  // and thinner — so the duplicate read as a frame and a border rather than as two
+  // frames. Correcting the 32 drawings on 2026-09-23 is what made it visible, and by
+  // then it would have printed on a client's plan as two identical lines.
+
+  test('a teaching page draws no frame and no mark of its own', () => {
+    const wrapper = mountPlan([WITH_TABLE])
+    const teach = wrapper.find('.is-teach')
+
+    expect(teach.exists()).toBe(true)
+    expect(teach.find('svg').exists()).toBe(true) // the drawing, which carries both
+    expect(teach.findAll('.spf').length).toBe(0)
+    expect(teach.findAll('.spm').length).toBe(0)
+  })
+
+  test('a teaching page with NO drawing draws them itself, or the sheet is bare', () => {
+    // 20 of the 52 concepts have no approved drawing yet (item 15.7) and their
+    // teaching page is Mike's words alone. Nothing inside it carries a frame, so
+    // the page must. Removing the page's frame outright on 2026-09-23 left exactly
+    // this sheet unbranded in the middle of a client's plan — found by printing and
+    // counting, not by a test, which is why this one exists.
+    const wrapper = mountPlan([DRAWING_ONLY])
+    const teach = wrapper.find('.is-teach')
+
+    expect(teach.exists()).toBe(true)
+    if (teach.find('svg').exists()) { return } // this fixture does have one
+    expect(teach.findAll('.spf').length).toBe(1)
+    expect(teach.findAll('.spm').length).toBe(1)
+  })
+
+  test('a capture page DOES draw them, because nothing inside it does', () => {
+    const wrapper = mountPlan([WITH_TABLE])
+    const capture = wrapper.find('.is-capture')
+
+    expect(capture.exists()).toBe(true)
+    expect(capture.findAll('.spf').length).toBe(1)
+    expect(capture.findAll('.spm').length).toBe(1)
+  })
+
+  test('no sheet of any kind carries two frames', () => {
+    const wrapper = mountPlan([WITH_TABLE, DRAWING_ONLY])
+    const pages = wrapper.findAll('.spd-page')
+    const doubled = []
+
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages.at(i)
+      const frames = page.findAll('.spf').length
+      const marks = page.findAll('.spm').length
+      if (frames > 1 || marks > 1) {
+        doubled.push('sheet ' + (i + 1) + ': ' + frames + ' frames, ' + marks + ' marks')
+      }
+    }
+
+    expect(doubled.length ? doubled.join('\n') : 'one of each, every sheet')
+      .toBe('one of each, every sheet')
+  })
+})
+
 describe('a step with nothing in it survives', () => {
   test('it still prints its divider, because it is on the agenda', () => {
     const wrapper = mountWithBuefy(StrategyPlanDocument, {

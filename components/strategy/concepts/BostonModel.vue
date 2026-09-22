@@ -78,7 +78,11 @@
               <text class="fm-name" v-if="!firmLogo" x="146" y="798" fill="#002B64"
                     font-family="Open Sans, sans-serif" font-size="22.9" font-weight="600">{{ firmName }}</text>
             </g>
-            <rect class="firm-border" x="5" y="5" width="1490" height="834" rx="8" fill="none" :stroke="firmColour" stroke-width="10"></rect>
+            <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" :fill="firmColour"></rect>
+            <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" :fill="firmColour"></rect>
+            <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" :fill="firmColour"></rect>
+            <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" :fill="firmColour"></rect>
+            <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" :fill="firmColour"></rect>
           </svg>
 </template>
 

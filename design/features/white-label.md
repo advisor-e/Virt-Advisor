@@ -62,12 +62,31 @@ outside it; it cannot break for the logo; and nothing can stand on it.
 position is the drawing's, untouched. **On a printed sheet** the drawing's own height-based
 values stand, because a sheet has a fixed shape.
 
-## 4. The 33 concept drawings
+## 4. The 33 concept drawings — and every caller that reaches one
 
-Every concept drawing takes `firmName` and `firmColour`
+Every concept drawing takes `firmName`, `firmColour` and `firmLogo`
 ([`../../components/strategy/StrategyConceptGraphic.vue`](../../components/strategy/StrategyConceptGraphic.vue)).
-A caller that renders one without passing them prints a placeholder against an empty disc — the
-drawing is correct and the page above it is not.
+**A caller that renders one without passing them prints the literal words "Firm logo" against a
+disc with no initial in it** — the drawing is correct and the page above it is not.
+
+🔴 **THE WHOLE CHAIN MUST CARRY THE THREE VALUES, INCLUDING COMPONENTS THAT DO NOT USE THEM.**
+`StrategyCaptureCard` draws nothing itself; it teaches through `StrategyTeachingSlide`, and until
+2026-09-23 it declared none of the three, so the values stopped there even where a caller passed
+them.
+
+Four call sites reach a drawing, and all four pass all three:
+
+| Screen | Call site |
+|---|---|
+| Run session — framework cards | `strategy-capture-card` → `StrategyTeachingSlide` |
+| Run session — concept cards | `strategy-concept-capture` |
+| Objectives & actions | `strategy-capture-card` |
+| Produce plan | `strategy-plan-document` |
+
+Pinned by [`../../tests/unit/strategySessionBrand.test.js`](../../tests/unit/strategySessionBrand.test.js).
+⚠ **This is the one case UAT cannot judge**: `firmBrand()` returns nulls until the master team
+names the columns, so a correctly wired screen and an unwired one show the identical placeholder.
+A tester cannot tell them apart, which is why the wiring is asserted rather than eyeballed.
 
 ## 5. Colour
 

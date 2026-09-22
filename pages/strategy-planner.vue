@@ -123,6 +123,16 @@
   //- 🔴 EVERY SCREEN WEARS THE AGREED FRAME — Mike, 2026-09-22: "i dont care about the
   //- page size until it comes to printing. so long as the border is same distance from
   //- outer edge, has the logo in bottom left as agreed."
+  //-
+  //- 🔴 AND THE FRAME IS NOT THE WHOLE BRAND. EVERY COMPONENT THAT RENDERS ONE OF THE 33
+  //- DRAWINGS TAKES `firm-name`, `firm-colour` AND `firm-logo`, AND ALL FOUR CALL SITES
+  //- BELOW PASS THEM. Omit them and the prop defaults to '' and the drawing prints the
+  //- literal words "Firm logo" against a disc with no initial in it — on the page an
+  //- advisor is showing a client. Item 16; Mike's rule of 2026-09-18 is that in client
+  //- dealings the brand is ALWAYS the advisor's firm, never Advisor-e.
+  //- ⚠ Found 2026-09-23 by reading the code on Mike's instruction: the plan document was
+  //- wired on 2026-09-22 and the three SESSION screens were not, so a client met the
+  //- placeholder in the meeting and the real brand only on the document afterwards.
   .sp-sheet
     strategy-plan-frame(split screen)
     strategy-plan-mark.sp-sheet-mark(
@@ -210,6 +220,9 @@
             :entries="entriesFor(card.framework.conceptId || card.framework.id)"
             :eyebrow="card.eyebrow"
             :teachable="isTeachable(card.framework)"
+            :firm-name="firmBrand.name || ''"
+            :firm-colour="firmBrand.colour || undefined"
+            :firm-logo="firmBrand.logo || ''"
             class="sp-card"
             @field-opened="onFrameworkFieldOpened(card.framework, $event)"
             @field-changed="onFrameworkFieldChanged(card.framework, $event)"
@@ -230,6 +243,9 @@
             :concept-id="card.visit.conceptId"
             :entries="entriesFor(card.visit.conceptId)"
             :eyebrow="card.eyebrow"
+            :firm-name="firmBrand.name || ''"
+            :firm-colour="firmBrand.colour || undefined"
+            :firm-logo="firmBrand.logo || ''"
             @field-opened="onVisitFieldOpened(card.visit, $event)"
             @field-changed="onVisitFieldChanged(card.visit, $event)"
             @fields-changed="onVisitFieldsChanged(card.visit, $event)"
@@ -243,6 +259,9 @@
         :framework="framework"
         :entries="entriesFor(framework.id)"
         :eyebrow="$t('strategyPlanner.rail.objectives')"
+        :firm-name="firmBrand.name || ''"
+        :firm-colour="firmBrand.colour || undefined"
+        :firm-logo="firmBrand.logo || ''"
         class="sp-card"
         @field-opened="onFieldOpened"
         @field-changed="onFieldChanged"
@@ -256,10 +275,9 @@
     //- Screen 4 — the plan. READ ONLY, and assembled from what was captured; it holds no
     //- state of its own, so it can never disagree with the session behind it.
     template(v-if="!loading && step === 'plan'")
-      //- 🔴 THE THREE FIRM PROPS ARE NOT OPTIONAL — item 16.2. Without them `firmName`
-      //- falls back to '' and `StrategyConceptGraphic` prints the literal words "Firm
-      //- logo" beside a circle with no letter in it, on every teaching page of a
-      //- document the client keeps. They were missing until 2026-09-22.
+      //- The three firm props, as on every other call site — the rule is stated once at
+      //- `.sp-sheet` above. Here they reach every teaching page of the document the
+      //- client keeps; they were missing until 2026-09-22 (item 16.2).
       strategy-plan-document(
         :client-name="clientName"
         :decks="planDecks"
