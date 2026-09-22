@@ -655,9 +655,13 @@ export default {
   carries no such attribute, so it matches nothing at all.
 
   That is verified, not assumed (compiled with @vue/component-compiler-utils on
-  2026-08-02), and it is why the scoped print rule in components/CourseBuilder.vue has
-  no effect: a course certificate prints the entire screen instead of the certificate.
-  That defect is NOT fixed here — it is a separate screen and a separate approval.
+  2026-08-02). It is also what had been wrong in components/CourseBuilder.vue, where a
+  scoped print rule meant "Print / Save as PDF" produced the ENTIRE Course Builder screen
+  with the certificate somewhere inside it. ☑ THAT WAS FIXED THE SAME DAY, in its own
+  unscoped block gated on `body.cert-printing`; both components are pinned by
+  tests/unit/scopedStylesCannotReachOutside.test.js, along with the Strategy Planner's
+  client plan (2026-09-21). These three sentences used to say the defect was still live —
+  which sent a reader to fix a screen that works, or to report a fault that is not there.
 
   `visibility`, not `display`: display:none on an ancestor cannot be undone by a
   descendant, so a nested section could never be printed on its own. visibility can be

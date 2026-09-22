@@ -130,10 +130,14 @@ describe('a scoped style block cannot reach outside its component', () => {
   })
 })
 
-describe('the two printing components keep their print rules unscoped', () => {
+describe('the printing screens keep their print rules unscoped', () => {
   const CASES = [
     { file: 'components/CpdRecord.vue', gate: 'cpd-printing' },
-    { file: 'components/CourseBuilder.vue', gate: 'cert-printing' }
+    { file: 'components/CourseBuilder.vue', gate: 'cert-printing' },
+    // The client's Strategy Planner plan, added 2026-09-21. It is the third screen to
+    // print one section out of a larger one, and the first that is a page rather than a
+    // component — the trap is identical either way.
+    { file: 'pages/strategy-planner.vue', gate: 'sp-printing' }
   ]
 
   it.each(CASES)('$file prints via an unscoped block gated on a body class', ({ file, gate }) => {

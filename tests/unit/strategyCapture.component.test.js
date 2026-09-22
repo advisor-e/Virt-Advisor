@@ -256,10 +256,79 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
   })
 
   it('🔴 ticks nothing by itself', () => {
-    // The AI pre-tick is Stage 6 and is not built. A default tick would take the scoping
-    // conversation away from the advisor, and a tester could not tell it was not theirs.
+    // Decision 1. A default tick would take the scoping conversation away from the
+    // advisor, and a tester could not tell the ticks were not their own.
+    // ⚠ STILL TRUE AFTER STAGE 6 (2026-09-22), and the distinction matters: the AI's
+    // pre-ticks arrive through `chosen` from the page, on the advisor's own press of a
+    // button. This component never originates one.
     const w = mountMenu()
     expect(w.findAll('input[type="checkbox"]:checked')).toHaveLength(0)
+  })
+
+  // ── The AI pre-tick — Decision C, stage 6 ──────────────────────────────────
+  describe('the Suggest button', () => {
+    function mountBar (props) {
+      return mountWithBuefy(StrategyScopeMenu, {
+        propsData: Object.assign({ decks: DECKS, chosen: [] }, props || {})
+      })
+    }
+
+    // Located by class, not by its words: this harness stubs `$t`, so every label renders
+    // as its key. That is also why nothing below asserts on wording — Mike's ruling of
+    // 2026-08-24, and a person in UAT reads a label better than an assertion can.
+    const suggestBtn = w => w.find('.ssm-suggest')
+
+    // 🔴 FOUND BY OPENING THE SCREEN, NOT BY ANY TEST, 2026-09-22. The button was live
+    // with no client chosen, and pressing it did NOTHING — the page's handler returns
+    // silently without a client. A person reads that as "the AI found nothing", which is
+    // the one thing they cannot distinguish from a broken button.
+    it('🔴 is disabled until a client is chosen, because there is nothing to read without one', () => {
+      expect(suggestBtn(mountBar({ clientChosen: false })).attributes('disabled')).toBeTruthy()
+      expect(suggestBtn(mountBar({ clientChosen: true })).attributes('disabled')).toBeFalsy()
+    })
+
+    it('cannot be pressed twice while the first press is still running', () => {
+      const w = mountBar({ clientChosen: true, suggesting: true })
+      expect(suggestBtn(w).attributes('disabled')).toBeTruthy()
+    })
+
+    it('asks the page rather than fetching anything itself', () => {
+      const w = mountBar({ clientChosen: true })
+      suggestBtn(w).trigger('click')
+      expect(w.emitted('suggest-requested')).toBeTruthy()
+    })
+
+    // Decision C(a): the chrome's count follows the TICKS. A suggestion the advisor has
+    // not accepted must never inflate it — on screen the two are indistinguishable.
+    it('🔴 counts the ticks, never the suggestion', () => {
+      const w = mountBar({
+        chosen: ['blue-ocean-strategy'],
+        suggested: [
+          { id: 'blue-ocean-strategy', reason: 'Kept.' },
+          { id: 'porters-5-forces', reason: 'Unticked by the advisor.' }
+        ],
+        suggestState: 'ok'
+      })
+
+      // The harness renders a label as its key plus its parameters, so the COUNT is
+      // assertable while the wording is not — which is the right way round.
+      expect(w.find('.ssm-count').text()).toContain('"chosen":1')
+      expect(w.findAll('input[type="checkbox"]:checked')).toHaveLength(1)
+    })
+
+    it('shows a reason only against the rows the AI actually named', () => {
+      const w = mountBar({
+        chosen: ['blue-ocean-strategy'],
+        suggested: [{ id: 'blue-ocean-strategy', reason: 'They need to stand apart.' }],
+        suggestState: 'ok'
+      })
+
+      expect(w.findAll('.ssm-why')).toHaveLength(1)
+    })
+
+    it('says nothing at all before the advisor has asked', () => {
+      expect(mountBar({ clientChosen: true }).findAll('.ssm-sugg')).toHaveLength(0)
+    })
   })
 
   it('emits the WHOLE chosen list when one concept is ticked', async () => {

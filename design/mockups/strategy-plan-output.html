@@ -799,6 +799,16 @@ which way a decision went and whether it went against the recommendation.</p>
   formats.</b> A build that produces a web report and a separate exported deck has created two
   things that can disagree — and the page is a 16:9 frame from the start, not a reflowing column
   that is later squeezed into one.</p>
+  <p class="ruling">🔴 <b>THE RATIO WAS SUPERSEDED — Mike, 2026-09-21:</b> <i>"the majority of
+  pages to be printed will be A4 size."</i> The frame is <b>A4 landscape (297&times;210, ratio
+  1.414)</b>, not 16:9 (1.778). Everything else above still governs and is untouched: one
+  artefact never two formats, and a fixed frame from the start rather than a column squeezed into
+  one later. Only the number moved, because the paper is real — a 16:9 page on an A4 sheet fills
+  the width and leaves a fifth of every sheet blank along the bottom. Measured the same day: at
+  16:9, 15 of 25 pages sat at the frame; at A4, 24 of 25 do. <b>The slides drawn in &sect;3 below
+  are still 16:9 and have NOT been redrawn</b> — they show the layout, and it is the ratio alone
+  that changed. Built in <code>components/strategy/StrategyPlanDocument.vue</code>
+  (<code>.spd-page</code>), alongside the client's Print or save as PDF button.</p>
   <p>His words pull slightly apart: <i>"1 seamless document"</i> and <i>"AS IT CURRENTLY APPEARS in
   the slides"</i>. A document scrolls; a slide is a fixed 16:9 frame.</p>
   <p class="rec">Recommendation: one continuous document of <b>slide-shaped pages</b>, as drawn in

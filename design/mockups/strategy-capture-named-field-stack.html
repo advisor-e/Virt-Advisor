@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Named-Field Stack</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff; --band: #434343; --bad: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 76ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+  h2 { color: var(--ink); font-size: 21px; margin: 32px 0 2px; }
+  h3 { color: var(--ink); font-size: 16px; margin: 22px 0 4px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0 0 18px; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--wash); color: var(--ink); font-size: 13px;
+    padding: 9px 12px; border: 1px solid var(--line); border-bottom: 2px solid var(--accent);
+    vertical-align: top;
+  }
+  table.bg td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: middle; font-size: 13.5px; }
+  td.band { background: var(--band); vertical-align: top; }
+  /* the name column is narrow only where the names run DOWN it; where they run
+     across the top row both cells are headings and share the width evenly */
+  table.src-grid tr:nth-child(2) td.ruled + td.ruled ~ td { width: auto; }
+  table.src-grid td.band:first-child + td.eg { width: 78%; }
+  .bandtext { color: #fff; font-weight: 700; font-size: 13.5px; }
+  td.eg { background: #fafcfe; }
+  .egtext { color: var(--eg); font-size: 12.5px; font-style: italic; }
+  .box {
+    display: block; min-height: 34px; padding: 7px 9px;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+  }
+  .ph { color: #9fb0c4; font-size: 12.5px; }
+  .lbl { color: var(--body); }
+  .none { color: #b6c4d4; font-style: italic; }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 13px 17px; margin: 0 0 24px; }
+  .note h3 { margin: 0 0 6px; font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 6px; }
+  .bad { border-left-color: var(--bad); background: #fdf3f2; }
+  .count { font-weight: 700; color: var(--ink); }
+  .count.wrong { color: var(--bad); }
+  .dec { border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 0 0 9px 9px; padding: 16px 18px; margin: 0 0 22px; }
+  .dec h3 { margin: 0 0 8px; }
+  .rec { background: var(--wash); border-radius: 7px; padding: 10px 13px; margin: 10px 0 0; }
+  .rec b { color: var(--ink); }
+  .q { font-weight: 700; color: var(--ink); margin: 10px 0 0; }
+  .ruled-yes { background: #eef7ef; border-left: 3px solid #1f7a3d; border-radius: 0 7px 7px 0; padding: 11px 14px; margin: 12px 0 0; }
+  .ruled-yes b { color: #14532a; }
+  .ruledtag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #1f7a3d; border-radius: 3px; padding: 2px 6px; vertical-align: 2px; margin-left: 8px; }
+  /* 🔴 MIKE'S RULING, 2026-09-22: "we need a gap between content rows on the productive
+     habits but the additional small row spaces can be deleted." The five fields are five
+     separate things and read as such; his document's thin blank rows ARE that gap and are
+     never drawn as rows of their own. */
+  table.gapped { border-collapse: separate; border-spacing: 0 10px; }
+  table.gapped td { border-radius: 6px; }
+  .foot { color: var(--eg); font-size: 12.5px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner &middot; Stage 5 &middot; Capture form 5 of 9</p>
+  <h1>The Named-Field Stack</h1>
+  <p class="lede">
+    Two of your concepts capture into this form: <b>Strategic Statements</b> and
+    <b>Productive Habits</b>. Every heading, worked example and placeholder below is read
+    out of your own <i>Strategic Statements.pptx</i> and <i>Productive Habits.docx</i> &mdash;
+    no wording on this page was written by a session. What <i>is</i> ours is the prose, and
+    the two decisions at the bottom.
+  </p>
+
+  <div class="note bad">
+    <h3>Why this drawing exists</h3>
+    <p style="margin:0">
+      Both concepts already reach a screen, and both render the wrong half of your page.
+      <b>Strategic Statements offers one box where your slide gives two</b> &mdash; the
+      Strategic Objective statement cannot be typed at all. <b>Productive Habits offers
+      eight boxes where your sheet has five fields</b>, four of them inside the dark band
+      where your field <i>names</i> are printed, and <b>Plan is missing entirely</b>.
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>1. Your two documents, as they are</h2>
+  <p class="src">
+    Drawn from the extracted grids. The dark cells are the shading your documents
+    carry (<code>#434343</code>). 🔴 <b>Your blank writing rows are NOT drawn as rows</b>
+    &mdash; your instruction of 2026-09-22, <i>&ldquo;get rid of the small mini-gaps or
+    rows &hellip; either way &mdash; get rid of them&rdquo;</i>. They are where the client
+    writes, so they appear in section 3 as the box, not here as a gap.
+  </p>
+
+  <h3>Strategic Statements &mdash; the names run <i>across</i> the top row</h3>
+  <p class="src">Strategic Statements.pptx &middot; slide 1 &middot; &ldquo;Our Strategic Statements:&rdquo;</p>
+<table class="bg src-grid">
+  <tr>
+    <td class="band"><span class="bandtext">Strategic Objective: (Desired end result {Singular} inclusive of on-going management plans.)</span></td>
+    <td class="band"><span class="bandtext">Strategy: (The Ethos or beliefs about how best to achieve the Strategic Objective. (effectively an ‘acid test’)</span></td>
+  </tr>
+  <tr>
+    <td class="eg"><span class="egtext">Complete your statement here</span></td>
+    <td class="eg"><span class="egtext">Complete your statement here</span></td>
+  </tr>
+</table>
+
+
+  <h3>Productive Habits &mdash; the names run <i>down</i> the first column</h3>
+  <p class="src">
+    Productive Habits.docx &middot; your five named fields and your worked example beside
+    each. Your writing rows are not drawn here &mdash; see above.
+  </p>
+<table class="bg src-grid">
+  <tr>
+    <td class="band"><span class="bandtext">Reason:</span></td>
+    <td class="eg"><span class="egtext">We're becoming more competitive. We have to improve our overall service standards.....</span></td>
+  </tr>
+  <tr>
+    <td class="band"><span class="bandtext">Trigger:</span></td>
+    <td class="eg"><span class="egtext">We lose one of our key clients to a competitor because we failed to be proactive in our dealings</span></td>
+  </tr>
+  <tr>
+    <td class="band"><span class="bandtext">Micro Habit:</span></td>
+    <td class="eg"><span class="egtext">We plan to have a 'how's things going?' meeting with each of our top 25 clients within the next 60 days.</span></td>
+  </tr>
+  <tr>
+    <td class="band"><span class="bandtext">Effective Practice:</span></td>
+    <td class="eg"><span class="egtext">We complete a de-brief of the first 5 meetings to share client feedback and to maintain vigilance with those responsible for getting their allocated meetings completed</span></td>
+  </tr>
+  <tr>
+    <td class="band"><span class="bandtext">Plan:</span></td>
+    <td class="eg"><span class="egtext">In 4 months time we will do a strategic review of our products, product bundling / packaging and pricing to ensure they are competitive going forward</span></td>
+  </tr>
+</table>
+
+
+  <div class="note">
+    <h3>The one structural fact the rule turns on</h3>
+    <p style="margin:0">
+      Six of your other tables &mdash; Marketing Answers, the 10 Critical Marketing
+      Statements, Branding, Customer Loyalty, Pricing and Packaging &mdash; look
+      <i>identical</i> to Strategic Statements to a machine: two columns, headings on
+      top, no blank cells. In those six the first column holds your <b>questions</b> and
+      must never become a box. That is why this form is read by the name your concept
+      already carries (<code>named-field-stack</code>), exactly as the persona grid is.
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>2. What the screen offers today</h2>
+
+  <h3>Strategic Statements &mdash; <span class="count wrong">1 box</span>, where your slide gives 2</h3>
+<table class="bg fields">
+  <tr><th>Heading shown above the box</th><th>Label shown beside the box</th><th>The box</th></tr>
+  <tr>
+    <td class="lbl">Strategy: (The Ethos or beliefs about how best to achieve the Strategic Objective. (effectively an ‘acid test’)</td>
+    <td class="lbl">Complete your statement here</td>
+    <td><span class="box"><span class="ph">Complete your statement here</span></span></td>
+  </tr>
+</table>
+
+  <div class="note bad">
+    <p style="margin:0">
+      Your <b>Strategic Objective</b> heading and its box are both gone. The one surviving
+      box is headed with your <b>Strategy</b> wording, and your words
+      <i>&ldquo;Complete your statement here&rdquo;</i> are shown twice &mdash; once as a
+      label and once inside the box.
+    </p>
+  </div>
+
+  <h3>Productive Habits &mdash; <span class="count wrong">8 boxes</span>, where your sheet has 5 fields</h3>
+<table class="bg fields">
+  <tr><th>Heading shown above the box</th><th>Label shown beside the box</th><th>The box</th></tr>
+  <tr>
+    <td class="lbl">Reason:</td>
+    <td class="lbl"><span class="none">— none —</span></td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">We're becoming more competitive. We have to improve our overall service standards.....</td>
+    <td class="lbl"><span class="none">— none —</span></td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Trigger:</td>
+    <td class="lbl"><span class="none">— none —</span></td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">We lose one of our key clients to a competitor because we failed to be proactive in our dealings</td>
+    <td class="lbl"><span class="none">— none —</span></td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Micro Habit:</td>
+    <td class="lbl"><span class="none">— none —</span></td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">We plan to have a 'how's things going?' meeting with each of our top 25 clients within the next 60 days.</td>
+    <td class="lbl"><span class="none">— none —</span></td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Effective Practice:</td>
+    <td class="lbl"><span class="none">— none —</span></td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">We complete a de-brief of the first 5 meetings to share client feedback and to maintain vigilance with those responsible for getting their allocated meetings completed</td>
+    <td class="lbl"><span class="none">— none —</span></td>
+    <td><span class="box"></span></td>
+  </tr>
+</table>
+
+  <div class="note bad">
+    <p style="margin:0">
+      Two boxes per field instead of one: the first sits <b>inside the dark name band</b>,
+      which is printed wording and not a writing area; the second is headed with your
+      whole worked-example sentence as though it were a column name. And
+      <b>Plan never appears</b>, because your document has no blank line after it.
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>3. The reading proposed</h2>
+  <div class="note">
+    <h3>A named-field stack is a set of named fields, each with one box</h3>
+    <ul>
+      <li><b>Your field names are printed, never typed into.</b> Whether they run across
+        the top row or down the first column, a name is a label.</li>
+      <li><b>One box per field.</b> Where your table has blank lines, the box is the line
+        beneath the name. Where it has none, the box is the cell beneath the heading.</li>
+      <li><b>Your worked example sits inside its own field&rsquo;s box</b>, as grey guide
+        text the advisor types over &mdash; the same treatment the persona grid already
+        uses, and never a heading of its own.</li>
+      <li><b>The fields are separated by a gap, and your thin blank rows are that gap</b>
+        &mdash; never drawn as rows of their own. <i>Mike&rsquo;s ruling, 2026-09-22:
+        &ldquo;we need a gap between content rows on the productive habits but the
+        additional small row spaces can be deleted.&rdquo;</i></li>
+    </ul>
+  </div>
+
+  <h3>Strategic Statements &mdash; <span class="count">2 boxes</span></h3>
+<table class="bg fields">
+  <tr><th>His field name</th><th>His worked example, shown inside the box</th><th>The box</th></tr>
+  <tr>
+    <td class="lbl">Strategic Objective: (Desired end result {Singular} inclusive of on-going management plans.)</td>
+    <td class="lbl">Complete your statement here</td>
+    <td><span class="box"><span class="ph">Complete your statement here</span></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Strategy: (The Ethos or beliefs about how best to achieve the Strategic Objective. (effectively an ‘acid test’)</td>
+    <td class="lbl">Complete your statement here</td>
+    <td><span class="box"><span class="ph">Complete your statement here</span></span></td>
+  </tr>
+</table>
+
+
+  <h3>Productive Habits &mdash; <span class="count">5 boxes</span>, the fifth added on Mike&rsquo;s ruling of 2026-09-22</h3>
+  <p class="src">
+    Five content rows with a gap between them &mdash; his ruling of 2026-09-22. The thin
+    blank rows in his document are that gap and are not drawn as rows.
+  </p>
+<table class="bg fields gapped">
+  <tr><th>His field name</th><th>His worked example, shown inside the box</th><th>The box</th></tr>
+  <tr>
+    <td class="lbl">Reason:</td>
+    <td class="lbl">We're becoming more competitive. We have to improve our overall service standards.....</td>
+    <td><span class="box"><span class="ph">We're becoming more competitive. We have to improve our overall service standards.....</span></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Trigger:</td>
+    <td class="lbl">We lose one of our key clients to a competitor because we failed to be proactive in our dealings</td>
+    <td><span class="box"><span class="ph">We lose one of our key clients to a competitor because we failed to be proactive in our dealings</span></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Micro Habit:</td>
+    <td class="lbl">We plan to have a 'how's things going?' meeting with each of our top 25 clients within the next 60 days.</td>
+    <td><span class="box"><span class="ph">We plan to have a 'how's things going?' meeting with each of our top 25 clients within the next 60 days.</span></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Effective Practice:</td>
+    <td class="lbl">We complete a de-brief of the first 5 meetings to share client feedback and to maintain vigilance with those responsible for getting their allocated meetings completed</td>
+    <td><span class="box"><span class="ph">We complete a de-brief of the first 5 meetings to share client feedback and to maintain vigilance with those responsible for getting their allocated meetings completed</span></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Plan:<span class="ruledtag">Ruled</span></td>
+    <td class="lbl">In 4 months time we will do a strategic review of our products, product bundling / packaging and pricing to ensure they are competitive going forward</td>
+    <td><span class="box"><span class="ph">In 4 months time we will do a strategic review of our products, product bundling / packaging and pricing to ensure they are competitive going forward</span></span></td>
+  </tr>
+</table>
+
+
+  <hr class="rule">
+
+  <h2>4. Two decisions, and both are yours</h2>
+  <div class="note">
+    <p style="margin:0">
+      <b>Both ruled by Mike on 2026-09-22, each as recommended, asked one at a time.</b>
+      Each ruling is printed at the head of its decision with the original recommendation
+      and the argument against it left in place beneath, unedited. A third ruling &mdash;
+      the gap between content rows &mdash; came in his own words the same day and is
+      recorded in section 3. <b>Approval to build from this drawing is a separate question
+      and has not been asked.</b>
+    </p>
+  </div>
+
+  <div class="dec">
+    <h3>Decision 1 &mdash; <code>Plan:</code> has no line to write on<span class="ruledtag">Ruled 2026-09-22</span></h3>
+    <div class="ruled-yes">
+      <b>Mike ruled YES, 2026-09-22 &mdash; as recommended.</b> <code>Plan:</code> gets a box
+      to write in, like Reason, Trigger, Micro Habit and Effective Practice. So Productive
+      Habits captures <b>five fields, five boxes</b>. The recommendation and the argument
+      against it are left in place below, unedited.
+    </div>
+    <p style="margin:0">
+      Your four other fields each have a blank row beneath them. <b>Plan does not</b> &mdash;
+      it is the last row of the table and your document simply ends there. So either the
+      screen gives Plan a box like its four siblings, which is one box your document does
+      not itself rule; or Plan is shown with your worked example and never captured, in
+      which case the client reads the habit through to a plan and writes nothing down.
+    </p>
+    <p class="rec">
+      <b>Recommended:</b> give Plan a box like the other four. The four fields build to it
+      &mdash; Reason, Trigger, Micro Habit, Effective Practice, then <i>Plan</i> &mdash; so
+      it is the one field the session exists to produce, and a habit with no plan written
+      against it is the page&rsquo;s own conclusion left blank. It also costs nothing if
+      you disagree: it is one row.
+    </p>
+    <p class="q">
+      Should <code>Plan:</code> get a box to write in like your other four fields &mdash;
+      instead of being shown with your worked example and never captured?
+    </p>
+  </div>
+
+  <div class="dec">
+    <h3>Decision 2 &mdash; what &ldquo;Complete your statement here&rdquo; is<span class="ruledtag">Ruled 2026-09-22</span></h3>
+    <div class="ruled-yes">
+      <b>Mike ruled YES, 2026-09-22 &mdash; as recommended.</b> The words are a
+      <b>prompt</b>: faint grey guide text inside the empty box, clearing the moment the
+      client types. They are never printed as fixed wording with a separate box beneath.
+      <b>This is what makes Strategic Statements two boxes rather than two printed lines</b>
+      &mdash; had it gone the other way, row 1 would be text and the boxes would be new
+      ones this form does not have. The recommendation and the argument are left in place
+      below, unedited.
+    </div>
+    <p style="margin:0">
+      Both boxes on your Strategic Statements slide carry those words. They may be a
+      <b>prompt</b> &mdash; grey guide text that disappears as the client types &mdash; or
+      your own <b>wording to be shown and left alone</b>, as a worked example is on the
+      banded grid. The two look the same in the file and different on screen.
+    </p>
+    <p class="rec">
+      <b>Recommended:</b> treat it as a prompt, shown grey inside the empty box. It is an
+      instruction to the reader rather than an example of an answer, and the one time this
+      was read the other way it cost a box: Blue Ocean Fronts&rsquo; <i>&ldquo;1, Enter
+      your thoughts here&hellip;&rdquo;</i> was read as a heading and the client lost a
+      line your document gives them.
+    </p>
+    <p class="q">
+      Should &ldquo;Complete your statement here&rdquo; show as grey guide text inside an
+      empty box that clears when the client types &mdash; instead of printing as fixed
+      wording with a separate empty box beneath it?
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <p class="foot">
+    <b>What this drawing does not decide.</b> It covers the two concepts on this form and
+    nothing else. Curve &amp; Cycle Notes looks similar and is the <i>small comparison
+    grid</i>, form 7, drawn separately. The six prompt&nbsp;&rarr;&nbsp;answer sheets named
+    above are form 4 and are already live and unchanged by this.
+  </p>
+  <p class="foot">
+    Generated from <code>data/strategy-capture-tables.json</code>, which
+    <code>scripts/read-capture-tables.js</code> reads from your original
+    <code>.pptx</code> and <code>.docx</code>. The &ldquo;today&rdquo; tables in section 2
+    are the live reader&rsquo;s own output, not a description of it.
+  </p>
+
+</div>
+</body>
+</html>

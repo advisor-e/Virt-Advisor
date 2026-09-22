@@ -22,6 +22,7 @@
 'use strict'
 
 const captureTables = require('../../data/strategy-capture-tables.json')
+const deckCaptureTables = require('../../data/strategy-deck-capture-tables.json')
 const orgChart = require('./strategyOrgChart')
 
 /**
@@ -45,26 +46,29 @@ const TEMPLATE_ALIASES = {
 }
 
 /**
- * Templates named by a concept for which no workbook was supplied.
- *
- * These four are prompt → answer sheets in census §3 and have no file in
- * `design/planning-templates/fill-in-tables/`. They resolve to nothing on
- * purpose: a concept with no table is reported as having none, never given a
- * borrowed one, because a table an advisor puts in front of a client has to be
- * the table Mike wrote.
- */
-const TEMPLATES_NOT_SUPPLIED = ['Branding', 'Customer Loyalty', 'Packaging', 'Pricing']
-
-/**
  * Resolve a concept's `captureTemplate` to the extracted template.
  *
+ * 🔴 A TABLE COMES FROM A WORKBOOK **OR** FROM A DECK PAGE, and for four concepts it
+ * was always the second. This used to consult the workbooks alone and carry a list
+ * called `TEMPLATES_NOT_SUPPLIED` — Branding, Customer Loyalty, Packaging, Pricing —
+ * which told an advisor mid-session that *"the Branding table has not been supplied
+ * yet"*. It had been. His form is page 34 of the Sales & Marketing deck, facing the
+ * teaching page the app already shows, and the other three are pages 36, 38 and 40:
+ * 29 questions the app said did not exist. Mike, 2026-09-22: *"the content is right
+ * there and the forms are on the same page"*.
+ *
+ * The list is gone rather than emptied, because there is nothing left in it and a
+ * template a concept names that resolves to neither source is now a defect —
+ * `template-not-found` — not a gap in his material. `scripts/read-deck-capture-tables.js`
+ * writes the second source.
+ *
  * @param {string} name  as `captureTemplate` spells it
- * @returns {?{file: string, format: string, tables: Array}}  null when not supplied
+ * @returns {?{file: string, format: string, tables: Array}}  null when neither has it
  */
 function resolveTemplate (name) {
   if (!name) { return null }
   const key = TEMPLATE_ALIASES[name] || name
-  return captureTables.templates[key] || null
+  return captureTables.templates[key] || deckCaptureTables.templates[key] || null
 }
 
 /**
@@ -188,7 +192,177 @@ function attributeRowFields (table, tableIndex) {
   return fields
 }
 
+/**
+ * The fields of a table that is a STACK OF NAMED FIELDS — his name, his worked
+ * example, and one box.
+ *
+ * 🔴 IT IS READ BY FORM NAME, AND THE REASON IS MEASURED RATHER THAN ASSERTED. Six
+ * of Mike's other tables are structurally IDENTICAL to Strategic Statements — two
+ * columns, headings on row 0, not one blank cell between them: Marketing Answers,
+ * the 10 Critical Marketing Statements, Branding, Customer Loyalty, Pricing and
+ * Packaging. In every one of those his first column holds the QUESTIONS and must
+ * never become a box. Nothing in the grid separates them, so the form name the
+ * concept already carries is the only honest signal, exactly as it is for the
+ * persona grid above.
+ *
+ * Two orientations, and the grid says which — his own two documents are one each:
+ *
+ * - **No ruled lines → the names run ACROSS row 0** (Strategic Statements). Row 1
+ *   is one box per column, HIS FIRST COLUMN INCLUDED. The general reading below
+ *   assumes column 0 is a prompt when a table has no ruled lines, which is true of
+ *   the six sheets above and false here: it offered 1 box where his slide gives 2,
+ *   so his Strategic Objective statement had nowhere to go at all.
+ * - **Ruled lines → the names run DOWN column 0** (Productive Habits), each on the
+ *   dark band his document shades `#434343`. That band is printed wording, never a
+ *   writing area; the general reading put a box inside it and headed the box beside
+ *   it with his whole worked-example SENTENCE, offering 8 boxes for 5 fields.
+ *
+ * 🔴 EVERY NAMED ROW GETS A BOX, INCLUDING THE LAST — Mike's ruling, 2026-09-22.
+ * His four other fields have a blank row beneath them and `Plan:` does not, because
+ * it is the last row and the table simply ends there. Keying the box to the line
+ * BENEATH each name would therefore have dropped Plan, which is the one field the
+ * session exists to produce. So the box is keyed to the field's own row: uniform,
+ * and there is no field his grid cannot carry one for. ⚠ `Plan:`'s box is the only
+ * box on this form that is his RULING rather than his DOCUMENT.
+ *
+ * 🔴 AND HIS BLANK ROWS ARE A GAP, NOT ROWS — his words, 2026-09-22: *"we need a gap
+ * between content rows on the productive habits but the additional small row spaces
+ * can be deleted."* They are skipped here and the spacing is the screen's.
+ *
+ * ⚠ DEFINED FOR TWO-COLUMN TABLES, which is what both of his are.
+ * `namedFieldStackIsTwoColumns` in the suite fails the build if a third column ever
+ * arrives, rather than letting it be dropped silently.
+ *
+ * @param {{columns: number, rows: Array}} table
+ * @param {number} tableIndex
+ * @returns {Array<object>} fields in reading order
+ */
+function namedFieldStackFields (table, tableIndex) {
+  const rows = table.rows
+  const hasRuledLines = rows.some(r => r.cells.some(c => c.blank))
+  const fields = []
+
+  const push = (r, c, name, cell) => {
+    fields.push({
+      key: 't' + tableIndex + 'r' + r + 'c' + c,
+      row: r,
+      column: c,
+      // His field name. Both his documents name every field, so unlike the banded
+      // grid there is never a box here without one.
+      columnLabel: name,
+      rowLabel: '',
+      // His worked example, shown inside the box as guide text the advisor types
+      // over — Mike's ruling on Decision 2, 2026-09-22. Never a heading of its own.
+      example: (cell && !cell.blank && cell.text) ? cell.text : ''
+    })
+  }
+
+  if (!hasRuledLines) {
+    const head = rows[0]
+    const body = rows[1]
+    if (!head || !body) { return [] }
+    head.cells.forEach((name, c) => {
+      if (!name.text || name.blank) { return }
+      push(1, c, name.text, body.cells[c])
+    })
+    return fields
+  }
+
+  rows.forEach((row, r) => {
+    const name = row.cells[0]
+    if (!name || !name.text || name.blank) { return }
+    push(r, 1, name.text, row.cells[1])
+  })
+  return fields
+}
+
+/**
+ * The fields of a table that is TWO INDEPENDENT LISTS SIDE BY SIDE — his Product Fit
+ * page, where the left column asks about the client's own customers and the right
+ * about their competitors.
+ *
+ * 🔴 THEY ARE NOT ROWS OF ONE TABLE, AND READING THEM AS ROWS IS THE WHOLE DEFECT.
+ * In Word the two sit inside one two-column table, so they look like one list. They
+ * are not: the left asks 3 questions and stops at row 6, the right asks 6 and runs to
+ * row 12. Read positionally his page offered **15 boxes for 9 questions** — one
+ * question put to the client SEVEN times — and **3 of his questions reached no screen
+ * at all**. Two faults, one cause:
+ *
+ * - **The left column's empty tail became boxes.** Every blank cell below its last
+ *   question was read as a line to write on, each headed with his LAST left-hand
+ *   question, because that was the most recent heading the general reader had seen.
+ * - **`isLabelRow` refuses any row holding a blank cell** — which from row 7 down is
+ *   every remaining right-hand question. They were read as content: not a heading,
+ *   not a box, gone. *"Based on the std Competition Fronts list…"*, *"Re-above, Are
+ *   these the fronts…"* and *"How can you best respond to competition?"* were on his
+ *   page and on no screen.
+ *
+ * 🔴 MIKE RULED IT SPLIT, 2026-09-22, and went further than the recommendation:
+ * *"it might be easier to split the tables into 2 - 1- customer orientation and
+ * 2-competitor comparison."* So this walks each column as its own list and **a list
+ * ends where it ends** — trailing blanks are empty page, and carry no heading down
+ * with them. `columnLabel` is his table heading and `rowLabel` his question, which is
+ * what makes the screen render his two tables: `blocks` in
+ * `StrategyConceptCapture.vue` already groups by `columnLabel`, so no second grouping
+ * had to be invented for it.
+ *
+ * ⚠ A QUESTION WITH NO LINE BENEATH IT STILL GETS A BOX, keyed to its own cell. That
+ * does not arise in his document — every question here has one — and it is the same
+ * answer his `Plan:` ruling gave on the named-field stack: a list's last question is
+ * not dropped because the page ran out.
+ *
+ * @param {{columns: number, rows: Array}} table
+ * @param {number} tableIndex
+ * @returns {Array<object>} fields in reading order — his first list, then his second
+ */
+function parallelPromptPairFields (table, tableIndex) {
+  const rows = table.rows
+  const head = rows[0]
+  if (!head) { return [] }
+  const fields = []
+
+  head.cells.forEach((groupCell, c) => {
+    const group = (groupCell.text && !groupCell.blank) ? groupCell.text : ''
+    rows.forEach((row, r) => {
+      if (r === 0) { return }
+      const cell = row.cells[c]
+      // A blank cell is either his writing line, taken below, or — past this column's
+      // last question — empty page. Neither is a field in its own right.
+      if (!cell || cell.blank || !cell.text) { return }
+      const below = rows[r + 1] && rows[r + 1].cells[c]
+      const boxRow = (below && below.blank) ? r + 1 : r
+      fields.push({
+        key: 't' + tableIndex + 'r' + boxRow + 'c' + c,
+        row: boxRow,
+        column: c,
+        // His table heading — what groups the questions into his two tables.
+        columnLabel: group,
+        // His question, shown above the box it belongs to.
+        rowLabel: cell.text,
+        // His page carries no worked example on this form; every answer cell is blank.
+        example: ''
+      })
+    })
+  })
+
+  return fields
+}
+
+/** The stack of named fields — Strategic Statements and Productive Habits. */
+const NAMED_FIELD_STACK = 'named-field-stack'
+
+/** Two independent lists side by side — his Product Fit page. */
+const PARALLEL_PROMPT_PAIR = 'parallel-prompt-pair'
+
 function fieldsOfTable (table, tableIndex, form) {
+  if (form === NAMED_FIELD_STACK) {
+    return namedFieldStackFields(table, tableIndex)
+  }
+
+  if (form === PARALLEL_PROMPT_PAIR) {
+    return parallelPromptPairFields(table, tableIndex)
+  }
+
   // 🔴 THE FORM NAME IS NOT ENOUGH ON ITS OWN, and reading it alone broke a table.
   // Customer & Skills Review is authored `attribute-rows-entity-columns` and is nothing
   // of the kind: its header is `Review Section | Review Findings`, one question and one
@@ -242,13 +416,25 @@ function fieldsOfTable (table, tableIndex, form) {
       row.cells.forEach((cell, c) => {
         if (cell.text && !cell.blank) { columnLabels[c] = cell.text }
       })
-      // A label row describes what follows; nothing is typed into it.
-      if (hasRuledLines) { return }
+      // 🔴 A LABEL ROW DESCRIBES WHAT FOLLOWS; NOTHING IS TYPED INTO IT — AND THAT IS
+      // TRUE WHETHER OR NOT THE TABLE HAS RULED LINES. This used to skip it only when
+      // `hasRuledLines`, which meant a heading survived as a box in exactly the
+      // templates Mike has WORKED THROUGH: fill an example into every cell and no cell
+      // is blank, so the table has no ruled lines and its heading fell through. 6
+      // Marketing Questions offered 7 boxes and 10 Marketing Messages offered 11 — the
+      // extra one asking an advisor to answer the words "The Question", with his
+      // opposite heading shown beneath as the worked example. The concept titles are the
+      // acceptance test, and `isLabelRow` has already decided this row is a heading;
+      // there was never a reason for the decision to be re-litigated by line style.
+      // Measured across all 20 templates before changing: four tables have no ruled
+      // lines and every one of them genuinely opens with a heading. Found 2026-09-22.
+      return
     }
 
-    // The row's own name, where it has one — a prompt, an aim, an attribute.
-    const rowLabel = (!hasRuledLines || !labelRow)
-      ? (row.cells[0] && row.cells[0].text && !row.cells[0].blank ? row.cells[0].text : '')
+    // The row's own name, where it has one — a prompt, an aim, an attribute. A label row
+    // has already returned above, so this is always a content row.
+    const rowLabel = row.cells[0] && row.cells[0].text && !row.cells[0].blank
+      ? row.cells[0].text
       : ''
 
     row.cells.forEach((cell, c) => {
@@ -306,11 +492,13 @@ function captureForConcept (concept) {
 
   const template = resolveTemplate(concept.captureTemplate)
   if (!template) {
+    // Every template a concept names now resolves, from a workbook or a deck page,
+    // and `templatesAllResolve` in the suite keeps it that way. So reaching here is
+    // a defect on our side — a renamed file, a typo — never a gap in Mike's
+    // material, and it must not tell an advisor his table "has not been supplied".
     return {
       supplied: false,
-      reason: TEMPLATES_NOT_SUPPLIED.includes(concept.captureTemplate)
-        ? 'template-not-supplied'
-        : 'template-not-found',
+      reason: 'template-not-found',
       template: concept.captureTemplate
     }
   }
@@ -389,6 +577,7 @@ module.exports = {
   captureForConcept,
   hasCaptureField,
   fieldsOfTable,
-  TEMPLATE_ALIASES,
-  TEMPLATES_NOT_SUPPLIED
+  NAMED_FIELD_STACK,
+  PARALLEL_PROMPT_PAIR,
+  TEMPLATE_ALIASES
 }

@@ -26,6 +26,7 @@ jest.mock('../../server/utils/strategySessionStore', () => ({
   getSession: jest.fn(),
   listSessionsForClient: jest.fn(),
   setScope: jest.fn(),
+  saveSuggestion: jest.fn(),
   saveEntry: jest.fn(),
   loadEntries: jest.fn(),
   loadTimeline: jest.fn(),

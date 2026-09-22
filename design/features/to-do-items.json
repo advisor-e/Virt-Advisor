@@ -373,7 +373,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), and stage 5 forms 1-3 of 9. FORM 3, THE ORG CHART BUILDER, BUILT TWICE 2026-09-21 - the REDRAW shipped. THE STAGE RAIL IS CLICKABLE IN ANY ORDER, his request. SIX FAULTS FOUND BY OPENING IT, all fixed - see the Brief. SIX REMAIN. NOTHING WAITS ON MIKE. THREE RULINGS NEVER TO BE RE-RAISED: the column count (\"leave it - its fine\"); the unheaded column and four lines where three, as his documents have them, pinned by tests; his blank spacer rows, a gap not boxes. NEXT: stages 5-8.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, and STAGE 6 - the AI pre-tick - on 2026-09-22, which needed NO mockup because the scope menu's approved drawing already carries the button and Decision C. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED: the column count (\"leave it - its fine\"); the unheaded column and four lines where three, pinned by tests; his blank rows are a gap, never boxes, and are not drawn on the artefacts either; two tables on Product Fit, not one. NEXT: stages 7-8.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -399,7 +399,7 @@
     },
     {
       "ref": "5.3",
-      "name": "Four Wages Register test suites share one file and collide at random",
+      "name": "Test suites collide on a shared dev file and block pushes at random",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -407,16 +407,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The gate's dev-file fallback writes and deletes one real file, data/dev-wages-register.json, and four suites reach it from parallel Jest workers, so one worker's delete lands while another is opening the same path.",
+      "why": "A dev-file fallback writes and deletes one file while parallel Jest workers reach the same path, so one worker's delete lands as another opens it and Windows refuses. Proved in two separate stores, not one.",
       "risk": "The pre-push hook runs the whole suite, so a push is blocked at random by a failure that has nothing to do with the code being pushed. Worse, once it is known as the flaky one, a REAL failure in the Wages Register gets waved through with a re-run.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-09-17 - hit while proving the concept index build. Failed once in three full runs and passed alone. Mike said yes to filing it."
       },
-      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant), and the four suites that reach it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes and wagesRegisterContents.routes.",
-      "note": "NOT REPRODUCIBLE ON DEMAND - it failed once in three full runs on 2026-09-17, then passed alone and on re-runs. Cause traced, not guessed: wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. THREE WAYS OUT, and choosing between them is the work: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. 🔴 2026-09-21 - A RANDOM FAILURE BLOCKED A COMMIT, the first time it cost anything: one test failed in the pre-commit hook, five runs after were green. The failing suite was NOT captured, so this item is not proved to be the cause.",
-      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end."
+      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant) and the four suites reaching it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes, wagesRegisterContents.routes. AND server/utils/strategySessionStore.js with tests/unit/strategySessionStore.test.js, which already overrides DEV_FILE per process and collided anyway.",
+      "note": "🔴 CAUSE PROVED - DO NOT RE-INVESTIGATE IT. Parallel Jest workers reach one dev file and Windows refuses: wagesRegisterGate.test.js unlinks the shared path in afterEach while another worker writes it. The work is choosing between three ways out: an env override giving each worker its own path, a per-worker temp file, or running the suites serially. 🔴 SECOND INSTANCE 2026-09-22 - strategySessionStore.test.js, EPERM on its temp file, two blocked pushes in a row. IT ALREADY HAS THE ENV OVERRIDE, so option one did not prevent it and is weaker than it looks. INTERMITTENT: both pass alone and in full runs; only the push gate catches them. Retry once before investigating.",
+      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end. Widened 2026-09-22 on his yes from the four Wages Register suites to the pattern, when a second store hit it: the stage 6 build made setScope read before writing, which sits near the window without being its cause."
     },
     {
       "ref": "15.3",
@@ -547,6 +547,26 @@
       "comment": "2026-09-20 - filed on Mike's yes the same session it was found, rather than left in a handover. Found by asking why Vertical Integration's plan page offered nothing to fill in after its drawing landed."
     },
     {
+      "ref": "15.12",
+      "name": "Two teaching pages repeat the drawing's own questions and overflow the A4 sheet",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "A teaching page prints one of Mike's full-page drawings and then repeats the questions already inside it as bullets underneath. The page is then taller than an A4 sheet and breaks mid-list.",
+      "risk": "The client reads the same five questions twice on one page, once inside the picture and once beneath it, and the page then splits across two sheets with the break landing mid-sentence. Measured 2026-09-21 on a 25-page plan: Porter's 5 Forces is 1003px against a 794px A4 sheet, and 2 of 25 pages run over. Nothing is cropped - the page grows rather than clipping.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-21 - found by printing the plan to A4 while building the client's Print or save as PDF button. Mike said yes to filing it rather than having the content decision made for him."
+      },
+      "touches": "components/strategy/StrategyPlanDocument.vue, where a teaching page renders the drawing and then item.prompts beneath it; the prompt wording itself, which is authored content and Mike's call; and design/mockups/strategy-plan-output.html, whose example figures are short wide strips drawn to leave room for text, which is why the approved layout never met this.",
+      "note": "THE FIX IS A CONTENT DECISION, NOT A LAYOUT ONE. Three routes, all Mike's: drop the bullets where the drawing already carries the words, give the prompts their own page, or leave the page to split. Only concepts whose drawing embeds its own questions are affected - a teaching page carrying a drawing alone fits A4 exactly, proved on Market Diffusion Theory the same day."
+    },
+    {
       "ref": "16",
       "name": "A client's document carries no firm, so the white-label promise has nothing behind it",
       "rankedByMike": false,
@@ -587,6 +607,26 @@
       "touches": "84 files under components/ and pages/ use type=\"is-primary\"; the fix is one override of Buefy's  rather than 84 edits, so the work is choosing where that override lives and seeing the whole app recoloured before it ships. Two screens to eyeball afterwards: pages/strategy-planner.vue and components/sales/SalesBlog.vue.",
       "note": "NOT A ONE-LINE FIX EVEN THOUGH THE CHANGE IS ONE LINE. Overriding Buefy's primary recolours every button in the app at once, so Mike sees it before it ships - which is why it was not folded into the 2026-09-21 commit. TWO THINGS ALREADY BRAND BLUE AND NOT TO BE CHANGED BACK: the stage rail's current segment, and the Org Chart Builder toolbar, which follows its approved drawing. SHARPEST INSTANCE: SalesBlog.vue 155 and 161 carry is-primary and is-info on two ADJACENT main actions, so Write the outline is violet and Write the article blue - a distinction that does not exist. Found 2026-09-22 by opening the page; the tests pass on it. Eyeball that pair after the override.",
       "comment": "2026-09-21 - found by measuring three buttons on one screen, not by reading the code. Pre-existing and app-wide: it has been this way since Buefy was adopted, and BRAND-TOKENS.md post-dates it."
+    },
+    {
+      "ref": "16.2",
+      "name": "The printed plan leaves no room for the advisor firm's logo",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike asked for room for the logo in the printout. The plan's own pages - title, agenda, step dividers and capture pages - carry no firm mark at all; the placeholder exists only inside the 33 drawings.",
+      "risk": "The title page is the cover of the document a client keeps, and it prints as a company name on an otherwise empty A4 sheet with nothing of the advisor's firm on it. Item 16 supplies the brand itself; without a place for it on the page, a logo arriving later still has nowhere to go on the document's own sheets. Proved 2026-09-21 by printing the plan.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-21 - his own words, after seeing the A4 plan printed: \"you also need to make sure there is room for the logo in the printout - make that another task to do\"."
+      },
+      "touches": "components/strategy/StrategyPlanDocument.vue - the title page, the step dividers and the capture pages, none of which renders a mark; it passes firm-name and firm-colour to the drawings alone. Needs item 16 for where a firm's brand is actually set, which under the hub-page rule starts at the mentor tier.",
+      "note": "ROOM ON THE PAGE AND A BRAND TO PUT IN IT ARE TWO JOBS. This one is the layout and can be built now; item 16 supplies the name, logo and colour and waits on Mike. The 33 drawings already reserve their own mark and are not part of this - what has no space is the document itself."
     },
     {
       "ref": "17",
@@ -694,6 +734,69 @@
       "touches": "mixins/currencyMixin.js, which holds the single firmCurrency every report reads; server/routes/currency.js and its firmOverlay store, which is firm-scoped only - there is no saveClientConfig today; a client-scoped store beside it keyed on va_clients; components/ModelLibrary.vue for the advisor's edit; the ~40 report components reading firmCurrency; and 13.1's warning line, which this makes necessary.",
       "note": "🔴 NOT THE PER-CLIENT CURRENCY MIKE REJECTED ON 2026-09-22 - read 13.2's comment before assuming it is. That one was a second FIRM-level setting per client, and he replaced it with currency-at-firm plus conversion-inside-a-model. This is his own later instruction and it does not touch that ruling: the client value is a LABEL saying which money this client's reports are in, the cascade default is the firm's, and conversion stays inside models on fxAllowancePct. ⚠ STORED AGAINST THE CLIENT, not per advisor per client - so every advisor on that client sees one currency. ⚠ ONE SCREEN DECISION IS OPEN: where the advisor edits it.",
       "comment": "2026-09-22 - filed on Mike's yes, the fourth in the currency family and the only one that adds a capability rather than a rule, a label or a move. Sibling of 13.1 (the relabel-not-convert warning, which this makes urgent), 13.2 and 13.3."
+    },
+    {
+      "ref": "15.13",
+      "name": "No import button pulls the forecast and performance figures into a planning session",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "assessing the current position is a required part of formal planning",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Formal strategic planning starts by assessing the current position - staff, customer and supplier feedback, financial analysis, economic outlook. The three-way forecast and the performance reports already hold much of the financial half, and nothing carries it across.",
+      "risk": "An advisor retypes figures the app already holds, or skips the assessment. The review must also say what CANNOT be imported: staff, customer and supplier feedback and the economic outlook are named by Mike as part of the same component, and no report in this app holds any of them.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - in his own words: \"i want you to make a task to review the 3 way forecast model and the financial assessment reports / performance reports (in the perf reports section) to see what could be 'pulled in' by clicking an import button\"."
+      },
+      "touches": "The three-way forecast (parent 6) and the report models (parent 5) as sources; the Strategy Planner's session surface as the destination. Which reports expose a readable saved result, and in what shape, IS the review - nothing is known yet.",
+      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. The impact test is unrun and this must not start until it is. Its first output is a list of what each report can and cannot give a planning session.",
+      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.14 and 15.15). Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.14",
+      "name": "Wordsmith - turning what the client said into statements they can use",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "a facilitator tool, not a gate on the session",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "In a planning session the advisor and client talk an idea through and then have to write it down well. Wordsmith renders what they discussed into meaningful statements, or helps craft a powerful message.",
+      "risk": "It writes client-facing wording, so its output is never structured data and must be shown for approval before it lands anywhere. If it ever reads spoken content rather than the typed boxes, that is personal data - only Meeting Review is cleared to send that, and extending it is a fresh decision for Mike, never an inference from that one.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - in his own words: \"WORDSMITH - this is where the client and advisor just talk through their ideas and thoughts - click wordsmith to render what they talked about into meaningful statements or help craft powerful messages\"."
+      },
+      "touches": "The Strategy Planner's capture boxes and its facilitation half; a new Restify route for the model call; the voice bar already on every capture box. Whether it reads the typed boxes only, or spoken content, is undecided and decides its privacy position.",
+      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.15. The impact test and the hub-page judgement are both unrun.",
+      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.15). Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.15",
+      "name": "Devil's Advocate - challenging optimistic thinking in the room",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "a facilitator tool, not a gate on the session",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A planning conversation drifts optimistic and nobody in the room is paid to disagree. Devil's Advocate asks the hard questions and challenges over-optimistic thinking, backed by known business concepts and market analysis data.",
+      "risk": "It argues with the client in front of the advisor, so its tone and its evidence both matter. \"Market analysis data\" needs a named source: this app holds none, and an AI asserting market facts without one commits the exact error the feature exists to catch.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-22 - in his own words: \"DEVIL'S ADVOCATE - where AI asks the hard questions and challenges overly optimistic thoughts, supported by known business concepts and market analysis data\"."
+      },
+      "touches": "The Strategy Planner's session surface; a new Restify route for the model call; the 52 concept records as the 'known business concepts' source. The market analysis data source is unidentified and is the first question this item must answer.",
+      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.14. The impact test and the hub-page judgement are both unrun.",
+      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

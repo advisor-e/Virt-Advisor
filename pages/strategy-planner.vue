@@ -37,6 +37,14 @@
       b-button(v-if="step === 'objectives'" outlined type="is-primary" @click="step = 'run'") {{ $t('strategyPlanner.back') }}
       b-button(v-if="step === 'objectives'" type="is-primary" @click="step = 'plan'") {{ $t('strategyPlanner.producePlan') }}
       b-button(v-if="step === 'plan'" outlined type="is-primary" @click="step = 'objectives'") {{ $t('strategyPlanner.back') }}
+      //- 🔴 THE CLIENT'S DOCUMENT LEAVES THE APP HERE, AND ONLY HERE. Mike's request,
+      //- 2026-09-21. The browser writes the PDF — Business Performance Report P7: no PDF
+      //- library runs on the locked Node 14.15, and the browser's own dialog means a
+      //- client's session never leaves the machine to be rendered. It is also the only
+      //- method his own ruling of 2026-09-17 allows: "there is ONE artefact, never two
+      //- formats", so this prints the document already on screen rather than generating
+      //- a second one that could disagree with it.
+      b-button(v-if="step === 'plan'" type="is-primary" @click="printPlan") {{ $t('strategyPlanner.printPlan') }}
 
   //- 🔴 THE RAIL IS THE WAY THROUGH THE SESSION, NOT A PROGRESS PICTURE. Mike's request,
   //- 2026-09-21: *"enable me to be able to click on the step banner (scope, build etc) in any
@@ -65,7 +73,12 @@
       :decks="decks"
       :chosen="chosen"
       :session-label="sessionLabel"
+      :suggested="suggested"
+      :suggesting="suggesting"
+      :suggest-state="suggestState"
+      :client-chosen="Boolean(clientId)"
       @scope-changed="onScopeChanged"
+      @suggest-requested="requestSuggestion"
     )
 
   template(v-if="!loading && step === 'steps'")
@@ -298,6 +311,19 @@ export default {
       planStepDefs: [],
       /** The open session's id, once one exists. */
       sessionId: null,
+      /**
+       * WHAT THE AI PROPOSED, AND ONLY THAT — `[{ id, reason }]`. Decision C, stage 6.
+       *
+       * 🔴 IT IS NEVER THE SCOPE. `chosen` above is the scope and is the only thing saved
+       * as one. This list exists so the screen can show which rows were proposed, why, and
+       * how many of them the advisor has since taken back off — the disagreement between
+       * the two lists is the advisor's judgement and is the point of keeping both.
+       */
+      suggested: [],
+      /** True while the suggestion is being fetched. */
+      suggesting: false,
+      /** '' | 'ok' | 'no-history' | 'nothing-matched' | 'failed' — what the bar says. */
+      suggestState: '',
       /** Captured text, keyed `frameworkId::fieldKey`. */
       entries: {},
       /**
@@ -1215,6 +1241,53 @@ export default {
       }
     },
 
+    /**
+     * Ask the AI which concepts suit this client — Decision C, stage 6.
+     *
+     * 🔴 IT TICKS NOTHING BY ITSELF, AND THAT IS THE RULING NOT A PRECAUTION. What comes
+     * back is added to `chosen` as pre-ticks the advisor can take straight back off, and
+     * `suggested` keeps the original list so the screen can show what was proposed and how
+     * much of it survived. A build that assigned the reply to `chosen` and kept no record
+     * would have broken Decision C(a) and C(b) at once.
+     *
+     * ⚠ IT NEVER UNTICKS. Concepts already chosen stay chosen even if the AI did not
+     * propose them — the union, never the reply.
+     *
+     * @returns {Promise<void>}
+     */
+    async requestSuggestion () {
+      if (this.suggesting || !this.clientId) { return }
+      this.suggesting = true
+      this.suggestState = ''
+      try {
+        const res = await fetch('/api/strategy/suggest', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: this.headers(true),
+          body: JSON.stringify({
+            clientId: this.clientId,
+            sessionId: this.sessionId || undefined
+          })
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        const body = await res.json()
+        const concepts = (body.suggestion && body.suggestion.concepts) || []
+
+        this.suggested = concepts
+        this.suggestState = body.reason === 'ok' ? 'ok' : body.reason
+
+        if (concepts.length) {
+          const add = concepts.map(c => c.id).filter(id => !this.chosen.includes(id))
+          if (add.length) { await this.onScopeChanged(this.chosen.concat(add)) }
+        }
+        this.error = ''
+      } catch (e) {
+        this.suggestState = 'failed'
+      } finally {
+        this.suggesting = false
+      }
+    },
+
     /** Opens the session and moves to the frameworks. */
     async startSession () {
       this.error = ''
@@ -1225,7 +1298,15 @@ export default {
           headers: this.headers(true),
           body: JSON.stringify({
             clientId: this.clientId,
-            scope: { domains: [], frameworks: this.chosen }
+            // A suggestion made before the session existed is written with the first
+            // ticks, so Decision C(b)'s trail survives the moment the session is opened.
+            scope: {
+              domains: [],
+              frameworks: this.chosen,
+              suggestion: this.suggested.length
+                ? { at: new Date().toISOString(), concepts: this.suggested }
+                : undefined
+            }
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1302,6 +1383,39 @@ export default {
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
       } catch (e) {
         this.error = this.$t('strategyPlanner.errors.saveFailed')
+      }
+    },
+
+    /**
+     * Hand the client their plan — the assembled document, and nothing else.
+     *
+     * The browser writes the PDF. That is not a shortcut: no PDF library runs on the
+     * locked Node 14.15 (Business Performance Report P7, ruled 2026-09-06), and using
+     * the browser's own dialog means a client's session is never sent anywhere to be
+     * rendered. It is also what Mike's ruling of 2026-09-17 requires — "there is ONE
+     * artefact, never two formats" — so what prints is the document already on screen.
+     *
+     * The body class is what separates the document from the screen around it: the
+     * heading, the five-stage rail and the coverage wheel are the advisor's, not the
+     * client's. See the UNSCOPED print block at the foot of this file for why it cannot
+     * be a scoped rule. It is added for the duration of this press alone, so an ordinary
+     * Ctrl+P anywhere in the app behaves exactly as it did before.
+     *
+     * HONEST LIMIT: the advisor saves the file themselves, so nothing here holds a copy
+     * of what was actually given to the client, and the margins depend on their own
+     * browser's print settings.
+     *
+     * @returns {void}
+     */
+    printPlan () {
+      if (!process.client || typeof window === 'undefined' || !window.print) { return }
+      document.body.classList.add('sp-printing')
+      try {
+        window.print()
+      } finally {
+        // Always removed, including if print() throws: a page left in printing mode
+        // renders blank to the advisor still sitting in front of it.
+        document.body.classList.remove('sp-printing')
       }
     }
   }
@@ -1446,5 +1560,86 @@ export default {
 @media (max-width: 860px) {
   .sp-rail { flex-wrap: wrap; }
   .sp-rail-step { flex: 1 1 45%; }
+}
+</style>
+
+<!--
+  UNSCOPED, DELIBERATELY — the only rules on this page that are, and it is structural
+  rather than a shortcut.
+
+  Printing ONE section of a bigger screen means hiding everything around it, and
+  everything around it belongs to other components. A scoped rule cannot reach them:
+  Vue rewrites a scoped selector to match only this component's own elements, so a rule
+  written against `body` compiles to `body[data-v-hash]` and matches nothing at all.
+  That is not a theory — it shipped, in CourseBuilder's certificate, and
+  `tests/unit/scopedStylesCannotReachOutside.test.js` now fails the build for it.
+
+  `visibility`, not `display`, for the general sweep: display:none on an ancestor cannot
+  be undone further down, so the document — nested inside Nuxt's own wrappers — could
+  never be shown again. visibility can be turned back on, which is what makes this work.
+
+  Everything is gated behind `body.sp-printing`, which exists only for the duration of
+  the advisor's own press, so an ordinary Ctrl+P anywhere in the app is unaffected.
+-->
+<style>
+/* 🔴 A4 LANDSCAPE, NAMED — Mike's ruling, 2026-09-21: "the majority of pages to be
+   printed will be A4 size." Landscape because the document is a deck (his 2026-09-17
+   ruling: "it is his deck page for page when printed"), and every one of the 33 concept
+   drawings is a landscape 1500x844.
+
+   ⚠ THIS DELIBERATELY DIFFERS FROM THE SIX REPORT SCREENS, and the difference is the
+   point rather than drift. Business Performance Report P7 sets orientation and NEVER a
+   paper size, so an advisor on US Letter is not overridden — right for a report, which
+   reflows to whatever sheet it is given. This document cannot reflow: `.spd-page` is a
+   fixed A4-landscape frame, so if the sheet is not A4 the page no longer matches it.
+   The shape and the paper have to be named together or neither is worth naming.
+   ⚠ HONEST LIMIT: an advisor who chooses Letter in their own print dialog gets the
+   document scaled to fit. Nothing is lost or cropped; the margins simply grow.
+
+   `@page` has no selector and cannot be gated behind the body class. It rides in this
+   page's own stylesheet, so it reaches /strategy-planner and no other route. */
+@page { size: A4 landscape; margin: 0; }
+
+@media print {
+  body.sp-printing * { visibility: hidden !important; }
+  body.sp-printing .spd,
+  body.sp-printing .spd * { visibility: visible !important; }
+
+  /* A visibility:hidden element still occupies its space, so the heading, the stage
+     rail and the coverage wheel would push blank sheets ahead of and behind the
+     client's document. They are siblings, not ancestors, so collapsing them outright
+     cannot take the document with them.
+     🔴 THE COVERAGE WHEEL IS THE ADVISOR'S, NOT THE CLIENT'S. It appears nowhere in
+     the approved drawing (design/mockups/strategy-plan-output.html §3), which is the
+     whole of the reason it is not in the printed plan. */
+  body.sp-printing .sp > *:not(.spd) { display: none !important; }
+
+  /* The page's reading width and its gutters are for a screen. A printed sheet has
+     @page margins of its own, and keeping both would inset every slide twice. */
+  body.sp-printing .sp { max-width: none; margin: 0; padding: 0; }
+
+  /* The 18px that separates the pages while scrolling would otherwise print as a band
+     at the top of every sheet after the first. */
+  body.sp-printing .spd { gap: 0; }
+
+  /* 🔴 A RATIO IS THE WRONG TOOL ON PAPER, AND IT DOUBLED THE DOCUMENT. Measured
+     2026-09-21: with the screen's `aspect-ratio: 297/210` left in force, each page
+     computed to EXACTLY the height of the A4 sheet — and a box exactly as tall as its
+     sheet rounds onto a second one. 25 document pages printed as 50 sheets, every other
+     one blank. Nothing looked wrong on screen, and no test could see it.
+
+     On paper the sheet is the authority, so the page gets a floor in millimetres and no
+     ratio: 208mm inside a 210mm sheet. A page with little on it fills its sheet and
+     stops; one with too much still grows and splits, which is visible and honest rather
+     than silently cropped. `border-box` is stated rather than inherited, because the
+     padding is what the 2mm of clearance would otherwise be spent on.
+
+     GATED, like everything else here, so an ordinary Ctrl+P is left exactly as it was —
+     these millimetres are only correct on the A4 sheet the `@page` above asks for. */
+  body.sp-printing .spd-page {
+    aspect-ratio: auto;
+    box-sizing: border-box;
+    min-height: 208mm;
+  }
 }
 </style>

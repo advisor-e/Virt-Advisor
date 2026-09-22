@@ -115,8 +115,8 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    out. If the build reports a page under "Unlisted", say so — the index has forgotten a
    page.
 
-4. **What is open?** Read **`design/features/to-do-items.json`** — the ten live items
-   themselves — and **BOTH handover notes**: `design/HANDOVER-desktop.md` and
+4. **What is open?** Read **`design/features/to-do-items.json`** — the live items themselves
+   — and **BOTH handover notes**: `design/HANDOVER-desktop.md` and
    `design/HANDOVER-laptop.md`, one per machine. Yours is the one matching the branch from
    step 1; the other machine's is what stops the two divisions treading on each other.
    Report the two or three things most likely to be today's work, saying for each whether
@@ -137,6 +137,14 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    note is genuinely older than the work. **If you have not looked at that box, you do not
    know, and you do not get to say it.**
 
+   ⚠ **AN ABSENT BOX IS AN ANSWER, NOT A FAILURE — do not read the silence as the check
+   being broken.** The box lists only branches holding commits `master` does not, so it
+   prints nothing at all when the other machine has merged everything it had. That is the
+   good case: its work is on `master`, and — provided step 2 reported this branch **0
+   behind** — the copy in your own working tree came across with it and *is* the current
+   note. Read it there. If step 2 reported you behind, merge first (step 5); until you do,
+   you hold neither the box nor a current copy, and the rule above still binds.
+
    *Six consecutive desktop sessions accused the laptop of not writing a handover — including
    2026-09-16, after the laptop had rebutted it in writing in its own note. Every one of them
    was reading the stale working-tree copy. The rule above was already here and said to use
@@ -150,7 +158,7 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    2026-09-15. Read the file for its *content* by all means; take its *date* from the check.
 
    **Read the JSON, not `to-do.md`.** The page is 850 lines of standing explanation
-   wrapped around a generated ten-row table; the JSON *is* the list, and the page is
+   wrapped around a generated table; the JSON *is* the list, and the page is
    rebuilt from it. Same information, a fraction of the reading. Open the page only if
    Mike asks why an item is worded as it is.
 
