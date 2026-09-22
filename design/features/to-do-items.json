@@ -188,7 +188,7 @@
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Three conversations on 2026-09-15 were the first ever check of whether the model summaries work. Two found faults. Nothing in the app records a model mention, so that check exists only because a session ran it by hand.",
       "risk": "The AI can send an advisor to a calculator that does not fit, and on 2026-09-15 it did - a governance dispute was offered a cash forecast. Nothing logged it. UAT cannot catch it either: a tester sees one plausible answer, never the pattern across many. Until something records the model named and the situation it was named for, the only detection is somebody running conversations by hand and reading them.",
       "askedBy": {
@@ -234,7 +234,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Measured over 30 live calls: the template choice is right every run, but the calculator paired with it varies - 1, 2 or 3 times in 6 on identical questions, and the wrong budget model 4 times in 6.",
       "risk": "An advisor asking the same question twice gets different tools, and each answer reads perfectly well alone - so neither they nor UAT can see it. Twice the AI attached the wrong calculator to a correct template, including the wrong size of budget model, which the list forbids in capitals. Sales Dashboard is named correctly but gives no link to click 5 times in 6.",
       "askedBy": {
@@ -350,6 +350,27 @@
       "touches": "scripts/build-handbook.js --working-tree and its WORKING_TREE banner, which are correct and stay; the publish step of .claude/commands/startup.md, which is where the guard belongs because the script cannot know where its output is sent; design/features/handbook.md.",
       "note": "THE FLAG IS NOT THE FAULT AND MUST NOT BE REMOVED - a preview of your own branch is useful and it labels itself honestly. The gap is that nothing refuses to PUBLISH one to the shared URL. Cheapest honest fix: the publish step reads the built file's banner and refuses when it says working tree. Checked 2026-09-17: the only page that differed was strategy-planner, committed and pushed on feat/advisor-progress, so nothing was at risk - it appears on the shared page the day that branch reaches master.",
       "comment": "2026-09-17 - Mike ruled the live preview stays rather than being overwritten: it shows one extra real feature and hiding it would gain nothing. This item is about the guard, not about that page."
+    },
+    {
+      "ref": "14.4",
+      "name": "Every Handbook build leaves the working tree dirty, and the stamp can never catch up",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 1,
+      "scoreReason": "internal only - it costs a session, never a user",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "npm run handbook regenerates design/CODE-SIZE.md, whose header records the commit it was measured at. It is step 3 of /startup, so every session on both machines starts by dirtying a tracked file the pre-commit hook then refuses to leave behind.",
+      "risk": "Nothing a user sees - a tax on every session. The file must be committed or discarded before anything else can be saved, and committing it is self-defeating: the commit changes master, which makes the stamp it just wrote stale. On 2026-09-22 that cost a commit, a pull request and a merge to land one changed hash with every count identical. The quiet failure is worse: a session committing the stamp unread can sweep an unrelated change in beside it.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-22 - hit twice in one session while running /startup and again after merging PR #110. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "scripts/build-handbook.js, which writes the stamp as part of the Handbook build; design/CODE-SIZE.md itself; step 3 of .claude/commands/startup.md, whose own warning box already tells every session to expect the dirty tree and put it to Mike; design/features/handbook.md.",
+      "note": "🔴 THE COUNTS ARE NOT THE PROBLEM - THE HASH IS. Every figure was byte-identical across both builds on 2026-09-22; only \"Measured at commit X\" moved. Cheapest honest fix: write the stamp only when a count changes, leaving the hash stale by design and the tree clean. Or stop the Handbook build touching the file and let npm run code-size own it, which the header says already runs on its own. ⚠ DO NOT gitignore the file or relax the pre-commit hook - the file is committed so the counts can be read without running anything, and the hook keeps stray changes out of commits.",
+      "comment": "2026-09-22 - filed on Mike's yes at the end of the session that hit it twice. Sibling of 14.3: both are about the Handbook build's side effects rather than the page it produces."
     },
     {
       "ref": "15.1",
@@ -575,7 +596,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Outside",
       "why": "The 33 concepts were redrawn so a client sees their own advisor's firm rather than Advisor-e. Nothing in this app holds a firm's name, logo or colour, so every document prints the words 'Firm logo' against an empty disc.",
       "risk": "An advisor hands a client a plan with a placeholder where their brand belongs, which reads as unfinished software rather than a missing setting. It is also the reason the deck images were deleted on 2026-09-18 and 33 concepts redrawn - so the cost has been paid and the benefit has not arrived. Mike's own words: Advisor-e ALWAYS clones and shows that ADVISORS firm logo, never advisor-e.",
       "askedBy": {
@@ -584,7 +605,7 @@
         "detail": "2026-09-20 - found while wiring the first four drawings for 15.7: the mark is a prop and nothing above passes one in. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
       "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
-      "note": "✅ RULED AND BUILT 2026-09-22. Mike ruled twice: the mark is the firm's REAL logo in a fixed-height box, the initials disc showing ONLY when a firm holds none; and the border returns in the firm's colour. 🔴 THE DATA IS ADVISOR-E'S AND WE BUILD NO SCREEN FOR IT - it lives on the firm profile page, which already brands its own borders. Our half is done: firmBrand() behind seam Q-FIRM-BRAND, question 8 of the integration email, and ALL 32 DRAWINGS carrying both. WHAT REMAINS IS THEIRS - two column names. Unanswered, the stub returns nulls and every page falls back, which is the shipped state. Brief §0 has the detail; one Porter's deviation stays unruled.",
+      "note": "🔴 BUILT ON THE LAPTOP'S BRANCH 2026-09-22, NOT YET ON master. Mike ruled the mark is the firm's REAL logo in a fixed-height box, initials disc only as fallback, and the border returns in the firm's colour. THE DATA IS ADVISOR-E'S AND WE BUILD NO SCREEN FOR IT - his words, \"Advisor-e already picks up the colour and brands the border to suit\": it lives on the firm profile page. The earlier sentence claiming a place to hold it is ours was WRONG and is replaced. Our half is firmBrand() in server/utils/firmsDirectory.js and seam Q-FIRM-BRAND in config/integration.js, asked as question 8 of the integration email - shipped inert until the master team names the two columns. What remains is theirs.",
       "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
     },
     {
@@ -625,29 +646,8 @@
         "ours": false,
         "detail": "2026-09-21 - his own words, after seeing the A4 plan printed: \"you also need to make sure there is room for the logo in the printout - make that another task to do\"."
       },
-      "touches": "components/strategy/StrategyPlanDocument.vue - the title page, the step dividers and the capture pages, none of which renders a mark; it passes firm-name and firm-colour to the drawings alone. Needs item 16 for where a firm's brand is actually set, which under the hub-page rule starts at the mentor tier.",
-      "note": "ROOM ON THE PAGE AND A BRAND TO PUT IN IT ARE TWO JOBS. This one is the layout and can be built now; item 16 supplies the name, logo and colour and waits on Mike. The 33 drawings already reserve their own mark and are not part of this - what has no space is the document itself."
-    },
-    {
-      "ref": "13.1",
-      "name": "Changing currency relabels figures and does not convert them",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off without it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A manager switching the firm currency sees only \"Reports now show Euro (€)\". Nothing says the figures are RELABELLED, not converted: 46,170 pounds becomes 46,170 euros at no exchange rate. The change reads as a conversion.",
-      "risk": "A manager reads the switch as a conversion and every figure in the report is out by whatever the rate is - on a screen that looks like it did the work, reaching a client in a funding pack or a fee proposal. Correct behaviour for a firm entering figures in its own money, which is every firm; a wrong reading the moment anyone expects a rate, and nothing on screen contradicts them.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - he asked \"what if I am in Italy but want the currency to be in Euro?\", which proved the language/currency split works, and the check surfaced this. He was given the finding and the recommendation and said yes to filing it."
-      },
-      "touches": "components/ModelLibrary.vue, the currency selector block and its changeCurrency handler; locales/en.json modelLibrary.currency (label, managedNote, saved) plus the seven other locale files; data/currencies.json as the six supported codes; mixins/currencyMixin.js, which formats but never converts; and the ~40 report components reading firmCurrency.",
-      "note": "Found while answering Mike on the language/currency split. The selector and its toast are both silent on the point - money(v, currency, locale) formats and nothing more. 🔴 WORDING IS MIKES AND MUST BE ASKED, NOT WRITTEN: one short line at the selector saying figures are relabelled, not converted. ⚠ SCOPE IS THE LINE ONLY. Applying a rate to a whole report is NOT wanted - Mike ruled 2026-09-22 that conversion belongs inside a model where a primary currency is already entered, which the forecast already does via fxAllowancePct. See the Brief P9. 🔴 13.4 MAKES THIS URGENT: a client-level currency reads as a conversion far more readily, so this line ships with it.",
-      "comment": "2026-09-22 - filed on Mike's yes. Numbered 5.4 at first, under Model Library, because the currency picker sits on that screen - filing by where the code lives, not by what the job is about. Moved to 13.1 the same day when he renamed parent 13 to Language, Tax & Currency, which gave this area the home it never had. Siblings 13.2 and 13.3 came from the same conversation."
+      "touches": "components/strategy/StrategyPlanDocument.vue - the title page, the step dividers and the capture pages, none of which renders a mark; it passes firm-name and firm-colour to the drawings alone. pages/strategy-planner.vue, which mounts the plan document and binds none of the three firm props. Needs item 16 for where a firm's brand is actually set, which under the hub-page rule starts at the mentor tier.",
+      "note": "ROOM ON THE PAGE AND A BRAND TO PUT IN IT ARE TWO JOBS, AND THE SECOND IS NOW DONE. Item 16 shipped on the laptop's branch 2026-09-22 and no longer waits on Mike. This item is unchanged and still open: the plan's OWN sheets - title, agenda, step dividers, capture pages - render no mark, and the drawings are not part of it. 🔴 AND A SECOND FAULT, FOUND 2026-09-22: pages/strategy-planner.vue mounts StrategyPlanDocument with NO :firm-name, :firm-colour or :firm-logo binding, so firmName falls back to '' and the colour to the hardcoded #0070c0. Even with item 16 merged, every drawing inside the printed plan prints the placeholder. That binding belongs with this item's layout work."
     },
     {
       "ref": "13.2",
