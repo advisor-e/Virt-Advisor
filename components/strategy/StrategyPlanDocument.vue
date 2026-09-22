@@ -5,12 +5,15 @@ article.spd(:style="frameStyle")
   //- with nothing in it: a step is a thing he names, not a container the ticks make.
   section.spd-page.is-title
     strategy-plan-mark(v-bind="markProps" big)
+    strategy-plan-frame(:split=false)
     p.spd-kind {{ $t('strategyPlanner.plan.sessionPlan') }}
     h2.spd-title {{ clientName }}
     p.spd-sub(v-if="decks") {{ decks }}
 
   section.spd-page.is-agenda
     strategy-plan-mark(v-bind="markProps")
+    strategy-plan-frame(split)
+    p.spd-foot(v-if="runningFoot") {{ runningFoot }}
     h3.spd-h {{ $t('strategyPlanner.plan.agenda') }}
     ol.spd-agenda
       li.spd-agenda-item(v-for="(step, i) in steps" :key="'a' + i")
@@ -24,6 +27,8 @@ article.spd(:style="frameStyle")
   template(v-for="(step, i) in steps")
     section.spd-page.is-divider(:key="'d' + i")
       strategy-plan-mark(v-bind="markProps")
+      strategy-plan-frame(split)
+      p.spd-foot(v-if="runningFoot") {{ runningFoot }}
       p.spd-step {{ $t('strategyPlanner.plan.step', { n: i + 1 }) }}
       h3.spd-divider-h {{ step.name }}
       //- A step announces itself twice only where there IS something to teach
@@ -36,6 +41,8 @@ article.spd(:style="frameStyle")
     template(v-for="item in step.items")
       section.spd-page.is-teach(v-if="item.summary || item.prompts.length" :key="'t' + i + item.key")
         strategy-plan-mark(v-bind="markProps")
+        strategy-plan-frame(split)
+        p.spd-foot(v-if="runningFoot") {{ runningFoot }}
         p.spd-kind {{ $t('strategyPlanner.plan.teach') }}
         h3.spd-h {{ item.name }}
         //- 🔴 THE GRAPHIC, where the approved drawing puts it
@@ -72,6 +79,8 @@ article.spd(:style="frameStyle")
 
     section.spd-page.is-divider(v-if="step.teaches && step.works !== false" :key="'d2' + i")
       strategy-plan-mark(v-bind="markProps")
+      strategy-plan-frame(split)
+      p.spd-foot(v-if="runningFoot") {{ runningFoot }}
       p.spd-step {{ $t('strategyPlanner.plan.step', { n: i + 1 }) }}
       h3.spd-divider-h {{ step.name }}
       p.spd-divider-kind {{ $t('strategyPlanner.plan.actionPoints') }}
@@ -83,6 +92,8 @@ article.spd(:style="frameStyle")
     template(v-for="item in step.items")
       section.spd-page.is-capture(v-if="item.hasTable !== false" :key="'c' + i + item.key")
         strategy-plan-mark(v-bind="markProps")
+        strategy-plan-frame(split)
+        p.spd-foot(v-if="runningFoot") {{ runningFoot }}
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
@@ -142,12 +153,16 @@ article.spd(:style="frameStyle")
   template(v-if="closing.length")
     section.spd-page.is-divider
       strategy-plan-mark(v-bind="markProps")
+      strategy-plan-frame(split)
+      p.spd-foot(v-if="runningFoot") {{ runningFoot }}
       p.spd-step {{ $t('strategyPlanner.rail.objectives') }}
       h3.spd-divider-h {{ $t('strategyPlanner.plan.closingHeading') }}
 
     template(v-for="item in closing")
       section.spd-page.is-capture(:key="'x' + item.key")
         strategy-plan-mark(v-bind="markProps")
+        strategy-plan-frame(split)
+        p.spd-foot(v-if="runningFoot") {{ runningFoot }}
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
@@ -186,12 +201,13 @@ article.spd(:style="frameStyle")
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
 import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
+import StrategyPlanFrame from '~/components/strategy/StrategyPlanFrame.vue'
 import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyPlanDocument',
 
-  components: { StrategyConceptGraphic, StrategyOrgChart, StrategyPlanMark },
+  components: { StrategyConceptGraphic, StrategyOrgChart, StrategyPlanMark, StrategyPlanFrame },
 
   props: {
     /** The client this plan belongs to. */
@@ -267,8 +283,7 @@ export default {
       return {
         name: this.firmName,
         logo: this.firmLogo,
-        colour: this.firmColour,
-        foot: this.runningFoot
+        colour: this.firmColour
       }
     },
 
@@ -384,13 +399,9 @@ export default {
    the mark paints over it because it comes later in the document order.
    Found 2026-09-22 — Mike: "border has no relief around the outside, border has no break
    in lower left corner - logo not inside border section bottom left." */
-.spd-page::before {
-  content: '';
-  position: absolute;
-  inset: 0.542cqw;                      /* 3.9 / 720 — the relief */
-  border: 0.986cqw solid var(--spd-firm, #0070c0);   /* 7.1 / 720 — the bar */
-  pointer-events: none;
-}
+/* The frame is `StrategyPlanFrame` — five bars ported from the approved drawing. A CSS
+   border lived here and could not be inset from the sheet, could not break for the logo,
+   and could not be stood on. See that component. */
 
 .spd-page {
   position: relative;
@@ -423,6 +434,19 @@ export default {
    needs no number — his own title page has none. */
 .spd-page.is-title::after { content: none; }
 
+/* ── copied from the approved drawing, `.deck .note` ── */
+.spd-foot {
+  position: absolute;
+  left: 3.986%;
+  top: 84.173%;
+  margin: 0;
+  font-size: 11px;
+  font-size: 1.25cqw;
+  color: #434343;
+}
+.spd-page.is-divider .spd-foot { color: #cfe0f2; }
+.spd-page.is-teach .spd-foot { display: none; }
+
 /* 🔴 THE MARK'S WHITE PLATE IS A GAP IN THE BORDER, AND ONLY A WHITE SHEET HAS ONE.
    On the navy step dividers it rendered as a white rectangle floating over the dark
    page — found by opening the app, invisible to every assertion. There the border is
@@ -433,7 +457,7 @@ export default {
    to be the colour of the sheet it breaks. On a white page that is white; on a navy step
    divider it is the navy, or the break would read as a white brick rather than a gap.
    It was switched OFF on dividers, which removed the break there entirely. */
-.spd-page.is-divider .spm { --spm-plate: #002b64; }
+
 .spd-page.is-divider >>> .spm-name { color: #fff; }
 
 /* 🔴 DECISION A, RULED WITH THE DRAWING — A TEACHING PAGE CARRIES ONE FRAME AND ONE
@@ -444,7 +468,7 @@ export default {
    no assertion could see it.
    The border is kept at full width and made transparent rather than removed, so the
    content box does not shift between a teaching page and any other. */
-.spd-page.is-teach::before { display: none; }
+.spd-page.is-teach .spf { display: none; }
 .spd-page.is-teach .spm { display: none; }
 /* ⚠ AND IT RECLAIMS THE FOOT. The deep bottom padding exists to keep a growing page's
    last line out from under the mark — a teaching page has no mark, so the padding only
