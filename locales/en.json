@@ -4095,9 +4095,8 @@
     "currency": {
       "label": "Preferred currency",
       "managedNote": "Set by your firm manager",
-      "relabelNote": "Figures are relabelled, not converted — the amounts do not change.",
-      "saved": "Reports now show {name} ({symbol}). This applies to every model in your account. Figures are relabelled, not converted — the amounts do not change.",
-      "saveError": "Could not save the currency. Please try again."
+      "setInHub": "Change it on the Currency tab of your Firm Manager Hub",
+      "relabelNote": "Figures are relabelled, not converted — the amounts do not change."
     },
     "class": {
       "education": "Teaching tool",
@@ -4870,6 +4869,19 @@
   "firmAdviserNetwork": {
     "tab": "Advisor Network",
     "lede": "Everyone advising under your firm: who they are, the specialty groups they have asked to join, and whether they may work with advisors outside the firm."
+  },
+  "firmCurrency": {
+    "tab": "Currency",
+    "lede": "The currency every report in your account is labelled in. You set it here; your advisors see it on the Model Library but cannot change it.",
+    "label": "Preferred currency",
+    "loading": "Reading your firm's currency…",
+    "loadFailed": "Your firm's currency setting could not be reached, so this page cannot show which one is in use. This is a fault — your setting has not been lost.",
+    "retry": "Try again",
+    "relabelNote": "Figures are relabelled, not converted — the amounts do not change.",
+    "usingDefault": "Your firm has not chosen a currency, so reports use the platform default.",
+    "whereElse": "An advisor can set a different currency for one client, on that client's own report. That choice overrides this one for that client only.",
+    "saved": "Reports now show {name} ({symbol}). This applies to every model in your account. Figures are relabelled, not converted — the amounts do not change.",
+    "saveError": "Could not save the currency. Please try again."
   },
   "modelChoices": {
     "tab": "Model Choices",

@@ -669,27 +669,6 @@
       "comment": "2026-09-22 - filed first as a per-CLIENT currency needing a schema change and 40 components, scored 4. Mike corrected the shape the same day: currency stays at firm level, conversion is per model where a primary currency is already entered. The app already worked that way, so the item shrank to the rule and the label and dropped to score 2. Sibling of 13.1 and 13.3."
     },
     {
-      "ref": "13.3",
-      "name": "The currency picker is the one manager setting outside the hub",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness - nobody sees it until they go looking for the setting",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Currency is manager-gated and account-wide, so it belongs with the firm's other settings. It sits on the Model Library screen instead, so a manager looking for it in the Firm Manager Hub does not find it.",
-      "risk": "A manager cannot find a setting that is theirs, in the one place every comparable setting lives. It also breaks the pattern the hub exists to hold - one place a firm is configured - and that is how the next setting ends up in the wrong place too.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - in his own words, after both limits were shown to him as recorded boundaries rather than tasks: \"lets be clear - BOTH those issues must be fixed, add them to the to do list.\""
-      },
-      "touches": "components/FirmManagerHub.vue TAB_TIERS and NAV_GROUPS for the new tab; tests/unit/hubTabTiers.test.js, which fails the build until the key and its ruling are recorded; a new components/firm/ body component; components/ModelLibrary.vue where the picker sits today; server/routes/currency.js, already manager-gated and needing no change.",
-      "note": "🔴 ONE QUESTION FOR MIKE BEFORE ANY CODE: does the picker MOVE to the hub, or appear in BOTH - the hub to set it, the Model Library read-only so a reader still sees which currency a report is in. Moving it outright removes that cue. ⚠ Tiers are a stated judgement, not an assumption: the firm tier, since currency is a firm decision and the mentor has no currency of its own. No backend change needed.",
-      "comment": "2026-09-22 - surfaced while answering Mike on the language/currency split, recorded in the Brief as a stated boundary, then filed on his instruction that it must be fixed. Smallest of the three siblings in effort, but it waits on his move-or-mirror answer before anything is built."
-    },
-    {
       "ref": "15.13",
       "name": "No import button pulls the forecast and performance figures into a planning session",
       "rankedByMike": false,

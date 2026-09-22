@@ -260,9 +260,24 @@ firm's, with conversion still inside a model on `fxAllowancePct`. One is what a 
 the other is what a figure is *worth*. Both rulings are Mike's, both stand, and they are about
 different things.
 
-**The currency picker sits on the Model Library screen, not the Firm Manager Hub — 🔴 ON THE LIST AS
-`13.3`.** Manager-gated by `requireManagerRole`, but beside the reports it governs rather than with
-the firm's other settings. It is the one manager-owned setting outside the hub.
+✅ **THE FIRM'S CURRENCY IS SET ON THE FIRM MANAGER HUB, AND SHOWN ON THE MODEL LIBRARY — item
+`13.3`, built 2026-09-23.** It was the one manager-owned setting living outside the hub, so a
+manager looking for it where every comparable setting lives did not find it.
+
+🔴 **IT APPEARS IN BOTH PLACES, AND THAT IS MIKE'S RULING OF 2026-09-23 RATHER THAN A COMPROMISE.**
+The question put to him was move-or-mirror. **The Hub's Currency tab is where a manager SETS it**
+([`components/firm/FirmCurrency.vue`](../../components/firm/FirmCurrency.vue), under *Model Inputs*,
+**firm tier alone** — the mentor has no currency of its own and neither a brand nor a country has
+one value to hold for firms that may report differently). **The Model Library keeps showing it,
+read-only, for every role** — moving it outright would have removed the one cue telling a reader
+which currency the reports in front of them are in.
+
+**The two screens say different things to different people, deliberately.** A manager reads
+*"Change it on the Currency tab of your Firm Manager Hub"*; an advisor reads *"Set by your firm
+manager"*. Telling an advisor to visit a hub they cannot open would be worse than saying nothing.
+
+**No backend change was needed** — `POST /api/report/currency` was already manager-gated, so
+nothing about who may write the setting moved with the control.
 
 > ⚠ **Both were written here as *"recorded boundaries, not filed"* and that was wrong.** They were
 > surfaced to Mike as things we had noticed and deliberately not turned into tasks. His answer:

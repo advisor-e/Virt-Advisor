@@ -202,6 +202,31 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.3 — the currency picker was the one manager setting outside the hub.**
+✅ Closed 2026-09-23. Filed on Mike's instruction of 2026-09-22: *"lets be clear - BOTH those
+issues must be fixed, add them to the to do list."*
+
+**It waited on one question, and his answer was BOTH, not move.** Asked whether the picker
+should move to the hub or appear in both places, he ruled on 2026-09-23 that the **Hub sets it**
+and the **Model Library keeps showing it read-only** — moving it outright would have removed the
+one cue telling a reader which currency the reports in front of them are in.
+
+**Firm tier alone, stated rather than assumed.** The mentor has no currency of its own — it sits
+above every firm and reports in none — so a mentor picker would set one firm's display setting on
+behalf of all of them, which is the Property Tax Rules case he had already ruled on. A brand
+spans countries and a country's firms may still report differently, so neither middle tier has
+one value to hold. `firmOverlay` already carries a row per scope, so adding a tier later is the
+whole of the change.
+
+**No backend change.** `POST /api/report/currency` was already manager-gated, so nothing about
+who may write the setting moved with the control. The two screens say different things to
+different people on purpose: a manager is told *where* to change it, an advisor *who* sets it.
+
+⚠ **13.1's relabel sentence nearly went with the picker.** Deleting the old save confirmation
+would have taken the load-bearing *"Figures are relabelled, not converted"* line with it. The
+wording guard caught it — that test exists for exactly this and is the one named exception to
+the no-asserting-wording rule. The sentence now lives on both screens and in the confirmation.
+
 **13.4 — an advisor could not set a currency for one client.**
 ✅ Closed 2026-09-22. Drawn, approved and built the same day. Mike's ruling: *"currency is
 selected at firm manager level and cascades down to the client level model library but at

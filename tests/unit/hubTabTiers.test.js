@@ -124,6 +124,18 @@ const MENTOR_BEFORE = [
  *   ⚠ The THREE ADVISOR Sales Tracker screens are deliberately not hub tabs at any tier: the
  *   hub sits behind `requireManagerRole`, so a tab would put an advisor's own tool where its
  *   users cannot reach it (Mike's ruling 2026-09-21).
+ * - `currency` — Mike, 2026-09-22: *"BOTH those issues must be fixed, add them to the to do
+ *   list"*, and his ruling of 2026-09-23 that the picker appears in BOTH places — the Hub to
+ *   SET it, the Model Library read-only so a reader can still tell which currency a report is
+ *   in. 🔴 **THE FIRM ALONE, and stated rather than assumed** (the default since 2026-08-24 is
+ *   the mentor alone; this is neither). The setting is account-wide, stored per firm, and its
+ *   write route was already manager-gated. **The MENTOR has no currency of its own** — it is
+ *   above every firm and reports in none — so a mentor picker would set one firm's display
+ *   setting on behalf of all of them, which is the Property Tax Rules case Mike already ruled
+ *   on. The two MIDDLE tiers are excluded more narrowly: a brand spans countries and a
+ *   country's firms may still report in different currencies, so neither has one value to
+ *   hold. Cascading becomes mandatory the day a group needs a default for its firms;
+ *   `firmOverlay` already carries a row per scope, so adding a tier here is the whole change.
  * - `modelChoices` — Mike, 2026-09-16, Decision 3 of `design/mockups/model-choices.html`
  *   (item 7.5). 🔴 **ALL FOUR TIERS, AND THE RULING REVERSED THE RECOMMENDATION PUT TO HIM**,
  *   which was the mentor alone. The argument for mentor-alone was that no other tier could act
@@ -134,7 +146,7 @@ const MENTOR_BEFORE = [
  *   other three stop at the group tier. Named on the drawing before it was found, and put to
  *   Mike as a visible change to their hub.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and

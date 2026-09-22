@@ -277,7 +277,15 @@ describe('the two tiers are recognisably the same screen', () => {
   // so the mentor has no advisors of its own selling and no prospect list to hold. They sit
   // after `Team Case Studies` because both are appended to "Your Team In Action", where
   // Session Processes already sits — menu order, per the note above.
-  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Team Pipeline', 'Sales Tracker Lists', 'Property Tax Rules', 'outcomeConsent.tab']
+  // ⚠ AMENDED 2026-09-23, and the list is now NINE. `firmCurrency.tab` is the currency
+  // picker's new home (item 13.3, Mike 2026-09-22 — it was the one manager-gated setting
+  // living outside the Hub). FIRM-ONLY as a stated judgement: the mentor has no currency of
+  // its own, and a brand or a country has no single value to hold for firms that may report
+  // in different ones. It sits LAST because it is appended to "Model Inputs" — menu order,
+  // per the note above. 🔴 It does NOT leave the Model Library: Mike ruled on 2026-09-23
+  // that the picker appears in BOTH, the Hub to set it and the library read-only, so a
+  // reader can still tell which currency a report is in.
+  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Team Pipeline', 'Sales Tracker Lists', 'Property Tax Rules', 'firmCurrency.tab', 'outcomeConsent.tab']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
   //
@@ -465,7 +473,11 @@ describe('the hub menu — the sidebar itself', () => {
     // ⚠ 22 SINCE 2026-09-23, when Model Choices joined (item 7.5, Decision 3 — all four
     // manager tiers). Appended as the very last tab, under a heading the firm sees for the
     // first time, so the four index assertions below are untouched once again.
-    expect(tabLabels(wrapper)).toHaveLength(22)
+    //
+    // ⚠ AND 23 THE SAME DAY, when Currency joined the END of "Model Inputs" (item 13.3 —
+    // the one manager-gated setting that was living outside the Hub, on Mike's ask of
+    // 2026-09-22). Firm-only, appended again, so the four index assertions still hold.
+    expect(tabLabels(wrapper)).toHaveLength(23)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.

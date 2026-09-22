@@ -738,6 +738,18 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('outcomeLearning')" v-show="activeTab === 'outcomeLearning'")
         mentor-outcome-learning(:api-token="apiToken")
 
+      //- ── Tab: Currency (item 13.3) ──────────────────────────────────
+      //- The currency every report in the account is labelled in. It was the one
+      //- manager-gated setting living outside the Hub, so a manager looking for it
+      //- where every comparable setting lives did not find it (Mike, 2026-09-22).
+      //- 🔴 IT STILL APPEARS ON THE MODEL LIBRARY, READ-ONLY — Mike's ruling of
+      //- 2026-09-23. The Hub is where it is SET; the Model Library keeps showing it
+      //- so a reader can still tell which currency a report is in. Firm tier; see
+      //- TAB_TIERS.currency. No backend change — the write route was already
+      //- manager-gated (server/routes/currency.js).
+      div.hub-panel(v-if="showsTab('currency')" v-show="activeTab === 'currency'")
+        firm-currency(:api-token="apiToken")
+
       //- ── Tab: Model Choices (item 7.5) ──────────────────────────────
       //- Which calculation model the AI sent an advisor to, and when it said none
       //- fits. Until this existed, the ONLY way to check the AI's judgement was for
@@ -985,6 +997,7 @@ import FirmOutcomeConsent from '~/components/firm/FirmOutcomeConsent.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
+import FirmCurrency from '~/components/firm/FirmCurrency.vue'
 import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
 import FirmTemplateLibrary from '~/components/firm/FirmTemplateLibrary.vue'
 // Mentor-scope tab bodies. Both are inert at firm scope (their tabs are v-if'd
@@ -1131,6 +1144,27 @@ const TAB_TIERS = {
   // and `parentScopeOf` already walks the chain, so adding a tier is the whole change.
   salesTeam: ['firm'],
   salesLists: ['firm'],
+
+  // 🔴 THE FIRM ALONE, AND THE JUDGEMENT IS STATED RATHER THAN ASSUMED (the default
+  // since 2026-08-24 is the mentor alone; this is neither). Item 13.3, on Mike's ask
+  // of 2026-09-22 that the currency picker belongs with the firm's other settings.
+  //
+  // A firm is the ONLY tier with a real answer here. The setting is account-wide and
+  // stored per firm (`firmOverlay`, config_key 'currency'), and the write route is
+  // already manager-gated. THE MENTOR HAS NO CURRENCY OF ITS OWN — it is above every
+  // firm and reports in none — so a mentor-tier picker would be editing one firm's
+  // display setting on behalf of all of them, which is the Property Tax Rules problem
+  // Mike already ruled on ("the mentor has no country of its own to speak for").
+  //
+  // The two MIDDLE TIERS are excluded for a narrower reason: a brand spans countries
+  // and a country's firms may still report in different currencies, so neither has one
+  // value to hold. Cascading becomes mandatory the day a group has a real reason to set
+  // a default for its firms; `firmOverlay` already carries a row per scope, so adding a
+  // tier here is the whole of the change.
+  //
+  // ⚠ THIS GATES THE TAB, NOT THE PERMISSION. `POST /api/report/currency` keeps its own
+  // `requireManagerRole`; hiding a tab is navigation, refusing a route is a permission.
+  currency: ['firm'],
 
   // 🔴 ALL FOUR MANAGER TIERS, RULED BY MIKE 2026-09-16 (Decision 3 of
   // design/mockups/model-choices.html), and the ruling REVERSED the recommendation
@@ -1570,7 +1604,17 @@ const NAV_GROUPS = [
       // on Mike's ruling of 2026-09-11; see TAB_TIERS.countrySchedules. A separate entry from
       // the two above it on purpose: Depreciation Rates is a firm's own documents and its own
       // six rates, and this is the country-wide library those six are chosen FROM.
-      { key: 'countrySchedules', label: 'Country Rate Schedules' }
+      { key: 'countrySchedules', label: 'Country Rate Schedules' },
+      // Item 13.3, on Mike's ask of 2026-09-22: *"BOTH those issues must be fixed"*.
+      // Under THIS heading because the currency every figure is labelled in is an input
+      // every model uses, and it sits beside the other per-country settings a manager
+      // holds. Appended at the end, as every line above it was.
+      //
+      // ⚠ IT DOES NOT LEAVE THE MODEL LIBRARY — Mike's ruling, 2026-09-23: the Hub is
+      // where a manager SETS it, and the Model Library keeps showing it read-only so a
+      // reader can still tell which currency a report is in. Moving it outright would
+      // have removed that cue. Firm tier; see TAB_TIERS.currency.
+      { key: 'currency', i18n: 'firmCurrency.tab' }
     ]
   },
   {
@@ -1664,7 +1708,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
   mixins: [traceReasonMixin],
 
