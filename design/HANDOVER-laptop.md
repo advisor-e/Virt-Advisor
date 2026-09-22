@@ -11,84 +11,68 @@
 
 ## 2026-09-22 · Laptop · branch `feat/advisor-progress`
 
-**Clean, merged with your PRs #112 and #113, pushed, and raised as a PR to `master` on Mike's
-instruction — *"i want everything here completely aligned with desktop"*.** Suite **13,414 green**
-(603 suites), lint 0 errors. **NOTHING WAITS ON MIKE.**
+**Clean and pushed. Suite 13,461 green (608 suites), lint 0 errors, audit gate clean.**
+**PR #116 is OPEN and NOT merged** — everything below is on the branch and on GitHub, and
+none of it has reached `master`. Merging it is Mike's call and he has not given it.
 
-### 🔴 STAGE 7 OF ITEM 15.1 IS NOT WHAT IT SAID. Mike redirected it himself.
+### Item 16.2 is BUILT — the firm's brand on the plan and on the planner
 
-It read *"calculators run inside the card"*. He asked *"as an advisor, in a session with a client,
-how do i leave the session to look at something else and return back to my screen afterwards?"* —
-**and you cannot.** Leave the planner for any reason and you came back to a blank Scope screen with
-no way into the session you were running, while a second *Build the session* opened an **empty
-duplicate** for the same client. His words: *"or, simply make stage 7 - building the door?"*
+`GET /api/report/firm/brand` serves `firmBrand()` (no screen — the values are Advisor-e's,
+his 2026-08-15 ruling). `pages/strategy-planner.vue` binds the three firm props, which
+closes the second fault filed on the item. `StrategyPlanDocument` carries the frame, the
+mark and the page number; the five planner screens carry the frame and the mark too.
 
-**THE CALCULATORS ARE PARKED, NOT DELETED.** His patchwork ruling of 2026-09-16 stands verbatim in
-Brief **§7a**. ⚠ It is **TWO frameworks, not three** — *"Revenue Model"* is a master-app template
-topic with no page, no model and no route here. Do not re-derive the count from the names.
+### 🔴 READ THIS BEFORE TOUCHING THE FRAME OR THE MARK
 
-**All five decisions settled the same day** on
-[`mockups/strategy-session-resume.html`](mockups/strategy-session-resume.html) (published,
-registered). A, B, D, E ruled; **C dropped on his own challenge** — *"each session relates to a
-single client - tell me why i need this feature"*. There is **no "finished" flag anywhere** and
-that is now the settled design, not a gap.
+**THE VALUES COME FROM `design/mockups/strategy-plan-firm-mark.html`, CHARACTER FOR
+CHARACTER. DO NOT RECOMPUTE THEM FROM `Advance.6.Organisational Review.pdf`.** Seven
+versions were built and rejected in one session, and every one of them was re-derived
+from the PDF instead of ported from the drawing Mike had already approved. Each rebuild
+lost something different — the relief, then the break, then the logo's place on the bar,
+then the proportions. The rule is written at the top of both components. Follow it.
 
-### 🔴 THREE TRAPS — DO NOT PAY FOR ANY OF THESE TWICE
+**A CSS BORDER CANNOT DO THIS JOB and six versions used one.** It cannot be inset from
+the sheet (no relief outside it), cannot break for the logo, and cannot be stood on. The
+frame is `StrategyPlanFrame.vue` — five bars: top, left, right, and a foot that is either
+whole or Mike's two pieces with the logo's box between them.
 
-**1. NEVER SAVE FROM `@input.native`.** The capture boxes were saving **once per keystroke** —
-Buefy's Input emits from the native event unless `lazy` is set, and neither box passed it. Measured
-at **62 saves for a 62-character sentence**, each its own `PUT /entries` and database write, fired
-without awaiting one another so a slow line could store a **half-typed answer**. Fixed with `lazy`,
-mutation-verified. `@input.native` now exists on three components and carries **no network call at
-all** — it only tells the page there are unsaved words. Turning it into a save restores the defect.
-`tests/unit/strategyCaptureSaveRate.test.js`.
+**Mike's ruling, 2026-09-22, for screens:** *"i dont care about the page size until it
+comes to printing. so long as the border is same distance from outer edge, has the logo
+in bottom left as agreed."* So on a screen the inset and thickness come from the WIDTH on
+all four sides; every x position is the drawing's, untouched. The printed sheet keeps the
+drawing's own height-based values, because a sheet has a fixed shape.
 
-**2. THE SESSION STORE STRIPS THE `Z`, SO ITS TIMES ARE UTC AND NOTHING SAYS SO.** `now()` in
-`server/utils/strategySessionStore.js` writes MySQL `DATETIME` shape. Passed to `new Date()` in a
-browser it reads as **local** — twelve hours out here. The stamp showed *"Saved 4:10 AM"* for a
-4:10 PM save, and an evening session would have shown the **wrong day**. Use `storeTime()` in
-`pages/strategy-planner.vue`, which also refuses to double-zone an already-ISO string.
+### ⚠ UNRESOLVED, AND IT IS WHY THE SESSION ENDED
 
-**3. `git show` HANDS BACK **LF**; THE WORKING FILE IS **CRLF**.** Splitting on the wrong one gives
-one line and every index check passes on nothing — your own 2026-09-22 warning, hit again resolving
-today's merge. Also: **bound a JSON record by BRACE DEPTH, never by a line trimming to `},`** —
-item 17's nested `askedBy` closes exactly that way and a text scan cut the record in half.
+Mike's last report: *"first 2 slides only in the produce plan - the rest was no change.
+no change at all in the rest of the app."* **Measured in a fresh browser against the
+running app, that is not what renders:** all 13 sheets carry the frame and the mark, and
+only the teaching page hides its frame — which is Decision A, his own ruling, because the
+concept drawing inside already carries one. **The likeliest explanation is a cached
+build in his browser, and it was never confirmed.** Do not assume it is fixed. Ask him,
+and get him to hard-refresh before anything is changed on the strength of it.
+
+**"No change at all in the rest of the app" is accurate and expected** — the frame was
+scoped to the Strategy Planner, because that is what he asked for. Nothing outside it was
+touched. Whether it should spread further is his decision and he has not made it.
+
+### Also in this branch
+
+Item 13.4 and 13.1 came across from the desktop in the merge. Three stale records were
+corrected: stage 7 of item 15.1 was recorded as unbuilt in `to-do-items.json`,
+`ARTEFACTS.md` and the Brief when it had shipped the day before.
 
 ### SHARED FILES I TOUCHED — check before you edit
 
-`pages/strategy-planner.vue` (substantial: the resume bar, reopen, the Saved stamp, auto-save,
-`storeTime`, the session id in the address bar) · `components/strategy/StrategyConceptCapture.vue`,
-`StrategyCaptureBox.vue`, `StrategyCaptureCard.vue` (all three: `lazy` and/or `@input.native`) ·
-`locales/en.json` (`strategyPlanner.resume`, `.save`, `errors.reopenFailed`) ·
-`ARTEFACTS.md` · `features/strategy-planner.md` (§0 stage 7 rewritten, **new §7a**) ·
-`features/to-do-items.json` · the two generated files. **Your item 13.4 and 16 files untouched.**
+`pages/strategy-planner.vue` (substantial: the firm props, `--sp-firm`, the sheet wrapper
+around all five stages, the print rules) · `components/strategy/StrategyPlanDocument.vue` ·
+**new** `StrategyPlanFrame.vue`, `StrategyPlanMark.vue` · **new** `server/routes/firmBrand.js`
+· `server/restify-server.js` · `design/ARTEFACTS.md` · `design/features/to-do-items.json` ·
+`design/features/strategy-planner.md` · **new** `design/mockups/strategy-plan-firm-mark.html`
+· two new test files.
 
-### ⚠ `Leave session` IS DRAWN AND NOT BUILT — AND WE ARE NOT ASKING ADVISOR-E FOR IT
+### ⚠ LOCAL TO THIS LAPTOP, NOT IN GIT
 
-Our pages carry **no navigation at all** (`layouts/default.vue` is four lines), so the way out is
-Advisor-e's menu and this app does not hold that address. With none, **the button is not rendered**
-— do not build it inert.
-
-🔴 **Mike, 2026-09-22:** *"we dont need to ask the master coding team the address for main menu."*
-A question drafted for them and a config seam built for their answer were **both removed on his
-word** — the integration email is back to **eight** questions and `ADVISOR_E` carries `pageBaseUrl`
-alone. **Do not re-raise it with them.** Where the button goes is his call and is still open; the
-drawing carries the ruling.
-
-### Also done
-
-**Item 17 removed from the live list** — its closure was written up on the done-and-parked page but
-the item was never taken off, so the sales tracker read as finished *and* still to do. The list is
-**33 items**; your 14.4 and your 13.1 closure both survived today's merge, verified by ref.
-
-🔴 **FOUR FAULTS FOUND BY OPENING THE APP, none visible to 13,414 assertions** — *"1 concepts
-scoped"*; *"0 steps named"* beside a session holding five (seeded steps were saved only if the
-advisor EDITED them, so reopening would have rebuilt them from the firm's CURRENT standard); a raw
-`porters-5-forces` on screen; and the UTC time above. **Run it, don't trust the suite.**
-
-**`activeOn`: 7.5 and 15.1 laptop — both still in hand.** **NEXT on 15.1: stage 8**, a manager
-adding a concept. Stage 7 is done bar `Leave session`.
-
-⚠ **LOCAL TO THIS LAPTOP, NOT IN GIT:** `data/dev-strategy-sessions.json` now holds **140+ sessions**
-for Harbour Joinery, one per dev run. Fabricated, and incidentally a neat demonstration of the
-defect stage 7 fixes — every one was unreachable the moment its page was left.
+`data/dev-firm-currency.json` holds a stale `firm-test-123` entry from 2026-08-22 that
+broke two of the desktop's currency tests here and passed on the desktop. The test now
+stubs the read; the entry is still on disk. Same family as item 5.3.
