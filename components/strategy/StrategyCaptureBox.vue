@@ -22,15 +22,30 @@
           rect(x="6" y="6" width="12" height="12" rx="2")
         | {{ $t('voice.stopRecording') }}
 
+  //- 🔴 TWO EVENTS, AND ONLY ONE OF THEM SAVES.
+  //- `@input` is Buefy's, made to fire on LEAVING the box by `lazy` below — that is the
+  //- save. `@input.native` is the raw keystroke, and it sends NOTHING anywhere: it tells
+  //- the page there are words not yet written out, so the Saved stamp can say so
+  //- (Decision E) and the pause timer can start (Decision D, "yes - auto save").
+  //- ⚠ NEVER SAVE FROM `@input.native`. That is the 2026-09-22 defect exactly.
+  //-
+  //- 🔴 `lazy` IS LOAD-BEARING — see the same note in StrategyConceptCapture.vue.
+  //- Without it Buefy emits `input` from the native event, so this box saves once per
+  //- keystroke — one `PUT /entries` and one database write per character, fired without
+  //- awaiting each other, which on a slow line can store a half-typed answer. With it,
+  //- the box saves when the advisor leaves it, which is what the JSDoc on
+  //- `onFieldChanged` always claimed. Pinned by tests/unit/strategyCaptureSaveRate.test.js.
   b-input(
     :id="'scb-' + field.key"
     :type="singleLine ? 'text' : 'textarea'"
+    lazy
     :rows="singleLine ? null : rows"
     :size="singleLine ? 'is-small' : null"
     :value="value"
     :placeholder="field.example"
     @focus="$emit('focus-field', field)"
     @input="$emit('input-field', field, $event)"
+    @input.native="$emit('typing-field', field, $event.target.value)"
   )
 </template>
 

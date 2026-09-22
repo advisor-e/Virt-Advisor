@@ -5954,7 +5954,8 @@
       "saveFailed": "That box could not be saved. What you typed is still on screen; try again before moving on.",
       "startFailed": "The session could not be opened. Choose a client and try again — nothing you have ticked has been lost.",
       "stepsSaveFailed": "Your steps could not be saved. They are still on screen — try moving something again before you run the session.",
-      "clientsFailed": "Your clients could not be loaded, so a session cannot be opened yet."
+      "clientsFailed": "Your clients could not be loaded, so a session cannot be opened yet.",
+      "reopenFailed": "That session could not be reopened. Nothing you typed has been lost — try again, or start a new session."
     },
     "chooseClient": "Which client?",
     "toObjectives": "Objectives and actions",
@@ -5993,6 +5994,27 @@
       "byGlobalGroupManager": "set by your global group manager",
       "byGroupManager": "set by your group manager",
       "byFirmManager": "set by your firm manager"
+    },
+    "resume": {
+      "heading": "You have a session for {client} from {when}",
+      "facts": "{concepts} · {steps} · {who}",
+      "startedBy": "started by {name}",
+      "startedByUnknown": "advisor not recorded",
+      "reopen": "Reopen this session",
+      "reopenShort": "Reopen",
+      "startNew": "Start a new session",
+      "earlier": "{count} earlier session | {count} earlier sessions",
+      "whenUnknown": "an earlier date",
+      "landed": "Reopened where you left off — {concept}. Everything you had typed is here. ",
+      "backToScope": "Back to Scope session",
+      "conceptsScoped": "{count} concept scoped | {count} concepts scoped",
+      "stepsNamed": "{count} step named | {count} steps named"
+    },
+    "save": {
+      "button": "Save session",
+      "saved": "Saved",
+      "saving": "Saving…",
+      "unsaved": "Unsaved changes"
     }
   },
   "sessionProcess": {

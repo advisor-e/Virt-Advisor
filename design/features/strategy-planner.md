@@ -735,8 +735,40 @@ it, watches the menu confirm it, and never sees it again. `goToStage` now fetche
 scope before leaving. **The feature would have been broken by the thing it was built for.**
 
 | **6** | ☑ **THE AI PRE-TICK — BUILT 2026-09-22.** `server/utils/strategyPretick.js` (the prompt, and the validator every reply passes through — 100% covered, as the standards require of anything that processes LLM output), `POST /api/strategy/suggest`, and the suggestion stored beside the ticks in `scope_json`. **No mockup was drawn: the screen's own approved drawing already carries the button, the bar and Decision C** — the full account, the measurement and the three deviations are at the head of this section. | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | **Measured, not asserted:** five client situations gave five different lists (overlap 0.14–0.50, one concept of 52 common to all), **4 of Pivot's 9 on Mike's own client** with 3 reached unprompted, and **0 invented concepts**. Against a baseline of **0 pre-ticked and 52 rows read by hand**. 🔴 **AND THE ADVISOR'S JOB CHANGES SHAPE:** it offers 5–10, not 20, so the work is **adding a few rather than cutting many** — the opposite of what "23 to cut by hand" implies, and the screen is built for it. |
-| **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
+| **7** | 🔴 **THE DOOR — an advisor reopens the session they had open**, with its ticks, its named steps, its typed answers and the AI's suggestion restored. **Mike's own redirection, 2026-09-22:** *"or, simply make stage 7 - building the door?"* — after asking the question that exposed it, *"as an advisor, in a session with a client, how do i leave the session to look at something else and return back to my screen afterwards?"* | **His question, and the measured defect it found.** Stage 7 formerly read *"calculators run inside the card"*; that is **§7a below**, unbuilt and not scheduled. His patchwork ruling is unchanged and still governs how a calculator is built if one ever is. | **Today an advisor cannot come back at all.** They land on a blank Scope screen and a second *Build the session* opens an empty duplicate for the same client. It is wiring, not machinery: the session already stores everything and two firm-scoped routes already serve it, and **nothing on the screen calls either**. |
 | **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
+
+### 7a. The in-card calculators — what stage 7 used to be, and why it is not
+
+**Mike's ruling of 2026-09-16 stands and is not withdrawn.** Asked whether a session should
+link out to the frameworks that already have a calculator, he refused: *"no, it needs to feel
+inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **If a
+calculator is ever put in a concept card, that is how it is built** — hosting the existing
+report component on the **same backend route** the standalone page calls, so there is one
+engine, one golden test and two surfaces. Never a second copy of the maths.
+
+**It is not scheduled, and two things found on 2026-09-22 are why.**
+
+**First, it is two frameworks, not three.** This table read *"3 of the 52 have a supporting
+model"*, from the approved measurement's *"8 Profit Levers, Deming's Volatility, Revenue
+Model"*. Checked against the code, only two of those have a calculator in this repository:
+**The 8 Profit Levers** (`the-8-profit-levers` → [`pages/eight-levers.vue`](../../pages/eight-levers.vue),
+`server/report/eightLeversModel.js`, `POST /api/report/eight-levers`) and **E. Deming's
+Volatility Theory** (`e-demings-volatility-theory` → [`pages/volatility.vue`](../../pages/volatility.vue),
+`server/report/volatilityModel.js`). **"Revenue Model" is a master-app template topic**,
+appearing only in the read-only `Central Frameworks/search_content_*.json` export — no page, no
+`server/report/*Model.js`, no route. There is nothing here to host in a card.
+
+**Second, and this is what redirected the stage: it was solving a symptom.** Its stated gain was
+*"the advisor never leaves the session"* — which matters only because **leaving was a one-way
+door**. Embedding two calculators removes two reasons to leave and does nothing about the phone
+call, the client's own report, the back button or the laptop lid, for any of the other 50. Mike's
+own question found it and his own words redirected the stage. **Fix the door and this stops being
+urgent; build this and the door stays shut.**
+
+⚠ **Whoever picks this up later: do not re-derive the count from the names.** `8 Profit Levers`
+is a template title *and* `8 Levers Model` is a model name — the exact collision `CLAUDE.md`
+warns about, where a name alone can never say which was meant.
 
 ### What Stage 1 shipped, and the two differences from the drawing
 

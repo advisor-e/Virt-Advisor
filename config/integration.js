@@ -209,8 +209,44 @@ const CROSS_ORG = {
 // page inside the master dashboard, this one addresses a purchased marketplace tool.
 // Same host, different routes — confirm both with the master team before go-live.
 
+// SEAM (Q-RETURN-URL): where "Leave session" sends an advisor — Advisor-e's own main
+// menu. Mike's request, 2026-09-22: "i also want a 'leave session' button so i can
+// navigate back to the main advisor-e menu and look at other tools etc, then navigate
+// back to the page and reopen session." Our pages have NO navigation of their own
+// (layouts/default.vue is four lines), so the way back out is theirs, not ours.
+//
+// TWO WAYS IN, and the master team picks whichever is less work — question 9 of
+// design/MASTER-TEAM-INTEGRATION-EMAIL.md offers both:
+//
+//   (a) THEY APPEND `?returnUrl=…` to the link they already place to our page. Nothing
+//       is typed here, and it follows a white-labelled brand automatically, because the
+//       link that opened us came from that brand's own menu.
+//   (b) THEY SEND ONE FIXED URL, which is typed into `menuUrl` below.
+//
+// 🔴 (a) IS AN OPEN-REDIRECT SURFACE AND IS NEVER TRUSTED AS IT ARRIVES. A `returnUrl`
+// comes out of the address bar, so anyone can put anything in it — including a lookalike
+// login page, which is the one thing an advisor mid-session would not question. Any
+// implementation MUST check the host against `menuHostAllowList` before navigating, and
+// fall back to hiding the button rather than following an unrecognised host. A button
+// that goes nowhere is a nuisance; a button that goes somewhere hostile is a breach.
+//
+// ⚠ UNANSWERED, BOTH ARE NULL AND THE BUTTON IS NOT SHOWN AT ALL. That is deliberate and
+// it is the same rule the "Suggest for this client" button was fixed under on 2026-09-22:
+// a control that looks live and does nothing reads as a broken app, and a person cannot
+// tell it apart from a real failure.
+
 const ADVISOR_E = {
-  pageBaseUrl: process.env.ADVISOR_E_PAGE_BASE || 'https://app.advisor-e.com/p/'
+  pageBaseUrl: process.env.ADVISOR_E_PAGE_BASE || 'https://app.advisor-e.com/p/',
+
+  // (b) — one absolute http(s) URL, or null while unanswered.
+  menuUrl: process.env.ADVISOR_E_MENU_URL || null,
+
+  // (a) — hosts a `returnUrl` may point at. Empty means "trust none", which is the
+  // safe direction to fail and the shipped state.
+  menuHostAllowList: (process.env.ADVISOR_E_MENU_HOSTS || '')
+    .split(',')
+    .map(h => h.trim().toLowerCase())
+    .filter(Boolean)
 }
 
 // ── Firm branding on a client's document (item 16) ───────────────────────────
