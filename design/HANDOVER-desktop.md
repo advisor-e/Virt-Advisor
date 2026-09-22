@@ -11,48 +11,46 @@
 
 ## 2026-09-22 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Item 17 stage 4 COMPLETE.** Clean, pushed, 2 ahead / 0 behind. Suite **12,963 green**.
-Merged master's 12 commits (the laptop's org-chart work) at session start — fast-forward, no
-conflicts. **Next: stage 5, the blog tool.**
+**ITEM 17 IS COMPLETE AND MERGED — [PR #109](https://github.com/advisor-e/Virt-Advisor/pull/109).**
+Clean, pushed, 5 ahead / 0 behind. Suite **13,197 green** (596 suites). Nothing is in hand on this
+machine; `activeOn` is clear. **Your 7.5 and 15.1 untouched.**
 
-Built: the firm-wide Team roll-up and the ten dropdown lists (5 routes, 3 backend files, 2
-screens), as **two Firm Manager Hub tabs** under *Your Team In Action*, plus **`/sales-tracker`**
-— the advisor's landing page. Detail in Brief §10 stage 4 and §13.
+Stage 5's screen was built, then stage 6 **skipped on Mike's ruling** and stage 7 found **already
+done** — stages 2–5 had absorbed all three of its parts. Closure in `to-do-done-and-parked.md` §2.
 
-### 🔴 TWO RULINGS OF MIKE'S, BOTH BUILT AND PINNED
+### 🔴 LANGUAGES — I had this BACKWARDS, and so did a session before me
 
-**A firm manager sees EVERY deal in the firm, private ones included** — the question stage 1 left
-open. One read crosses the advisor boundary (`salesTeamStore.listForFirm`); the gate is
-server-side `requireManagerRole`, never the tab's presence.
+**The app translates into all 28 languages.** Only `en.json` is authored; any unshipped language is
+POSTed to `/api/translate/locale`, translated once and cached per browser. **The eight static locale
+files are a partial HEAD START, not the supported list** — their emptiness is expected, not a
+backlog. I told Mike the opposite and it went into a ruling's stated reason before I caught it.
 
-**The approach rate is prospects approached (an approach DATE) over prospects available to
-approach (status not `Await Research`)** — it finds the advisor who researches and never starts
-the sale. The source app counts `approachStyle`, which its own screen fills in on creation, so
-its rate reads ~100% for everyone.
+Because that folder has now been misread twice, the fix is three surfaces, not a paragraph:
+`localisation-and-currency.md` **§1a**, a new **`locales/README.md`** where the misreading actually
+happens, and **`tests/unit/languagePolicy.test.js`** (5 tests, mutation-verified). **Stage 6's
+ruling is unaffected and better supported** — it would have been a *second* translation system.
 
-### 🔴 THE STUB FOR THE MASTER TEAM — Brief §13
+### NEW 13.4 — a client-level currency, on Mike's ruling
 
-They place **one link, to `/sales-tracker`**. This app has no navigation of its own
-(`layouts/default.vue` is `div > nuxt`), so an unlinked screen cannot be found at all — which is
-what had happened to all three advisor screens. A fourth screen later changes that page, never
-their link. `/sales-tracker` is asserted **by name** in a test, so a rename fails the build here
-before it breaks their link.
+*"currency is selected at firm manager level and cascades down to the client level model library
+but at client level … the currency can again be edited by the advisor."* Three levels, not two.
+**The client half does not exist at all** — `currencyMixin` holds one `firmCurrency`, and
+`firmOverlay` is firm-scoped with no `saveClientConfig`. Backend work, not a screen change.
 
-### ⚠ Two bugs found by OPENING the app, not by 12,963 tests
-
-The approach rate above measured nothing — visible the moment three advisors all read 100%. And
-the firm-total row rendered `7` where it should read `7 / 8`: **Vue 2 reactivity**, `totals`
-declared `{}` so a field arriving later was never tracked, while the *identical markup one row
-above* was correct because `rows` is an array replaced wholesale. I misdiagnosed it twice (the
-Pug slash, then a stale build) before reading the rendered HTML. Both pinned, mutation-verified.
+🔴 **It is NOT the per-client currency he rejected earlier the same day** (see 13.2's comment) —
+that was a second *firm-level* setting carrying conversion maths; this is a **label**, defaulting
+to the firm's, with conversion still inside models on `fxAllowancePct`. The item says so itself.
+**13.1 is now load-bearing** and ships with it: a client-level relabel reads as a conversion far
+more readily than a firm-wide one.
 
 ### Notes
 
-- **LAPTOP — shared files I touched**: `components/FirmManagerHub.vue` (TAB_TIERS, NAV_GROUPS, 2
-  panels), `locales/en.json`, `server/restify-server.js`, `server/utils/salesMetrics.js`,
-  `server/utils/salesPipelineStore.js` (one comment). ⚠ **Tab counts moved in two guards** —
-  `mentorHubScope` (19→21) and `hubTabTiers`; `serverWiring` 9→14 sales routes.
-  **Your 7.5 and 15.1 untouched.**
-- **Dev data**: back to the original 7 seeded deals — two test prospects added to demonstrate the
-  approach rate were deleted by exact id (a real `Harbour Freight Ltd` exists; the fake was
-  `Harbour Freight Co`).
+- **LAPTOP — shared files I touched**: `locales/en.json` (a `salesBlog` block),
+  `components/FirmManagerHub.vue` (untouched today; stage 4's tab counts were yesterday),
+  `design/features/localisation-and-currency.md` (§1a, §3, P6),
+  `design/features/to-do-items.json`, `to-do.md`, `CODE-SIZE.md`.
+- **Three faults found by OPENING the app, none by 13,197 tests** — recorded in the closure entry.
+  One defect deliberately filed rather than fixed: `SalesBlog.vue` puts `is-primary` and `is-info`
+  on two adjacent buttons, an instance of **16.1**.
+- **Open for Mike on 13.4 when he ranks it**: where the advisor edits the client's currency.
+  Stored against the **client**, not per advisor per client.
