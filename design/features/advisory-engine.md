@@ -151,31 +151,57 @@ the money does not arrive the month it is earned"* — the timing distinction as
 question, not a ranking of one model over the other. Every other entry of the nineteen already
 opened by naming what it answers in its own right; this was the only one defined against another.
 
-🔴 **THE PAGE PATH IS NOT A WORDING PROBLEM AND NEVER WAS — ITEM 7.13, REFRAMED 2026-09-18 ON
-MIKE'S CHALLENGE.** His original task read *"check the summary page, look it up, compare to
-conversation and suggest the model name and where to find it in the perf report section"*. **The
-lookup half was never built.** The 19 models are injected as 51,072 characters of prose and the AI
-is asked to *recall* each page path; four sessions then tuned that prose, and each attempt moved
-some models and moved others backwards, because the AI answers differently run to run on identical
-input.
+✅ **THE PAGE ADDRESS IS THE APP'S, NOT THE AI'S — BUILT 2026-09-23.** Item 7.13 was reframed on
+2026-09-18 on Mike's challenge; on 2026-09-23 he named the cause outright — *"every model or
+template is linked via an ID in the cascade search"*. It is, and the models were not in it. Every
+master-library row carries an id (`link: "id-…"`) and `outlineResources.templatePageUrl` builds a
+template's real address from it, so **the AI has never written a template's address**. But
+**fourteen of the nineteen models exist in no library row at all** — they were built as pages
+inside this app and given addresses by hand — so nothing had ever allocated them an id. With no
+identity to resolve there was nothing to look up, and the only way left to get an address in front
+of an advisor was to write it into the prompt as prose and ask the AI to copy it: one line inside a
+block of over 51,000 characters, dropped about half the time. Four sessions tuned that prose and
+each moved some models forward and others back, because the AI does not answer identically twice.
+**It was never a wording problem.**
 
-**The app already holds the answer.** `/api/report/model-guide` serves the same records the Model
-Guide screen renders, every model has a live page, and `injectVideoInfo` is the working pattern for
-attaching a looked-up fact to an answer *after* the AI has written it — it does exactly this for
-templates, on all three engine paths. Models were never put in that machinery. **Mike ruled on
-2026-08-22 that the summary page serves "a firm manager choosing a model as well as the AI guiding
-an advisor, from the same records"** ([`pages/model-guide.vue`](../../pages/model-guide.vue)) — the
-instruction predates the whole detour.
+**Now: each model carries a permanent id** — `data/report-model-summaries.json`, allocated by
+[`scripts/allocate-model-ids.js`](../../scripts/allocate-model-ids.js) (`npm run models:ids`), which
+only ever fills a gap and can never rewrite one.
+[`modelLinkInjector`](../../server/utils/modelLinkInjector.js) resolves a named model **name → id →
+address** after the AI has finished writing and supplies any address the reply left off — the
+`injectVideoInfo` pattern, on the same three engine paths. It fills gaps only: a line already
+carrying a real address is left as written, **even when the address is another model's**, because
+arbitrating name-against-address is a judgement about what the AI meant. An *invented* address is
+corrected. The prefix is `model-`, never `id-`, so a model can neither be mistaken for a
+master-library row nor collide with one a future export allocates.
+`tests/unit/reportModelIds.test.js` fails the suite if a model is ever added without an id.
 
-⚠ **SIX of the nineteen names are also real template titles**, so for those a lookup must NOT
-attach a path — a name alone cannot say which was meant. Those six still need the AI to write its
-own path. `tests/unit/nameCollisions.test.js` recomputes the set.
+⚠ **SIX of the nineteen names are also real template titles**, and they take TWO guards, not one.
+The injector works inside the **"A model that fits"** block and nowhere else — `discover.txt`
+reserves that block for models, the mirror of `templateHeadingCheck` reserving "Best match" for
+templates. **But that rule is enforced in one direction only:** `templateHeadingCheck` catches a
+model filed under a template heading, and does so on real calls; *nothing* catches a template filed
+under the model heading. So the heading alone would let a colliding name be linked to our page when
+the document was meant — the same harm, entering from the other side. Those six therefore also
+require the AI's own `[[MODEL:]]` marker to name them; the other thirteen fill from the heading as
+before. This is why the raw buffer is passed at all three call sites: it still carries the marker
+that `visible` has had stripped. `tests/unit/nameCollisions.test.js` and the injector's own test
+both **recompute** the colliding set rather than trusting this sentence, and the injector's
+generates three tests per name, so a seventh is covered the day it appears.
+
+⚠ **WHAT IS NOT YET MEASURED.** The tests prove the machinery, not the outcome. Only live
+conversations can show the link rate has moved off the benched **9 of 24**, and that run has not
+been done.
 
 ✅ **THE BLOCK IS "A model that fits" — Mike's ruling, 2026-09-18.** *"Calculator"* was our word,
 never approved, and it had reached the advisor's screen as the block heading in `discover.txt`.
 His words: *"we have models and templates. A model includes CALCULATIONS but it is NOT a
 calculator."* Renamed in both prompts and in `buildRetryInstruction`; pinned by
-`tests/unit/reportModelSummaries.test.js`. Never reintroduce it.
+`tests/unit/reportModelSummaries.test.js`. **Never reintroduce it in anything the advisor reads or
+the AI is told.** Two survivals are correct and are not defects: where it appears elsewhere in this
+Brief it quotes a past measurement, and in [`report-models.md`](report-models.md) it names Mike's
+own workbook sheets (*Quick Calculator*, *Hrly Rate & Tax Calculator*) — his source material, which
+stays as written.
 
 ### What the earlier bench measured — 2026-09-17, 19 models × 2 runs
 
@@ -305,60 +331,30 @@ platform default. Nothing is single-tenant, and nothing new should be.
 
 ## 4. For the coder
 
-### 🔴 ITEM 7.13 — BUILD THE MODEL LOOKUP. Start here, in this order.
+### ✅ ITEM 7.13 — THE MODEL LOOKUP IS BUILT, 2026-09-23 — what remains is measuring it
 
-**Read the ⚠ warning below BEFORE writing anything** — it decides the shape of the resolver and
-can waste the whole build if it is met halfway through.
+*This section held the build steps until the day it was built. They are in git history; what is
+here now is what the code does, so nobody starts building it a second time.*
 
-**✅ 0. THE LABEL IS SETTLED — Mike's ruling, 2026-09-18.** In his words: *"get rid of the name
-calculator — I fucking hate it. We have models and templates. A model includes CALCULATIONS but
-it is NOT a calculator."* The block heading is **`**A model that fits**`** and the word
-*calculator* is gone from both prompts. **Never reintroduce it in anything the advisor reads or
-the AI is told.** Where it survives elsewhere in this Brief it is quoting a past measurement, and
-in [`report-models.md`](report-models.md) it names Mike's own workbook sheets (*Quick
-Calculator*, *Hrly Rate & Tax Calculator*) — those are his source material and stay as written.
+**All nineteen carry a looked-up address, not thirteen.** The build steps aimed at thirteen and
+accepted that the six colliding names would keep depending on the AI — which would have left
+**Sales Dashboard**, the model the whole item was raised for, unfixed. Requiring the `[[MODEL:]]`
+marker for those six instead of giving up on them reaches all nineteen without ever guessing
+between a template and a model. How the two guards work is in the ✅ block near the top of this
+section; do not restate it here.
 
-**⚠ 1. THE SIX COLLISIONS DECIDE THE SHAPE OF THE RESOLVER — design for them from the start.**
-Six of the nineteen model names are also real template titles: Working Capital Cycle, Lease vs
-Buy, Quick Position, Dashboard Reports, High-Level Budget, **Sales Dashboard**. For those a name
-alone can NEVER say whether the AI meant the template or the model, so the lookup must
-attach nothing and leave the AI's own path to stand. Guard with `isKnownTemplate` **and**
-`nearestTemplateTitle` (both in `tierLookup`), in that order, exactly as
-[`templateHeadingCheck.js`](../../server/utils/templateHeadingCheck.js) does — an exact-match
-test alone reads three of the six as "not a template" and misfired on **28 of 38** bench calls
-on 2026-09-17. `tests/unit/nameCollisions.test.js` recomputes the set; a seventh fails the build.
+**The shape, in one line each.** `modelLinkInjector` is the `injectVideoInfo` pattern — look the
+record up, write into the answer *after* the AI has finished. It is called on all three answer
+paths, after the video injector, and each passes its raw buffer because the marker is stripped
+from `visible` but survives there. Phase 3 genuinely streams and corrects itself with a `replace`
+event; an injection there changes `processed`, so the replace fires and the line is never doubled.
 
-**2. Take the model names from the marker, not from the prose.** The AI appends
-`[[MODEL: /debtor-drag]]`, and `resolveModelChoiceWithSource` already resolves it against the
-catalogue and falls back to a page-path scan. That is an exact record of what it named. Parsing
-the visible answer again is a second, worse parser of the same fact.
-
-**3. Attach the path the way templates already do it.**
-[`injectVideoInfo`](../../server/utils/videoInjector.js) is the working pattern: it looks a
-template's record up and writes a sentence into the answer *after* the AI has finished. Copy
-that shape.
-
-**4. The three call sites, with the raw buffer still in scope at each.** This matters: the
-marker is stripped from `visible` but survives on the buffer beside it, so the marker is
-readable at every one without re-plumbing.
-
-| Path | Line | Stripped text | Raw buffer holding the marker |
-|---|---|---|---|
-| Post-recommendation conversation | `advisorEngine.js:3075` | `visible` | `_postBuffer` |
-| Client-mode Phase 3 (streams) | `advisorEngine.js:3937` | `scrubbed` | `_p3Buffer` |
-| Main buffered answer | `advisorEngine.js:4244` | `visible` | `answer` |
-
-⚠ **Phase 3 genuinely streams** — it has already sent text when it reaches line 3937 and
-corrects itself with a `replace` event. The other two emit once, so nothing is on screen yet.
-An injected sentence must survive that replace rather than be appended twice.
-
-**5. Prove it on the running app, not on the suite.** This is engine behaviour: 12,200 passing
-tests never saw any of it, and six runs is a small sample on output that varies run to run.
-Drive real conversations through `/api/advisor/query` — see `.claude/skills/run-the-app`.
-
-**What success looks like:** thirteen of nineteen models carry an openable path every time,
-because it is looked up. The other six still depend on the AI writing their own, and no lookup
-can change that without guessing between a template and a model.
+🔴 **STILL OUTSTANDING, AND IT IS THE ONLY PART LEFT: PROVE IT ON THE RUNNING APP.** This is engine
+behaviour, and 13,515 passing tests have not seen a single live answer. The tests prove the
+machinery; only real conversations show whether the benched **9 of 24** has moved. Drive them
+through `/api/advisor/query` — see `.claude/skills/run-the-app` — and read the bench warning
+earlier in this section first: **a bench that omits the template list measures nothing**, and it
+lies in a way that looks like a finding.
 
 ### The pipeline, in order
 

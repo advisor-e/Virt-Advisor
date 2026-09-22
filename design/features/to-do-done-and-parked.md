@@ -202,6 +202,44 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.13 — the model's page was recalled by the AI, not looked up.**
+✅ Closed 2026-09-23. Mike named the cause himself after being shown the symptom twice:
+*"every model or template is linked via an ID in the cascade search"*. It is — and the models
+were not in it.
+
+**Why it had resisted four attempts at rewording.** Every master-library row carries an id
+(`link: "id-…"`) and `outlineResources.templatePageUrl` builds a template's address from it, so
+**the AI has never written a template's address**. But **fourteen of the nineteen models exist in
+no library row at all** — they were built as pages inside this app and given addresses by hand —
+so nothing had ever allocated them an id. With no identity there was nothing to look up, and the
+only route left was to write the address into the prompt as prose and ask the AI to copy it: one
+line inside a block of over 51,000 characters, dropped about half the time. **It was never a
+wording problem**, which is why four sessions tuning that prose each moved some models forward
+and others back.
+
+**What proves it.** Nineteen permanent ids in `data/report-model-summaries.json`, allocated by
+`scripts/allocate-model-ids.js` (`npm run models:ids`), which only ever fills a gap and can never
+rewrite one. `server/utils/modelLinkInjector.js` resolves **name → id → address** after the AI has
+finished and supplies any address the reply left off, on all three answer paths.
+`tests/unit/reportModelIds.test.js` fails the suite if a model is ever added without an id;
+`tests/unit/modelLinkInjector.test.js` adds 40 more. Suite green at 612 suites / 13,515 tests.
+
+🔴 **THE BUILD STEPS WERE WRITTEN AND WOULD HAVE LEFT THE MAIN FAULT IN.** `advisory-engine.md`
+section 4 said to attach nothing for the six names that are also template titles, and set success
+at **thirteen of nineteen** — but **Sales Dashboard is one of the six**, and it is the model the
+item was raised for. Reading those steps *after* building also exposed the reverse hole in what
+had been built: the model block is reserved for models, yet that rule is enforced in ONE direction
+— `templateHeadingCheck` catches a model under a template heading and nothing catches a template
+under the model heading. Requiring the AI's own `[[MODEL:]]` marker for those six, and the heading
+alone for the other thirteen, reaches **all nineteen** and closes the hole. Neither the written
+plan nor the first build did both.
+
+⚠ **WHAT IS NOT PROVED, AND IT IS DELIBERATELY RECORDED RATHER THAN HELD OPEN.** No live
+conversation has been run. The tests prove the machinery; only real calls through
+`/api/advisor/query` show whether the benched **9 of 24** has moved. That measurement is named in
+`advisory-engine.md` §4 as the one outstanding step — and read the bench warning there first: a
+bench that omits the template list measures nothing.
+
 **16.2 — the printed plan left no room for the advisor firm's logo.**
 ✅ Closed 2026-09-23. Asked by Mike on 2026-09-21: *"you also need to make sure there is room
 for the logo in the printout."* The foot of the frame now breaks and the mark stands in the gap,

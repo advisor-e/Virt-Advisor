@@ -15,6 +15,7 @@
     "generate": "nuxt generate",
     "check:branch": "node scripts/check-branch-state.js --report",
     "check:engines": "node scripts/check-engines.js",
+    "models:ids": "node scripts/allocate-model-ids.js",
     "routing": "node scripts/generate-content-routing.js",
     "handbook": "node scripts/build-handbook.js",
     "code-size": "node scripts/count-code.js",
