@@ -202,6 +202,51 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**17 — an advisor left the app to track their own deals and referral partners.**
+✅ Closed 2026-09-22, merged in [PR #109](https://github.com/advisor-e/Virt-Advisor/pull/109).
+Eight screens, ported from the `sales-tracker-nuxt-clean` app Mike found on GitHub and asked to be
+merged in — **a back-end rewrite, never a copy**: 36 Restify routes with raw `mysql2` replacing its
+Prisma client and its `server/api/`, its `openai` SDK replaced by `aiProvider`, its Chart.js
+dashboards redrawn on our own SVG components, and 93 colours repainted to 6 on brand. It arrived
+with **no tests at all** and ships with full coverage, the blog engine at 100%.
+
+**Stage 6 was SKIPPED, and it is the one departure from *"Mike wants all of it"*.** Its language
+admin — seven routes and an AI translate button — would have stood **a second translation system
+beside a working one**. **He ruled: go to stage 7.**
+
+⚠ **The reason he was given was understated and is corrected here.** He was told *"we translate
+nothing into any language today"*, read off the seven near-empty static locale files. The app in
+fact translates into **all 28 languages** on demand from `en.json`. **The ruling is unaffected and
+better supported** — and the misreading became its own fix: the policy is now stated in
+`localisation-and-currency.md` §1a, in `locales/README.md` where the folder is actually opened, and
+pinned by `tests/unit/languagePolicy.test.js`. **It was the second time that folder has been read
+that way.**
+
+**Stage 7 needed no work, and that was verified against the code rather than the plan** — the
+advisor pages, the Team roll-up's hub tab (`salesTeam: ['firm']`) and the locale merge had all been
+done by stages 2–5 as they went; 341 `$t()` calls across the sales screens, no hardcoded English.
+The source app's front-door bug (§7 bug 2 — `/` served the blog tool to a signed-out visitor) dies
+by construction: every screen gates on the **backend**, and the doorway holds no data to protect.
+That claim was checked rather than accepted, because this stage's own history is a plan sentence
+nobody checked.
+
+🔴 **THREE FAULTS, NONE CAUGHT BY 13,182 TESTS, ALL FOUND BY OPENING THE APP.** The approach rate
+measured nothing — visible the moment three advisors all read 100%; the source app counts a field
+its own screen fills in on creation. A firm-total rendered `7` where it should read `7 / 8`: Vue 2
+reactivity, `totals` declared `{}`. And the doorway's icon chain ended in a bare `v-else`, so the
+fourth card silently wore the dashboard's bar chart — now pinned by a test asserting every card
+draws a **different** icon. *(One defect was recorded rather than fixed: `SalesBlog.vue` puts
+`is-primary` and `is-info` on two adjacent buttons, an instance of **16.1**, whose one-line override
+fixes all 84 files at once.)*
+
+**Two rulings of Mike's are built and pinned.** A firm manager sees **every** deal in the firm,
+private ones included, gated server-side by `requireManagerRole` and never by a tab's presence. And
+the approach rate is prospects **approached** over prospects **available** to approach — it finds
+the advisor who researches and never starts the sale. **The mirror image is equally deliberate: no
+blog route carries a manager role at all.** A manager reading a colleague's deals is his ruling;
+reading their half-written drafts is not, and `serverWiring.test.js` fails the build if one
+acquires it.
+
 **15.7 — five concepts had no graphic, so the advisor taught those from nothing.**
 ✅ Closed 2026-09-20. All 33 concepts with an approved drawing are wired: **33 render on the
 advisor's run screen and 33 in the client's plan**, and the *"no capture screen yet"* notice fell
