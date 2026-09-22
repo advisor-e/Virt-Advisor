@@ -42,19 +42,14 @@ in bottom left as agreed."* So on a screen the inset and thickness come from the
 all four sides; every x position is the drawing's, untouched. The printed sheet keeps the
 drawing's own height-based values, because a sheet has a fixed shape.
 
-### ⚠ UNRESOLVED, AND IT IS WHY THE SESSION ENDED
+### ⚠ ITEM 16.2 IS OPEN ON ONE UNCONFIRMED REPORT — it is on the list, read it there
 
-Mike's last report: *"first 2 slides only in the produce plan - the rest was no change.
-no change at all in the rest of the app."* **Measured in a fresh browser against the
-running app, that is not what renders:** all 13 sheets carry the frame and the mark, and
-only the teaching page hides its frame — which is Decision A, his own ruling, because the
-concept drawing inside already carries one. **The likeliest explanation is a cached
-build in his browser, and it was never confirmed.** Do not assume it is fixed. Ask him,
-and get him to hard-refresh before anything is changed on the strength of it.
+Mike's last report was that only the first two sheets changed. It does not match what a
+fresh browser renders, and it is now **item 16.2, `waitingOn: Mike`**, with the evidence
+on the item. Get him to hard-refresh before changing anything on the strength of it.
 
 **"No change at all in the rest of the app" is accurate and expected** — the frame was
-scoped to the Strategy Planner, because that is what he asked for. Nothing outside it was
-touched. Whether it should spread further is his decision and he has not made it.
+scoped to the Strategy Planner, because that is what he asked for.
 
 ### Also in this branch
 

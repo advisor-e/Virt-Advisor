@@ -638,7 +638,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Mike asked for room for the logo in the printout. The plan's own pages - title, agenda, step dividers and capture pages - carry no firm mark at all; the placeholder exists only inside the 33 drawings.",
       "risk": "The title page is the cover of the document a client keeps, and it prints as a company name on an otherwise empty A4 sheet with nothing of the advisor's firm on it. Item 16 supplies the brand itself; without a place for it on the page, a logo arriving later still has nowhere to go on the document's own sheets. Proved 2026-09-21 by printing the plan.",
       "askedBy": {
@@ -647,7 +647,7 @@
         "detail": "2026-09-21 - his own words, after seeing the A4 plan printed: \"you also need to make sure there is room for the logo in the printout - make that another task to do\"."
       },
       "touches": "components/strategy/StrategyPlanDocument.vue - the title page, the step dividers and the capture pages, none of which renders a mark; it passes firm-name and firm-colour to the drawings alone. pages/strategy-planner.vue, which mounts the plan document and binds none of the three firm props. Needs item 16 for where a firm's brand is actually set, which under the hub-page rule starts at the mentor tier.",
-      "note": "BUILT 2026-09-22 - \"lock it in and make it happen\". GET /api/report/firm/brand serves firmBrand() (no screen - the values are Advisor-e's); pages/strategy-planner.vue binds the three firm props, closing the fault filed here; StrategyPlanDocument carries his page frame - square firm-coloured border, the mark top-centre on the title page and bottom-left after, page number bottom-right. 🔴 THE ORIGINAL IS HIS OWN DECK PAGE, NOT IN THIS REPO: Advance.6.Organisational Review.pdf in C:\\Documents\\Visual Code Projects\\Strategy Planner. A4 IS RULED, so a page must FIT a sheet: print CSS was stripping the border, print-color-adjust was missing, and a teaching page ran 259mm on 210mm. 13 pages, 13 sheets now, proved by reading the PDF back."
+      "note": "BUILT 2026-09-22 and OPEN ONLY ON ONE UNCONFIRMED REPORT. GET /api/report/firm/brand serves firmBrand() (no screen); strategy-planner.vue binds the three firm props; the plan's sheets and the five planner screens carry the frame and the mark. 🔴 MIKE'S LAST REPORT: \"first 2 slides only in the produce plan - the rest was no change\". A fresh browser against the running app shows ALL 13 sheets framed and marked, only the teaching page bare, which is his own Decision A. Likeliest a cached build; NEVER CONFIRMED. Ask him to hard-refresh before changing anything on the strength of it. Frame and mark values are PORTED from design/mockups/strategy-plan-firm-mark.html - never recompute them from the PDF."
     },
     {
       "ref": "13.2",

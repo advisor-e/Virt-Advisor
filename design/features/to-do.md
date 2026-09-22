@@ -61,14 +61,14 @@ repository sees; the two never both appear, and the build stops if they would.
 | 24 | **15.12** Two teaching pages repeat the drawing's own questions and overflow the A4 sheet ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 25 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 26 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 27 | **16.2** The printed plan leaves no room for the advisor firm's logo ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 27 | **16.2** The printed plan leaves no room for the advisor firm's logo ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 28 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 29 | **13.3** The currency picker is the one manager setting outside the hub ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 30 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 31 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 32 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**32 live items. Fourteen need Mike.** If this list passes about twenty, something is wrong.
+**32 live items. Fifteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
