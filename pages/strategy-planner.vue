@@ -103,10 +103,10 @@
   //- 🔴 THE SESSION'S OWN CONTROLS — Mike's two requests of 2026-09-22, and the stamp that
   //- Decisions D and E put beside them. Shown once a session exists and never on Scope
   //- before one does, because there is nothing yet to save or to leave.
-  //- ⚠ `Leave session` IS NOT RENDERED UNTIL ADVISOR-E ANSWERS QUESTION 9. Our pages have
-  //- no menu of their own, so the way out is theirs; seam Q-RETURN-URL in
-  //- config/integration.js. A button that looks live and goes nowhere cannot be told apart
-  //- from a broken app — the same rule that fixed `Suggest for this client`.
+  //- ⚠ `Leave session` IS DRAWN AND NOT BUILT — it has no destination, and it is NOT
+  //- Advisor-e's to give (Mike, 2026-09-22). A button that looks live and goes nowhere
+  //- cannot be told apart from a broken app — the rule that fixed `Suggest for this client`.
+  //- The full note is on the drawing: design/mockups/strategy-session-resume.html.
   .sp-sessbar(v-if="!loading && sessionId && step !== 'scope'")
     span.sp-saved(v-if="saveStampKey" :class="'is-' + saveState")
       | {{ $t(saveStampKey) }}{{ saveStampTime ? ' ' + saveStampTime : '' }}

@@ -99,13 +99,9 @@
   when the advisor leaves it, so the box they are TYPING IN genuinely is not
   saved yet, and a Save button has something to commit and something to confirm.
 
-  ⚠ 'LEAVE SESSION' HAS NO DESTINATION YET. Our pages carry no navigation at all
-  (layouts/default.vue is four lines), so the way out is Advisor-e's. Seam
-  Q-RETURN-URL is in config/integration.js and question 9 of
-  design/MASTER-TEAM-INTEGRATION-EMAIL.md asks for it, two ways, either alone
-  sufficient. UNANSWERED, THE BUTTON IS NOT RENDERED — the same rule the
-  "Suggest for this client" button was fixed under: a control that looks live and
-  does nothing cannot be told apart from a broken app.
+  ⚠ 'LEAVE SESSION' IS DRAWN AND NOT BUILT — see the note beside it below, which
+  is the one home for this. It has no destination, it is not Advisor-e's to give,
+  and with none the button is not rendered at all.
 ================================================================================
 -->
 <style>
@@ -391,11 +387,15 @@
   </div>
 
   <div class="note bad">
-    <h3>Leave session — built, but it cannot be shown until Advisor-e answers</h3>
+    <h3>Leave session — drawn, and not built, because it has nowhere to go yet</h3>
     <p>Our pages have <b>no navigation of their own</b> — `layouts/default.vue` is four lines, just
-      the page. So the way back out is Advisor-e's menu, and nobody has ever told this app that
-      address. Question 9 of the integration email now asks for it, two ways, either alone enough.</p>
-    <p>🔴 <b>Until it is answered the button is not rendered at all</b> — the same rule the
+      the page. So the way back out is Advisor-e's menu, and this app does not hold that address.</p>
+    <p>🔴 <b>WE ARE NOT ASKING ADVISOR-E FOR IT — Mike, 2026-09-22:</b> <i>"we dont need to ask the
+      master coding team the address for main menu - get rid of it and any notes relating to it."</i>
+      A question had been drafted for them and a config seam built for their answer; <b>both are
+      removed</b> and nothing in the repository asks them. <b>Do not re-raise it.</b> How the button
+      gets its destination is a question for Mike.</p>
+    <p>🔴 <b>Until it has one the button is not rendered at all</b> — the same rule the
       <i>Suggest for this client</i> button was fixed under on 2026-09-22: a control that looks live
       and does nothing cannot be told apart from a broken app. It is also not shown on Scope before a
       session exists, because there is nothing to leave.</p>
@@ -566,9 +566,8 @@
       <li><b>Whether the session id belongs in the address bar.</b> It should, so that a refresh returns
         rather than starting again — but that is invisible plumbing with no screen to approve, and it
         follows from Decision A either way.</li>
-      <li><b>Where <i>Leave session</i> actually goes.</b> That is Advisor-e's address to give, not ours
-        to choose — question 9 of the integration email. The button's place on the screen is drawn here;
-        its destination is not a design decision.</li>
+      <li><b>Where <i>Leave session</i> actually goes.</b> The button's place on the screen is drawn
+        here; its destination is not, and it is still open. See the note beside the button above.</li>
       <li><b>Anything about how often a box saves.</b> That was a defect and it is already fixed, not a
         choice being put to you. It appears here only because it is what makes <i>Save session</i>
         meaningful.</li>

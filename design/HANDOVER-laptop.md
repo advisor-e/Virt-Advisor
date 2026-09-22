@@ -60,17 +60,20 @@ item 17's nested `askedBy` closes exactly that way and a text scan cut the recor
 `storeTime`, the session id in the address bar) · `components/strategy/StrategyConceptCapture.vue`,
 `StrategyCaptureBox.vue`, `StrategyCaptureCard.vue` (all three: `lazy` and/or `@input.native`) ·
 `locales/en.json` (`strategyPlanner.resume`, `.save`, `errors.reopenFailed`) ·
-`config/integration.js` (**new seam `Q-RETURN-URL`** — `ADVISOR_E.menuUrl`, `.menuHostAllowList`) ·
-`design/MASTER-TEAM-INTEGRATION-EMAIL.md` (**eight questions became nine**, incl. the unblocks
-table) · `ARTEFACTS.md` · `features/strategy-planner.md` (§0 stage 7 rewritten, **new §7a**) ·
+`ARTEFACTS.md` · `features/strategy-planner.md` (§0 stage 7 rewritten, **new §7a**) ·
 `features/to-do-items.json` · the two generated files. **Your item 13.4 and 16 files untouched.**
 
-### ⚠ `Leave session` IS DRAWN AND DELIBERATELY NOT RENDERED
+### ⚠ `Leave session` IS DRAWN AND NOT BUILT — AND WE ARE NOT ASKING ADVISOR-E FOR IT
 
 Our pages carry **no navigation at all** (`layouts/default.vue` is four lines), so the way out is
-Advisor-e's — and nobody has ever told this app that address. **Question 9** asks for it two ways,
-either alone sufficient, and asks for the **host** too because a `returnUrl` out of the address bar
-is an open-redirect surface. Unanswered, the button does not appear. **Do not build it inert.**
+Advisor-e's menu and this app does not hold that address. With none, **the button is not rendered**
+— do not build it inert.
+
+🔴 **Mike, 2026-09-22:** *"we dont need to ask the master coding team the address for main menu."*
+A question drafted for them and a config seam built for their answer were **both removed on his
+word** — the integration email is back to **eight** questions and `ADVISOR_E` carries `pageBaseUrl`
+alone. **Do not re-raise it with them.** Where the button goes is his call and is still open; the
+drawing carries the ruling.
 
 ### Also done
 
