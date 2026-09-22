@@ -4,7 +4,7 @@
 //- approved on 2026-09-22. Five bars, because his foot is two pieces with the logo's
 //- box between them. Six earlier attempts rebuilt this as a CSS border and adjusted
 //- that; a border cannot be inset from the sheet, cannot break, and cannot be stood on.
-.spf(aria-hidden="true")
+.spf(:class="{ 'is-screen': screen }" aria-hidden="true")
   span.spf-bar.is-t
   span.spf-bar.is-l
   span.spf-bar.is-r
@@ -31,7 +31,24 @@ export default {
      * His foot in two pieces with the gap between them — the drawing's `.deck.content`
      * state. The title page carries its mark at the top, so its foot is whole.
      */
-    split: { type: Boolean, default: false }
+    split: { type: Boolean, default: false },
+
+    /**
+     * The frame on a working SCREEN rather than a printed sheet.
+     *
+     * 🔴 MIKE'S RULING, 2026-09-22: *"i dont care about the page size until it comes to
+     * printing. so long as the border is same distance from outer edge, has the logo in
+     * bottom left as agreed."*
+     *
+     * A printed sheet has a fixed shape, so the drawing can give the top and bottom bars
+     * their thickness as a share of the page's HEIGHT. A screen stretches with its
+     * content, and that same share would make the border thicker every time the page got
+     * longer, and further from the edge at the top than at the sides. On a screen the
+     * inset and the thickness come from the WIDTH on all four sides, which is what keeps
+     * the border the same distance from the outer edge however tall the page grows.
+     * ⚠ Every x position is the drawing's, untouched — his stub, his gap, his run.
+     */
+    screen: { type: Boolean, default: false }
   }
 }
 </script>
@@ -63,4 +80,13 @@ export default {
 
 /* .deck.content .bd.b — the run, from 119.19 */
 .spf-bar.is-brun { left: 16.554%; right: 0.542%; bottom: 0.963%; height: 1.753%; }
+
+/* ── ON A SCREEN: the same distance from the outer edge on all four sides, and the same
+   thickness, whatever height the page grows to. Mike's ruling above. Nothing else moves. ── */
+.spf.is-screen .spf-bar.is-t { top: 0.542cqw; height: 0.986cqw; }
+.spf.is-screen .spf-bar.is-l,
+.spf.is-screen .spf-bar.is-r { top: 1.528cqw; bottom: 1.528cqw; }
+.spf.is-screen .spf-bar.is-b,
+.spf.is-screen .spf-bar.is-bl,
+.spf.is-screen .spf-bar.is-brun { bottom: 0.542cqw; height: 0.986cqw; }
 </style>

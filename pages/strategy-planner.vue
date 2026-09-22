@@ -1,16 +1,5 @@
 <template lang="pug">
 .sp(:style="firmStyle")
-  //- 🔴 THE FIRM'S MARK ON THE SCREEN, NOT ONLY ON THE PRINTOUT — Mike, 2026-09-22:
-  //- "i expect the branding to be consistent throughout - not JUST the pdf printed
-  //- version." The advisor sits beside the client with this screen between them, so it
-  //- is as client-facing as the document. Same component and same fallback rules as the
-  //- plan's own sheets, so one firm never renders two different marks.
-  .sp-brand(v-if="firmBrand.name || firmBrand.logo")
-    strategy-plan-mark(
-      :name="firmBrand.name || ''"
-      :logo="firmBrand.logo || ''"
-      :colour="firmBrand.colour || '#0070c0'"
-    )
   header.sp-top
     //- 🔴 THE QUESTION BELONGS TO SCOPE SESSION AND IS SHOWN THERE ALONE. Mike's ruling,
     //- 2026-09-21. It used to head all five stages, so an advisor was asked "What do you
@@ -131,148 +120,158 @@
       | {{ $t('strategyPlanner.resume.landed', { concept: reopenedAt.name }) }}
       a.sp-resume-more(href="#" @click.prevent="goToStage('scope')") {{ $t('strategyPlanner.resume.backToScope') }}
 
-  template(v-if="!loading && step === 'scope'")
-    strategy-scope-menu(
-      :decks="decks"
-      :chosen="chosen"
-      :session-label="sessionLabel"
-      :suggested="suggested"
-      :suggesting="suggesting"
-      :suggest-state="suggestState"
-      :client-chosen="Boolean(clientId)"
-      @scope-changed="onScopeChanged"
-      @suggest-requested="requestSuggestion"
+  //- 🔴 EVERY SCREEN WEARS THE AGREED FRAME — Mike, 2026-09-22: "i dont care about the
+  //- page size until it comes to printing. so long as the border is same distance from
+  //- outer edge, has the logo in bottom left as agreed."
+  .sp-sheet
+    strategy-plan-frame(split screen)
+    strategy-plan-mark.sp-sheet-mark(
+      :name="firmBrand.name || ''"
+      :logo="firmBrand.logo || ''"
+      :colour="firmBrand.colour || '#0070c0'"
     )
+    template(v-if="!loading && step === 'scope'")
+      strategy-scope-menu(
+        :decks="decks"
+        :chosen="chosen"
+        :session-label="sessionLabel"
+        :suggested="suggested"
+        :suggesting="suggesting"
+        :suggest-state="suggestState"
+        :client-chosen="Boolean(clientId)"
+        @scope-changed="onScopeChanged"
+        @suggest-requested="requestSuggestion"
+      )
 
-  template(v-if="!loading && step === 'steps'")
-    //- 🔴 SAYS WHY THE LIST IS SHORTER THAN WHAT HE TICKED, AND IT BELONGS HERE NOW.
-    //- Tick all 52 and this screen offers 40 cards — 2 approved framework cards and 38
-    //- concepts — because 12 of the 52 have neither a fill-in table nor a drawing and are
-    //- not offered at all. The notice used to sit on the next screen, which was the first
-    //- place the shortfall showed — since 2026-09-20 this screen is, so an unexplained gap
-    //- would be the first thing he meets. Found by opening the screen, not by a test.
-    //- ⚠ COUNTED OFF THE RUNNING SCREEN ON 2026-09-21 — 2 + 38 + 12 = 52 — AFTER A DERIVED
-    //- COUNT GOT IT WRONG. A script that scanned the drawings registry read 39 and 13,
-    //- because one of the 33 entries (`pricing`) is an unquoted key and the pattern wanted
-    //- quotes. The app said 40 and the script said 39; the app was right. Re-count by
-    //- opening the screen, never by scanning that file.
-    //- ⚠ 16 — the count of concepts with a SUPPLIED fill-in table — is unchanged and is
-    //- not what this screen offers. `data/strategy-capture-tables.json` `templateCount`
-    //- is 20 and counts TEMPLATES, several of which serve more than one concept while
-    //- four concepts name a template that does not exist. Do not read one for the other.
-    b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
-      | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
+    template(v-if="!loading && step === 'steps'")
+      //- 🔴 SAYS WHY THE LIST IS SHORTER THAN WHAT HE TICKED, AND IT BELONGS HERE NOW.
+      //- Tick all 52 and this screen offers 40 cards — 2 approved framework cards and 38
+      //- concepts — because 12 of the 52 have neither a fill-in table nor a drawing and are
+      //- not offered at all. The notice used to sit on the next screen, which was the first
+      //- place the shortfall showed — since 2026-09-20 this screen is, so an unexplained gap
+      //- would be the first thing he meets. Found by opening the screen, not by a test.
+      //- ⚠ COUNTED OFF THE RUNNING SCREEN ON 2026-09-21 — 2 + 38 + 12 = 52 — AFTER A DERIVED
+      //- COUNT GOT IT WRONG. A script that scanned the drawings registry read 39 and 13,
+      //- because one of the 33 entries (`pricing`) is an unquoted key and the pattern wanted
+      //- quotes. The app said 40 and the script said 39; the app was right. Re-count by
+      //- opening the screen, never by scanning that file.
+      //- ⚠ 16 — the count of concepts with a SUPPLIED fill-in table — is unchanged and is
+      //- not what this screen offers. `data/strategy-capture-tables.json` `templateCount`
+      //- is 20 and counts TEMPLATES, several of which serve more than one concept while
+      //- four concepts name a template that does not exist. Do not read one for the other.
+      b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
+        | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
 
-    //- 🔴 THE PROCESS BANNER — Decision A and Decision C on one line, where the approved
-    //- drawing puts them. It says the session arrived rather than being invented, and it
-    //- says WHOSE it is, so an inherited process is never mistaken for the firm's own.
-    //- `Start from blank instead` is one click away on purpose: a standard session is a
-    //- starting point and never a cage.
-    .sp-proc(v-if="processSource && !startedFromBlank")
-      .sp-proc-main
-        b.sp-proc-t {{ $t('strategyPlanner.process.handedDown', { count: sessionProcess ? sessionProcess.steps.length : 0 }) }}
-        span.sp-proc-s {{ $t('strategyPlanner.process.editable') }}
-      span.sp-proc-who {{ processOwnerLabel }}
-      b-button(size="is-small" outlined type="is-primary" @click="startFromBlank") {{ $t('strategyPlanner.process.startBlank') }}
+      //- 🔴 THE PROCESS BANNER — Decision A and Decision C on one line, where the approved
+      //- drawing puts them. It says the session arrived rather than being invented, and it
+      //- says WHOSE it is, so an inherited process is never mistaken for the firm's own.
+      //- `Start from blank instead` is one click away on purpose: a standard session is a
+      //- starting point and never a cage.
+      .sp-proc(v-if="processSource && !startedFromBlank")
+        .sp-proc-main
+          b.sp-proc-t {{ $t('strategyPlanner.process.handedDown', { count: sessionProcess ? sessionProcess.steps.length : 0 }) }}
+          span.sp-proc-s {{ $t('strategyPlanner.process.editable') }}
+        span.sp-proc-who {{ processOwnerLabel }}
+        b-button(size="is-small" outlined type="is-primary" @click="startFromBlank") {{ $t('strategyPlanner.process.startBlank') }}
 
-    strategy-step-builder(
-      :cards="placeableCards"
-      :steps="planStepDefs"
-      :session-label="sessionLabel"
-      @steps-changed="onStepsChanged"
-    )
+      strategy-step-builder(
+        :cards="placeableCards"
+        :steps="planStepDefs"
+        :session-label="sessionLabel"
+        @steps-changed="onStepsChanged"
+      )
 
-  template(v-if="!loading && step === 'run'")
-    //- 🔴 SAYS WHAT IT CANNOT RUN. The advisor scoped concepts that have no capture card
-    //- built yet, and a step that silently showed only two of eleven would read as a bug
-    //- in the room. Stage 1 of item 15.1 — the cards are stages 4 and 5.
-    b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
-      | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
+    template(v-if="!loading && step === 'run'")
+      //- 🔴 SAYS WHAT IT CANNOT RUN. The advisor scoped concepts that have no capture card
+      //- built yet, and a step that silently showed only two of eleven would read as a bug
+      //- in the room. Stage 1 of item 15.1 — the cards are stages 4 and 5.
+      b-notification(v-if="conceptsWithoutACard > 0" type="is-warning" :closable="false")
+        | {{ $tc('strategyPlanner.menu.notRunnable', conceptsWithoutACard, { count: conceptsWithoutACard }) }}
 
-    //- 🔴 THE MEETING RUNS IN THE ADVISOR'S OWN ORDER, UNDER HIS OWN HEADINGS. Before
-    //- stage 2 existed this was a flat list in whatever order the data produced, with no
-    //- headings a client would recognise from the agenda they were handed.
-    p.sp-cap(v-if="!runSteps.length") {{ $t('strategyPlanner.steps.nothingToRun') }}
+      //- 🔴 THE MEETING RUNS IN THE ADVISOR'S OWN ORDER, UNDER HIS OWN HEADINGS. Before
+      //- stage 2 existed this was a flat list in whatever order the data produced, with no
+      //- headings a client would recognise from the agenda they were handed.
+      p.sp-cap(v-if="!runSteps.length") {{ $t('strategyPlanner.steps.nothingToRun') }}
 
-    section.sp-runstep(v-for="(runStep, i) in runSteps" :key="'rs' + i")
-      h4.sp-h {{ runStep.name }}
+      section.sp-runstep(v-for="(runStep, i) in runSteps" :key="'rs' + i")
+        h4.sp-h {{ runStep.name }}
 
-      template(v-for="card in runStep.cards")
-        //- 🔴 A CONCEPT WITH AN APPROVED CARD USES IT. Porter's was designed on
-        //- 2026-09-16 (strategy-planner.html screen 2c) as five force boxes, each
-        //- carrying the deck's own question, with Existing Rivalry as the centre — and
-        //- it was built. Replacing it with a grid derived from the Word template lost
-        //- all five prompts and the fifth force. Mike, 2026-09-17: "i saw much better
-        //- graphics in a design 6 or 8 sessions ago - what happened??"
-        strategy-capture-card(
-          v-if="card.kind === 'framework'"
-          :key="card.key"
-          :framework="card.framework"
-          :entries="entriesFor(card.framework.conceptId || card.framework.id)"
-          :eyebrow="card.eyebrow"
-          :teachable="isTeachable(card.framework)"
-          class="sp-card"
-          @field-opened="onFrameworkFieldOpened(card.framework, $event)"
-          @field-changed="onFrameworkFieldChanged(card.framework, $event)"
-          @field-typing="onFrameworkFieldTyping(card.framework, $event)"
-        )
+        template(v-for="card in runStep.cards")
+          //- 🔴 A CONCEPT WITH AN APPROVED CARD USES IT. Porter's was designed on
+          //- 2026-09-16 (strategy-planner.html screen 2c) as five force boxes, each
+          //- carrying the deck's own question, with Existing Rivalry as the centre — and
+          //- it was built. Replacing it with a grid derived from the Word template lost
+          //- all five prompts and the fifth force. Mike, 2026-09-17: "i saw much better
+          //- graphics in a design 6 or 8 sessions ago - what happened??"
+          strategy-capture-card(
+            v-if="card.kind === 'framework'"
+            :key="card.key"
+            :framework="card.framework"
+            :entries="entriesFor(card.framework.conceptId || card.framework.id)"
+            :eyebrow="card.eyebrow"
+            :teachable="isTeachable(card.framework)"
+            class="sp-card"
+            @field-opened="onFrameworkFieldOpened(card.framework, $event)"
+            @field-changed="onFrameworkFieldChanged(card.framework, $event)"
+            @field-typing="onFrameworkFieldTyping(card.framework, $event)"
+          )
 
-        //- Everything else: the concept's own fill-in table, read from Mike's
-        //- workbooks. Only 2 of the 52 have an approved framework card of their own
-        //- (Porter's 5 Forces and the 8 Profit Levers) — counted 2026-09-21.
-        strategy-concept-capture(
-          v-else
-          :key="card.key"
-          :name="card.visit.name"
-          :capture="card.visit.capture"
-          :concept-summary="card.visit.conceptSummary"
-          :helps-client-to="card.visit.helpsClientTo"
-          :teaching-form="card.visit.teachingForm"
-          :concept-id="card.visit.conceptId"
-          :entries="entriesFor(card.visit.conceptId)"
-          :eyebrow="card.eyebrow"
-          @field-opened="onVisitFieldOpened(card.visit, $event)"
-          @field-changed="onVisitFieldChanged(card.visit, $event)"
-          @fields-changed="onVisitFieldsChanged(card.visit, $event)"
-          @field-typing="onVisitFieldTyping(card.visit, $event)"
-        )
+          //- Everything else: the concept's own fill-in table, read from Mike's
+          //- workbooks. Only 2 of the 52 have an approved framework card of their own
+          //- (Porter's 5 Forces and the 8 Profit Levers) — counted 2026-09-21.
+          strategy-concept-capture(
+            v-else
+            :key="card.key"
+            :name="card.visit.name"
+            :capture="card.visit.capture"
+            :concept-summary="card.visit.conceptSummary"
+            :helps-client-to="card.visit.helpsClientTo"
+            :teaching-form="card.visit.teachingForm"
+            :concept-id="card.visit.conceptId"
+            :entries="entriesFor(card.visit.conceptId)"
+            :eyebrow="card.eyebrow"
+            @field-opened="onVisitFieldOpened(card.visit, $event)"
+            @field-changed="onVisitFieldChanged(card.visit, $event)"
+            @fields-changed="onVisitFieldsChanged(card.visit, $event)"
+            @field-typing="onVisitFieldTyping(card.visit, $event)"
+          )
 
-  template(v-if="!loading && step === 'objectives'")
-    strategy-capture-card(
-      v-for="framework in closingFrameworks"
-      :key="framework.id"
-      :framework="framework"
-      :entries="entriesFor(framework.id)"
-      :eyebrow="$t('strategyPlanner.rail.objectives')"
-      class="sp-card"
-      @field-opened="onFieldOpened"
-      @field-changed="onFieldChanged"
-      @field-typing="onFieldTyping($event)"
-    )
-    section.sp-section
-      h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
-      p.sp-cap {{ $t('strategyPlanner.wheel.caption') }}
-      strategy-growth-wheel(:aspects="growthAspects" :counts="aspectCounts")
+    template(v-if="!loading && step === 'objectives'")
+      strategy-capture-card(
+        v-for="framework in closingFrameworks"
+        :key="framework.id"
+        :framework="framework"
+        :entries="entriesFor(framework.id)"
+        :eyebrow="$t('strategyPlanner.rail.objectives')"
+        class="sp-card"
+        @field-opened="onFieldOpened"
+        @field-changed="onFieldChanged"
+        @field-typing="onFieldTyping($event)"
+      )
+      section.sp-section
+        h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
+        p.sp-cap {{ $t('strategyPlanner.wheel.caption') }}
+        strategy-growth-wheel(:aspects="growthAspects" :counts="aspectCounts")
 
-  //- Screen 4 — the plan. READ ONLY, and assembled from what was captured; it holds no
-  //- state of its own, so it can never disagree with the session behind it.
-  template(v-if="!loading && step === 'plan'")
-    //- 🔴 THE THREE FIRM PROPS ARE NOT OPTIONAL — item 16.2. Without them `firmName`
-    //- falls back to '' and `StrategyConceptGraphic` prints the literal words "Firm
-    //- logo" beside a circle with no letter in it, on every teaching page of a
-    //- document the client keeps. They were missing until 2026-09-22.
-    strategy-plan-document(
-      :client-name="clientName"
-      :decks="planDecks"
-      :steps="planSteps"
-      :closing="closingCards"
-      :firm-name="firmBrand.name || ''"
-      :firm-colour="firmBrand.colour || undefined"
-      :firm-logo="firmBrand.logo || ''"
-    )
-    section.sp-section
-      h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
-      strategy-growth-wheel(:aspects="growthAspects" :counts="aspectCounts")
+    //- Screen 4 — the plan. READ ONLY, and assembled from what was captured; it holds no
+    //- state of its own, so it can never disagree with the session behind it.
+    template(v-if="!loading && step === 'plan'")
+      //- 🔴 THE THREE FIRM PROPS ARE NOT OPTIONAL — item 16.2. Without them `firmName`
+      //- falls back to '' and `StrategyConceptGraphic` prints the literal words "Firm
+      //- logo" beside a circle with no letter in it, on every teaching page of a
+      //- document the client keeps. They were missing until 2026-09-22.
+      strategy-plan-document(
+        :client-name="clientName"
+        :decks="planDecks"
+        :steps="planSteps"
+        :closing="closingCards"
+        :firm-name="firmBrand.name || ''"
+        :firm-colour="firmBrand.colour || undefined"
+        :firm-logo="firmBrand.logo || ''"
+      )
+      section.sp-section
+        h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
+        strategy-growth-wheel(:aspects="growthAspects" :counts="aspectCounts")
 </template>
 
 <script>
@@ -2089,36 +2088,31 @@ export default {
 
    ⚠ DO NOT RESTORE `flex-end` TO "line the button up with the title". That is what produced
    the 61px drop, and no test can see it — a button in the wrong place renders perfectly. */
-/* 🔴 THE MARK SEATS ITSELF FOR A PAGE, NOT A SCREEN. On a sheet it is absolutely
-   positioned into the gap in the firm's bottom border; in the header it is an ordinary
-   element in the flow, and its sizes come from the page's container-query units, which
-   mean nothing here. Re-seated rather than re-drawn, so one firm never renders two
-   different marks. */
-.sp-brand { position: relative; height: 34px; margin: 0 0 0.75rem; }
-/* The mark seats itself for a SHEET — absolutely placed into the gap in the firm's
-   bottom bar, and showing the logo box alone because his deck's logo carries the firm's
-   name inside the image. In a screen header it is an ordinary element in the flow, and
-   the name has to be spelled out beside it: a bare disc with a letter in it tells an
-   advisor nothing. Re-seated, never re-drawn, so one firm never renders two marks. */
-.sp-brand .spm {
-  position: static;
-  height: 34px;
-  width: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: none;
-  overflow: visible;
+/* -- THE AGREED FRAME AROUND EVERY SCREEN --
+   Mike's ruling, 2026-09-22: "i dont care about the page size until it comes to printing.
+   so long as the border is same distance from outer edge, has the logo in bottom left as
+   agreed." `container-type` is what lets the frame take its inset and thickness from the
+   width, so the border stays the same distance from the edge however tall a stage grows. */
+.sp-sheet {
+  position: relative;
+  container-type: inline-size;
+  background: #fff;
+  /* clear of the bars - his inset 0.542% + his bar 0.986% - then his own text margin */
+  padding: 5.5cqw 4.972% 8cqw;
 }
-.sp-brand >>> .spm-disc { height: 30px; font-size: 14px; }
-.sp-brand >>> .spm-name {
-  display: block;
-  font-size: 15px;
-  font-weight: 600;
-  color: #002b64;
-  white-space: nowrap;
+
+/* The mark, in the gap his foot leaves. StrategyPlanMark places itself for a printed
+   sheet at top: 90.025%, which on a stretching page is nowhere in particular, so here it
+   is anchored to the foot instead - his own x, his own box, standing on the bar. */
+.sp-sheet-mark.spm {
+  top: auto;
+  bottom: 0.2cqw;
+  left: 6.875%;
+  width: 9.639%;
+  height: 5.236cqw;
+  z-index: 1;
 }
-.sp-brand >>> .spm-logo { height: 34px; width: auto; }
+.sp-sheet >>> .sp-sheet-mark .spm-disc { height: 80%; font-size: 1.6cqw; }
 
 /* 🔴 A VIOLET BUTTON BESIDE A FIRM-COLOURED RAIL IS THE INCONSISTENCY ITSELF. Buefy
    ships its own #7957D5 for `is-primary` and the planner loaded it unmodified, so the
