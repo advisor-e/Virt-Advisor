@@ -4047,6 +4047,14 @@
       "clientsFailed": "The client list could not be loaded.",
       "saveFailed": "The change could not be saved. Please try again."
     },
+    "currency": {
+      "label": "Currency",
+      "inherited": "Your firm's currency",
+      "ownChoice": "This client's own",
+      "useFirms": "Use firm's",
+      "saved": "This client's reports now show {name} ({symbol}).",
+      "saveError": "Could not save this client's currency. Please try again."
+    },
     "saved": {
       "saveAdvisor": "Save for client",
       "saveClient": "Save my changes",

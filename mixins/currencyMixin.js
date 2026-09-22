@@ -28,7 +28,16 @@ function isSupported (code) {
 
 export default {
   data () {
-    return { firmCurrency: currenciesData.default }
+    return {
+      firmCurrency: currenciesData.default,
+      /**
+       * Which level the showing currency came from — 'client', 'firm' or
+       * 'default'. A screen needs this to say WHOSE choice is on screen: an
+       * advisor must be able to tell a client's own currency from the firm's
+       * inherited one. Item 13.4.
+       */
+      currencySource: 'default'
+    }
   },
 
   mounted () {
@@ -39,6 +48,40 @@ export default {
   },
 
   methods: {
+    /**
+     * Load the currency for ONE CLIENT — the client's own choice when it has one,
+     * otherwise the firm's (item 13.4, Mike's ruling 2026-09-22).
+     *
+     * ⚠ THE CLIENT'S VALUE IS NEVER CACHED. `advisor_e_currency` holds the FIRM's
+     * currency and nothing else: it is one key for the whole app, so caching a
+     * client's choice there would paint the NEXT client with the previous one's
+     * symbol on mount. A client's currency is therefore always fetched, and the
+     * cache continues to serve only the firm-wide first paint.
+     *
+     * Silent on failure like `loadFirmCurrency` — a display setting must never
+     * break a report. A failed client read leaves whatever the firm's value was.
+     *
+     * @param {string} clientId - the client being shown; blank restores the firm's.
+     * @returns {Promise<void>}
+     */
+    async loadClientCurrency (clientId) {
+      if (!process.client) { return }
+      if (!clientId) { return this.loadFirmCurrency() }
+      try {
+        const token = window.localStorage.getItem(TOKEN_KEY) || 'dev-local-bypass'
+        const res = await fetch(
+          '/api/report/currency/client/' + encodeURIComponent(clientId),
+          { headers: { Authorization: 'Bearer ' + token } }
+        )
+        if (!res.ok) { return }
+        const data = await res.json()
+        if (data && isSupported(data.currency)) {
+          this.firmCurrency = data.currency
+          this.currencySource = data.source || 'firm'
+        }
+      } catch (e) { /* keep whatever is showing — never surface to the report */ }
+    },
+
     /**
      * Fetch the firm's currency, then cache + apply it. Silent on any failure — a
      * report must render regardless of the account setting being reachable.
@@ -54,6 +97,7 @@ export default {
         const data = await res.json()
         if (data && isSupported(data.currency)) {
           this.firmCurrency = data.currency
+          this.currencySource = data.isDefault ? 'default' : 'firm'
           window.localStorage.setItem(CACHE_KEY, data.currency)
         }
       } catch (e) { /* keep cached / default — never surface to the report */ }

@@ -1,0 +1,445 @@
+<title>Client Currency Picker</title>
+<style>
+  :root {
+    --navy: #002B64;
+    --blue: #0070C0;
+    --ink: #002B64;
+    --body: #33475e;
+    --muted: #64748b;
+    --line: #d8e2ee;
+    --ground: #eef3f8;
+    --card: #ffffff;
+    --band: #002B64;
+    --band-ink: #ffffff;
+    --band-muted: #9dc2e8;
+    --warn: #b56200;
+    --warn-bg: #fdf1e0;
+    --go: #2f7d32;
+    --go-bg: #e8f4e9;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
+    --shadow: 0 10px 28px rgba(0, 43, 100, .10);
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e6f0fa; --body: #cfe0f2; --muted: #9fb4d0; --line: #1a3559;
+      --ground: #05132a; --card: #0a1f3d; --blue: #00b1e0;
+      --band: #0a1f3d; --band-ink: #e6f0fa; --band-muted: #9fb4d0;
+      --warn: #ffb454; --warn-bg: #3a2810;
+      --go: #6fc44e; --go-bg: #16301a;
+      --shadow: 0 10px 28px rgba(0, 0, 0, .38);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e6f0fa; --body: #cfe0f2; --muted: #9fb4d0; --line: #1a3559;
+    --ground: #05132a; --card: #0a1f3d; --blue: #00b1e0;
+    --band: #0a1f3d; --band-ink: #e6f0fa; --band-muted: #9fb4d0;
+    --warn: #ffb454; --warn-bg: #3a2810;
+    --go: #6fc44e; --go-bg: #16301a;
+    --shadow: 0 10px 28px rgba(0, 0, 0, .38);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--body);
+    font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+    padding-inline: 16px; padding-block: 28px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 26px; }
+
+  .pagehead { display: flex; flex-direction: column; gap: 6px; }
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--blue);
+  }
+  h1 {
+    margin: 0; font-size: clamp(25px, 4vw, 34px); line-height: 1.14;
+    letter-spacing: -.015em; color: var(--ink); text-wrap: balance;
+  }
+  .sub { color: var(--muted); font-size: 14.5px; max-width: 70ch; }
+
+  h2 {
+    margin: 0; font-size: 19px; color: var(--ink); letter-spacing: -.01em;
+  }
+  .sect { display: flex; flex-direction: column; gap: 12px; }
+  p { margin: 0; max-width: 74ch; }
+  .note { font-size: 14px; color: var(--muted); max-width: 74ch; }
+  strong { color: var(--ink); }
+  code {
+    font-family: var(--mono); font-size: .87em; background: var(--ground);
+    border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--ink);
+  }
+
+  /* ── the report header, as it actually renders ───────────────────────── */
+  .shot {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; box-shadow: var(--shadow); background: var(--card);
+  }
+  .shot-cap {
+    font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); padding: 9px 14px; border-bottom: 1px solid var(--line);
+    background: var(--ground);
+  }
+  .rs-top {
+    background: var(--band); color: var(--band-ink);
+    padding: 16px 18px; display: flex; flex-wrap: wrap; gap: 16px;
+    align-items: flex-start; justify-content: space-between;
+  }
+  .rs-brand { display: flex; flex-direction: column; gap: 2px; min-width: 200px; }
+  .rs-backlink { font-size: 12.5px; color: var(--band-muted); }
+  .rs-eyebrow {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--band-muted); margin-top: 4px;
+  }
+  .rs-h1 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -.01em; }
+  .rs-client { font-size: 13.5px; color: var(--band-muted); }
+  .rs-right { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+
+  /* the existing Client access switch — drawn to match ClientAccessSwitch.vue */
+  .cas { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+  .cas-label, .cur-label {
+    font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--band-muted);
+  }
+  .ctl {
+    font: inherit; font-size: 13px; background: rgba(255,255,255,.1);
+    color: var(--band-ink); border: 1px solid rgba(255,255,255,.3);
+    border-radius: 6px; padding: 4px 9px;
+  }
+  .cas-seg { display: flex; }
+  .cas-btn {
+    font: inherit; font-size: 12.5px; cursor: pointer; padding: 4px 11px;
+    background: transparent; color: var(--band-ink);
+    border: 1px solid rgba(255,255,255,.3);
+  }
+  .cas-btn:first-child { border-radius: 6px 0 0 6px; }
+  .cas-btn:last-child { border-radius: 0 6px 6px 0; border-left: 0; }
+  .cas-btn.is-on { background: var(--blue); border-color: var(--blue); font-weight: 700; }
+  .cas-hint { font-size: 12px; color: var(--band-muted); }
+
+  /* ── THE NEW CONTROL ─────────────────────────────────────────────────── */
+  .cur {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end;
+    /* the amber rail marks what is NEW on this drawing — not a shipped style */
+    border-right: 3px solid var(--warn); padding-right: 10px;
+  }
+  .cur-inherit {
+    font-size: 12px; color: var(--band-muted); font-style: italic;
+  }
+  .cur-own {
+    font-size: 12px; font-weight: 700; color: var(--band-ink);
+    background: rgba(255,255,255,.14); border-radius: 999px; padding: 2px 9px;
+  }
+  .cur-clear {
+    font: inherit; font-size: 12px; cursor: pointer; background: transparent;
+    color: var(--band-muted); border: 0; text-decoration: underline; padding: 2px 4px;
+  }
+  .relabel {
+    width: 100%; font-size: 12px; color: var(--band-muted);
+    border-top: 1px solid rgba(255,255,255,.14); padding-top: 9px; margin-top: 2px;
+  }
+
+  .newkey {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px;
+    color: var(--warn); background: var(--warn-bg); border: 1px solid var(--warn);
+    border-radius: 999px; padding: 3px 11px; font-weight: 600; align-self: flex-start;
+  }
+
+  /* ── wording table ───────────────────────────────────────────────────── */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 620px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); background: var(--ground);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.key { font-family: var(--mono); font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  td.words { color: var(--ink); font-weight: 600; }
+
+  .decide {
+    background: var(--card); border: 1px solid var(--line);
+    border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 15px 17px; display: flex; flex-direction: column; gap: 9px;
+    box-shadow: var(--shadow);
+  }
+  .decide h2 { font-size: 17px; }
+  ol, ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; }
+  li { max-width: 74ch; }
+
+  .built { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 11px;
+    border: 1px solid var(--go); color: var(--go); background: var(--go-bg);
+  }
+  .pill.is-open { border-color: var(--warn); color: var(--warn); background: var(--warn-bg); }
+
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 14px; }
+  @media (max-width: 620px) {
+    .rs-top { flex-direction: column; }
+    .rs-right { align-items: flex-start; }
+    .cas, .cur { justify-content: flex-start; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="pagehead">
+    <div class="eyebrow">Item 13.4 · for approval</div>
+    <h1>Client Currency Picker</h1>
+    <p class="sub">
+      Where an advisor sets the currency for <em>one client</em>, on the report header that
+      already carries that client's name. Mike's ruling, 22 September 2026: the firm manager
+      sets the firm's currency, and at client level &ldquo;the currency can again be edited by
+      the advisor&rdquo;.
+    </p>
+  </header>
+
+  <div class="built">
+    <span class="pill">Backend built &amp; tested — 33 tests</span>
+    <span class="pill">Cascade client → firm → default</span>
+    <span class="pill is-open">This screen: awaiting approval</span>
+  </div>
+
+  <section class="sect">
+    <h2>1. The header today — nothing new</h2>
+    <p class="note">
+      This is what an advisor sees now on Business Performance Report and the ten other
+      client-aware reports. The client picker and the Hidden / Open switch already exist.
+    </p>
+    <div class="shot">
+      <div class="shot-cap">Today</div>
+      <div class="rs-top">
+        <div class="rs-brand">
+          <span class="rs-backlink">&larr; Model Library</span>
+          <span class="rs-eyebrow">Performance</span>
+          <h3 class="rs-h1">Business Performance Report</h3>
+          <span class="rs-client">Harbour Joinery Ltd</span>
+        </div>
+        <div class="rs-right">
+          <div class="cas">
+            <span class="cas-label">Client access</span>
+            <select class="ctl" id="today-client" aria-label="Choose a client">
+              <option>Harbour Joinery Ltd</option>
+            </select>
+            <span class="cas-seg">
+              <button class="cas-btn is-on" type="button">Hidden</button>
+              <button class="cas-btn" type="button">Open</button>
+            </span>
+          </div>
+          <span class="cas-hint">Hidden for this client. Open it once terms are agreed.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>2. Proposed — a client inheriting the firm's currency</h2>
+    <span class="newkey">Amber rail marks what is new</span>
+    <p class="note">
+      The normal case, and the one most clients stay in. The advisor has set nothing, so the
+      firm's currency applies and the control says so in words rather than looking blank.
+    </p>
+    <div class="shot">
+      <div class="shot-cap">Proposed · inheriting</div>
+      <div class="rs-top">
+        <div class="rs-brand">
+          <span class="rs-backlink">&larr; Model Library</span>
+          <span class="rs-eyebrow">Performance</span>
+          <h3 class="rs-h1">Business Performance Report</h3>
+          <span class="rs-client">Harbour Joinery Ltd</span>
+        </div>
+        <div class="rs-right">
+          <div class="cas">
+            <span class="cas-label">Client access</span>
+            <select class="ctl" id="p1-client" aria-label="Choose a client">
+              <option>Harbour Joinery Ltd</option>
+            </select>
+            <span class="cas-seg">
+              <button class="cas-btn is-on" type="button">Hidden</button>
+              <button class="cas-btn" type="button">Open</button>
+            </span>
+          </div>
+          <div class="cur">
+            <span class="cur-label">Currency</span>
+            <select class="ctl" id="p1-cur" aria-label="Currency for this client">
+              <option>£ British Pound (GBP)</option>
+            </select>
+            <span class="cur-inherit">Your firm&rsquo;s currency</span>
+          </div>
+          <span class="relabel">
+            Figures are relabelled, not converted &mdash; the amounts do not change.
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>3. Proposed — a client with its own currency</h2>
+    <p class="note">
+      The advisor has chosen Euro for this client. The badge says the choice is this
+      client's, not the firm's, and <strong>Use firm&rsquo;s</strong> puts it back.
+      That distinction matters: without it an advisor cannot tell a deliberate choice
+      from an inherited default.
+    </p>
+    <div class="shot">
+      <div class="shot-cap">Proposed · client&rsquo;s own</div>
+      <div class="rs-top">
+        <div class="rs-brand">
+          <span class="rs-backlink">&larr; Model Library</span>
+          <span class="rs-eyebrow">Performance</span>
+          <h3 class="rs-h1">Business Performance Report</h3>
+          <span class="rs-client">Meridian Bau GmbH</span>
+        </div>
+        <div class="rs-right">
+          <div class="cas">
+            <span class="cas-label">Client access</span>
+            <select class="ctl" id="p2-client" aria-label="Choose a client">
+              <option>Meridian Bau GmbH</option>
+            </select>
+            <span class="cas-seg">
+              <button class="cas-btn" type="button">Hidden</button>
+              <button class="cas-btn is-on" type="button">Open</button>
+            </span>
+          </div>
+          <div class="cur">
+            <span class="cur-label">Currency</span>
+            <select class="ctl" id="p2-cur" aria-label="Currency for this client">
+              <option>&euro; Euro (EUR)</option>
+            </select>
+            <span class="cur-own">This client&rsquo;s own</span>
+            <button class="cur-clear" type="button">Use firm&rsquo;s</button>
+          </div>
+          <span class="relabel">
+            Figures are relabelled, not converted &mdash; the amounts do not change.
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>4. Proposed — no client chosen</h2>
+    <p class="note">
+      Until a client is picked there is nothing to set a currency <em>for</em>, so the control
+      is disabled and shows the firm's. It does not disappear: a control that comes and goes
+      is harder to find than one that waits.
+    </p>
+    <div class="shot">
+      <div class="shot-cap">Proposed · no client yet</div>
+      <div class="rs-top">
+        <div class="rs-brand">
+          <span class="rs-backlink">&larr; Model Library</span>
+          <span class="rs-eyebrow">Performance</span>
+          <h3 class="rs-h1">Business Performance Report</h3>
+        </div>
+        <div class="rs-right">
+          <div class="cas">
+            <span class="cas-label">Client access</span>
+            <select class="ctl" id="p3-client" aria-label="Choose a client">
+              <option>Choose a client</option>
+            </select>
+            <span class="cas-seg">
+              <button class="cas-btn is-on" type="button" disabled>Hidden</button>
+              <button class="cas-btn" type="button" disabled>Open</button>
+            </span>
+          </div>
+          <div class="cur">
+            <span class="cur-label">Currency</span>
+            <select class="ctl" id="p3-cur" aria-label="Currency for this client" disabled>
+              <option>£ British Pound (GBP)</option>
+            </select>
+            <span class="cur-inherit">Your firm&rsquo;s currency</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>5. Every word on the control</h2>
+    <p class="note">
+      These are proposals, not decisions. Change any of them and I will use your words
+      exactly &mdash; nothing here is written into the app until you have.
+    </p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Where</th><th>Proposed wording</th><th>Locale key</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Label above the picker</td>
+            <td class="words">Currency</td>
+            <td class="key">clientCurrency.label</td>
+          </tr>
+          <tr>
+            <td>When the firm&rsquo;s applies</td>
+            <td class="words">Your firm&rsquo;s currency</td>
+            <td class="key">clientCurrency.inherited</td>
+          </tr>
+          <tr>
+            <td>When the client has its own</td>
+            <td class="words">This client&rsquo;s own</td>
+            <td class="key">clientCurrency.ownChoice</td>
+          </tr>
+          <tr>
+            <td>Button that clears it</td>
+            <td class="words">Use firm&rsquo;s</td>
+            <td class="key">clientCurrency.useFirms</td>
+          </tr>
+          <tr>
+            <td>Confirmation after a change</td>
+            <td class="words">This client&rsquo;s reports now show Euro (&euro;).</td>
+            <td class="key">clientCurrency.saved</td>
+          </tr>
+          <tr>
+            <td>If the save fails</td>
+            <td class="words">Could not save this client&rsquo;s currency. Please try again.</td>
+            <td class="key">clientCurrency.saveError</td>
+          </tr>
+          <tr>
+            <td>Standing line (already shipped, item 13.1)</td>
+            <td class="words">Figures are relabelled, not converted &mdash; the amounts do not change.</td>
+            <td class="key">modelLibrary.currency.relabelNote</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="decide">
+    <h2>Three things I have assumed &mdash; say if any is wrong</h2>
+    <ol>
+      <li>
+        <strong>It sits on the report header, not the Model Library.</strong> The Model Library
+        is firm-wide and has no client on it, so a per-client control could not work there.
+        The header already knows the client.
+      </li>
+      <li>
+        <strong>Any advisor may change it, not only a manager.</strong> That follows your
+        ruling directly &mdash; the manager sets the firm&rsquo;s, the advisor sets the
+        client&rsquo;s.
+      </li>
+      <li>
+        <strong>It appears on all eleven client-aware reports at once.</strong> They share one
+        header, so this is one change rather than eleven. The other thirty-seven report screens
+        are calculators with no client and keep the firm&rsquo;s currency.
+      </li>
+    </ol>
+    <p class="note">
+      The relabel line repeats here deliberately. A client-level currency reads as a conversion
+      far more readily than a firm-wide one, which is why item 13.1 shipped that sentence first.
+    </p>
+  </section>
+
+  <footer>
+    design/mockups/client-currency-picker.html &middot; drawn 22 September 2026 &middot;
+    backend built and tested; this screen is not built and will not be until approved.
+  </footer>
+
+</div>
