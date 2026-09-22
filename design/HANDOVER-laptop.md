@@ -9,65 +9,47 @@
 
 ---
 
-## 2026-09-22 · Laptop · branch `feat/advisor-progress`
+## 2026-09-23 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed. Suite 13,461 green (608 suites), lint 0 errors, audit gate clean.**
-**PR #116 is OPEN and NOT merged** — everything below is on the branch and on GitHub, and
-none of it has reached `master`. Merging it is Mike's call and he has not given it.
+**Clean and pushed. Suite 13,464 green (610 suites), lint 0 errors, audit gate clean.**
+**1 commit ahead of `master`, not merged.** PRs #117 and #118 merged earlier today.
 
-### Item 16.2 is BUILT — the firm's brand on the plan and on the planner
+### 🔴 READ THE CODE, NOT THE NOTE. Today cost a day because nobody did
 
-`GET /api/report/firm/brand` serves `firmBrand()` (no screen — the values are Advisor-e's,
-his 2026-08-15 ruling). `pages/strategy-planner.vue` binds the three firm props, which
-closes the second fault filed on the item. `StrategyPlanDocument` carries the frame, the
-mark and the page number; the five planner screens carry the frame and the mark too.
+An approved artefact said the 32 concept drawings *"already carry this exact frame and
+mark"*. **Not one did** — rounded `rx=8`, inset 0.333%, bar 0.667%, foot unbroken, against
+Mike's square 0.542%/0.986% with the foot in two segments. Decision A hands a teaching page
+the drawing's frame, so every one showed the wrong border and suppressed the right one.
+`StrategyPlanFrame.vue` was correct throughout and never needed a line changed. **A premise
+about another artefact is worth nothing until you measure it.**
 
-### 🔴 READ THIS BEFORE TOUCHING THE FRAME OR THE MARK
+### 🔴 THE 32 DRAWINGS ARE GENERATED. NEVER HAND-EDIT THEM
 
-**THE VALUES COME FROM `design/mockups/strategy-plan-firm-mark.html`, CHARACTER FOR
-CHARACTER. DO NOT RECOMPUTE THEM FROM `Advance.6.Organisational Review.pdf`.** Seven
-versions were built and rejected in one session, and every one of them was re-derived
-from the PDF instead of ported from the drawing Mike had already approved. Each rebuild
-lost something different — the relief, then the break, then the logo's place on the bar,
-then the proportions. The rule is written at the top of both components. Follow it.
+Change `design/mockups/strategy-concept-*.html`, then `node scripts/build-concept-graphics.js`.
+A hand-edit was tried today and the drift guard caught it in under a minute.
 
-**A CSS BORDER CANNOT DO THIS JOB and six versions used one.** It cannot be inset from
-the sheet (no relief outside it), cannot break for the logo, and cannot be stood on. The
-frame is `StrategyPlanFrame.vue` — five bars: top, left, right, and a foot that is either
-whole or Mike's two pieces with the logo's box between them.
+### Page numbers: a task's number is its Handbook page
 
-**Mike's ruling, 2026-09-22, for screens:** *"i dont care about the page size until it
-comes to printing. so long as the border is same distance from outer edge, has the logo
-in bottom left as agreed."* So on a screen the inset and thickness come from the WIDTH on
-all four sides; every x position is the drawing's, untouched. The printed sheet keeps the
-drawing's own height-based values, because a sheet has a fixed shape.
+Mike's ruling. [`features/README.md`](features/README.md)'s `#` column is the register;
+[`PAGE-NUMBERS.md`](PAGE-NUMBERS.md) holds the rule. **Take a new number from
+`npm run check:branch` — page 54 is next.** No live task was renumbered. New page 16,
+White-Label & Firm Brand. `5.3` → `22.1`.
 
-### ⚠ ITEM 16.2 IS OPEN ON ONE UNCONFIRMED REPORT — it is on the list, read it there
+### Also built
 
-Mike's last report was that only the first two sheets changed. It does not match what a
-fresh browser renders, and it is now **item 16.2, `waitingOn: Mike`**, with the evidence
-on the item. Get him to hard-refresh before changing anything on the strength of it.
-
-**"No change at all in the rest of the app" is accurate and expected** — the frame was
-scoped to the Strategy Planner, because that is what he asked for.
-
-### Also in this branch
-
-Item 13.4 and 13.1 came across from the desktop in the merge. Three stale records were
-corrected: stage 7 of item 15.1 was recorded as unbuilt in `to-do-items.json`,
-`ARTEFACTS.md` and the Brief when it had shipped the day before.
+The firm brand now reaches Run session and Objectives, not just the plan. Two generated flags
+decide what a teaching page prints — `CONCEPT_TITLED` and `CONCEPT_PROMPTS_ECHOED`, both
+measured from the artefacts, never from a concept's name. **15.12 and 16.2 closed**; 0 of 17
+pages over A4, where 2 of 25 ran over.
 
 ### SHARED FILES I TOUCHED — check before you edit
 
-`pages/strategy-planner.vue` (substantial: the firm props, `--sp-firm`, the sheet wrapper
-around all five stages, the print rules) · `components/strategy/StrategyPlanDocument.vue` ·
-**new** `StrategyPlanFrame.vue`, `StrategyPlanMark.vue` · **new** `server/routes/firmBrand.js`
-· `server/restify-server.js` · `design/ARTEFACTS.md` · `design/features/to-do-items.json` ·
-`design/features/strategy-planner.md` · **new** `design/mockups/strategy-plan-firm-mark.html`
-· two new test files.
+`scripts/build-concept-graphics.js` · `components/strategy/concepts/*` (all 33, generated) ·
+`StrategyPlanDocument.vue` · `StrategyTeachingSlide.vue` · `StrategyConceptCapture.vue` ·
+`StrategyCaptureCard.vue` · `pages/strategy-planner.vue` · `design/features/README.md` ·
+`ARTEFACTS.md` · `ITEM-NUMBERING.md` · `to-do-items.json` · `scripts/ref-ceiling.js` ·
+`scripts/check-branch-state.js` · `scripts/handbook-shell.html` · `scripts/build-handbook.js`
 
-### ⚠ LOCAL TO THIS LAPTOP, NOT IN GIT
+### In hand here
 
-`data/dev-firm-currency.json` holds a stale `firm-test-123` entry from 2026-08-22 that
-broke two of the desktop's currency tests here and passed on the desktop. The test now
-stubs the read; the entry is still on disk. Same family as item 5.3.
+**15.1**, stage 8 — a manager adds a concept, mentor tier first. Nothing waits on Mike.

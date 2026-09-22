@@ -2,7 +2,11 @@
 section.scc2
   header.scc2-head
     p.scc2-eyebrow(v-if="eyebrow") {{ eyebrow }}
-    h3.scc2-title {{ cardTitle }}
+    //- 🔴 NO TITLE WHERE THE DRAWING BELOW CARRIES ONE — Mike, 2026-09-23. His deck
+    //- page opens with its own title, so printing the concept's name here put it on
+    //- the screen twice, a few millimetres apart, in front of the client. The eyebrow
+    //- stays: it says WHERE in the session this is, which the drawing never does.
+    h3.scc2-title(v-if="!drawingTitlesItself") {{ cardTitle }}
     //- The instruction is the advisor's, from the deck.
     p.scc2-instruction(v-if="instruction") {{ instruction }}
 
@@ -179,7 +183,7 @@ import speechMixin from '~/mixins/speechMixin'
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import StrategyOrgChartBuilder from '~/components/strategy/StrategyOrgChartBuilder.vue'
-import { hasConceptGraphic } from '~/components/strategy/concepts'
+import { hasConceptGraphic, conceptTitlesItself } from '~/components/strategy/concepts'
 
 /** The one capture form that is a small application rather than a page of boxes. */
 const ORG_CHART_FORM = 'parent-child-list'
@@ -307,6 +311,19 @@ export default {
      */
     cardTitle () {
       return this.name
+    },
+
+    /**
+     * Does the drawing on this card open with its own title?
+     *
+     * If it does, this card must not print a second one — Mike, 2026-09-23. The one
+     * drawing without a title of its own (`vertical-integration`) still needs ours,
+     * and so does every concept with no drawing at all.
+     *
+     * @returns {boolean}
+     */
+    drawingTitlesItself () {
+      return conceptTitlesItself(this.conceptId)
     },
 
     /**

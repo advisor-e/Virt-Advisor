@@ -3,7 +3,12 @@
   .scc-head
     .scc-head-text
       p.scc-eyebrow {{ eyebrow }}
-      h3.scc-title {{ framework.name }}
+      //- 🔴 NO TITLE WHILE THE DRAWING IS UP AND CARRIES ONE — Mike, 2026-09-23. His
+      //- deck page opens with its own title, so this printed the concept's name twice
+      //- on the screen an advisor runs in front of a client. It comes back the moment
+      //- the advisor presses on to the capture boxes, because the drawing goes away
+      //- and nothing else on the card says which concept this is.
+      h3.scc-title(v-if="!(showTeaching && drawingTitlesItself)") {{ framework.name }}
       p.scc-instruction(v-if="framework.captureInstruction") {{ framework.captureInstruction }}
       //- A way back to the concept that does not leave the step. The page's own
       //- Back button returns to the scope screen, which is not what an advisor
@@ -135,6 +140,7 @@
  * the wire dozens of times.
  */
 import StrategyTeachingSlide from '~/components/strategy/StrategyTeachingSlide.vue'
+import { conceptTitlesItself } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyCaptureCard',
@@ -190,6 +196,17 @@ export default {
      */
     showTeaching () {
       return !this.capturing && this.teachable
+    },
+
+    /**
+     * Does the drawing this card teaches from open with its own title?
+     *
+     * Read from the artefact at build time, never from the name — Mike, 2026-09-23.
+     *
+     * @returns {boolean}
+     */
+    drawingTitlesItself () {
+      return conceptTitlesItself(this.framework.conceptId || this.framework.id)
     },
 
     /**
