@@ -29,8 +29,12 @@
 
    WHAT HIS PAGE ALREADY DEFINES, and what this item is therefore only FILLING:
      - the BORDER: #00B1E0, inset 3.9pt, bar 7.1pt, square corners, and on a
-       content page THE BOTTOM BAR IS INTERRUPTED BY THE LOGO - it restarts at
-       x=119.2 where the logo ends. That interruption is his page, not a flourish.
+       content page THE BOTTOM BORDER IS **TWO SEGMENTS**, not one - a short stub
+       in the corner (x 3.89 -> 49.51, 45.61pt wide), then the LOGO in the gap
+       (x 49.5 -> 118.9), then the long run (x 119.19 -> 715.62). The border turns
+       the corner, stops for the mark and resumes. Mike spotted the stub missing
+       from the first version of this drawing; it had been filtered out of the
+       extraction by a >50pt size threshold. Extract with NO size filter.
      - the LOGO, twice over: 202.8 x 110.1pt CENTRED at the top of the title page,
        and 69.4 x 37.7pt at x=49.5 y=364.6 on every page after it - bottom left,
        sitting OVER the bottom border.
@@ -104,9 +108,16 @@ table.doc td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .deck .bd.l{left:.542%;top:2.716%;bottom:2.716%;width:.944%}     /* 3.9,11 -> 10.7,394 */
 .deck .bd.r{right:.542%;top:2.716%;bottom:2.716%;width:.944%}    /* 708.8 -> 715.6 */
 .deck .bd.b{left:.542%;right:.542%;bottom:.963%;height:1.753%}   /* 3.9,394 -> 715.6,401.1 */
-/* 🔴 ON A CONTENT PAGE THE BOTTOM BAR STARTS AT x=119.2 — the logo interrupts it.
-   119.2/720 = 16.556%. This is his page; it is not a decorative choice. */
-.deck.content .bd.b{left:16.556%}
+/* 🔴 ON A CONTENT PAGE THE BOTTOM BORDER IS **TWO SEGMENTS**, NOT ONE, and the logo
+   sits in the gap between them:
+       left stub   x 3.89 -> 49.51   (45.61pt wide)   = left .542%, width 6.334%
+       [ the logo  x 49.5 -> 118.9 ]
+       right run   x 119.19 -> 715.62                 = left 16.554%
+   Mike spotted the stub missing from the first version of this drawing. It is a real
+   part of his page — the border turns the corner, stops for the mark, and resumes. */
+.deck.content .bd.b{left:16.554%}
+.deck .bd.bl{display:none}
+.deck.content .bd.bl{display:block;left:.542%;width:6.334%;bottom:.963%;height:1.753%}
 
 /* The logo, title page: 202.8 x 110.1 at 258.3,54.2 — centred (centre 359.75 of 720). */
 .deck .mark.big{position:absolute;left:35.875%;top:13.383%;width:28.167%;height:27.185%}
@@ -189,7 +200,7 @@ and the advisor-e.com logo becomes the firm's. <b>Nothing moves.</b></p>
   <thead><tr><th>Element</th><th>Measured in his file</th><th>What this item changes</th></tr></thead>
   <tbody>
     <tr><td>Border</td><td class="num">#00B1E0 · inset 3.9pt · bar 7.1pt · square corners</td><td>the colour becomes the firm's</td></tr>
-    <tr><td>Bottom border</td><td class="num">interrupted — restarts at x=119.2, where the logo ends</td><td>nothing — it is kept</td></tr>
+    <tr><td>Bottom border</td><td class="num"><b>TWO segments</b> — stub 3.89→49.51 (45.61 wide), logo in the gap, run 119.19→715.62</td><td>nothing — both kept</td></tr>
     <tr><td>Logo, title page</td><td class="num">202.8 × 110.1 at 258.3, 54.2 — centred</td><td>the firm's logo fills it</td></tr>
     <tr><td>Logo, every other page</td><td class="num">69.4 × 37.7 at 49.5, 364.6 — bottom left, over the border</td><td>the firm's logo fills it</td></tr>
     <tr><td>Title page type</td><td class="num">Open Sans 45pt #002B64 centred · subtitle 18pt #434343</td><td>nothing</td></tr>
@@ -228,7 +239,7 @@ and the advisor-e.com logo becomes the firm's. <b>Nothing moves.</b></p>
 <div class="pair">
   <div>
     <div class="deck content">
-      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
       <h2 class="t-h">Agenda:</h2>
       <div class="body">
         <ul class="bullets">
@@ -243,12 +254,13 @@ and the advisor-e.com logo becomes the firm's. <b>Nothing moves.</b></p>
       <div class="mark ae small">advisor-e</div>
       <div class="pno">2</div>
     </div>
-    <p class="cap"><b>His page, as it is.</b> Logo bottom-left over the border, which stops for it.
+    <p class="cap"><b>His page, as it is.</b> The bottom border is <b>two segments</b> — it turns the
+    corner, runs 45.6pt, stops for the logo, then resumes at x=119.19 and runs to the far corner.
     Page number bottom-right in grey.</p>
   </div>
   <div>
     <div class="deck content firmed">
-      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
       <h2 class="t-h">What this session covers</h2>
       <div class="body">
         <ul class="bullets">
@@ -262,8 +274,8 @@ and the advisor-e.com logo becomes the firm's. <b>Nothing moves.</b></p>
       <div class="mark firm small">ASHGROVE</div>
       <div class="pno">2</div>
     </div>
-    <p class="cap"><b>The plan's agenda.</b> Identical geometry — including the gap the logo makes in
-    the bottom border.</p>
+    <p class="cap"><b>The plan's agenda.</b> Identical geometry — including the corner stub and the
+    gap the logo makes between the two bottom segments.</p>
   </div>
 </div>
 
@@ -272,7 +284,7 @@ and the advisor-e.com logo becomes the firm's. <b>Nothing moves.</b></p>
 <div class="pair">
   <div>
     <div class="deck content firmed">
-      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
       <h2 class="t-h">Porter's Five Forces</h2>
       <div class="fig">The concept drawing — 1500×844, already drawn from his deck<br>and already carrying the firm's frame and mark</div>
       <div class="mark firm small">ASHGROVE</div>
@@ -283,7 +295,7 @@ and the advisor-e.com logo becomes the firm's. <b>Nothing moves.</b></p>
   </div>
   <div>
     <div class="deck content firmed">
-      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
       <h2 class="t-h">Porter's Five Forces</h2>
       <div class="body" style="top:19%">
         <table class="tbl">
@@ -318,7 +330,7 @@ two boxes, so nothing reflows between one firm and another.</p>
   </div>
   <div>
     <div class="deck content firmed">
-      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div><div class="bd bl"></div>
       <h2 class="t-h">What this session covers</h2>
       <div class="body">
         <ul class="bullets">
