@@ -50,7 +50,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 13 | **14.3** A working-tree Handbook preview can be published over the shared link ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 14 | **15.1** The strategy domain has thirteen materials and no session to run them in ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-16 |
 | 15 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 16 | **5.3** Four Wages Register test suites share one file and collide at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 16 | **5.3** Test suites collide on a shared dev file and block pushes at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 17 | **15.3** Eighteen rows of the session scope menu have no Helps Your Client To... line ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 18 | **15.4** Twelve labels on the plan document are ours, not Mike's ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 19 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |

@@ -399,7 +399,7 @@
     },
     {
       "ref": "5.3",
-      "name": "Four Wages Register test suites share one file and collide at random",
+      "name": "Test suites collide on a shared dev file and block pushes at random",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -407,16 +407,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The gate's dev-file fallback writes and deletes one real file, data/dev-wages-register.json, and four suites reach it from parallel Jest workers, so one worker's delete lands while another is opening the same path.",
+      "why": "A dev-file fallback writes and deletes one file while parallel Jest workers reach the same path, so one worker's delete lands as another opens it and Windows refuses. Proved in two separate stores, not one.",
       "risk": "The pre-push hook runs the whole suite, so a push is blocked at random by a failure that has nothing to do with the code being pushed. Worse, once it is known as the flaky one, a REAL failure in the Wages Register gets waved through with a re-run.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-09-17 - hit while proving the concept index build. Failed once in three full runs and passed alone. Mike said yes to filing it."
       },
-      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant), and the four suites that reach it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes and wagesRegisterContents.routes.",
-      "note": "🔴 CAUSE PROVED - DO NOT RE-INVESTIGATE IT. The work is choosing between the three ways out: an env override for DEV_FILE so each worker gets its own path, a per-worker temp file, or running those four suites serially. wagesRegisterGate.test.js unlinks the shared real file in afterEach while another worker reads or writes the same path, and Windows refuses. INTERMITTENT: once in three full runs 2026-09-17, a blocked commit 2026-09-21, and a BLOCKED PUSH 2026-09-22 - the hook failed on wagesRegisterGate.test.js:373, openRegister to _save to _writeDev, the shared-file write named above. That suite alone passed 40/40 straight after, and the retried push passed 12,886. The 2026-09-21 failure was not captured, which is why it could only be suspected until now.",
-      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end."
+      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant) and the four suites reaching it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes, wagesRegisterContents.routes. AND server/utils/strategySessionStore.js with tests/unit/strategySessionStore.test.js, which already overrides DEV_FILE per process and collided anyway.",
+      "note": "🔴 CAUSE PROVED - DO NOT RE-INVESTIGATE IT. Parallel Jest workers reach one dev file and Windows refuses: wagesRegisterGate.test.js unlinks the shared path in afterEach while another worker writes it. The work is choosing between three ways out: an env override giving each worker its own path, a per-worker temp file, or running the suites serially. 🔴 SECOND INSTANCE 2026-09-22 - strategySessionStore.test.js, EPERM on its temp file, two blocked pushes in a row. IT ALREADY HAS THE ENV OVERRIDE, so option one did not prevent it and is weaker than it looks. INTERMITTENT: both pass alone and in full runs; only the push gate catches them. Retry once before investigating.",
+      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end. Widened 2026-09-22 on his yes from the four Wages Register suites to the pattern, when a second store hit it: the stage 6 build made setScope read before writing, which sits near the window without being its cause."
     },
     {
       "ref": "15.3",
