@@ -18,6 +18,7 @@ section.sts
     :concept-id="conceptId"
     :firm-name="firmName"
     :firm-colour="firmColour"
+    :firm-logo="firmLogo"
   )
 
   //- What the concept does, in Mike's own words from the deck's Session Scope
@@ -80,10 +81,20 @@ export default {
       default: ''
     },
 
-    /** The firm's colour, as a CSS colour. */
+    /** The firm's colour, as a CSS colour. Brands the page border and the disc. */
     firmColour: {
       type: String,
       default: '#0070c0'
+    },
+
+    /**
+     * The firm's real logo, as an absolute http(s) URL. Empty means the firm
+     * holds none and the drawing falls back to the initials disc - Mike's
+     * ruling, 2026-09-22. Sourced by firmBrand() from Advisor-e's firm profile.
+     */
+    firmLogo: {
+      type: String,
+      default: ''
     },
 
     /** Mike's one-line explanation, from the deck's Session Scope table. */

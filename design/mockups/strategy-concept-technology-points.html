@@ -304,12 +304,15 @@
 
         <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
         <g class="firm-mark">
+          
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
           <circle class="fm-disc" cx="125" cy="800" r="22" fill="#0070c0"></circle>
           <text class="fm-init" x="125" y="808" text-anchor="middle" fill="#fff"
                 font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
           <text class="fm-name" x="159" y="807" fill="#002B64"
                 font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
         </g>
+        <rect class="firm-border" x="5" y="5" width="1490" height="834" rx="8" fill="none" stroke="#0070c0" stroke-width="10"></rect>
       </svg>
     </div>
     <figcaption>
@@ -386,10 +389,44 @@
 <script>
   (function () {
     var FIRMS = [
-      { name: 'Hartley & Co', initials: 'H', colour: '#0070c0' },
-      { name: 'Northbridge Advisory', initials: 'N', colour: '#7a4b8f' },
-      { name: 'Kestrel Partners', initials: 'K', colour: '#0f7a5a' }
+      { name: 'Hartley & Co', initials: 'H', colour: '#0070c0', logo: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E' },
+      { name: 'Northbridge Advisory', initials: 'N', colour: '#7a4b8f', logo: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%237a4b8f%22%2F%3E%3Cpath%20d%3D%22M18%2046%20L32%2016%20L46%2046%20Z%22%20fill%3D%22%23ffffff%22%2F%3E%3Crect%20x%3D%2218%22%20y%3D%2250%22%20width%3D%2228%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%23ffffff%22%2F%3E%3C%2Fsvg%3E' },
+      { name: 'Kestrel Partners', initials: 'K', colour: '#0f7a5a', logo: null }
     ]
+
+    // A firm's colour brands the border — Advisor-e already does this from the
+    // same firm profile record, and removing the cyan one without replacing it
+    // left a branded firm's colour with nowhere to show. Mike, 2026-09-22.
+    function paintBorders (colour) {
+      Array.prototype.forEach.call(document.querySelectorAll('.firm-border'), function (b) {
+        b.setAttribute('stroke', colour)
+      })
+    }
+
+    // The logo sits in a FIXED-HEIGHT box with preserveAspectRatio="xMinYMid meet",
+    // which is what answers "a real logo is an image of unknown proportion": any
+    // shape is scaled to fit, never stretched and never cropped. Hartley's is a
+    // wide wordmark and Northbridge's a square emblem, deliberately, so one box
+    // is visibly holding both.
+    function setMark (g, f) {
+      if (!g) { return }
+      var logo = g.querySelector('.fm-logo')
+      var hasLogo = !!f.logo
+      if (logo) {
+        if (hasLogo) {
+          logo.setAttribute('href', f.logo)
+          logo.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', f.logo)
+        }
+        logo.style.display = hasLogo ? '' : 'none'
+      }
+      ;['.fm-disc', '.fm-init', '.fm-name', '#firmDisc', '#firmInitials', '#firmName']
+        .forEach(function (sel) {
+          var el = g.querySelector(sel)
+          if (el) { el.style.display = hasLogo ? 'none' : '' }
+        })
+      paintBorders(f.colour)
+    }
+
     var buttons = Array.prototype.slice.call(document.querySelectorAll('.firm'))
 
     function show (i) {
@@ -399,6 +436,10 @@
         g.querySelector('.fm-disc').setAttribute('fill', f.colour)
         g.querySelector('.fm-init').textContent = f.initials
         g.querySelector('.fm-name').textContent = f.name
+        // THE LOGO IS THE MARK; THE DISC IS THE FALLBACK — Mike, 2026-09-22.
+        // Kestrel Partners deliberately holds no logo, so the disc stays
+        // visible in the role it now has rather than vanishing from the page.
+        setMark(g, f)
       })
       buttons.forEach(function (b) {
         b.setAttribute('aria-pressed', String(Number(b.dataset.firm) === i))

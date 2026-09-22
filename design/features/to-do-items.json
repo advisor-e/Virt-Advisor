@@ -394,7 +394,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, and STAGE 6 - the AI pre-tick - on 2026-09-22, which needed NO mockup because the scope menu's approved drawing already carries the button and Decision C. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED: the column count (\"leave it - its fine\"); the unheaded column and four lines where three, pinned by tests; his blank rows are a gap, never boxes, and are not drawn on the artefacts either; two tables on Product Fit, not one. NEXT: stages 7-8.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them. 🔴 STAGE 7 IS NOW THE DOOR - an advisor reopens the session they had open - redirected by Mike 2026-09-22 after his own question exposed it; the in-card calculators are parked in Brief 7a, his patchwork ruling intact. Drawing: design/mockups/strategy-session-resume.html - Decision A ruled, B and C open. NEXT: rule B and C, build, then stage 8.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -648,28 +648,6 @@
       },
       "touches": "components/strategy/StrategyPlanDocument.vue - the title page, the step dividers and the capture pages, none of which renders a mark; it passes firm-name and firm-colour to the drawings alone. pages/strategy-planner.vue, which mounts the plan document and binds none of the three firm props. Needs item 16 for where a firm's brand is actually set, which under the hub-page rule starts at the mentor tier.",
       "note": "ROOM ON THE PAGE AND A BRAND TO PUT IN IT ARE TWO JOBS, AND THE SECOND IS NOW DONE. Item 16 shipped on the laptop's branch 2026-09-22 and no longer waits on Mike. This item is unchanged and still open: the plan's OWN sheets - title, agenda, step dividers, capture pages - render no mark, and the drawings are not part of it. 🔴 AND A SECOND FAULT, FOUND 2026-09-22: pages/strategy-planner.vue mounts StrategyPlanDocument with NO :firm-name, :firm-colour or :firm-logo binding, so firmName falls back to '' and the colour to the hardcoded #0070c0. Even with item 16 merged, every drawing inside the printed plan prints the placeholder. That binding belongs with this item's layout work."
-    },
-    {
-      "ref": "17",
-      "name": "An advisor leaves the app to track their own deals and referral partners",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "it helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": null,
-      "why": "A working Nuxt 2 app holds an advisor's own deal pipeline and referral partners. Mike ruled 2026-09-21 it serves the firm's own advisors, not their clients. Its screens are already Pug and Buefy; its back end breaks three locked rules.",
-      "risk": "An advisor keeps their own pipeline somewhere else - a spreadsheet or a second app - so the business development sits apart from the client work that feeds it. Against that: the port is a back-end REWRITE, not a copy, and taking it whole would drag a blog-writing tool and a language-admin screen into the app that nobody asked for.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-21 - 'look for work on github called sales tracker nuxt clean and plan how it could be merged into the virt advisor app'. He then confirmed filing it, chose parent 17 as a new subject, and answered the impact test himself: a tool for the firm's own advisors."
-      },
-      "touches": "server/routes/ as 36 new Restify routes with raw mysql2, replacing its server/api/; server/utils/db.js instead of its Prisma client; config/db-schema.sql for the va_courses pattern; server/utils/openaiClient.js instead of its openai SDK; its 8 pages and 7 components, repainted, landing in pages/ as ADVISOR pages - not the hub, which has no advisor scope; components/base/ for the SVG charts replacing Chart.js; FirmManagerHub.vue TAB_TIERS and hubTabTiers.test.js for the Team roll-up alone; locales/; and tests/, which it has NONE of.",
-      "note": "✅ COMPLETE AND MERGED 2026-09-22 (PR 109). Stages 1-5 built; STAGE 6 SKIPPED ON MIKE'S WORD - its language admin would have been a SECOND translation system beside our working one, which serves all 28 languages on demand from en.json (localisation-and-currency.md 1a). STAGE 7 needed no work: stages 2-5 had already done all three parts, verified against the code, not the plan. Eight screens, all reached from the one link the master team places at /sales-tracker. 🔴 ADVISOR SCREENS NEED NO MANAGER ROLE - firmAuth alone. 🔴 TWO RULINGS OF 2026-09-22, built and pinned - a manager sees EVERY deal in the firm, and how the approach rate is counted. Brief stage 4 holds both.",
-      "comment": "2026-09-21 - stage 3 screens built. THE LESSON: the plan said \"redrawn on our six SVG chart components\" and said nothing about what the screen LOOKED like, so a session designed one. His dashboard already existed, fully designed, 938 lines on E:, and nobody opened it before building the replacement. A plan naming a CONSTRAINT is not a licence to invent a layout; the source app is the specification. Earlier, 2026-09-22: the plan was re-read and FOUR things in it were wrong, one of them Mike's own catch - it told a session to put these advisor screens on the Firm Manager Hub, which has no advisor scope. sales-tracker-history.md section 5."
     },
     {
       "ref": "13.2",

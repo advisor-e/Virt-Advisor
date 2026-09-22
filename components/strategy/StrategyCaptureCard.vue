@@ -71,6 +71,11 @@
                   @input="onSelect(field.key, $event)"
                 )
                   option(v-for="opt in field.options" :key="opt" :value="opt") {{ opt }}
+                //- 🔴 `@input.native` SAVES NOTHING. This card has always saved on blur —
+                //- it was never part of the per-keystroke defect of 2026-09-22 — but the
+                //- page still has to know there are words not yet written out, or the
+                //- Saved stamp would show a green tick over a sentence being typed into
+                //- it (Decision E). ⚠ Never turn this into a save.
                 b-input(
                   v-else
                   :id="inputId(field.key)"
@@ -78,6 +83,7 @@
                   :placeholder="field.prompt || ''"
                   @focus="onFocus(field.key)"
                   @blur="onBlur(field.key, $event)"
+                  @input.native="onTyping(field.key, $event.target.value)"
                 )
 
     //- THE CAPTURE. One renderer, several shapes — Decision 3. The shape decides the
@@ -99,6 +105,7 @@
           :placeholder="$t('strategyPlanner.card.placeholder')"
           @focus="onFocus(field.key)"
           @blur="onBlur(field.key, $event)"
+          @input.native="onTyping(field.key, $event.target.value)"
         )
 </template>
 
@@ -249,6 +256,27 @@ export default {
         frameworkId: this.framework.id,
         fieldKey: key,
         value
+      })
+    },
+
+    /**
+     * The advisor is typing — a signal for the Saved stamp, never a write.
+     *
+     * 🔴 Decision E, Mike 2026-09-22: while there are words in the open box that have not
+     * been written out, the screen says so rather than claiming everything is saved. The
+     * page also starts its auto-save pause from this (Decision D).
+     *
+     * ⚠ NOTHING IS SENT HERE AND NOTHING MAY EVER BE. This card saves on blur, above.
+     *
+     * @param {string} key the box being typed into
+     * @param {string} value its whole current text
+     */
+    onTyping (key, value) {
+      // { frameworkId, fieldKey, value } — a signal, never a write.
+      this.$emit('field-typing', {
+        frameworkId: this.framework.id,
+        fieldKey: key,
+        value: value === null || value === undefined ? '' : String(value)
       })
     },
 

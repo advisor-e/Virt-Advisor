@@ -48,6 +48,64 @@ describe('a generated drawing compiles and renders', () => {
   })
 })
 
+describe('the logo is the mark and the disc is the fallback', () => {
+  // Mike's ruling, 2026-09-22. Rendered rather than read off the source,
+  // because the thing that can go wrong is a `v-if` that compiles but does not
+  // exclude — and then a firm gets its logo with its own initials printed on
+  // top of it, on a document a client keeps.
+  const FIRM = { firmName: 'Ashgrove Advisory', firmInitial: 'A', firmColour: '#7a4b8f' }
+  const LOGO = 'https://cdn.example.com/ashgrove.png'
+
+  test('a firm WITH a logo shows it, and shows no disc, initial or name', () => {
+    const wrapper = mountWithBuefy(RiskRewardMatrix, {
+      propsData: Object.assign({}, FIRM, { firmLogo: LOGO })
+    })
+    const html = wrapper.html()
+
+    expect(wrapper.find('image.fm-logo').exists()).toBe(true)
+    expect(html).toContain(LOGO)
+    expect(wrapper.find('.fm-disc').exists()).toBe(false)
+    expect(wrapper.find('.fm-init').exists()).toBe(false)
+    expect(wrapper.find('.fm-name').exists()).toBe(false)
+    expect(html).not.toContain('Ashgrove Advisory')
+  })
+
+  test('a firm WITHOUT a logo falls back to the disc exactly as before', () => {
+    const wrapper = mountWithBuefy(RiskRewardMatrix, { propsData: FIRM })
+
+    expect(wrapper.find('image.fm-logo').exists()).toBe(false)
+    expect(wrapper.find('.fm-disc').exists()).toBe(true)
+    expect(wrapper.find('.fm-name').text()).toBe('Ashgrove Advisory')
+  })
+
+  test('THE BORDER IS BRANDED EITHER WAY — a logo does not replace the colour', () => {
+    // The fault that produced this ruling: the firm's colour drove ONE element,
+    // the disc, so ruling the disc into a fallback left a branded firm's colour
+    // with nowhere to appear at all.
+    const withLogo = mountWithBuefy(RiskRewardMatrix, {
+      propsData: Object.assign({}, FIRM, { firmLogo: LOGO })
+    })
+    const without = mountWithBuefy(RiskRewardMatrix, { propsData: FIRM })
+
+    expect(withLogo.find('.firm-border').attributes('stroke')).toBe('#7a4b8f')
+    expect(without.find('.firm-border').attributes('stroke')).toBe('#7a4b8f')
+  })
+
+  test('the wrapper passes the logo down, so a caller sets it in ONE place', () => {
+    const wrapper = mountWithBuefy(StrategyConceptGraphic, {
+      propsData: {
+        conceptId: 'risk-reward-matrix',
+        firmName: 'Ashgrove Advisory',
+        firmColour: '#7a4b8f',
+        firmLogo: LOGO
+      },
+      stubs: { RiskRewardMatrix: true }
+    })
+
+    expect(wrapper.props('firmLogo')).toBe(LOGO)
+  })
+})
+
 describe('the resolver shows a drawing only where one was approved', () => {
   test('a concept with no drawing renders nothing at all', () => {
     const wrapper = mountWithBuefy(StrategyConceptGraphic, {

@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reopening a Session</title>
+<!--
+================================================================================
+  THE DOOR — reopening a strategy session. STAGE 7 of item 15.1.
+  Drawn 2026-09-22. NOT YET APPROVED. NOTHING ON THIS PAGE IS BUILT.
+
+  It is the artefact the build will be measured against, per CLAUDE.md's
+  Save-the-Artefact rule: open it beside the build and name every difference
+  before shipping.
+
+  WHY IT EXISTS, AND IN MIKE'S OWN WORDS. Stage 7 used to read "calculators run
+  inside the card". While scoping it he asked:
+
+      "as an advisor, in a session with a client, how do i leave the session to
+       look at something else and return back to my screen afterwards?"
+
+  The answer is that you cannot, and that is a defect rather than a missing
+  feature. He then redirected the stage himself:
+
+      "or, simply make stage 7 - building the door?"
+
+  The calculators are not deleted. His patchwork ruling of 2026-09-16 stands and
+  governs how a calculator is built if one ever is; it is parked in the Brief at
+  section 7a with the two reasons it is not the next job.
+
+  WHAT IS ALREADY BUILT, AND IS WHY THIS IS WIRING RATHER THAN MACHINERY. A saved
+  session already holds everything this screen needs:
+
+    scope_json     the ticked frameworks, the chosen domains, THE ADVISOR'S OWN
+                   NAMED STEPS and which concepts sit in each, and the AI's
+                   pre-tick suggestion   (strategySessionStore.js setScope)
+    entries        every typed box, saved as it was typed
+    timeline       every field opened and closed, newest last
+    last_opened_at stamped on every scope save
+
+  and two routes already serve it, both firm-scoped and IDOR-safe — a session
+  belonging to another firm reads as ABSENT, not forbidden:
+
+    GET /api/strategy/sessions/:id        -> { session, entries, timeline }
+    GET /api/strategy/sessions?clientId=  -> newest first
+
+  NOTHING ON THE FRONTEND CALLS EITHER OF THEM. pages/strategy-planner.vue holds
+  sessionId in component memory alone, never in the address bar, and its mounted
+  hook never asks for a session.
+
+  🔴 ONE CLAIM CORRECTED BEFORE IT REACHED THIS DRAWING. It was said in chat that
+  "the navigation timeline already records where they were". It records the
+  FIELD and CONCEPT last open — frameworkId, fieldKey, openedAt, closedAt — and
+  NOT which of the five stages the advisor was on. That is still enough for
+  Decision B without a schema change, because a concept with an open field can
+  only have been open on Run session. Stated here so the build does not go
+  looking for a stage column that does not exist.
+
+  ⚠ EVERY SESSION EVER STARTED IS MARKED 'open'. status is set once, at creation,
+  and nothing anywhere sets it to anything else. THAT IS NOW THE SETTLED DESIGN
+  RATHER THAN A GAP — see Decision C, which was DROPPED.
+
+  ── UPDATED 2026-09-22, SAME DAY ────────────────────────────────────────────
+
+  ALL FIVE DECISIONS ARE SETTLED. A, B, D and E ruled as recommended; C DROPPED.
+  B: reopening takes the advisor straight back to the concept they were working
+     on, not to the beginning.
+  C: DROPPED ON MIKE'S CHALLENGE — "each session relates to a single client -
+     tell me why i need this feature." He was right. The bar only appears once a
+     client is chosen, so nothing is ever choosing between people; it names the
+     session's date, and one click starts a new one. A "finished" flag would have
+     to be SET by a person as a meeting breaks up, would be forgotten, and a
+     record confidently wrong about what is finished is worse than none. If it
+     ever matters it is DERIVED — producing the client's plan is the natural end
+     and the app already knows when that happened.
+  D: "yes - auto save" — the Saved stamp is always on screen and updates itself.
+  E: while the advisor is still typing, the stamp says "Unsaved changes" for
+     those few seconds rather than claiming everything is saved.
+
+  DECISION A. Mike, on reading it: "yes but i also want a 'leave
+  session' button so i can navigate back to the main advisor-e menu and look at
+  other tools etc, then navigate back to the page and reopen session" — and
+  then: "i should also be able to 'save session' at any time and return to
+  continue." Both are his own words and both are drawn below.
+
+  🔴 THE 'SAVE SESSION' REQUEST FOUND A REAL DEFECT, AND IT IS ALREADY FIXED.
+  Asked what Save would do, the honest answer was "nothing — it already saves."
+  Chasing that down: the capture boxes bound Buefy's `@input`, which fires from
+  the NATIVE input event unless `lazy` is set, so EVERY CHARACTER TYPED WAS ITS
+  OWN `PUT /entries` AND ITS OWN DATABASE WRITE — measured at 62 saves for a
+  62-character sentence. Worse, they were fired without awaiting one another, so
+  on a slow line an early short value could land after a later one and store a
+  HALF-TYPED ANSWER. The JSDoc on `onFieldChanged` had claimed blur behaviour all
+  along. Fixed with `lazy` on both inputs, mutation-verified, pinned by
+  tests/unit/strategyCaptureSaveRate.test.js. Dictation is unaffected — it never
+  goes through the input.
+
+  THAT IS WHAT MAKES 'SAVE SESSION' REAL RATHER THAN DECORATIVE. A box now saves
+  when the advisor leaves it, so the box they are TYPING IN genuinely is not
+  saved yet, and a Save button has something to commit and something to confirm.
+
+  ⚠ 'LEAVE SESSION' HAS NO DESTINATION YET. Our pages carry no navigation at all
+  (layouts/default.vue is four lines), so the way out is Advisor-e's. Seam
+  Q-RETURN-URL is in config/integration.js and question 9 of
+  design/MASTER-TEAM-INTEGRATION-EMAIL.md asks for it, two ways, either alone
+  sufficient. UNANSWERED, THE BUTTON IS NOT RENDERED — the same rule the
+  "Suggest for this client" button was fixed under: a control that looks live and
+  does nothing cannot be told apart from a broken app.
+================================================================================
+-->
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --bright: #00b1e0; --eg: #6b7f99; --bg: #fff;
+    --good: #4ca52d; --crit: #c0392b; --warn: #ff9900;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    color: var(--body); background: var(--bg); margin: 0;
+    padding-block: 32px 80px; padding-inline: 16px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: clamp(24px, 4vw, 30px); margin: 0 0 6px; text-wrap: balance; }
+  h2 { color: var(--ink); font-size: clamp(18px, 3vw, 21px); margin: 34px 0 4px; text-wrap: balance; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+  .cap { color: var(--eg); font-size: 12.5px; margin: 6px 0 0; max-width: 78ch; }
+
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 22px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .note p:last-child { margin-bottom: 0; }
+  .bad { border-left-color: var(--crit); background: #fdf3f2; }
+  .bad h3 { color: var(--crit); }
+  .ok { border-left-color: var(--good); background: #eefaf0; }
+  .ok h3 { color: #1d6b2b; }
+
+  .measure { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--crit); border-radius: 10px; padding: 14px 16px; margin: 0 0 22px; }
+  .measure h3 { margin: 0 0 10px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--crit); }
+  .tablewrap { overflow-x: auto; }
+  table.m { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 460px; }
+  table.m th, table.m td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.m th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  table.m td:first-child { font-weight: 600; color: var(--ink); }
+  table.m td.n { font-variant-numeric: tabular-nums; font-weight: 700; }
+  td.now { color: var(--crit); }
+  td.want { color: #1d6b2b; }
+
+  .ask { background: #eef7ff; border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 13px 15px; margin: 18px 0; font-size: 13.5px; }
+  .ask h3 { margin: 0 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+  .ask p { margin: 0 0 7px; }
+  .ask p:last-child { margin: 0; }
+  .ask .rec { font-weight: 600; color: var(--ink); }
+  .ask .q { margin-top: 9px; padding-top: 9px; border-top: 1px solid #bcdcf6; font-weight: 600; color: var(--ink); }
+  .ask.ruled { background: #eefaf0; border-color: #a8dcb4; border-left-color: var(--good); }
+  .ask.ruled h3 { color: var(--good); }
+  .ask.ruled .q { border-top-color: #cbe7d2; font-weight: 400; color: var(--eg); font-size: 12.5px; }
+  .ask .ruling { font-weight: 600; color: #1d6b2b; margin: 0 0 9px; padding-bottom: 9px; border-bottom: 1px solid #cbe7d2; }
+  .ask.want { background: #fff8ec; border-color: #f0cf95; border-left-color: var(--warn); }
+  .ask.want h3 { color: #a76b00; }
+
+  /* ---------- the drawn screen ---------- */
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; margin: 0 0 8px; background: #fff; }
+  .chrome { background: var(--wash); border-bottom: 1px solid var(--line); padding: 13px 18px; }
+  .chrome .ceyebrow { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 2px; }
+  .chrome .ctitle { color: var(--ink); font-size: 19px; font-weight: 700; margin: 0; }
+  .chrome .csub { color: var(--eg); font-size: 12.5px; margin: 2px 0 0; }
+  .rail { display: flex; gap: 6px; padding: 11px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rstep { font-size: 12px; font-weight: 600; color: var(--eg); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 4px 13px; }
+  .rstep.done { color: var(--good); border-color: #a8dcb4; background: #f3fbf5; }
+  .rstep.here { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .rstep.off { color: #b6c3d3; border-color: #e6edf5; }
+
+  .pad { padding: 16px 18px 20px; }
+  .fieldrow { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 0 0 16px; }
+  .field { flex: 1 1 260px; min-width: 0; }
+  .flabel { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--eg); margin: 0 0 4px; }
+  .fbox { border: 1px solid var(--line); border-radius: 8px; padding: 8px 11px; font-size: 13.5px; color: var(--ink); background: #fff; display: flex; justify-content: space-between; gap: 8px; }
+  .fbox .car { color: var(--eg); }
+
+  .btn { font-size: 12.5px; font-weight: 600; border-radius: 8px; padding: 7px 14px; border: 1px solid var(--accent); background: var(--accent); color: #fff; white-space: nowrap; }
+  .btn.ghost { background: #fff; color: var(--accent); }
+  .btn.quiet { background: #fff; color: var(--eg); border-color: var(--line); font-weight: 400; }
+
+  /* THE RESUME BAR — the whole point of this drawing */
+  .resume {
+    border: 1px solid #9fd0f5; border-left: 4px solid var(--accent);
+    background: linear-gradient(90deg, #eef7ff, #fbfdff);
+    border-radius: 10px; padding: 12px 15px; margin: 0 0 18px;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  }
+  .resume-main { flex: 1 1 340px; min-width: 0; }
+  .resume-t { color: var(--ink); font-weight: 700; font-size: 14.5px; margin: 0; }
+  .resume-facts { color: var(--eg); font-size: 12.5px; margin: 3px 0 0; }
+  .resume-facts b { color: var(--body); font-variant-numeric: tabular-nums; }
+  .resume-who { color: var(--warn); font-weight: 700; }
+  .resume-acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .morelink { font-size: 12px; color: var(--accent); font-weight: 600; }
+
+  /* the reopened banner */
+  .reopened {
+    border: 1px solid #a8dcb4; border-left: 4px solid var(--good); background: #f3fbf5;
+    border-radius: 10px; padding: 10px 14px; margin: 0 0 16px;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  .reopened p { margin: 0; font-size: 13px; flex: 1 1 320px; color: #1d6b2b; }
+  .reopened p b { color: var(--ink); }
+
+  /* the earlier-sessions list */
+  .slist { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .srow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .srow:last-child { border-bottom: 0; }
+  .srow.head { background: var(--wash); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  .srow .when { flex: 0 0 168px; color: var(--ink); font-weight: 600; font-size: 13px; }
+  .srow .what { flex: 1 1 240px; font-size: 12.5px; color: var(--eg); }
+  .srow .what b { color: var(--body); font-variant-numeric: tabular-nums; }
+  .srow.head .when, .srow.head .what { color: var(--eg); font-weight: 700; font-size: 10.5px; }
+  .pill { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-radius: 999px; padding: 2px 9px; border: 1px solid #a8dcb4; background: #f3fbf5; color: #1d6b2b; white-space: nowrap; }
+  .pill.done { border-color: var(--line); background: #fff; color: var(--eg); }
+
+  .capture { border: 1px solid var(--line); border-radius: 9px; padding: 11px 13px; background: #fcfdff; }
+  .capture .ct { color: var(--ink); font-weight: 700; font-size: 13.5px; margin: 0 0 6px; }
+  .capture .cb { border: 1px solid var(--line); border-radius: 7px; background: #fff; padding: 7px 10px; font-size: 13px; color: var(--body); margin: 0 0 7px; }
+  .capture .cb:last-child { margin: 0; }
+  .capture .cb.live { border-color: var(--bright); box-shadow: 0 0 0 3px #00b1e022; }
+
+  /* the session's own controls — Mike's two buttons, and the saved stamp */
+  .sessbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 14px; }
+  .sessbar .spacer { flex: 1 1 40px; }
+  .saved { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #1d6b2b; font-weight: 600; white-space: nowrap; }
+  .saved::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--good); flex: none; }
+  .saved .t { color: var(--eg); font-weight: 400; font-variant-numeric: tabular-nums; }
+  .btn.leave { background: #fff; color: var(--crit); border-color: #e3b6b0; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner · item 15.1 · stage 7</p>
+  <h1>The door — reopening a strategy session</h1>
+  <p class="lede">An advisor in a room with a client cannot currently leave this screen and come
+    back to it. If they navigate away for any reason — a calculator, a phone call, the client's own
+    report, a mis-clicked back button, the laptop lid — they return to an <b>empty Scope screen with
+    no client selected</b>, and pressing <i>Build the session</i> again opens a <b>second, blank
+    session</b> for the same client. Everything typed is safely stored; nothing in the app can reach
+    it again.</p>
+  <p class="src">Drawn 2026-09-22 · <b>not yet approved to build from</b> · nothing here is built ·
+    <b>five decisions below, ALL SETTLED</b> — A, B, D and E ruled, C dropped · ruling the questions inside a drawing settles those
+    questions and nothing else</p>
+
+  <div class="measure">
+    <h3>The impact test, answered before this was drawn</h3>
+    <div class="tablewrap">
+      <table class="m">
+        <thead><tr><th>What is measured</th><th>Today</th><th>After</th></tr></thead>
+        <tbody>
+          <tr><td>Ticked frameworks that survive leaving the screen</td><td class="n now">0</td><td class="n want">all of them</td></tr>
+          <tr><td>Named steps and their placed concepts</td><td class="n now">0</td><td class="n want">all of them</td></tr>
+          <tr><td>Typed answers reachable again</td><td class="n now">0 <span style="font-weight:400">(stored, unreachable)</span></td><td class="n want">all of them</td></tr>
+          <tr><td>Sessions created per client per meeting</td><td class="n now">1 per navigation away</td><td class="n want">1</td></tr>
+          <tr><td>What already does this job</td><td colspan="2">Nothing on screen. The back end already does all of it and is never asked.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cap">Measured in a browser before and after, on a session with a known number of ticks,
+      steps and typed boxes — not asserted.</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Screen 1 — Scope session, when the client has been here before</h2>
+  <p class="lede">The only change to this screen is the bar. Everything below it is the scope menu
+    exactly as approved on 2026-09-17 and built.</p>
+
+  <div class="screen">
+    <div class="chrome">
+      <p class="ceyebrow">Strategy Planner</p>
+      <p class="ctitle">What do you want from your session?</p>
+      <p class="csub">Scope session · Ruth Cole, Harbour Joinery</p>
+    </div>
+    <div class="rail">
+      <span class="rstep here">Scope session</span>
+      <span class="rstep off">Build session</span>
+      <span class="rstep off">Run session</span>
+      <span class="rstep off">Objectives &amp; actions</span>
+      <span class="rstep off">Produce plan</span>
+    </div>
+    <div class="pad">
+      <div class="fieldrow">
+        <div class="field">
+          <p class="flabel">Client</p>
+          <div class="fbox"><span>Ruth Cole — Harbour Joinery</span><span class="car">▾</span></div>
+        </div>
+        <button class="btn ghost" type="button">Suggest for this client</button>
+        <button class="btn" type="button">Build the session</button>
+      </div>
+
+      <div class="resume">
+        <div class="resume-main">
+          <p class="resume-t">Ruth Cole has a session from Thursday 19 September, 2:14pm</p>
+          <p class="resume-facts"><b>11</b> concepts scoped · <b>5</b> steps named · <b>34</b> answers
+            typed · last opened 19 Sep, 4:02pm · started by you</p>
+        </div>
+        <div class="resume-acts">
+          <button class="btn" type="button">Reopen this session</button>
+          <button class="btn quiet" type="button">Start a new session</button>
+          <a class="morelink" href="#earlier">3 earlier sessions</a>
+        </div>
+      </div>
+
+      <p class="flabel" style="margin-bottom:8px;">Strategic Orientation 2 — session scope</p>
+      <div class="capture">
+        <p class="ct">The 52 concepts, five panels, exactly as built</p>
+        <div class="cb">Porter's 5 Forces</div>
+        <div class="cb">Product Fit Review</div>
+        <div class="cb">Blue Ocean Strategy</div>
+      </div>
+    </div>
+  </div>
+  <p class="cap"><b>Why a bar and not a silent resume.</b> A new meeting with the same client is a
+    perfectly ordinary thing to want. Guessing wrong in front of a client either loses their place or
+    drops them into a stale session, and neither is recoverable in the room. <b>Why not a pop-up:</b>
+    a modal in front of a client is a jolt, and an advisor who wants a fresh session should be able to
+    ignore this and carry on.</p>
+  <p class="cap">⚠ <b>The bar names whose session it is.</b> These routes are scoped to the FIRM, not
+    to one advisor, so a colleague's session for the same client will appear here. That is useful —
+    covering for someone who is away is real — but it must never be silent. Where the session is not
+    the viewer's own, the line reads <span class="resume-who">started by James Okoro</span> in place
+    of <i>started by you</i>.</p>
+
+  <h2>Screen 2 — what the advisor sees the moment it reopens</h2>
+
+  <div class="screen">
+    <div class="chrome">
+      <p class="ceyebrow">Strategy Planner</p>
+      <p class="ctitle">Run session</p>
+      <p class="csub">Ruth Cole, Harbour Joinery · session of 19 September</p>
+    </div>
+    <div class="rail">
+      <span class="rstep done">Scope session</span>
+      <span class="rstep done">Build session</span>
+      <span class="rstep here">Run session</span>
+      <span class="rstep">Objectives &amp; actions</span>
+      <span class="rstep">Produce plan</span>
+    </div>
+    <div class="pad">
+      <div class="reopened">
+        <p>Reopened where you left off — <b>Step 3, Porter's 5 Forces</b>. Everything you had typed is
+          here. <a class="morelink" href="#">Back to Scope session</a></p>
+      </div>
+
+      <div class="sessbar">
+        <!-- Decision E: the stamp has three states. Drawn in its Saved one; the other two
+           are "Saving…" and "Unsaved changes", which is what stops it lying. -->
+      <span class="saved">Saved <span class="t">2:41pm</span></span>
+        <span class="spacer"></span>
+        <button class="btn quiet" type="button">Save session</button>
+        <button class="btn leave" type="button">Leave session</button>
+      </div>
+
+      <div class="capture">
+        <p class="ct">Porter's 5 Forces — Customer Trends</p>
+        <div class="cb">Two of the three largest merchants now quote online, same day.</div>
+        <div class="cb live">Nothing typed here yet</div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">The rail shows Scope and Build as done because they are — the ticks and the steps
+    came back with the session. The green banner is what stops a reopen being disorienting: it names
+    where the advisor is and offers one click back to the start.</p>
+
+  <h2>The two buttons, and what each one actually does</h2>
+
+  <div class="note">
+    <h3>Save session — and the fault it uncovered</h3>
+    <p>Asked what a Save button would do, the honest first answer was <b>nothing</b>: the app was
+      already saving. Chasing that down found it was saving <b>once per keystroke</b> — measured at
+      <b>62 saves for a 62-character sentence</b>, each one a separate database write, and fired
+      without waiting for one another, so a slow connection could store a half-typed answer. The
+      code's own notes had claimed it saved when you left a box. <b>That is fixed, tested and
+      proved</b> — a box now saves when the advisor leaves it.</p>
+    <p><b>Which is what makes your button real rather than decorative.</b> The box being typed into
+      genuinely is not saved yet, so <i>Save session</i> has something to commit — the open box and
+      the scope — and something to confirm.</p>
+  </div>
+
+  <div class="note bad">
+    <h3>Leave session — built, but it cannot be shown until Advisor-e answers</h3>
+    <p>Our pages have <b>no navigation of their own</b> — `layouts/default.vue` is four lines, just
+      the page. So the way back out is Advisor-e's menu, and nobody has ever told this app that
+      address. Question 9 of the integration email now asks for it, two ways, either alone enough.</p>
+    <p>🔴 <b>Until it is answered the button is not rendered at all</b> — the same rule the
+      <i>Suggest for this client</i> button was fixed under on 2026-09-22: a control that looks live
+      and does nothing cannot be told apart from a broken app. It is also not shown on Scope before a
+      session exists, because there is nothing to leave.</p>
+    <p><b>It asks no "are you sure?"</b> — a named choice, not an oversight. Everything is saved, the
+      bar on Screen 1 brings the advisor straight back, and a confirmation box in front of a client is
+      a jolt for no gain.</p>
+  </div>
+
+  <h2 id="earlier">Screen 3 — the earlier sessions, behind the link</h2>
+  <p class="lede">Reached only from <i>3 earlier sessions</i> on the bar. It exists because
+    <b>a regular client accumulates sessions</b>, and the bar must stay one line.</p>
+
+  <div class="slist">
+    <div class="srow head"><span class="when">Session</span><span class="what">What is in it</span><span>&nbsp;</span></div>
+    <div class="srow">
+      <span class="when">19 Sep 2026, 2:14pm</span>
+      <span class="what"><b>11</b> concepts · <b>5</b> steps · <b>34</b> answers · started by you</span>
+      <span class="pill">Most recent</span>
+      <button class="btn ghost" type="button">Reopen</button>
+    </div>
+    <div class="srow">
+      <span class="when">3 Jun 2026, 9:30am</span>
+      <span class="what"><b>9</b> concepts · <b>4</b> steps · <b>31</b> answers · started by James Okoro</span>
+      <button class="btn quiet" type="button">Reopen</button>
+    </div>
+    <div class="srow">
+      <span class="when">14 Feb 2026, 11:00am</span>
+      <span class="what"><b>12</b> concepts · <b>5</b> steps · <b>40</b> answers · started by you</span>
+      <button class="btn quiet" type="button">Reopen</button>
+    </div>
+  </div>
+  <p class="cap">🔴 <b>There is no "finished" state, and that is Decision C — DROPPED on Mike's
+    challenge.</b> Nothing here is closed, locked or archived; the list is simply that client's
+    sessions, newest first. The bar offers the most recent and names its date, which is all anyone
+    needs to tell this week's work from last quarter's.</p>
+
+  <hr class="rule">
+
+  <h2>The decisions — five, all settled</h2>
+  <p class="lede">One recommendation and one yes/no each, asked one at a time. The recommendation is
+    kept beneath a ruling so a later session can see what was proposed as well as what was decided.</p>
+
+  <div class="ask ruled">
+    <h3>Decision A — what happens when the advisor picks a client who has been here before — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-22. <b>The screen offers to reopen the most
+      recent session, with <i>Start a new session</i> beside it.</b> Never a silent resume. He added two
+      things in the same breath, both drawn above: a <b>Leave session</b> button back to Advisor-e's
+      menu, and <b>Save session</b> at any time.</p>
+    <p class="rec">Recommendation kept: <b>a bar above the scope table naming the most recent session, what
+      is in it, when it was last touched and whose it is</b> — with <i>Reopen this session</i> and
+      <i>Start a new session</i> beside it. Never a silent resume, never a pop-up.</p>
+    <p>Rejected alternatives, named so they are not re-proposed: <b>silently reopening</b> the most
+      recent (guesses wrong in front of a client and there is no way back); <b>a modal</b> (a jolt
+      mid-meeting, and it blocks an advisor who wants a fresh session); <b>a separate "my sessions"
+      page</b> (a second place to look, when the advisor is already on the screen that knows the
+      client).</p>
+    <p class="q">When an advisor picks a client who already has a session, should the screen show a bar
+      offering to reopen the most recent one with <i>Start a new session</i> beside it — instead of
+      going straight to a blank new session as it does today? Yes or no.</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision B — where reopening puts the advisor — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-22. <b>Reopening takes the advisor straight
+      back to the concept they were working on</b>, not to the beginning. The green banner naming
+      where they are, and the one click back to Scope, are what make that safe rather than
+      disorienting — they are part of the ruling, not decoration.</p>
+    <p class="rec">Recommendation kept: <b>back at the concept they last had open, on Run session</b>, with
+      the green banner naming it and one click back to Scope.</p>
+    <p>It costs nothing to build. The session's timeline already records every field opened and closed,
+      newest last, so the last concept touched is known — <b>and a concept with an open field can only
+      have been open on Run session.</b> ⚠ The stage itself is <b>not</b> stored anywhere, so a session
+      with no timeline at all (scoped but never run) opens on Scope, which is where its advisor stopped.</p>
+    <p>Against it: an advisor who has forgotten what they were doing lands deep in the session rather
+      than at the beginning. The banner is the answer to that, and the rail has been clickable in any
+      order since your ruling of 2026-09-21, so nothing is trapped.</p>
+    <p class="q">Asked as: when you reopen a session, should it take you straight back to the concept
+      you were working on — instead of starting you at the beginning on the first screen?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision C — whether a session ever ends — DROPPED, AGAINST THE RECOMMENDATION</h3>
+    <p class="ruling">🔴 <b>DROPPED — Mike, 2026-09-22, and he was right.</b> His challenge:
+      <i>"each session relates to a single client - tell me why i need this feature."</i> <b>The bar
+      only appears once a client is chosen, so the app is never choosing between people — only
+      between that client's own sessions, newest first.</b> The bar names the date and what is in it,
+      so an advisor sees at a glance whether it is this week's work or last quarter's, and one click
+      on <i>Start a new session</i> settles it. <b>That is the whole cost of not having this.</b></p>
+    <p><b>Against it, and this is why the recommendation was wrong:</b> a "finished" state has to be
+      SET, by a person, at the moment a meeting breaks up and the client is putting their coat on.
+      It would be forgotten more often than not — and a record that is confidently wrong about what
+      is finished is worse than no record. ⚠ <b>Nothing is lost.</b> If it ever matters, it can be
+      DERIVED rather than remembered: producing the client's plan is the natural end of a session
+      and the app already knows when that happened.</p>
+    <p class="rec">Recommendation kept, so a later session can see what was proposed as well as what
+      was decided: <b>the advisor marks a session finished from Produce plan</b>,
+      and a finished session stops being the one the bar offers while staying fully readable and
+      reopenable in the earlier-sessions list.</p>
+    <p>⚠ <b>The reason this is a decision and not a detail.</b> Today a session's status is set to
+      <i>open</i> when it is created and <b>nothing in the app ever changes it</b>. Every session a
+      client has ever had is open. Nothing is harmed by that now, because nothing reads it — but the
+      moment the bar exists, it has to know which session it means, and after a year of quarterly
+      planning a regular client would have several equally open ones.</p>
+    <p>If the answer is no, the bar works on <b>recency alone</b> and always offers the newest. That is
+      workable and cheaper; the cost is that a session finished months ago keeps being offered until a
+      newer one replaces it.</p>
+    <p class="q">Asked as: should you be able to mark a session as finished, so it stops being the one
+      offered when you come back — while still being there to open whenever you want it? <b>Answered
+      by dropping it.</b></p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision D — whether the "Saved" stamp is always on screen, or only after pressing Save — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-22: <b>"yes - auto save"</b>. The stamp is
+      always on screen and updates itself, and saving is something the advisor never has to think
+      about. <i>Save session</i> stays as the deliberate act, for an advisor who wants to be certain
+      before they stand up.</p>
+    <p class="rec">Recommendation kept: <b>always on screen, updating itself</b> — the quiet green
+      <i>Saved 2:41pm</i> drawn beside the two buttons on Screen 2, which moves on every automatic save
+      as well as on a press of <i>Save session</i>.</p>
+    <p>The reason is the request itself. Wanting a Save button is not really about saving — the app
+      was already doing that. It is about <b>being able to see that your client's words are safe</b>,
+      which a button you have to press cannot tell you until you press it. A stamp that is simply
+      there answers the question before it is asked, and it costs one line on the screen.</p>
+    <p>Against it: one more thing on a screen an advisor uses in front of a client. It is small, grey
+      and in the corner for exactly that reason.</p>
+    <p class="q">Asked as: should the session show a quiet <i>Saved 2:41pm</i> stamp at all times,
+      updating itself as answers save — instead of confirming a save only when <i>Save session</i> is
+      pressed?</p>
+  </div>
+
+  <div class="ask ruled">
+    <h3>Decision E — what the stamp says when there ARE words not yet stored — RULED</h3>
+    <p class="ruling">Ruled AS RECOMMENDED — Mike, 2026-09-22. <b>The stamp admits it.</b> While the
+      advisor is still typing and their words have not been saved, it reads <i>Unsaved changes</i>
+      for those few seconds, rather than always showing <i>Saved</i> with a time beside it.</p>
+    <p>⚠ <b>Decision D creates this and it cannot be left to the build.</b> A box saves when the
+      advisor leaves it. So while they are typing into the box in front of them, those words are
+      <b>not stored yet</b> — and a stamp reading <i>Saved 2:41pm</i> beside three freshly typed
+      sentences is not reassurance, it is a false statement at the one moment it matters. <b>A stamp
+      that only ever says "Saved" is worse than no stamp at all.</b></p>
+    <p class="rec">Recommendation: <b>the stamp tells the truth in three states</b> — <i>Saved
+      2:41pm</i> when everything is stored, <i>Saving…</i> for the moment it takes, and <i>Unsaved
+      changes</i> while there are words in the open box that have not reached the database.</p>
+    <p><b>And the app keeps "Unsaved changes" short rather than leaving it hanging</b>, which is what
+      "auto save" has to mean: the open box is written out after a short pause in typing, not only
+      when the advisor leaves it. That is what closes the real hole — an advisor who types an answer
+      and then walks away without clicking anything else. ⚠ This is a <b>pause</b>, never a
+      keystroke: per-keystroke saving is the defect fixed on 2026-09-22 and must never return.</p>
+    <p>Against it: the advisor occasionally sees the words <i>Unsaved changes</i>, which reads as a
+      warning. It is one, briefly, and truthfully — and the alternative is a green tick that lies.</p>
+    <p class="q">Asked as: while you're still typing and your words haven't been saved yet, should the
+      marker say <i>Unsaved changes</i> for those few seconds — instead of always saying <i>Saved</i>
+      with a time next to it?</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>What this drawing does NOT decide</h2>
+  <div class="note">
+    <ul>
+      <li><b>Nothing about the calculators.</b> Your 2026-09-16 patchwork ruling is untouched and still
+        governs how a calculator is built if one ever goes in a card. Brief section 7a.</li>
+      <li><b>Nothing about producing the client's plan.</b> That already works and is untouched here.
+        ⚠ It is named because Decision C, dropped, said that if a session ever DOES need an end, it is
+        derived from the plan being produced rather than flagged by hand — that would be a new
+        decision, not something this drawing already allows.</li>
+      <li><b>Whether the session id belongs in the address bar.</b> It should, so that a refresh returns
+        rather than starting again — but that is invisible plumbing with no screen to approve, and it
+        follows from Decision A either way.</li>
+      <li><b>Where <i>Leave session</i> actually goes.</b> That is Advisor-e's address to give, not ours
+        to choose — question 9 of the integration email. The button's place on the screen is drawn here;
+        its destination is not a design decision.</li>
+      <li><b>Anything about how often a box saves.</b> That was a defect and it is already fixed, not a
+        choice being put to you. It appears here only because it is what makes <i>Save session</i>
+        meaningful.</li>
+      <li><b>Anything on the middle manager tiers.</b> This is an advisor screen; no tier holds a
+        different version of it and none is proposed.</li>
+    </ul>
+  </div>
+
+  <div class="note ok">
+    <h3>What the build must be checked against before it ships</h3>
+    <p>Open this page beside the built screen and name every difference, per the Save-the-Artefact
+      rule. A deliberate deviation is fine; an unrecorded one is not.</p>
+  </div>
+
+</div>
+</body>
+</html>
