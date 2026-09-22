@@ -48,29 +48,30 @@ repository sees; the two never both appear, and the build stops if they would.
 | 11 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 12 | **7.10** A page's templates are hidden behind whichever won the ID ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 13 | **14.3** A working-tree Handbook preview can be published over the shared link ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 14 | **15.1** The strategy domain has thirteen materials and no session to run them in ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-16 |
-| 15 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 16 | **5.3** Test suites collide on a shared dev file and block pushes at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 17 | **15.3** Eighteen rows of the session scope menu have no Helps Your Client To... line ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 18 | **15.4** Twelve labels on the plan document are ours, not Mike's ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 19 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 20 | **15.8** Two stock images in the Strategy Planner have no licence check ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 21 | **15.10** Page 2 of six decks is missing from the plan the app produces ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 22 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 23 | **15.12** Two teaching pages repeat the drawing's own questions and overflow the A4 sheet ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 24 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 25 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 26 | **16.2** The printed plan leaves no room for the advisor firm's logo ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 27 | **17** An advisor leaves the app to track their own deals and referral partners ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 28 | **13.1** Changing currency relabels figures and does not convert them ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 29 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 30 | **13.3** The currency picker is the one manager setting outside the hub ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 31 | **13.4** An advisor cannot set a currency for one client ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 32 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 33 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 34 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 14 | **14.4** Every Handbook build leaves the working tree dirty, and the stamp can never catch up ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
+| 15 | **15.1** The strategy domain has thirteen materials and no session to run them in ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-16 |
+| 16 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 17 | **5.3** Test suites collide on a shared dev file and block pushes at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 18 | **15.3** Eighteen rows of the session scope menu have no Helps Your Client To... line ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 19 | **15.4** Twelve labels on the plan document are ours, not Mike's ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 20 | **15.6** Eight concepts name a response form the app cannot find ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 21 | **15.8** Two stock images in the Strategy Planner have no licence check ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 22 | **15.10** Page 2 of six decks is missing from the plan the app produces ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 23 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 24 | **15.12** Two teaching pages repeat the drawing's own questions and overflow the A4 sheet ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 25 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 26 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 27 | **16.2** The printed plan leaves no room for the advisor firm's logo ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 28 | **17** An advisor leaves the app to track their own deals and referral partners ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 29 | **13.1** Changing currency relabels figures and does not convert them ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 30 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 31 | **13.3** The currency picker is the one manager setting outside the hub ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 32 | **13.4** An advisor cannot set a currency for one client ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 33 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 34 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 35 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**34 live items. Fifteen need Mike.** If this list passes about twenty, something is wrong.
+**35 live items. Fifteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
