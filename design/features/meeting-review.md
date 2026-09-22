@@ -56,9 +56,23 @@
 >
 > ✅ **§4 ITEM 3 IS CLOSED (2026-09-10) — the impact assessment is written**, against all fourteen
 > NZ information privacy principles: [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md).
-> ✅ **§4 ITEM 5 IS CLOSED TOO (2026-09-18) — on Mike's ruling, NOT on a sign-off.** What is relied
-> on is OpenAI's published terms plus three documented attempts. Never call it confirmed — §5 of
-> [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) holds all three replies verbatim.
+> 🔴 **§4 ITEM 5 IS REOPENED (2026-09-23) — AND THAT IS PROGRESS, NOT A SETBACK.** It had closed on
+> 2026-09-18 on Mike's ruling rather than a sign-off. A **fourth reply**, prompted by Mike quoting
+> support case **14889777**, offers **Zero Data Retention on BOTH endpoints** — including the
+> `/v1/chat/completions` call carrying the whole transcript, which is exactly the 30-day exposure
+> (b) below describes. Under ZDR that call treats `store` as false and the content is excluded from
+> abuse-monitoring logs. **§5.5 of [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)
+> has it verbatim; §6 has the intake drafted with four blanks only Mike can fill.**
+>
+> ⚠ **NOTHING IS GRANTED — IT IS AN INVITATION TO APPLY.** Approval, the signed amendment and
+> enablement are three separate steps and OpenAI quotes no turnaround. **Never record ZDR as
+> obtained or in progress.**
+>
+> 🔴 **AND TWO FINDINGS FROM IT ARE THE LAWYER'S, NOT A SETTING TO CHOOSE.** **In-region processing
+> for New Zealand does not exist** — NZ is unlisted, Australia is storage-only with no regional
+> processing for either endpoint, so content is processed offshore whichever region is picked. And
+> **even under ZDR, human access is not excluded** during processing or under a documented
+> exception; ZDR removes content from *ordinary* abuse logs and no further.
 >
 > 🔴 **A THIRD REPLY ARRIVED THE SAME DAY, AFTER THAT RULING, AND IT ANSWERS (§5.3).** Two facts
 > from it bear on this feature and must not be paraphrased away:
@@ -72,10 +86,12 @@
 > confirmation that human access is impossible throughout your app's entire workflow."* Our
 > destroy-the-audio commitment is unaffected; it is the **transcript** that may sit in those logs.
 >
-> **TWO REMAIN, and neither is ours:** the **lawyer's review per market** (item 2), which **no
-> longer waits on anything** — and which now has (a) and (b) to test — and the **staff consultation**
-> (item 4), which never waited on it. **Item 4.83 turns the banner into a real gate** — a firm
-> declares it understands the law where it operates, or Meeting Review does not open for it.
+> **THREE REMAIN, and none is ours:** the **lawyer's review per market** (item 2), which **no
+> longer waits on anything** — and which now has (a), (b) and the two findings above to test — the
+> **staff consultation** (item 4), which never waited on it, and **the ZDR application itself**
+> (item 5, reopened), which is a form, an approval, a signed amendment and an enablement, in that
+> order. **Item 4.83 turns the banner into a real gate** — a firm declares it understands the law
+> where it operates, or Meeting Review does not open for it.
 >
 > **The screens are drawn in [`../mockups/meeting-review.html`](../mockups/meeting-review.html)**
 > — seven of them, from the pre-set through to the manager's aggregate, registered in
@@ -372,21 +388,32 @@ their own client. It is worth building as a visible setting rather than a buried
 4. **Staff consultation.** Recording employees and generating performance findings about them is
    monitoring in employment-law terms, whoever owns the report. P2 makes the position defensible;
    it does not remove the obligation.
-5. ✅ **The transcription terms, for audio specifically — CLOSED 2026-09-18 ON MIKE'S RULING, NOT ON
-   AN ANSWER.** Both letters went out 2026-09-12; both were replied to and **neither confirmed a
-   single one of the five questions.** Support returned two public URLs and said the questions
-   "require confirmation based on the applicable API endpoint"; sales sent a qualification script.
-   Verbatim in [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) §5.
-   **Mike's ruling:** *"We have taken all fair and reasonable steps to comply — you will NEVER get a
-   single person to 'sign-off' on this within OpenAI."*
-   🔴 **WHAT IS RELIED ON, AND IT MUST BE STATED THIS WAY:** OpenAI's published DPA and
-   data-controls pages, plus two documented attempts through both channels OpenAI itself nominates.
-   **Not a bespoke confirmation** — Support expressly cautioned against assuming the general API
-   terms extend to audio, and that caution is on file. Anyone describing this as confirmed is wrong
-   and the replies disprove them.
-   ⚠ **IPP12 therefore closes the same way** — a reasoned position a regulator can weigh, never an
-   evidenced one, and the **lawyer's review (item 2) is where it gets tested. That review no longer
-   waits on anything.**
+5. 🔴 **The transcription terms, for audio specifically — REOPENED 2026-09-23 WITH A ROUTE.** It had
+   closed on 2026-09-18 on Mike's ruling rather than an answer: both letters of 2026-09-12 were
+   replied to and **neither confirmed a single one of the five questions**, and a third reply the
+   same day gave the first substantive answer. **Mike's ruling then:** *"We have taken all fair and
+   reasonable steps to comply — you will NEVER get a single person to 'sign-off' on this within
+   OpenAI."*
+   ✅ **A FOURTH REPLY, 2026-09-23, CHANGED THAT — because Mike wrote again quoting support case
+   14889777.** OpenAI offers **Zero Data Retention on both endpoints**, which covers the
+   `/v1/chat/completions` call carrying the whole transcript: under ZDR it treats `store` as false
+   and the content is excluded from abuse-monitoring logs. All four replies verbatim in
+   [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) §5; the **intake is drafted
+   at §6** with four blanks only Mike can fill — legal signer, company details, org ID.
+   ⚠ **NOT GRANTED. AN INVITATION TO APPLY.** Approval, amendment and enablement are three separate
+   steps with no quoted turnaround. **Never record ZDR as obtained or in progress**, and never
+   describe any of this as confirmed — Support expressly cautioned against assuming the general API
+   terms extend to audio, and that caution is still on file.
+   🔴 **TWO FINDINGS GO STRAIGHT TO THE LAWYER.** **In-region processing for New Zealand does not
+   exist** (NZ unlisted; Australia storage-only, no regional processing for either endpoint — so
+   processing is offshore whichever region is picked). And **ZDR does not exclude human access**
+   during processing or under a documented exception.
+   ⚠ **A MODEL QUESTION TO SETTLE BEFORE SENDING:** OpenAI lists `gpt-4o-mini-2024-07-18`; this app
+   calls **`gpt-4o-mini`** undated for the reports and **`gpt-4o-transcribe-diarize`**, which has
+   no dated variant to pin (see §"the model name cannot be pinned" above).
+   ⚠ **IPP12 still closes as a reasoned position**, never an evidenced one, and the **lawyer's
+   review (item 2) is where it gets tested. That review no longer waits on anything** — and it now
+   has the two findings above to weigh.
 6. **Jurisdiction.** The app is already localised for more than one country, and the law on
    recording a conversation is not the same in all of them. ⚠ **This is the item item 4.83 changes
    the shape of** — it does not answer the question, and it never could, but it stops the answer

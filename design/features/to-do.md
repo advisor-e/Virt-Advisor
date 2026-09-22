@@ -35,7 +35,7 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **8.1** Meeting Review — two non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 1 | **8.1** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 2 | **11.1** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 3 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
