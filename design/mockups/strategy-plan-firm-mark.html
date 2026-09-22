@@ -4,148 +4,65 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Firm's Mark on the Plan</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Source+Serif+4:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Carlito:wght@400;700&display=swap">
 <style>
 /* ============================================================================
-   THE FIRM'S MARK ON A CLIENT'S DOCUMENT — to-do item 16.2.
+   THE FIRM'S MARK ON THE PRINTED PLAN — to-do item 16.2.
    Drawn 2026-09-22. NOTHING ON THIS PAGE IS BUILT.
 
-   🔴 THIRD VERSION. Mike: "in order to achieve consistency across the entire app
-   - please refer to the original layout and copy it completely." The first draft
-   invented its own placement. The second claimed to copy the original, matched
-   its footer COORDINATES, and still looked nothing like it — because it changed
-   the canvas from 16:9 to A4, dropped the cover's composition, recoloured the
-   cover, and left the pages nearly empty. Coordinates were checked; the two pages
-   were never put side by side and looked at. This version IS the original page.
+   🔴 THE SOURCE, NAMED BY MIKE AND READ BY MACHINE:
+      C:\Documents\Visual Code Projects\Strategy Planner\Advance.6.Organisational Review.pdf
+      25 pages, 720 x 405pt (16:9).
 
-   THE ORIGINAL: design/mockups/business-performance-report.html (item 4.70,
-   approved), built as DashboardReportPage.vue and DashboardReportCover.vue and
-   shared by FOURTEEN section components. Every rule below between the two markers
-   is copied from it byte for byte — the page frame, the cover, the circles, the
-   badge, the tiles, the panels, the contents grid, the footer, the page number
-   and the logo boxes. Nothing in that block is ours.
+   Three earlier drafts guessed at what "the original layout" meant and copied
+   things inside this repository instead of asking. They were wrong. Mike:
+   "it isnt in the strategy planner folder so why look there?? ... and next time
+   - dont guess - ask!" THE ORIGINAL IS HIS OWN DECK PAGE. Nothing else.
 
-   THE ONLY THING THIS DRAWING ADDS: the dashed "Firm logo" box carries a real
-   logo. The original's own component comment says why it is still a box —
-   "no firm-logo setting exists yet" — and item 16 built one on 2026-09-22.
-   The place was reserved. The content now exists. NOTHING MOVES.
+   EVERY NUMBER BELOW IS EXTRACTED FROM THAT FILE, never placed by eye - the
+   five-step method in design/features/strategy-planner.md "How a concept is
+   drawn", which is the same method the 33 concept drawings were built with:
+     - geometry from the page's own coordinates (720x405pt, x1.778 to 1280x720px)
+     - colours sampled, not remembered
+     - type from the PDF's own spans - Open Sans, and Carlito for the page number
+       (metric-compatible with his Calibri)
 
-   🔴 THE MEASUREMENT, NAMED BEFORE THE DESIGN: print each document for a dev firm
-   and count the sheets carrying the firm's real mark. Today 0 of the plan's own
-   sheets and 0 of the report's 14 pages — both print a placeholder. After: every
-   sheet of both. Proved by printing on 2026-09-21; measured the same way, no new
-   tooling.
+   WHAT HIS PAGE ALREADY DEFINES, and what this item is therefore only FILLING:
+     - the BORDER: #00B1E0, inset 3.9pt, bar 7.1pt, square corners, and on a
+       content page THE BOTTOM BAR IS INTERRUPTED BY THE LOGO - it restarts at
+       x=119.2 where the logo ends. That interruption is his page, not a flourish.
+     - the LOGO, twice over: 202.8 x 110.1pt CENTRED at the top of the title page,
+       and 69.4 x 37.7pt at x=49.5 y=364.6 on every page after it - bottom left,
+       sitting OVER the bottom border.
+     - the TYPE: 45pt navy #002B64 centred title page; 18pt #434343 subtitle;
+       24pt navy top-left on a content page; 10pt body, #434343 left column and
+       #002B64 right column; page number Calibri 9pt #888888 at x=660.7.
+
+   🔴 THE MEASUREMENT, NAMED BEFORE THE DESIGN: print the plan for a dev firm and
+   count the sheets carrying the firm's mark and the firm's colour. 0 and 0 today.
+   Every sheet after. Proved by printing 2026-09-21; measured the same way.
    ============================================================================ */
-
-/* ========== BEGIN: COPIED FROM THE ORIGINAL, UNCHANGED ===================== */
 :root{
-  --navy:#002b64; --blue:#0070c0; --cyan:#00b1e0; --sky:#7fd3f1; --charcoal:#3a3a3a;
-  --good:#4ca52d; --caution:#ff9900; --danger:#ff0000;
-  --tint-navy:#ebeef3; --tint-blue:#ebf4fa; --tint-cyan:#ebf9fd; --tint-sky:#f5fbfe;
-  --tint-good:#eef6ea; --tint-caution:#fff4e5; --tint-danger:#fdeaea;
-  --paper:#ffffff; --ground:#eef3f8; --ink:#002b64; --body:#363636; --muted:#5b6f8a; --line:#d5e1ee;
-  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
-  --sans:"Open Sans",system-ui,"Segoe UI",Arial,sans-serif;
+  --cyan:#00B1E0;       /* his border, sampled */
+  --navy:#002B64;       /* his headings */
+  --body:#434343;       /* his body copy */
+  --pno:#888888;        /* his page number */
+  --ground:#eef3f8; --paper:#fff; --line:#d5e1ee; --muted:#5b6f8a;
+  --blue:#0070c0; --good:#4ca52d; --danger:#e00000; --caution:#ff9900;
+  --sans:'Open Sans',system-ui,'Segoe UI',Arial,sans-serif;
+  --firm:#7a4b8f;       /* the example firm, Ashgrove Advisory */
 }
-.page{position:relative;width:100%;max-width:1280px;aspect-ratio:16/9;background:var(--paper);
-  margin:0 auto 22px;padding:44px 64px 52px;box-shadow:0 2px 14px rgba(0,43,100,.10);
-  overflow:hidden;color:var(--body)}
-.page h2{font:700 38px/1.1 var(--serif);color:var(--navy);margin:0}
-.page .sub{color:var(--muted);font-size:16px;margin:8px 0 22px}
-.page h3{font:700 15px var(--sans);color:var(--ink);margin:0 0 10px}
-.foot{position:absolute;left:64px;bottom:20px;display:flex;align-items:center;gap:14px;
-  color:var(--muted);font-size:12px}
-.pno{position:absolute;right:64px;bottom:20px;font-weight:700;color:var(--blue);font-size:14px}
-.logo{display:inline-grid;place-items:center;width:92px;height:26px;border:1px dashed var(--sky);
-  border-radius:4px;color:var(--blue);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
-  background:var(--tint-sky)}
-.logo.big{width:180px;height:56px;font-size:12px;border-color:var(--cyan);
-  background:rgba(255,255,255,.08);color:var(--sky)}
-.dark{background:var(--navy);color:#fff}
-.cover{background:var(--navy);color:#fff;padding:60px 64px}
-.cover .eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--cyan)}
-.cover h2{color:#fff;font-size:76px;line-height:1.05;margin-top:110px;max-width:62%}
-.cover .client{margin-top:36px;font:700 26px var(--sans);color:var(--caution)}
-.cover .period{margin-top:14px;font-size:18px;color:#dbeaf7}
-.cover .by{position:absolute;left:64px;bottom:56px;font-size:15px;color:var(--sky)}
-.cover .note{position:absolute;left:64px;bottom:24px;font-size:13px;color:#8fb2d9;font-style:italic}
-.cover .c1,.cover .c2,.cover .c3{position:absolute;border-radius:50%}
-.cover .c1{width:640px;height:640px;right:-200px;top:-300px;background:var(--blue);opacity:.75}
-.cover .c2{width:420px;height:420px;right:-90px;bottom:-140px;background:var(--cyan);opacity:.85}
-.cover .c3{width:270px;height:270px;right:270px;bottom:-60px;background:var(--caution)}
-.cover .badge{position:absolute;right:120px;top:120px;width:150px;height:150px;border-radius:50%;
-  background:var(--sky);display:grid;place-items:center;color:var(--navy);font:700 54px var(--serif)}
-.cover .logo.big{position:absolute;right:64px;top:44px}
-.toc{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
-.toc div{display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:center;background:#f4f8fb;
-  border:1px solid var(--line);border-radius:12px;padding:16px 20px}
-.toc .ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;
-  font:700 22px var(--serif);color:var(--navy);background:var(--tint-cyan)}
-.toc .ic.c{background:var(--tint-caution);color:#8a5a00} .toc .ic.d{background:var(--tint-danger);color:#9c2323}
-.toc b{font-size:18px;color:var(--ink)} .toc small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
-.tile{border-radius:12px;padding:20px 22px 18px;background:var(--tint-blue)}
-.tile.cyan{background:var(--tint-cyan)} .tile.caution{background:var(--tint-caution)}
-.tile.danger{background:var(--tint-danger)} .tile.navy{background:var(--navy);color:#fff}
-.tile .ic{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;margin-bottom:8px;
-  background:var(--blue);color:#fff;font-weight:700}
-.tile.cyan .ic{background:var(--cyan);color:var(--navy)} .tile.caution .ic{background:var(--caution);color:#fff}
-.tile .v{font:700 40px/1.05 var(--serif);color:var(--navy);margin:2px 0 6px}
-.tile.navy .v{color:#fff}
-.tile .k{font-weight:700;font-size:15px;color:var(--ink)} .tile.navy .k{color:#fff}
-.tile .d{font-size:13px;margin-top:6px}
-.tile .tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:22px}
-.cols.wide{grid-template-columns:1.25fr 1fr}
-.panel{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--paper)}
-.panel.soft{background:var(--tint-blue);border-color:transparent}
-.panel.caution{background:var(--tint-caution);border-color:transparent}
-.light{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
-.light.g{background:var(--good)} .light.a{background:var(--caution)}
-/* ========== END: COPIED FROM THE ORIGINAL ================================== */
-
-/* ---- the ONE addition: the reserved box, carrying a real logo ---- */
-.logo.real{border:0;background:linear-gradient(97deg,#7a4b8f,#a878bd);color:#fff;font-weight:700;
-  letter-spacing:.08em}
-.logo.big.real{font-size:19px;border:0}
-/* The initials disc, where a firm holds no logo — Mike's ruling 2026-09-22. It fills
-   the SAME box, so the footer never reflows between one firm and another. */
-.logo.disc{border:0;background:#f3edf6;color:#7a4b8f;display:flex;gap:6px;align-items:center;
-  justify-content:flex-start;padding-left:3px;text-transform:none;font-size:9.5px;letter-spacing:0;
-  font-weight:600}
-.logo.disc i{width:20px;height:20px;border-radius:50%;background:#7a4b8f;color:#fff;display:grid;
-  place-items:center;font-style:normal;font-weight:700;font-size:10px;flex:0 0 auto}
-.logo.big.disc{font-size:16px;padding-left:10px;gap:12px}
-.logo.big.disc i{width:40px;height:40px;font-size:19px}
-/* On a navy sheet the mark takes a white plate, as the dashed box already inverts there. */
-.cover .logo.big.real,.dark .logo.real{background:#fff;color:#7a4b8f}
-.cover .logo.big.disc,.dark .logo.disc{background:#fff}
-.dark .foot,.dark .pno{color:var(--sky)}
-.figbox{border:1px solid var(--line);border-radius:12px;background:var(--tint-sky);height:330px;
-  display:grid;place-items:center;text-align:center;color:var(--muted);font-size:14px;position:relative}
-.figbox .frame{position:absolute;inset:0;border:6px solid #7a4b8f;border-radius:12px}
-.figbox .inner{position:absolute;left:22px;bottom:18px;display:flex;align-items:center;gap:8px;
-  font-size:12px;font-weight:600;color:var(--ink)}
-.figbox .inner i{width:22px;height:22px;border-radius:50%;background:#7a4b8f;color:#fff;display:grid;
-  place-items:center;font-style:normal;font-size:11px;font-weight:700}
-.dtable{width:100%;border-collapse:collapse;font-size:14px}
-.dtable th,.dtable td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left}
-.dtable th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-
-/* ---- the annotation shell around the drawing ---- */
 *{box-sizing:border-box}
-body{margin:0;background:var(--ground);color:var(--body);font-family:var(--sans);font-size:14px;
-  line-height:1.6;-webkit-font-smoothing:antialiased}
-/* Wide enough that `.page` renders at its own max-width of 1280px — the original's
-   exact canvas — rather than a few pixels under it. */
-.shell{max-width:1396px;margin:0 auto;padding:28px 22px 72px}
-h1{font:700 32px/1.15 var(--serif);color:var(--navy);margin:0 0 6px}
-h2.sec{font:700 20px var(--serif);color:var(--navy);margin:42px 0 10px}
-h3.sub3{font-size:15px;margin:22px 0 8px;color:var(--ink)}
+body{margin:0;background:var(--ground);color:var(--body);font-family:var(--sans);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1240px;margin:0 auto;padding:28px 22px 72px}
+h1{font-size:32px;line-height:1.15;margin:0 0 6px;color:var(--navy);font-weight:700}
+h2.sec{font-size:20px;margin:42px 0 10px;color:var(--navy)}
+h3.sub3{font-size:15px;margin:22px 0 8px;color:var(--navy)}
 p{margin:0 0 12px;max-width:78ch} ul{margin:0 0 12px;padding-left:20px} li{margin:0 0 5px;max-width:78ch}
-code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;background:var(--tint-blue);
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;background:#eaf2f9;
   border:1px solid var(--line);border-radius:4px;padding:1px 5px}
-.eyebrow.top{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:0 0 8px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:0 0 8px}
 .lede{font-size:16px;color:var(--muted);max-width:80ch}
 .mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;font-size:13px;margin:18px 0}
 .mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
@@ -154,293 +71,312 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;
   padding:13px 15px;margin:18px 0;font-size:13.5px}
 .ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--blue)}
 .ask p{margin:0 0 7px}.ask p:last-child{margin:0}
-.ask .rec{font-weight:600;color:var(--ink)}
+.ask .rec{font-weight:600;color:var(--navy)}
 .ask .q{margin-top:9px;padding-top:9px;border-top:1px solid #bcdcf6;font-weight:600}
 .ask.settled{background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--good)}
 .ask.settled h3{color:#2f6b19}
-.measure{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--danger);
-  border-radius:10px;padding:14px 16px;margin:18px 0}
-.measure h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--danger)}
-.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 10px}
-.mg{border:1px solid var(--line);border-radius:10px;padding:12px 13px;background:var(--tint-blue)}
-.mg .n{font:700 27px/1.1 var(--serif);color:var(--navy)}
-.mg .l{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
 .tw{overflow-x:auto;margin:0 0 16px}
 table.doc{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
 table.doc th,table.doc td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
 table.doc th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}
 table.doc td:first-child{font-weight:600}
-table.doc .was{color:var(--danger)} table.doc .now{color:#2f6b19}
-.rule{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--cyan);
-  border-radius:0 10px 10px 0;padding:12px 15px;margin:0 0 10px}
-.rule b{display:block;margin-bottom:3px} .rule p{margin:0;font-size:13.5px}
-.pagewrap{background:#dfe8f3;border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0 0}
-.pagewrap .strip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;font-size:12.5px;color:var(--muted)}
-.pagewrap .strip .name{font-weight:700;color:var(--ink);font-size:14px}
-.swatchrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:12px 0}
-.sw{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
-.sw .cap{padding:9px 12px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line)}
-.sw .bar{height:86px;position:relative;display:grid;place-items:center;color:#fff;font-weight:700;letter-spacing:.06em;font-size:13px}
-.sw .bar.navy{background:var(--navy)} .sw .bar.firm{background:#7a4b8f}
-@media screen and (max-width:900px){
-  .page{aspect-ratio:auto;padding:22px 18px 56px}
-  .foot,.cover .by,.cover .note{left:18px} .pno{right:18px}
-  .cover h2{font-size:38px;max-width:100%;margin-top:30px}
-  .cover .c1,.cover .c2,.cover .c3,.cover .badge{display:none}
-  .cover .logo.big{right:18px;top:18px}
-  .toc,.cols,.cols.wide{grid-template-columns:1fr} .tiles{grid-template-columns:1fr 1fr}
-  table.doc{min-width:420px}
-}
+table.doc td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.measure{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--danger);
+  border-radius:10px;padding:14px 16px;margin:18px 0}
+.measure h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--danger)}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 10px}
+.mg{border:1px solid var(--line);border-radius:10px;padding:12px 13px;background:#f3f8fc}
+.mg .n{font-size:27px;font-weight:700;color:var(--navy);line-height:1.1}
+.mg .l{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+/* ==========================================================================
+   HIS PAGE. 720x405pt rendered at 1180x664 (x1.6389 from pt).
+   Every value carries its source measurement in a comment.
+   ========================================================================== */
+.deck{position:relative;width:100%;aspect-ratio:720/405;background:#fff;
+  box-shadow:0 2px 14px rgba(0,43,100,.10);overflow:hidden;color:var(--body);
+  font-family:var(--sans);container-type:inline-size}
+
+/* The border: four bars, not a CSS border, because HIS bottom bar is interrupted
+   by the logo. Inset 3.9/720 = 0.542%; bar 7.1/720 = 0.986% of the page WIDTH. */
+.deck .bd{position:absolute;background:var(--cyan)}
+.deck .bd.t{left:.542%;right:.542%;top:.963%;height:1.753%}      /* 3.9,3.9 -> 715.6,11.0 */
+.deck .bd.l{left:.542%;top:2.716%;bottom:2.716%;width:.944%}     /* 3.9,11 -> 10.7,394 */
+.deck .bd.r{right:.542%;top:2.716%;bottom:2.716%;width:.944%}    /* 708.8 -> 715.6 */
+.deck .bd.b{left:.542%;right:.542%;bottom:.963%;height:1.753%}   /* 3.9,394 -> 715.6,401.1 */
+/* 🔴 ON A CONTENT PAGE THE BOTTOM BAR STARTS AT x=119.2 — the logo interrupts it.
+   119.2/720 = 16.556%. This is his page; it is not a decorative choice. */
+.deck.content .bd.b{left:16.556%}
+
+/* The logo, title page: 202.8 x 110.1 at 258.3,54.2 — centred (centre 359.75 of 720). */
+.deck .mark.big{position:absolute;left:35.875%;top:13.383%;width:28.167%;height:27.185%}
+/* The logo, content page: 69.4 x 37.7 at 49.5,364.6 — bottom left, OVER the border. */
+.deck .mark.small{position:absolute;left:6.875%;top:90.025%;width:9.639%;height:9.309%}
+.mark{display:grid;place-items:center;border-radius:2px;overflow:hidden}
+.mark.firm{background:linear-gradient(97deg,#7a4b8f,#a878bd);color:#fff;font-weight:700;
+  letter-spacing:.08em}
+.mark.firm.big{font-size:min(3.4cqw,40px)} .mark.firm.small{font-size:min(1.15cqw,14px)}
+.mark.ae{background:#f2fafd;border:1px dashed var(--cyan);color:var(--cyan);font-weight:600}
+.mark.ae.big{font-size:min(1.9cqw,22px)} .mark.ae.small{font-size:min(.85cqw,10px)}
+/* The initials disc, where a firm holds no logo — Mike's ruling 2026-09-22.
+   It fills the SAME box, so nothing reflows between one firm and another. */
+.mark.disc{background:#f3edf6;display:flex;gap:4%;align-items:center;justify-content:center;
+  color:var(--firm);font-weight:600}
+.mark.disc i{border-radius:50%;background:var(--firm);color:#fff;display:grid;place-items:center;
+  font-style:normal;font-weight:700;aspect-ratio:1;height:64%}
+.mark.disc.big{font-size:min(2.1cqw,26px)} .mark.disc.small{font-size:min(.95cqw,11px)}
+
+/* Type, from his own spans. 45pt/720 -> 6.25cqw; 24pt -> 3.333cqw; 18pt -> 2.5cqw;
+   10pt -> 1.389cqw; 9pt -> 1.25cqw. */
+.deck .t-title{position:absolute;left:0;right:0;top:49.48%;text-align:center;color:var(--navy);
+  font-size:6.25cqw;font-weight:400;line-height:1.1}                 /* 45pt, y=200.4 */
+.deck .t-sub{position:absolute;left:0;right:0;top:75.09%;text-align:center;color:var(--body);
+  font-size:2.5cqw;font-weight:400}                                   /* 18pt, y=304.1 */
+.deck .t-h{position:absolute;left:3.528%;top:5.259%;color:var(--navy);font-size:3.333cqw;
+  font-weight:400;margin:0}                                           /* 24pt at 25.4,21.3 */
+.deck .body{position:absolute;left:4.167%;right:3.5%;top:16.2%;font-size:1.389cqw;line-height:1.85}
+/* THREE columns, because his bullet is its own column: bullet at x=30, left text
+   at x=42.7, right text at x=352.7. Against a body box running 30 -> 694.8pt
+   (width 664.8) that is 1.91% for the bullet and 46.63% for the left column. */
+.deck .body .two{display:grid;grid-template-columns:1.91% 46.63% 1fr;column-gap:0;align-items:baseline}
+.deck .body .l{color:var(--body)} .deck .body .r{color:var(--navy)}   /* his right column is navy */
+.deck .body .bullets{list-style:none;margin:0;padding:0}
+.deck .body .bullets li{margin:0;max-width:none}
+.deck .body .bullets li::before{content:'\2022';color:var(--body)}
+.deck .note{position:absolute;left:3.986%;bottom:12%;font-size:1.25cqw;color:var(--body)}
+/* His instruction band: green highlight, justified — page 4 of the deck. */
+.deck .band{background:#3ff23f;color:var(--body);font-size:1.944cqw;line-height:2;text-align:justify;
+  padding:0 .2em}
+.deck .pno{position:absolute;right:6.85%;top:94.5%;font-family:Carlito,Calibri,var(--sans);
+  font-size:1.25cqw;color:var(--pno)}                                  /* Calibri 9pt #888888 at 660.7 */
+/* The firm-branded version: his cyan becomes the firm's colour. Nothing else moves. */
+.deck.firmed .bd{background:var(--firm)}
+.deck .tbl{width:100%;border-collapse:collapse;font-size:1.25cqw}
+.deck .tbl th,.deck .tbl td{border:1px solid #c9d8e8;padding:.35em .5em;text-align:left}
+.deck .tbl th{background:#f2f7fb;color:var(--navy);font-weight:600}
+.deck .fig{position:absolute;left:8%;right:8%;top:17%;bottom:16%;border:1px solid var(--line);
+  background:#f7fbfd;display:grid;place-items:center;text-align:center;color:var(--muted);
+  font-size:1.45cqw}
+
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.pair .cap{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+.pair .cap b{color:var(--navy)}
+.one{margin:14px 0}
+@media (max-width:900px){.pair{grid-template-columns:1fr}table.doc{min-width:420px}}
 </style>
 </head>
 <body>
 <main class="shell">
 
-<p class="eyebrow top">To-do item 16.2 · third version · 2026-09-22</p>
-<h1>The firm's mark on a client's document</h1>
-<p class="lede">The app already has an approved layout for a document a client keeps, and it already
-reserves a place for the advisor firm's logo — on the cover and in every footer. Item 16 has now
-built the thing that fills it. <b>This drawing is that layout, unchanged, with the box filled.</b></p>
+<p class="eyebrow">To-do item 16.2 · drawn from Advance.6.Organisational Review.pdf · 2026-09-22</p>
+<h1>The firm's mark on the printed plan</h1>
+<p class="lede">Mike's own deck page already defines the border and both logo positions. This drawing
+takes that page exactly as it is and changes two things: the cyan becomes the advisor firm's colour,
+and the advisor-e.com logo becomes the firm's. <b>Nothing moves.</b></p>
 
 <div class="mock">
-  <h3>Nothing here is built, and nothing here is new</h3>
-  <p>Every page below is the original Business Performance Report page — its frame, its cover, its
-  circles, its badge, its tiles, its contents grid, its footer and its page number, copied rule for
-  rule. The only change is that the dashed <b>“Firm logo”</b> box carries a real logo.</p>
+  <h3>Nothing here is built, and nothing here is invented</h3>
+  <p>The source is <code>C:\Documents\Visual Code Projects\Strategy Planner\Advance.6.Organisational
+  Review.pdf</code> — 25 pages, 720×405pt. Every coordinate, colour and type size below was
+  extracted from that file by machine, never placed by eye, using the same five-step method the 33
+  concept drawings were built with.</p>
 </div>
 
-<h2 class="sec">What the two earlier versions got wrong</h2>
+<h2 class="sec">What his page already defines</h2>
 
 <div class="tw">
 <table class="doc">
-  <thead><tr><th>&nbsp;</th><th class="was">Wrong</th><th class="now">The original</th></tr></thead>
+  <thead><tr><th>Element</th><th>Measured in his file</th><th>What this item changes</th></tr></thead>
   <tbody>
-    <tr><td>Draft 1 — placement</td><td class="was">mark invented at bottom-left; no footer; page number a pill, top right</td><td class="now">mark in the footer; <code>Client · Document · Period</code>; page number bottom right, blue</td></tr>
-    <tr><td>Draft 2 — the canvas</td><td class="was">changed to A4 <code>297/210</code>, which reflowed a composition positioned in absolute pixels against a 1280×720 page</td><td class="now"><code>16/9</code>, <code>max-width:1280px</code>, <code>padding:44px 64px 52px</code></td></tr>
-    <tr><td>Draft 2 — the cover</td><td class="was">the sky badge dropped entirely; title on one line; navy recoloured to the firm's purple</td><td class="now">badge <code>150px</code> at <code>right:120px top:120px</code>; title <code>76px</code>, <code>margin-top:110px</code>, <code>max-width:62%</code>; navy</td></tr>
-    <tr><td>Draft 2 — the pages</td><td class="was">a title and a short list on an otherwise empty sheet</td><td class="now">composed — tiles, panels, the two-column grid, the contents grid</td></tr>
+    <tr><td>Border</td><td class="num">#00B1E0 · inset 3.9pt · bar 7.1pt · square corners</td><td>the colour becomes the firm's</td></tr>
+    <tr><td>Bottom border</td><td class="num">interrupted — restarts at x=119.2, where the logo ends</td><td>nothing — it is kept</td></tr>
+    <tr><td>Logo, title page</td><td class="num">202.8 × 110.1 at 258.3, 54.2 — centred</td><td>the firm's logo fills it</td></tr>
+    <tr><td>Logo, every other page</td><td class="num">69.4 × 37.7 at 49.5, 364.6 — bottom left, over the border</td><td>the firm's logo fills it</td></tr>
+    <tr><td>Title page type</td><td class="num">Open Sans 45pt #002B64 centred · subtitle 18pt #434343</td><td>nothing</td></tr>
+    <tr><td>Page type</td><td class="num">Open Sans 24pt #002B64 top-left · body 10pt, left #434343, right #002B64</td><td>nothing</td></tr>
+    <tr><td>Page number</td><td class="num">Calibri 9pt #888888 at x=660.7</td><td>nothing — drawn in Carlito, metric-compatible</td></tr>
   </tbody>
 </table>
 </div>
 
-<p><b>The second draft's coordinates were measured and passed.</b> The two pages were never put side
-by side and looked at, which is the whole of why it went wrong — and is exactly what CLAUDE.md's
-Save-the-Artefact rule says to do before shipping anything built from a drawing.</p>
+<h2 class="sec">His title page, and the same page branded</h2>
 
-<h2 class="sec">What the original already says</h2>
-
-<div class="rule">
-  <b>The original drawing, line 18</b>
-  <p>“…a dashed box marks where the firm's logo goes, <b>on the cover and in every footer</b>.”</p>
-</div>
-<div class="rule">
-  <b>DashboardReportPage.vue, its own comment — now out of date, and that is this item</b>
-  <p>“The logo is a marked place, not an image: <b>no firm-logo setting exists yet</b>, and the
-  drawing itself shows the place.” <em>Item 16 built one on 2026-09-22.</em></p>
-</div>
-
-<h2 class="sec">What both documents print today</h2>
-
-<div class="measure">
-  <h3>Measured in the code, 2026-09-22</h3>
-  <div class="mgrid">
-    <div class="mg"><div class="n">0</div><div class="l">of the strategy plan's own sheets carry any firm mark</div></div>
-    <div class="mg"><div class="n">0</div><div class="l">of the Business Performance Report's 14 pages carry a real one</div></div>
-    <div class="mg"><div class="n">3</div><div class="l">firm props <code>pages/strategy-planner.vue</code> fails to bind</div></div>
-    <div class="mg"><div class="n">33</div><div class="l">concept drawings that ARE branded and print the placeholder anyway</div></div>
+<div class="pair">
+  <div>
+    <div class="deck">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="mark ae big">advisor-e.com logo</div>
+      <div class="t-title">Organisational Review</div>
+      <div class="t-sub">Getting clear on Who, What, Why…</div>
+    </div>
+    <p class="cap"><b>His page, as it is.</b> Cyan frame, logo centred at the top, 45pt navy title.</p>
   </div>
-  <p style="margin:0;font-size:13px">An empty <code>firmName</code> makes <code>markName</code> in
-  <code>StrategyConceptGraphic.vue</code> fall back to the <b>literal words “Firm logo”</b> and
-  <code>markInitial</code> to an <b>empty string</b>. So the plan prints a plain blue circle with no
-  letter in it beside a caption saying a logo should be there, and the report prints the dashed box
-  with the same two words, fifteen times. <b>Two documents a client keeps, both captioned rather
-  than branded.</b></p>
+  <div>
+    <div class="deck firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="mark firm big">ASHGROVE</div>
+      <div class="t-title">Session Plan</div>
+      <div class="t-sub">Harbour Joinery · 22 September 2026</div>
+    </div>
+    <p class="cap"><b>The client's plan.</b> Same frame, same box, same type. The colour and the logo
+    are the firm's.</p>
+  </div>
 </div>
 
-<h2 class="sec">The drawing — the original page, with the box filled</h2>
-<p>Ashgrove Advisory. Compare any page below with
-<a href="business-performance-report.html">business-performance-report.html</a>: the only difference
-is the logo.</p>
+<h2 class="sec">His agenda page, and the plan's</h2>
 
-<div class="pagewrap">
-  <div class="strip"><span class="name">Harbour Joinery — session plan</span><span>·</span>
-    <span>Ashgrove Advisory</span><span>·</span><span>the original frame, unchanged</span></div>
-
-  <section class="page cover">
-    <div class="c1"></div><div class="c2"></div><div class="c3"></div>
-    <div class="badge">↗</div>
-    <span class="logo big real">ASHGROVE</span>
-    <div class="eyebrow">Business advisory &nbsp;|&nbsp; Confidential</div>
-    <h2>Session Plan</h2>
-    <div class="client">Harbour Joinery</div>
-    <div class="period">Strategic Orientation 2 · Sales &amp; Marketing · 22 September 2026</div>
-    <div class="by">Prepared by: R. Cole, Ashgrove Advisory &nbsp;&nbsp;&nbsp; Date issued: 22 September 2026</div>
-    <div class="note">MOCK-UP — illustrative session content</div>
-  </section>
-
-  <section class="page">
-    <h2>What this session covers</h2>
-    <p class="sub">Everything captured in this session, in the order it was worked</p>
-    <div class="toc">
-      <div><span class="ic">1</span><span><b>Where the business stands</b><small>Porter's Five Forces · S.W.O.T · Growth Fundamentals</small></span></div>
-      <div><span class="ic">2</span><span><b>Who we compete against</b><small>Blue Ocean Strategy · Competition Fronts</small></span></div>
-      <div><span class="ic c">3</span><span><b>Where the margin goes</b><small>8 Profit Levers · Pricing Review · Product Fit · Cost Base</small></span></div>
-      <div><span class="ic d">4</span><span><b>What we do next</b><small>On the agenda only — no concepts ticked</small></span></div>
+<div class="pair">
+  <div>
+    <div class="deck content">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <h2 class="t-h">Agenda:</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li class="two"><span class="l">Review the Development Stages of the Organisation</span><span class="r">Where are we headed?</span></li>
+          <li class="two"><span class="l">Review Internal Insights Data</span><span class="r">What our team say about the organisation</span></li>
+          <li class="two"><span class="l">Review Your Understanding of People/Process Basics</span><span class="r">Are we doing the basics (already)?</span></li>
+          <li class="two"><span class="l">Define the Leadership Style Necessary for Success</span><span class="r">How best to lead our team</span></li>
+          <li class="two"><span class="l">Define the Cultural Core Values</span><span class="r">What's MOST important to us?</span></li>
+        </ul>
+      </div>
+      <div class="note">(Take 10-15 mins to allocate time to each agenda item above)</div>
+      <div class="mark ae small">advisor-e</div>
+      <div class="pno">2</div>
     </div>
-    <div class="foot"><span class="logo real">ASHGROVE</span>Harbour Joinery · Session plan · 22 September 2026</div>
-    <span class="pno">2</span>
-  </section>
-
-  <section class="page dark">
-    <h2 style="color:#fff">Step 1 — Where the business stands</h2>
-    <p class="sub" style="color:var(--sky)">Discussion points</p>
-    <div class="tiles" style="margin-top:34px">
-      <div class="tile navy" style="border:1px solid #14457d"><div class="ic">1</div><div class="k">Porter's Five Forces</div><div class="d">Teach, then capture</div></div>
-      <div class="tile navy" style="border:1px solid #14457d"><div class="ic">2</div><div class="k">S.W.O.T</div><div class="d">Teach, then capture</div></div>
-      <div class="tile navy" style="border:1px solid #14457d"><div class="ic">3</div><div class="k">Growth Fundamentals</div><div class="d">Capture only</div></div>
-      <div class="tile navy" style="border:1px solid #14457d"><div class="ic">↗</div><div class="k">Then step 2</div><div class="d">Who we compete against</div></div>
+    <p class="cap"><b>His page, as it is.</b> Logo bottom-left over the border, which stops for it.
+    Page number bottom-right in grey.</p>
+  </div>
+  <div>
+    <div class="deck content firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <h2 class="t-h">What this session covers</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li class="two"><span class="l">Where the business stands</span><span class="r">3 concepts</span></li>
+          <li class="two"><span class="l">Who we compete against</span><span class="r">2 concepts</span></li>
+          <li class="two"><span class="l">Where the margin goes</span><span class="r">4 concepts</span></li>
+          <li class="two"><span class="l">What we do next</span><span class="r">on the agenda only</span></li>
+        </ul>
+      </div>
+      <div class="note">Harbour Joinery · Session plan · 22 September 2026</div>
+      <div class="mark firm small">ASHGROVE</div>
+      <div class="pno">2</div>
     </div>
-    <div class="foot"><span class="logo real">ASHGROVE</span>Harbour Joinery · Session plan · 22 September 2026</div>
-    <span class="pno">3</span>
-  </section>
+    <p class="cap"><b>The plan's agenda.</b> Identical geometry — including the gap the logo makes in
+    the bottom border.</p>
+  </div>
+</div>
 
-  <section class="page">
-    <h2>Porter's Five Forces</h2>
-    <p class="sub">Teach — the five forces that set what a business can charge</p>
-    <div class="figbox">
-      <div class="frame"></div>
-      <span>The concept drawing — 1500×844, and it brings its own firm frame and mark</span>
-      <span class="inner"><i>A</i> Ashgrove Advisory</span>
+<h2 class="sec">The remaining sheet kinds, in his layout</h2>
+
+<div class="pair">
+  <div>
+    <div class="deck content firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <h2 class="t-h">Porter's Five Forces</h2>
+      <div class="fig">The concept drawing — 1500×844, already drawn from his deck<br>and already carrying the firm's frame and mark</div>
+      <div class="mark firm small">ASHGROVE</div>
+      <div class="pno">4</div>
     </div>
-    <div class="foot"><span class="logo real">ASHGROVE</span>Harbour Joinery · Session plan · 22 September 2026</div>
-    <span class="pno">4</span>
-  </section>
-
-  <section class="page">
-    <h2>Porter's Five Forces</h2>
-    <p class="sub">Capture — work through each force and record what the client said</p>
-    <div class="cols wide">
-      <div class="panel">
-        <table class="dtable">
+    <p class="cap"><b>A teaching page.</b> The drawing inside already has this exact frame, so the
+    page does not draw a second one around it.</p>
+  </div>
+  <div>
+    <div class="deck content firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <h2 class="t-h">Porter's Five Forces</h2>
+      <div class="body" style="top:19%">
+        <table class="tbl">
           <thead><tr><th>Force</th><th>What we heard</th></tr></thead>
           <tbody>
             <tr><td>Rivalry</td><td>Three joinery firms inside 20km</td></tr>
             <tr><td>Threat of new entrants</td><td>Low — the plant cost is the barrier</td></tr>
             <tr><td>Buyer power</td><td>Two builders are 40% of revenue</td></tr>
-            <tr><td>Supplier power</td><td>One timber merchant, no second quote</td></tr>
-            <tr><td>Substitutes</td><td>Imported flat-pack at the low end</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="panel soft">
-        <h3>What this points at</h3>
-        <p style="margin:0 0 8px"><span class="light a"></span>Buyer concentration is the live risk — two customers, 40% of revenue.</p>
-        <p style="margin:0"><span class="light g"></span>Entry barrier is real and in our favour.</p>
-      </div>
+      <div class="mark firm small">ASHGROVE</div>
+      <div class="pno">5</div>
     </div>
-    <div class="foot"><span class="logo real">ASHGROVE</span>Harbour Joinery · Session plan · 22 September 2026</div>
-    <span class="pno">5</span>
-  </section>
+    <p class="cap"><b>A capture page.</b> His table, his frame, the firm's mark.</p>
+  </div>
 </div>
 
 <h3 class="sub3">A firm with no logo on file</h3>
 <p>The initials disc is the fallback, never the design — Mike's ruling, 2026-09-22. It fills the same
-92×26 and 180×56 boxes, so nothing reflows between one firm and another.</p>
+two boxes, so nothing reflows between one firm and another.</p>
 
-<div class="pagewrap">
-  <div class="strip"><span class="name">The fallback</span><span>·</span><span>no logo held for this firm</span></div>
-  <section class="page cover">
-    <div class="c1"></div><div class="c2"></div><div class="c3"></div>
-    <div class="badge">↗</div>
-    <span class="logo big disc"><i>A</i> Ashgrove Advisory</span>
-    <div class="eyebrow">Business advisory &nbsp;|&nbsp; Confidential</div>
-    <h2>Session Plan</h2>
-    <div class="client">Harbour Joinery</div>
-    <div class="period">Strategic Orientation 2 · Sales &amp; Marketing · 22 September 2026</div>
-    <div class="by">Prepared by: R. Cole, Ashgrove Advisory &nbsp;&nbsp;&nbsp; Date issued: 22 September 2026</div>
-    <div class="note">MOCK-UP — illustrative session content</div>
-  </section>
+<div class="pair">
+  <div>
+    <div class="deck firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <div class="mark disc big"><i>A</i> Ashgrove Advisory</div>
+      <div class="t-title">Session Plan</div>
+      <div class="t-sub">Harbour Joinery · 22 September 2026</div>
+    </div>
+    <p class="cap">Title page, no logo held.</p>
+  </div>
+  <div>
+    <div class="deck content firmed">
+      <div class="bd t"></div><div class="bd l"></div><div class="bd r"></div><div class="bd b"></div>
+      <h2 class="t-h">What this session covers</h2>
+      <div class="body">
+        <ul class="bullets">
+          <li class="two"><span class="l">Where the business stands</span><span class="r">3 concepts</span></li>
+          <li class="two"><span class="l">Who we compete against</span><span class="r">2 concepts</span></li>
+        </ul>
+      </div>
+      <div class="mark disc small"><i>A</i> Ashgrove</div>
+      <div class="pno">2</div>
+    </div>
+    <p class="cap">Content page, no logo held.</p>
+  </div>
 </div>
 
-<h2 class="sec">The consistency half — the same fix, the other document</h2>
-<p>The Business Performance Report prints the dashed box on its cover and in all fourteen footers.
-The same three values fill the same boxes, with <b>no layout change at all</b>.</p>
+<h2 class="sec">What the plan prints today</h2>
 
-<div class="pagewrap">
-  <div class="strip"><span class="name">Business Performance Report</span><span>·</span>
-    <span>page 3, exactly as approved, with the box filled</span></div>
-  <section class="page">
-    <h2>Executive Summary</h2>
-    <p class="sub">FY2026 at a glance — a strong year with one watch-point: cash tied up in stock</p>
-    <div class="tiles">
-      <div class="tile"><div class="ic">$</div><div class="v">$2.84M</div><div class="k">Revenue</div><div class="d" style="color:var(--good)">▲ 12.4% vs last year</div></div>
-      <div class="tile cyan"><div class="ic">◉</div><div class="v">$396K</div><div class="k">Net Profit</div><div class="d" style="color:var(--good)">▲ 18.2% vs last year</div></div>
-      <div class="tile caution"><div class="ic">%</div><div class="v">13.9%</div><div class="k">Net Margin</div><div class="d" style="color:var(--good)">▲ 0.7 pts vs last year</div></div>
-      <div class="tile danger"><div class="ic">◷</div><div class="v">47 days</div><div class="k">Cash Cycle</div><div class="d" style="color:var(--danger)">▼ Slower by 6 days</div></div>
-    </div>
-    <div class="cols wide">
-      <div class="panel" style="border:0;padding-left:0">
-        <h3>What went well / what to watch</h3>
-        <p style="margin:0 0 7px"><span class="light g"></span>Sales grew in all four quarters, led by repeat customers (+19%).</p>
-        <p style="margin:0 0 7px"><span class="light g"></span>Gross margin held at 41% despite supplier price increases.</p>
-        <p style="margin:0 0 7px"><span class="light a"></span>Stock on hand grew faster than sales — $118K extra cash tied up.</p>
-        <p style="margin:0"><span class="light a"></span>Customers are paying 5 days slower than last year (38 → 43 days).</p>
-      </div>
-      <div class="panel soft"><h3 style="text-align:center">Business Health Score</h3>
-        <p style="text-align:center;margin:0"><span style="font:700 42px var(--serif);color:var(--navy)">69</span>
-        <b style="display:block;color:var(--caution)">STEADY</b></p>
-        <p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">Profitability strong; cash and stock management pull the score down.</p>
-      </div>
-    </div>
-    <div class="foot"><span class="logo real">ASHGROVE</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026</div>
-    <span class="pno">3</span>
-  </section>
+<div class="measure">
+  <h3>Measured in the code, 2026-09-22</h3>
+  <div class="mgrid">
+    <div class="mg"><div class="n">0</div><div class="l">of the plan's own sheets carry any firm mark</div></div>
+    <div class="mg"><div class="n">0</div><div class="l">use the firm's colour — the page borders are hardcoded greys</div></div>
+    <div class="mg"><div class="n">3</div><div class="l">firm props <code>pages/strategy-planner.vue</code> fails to bind</div></div>
+    <div class="mg"><div class="n">33</div><div class="l">concept drawings that ARE branded and print the placeholder anyway</div></div>
+  </div>
+  <p style="margin:0;font-size:13px">An empty <code>firmName</code> makes <code>markName</code> in
+  <code>StrategyConceptGraphic.vue</code> fall back to the <b>literal words “Firm logo”</b> and
+  <code>markInitial</code> to an <b>empty string</b>. A client's plan prints a plain blue circle with
+  no letter in it, beside a caption saying a logo should be there.</p>
 </div>
 
 <h2 class="sec">The decisions</h2>
 
 <div class="ask settled">
-  <h3>Settled by the original — no decision, and no purple</h3>
-  <p>Where the mark goes, what size, the footer line, the page number, the typography, the cover's
-  composition and <b>the navy</b> are all the original's. The second draft recoloured the cover to
-  the firm's colour and that has been <b>reverted</b> — it is Decision A below, and it is not ruled.</p>
+  <h3>Settled by his own page — no decision needed</h3>
+  <p>The border's colour, thickness and inset; the interruption at the foot; both logo positions and
+  sizes; every type size and colour. All measured from
+  <code>Advance.6.Organisational Review.pdf</code>. Nothing here was chosen by us.</p>
 </div>
 
 <div class="ask">
-  <h3>Decision A — does the firm's colour go any further than the logo</h3>
-  <p>Mike asked for the firm's colours as well as the logo: <em>“make it complete and get it all
-  sorted once and for all.”</em> Set against that, his 2026-09-18 ruling is that a client's document
-  shows the advisor's brand and never Advisor-e's — and navy, blue and cyan are Advisor-e's palette.
-  The two pull in opposite directions and only he can settle it.</p>
-  <div class="swatchrow">
-    <div class="sw"><div class="bar navy">THE ORIGINAL — NAVY</div><div class="cap">The cover as approved. Firm appears as its logo alone. This is what the drawing above shows.</div></div>
-    <div class="sw"><div class="bar firm">THE FIRM'S COLOUR</div><div class="cap">The cover takes the firm's own colour. Consistent with the 33 concept drawings, which already do.</div></div>
-  </div>
-  <p class="rec">Recommended: <b>keep the navy</b>. It is the approved layout, every other document in
-  the app uses it, and the firm is already unmistakably present as its logo on the cover and every
-  footer. The 33 drawings take the firm's colour because they replaced his deck pages, which is a
-  different problem.</p>
-  <p class="q">Keep the original navy on the cover and dividers?</p>
+  <h3>Decision A — a teaching page must not carry two frames</h3>
+  <p>The 33 concept drawings are whole deck pages and <b>already carry this exact frame and mark</b>.
+  Draw another around the sheet and a client sees two coloured frames millimetres apart.</p>
+  <p class="rec">Recommended: on a teaching page the drawing's own frame <b>is</b> the page's frame,
+  and the sheet adds nothing. Every other sheet draws it. The teaching page above shows this.</p>
+  <p class="q">One frame per sheet, the teaching page's coming from the drawing inside it?</p>
 </div>
 
 <div class="ask">
-  <h3>Decision B — one route, no screen, ship on the name alone</h3>
-  <p><code>firmBrand()</code> is built but <b>on no route</b>, which is why nothing binds. Its query
-  is <code>SELECT id, name</code> <b>always</b> and only adds the logo and colour columns when
-  configured — so <b>the firm's real name works today</b>.</p>
-  <p class="rec">Recommended: one Restify route; <b>no screen</b>, because the values live on
-  Advisor-e's firm profile page (his 2026-08-15 ruling). Ship on the name alone — the words “Firm
-  logo” leave both documents on day one and the logo arrives later with nothing more to build.</p>
+  <h3>Decision B — one route, no screen, ship on the firm's name alone</h3>
+  <p><code>firmBrand()</code> is built but <b>on no route</b>, which is why nothing binds. Its query is
+  <code>SELECT id, name</code> <b>always</b> and only adds the logo and colour columns when
+  configured — so <b>the firm's real name works today</b>; only the image and the colour wait on the
+  master team.</p>
+  <p class="rec">Recommended: one Restify route; <b>no screen</b>, because the values live on the firm
+  profile page in Advisor-e (his 2026-08-15 ruling). Ship on the name alone — the words “Firm logo”
+  leave the plan on day one and the logo and colour arrive later with nothing more to build.</p>
   <p class="q">One backend route, no new screen, shipped without waiting for Advisor-e?</p>
-</div>
-
-<div class="ask">
-  <h3>Decision C — the Business Performance Report in the same change</h3>
-  <p>Same placeholder, same boxes, reserved by its own drawing in 2026. Leaving it means one client
-  document branded and the other captioned.</p>
-  <p class="rec">Recommended: yes, both — the same three values into boxes that already exist, with
-  <b>no layout change to the report at all</b>.</p>
-  <p class="q">Fill the report's fourteen footers and its cover too?</p>
 </div>
 
 <h2 class="sec">What gets built, if this is approved</h2>
@@ -451,18 +387,17 @@ The same three values fill the same boxes, with <b>no layout change at all</b>.<
   <tbody>
     <tr><td>server/routes/report.js</td><td>a route serving <code>firmBrand()</code> for the firm on the token — try/catch, safe generic error, never a stack trace or raw SQL</td></tr>
     <tr><td>pages/strategy-planner.vue</td><td>fetches it once and binds <code>:firm-name</code>, <code>:firm-colour</code>, <code>:firm-logo</code> — the second fault filed on 16.2</td></tr>
-    <tr><td>StrategyPlanDocument.vue</td><td>adopts the original's page frame: the cover, the footer, the logo box and the page number, so the plan and the report are one document family</td></tr>
-    <tr><td>DashboardReportPage.vue<br>DashboardReportCover.vue</td><td>the dashed box takes the real logo — <b>position and size unchanged</b>; the placeholder stays as the fallback for a firm with neither logo nor name</td></tr>
-    <tr><td>pages/dashboard-reports.vue</td><td>passes the same three values into the report frame</td></tr>
-    <tr><td>tests</td><td>the mark renders on every sheet kind of both documents; a firm with no logo gets the disc in the same box; a failed brand call still prints the document</td></tr>
+    <tr><td>StrategyPlanDocument.vue</td><td>his page frame on every sheet: the four border bars with the foot interrupted, the logo box top-centre on the title page and bottom-left after it, his type scale, the page number bottom-right</td></tr>
+    <tr><td>tests</td><td>the mark and the frame render on every sheet kind; the teaching page does <b>not</b> double-frame; a firm with no logo gets the disc in the same box; a failed brand call still prints the plan</td></tr>
   </tbody>
 </table>
 </div>
 
 <div class="mock">
   <h3>Before this ships</h3>
-  <p>Open this page beside the build <b>and beside the original</b>, and name every difference. That
-  step is what the second draft skipped.</p>
+  <p>Open this page beside the build <b>and beside his deck</b>, and name every difference. Checking
+  a measurement is not the same as looking at the two pages side by side — that is what went wrong
+  three times before this version.</p>
 </div>
 
 </main>
