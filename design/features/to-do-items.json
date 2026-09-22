@@ -566,26 +566,6 @@
       "comment": "2026-09-20 - filed on Mike's yes the same session it was found, rather than left in a handover. Found by asking why Vertical Integration's plan page offered nothing to fill in after its drawing landed."
     },
     {
-      "ref": "15.12",
-      "name": "Two teaching pages repeat the drawing's own questions and overflow the A4 sheet",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "A teaching page prints one of Mike's full-page drawings and then repeats the questions already inside it as bullets underneath. The page is then taller than an A4 sheet and breaks mid-list.",
-      "risk": "The client reads the same five questions twice on one page, once inside the picture and once beneath it, and the page then splits across two sheets with the break landing mid-sentence. Measured 2026-09-21 on a 25-page plan: Porter's 5 Forces is 1003px against a 794px A4 sheet, and 2 of 25 pages run over. Nothing is cropped - the page grows rather than clipping.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-21 - found by printing the plan to A4 while building the client's Print or save as PDF button. Mike said yes to filing it rather than having the content decision made for him."
-      },
-      "touches": "components/strategy/StrategyPlanDocument.vue, where a teaching page renders the drawing and then item.prompts beneath it; the prompt wording itself, which is authored content and Mike's call; and design/mockups/strategy-plan-output.html, whose example figures are short wide strips drawn to leave room for text, which is why the approved layout never met this.",
-      "note": "THE FIX IS A CONTENT DECISION, NOT A LAYOUT ONE. Three routes, all Mike's: drop the bullets where the drawing already carries the words, give the prompts their own page, or leave the page to split. Only concepts whose drawing embeds its own questions are affected - a teaching page carrying a drawing alone fits A4 exactly, proved on Market Diffusion Theory the same day."
-    },
-    {
       "ref": "16",
       "name": "A client's document carries no firm, so the white-label promise has nothing behind it",
       "rankedByMike": false,
@@ -626,26 +606,6 @@
       "touches": "84 files under components/ and pages/ use type=\"is-primary\"; the fix is one override of Buefy's  rather than 84 edits, so the work is choosing where that override lives and seeing the whole app recoloured before it ships. Two screens to eyeball afterwards: pages/strategy-planner.vue and components/sales/SalesBlog.vue.",
       "note": "NOT A ONE-LINE FIX EVEN THOUGH THE CHANGE IS ONE LINE. Overriding Buefy's primary recolours every button in the app at once, so Mike sees it before it ships - which is why it was not folded into the 2026-09-21 commit. TWO THINGS ALREADY BRAND BLUE AND NOT TO BE CHANGED BACK: the stage rail's current segment, and the Org Chart Builder toolbar, which follows its approved drawing. SHARPEST INSTANCE: SalesBlog.vue 155 and 161 carry is-primary and is-info on two ADJACENT main actions, so Write the outline is violet and Write the article blue - a distinction that does not exist. Found 2026-09-22 by opening the page; the tests pass on it. Eyeball that pair after the override.",
       "comment": "2026-09-21 - found by measuring three buttons on one screen, not by reading the code. Pre-existing and app-wide: it has been this way since Buefy was adopted, and BRAND-TOKENS.md post-dates it."
-    },
-    {
-      "ref": "16.2",
-      "name": "The printed plan leaves no room for the advisor firm's logo",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike asked for room for the logo in the printout. The plan's own pages - title, agenda, step dividers and capture pages - carry no firm mark at all; the placeholder exists only inside the 33 drawings.",
-      "risk": "The title page is the cover of the document a client keeps, and it prints as a company name on an otherwise empty A4 sheet with nothing of the advisor's firm on it. Item 16 supplies the brand itself; without a place for it on the page, a logo arriving later still has nowhere to go on the document's own sheets. Proved 2026-09-21 by printing the plan.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-21 - his own words, after seeing the A4 plan printed: \"you also need to make sure there is room for the logo in the printout - make that another task to do\"."
-      },
-      "touches": "components/strategy/StrategyPlanDocument.vue - the title page, the step dividers and the capture pages, none of which renders a mark; it passes firm-name and firm-colour to the drawings alone. pages/strategy-planner.vue, which mounts the plan document and binds none of the three firm props. Needs item 16 for where a firm's brand is actually set, which under the hub-page rule starts at the mentor tier.",
-      "note": "BUILT 2026-09-22 and OPEN ONLY ON ONE UNCONFIRMED REPORT. GET /api/report/firm/brand serves firmBrand() (no screen); strategy-planner.vue binds the three firm props; the plan's sheets and the five planner screens carry the frame and the mark. 🔴 MIKE'S LAST REPORT: \"first 2 slides only in the produce plan - the rest was no change\". A fresh browser against the running app shows ALL 13 sheets framed and marked, only the teaching page bare, which is his own Decision A. Likeliest a cached build; NEVER CONFIRMED. Ask him to hard-refresh before changing anything on the strength of it. Frame and mark values are PORTED from design/mockups/strategy-plan-firm-mark.html - never recompute them from the PDF."
     },
     {
       "ref": "13.2",

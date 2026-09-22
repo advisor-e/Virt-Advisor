@@ -158,6 +158,22 @@ describe('one frame per sheet, and a teaching page takes its own from the drawin
     expect(teach.findAll('.spm').length).toBe(1)
   })
 
+  test('a page whose drawing titles itself prints no second title', () => {
+    // 🔴 Mike, 2026-09-23, reading a teaching page: 20 of the 32 printed the concept's
+    // name TWICE — once as our heading and once inside his own drawing a few
+    // millimetres below. Ten were word for word identical; the rest were two wordings
+    // of one thing, our "Porter's 5 Forces" over his "Porter's (Michael) 5 Forces".
+    //
+    // The approved drawing could never have shown it: its teaching-page example uses a
+    // placeholder box where the real drawing goes, so there was no title inside it to
+    // collide with. That is why this is asserted rather than left to the eye.
+    const wrapper = mountPlan([WITH_TABLE]) // the-8-profit-levers, which titles itself
+    const teach = wrapper.find('.is-teach')
+
+    expect(teach.exists()).toBe(true)
+    expect(teach.findAll('.spd-h').length).toBe(0)
+  })
+
   test('a capture page DOES draw them, because nothing inside it does', () => {
     const wrapper = mountPlan([WITH_TABLE])
     const capture = wrapper.find('.is-capture')

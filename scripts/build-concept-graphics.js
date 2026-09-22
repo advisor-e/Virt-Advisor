@@ -48,6 +48,15 @@ const MOCKUPS = path.join(ROOT, 'design', 'mockups')
 const OUT = path.join(ROOT, 'components', 'strategy', 'concepts')
 
 /**
+ * The approved framework cards, read for their prompt bullets alone — item 15.12.
+ * A prompt that merely repeats what the drawing already says must not print twice.
+ */
+const FRAMEWORKS = (() => {
+  const raw = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'strategy-frameworks.json'), 'utf8'))
+  return Array.isArray(raw) ? raw : (raw.frameworks || raw.concepts || [])
+})()
+
+/**
  * Which drawing belongs to which concept.
  *
  * `svg` is the 1-based position of the drawing in that file, which is the order
@@ -480,6 +489,91 @@ function registryKey (id) {
  *
  * @returns {string}
  */
+/**
+ * Does this drawing open with a title of its own?
+ *
+ * 🔴 WHY THIS IS READ AND NOT ASSUMED — Mike, 2026-09-23, on seeing a teaching page:
+ * 20 of the 32 printed the concept's name TWICE, once as our page heading and once
+ * inside his own drawing a few millimetres below it. Ten were word for word identical;
+ * the rest were two wordings of one thing — our heading *Porter's 5 Forces* over his
+ * *Porter's (Michael) 5 Forces*. The approved drawing could never have shown this: its
+ * teaching-page example uses a placeholder box where the real drawing goes, so there
+ * was no title inside it to collide with the heading above.
+ *
+ * ⚠ A SUBSTRING MATCH ON THE CONCEPT NAME IS NOT GOOD ENOUGH and was tried first —
+ * it called Sales Channel Options titled because a chart label read "sales". A title is
+ * a title by SIZE AND POSITION: the largest text in the top band of the page. Measured
+ * that way, 31 of the 32 have one at 45.8-50px; only Vertical Integration does not.
+ *
+ * @param {string} svg the drawing, as the artefact holds it
+ * @returns {boolean} true where the drawing titles itself, so the page must not
+ */
+function carriesOwnTitle (svg) {
+  const TOP_BAND = 150 // of the 844-high viewBox
+  const rx = /<text([^>]*)>([^<]*)<\/text>/g
+  let biggest = 0
+  let m
+
+  while ((m = rx.exec(svg)) !== null) {
+    if (m[2].trim().length < 3) { continue }
+    const y = Number((m[1].match(/\by="([\d.]+)"/) || [])[1])
+    const size = Number((m[1].match(/font-size="([\d.]+)"/) || [])[1])
+    if (!isFinite(y) || !isFinite(size) || y > TOP_BAND) { continue }
+    if (size > biggest) { biggest = size }
+  }
+
+  // His deck titles run 45.8-50px; the largest body text on any of these pages is 24.
+  return biggest >= 40
+}
+
+/**
+ * The words of a string, long enough to mean something.
+ *
+ * @param {string} s
+ * @returns {string[]}
+ */
+function meaningfulWords (s) {
+  return String(s || '')
+    .replace(/&#\d+;|&[a-z]+;/g, ' ')
+    .toLowerCase().replace(/[^a-z0-9 ]/g, ' ')
+    .split(/\s+/).filter(w => w.length > 3)
+}
+
+/**
+ * Does this concept's drawing already say what its prompt bullets say?
+ *
+ * 🔴 ITEM 15.12, AND MIKE RULED IT FIXED ON 2026-09-23 rather than filed. A teaching
+ * page printed one of his full-page drawings and then repeated the questions already
+ * inside it as bullets underneath — so a client read the same five questions twice on
+ * one page, and on A4 the page then grew past the sheet and split mid-list. The same
+ * duplication is on the Run session screen, where there is no sheet to overflow, which
+ * is why the item's own wording missed it.
+ *
+ * MEASURED, NOT LISTED: the prompt words against the drawing's words. Two concepts
+ * cross the line — Porter's 5 Forces at 92% and The 8 Profit Levers at 74% — which is
+ * exactly the "two teaching pages" the item names. Everything else is far below, so a
+ * threshold at 60% separates them with room on both sides, and a concept whose prompts
+ * are genuinely extra keeps them.
+ *
+ * @param {string} conceptId
+ * @param {string} svg the drawing, as the artefact holds it
+ * @returns {boolean} true where the bullets would repeat the drawing
+ */
+function promptsEchoTheDrawing (conceptId, svg) {
+  const framework = FRAMEWORKS.find(f => (f.conceptId || f.id) === conceptId)
+  const prompts = ((framework && framework.fields) || []).filter(f => f.prompt)
+  if (!prompts.length) { return false }
+
+  const inDrawing = new Set(meaningfulWords(
+    (svg.match(/<text[^>]*>([^<]*)<\/text>/g) || []).join(' ').replace(/<[^>]*>/g, ' ')
+  ))
+  const promptWords = meaningfulWords(prompts.map(p => p.label + ' ' + p.prompt).join(' '))
+  if (!promptWords.length) { return false }
+
+  const shared = promptWords.filter(w => inDrawing.has(w)).length
+  return shared / promptWords.length >= 0.6
+}
+
 function renderRegistry () {
   const rows = DRAWINGS.reduce((acc, d) => {
     const name = componentName(d.conceptId)
@@ -491,6 +585,21 @@ function renderRegistry () {
         "    /* webpackChunkName: 'concept-" + d.conceptId + "' */\n" +
         "    '~/components/strategy/concepts/" + name + ".vue'\n  )"
       )
+    })
+    return acc
+  }, []).join(',\n')
+
+  const titled = DRAWINGS.reduce((acc, d) => {
+    const svg = nthSvg(fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8'), d.svg)
+    if (!carriesOwnTitle(svg)) { return acc }
+    servedConcepts(d).forEach((id) => { acc.push('  ' + registryKey(id) + ': true') })
+    return acc
+  }, []).join(',\n')
+
+  const echoed = DRAWINGS.reduce((acc, d) => {
+    const svg = nthSvg(fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8'), d.svg)
+    servedConcepts(d).forEach((id) => {
+      if (promptsEchoTheDrawing(id, svg)) { acc.push('  ' + registryKey(id) + ': true') }
     })
     return acc
   }, []).join(',\n')
@@ -509,11 +618,55 @@ ${rows}
 }
 
 /**
+ * Concepts whose drawing opens with a title of its own.
+ *
+ * 🔴 A PAGE WHOSE DRAWING TITLES ITSELF MUST NOT ADD A SECOND TITLE — Mike, 2026-09-23.
+ * 20 of the 32 printed the concept's name twice, once as our heading and once inside
+ * his own drawing below it; ten were identical word for word. Read from the artefact
+ * by size and position, never guessed from the name.
+ *
+ * @type {Object<string, boolean>}
+ */
+export const CONCEPT_TITLED = {
+${titled}
+}
+
+/**
  * @param {string} conceptId
  * @returns {boolean} true where an approved drawing exists
  */
 export function hasConceptGraphic (conceptId) {
   return Boolean(conceptId) && Object.prototype.hasOwnProperty.call(CONCEPT_GRAPHICS, conceptId)
+}
+
+/**
+ * Concepts whose prompt bullets merely repeat what the drawing already says.
+ *
+ * 🔴 ITEM 15.12 — a client read the same five questions twice on one page, once inside
+ * Mike's drawing and once as bullets beneath it, and on A4 the page then split mid-list.
+ * Measured by word overlap at build time: Porter's 5 Forces 92%, The 8 Profit Levers 74%,
+ * everything else far below. A concept whose prompts are genuinely extra keeps them.
+ *
+ * @type {Object<string, boolean>}
+ */
+export const CONCEPT_PROMPTS_ECHOED = {
+${echoed}
+}
+
+/**
+ * @param {string} conceptId
+ * @returns {boolean} true where the drawing titles itself, so the page must not
+ */
+export function conceptTitlesItself (conceptId) {
+  return Boolean(conceptId) && Object.prototype.hasOwnProperty.call(CONCEPT_TITLED, conceptId)
+}
+
+/**
+ * @param {string} conceptId
+ * @returns {boolean} true where the bullets would repeat the drawing, so they must not print
+ */
+export function promptsEchoDrawing (conceptId) {
+  return Boolean(conceptId) && Object.prototype.hasOwnProperty.call(CONCEPT_PROMPTS_ECHOED, conceptId)
 }
 `
 }

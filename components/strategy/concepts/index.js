@@ -143,9 +143,85 @@ export const CONCEPT_GRAPHICS = {
 }
 
 /**
+ * Concepts whose drawing opens with a title of its own.
+ *
+ * 🔴 A PAGE WHOSE DRAWING TITLES ITSELF MUST NOT ADD A SECOND TITLE — Mike, 2026-09-23.
+ * 20 of the 32 printed the concept's name twice, once as our heading and once inside
+ * his own drawing below it; ten were identical word for word. Read from the artefact
+ * by size and position, never guessed from the name.
+ *
+ * @type {Object<string, boolean>}
+ */
+export const CONCEPT_TITLED = {
+  'risk-reward-matrix': true,
+  'boston-model': true,
+  'the-8-profit-levers': true,
+  'market-diffusion-theory': true,
+  'product-life-cycle': true,
+  'sigmoid-curve': true,
+  'e-demings-volatility-theory': true,
+  'progression-of-economic-value': true,
+  'horizontal-integration': true,
+  'blue-ocean-strategy': true,
+  'revenue-streams': true,
+  'senges-circles-of-causality': true,
+  '10-marketing-messages': true,
+  'customer-persona-type-table': true,
+  'a-i-d-c-r-a-advertisement-framework': true,
+  pricing: true,
+  'sales-channel-options': true,
+  'price-for-problem-solving': true,
+  'price-for-delivery-medium': true,
+  'product-fit-review': true,
+  '6-marketing-questions': true,
+  'product-fit': true,
+  'digital-funnel-storyboard': true,
+  'outbound-messaging-plan': true,
+  'inbound-landing-page-review': true,
+  'sparketing-friction-review': true,
+  'branding-review': true,
+  'customer-loyalty-programme': true,
+  'packaging-bundling': true,
+  'sales-process-review': true,
+  'porters-5-forces': true,
+  'technology-points': true
+}
+
+/**
  * @param {string} conceptId
  * @returns {boolean} true where an approved drawing exists
  */
 export function hasConceptGraphic (conceptId) {
   return Boolean(conceptId) && Object.prototype.hasOwnProperty.call(CONCEPT_GRAPHICS, conceptId)
+}
+
+/**
+ * Concepts whose prompt bullets merely repeat what the drawing already says.
+ *
+ * 🔴 ITEM 15.12 — a client read the same five questions twice on one page, once inside
+ * Mike's drawing and once as bullets beneath it, and on A4 the page then split mid-list.
+ * Measured by word overlap at build time: Porter's 5 Forces 92%, The 8 Profit Levers 74%,
+ * everything else far below. A concept whose prompts are genuinely extra keeps them.
+ *
+ * @type {Object<string, boolean>}
+ */
+export const CONCEPT_PROMPTS_ECHOED = {
+  'the-8-profit-levers': true,
+  'porters-5-forces': true
+}
+
+/**
+ * @param {string} conceptId
+ * @returns {boolean} true where the drawing titles itself, so the page must not
+ */
+export function conceptTitlesItself (conceptId) {
+  return Boolean(conceptId) && Object.prototype.hasOwnProperty.call(CONCEPT_TITLED, conceptId)
+}
+
+/**
+ * @param {string} conceptId
+ * @returns {boolean} true where the bullets would repeat the drawing, so they must not print
+ */
+export function promptsEchoDrawing (conceptId) {
+  return Boolean(conceptId) && Object.prototype.hasOwnProperty.call(CONCEPT_PROMPTS_ECHOED, conceptId)
 }
