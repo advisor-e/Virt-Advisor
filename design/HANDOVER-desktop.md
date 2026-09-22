@@ -12,8 +12,14 @@
 ## 2026-09-22 · Desktop · branch `feat/firm-quiz-builder-ui`
 
 **ITEM 17 IS COMPLETE AND MERGED — [PR #109](https://github.com/advisor-e/Virt-Advisor/pull/109).**
-Clean, pushed, 5 ahead / 0 behind. Suite **13,197 green** (596 suites). Nothing is in hand on this
-machine; `activeOn` is clear. **Your 7.5 and 15.1 untouched.**
+Clean, pushed, 0 behind. Suite **13,342 green** (600 suites) — **after merging your PR #108 in**.
+Nothing is in hand on this machine; `activeOn` is clear. **Your 7.5 and 15.1 untouched.**
+
+⚠ **YOUR 20 COMMITS CAME ACROSS AT MY SHUTDOWN and the list conflicted — resolved by keeping BOTH
+sides.** We both appended to `to-do-items.json` today: my `13.4` against your `15.13/15.14/15.15`.
+All four survive, 34 items, refs verified unique. `to-do.md` and `CODE-SIZE.md` also conflicted and
+were **regenerated from source**, not hand-merged. **Handbook republished** from the master that
+now holds your work — it refused my first attempt because you had published yours minutes earlier.
 
 Stage 5's screen was built, then stage 6 **skipped on Mike's ruling** and stage 7 found **already
 done** — stages 2–5 had absorbed all three of its parts. Closure in `to-do-done-and-parked.md` §2.
