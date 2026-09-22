@@ -270,7 +270,14 @@ describe('the two tiers are recognisably the same screen', () => {
   // as a stated judgement: consent is the firm's own undertaking, and the tiers above
   // contribute no reviews and receive no adjustment. It sits LAST because it is appended to
   // the Compliance group, the last heading the firm sees — menu order, per the note above.
-  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules', 'outcomeConsent.tab']
+  // ⚠ AMENDED 2026-09-22, and the list is now EIGHT. `Team Pipeline` and `Sales Tracker
+  // Lists` are the Sales Tracker's manager half (item 17 stage 4, on Mike's ask: "make sure
+  // the firm manager hub is running too - so i can see the lists and report"). Firm-only as
+  // a stated judgement: both read `va_sales_pipeline`, whose every row carries one firm_id,
+  // so the mentor has no advisors of its own selling and no prospect list to hold. They sit
+  // after `Team Case Studies` because both are appended to "Your Team In Action", where
+  // Session Processes already sits — menu order, per the note above.
+  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Team Pipeline', 'Sales Tracker Lists', 'Property Tax Rules', 'outcomeConsent.tab']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
   //
@@ -413,7 +420,12 @@ describe('the hub menu — the sidebar itself', () => {
     // ruled all four manager tiers, against the mentor-alone default he was offered). It is
     // appended to the END of "Your Team In Action", so the four index assertions below are
     // untouched, which is what "appended" is asserted to mean here.
-    expect(tabLabels(wrapper)).toHaveLength(19)
+    //
+    // ⚠ 21 SINCE 2026-09-22, when the Sales Tracker's two manager screens joined — Team
+    // Pipeline and Sales Tracker Lists (item 17 stage 4, Mike: "so i can see the lists and
+    // report"). Both appended to the END of the same group, for the same reason: appending
+    // moves nothing already on a manager's screen, and the index assertions below still hold.
+    expect(tabLabels(wrapper)).toHaveLength(21)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.

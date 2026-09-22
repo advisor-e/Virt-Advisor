@@ -6181,6 +6181,93 @@
       "network": "Could not reach the server. Check your connection and try again."
     }
   },
+  "salesTrackerHome": {
+    "eyebrow": "Advisor-e · Your business development",
+    "title": "Sales Tracker",
+    "lede": "Your own prospects, the people who refer you work, and what it is all adding up to. What you record here is yours — a colleague sees a deal only if you choose to share it.",
+    "open": "Open",
+    "managerNote": "Your firm manager sees the team's figures and sets the dropdown values, from the Firm Manager Hub.",
+    "cards": {
+      "pipeline": {
+        "title": "My pipeline",
+        "description": "Every prospect you are working — who they are, where the conversation has got to, and what it is worth."
+      },
+      "coi": {
+        "title": "My referral partners",
+        "description": "The people who send you work, what they have referred, and what came of it."
+      },
+      "dashboard": {
+        "title": "My sales dashboard",
+        "description": "Your conversion rates, average fees and where deals are being won or lost."
+      },
+      "blog": {
+        "title": "Write a blog post",
+        "description": "Set a brief, let the AI draft an outline, then turn it into a finished article you can publish."
+      }
+    }
+  },
+  "salesTeam": {
+    "eyebrow": "Advisor-e · Firm manager",
+    "title": "Your team's pipeline",
+    "lede": "Every deal your advisors are working, by the person leading it. This view includes deals an advisor has kept private.",
+    "loading": "Loading the team summary…",
+    "unassigned": "Not assigned",
+    "unassignedNote": "Deals with no lead staff recorded",
+    "truncated": "This firm has more deals than this summary can show at once, so the totals below are incomplete.",
+    "footnote": "Approach rate is how many of the prospects an advisor could approach they actually approached — prospects still awaiting research are not counted, because they are not ready to approach yet. A low rate means time spent finding opportunities that never became conversations. A rate shows a dash when there is nothing to work it out from.",
+    "stats": {
+      "members": "People selling",
+      "prospects": "Prospects held",
+      "proposalValue": "Proposals out",
+      "securedValue": "Work secured"
+    },
+    "columns": {
+      "member": "Team member",
+      "prospects": "Prospects",
+      "approaches": "Approached / able to",
+      "meetings": "Meetings",
+      "proposals": "Proposals",
+      "proposalValue": "Proposal value",
+      "secured": "Secured",
+      "securedValue": "Secured value",
+      "approachRate": "Approach rate",
+      "avgProposal": "Avg proposal",
+      "securedRate": "Close rate",
+      "firmTotal": "Firm total"
+    },
+    "empty": {
+      "title": "No deals recorded yet",
+      "body": "Once your advisors add prospects to their pipelines, their figures appear here."
+    },
+    "errors": {
+      "load": "Could not load the team summary.",
+      "forbidden": "This view is for firm managers. Ask your firm manager if you need access."
+    }
+  },
+  "salesLists": {
+    "eyebrow": "Advisor-e · Firm manager",
+    "title": "Your Sales Tracker lists",
+    "lede": "The values your advisors pick from on their pipeline and referral partner screens. Changing a list here changes it for everyone in your firm.",
+    "loading": "Loading your lists…",
+    "itemCount": "{count} value | {count} values",
+    "emptyList": "This list has no values yet.",
+    "addPlaceholder": "Add a value…",
+    "add": "Add",
+    "save": "Save this list",
+    "revert": "Undo changes",
+    "unsaved": "Unsaved changes",
+    "saved": "{list} saved.",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "footnote": "The order you set here is the order your advisors see in their dropdowns.",
+    "errors": {
+      "load": "Could not load your lists.",
+      "save": "Could not save that list.",
+      "duplicate": "\"{value}\" is already in this list.",
+      "forbidden": "Only a firm manager can change these lists."
+    }
+  },
   "salesTrackerDashboard": {
     "badge": "Analytics",
     "title": "Sales Dashboard",
@@ -6225,5 +6312,119 @@
     "days": "days",
     "errorLoad": "Failed to load dashboard metrics",
     "errorNetwork": "Could not reach the server. Check your connection and try again."
+  },
+  "salesBlog": {
+    "eyebrow": "Advisor-e · Your business development",
+    "title": "Write a blog post",
+    "lede": "Set the brief, let the AI draft an outline, then turn it into a finished article. Everything here is yours alone — no one else in your firm sees it.",
+    "loading": "Loading your briefs and drafts…",
+    "stats": {
+      "briefs": "Saved briefs",
+      "drafts": "Outlines",
+      "finals": "Finished articles"
+    },
+    "brief": {
+      "heading": "The brief",
+      "topic": "Topic",
+      "topicPlaceholder": "What is the post about?",
+      "audience": "Audience",
+      "objective": "Objective",
+      "tone": "Tone",
+      "length": "Length",
+      "wordCount": "Target words",
+      "wordCountPlaceholder": "e.g. 400-600",
+      "cta": "Call to action",
+      "authorType": "Author type",
+      "author": "Author",
+      "selectAuthor": "No author named"
+    },
+    "principles": {
+      "heading": "The points to make",
+      "hint": "Three sections the article should cover. The AI writes to these, so the more specific they are the less it invents.",
+      "number": "Point {n}",
+      "titlePlaceholder": "What this section is about",
+      "detail": "Detail {n}"
+    },
+    "references": {
+      "heading": "Source material",
+      "hint": "Anything you want the AI to write from — a pasted document or a link. Tick the ones to use for this post.",
+      "add": "Add source material",
+      "cancel": "Cancel",
+      "none": "No source material yet. The AI will write from your brief alone.",
+      "title": "Title",
+      "titlePlaceholder": "What is this source?",
+      "type": "Type",
+      "document": "Pasted document",
+      "urlLink": "Link",
+      "url": "Address",
+      "content": "The text",
+      "contentPlaceholder": "Paste the document here…",
+      "topic": "Topic (optional)",
+      "topicPlaceholder": "Group it with a topic",
+      "save": "Save this source",
+      "doc": "Document",
+      "delete": "Delete",
+      "selected": "{count} source selected | {count} sources selected"
+    },
+    "actions": {
+      "saveBrief": "Save the brief",
+      "generateDraft": "Write the outline",
+      "generateFinal": "Write the article",
+      "saveDraft": "Save this outline",
+      "saveFinal": "Save this article"
+    },
+    "saved": {
+      "briefs": "Saved briefs",
+      "drafts": "Outlines",
+      "finals": "Finished articles",
+      "restore": "Open",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "pinned": "Pinned",
+      "delete": "Delete",
+      "duplicateToDraft": "Copy to outline",
+      "searchDrafts": "Search your outlines",
+      "searchFinals": "Search your articles",
+      "pinnedOnly": "Pinned only",
+      "noBriefs": "No saved briefs yet.",
+      "noDrafts": "No outlines yet.",
+      "noFinals": "No finished articles yet.",
+      "noMatch": "Nothing matches what you are looking for."
+    },
+    "editor": {
+      "draftHeading": "The outline",
+      "finalHeading": "The article",
+      "words": "{count} word | {count} words",
+      "target": "target {target}",
+      "short": "Shorter than your target",
+      "edit": "Edit",
+      "preview": "Preview",
+      "polishLevel": "Polish",
+      "aiInstructions": "Anything else the AI should know",
+      "aiInstructionsHint": "Used only when writing the article — a steer on emphasis, examples or what to avoid.",
+      "aiInstructionsPlaceholder": "e.g. use examples from professional services",
+      "draftEmpty": "Write the outline first, and it will appear here for you to edit.",
+      "finalEmpty": "Once there is an outline, the article can be written from it."
+    },
+    "source": {
+      "ai": "Written by the AI.",
+      "template": "The AI was unavailable, so this was built from your brief. It is a starting point, not a finished piece."
+    },
+    "status": {
+      "briefSaved": "Brief saved.",
+      "referenceSaved": "Source material saved.",
+      "draftSaved": "Outline saved.",
+      "finalSaved": "Article saved."
+    },
+    "errors": {
+      "load": "Could not load your briefs and drafts.",
+      "network": "Could not reach the server. Check your connection and try again.",
+      "saveBrief": "Could not save the brief.",
+      "saveReference": "Could not save that source material.",
+      "savePost": "Could not save that.",
+      "delete": "Could not delete that.",
+      "generate": "Could not write that. Nothing has been lost — your brief and any text are still here.",
+      "needTopic": "A topic is needed before the AI can write anything."
+    }
   }
 }

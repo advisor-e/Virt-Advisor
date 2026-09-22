@@ -111,8 +111,21 @@ const MENTOR_BEFORE = [
  *   against it, and the reason is printed on the drawing: a firm's planning method is exactly
  *   what one firm does differently from another. ⚠ The ADVISOR is not a tier here: he edits the
  *   session in front of one client, and his changes never become the firm's standard.
+ * - `salesTeam`, `salesLists` — Mike, 2026-09-22 (item 17 stage 4), in his own words:
+ *   *"make sure the firm manager hub is running too - so i can see the lists and report"*.
+ *   🔴 **THE FIRM ALONE, and stated rather than assumed** (the default since 2026-08-24 is the
+ *   mentor alone; this is neither). Both screens read `va_sales_pipeline`, whose every row
+ *   carries one `firm_id`: the roll-up groups ONE firm's advisors, and the lists are the
+ *   dropdown values that firm's advisors pick from. The mentor has no advisors of its own
+ *   selling, and a brand or country has no shared prospect list — a group-level roll-up would
+ *   be a table of firms, a different screen nobody has asked for. Cascading becomes mandatory
+ *   the day a group has a real reason to compare its firms; the store already scopes by firm
+ *   and `parentScopeOf` already walks the chain, so adding a tier is the whole change.
+ *   ⚠ The THREE ADVISOR Sales Tracker screens are deliberately not hub tabs at any tier: the
+ *   hub sits behind `requireManagerRole`, so a tab would put an advisor's own tool where its
+ *   users cannot reach it (Mike's ruling 2026-09-21).
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
