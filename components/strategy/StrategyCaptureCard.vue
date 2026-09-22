@@ -26,6 +26,9 @@
       :concept-summary="framework.conceptSummary"
       :helps-client-to="framework.helpsClientTo"
       :fields="framework.fields"
+      :firm-name="firmName"
+      :firm-colour="firmColour"
+      :firm-logo="firmLogo"
     )
     .scc-advance
       b-button(type="is-primary" @click="capturing = true") {{ $t('strategyPlanner.teaching.captureNow') }}
@@ -150,7 +153,27 @@ export default {
     /** Position in the session, e.g. "Strategic Orientation · framework 1 of 4". */
     eyebrow: { type: String, default: '' },
     /** True when this framework is taught before it is captured. */
-    teachable: { type: Boolean, default: false }
+    teachable: { type: Boolean, default: false },
+
+    // 🔴 THE THREE FIRM PROPS ARE CARRIED THROUGH, NOT USED HERE. This card teaches
+    // through StrategyTeachingSlide, whose drawing wears the advisor firm's brand.
+    // Until 2026-09-23 this component declared none of them, so the values stopped
+    // here even where the page passed them — the drawing an advisor shows a client
+    // mid-session printed the literal words "Firm logo" against an empty disc, while
+    // the plan produced at the end was correctly branded. Item 16.
+
+    /** The advisor firm's name, printed beside the mark on the drawing. */
+    firmName: { type: String, default: '' },
+
+    /** The firm's colour, as a CSS colour. Brands the page border and the disc. */
+    firmColour: { type: String, default: '#0070c0' },
+
+    /**
+     * The firm's real logo, as an absolute http(s) URL. Empty means the firm holds
+     * none and the drawing falls back to the initials disc — Mike's ruling,
+     * 2026-09-22. Sourced by firmBrand() from Advisor-e's firm profile.
+     */
+    firmLogo: { type: String, default: '' }
   },
 
   data () {

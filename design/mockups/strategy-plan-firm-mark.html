@@ -377,11 +377,23 @@ two boxes, so nothing reflows between one firm and another.</p>
 
 <div class="ask">
   <h3>Decision A — a teaching page must not carry two frames</h3>
-  <p>The 33 concept drawings are whole deck pages and <b>already carry this exact frame and mark</b>.
+  <p>The 33 concept drawings are whole deck pages and <b>carry this exact frame and mark</b>.
   Draw another around the sheet and a client sees two coloured frames millimetres apart.</p>
   <p class="rec">Recommended: on a teaching page the drawing's own frame <b>is</b> the page's frame,
   and the sheet adds nothing. Every other sheet draws it. The teaching page above shows this.</p>
   <p class="q">One frame per sheet, the teaching page's coming from the drawing inside it?</p>
+  <p style="margin-top:10px;padding:10px 12px;background:#fff4f4;border-left:3px solid #c0392b">
+  🔴 <b>THIS SENTENCE READ &ldquo;ALREADY CARRY&rdquo; AND IT WAS NOT TRUE — corrected 2026-09-23,
+  on Mike&rsquo;s instruction to read the code rather than the notes.</b> The 32 drawings carried a
+  single <b>rounded</b> rect: <code>rx=8</code>, inset <b>0.333%</b>, bar <b>0.667%</b>, and
+  <b>unbroken at the foot</b>. His page is square, inset <b>0.542%</b>, bar <b>0.986%</b>, with the
+  foot in two segments. Measured across all 32 — <b>not one matched</b>. Nobody checked the
+  premise, and this one unchecked sentence is why the frame ported faithfully into
+  <code>StrategyPlanFrame.vue</code> never appeared on a teaching page: the rule says use the
+  drawing&rsquo;s frame, and the drawing&rsquo;s was the wrong one. <b>The drawings were corrected
+  to the five bars below, so the sentence is true now</b> — and the decision stands as written.
+  <br><b>The lesson is the rule this page already states:</b> render both, put them beside each
+  other, and look. A premise about another artefact is worth no more than a measurement of it.</p>
 </div>
 
 <div class="ask">
