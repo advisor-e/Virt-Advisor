@@ -372,12 +372,31 @@ export default {
    fallback for a browser without container queries. */
 .spd { counter-reset: spdpage; container-type: inline-size; }
 
+/* 🔴 THE FRAME IS NOT A CSS BORDER, AND IT CANNOT BE. A CSS border sits hard on the
+   element's edge, so it can do none of the three things his page does:
+     - RELIEF OUTSIDE IT. His bars are INSET 3.9pt from the sheet, leaving white all the
+       way round. A border has nothing outside it.
+     - A BREAK FOR THE LOGO. His bottom edge is two bars with a gap between them. A
+       border is one unbroken rectangle.
+     - THE LOGO SITTING ON IT. His mark straddles the bottom line, inside the gap. A
+       border is painted outside the area a child can occupy.
+   So the frame is an inset box of its own, exactly as the approved drawing draws it, and
+   the mark paints over it because it comes later in the document order.
+   Found 2026-09-22 — Mike: "border has no relief around the outside, border has no break
+   in lower left corner - logo not inside border section bottom left." */
+.spd-page::before {
+  content: '';
+  position: absolute;
+  inset: 0.542cqw;                      /* 3.9 / 720 — the relief */
+  border: 0.986cqw solid var(--spd-firm, #0070c0);   /* 7.1 / 720 — the bar */
+  pointer-events: none;
+}
+
 .spd-page {
   position: relative;
   counter-increment: spdpage;
   background: #fff;
-  border: 8px solid var(--spd-firm, #0070c0);
-  border-width: 0.986cqw;               /* 7.1 / 720 of his page */
+  border: 0;
   border-radius: 0;                     /* his corners are square */
   /* ⚠ THE FOOT MUST CLEAR THE MARK. The mark is absolutely positioned at the bottom of
      the sheet, and a page that outgrows its frame — which this component deliberately
@@ -410,7 +429,11 @@ export default {
    the page's own edge, so the plate goes and the name knocks out to white.
    `.spm` is the child's ROOT element, so it carries this component's scope id and a
    plain descendant selector reaches it; its inner spans need `>>>`. */
-.spd-page.is-divider .spm { background: none; padding: 0; }
+/* 🔴 THE PLATE IS WHAT BREAKS THE BOTTOM BAR, so it stays on EVERY sheet — it just has
+   to be the colour of the sheet it breaks. On a white page that is white; on a navy step
+   divider it is the navy, or the break would read as a white brick rather than a gap.
+   It was switched OFF on dividers, which removed the break there entirely. */
+.spd-page.is-divider .spm { --spm-plate: #002b64; }
 .spd-page.is-divider >>> .spm-name { color: #fff; }
 
 /* 🔴 DECISION A, RULED WITH THE DRAWING — A TEACHING PAGE CARRIES ONE FRAME AND ONE
@@ -421,7 +444,7 @@ export default {
    no assertion could see it.
    The border is kept at full width and made transparent rather than removed, so the
    content box does not shift between a teaching page and any other. */
-.spd-page.is-teach { border-color: transparent; }
+.spd-page.is-teach::before { display: none; }
 .spd-page.is-teach .spm { display: none; }
 /* ⚠ AND IT RECLAIMS THE FOOT. The deep bottom padding exists to keep a growing page's
    last line out from under the mark — a teaching page has no mark, so the padding only

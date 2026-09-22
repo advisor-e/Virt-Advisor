@@ -4,7 +4,7 @@
 //- a 45.61pt stub in the corner, then the logo, then the run from x=119.19. The
 //- mark sits ON the border line with the page's own white behind it, which
 //- reproduces both segments exactly and needs no second element.
-span.spm(:class="{ 'is-big': big }")
+span.spm(:class="{ 'is-big': big, 'has-logo': !!logo }")
   img.spm-logo(v-if="logo" :src="logo" :alt="name")
   template(v-else)
     span.spm-disc(:style="{ background: colour }") {{ initial }}
@@ -69,19 +69,46 @@ export default {
    page uses. Measured, not assumed: this was 6.33%w against his 5.24%w before the fix. */
 .spm {
   position: absolute;
-  /* ⚠ A PERCENTAGE `left` RESOLVES AGAINST THE PADDING BOX, NOT THE SHEET. The page's
-     own border sits outside that box, so 6.875% put the mark at 7.72% of the sheet.
-     Solved back to his edge: border 0.986% + L x 0.98028 + plate padding 0.35% x 0.98028
-     = 6.875%, so L = 5.658%. Measured after the change, not assumed. */
-  left: 5.658%;            /* + border + the 0.35% plate padding = his 6.875% of the sheet */
-  bottom: 0.42%;           /* his logo runs to y=402.3 of 405 */
+  /* The page carries no CSS border any more — its frame is an inset box — so a
+     percentage `left` now resolves against the whole sheet. 6.525% + the 0.35% plate
+     padding puts the mark's content on his x=49.5 (6.875%). */
+  left: 6.525%;
+  /* 🔴 IT STRADDLES THE BOTTOM BAR — that is the point of it. His logo runs from y=364.6
+     down to y=402.3 of 405, so its foot is 2.7pt from the sheet edge and it crosses the
+     bar at 394.0–401.1. Sitting it above the bar leaves the line unbroken and the mark
+     floating, which is exactly what Mike saw. */
+  /* 🔴 ONLY A REAL LOGO BREAKS THE BAR, AND THE BREAK IS THE LOGO BOX — NOTHING WIDER.
+     His gap is 49.5 to 118.9 of 720: 9.639% of the sheet, the width of the logo and no
+     more. Plating the whole mark broke a THIRD of his bottom edge, because the plate
+     spanned the firm's name and the running foot too.
+     WITHOUT a logo the mark sits ABOVE the bar and the bar stays whole — which is what
+     the 33 concept drawings do with the same fallback (disc at cy=800 r=22 on an
+     844-tall page, clear of a border running 829–839). Two sources, one answer. */
+  bottom: 3.4%;            /* clear of the bar, which starts 2.72% up from the foot */
   height: 5.236cqw;        /* 37.7 / 720 — the height of HIS logo box */
   display: flex;
   align-items: center;
   gap: 0.9%;
   padding: 0 0.35%;        /* the sliver of white either side of his gap */
-  background: #fff;        /* THE GAP — see the template note */
+  background: none;
   max-width: 78%;          /* stops short of the page number at 91.7% */
+}
+
+/* A firm WITH a logo drops onto the bar and cuts his gap in it. */
+.spm.has-logo {
+  bottom: 0.667%;          /* (405 - 402.3) / 405 — it straddles the bar */
+}
+
+/* THE GAP ITSELF: the page's own colour, exactly the logo box wide, painted behind the
+   logo and over the bar. `--spm-plate` lets a dark sheet break in its own colour. */
+.spm.has-logo::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 9.639cqw;         /* 69.4 / 720 — his gap, and nothing wider */
+  height: 100%;
+  background: var(--spm-plate, #fff);
 }
 
 /* ⚠ THE PLATE IS ONLY A GAP ON A WHITE SHEET. On the navy step dividers it renders as a
@@ -105,6 +132,7 @@ export default {
    it whatever its own proportions are — "a real logo is an image of unknown proportion"
    was the reason for the disc, and a fixed box is the answer to it. */
 .spm-logo {
+  position: relative;      /* above the plate behind it */
   width: 9.639cqw;
   height: 100%;
   object-fit: contain;
