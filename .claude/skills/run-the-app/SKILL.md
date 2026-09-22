@@ -51,7 +51,9 @@ near the running server.**
 curl -s -H "Authorization: Bearer dev-local-bypass" http://127.0.0.1:4000/api/<your-route>
 ```
 
-Restart both (a stale Nuxt is never the problem, but restarting one means restarting the pair):
+Restart both (restarting one means restarting the pair — ⚠ **and a stale Nuxt CAN be the
+problem; this line used to say it never is. See the section below, which cost three restarts
+to write**):
 
 ```bash
 # PowerShell — stop whatever holds the two ports, then relaunch
@@ -66,6 +68,53 @@ A healthy boot prints three lines worth reading:
 | `MYSQL_PASSWORD is placeholder — no MySQL` | Expected on the laptop. Stores fall back to `data/dev-*.json`. Nothing persists like production. |
 | `firm membership seeded … 27 INVENTED firms` | The two middle-tier hubs will show **test data, not real firms**. Never report seeded firms as real. |
 | `OPENAI_API_KEY present=true` | AI routes will really call OpenAI **and really cost money**. See §6. |
+
+### 🔴 NUXT CAN RELOAD HALF A CHANGE — the template compiles, the `<script>` does not
+
+**This is nastier than the Restify case above, because the app looks updated.** The section above
+warns you when NOTHING has reloaded. Here the screen visibly changes and still misbehaves, so every
+clue points at the code you just wrote — and the code is correct.
+
+**What it looks like.** Add a prop and use it in the same `.vue` file, and the browser console says:
+
+```
+[Vue warn]: Property or method "clientChosen" is not defined on the instance but referenced
+during render.
+found in ---> <StrategyScopeMenu>
+```
+
+The template's new `!clientChosen` is live. The `props` block that declares it is not. So the
+binding evaluates against `undefined` — a disabled button stays disabled, a `v-if` never fires —
+while the file on disk is right and **the unit tests pass**, because Jest compiles the file fresh
+and never touches the dev server's cache.
+
+🔴 **A FULL RESTART OF BOTH SERVERS DOES NOT CLEAR IT.** The stale copy is on disk, not in memory.
+That is the detail that turns ten minutes into an hour: the one thing you would reach for does
+nothing, which reads as confirmation that the code really is broken.
+
+**Prove it in one call instead of guessing** — ask the running page what it actually loaded:
+
+```js
+await page.evaluate(() => {
+  const vm = document.querySelector('.ssm').__vue__        // any root element of the component
+  return { declared: Object.keys(vm.$options.props), live: vm.$props }
+})
+```
+
+If your new prop is missing from `declared`, the file is fine and the server is stale. **Nothing in
+the source can explain it and no amount of reading will.**
+
+**The fix is to change the file's timestamp, then restart the pair:**
+
+```powershell
+(Get-Item "components\strategy\StrategyScopeMenu.vue").LastWriteTime = Get-Date
+```
+
+Then re-run the probe and see the prop appear before you touch anything else.
+
+*Found 2026-09-22 building the Strategy Planner's AI pre-tick (item 15.1 stage 6). A one-line fix
+to a button's `:disabled` was correct, committed, unit-tested green — and the screen behaved for
+three restarts as though it had never been written.*
 
 ### 🔴 The address gotcha — `127.0.0.1:3000` does not answer
 
