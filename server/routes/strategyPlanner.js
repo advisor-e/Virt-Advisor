@@ -19,10 +19,16 @@
  * session that does not belong to the caller's firm reads as ABSENT rather than
  * forbidden, so an id cannot be probed for existence one number at a time.
  *
- * 🔴 NOTHING HERE SENDS ANYTHING TO A MODEL. Decision 11 keeps AI out of placement
- * entirely: the field open at the time claims the words, from the navigation timeline.
- * If a future route asks a model where a passage belongs, that ruling has been broken
- * and LLM output is being trusted as structured data.
+ * 🔴 ONE ROUTE SENDS TO A MODEL, AND EXACTLY ONE. `postSuggest` — the "Suggest for this
+ * client" button, Decision C, stage 6 — sends the advisor's own summaries of the client's
+ * last two conversations and nothing else. No id of any kind and no transcript leaves this
+ * file. Every other route here is local.
+ *
+ * 🔴 DECISION 11 IS UNTOUCHED BY THAT, AND IT KEEPS AI OUT OF PLACEMENT ENTIRELY: the
+ * field open at the time claims the words, from the navigation timeline. If a future route
+ * asks a model where a passage belongs, that ruling has been broken and LLM output is
+ * being trusted as structured data. Suggesting what to DISCUSS and deciding where spoken
+ * words BELONG are different questions; the first is ruled in, the second ruled out.
  *
  * Node 14, CommonJS.
  */
@@ -30,6 +36,10 @@
 const frameworks = require('../utils/strategyFrameworks')
 const captureForms = require('../utils/strategyCaptureForms')
 const store = require('../utils/strategySessionStore')
+const pretick = require('../utils/strategyPretick')
+const caseStore = require('../utils/caseStore')
+const clientStore = require('../utils/clientStore')
+const { getClient } = require('../utils/aiProvider')
 const sessionProcess = require('../utils/sessionProcess')
 const { tierOfScope } = require('../utils/tierChain')
 const { loadFirmConfig, saveFirmConfig, getVersionHistory, restoreVersion } = require('../utils/firmOverlay')
@@ -394,6 +404,136 @@ async function putScope (req, res) {
     }
     console.error('[strategy-planner] putScope failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not save the session scope')
+  }
+}
+
+/**
+ * POST /api/strategy/suggest
+ *
+ * The "Suggest for this client" button. Item 15.1 stage 6; **Decision C, ruled by Mike
+ * 2026-09-17** on `design/mockups/strategy-session-menu.html`.
+ *
+ * 🔴 IT SUGGESTS AND IT CHANGES NOTHING. The reply is a list of concept ids each with one
+ * line of reason. It is NOT a scope, it is never written to `frameworks`, and the session's
+ * count still follows the advisor's ticks — Decision C(a). The suggestion is stored beside
+ * the ticks, never in place of them (C(b)), and every row the model names is checked
+ * against the real catalogue before it is returned (C(c), `strategyPretick.validateSuggestion`).
+ *
+ * 🔴 IT IS KEYED ON THE CLIENT, NOT THE SESSION, AND THAT IS THE FLOW RATHER THAN A
+ * PREFERENCE. The button sits on Scope session, which an advisor opens BEFORE pressing
+ * "Build the session" — so at the moment it is pressed there is usually no session to hang
+ * it on. A session id is accepted and used when there is one, so the suggestion is stored
+ * the moment it can be; when there is not, the screen carries it into `POST /sessions`,
+ * whose `scope` writes it with the first ticks. Either way it is stored exactly once.
+ *
+ * 🔴 A CLIENT ID IN A BODY IS SAFE ONLY BECAUSE OF THIS LINE: `clientStore.getById` is
+ * firm-scoped, so a client belonging to another firm reads as absent. The firm still comes
+ * from the token and never from the request — see the file header.
+ *
+ * 🔴 WHAT IS SENT, AND THE TWO THINGS THAT ARE NOT. The advisor's own summaries of this
+ * client's last two conversations go to the model. **No id of any kind goes** — case,
+ * client, advisor or firm — and **no transcript goes**: a transcript is personal data and
+ * Meeting Review is the only feature cleared to send one (CLAUDE.md, Mike 2026-09-01).
+ *
+ * ⚠ A CLIENT WITH NO HISTORY GETS AN HONEST EMPTY, NOT A GUESS. The drawing's input is
+ * "this client's last two conversations"; a client with none, or whose summaries are
+ * blank, replies `reason: 'no-history'` with no concepts, so the screen can say so.
+ * Inventing a suggestion from nothing would be the failure this route exists to avoid —
+ * a pre-tick nobody can account for.
+ *
+ * @route POST /api/strategy/suggest
+ * @param {object} req - firmAuth-verified; body `{ clientId, sessionId? }`
+ * @param {object} res
+ * @returns {200} { success, suggestion: { at, concepts: [{id, reason}] }, reason, timestamp }
+ * @returns {404} when no client with that id belongs to the caller's firm
+ * @returns {502} when the model could not be reached
+ */
+async function postSuggest (req, res) {
+  const firmId = firmOf(req)
+  if (!firmId) {
+    sendError(res, 400, 'MISSING_SCOPE', 'No firm on this request')
+    return
+  }
+
+  const body = req.body || {}
+  const clientId = String(body.clientId || '')
+  if (!clientId) {
+    sendError(res, 400, 'BAD_INPUT', 'No client on this request')
+    return
+  }
+
+  try {
+    const client = await clientStore.getById(clientId, firmId)
+    if (!client) {
+      sendError(res, 404, 'NOT_FOUND', 'No such client')
+      return
+    }
+
+    const cases = await caseStore.listForClient(req.advisorId, firmId, clientId)
+    const situation = pretick.situationFromCases(cases)
+    if (!situation) {
+      res.send(200, {
+        success: true,
+        suggestion: { at: new Date().toISOString(), concepts: [] },
+        reason: 'no-history',
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const concepts = frameworks.listConcepts()
+    let reply
+    try {
+      reply = await getClient('classify').chat.completions.create({
+        messages: pretick.buildMessages({ situation, concepts }),
+        temperature: 0,
+        max_tokens: 1800,
+        response_format: { type: 'json_object' }
+      }, { personal: false })
+    } catch (err) {
+      console.error('[strategy-planner] postSuggest model call failed:', err.message)
+      sendError(res, 502, 'SUGGEST_UNAVAILABLE',
+        'The suggestion could not be produced just now. Tick the concepts yourself and try again later.')
+      return
+    }
+
+    const content = reply && reply.choices && reply.choices[0] &&
+      reply.choices[0].message
+? reply.choices[0].message.content
+: ''
+    const known = concepts.map(c => c.id)
+    const validated = pretick.validateSuggestion(content, known)
+
+    // Decision C(c) again, on the logging side: what the model got wrong is recorded
+    // server-side rather than shown. A row it invented is a fact about the model, not
+    // something an advisor can act on.
+    if (validated.dropped.length) {
+      console.warn('[strategy-planner] postSuggest dropped ' + validated.dropped.length +
+        ' tick(s): ' + validated.dropped.map(d => d.id + '(' + d.why + ')').join(', '))
+    }
+
+    const suggestion = { at: new Date().toISOString(), concepts: validated.concepts }
+    // 🔴 A FAILED WRITE DOES NOT WITHHOLD THE SUGGESTION. The advisor is in front of a
+    // client; losing the audit row is a real fault and is logged as one, but refusing to
+    // show a suggestion that was produced would be the worse of the two. With no session
+    // yet there is nothing to write to, and the screen carries it into POST /sessions.
+    if (body.sessionId) {
+      try {
+        await store.saveSuggestion(body.sessionId, firmId, suggestion)
+      } catch (err) {
+        console.error('[strategy-planner] postSuggest could not store the suggestion:', err.message)
+      }
+    }
+
+    res.send(200, {
+      success: true,
+      suggestion,
+      reason: validated.concepts.length ? 'ok' : 'nothing-matched',
+      timestamp: new Date().toISOString()
+    })
+  } catch (err) {
+    console.error('[strategy-planner] postSuggest failed:', err.message)
+    sendError(res, 500, 'SUGGEST_ERROR', 'Could not produce a suggestion for this session')
   }
 }
 
@@ -805,6 +945,7 @@ module.exports = {
   getSession,
   listSessions,
   putScope,
+  postSuggest,
   putEntries,
   postTimeline,
   getSessionProcess,

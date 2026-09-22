@@ -212,3 +212,29 @@ describe('the Org Chart prints as a chart, with the list beneath it', () => {
     expect(wrapper.find('.spd-org').exists()).toBe(false)
   })
 })
+
+describe('the advisor\'s selection blurb stays off the client\'s plan', () => {
+  // 🔴 `conceptSummary` is the CONCEPT SUMMARY column of the scope menu — what an
+  // advisor reads to decide whether to tick a concept. It was printed under every
+  // teaching page, so a client's own plan carried "This checklist guides you through
+  // a review of how your packaging supports your 'big promise'…" beneath Mike's own
+  // page, which had already said it properly. He found it by reading the PDF,
+  // 2026-09-22. It is not in the approved drawing either.
+  //
+  // Kept where there is no drawing, because for those 11 concepts it is the only
+  // content on the page and the document refuses to print a title-only one.
+
+  test('a concept WITH one of his drawings prints no summary line', () => {
+    // vertical-integration is a registered drawing, so his page says it all.
+    const wrapper = mountPlan([DRAWING_ONLY])
+
+    expect(wrapper.findAll('.spd-lead').length).toBe(0)
+  })
+
+  test('a concept with NO drawing keeps it, or the client loses the page', () => {
+    const wrapper = mountPlan([{ ...DRAWING_ONLY, conceptId: 'not-a-drawn-concept' }])
+
+    expect(wrapper.findAll('.spd-lead').length).toBe(1)
+    expect(wrapper.findAll('.is-teach').length).toBe(1)
+  })
+})

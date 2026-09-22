@@ -87,7 +87,7 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    [`HANDOVER-desktop.md`](HANDOVER-desktop.md) and [`HANDOVER-laptop.md`](HANDOVER-laptop.md),
    one per machine — so the two machines do not duplicate or contradict each other. Read the
    JSON rather than [`to-do.md`](features/to-do.md): the page is 850 lines of standing
-   explanation around a generated ten-row table, and is rebuilt from the JSON anyway.
+   explanation around a generated table, and is rebuilt from the JSON anyway.
    **Not `ACTIONS.md`** — frozen as an archive on 2026-08-24. **And there are no session
    notes to read**: the 85 files written before that date stay as history, none is written now.
    **An item whose `activeOn` names the other machine is off limits** — say so, and do not
@@ -96,6 +96,10 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    copy in this working tree.** That copy is frozen at the last merge and can be days behind
    the real note while looking perfectly fine. The check reads it from that machine's own
    branch and says outright when the note is older than the work there (item 14.2).
+   ⚠ **An absent OTHER BRANCHES box is an answer, not a failure**: it lists only branches
+   holding commits `master` does not, so it prints nothing when the other machine has merged
+   everything — and then, if step 2 reported this branch 0 behind, the copy in your working
+   tree came across with that merge and is the current note. Merge first if you are behind.
 5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
 6. 🔴 **Propose a pull request if AHEAD by 10 commits or more** — state the count and what
    would go across, and wait for Mike's yes. **The threshold is 10; change the number here

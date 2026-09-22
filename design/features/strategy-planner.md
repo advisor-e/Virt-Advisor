@@ -41,8 +41,16 @@
 >     document of slide-shaped pages**: it scrolls as one document on screen and is his deck page
 >     for page when printed or presented. 🔴 **ONE artefact, never two formats.** A build that
 >     produces a web report *and* a separate exported deck has created two things that can
->     disagree, and the page is a 16:9 frame from the start rather than a reflowing column
->     squeezed into one later.
+>     disagree, and the page is a fixed frame from the start rather than a reflowing column
+>     squeezed into one later. **It is that ruling that makes the client's PDF the document
+>     printed rather than a second one generated beside it** — §0 stage 3.
+>   - ☑ **THE FRAME IS A4 LANDSCAPE, NOT 16:9 — ruled by Mike 2026-09-21:** *"the majority of pages
+>     to be printed will be A4 size."* This supersedes the ratio alone; everything above still
+>     stands. A 16:9 page on an A4 sheet fills the width and leaves a fifth of every sheet blank.
+>     Measured that day on a 25-page plan: **at 16:9, 15 of 25 pages sat at the frame; at A4, 23 of
+>     25 do.** [`../mockups/strategy-plan-output.html`](../mockups/strategy-plan-output.html)
+>     Decision 1 carries the supersession; its §3 slides are still drawn at 16:9 and show the
+>     layout, not the ratio.
 >   - ☑ **"Tick concepts, or tick steps" — RULED BY MIKE 2026-09-20, as recommended: the advisor
 >     names the steps himself.** He ticks concepts, then names each step and drags ticked concepts
 >     into it, and **a step holding nothing still prints on the agenda**. Pivot's step 5 sits there
@@ -109,11 +117,139 @@ rather than quietly dropped.**
 the session menu puts all 52 on a screen; 16 of them reach the real capture table read from
 Mike's own workbook, and what an advisor types there is saved box by box against the client's
 session (§4) and carries into the assembled document.
+🔴 **STAGE 6 — THE AI PRE-TICK — WAS BUILT ON 2026-09-22, AND NOTHING WAS DRAWN FOR IT BECAUSE
+THE DRAWING ALREADY EXISTED.** `design/mockups/strategy-session-menu.html` carries the *"Suggest
+for this client"* button, the *"Suggested, not applied…"* bar and **Decision C**, all approved by
+Mike on 2026-09-17. A second mockup would have created a rival artefact for a screen that already
+has one. What was never designed is the engine behind the button, which is what was built:
+`server/utils/strategyPretick.js`, `POST /api/strategy/suggest`, and the suggestion riding
+`scope_json` beside the ticks. **Driven in a browser, not just tested:** six concepts pre-ticked
+from a client's own conversation summary, each with one line of reason, the count moving 0 → 6 of 52.
+
+**MEASURED BEFORE A LINE WAS WRITTEN, on Mike's own Pivot client and the four strategy cases in
+`scripts/scenario-lab-cases.json`.** The impact test the 2026-09-16 ruling requires:
+
+| | |
+|---|---|
+| Separation across five client situations | pairwise overlap **0.14–0.50**; **1 concept of 52** common to all five |
+| Recall on Mike's Pivot client | **4 of Pivot's 9**, and **3 of the 4 were reached without the words appearing in his text** |
+| Concepts invented by the model | **0**, across five runs |
+| Baseline it replaces | **0 pre-ticked, 52 rows read by hand** |
+
+🔴 **THE FIRST MEASUREMENT WAS WRONG, AND THE BENCH SAID SO RATHER THAN A LATER SESSION.** Recall
+against the one-line lab case *"competitors have caught up"* scored **1 of 9** — because that
+sentence and Pivot's client are not the same client. Pivot works on the client's *message*, and
+nothing in that line mentions one. **Mike supplied the real client description and the same bench
+scored 4 of 9.** A number from the wrong input measures the input, never the engine.
+
+⚠ **THE MODEL REACHES THE RIGHT SUBJECT AND A DIFFERENT INSTRUMENT, and this is a CONTENT finding,
+not a defect.** Asked for a client who must test their marketing message, it chose *10 Marketing
+Messages* where Pivot uses *6 Marketing Questions*. The concept prose cannot separate those two for
+this purpose. **That prose is authored content and Mike's — it is never edited to chase a bench
+result** (CLAUDE.md). Related: item **15.3**, the eighteen rows with no *Helps Your Client To…* line.
+
+⚠ **TEN CONCEPTS CARRY NO TEXT AT ALL and are invisible to the pre-tick.** All ten are
+planning-*process* steps. Nine were never chosen in any of five runs; the tenth
+(*Choose Your Objectives*) was chosen on its NAME. They are still listed in the prompt, because
+hiding them would be the code deciding which of Mike's concepts an advisor may be offered.
+
+**THREE DIFFERENCES FROM THE APPROVED DRAWING, named as the rule requires:**
+
+1. **Where the reason line sits is ours.** The drawing says *"each with one line saying why"* and
+   never shows where. Decision A fixes the table to Mike's five columns in his order, so a sixth
+   was unavailable: it renders under the concept NAME with a small `SUGGESTED` tag, styled apart
+   from his text because a client reads this table in the room.
+2. **The bar's two halves are computed.** *"Eight rows were pre-ticked"* counts real rows, and
+   *"three were wrong and have been unticked"* appears only once the advisor unticks something.
+3. **Three states the drawing never had to show** — the client has no recorded conversations, the
+   model read them and matched nothing, the model could not be reached. **Wording approved by Mike
+   2026-09-22**; it lives in `locales/en.json` under `strategyPlanner.menu.suggest*`.
+
+🔴 **IT IS KEYED ON THE CLIENT, NOT THE SESSION, AND THAT IS THE FLOW.** The button sits on Scope
+session, which an advisor opens *before* pressing *Build the session* — so usually no session exists
+to hang a suggestion on. The route takes the client; a session id is used when there is one, and
+otherwise the screen carries the suggestion into `POST /sessions`. Stored exactly once either way.
+
+🔴 **A FAULT NO TEST COULD SEE, FOUND BY OPENING IT.** The button was live with no client chosen
+and pressing it did **nothing** — no message, no error — because the page's handler returns silently
+without one. A person reads that as *"the AI found nothing"*, which is the one thing they cannot tell
+apart from a broken button. It now greys out exactly as *Build the session* does beside it, pinned by
+`tests/unit/strategyCapture.component.test.js`.
+
+⚠ **THE SUGGESTION IS ONLY AS GOOD AS THE CLIENT'S RECORDED CONVERSATIONS**, which is the drawing's
+own input. A client with none gets an honest empty and the model is never called. A client with thin
+summaries gets a thin suggestion. Stated before the build rather than discovered after it.
+
+⚠ **NOT PROVED AGAINST A REAL DATABASE** — the laptop has none. Desktop or UAT work.
+
+🔴 **CAPTURE FORM 6 OF 9 — THE PARALLEL PROMPT PAIR — WAS DRAWN, RULED AND BUILT ON 2026-09-22**,
+in that order, and it was **the worst of the forms measured**. Artefact:
+[`design/mockups/strategy-capture-parallel-prompt-pair.html`](../mockups/strategy-capture-parallel-prompt-pair.html).
+Two concepts read the same page — *Product Fit Review* (Strategic Orientation 2) and *Product Fit*
+(Sales & Marketing), from `Product Fit (Customer Orientation).docx`. **His page asks 9 questions and
+rules 9 lines. The screen offered 15 BOXES, and 3 of his questions reached no screen at all** — one
+question put to the client **seven times**, another four.
+
+**The cause is the shape, and it is why form 5's fix did not reach this.** His page is **two
+INDEPENDENT lists side by side, of different lengths**: the left asks 3 and stops at row 6, the
+right asks 6 and runs to row 12. In Word they sit inside one two-column table, so they look like
+one list. They are not. So **(a)** the left column's empty tail was read as ruled lines, each
+phantom box headed with his *last* left-hand question because that was the most recent heading the
+reader had seen; and **(b)** `isLabelRow` refuses any row holding a blank cell — which from row 7
+down is every remaining right-hand question — so they were read as *content*: not a heading, not a
+box, gone.
+
+☑ **MIKE RULED IT SPLIT, and went further than the recommendation**, which had been to keep his two
+headings over one list: *"it might be easier to split the tables into 2 - 1- customer orientation
+and 2-competitor comparison."* **His ruling keeps the STRUCTURE**, which is what his file actually
+contains, and **removes the fault at its source rather than working around it.** The reader walks
+each column as its own list and **a list ends where it ends**; `columnLabel` carries his table
+heading and `rowLabel` his question, so `blocks` in `StrategyConceptCapture.vue` renders his two
+tables with **no second grouping invented for it**. ☑ **AND A SECOND INSTRUCTION, APPLIED RATHER
+THAN ASKED:** *"get rid of the small mini-gaps or rows … im looking at original in word — no such
+gaps — either way — get rid of them."* His blank writing rows are no longer drawn as rows on
+**either** drawing. ⚠ Stated plainly, because it is easy to record the opposite: **those rows ARE
+in the .docx** — they are the lines under each question, which in Word read as answer space rather
+than as gaps. Drawing them as separate ruled rows made them look like structure they are not. They
+were never boxes and never headings in the app either. **No ruling changed and no count moved.**
+🔴 **DRIVEN IN A BROWSER:** scoped, placed and run — two tables, **3 then 6, nine boxes**, every
+question his and none repeated.
+
+🔴 **CAPTURE FORM 5 OF 9 — THE NAMED-FIELD STACK — WAS DRAWN, RULED AND BUILT ON 2026-09-22**, in
+that order. Artefact:
+[`design/mockups/strategy-capture-named-field-stack.html`](../mockups/strategy-capture-named-field-stack.html).
+**Two of his concepts were rendering the wrong half of his page, and the suite was green
+throughout** — because nothing had ever counted these two tables against his own documents.
+**Strategic Statements offered 1 box where his slide gives 2**, so the client's Strategic
+Objective statement had nowhere to go; **Productive Habits offered 8 for 5 named fields**, four
+of them inside the dark `#434343` band his document prints the field NAMES in, and `Plan:` never
+reached the screen at all. One cause: the general reader has no rule for a table whose first
+column is a name band and whose worked example sits *beside* the name rather than inside the
+line, so with no ruled lines it assumed column 0 was a prompt — true of the six prompt → answer
+sheets and false here.
+
+**It is read by FORM NAME, and that is measured rather than asserted:** six of his other tables
+are structurally identical to Strategic Statements to a machine — Marketing Answers, the 10
+Critical Marketing Statements, Branding, Customer Loyalty, Pricing and Packaging — and in every
+one his first column holds the QUESTIONS. Nothing in the grid separates them, exactly as with the
+persona grid. ☑ **THREE RULINGS BY MIKE, 2026-09-22:** `Plan:` **gets a box** like its four
+siblings — ⚠ **the one box on this form that is his ruling and not his document**, since his
+table simply ends there, which is why the box is keyed to the field's own row rather than to the
+line beneath it; *"Complete your statement here"* **is a prompt**, grey guide text inside the
+empty box, **which is what makes Strategic Statements two boxes rather than two printed lines**;
+and, in his own words, ***"we need a gap between content rows on the productive habits but the
+additional small row spaces can be deleted"*** — so his thin blank rows are dropped by the reader
+and the space is put back by the screen, **in one column**, because his five fields are an ORDER
+and the default grid had flowed them four across. 🔴 **DRIVEN IN A BROWSER, NOT JUST TESTED:** both
+concepts scoped, placed and run, typed into, left and returned to — the keys CHANGED, so the save
+whitelist had to accept them — and both answers reach the client's plan, `Plan:` included.
+
 🔴 **STAGE 3b — THE STEP BUILDER — WAS BUILT ON 2026-09-20**, the day Mike ruled its gating
 question and then all five decisions on its drawing, every one as recommended. The advisor names
 his own steps, and **the client's agenda stops naming our screens**: where it read *"Run the
 frameworks — 14 concepts"* it now reads his own step names, with an empty step printing as *"on
-the agenda only"*. **Four stages remain — 5, 6, 7 and 8.**
+the agenda only"*. **Two stages remain — 7 and 8** (stage 6 built 2026-09-22; stage 5 is six
+capture forms of nine, and its last three are not code jobs — see item **15.6**).
 
 🔴 **BUILD SESSION WAS REDRAWN AND REBUILT ON 2026-09-21**, from
 [`design/mockups/strategy-session-process.html`](../mockups/strategy-session-process.html) —
@@ -142,9 +278,11 @@ approved by Mike that day, its four decisions ruled the same day. **What is buil
 
 1. **The AI suggestion panel is not built.** Decision B is ruled and drawn — the AI proposes into a
    step with one line of reason, nothing moves until *Accept*, a decline is recorded as offered and
-   refused. **Where those suggestions come from is stage 6 and unwritten**, which the drawing
-   itself says under "What this drawing does NOT decide". Told to Mike before he approved the
-   build, not discovered afterwards.
+   refused. Told to Mike before he approved the build, not discovered afterwards.
+   ✅ **ITS BLOCKER IS GONE: this line used to end "where those suggestions come from is stage 6
+   and unwritten", and stage 6 was written on 2026-09-22.** `strategyPretick.js` produces a ranked
+   list of concepts each with one line of reason, which is the shape this panel needs. **The panel
+   itself is still unbuilt** — what changed is that it is now a build rather than a blocked one.
 2. **Every step's `purpose` ships empty.** The field exists and the mentor's screen edits it; the
    words are Mike's and he has not written them. An empty purpose is an unwritten one.
 
@@ -263,7 +401,7 @@ content running on to p56. It keeps page 52, which is where a reader opens the d
 |---|---|---|---|
 | **1** | ☑ **BUILT 2026-09-17 — the session menu.** `components/strategy/StrategyScopeMenu.vue`, `GET /api/strategy/concepts`, the `decks` array in `data/strategy-frameworks.json` | *"an advisor can complete the initial session check"* · **"The menu is his table, word for word"** (the session scope menu) — the screen **is** his table, his words, and his page numbers **where he gives them** — ⚠ **Strategic Orientation 2's scope table HAS a page column and those numbers are his; Sales & Marketing's has NONE, so its 16 are ours, derived from the deck.** They are accurate, and every drawing checked so far confirms it — but do not go looking for a column of his to reconcile them against (found 2026-09-18). | The screen it replaced offered **5 concepts of 52** and took its wording from ADV.0, which has drifted **four concepts and a page offset** from the decks. **A client reads this table in the room.** |
 | **2** | ☑ **BUILT 2026-09-17 — capture across the scoped concepts.** `scripts/read-capture-tables.js` reads Mike's own fill-in workbooks into `data/strategy-capture-tables.json`; `server/utils/strategyCaptureForms.js` turns a grid into fields; `GET /api/strategy/concepts/:id/capture` serves them; `components/strategy/StrategyConceptCapture.vue` draws them | *"a strategic plan … that can easily expand over time"* — a plan cannot expand if nothing is kept | **16 of the 52 concepts now reach their real table, where 2 did.** Every label is his, read from the workbook rather than authored. A concept can be VISITED TWICE — Porter's observations then his responses — because one table carries both column sets, and the second visit shows what the client said in the first. |
-| **3** | ☑ **BUILT 2026-09-17 — the assembled document.** `components/strategy/StrategyPlanDocument.vue`, built from the approved drawing: front matter, the agenda, then per step a *Discussion* divider, its teaching pages, an *Action* divider, its capture pages. Screen 4 was a flat list of framework blocks and is now the document. ⚠ **One step, and that is a stated limit:** the advisor cannot yet name his own steps and drag concepts into them, so everything scoped sits in one. ☐ A failing objective does not yet carry its flag onto the page. | *"…into 1 seamless document"* · **"Deck or web page"** (the assembled plan) — one continuous document of slide-shaped pages, **one artefact never two formats** · **"Can a failing objective reach the plan"** (the session an advisor runs) — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* **It stores nothing of its own**, so it cannot disagree with the session behind it. An untouched table prints one line rather than two dozen blank rows. |
+| **3** | ☑ **BUILT 2026-09-17 — the assembled document. ☑ AND IT LEAVES THE APP AS A PDF, 2026-09-21.** `components/strategy/StrategyPlanDocument.vue`, built from the approved drawing: front matter, the agenda, then per step a *Discussion* divider, its teaching pages, an *Action* divider, its capture pages. Screen 4 was a flat list of framework blocks and is now the document. **A *Print or save as PDF* button on Produce plan prints the document alone** — the page heading, the five-stage rail and the coverage wheel are the advisor's and are gated out, on **A4 landscape** (his 2026-09-21 ruling). The browser writes the file: no PDF library runs on the locked Node 14.15 ([`business-performance-report.md`](business-performance-report.md) P7), and its own dialog means a client's session is never sent anywhere to be rendered — which is also the only method the *one artefact, never two formats* ruling allows. ☐ A failing objective does not yet carry its flag onto the page. | *"…into 1 seamless document"* · **"Deck or web page"** (the assembled plan) — one continuous document of slide-shaped pages, **one artefact never two formats** · *"i want you to build the ability to export the final client version strategic planner as a pdf doc"* (2026-09-21) · **"Can a failing objective reach the plan"** (the session an advisor runs) — *"flag it"*, which means nothing unless the flag reaches the finished document | The purpose he stated: *"previously, I had to copy and paste parts into smaller versions."* **It stores nothing of its own**, so it cannot disagree with the session behind it. An untouched table prints one line rather than two dozen blank rows. **Measured in a browser 2026-09-21, printing a real 25-page session to A4:** app furniture on the client's document went from three pieces to **none**, **23 of 25 pages land on exactly one sheet**, nothing is cropped, and an ordinary Ctrl+P is unchanged. 🔴 **TWO FAULTS NO TEST COULD SEE, both found by printing:** `.spd-page` carried **no ratio at all** while the comment above it claimed a slide-shaped frame was built; and a ratio is the wrong tool on paper — each page computed to *exactly* the sheet height, and a box as tall as its sheet rounds onto a second one, so **25 pages printed as 50 sheets, every other one blank**. The printed page now takes a floor in millimetres inside the sheet. ⚠ **Two pages still overflow** — item **15.12** — and the document has no room for the firm's logo, item **16.2**. 🔴 **AND THE CLIENT'S PLAN WAS CARRYING THE ADVISOR'S SHOPPING LIST, found by Mike reading the PDF 2026-09-22.** `conceptSummary` is the **CONCEPT SUMMARY column of the scope menu** — what an advisor reads to decide whether to tick a concept — and it printed under every teaching page, so a client read *"This checklist guides you through a review of how your packaging supports your 'big promise'…"* beneath **his own page, which had already said it properly**. It is not in the approved drawing either: p5 is Teach → title → **his subtitle above the figure**, nothing below it, so this was an unrecorded deviation. **Gone on the 32 concepts that have a drawing; KEPT on the 11 that do not**, where it is the only content on the page and dropping it would lose the client the page altogether under the title-only rule above. It goes when those drawings land. |
 
 ### Then — making it right rather than making it work
 
@@ -499,7 +637,7 @@ skipped and claimed.
 | **3b** | ☑ **THE STEP BUILDER — BUILT 2026-09-20.** [`StrategyStepBuilder.vue`](../../components/strategy/StrategyStepBuilder.vue) as a new stage **2** in the rail, taking it from four stages to five: the advisor names each step and puts ticked cards into it, by drag or by the picker on each card. Built from [`../mockups/strategy-step-builder.html`](../mockups/strategy-step-builder.html), **all five decisions ruled by Mike the same day, every one as recommended** — opens with everything unplaced · **never a locked button**, it reads *"Run 2 of 18"* and unplaced cards stay in the scope · the closing block is no longer a self-naming step, its two cards are placed like any other · names are **free text with nothing offered**. Stage 3 now groups its cards under his step names and runs them in his order. **Storage rides the session's existing `scope_json` — no schema change**, bounded at 40 steps, and a step's items are deliberately NOT validated against the scope so an untick cannot refuse a whole save. ⚠ **He places CARDS, not pages:** a concept bringing two teaching slides moves as one; only a two-part fill-in table splits, into the two cards that already existed. 🔴 **AN EMPTY STEP SURVIVES EVERY PATH** — held at three layers (store round trip, `planSteps`, the component) because a tidy-up at any one deletes Pivot's step 5. | 🔴 **Mike's own words, 2026-09-20:** *"I choose the number of stages, I choose the name i put on that stage, I choose the number of concepts/pages I put into each stage — correct? if not, thats what i want"*, and on the label, *"steps is fine"*. Carries out his ruling of the same day (item 15.9): **the advisor names the steps himself, and a step holding nothing still prints on the agenda.** | **Measured against Pivot before a line was drawn, and measured again in the running app after.** The app could make **one** step where Pivot needs five — and having no name of its own it borrowed the wizard's, so a client's agenda read *"Run the frameworks — 14 concepts"* and *"Objectives and actions — 2 concepts"*: **our internal screens, printed on their plan.** Driven end to end afterwards, the same agenda reads *"Identify the Resistance — 2 concepts"* and *"Do It & Review It — on the agenda only"*. 🔴 **RUNNING IT FOUND A FAULT THREE DAYS OLD AND NOT IN THE NEW CODE:** `PUT /api/strategy/sessions/:id/scope` rejected **every** real save with 400 `UNKNOWN_FRAMEWORK`, because it checked ticked ids with `getFramework()` while stage 1 had changed the menu to Mike's 52 **concepts** on 2026-09-17. Nothing had called the route — a session is opened through `POST /sessions`, which does not validate — so the step builder was its first caller. Fixed: an id may be a known framework **or** concept. The journey end to end is [`strategy-planner-walkthrough.html`](../mockups/strategy-planner-walkthrough.html). |
 | **4** | ⛔ **BUILT AND UNDONE THE SAME DAY, 2026-09-18 — his deck pages, imported as images.** `scripts/render-deck-slides.py` rendered them into `static/planning-slides/` and `slidePath()` put one on each concept. **Nobody asked for it**, and it could never be white-labelled. Script, 37 images and every field that served them are deleted. | It claimed *"each concept needs to be presented **AS IT CURRENTLY APPEARS** in the slides"* — but that is about **fidelity**, and it was read as a licence to choose the **technique**. A question was never put to him. | 🔴 **HIS RULING ON SEEING IT:** *"i never asked for this … they look cheap and more importantly, they lock in the Advisor-e logo and in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo - never advisor-e."* Every page of his decks carries `advisor-e.com`, the cyan border and his page number **burned into the pixels**. ⚠ **AND THE IMPACT TEST SCORED THE BREACH AS THE WIN:** the measure was *"concepts whose graphic matches his page: 0 of 52 → 34 of 52"*, and a measure that rewards reproducing his page exactly will always reward reproducing his branding with it. |
 | **4b** | **Draw the 34 concepts that have a page we trust** — as components, by the five-step method above — or, where his artwork is a photograph, by *Flattening a chart out of a photograph* below. ☑ **BUILT — 33 of 34 drawn and WIRED IN, 2026-09-20**: Porter's, batches 1–5 and Technology Points. Each is a component in `components/strategy/concepts/`, resolved by `StrategyConceptGraphic.vue` for the run screen, the capture card and the client's plan alike. Item **15.7, closed** — the full account is at the head of this section. | *"make sure your process is recorded so it can be applied to all the rest"* (2026-09-18), on approving the first one | **The firm's logo can sit where Advisor-e's was** — the requirement the imported pages could not meet at any quality. Drawn rather than photographed, it also stays sharp at any size and prints properly in the client's plan. **Cost, stated rather than hidden:** 33 concepts left, each one opened, machine-read and approved against his page. |
-| **5** | **9 capture forms** — every table the table his template actually is. 🔴 **THE BANDED GRID IS BUILT — 1 of the 9, 2026-09-19**, drawn first and approved (`design/mockups/strategy-capture-banded-grid.html`). It serves five of his tables: S.W.O.T, Porter's, Blue Ocean Fronts, Insights Summary and the Profit Levers. **Every capture box now carries the `voice.*` bar from "I have a client with a problem…"** — Mike's ruling that day, *"i want voice recorded notes… make it the same here"*. **Eight forms remain.** ☑ **FORM 2, THE TWO-DIMENSIONAL GRID — DRAWN, APPROVED AND BUILT, 2026-09-21.** Drawing: `design/mockups/strategy-capture-two-dimensional-grid.html`. **It was drawn because the measurement found a live defect:** Customer Types offered **181 boxes of which NOT ONE carried a persona name** and 99 carried no label at all; Operational Objectives offered **25, every one unlabelled**. `isLabelRow` would not read a header row containing a ruled line — added 2026-09-19 so Blue Ocean stopped losing a box — and his header rows open with empty corner cells, so every column name was dropped and his worked Farm Wagon column with them. **Now: 153 boxes, every one carrying a persona AND an attribute, 12 arriving with his own answers to type over; Operational Objectives 24 under his three stages.** His attribute names are pinned while the persona columns scroll (`.scc2-scroll`, the pattern twelve report screens use, but the first here to pin a column). ⚠ **Two departures, both on his instruction and both stated:** the example column is **editable** for this table, against the banded grid's *shown, never typed into*; and the screen reads `captureForm`, which nothing on it did before — the grid alone cannot tell Customer Types' 0.10-inch gutter from Operational Objectives' objective-name column, since in the extraction both are simply empty. **Seven forms remain.** ☑ **FORM 3, THE ORG CHART BUILDER — BUILT TWICE ON 2026-09-21, AND THE SECOND TIME IS WHAT SHIPPED.** Drawing: `design/mockups/strategy-capture-org-chart-redrawn.html`, five decisions ruled and approved to build from; it supersedes `strategy-capture-parent-child-list.html`, ruled and built the same morning. 🔴 **THE FINDING IS WORTH MORE THAN THE FORM: the drawing was faithful to *Org Chart.xlsx*, the build was faithful to the drawing, both were correct, and the screen was still wrong.** A document traced onto a screen is not a screen — and no gate we have could have caught it, because every gate compares the build to the drawing. Mike used it and returned three things: **no way to enter a job title** (he typed three people’s names into the only box there was, the one headed *Role*); **“nil needs to be an option”** for Reporting Head — **it already was one and the word was hiding it**, because the empty choice read *“Reports to…”*, a prompt telling you to pick somebody; and *“it looks boring - lacks colour and is not engaging - looks very cheap”*. **The redraw answers all three:** three columns — *Role*, *Name*, *Reporting Head* — with the person **optional**, so a position with nobody in it is still drawn; the empty choice reads ***Nobody*** and is what a new role starts on; and the chart is **coloured by depth**, Navy through to Sky, every colour already in `BRAND-TOKENS.md`. *Reporting Head* still lists **roles, never people**, so somebody leaving changes one name rather than breaking the chart. 🔴 **Mike ruled it a MINI-APP, not a form** — *“which is why the original is in a spreadsheet”*. It is the only one of the nine: rows are people the advisor adds and removes, so **a positional save guard would have refused role 31 on his 30-row sheet**, and one column’s valid answers depend on another. **Measured across all 20 supplied templates it was the only table still reading wrong** — 49 boxes, 32 from a fourth column empty top to bottom, 42 labelled only by his row numbers, his 24-role worked example discarded. **All 49 are gone: this form returns no positional fields at all.** **The record shape is a roster plus one key per box** (`utils/orgChart.js`, one file the screen imports and the backend requires) — **one box, one key, because the voice bar and Decision 11’s timeline both need a box to point at**. Removing a role takes its id off the roster and leaves its boxes, which is why **no DELETE route was needed**. 🔴 **THE DRAWING’S CHART IS THE BUILT CODE’S OWN OUTPUT**, not a picture of it: the generator calls `layout()` and renders what comes back, so all 25 boxes and all 24 connectors match character for character and there is nothing left to drift. ⚠ **ONE DIFFERENCE FROM THE DRAWING, NAMED:** its count strip shows a third fact — *“1 at the top”* in one section and *“1 unfilled”* in another — which **no decision covers and which the drawing itself is inconsistent about**, so the toolbar reads *“n roles · n levels”* and neither was built. 🔴 **SIX FAULTS FOUND BY OPENING IT, NONE BY ANY TEST** — see the box below. **Six forms remain.** | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields · **"app user consistency"** (2026-09-19) — the voice control is the one the advisor already uses, not a second one | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. 🔴 **AND DRAWING THE FIRST FORM FOUND TWO MORE, LIVE ON SCREEN** — see below. |
+| **5** | **9 capture forms** — every table the table his template actually is. 🔴 **THE BANDED GRID IS BUILT — 1 of the 9, 2026-09-19**, drawn first and approved (`design/mockups/strategy-capture-banded-grid.html`). It serves five of his tables: S.W.O.T, Porter's, Blue Ocean Fronts, Insights Summary and the Profit Levers. **Every capture box now carries the `voice.*` bar from "I have a client with a problem…"** — Mike's ruling that day, *"i want voice recorded notes… make it the same here"*. **Eight forms remain.** ☑ **FORM 2, THE TWO-DIMENSIONAL GRID — DRAWN, APPROVED AND BUILT, 2026-09-21.** Drawing: `design/mockups/strategy-capture-two-dimensional-grid.html`. **It was drawn because the measurement found a live defect:** Customer Types offered **181 boxes of which NOT ONE carried a persona name** and 99 carried no label at all; Operational Objectives offered **25, every one unlabelled**. `isLabelRow` would not read a header row containing a ruled line — added 2026-09-19 so Blue Ocean stopped losing a box — and his header rows open with empty corner cells, so every column name was dropped and his worked Farm Wagon column with them. **Now: 153 boxes, every one carrying a persona AND an attribute, 12 arriving with his own answers to type over; Operational Objectives 24 under his three stages.** His attribute names are pinned while the persona columns scroll (`.scc2-scroll`, the pattern twelve report screens use, but the first here to pin a column). ⚠ **Two departures, both on his instruction and both stated:** the example column is **editable** for this table, against the banded grid's *shown, never typed into*; and the screen reads `captureForm`, which nothing on it did before — the grid alone cannot tell Customer Types' 0.10-inch gutter from Operational Objectives' objective-name column, since in the extraction both are simply empty. **Seven forms remain.** ☑ **FORM 3, THE ORG CHART BUILDER — BUILT TWICE ON 2026-09-21, AND THE SECOND TIME IS WHAT SHIPPED.** Drawing: `design/mockups/strategy-capture-org-chart-redrawn.html`, five decisions ruled and approved to build from; it supersedes `strategy-capture-parent-child-list.html`, ruled and built the same morning. 🔴 **THE FINDING IS WORTH MORE THAN THE FORM: the drawing was faithful to *Org Chart.xlsx*, the build was faithful to the drawing, both were correct, and the screen was still wrong.** A document traced onto a screen is not a screen — and no gate we have could have caught it, because every gate compares the build to the drawing. Mike used it and returned three things: **no way to enter a job title** (he typed three people’s names into the only box there was, the one headed *Role*); **“nil needs to be an option”** for Reporting Head — **it already was one and the word was hiding it**, because the empty choice read *“Reports to…”*, a prompt telling you to pick somebody; and *“it looks boring - lacks colour and is not engaging - looks very cheap”*. **The redraw answers all three:** three columns — *Role*, *Name*, *Reporting Head* — with the person **optional**, so a position with nobody in it is still drawn; the empty choice reads ***Nobody*** and is what a new role starts on; and the chart is **coloured by depth**, Navy through to Sky, every colour already in `BRAND-TOKENS.md`. *Reporting Head* still lists **roles, never people**, so somebody leaving changes one name rather than breaking the chart. 🔴 **Mike ruled it a MINI-APP, not a form** — *“which is why the original is in a spreadsheet”*. It is the only one of the nine: rows are people the advisor adds and removes, so **a positional save guard would have refused role 31 on his 30-row sheet**, and one column’s valid answers depend on another. **Measured across all 20 supplied templates it was the only table still reading wrong** — 49 boxes, 32 from a fourth column empty top to bottom, 42 labelled only by his row numbers, his 24-role worked example discarded. **All 49 are gone: this form returns no positional fields at all.** **The record shape is a roster plus one key per box** (`utils/orgChart.js`, one file the screen imports and the backend requires) — **one box, one key, because the voice bar and Decision 11’s timeline both need a box to point at**. Removing a role takes its id off the roster and leaves its boxes, which is why **no DELETE route was needed**. 🔴 **THE DRAWING’S CHART IS THE BUILT CODE’S OWN OUTPUT**, not a picture of it: the generator calls `layout()` and renders what comes back, so all 25 boxes and all 24 connectors match character for character and there is nothing left to drift. ⚠ **ONE DIFFERENCE FROM THE DRAWING, NAMED:** its count strip shows a third fact — *“1 at the top”* in one section and *“1 unfilled”* in another — which **no decision covers and which the drawing itself is inconsistent about**, so the toolbar reads *“n roles · n levels”* and neither was built. 🔴 **SIX FAULTS FOUND BY OPENING IT, NONE BY ANY TEST** — see the box below. ☑ **FORM 4, THE PROMPT → ANSWER SHEET — 2026-09-22, AND IT NEEDED NO SCREEN OF ITS OWN.** The impact test was run before any design and said not to build: the existing capture card already puts his question above the box, his worked answer inside it as the placeholder and the voice bar on each — proved in a browser on both of its shapes, row-labelled (*6 Marketing Questions*) and column-labelled (*Define the Leadership Style*). **The nine are nine SHAPES OF TABLE, not nine screens**; only three ever needed their own. 🔴 **WHAT THE FORM ACTUALLY NEEDED WAS ITS CONTENT, AND WE HAD BEEN TELLING ADVISORS IT DID NOT EXIST.** `TEMPLATES_NOT_SUPPLIED` named Branding, Customer Loyalty, Pricing and Packaging, so the card read *"The Branding table has not been supplied yet. Talk it through and record it in your own notes"* — while his form sat on the **facing page of the deck the app already reads**: Sales & Marketing **p34, p36, p38, p40**, each headed *"&lt;X&gt; Considerations | Your &lt;X&gt; Ideas"*. **29 questions, live now** (8 · 8 · 6 · 7). Mike, 2026-09-22: *"the content is right there and the forms are on the same page"* — and the reason it was missed is that a concept's `page` is its TEACHING page and nothing recorded the other one. `scripts/read-deck-capture-tables.js` reads his grid from the page's own rules and text layer into `data/strategy-deck-capture-tables.json`; `resolveTemplate` now answers from a workbook **or** a deck page, and the list — with the locale string and the screen branch that showed it — is gone rather than emptied, so a template that resolves to neither is a defect on our side and never *"his table is missing"*. ⚠ **Its source sits OUTSIDE the repository**, so unlike the workbooks no test can re-read it; the extraction is committed and guarded by shape, as the 33 drawings are. 🔴 **TWO FAULTS THE EXTRACTION ITSELF HAD, both found by reading the table back rather than trusting the row counts:** his **page number landed in a client's answer box** on three of the four — it sits a couple of points inside the grid's last rule, so "34", "36" and "38" were written where the client answers his last question; and the PDF text layer stores *define* as one **ligature** glyph, so his questions reached the screen as *"deﬁne"* and *"diﬀerentiate"* and would have been reported as his typos. Both are pinned, mutation-verified. **Five forms remain.** | **"Free text or fixed fields"** (the session an advisor runs) — free text everywhere, Task / Whom / When stays three real fields · **"app user consistency"** (2026-09-19) — the voice control is the one the advisor already uses, not a second one | **Accuracy, and provable:** two built shapes are **wrong** against his own fill-in tables. S.W.O.T is one box per quadrant where his table is **four numbered blank lines in each**; the 8 Profit Levers is eight buckets where his template is **seven aims, three blank task lines each** — and the teaching slide is an equation, a third thing again. 🔴 **AND DRAWING THE FIRST FORM FOUND TWO MORE, LIVE ON SCREEN** — see below. |
 
 #### 🔴 What drawing the banded grid found — two defects nothing was watching (2026-09-19)
 
@@ -577,7 +715,7 @@ RETURN visit never appeared in Build session, the meeting or the client's plan. 
 it, watches the menu confirm it, and never sees it again. `goToStage` now fetches it and saves the
 scope before leaving. **The feature would have been broken by the thing it was built for.**
 
-| **6** | **The AI pre-tick** — pre-ticks with a reason, never unticks, scope follows the ticks | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | It works now and could not before: all 11 of Pivot's concepts resolve. Without it the best the engine offers is the two whole decks — **34 concepts of which Pivot uses 11**, leaving 23 to cut by hand. |
+| **6** | ☑ **THE AI PRE-TICK — BUILT 2026-09-22.** `server/utils/strategyPretick.js` (the prompt, and the validator every reply passes through — 100% covered, as the standards require of anything that processes LLM output), `POST /api/strategy/suggest`, and the suggestion stored beside the ticks in `scope_json`. **No mockup was drawn: the screen's own approved drawing already carries the button, the bar and Decision C** — the full account, the measurement and the three deviations are at the head of this section. | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | **Measured, not asserted:** five client situations gave five different lists (overlap 0.14–0.50, one concept of 52 common to all), **4 of Pivot's 9 on Mike's own client** with 3 reached unprompted, and **0 invented concepts**. Against a baseline of **0 pre-ticked and 52 rows read by hand**. 🔴 **AND THE ADVISOR'S JOB CHANGES SHAPE:** it offers 5–10, not 20, so the work is **adding a few rather than cutting many** — the opposite of what "23 to cut by hand" implies, and the screen is built for it. |
 | **7** | **Calculators run inside the card** — the same backend route the standalone page calls | *"no, it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."* **Ruled against the recommendation.** | 3 of the 52 have a supporting model. The advisor never leaves the session. |
 | **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
 
@@ -608,8 +746,11 @@ here, so nothing is missing in them either.)*
 
 **Two named deviations, per the Save-the-Artefact rule:**
 
-1. **The "Suggest for this client" button is not built.** It is Stage 6 and needs the pre-tick
-   behind it; a button that does nothing is worse than no button.
+1. ✅ **The "Suggest for this client" button — CLOSED 2026-09-22, stage 6.** It was deliberately
+   absent while the pre-tick behind it did not exist, on the grounds that a button that does
+   nothing is worse than no button. It is now built, and that grounds proved exact: the first
+   version shipped **live with no client chosen and did nothing at all**, which is how the fault
+   was found on a screen rather than in a test. It is disabled until a client is chosen.
 2. 🔴 **The drawing was CORRECTED to match the decks, not the build to match the drawing.** As
    first drawn it split five agenda rows onto a sub-line — Business Targets' last two and
    Strategic Orientation 1's first three — and on one of them moved *"(section 2)"* from
@@ -836,9 +977,14 @@ To…* line in Mike's own words.
 ✅ **That index now exists — built 2026-09-17, §8.** The measurement above was re-run against it:
 **all 11 of Pivot's concepts resolve to their own record**, including the three that appeared
 nowhere at all. What the paragraph above describes is the state the engine was in before that
-build, and it is kept because it is what the index was measured against. **The AI-guided
-selection itself is still not built** — *"The AI pre-ticks, never unticks"* describes it and
-nothing implements it.
+build, and it is kept because it is what the index was measured against.
+
+✅ **AND THE AI-GUIDED SELECTION ITSELF IS NOW BUILT — stage 6, 2026-09-22.** `strategyPretick.js`
+ranks over this index rather than over `templates.json`, which is exactly why it works now and
+could not before. Measured on Mike's own Pivot client: **4 of Pivot's 9**, five situations giving
+five different lists, no invented concepts. The account is in §0. *(This paragraph read "still not
+built" until that day; it is replaced rather than added to, because a Brief says how the product
+works now.)*
 
 ⛔ **AND THE ANSWER IS NOT "WHERE TO START??".** An earlier reading of the census proposed Sales &
 Marketing page 4 as the nearest existing diagnostic. **Mike withdrew it on 2026-09-17** — it
@@ -931,9 +1077,12 @@ concept outside those 24 is a **design decision, not a reading**. Each measured 
 template it was matched to (`captureTemplate`) so the match is checkable; the rest are
 `unmeasured` with nothing in the field, and a test fails if a form ever appears on one.
 
-**What the index is NOT.** It is data with no screen on it. The session scope menu is not built,
-the *"The AI pre-ticks, never unticks"* pre-tick is not built, and no teaching or capture form is *drawn* — the index
-names a concept's form, it does not lay it out.
+**What the index is NOT.** It names a concept's form; it does not lay one out. Every teaching and
+capture form is drawn elsewhere — §0's method for the 33 graphics, and the nine capture shapes.
+
+*(This paragraph used to add "the session scope menu is not built, the pre-tick is not built".
+Both were true when the index shipped on 2026-09-17 and neither survived the week: the menu was
+built the same day, the pre-tick on 2026-09-22. Replaced rather than appended to.)*
 
 ### 🔴 There is no extractor in this repository, and these are the five traps if one is ever written
 
@@ -980,8 +1129,16 @@ each of the five above.
 `data/strategy-frameworks.json` (`planningDomains`, `decks`, `frameworks`, `concepts`) ·
 `server/utils/strategyFrameworks.js` · `server/utils/strategySessionStore.js` ·
 `server/routes/strategyPlanner.js` · `components/strategy/StrategyScopeMenu.vue`,
-`StrategyCaptureCard.vue`, `StrategyGrowthWheel.vue` · `pages/strategy-planner.vue` ·
-`config/db-schema.sql`
+`StrategyCaptureCard.vue`, `StrategyGrowthWheel.vue`, `StrategyPlanDocument.vue` ·
+`pages/strategy-planner.vue` · `config/db-schema.sql`
+
+🔴 **THE CLIENT'S PDF IS PRINT CSS, AND IT CANNOT BE SCOPED.** The `@page` sheet and the rules
+that hide the advisor's screen live in a **deliberately unscoped** `<style>` block at the foot of
+`pages/strategy-planner.vue`, gated on `body.sp-printing`, which `printPlan()` adds for the
+duration of one press. A scoped rule naming `body` compiles to `body[data-v-hash]` and matches
+nothing — it shipped that way once in the course certificate, and `scopedStylesCannotReachOutside`
+now fails the build for it. **The A4 millimetres live there too, not in the component**, because
+they are only correct on the sheet that block's `@page` asks for.
 
 **The decks themselves are read by `scripts/read-deck-pages.py`** — the one tool that opens his
 PDFs, and the home item 15.5 was about. `<deck> <page>` reads a page for drawing it; `--register`
@@ -995,7 +1152,10 @@ pixels, so its output is for looking at and sampling from, never for committing 
 menus that disagree is the drift this feature exists to end.
 
 Tests: `strategyFrameworks` · `strategyConcepts` · `strategySessionStore` ·
-`strategyPlanner.routes` · `strategyCapture.component`.
+`strategyPlanner.routes` · `strategyCapture.component` · `strategyPlanDocument.component` ·
+`strategyPlanPrint` — the print gate, which must be ON while the dialog reads the page and OFF
+afterwards **including when `print()` throws**, or an advisor is left with a blank screen
+mid-meeting. The button and its wording are deliberately not asserted (Mike, 2026-08-24).
 
 **The source material, in the repository since 2026-09-17** — read it before designing, not
 the summaries written from it: [`design/planning-templates/`](../planning-templates/) holds

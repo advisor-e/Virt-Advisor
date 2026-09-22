@@ -44,7 +44,22 @@ article.spd
           :firm-name="firmName"
           :firm-colour="firmColour"
         )
-        p.spd-lead(v-if="item.summary") {{ item.summary }}
+        //- 🔴 THE ADVISOR'S BLURB IS NOT THE CLIENT'S READING. `conceptSummary` is the
+        //- CONCEPT SUMMARY column of the scope menu — what an advisor reads to decide
+        //- whether to tick a concept ("This checklist guides you through a review
+        //- of…"). It was printed under every teaching page, so a client's own plan
+        //- carried the shopping-list description of the tool beneath Mike's page,
+        //- which had already said it properly. Found by him reading the PDF,
+        //- 2026-09-22. It is not in the approved drawing either
+        //- (`design/mockups/strategy-plan-output.html` p5: Teach → title → HIS
+        //- subtitle above the figure, nothing below it).
+        //-
+        //- ⚠ KEPT WHERE THERE IS NO DRAWING, and that is the whole of the condition.
+        //- 32 concepts have one and do not need it; 11 do not, and for those this
+        //- sentence is the only thing on the page — dropped there, the client loses
+        //- the page entirely, because a title-only teaching page is refused above.
+        //- It goes when their drawings land, not before.
+        p.spd-lead(v-if="item.summary && !drawn(item)") {{ item.summary }}
         ul.spd-prompts(v-if="item.prompts.length")
           li(v-for="p in item.prompts" :key="p.key")
             b {{ p.label }}
@@ -146,8 +161,13 @@ article.spd
  *
  * 🔴 ONE ARTEFACT, NEVER TWO FORMATS. His ruling on that page: a build that
  * produces a web report AND a separate exported deck has made two things that can
- * disagree. The page is a slide-shaped frame from the start rather than a column
- * squeezed into one later.
+ * disagree. The page is a fixed frame from the start rather than a column squeezed
+ * into one later, and the client's PDF is this document printed — never a second one
+ * generated beside it.
+ * ⚠ THAT SENTENCE WAS UNTRUE UNTIL 2026-09-21: no ratio was ever built, so the comment
+ * described the approved drawing rather than the CSS beneath it.
+ * 🔴 THE FRAME IS A4 LANDSCAPE, NOT 16:9 — Mike, 2026-09-21, superseding that half of
+ * his 2026-09-17 ruling because the pages are printed on real paper. See `.spd-page`.
  *
  * ⚠ IT STORES NOTHING. Everything here is assembled from what the session already
  * holds, so the document can never disagree with the session behind it.
@@ -156,6 +176,7 @@ article.spd
  */
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
+import { hasConceptGraphic } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyPlanDocument',
@@ -219,6 +240,19 @@ export default {
 
   methods: {
     /**
+     * Does this concept have one of Mike's approved drawings on its teaching page?
+     *
+     * The one thing that decides whether the client also gets the advisor's summary
+     * line beneath it — see the note beside `spd-lead` in the template.
+     *
+     * @param {{conceptId: string}} item
+     * @returns {boolean}
+     */
+    drawn (item) {
+      return hasConceptGraphic(item.conceptId)
+    },
+
+    /**
      * Did the session put anything into this concept's table?
      *
      * ⚠ THE ORG CHART ANSWERS THIS DIFFERENTLY, AND IT HAS TO. Its "lines" are role names
@@ -245,12 +279,31 @@ export default {
 }
 
 /* A slide, not a column: 16:9 is the frame the deck is presented in. */
+/* 🔴 AN A4 LANDSCAPE FRAME — RULED BY MIKE 2026-09-21: "the majority of pages to be
+   printed will be A4 size."
+   This SUPERSEDES the 16:9 half of his Decision 1 of 2026-09-17 on the approved drawing
+   (design/mockups/strategy-plan-output.html), which is annotated with the change. What
+   that decision actually settled is untouched and still governs: ONE artefact and never
+   two formats, a fixed frame from the start rather than a reflowing column squeezed into
+   one later. Only the ratio moved, and it moved because the paper is real.
+
+   WHY IT IS NOT 16:9. A4 landscape is 297x210 (1.414); 16:9 is 1.778. A 16:9 page on an
+   A4 sheet fills the width and leaves a fifth of the sheet blank along the bottom, on
+   every page. Measured 2026-09-21: at 16:9, 15 of 25 pages sat at the frame; at A4, 24
+   of 25 do, because a teaching page carrying one of the 33 drawings (each itself a full
+   1500x844 slide) plus a heading and prompts naturally lands near 1.41, not near 1.78.
+
+   ⚠ NO `overflow: hidden`, DELIBERATELY. The approved drawing's `.slide` carries it and
+   can afford to: its example figures are short wide strips (300x108) drawn to leave room
+   for text. The real drawings are whole deck pages, so clipping here would silently cut
+   Mike's own teaching content off a client's document. A page whose content will not fit
+   grows instead, and the one page in 25 that does is visible rather than truncated. */
 .spd-page {
   background: #fff;
   border: 1px solid #d5e1ee;
   border-radius: 12px;
   padding: 26px 30px;
-  min-height: 260px;
+  aspect-ratio: 297 / 210;
   box-shadow: 0 8px 22px rgba(0, 43, 100, 0.06);
 }
 
@@ -415,6 +468,10 @@ export default {
   font-style: italic;
 }
 
+/* ⚠ THE A4 SHEET SIZING IS NOT HERE. It has to be gated on `body.sp-printing`, and a
+   scoped rule cannot name `body` — so it lives in the unscoped block at the foot of
+   `pages/strategy-planner.vue`, beside the `@page` that decides the sheet. These three
+   are safe to apply to any print because they only ever remove screen decoration. */
 @media print {
   .spd-page {
     box-shadow: none;

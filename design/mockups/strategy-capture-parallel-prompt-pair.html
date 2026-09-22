@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Parallel Prompt Pair</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff; --band: #434343; --bad: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 76ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+  h2 { color: var(--ink); font-size: 21px; margin: 32px 0 2px; }
+  h3 { color: var(--ink); font-size: 16px; margin: 22px 0 4px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .grouphead { color: var(--ink); font-weight: 700; font-size: 14px; margin: 20px 0 6px; }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0 0 18px; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--wash); color: var(--ink); font-size: 13px;
+    padding: 9px 12px; border: 1px solid var(--line); border-bottom: 2px solid var(--accent);
+    vertical-align: top;
+  }
+  table.bg td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; font-size: 13.5px; }
+  td.band { background: var(--band); }
+  .bandtext { color: #fff; font-weight: 700; font-size: 13.5px; }
+  td.qcell { background: #fafcfe; color: var(--ink); font-size: 12.5px; }
+  .box {
+    display: block; min-height: 34px; padding: 7px 9px;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+  }
+  .verdict { font-size: 12.5px; color: var(--eg); }
+  b.bad { color: var(--bad); }
+  tr.badrow td { background: #fdf3f2; }
+  .lbl { color: var(--body); }
+  .none { color: #b6c4d4; font-style: italic; }
+  ul.missing { margin: 6px 0 0; padding-left: 20px; }
+  ul.missing li { margin: 0 0 6px; color: var(--ink); font-weight: 600; }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 13px 17px; margin: 0 0 24px; }
+  .note h3 { margin: 0 0 6px; font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 6px; }
+  .bad-note { border-left-color: var(--bad); background: #fdf3f2; }
+  .count { font-weight: 700; color: var(--ink); }
+  .count.wrong { color: var(--bad); }
+  .dec { border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 0 0 9px 9px; padding: 16px 18px; margin: 0 0 22px; }
+  .dec h3 { margin: 0 0 8px; }
+  .rec { background: var(--wash); border-radius: 7px; padding: 10px 13px; margin: 10px 0 0; }
+  .rec b { color: var(--ink); }
+  .q { font-weight: 700; color: var(--ink); margin: 10px 0 0; }
+  .foot { color: var(--eg); font-size: 12.5px; margin-top: 34px; }
+  .ruled-yes { background: #eef7ef; border-left: 3px solid #1f7a3d; border-radius: 0 7px 7px 0; padding: 11px 14px; margin: 0; }
+  .ruled-yes b { color: #14532a; }
+  .ruledtag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #1f7a3d; border-radius: 3px; padding: 2px 6px; vertical-align: 2px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner &middot; Stage 5 &middot; Capture form 6 of 9</p>
+  <h1>The Parallel Prompt Pair</h1>
+  <p class="lede">
+    Two of your concepts capture into this form &mdash; <b>Product Fit Review</b> (Strategic
+    Orientation 2) and <b>Product Fit</b> (Sales &amp; Marketing) &mdash; and both use the
+    same page, <i>Product Fit (Customer Orientation).docx</i>. Every question and heading
+    below is read out of that file; the &ldquo;today&rdquo; table is the live reader&rsquo;s
+    own output. What is ours is the prose and the decisions.
+  </p>
+
+  <div class="note bad-note">
+    <h3>Why this drawing exists</h3>
+    <p style="margin:0">
+      Your page asks <b>9 questions</b> and rules 9 lines to
+      answer them on. <b>The screen offers 15 boxes</b>, and
+      <b>3 of your questions never appear at all</b>. One question is put to
+      the client <b>seven times</b>. This is on the screen today, for both concepts.
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>1. Your document &mdash; as two tables, which is what it is</h2>
+  <p class="src">
+    Product Fit (Customer Orientation).docx. Drawn as <b>two tables</b>, your instruction of
+    2026-09-22: <i>&ldquo;it might be easier to split the tables into 2 &mdash; 1&nbsp;customer
+    orientation and 2&nbsp;competitor comparison&rdquo;</i>. The dark cells are the shading your
+    document carries (<code>#434343</code>). 🔴 <b>Your blank writing rows are NOT drawn as
+    rows</b> &mdash; same instruction, <i>&ldquo;get rid of the small mini-gaps or rows &hellip;
+    either way &mdash; get rid of them&rdquo;</i>. They are where the client writes, so they
+    appear in section 3 as the box rather than here as a gap.
+  </p>
+  <p class="grouphead">1 &middot; Product Fit (Customer Orientation) &mdash; <b>3</b> questions</p>
+<table class="bg src-grid">
+  <tr><td class="band"><span class="bandtext">Product Fit (Customer Orientation)</span></td></tr>
+  <tr><td class="qcell">Are you solving the most important problem for the most important customer?</td></tr>
+  <tr><td class="qcell">Ask yourself “Am I hoping my customers will do something that they’re NOT motivated to do?”</td></tr>
+  <tr><td class="qcell">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td></tr>
+</table>
+  <p class="grouphead">2 &middot; Product Fit (Competitor Comparison): &mdash; <b>6</b> questions</p>
+<table class="bg src-grid">
+  <tr><td class="band"><span class="bandtext">Product Fit (Competitor Comparison):</span></td></tr>
+  <tr><td class="qcell">Who are your main competitors?</td></tr>
+  <tr><td class="qcell">What is their ‘flagship’ product?</td></tr>
+  <tr><td class="qcell">How comparable is your product to theirs?</td></tr>
+  <tr><td class="qcell">Based on the std Competition Fronts list, what are the areas your competitors appear to be focusing on?</td></tr>
+  <tr><td class="qcell">Re-above, Are these the fronts that your customer feedback (research) proves to be MOST VALUED by your TARGET customer?</td></tr>
+  <tr><td class="qcell">How can you best respond to competition?</td></tr>
+</table>
+
+
+  <div class="note">
+    <h3>Splitting them is not a presentation choice &mdash; it is what the file already is</h3>
+    <p style="margin:0">
+      In Word the two sit side by side in one 2-column table, which is why the
+      app read them as rows of a single list. They are not. <b>They are two independent lists
+      of different lengths:</b> the left asks <b>3</b> questions
+      and stops at row 6; the right asks <b>6</b> and runs to row
+      12. Below row 6 the left-hand column is empty page. Your instruction to
+      split them removes the fault at its source rather than working around it.
+    </p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>2. What the screen offers today &mdash; <span class="count wrong">15 boxes</span> for 9 questions</h2>
+<table class="bg fields">
+  <tr><th>Heading shown above the box</th><th>The box</th><th>Against his page</th></tr>
+  <tr>
+    <td class="lbl">Are you solving the most important problem for the most important customer?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict">his question, asked once</td>
+  </tr>
+  <tr>
+    <td class="lbl">Who are your main competitors?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict">his question, asked once</td>
+  </tr>
+  <tr>
+    <td class="lbl">Ask yourself “Am I hoping my customers will do something that they’re NOT motivated to do?”</td>
+    <td><span class="box"></span></td>
+    <td class="verdict">his question, asked once</td>
+  </tr>
+  <tr>
+    <td class="lbl">What is their ‘flagship’ product?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict">his question, asked once</td>
+  </tr>
+  <tr>
+    <td class="lbl">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict">his question, asked once</td>
+  </tr>
+  <tr>
+    <td class="lbl">How comparable is your product to theirs?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict">his question, asked once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the second time</b> &mdash; his page asks it once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the third time</b> &mdash; his page asks it once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">How comparable is your product to theirs?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the second time</b> &mdash; his page asks it once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the fourth time</b> &mdash; his page asks it once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the fifth time</b> &mdash; his page asks it once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">How comparable is your product to theirs?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the third time</b> &mdash; his page asks it once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the sixth time</b> &mdash; his page asks it once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the seventh time</b> &mdash; his page asks it once</td>
+  </tr>
+  <tr class="badrow">
+    <td class="lbl">How comparable is your product to theirs?</td>
+    <td><span class="box"></span></td>
+    <td class="verdict"><b class="bad">asked for the fourth time</b> &mdash; his page asks it once</td>
+  </tr>
+</table>
+
+
+  <div class="note bad-note">
+    <h3>Two faults, one cause</h3>
+    <ul>
+      <li><b>The left column&rsquo;s empty tail becomes boxes.</b> Its questions run out at
+        row 6, but every blank cell beneath is read as a line to write on &mdash; and each is
+        headed with your <i>last</i> left-hand question, because that is the most recent
+        heading the reader saw. So the client is asked it again and again.</li>
+      <li><b>3 of your questions are lost entirely.</b> A row where one cell
+        is blank and the other carries words is never treated as a heading row, so from row 7
+        down your right-hand questions are read as <i>content</i> &mdash; not a heading, not
+        a box. They are on your page and on no screen.</li>
+    </ul>
+  </div>
+
+  <h3>Your questions that reach no screen</h3>
+<ul class="missing">
+  <li>Based on the std Competition Fronts list, what are the areas your competitors appear to be focusing on?</li>
+  <li>Re-above, Are these the fronts that your customer feedback (research) proves to be MOST VALUED by your TARGET customer?</li>
+  <li>How can you best respond to competition?</li>
+</ul>
+
+
+  <hr class="rule">
+
+  <h2>3. The reading proposed &mdash; <span class="count">9 boxes</span></h2>
+  <div class="note">
+    <h3>Each column is its own list, and a list ends where it ends</h3>
+    <ul>
+      <li><b>Row 0 is your two headings</b> and neither is typed into.</li>
+      <li><b>A cell with words below row 0 is a question</b>, and the blank line beneath it in
+        that same column is its box &mdash; one box per question.</li>
+      <li><b>A column that has run out is over.</b> Blank cells below a column&rsquo;s last
+        question are empty page, not lines, and carry no heading down with them.</li>
+    </ul>
+  </div>
+  <p class="grouphead">Table 1 &middot; Product Fit (Customer Orientation) &mdash; <b>3</b> questions</p>
+<table class="bg fields">
+  <tr><th>His question</th><th>The box</th></tr>
+  <tr>
+    <td class="lbl">Are you solving the most important problem for the most important customer?</td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Ask yourself “Am I hoping my customers will do something that they’re NOT motivated to do?”</td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">What are the product enhancements that you believe will DIRECTLY INFLUENCE an increase in sales or, Lower the Cost of Doing Business?</td>
+    <td><span class="box"></span></td>
+  </tr>
+</table>
+  <p class="grouphead">Table 2 &middot; Product Fit (Competitor Comparison): &mdash; <b>6</b> questions</p>
+<table class="bg fields">
+  <tr><th>His question</th><th>The box</th></tr>
+  <tr>
+    <td class="lbl">Who are your main competitors?</td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">What is their ‘flagship’ product?</td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">How comparable is your product to theirs?</td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Based on the std Competition Fronts list, what are the areas your competitors appear to be focusing on?</td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">Re-above, Are these the fronts that your customer feedback (research) proves to be MOST VALUED by your TARGET customer?</td>
+    <td><span class="box"></span></td>
+  </tr>
+  <tr>
+    <td class="lbl">How can you best respond to competition?</td>
+    <td><span class="box"></span></td>
+  </tr>
+</table>
+
+
+  <hr class="rule">
+
+  <h2>4. The decision, ruled</h2>
+
+  <div class="dec">
+    <h3>Decision 1 &mdash; how the two lists reach the screen<span class="ruledtag">Ruled 2026-09-22</span></h3>
+    <div class="ruled-yes">
+      <b>Mike ruled it in his own words, and went further than the recommendation:</b>
+      <i>&ldquo;it might be easier to split the tables into 2 &mdash; 1&nbsp;customer
+      orientation and 2&nbsp;competitor comparison.&rdquo;</i> So this is <b>two tables</b>,
+      each with its own heading and its own questions &mdash; not one list of
+      9 with two headings sprinkled through it. The recommendation had been to
+      keep the headings; his ruling keeps the <i>structure</i>, which is stronger and is what
+      his file actually contains.
+    </div>
+    <p style="margin:12px 0 0">
+      It also settles the layout question underneath: a capture card is one column of boxes
+      &mdash; it has to be, or it cannot be read on a phone or printed onto A4 &mdash; so
+      <b>Table 1</b> runs its 3 questions down the page, then
+      <b>Table 2</b> its 6.
+    </p>
+  </div>
+
+  <div class="dec">
+    <h3>His second instruction, applied rather than asked<span class="ruledtag">Ruled 2026-09-22</span></h3>
+    <div class="ruled-yes">
+      <i>&ldquo;get rid of the small mini-gaps or rows &mdash; the same thing happened on last
+      slide &mdash; im looking at original in word &mdash; no such gaps &mdash; either way
+      &mdash; get rid of them.&rdquo;</i> The thin rows are gone from this drawing and from the
+      named-field stack's drawing, which had shown them the same way. <b>They were never boxes
+      and never headings</b>: they are the space the client writes in, which is the box in
+      section 3. Nothing is lost by not drawing them, and the page reads as his Word file does.
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <p class="foot">
+    <b>What this drawing does not decide.</b> It covers the two concepts on this form and
+    nothing else. Curve &amp; Cycle Notes and the Sales Flowchart are forms 7 and 8 and are
+    named by no concept today &mdash; that is item 15.6, not a build job.
+  </p>
+  <p class="foot">
+    Generated from <code>data/strategy-capture-tables.json</code>, which
+    <code>scripts/read-capture-tables.js</code> reads from your original <code>.docx</code>.
+    The &ldquo;today&rdquo; table in section 2 is the live reader&rsquo;s own output, not a
+    description of it.
+  </p>
+
+</div>
+</body>
+</html>

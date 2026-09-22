@@ -299,7 +299,10 @@ describe('the scope screen 1 records', () => {
     // session saved before that screen existed has no steps, and the page decides
     // what to show rather than this module inventing one nobody named.
     const session = await store.getSession(await openSession(), FIRM)
-    expect(session.scope).toEqual({ domains: [], frameworks: [], steps: [] })
+    // `suggestion: null` is the fourth empty, added with stage 6: a session nobody has
+    // pressed "Suggest for this client" on has no suggestion, which is distinct from a
+    // suggestion that came back with nothing in it.
+    expect(session.scope).toEqual({ domains: [], frameworks: [], steps: [], suggestion: null })
   })
 
   it('records what the advisor ticked', async () => {
@@ -320,6 +323,65 @@ describe('the scope screen 1 records', () => {
 
     await expect(store.setScope(id, FIRM, { frameworks: tooMany }))
       .rejects.toMatchObject({ code: 'BAD_INPUT' })
+  })
+
+  // 🔴 DECISION C(b) — THE SUGGESTION AND THE TICKS ARE BOTH KEPT. Item 15.1 stage 6.
+  // Both live in one `scope_json` that is replaced whole on every save, written by two
+  // different screens at two different moments. Neither may erase the other, and on
+  // screen nothing would show if one did: the advisor would see their ticks, exactly as
+  // expected, with the record of what the AI proposed silently gone.
+  describe("the AI's suggestion, kept beside the ticks", () => {
+    const SUGGESTION = {
+      at: '2026-09-22T09:00:00.000Z',
+      concepts: [{ id: 'blue-ocean-strategy', reason: 'They need to stand apart.' }]
+    }
+
+    it('stores what the AI proposed without touching what the advisor ticked', async () => {
+      const id = await openSession()
+      await store.setScope(id, FIRM, { frameworks: ['strategy-swot-pest'] })
+      await store.saveSuggestion(id, FIRM, SUGGESTION)
+
+      const session = await store.getSession(id, FIRM)
+      expect(session.scope.frameworks).toEqual(['strategy-swot-pest'])
+      expect(session.scope.suggestion.concepts[0].id).toBe('blue-ocean-strategy')
+    })
+
+    it('SURVIVES the next tick — a scope save does not erase it', async () => {
+      const id = await openSession()
+      await store.saveSuggestion(id, FIRM, SUGGESTION)
+      await store.setScope(id, FIRM, { frameworks: ['strategy-porters-pine'] })
+
+      const session = await store.getSession(id, FIRM)
+      expect(session.scope.suggestion.concepts[0].id).toBe('blue-ocean-strategy')
+      expect(session.scope.frameworks).toEqual(['strategy-porters-pine'])
+    })
+
+    it('is replaced, not appended to, when the advisor asks a second time', async () => {
+      const id = await openSession()
+      await store.saveSuggestion(id, FIRM, SUGGESTION)
+      await store.saveSuggestion(id, FIRM, {
+        at: '2026-09-22T10:00:00.000Z',
+        concepts: [{ id: 'porters-5-forces', reason: 'Second thoughts.' }]
+      })
+
+      const session = await store.getSession(id, FIRM)
+      expect(session.scope.suggestion.concepts).toHaveLength(1)
+      expect(session.scope.suggestion.concepts[0].id).toBe('porters-5-forces')
+    })
+
+    it('refuses a session belonging to another firm', async () => {
+      const id = await openSession()
+      expect(await store.saveSuggestion(id, 'firm-elsewhere', SUGGESTION)).toBe(false)
+    })
+
+    it('stores a suggestion that proposed nothing, which is not the same as none', async () => {
+      const id = await openSession()
+      await store.saveSuggestion(id, FIRM, { at: '2026-09-22T09:00:00.000Z', concepts: [] })
+
+      const session = await store.getSession(id, FIRM)
+      expect(session.scope.suggestion).not.toBeNull()
+      expect(session.scope.suggestion.concepts).toEqual([])
+    })
   })
 
   it('🔴 keeps a step that holds nothing, because that is a real step', async () => {
@@ -461,7 +523,8 @@ status: 'open',
 last_opened_at: 'x'
     }]])
 
-    expect((await store.getSession(7, FIRM)).scope).toEqual({ domains: [], frameworks: [], steps: [] })
+    expect((await store.getSession(7, FIRM)).scope)
+      .toEqual({ domains: [], frameworks: [], steps: [], suggestion: null })
   })
 
   it('reports a re-scope of a session this firm does not own as not done', async () => {
