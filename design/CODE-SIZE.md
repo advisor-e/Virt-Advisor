@@ -5,14 +5,14 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-22 at commit `e291726d`.**
+> **Measured 2026-09-22 at commit `553ad590`.**
 
-**Working code: 116,504 lines** across 567 files — blank lines and
+**Working code: 116,506 lines** across 567 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
-| Screens and components (`components`) | 214 | 59,159 | 18,285 |
+| Screens and components (`components`) | 214 | 59,161 | 18,290 |
 | The Restify backend (`server`) | 247 | 50,566 | 37,226 |
 | Pages (`pages`) | 50 | 2,755 | 1,791 |
 | Front-end helpers (`utils`) | 33 | 2,408 | 2,132 |
@@ -22,18 +22,18 @@ comment lines stripped; tests, design documents, data, scripts and locale string
 | Nuxt configuration (`nuxt.config.js`) | 1 | 96 | 136 |
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **567** | **116,504** | **60,285** |
+| **Total working code** | **567** | **116,506** | **60,290** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
 | JavaScript | 302 | 54,675 |
-| Vue screens and components | 265 | 61,829 |
+| Vue screens and components | 265 | 61,831 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 60,285 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 610 files, 108,518 lines of test code.
-- **Locale strings**: 6,969 non-blank lines across the language files. Words on screens, not logic.
+- **Comments and documentation** inside those same files: 60,290 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 611 files, 108,541 lines of test code.
+- **Locale strings**: 6,970 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 
 **How a line is classified.** A line is a comment if, once trimmed, it starts with `//`, `*`,
