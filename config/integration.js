@@ -213,6 +213,39 @@ const ADVISOR_E = {
   pageBaseUrl: process.env.ADVISOR_E_PAGE_BASE || 'https://app.advisor-e.com/p/'
 }
 
+// ── Firm branding on a client's document (item 16) ───────────────────────────
+// SEAM (Q-FIRM-BRAND): a firm's logo and brand colour are ADVISOR-E'S DATA, held
+// on the FIRM PROFILE PAGE in the master app. Mike, 2026-09-22: "Advisor-e already
+// picks up the colour and brands the border to suit." We never keep a copy of it
+// and we build no screen to edit one — this is a stub connection, nothing more.
+//
+// WHY IT MATTERS: the 33 strategy concept drawings are white-labelled — a client
+// sees their own advisor's firm, never Advisor-e. Every drawing already accepts a
+// name, a logo and a colour; without these two values it prints the words "Firm
+// logo" against an empty disc.
+//
+// These name COLUMNS on the `firms` table that server/utils/firmsDirectory.js
+// already reads — the one and only place this backend touches that table. The
+// master team either adds the two columns to ours, points the foreign keys at
+// their own firms table (config/db-schema.sql already invites exactly that), or
+// exposes a view carrying them. All three satisfy this seam unchanged.
+//
+// LEAVING THEM NULL IS SAFE AND IS THE SHIPPED STATE: the brand read resolves the
+// firm's name only, every drawing falls back to the initials disc, and no SQL for
+// these columns is ever built. Nothing waits on the master team to boot.
+//
+// ⚠ A COLUMN NAME CANNOT BE A BOUND PARAMETER, so whatever is typed here is
+// interpolated into SQL. firmsDirectory.js validates both against a strict
+// identifier pattern and REFUSES to build a statement from anything else — see
+// `assertColumnName` there. Type a plain column name; never a fragment of SQL.
+//
+// TODO (master team): confirm the two column names on the firm profile record.
+
+const FIRM_BRAND = {
+  logoColumn: process.env.FIRM_BRAND_LOGO_COLUMN || null, // e.g. 'logo_url' — absolute http(s) URL of the firm's logo image
+  colourColumn: process.env.FIRM_BRAND_COLOUR_COLUMN || null // e.g. 'brand_colour' — the border colour as #rrggbb
+}
+
 // ── Outreach anti-spam guardrails (Collaborate plan §4) ──────────────────────
 // "One outreach per person" is enforced separately (repo.hasOutgoingOutreach).
 // These two are the remaining plan §4 guards, backend-enforced in sendOutreach:
@@ -309,5 +342,5 @@ const AI = {
 }
 
 module.exports = {
-  AUTH, DB, DRIVE, PUSH, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, OUTREACH, INVITE, AI
+  AUTH, DB, DRIVE, PUSH, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, FIRM_BRAND, OUTREACH, INVITE, AI
 }

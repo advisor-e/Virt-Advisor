@@ -188,7 +188,7 @@
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "Three conversations on 2026-09-15 were the first ever check of whether the model summaries work. Two found faults. Nothing in the app records a model mention, so that check exists only because a session ran it by hand.",
       "risk": "The AI can send an advisor to a calculator that does not fit, and on 2026-09-15 it did - a governance dispute was offered a cash forecast. Nothing logged it. UAT cannot catch it either: a tester sees one plausible answer, never the pattern across many. Until something records the model named and the situation it was named for, the only detection is somebody running conversations by hand and reading them.",
       "askedBy": {
@@ -234,7 +234,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "Measured over 30 live calls: the template choice is right every run, but the calculator paired with it varies - 1, 2 or 3 times in 6 on identical questions, and the wrong budget model 4 times in 6.",
       "risk": "An advisor asking the same question twice gets different tools, and each answer reads perfectly well alone - so neither they nor UAT can see it. Twice the AI attached the wrong calculator to a correct template, including the wrong size of budget model, which the list forbids in capitals. Sales Dashboard is named correctly but gives no link to click 5 times in 6.",
       "askedBy": {
@@ -584,7 +584,7 @@
         "detail": "2026-09-20 - found while wiring the first four drawings for 15.7: the mark is a prop and nothing above passes one in. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
       "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
-      "note": "🔴 THE SEAM EXISTS AND IS NOT THE WORK - every drawing already accepts a name and a colour, so nothing needs rebuilding. What is missing is a value to pass and somewhere to set it. TWO HALVES: the data may be Advisor-e's to supply, like the middle-tier role values, but a place to hold and edit it is ours either way. ⚠ ONE DECISION GATES IT AND IS ALREADY DRAWN, UNRULED: the Porter's artefact asks whether the mark is a monogram disc or a real logo image of unknown proportion - see ARTEFACTS.md, three deviations raised and none ruled.",
+      "note": "🔴 THE SEAM EXISTS AND IS NOT THE WORK - every drawing already accepts a name and a colour. ✅ RULED BY MIKE 2026-09-22, TWICE: the mark is the firm's REAL uploaded logo, fitted to a fixed-height box, the initials disc showing ONLY when a firm holds none; and the border returns in the firm's colour. 🔴 THE DATA IS ADVISOR-E'S - WE BUILD NO SCREEN FOR IT. His words: Advisor-e already picks up the colour and brands the border to suit, and it lives on the firm profile page in the master app. Our half is a STUB CONNECTION to that data. One deviation on the Porter's artefact stays unruled - see ARTEFACTS.md.",
       "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
     },
     {

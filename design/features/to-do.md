@@ -40,9 +40,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 3 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 5 | **5.2** Load a payroll report to pre-fill the team ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 6 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | **laptop**, since 2026-09-16 |
+| 6 | **7.5** Nothing records which calculation model the AI named, so nobody can check its judgement ⚠ *not yet ranked by Mike* | 2 | — | Us | **laptop**, since 2026-09-16 |
 | 7 | **7.6** The AI declares its model choice only sometimes, so declines under-count ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 8 | **7.12** The right calculator is offered only sometimes, and sometimes the wrong one is ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 8 | **7.12** The right calculator is offered only sometimes, and sometimes the wrong one is ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 9 | **7.13** The model's page is recalled by the AI, not looked up ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 10 | **7.3** A second opinion from two AI providers ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 11 | **9.3** The sharing tab says on and off at once with no pool secret ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
@@ -69,7 +69,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 32 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 33 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**33 live items. Fifteen need Mike.** If this list passes about twenty, something is wrong.
+**33 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
