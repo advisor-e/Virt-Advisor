@@ -67,6 +67,11 @@ export default {
   max-width: 78%;          /* stops short of the page number at 91.7% */
 }
 
+/* ⚠ THE PLATE IS ONLY A GAP ON A WHITE SHEET. On the navy step dividers it renders as a
+   white rectangle floating over the dark page, so it is turned off there — the rule
+   lives in StrategyPlanDocument, which owns `.is-divider`; a scoped rule here cannot
+   see a class on the parent's element. */
+
 .spm.is-big {
   left: 35.875%;           /* 258.3 / 720 */
   top: 13.383%;            /* 54.2 / 405 */

@@ -363,7 +363,12 @@ export default {
   border: 8px solid var(--spd-firm, #0070c0);
   border-width: 0.986cqw;               /* 7.1 / 720 of his page */
   border-radius: 0;                     /* his corners are square */
-  padding: 26px 30px 44px;              /* the foot clears the mark */
+  /* ⚠ THE FOOT MUST CLEAR THE MARK. The mark is absolutely positioned at the bottom of
+     the sheet, and a page that outgrows its frame — which this component deliberately
+     allows rather than clipping Mike's teaching content — put its last line underneath
+     the firm's own logo. Seen by opening the app. */
+  padding: 26px 30px;
+  padding-bottom: 7cqw;
   aspect-ratio: 297 / 210;
   box-shadow: 0 8px 22px rgba(0, 43, 100, 0.06);
 }
@@ -382,6 +387,26 @@ export default {
 /* The title page carries the mark at the top, so nothing interrupts its border and it
    needs no number — his own title page has none. */
 .spd-page.is-title::after { content: none; }
+
+/* 🔴 THE MARK'S WHITE PLATE IS A GAP IN THE BORDER, AND ONLY A WHITE SHEET HAS ONE.
+   On the navy step dividers it rendered as a white rectangle floating over the dark
+   page — found by opening the app, invisible to every assertion. There the border is
+   the page's own edge, so the plate goes and the name knocks out to white.
+   `.spm` is the child's ROOT element, so it carries this component's scope id and a
+   plain descendant selector reaches it; its inner spans need `>>>`. */
+.spd-page.is-divider .spm { background: none; padding: 0; }
+.spd-page.is-divider >>> .spm-name { color: #fff; }
+
+/* 🔴 DECISION A, RULED WITH THE DRAWING — A TEACHING PAGE CARRIES ONE FRAME AND ONE
+   MARK, AND BOTH COME FROM THE DRAWING INSIDE IT. Each of the 33 concept drawings is a
+   whole deck page and already carries this exact firm-coloured frame and the firm's
+   mark. With the sheet drawing its own as well, a client saw TWO blue frames a few
+   millimetres apart and the firm's mark TWICE on one page. Seen by opening the app;
+   no assertion could see it.
+   The border is kept at full width and made transparent rather than removed, so the
+   content box does not shift between a teaching page and any other. */
+.spd-page.is-teach { border-color: transparent; }
+.spd-page.is-teach .spm { display: none; }
 
 /* 🔴 HIS TITLE PAGE, from Advance.6.Organisational Review.pdf: the mark centred at the
    top, then the title at y=200.4 of 405 (49.48%) and the subtitle at y=304.1 (75.09%),
@@ -430,9 +455,14 @@ export default {
   margin-top: 6px;
 }
 
+/* 🔴 HIS PAGE HEADING — 24pt Open Sans REGULAR in #002B64 at x=25.4, y=21.3 of a
+   720x405 page (Advance.6.Organisational Review.pdf). It was 21px bold, which is the
+   app's own voice rather than his deck's, and it is the reason a printed plan still did
+   not look like his pages once the border and the mark were on it. */
 .spd-h {
-  font-size: 21px;
-  font-weight: 700;
+  font-size: 18px;
+  font-size: 3.333cqw;
+  font-weight: 400;
   color: #002b64;
   margin: 0 0 10px;
 }
