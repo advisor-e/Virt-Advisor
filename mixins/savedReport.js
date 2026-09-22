@@ -80,6 +80,14 @@ export default {
       this.savedReport.clientChanges = []
       this.savedReport.error = ''
       this.savedReport.notice = ''
+      // The client's own currency, where the screen also mixes in currencyMixin
+      // (item 13.4). Changing client must re-resolve it: the cascade is
+      // client → firm → default, so switching to a client with no choice of its
+      // own must fall BACK to the firm's rather than keep the previous client's.
+      // Guarded because not every screen using this mixin formats money.
+      if (typeof this.loadClientCurrency === 'function') {
+        this.loadClientCurrency(this.savedReport.clientId)
+      }
       if (this.savedReport.clientId) { this.loadSavedReport() }
     },
 

@@ -202,6 +202,55 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.4 — an advisor could not set a currency for one client.**
+✅ Closed 2026-09-22. Drawn, approved and built the same day. Mike's ruling: *"currency is
+selected at firm manager level and cascades down to the client level model library but at
+client level … the currency can again be edited by the advisor."*
+
+**Three levels, not two:** client → firm → platform default, resolved in one place
+(`readClientCurrency`) so the screen, the report and any backend caller can never disagree.
+The client level is a **label** — it relabels figures and converts nothing, exactly as the firm
+setting does, which is why **13.1's sentence repeats beside the new control**. That is the
+whole reason 13.1 shipped first: a client-level currency reads as a conversion far more
+readily than a firm-wide one.
+
+**No schema change.** Storage rides the existing `firmOverlay` as `client-currency:<clientId>`,
+the pattern `savedReports` already proves with `client-report:<id>:<route>`, so version history
+and restore come free and a client's setting is deleted with its firm by the existing cascade.
+Every call is IDOR-guarded through `clientStore.getById(id, firmId)` — a client of another firm
+resolves to the firm's currency rather than erroring, because a display setting must not leak
+the existence of another firm's client.
+
+**The write is advisor-level, deliberately unlike the manager-gated firm-wide one** — his
+ruling, and pinned by a test that would otherwise look like a permissions bug.
+
+⚠ **THE SCOPE QUESTION THE ITEM LEFT OPEN WAS ANSWERED BY READING THE CODE, NOT GUESSED.**
+The item said *"one screen decision is open: where the advisor edits it"* and its `touches`
+named `components/ModelLibrary.vue`. **That would not have worked.** The Model Library is
+firm-wide and carries no client at all — no `savedReport` mixin, no `ReportHeader`, no
+`clientId` anywhere in it. The control went on the **report header**, which already holds the
+client, and therefore reaches **all eleven client-aware reports at once** rather than being
+built eleven times. The other ~37 report screens are stateless calculators with no client and
+keep the firm's currency untouched.
+
+🔴 **A LIVE BUG WAS FOUND AND CLOSED BY DESIGN, and it would have survived UAT.**
+`currencyMixin` caches into a **single global** `advisor_e_currency` key and reads it once on
+mount. Cache a client's currency there and the *next* client paints with the previous one's
+symbol — figures perfectly correct, currency wrong, and invisible to anyone looking at one
+client at a time. A client's currency is therefore never cached, and a test pins that.
+
+**Artefact:** [`client-currency-picker.html`](../mockups/client-currency-picker.html), approved
+before a line was written, with its three assumptions stated on the drawing rather than buried.
+Built exactly as drawn including every word of its wording table. **One deviation, recorded:**
+the currency select is `.cas-curselect`, not a reused `.cas-client`, because an existing
+assertion counted `option` elements across the whole component and a second list silently
+counted as clients — that assertion is now scoped and says what it always meant.
+
+Suite **12,942 green** (566 suites), lint 0 errors. 33 backend tests, 13 mixin tests, 12 on the
+control itself.
+
+---
+
 **13.1 — changing currency relabelled figures and did not say so.**
 ✅ Closed 2026-09-22 in [`9fe59f97`](https://github.com/advisor-e/Virt-Advisor/commit/9fe59f97).
 A manager switching the firm currency saw only *"Reports now show Euro (€)"*, while £46,170 became

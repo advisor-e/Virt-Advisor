@@ -144,9 +144,10 @@ currency, locale)` formats and nothing more. Switch a firm from GBP to EUR and `
 `€46,170` — the same number wearing a different symbol.
 
 That is **correct** for a firm entering figures in its own money, which is every firm. It is a
-**wrong reading** the moment anyone takes the change for a conversion — and nothing on screen says
-which it is. The selector's own confirmation, *"Reports now show Euro (€). This applies to every
-model in your account."*, is silent on the point.
+**wrong reading** the moment anyone takes the change for a conversion — so ✅ **since 2026-09-22 the
+screen says which it is** (item 13.1): *"Figures are relabelled, not converted — the amounts do not
+change."* stands at the picker for both roles, closes the confirmation, and repeats at the
+client-level picker, where the wrong reading is likelier still.
 
 ⚠ **This does NOT mean the app cannot convert.** It can, in the one place that makes sense — inside a
 model, from a rate the advisor enters, once a primary currency is known. See §3's ruling on firm-level
@@ -186,7 +187,7 @@ So there are **two separate things**, and conflating them is how this went wrong
 
 | | Where it lives | What it does |
 |---|---|---|
-| **Currency** | The **firm**, one value (`/api/report/currency`) | Which money every report is denominated in |
+| **Currency** | The **firm** (`/api/report/currency`), overridable per **client** (`/api/report/currency/client/:clientId`) | Which money a report is denominated in |
 | **Conversion** | **Inside a model**, per model | What a foreign leg costs once a primary currency is known |
 
 🔴 **AND THE FIRM'S CURRENCY CASCADES TO THE CLIENT, WHERE THE ADVISOR MAY EDIT IT — Mike, 2026-09-22.**
@@ -197,8 +198,30 @@ In his words:
 > currency can again be edited by the advisor - if required"*
 
 So there are **three levels, not two** — the firm sets one, it cascades to every client, and the
-advisor overrides it for a client that needs it. **On the live list as `13.4`; the client half does
-not exist yet** (`currencyMixin` holds one `firmCurrency` and every report reads it).
+advisor overrides it for a client that needs it. ✅ **BUILT 2026-09-22** to the approved drawing
+[`client-currency-picker.html`](../mockups/client-currency-picker.html).
+
+**How it resolves: client → firm → platform default**, in one place — `readClientCurrency` in
+[`server/routes/currency.js`](../../server/routes/currency.js) — so the screen, the report and any
+backend caller can never disagree. A read never throws: every failure degrades one step outward,
+because a display setting must not be able to break a report.
+
+**The control is on the report header, not the Model Library.** The Model Library is firm-wide and
+carries no client at all, so a per-client control could not work there;
+[`ClientAccessSwitch.vue`](../../components/base/ClientAccessSwitch.vue) already holds the chosen
+client, so the picker sits beside it and reaches **all eleven client-aware reports at once**. The
+other ~37 report screens are stateless calculators with no client and keep the firm's currency.
+**Any advisor may set it** — deliberately unlike the manager-gated firm-wide setting.
+
+**Storage is `client-currency:<clientId>` on the existing `firmOverlay`** — no schema change, version
+history for free, and every call IDOR-guarded through `clientStore.getById(id, firmId)`. A client of
+another firm resolves to the firm's currency rather than erroring, so a display setting cannot leak
+the existence of another firm's client.
+
+🔴 **A CLIENT'S CURRENCY IS NEVER CACHED, AND THAT IS LOAD-BEARING.** `currencyMixin` caches the
+firm's in **one** `advisor_e_currency` key for the whole app. Cache a client's there and the *next*
+client paints with the previous one's symbol — figures correct, currency wrong, and invisible to
+anyone looking at one client at a time. Pinned by `tests/unit/clientCurrencyMixin.component.test.js`.
 
 ⚠ **THIS DOES NOT REOPEN THE RULING BELOW, AND A READER MUST NOT TAKE IT THAT WAY.** What he
 rejected earlier the same day was a per-client currency **as a second firm-level setting**, with the
@@ -207,9 +230,10 @@ denominated in — defaulting to the firm's. **Conversion still lives inside a m
 `fxAllowancePct`, exactly as ruled.** The two are compatible because one is what a figure is
 *called* and the other is what a figure is *worth*.
 
-🔴 **It also makes `13.1` load-bearing.** A firm-wide relabel is defensible: every figure was
-entered in the firm's own money. **An advisor switching one client to Euro is far likelier to
-believe the figures converted** — so the warning line ships with `13.4` or before it.
+🔴 **It also made `13.1` load-bearing, and that shipped first.** A firm-wide relabel is defensible:
+every figure was entered in the firm's own money. **An advisor switching one client to Euro is far
+likelier to believe the figures converted** — so *"Figures are relabelled, not converted — the
+amounts do not change."* appears at **both** pickers, the firm's and the client's.
 
 ✅ **THE APP ALREADY WORKS THIS WAY, which is why this is a principle rather than a build.**
 `server/report/threeWayForecastModel.js` takes an **`fxAllowancePct`** the advisor enters and applies
@@ -222,11 +246,19 @@ built, tested and approved, and computing them twice is how two models start dis
 fx input.** (`multiplePropertyModel.js` matches a search for *"imported"* only on the Google Sheets
 function `Import Range`.) **There is no wrong number today.**
 
-⚠ **So a per-CLIENT currency is NOT the answer, and an earlier version of this section said it was** —
-filed as a schema change touching `va_clients` and ~40 report components. An Italian firm reports its
-Swiss client in Euro because **Euro is the firm's currency**, and the Swiss leg of any model is a
-conversion input, not a second firm setting. **What remains is item `13.2`: write this rule where a
-new model will meet it, and say on screen which currency a converted figure is in.**
+⚠ **So a per-client currency is NOT the answer TO CONVERSION, and an earlier version of this section
+said it was** — filed then as a schema change touching `va_clients` and ~40 report components. An
+Italian firm reports its Swiss client in Euro because **Euro is the firm's currency**, and the Swiss
+leg of any model is a conversion input, not a second firm setting. **What remains is item `13.2`:
+write this rule where a new model will meet it, and say on screen which currency a converted figure
+is in.**
+
+🔴 **DO NOT READ THIS AS CONTRADICTING `13.4` ABOVE, WHICH SHIPPED.** The rejected thing was a
+per-client currency carrying **conversion maths** — a second firm-level setting in disguise. What was
+built is a **label** saying which money this client's reports are denominated in, defaulting to the
+firm's, with conversion still inside a model on `fxAllowancePct`. One is what a figure is *called*;
+the other is what a figure is *worth*. Both rulings are Mike's, both stand, and they are about
+different things.
 
 **The currency picker sits on the Model Library screen, not the Firm Manager Hub — 🔴 ON THE LIST AS
 `13.3`.** Manager-gated by `requireManagerRole`, but beside the reports it governs rather than with

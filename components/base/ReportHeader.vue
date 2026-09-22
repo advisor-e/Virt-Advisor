@@ -11,7 +11,14 @@ header.rs-top
     //- The advisor's per-client "Client access" switch (business-entity-reports, D3).
     //- Client-only, and it renders nothing unless an advisor is signed in and this route
     //- is a catalogue model — so every report gains it without its page changing.
-    client-access-switch(v-if="routePath" :model-route="routePath" @client-change="$emit('client-change', $event)")
+    //- `currency-change` carries { clientId, currency, source } when the advisor sets this
+    //- client's currency (item 13.4) — the report re-formats its money in it.
+    client-access-switch(
+      v-if="routePath"
+      :model-route="routePath"
+      @client-change="$emit('client-change', $event)"
+      @currency-change="$emit('currency-change', $event)"
+    )
     //- Saving the figures per client (§5, item 4.62). Shown only when the screen adopted
     //- the savedReport mixin and there is someone to save as.
     .rs-save(v-if="canSave")
