@@ -202,6 +202,44 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**16.2 — the printed plan left no room for the advisor firm's logo.**
+✅ Closed 2026-09-23. Asked by Mike on 2026-09-21: *"you also need to make sure there is room
+for the logo in the printout."* The foot of the frame now breaks and the mark stands in the gap,
+on every sheet of a client's plan and on all five planner screens.
+
+🔴 **ITS NOTE SAID MIKE'S OWN REPORT WAS PROBABLY A STALE BROWSER CACHE. HE WAS RIGHT AND IT
+WAS NOT.** He reported on 2026-09-22 that only the first two sheets had changed; the item
+recorded that as *"likeliest a cached build; NEVER CONFIRMED"* and asked for a hard refresh.
+The real cause was found on 2026-09-23 when he told a session to read the code instead of the
+notes: **all 32 concept drawings carried a border that was not his** — rounded `rx=8`, inset
+0.333%, bar 0.667%, foot unbroken, against his square 0.542% / 0.986% with the foot in two
+segments. Decision A says a teaching page uses the drawing's frame, so every one showed the
+wrong border and suppressed the right one. **A session's guess about why a report was wrong
+outranked the report for a day.** Corrected in the mockups and regenerated; `StrategyPlanFrame.vue`
+was correct throughout and never needed a line changed.
+
+**15.12 — two teaching pages repeated the drawing's own questions and overflowed A4.**
+✅ Closed 2026-09-23, both halves, on Mike's instruction to fix it rather than file it — he
+declined the three routes offered and the one taken is his own principle, ruled twice the same
+day: the drawing is the page, so nothing prints over it twice.
+
+**It was never only a printing fault, and its own wording hid that.** The item described a page
+growing past an A4 sheet; the same questions were repeated on the **Run session screen**, where
+there is no sheet to overflow and nothing flagged it — in front of the client, mid-meeting.
+
+**Measured rather than listed.** The two concepts are found by word overlap between a concept's
+prompts and its own drawing, generated into `CONCEPT_PROMPTS_ECHOED` at build time: Porter's 5
+Forces **92%**, The 8 Profit Levers **74%**, every other concept far below the 60% line. A
+hand-written pair would have gone stale the first time Mike edited a prompt. **A separate flag,
+`CONCEPT_TITLED`, does the same for titles** — 20 of the 32 pages printed the concept's name
+twice, ten word for word, because his deck page carries its own title and ours sat above it.
+⚠ A substring match on the name was tried first and is wrong in both directions: it called Sales
+Channel Options titled because a chart label read *"sales"*, and missed Blue Ocean Strategy whose
+title is split across two text elements. Title is decided by **type size and position**.
+
+**Proved by printing, not by assertion: 0 of 17 pages exceed an A4 sheet**, every one 691px
+against 794, where 2 of 25 ran over before.
+
 **13.4 — an advisor could not set a currency for one client.**
 ✅ Closed 2026-09-22. Drawn, approved and built the same day. Mike's ruling: *"currency is
 selected at firm manager level and cascades down to the client level model library but at
