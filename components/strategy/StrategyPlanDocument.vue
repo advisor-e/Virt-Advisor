@@ -423,6 +423,11 @@ export default {
    content box does not shift between a teaching page and any other. */
 .spd-page.is-teach { border-color: transparent; }
 .spd-page.is-teach .spm { display: none; }
+/* ⚠ AND IT RECLAIMS THE FOOT. The deep bottom padding exists to keep a growing page's
+   last line out from under the mark — a teaching page has no mark, so the padding only
+   pushed it over the sheet. Measured in a generated PDF: with it, one teaching page
+   split across two sheets and a client's plan ran to 14 sheets instead of 13. */
+.spd-page.is-teach { padding-bottom: 26px; }
 
 /* 🔴 HIS TITLE PAGE, from Advance.6.Organisational Review.pdf: the mark centred at the
    top, then the title at y=200.4 of 405 (49.48%) and the subtitle at y=304.1 (75.09%),
@@ -638,7 +643,19 @@ export default {
   .spd-page {
     box-shadow: none;
     page-break-after: always;
-    border: 0;
+
+    /* 🔴 `border: 0` USED TO LIVE HERE AND IT STRIPPED THE FIRM'S BRANDING OFF THE ONE
+       OUTPUT THAT MATTERS. It was right when the border was a grey hairline that only
+       separated pages on screen; since item 16.2 the border IS the advisor firm's mark
+       on a document the client keeps, so removing it in print removed the whole point.
+       Found 2026-09-22 — Mike: "the pdfs do not show the changes - why?" */
+
+    /* And without this a browser drops every background colour when printing, which
+       takes the initials disc, the navy step dividers and the white plate that makes
+       the gap in his bottom border. `DashboardReportPage.vue` already does this for
+       the Business Performance Report; the plan did not. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 </style>

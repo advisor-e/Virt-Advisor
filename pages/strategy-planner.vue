@@ -2324,5 +2324,54 @@ export default {
     box-sizing: border-box;
     min-height: 208mm;
   }
+
+  /* 🔴 A TEACHING PAGE HAS TO FIT THE SHEET — Mike, 2026-09-22: "i also required the
+     pdf to print in a4 as that is the most common format - stick to it and make it
+     work".
+     Measured at true A4 landscape (1123x794px = 297x210mm), NOT at a screen viewport,
+     which inflates every millimetre and is how this was missed: the page came to
+     259.2mm against a 210mm sheet — 4.2 for the kind, 14.8 the heading, 155 the
+     concept drawing, 59.3 the prompts, 13.8 padding. It split across two sheets, so a
+     client's 13-page plan printed as 14 with one concept's prompts orphaned.
+
+     THE DRAWING GIVES WAY, NOT THE TEACHING CONTENT. The page becomes a flex column
+     with a hard ceiling of one sheet, and the concept graphic is the only thing allowed
+     to shrink. An SVG with a viewBox letterboxes inside whatever box it is given, so it
+     scales and centres — it is never distorted and never cropped, which is the
+     distinction `StrategyPlanDocument` deliberately draws about not clipping his
+     content. A concept with fewer prompts leaves its drawing larger, because the space
+     is shared rather than fixed. */
+  body.sp-printing .spd-page.is-teach {
+    max-height: 208mm;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ⚠ THE WRAPPER SHRINKING IS NOT THE DRAWING SHRINKING. Giving the wrapper `flex`
+     and the SVG `width:100%;height:100%` capped the PAGE and left the drawing at its
+     natural size, so his diagram printed straight over the prompts beneath it. The
+     drawing has to be driven from its HEIGHT — `height:100%` against a flex item whose
+     height the ceiling above makes definite, with `width:auto` so its own viewBox
+     ratio sets the width. It scales and centres; it is never squashed or cropped. */
+  /* `height:100%` on the SVG did nothing, because a percentage cannot resolve against a
+     flex item sized from its own content — the drawing stayed at 155mm and printed over
+     the prompts. `flex-basis: 0` makes the wrapper's height come from the flex line
+     rather than from its content, and an absolutely positioned SVG then has a definite
+     box to fill. Its viewBox letterboxes it inside that box: scaled and centred, never
+     squashed and never cropped. */
+  body.sp-printing .spd-page.is-teach .scg {
+    flex: 1 1 0%;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  body.sp-printing .spd-page.is-teach .scg svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 }
 </style>
