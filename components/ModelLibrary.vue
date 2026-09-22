@@ -27,6 +27,9 @@
 
       //- Preferred currency: managers pick it, everyone else sees it read-only.
       //- Client-only (currencyReady) so the role-dependent markup never mismatches SSR.
+      //- The relabel note is shown to BOTH roles: switching currency changes the
+      //- symbol only, and without it "Reports now show Euro" reads as a conversion
+      //- that never happened. Item 13.1.
       .mlb-currency(v-if="currencyReady")
         template(v-if="canEditCurrency")
           span.mlb-cur-label {{ $t('modelLibrary.currency.label') }}
@@ -42,6 +45,7 @@
           span.mlb-cur-label {{ $t('modelLibrary.currency.label') }}:
           span.mlb-cur-value {{ currentCurrencyLabel }}
           span.mlb-cur-note {{ $t('modelLibrary.currency.managedNote') }}
+        span.mlb-cur-relabel {{ $t('modelLibrary.currency.relabelNote') }}
 
     .mlb-chips.mlb-chips-class(role="group" :aria-label="$t('modelLibrary.classFilterLabel')")
       button.mlb-chip(
@@ -379,6 +383,9 @@ export default {
 .mlb-cur-label { font-size:12.5px; font-weight:600; color:var(--mlb-muted); white-space:nowrap; }
 .mlb-cur-value { font-size:12.5px; font-weight:600; color:var(--mlb-ink); white-space:nowrap; }
 .mlb-cur-note { font-size:11px; font-style:italic; color:var(--mlb-muted); white-space:nowrap; }
+/* Takes the full row and wraps — it is a sentence, not a label, so it must not
+   stretch the controls row the way the nowrap notes above would. */
+.mlb-cur-relabel { flex-basis:100%; text-align:right; font-size:11px; color:var(--mlb-muted); }
 
 .mlb-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
 /* The class row sits directly above the category row — one filter block, two levels. */

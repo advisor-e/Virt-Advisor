@@ -4087,7 +4087,8 @@
     "currency": {
       "label": "Preferred currency",
       "managedNote": "Set by your firm manager",
-      "saved": "Reports now show {name} ({symbol}). This applies to every model in your account.",
+      "relabelNote": "Figures are relabelled, not converted — the amounts do not change.",
+      "saved": "Reports now show {name} ({symbol}). This applies to every model in your account. Figures are relabelled, not converted — the amounts do not change.",
       "saveError": "Could not save the currency. Please try again."
     },
     "class": {
