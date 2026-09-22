@@ -264,7 +264,23 @@ export default {
      * @returns {{name: string, logo: string, colour: string}}
      */
     markProps () {
-      return { name: this.firmName, logo: this.firmLogo, colour: this.firmColour }
+      return {
+        name: this.firmName,
+        logo: this.firmLogo,
+        colour: this.firmColour,
+        foot: this.runningFoot
+      }
+    },
+
+    /**
+     * The running foot beside the mark on every page but the title — the client and
+     * what the document is, as the approved drawing carries it.
+     * @returns {string} empty where there is no client, so a page never prints a
+     *   lone separator.
+     */
+    runningFoot () {
+      if (!this.clientName) { return '' }
+      return this.clientName + ' · ' + this.$t('strategyPlanner.plan.sessionPlan')
     },
 
     /**
@@ -473,20 +489,34 @@ export default {
 }
 
 .spd-agenda {
-  padding-left: 20px;
+  padding-left: 0;
+  list-style: none;
 }
 
+/* 🔴 HIS AGENDA IS TWO COLUMNS, NOT A NUMBERED LIST. On his own agenda page the item
+   sits at x=42.7 and what it gets the client sits at x=352.7 of a 720-wide page — two
+   aligned columns a client reads across, which is the whole point of the page. It was
+   a decimal list with the count trailing the name inline; the approved drawing shows
+   the two columns and this is what a side-by-side comparison found missing. */
 .spd-agenda-item {
-  list-style: decimal;
+  list-style: none;
   color: #23405f;
   margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: 1.91% 46.63% 1fr;   /* his bullet, item and outcome columns */
+  align-items: baseline;
+}
+
+.spd-agenda-item::before {
+  content: '\2022';
+  color: #23405f;
 }
 
 .spd-agenda-count,
 .spd-agenda-none {
   color: #5b6f8a;
   font-size: 13.5px;
-  margin-left: 8px;
+  margin-left: 0;
 }
 
 .spd-agenda-none {

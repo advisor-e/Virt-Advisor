@@ -9,6 +9,9 @@ span.spm(:class="{ 'is-big': big }")
   template(v-else)
     span.spm-disc(:style="{ background: colour }") {{ initial }}
     span.spm-name {{ name }}
+  //- The running foot the approved drawing carries on every page: who the document is
+  //- for and what it is. It sits BESIDE the mark, because his border runs beneath it.
+  span.spm-foot(v-if="!big && foot") {{ foot }}
 </template>
 
 <script>
@@ -35,7 +38,12 @@ export default {
     /** The firm's colour, as a CSS colour — the disc's fill. */
     colour: { type: String, default: '#0070c0' },
     /** The big, centred mark of the title page. */
-    big: { type: Boolean, default: false }
+    big: { type: Boolean, default: false },
+    /**
+     * The running foot beside the mark — who this document is for and what it is,
+     * as the approved drawing carries on every page. Never shown on the title page.
+     */
+    foot: { type: String, default: '' }
   },
 
   computed: {
@@ -131,6 +139,14 @@ export default {
 /* The title page's box is 202.8 x 110.1pt — a WIDE box for a real logo. A disc filling
    it is a 130px circle on a printed sheet, which is not a firm's mark, it is a blob.
    The fallback stays modest and lets the name carry the page. */
+.spm-foot {
+  color: #5b6f8a;
+  font-size: 11px;
+  font-size: 1.2cqw;
+  white-space: nowrap;
+  margin-left: 1.4%;
+}
+
 .spm.is-big .spm-disc { height: 38%; font-size: 2.1cqw; }
 .spm.is-big .spm-name { font-size: 2.2cqw; }
 </style>
