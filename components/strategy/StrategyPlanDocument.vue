@@ -508,7 +508,10 @@ export default {
   color: #23405f;
   margin-bottom: 8px;
   display: grid;
-  grid-template-columns: 1.91% 46.63% 1fr;   /* his bullet, item and outcome columns */
+  /* His bullet sits at x=30 and the item at x=42.7 of a 720-wide page. Measured against
+     the built page the item was landing at 5.42%w against his 5.93%, so the bullet
+     column is widened to put it on his mark. */
+  grid-template-columns: 2.6% 46.0% 1fr;     /* his bullet, item and outcome columns */
   align-items: baseline;
 }
 

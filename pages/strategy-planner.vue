@@ -1,5 +1,16 @@
 <template lang="pug">
-.sp
+.sp(:style="firmStyle")
+  //- 🔴 THE FIRM'S MARK ON THE SCREEN, NOT ONLY ON THE PRINTOUT — Mike, 2026-09-22:
+  //- "i expect the branding to be consistent throughout - not JUST the pdf printed
+  //- version." The advisor sits beside the client with this screen between them, so it
+  //- is as client-facing as the document. Same component and same fallback rules as the
+  //- plan's own sheets, so one firm never renders two different marks.
+  .sp-brand(v-if="firmBrand.name || firmBrand.logo")
+    strategy-plan-mark(
+      :name="firmBrand.name || ''"
+      :logo="firmBrand.logo || ''"
+      :colour="firmBrand.colour || '#0070c0'"
+    )
   header.sp-top
     //- 🔴 THE QUESTION BELONGS TO SCOPE SESSION AND IS SHOWN THERE ALONE. Mike's ruling,
     //- 2026-09-21. It used to head all five stages, so an advisor was asked "What do you
@@ -304,6 +315,7 @@ import StrategyCaptureCard from '~/components/strategy/StrategyCaptureCard.vue'
 import StrategyConceptCapture from '~/components/strategy/StrategyConceptCapture.vue'
 import StrategyGrowthWheel from '~/components/strategy/StrategyGrowthWheel.vue'
 import StrategyPlanDocument from '~/components/strategy/StrategyPlanDocument.vue'
+import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
 import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
 import { isPlaceableConcept } from '~/utils/strategyCards'
 import { isDevHost } from '~/utils/devHost'
@@ -333,7 +345,7 @@ const AUTOSAVE_PAUSE_MS = 1200
 export default {
   name: 'StrategyPlannerPage',
 
-  components: { StrategyScopeMenu, StrategyStepBuilder, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel, StrategyPlanDocument },
+  components: { StrategyScopeMenu, StrategyStepBuilder, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel, StrategyPlanDocument, StrategyPlanMark },
 
   data () {
     return {
@@ -488,6 +500,22 @@ export default {
   },
 
   computed: {
+    /**
+     * The firm's colour, as a custom property the whole planner reads — item 16.2.
+     *
+     * 🔴 THE BRANDING IS NOT THE PRINTED PLAN'S ALONE. Mike, 2026-09-22: *"i expect the
+     * branding to be consistent throughout - not JUST the pdf printed version."* The
+     * stage rail, the resume bar and the screen's own accents were hardcoded to
+     * Advisor-e's `#0070c0`, so an advisor sat in front of a client on a screen wearing
+     * the wrong firm's colour and then handed over a document wearing the right one.
+     *
+     * @returns {{'--sp-firm': string}} the firm's colour, or the platform blue where
+     *   Advisor-e has not yet supplied one — the same fallback the document uses.
+     */
+    firmStyle () {
+      return { '--sp-firm': this.firmBrand.colour || '#0070c0' }
+    },
+
     /**
      * The ticked concepts that have a built capture card, in authored order.
      *
@@ -2061,6 +2089,18 @@ export default {
 
    ⚠ DO NOT RESTORE `flex-end` TO "line the button up with the title". That is what produced
    the 61px drop, and no test can see it — a button in the wrong place renders perfectly. */
+/* 🔴 THE MARK SEATS ITSELF FOR A PAGE, NOT A SCREEN. On a sheet it is absolutely
+   positioned into the gap in the firm's bottom border; in the header it is an ordinary
+   element in the flow, and its sizes come from the page's container-query units, which
+   mean nothing here. Re-seated rather than re-drawn, so one firm never renders two
+   different marks. */
+.sp-brand { position: relative; height: 34px; margin: 0 0 0.75rem; }
+.sp-brand .spm { position: static; height: 34px; background: none; padding: 0; max-width: none; }
+.sp-brand >>> .spm-disc { height: 28px; font-size: 13px; }
+.sp-brand >>> .spm-name { font-size: 14px; }
+.sp-brand >>> .spm-logo { height: 34px; }
+.sp-brand >>> .spm-foot { display: none; }
+
 .sp-top {
   display: flex;
   gap: 1rem;
@@ -2082,7 +2122,7 @@ export default {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #0070c0;
+  color: var(--sp-firm, #0070c0);
   margin: 0;
 }
 .sp-title { font-size: 1.6rem; font-weight: 700; margin: 0.1rem 0 0; color: #002b64; }
@@ -2111,11 +2151,11 @@ export default {
   cursor: pointer;
 }
 .sp-rail-step:last-child { border-right: 0; }
-.sp-rail-step.is-on { background: #0070c0; color: #fff; font-weight: 600; }
+.sp-rail-step.is-on { background: var(--sp-firm, #0070c0); color: #fff; font-weight: 600; }
 .sp-rail-step.is-done { background: rgba(76, 165, 45, 0.1); color: #2f7d32; font-weight: 600; }
 /* It has to LOOK clickable, or an advisor who was told they can jump about still will not. */
 .sp-rail-step:hover:not(:disabled):not(.is-on) { background: #e3eefa; color: #002b64; }
-.sp-rail-step:focus-visible { outline: 2px solid #0070c0; outline-offset: -2px; }
+.sp-rail-step:focus-visible { outline: 2px solid var(--sp-firm, #0070c0); outline-offset: -2px; }
 /* Before a session is open there is nothing behind the last four to show. */
 .sp-rail-step:disabled { cursor: default; opacity: 0.45; }
 
@@ -2139,7 +2179,7 @@ export default {
   padding: 0.8rem 1rem;
   margin-bottom: 1rem;
   border: 1px solid #9fd0f5;
-  border-left: 4px solid #0070c0;
+  border-left: 4px solid var(--sp-firm, #0070c0);
   border-radius: 10px;
   background: linear-gradient(90deg, #eef7ff, #fbfdff);
 }
@@ -2147,7 +2187,7 @@ export default {
 .sp-resume-t { color: #002b64; font-weight: 700; font-size: 0.95rem; }
 .sp-resume-facts { color: #5b6f8a; font-size: 0.8rem; margin-top: 0.15rem; }
 .sp-resume-acts { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-.sp-resume-more { font-size: 0.8rem; color: #0070c0; font-weight: 600; }
+.sp-resume-more { font-size: 0.8rem; color: var(--sp-firm, #0070c0); font-weight: 600; }
 
 .sp-slist { border: 1px solid #d5e1ee; border-radius: 10px; margin-bottom: 1rem; overflow: hidden; }
 .sp-srow {
@@ -2235,7 +2275,7 @@ export default {
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #0070c0;
+  color: var(--sp-firm, #0070c0);
   margin-top: 0.55rem;
 }
 .sp-plan-dl dd { margin: 0.1rem 0 0; font-size: 0.85rem; color: #002b64; }

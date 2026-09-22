@@ -62,11 +62,20 @@ export default {
 <style scoped>
 /* Every value is a share of the page, taken from his 720x405pt geometry, so the mark
    holds its place whatever size the sheet is rendered or printed at. */
+/* 🔴 SIZES ARE A SHARE OF THE PAGE'S WIDTH, NEVER ITS HEIGHT. His deck page is 16:9 and
+   the built document is A4, so a height taken as a percentage of the page came out 21%
+   too big on every sheet and the title-page mark 21% too big again. `cqw` is 1% of the
+   document's width (`.spd` is the container), which is the same basis his own 720pt-wide
+   page uses. Measured, not assumed: this was 6.33%w against his 5.24%w before the fix. */
 .spm {
   position: absolute;
-  left: 6.875%;            /* 49.5 / 720 */
+  /* ⚠ A PERCENTAGE `left` RESOLVES AGAINST THE PADDING BOX, NOT THE SHEET. The page's
+     own border sits outside that box, so 6.875% put the mark at 7.72% of the sheet.
+     Solved back to his edge: border 0.986% + L x 0.98028 + plate padding 0.35% x 0.98028
+     = 6.875%, so L = 5.658%. Measured after the change, not assumed. */
+  left: 5.658%;            /* + border + the 0.35% plate padding = his 6.875% of the sheet */
   bottom: 0.42%;           /* his logo runs to y=402.3 of 405 */
-  height: 9.309%;          /* 37.7 / 405 — the height of HIS logo box */
+  height: 5.236cqw;        /* 37.7 / 720 — the height of HIS logo box */
   display: flex;
   align-items: center;
   gap: 0.9%;
@@ -82,26 +91,29 @@ export default {
 
 .spm.is-big {
   left: 35.875%;           /* 258.3 / 720 */
-  top: 13.383%;            /* 54.2 / 405 */
+  top: 13.383%;            /* 54.2 / 405 — a vertical POSITION, so a share of height */
   bottom: auto;
-  height: 27.185%;         /* 110.1 / 405 */
-  width: 28.167%;          /* 202.8 / 720 */
+  height: 15.292cqw;       /* 110.1 / 720 — a SIZE, so a share of width */
+  width: 28.167cqw;        /* 202.8 / 720 */
   max-width: none;
   justify-content: center;
   padding: 0;
   background: none;        /* the title page's border is not interrupted */
 }
 
+/* HIS logo box, exactly: 69.4 x 37.7pt of a 720-wide page. The image is fitted inside
+   it whatever its own proportions are — "a real logo is an image of unknown proportion"
+   was the reason for the disc, and a fixed box is the answer to it. */
 .spm-logo {
+  width: 9.639cqw;
   height: 100%;
-  width: auto;
-  max-width: 100%;
   object-fit: contain;
   object-position: left center;
   display: block;
+  flex: 0 0 auto;
 }
 
-.spm.is-big .spm-logo { object-position: center; margin: 0 auto; }
+.spm.is-big .spm-logo { width: 100%; object-position: center; margin: 0 auto; }
 
 /* 🔴 THE DISC IS NOT THE HEIGHT OF THE LOGO BOX. His logo box is 37.7pt tall, but the
    fallback disc in the 33 concept drawings is r=22 on an 844-tall page — 5.2% of the
