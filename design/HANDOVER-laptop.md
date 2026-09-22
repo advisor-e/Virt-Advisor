@@ -11,73 +11,81 @@
 
 ## 2026-09-22 · Laptop · branch `feat/advisor-progress`
 
-**Clean, pushed at `b6f053f7`, 4 ahead / 0 behind.** Suite **13,401 green** (601 suites),
-coverage thresholds met, lint 0 errors, audit gate clean. Merged your 12 commits on the way —
-item 17, 13.4, the currency wording and the language policy all came across. **NOTHING WAITS
-ON MIKE.**
+**Clean, merged with your PRs #112 and #113, pushed, and raised as a PR to `master` on Mike's
+instruction — *"i want everything here completely aligned with desktop"*.** Suite **13,414 green**
+(603 suites), lint 0 errors. **NOTHING WAITS ON MIKE.**
 
-⚠ **I TOUCHED 57 FILES AND MOST OF THEM ARE YOURS TO KNOW ABOUT — read the next two blocks
-before you open anything in `components/strategy/`.**
+### 🔴 STAGE 7 OF ITEM 15.1 IS NOT WHAT IT SAID. Mike redirected it himself.
 
-### ITEM 16 IS BUILT ON OUR SIDE. Mike ruled twice and then said do them all.
+It read *"calculators run inside the card"*. He asked *"as an advisor, in a session with a client,
+how do i leave the session to look at something else and return back to my screen afterwards?"* —
+**and you cannot.** Leave the planner for any reason and you came back to a blank Scope screen with
+no way into the session you were running, while a second *Build the session* opened an **empty
+duplicate** for the same client. His words: *"or, simply make stage 7 - building the door?"*
 
-**The mark on a client's document is the advisor firm's REAL logo**, in a fixed-height box, with
-the initials disc only when a firm holds none. **And the border returns, in the firm's colour.**
-The second ruling followed from the first: the colour drove exactly ONE element, the disc, so
-ruling the disc into a fallback would have left a branded firm's colour appearing nowhere at all.
+**THE CALCULATORS ARE PARKED, NOT DELETED.** His patchwork ruling of 2026-09-16 stands verbatim in
+Brief **§7a**. ⚠ It is **TWO frameworks, not three** — *"Revenue Model"* is a master-app template
+topic with no page, no model and no route here. Do not re-derive the count from the names.
 
-🔴 **THE DATA IS ADVISOR-E'S AND WE BUILD NO SCREEN FOR IT.** His words: *"Advisor-e already
-picks up the colour and brands the border to suit"* — it lives on the **firm profile page** in
-the master app. Item 16's note used to say we needed a screen; that sentence is gone. Our half is
-`firmBrand()` in `server/utils/firmsDirectory.js`, seam **Q-FIRM-BRAND** in
-`config/integration.js`, and **question 8** of the integration email. Two nulls, marked TODO.
-**Shipped inert** — unanswered, no brand SQL is built and every page falls back.
+**All five decisions settled the same day** on
+[`mockups/strategy-session-resume.html`](mockups/strategy-session-resume.html) (published,
+registered). A, B, D, E ruled; **C dropped on his own challenge** — *"each session relates to a
+single client - tell me why i need this feature"*. There is **no "finished" flag anywhere** and
+that is now the settled design, not a gap.
 
-**Then: *"i want them all fixed — there is NO reason why you would have some and not others."*
-So all 32 drawings carry the border and the logo box**, not just the Porter's exemplar.
+### 🔴 THREE TRAPS — DO NOT PAY FOR ANY OF THESE TWICE
 
-### 🔴 TWO TRAPS — DO NOT PAY FOR EITHER OF THESE TWICE
+**1. NEVER SAVE FROM `@input.native`.** The capture boxes were saving **once per keystroke** —
+Buefy's Input emits from the native event unless `lazy` is set, and neither box passed it. Measured
+at **62 saves for a 62-character sentence**, each its own `PUT /entries` and database write, fired
+without awaiting one another so a slow line could store a **half-typed answer**. Fixed with `lazy`,
+mutation-verified. `@input.native` now exists on three components and carries **no network call at
+all** — it only tells the page there are unsaved words. Turning it into a save restores the defect.
+`tests/unit/strategyCaptureSaveRate.test.js`.
 
-**1. NEVER hand-edit `components/strategy/concepts/`.** The 32 components are GENERATED from the
-7 mockups by `scripts/build-concept-graphics.js`, and a test recompares every one against its
-drawing. Change the drawing, teach the generator, re-run it. I changed a comment *inside* the
-Porter's SVG after generating and the guard caught it immediately — which is the guard working,
-but it will catch you the same way.
+**2. THE SESSION STORE STRIPS THE `Z`, SO ITS TIMES ARE UTC AND NOTHING SAYS SO.** `now()` in
+`server/utils/strategySessionStore.js` writes MySQL `DATETIME` shape. Passed to `new Date()` in a
+browser it reads as **local** — twelve hours out here. The stamp showed *"Saved 4:10 AM"* for a
+4:10 PM save, and an evening session would have shown the **wrong day**. Use `storeTime()` in
+`pages/strategy-planner.vue`, which also refuses to double-zone an already-ISO string.
 
-**2. `strategy-concept-batch-5.html` IS CRLF AND THE OTHER SIX ARE LF.** An LF-only pattern
-matched nothing in it and my script reported *"already wired"* while doing nothing at all — the
-quietest possible failure, and it would have shipped 21 bordered drawings and 11 plain ones.
-Normalise to LF, transform, write back in the ending it arrived with.
+**3. `git show` HANDS BACK **LF**; THE WORKING FILE IS **CRLF**.** Splitting on the wrong one gives
+one line and every index check passes on nothing — your own 2026-09-22 warning, hit again resolving
+today's merge. Also: **bound a JSON record by BRACE DEPTH, never by a line trimming to `},`** —
+item 17's nested `askedBy` closes exactly that way and a text scan cut the record in half.
 
 ### SHARED FILES I TOUCHED — check before you edit
 
-`config/integration.js` (new `FIRM_BRAND` block + export), `server/utils/firmsDirectory.js`
-(new `firmBrand`, `assertColumnName`; **`listFirms` is unchanged** and still returns id and name
-alone), `design/ARTEFACTS.md`, `design/features/to-do-items.json`, `design/CODE-SIZE.md`,
-`design/features/strategy-planner.md`, `design/MASTER-TEAM-INTEGRATION-EMAIL.md` (seven questions
-became eight, including the unblocks table), all 7 mockups, all 32 concept components, and the
-four `components/strategy/Strategy*.vue` wrappers that now thread a `firmLogo` prop.
-**Your item 17 files untouched.**
+`pages/strategy-planner.vue` (substantial: the resume bar, reopen, the Saved stamp, auto-save,
+`storeTime`, the session id in the address bar) · `components/strategy/StrategyConceptCapture.vue`,
+`StrategyCaptureBox.vue`, `StrategyCaptureCard.vue` (all three: `lazy` and/or `@input.native`) ·
+`locales/en.json` (`strategyPlanner.resume`, `.save`, `errors.reopenFailed`) ·
+`config/integration.js` (**new seam `Q-RETURN-URL`** — `ADVISOR_E.menuUrl`, `.menuHostAllowList`) ·
+`design/MASTER-TEAM-INTEGRATION-EMAIL.md` (**eight questions became nine**, incl. the unblocks
+table) · `ARTEFACTS.md` · `features/strategy-planner.md` (§0 stage 7 rewritten, **new §7a**) ·
+`features/to-do-items.json` · the two generated files. **Your item 13.4 and 16 files untouched.**
 
-⚠ **A COLUMN NAME CANNOT BE A BOUND PARAMETER.** Whatever the master team types into
-`FIRM_BRAND` is interpolated into SQL. `assertColumnName` refuses anything but a bare identifier
-and **throws rather than skipping** — a typo that quietly disabled branding would look identical
-to *"they have not answered yet"*. The logo and colour are validated too, because they reach an
-SVG `fill` and an `<image>` href. 57 tests in `tests/unit/firmsDirectory.test.js`.
+### ⚠ `Leave session` IS DRAWN AND DELIBERATELY NOT RENDERED
 
-### Also done, and one thing still open
+Our pages carry **no navigation at all** (`layouts/default.vue` is four lines), so the way out is
+Advisor-e's — and nobody has ever told this app that address. **Question 9** asks for it two ways,
+either alone sufficient, and asks for the **host** too because a `returnUrl` out of the address bar
+is an open-redirect surface. Unanswered, the button does not appear. **Do not build it inert.**
 
-**7.5 and 7.12 were flagged `waitingOn: Mike` and both were wrong** — each one's own note says
-the work left on it is ours. Corrected, so the live list went from fifteen items needing him to
-thirteen. **Of those thirteen, 7.6 must not be raised** (his own ruling parks it) and **9.1 is
-UAT**, so eleven genuinely need him. He worked through two of them today.
+### Also done
 
-☐ **STILL UNRULED on the Porter's artefact: his deck page number, removed because the client's
-plan runs in the advisor's order.** It is the last of the three deviations; the other two were
-ruled today. Put it to him before anything else on that drawing.
+**Item 17 removed from the live list** — its closure was written up on the done-and-parked page but
+the item was never taken off, so the sales tracker read as finished *and* still to do. The list is
+**33 items**; your 14.4 and your 13.1 closure both survived today's merge, verified by ref.
 
-**`activeOn`: 7.5 and 15.1 laptop — both still in hand, neither advanced today. 16 needs no flag;
-what remains on it is the master team's.** **NEXT on 15.1: stages 7 and 8**, unchanged.
+🔴 **FOUR FAULTS FOUND BY OPENING THE APP, none visible to 13,414 assertions** — *"1 concepts
+scoped"*; *"0 steps named"* beside a session holding five (seeded steps were saved only if the
+advisor EDITED them, so reopening would have rebuilt them from the firm's CURRENT standard); a raw
+`porters-5-forces` on screen; and the UTC time above. **Run it, don't trust the suite.**
 
-⚠ **LOCAL TO THIS LAPTOP, NOT IN GIT:** `data/dev-cases.json` carries a seeded conversation
-summary on Harbour Joinery. **Fabricated — never read it as real client history.**
+**`activeOn`: 7.5 and 15.1 laptop — both still in hand.** **NEXT on 15.1: stage 8**, a manager
+adding a concept. Stage 7 is done bar `Leave session`.
+
+⚠ **LOCAL TO THIS LAPTOP, NOT IN GIT:** `data/dev-strategy-sessions.json` now holds **140+ sessions**
+for Harbour Joinery, one per dev run. Fabricated, and incidentally a neat demonstration of the
+defect stage 7 fixes — every one was unreachable the moment its page was left.
