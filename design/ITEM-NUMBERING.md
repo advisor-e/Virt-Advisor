@@ -4,18 +4,48 @@
 > 4 — then any other job directly related to that becomes 4.1 or 4.2 etc. The ONLY jobs to get
 > a number starting with '4' must belong directly to the initial task."*
 
+> ## 🔴 2026-09-23 — A WHOLE NUMBER IS A HANDBOOK PAGE. READ [`PAGE-NUMBERS.md`](PAGE-NUMBERS.md) FIRST
+>
+> **Mike's ruling:** *"each task is assigned to a feature in the handbook. any new feature must
+> be assigned a new page to the handbook … all tasks associated with that feature start with
+> [the page number]. No number gets reused."*
+>
+> The twelve subjects in §3 below were the **seed** for the page numbers, so every number already
+> in use keeps its meaning and **not one live task was renumbered** — his decision, taken against
+> the measured cost of the alternative (192 quotations, 72 code files). The subject table is
+> therefore still correct as history; **it is no longer where a number comes from.**
+>
+> ✅ **Built and in force, 2026-09-23.** The register is the `#` column of
+> [`features/README.md`](features/README.md); `npm run check:branch` prints the next free **page**
+> number, read across every branch; the Handbook shows each page's number and refuses two pages on
+> one; `tests/unit/pageNumbers.test.js` holds every task's number to a page that exists.
+>
+> 🔴 **`18` onwards is page numbers. It is no longer a free parent**, and §3's closing line saying
+> otherwise is superseded by this box.
+>
+> **One live item moved with the change: `5.3` → `22.1`** (the test suite and the push gate are
+> The Working Agreement, page 22). It was quoted nowhere in the repository, so the move cost one
+> line. `5.3` is spent and is never reissued.
+
 ---
 
 ## 1. The rule
 
-**A whole number is a subject. Its decimals are the jobs that belong to it.** Nothing else may
+**A whole number is a Handbook page. Its decimals are the jobs on that page.** Nothing else may
 carry that whole number.
 
-- `7` is the AI advisory engine. `7.1`, `7.2`, `7.3` are jobs on the engine — and nothing else
-  ever starts with `7`.
-- A new job on an existing subject takes the next free decimal of **that subject's** parent.
-- A job that belongs to no existing subject is a new parent, taking the next free whole number.
-  A new parent is a real event: it means the product grew an area it did not have.
+- Page `7` is the Advisory Engine. `7.1`, `7.2`, `7.3` are jobs on it — and nothing else ever
+  starts with `7`.
+- A new job on an existing page takes the next free decimal of **that page's** number.
+- **A job with no page is a feature that has not earned one yet.** The page is written first, and
+  it takes the next free page number from `npm run check:branch`. A new page is a real event: it
+  means the product grew an area it did not have.
+- The register of pages and their numbers is [`features/README.md`](features/README.md); the rule
+  and the record are [`PAGE-NUMBERS.md`](PAGE-NUMBERS.md).
+
+*Until 2026-09-23 a whole number was an abstract **subject** rather than a page — the twelve in §3
+below. Those twelve seeded the page numbers, so nothing a session reads in the code changed
+meaning; only where a NEW number comes from did.*
 
 ## 2. Why the old numbers are frozen, not rewritten
 
@@ -63,7 +93,9 @@ Taken from what the 121 items inventoried on 2026-09-15 actually are, not from a
 | **14** | **Tooling & process** | The Handbook, this list, branch checks, skills, the test suite, governance |
 | **15** | **Strategy Planner** | The strategy domain's session surface: the planning menu, capture tables, carry-forward, the client plan report, facilitation observation points |
 
-**16 is taken and 17 is the Sales Tracker. 18 is the next free parent.**
+**16 is White-Label & Firm Brand and 17 is the Sales Tracker.** 🔴 **18 onwards is NOT a free
+parent — since 2026-09-23 those are Handbook page numbers.** A new subject is a new page, and its
+number comes from `npm run check:branch`. See the box at the top of this page.
 
 ### 🔴 2026-09-22 — parent 13 renamed, because localisation had no home
 

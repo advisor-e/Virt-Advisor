@@ -113,25 +113,34 @@ describe('ref-ceiling — ordering', () => {
 
 describe('ref-ceiling — what it prints', () => {
   const rows = [
-    { label: 'this branch (feat/advisor-progress)', highest: '4.101' },
-    { label: 'origin/feat/firm-quiz-builder-ui', highest: '4.99' }
+    { label: 'this branch (feat/advisor-progress)', highest: '4.101', pages: [17, 44] },
+    { label: 'origin/feat/firm-quiz-builder-ui', highest: '4.99', pages: [17, 51] }
   ]
 
   it('leads with what a number MEANS, not with a serial to take', () => {
-    expect(describeCeiling(rows)[0]).toBe('A WHOLE NUMBER IS A SUBJECT; ITS DECIMALS ARE THE JOBS IN IT.')
+    expect(describeCeiling(rows)[0]).toBe('A WHOLE NUMBER IS A HANDBOOK PAGE; ITS DECIMALS ARE THE JOBS ON IT.')
   })
 
-  it('names the next free parent from the highest across ALL branches', () => {
-    // 4.101 here and 4.99 there: the highest parent in use is 4, so a new subject is 5.
-    expect(describeCeiling(rows).join('\n')).toContain('5  — the next free parent')
+  it('names the next free page from the highest across ALL branches', () => {
+    // Since Mike's ruling of 2026-09-23 a new number is a new Handbook page, not a new
+    // subject. 44 here and 51 there: the next page is 52, and it is read from the other
+    // machine's index as readily as from this one's.
+    expect(describeCeiling(rows).join('\n')).toContain('page 52, the next free one')
+  })
+
+  it('says so plainly when no branch could yield a page number', () => {
+    // Silence would read as "there are none free", which is the one thing it cannot mean.
+    const blind = [{ label: 'this branch (feat/advisor-progress)', highest: '4.101', pages: [] }]
+    expect(describeCeiling(blind).join('\n'))
+      .toContain('A page number could not be read from design/features/README.md')
   })
 
   it('takes the ceiling from the other machine when that one is higher', () => {
     const other = [
-      { label: 'this branch (feat/advisor-progress)', highest: '4.90' },
-      { label: 'origin/feat/firm-quiz-builder-ui', highest: '4.99' }
+      { label: 'this branch (feat/advisor-progress)', highest: '4.90', pages: [17] },
+      { label: 'origin/feat/firm-quiz-builder-ui', highest: '4.99', pages: [17] }
     ]
-    expect(describeCeiling(other).join('\n')).toContain('5  — the next free parent')
+    expect(describeCeiling(other).join('\n')).toContain('4.99')
   })
 
   it('shows every branch it managed to read, so the number can be checked', () => {
@@ -165,6 +174,15 @@ describe('ref-ceiling — reading a branch through git', () => {
   const LIVE = ':design/features/to-do-items.json'
   const ARCH = ':design/features/to-do-done-and-parked.md'
 
+  // A Handbook index whose highest page is 53, so the next free page is 54. Two rows is
+  // enough: the number is read from the `#` column, never counted from the row total.
+  const INDEX_53 = [
+    '| # | Brief | History |',
+    '|---|---|---|',
+    '| 17 | [Sales Tracker](sales-tracker.md) | [history](sales-tracker-history.md) |',
+    '| 53 | [Case Studies & Clients](cases-and-clients.md) | [history](cases-and-clients-history.md) |'
+  ].join('\n')
+
   it('reads both files from a branch and returns its highest', () => {
     const git = runner({
       ['origin/feat/other' + LIVE]: '{"items":[{"ref": "4.93"}]}',
@@ -192,9 +210,10 @@ describe('ref-ceiling — reading a branch through git', () => {
     })
     const printed = ceilingLines(git, 'feat/advisor-progress', isCandidate, {
       live: '{"items":[{"ref": "4.101"}]}',
-      archive: ''
+      archive: '',
+      index: INDEX_53
     }).join('\n')
-    expect(printed).toContain('5  — the next free parent')
+    expect(printed).toContain('page 54, the next free one')
   })
 
   it('takes in the other machine\'s branch and skips master and release snapshots', () => {
@@ -208,10 +227,11 @@ describe('ref-ceiling — reading a branch through git', () => {
     })
     const printed = ceilingLines(git, 'feat/advisor-progress', isCandidate, {
       live: '{"items":[{"ref": "4.101"}]}',
-      archive: ''
+      archive: '',
+      index: INDEX_53
     }).join('\n')
 
-    expect(printed).toContain('5  — the next free parent')
+    expect(printed).toContain('page 54, the next free one')
     expect(printed).toContain('origin/feat/other')
     expect(printed).not.toContain('origin/master')
     expect(printed).not.toContain('release/frozen')
@@ -222,9 +242,10 @@ describe('ref-ceiling — reading a branch through git', () => {
     const git = runner({})
     const printed = ceilingLines(git, 'feat/advisor-progress', isCandidate, {
       live: '{"items":[{"ref": "4.101"}]}',
-      archive: ''
+      archive: '',
+      index: INDEX_53
     }).join('\n')
-    expect(printed).toContain('5  — the next free parent')
+    expect(printed).toContain('page 54, the next free one')
   })
 })
 
@@ -344,7 +365,7 @@ describe('ref-ceiling — one number, two different jobs', () => {
   it('leaves an ordinary morning exactly as it was', () => {
     // No clash, no box: the report opens on what a number means, as it always did.
     const quiet = describeCeiling([{ label: 'this branch (x)', highest: '4.101' }])
-    expect(quiet[0]).toBe('A WHOLE NUMBER IS A SUBJECT; ITS DECIMALS ARE THE JOBS IN IT.')
+    expect(quiet[0]).toBe('A WHOLE NUMBER IS A HANDBOOK PAGE; ITS DECIMALS ARE THE JOBS ON IT.')
   })
 })
 
