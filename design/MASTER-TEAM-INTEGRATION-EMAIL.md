@@ -1,11 +1,11 @@
-# Email to the master coding team — the eight things we need to hook up
+# Email to the master coding team — the nine things we need to hook up
 
 > **Draft for Mike to send.** Written 2026-08-15 on his instruction: *"If there's anything
 > specific you need to know, in technical terms to enable you to make provision for this, draft
 > me the email and I will provide you their response."*
 >
 > **Everything below is already provisioned on our side.** There is one file —
-> [`config/integration.js`](../config/integration.js) — and the answer to six of these eight questions
+> [`config/integration.js`](../config/integration.js) — and the answer to seven of these nine questions
 > is a value typed into it. **No code changes, no rebuild.** That is deliberate: the file's own
 > header says it is *"the ONLY file the senior integration team needs to edit."*
 >
@@ -14,19 +14,30 @@
 > and brands the border to suit."* Its stub is built and shipped inert: unanswered, every document
 > falls back to a plain initials disc and no SQL for those columns is ever built.
 >
+> **Question 9 was added 2026-09-23**, when the email was re-verified against the code before
+> sending. The client's own login was built on 2026-09-03 — three weeks *after* this email was
+> drafted — and it fails closed on a role value only Advisor-e can issue, exactly as questions 3
+> and 4 do. Nobody had added the question. **The database request also became question 10** the
+> same day: it had sat outside the numbered list since August, which made it the one ask in the
+> email that could be skimmed past with nothing to answer against.
+>
+> ⚠ **The version in the opening line is a live fact and goes stale.** It read `v0.8.0` until
+> 2026-09-23 — five releases out of date. Check the top row of
+> [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md) before sending and correct it if it has moved.
+>
 > Send it as it stands, or cut anything you already know the answer to.
 
 ---
 
 ## The email
 
-**Subject:** AI Coach module — eight integration answers we need before UAT
+**Subject:** AI Coach module — nine integration answers we need before UAT
 
 Hi,
 
-The AI Coach module is tagged at `v0.8.0` and ready to load. Everything below is already built
-and waiting — six of the eight answers are values we type into one config file, with no code
-change on either side (1–4, 6 and 8); the other two are one call and one lookup from your side.
+The AI Coach module is tagged at `v0.13.0` and ready to load. Everything below is already built
+and waiting — seven of the nine answers are values we type into one config file, with no code
+change on either side (1–4, 6, 8 and 9); the other two are one call and one lookup from your side.
 
 **1 · The JWT claim names.** We read the signed-in user straight from your token and never look
 anyone up. Please confirm the field names in the payload:
@@ -103,7 +114,21 @@ the two column names:
 Either one alone is useful — you need not send both. Until they arrive every document falls back
 to a plain disc with the firm's initials, which is the state it ships in today.
 
-**And the database.** MySQL host, port, database name, user and password. Also: do you want to
+**9 · The role value for a client's own login.** A business entity — the client being advised —
+can sign in and read their own reports. This works the same way as question 3: we read the role
+straight from your token and never look anyone up, and the role is **deliberately switched off
+and fails closed** until you give us the real string, so no token can be taken for a client by
+accident. Please send the two values:
+
+| We need | Carries |
+| --- | --- |
+| the role value | the string identifying a business-entity (client) login |
+| `businessEntityId` | the client's id — **it must equal the id in our client register**, which is the key an advisor's per-client sharing switches are stored under |
+
+The second is the one to check on your side: if that id is not the same value we hold, a client
+signs in successfully and sees nothing, which looks like a broken account rather than a mismatch.
+
+**10 · The database.** MySQL host, port, database name, user and password. Also: do you want to
 run our schema yourself, or should we hand you the SQL? Our tables are additive and do not touch
 anything of yours.
 
@@ -114,9 +139,9 @@ Mike
 
 ## Notes for us — not part of the email
 
-**Why these eight and nothing else.** Questions 1–5 and 8 are exactly the `TODO` lines in
-[`config/integration.js`](../config/integration.js). Everything else in that file already has a
-working value.
+**Why these nine and nothing else.** Questions 1–5, 8 and 9 are exactly the `TODO` lines and the
+fail-closed empty strings in [`config/integration.js`](../config/integration.js). Everything else
+in that file already has a working value.
 
 **What each answer unblocks, so the reply can be actioned the same day:**
 
@@ -130,7 +155,8 @@ working value.
 | The push secret (6) | Cascade Phase 4 — the download step disappears | set `ADVISOR_E_PUSH_SECRET` on the backend; nothing else changes |
 | Identity source (7) | the Adviser Network showing real advisers | the two SQL-seam functions in `server/collaborate/data/repository.js` read from it; nothing above them changes |
 | Firm logo + colour (8) | to-do item 16 — the white-label mark on a client's document | type the two column names into `FIRM_BRAND`; `firmBrand()` in `server/utils/firmsDirectory.js` selects them and every drawing brands itself |
-| DB credentials | to-do §3.1 — every write in the app | the `DB` block |
+| Client login (9) | a business entity reading its own reports | `businessEntityRole`, `businessEntityIdClaim`; `firmAuth.js` already refuses a client token on every advisor route by name |
+| DB credentials (10) | to-do §3.1 — every write in the app | the `DB` block |
 
 **The fail-closed design is worth defending if they ask why the roles are blank.** An empty role
 string matches nothing, so no token can resolve to a tier that does not exist. That is not
@@ -154,3 +180,17 @@ be indistinguishable from "they have not answered yet." The values themselves ar
 the colour reaches an SVG `fill` and the logo an `<image>` href, so a non-hex colour or a
 non-`http(s)` URL resolves to null and the drawing falls back. 57 tests in
 `tests/unit/firmsDirectory.test.js`.
+
+**Question 9's stub meets the same bar, and was built 2026-09-03 — three weeks after this email
+was drafted, which is how it came to be missing.** `businessEntityRole` is the empty fail-closed
+string, exactly as the two middle tiers are; `server/middleware/firmAuth.js` refuses a client
+token **by name** (`BUSINESS_ENTITY_NOT_ALLOWED`) on every advisor route bar three firm-level
+reads a client legitimately needs. Nothing waits on their reply to boot, and no token can be
+taken for a client until the value exists. `tests/unit/entityAuth.test.js`;
+[`features/business-entity-reports.md`](features/business-entity-reports.md) §4.
+
+⚠ **The `businessEntityId` claim is the one answer in this email that can go wrong silently.**
+Every other unanswered question fails closed and visibly — a blank screen, a 404, an initials
+disc. This one can arrive *populated but mismatched*: a client signs in, the token verifies, and
+they see an empty account because the id is not the key our per-client switches are stored under.
+That is why the question asks them to check the value, not merely name the claim.
