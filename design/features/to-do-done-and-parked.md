@@ -202,6 +202,36 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.13 — "the model's page is recalled by the AI, not looked up".**
+🔴 **DELETED 2026-09-23 by Mike, not built and not replaced.** His words, on being shown the
+evidence below: *"if it REALLY needs fixing we fix it - if it isn't REALLY needed - delete it"*,
+and on the smaller fix offered in its place: *"sounds like a fuck up waiting to happen - delete
+it all."* **Do not re-raise it, and do not re-file the replacement.**
+
+**Its stated cause was false, and reading the code took ten minutes.** The item said the AI is
+*"asked to recall each path"*. It is not. `formatReportModelsForPrompt` prints `**Page:**
+/debtor-drag` for all nineteen models, and the prompt orders it three times to copy the path
+exactly. The AI is copying from a visible list, not remembering anything.
+
+**Its headline evidence was a case the proposed fix was forbidden to touch.** The risk field
+argued the score-4 on *"5 times in 6 on Sales Dashboard"*. `isKnownTemplate('Sales Dashboard')`
+returns **true** — it is a real template title, one of the six collisions — and the item's own
+build steps say a lookup must attach **nothing** for those six. The item argued for itself with
+the one example it could never have fixed.
+
+**What it was actually worth.** `VirtualAdvisor.vue` renders with `linkify: false`, so a page
+path reaches the advisor as plain text they read and type. A wrong path costs one failed page
+load and a retype — a 2, not a 4. Meanwhile `resolveModelChoiceWithSource` already resolves the
+correct route in code every time, including when the AI writes a wrong path or none at all;
+that route is used for the Model Choices screen and never shown to the advisor.
+
+⚠ **THE REPLACEMENT WAS OFFERED AND REFUSED, AND THAT REFUSAL IS THE POINT.** A markdown link
+does survive the locked pipeline — tested, `[Debtor Business Drag](/debtor-drag)` renders as a
+real `<a href>` through the same MarkdownIt config and DOMPurify call. It was still rejected,
+and rightly: today a wrong path is visibly text and the advisor notices when it fails. Made
+clickable, a wrong path becomes a confident click into a dead page in front of a client. **A
+smoother failure is not a fixed one.**
+
 **13.3 — the currency picker was the one manager setting outside the hub.**
 ✅ Closed 2026-09-23. Filed on Mike's instruction of 2026-09-22: *"lets be clear - BOTH those
 issues must be fixed, add them to the to do list."*

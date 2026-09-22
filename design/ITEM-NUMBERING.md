@@ -168,7 +168,7 @@ work — the whole change to the list was one line:
 | Number | Job | Outcome |
 |---|---|---|
 | `7.12`, asked 2026-09-16 | The right calculator is offered only sometimes, and sometimes the wrong one is | **restored** — still open at 4 of 6 |
-| `7.13`, asked 2026-09-18 | The model's page is recalled by the AI, not looked up | **takes the free number** |
+| `7.13`, asked 2026-09-18 | The model's page is recalled by the AI, not looked up | took the free number — then **DELETED 2026-09-23 by Mike**, its premise disproved against the code. `7.13` is spent and is never reissued. Closure on [`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) |
 
 🔴 **THE FIRST ROW IS THE POINT. `7.12` IS PUT BACK, NOT RENUMBERED.** The model-offer defect is
 unfixed, has no closure entry, and after that commit existed nowhere on the desktop's list. Had
