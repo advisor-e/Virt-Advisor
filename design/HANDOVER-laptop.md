@@ -11,50 +11,73 @@
 
 ## 2026-09-22 · Laptop · branch `feat/advisor-progress`
 
-🔴 **PR #108 IS MERGED — `master` HAS ALL OF IT, and this branch is level with it (0 ahead,
-0 behind at `0926ef66`).** Mike merged it himself at the end of the session, nineteen commits.
-**So there is nothing to pull from this branch: merge `master` down and you have it.**
-Clean tree, suite **13,327 green** (599 suites), lint 0 errors. Merged your PR #109 on the way —
-item 17 stages 4 and 5 came across cleanly, one conflict and it was `CODE-SIZE.md`, regenerated
-rather than hand-merged. **NOTHING WAITS ON MIKE.**
+**Clean, pushed at `b6f053f7`, 4 ahead / 0 behind.** Suite **13,401 green** (601 suites),
+coverage thresholds met, lint 0 errors, audit gate clean. Merged your 12 commits on the way —
+item 17, 13.4, the currency wording and the language policy all came across. **NOTHING WAITS
+ON MIKE.**
 
-⚠ **YOU WILL BE ~20 BEHIND `master` WHEN YOU OPEN.** That is this merge, not drift on your side,
-and `npm run check:branch` will say so before you can push. Merge `master` in first.
+⚠ **I TOUCHED 57 FILES AND MOST OF THEM ARE YOURS TO KNOW ABOUT — read the next two blocks
+before you open anything in `components/strategy/`.**
 
-**STAGE 6 IS BUILT — the AI pre-tick.** `server/utils/strategyPretick.js` (the prompt and the
-validator every reply passes through, 100% covered), `POST /api/strategy/suggest`, and the
-suggestion stored beside the ticks in `scope_json`. **NO MOCKUP WAS DRAWN AND NONE SHOULD BE:**
-the scope menu's own approved drawing already carries the button, the bar and Decision C, so a
-second would have been a rival artefact. Measured before anything was designed — five client
-situations gave five different lists, **4 of Pivot's 9** on Mike's own client description,
-**0 invented concepts**. Keyed on the CLIENT, not the session: the button sits on Scope session,
-which opens before any session exists.
+### ITEM 16 IS BUILT ON OUR SIDE. Mike ruled twice and then said do them all.
 
-🔴 **NUXT CAN RELOAD HALF A CHANGE, AND RESTARTING BOTH SERVERS DOES NOT FIX IT.** A newly added
-prop read as *"not defined on the instance"* while the file declared it and the unit tests
-passed — the template had recompiled and the `<script>` block came from cache. Three restarts.
-**Now in `run-the-app` with the one `page.evaluate` probe that proves it rather than guessing.**
-The fix is to touch the file's timestamp.
+**The mark on a client's document is the advisor firm's REAL logo**, in a fixed-height box, with
+the initials disc only when a firm holds none. **And the border returns, in the firm's colour.**
+The second ruling followed from the first: the colour drove exactly ONE element, the disc, so
+ruling the disc into a fallback would have left a branded firm's colour appearing nowhere at all.
 
-🔴 **ITEM 5.3 IS WIDER THAN IT SAID, AND ITS FIRST FIX IS WEAKER THAN IT LOOKED.**
-`strategySessionStore.test.js` hit the same Windows EPERM and blocked two pushes — **and that
-store already has the per-process env override 5.3 lists as candidate fix one.** Widened on
-Mike's yes. Retry once before investigating.
+🔴 **THE DATA IS ADVISOR-E'S AND WE BUILD NO SCREEN FOR IT.** His words: *"Advisor-e already
+picks up the colour and brands the border to suit"* — it lives on the **firm profile page** in
+the master app. Item 16's note used to say we needed a screen; that sentence is gone. Our half is
+`firmBrand()` in `server/utils/firmsDirectory.js`, seam **Q-FIRM-BRAND** in
+`config/integration.js`, and **question 8** of the integration email. Two nulls, marked TODO.
+**Shipped inert** — unanswered, no brand SQL is built and every page falls back.
 
-**DESKTOP — shared files I touched**: `locales/en.json`, `design/features/to-do-items.json`,
-`design/ARTEFACTS.md`, `design/CODE-SIZE.md`, `server/utils/strategySessionStore.js`,
-`server/routes/strategyPlanner.js`, `server/restify-server.js`,
-`components/strategy/StrategyScopeMenu.vue`, `pages/strategy-planner.vue`,
-`tests/unit/strategyCapture.component.test.js`, `.claude/commands/startup.md`,
-`design/WORKING-AGREEMENT.md`, `.claude/skills/run-the-app/SKILL.md`. **Your item 17 files
-untouched.** Your branch read **4 ahead / 0 behind `master`** from its own branch, your note
-dated 2026-09-22 — current.
+**Then: *"i want them all fixed — there is NO reason why you would have some and not others."*
+So all 32 drawings carry the border and the logo box**, not just the Porter's exemplar.
 
-**`activeOn`: 7.5 and 15.1 laptop — both still in hand. 17 desktop.**
-**NEXT on 15.1: stages 7 and 8.** Three items filed on Mike's own instruction, all **NOT
-ASSESSED** and none started: **15.13** (import the three-way forecast and performance figures
-into a planning session), **15.14** Wordsmith, **15.15** Devil's Advocate.
+### 🔴 TWO TRAPS — DO NOT PAY FOR EITHER OF THESE TWICE
+
+**1. NEVER hand-edit `components/strategy/concepts/`.** The 32 components are GENERATED from the
+7 mockups by `scripts/build-concept-graphics.js`, and a test recompares every one against its
+drawing. Change the drawing, teach the generator, re-run it. I changed a comment *inside* the
+Porter's SVG after generating and the guard caught it immediately — which is the guard working,
+but it will catch you the same way.
+
+**2. `strategy-concept-batch-5.html` IS CRLF AND THE OTHER SIX ARE LF.** An LF-only pattern
+matched nothing in it and my script reported *"already wired"* while doing nothing at all — the
+quietest possible failure, and it would have shipped 21 bordered drawings and 11 plain ones.
+Normalise to LF, transform, write back in the ending it arrived with.
+
+### SHARED FILES I TOUCHED — check before you edit
+
+`config/integration.js` (new `FIRM_BRAND` block + export), `server/utils/firmsDirectory.js`
+(new `firmBrand`, `assertColumnName`; **`listFirms` is unchanged** and still returns id and name
+alone), `design/ARTEFACTS.md`, `design/features/to-do-items.json`, `design/CODE-SIZE.md`,
+`design/features/strategy-planner.md`, `design/MASTER-TEAM-INTEGRATION-EMAIL.md` (seven questions
+became eight, including the unblocks table), all 7 mockups, all 32 concept components, and the
+four `components/strategy/Strategy*.vue` wrappers that now thread a `firmLogo` prop.
+**Your item 17 files untouched.**
+
+⚠ **A COLUMN NAME CANNOT BE A BOUND PARAMETER.** Whatever the master team types into
+`FIRM_BRAND` is interpolated into SQL. `assertColumnName` refuses anything but a bare identifier
+and **throws rather than skipping** — a typo that quietly disabled branding would look identical
+to *"they have not answered yet"*. The logo and colour are validated too, because they reach an
+SVG `fill` and an `<image>` href. 57 tests in `tests/unit/firmsDirectory.test.js`.
+
+### Also done, and one thing still open
+
+**7.5 and 7.12 were flagged `waitingOn: Mike` and both were wrong** — each one's own note says
+the work left on it is ours. Corrected, so the live list went from fifteen items needing him to
+thirteen. **Of those thirteen, 7.6 must not be raised** (his own ruling parks it) and **9.1 is
+UAT**, so eleven genuinely need him. He worked through two of them today.
+
+☐ **STILL UNRULED on the Porter's artefact: his deck page number, removed because the client's
+plan runs in the advisor's order.** It is the last of the three deviations; the other two were
+ruled today. Put it to him before anything else on that drawing.
+
+**`activeOn`: 7.5 and 15.1 laptop — both still in hand, neither advanced today. 16 needs no flag;
+what remains on it is the master team's.** **NEXT on 15.1: stages 7 and 8**, unchanged.
 
 ⚠ **LOCAL TO THIS LAPTOP, NOT IN GIT:** `data/dev-cases.json` carries a seeded conversation
-summary on Harbour Joinery, written to drive the pre-tick in a browser. **Fabricated — never
-read it as real client history.**
+summary on Harbour Joinery. **Fabricated — never read it as real client history.**
