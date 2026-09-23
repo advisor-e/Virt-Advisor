@@ -31,7 +31,13 @@ var DATA_TESTS = [
   // A Brief, its History, the index or a mockup: the folder rules (every Brief has a
   // companion and a row; every mockup is registered) and the Handbook build. Found
   // 2026-09-03 when a new Brief shipped without its History and only the push gate saw it.
-  { when: /^design\/(features\/.*\.md|mockups\/.*\.html|ARTEFACTS\.md)$/, run: ['tests/unit/newFeature.test.js', 'tests/unit/designArtefacts.test.js', 'tests/unit/buildHandbook.test.js'] }
+  { when: /^design\/(features\/.*\.md|mockups\/.*\.html|ARTEFACTS\.md)$/, run: ['tests/unit/newFeature.test.js', 'tests/unit/designArtefacts.test.js', 'tests/unit/buildHandbook.test.js'] },
+  // The concept drawings. `conceptGraphics.test.js` reads every
+  // `design/mockups/strategy-concept-*.html` with `fs`, so the module graph cannot
+  // link it and the row above never ran it. Found 2026-09-23 while building item
+  // 15.19: committing a drawing left it green here and red at the push gate, which
+  // is the latest possible moment to learn a drawing is unwired.
+  { when: /^(design\/(mockups\/.*\.html|ARTEFACTS\.md)|scripts\/build-concept-graphics\.js)$/, run: ['tests/unit/conceptGraphics.test.js'] }
 ]
 // Data under data/ and locales/ is `require`d by the tests that read it, so the module
 // graph already links those; they need no row here. Add a row only for an `fs` read.

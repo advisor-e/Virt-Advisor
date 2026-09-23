@@ -1278,7 +1278,68 @@ they are written down rather than left to be rediscovered:
 three shared cells. Agreement between a machine read and that drawing is the check that caught
 each of the five above.
 
-## 9. Where it lives
+## 9. Adding a concept — Mike's five requirements, and what was measured before design
+
+**Item 15.20, asked for by Mike 2026-09-23 in his own words.** Nothing is built yet.
+
+**Today a concept costs five developer steps**: a row in `data/strategy-frameworks.json`, a
+hand-drawn SVG in `design/mockups/`, an entry in `DRAWINGS`, a generator run, and the count
+guards updated. Step two is drawing one of his deck pages by hand in code — about a day. All
+46 concepts were made that way and **no screen anywhere lets anyone add a 47th.**
+
+### The five requirements, as he gave them
+
+1. **An `Add Concept` button** — drag and drop a PDF, *"have it rendered and converted into a
+   concept"*.
+2. **A button per section, or one button with a dropdown** choosing the section. His four
+   sections are already the four `planningDomains`: `business-targets`,
+   `strategic-orientation`, `sales-marketing-review`, `organisational-review`.
+3. **A second PDF for the Response Form** — the capture half, not the teaching half.
+4. **The same branding format applies once imported** — the five-bar frame that
+   `tests/unit/conceptGraphics.test.js` pins identically across all 35 drawings.
+5. 🔴 **It cascades** — *"from mentor through each level to firm and then client/business
+   entity."* This is a mentor-first feature, not a firm-manager one.
+
+### What was measured 2026-09-23, on his yes, before any design
+
+Run in a scratch folder **outside the repository** — nothing was installed into the app.
+
+- **`pdfjs-dist@2.16.105` runs on the locked Node 14.15**: no `engines` restriction, no native
+  components, three packages.
+- Organisational Review p11 converted to **vector, not a picture** — 33 paths, 49 text
+  elements, real text rather than a photograph of text, and **5 KB gzipped** for the drawing
+  structure, the same order as a hand-drawn slide (1–2 KB) and far below the six picture-based
+  concepts (34–120 KB).
+- **Every word, position, colour and the circle came across exactly.**
+
+🔴 **TWO FAULTS, NOT YET SOLVED.** The **second green arrow** and the **advisor-e.com logo**
+did not place. Both are pictures sitting at an **angle** on his page; the straight one placed
+correctly. The library also warns that its SVG back-end *"is no longer maintained and may be
+removed in the future"* — a real risk for a firm-facing feature, not a footnote.
+
+Mike saw the conversion beside his original and beside a hand-drawn slide, and ruled it good
+enough in principle to continue. **He ruled separately that it is NOT to be run across his
+other decks.**
+
+### The one thing the machinery does not already have
+
+`TIERS` in `server/utils/tierChain.js` is `['mentor', 'global_group_manager', 'group_manager',
+'firm_manager']` — it **stops at firm manager**. Everything down to firm is existing, wired
+machinery; the step below firm to the **client/business entity** is new and has nothing under
+it. **Stated so it is designed for, not discovered** — it is not an argument against his
+ruling.
+
+### Still to be settled before a build
+
+- **Does the PDF ever reach a model?** It need not: rendering alone requires no AI. If it does,
+  a firm's own material leaves the building.
+- **Untrusted file upload** — size and type limits, no execution path, per-firm storage. The
+  shipped pattern to follow is `server/utils/depreciationExtract.js`, which already takes a
+  dragged PDF from a manager and stores the result per firm with version history.
+
+Both are security questions Mike has been warned of and has not yet ruled on.
+
+## 10. Where it lives
 
 `data/strategy-frameworks.json` (`planningDomains`, `decks`, `frameworks`, `concepts`) ·
 `server/utils/strategyFrameworks.js` · `server/utils/strategySessionStore.js` ·

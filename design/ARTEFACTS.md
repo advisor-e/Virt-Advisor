@@ -26,6 +26,33 @@ replacement.
 That is the hole this table closes. An artefact with no row is invisible; an artefact with a row
 is checked on every commit.
 
+---
+
+## A concept drawing that Mike has not approved yet
+
+**The one state the two rules had no room for, added 2026-09-23 (item 15.19).** *Save the
+Artefact* says a drawing is committed **before** Mike sees it. `tests/unit/conceptGraphics.test.js`
+says every drawing in a `strategy-concept-*.html` must be wired into `DRAWINGS` in
+`scripts/build-concept-graphics.js` — and being wired in **is** being built, because that list
+generates the component an advisor sees. A drawing awaiting his word satisfied neither, so a
+day's work sat uncommitted with the suite red.
+
+**A drawing may sit unwired only while it is openly waiting, declared in two places that must
+agree:**
+
+1. an entry in `AWAITING_APPROVAL` in `scripts/build-concept-graphics.js`, carrying the date it
+   was shown and the live-list item it belongs to; and
+2. a token in **this file**, on that artefact's own row, reading
+   `AWAITING APPROVAL (<file>#<drawing number>)`.
+
+🔴 **The token is how the state closes, not decoration.** The moment somebody records Mike's
+approval by removing it, the build **fails** until the drawing is wired into `DRAWINGS` and its
+entry removed. A drawing cannot be approved and then quietly left unbuilt — which is invisible
+on every screen, because an unwired concept falls back to Mike's words and looks exactly like a
+concept nobody has drawn yet.
+
+⚠ **Neither rule is weakened.** Any other unwired drawing still fails the build, exactly as before.
+
 This is the same failure family as the Logic-Lab mockup of 2026-08-01/02 — rendered in chat,
 approved, never saved, and gone a day later.
 

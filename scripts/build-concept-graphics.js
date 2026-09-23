@@ -138,6 +138,33 @@ const DRAWINGS = [
 ]
 
 /**
+ * Drawings that are saved and shown to Mike but NOT yet approved, and so not yet built.
+ *
+ * 🔴 THE THIRD STATE, AND WHY IT HAD TO EXIST. Two rules we keep pulled against each
+ * other and left no legal move. *Save the Artefact* requires a drawing to be a committed
+ * file BEFORE Mike approves it. The guard below requires every drawing in a
+ * `strategy-concept-*.html` to be in `DRAWINGS` — and being in `DRAWINGS` IS being built,
+ * because that list is what generates the component an advisor sees. So a drawing awaiting
+ * his word could neither be saved nor shown without either shipping it unapproved or
+ * leaving the suite red. On 2026-09-23 a day's work sat uncommitted for exactly this
+ * reason. Item 15.19.
+ *
+ * ⚠ NEITHER RULE IS WEAKENED. An unwired drawing is still a failure — unless it is listed
+ * here AND its file's row in `design/ARTEFACTS.md` carries the matching
+ * `AWAITING APPROVAL (<file>#<svg>)` token. The two must agree, which is what closes the
+ * other half: the moment somebody records Mike's approval by removing that token, the
+ * build fails until the drawing is wired into `DRAWINGS` and its entry removed from here.
+ * A drawing cannot be approved and quietly forgotten, which is the fault the guard was
+ * written for in the first place.
+ *
+ * `since` is the date it was shown to him and `item` the live-list item it belongs to,
+ * so an entry that has sat here too long is legible rather than invisible.
+ *
+ * @type {Array<{file: string, svg: number, since: string, item: string}>}
+ */
+const AWAITING_APPROVAL = []
+
+/**
  * Every concept a drawing serves, in registry order.
  *
  * @param {{conceptId: string, alsoServes: string[]=}} drawing
@@ -843,5 +870,13 @@ if (require.main === module) {
 }
 
 module.exports = {
-  DRAWINGS, componentName, registeredName, nthSvg, bindFirmMark, servedConcepts, sameDrawing, build
+  DRAWINGS,
+  AWAITING_APPROVAL,
+  componentName,
+  registeredName,
+  nthSvg,
+  bindFirmMark,
+  servedConcepts,
+  sameDrawing,
+  build
 }

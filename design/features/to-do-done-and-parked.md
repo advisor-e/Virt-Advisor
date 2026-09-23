@@ -202,6 +202,32 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.19 — a drawing saved for Mike to approve could not be committed, so the suite went red.**
+✅ Closed 2026-09-23 on Mike's word, built and green: **617 suites / 13,589 tests**, four of them new.
+
+**The gap was a missing third state, and that is what was built — neither rule was weakened.**
+`AWAITING_APPROVAL` in [`scripts/build-concept-graphics.js`](../../scripts/build-concept-graphics.js)
+holds a drawing that is saved and shown to Mike but not yet approved, carrying the date it was shown
+and the item it belongs to. A drawing listed there may sit unwired; **every other unwired drawing
+still fails the build, exactly as before.**
+
+**The half that closes it is the agreement between the code and the register.** The entry must be
+matched by an `AWAITING APPROVAL (<file>#<drawing number>)` token on that artefact's row in
+[`ARTEFACTS.md`](../ARTEFACTS.md), where approval is recorded. Remove the token — which is how
+approval gets written down — and the build fails until the drawing is wired into `DRAWINGS`. A
+drawing therefore cannot be approved and then left unbuilt, which is invisible on every screen
+because an unwired concept falls back to Mike's words and looks exactly like one nobody has drawn.
+
+**Proved by mutation, not by a passing empty list.** Three deliberately bad entries — a file that
+does not exist, a drawing already built, a made-up date — were added and **all four checks failed as
+designed**, then removed.
+
+🔴 **A second gap was found and closed in the same change.** `conceptGraphics.test.js` reads every
+`design/mockups/strategy-concept-*.html` with `fs`, so Jest's module graph cannot link it and
+[`scripts/quick-gate.js`](../../scripts/quick-gate.js) — whose rows exist for precisely that case —
+never ran it on commit. Committing a drawing was green locally and red at the push gate, the latest
+possible moment to learn a drawing is unwired. It now has its own row.
+
 **15.6 — eight concepts named a response form the app could not find.**
 ✅ Closed 2026-09-23. **All twenty pairings resolve — 0 failures**, run through
 `resolveTemplate` in [`server/utils/strategyCaptureForms.js`](../../server/utils/strategyCaptureForms.js),

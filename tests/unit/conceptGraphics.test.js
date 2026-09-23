@@ -363,6 +363,9 @@ describe('a drawing costs no more than one concept is worth', () => {
     const wired = {}
     builder.DRAWINGS.forEach((d) => { wired[d.file + '#' + d.svg] = true })
 
+    const awaiting = {}
+    builder.AWAITING_APPROVAL.forEach((d) => { awaiting[d.file + '#' + d.svg] = true })
+
     const missed = []
     fs.readdirSync(MOCKUPS)
       .filter(f => /^strategy-concept-.*\.html$/.test(f))
@@ -372,10 +375,13 @@ describe('a drawing costs no more than one concept is worth', () => {
 
         for (let n = 1; n <= count; n++) {
           if (wired[file + '#' + n]) { continue }
-          // There is no longer any accepted reason. This used to excuse a
-          // drawing carrying a pasted-in picture, which quietly exempted the
-          // five that most needed wiring; every approved drawing is now in the
-          // list, so anything unwired here is a drawing nobody wired.
+          // The ONE accepted reason, and it is not an excuse — it is a state.
+          // A drawing saved so Mike can look at it, before he has approved it,
+          // may sit unwired while it is declared in `AWAITING_APPROVAL` and its
+          // register row says the same. Every other unwired drawing is a drawing
+          // nobody wired. (This used to excuse a drawing carrying a pasted-in
+          // picture, which quietly exempted the five that most needed wiring.)
+          if (awaiting[file + '#' + n]) { continue }
           missed.push(file + ' drawing ' + n)
         }
       })
@@ -401,5 +407,80 @@ describe('a drawing costs no more than one concept is worth', () => {
         expect(registry).toMatch(new RegExp("^\\s*'?" + key + "'?: \\[$", 'm'))
       })
     })
+  })
+})
+
+// 🔴 THE THIRD STATE, AND THE FOUR CHECKS THAT STOP IT BECOMING A LOOPHOLE.
+// `AWAITING_APPROVAL` lets a drawing Mike has not yet approved be committed —
+// which *Save the Artefact* requires — without it being built, which is what
+// being in `DRAWINGS` means. Item 15.19. Nothing here relaxes the guard above:
+// these make the waiting state cost something to enter and impossible to
+// forget, so it cannot be used to park a drawing indefinitely.
+describe('a drawing waiting on Mike is declared, and cannot be forgotten', () => {
+  const ARTEFACTS = fs.readFileSync(path.join(ROOT, 'design', 'ARTEFACTS.md'), 'utf8')
+
+  /** The exact token a register row must carry for one waiting drawing. */
+  const token = d => 'AWAITING APPROVAL (' + d.file + '#' + d.svg + ')'
+
+  test('nothing is both waiting for approval and already built', () => {
+    // Wiring a drawing in is what approval MEANS here. Leaving it in both
+    // lists would let an approved drawing keep a waiting drawing's exemption.
+    const wired = {}
+    builder.DRAWINGS.forEach((d) => { wired[d.file + '#' + d.svg] = true })
+
+    const both = builder.AWAITING_APPROVAL
+      .filter(d => wired[d.file + '#' + d.svg])
+      .map(d => d.file + '#' + d.svg)
+
+    expect(both).toEqual([])
+  })
+
+  test('a waiting entry points at a drawing that really exists', () => {
+    // An entry naming a file or a drawing number that is not there would
+    // exempt nothing and hide the fact, which is worse than no entry at all.
+    const wrong = builder.AWAITING_APPROVAL.filter((d) => {
+      const file = path.join(MOCKUPS, d.file)
+      if (!fs.existsSync(file)) { return true }
+      const count = (fs.readFileSync(file, 'utf8').match(/<svg[\s\S]*?<\/svg>/g) || []).length
+      return !(d.svg >= 1 && d.svg <= count)
+    }).map(d => d.file + '#' + d.svg)
+
+    expect(wrong).toEqual([])
+  })
+
+  test('the register and the code agree on what is waiting', () => {
+    // 🔴 THIS IS THE HALF THAT CLOSES THE STATE. The register row is where
+    // Mike's approval gets recorded, so the moment somebody records it by
+    // removing this token, the build fails until the drawing is wired into
+    // DRAWINGS and its entry removed here. Without this a drawing could be
+    // approved and left unbuilt for ever, invisible on every screen — which
+    // is the exact fault the guard above exists to catch.
+    const missingToken = builder.AWAITING_APPROVAL
+      .filter(d => !ARTEFACTS.includes(token(d)))
+      .map(d => d.file + '#' + d.svg)
+
+    expect(missingToken).toEqual([])
+
+    const declared = {}
+    builder.AWAITING_APPROVAL.forEach((d) => { declared[token(d)] = true })
+
+    // Deliberately strict: a real token names an .html file and a digit. The
+    // register's own explanation of the convention uses a `<placeholder>`
+    // form, which must NOT read as a drawing nobody declared.
+    const orphanTokens = (ARTEFACTS.match(/AWAITING APPROVAL \([A-Za-z0-9._-]+\.html#\d+\)/g) || [])
+      .filter(t => !declared[t])
+
+    expect(orphanTokens).toEqual([])
+  })
+
+  test('a waiting entry says when it was shown and what it belongs to', () => {
+    // A bare {file, svg} is unreadable six weeks later. The date is how anyone
+    // sees that a drawing has been waiting too long; the item is where the
+    // decision lives.
+    const thin = builder.AWAITING_APPROVAL.filter(d =>
+      !/^\d{4}-\d{2}-\d{2}$/.test(String(d.since)) || !/^\d+(\.\d+)?$/.test(String(d.item))
+    ).map(d => d.file + '#' + d.svg)
+
+    expect(thin).toEqual([])
   })
 })

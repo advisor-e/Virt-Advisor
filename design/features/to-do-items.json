@@ -737,25 +737,29 @@
       "comment": "2026-09-23 - found by reading what an advisor would actually see after the heading fix landed, not by any test failing. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "15.19",
-      "name": "A drawing saved for Mike to approve cannot be committed, so the suite goes red",
+      "ref": "15.20",
+      "name": "Nobody but a developer can add a concept, and each one costs a day",
       "rankedByMike": false,
-      "kind": "defect",
+      "kind": "feature",
       "score": 3,
-      "scoreReason": "the user is worse off",
+      "scoreReason": "helps sell the package",
       "blocker": false,
-      "blocks": "15.17",
+      "blocks": null,
       "waitingOn": "Us",
-      "why": "Save the Artefact says a drawing is committed BEFORE Mike approves it. conceptGraphics.test.js says every drawing in design/mockups must be wired into a component, with no accepted reason to leave one out. A drawing awaiting his word satisfies neither.",
-      "risk": "The two rules pull against each other and the work goes unsaved while they do: on 2026-09-23 the framing page was shown to Mike with the suite red and a day's work uncommitted, because it could not be saved until it was built and should not be built until he had seen it. It bites again immediately - 15.17 is one more drawing, and the next session meets this on its first commit.",
+      "why": "Adding a concept today is five developer steps, one of them hand-drawing a deck page in code - about a day. All 46 concepts were built that way, and no screen anywhere lets anyone add a 47th.",
+      "risk": "The planner can only ever teach what we drew for it: a firm holding its own material has no route in, and that content stays in a PDF the app cannot see. The counter-risk is fidelity - an imported page that does not look like the 35 drawn slides is visibly foreign to a client in session and in the printed plan, which is the one thing Mike ruled out.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "2026-09-23 - filed on his yes at shutdown, after it stopped that day's two drawings being committed for approval. He was offered the guard change and chose to have it done deliberately rather than at the end of a long day."
+        "detail": "2026-09-23, his own words: \"i want to click a button called 'Add Concept' which enables me to drag and drop a pdf - have it rendered and converted into a concept\", plus the section choice, a second PDF for the 'Response Form', \"the same branding format need apply\", and that it \"cascades from mentor through each level to firm and then client/busines enitiy\". All five are quoted in strategy-planner.md section 9."
       },
-      "touches": "The 'no approved drawing is left out of the list without a reason' test in tests/unit/conceptGraphics.test.js, whose comment says there is no longer any accepted reason; and wherever the awaiting-approval state is recorded, which does not exist yet.",
-      "note": "NEITHER RULE IS WRONG AND NEITHER MAY BE WEAKENED. Save the Artefact exists because a Logic-Lab mockup was approved in chat, never saved, and the build drifted from it. The guard exists because an approved-but-unwired drawing is INVISIBLE - the concept falls back to Mike's words and nothing distinguishes that from a concept never drawn. The gap is a missing third state, not a rule to relax: a drawing may sit unwired ONLY while recorded as awaiting his approval, and must still fail the build the moment it is approved and not wired.",
-      "comment": "2026-09-23 - found by hitting it, not by reading the rules. Score and scoreReason are ours; he has not ranked it."
+      "touches": "A new upload route and store on the Restify backend, following server/utils/depreciationExtract.js; data/strategy-frameworks.json, whose concepts array an imported concept must join; scripts/build-concept-graphics.js and components/strategy/concepts/; FirmManagerHub.vue and its TAB_TIERS; server/utils/tierChain.js for the cascade; strategyCaptureForms.js for the Response Form; and a PDF-to-vector dependency the repo does not have.",
+      "note": "READ SECTION 9 OF design/features/strategy-planner.md, NOT THIS - it holds his five requirements verbatim and the measurement taken before design. His four sections are already the four planningDomains. The cascade is mentor-first, and TIERS in tierChain.js stops at firm manager, so the step below firm to the client/business entity has nothing under it. MEASURED 2026-09-23 in a scratch folder, nothing installed: pdfjs-dist runs on Node 14.15 and converted his Organisational Review p11 to VECTOR at 5 KB gzipped, every word and colour exact. TWO FAULTS UNSOLVED - the second green arrow and the advisor-e logo did not place, both angled pictures. He ruled it good enough in principle, and ruled NOT to run it on other decks.",
+      "comment": "2026-09-23 - asked for by Mike in his own words and filed on his yes. Score and scoreReason are ours; he has not ranked it. The impact test was run and reported at scoping per the 2026-09-16 rule: five developer steps become one manager action, measured by a manager adding a concept on the running app and it appearing on the scope menu, in a session and in the printed plan. Security questions on untrusted upload and whether the PDF reaches a model are open and named in the Brief.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-23"
+      }
     }
   ]
 }

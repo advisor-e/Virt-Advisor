@@ -66,7 +66,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 29 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 30 | **15.17** One framework has a real teaching slide and no drawing - Cultural Core Values ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
 | 31 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 32 | **15.19** A drawing saved for Mike to approve cannot be committed, so the suite goes red ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 32 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
 
 **32 live items. Fourteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
