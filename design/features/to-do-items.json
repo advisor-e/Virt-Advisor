@@ -668,6 +668,27 @@
       "touches": "The Strategy Planner's session surface; a new Restify route for the model call; the 52 concept records as the 'known business concepts' source. The market analysis data source is unidentified and is the first question this item must answer.",
       "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.14. The impact test and the hub-page judgement are both unrun.",
       "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.16",
+      "name": "An advisor teaches twenty-two concepts and has nowhere to write the client answer down",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Twenty of fifty-two concepts have a measured capture form. Thirty-two do not, and twenty-two of those still carry a teaching form, so the advisor teaches from Mike page and records nothing.",
+      "risk": "Nearly half the planner teaches a client and captures nothing, so the session does not carry forward - the same fault 15.11 scores 4 for at five concepts, here at twenty-two. It waits on Mike because strategy-planner.md section 4 is explicit: the census measured nine forms across 24 templates, not 52, and choosing a form for a concept outside those 24 is a DESIGN DECISION, not a reading. server/utils/strategyFrameworks.js throws if an unmeasured concept is given one.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - \"if you have concepts that are yet to be wired up, why werent they put forward as a task?? get on with it.\" Raised after 15.6 closed and its closure recorded the thirty-two in passing."
+      },
+      "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
+      "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 4 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 32. The Brief calls it deliberate, true of the data but never true that the work was done. Five extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Insights Summary, Curve and Cycle Notes.",
+      "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
     }
   ]
 }
