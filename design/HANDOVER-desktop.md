@@ -11,8 +11,21 @@
 
 ## 2026-09-23 (evening) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean, all pushed, 13 ahead / 0 behind. 617 suites / 13,464 green, lint 0 errors.**
+**Clean, all pushed, 14 ahead / 0 behind. 617 suites / 13,464 green, lint 0 errors.**
 `activeOn` clear here; 15.1 is yours and I touched none of its files.
+
+### 🔴 FIRST THING TOMORROW: THIS BRANCH IS 14 AHEAD AND OWES A PULL REQUEST
+
+**No PR is open** (checked 2026-09-23). The threshold in `WORKING-AGREEMENT.md` is **10**,
+so this is already over — and *ahead* is the number that becomes the 97-commit drift,
+because a machine can push faithfully every day and still reach nobody. `/startup` step 6
+fires on this automatically; it is written here so it does not depend on that.
+
+**It is Mike's yes, then `gh pr create --base master`** — never a direct push, which the
+pre-push hook refuses. ⚠ **Merging it does NOT dissolve the 5.1 conflict below** — it
+decides *when* the laptop meets it. Once this is on `master`, the laptop's next merge
+flags that its `1bc1022b` edits a line inside an item this branch deleted. **Mike's
+closure wins; take the deletion.**
 
 ### 🔴 ITEM 5.1 WILL CONFLICT ON MERGE, AND MIKE'S CLOSURE WINS
 
