@@ -9,81 +9,55 @@
 
 ---
 
-## 2026-09-23 (PM) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-23 (evening) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean, pushed, 0 behind master. 617 suites / 13,538 green, lint 0 errors, audit gate PASS.**
-**PR #126 is open and unmerged** — one commit, the Handbook guard fix. Merge it and the two
-machines are exactly level. `activeOn` clear here; 15.1 is yours and I touched none of its files.
+**Clean, all pushed, 13 ahead / 0 behind. 617 suites / 13,464 green, lint 0 errors.**
+`activeOn` clear here; 15.1 is yours and I touched none of its files.
 
-### 🔴 WE DELETED 7.13 AND YOU BUILT IT, 45 MINUTES APART — so the check now reads COMMITS
+### 🔴 ITEM 5.1 WILL CONFLICT ON MERGE, AND MIKE'S CLOSURE WINS
 
-At 11:00 this machine deleted item 7.13 as unnecessary. At 11:45 the laptop pushed ~1,000 lines
-building it. Both machines had a green light and both had obeyed every rule we own. **`activeOn`
-did not fail — it was never set:** one item in twenty-nine carried it, so the claims box honestly
-reported 7.13 unclaimed and free.
+We both found the same stale sentence hours apart. Your `1bc1022b` corrected 5.1's note
+(*"NOT WALKED IN A BROWSER YET"* → walked); **Mike closed 5.1 outright** (`c3536ad6`), so
+the item is gone from the live list and your edited line goes with it. Three files show
+conflicts: `to-do-items.json` (his closure wins), plus `to-do.md` and `CODE-SIZE.md` —
+**both generated**, so regenerate rather than resolve: `npm run to-do`, `npm run handbook`.
 
-**`scripts/item-collisions.js` is the answer** — it reads the other branch's **commit subjects**
-and names any item both machines have worked on. Commits cannot be forgotten. `npm run
-check:branch` prints it as **SAME ITEM, BOTH MACHINES**, above the claims box, and
-[`WORKING-AGREEMENT.md`](WORKING-AGREEMENT.md) and `/startup` both now say it **outranks
-`activeOn`** — and that a silent claims box means only that nobody claimed anything, never that
-nobody is working. Report only; it can never block a push.
+### The list went 28 → 18. Every one is Mike's own call, written in as it was given
 
-**Mike ruled 7.13 dead in full.** You reverted your build (`59075e87`) and the merge came through
-as a fast-forward with no conflicts. Nothing is outstanding on it.
+**Done:** 9.1 (48/48, wired, walked — UAT remains) · 5.1 · 7.5.
+**Parked, each with what un-parks it:** 8.1 (OpenAI's ZDR review, nothing granted) ·
+11.1 (identity is Advisor-e's) · 5.2 (a real payroll export from Mike) · 7.6 (his own
+16 Sept ruling, never moved off the list) · 7.3 (three design questions + DeepSeek).
+**Deleted:** 7.12 — every fault it was filed over was already fixed, improved, ruled not
+a defect, or forbidden to touch. Its orphaned build steps in `advisory-engine.md` now say
+they are reference, which is what would otherwise have rebuilt it.
+**Fixed:** 9.3 — the sharing badge has three states; *"Sharing paused"* is Mike's wording.
 
-### Item 5.1 is COMPLETE — the retention dial was the last piece
+### 🔴 THE RULE THAT CAME OUT OF TODAY — read it in `CLAUDE.md`
 
-Built, browser-driven and wording-approved the same day: three routes
-(`server/routes/registerRetentionRoutes.js`), the **Staff Register Retention** tab under
-*Compliance*, and `components/firm/FirmRegisterRetention.vue`. **All four manager tiers**, in
-Mike's own words.
+*"EVERY TASK ENDS WITH MIKE'S CALL ON THE ITEM"* (`bfe9f507`). Name the item, say what it
+now is, ask **proceed / done / park / delete**, write the answer in **that moment**.
+**His answer in chat is the supported route** — the Handbook's Save button downloads a file
+somebody must then apply, and that has happened **once since 15 August** against **492**
+direct edits.
 
-🔴 **THE PERIOD IS NOW 18 MONTHS, AND THE OLD 84 WERE NEVER HIS.** `registerRetention.js`
-attributed a seven-year default and a twelve-month floor to Decision 8 — **Decision 8 names no
-period at all**, ruling only that the register is kept on a dial rather than deleted at deal-end.
-We wrote those figures and later sessions read them back as his. Default **18**, range **1–18**,
-enforced in `validateRetentionMonths` so no tier, route or pre-ruling stored value can exceed it.
+Why it was needed: **his top four were all finished, blocked or "do not wire" while still
+sitting at the top as live work**, so picking from the top was guaranteed to pick something
+undoable — and did, twice, before he stopped it.
 
-⚠ **The item said "one component and one `TAB_TIERS` entry". The three routes did not exist
-either** — the module was only ever *read*, so every firm sat on a default nobody could reach.
+⚠ **`waitingOn` said "Mike" on five items where it shouldn't have.** Check it against the
+note *and* the commits before believing it.
 
-**Wording is Mike's, approved from a screenshot of the RUNNING page**, and pinned by
-`tests/unit/registerRetentionWording.test.js` (the named exception to the no-asserting-wording
-rule). Do not reword the five strings.
+### Two things the checks now catch that they didn't this morning
 
-### Meeting Review — the ZDR gate reopened, and Mike sent the intake
+- **A machine that is BEHIND master is no longer invisible** (`63b1a63c`). `ahead > 0`
+  alone hid the laptop at 0 ahead / 3 behind, and `/startup` then licensed reading that
+  silence as "both machines level". It isn't a claim the check ever supported.
+- **"Check the code" now means the commits too.** 5.1's browser claim was false and three
+  records said so — `git log --grep "<ref>"` shows them in one command.
 
-A fourth OpenAI reply offers **Zero Data Retention on BOTH endpoints**, including the
-`/v1/chat/completions` call carrying the whole transcript — the exposure the third reply could
-not close. **Mike sent the intake the same day**; `design/ZDR-INTAKE-EMAIL.md` is what went out.
-⚠ **Nothing is granted** — approval, amendment and enablement are three separate steps with no
-quoted turnaround. **8.1 now has THREE gates, not two.**
+### Integration asks no longer depend on an email
 
-🔴 **Two findings there are the lawyer's, not a setting:** in-region processing for **New Zealand
-does not exist** (Australia is storage-only), and **ZDR does not exclude human access**. Never
-write that no human can see it.
-
-⚠ **`OPENAI-ZDR-REPLY-LETTER.md` still said "DRAFT. Not sent"** — it *was* sent, and it is the
-letter that won the ZDR offer. Found only by sweeping for "not sent" after the intake went.
-
-### LAPTOP — shared files I touched
-
-`components/FirmManagerHub.vue` (TAB_TIERS, imports, one panel) · `locales/en.json` ·
-`server/restify-server.js` (three route lines + one require) · `server/utils/registerRetention.js`
-· `scripts/check-branch-state.js` · `tests/unit/hubTabTiers.test.js` ·
-`mentorHubScope.component.test.js` · `buildHandbook.test.js` · `to-do-items.json` ·
-`ARTEFACTS.md` · `features/report-models.md` · `features/meeting-review.md` ·
-`OPENAI-AUDIO-TERMS-EMAIL.md`. **Your strategy files untouched.**
-
-### ⚠ Two things worth knowing before you next run the suite here
-
-**Your new Handbook reachability guard failed on THIS machine and passed on yours, from the same
-commit.** Not code — a 72KB gitignored scenario-lab artefact this machine had run. It read the
-Brief's backticked mention of the file (in a sentence saying it is *deliberately gitignored*) as
-a citation. Fixed to scan `git ls-files` rather than `readdirSync`; **PR #126**. The rule is
-untouched and still catches a tracked document nothing carries.
-
-**Playwright is NOT installed here.** I drove the browser with `playwright-core` from the
-Collaborate project plus the shared `ms-playwright` chromium — it works, and the driver is in the
-scratchpad, not the repo.
+`WORKING-AGREEMENT.md` Integration **step 6**: every release cut writes notes with a
+**"What we need from you"** section carrying all ten questions. The draft email had sat
+unsent since 15 August. Don't propose sending it.
