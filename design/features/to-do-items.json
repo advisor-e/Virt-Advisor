@@ -459,28 +459,6 @@
       "comment": "2026-09-17 - filed on his yes at shutdown, after he asked whether anything guaranteed they would be dealt with. They were flagged in the Stage 3 commit and the handover; neither is a task, and the handover is replaced next session."
     },
     {
-      "ref": "15.6",
-      "name": "Eight concepts name a response form the app cannot find",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off without it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "activeOn": null,
-      "why": "Eight of the nineteen pairings name a response form no copy of the app holds, and five are near-misses on a name that was typed rather than picked. Nine forms Mike supplied are paired to no concept.",
-      "risk": "A pairing that resolves to nothing sends an advisor to a document that cannot be found, in front of a client. It is the same failure that cost a desktop session a morning on 7.9, where six model names differed from the library by one character. The register exposes all seventeen and Mike has worked through about half; the corrections are saved and unapplied, so the fault survives until somebody applies them.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-18 - 'this table also fails to let me pair the appropriate response / data input form/page - include that so there's nil mistakes.' He worked through part of the register the same day and agreed at shutdown to file the rest."
-      },
-      "touches": "design/concept-register-corrections.json (his partial pass, applied: false), data/strategy-frameworks.json captureTemplate on 19 concepts, data/strategy-capture-tables.json which holds the 20 forms, and scripts/build-concept-register.js which rebuilds the register.",
-      "note": "FOUR of the eight name Branding, Customer Loyalty, Pricing and Packaging, workbooks never supplied - those are his to supply or to strike. The other four are name mismatches we can fix once he confirms. Seventeen response-page suggestions from the deck scan also await his pass. Do not apply his corrections without asking: the file is deliberately marked unapplied and his pass is unfinished.",
-      "comment": ""
-    },
-    {
       "ref": "15.8",
       "name": "Two stock images in the Strategy Planner have no licence check",
       "rankedByMike": false,
