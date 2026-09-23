@@ -253,6 +253,11 @@ await, or any Node 16/18/20 built-in. Backend files are CommonJS (`require`/
   feature wanting to send personal data to a model is a fresh decision for Mike, not an inference
   from this one. *(Granted ahead of the build: as of 2026-09-01 nothing in the repository sends
   anything, and this exists so the rule is not re-argued at build time.)*
+- 🔴 **Every feature that sends anything to OpenAI is checked against
+  [`design/OPENAI-ZDR-CONSTRAINTS.md`](design/OPENAI-ZDR-CONSTRAINTS.md) at scoping, before
+  design.** *(Mike's ruling, 2026-09-24.)* Those twelve rules come from the ZDR amendment he is
+  signing and the OpenAI page it points to, both kept verbatim under `design/openai/`. A design
+  that breaks one does not go ahead.
 - Treat user input in prompts as hostile: wrap it in explicit delimiters on the backend;
   never concatenate raw user input into a prompt string.
 - Every AI-driven data transformation logs Original Value | AI Suggestion | Final Approved
