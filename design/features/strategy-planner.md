@@ -1278,9 +1278,18 @@ they are written down rather than left to be rediscovered:
 three shared cells. Agreement between a machine read and that drawing is the check that caught
 each of the five above.
 
-## 9. Adding a concept — Mike's five requirements, and what was measured before design
+## 9. Adding a concept — approved to build, and what was measured before design
 
 **Item 15.20, asked for by Mike 2026-09-23 in his own words.** Nothing is built yet.
+
+✅ **THE DRAWING IS APPROVED TO BUILD FROM — [`add-concept.html`](../mockups/add-concept.html),
+Mike, 2026-09-23:** *"make a note now that i approve the drawing."* Asked as its own question
+after all six of its questions were ruled one at a time, because ruling the questions inside a
+drawing is not approving the drawing.
+
+🔴 **The approval carries the seventeen wording rows at its §8 — those are his words now, not
+proposals.** Before anything built from it ships, **open the drawing, put it beside the build,
+and name every difference.** A deliberate deviation is fine; an unrecorded one is not.
 
 **Today a concept costs five developer steps**: a row in `data/strategy-frameworks.json`, a
 hand-drawn SVG in `design/mockups/`, an entry in `DRAWINGS`, a generator run, and the count
