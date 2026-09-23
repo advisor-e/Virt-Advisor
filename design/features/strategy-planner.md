@@ -1292,7 +1292,7 @@ proposals.** ✅ **§5b, the box-marking screen, was added and approved 2026-09-
 wording rows at §8b, and question 7 ruled: an imported Response Form's answers print inside
 their boxes on the page. ✅ **Question 8, ruled the same day:** the firm's own mark is painted
 into the gap in the bottom bar, covering the advisor-e.com logo his deck carries in exactly that
-spot, and the covered logo is not stored — page 11 drops from 402 KB to 82 KB compressed. Before anything built from it ships, **open the drawing, put it beside the build,
+spot, and the covered logo is not stored — page 11 drops from 402 KB to 63 KB compressed. Before anything built from it ships, **open the drawing, put it beside the build,
 and name every difference.** A deliberate deviation is fine; an unrecorded one is not.
 
 **Today a concept costs five developer steps**: a row in `data/strategy-frameworks.json`, a
