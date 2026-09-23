@@ -549,6 +549,27 @@
         "machine": "laptop",
         "since": "2026-09-23"
       }
+    },
+    {
+      "ref": "15.21",
+      "name": "The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "security",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Outside",
+      "why": "pdfjs-dist 2.16.105 reads uploaded PDFs on the backend and carries CVE-2024-4367 - a crafted PDF runs its own code. The fix needs Node 18; the lock is 14.15.",
+      "risk": "Contained, not removed: Mike accepted it 2026-09-24 on three binding conditions - eval off, each conversion in its own process with no secrets and a 20-second kill, and the depreciation route's upload hygiene. The audit policy still requires the team's review of every high finding, and this is the first that runs live.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-24 - his yes to accepting the advisory, given with the entry and this task named as part of it; the npm-audit policy in CLAUDE.md logs every high finding as a task."
+      },
+      "touches": "package.json, package-lock.json, design/SECURITY-AUDIT-NOTES.md (its own section and action item), design/features/strategy-planner.md section 9.",
+      "note": "INSTALLED 2026-09-24 with npm 8.19.4, pinned exact: +3 packages, engines clean, audit gate PASS. WHAT CLOSES IT: the team's sign-off recorded in SECURITY-AUDIT-NOTES.md, or the Node lock being revisited, when 4.2.67+ resolves it outright. Never closed by relaxing a condition. GHSA-wgrm-67xf-hhpq.",
+      "comment": "2026-09-24 - filed on Mike's yes, the moment the package was installed, as his ruling on 15.20 required."
     }
   ]
 }
