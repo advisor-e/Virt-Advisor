@@ -635,12 +635,12 @@ has approved is contradicted by this reply. **A future draft that adds such a pr
 
 ---
 
-## 6. The ZDR intake — drafted 2026-09-23, NOT SENT
+## 6. The ZDR intake — ✅ SENT 2026-09-23
 
-> 🔴 **THE EMAIL TO SEND IS [`ZDR-INTAKE-EMAIL.md`](ZDR-INTAKE-EMAIL.md) — one page, copy and
-> send.** This section is the *working* behind it: which answer came from which file, and why the
-> nine blanks cannot be filled here. **If the two ever disagree, the email file wins** — it is the
-> thing that goes out.
+> ✅ **SENT BY MIKE, 2026-09-23. AWAITING REPLY.** The email as it went is
+> [`ZDR-INTAKE-EMAIL.md`](ZDR-INTAKE-EMAIL.md); this section is the *working* behind it — which
+> answer came from which file, and why the nine blanks were Mike's alone. **Do not re-draft or
+> re-send.** When OpenAI replies it goes in §5 as **§5.6**, verbatim, like the four before it.
 
 🔴 **EVERY ANSWER BELOW IS READ OFF THE CODE OR OFF THIS FILE. THE FOUR BLANKS ARE MIKE'S AND
 NOBODY ELSE MAY FILL THEM** — inventing a legal signer, a funding stage or an org ID would put a

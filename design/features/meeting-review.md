@@ -62,7 +62,9 @@
 > `/v1/chat/completions` call carrying the whole transcript, which is exactly the 30-day exposure
 > (b) below describes. Under ZDR that call treats `store` as false and the content is excluded from
 > abuse-monitoring logs. **§5.5 of [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)
-> has it verbatim; §6 has the intake drafted with four blanks only Mike can fill.**
+> has it verbatim. ✅ **Mike SENT the intake on 2026-09-23** — [`../ZDR-INTAKE-EMAIL.md`](../ZDR-INTAKE-EMAIL.md)
+> is the email as it went. **The reply is what this gate now waits on**, and it goes in §5 as
+> §5.6 when it arrives.
 >
 > ⚠ **NOTHING IS GRANTED — IT IS AN INVITATION TO APPLY.** Approval, the signed amendment and
 > enablement are three separate steps and OpenAI quotes no turnaround. **Never record ZDR as

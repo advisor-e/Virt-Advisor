@@ -1,17 +1,35 @@
-# ZDR intake — ready to send
+# ZDR intake — ✅ SENT BY MIKE, 2026-09-23
 
-> **Copy everything between the lines below, fill the nine `[BRACKETED]` blanks, send it.**
+> ## ✅ SENT 2026-09-23 BY MIKE — awaiting OpenAI's reply
+>
 > To: Kalaiselvam, OpenAI · Subject: **ZDR intake — support case 14889777**
 >
-> The nine blanks are the only things not answerable from the code. Everything else was read
-> off the repository and is correct as written — see
-> [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md) §5.5 for the reply this answers
-> and §6 for where each line came from.
+> **Do not re-send it, and do not re-draft it.** The text below is what went out, kept as the
+> record of what was said — not as a draft to revise.
 >
-> ⚠ **When it is sent, write the date at the top of this file.** A drafted email nobody sends is
-> the failure that left the master-team integration email unsent through six releases.
+> 🔴 **THE NINE FILLED-IN VALUES ARE DELIBERATELY NOT IN THIS FILE, AND MUST NEVER BE ADDED.**
+> Mike supplied them when he sent it — signer identity, the company's corporate answers, and the
+> **OpenAI API org ID**. The org ID in particular identifies a live billing account; this
+> repository is pushed to GitHub, so it belongs in Mike's account records and nowhere here. A
+> session that is given these values in conversation **records that they were supplied, never
+> what they were.**
 >
-> **Status: NOT SENT.**
+> ⚠ **One thing did NOT go with it: the business registration.** Mike attached a passport copy by
+> email because OpenAI's capture tool would not work. **That is identity documentation and no copy
+> of it belongs in this repository** — not the image, not its contents. Noted only so nobody later
+> wonders whether a step was missed.
+>
+> 🔴 **WHEN THE REPLY ARRIVES it goes in [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md)
+> §5 as §5.6, verbatim, like the four before it** — and item 8.1's gate 3 is updated from what it
+> actually says, never from what it was hoped to say. ⚠ **Until then nothing changes:** ZDR is
+> applied for, not granted, and no record may say otherwise.
+>
+> **What the reply must be read for, because these are the open questions:**
+> 1. Does ZDR attach to the **undated** model names this app calls (`gpt-4o-mini`,
+>    `gpt-4o-transcribe-diarize`), or must we pin to dated snapshots?
+> 2. Confirmation that **New Zealand in-region processing does not exist** — the finding that goes
+>    to the lawyer.
+> 3. Eligibility itself, and any turnaround — neither of which OpenAI would state last time.
 
 ---
 
