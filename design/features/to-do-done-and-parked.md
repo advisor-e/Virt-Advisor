@@ -253,8 +253,10 @@ thing that matters. In his words: *"so therefore - this task will need to be rec
   app's undated `gpt-4o-mini` and `gpt-4o-transcribe-diarize` stand as they are with **no code
   change**. And **New Zealand offshore processing is now OpenAI's own written position** rather
   than our reading of their table — *"your assessment should treat this as offshore processing"*.
-- 🔴 **THE TWO STANDING PROHIBITIONS SURVIVE PARKING.** Nobody may record ZDR as obtained, in
-  progress or likely; and **nobody may write that no human can access the content** — ZDR does not
+- 🔴 **THE TWO STANDING PROHIBITIONS SURVIVE PARKING.** ZDR was approved by OpenAI 2026-09-24
+  (§5.7 of [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)) and is **not in force**
+  until the amendment is executed and the Account Console shows it switched on for the Project
+  (amendment clause 2) — nobody may record it as in force before then; and **nobody may write that no human can access the content** — ZDR does not
   exclude human access during processing or under a documented exception.
 - **What un-parks it:** OpenAI completing the review and confirming our configuration. That reply
   goes in §5 as §5.7, verbatim, and the gate is re-assessed then — not before.
