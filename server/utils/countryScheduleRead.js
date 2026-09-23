@@ -402,7 +402,7 @@ async function _send (opts) {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
       buildRequest({ promptText, filename: opts.filename, base64: opts.base64 }),
-      { timeout: IDLE_TIMEOUT_MS }
+      { timeout: IDLE_TIMEOUT_MS, moderate: [] } // the app's prompt and a PDF, which cannot be checked (8.2)
     )
     for await (const event of events) {
       eventsSeen++
@@ -416,6 +416,11 @@ async function _send (opts) {
     }
   } catch (err) {
     console.error('[country-schedule] request failed:', err.message)
+    // Item 8.2 — a moderation block is not transient: the same prompt would be blocked on every
+    // pass. It stops the read like a refusal does, and the block is handed up to be reported.
+    if (err && err.code === 'AI_MODERATION_BLOCKED') {
+      return { ok: false, code: 'MODERATION_BLOCKED', message: 'The reading was blocked by the AI safety check.', answer: '', parsed: null, blocked: err }
+    }
     return {
       ok: false,
       code: 'READ_FAILED',
@@ -526,7 +531,7 @@ async function readSchedule (opts) {
     replacements: { country }
   }, common))
   if (!surveyed.ok) {
-    return { ok: false, code: surveyed.code, message: surveyed.message, reading: null }
+    return { ok: false, code: surveyed.code, message: surveyed.message, reading: null, blocked: surveyed.blocked }
   }
 
   const survey = validateSurvey(surveyed.parsed, { country })
@@ -581,7 +586,7 @@ async function readSchedule (opts) {
       // reported as "read, with every page unread" — which is a far worse answer than saying what
       // happened. Mike's rule that a failed pass keeps the others is untouched: it governs a pass
       // that WOULD NOT READ, not a service that is not answering anyone.
-      if (!sent.ok && sent.code === 'SERVICE_REFUSED') { refused = sent; break }
+      if (!sent.ok && (sent.code === 'SERVICE_REFUSED' || sent.code === 'MODERATION_BLOCKED')) { refused = sent; break }
       if (!sent.ok) { continue }
       const parsed = validatePass(sent.parsed, { from: pass.from, to: pass.to, source })
       if (!parsed.ok) {
@@ -604,7 +609,7 @@ async function readSchedule (opts) {
         '[country-schedule] stopped at pass ' + (i + 1) + ' of ' + passes.length +
         ' — the service refused · classes read so far=' + classes.length
       )
-      return { ok: false, code: refused.code, message: refused.message, reading: null }
+      return { ok: false, code: refused.code, message: refused.message, reading: null, blocked: refused.blocked }
     }
 
     if (result === null) {

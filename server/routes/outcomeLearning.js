@@ -34,6 +34,7 @@ const crypto = require('crypto')
 const overlay = require('../utils/firmOverlay')
 const { PLATFORM_SCOPE } = require('../utils/platformScope')
 const { sendError } = require('../utils/sendError')
+const { sendBlocked } = require('../utils/moderationReport')
 const { loadEffectiveTemplates } = require('../utils/templateLibrary')
 const outcomeBench = require('../utils/outcomeBench')
 const hubReading = require('../utils/hubReading')
@@ -465,6 +466,8 @@ async function reading (req, res) {
   }
   const made = await hubReading.makeReading(payload)
   if (!made.ok) {
+    // Item 8.2 — the payload is the app's own figures.
+    if (made.blocked && sendBlocked(res, made.blocked, {})) { return }
     return sendError(res, 502, 'READING_FAILED', 'The reading could not be made. The numbers above are still right; try again in a minute.')
   }
   try {

@@ -53,8 +53,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 16 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 17 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 18 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 19 | **12.1** Course Builder shows about 86 pieces of English that bypass the translation file ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 20 | **10.1** Seven manager screens can't be translated ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**Eighteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Twenty live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

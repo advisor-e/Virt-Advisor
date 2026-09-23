@@ -577,7 +577,7 @@ async function readDocument (opts) {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
       buildRequest({ promptText, filename: opts.filename, base64: opts.buffer.toString('base64') }),
-      { timeout: IDLE_TIMEOUT_MS }
+      { timeout: IDLE_TIMEOUT_MS, moderate: [] } // the app's prompt and a PDF, which cannot be checked (8.2)
     )
     for await (const event of events) {
       eventsSeen++
@@ -592,12 +592,15 @@ async function readDocument (opts) {
     }
   } catch (err) {
     console.error('[depreciation-read] read failed:', err.message)
-    return {
+    const failed = {
       ok: false,
       code: 'READ_FAILED',
       message: 'The document could not be sent for reading. Nothing has changed — try again.',
       reading: null
     }
+    // A moderation block (item 8.2) is handed up so the route can report it.
+    if (err && err.code === 'AI_MODERATION_BLOCKED') { failed.blocked = err }
+    return failed
   }
 
   // 🔴 THE PROVIDER REFUSED, AND IT SAID WHY. Reported as a refusal rather than as an unfinished

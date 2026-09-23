@@ -256,7 +256,8 @@ async function runCheck (opts) {
         messages: [{ role: 'user', content: promptText }],
         temperature: 0
       },
-      { timeout: TIMEOUT_MS, personal: false }
+      // Nothing a person typed: file names and the published points (item 8.2).
+      { timeout: TIMEOUT_MS, personal: false, moderate: [] }
     )
     // This call had no success log at all until 4.97 US8 — CLAUDE.md requires every LLM call
     // to log its model, tokens, latency and result, and only the failure was recorded.
@@ -271,7 +272,10 @@ async function runCheck (opts) {
       completion.choices[0].message.content
   } catch (err) {
     console.error('[compliance-check] model call failed: ' + err.message + ' ' + logSuffix(null, err))
-    return { ok: false, code: 'MODEL_ERROR', result: null }
+    // A moderation block (item 8.2) is handed up so the route can report it.
+    return err && err.code === 'AI_MODERATION_BLOCKED'
+      ? { ok: false, code: 'MODEL_ERROR', result: null, blocked: err }
+      : { ok: false, code: 'MODEL_ERROR', result: null }
   }
 
   const checked = validateCheck(parseAnswer(text), names)

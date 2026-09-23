@@ -399,11 +399,12 @@ their own client. It is worth building as a visible setting rather than a buried
    ✅ **A FOURTH REPLY, 2026-09-23, CHANGED THAT — because Mike wrote again quoting support case
    14889777.** OpenAI offers **Zero Data Retention on both endpoints**, which covers the
    `/v1/chat/completions` call carrying the whole transcript: under ZDR it treats `store` as false
-   and the content is excluded from abuse-monitoring logs. All four replies verbatim in
-   [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) §5; the **intake is drafted
-   at §6** with four blanks only Mike can fill — legal signer, company details, org ID.
-   ⚠ **NOT GRANTED. AN INVITATION TO APPLY.** Approval, amendment and enablement are three separate
-   steps with no quoted turnaround. **Never record ZDR as obtained or in progress**, and never
+   and the content is excluded from abuse-monitoring logs. Every reply is verbatim in
+   [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) §5.
+   ⚠ **Approved by OpenAI 2026-09-24 (§5.7). Not in force** until the amendment is executed and
+   the Account Console shows ZDR switched on for the Project (amendment clause 2) — never record it
+   as in force before then. Its design rules are in
+   [`../OPENAI-ZDR-CONSTRAINTS.md`](../OPENAI-ZDR-CONSTRAINTS.md). Never
    describe any of this as confirmed — Support expressly cautioned against assuming the general API
    terms extend to audio, and that caution is still on file.
    🔴 **TWO FINDINGS GO STRAIGHT TO THE LAWYER.** **In-region processing for New Zealand does not

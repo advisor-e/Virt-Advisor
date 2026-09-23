@@ -30,6 +30,7 @@ const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
+const { moderationReport } = require('../server/utils/moderationReport')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
 const { resolveRecommendedTemplatesWithSource, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
@@ -46,6 +47,7 @@ const PROPOSER = require('../server/utils/primaryIssueProposer')
 const { proposesIssue } = PROPOSER
 const aiProvider = require('../server/utils/aiProvider')
 const { AI } = require('../config/integration')
+const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
@@ -157,7 +159,7 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
       max_tokens: 80,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    }, { personal: true })
+    }, { personal: true, moderate: [advisorText] })
     logAI(label || 'distinction-classify', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     // A reply we cannot READ is not "matched nothing" either — same defect one level
     // down. The prompt asks for {"matches":[]} when none apply, so a genuine no-match
@@ -307,7 +309,7 @@ Return ONLY a JSON object {"domain":"<id>"} using exactly one id from the list a
       max_tokens: 30,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    }, { personal: true })
+    }, { personal: true, moderate: [situationText] })
     logAI('domain-classify', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     return parseDomainClassification(response.choices[0]?.message?.content || '{}', validIds)
   } catch (_e) {
@@ -352,7 +354,7 @@ Return ONLY {"distress":true} if the business is at imminent risk of failing, ot
       max_tokens: 20,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    }, { personal: true })
+    }, { personal: true, moderate: [advisorText] })
     logAI('distress-read', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     return parseDistressRead(response.choices[0]?.message?.content || '{}')
   } catch (_e) {
@@ -550,7 +552,7 @@ Return ONLY the chosen question — no preamble, no explanation, no additional t
         ...conversationHistory.slice(-6),
         { role: 'user', content: 'Choose and return the single most appropriate question.' }
       ]
-    }, { personal: true })
+    }, { personal: true, moderate: typedTexts('', conversationHistory) })
     logAI('moving-forward', CLASSIFY_MODEL(), _t0mf, true, response.usage, response)
     const returned = (response.choices[0]?.message?.content || '').trim()
     return MOVING_FORWARD_OPTIONS.find(q => returned.includes(q.slice(0, 20))) || MOVING_FORWARD_OPTIONS[0]
@@ -723,7 +725,7 @@ async function pickLearnTreeAI (advisorText, firmTrees) {
       temperature: 0,
       max_tokens: 20,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }]
-    }, { personal: true })
+    }, { personal: true, moderate: [advisorText] })
     // This call had NO success log at all until 4.97 US8, which CLAUDE.md requires of every
     // LLM call. Its failure path logged; its successes were invisible.
     logAI('learn-tree-pick', CLASSIFY_MODEL(), _t0pick, true, response.usage, response)
@@ -913,6 +915,13 @@ async function correctTemplateHeadings (answer, sourceMessages, model) {
         { role: 'assistant', content: answer },
         { role: 'user', content: buildRetryInstruction(check.offenders) }
       ]
+      // PERSONAL, like the reply it corrects: it resends the advisor's conversation. Until
+      // 2026-09-24 this call passed no options, the provider seam refused it for want of the
+      // flag, and the correction built on 2026-09-16 never once ran. Item 8.2: the advisor's
+      // typed turns are what it names for moderation.
+    }, {
+      personal: true,
+      moderate: sourceMessages.filter(m => m && m.role === 'user' && typeof m.content === 'string').map(m => m.content)
     })
     const text = response.choices[0]?.message?.content || ''
     logAI('discover-heading-retry', model, _t0, !!text, response.usage)
@@ -1325,7 +1334,7 @@ ${causeText.slice(0, 1500)}
       max_tokens: 160,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
-    }, { personal: true })
+    }, { personal: true, moderate: typedTexts('', conversationHistory) })
     logAI('domain-confirm', CLASSIFY_MODEL(), _t0, true, response.usage, response)
     const out = (response.choices[0]?.message?.content || '').trim()
     return _isValidConfirmation(out, detected.label) ? out : fallbackText
@@ -1979,6 +1988,88 @@ function buildContinuityTraceAudit (isAllowed, priorSummary) {
   return { continuityClaimed, continuitySource }
 }
 
+/**
+ * What the advisor has typed in this conversation — this turn and every earlier one. It is what
+ * each streamed reply names for moderation (item 8.2): a person's words, never the app's context.
+ * Earlier turns cost nothing after their first check, because a checked sentence is remembered.
+ *
+ * @param {string} query - this turn
+ * @param {Array<object>} history - the conversation so far
+ * @returns {string[]}
+ */
+function typedTexts (query, history) {
+  return [query].concat((Array.isArray(history) ? history : [])
+    .filter(m => m && m.role === 'user' && typeof m.content === 'string').map(m => m.content))
+    .filter(t => typeof t === 'string')
+}
+
+/**
+ * Writes a stream's error event for a moderation block (item 8.2), with the report built from
+ * what the advisor typed — this turn and the earlier ones — so a sentence of theirs is quoted
+ * back and the app's own context never is. Writes nothing for any other failure.
+ *
+ * @param {object} res
+ * @param {*} err
+ * @param {string} query - this turn
+ * @param {Array<object>} history - the conversation so far
+ * @returns {boolean} true when the block was written
+ */
+function writeBlocked (res, err, query, history) {
+  if (res.writableEnded) { return false }
+  const report = moderationReport(err, { typed: typedTexts(query, history) })
+  if (!report) { return false }
+  try {
+    res.write('data: ' + JSON.stringify({ type: 'error', code: 'AI_MODERATION_BLOCKED', message: 'Blocked by the AI safety check', moderation: report }) + '\n\n')
+  } catch (e) {}
+  return true
+}
+
+let _checkClient = null
+/** The client the turn-start check uses: the primary provider, so a non-OpenAI one checks nothing. */
+function _turnCheckClient () {
+  if (!_checkClient) { _checkClient = createOpenAIClient({ apiKey: AI.primary.apiKey, host: AI.primary.host }) }
+  return _checkClient
+}
+/** Tests only: replace the turn-start check's client. */
+function _setTurnCheckClient (c) { _checkClient = c }
+
+/**
+ * Checks what the advisor just typed, and answers the turn with the approved message when it is
+ * blocked (item 8.2, Mike's ruling 2026-09-24).
+ *
+ * ⚠ AN UNREACHABLE CHECK DOES NOT STOP THE TURN. The early questions are scripted and need no
+ * AI; every AI call later in the turn runs the same check itself and fails closed. So nothing
+ * unchecked can reach the model either way, and a moderation outage does not also take away
+ * the scripted questions.
+ *
+ * @param {object} res
+ * @param {string} query - this turn
+ * @param {Array<object>} history - the conversation so far
+ * @returns {Promise<boolean>} true when the turn was answered with a block
+ */
+async function blockedAtTheDoor (res, query, history) {
+  if (typeof query !== 'string' || !query.trim() || query === '__init__') { return false }
+  // No key means no AI call can happen this turn either; there is nothing to check against.
+  if (!_checkClient && !(AI.primary && AI.primary.apiKey)) { return false }
+  try {
+    await _turnCheckClient().moderations.check([query], { feature: 'advisor-turn' })
+    return false
+  } catch (err) {
+    if (!err || err.code !== 'AI_MODERATION_BLOCKED') { return false }
+    if (!res.headersSent) {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no'
+      })
+    }
+    writeBlocked(res, err, query, history)
+    if (!res.writableEnded) { res.end() }
+    return true
+  }
+}
+
 async function handleQuery (rawBody, res, identity) {
   let parsed
   try {
@@ -2022,6 +2113,12 @@ async function handleQuery (rawBody, res, identity) {
   // the system prompt and made a 100-char instruction-injection channel.
   // Unknown code → null → no language instruction (English default).
   const languageName = nameForLanguageCode(language)
+
+  // Item 8.2 — what was just typed is checked before anything else runs, so a blocked sentence
+  // is named on the turn it was typed. Without this the only AI calls on an early turn are
+  // background helpers whose failures are skipped, and the advisor was never told (measured
+  // live 2026-09-24).
+  if (await blockedAtTheDoor(res, query, conversationHistory)) { return }
 
   // Firm/advisor identity comes ONLY from the firmAuth-verified JWT (req.firmId /
   // req.advisorId), never from the request body. A body-supplied firmId would be an
@@ -2778,7 +2875,7 @@ async function handleQuery (rawBody, res, identity) {
           messages: intakeMessages,
           stream: true,
           max_tokens: 400
-        }, { personal: true })
+        }, { personal: true, moderate: typedTexts(query, conversationHistory) })
         for await (const chunk of _intakeStream) {
           const text = chunk.choices[0]?.delta?.content || ''
           if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
@@ -2786,6 +2883,8 @@ async function handleQuery (rawBody, res, identity) {
         _intakeOk = true
       } catch (intakeErr) {
         console.error('[advisor] Intake stream error:', intakeErr.message)
+        // Item 8.2 — a block is said, not swallowed into an empty first turn.
+        writeBlocked(res, intakeErr, query, conversationHistory)
       }
       // No success log here until 4.97 US8 — the intake was the first thing an advisor saw
       // and the only AI call in the product that left no trace when it worked.
@@ -3049,7 +3148,7 @@ async function handleQuery (rawBody, res, identity) {
           stream: true,
           stream_options: { include_usage: true },
           messages: _postMessages
-        }, { personal: true })
+        }, { personal: true, moderate: typedTexts(query, conversationHistory) })
         _postStream = streamPost
         for await (const chunk of streamPost) {
           if (chunk.usage) { _postUsage = chunk.usage }
@@ -3085,7 +3184,7 @@ async function handleQuery (rawBody, res, identity) {
         _postOk = true
       } catch (streamErr) {
         console.error('[advisor] Post-rec stream error:', streamErr.message)
-        if (!res.writableEnded) {
+        if (!writeBlocked(res, streamErr, query, conversationHistory) && !res.writableEnded) {
           try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
         }
       } finally {
@@ -3889,7 +3988,7 @@ async function handleQuery (rawBody, res, identity) {
         stream: true,
         stream_options: { include_usage: true },
         messages: _p3Messages
-      }, { personal: true })
+      }, { personal: true, moderate: typedTexts(query, conversationHistory) })
       _p3Stream = stream2
       for await (const chunk of stream2) {
         if (chunk.usage) { _p3Usage = chunk.usage }
@@ -3965,7 +4064,7 @@ async function handleQuery (rawBody, res, identity) {
     } catch (streamErr) {
       console.error('[advisor] Phase 3 stream error:', streamErr.message, '| type:', streamErr.constructor.name, '| status:', streamErr.status ?? 'none', '| code:', streamErr.code ?? 'none')
       if (streamErr.error) { console.error('[advisor] Phase 3 OpenAI error detail:', JSON.stringify(streamErr.error)) }
-      if (!res.writableEnded) {
+      if (!writeBlocked(res, streamErr, query, conversationHistory) && !res.writableEnded) {
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
       }
     } finally {
@@ -4203,11 +4302,13 @@ async function handleQuery (rawBody, res, identity) {
       stream: true,
       stream_options: { include_usage: true },
       messages: _mainMessages
-    }, { personal: true })
+    }, { personal: true, moderate: typedTexts(query, conversationHistory) })
   } catch (createErr) {
     console.error('[advisor] OpenAI stream create error:', createErr.message)
     if (!res.writableEnded) {
-      try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Could not reach AI service' }) + '\n\n') } catch (e) {}
+      if (!writeBlocked(res, createErr, query, conversationHistory)) {
+        try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Could not reach AI service' }) + '\n\n') } catch (e) {}
+      }
       res.end()
     }
     logAI(mode, model, _t0main, false, null, null)
@@ -4269,6 +4370,10 @@ async function handleQuery (rawBody, res, identity) {
 }
 
 // Exposed for unit testing (the middleware function itself is the default export above).
+module.exports.writeBlocked = writeBlocked
+module.exports.blockedAtTheDoor = blockedAtTheDoor
+module.exports._setTurnCheckClient = _setTurnCheckClient
+module.exports.correctTemplateHeadings = correctTemplateHeadings
 module.exports.buildDomainConfirmationMessage = buildDomainConfirmationMessage
 module.exports._isValidConfirmation = _isValidConfirmation
 module.exports.resolveDomainCorrection = resolveDomainCorrection

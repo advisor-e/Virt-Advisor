@@ -239,25 +239,26 @@ thing that matters. In his words: *"so therefore - this task will need to be rec
 - **Where each gate stands:** the NZ privacy assessment (IPP3A) closed 2026-09-18 on Mike's
   reasoned position; the consent wording is approved and pinned in
   [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md); and **OpenAI Zero Data
-  Retention is the one still open.** Mike sent the intake 2026-09-23
-  ([`../ZDR-INTAKE-EMAIL.md`](../ZDR-INTAKE-EMAIL.md)).
-- **Why parked and not done:** the feature genuinely cannot be used on a real client until ZDR is
-  granted, so marking it done would hide a live gate. And nothing here can advance it — the reply
-  of 2026-09-23 (§5.6 of
-  [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)) ends *"I'll keep you updated
-  on the review and the outstanding configuration-specific confirmation."* **Approval, amendment
-  and enablement are three separate steps and no turnaround is quoted.**
+  Retention** was approved 2026-09-24 (§5.7 of
+  [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)) with the amendment executed
+  2026-09-23 ([`../openai/ZDR-AMENDMENT-SIGNED-2026-09-23.md`](../openai/ZDR-AMENDMENT-SIGNED-2026-09-23.md)).
+  **The one step still open is OpenAI switching it on**, with no turnaround quoted.
+- **Why parked and not done:** the feature cannot be used on a real client until ZDR is switched
+  on, so marking it done would hide a live gate, and nothing here can advance it. Our own work
+  towards it is item **8.2** — the moderation the amendment requires — which stays live.
 - ✅ **What that reply DID settle, so nobody re-opens it:** the model-name question is closed and
   was never a problem — the dated `gpt-4o-mini-2024-07-18` came from the data-residency table, not
   ZDR, and **both endpoints are eligible with no requirement to pin a dated snapshot**, so this
   app's undated `gpt-4o-mini` and `gpt-4o-transcribe-diarize` stand as they are with **no code
   change**. And **New Zealand offshore processing is now OpenAI's own written position** rather
   than our reading of their table — *"your assessment should treat this as offshore processing"*.
-- 🔴 **THE TWO STANDING PROHIBITIONS SURVIVE PARKING.** Nobody may record ZDR as obtained, in
-  progress or likely; and **nobody may write that no human can access the content** — ZDR does not
-  exclude human access during processing or under a documented exception.
-- **What un-parks it:** OpenAI completing the review and confirming our configuration. That reply
-  goes in §5 as §5.7, verbatim, and the gate is re-assessed then — not before.
+- 🔴 **THE TWO STANDING PROHIBITIONS SURVIVE PARKING.** ZDR is **not in force** until the
+  Account Console shows it switched on for the Project (amendment clause 2) — nobody may record it
+  as in force before then; and **nobody may write that no human can access the content** — ZDR
+  does not exclude human access during processing or under a documented exception.
+- **What un-parks it — Mike, 2026-09-24:** the OpenAI console (Settings → Organization → Data
+  controls → Data Retention) showing Zero Data Retention switched on for the app's Project. Any
+  reply from OpenAI goes in §5 verbatim, and the gate is re-assessed then — not before.
 
 **4.21 · Correct the three proven faults in the property source workbook.** 🗑 **Deleted 2026-08-17
 by Mike, the same session it was filed.** In his own words: *"im not fussed about fixing the
@@ -351,6 +352,37 @@ locked in the prompt. Either is fine; deciding by accident is not.
 ---
 
 ## 2. Closed recently, with what proved it
+
+**8.2 — every AI request passes OpenAI's moderation check before it is sent.**
+✅ **Closed 2026-09-24 by Mike ("done")**, the day OpenAI approved Zero Data Retention and the
+amendment it requires was signed. Commits `b0918c5c` and `be6cfe8f`.
+
+- **Why it existed:** clause 4.3 of the signed amendment requires moderation on every request once
+  ZDR is used, and clause 6 lets OpenAI suspend all API access for a breach. Rule Z3 of
+  [`../OPENAI-ZDR-CONSTRAINTS.md`](../OPENAI-ZDR-CONSTRAINTS.md).
+- **Mike's rulings, all 2026-09-24:** only `sexual/minors`, `self-harm/instructions` and
+  `illicit/violent` block (measured first: ordinary metaphors such as *"attack the Auckland
+  market"* flag as violence); every other flag is logged without the words; an unreachable check
+  refuses the request; a block names the sentence, in his approved wording
+  ([`../MODERATION-WORDING.md`](../MODERATION-WORDING.md)); only what a person typed, said or
+  uploaded is checked; the advisor checks each turn as typed; Course Builder's scripted opening
+  questions are left as they are.
+- 🔴 **FOUND ONLY BY RUNNING THE REAL APP.** The first build checked every word of each request.
+  Live, one advisor reply sent **~21,800 moderation tokens against an account limit of 20,000 a
+  minute**, and every AI-written answer was refused — while all 13,504 tests passed, because they
+  fake OpenAI. After the fix a whole 30-step conversation sent **~480**. Nothing had been pushed.
+- **Proven:** 622 suites / 13,577 tests; `npm run build` succeeds; on the real screen a blocked
+  first message is named on that turn with no AI call made, and a metered run showed **none of the
+  AI requests carried the blocked phrase.** A guard test fails the build on any AI call that does
+  not name its person text (`moderate:`).
+- **Fixed on the way, each on his yes:** the Sales Blog sent OpenAI's raw error text to the browser;
+  the template-heading repair (`828ed2b2`) had been refused by the provider seam since it was
+  written and never once ran; the Strategy Planner's call gained `moderate: []`.
+- 🔴 **FOR THE LAPTOP:** once this reaches `master`, **every new AI call must pass `moderate:`** or
+  `openaiClient` refuses it and `tests/unit/moderation.test.js` fails.
+- **Not this item's to finish:** ZDR switched on in the OpenAI console (item 8.1, parked on it), and
+  Advisor-e confirming how sign-ins are protected (question 11 of
+  [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md)).
 
 **9.3 — the sharing tab said on and off at once with no pool secret.**
 ✅ **Fixed and closed 2026-09-23 on Mike's "proceed and fix it now"** — the first item of that

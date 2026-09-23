@@ -268,7 +268,7 @@ function withResult (record, reading, error, now) {
       updatedAt: at,
       status: 'failed',
       reading: null,
-      error: error ? { code: text(error.code, 40), message: text(error.message, 400) } : null
+      error: error ? Object.assign({ code: text(error.code, 40), message: text(error.message, 400) }, moderationOf(error)) : null
     })
   }
   return Object.assign({}, record, {
@@ -361,6 +361,18 @@ function toApproved (record, approvedBy, now) {
     classes: reading.classes,
     unresolved: reading.unresolved
   }, { expectCountry: record.country })
+}
+
+/**
+ * A moderation report on a failed reading (item 8.2), kept as kind and category only. The
+ * reader sends nothing but the app's own prompt text, so there is never a sentence to keep.
+ * @param {object} error
+ * @returns {{moderation?: {kind: string, category: string}}}
+ */
+function moderationOf (error) {
+  const m = error && error.moderation
+  if (!m || typeof m.kind !== 'string' || typeof m.category !== 'string') { return {} }
+  return { moderation: { kind: text(m.kind, 20), category: text(m.category, 40) } }
 }
 
 module.exports = {

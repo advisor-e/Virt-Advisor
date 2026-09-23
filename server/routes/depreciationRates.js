@@ -56,6 +56,7 @@ const path = require('path')
 const { formidable } = require('formidable')
 const overlay = require('../utils/firmOverlay')
 const { sendError } = require('../utils/sendError')
+const { sendBlocked } = require('../utils/moderationReport')
 const { devFallbackAllowed } = require('../utils/dbFailure')
 const { parentScopeOf } = require('../utils/tierChain')
 const {
@@ -556,6 +557,8 @@ async function loadDocument (req, res) {
   // manager's PDF for an empty account. It comes back as a 502 with its own sentence instead.
   const RECORDED = ['UNREADABLE', 'MALFORMED', 'NOTHING_READ']
   if (!result.ok && !RECORDED.includes(result.code)) {
+    // Item 8.2 — only the app's own prompt text is checked (a PDF cannot be), so it is ours.
+    if (result.blocked && sendBlocked(res, result.blocked, {})) { return }
     const status = result.code === 'COUNTRY_MISMATCH' || result.code === 'INVALID_COUNTRY' ? 400 : 502
     return sendError(res, status, result.code, result.message)
   }

@@ -607,6 +607,20 @@ describe('loading a document', () => {
     expect(savedFor(PROPOSALS_KEY)).toBeNull()
   })
 
+  // Item 8.2 — a moderation block records nothing either, and says so with an app report.
+  test('a moderation block is a 422 app report, and records nothing', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    uploadOf('%PDF-1.4 ...')
+    jest.spyOn(extract, 'readDocument').mockResolvedValue({
+      ok: false, code: 'READ_FAILED', message: 'x', reading: null, blocked: blockedError({ category: 'illicit/violent', sentence: 'x' })
+    })
+    const res = makeRes()
+    await routes.loadDocument(makeReq(), res)
+    expect(res._status).toBe(422)
+    expect(errorBody(res).error.moderation).toEqual({ kind: 'app', category: 'illicit/violent' })
+    expect(savedFor(PROPOSALS_KEY)).toBeNull()
+  })
+
   test('the read is asked for THIS scope, never one from the body', async () => {
     uploadOf('%PDF-1.4 ...', { country: 'NZ', firmId: 'other-firm' })
     const spy = jest.spyOn(extract, 'readDocument')

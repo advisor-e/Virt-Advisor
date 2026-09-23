@@ -136,7 +136,9 @@ async function anonymiseCaseContent (input, client) {
       { role: 'system', content: SYSTEM },
       { role: 'user', content: buildUserPrompt(summary, messages) }
     ]
-  }, { personal: true })
+    // Item 8.2 — what the advisor typed in the saved conversation; the AI's own turns are not a
+    // person's input.
+  }, { personal: true, moderate: messages.filter(m => m && m.role === 'user' && typeof m.content === 'string').map(m => m.content) })
 
   const rawContent = response && response.choices && response.choices[0] &&
     response.choices[0].message && response.choices[0].message.content

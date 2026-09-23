@@ -142,6 +142,7 @@
 
 <script>
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import moderationMessage from '~/mixins/moderationMessage'
 const { paragraphsOf, tokensOf, hostOf } = require('~/utils/researchText')
 const { intlLocaleFor } = require('~/utils/dateLocale')
 
@@ -200,6 +201,8 @@ export default {
   name: 'EconomicAnalysisStep',
 
   components: { ProvenanceBadge },
+
+  mixins: [moderationMessage],
 
   props: {
     /** Verified login pass (JWT); all three research routes are firmAuth-guarded. */
@@ -449,7 +452,8 @@ export default {
         if (!res.ok) {
           this.stopPolling()
           this.state = 'failed'
-          this.error = (json.error && json.error.message) ||
+          this.error = this.moderationMessageFrom(json.error) ||
+            (json.error && json.error.message) ||
             this.$t('report.threeWayForecast.economicAnalysis.failedGeneric')
           return
         }
@@ -471,7 +475,8 @@ export default {
         } else if (json.state === 'failed') {
           this.stopPolling()
           this.state = 'failed'
-          this.error = (json.error && json.error.message) ||
+          this.error = this.moderationMessageFrom(json.error) ||
+            (json.error && json.error.message) ||
             this.$t('report.threeWayForecast.economicAnalysis.failedGeneric')
         }
       } catch (e) {

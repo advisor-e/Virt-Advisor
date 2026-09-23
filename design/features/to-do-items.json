@@ -85,7 +85,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "A page often holds several templates, so 220 client tools sit on 205 pages. One shared profile per page is correct, but the registry keeps only the first template on each page, hiding the other 15 from anything reading it.",
+      "why": "A page often holds several templates, so 220 client tools sit on 205 pages. One shared profile per page is correct, but the registry keeps only the last template on each page, hiding the other 15 from anything reading it.",
       "risk": "Nothing scores wrongly and no advice is withheld: the resolver filters the full 220-row array and never keys by page, so every tool competes. The loss is visibility - a profile screen, an audit or a count reading the registry sees 205 titles and cannot name the 15 tools sharing those pages, so a mentor editing a page's profile is not told which tools it governs.",
       "askedBy": {
         "who": "Mike",
@@ -457,6 +457,48 @@
       "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
       "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 4 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 32. The Brief calls it deliberate, true of the data but never true that the work was done. Five extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Insights Summary, Curve and Cycle Notes.",
       "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
+    },
+    {
+      "ref": "12.1",
+      "name": "Course Builder shows about 86 pieces of English that bypass the translation file",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Course Builder is an advisor screen, and about 53 lines of its template and 33 messages in its code are hardcoded English, so an advisor reading in any of the other 27 languages sees it half translated.",
+      "risk": "An advisor working in another language meets English headings, buttons and error messages mid-course - Your saved courses, Shared by your team, Sorry, something went wrong. It reads as unfinished software. Nothing records it as a choice: unlike the manager hub folder, there is no note saying the English is deliberate, so it is simply the screen predating the translation rule.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-24 - found while wiring item 8.2's wording onto Course Builder. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "components/CourseBuilder.vue - roughly 53 template lines and 33 script strings; locales/en.json, which gains a courseBuilder block; nothing on the backend. The wording already exists on screen, so no new words need Mike - only moving them.",
+      "note": "COUNTED 2026-09-24, NOT BUILT. The file dates from 4 May, before the translation rule, and has only 4 $t calls. Move each string into en.json unchanged, then look at the screen in a second language to prove it. Do NOT reword anything while moving it - the words are what advisors already see. The manager hub folder's English is a separate, recorded choice and not part of this.",
+      "comment": "2026-09-24 - filed on Mike's yes during the 8.2 session, rather than fixed inside it, because it is about 86 strings rather than a line."
+    },
+    {
+      "ref": "10.1",
+      "name": "Seven manager screens can't be translated",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Seven hub tabs type their words straight into the screen instead of the central English word list, so a manager reading in any other language sees these tabs in English.",
+      "risk": "Nothing is wrong for anyone reading in English, which is every user today. Once a firm's managers work in another language, these seven tabs stay English inside an otherwise translated hub and read as unfinished. The code's own note called converting them one job for later, and until today that job was on no list, so nothing guaranteed it would happen.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-24 - found while wiring item 8.2's wording onto these tabs. The code says it was raised with Mike on 2026-09-09; no answer was recorded. Mike said yes to filing it."
+      },
+      "touches": "components/firm/FirmForecastTrendThresholds.vue, FirmSellDownLadder.vue, FirmPropertyTaxRules.vue, FirmMeetingObservations.vue, FirmDepreciationRates.vue, CountryRateSchedules.vue and FirmCompliance.vue - none has a single $t call; locales/en.json, which gains their blocks; and the note atop FirmDepreciationRates.vue and CountryRateSchedules.vue recording the deviation, which goes once it is done.",
+      "note": "ONE JOB, as the code's own note proposes - not seven. Move every string into en.json unchanged, then look at the tabs in a second language to prove it. Do NOT reword while moving: the words are what managers already see. FirmManagerHub.vue's own headings and tab labels carry the same recorded choice and belong in the same job. Course Builder is separate, item 12.1.",
+      "comment": "2026-09-24 - filed on Mike's yes at shutdown, after he asked for the problem in plain English."
     }
   ]
 }

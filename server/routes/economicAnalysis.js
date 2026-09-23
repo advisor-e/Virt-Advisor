@@ -40,6 +40,7 @@ const { createOpenAIClient, failureFromEvent } = require('../utils/openaiClient'
 const { logSuffixNoFallback } = require('../utils/aiProvider')
 const { fenceUntrusted } = require('../utils/promptSafety')
 const { sendError } = require('../utils/sendError')
+const { moderationReport } = require('../utils/moderationReport')
 const { assemblePrompt, loadResolvedAiPromptOverrides, BASE_PROMPTS } = require('../utils/aiPrompts')
 const { loadFirmConfig } = require('../utils/firmOverlay')
 const { validateResearch, extractText } = require('../report/economicAnalysis/researchResult')
@@ -323,16 +324,17 @@ function readEvent (run, event) {
  *
  * @param {object} run
  * @param {string} promptText
+ * @param {string} [brief] - what the advisor typed, so a moderation block can quote it back
  * @returns {Promise<void>}
  */
-async function runResearch (run, promptText) {
+async function runResearch (run, promptText, brief) {
   const startedAt = Date.now()
 
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
       { model: MODEL, input: promptText, tools: TOOLS, tool_choice: TOOL_CHOICE, stream: true },
-      { timeout: IDLE_TIMEOUT_MS }
+      { timeout: IDLE_TIMEOUT_MS, moderate: [brief || ''] } // the advisor's brief (8.2)
     )
 
     let completed = null
@@ -384,8 +386,11 @@ async function runResearch (run, promptText) {
   } catch (err) {
     logCall(run.runId, startedAt, false, null, run.searchCount)
     console.error('[economic-analysis] run ' + run.runId + ' failed:', err.message)
+    // Item 8.2 — a moderation block is reported against what the advisor typed in the brief.
+    const report = moderationReport(err, { typed: [brief] })
     runsStore.failRun(run, 'RESEARCH_FAILED',
-      'The research could not be completed. Nothing has been saved — try again in a moment.')
+      'The research could not be completed. Nothing has been saved — try again in a moment.',
+      report ? { moderation: report } : undefined)
   }
 }
 
@@ -453,7 +458,7 @@ async function startResearch (req, res) {
 
   // Deliberately not awaited: the reply goes back now and the screen polls. `runResearch`
   // swallows its own errors onto the run for exactly this reason.
-  runResearch(run, promptText)
+  runResearch(run, promptText, brief)
 
   res.send(202, { started: true, runId: run.runId, runNumber: run.runNumber })
 }

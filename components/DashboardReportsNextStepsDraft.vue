@@ -60,9 +60,12 @@
  * fields; `ready` — `{ approval, recorded }`, the server's record after a tick.
  */
 import { intlLocaleFor } from '~/utils/dateLocale'
+import moderationMessage from '~/mixins/moderationMessage'
 
 export default {
   name: 'DashboardReportsNextStepsDraft',
+
+  mixins: [moderationMessage],
 
   props: {
     /** Verified login pass; all three routes are firmAuth-guarded. */
@@ -191,7 +194,8 @@ export default {
         } else if (json.state === 'failed') {
           this.stopPolling()
           this.busy = false
-          this.error = (json.error && json.error.message) || this.$t('report.dashboardReports.draft.failedGeneric')
+          this.error = this.moderationMessageFrom(json.error) ||
+            (json.error && json.error.message) || this.$t('report.dashboardReports.draft.failedGeneric')
         }
       } catch (e) {
         // A single failed poll is not a failed draft — the run continues on the server.

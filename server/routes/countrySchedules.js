@@ -46,6 +46,7 @@ const schedules = require('../utils/countrySchedules')
 const proposals = require('../utils/countryScheduleProposals')
 const reader = require('../utils/countryScheduleRead')
 const aiLoadBudget = require('../utils/aiLoadBudget')
+const { moderationReport } = require('../utils/moderationReport')
 
 /** Most classes one search may return. The picker shows a handful; the table is 2,800 rows. */
 const SEARCH_LIMIT = 50
@@ -244,7 +245,12 @@ async function _runRead (opts) {
     await chain
     await persist(result.ok
       ? proposals.withResult(record, result.reading, null)
-      : proposals.withResult(record, null, { code: result.code, message: result.message }))
+      : proposals.withResult(record, null, {
+        code: result.code,
+        message: result.message,
+        // Item 8.2 — only the app's prompt text is checked (a PDF cannot be), so it is ours.
+        moderation: result.blocked ? moderationReport(result.blocked, {}) : undefined
+      }))
   } catch (err) {
     console.error('[country-schedules] read failed outright:', err.message)
     try {

@@ -41,6 +41,7 @@ const db = require('../utils/db')
 const drive = require('../services/driveService')
 const { STORAGE, DRIVE } = require('../../config/integration')
 const { sendError } = require('../utils/sendError')
+const { sendBlocked } = require('../utils/moderationReport')
 const { devFallbackAllowed } = require('../utils/dbFailure')
 const { tierOfScope, isWithinScope } = require('../utils/tierChain')
 const { listFirms } = require('../utils/firmsDirectory')
@@ -788,6 +789,8 @@ async function runCheck (req, res) {
     })
 
     if (!outcome.ok) {
+      // Item 8.2 — the prompt is file names and published points: the app's material.
+      if (outcome.blocked && sendBlocked(res, outcome.blocked, {})) { return }
       return sendError(res, 502, outcome.code || 'CHECK_FAILED',
         'The check could not be completed. Your documents are untouched — try again shortly.')
     }

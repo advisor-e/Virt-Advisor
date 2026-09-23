@@ -3,6 +3,7 @@
 const { sendError } = require('../utils/sendError')
 const store = require('../utils/salesBlogStore')
 const engine = require('../utils/salesBlogEngine')
+const { moderationReport } = require('../utils/moderationReport')
 
 /**
  * /api/sales/blog — the advisor's blog tool (item 17 stage 5).
@@ -431,16 +432,62 @@ async function removeReference (req, res) {
 // ── GENERATE ─────────────────────────────────────────────────────────────────
 
 /**
+ * The engine's result as the browser may see it.
+ *
+ * 🔴 THE REASON FOR A FALLBACK IS LOGGED, NEVER SENT. The engine reports why it fell back to
+ * the template in `error`, and that text can be OpenAI's own reply — up to 500 characters of
+ * it, account and billing details included. Until 2026-09-24 it went to the browser in full,
+ * unseen on screen but readable by anyone; CLAUDE.md's error rule allows the browser only a
+ * safe message. `source: 'template'` is what the screen reads, and it still arrives.
+ *
+ * A moderation block (item 8.2) still sends the outline, and adds the report that names which
+ * sentence stopped the AI — built from what the advisor typed, never from the engine's error.
+ *
+ * @param {string} label - which route, for the log line
+ * @param {{text: string, source: string, error?: string, blocked?: Error}} result - from the engine
+ * @param {object} src - the request body, whose text fields are what the advisor typed
+ * @returns {{success: true, text: string, source: string, moderation?: object}}
+ */
+function forBrowser (label, result, src) {
+  const out = Object.assign({}, result)
+  const blocked = out.blocked
+  delete out.blocked
+  if (out.error) {
+    console.error('[salesBlog] ' + label + ' fell back to the template:', out.error)
+    delete out.error
+  }
+  if (blocked) {
+    out.moderation = moderationReport(blocked, { typed: stringsIn(src) })
+  }
+  return Object.assign({ success: true }, out)
+}
+
+/**
+ * Every string in a request body, however nested — the brief's points arrive as a list of
+ * `{ title, details[] }`, and each is something the advisor typed.
+ * @param {*} v
+ * @param {string[]} [out]
+ * @returns {string[]}
+ */
+function stringsIn (v, out) {
+  const acc = out || []
+  if (typeof v === 'string') { acc.push(v) } else if (v && typeof v === 'object') {
+    Object.keys(v).forEach(k => stringsIn(v[k], acc))
+  }
+  return acc
+}
+
+/**
  * POST /api/sales/blog/generate/draft — a brief becomes a markdown outline.
  *
  * ⚠ ALWAYS 200 ON A MODEL FAILURE. The engine falls back to a template built
- * from the advisor's own brief, and the reply says `source: 'template'` with the
- * reason. A 500 here would throw away a usable outline the advisor can still
- * edit. A 400 is still a 400 — a brief that is missing its topic cannot produce
- * anything at all.
+ * from the advisor's own brief, and the reply says `source: 'template'`; the
+ * reason is logged on the server (see `forBrowser`). A 500 here would throw away
+ * a usable outline the advisor can still edit. A 400 is still a 400 — a brief
+ * that is missing its topic cannot produce anything at all.
  *
  * @route POST /api/sales/blog/generate/draft
- * @returns {200} { success: true, text, source: 'ai'|'template', error? }
+ * @returns {200} { success: true, text, source: 'ai'|'template' }
  * @returns {400} MISSING_FIELD · INVALID_PRINCIPLES
  * @returns {403} NO_ADVISOR_IDENTITY · {500} AI_ERROR
  */
@@ -473,7 +520,7 @@ async function generateDraft (req, res) {
       principles: principles.value,
       references: src.references
     })
-    res.send(200, Object.assign({ success: true }, result))
+    res.send(200, forBrowser('generateDraft', result, src))
   } catch (err) {
     // The engine catches its own failures; reaching here means something else
     // broke, so it is reported rather than disguised as a template result.
@@ -487,7 +534,7 @@ async function generateDraft (req, res) {
  * Same fallback behaviour as the draft route above.
  *
  * @route POST /api/sales/blog/generate/final
- * @returns {200} { success: true, text, source: 'ai'|'template', error? }
+ * @returns {200} { success: true, text, source: 'ai'|'template' }
  * @returns {400} MISSING_FIELD · INVALID_TEXT
  * @returns {403} NO_ADVISOR_IDENTITY · {500} AI_ERROR
  */
@@ -514,7 +561,7 @@ async function generateFinal (req, res) {
       wordCount: src.wordCount,
       aiInstructions: src.aiInstructions
     })
-    res.send(200, Object.assign({ success: true }, result))
+    res.send(200, forBrowser('generateFinal', result, src))
   } catch (err) {
     console.error('[salesBlog] generateFinal failed:', err.message)
     sendError(res, 500, 'AI_ERROR', 'Could not generate the article')

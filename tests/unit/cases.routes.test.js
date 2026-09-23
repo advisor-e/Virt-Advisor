@@ -700,6 +700,22 @@ describe('anonymiseCasePreview', () => {
     expect(JSON.stringify(res._body)).not.toContain('429')
   })
 
+  // Item 8.2 — a moderation block is reported, and because the saved case is not something the
+  // manager typed, no sentence of it travels back: the RAW content stays on the server.
+  test('a moderation block answers 422 with an app report and no client content', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    db.execute.mockResolvedValueOnce([[sharedRow]])
+    anonymiseCaseContent.mockRejectedValueOnce(blockedError({ category: 'illicit/violent', sentence: RAW_TRANSCRIPT[0].content }))
+    const res = makeMockRes()
+
+    await anonymiseCasePreview(makeReq({ params: { id: 'case-1' } }), res)
+
+    expect(res._status).toBe(422)
+    expect(res._body.error.code).toBe('AI_MODERATION_BLOCKED')
+    expect(res._body.error.moderation).toEqual({ kind: 'app', category: 'illicit/violent' })
+    expect(JSON.stringify(res._body)).not.toContain('Vanoss')
+  })
+
   // In production a failed read must surface, not be papered over. Outside production
   // caseStore deliberately falls back to the dev file (see the listCases DB-error test
   // above), so NODE_ENV must be pinned here or this asserts the fallback instead.

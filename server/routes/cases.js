@@ -2,6 +2,7 @@
 
 const { appendFirmCoachingEntry } = require('../utils/coaching')
 const { sendError } = require('../utils/sendError')
+const { sendBlocked } = require('../utils/moderationReport')
 const caseStore = require('../utils/caseStore')
 const clientStore = require('../utils/clientStore')
 const { anonymiseCaseContent } = require('../utils/anonymiseCase')
@@ -279,6 +280,8 @@ async function anonymiseCasePreview (req, res) {
     res.send(200, { success: true, anonymised: { summary: anon.summary, transcript: anon.transcript } })
   } catch (err) {
     console.error('[cases] anonymiseCasePreview failed:', err.message)
+    // Item 8.2 — the saved case is not anything the manager typed, so it is the app's material.
+    if (sendBlocked(res, err, {})) { return }
     sendError(res, 502, 'ANONYMISE_FAILED', 'Could not produce an anonymised preview')
   }
 }

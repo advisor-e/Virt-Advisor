@@ -277,7 +277,7 @@ async function makeReading (payload) {
       max_tokens: READING_MAX_TOKENS,
       temperature: 0,
       messages
-    }, { timeout: READING_TIMEOUT_MS, personal: false })
+    }, { timeout: READING_TIMEOUT_MS, personal: false, moderate: [] }) // the app's own figures (8.2)
     _reply = response
     const content = response && response.choices && response.choices[0] && response.choices[0].message
       ? response.choices[0].message.content
@@ -294,7 +294,8 @@ async function makeReading (payload) {
   } catch (err) {
     log(false, null)
     console.error('[hub-reading] failed:', err.message)
-    return { ok: false, reading: null }
+    // A moderation block (item 8.2) is handed up so the route can report it.
+    return err && err.code === 'AI_MODERATION_BLOCKED' ? { ok: false, reading: null, blocked: err } : { ok: false, reading: null }
   }
 }
 

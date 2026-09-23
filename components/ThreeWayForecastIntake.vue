@@ -1394,6 +1394,7 @@ import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import GlossaryTerm from '~/components/base/GlossaryTerm.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import moderationMessage from '~/mixins/moderationMessage'
 // The quick-fire option's arithmetic (item 4.71). Its own module because slice 2's
 // three-year screen needs years 2 and 3, and two copies of a compounding rule would drift
 // into two different forecasts from one client.
@@ -1584,7 +1585,7 @@ export default {
 
   components: { ProvenanceBadge, VolatilityDial, GlossaryTerm },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, moderationMessage],
 
   props: {
     /** Verified login pass (JWT); the intake route is firmAuth-guarded. */
@@ -3020,7 +3021,8 @@ export default {
           // A refusal the backend explains — not a PDF, too large, a country mismatch. Its own
           // message is shown rather than a generic one, because every one of them tells the
           // advisor something they can act on.
-          this.docError = (json && json.error && json.error.message) ||
+          this.docError = this.moderationMessageFrom(json) ||
+            (json && json.error && json.error.message) ||
             this.$t('report.threeWayForecast.confirm.docFailed')
           return
         }

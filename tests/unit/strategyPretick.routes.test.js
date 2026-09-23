@@ -220,7 +220,8 @@ describe('what reaches the model', () => {
     const create = modelReplying(JSON.stringify({ ticks: [] }))
     await routes.postSuggest(req({ body: { clientId: CLIENT } }), makeRes())
 
-    expect(create.mock.calls[0][1]).toEqual({ personal: false })
+    // moderate: [] — saved case summaries, nothing typed here (item 8.2, 2026-09-24).
+    expect(create.mock.calls[0][1]).toEqual({ personal: false, moderate: [] })
   })
 })
 

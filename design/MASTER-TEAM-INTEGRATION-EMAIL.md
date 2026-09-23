@@ -1,11 +1,11 @@
-# The ten things we need the master coding team to hook up
+# The eleven things we need the master coding team to hook up
 
 > 🔴 **THIS IS NOT AN EMAIL WAITING TO BE SENT. IT IS THE WORKING DETAIL BEHIND THE RELEASE
 > NOTES — Mike's ruling, 2026-09-23.** In his words: *"i dont want it as an external -
 > additional, email. it needs to be part of the handover notes - made clear to the team -
 > during the next release cut."*
 >
-> **These ten questions go to the team in the "What we need from you" section of
+> **These eleven questions go to the team in the "What we need from you" section of
 > `design/RELEASE-NOTES-v<version>.md`, at every release cut** — step 6 of Integration in
 > [`WORKING-AGREEMENT.md`](WORKING-AGREEMENT.md). This file holds the technical detail behind
 > each one; the release notes are how they actually reach anybody. **Do not propose sending
@@ -18,7 +18,7 @@
 > and our 43 SQL seam points are finished, waiting on an answer nobody had been asked for.*
 >
 > **Everything below is already provisioned on our side.** There is one file —
-> [`config/integration.js`](../config/integration.js) — and the answer to seven of these nine questions
+> [`config/integration.js`](../config/integration.js) — and the answer to seven of these eleven questions
 > is a value typed into it. **No code changes, no rebuild.** That is deliberate: the file's own
 > header says it is *"the ONLY file the senior integration team needs to edit."*
 >
@@ -44,12 +44,12 @@
 
 ## The email
 
-**Subject:** AI Coach module — nine integration answers we need before UAT
+**Subject:** AI Coach module — eleven integration answers we need before UAT
 
 Hi,
 
 The AI Coach module is tagged at `v0.13.0` and ready to load. Everything below is already built
-and waiting — seven of the nine answers are values we type into one config file, with no code
+and waiting — seven of the eleven answers are values we type into one config file, with no code
 change on either side (1–4, 6, 8 and 9); the other two are one call and one lookup from your side.
 
 **1 · The JWT claim names.** We read the signed-in user straight from your token and never look
@@ -145,6 +145,13 @@ signs in successfully and sees nothing, which looks like a broken account rather
 run our schema yourself, or should we hand you the SQL? Our tables are additive and do not touch
 anything of yours.
 
+**11 · How sign-ins to Advisor-e are protected.** Our AI provider's Zero Data Retention terms
+(clause 4.2) require everyone whose words reach the AI to sign in with multi-factor
+authentication, single sign-on, or a user ID and password **whose logins are recorded**. Sign-in
+is yours, so please tell us which of the three applies to advisers, managers and clients signing
+into Advisor-e — and if it is the third, confirm that login events are logged. This is an answer
+only; nothing is typed into our config.
+
 Thanks —
 Mike
 
@@ -152,9 +159,10 @@ Mike
 
 ## Notes for us — not part of the email
 
-**Why these nine and nothing else.** Questions 1–5, 8 and 9 are exactly the `TODO` lines and the
+**Why these eleven and nothing else.** Questions 1–5, 8 and 9 are exactly the `TODO` lines and the
 fail-closed empty strings in [`config/integration.js`](../config/integration.js). Everything else
-in that file already has a working value.
+in that file already has a working value. Questions 6, 7 and 10 are the seams outside that file,
+and 11 is the one requirement of the OpenAI ZDR amendment that only Advisor-e can answer.
 
 **What each answer unblocks, so the reply can be actioned the same day:**
 
@@ -170,6 +178,7 @@ in that file already has a working value.
 | Firm logo + colour (8) | to-do item 16 — the white-label mark on a client's document | type the two column names into `FIRM_BRAND`; `firmBrand()` in `server/utils/firmsDirectory.js` selects them and every drawing brands itself |
 | Client login (9) | a business entity reading its own reports | `businessEntityRole`, `businessEntityIdClaim`; `firmAuth.js` already refuses a client token on every advisor route by name |
 | DB credentials (10) | to-do §3.1 — every write in the app | the `DB` block |
+| Sign-in protection (11) | relying on Zero Data Retention (amendment clause 4.2; rule Z5 of [`OPENAI-ZDR-CONSTRAINTS.md`](OPENAI-ZDR-CONSTRAINTS.md)) | nothing typed — record the answer against Z5 |
 
 **The fail-closed design is worth defending if they ask why the roles are blank.** An empty role
 string matches nothing, so no token can resolve to a tier that does not exist. That is not

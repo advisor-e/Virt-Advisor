@@ -595,4 +595,30 @@ describe('when the SERVICE refuses rather than the document', () => {
     const out = await read()
     expect(out.code).toBe('SERVICE_REFUSED')
   })
+
+  // Item 8.2 — a moderation block would block every pass identically, so it stops the read like
+  // a refusal does, is never retried, and carries the block up to be reported.
+  it('a moderation block partway through stops the read, unretried, and carries the block', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const blocked = blockedError({ category: 'illicit/violent', sentence: 'x' })
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    let calls = 0
+    rd._setClientFactory(() => ({
+      responses: {
+        create: () => {
+          calls++
+          if (calls > 1) { return Promise.reject(blocked) }
+          return (async function * () {
+            yield { type: 'response.completed', response: { output_text: JSON.stringify(survey({ totalPages: 40, tableRanges: [{ from: 1, to: 40 }] })) } }
+          })()
+        }
+      }
+    }))
+
+    const out = await read()
+    expect(out.code).toBe('MODERATION_BLOCKED')
+    expect(out.blocked).toBe(blocked)
+    expect(calls).toBe(2)
+    expect(out.reading).toBeNull()
+  })
 })
