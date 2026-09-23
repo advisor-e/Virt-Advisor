@@ -45,9 +45,13 @@ not a broken link. Making it clickable was offered, proved, and refused by Mike 
 confident click into a dead page in front of a client is worse than visible text that fails
 noticeably.*
 
-⚠ **The revert restored `CLAUDE.md`'s debugging command 2 to a `search_content` filename
-that is not in the repo, so that command crashes.** Pre-existing, unrelated to 7.13, left as
-it was rather than smuggled through a revert. Unfixed and unfiled — Mike's call.
+✅ **`CLAUDE.md`'s debugging command 2 is fixed.** The revert had restored it to a
+`search_content` filename that is not in the repo, so the one command that reads the master
+library's own row crashed. It now finds the newest export by pattern through
+`server/utils/masterExport` — whose header says it exists *"precisely to retire those
+hardcoded names"* — and prints a plain line instead of throwing on a clone where the export
+is gitignored. Run and proved before committing. ⚠ A bare `return` is illegal in `node -e`;
+the committed form is if/else.
 
 ### Closed and filed
 
