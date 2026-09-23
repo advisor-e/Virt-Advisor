@@ -127,8 +127,26 @@ describe('the Handbook', () => {
         ;(page.supports || []).forEach(doc => carried.add(doc.file))
       })
 
+      // 🔴 TRACKED FILES ONLY, NOT WHATEVER IS ON THIS DISK. `readdirSync` sees gitignored
+      // output too, so this failed on the desktop and passed on the laptop from the SAME
+      // commit — the difference being a 72KB scenario-lab artefact one machine had run and
+      // the other had not (`design/SCENARIO-LAB-REPORT-partial.md`, .gitignore line 279).
+      // The Brief names it once, in backticks, in a sentence explaining that it is
+      // deliberately gitignored — and the guard read that as a citation.
+      //
+      // ⚠ THIS DOES NOT RELAX THE RULE, and the line below it still says so. The Handbook is
+      // built from `origin/master`, so a file that is not in the repository can never be a
+      // page or a support — demanding one be reachable asks for something impossible, and a
+      // guard that fails on stray local files is one people learn to ignore.
+      const tracked = new Set(
+        execFileSync('git', ['ls-files', 'design/*.md'], { encoding: 'utf8', cwd: ROOT })
+          .split('\n')
+          .map(line => path.basename(line.trim()))
+          .filter(Boolean)
+      )
+
       const designDocs = fs.readdirSync(designDir)
-        .filter(name => name.endsWith('.md') && !OUTSIDE.test(name))
+        .filter(name => name.endsWith('.md') && !OUTSIDE.test(name) && tracked.has(name))
 
       const briefText = fs.readdirSync(featuresDir)
         .filter(name => name.endsWith('.md'))
