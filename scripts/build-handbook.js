@@ -283,12 +283,35 @@ function parseIndex (markdown) {
     const numbered = at > 0 && cells[0].replace(/[*`\s]/g, '').match(/^(\d+)$/)
     const fromDesign = Boolean(link[2])
     const name = link[3]
+
+    // 🔴 A FEATURE'S DESIGN NOTES BELONG ON THE FEATURE'S PAGE — Mike, 2026-09-23:
+    // *"all design and task notes relating to any specific feature is ONLY located on
+    // that page so you never have to read tasks, designs or notes that relate to a
+    // different feature"*. Any further `../FILE.md` link in the row is that page's
+    // supporting document, and is rendered behind its own gate on this page. It is NOT
+    // a page of its own: `PAGE-NUMBERS.md` says a page is a SUBJECT, and a note about
+    // the Strategy Planner is not a new subject.
+    //
+    // Before this, such a link had no destination inside any page and rendered as a
+    // `.filelink` — the words with nothing behind them. 69 of the 80 design documents
+    // the Briefs point at were in that state, including the planning census, which is
+    // how a session read a Brief's citation of it and never found the document.
+    const supports = []
+    cells.slice(at + 1).forEach((cell) => {
+      const re = /\[([^\]]+)\]\(\.\.\/([A-Za-z0-9._-]+)\.md[^)]*\)/gi
+      let m
+      while ((m = re.exec(cell)) !== null) {
+        supports.push({ title: m[1].replace(/[*`]/g, '').trim(), file: m[2] + '.md' })
+      }
+    })
+
     current.items.push({
       slug: fromDesign ? designSlug(name) : name,
       title,
       number: numbered ? Number(numbered[1]) : null,
       file: name + '.md',
-      source: fromDesign ? 'design' : 'features'
+      source: fromDesign ? 'design' : 'features',
+      supports
     })
   })
 
@@ -504,6 +527,18 @@ function renderPage (page, read, pages) {
       '</div></details>'
   }
 
+  // The feature's own design and task notes, each behind its own gate, in the order the
+  // index lists them. They are ON this page and on no other — which is the whole point:
+  // a reader of the Strategy Planner never scrolls past Meeting Review's notes.
+  ;(page.supports || []).forEach((doc) => {
+    out += '<details class="gate support"><summary>' + escapeHtml(doc.title) + '</summary>' +
+      '<p class="gate-hint">A design note for this feature. Read the page above first — ' +
+      'if this and the page above disagree, the page above wins.</p>' +
+      '<div class="prose history">' +
+      renderMarkdown(read({ slug: designSlug(doc.file.replace(/\.md$/, '')), source: 'design', file: doc.file }), 'design', pages) +
+      '</div></details>'
+  })
+
   return out + '</article>'
 }
 
@@ -565,6 +600,17 @@ function build (outPath, options) {
     designPages.set(item.file, item.slug)
   }))
 
+  // A supporting document has no page of its own — it lives on the feature it belongs
+  // to — so every `../FILE.md` link anywhere in the Handbook resolves to THAT page.
+  // Without this the link would still be a dead `.filelink` even though the document is
+  // now rendered, which is the fault this change exists to end.
+  groups.forEach(group => group.items.forEach((item) => {
+    (item.supports || []).forEach((doc) => {
+      if (designPages.has(doc.file)) { return } // already a page in its own right
+      designPages.set(doc.file, item.source === 'design' ? designSlug(item.file.replace(/\.md$/, '')) : item.slug)
+    })
+  }))
+
   // Render each page once, under the first group that lists it.
   const pages = []
   const rendered = new Set()
@@ -576,7 +622,10 @@ function build (outPath, options) {
     if (companion) rendered.add(companion)
     pages.push({
       slug: item.slug, title: item.title, number: item.number, group: group.name, companion,
-      source: item.source, file: item.file
+      source: item.source, file: item.file,
+      // A design/ document listed as a page of its own carries no supports; only a
+      // Brief gathers a feature's notes onto itself.
+      supports: item.source === 'design' ? [] : (item.supports || [])
     })
   }))
 

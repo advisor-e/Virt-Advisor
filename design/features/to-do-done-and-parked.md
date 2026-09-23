@@ -202,6 +202,33 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.6 — eight concepts named a response form the app could not find.**
+✅ Closed 2026-09-23. **All twenty pairings resolve — 0 failures**, run through
+`resolveTemplate` in [`server/utils/strategyCaptureForms.js`](../../server/utils/strategyCaptureForms.js),
+which is the function the app itself uses.
+
+**Both halves were already fixed when the item was re-read.** The four "never supplied" workbooks —
+Branding, Customer Loyalty, Pricing, Packaging — were found on **2026-09-22** on Mike's own word,
+*"the content is right there and the forms are on the same page"*: pages 34, 36, 38 and 40 of the
+Sales & Marketing deck, **29 questions the app had been claiming did not exist**. The
+`TEMPLATES_NOT_SUPPLIED` list was **deleted rather than emptied**, so it cannot be refilled. The
+other four are name mismatches handled deliberately by `TEMPLATE_ALIASES` — both names are Mike's,
+so the resolver reconciles them instead of rewriting his material.
+
+🔴 **THE ITEM'S NUMBERS WERE CHECKED BY STRING COMPARISON AGAINST ONE DATA FILE. THERE ARE TWO,
+AND A RESOLVER BETWEEN THEM.** `strategy-capture-tables.json` holds the workbook forms and
+`strategy-deck-capture-tables.json` the deck ones; comparing `captureTemplate` to the first alone
+reports eight false failures. The resolver's own comment gives the rule — *"compare through a
+resolver, never by hoping two strings match"* — and names `nameCollisions` as the same lesson on
+the Model Library side. **A session repeated this exact mistake on 2026-09-23 and reported the
+fixed fault back to Mike as live.**
+
+**Recorded rather than buried:** five forms — `SWOT Notes`, `Sales Flowchart`, `Tension Point
+Scripts`, `Insights Summary`, `Curve & Cycle Notes` — are reached by no concept (the item said
+nine; it is five). That is not a fault: **32 of the 52 concepts carry no capture form yet**, so
+these are forms waiting on concepts not yet wired, which is 15.1's remaining build. Mike's partial
+register pass (17 of 52) stays in `design/concept-register-corrections.json`, unapplied and read
+by no code — a saved artefact, not a live pipeline.
 **7.13 — "the model's page is recalled by the AI, not looked up".**
 🔴 **DELETED 2026-09-23 by Mike, not built and not replaced.** His words, on being shown the
 evidence below: *"if it REALLY needs fixing we fix it - if it isn't REALLY needed - delete it"*,

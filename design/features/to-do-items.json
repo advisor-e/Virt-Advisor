@@ -459,28 +459,6 @@
       "comment": "2026-09-17 - filed on his yes at shutdown, after he asked whether anything guaranteed they would be dealt with. They were flagged in the Stage 3 commit and the handover; neither is a task, and the handover is replaced next session."
     },
     {
-      "ref": "15.6",
-      "name": "Eight concepts name a response form the app cannot find",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off without it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "activeOn": null,
-      "why": "Eight of the nineteen pairings name a response form no copy of the app holds, and five are near-misses on a name that was typed rather than picked. Nine forms Mike supplied are paired to no concept.",
-      "risk": "A pairing that resolves to nothing sends an advisor to a document that cannot be found, in front of a client. It is the same failure that cost a desktop session a morning on 7.9, where six model names differed from the library by one character. The register exposes all seventeen and Mike has worked through about half; the corrections are saved and unapplied, so the fault survives until somebody applies them.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-18 - 'this table also fails to let me pair the appropriate response / data input form/page - include that so there's nil mistakes.' He worked through part of the register the same day and agreed at shutdown to file the rest."
-      },
-      "touches": "design/concept-register-corrections.json (his partial pass, applied: false), data/strategy-frameworks.json captureTemplate on 19 concepts, data/strategy-capture-tables.json which holds the 20 forms, and scripts/build-concept-register.js which rebuilds the register.",
-      "note": "FOUR of the eight name Branding, Customer Loyalty, Pricing and Packaging, workbooks never supplied - those are his to supply or to strike. The other four are name mismatches we can fix once he confirms. Seventeen response-page suggestions from the deck scan also await his pass. Do not apply his corrections without asking: the file is deliberately marked unapplied and his pass is unfinished.",
-      "comment": ""
-    },
-    {
       "ref": "15.8",
       "name": "Two stock images in the Strategy Planner have no licence check",
       "rankedByMike": false,
@@ -669,6 +647,27 @@
       "touches": "The Strategy Planner's session surface; a new Restify route for the model call; the 52 concept records as the 'known business concepts' source. The market analysis data source is unidentified and is the first question this item must answer.",
       "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.14. The impact test and the hub-page judgement are both unrun.",
       "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.16",
+      "name": "An advisor teaches twenty-two concepts and has nowhere to write the client answer down",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Twenty of fifty-two concepts have a measured capture form. Thirty-two do not, and twenty-two of those still carry a teaching form, so the advisor teaches from Mike page and records nothing.",
+      "risk": "Nearly half the planner teaches a client and captures nothing, so the session does not carry forward - the same fault 15.11 scores 4 for at five concepts, here at twenty-two. It waits on Mike because strategy-planner.md section 4 is explicit: the census measured nine forms across 24 templates, not 52, and choosing a form for a concept outside those 24 is a DESIGN DECISION, not a reading. server/utils/strategyFrameworks.js throws if an unmeasured concept is given one.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - \"if you have concepts that are yet to be wired up, why werent they put forward as a task?? get on with it.\" Raised after 15.6 closed and its closure recorded the thirty-two in passing."
+      },
+      "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
+      "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 4 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 32. The Brief calls it deliberate, true of the data but never true that the work was done. Five extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Insights Summary, Curve and Cycle Notes.",
+      "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
     }
   ]
 }
