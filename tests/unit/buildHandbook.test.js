@@ -104,6 +104,44 @@ describe('the Handbook', () => {
       expect(missing).toEqual([])
     })
 
+    it('🔴 EVERY design/ DOCUMENT A BRIEF LINKS IS REACHABLE IN THE HANDBOOK', () => {
+      // Mike's ruling, 2026-09-23: a feature's design and task notes live ON that
+      // feature's page and nowhere else. A link that leaves design/features/ and is
+      // neither a page nor a feature's support renders as a `.filelink` — the words
+      // with nothing behind them. **69 of the 80 documents the Briefs point at were in
+      // that state**, including PLANNING-TEMPLATE-CENSUS.md, which is how a session read
+      // a Brief's citation of the census and never found the document.
+      //
+      // This fails the moment a Brief links a design/ document that nothing carries.
+      // The fix is to add it to that feature's row in README.md — NOT to relax this.
+      const featuresDir = FEATURES_DIR
+      const designDir = path.join(ROOT, 'design')
+
+      // Archives and repo-root rules are deliberately outside the Handbook.
+      const OUTSIDE = /^(ACTIONS|ACTIONS-ARCHIVE|TO-DO-ARCHIVE|CODE-SIZE|CLAUDE)\.md$|^SESSION-|^HANDOVER/
+
+      const carried = new Set()
+      result.pages.forEach((page) => {
+        carried.add(page.file)
+        if (page.companion) { carried.add(page.companion + '.md') }
+        ;(page.supports || []).forEach(doc => carried.add(doc.file))
+      })
+
+      const designDocs = fs.readdirSync(designDir)
+        .filter(name => name.endsWith('.md') && !OUTSIDE.test(name))
+
+      const briefText = fs.readdirSync(featuresDir)
+        .filter(name => name.endsWith('.md'))
+        .map(name => fs.readFileSync(path.join(featuresDir, name), 'utf8'))
+        .join('\n')
+
+      const unreachable = designDocs
+        .filter(name => briefText.includes(name))
+        .filter(name => !carried.has(name))
+
+      expect(unreachable).toEqual([])
+    })
+
     it('reports any page the index has forgotten rather than hiding it', () => {
       // Today every page is listed. If this fails, add the named page to
       // README.md — do not relax the assertion.
