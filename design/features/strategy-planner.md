@@ -1312,10 +1312,22 @@ Run in a scratch folder **outside the repository** — nothing was installed int
   concepts (34–120 KB).
 - **Every word, position, colour and the circle came across exactly.**
 
-🔴 **TWO FAULTS, NOT YET SOLVED.** The **second green arrow** and the **advisor-e.com logo**
-did not place. Both are pictures sitting at an **angle** on his page; the straight one placed
-correctly. The library also warns that its SVG back-end *"is no longer maintained and may be
-removed in the future"* — a real risk for a firm-facing feature, not a footnote.
+🔴 **THE CONVERTER DROPS NOTHING — and the record said otherwise for an hour, so read this
+rather than the commit message of `7e6546f9`.** The page converts **complete**: both green
+arrows, the advisor-e.com logo, every word and shape. An earlier reading of this same test
+reported the second arrow and the logo as missing; **they were never missing.**
+
+**The gotcha that produced it, and it MUST be carried into the build.** `XMLSerializer` gives
+each `<image>` its **own** xlink namespace prefix — `ns1:href`, `ns2:href`, `ns3:href` — so a
+rewrite handling one prefix silently strips the `href` off the others. The element keeps its
+geometry, so the browser reports it laid out at the right size and position and paints
+nothing, which reads exactly like a converter that lost content.
+
+**Inlining an SVG into HTML must therefore rewrite EVERY prefix**, `/ns\d+:href=/g`, not one.
+Verified by the browser's own report: `hrefLen=0` on images 1 and 3, `26430` on image 2.
+
+⚠ **What IS a real risk, and stands:** the library warns its SVG back-end *"is no longer
+maintained and may be removed in the future"* — a genuine concern for a firm-facing feature.
 
 Mike saw the conversion beside his original and beside a hand-drawn slide, and ruled it good
 enough in principle to continue. **He ruled separately that it is NOT to be run across his
