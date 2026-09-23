@@ -84,6 +84,15 @@ import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
  * ⚠ EVERY BOUND COMES FROM THE BACKEND, never from a constant here. The 18-month ceiling is
  * enforced in `validateRetentionMonths` — a screen that carried its own copy would drift
  * from the rule the moment either changed.
+ *
+ * ✅ THE WORDING IS MIKE'S, APPROVED 2026-09-23 FROM THE BUILT SCREEN, NOT FROM A DRAFT. He
+ * was shown a screenshot of this page running and approved these five in place: *"In force
+ * now"*, *"Keep a staff register for"*, *"18 months is the longest any level may choose."*,
+ * *"Use the period from above"*, and the closing *"This sets how long a register is kept and
+ * shows the date on the register itself. It does not delete anything on its own."* The
+ * strings live in `locales/en.json` under `registerRetention`. **Do not reword them** — they
+ * are his, and the last one in particular is load-bearing: it is the only thing telling a
+ * manager that shortening the period deletes nothing today.
  */
 export default {
   name: 'FirmRegisterRetention',
