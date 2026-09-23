@@ -181,6 +181,27 @@
       "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 5.1 where it was a line in the note. An item that lives inside another item closes with it. Was 4.103; renumbered under design/ITEM-NUMBERING.md."
     },
     {
+      "ref": "5.3",
+      "name": "Two of Mike's own spreadsheets are calculators with nowhere in the app to live",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "BO Expectations.xlsx sets an owner's income and lifestyle goals and BD stages.xlsx the scale needed to reach them. His own slides tell an advisor to complete both, and the app offers neither.",
+      "risk": "They are the FIRST two items on his Business Targets agenda, so a planning session opens by asking a client to fill in two spreadsheets the app cannot show. The counter-risk is scope: these are Report Model work with their own interest sheets and scenario comparison, so each needs the full maths-model-plus-golden-test treatment, not a capture form - which is exactly why the census excludes them by name.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - filed on his yes at shutdown, after the day's eight deletions removed the only two concepts that pointed at these workbooks. He supplied both files himself in Strategy Planner/."
+      },
+      "touches": "design/PLANNING-TEMPLATE-CENSUS.md, which names both in NOT_CAPTURE_TABLES and says what they are; scripts/read-capture-tables.js, which excludes them deliberately; and, if built, the Report Model path - a backend maths model, a golden test, a Restify route, utils/reportModelCatalogue.js, a page and the consistency guard.",
+      "note": "NOT A REGRESSION AND NOTHING IS LOST - both workbooks are Mike's and are in his folder, and six files still name them. What went on 2026-09-23 was the last TASK-shaped trace: the two concepts that pointed at them were agenda rows with no teaching page, deleted on his ruling. The fact then survived only in the census, which nobody works from. THE ADD-A-REPORT SKILL IS THE ROUTE if it is built. Impact test UNRUN - it must be, before any design.",
+      "comment": "2026-09-23 - found at shutdown by asking what the deletions orphaned, rather than by anything failing. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
       "ref": "7.5",
       "name": "Nothing records which calculation model the AI named, so nobody can check its judgement",
       "rankedByMike": false,
@@ -693,6 +714,48 @@
       "touches": "A new drawing in design/mockups/ by the section 0 method and its ARTEFACTS.md row; scripts/build-concept-graphics.js DRAWINGS; the count guards in tests/unit/conceptGraphics.test.js, which pin 35 svgs and 34 titled concepts.",
       "note": "THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Checked by rendering it, not by its title. CLOSED THE SAME DAY: eight stage directions deleted on Mike's ruling, Divisional KPI's and Review Internal Insights Data wired from his own material, and two pages brought in that were never among the 52 - Our Session Objective and Collaborative Thinking, the first concept with TWO teaching sheets. 44 of 46 run. Drafting Tender Proposals is the other unrunnable row and is NOT a gap - his summary calls it general reading. Record: strategy-planner.md section 0.",
       "comment": "2026-09-23 - filed as nine stage directions, then rewritten to what survives his ruling. His challenge disproved a page mapping built from extracted titles; every claim here is from a 150dpi render of his own slide."
+    },
+    {
+      "ref": "15.18",
+      "name": "The advisor never sees the worked answer Mike wrote on a ruled table",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Where one of his tables has ruled writing lines, only the blank cells become boxes, so the example row he wrote to show what a good answer looks like is dropped. The advisor gets his headings and empty boxes.",
+      "risk": "The app is inconsistent with itself, which is the part that will confuse whoever picks this up: on the deck-page sheets his examples DO arrive as grey guide text inside the box, and strategyDeckCaptureTables.test.js insists they must. It waits on Mike because Insights Summary has THREE blank rows under each heading and ONE example - which box carries it, or whether it sits above them all, is a design decision that ends up in a client's document.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - filed on his yes at shutdown, after wiring Insights Summary made it visible for the first time. He was offered the fix and chose to have it designed rather than guessed."
+      },
+      "touches": "fieldsOfTable in server/utils/strategyCaptureForms.js, where `isCapture` is `cell.blank` once a grid has ruled lines and the example row is therefore never a field; the `example` property every other form already carries; components/strategy/StrategyCaptureBox.vue, which renders it as guide text.",
+      "note": "NOT A REGRESSION. It has always behaved this way and only became visible on 2026-09-23, when Insights Summary became the first banded grid WITH a worked example to reach a screen - Porter's and Blue Ocean go heading straight to ruled lines and have no example to lose. AFFECTS THE BANDED GRIDS ONLY. The prompt-answer sheets are unaffected: with no ruled line every cell is a field, so his example is already the box's own guide text.",
+      "comment": "2026-09-23 - found by reading what an advisor would actually see after the heading fix landed, not by any test failing. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.19",
+      "name": "A drawing saved for Mike to approve cannot be committed, so the suite goes red",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": "15.17",
+      "waitingOn": "Us",
+      "why": "Save the Artefact says a drawing is committed BEFORE Mike approves it. conceptGraphics.test.js says every drawing in design/mockups must be wired into a component, with no accepted reason to leave one out. A drawing awaiting his word satisfies neither.",
+      "risk": "The two rules pull against each other and the work goes unsaved while they do: on 2026-09-23 the framing page was shown to Mike with the suite red and a day's work uncommitted, because it could not be saved until it was built and should not be built until he had seen it. It bites again immediately - 15.17 is one more drawing, and the next session meets this on its first commit.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - filed on his yes at shutdown, after it stopped that day's two drawings being committed for approval. He was offered the guard change and chose to have it done deliberately rather than at the end of a long day."
+      },
+      "touches": "The 'no approved drawing is left out of the list without a reason' test in tests/unit/conceptGraphics.test.js, whose comment says there is no longer any accepted reason; and wherever the awaiting-approval state is recorded, which does not exist yet.",
+      "note": "NEITHER RULE IS WRONG AND NEITHER MAY BE WEAKENED. Save the Artefact exists because a Logic-Lab mockup was approved in chat, never saved, and the build drifted from it. The guard exists because an approved-but-unwired drawing is INVISIBLE - the concept falls back to Mike's words and nothing distinguishes that from a concept never drawn. The gap is a missing third state, not a rule to relax: a drawing may sit unwired ONLY while recorded as awaiting his approval, and must still fail the build the moment it is approved and not wired.",
+      "comment": "2026-09-23 - found by hitting it, not by reading the rules. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }
