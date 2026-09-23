@@ -27,10 +27,18 @@ const frameworks = require('../../server/utils/strategyFrameworks')
 const data = require('../../data/strategy-frameworks.json')
 
 describe('the 52 concepts load', () => {
-  it('holds exactly 52, which is Mike\'s scoping ruling of 2026-09-17', () => {
-    // 52, never 45. The 45 came from ADV.0's index; this count comes from the five decks'
-    // own contents tables and agendas. PLANNING-TEMPLATE-CENSUS.md §1.
-    expect(frameworks.listConcepts()).toHaveLength(52)
+  it('holds exactly 46 - 52 as scoped, less the eight Mike deleted, plus two framing pages', () => {
+    // 🔴 IT WAS 52, AND THE 52 WAS NEVER WRONG. Mike's scoping ruling of 2026-09-17
+    // counted the five decks' own contents tables and agendas, which is where 52 comes
+    // from - never ADV.0's index, which says 45 and has drifted four concepts.
+    //
+    // What changed is what a concept IS. On 2026-09-23 EIGHT agenda rows were proved to
+    // be the session's stage directions rather than frameworks - complete this table,
+    // this is section 1 - with no teaching page anywhere in his decks, and he deleted
+    // them: 'then just delete the rest - they are likely to be repeats'. Two FRAMING
+    // PAGES came in the other way on the same ruling: Our Session Objective and
+    // Collaborative Thinking, both real pages that no index had ever pointed at.
+    expect(frameworks.listConcepts()).toHaveLength(46)
   })
 
   it('splits across the four Planning Domains exactly as the census counts them', () => {
@@ -42,10 +50,17 @@ describe('the 52 concepts load', () => {
       'sales-marketing-review': frameworks.conceptsForPlanningDomain('sales-marketing-review').length,
       'organisational-review': frameworks.conceptsForPlanningDomain('organisational-review').length
     }).toEqual({
-      'business-targets': 5,
-      'strategic-orientation': 22,
+      // 🔴 BUSINESS TARGETS IS DOWN TO ONE, AND THAT ONE IS WHY THE DECK SURVIVES.
+      // All five of its rows were agenda lines and all five went on 2026-09-23;
+      // Collaborative Thinking - his Christchurch page, p3 - is the only genuine
+      // teaching page that deck holds. Without it the panel is empty and the loader
+      // refuses it outright.
+      'business-targets': 1,
+      // 22 less the two stage directions deleted, plus Our Session Objective.
+      'strategic-orientation': 21,
       'sales-marketing-review': 16,
-      'organisational-review': 9
+      // 9 less Review the Development Stages of the Organisation.
+      'organisational-review': 8
     })
   })
 
@@ -59,7 +74,10 @@ describe('the 52 concepts load', () => {
       acc[c.source] = (acc[c.source] || 0) + 1
       return acc
     }, {})
-    expect(bySource).toEqual({ 'session-scope-table': 34, agenda: 18 })
+    // The 34 scope-table rows are UNTOUCHED - nothing deleted on 2026-09-23 came from
+    // one of his Session Scope tables. 18 agenda rows became 10, and framing-page is a
+    // third kind: a page that IS its own concept, not a row pointing at one.
+    expect(bySource).toEqual({ 'session-scope-table': 34, agenda: 10, 'framing-page': 2 })
   })
 
   it('points every concept at a page in a real deck', () => {
@@ -83,37 +101,42 @@ describe('the 52 concepts load', () => {
 
 describe('Decision B — an agenda row only ever carries words Mike wrote', () => {
   it('never gives an agenda row a Helps Your Client To… line', () => {
-    // Ruled 2026-09-17: that line is Mike's to write on all 18. Never generated, never
+    // Ruled 2026-09-17: that line is Mike's to write on every one of them. Never
     // inferred from the slides, never filled by an AI. If this test fails because a row
     // acquired text, the question is WHO WROTE IT — not how to make the test pass. That is
     // the danger here: generated prose looks entirely reasonable to a person in UAT.
     const agenda = frameworks.listConcepts().filter(c => c.source === 'agenda')
-    expect(agenda).toHaveLength(18)
+    expect(agenda).toHaveLength(10)
     agenda.forEach((c) => {
       expect(c.helpsClientTo).toBeNull()
     })
   })
 
-  it('carries a summary on exactly the nine rows whose slide already prints one', () => {
+  it('carries a summary on exactly the eight rows whose slide already prints one', () => {
     // Mike's ruling of 2026-09-17, made once he was shown they existed: Organisational
-    // Review's agenda prints a one-line description under each of its nine items, so those
-    // nine use his own line. The other nine — Business Targets 5, Strategic Orientation 1
-    // 4 — have no such line on the slide and stay null until he writes them.
+    // Review's agenda prints a one-line description under each of its items, so those
+    // rows use his own line. The rest have no such line on the slide and stay null
+    // until he writes them.
     const withSummary = frameworks.listConcepts()
       .filter(c => c.source === 'agenda' && c.conceptSummary !== null)
-    expect(withSummary).toHaveLength(9)
+    // 🔴 NINE UNTIL 2026-09-23. Review the Development Stages of the Organisation
+    // was one of them and was deleted that day: its slide, p4, is an instruction card
+    // pointing at his BD stages workbook and teaches nothing. Eight remain.
+    expect(withSummary).toHaveLength(8)
     expect(withSummary.every(c => c.deck === 'organisational-review')).toBe(true)
 
     const nameOnly = frameworks.listConcepts()
       .filter(c => c.source === 'agenda' && c.conceptSummary === null)
+    // 🔴 NINE NAME-ONLY ROWS UNTIL 2026-09-23, AND SEVEN OF THEM WERE DELETED THAT DAY.
+    // All five Business Targets rows and two of the four Strategic Orientation 1 rows
+    // were stage directions with no teaching page. The two left are his section 1 and
+    // section 3 agenda lines, which do have tables behind them.
     expect(nameOnly.map(c => c.deck).sort()).toEqual([
-      'business-targets', 'business-targets', 'business-targets', 'business-targets',
-      'business-targets', 'strategic-orientation-1', 'strategic-orientation-1',
       'strategic-orientation-1', 'strategic-orientation-1'
     ])
   })
 
-  it('takes those nine lines off the slide rather than paraphrasing them', () => {
+  it('takes those eight lines off the slide rather than paraphrasing them', () => {
     // 🔴 The second of this file's two deliberate wording pins, for the same reason as the
     // first: Decision A says his text is never rewritten, and a paraphrase reads perfectly
     // well. Organisational Review slide 2, the line under each agenda item.
@@ -121,7 +144,10 @@ describe('Decision B — an agenda row only ever carries words Mike wrote', () =
       .filter(c => c.deck === 'organisational-review')
       .map(c => c.conceptSummary)
     expect(summaries).toEqual([
-      'Where are we headed?',
+      // ⚠ 'Where are we headed?' WAS THE FIRST OF NINE. It belonged to Review the
+      // Development Stages of the Organisation, deleted 2026-09-23 - its slide is an
+      // instruction card pointing at his BD stages workbook. The other eight are his
+      // and are pinned exactly as before.
       'What our team say about the organisation',
       'Are we doing the basics (already) before seeking improvement?',
       'How best to lead our team',
@@ -280,9 +306,10 @@ describe('the words are Mike\'s, not ours', () => {
     // ⚠ Organisational Review is the genuine exception and is NOT pinned here: its
     // descriptions are a real second column on the slide, at x=352.7, which is why those
     // nine rows carry a conceptSummary and no other agenda row does.
-    expect(frameworks.getConcept('review-your-profit-lever-focus-how-you-plan-to-achieve-your').name)
-      .toBe('Review Your Profit Lever Focus (how you plan to achieve your objectives - ' +
-        'based on the profit levers)')
+    // ⚠ THIS PINNED 'Review Your Profit Lever Focus (how you plan to achieve your
+    // objectives - based on the profit levers)', which Mike deleted on 2026-09-23. The
+    // point it made is unchanged and is made by the row below, which survives: a
+    // bracketed clause stays INSIDE the name, on one line, where his slide puts it.
     // The id itself corroborates it: it truncates to "…-data-sectio", so "(section 2)" was
     // inside the name when the index was read off the deck, not appended afterwards.
     expect(frameworks.getConcept('assess-current-position-by-reviewing-pre-meeting-data-sectio').name)

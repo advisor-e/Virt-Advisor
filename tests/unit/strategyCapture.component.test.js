@@ -236,10 +236,11 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
       .toEqual(DECKS.map(d => d.name))
   })
 
-  it('🔴 offers every one of the 52 concepts, not a subset', () => {
+  it('🔴 offers every one of the 46 concepts, not a subset', () => {
     // The screen this replaced offered 5 of the 52, because it read a framework list
     // rather than Mike's concept index.
-    expect(mountMenu().findAll('tbody tr')).toHaveLength(52)
+    // 46 since 2026-09-23: 52 as Mike scoped it, less the eight agenda rows he deleted as the session's stage directions, plus two framing pages.
+    expect(mountMenu().findAll('tbody tr')).toHaveLength(46)
   })
 
   it('🔴 PRODUCES PIVOT — the acceptance test, across two decks', () => {
@@ -351,13 +352,23 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
   })
 
   it('🔴 renders an agenda row name-only, with no empty description columns', () => {
-    // Decision B: three of the five documents are agendas. Mike has not written their
-    // Concept Summary or Helps Your Client To… lines and nothing else may, so the name
-    // takes the three columns rather than leaving cells that read as missing data.
+    // Decision B: an agenda row's name takes the three columns rather than leaving
+    // cells that read as missing data, because Mike has not written its Concept
+    // Summary or Helps Your Client To… line and nothing else may.
+    //
+    // 🔴 DECK 0 WAS BUSINESS TARGETS AND IS NOT AN AGENDA DECK ANY MORE. Its five
+    // agenda rows went on 2026-09-23 and it holds Collaborative Thinking, a real
+    // page. The deck is found by its KIND now rather than by its position, so this
+    // tests the behaviour instead of an ordering that moved underneath it.
     const w = mountMenu()
-    const agendaDeck = w.findAll('.ssm-deck').at(0)
+    const agendaDeck = w.findAll('.ssm-deck').filter(d => d.find('.ssm-nodesc').exists()).at(0)
     expect(agendaDeck.find('.ssm-nodesc').exists()).toBe(true)
-    expect(agendaDeck.findAll('td[colspan="3"]').length).toBe(5)
+
+    // 🔴 AND A FRAMING PAGE IN THE SAME DECK MUST NOT RENDER THIS WAY. Strategic
+    // Orientation 1 holds two agenda rows and Our Session Objective, which has a real
+    // page, a drawing and a title of its own; read off the DECK it would have lost all
+    // three and read as one more line of the agenda.
+    expect(agendaDeck.findAll('td[colspan="3"]').length).toBe(2)
   })
 
   it('🔴 marks the three rows whose text is one shared cell — Decision E', () => {
@@ -371,7 +382,7 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
     // The counts, not the sentence around them — `$t` is stubbed in these mounts, so
     // reading the rendered string would assert the stub's format rather than the maths.
     const w = mountMenu(PIVOT_CONCEPTS)
-    expect(w.vm.totalConcepts).toBe(52)
+    expect(w.vm.totalConcepts).toBe(46)
     // Strategic Orientation 2 is the third panel and holds nine of Pivot's eleven; Sales
     // & Marketing is the fourth and holds the other two.
     expect(w.vm.chosenInDeck(DECKS[2])).toBe(9)

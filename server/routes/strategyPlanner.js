@@ -121,7 +121,7 @@ async function getFrameworks (req, res) {
 /**
  * GET /api/strategy/concepts
  *
- * The session scope menu — the 52 concepts as the five panels the advisor ticks, in Mike's
+ * The session scope menu — the 46 concepts as the five panels the advisor ticks, in Mike's
  * own order. Platform content, behind firmAuth like every other advisor-facing read.
  *
  * 🔴 GROUPED BY DECK, NEVER BY DOMAIN. Strategic Orientation is one Planning Domain in two
@@ -162,10 +162,9 @@ async function getConcepts (req, res) {
  * template rather than authored here. Every label in the reply is a string from
  * one of his documents.
  *
- * 🔴 A CONCEPT WITH NO TABLE SAYS SO. 36 of the 52 have none — 32 were never
+ * 🔴 A CONCEPT WITH NO TABLE SAYS SO. 24 of the 46 have none, because none was ever
  * measured against a template (census §4 is explicit that choosing one is a design
- * decision, not a reading) and 4 name a workbook that was never supplied. Those
- * reply `supplied: false` with the reason. A borrowed table would put words in
+ * decision, not a reading). Those reply `supplied: false` with the reason. A borrowed table would put words in
  * front of a client that Mike did not write.
  *
  * 🔴 THE WHOLE TABLE COMES BACK, AND A CONCEPT IS WORKED ONCE. Mike's ruling,

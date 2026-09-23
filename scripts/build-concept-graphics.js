@@ -120,8 +120,49 @@ const DRAWINGS = [
   { file: 'strategy-concept-batch-5.html', svg: 11, conceptId: 'sales-process-review' },
 
   { file: 'strategy-concept-porters.html', svg: 1, conceptId: 'porters-5-forces' },
-  { file: 'strategy-concept-technology-points.html', svg: 1, conceptId: 'technology-points' }
+  { file: 'strategy-concept-technology-points.html', svg: 1, conceptId: 'technology-points' },
+
+  // 🔴 THE ONLY DRAWING WITH A LIVE REGION IN IT — its AGENDA block is the session's
+  // own step list, Mike's ruling of 2026-09-23. `bindAgendaSlot` handles it; every
+  // other drawing is fixed artwork and passes through untouched.
+  { file: 'strategy-concept-our-session-objective.html', svg: 1, conceptId: 'our-session-objective' },
+
+  // 🔴 THE ONLY CONCEPT WITH TWO TEACHING SHEETS, and the reason `sheet` exists.
+  // Mike, 2026-09-23: *"include BOTH the christchurch engineer and picture +
+  // debonos explanation"*. His two pages hold 799 and 1,042 body characters at
+  // 22.9-25pt, so one sheet could only carry both by shrinking his own type,
+  // which the method forbids because his sizes are READ off his page. Sheet 1 is
+  // the story his p10 tells the advisor to draw; sheet 2 is that page's theory.
+  { file: 'strategy-concept-collaborative-thinking.html', svg: 1, sheet: 1, conceptId: 'collaborative-thinking' },
+  { file: 'strategy-concept-collaborative-thinking.html', svg: 2, sheet: 2, conceptId: 'collaborative-thinking' }
 ]
+
+/**
+ * Drawings that are saved and shown to Mike but NOT yet approved, and so not yet built.
+ *
+ * 🔴 THE THIRD STATE, AND WHY IT HAD TO EXIST. Two rules we keep pulled against each
+ * other and left no legal move. *Save the Artefact* requires a drawing to be a committed
+ * file BEFORE Mike approves it. The guard below requires every drawing in a
+ * `strategy-concept-*.html` to be in `DRAWINGS` — and being in `DRAWINGS` IS being built,
+ * because that list is what generates the component an advisor sees. So a drawing awaiting
+ * his word could neither be saved nor shown without either shipping it unapproved or
+ * leaving the suite red. On 2026-09-23 a day's work sat uncommitted for exactly this
+ * reason. Item 15.19.
+ *
+ * ⚠ NEITHER RULE IS WEAKENED. An unwired drawing is still a failure — unless it is listed
+ * here AND its file's row in `design/ARTEFACTS.md` carries the matching
+ * `AWAITING APPROVAL (<file>#<svg>)` token. The two must agree, which is what closes the
+ * other half: the moment somebody records Mike's approval by removing that token, the
+ * build fails until the drawing is wired into `DRAWINGS` and its entry removed from here.
+ * A drawing cannot be approved and quietly forgotten, which is the fault the guard was
+ * written for in the first place.
+ *
+ * `since` is the date it was shown to him and `item` the live-list item it belongs to,
+ * so an entry that has sat here too long is legible rather than invisible.
+ *
+ * @type {Array<{file: string, svg: number, since: string, item: string}>}
+ */
+const AWAITING_APPROVAL = []
 
 /**
  * Every concept a drawing serves, in registry order.
@@ -150,8 +191,8 @@ function servedConcepts (drawing) {
  * @param {string} conceptId
  * @returns {string}
  */
-function registeredName (conceptId) {
-  return 'Concept' + componentName(conceptId)
+function registeredName (conceptId, sheet) {
+  return 'Concept' + componentName(conceptId, sheet)
 }
 
 /**
@@ -162,12 +203,17 @@ function registeredName (conceptId) {
  * @param {string} conceptId
  * @returns {string}
  */
-function componentName (conceptId) {
-  return conceptId
+function componentName (conceptId, sheet) {
+  const base = conceptId
     .split('-')
     .filter(Boolean)
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join('')
+  // 🔴 A CONCEPT MAY HAVE MORE THAN ONE TEACHING SHEET SINCE 2026-09-23, and two
+  // sheets sharing one file name would silently overwrite each other — the first
+  // would simply never ship, and nothing on any screen would say so. Sheet 1 keeps
+  // the plain name so the other 33 components are untouched.
+  return sheet && sheet > 1 ? base + 'Sheet' + sheet : base
 }
 
 /**
@@ -307,6 +353,68 @@ function bindFirmMark (svg) {
 }
 
 /**
+ * His agenda rows, measured off Advance.2.Strategic Orientation.1.pdf p2.
+ *
+ * The bullet and the text sit at fixed x on every row; only y advances. The
+ * pitch is his own four rows averaged — 584.41, 619.30, 653.68, 688.05, so
+ * (688.05 - 584.41) / 3 — rather than a number chosen to look right.
+ */
+const AGENDA_ROW = { bulletX: 98.09, textX: 150.69, firstY: 584.41, pitch: 34.5467, size: 25, ink: '#434343' }
+
+/**
+ * Turn the drawing's `agenda-slot` group into a live list, where one exists.
+ *
+ * 🔴 WHY A DRAWING HAS A SLOT AT ALL, WHICH NO OTHER ONE DOES. Mike ruled on
+ * 2026-09-23 that the framing page's AGENDA **is the session's own step list** —
+ * the steps an advisor names in Build session, which already drive Run session
+ * and the client's plan — and not a second list belonging to the page. His words
+ * about that step list, 2026-09-21: *"the client's agenda stops naming our
+ * screens."* Two lists of the day's running order could disagree, and the one a
+ * client reads would be the wrong one.
+ *
+ * 🔴 HIS OWN ROWS ARE KEPT, CHARACTER FOR CHARACTER, AS THE FALLBACK. They are
+ * what the artefact shows and therefore what he approved, so they must still be
+ * on the page when no session supplies steps. The generated list is a SIBLING
+ * group under `v-else`, never an edit to his.
+ *
+ * ⚠ A STEP NAME IS NOT ONE OF HIS MEASURED LINES, so the generated rows carry no
+ * `textLength`. Pinning an advisor's own wording to the width of Mike's sentence
+ * would stretch or crush it — the pin exists to reproduce HIS justification.
+ *
+ * @param {string} svg
+ * @returns {{svg: string, hasSlot: boolean}}
+ */
+function bindAgendaSlot (svg) {
+  const open = svg.indexOf('<g class="agenda-slot"')
+  if (open === -1) { return { svg, hasSlot: false } }
+
+  const close = svg.indexOf('</g>', open)
+  if (close === -1) { throw new Error('agenda-slot group is not closed') }
+
+  const head = svg.slice(open, svg.indexOf('>', open) + 1)
+  const drawn = svg.slice(open, close + 4)
+  const r = AGENDA_ROW
+
+  // His group, untouched but for the v-if that hides it once a session has steps.
+  const fallback = drawn.replace(head, head.slice(0, -1) + ' v-if="!agendaItems.length">')
+
+  const live = [
+    '<g class="agenda-slot is-live" v-else font-family="Open Sans, sans-serif">',
+    '  <template v-for="(item, i) in agendaItems">',
+    '    <text :key="\'b\' + i" x="' + r.bulletX + '"',
+    '          :y="' + r.firstY + ' + i * ' + r.pitch + '"',
+    '          font-size="' + r.size + '" fill="' + r.ink + '">&#9679;</text>',
+    '    <text :key="\'t\' + i" x="' + r.textX + '"',
+    '          :y="' + r.firstY + ' + i * ' + r.pitch + '"',
+    '          font-size="' + r.size + '" fill="' + r.ink + '">{{ item }}</text>',
+    '  </template>',
+    '</g>'
+  ].join('\n        ')
+
+  return { svg: svg.slice(0, open) + fallback + '\n        ' + live + svg.slice(close + 4), hasSlot: true }
+}
+
+/**
  * The component's source.
  *
  * The SVG sits in a Pug raw-text block, so it reaches the compiler unchanged
@@ -315,9 +423,10 @@ function bindFirmMark (svg) {
  *
  * @param {{conceptId: string, file: string, svg: number}} drawing
  * @param {string} svg the bound SVG
+ * @param {boolean} hasSlot whether this drawing carries the agenda slot
  * @returns {string}
  */
-function render (drawing, svg) {
+function render (drawing, svg, hasSlot) {
   // A blank line stays blank rather than becoming four spaces — the lint forbids
   // trailing whitespace, and indenting nothing is not part of the drawing.
   const indented = svg.split('\n').map(l => (l.trim() ? '    ' + l.replace(/\s+$/, '') : '')).join('\n')
@@ -338,7 +447,7 @@ ${indented}
  * Vue 2, Options API, Pug.
  */
 export default {
-  name: '${registeredName(drawing.conceptId)}',
+  name: '${registeredName(drawing.conceptId, drawing.sheet)}',
 
   props: {
     /** The advisor firm's name, printed beside the mark. */
@@ -375,7 +484,23 @@ export default {
     firmLogo: {
       type: String,
       default: ''
-    }
+    }${hasSlot ? `,
+
+    /**
+     * The session's own running order, one string per step.
+     *
+     * Mike's ruling, 2026-09-23: the framing page's AGENDA **is** the step list
+     * the advisor names in Build session, not a second list of its own — so the
+     * page a client reads and the order the app follows can never disagree.
+     *
+     * EMPTY IS NOT A MISSING VALUE. It means no session has supplied steps, and
+     * the page then shows Mike's own four lines exactly as drawn, which is the
+     * state the artefact was approved in.
+     */
+    agendaItems: {
+      type: Array,
+      default: () => []
+    }` : ''}
   }
 }
 </script>
@@ -432,8 +557,13 @@ function build (opts) {
   DRAWINGS.forEach((drawing) => {
     const html = fs.readFileSync(path.join(MOCKUPS, drawing.file), 'utf8')
     const svg = nthSvg(html, drawing.svg)
-    const source = render(drawing, bindFirmMark(svg))
-    const file = path.join(OUT, componentName(drawing.conceptId) + '.vue')
+    // The mark binds first. The two touch different groups — the mark is never
+    // inside the agenda slot — so the order cannot matter today; it is fixed
+    // this way round because the mark is the one binding every drawing must
+    // pass, and a drawing that fails it should fail before anything else runs.
+    const slot = bindAgendaSlot(bindFirmMark(svg))
+    const source = render(drawing, slot.svg, slot.hasSlot)
+    const file = path.join(OUT, componentName(drawing.conceptId, drawing.sheet) + '.vue')
     const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null
 
     if (sameDrawing(current, source)) { return }
@@ -575,34 +705,47 @@ function promptsEchoTheDrawing (conceptId, svg) {
 }
 
 function renderRegistry () {
-  const rows = DRAWINGS.reduce((acc, d) => {
-    const name = componentName(d.conceptId)
+  // 🔴 ONE CONCEPT, A LIST OF SHEETS — since 2026-09-23. This was one component
+  // per concept, so a second sheet would have OVERWRITTEN the first in this
+  // object with nothing failing anywhere: the concept would simply have taught
+  // half of itself. The list keeps DRAWINGS order, which is the order the
+  // artefact presents the sheets in.
+  const sheets = new Map()
+  DRAWINGS.forEach((d) => {
+    const name = componentName(d.conceptId, d.sheet)
     // A drawing serving two concepts registers both against the same chunk, so
     // the second concept shows the page rather than a second copy of it.
     servedConcepts(d).forEach((id) => {
-      acc.push(
-        '  ' + registryKey(id) + ': () => import(\n' +
-        "    /* webpackChunkName: 'concept-" + d.conceptId + "' */\n" +
-        "    '~/components/strategy/concepts/" + name + ".vue'\n  )"
+      if (!sheets.has(id)) { sheets.set(id, []) }
+      sheets.get(id).push(
+        '    () => import(\n' +
+        "      /* webpackChunkName: 'concept-" + d.conceptId +
+        (d.sheet > 1 ? '-sheet' + d.sheet : '') + "' */\n" +
+        "      '~/components/strategy/concepts/" + name + ".vue'\n    )"
       )
     })
-    return acc
-  }, []).join(',\n')
+  })
 
-  const titled = DRAWINGS.reduce((acc, d) => {
+  const rows = Array.from(sheets.entries())
+    .map(function (entry) {
+      return '  ' + registryKey(entry[0]) + ': [\n' + entry[1].join(',\n') + '\n  ]'
+    })
+    .join(',' + '\n')
+
+  const titled = Array.from(DRAWINGS.reduce((acc, d) => {
     const svg = nthSvg(fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8'), d.svg)
     if (!carriesOwnTitle(svg)) { return acc }
-    servedConcepts(d).forEach((id) => { acc.push('  ' + registryKey(id) + ': true') })
+    servedConcepts(d).forEach((id) => { acc.add('  ' + registryKey(id) + ': true') })
     return acc
-  }, []).join(',\n')
+  }, new Set())).join(',' + String.fromCharCode(10))
 
-  const echoed = DRAWINGS.reduce((acc, d) => {
+  const echoed = Array.from(DRAWINGS.reduce((acc, d) => {
     const svg = nthSvg(fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8'), d.svg)
     servedConcepts(d).forEach((id) => {
-      if (promptsEchoTheDrawing(id, svg)) { acc.push('  ' + registryKey(id) + ': true') }
+      if (promptsEchoTheDrawing(id, svg)) { acc.add('  ' + registryKey(id) + ': true') }
     })
     return acc
-  }, []).join(',\n')
+  }, new Set())).join(',' + String.fromCharCode(10))
 
   return `/**
  * ⚠ GENERATED — DO NOT EDIT. \`node scripts/build-concept-graphics.js\`.
@@ -612,7 +755,15 @@ function renderRegistry () {
  * to Mike's words — which is what they did for all 52 before item 15.7.
  */
 
-/** @type {Object<string, function(): Promise<object>>} */
+/**
+ * 🔴 EVERY VALUE IS AN ARRAY — ONE ENTRY PER TEACHING SHEET, in the order the
+ * artefact presents them. All but one concept has exactly one; Collaborative
+ * Thinking has two, because his two pages will not fit one sheet at his own type
+ * sizes (Mike, 2026-09-23). A caller that renders \`list[0]\` alone teaches half a
+ * concept, so \`conceptSheetCount\` is how a screen asks how many there are.
+ *
+ * @type {Object<string, Array<function(): Promise<object>>>}
+ */
 export const CONCEPT_GRAPHICS = {
 ${rows}
 }
@@ -637,6 +788,20 @@ ${titled}
  */
 export function hasConceptGraphic (conceptId) {
   return Boolean(conceptId) && Object.prototype.hasOwnProperty.call(CONCEPT_GRAPHICS, conceptId)
+}
+
+/**
+ * How many teaching sheets this concept has.
+ *
+ * A screen loops this rather than assuming one, which is what every surface did
+ * until 2026-09-23. Zero means the concept has no drawing and the screens fall
+ * back to Mike's words.
+ *
+ * @param {string} conceptId
+ * @returns {number}
+ */
+export function conceptSheetCount (conceptId) {
+  return hasConceptGraphic(conceptId) ? CONCEPT_GRAPHICS[conceptId].length : 0
 }
 
 /**
@@ -705,5 +870,13 @@ if (require.main === module) {
 }
 
 module.exports = {
-  DRAWINGS, componentName, registeredName, nthSvg, bindFirmMark, servedConcepts, sameDrawing, build
+  DRAWINGS,
+  AWAITING_APPROVAL,
+  componentName,
+  registeredName,
+  nthSvg,
+  bindFirmMark,
+  servedConcepts,
+  sameDrawing,
+  build
 }

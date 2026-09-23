@@ -62,7 +62,7 @@ describe('every shipped drawing is the drawing Mike approved', () => {
       const svg = builder.nthSvg(html, d.svg)
       const file = path.join(
         ROOT, 'components', 'strategy', 'concepts',
-        builder.componentName(d.conceptId) + '.vue'
+        builder.componentName(d.conceptId, d.sheet) + '.vue'
       )
       const shipped = fs.readFileSync(file, 'utf8')
 
@@ -72,7 +72,15 @@ describe('every shipped drawing is the drawing Mike approved', () => {
       expect(elements.length).toBeGreaterThan(0)
 
       const shippedElements = (shipped.match(/<(path|rect|circle|ellipse|line|polyline|polygon|text|image)\b/g) || [])
-      expect(shippedElements.length).toBe(elements.length)
+
+      // 🔴 THE AGENDA SLOT ADDS EXACTLY TWO, AND HIS OWN ROWS ARE STILL ALL THERE.
+      // A drawing with a live region keeps its drawn group WHOLE under `v-if` and
+      // gains a SIBLING group under `v-else` holding one bullet and one line of
+      // text, rendered once per session step. Counted rather than waved through:
+      // any other difference is still the drawing being summarised, which is what
+      // this test exists to catch.
+      const slotRows = /class="agenda-slot is-live"/.test(shipped) ? 2 : 0
+      expect(shippedElements.length).toBe(elements.length + slotRows)
     })
   })
 })
@@ -197,7 +205,9 @@ describe('the firm frame is on every drawing, identically', () => {
       })
     })
 
-    expect(svgs).toBe(32)
+    // 32 drawings until 2026-09-23; then Our Session Objective (1) and
+    // Collaborative Thinking (2 sheets).
+    expect(svgs).toBe(35)
     BARS.forEach(([cls]) => expect(cls + ':' + counts[cls]).toBe(cls + ':' + svgs))
   })
 
@@ -231,7 +241,12 @@ describe('the firm frame is on every drawing, identically', () => {
     )
     const block = (registry.match(/CONCEPT_TITLED = \{([\s\S]*?)\n\}/) || [])[1] || ''
 
-    expect((block.match(/: true/g) || []).length).toBe(32)
+    // 🔴 THIS COUNTS CONCEPTS, NOT DRAWINGS, and the two are no longer the same
+    // number. 32 until 2026-09-23, then Our Session Objective and Collaborative
+    // Thinking — which is ONE entry across its two sheets, because a concept either
+    // titles itself or does not. Emitting it per drawing produced a duplicate key,
+    // which the lint caught and this count would not have.
+    expect((block.match(/: true/g) || []).length).toBe(34)
     expect(block).not.toContain('vertical-integration')
     expect(block).toContain('porters-5-forces')
   })
@@ -284,13 +299,31 @@ describe('a drawing reaches the screen it was drawn for', () => {
     expect(unknown).toEqual([])
   })
 
-  test('no concept is registered twice', () => {
-    const ids = builder.DRAWINGS
-      .reduce((acc, d) => acc.concat(builder.servedConcepts(d)), [])
+  test('no concept is registered twice on the same sheet', () => {
+    // 🔴 A CONCEPT MAY HAVE SEVERAL SHEETS SINCE 2026-09-23, so the identity is
+    // the PAIR — concept and sheet — not the concept alone. Two drawings claiming
+    // one concept AND one sheet would leave which of them ships to the order of
+    // the list, silently, which is the fault this has always guarded.
+    const keys = builder.DRAWINGS.reduce(function (acc, d) {
+      return acc.concat(builder.servedConcepts(d).map(function (id) {
+        return id + '#' + (d.sheet || 1)
+      }))
+    }, [])
 
-    // Two drawings claiming one concept would leave which of them ships to the
-    // order of this list, silently.
-    expect(ids.length).toBe(new Set(ids).size)
+    expect(keys.length).toBe(new Set(keys).size)
+
+    // And a concept's sheets are 1..n with none missing — a gap would mean a
+    // sheet was dropped from the list and the concept teaches part of itself.
+    const bySheet = {}
+    builder.DRAWINGS.forEach(function (d) {
+      builder.servedConcepts(d).forEach(function (id) {
+        bySheet[id] = (bySheet[id] || []).concat(d.sheet || 1)
+      })
+    })
+    Object.keys(bySheet).forEach(function (id) {
+      const want = bySheet[id].map(function (_, i) { return i + 1 })
+      expect(id + ':' + bySheet[id].slice().sort().join(',')).toBe(id + ':' + want.join(','))
+    })
   })
 })
 
@@ -330,6 +363,9 @@ describe('a drawing costs no more than one concept is worth', () => {
     const wired = {}
     builder.DRAWINGS.forEach((d) => { wired[d.file + '#' + d.svg] = true })
 
+    const awaiting = {}
+    builder.AWAITING_APPROVAL.forEach((d) => { awaiting[d.file + '#' + d.svg] = true })
+
     const missed = []
     fs.readdirSync(MOCKUPS)
       .filter(f => /^strategy-concept-.*\.html$/.test(f))
@@ -339,10 +375,13 @@ describe('a drawing costs no more than one concept is worth', () => {
 
         for (let n = 1; n <= count; n++) {
           if (wired[file + '#' + n]) { continue }
-          // There is no longer any accepted reason. This used to excuse a
-          // drawing carrying a pasted-in picture, which quietly exempted the
-          // five that most needed wiring; every approved drawing is now in the
-          // list, so anything unwired here is a drawing nobody wired.
+          // The ONE accepted reason, and it is not an excuse — it is a state.
+          // A drawing saved so Mike can look at it, before he has approved it,
+          // may sit unwired while it is declared in `AWAITING_APPROVAL` and its
+          // register row says the same. Every other unwired drawing is a drawing
+          // nobody wired. (This used to excuse a drawing carrying a pasted-in
+          // picture, which quietly exempted the five that most needed wiring.)
+          if (awaiting[file + '#' + n]) { continue }
           missed.push(file + ' drawing ' + n)
         }
       })
@@ -362,8 +401,86 @@ describe('a drawing costs no more than one concept is worth', () => {
         // Quoted or not — `pricing` is the one id the lint will not let us
         // quote — what matters is that the id loads through `import()`.
         const key = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        expect(registry).toMatch(new RegExp("^\\s*'?" + key + "'?: \\(\\) => import\\(", 'm'))
+        // ⚠ A LIST SINCE 2026-09-23 — one entry per teaching sheet. The id opens an
+        // array; every import() in the file is still checked for laziness by the
+        // assertion above, so a concept cannot go back to a bare factory unnoticed.
+        expect(registry).toMatch(new RegExp("^\\s*'?" + key + "'?: \\[$", 'm'))
       })
     })
+  })
+})
+
+// 🔴 THE THIRD STATE, AND THE FOUR CHECKS THAT STOP IT BECOMING A LOOPHOLE.
+// `AWAITING_APPROVAL` lets a drawing Mike has not yet approved be committed —
+// which *Save the Artefact* requires — without it being built, which is what
+// being in `DRAWINGS` means. Item 15.19. Nothing here relaxes the guard above:
+// these make the waiting state cost something to enter and impossible to
+// forget, so it cannot be used to park a drawing indefinitely.
+describe('a drawing waiting on Mike is declared, and cannot be forgotten', () => {
+  const ARTEFACTS = fs.readFileSync(path.join(ROOT, 'design', 'ARTEFACTS.md'), 'utf8')
+
+  /** The exact token a register row must carry for one waiting drawing. */
+  const token = d => 'AWAITING APPROVAL (' + d.file + '#' + d.svg + ')'
+
+  test('nothing is both waiting for approval and already built', () => {
+    // Wiring a drawing in is what approval MEANS here. Leaving it in both
+    // lists would let an approved drawing keep a waiting drawing's exemption.
+    const wired = {}
+    builder.DRAWINGS.forEach((d) => { wired[d.file + '#' + d.svg] = true })
+
+    const both = builder.AWAITING_APPROVAL
+      .filter(d => wired[d.file + '#' + d.svg])
+      .map(d => d.file + '#' + d.svg)
+
+    expect(both).toEqual([])
+  })
+
+  test('a waiting entry points at a drawing that really exists', () => {
+    // An entry naming a file or a drawing number that is not there would
+    // exempt nothing and hide the fact, which is worse than no entry at all.
+    const wrong = builder.AWAITING_APPROVAL.filter((d) => {
+      const file = path.join(MOCKUPS, d.file)
+      if (!fs.existsSync(file)) { return true }
+      const count = (fs.readFileSync(file, 'utf8').match(/<svg[\s\S]*?<\/svg>/g) || []).length
+      return !(d.svg >= 1 && d.svg <= count)
+    }).map(d => d.file + '#' + d.svg)
+
+    expect(wrong).toEqual([])
+  })
+
+  test('the register and the code agree on what is waiting', () => {
+    // 🔴 THIS IS THE HALF THAT CLOSES THE STATE. The register row is where
+    // Mike's approval gets recorded, so the moment somebody records it by
+    // removing this token, the build fails until the drawing is wired into
+    // DRAWINGS and its entry removed here. Without this a drawing could be
+    // approved and left unbuilt for ever, invisible on every screen — which
+    // is the exact fault the guard above exists to catch.
+    const missingToken = builder.AWAITING_APPROVAL
+      .filter(d => !ARTEFACTS.includes(token(d)))
+      .map(d => d.file + '#' + d.svg)
+
+    expect(missingToken).toEqual([])
+
+    const declared = {}
+    builder.AWAITING_APPROVAL.forEach((d) => { declared[token(d)] = true })
+
+    // Deliberately strict: a real token names an .html file and a digit. The
+    // register's own explanation of the convention uses a `<placeholder>`
+    // form, which must NOT read as a drawing nobody declared.
+    const orphanTokens = (ARTEFACTS.match(/AWAITING APPROVAL \([A-Za-z0-9._-]+\.html#\d+\)/g) || [])
+      .filter(t => !declared[t])
+
+    expect(orphanTokens).toEqual([])
+  })
+
+  test('a waiting entry says when it was shown and what it belongs to', () => {
+    // A bare {file, svg} is unreadable six weeks later. The date is how anyone
+    // sees that a drawing has been waiting too long; the item is where the
+    // decision lives.
+    const thin = builder.AWAITING_APPROVAL.filter(d =>
+      !/^\d{4}-\d{2}-\d{2}$/.test(String(d.since)) || !/^\d+(\.\d+)?$/.test(String(d.item))
+    ).map(d => d.file + '#' + d.svg)
+
+    expect(thin).toEqual([])
   })
 })

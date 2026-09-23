@@ -74,11 +74,19 @@
 
             //- An agenda row has no page of its own — the number on the record is the
             //- agenda slide, which the panel heading already names.
-            td.ssm-pg {{ deck.rowSource === 'agenda' ? '—' : concept.page }}
+            //- 🔴 THE ROW'S OWN SOURCE, NOT THE DECK'S. An agenda row carries page 2,
+            //- its deck's contents page, so a number there would be a wrong reference on
+            //- a table a client reads. A framing page sitting in the same deck has a REAL
+            //- page and must show it — which the deck-level test could not tell apart.
+            td.ssm-pg {{ concept.source === 'agenda' ? '—' : concept.page }}
 
             //- An agenda row is name-only (Decision B), so the name takes the three columns
             //- rather than leaving two empty cells that read as missing data.
-            template(v-if="deck.rowSource === 'agenda'")
+            //- 🔴 THE ROW'S OWN SOURCE AGAIN, NOT THE DECK'S. A FRAMING PAGE sitting in an
+            //- agenda deck is not a name-only row: it has a real page, a drawing and a title
+            //- of its own, and rendered this way it would lose all three and read as one more
+            //- line of the agenda. Strategic Orientation 1 holds both kinds since 2026-09-23.
+            template(v-if="concept.source === 'agenda'")
               td.ssm-name(colspan="3")
                 | {{ concept.name }}
                 span.ssm-sub(v-if="concept.conceptSummary") {{ concept.conceptSummary }}

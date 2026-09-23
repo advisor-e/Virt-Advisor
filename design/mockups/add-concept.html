@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Concept — a PDF page becomes a concept</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 15.20 — Add Concept. Screen mockup for approval (drawn 2026-09-23).
+   NOTHING IS BUILT.
+
+   Colours, spacing and type are READ OFF the shipped hub tabs, per the owner
+   ruling of 2026-07-23 — nothing here is a new look:
+     - design/mockups/depreciation-rates-upload.html   approved 2026-09-08
+     - design/REPORT-VISUAL-STANDARD.md                the ruled numbers
+   No dark mode: one light look, RULED 2026-07-27.
+
+   MIKE'S REQUIREMENTS, BUILT INTO THIS DRAWING (2026-09-23, his own words):
+     - "a button called 'Add Concept' which enables me to drag and drop a pdf -
+       have it rendered and converted into a concept"
+     - a button per section, OR one place with a dropdown choosing the section
+     - "an additional pdf is then loaded for 'Response Form'"
+     - "once imported, the same branding format need apply"
+     - "it cascades from mentor through each level to firm and then
+       client/busines enitiy"
+
+   HIS TWO SECURITY RULINGS, ALSO BUILT IN (2026-09-23):
+     - NO AI ever touches an uploaded PDF. The manager names the concept; the
+       page's text is read locally.
+     - The upload goes to the Restify backend, PDF only, under a size cap,
+       stored per firm, with a hard timeout. Converting in the manager's own
+       browser was offered and declined.
+
+   THE PREVIEW AT §4 IS REAL. It is the actual converted output of
+   Advance.6.Organisational Review.pdf page 11, measured 2026-09-23: vector, 33
+   paths, 49 text elements, 5 KB gzipped for the drawing structure, complete
+   with both green arrows and the advisor-e.com logo. It is drawn here in
+   outline rather than embedded, because the artefact must stay readable.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+
+/* hub header */
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+/* tab strip */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+/* cards */
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+.card-b > p:first-child{margin-top:0}
+.card-b > p:last-child{margin-bottom:0}
+
+/* cascade banner */
+.cascade{display:flex;align-items:center;gap:0;flex-wrap:wrap;font-size:12.5px;
+  background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:11px 14px;margin-bottom:16px}
+.ct{display:flex;align-items:center;gap:7px;padding:0 12px 0 0}
+.ct .dot{width:8px;height:8px;border-radius:50%;background:var(--rs-line);flex:none}
+.ct.has .dot{background:var(--rs-accent-bright)}
+.ct.you{font-weight:600}
+.ct.you .dot{background:var(--rs-accent)}
+.ct.deliver{color:var(--rs-muted);font-style:italic}
+.ct.deliver .dot{background:var(--rs-good)}
+.carrow{color:var(--rs-muted);padding:0 12px 0 0}
+.cnote{width:100%;margin-top:8px;padding-top:8px;border-top:1px dashed var(--rs-line);
+  color:var(--rs-muted);font-size:12px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:9px;
+  font-size:13px;font-weight:600;border:1px solid var(--rs-accent);color:#fff;
+  background:var(--rs-accent);cursor:default;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--rs-accent)}
+.btn.quiet{background:transparent;color:var(--rs-muted);border-color:var(--rs-line)}
+
+/* drop zone */
+.drop{border:2px dashed var(--rs-accent);border-radius:12px;background:var(--rs-accent-soft);
+  padding:30px 20px;text-align:center}
+.drop .big{font-size:15px;font-weight:600;margin-bottom:4px}
+.drop .small{font-size:12.5px;color:var(--rs-muted)}
+
+/* form rows */
+.frow{display:flex;gap:14px;align-items:flex-start;margin:0 0 14px;flex-wrap:wrap}
+.frow label{width:190px;flex:none;font-size:12.5px;font-weight:600;padding-top:9px}
+.fctl{flex:1;min-width:260px}
+.inp{width:100%;padding:9px 11px;border:1px solid var(--rs-line);border-radius:8px;
+  background:#fff;font-size:13.5px;color:var(--rs-ink)}
+.inp.ro{background:var(--rs-panel-2);color:var(--rs-muted)}
+.hint{font-size:12px;color:var(--rs-muted);margin-top:5px}
+
+/* the slide preview */
+.slide{position:relative;background:#fff;border:1px solid var(--rs-line);border-radius:8px;
+  aspect-ratio:1500/844;overflow:hidden}
+.slide .bars{position:absolute;inset:0;pointer-events:none}
+.slide .bars i{position:absolute;background:#0070c0;display:block}
+.slide .t{left:.54%;top:.96%;width:98.92%;height:1.75%}
+.slide .l{left:.54%;top:2.71%;width:.94%;height:94.57%}
+.slide .r{right:.54%;top:2.71%;width:.94%;height:94.57%}
+.slide .bl{left:.54%;bottom:.96%;width:6.33%;height:1.75%}
+.slide .br{left:16.55%;bottom:.96%;width:82.91%;height:1.75%}
+.slide .inner{position:absolute;inset:4% 3%;font-size:11px;color:var(--rs-muted)}
+.slide .ttl{font-size:17px;font-weight:300;color:#1b3a6b;margin-bottom:10px}
+.slide .ln{height:7px;background:var(--rs-line);border-radius:3px;margin:6px 0;opacity:.75}
+.slide .circ{position:absolute;right:26%;bottom:14%;width:20%;aspect-ratio:1;border-radius:50%;
+  background:#e9e9e9;border:2px solid #2b4f8a}
+.slide .arw{position:absolute;width:6%;aspect-ratio:1;background:#a9d18e;
+  clip-path:polygon(0 100%,0 40%,55% 40%,55% 0,100% 50%,55% 100%,55% 62%,0 62%)}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;border-bottom:1px solid var(--rs-line)}
+td{padding:10px;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600}
+.pill.own{background:var(--rs-good-soft);color:#2f6b1a}
+.pill.inh{background:var(--rs-accent-soft);color:var(--rs-accent)}
+.pill.draft{background:var(--rs-warn-soft);color:#8a5200}
+
+/* question blocks */
+.q{background:#fff;border:1px solid var(--rs-line);border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:14px 16px;margin:0 0 12px}
+.q h3{margin:0 0 6px;font-size:14px;font-weight:600}
+.q p{margin:0 0 7px;font-size:13px}
+.q p:last-child{margin:0}
+.q .against{color:var(--rs-muted);font-size:12.5px}
+
+/* wording rows */
+.words td:first-child{width:38%;color:var(--rs-muted);font-size:12.5px}
+.words td:last-child{font-weight:600}
+
+.warn{background:var(--rs-warn-soft);border:1px solid #ffd08a;border-radius:10px;
+  padding:12px 14px;font-size:12.5px;margin:0 0 16px}
+.crit{background:var(--rs-crit-soft);border:1px solid #f3b4b4;border-radius:10px;
+  padding:12px 14px;font-size:12.5px;margin:0 0 16px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p>✅ <b>APPROVED BY MIKE TO BUILD FROM — 2026-09-23.</b> In his words: <i>"make a note now
+  that i approve the drawing."</i> Asked as its own question after all six of its questions were
+  ruled one at a time, because ruling the questions inside a drawing is not approving the
+  drawing.</p>
+  <p>🔴 <b>THE APPROVAL COVERS THIS PAGE AS IT STANDS, INCLUDING THE SEVENTEEN WORDING ROWS AT
+  §8 — they are his words now, not proposals.</b> Anything the build does differently from this
+  page is a deviation and must be named beside the build, per CLAUDE.md. <b>Open this file and
+  put it beside the build before shipping.</b></p>
+  <p>✅ <b>§5b AND §8b APPROVED BY MIKE 2026-09-24</b> — the box-marking screen, drawn that day on
+  his yes because step 3 had no screen for marking the boxes a client writes in. <b>Its nine
+  wording rows are his words now.</b> ✅ <b>Question 7 ruled the same day, as recommended:</b>
+  answers print inside their boxes on the page.</p>
+  <p><b>Item 15.20 — screens drawn 2026-09-23. NOTHING IS BUILT YET.</b> This is the artefact the
+  build will be checked against, saved before approval as CLAUDE.md requires.</p>
+  <p><b>Your requirements, built in:</b> an <b>Add Concept</b> button taking a dragged PDF,
+  <b>rendered and converted into a concept</b>; the <b>section</b> chosen; a <b>second PDF for the
+  Response Form</b>; <b>the same branding format once imported</b>; and it <b>cascades from mentor
+  through each level to firm and then client/business entity</b>.</p>
+  <p><b>Your two security rulings, built in:</b> no AI ever touches an uploaded PDF — you name the
+  concept, and the page's text is read locally; and the upload goes to our own backend, PDF only,
+  size-capped, stored per tier, with a hard timeout.</p>
+  <p>🔴 <b>SIX QUESTIONS AT §7, EACH WITH ONE RECOMMENDATION. Each ruling is written beside its
+  question as it is given</b> — so this page, not a chat message, is the record.</p>
+  <p>✅ <b>QUESTION 1 RULED 2026-09-23, as recommended:</b> the app's frame is painted over the
+  outer edge of an imported page, covering the border the source deck carried. It was the one
+  that decided whether this feature can meet your own standard — that concepts must not look
+  different to a client — and nothing about it was visible until a page was actually converted.</p>
+  <p>✅ <b>QUESTION 2 RULED 2026-09-23 — "one".</b> One Add Concept button, the section chosen
+  as the first field.</p>
+  <p>✅ <b>QUESTION 4 RULED 2026-09-23, as recommended:</b> the original PDF is kept against the
+  version of the concept it produced — which is what makes a future change of converter possible
+  without every firm re-uploading its material.</p>
+  <p>✅ <b>QUESTION 5 RULED 2026-09-23, as recommended:</b> a concept added at one level appears
+  at once at every level below, unless that level has replaced it. No opt-in, and no second
+  cascade pattern.</p>
+  <p>🔴 <b>QUESTION 6 RULED 2026-09-23 AGAINST THE RECOMMENDATION, and it removes the largest
+  single piece of work in the item.</b> The client/business entity is <b>the destination, not an
+  authoring level</b> — <i>"where it ends up … delivering a pdf."</i> No new scope, no new
+  storage, and <code>TIERS</code> needs no change. <b>ALL SIX QUESTIONS ARE NOW RULED.</b></p>
+  <p>🔴 <b>QUESTION 3 RULED 2026-09-23 AGAINST THE RECOMMENDATION, and it redrew two screens.</b>
+  Your words: <i>"Every concept has a teach and response requirement. what you are seeing is some
+  concepts require more than a single page of teach material."</i> So <b>the Response Form is
+  required</b>, and <b>step 1 takes more than one teaching page</b>. The figure the
+  recommendation rested on — <i>"24 of 46 have no response table"</i> — counted forms <b>not yet
+  chosen</b> (items 15.11 and 15.16), not concepts that need none.</p>
+</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Mentor Hub</div>
+  <h1 class="hub-h1">Strategy Concepts</h1>
+  <div class="hub-sub">46 concepts across four planning sections</div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Domain Support</div>
+  <div class="tab">Logic Tables</div>
+  <div class="tab">Advisory Distinctions</div>
+  <div class="tab">Coaching Reference</div>
+  <div class="tab">AI Prompts</div>
+  <div class="tab">Template Profiles</div>
+  <div class="tab on">Strategy Concepts</div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">1 · Where concepts come from — the cascade</div>
+
+<div class="mock">
+  <p>The cascade shown as a fact, not a setting, exactly as the approved Depreciation Rates
+  drawing shows it. <b>You are at the top:</b> a concept you add here reaches everyone below
+  who has not replaced it. Each level down may add its own.</p>
+  <p>✅ <b>THE LAST STEP IS NOT A NEW LEVEL — RULED BY MIKE 2026-09-23.</b> In his words, the
+  client/business entity is <i>"where it ends up - the way the rest of the feature currently
+  works - delivering a pdf."</i> Concepts are <b>authored</b> at the four manager levels and
+  <b>delivered</b> to the client in their session and their printed plan, exactly as everything
+  else already reaches them. <b>Nothing is authored at the client level and no new storage is
+  built.</b> See question 6.</p>
+</div>
+
+<div class="cascade">
+  <div class="ct you has"><span class="dot"></span> Mentor</div><span class="carrow">→</span>
+  <div class="ct has"><span class="dot"></span> Global group manager</div><span class="carrow">→</span>
+  <div class="ct has"><span class="dot"></span> Group manager</div><span class="carrow">→</span>
+  <div class="ct has"><span class="dot"></span> Firm manager</div><span class="carrow">⇢</span>
+  <div class="ct deliver"><span class="dot"></span> Client / business entity · delivered</div>
+  <div class="cnote">You are the mentor. <b>46 concepts</b> published from here ·
+  nothing below has replaced any of them yet. <b>The four manager levels author; the client
+  receives</b> — in the session and in the plan PDF, as everything else already does.</div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">2 · The concept library, and one button</div>
+
+<div class="mock">
+  <p>The list an advisor already scopes a session from, with the one new control on it.</p>
+  <p>✅ <b>RULED 2026-09-23 — "one".</b> One Add Concept button, as drawn, with the section
+  chosen as the first field. The four per-section buttons you also offered are not built.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Strategy Concepts</h2>
+    <span class="btn">+ Add Concept</span>
+  </div>
+  <div class="card-b" style="padding:0">
+    <table>
+      <tr>
+        <th>Concept</th><th>Section</th><th>Teaching sheet</th>
+        <th>Response Form</th><th>Where from</th>
+      </tr>
+      <tr>
+        <td><b>Risk Reward Matrix</b></td><td>Strategic Orientation</td>
+        <td>Drawn</td><td>Banded grid</td><td><span class="pill own">Mentor</span></td>
+      </tr>
+      <tr>
+        <td><b>Vertical Integration</b></td><td>Strategic Orientation</td>
+        <td>Drawn</td><td><span class="pill draft">Not yet chosen</span></td>
+        <td><span class="pill own">Mentor</span></td>
+      </tr>
+      <tr>
+        <td><b>Collaborative Thinking</b></td><td>Business Targets</td>
+        <td>Drawn · 2 pages</td><td><span class="pill draft">Not yet chosen</span></td>
+        <td><span class="pill own">Mentor</span></td>
+      </tr>
+      <tr>
+        <td><b>Our Client Charter</b></td><td>Organisational Review</td>
+        <td>Imported</td><td>Imported</td><td><span class="pill draft">Added here · today</span></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">3 · Add Concept, step 1 — the teaching page</div>
+
+<div class="mock">
+  <p>🔴 <b>MORE THAN ONE TEACHING PAGE, on Mike's correction of 2026-09-23</b> — <i>"some
+  concepts require more than a single page of teach material."</i> Already true in the app:
+  Collaborative Thinking ships with <b>two</b> teaching sheets, and a concept's registry entry
+  holds a <b>list</b>, not one drawing. Pages are taught in the order they are dropped.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Add Concept — 1 of 3 · The teaching pages</h2></div>
+  <div class="card-b">
+    <div class="frow">
+      <label>Which section?</label>
+      <div class="fctl">
+        <select class="inp">
+          <option>Business Targets</option>
+          <option>Strategic Orientation</option>
+          <option selected>Organisational Review</option>
+          <option>Sales &amp; Marketing Review</option>
+        </select>
+        <div class="hint">These are the four planning sections the app already holds —
+        the names are not new.</div>
+      </div>
+    </div>
+
+    <div class="drop">
+      <div class="big">Drop the teaching pages here</div>
+      <div class="small">or choose files · PDF only · up to 20 MB each ·
+      taught in the order you drop them</div>
+    </div>
+
+    <div class="hint" style="margin-top:12px">
+      Nothing is sent to an AI. The pages are converted on our own server and the text is read
+      from the pages themselves.
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">4 · Add Concept, step 2 — what came back</div>
+
+<div class="mock">
+  <p><b>The preview is real output, not an impression.</b> Organisational Review page 11 was put
+  through the converter on 2026-09-23: vector, <b>33 shapes, 49 pieces of real text</b>,
+  complete with both green arrows and the advisor-e.com logo. <b>Weight, measured 2026-09-24:
+  63 KB compressed (154 KB uncompressed) for the whole page as the converter stores it, with
+  the covered logo left out</b> (question 8) — 402 KB with it — of which the shapes alone are
+  5 KB. It is drawn here in outline so this
+  artefact stays readable.</p>
+  <p>🔴 <b>THE FRAME AROUND IT IS THE WHOLE OF QUESTION 1.</b> Your own deck page already carries
+  <b>its own cyan border</b>. The app's 35 drawn slides carry <b>the five blue bars</b>. Import
+  the page untouched and it sits beside them wearing a different frame — which is the one thing
+  you ruled out.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Add Concept — 2 of 3 · Check and name it</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">Converted in 0.4 s · 63 KB</span>
+  </div>
+  <div class="card-b">
+    <div class="slide">
+      <div class="inner">
+        <div class="ttl">Defining Our Cultural Core Values (foundation)</div>
+        <div class="ln" style="width:52%"></div>
+        <div class="ln" style="width:44%"></div>
+        <div class="ln" style="width:61%"></div>
+        <div class="ln" style="width:58%"></div>
+        <div class="ln" style="width:47%"></div>
+      </div>
+      <div class="circ"></div>
+      <div class="arw" style="right:20%;bottom:33%;transform:rotate(-38deg)"></div>
+      <div class="arw" style="right:46%;bottom:8%;transform:rotate(-38deg)"></div>
+      <div class="bars">
+        <i class="t"></i><i class="l"></i><i class="r"></i><i class="bl"></i><i class="br"></i>
+      </div>
+    </div>
+
+    <div style="height:16px"></div>
+
+    <div class="frow">
+      <label>Concept name</label>
+      <div class="fctl">
+        <input class="inp" value="Defining Our Cultural Core Values">
+        <div class="hint">Read from the page's own title. Change it if you want something
+        shorter on the scope menu.</div>
+      </div>
+    </div>
+    <div class="frow">
+      <label>Section</label>
+      <div class="fctl"><input class="inp ro" value="Organisational Review" readonly></div>
+    </div>
+    <div class="frow">
+      <label>Helps your client to…</label>
+      <div class="fctl">
+        <input class="inp" placeholder="One line, in your words">
+        <div class="hint">Optional. Left blank, the scope menu shows the concept name alone.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">5 · Add Concept, step 3 — the Response Form</div>
+
+<div class="card">
+  <div class="card-h"><h2>Add Concept — 3 of 3 · The Response Form</h2></div>
+  <div class="card-b">
+    <p style="margin-top:0;font-size:13px">The page the client writes on. Your words:
+    <i>"an additional pdf is then loaded for 'Response Form'."</i></p>
+
+    <div class="drop">
+      <div class="big">Drop the Response Form page here</div>
+      <div class="small">or choose a file · PDF only · up to 20 MB</div>
+    </div>
+
+    <div class="hint" style="margin-top:12px">
+      🔴 <b>Required</b>, on Mike's ruling of 2026-09-23: <i>"Every concept has a teach and
+      response requirement."</i> A concept cannot be added without one, and the "teaches only"
+      skip drawn here earlier is not built.
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">5b · Step 3 continued — marking the boxes the client writes in</div>
+
+<div class="warn">
+  ✅ <b>APPROVED BY MIKE 2026-09-24 — drawn that day, and approved as its own question after
+  question 7 was ruled.</b> §5b and §8b were added after the approval of 2026-09-23 and are
+  covered by this one.
+</div>
+
+<div class="mock">
+  <p>🔴 <b>WHY THIS SCREEN EXISTS — Mike's yes of 2026-09-24.</b> A Response Form in the app is a
+  set of <b>boxes the advisor types the client's answers into</b>; those answers are saved and
+  printed in the plan. His security ruling of 2026-09-23 says an imported form's boxes are
+  <b>"mapped by hand rather than proposed"</b> — no AI and no code guesses where they are. The
+  approved step 3 had a drop zone and nothing after it, so an imported form would have arrived
+  as a picture with nowhere to write.</p>
+  <p><b>How it works:</b> the converted page is shown; the manager drags a rectangle over each
+  space the client writes in and gives it a short label. The label is what the advisor sees
+  beside the box in the session. Boxes are listed in the order they were drawn, which is the
+  order the advisor is taken through them.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Mark the boxes your client writes in</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">3 boxes marked</span>
+  </div>
+  <div class="card-b">
+    <p style="margin-top:0;font-size:13px">Drag a box over each space on the page where your
+    client writes an answer, then give it a short label.</p>
+
+    <div class="slide">
+      <div class="inner">
+        <div class="ttl">Our Cultural Core Values — Response</div>
+        <div class="ln" style="width:30%"></div>
+      </div>
+      <div style="position:absolute;left:6%;top:24%;width:40%;height:28%;border:2px solid #00b1e0;
+        background:#00b1e014;border-radius:4px;font-size:11px;font-weight:600;color:#0070c0;
+        padding:4px 6px">1 · Our core values</div>
+      <div style="position:absolute;left:52%;top:24%;width:42%;height:28%;border:2px solid #00b1e0;
+        background:#00b1e014;border-radius:4px;font-size:11px;font-weight:600;color:#0070c0;
+        padding:4px 6px">2 · What each value looks like in practice</div>
+      <div style="position:absolute;left:6%;top:58%;width:88%;height:30%;border:2px dashed #00b1e0;
+        background:#00b1e00a;border-radius:4px;font-size:11px;font-weight:600;color:#0070c0;
+        padding:4px 6px">3 · being drawn…</div>
+      <div class="bars">
+        <i class="t"></i><i class="l"></i><i class="r"></i><i class="bl"></i><i class="br"></i>
+      </div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <table>
+      <tr><th style="width:40px">#</th><th>Boxes on this page</th><th style="width:90px"></th></tr>
+      <tr><td>1</td><td><input class="inp" value="Our core values"></td>
+        <td><span class="btn quiet">Remove</span></td></tr>
+      <tr><td>2</td><td><input class="inp" value="What each value looks like in practice"></td>
+        <td><span class="btn quiet">Remove</span></td></tr>
+      <tr><td>3</td><td><input class="inp" placeholder="Label, e.g. Our core values"></td>
+        <td><span class="btn quiet">Remove</span></td></tr>
+    </table>
+
+    <div class="hint" style="margin-top:10px">Mark at least one box before adding the concept.</div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+      <span class="btn quiet">Back</span>
+      <span class="btn">Save concept</span>
+    </div>
+  </div>
+</div>
+
+<div class="q">
+  <h3>7. In the printed plan, where do the client's answers appear?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-24, AS RECOMMENDED.</b> Each answer is written inside its own
+  box on the Response Form page, shrinking to fit, and continues below the page under the box's
+  label only when it is too long — never cut off. The separate answers table is not built.</p>
+  <p>Today a Response Form prints as a table with the answers in its cells. An imported form is
+  a page, so the answers need a home on it.</p>
+  <p class="rec">Recommended: <b>written inside the boxes on the page itself</b>, in the app's
+  own type, so the client's plan shows their Response Form filled in — the same page the advisor
+  taught from, now completed.</p>
+  <p class="against">Against: a long answer can outgrow its box. It is then shrunk to fit down
+  to a readable floor, and past that it continues beneath the page under the box's label —
+  never cut off silently.</p>
+  <p class="against">Rejected: listing the answers as a separate table under the page. It is
+  simpler to build, but the client sees a blank form and then their words somewhere else, which
+  is not what a completed Response Form is.</p>
+</div>
+
+<div class="mock">
+  <p><b>What the advisor sees in the session — unchanged in kind.</b> The capture card lists the
+  labelled boxes as fields, in their drawn order, exactly as it lists a drawn table's cells
+  today. No new session screen is proposed.</p>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">6 · When a page cannot be read</div>
+
+<div class="crit">
+  <b>Shown instead of the preview, never as a silent empty screen.</b>
+  <p style="margin:8px 0 0">“We could not read that page. It may be scanned rather than typed, or
+  protected against copying. Try exporting it again from the original file.”</p>
+</div>
+
+<div class="mock">
+  <p>A scanned page — a photograph of a slide rather than a slide — has no text and no shapes to
+  convert, so it would come through as an unreadable block. <b>Saying so plainly is the whole
+  handling;</b> there is no repair we can offer and pretending otherwise would produce a concept
+  that teaches nothing. The wording above is proposed, not approved — see §8.</p>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">7 · Six questions, one recommendation each</div>
+
+<div class="q">
+  <h3>1. The frame — how does an imported page stop looking foreign?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AS RECOMMENDED.</b> The app's frame is painted over the
+  outer edge of the imported page, covering the border the source deck carried. Every concept in
+  a session wears one frame and it is the app's.</p>
+  <p>Your deck pages carry <b>their own cyan border</b>. The app's 35 drawn slides carry <b>the
+  five blue bars</b>, pinned identically by test. Both cannot show at once.</p>
+  <p class="rec">Recommended: the app's frame is painted over the outer edge of the imported
+  page, covering whatever border the source carried, so every concept in a session wears one
+  frame and it is ours.</p>
+  <p class="against">Against: it paints over a thin strip of the original, so a page with
+  content hard against its edge would lose a sliver. Measured on your Organisational Review
+  page, the margin is comfortably clear — but that is one page, and you have ruled the
+  converter is not to be run across your other decks, so this is checked per import at the
+  preview rather than assumed.</p>
+  <p class="against">Rejected: cropping the source border automatically. It means guessing where
+  somebody else's border ends, and it guesses wrong silently.</p>
+</div>
+
+<div class="q">
+  <h3>2. One Add Concept button, or one per section?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AS RECOMMENDED — "one".</b> A single Add Concept button,
+  with the section chosen as the first field, and pre-filled wherever the screen already knows
+  which section you are in. <b>Four per-section buttons are not built.</b></p>
+  <p>You offered both: <i>"Each section … has a 'Add Concept' button … or — one place with a
+  droptab asking which section to be posted into."</i></p>
+  <p class="rec">Recommended: <b>one button</b>, with the section chosen as the first field, as
+  drawn at §3.</p>
+  <p class="against">Against: one more click than a button that already knows the section. Four
+  buttons take four times the space for one action, and the section is a field the app already
+  holds, so it can be pre-filled wherever the screen already knows which section you are in.</p>
+</div>
+
+<div class="q">
+  <h3>3. Is the Response Form required, or optional?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AGAINST THE RECOMMENDATION, AND HE IS RIGHT.</b> In his
+  words: <i>"Every concept has a teach and response requirement. what you are seeing is some
+  concepts require more than a single page of teach material."</i></p>
+  <p><b>The Response Form is REQUIRED</b>, and <b>the teaching half accepts more than one
+  page</b>. The "This concept teaches only — skip" control is not built.</p>
+  <p class="against">⚠ <b>The recommendation rested on a figure that measured the wrong thing,
+  recorded here so nobody re-derives it.</b> It said <i>"24 of your 46 existing concepts have no
+  response table"</i>. That count is of concepts whose response form has <b>not been chosen
+  yet</b> — which is what items <b>15.11</b> and <b>15.16</b> are already on the list for — not
+  of concepts that need none. The data agrees with Mike: <code>responsePage</code> already names
+  a <b>later</b> page on five concepts — Vertical Integration teaches on p22 and responds on
+  p24, Revenue Streams p33 → p34, The 8 Profit Levers p39 → p41 — and two of them share one
+  response page.</p>
+</div>
+
+<div class="q">
+  <h3>4. Is the source PDF kept after conversion?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AS RECOMMENDED.</b> The original PDF is <b>kept</b>, stored
+  against the version of the concept it produced.</p>
+  <p>⚠ <b>The reason is load-bearing, not housekeeping.</b> The conversion library's own authors
+  warn the part we use <i>"is no longer maintained and may be removed in the future"</i>. Keeping
+  the originals is what makes a future change of converter possible <b>without asking every firm
+  to upload its material again</b> — and without them, concepts imported today would be frozen as
+  they are for good.</p>
+  <p class="rec">Recommended: <b>kept</b>, against the version of the concept it produced.</p>
+  <p class="against">Against: it stores more of a firm's material than the app strictly needs.
+  For it: a concept can be re-made if the conversion improves, and anyone can check the slide
+  against the page it came from — which is the same reason the 35 drawings are generated from
+  their artefacts rather than written by hand.</p>
+</div>
+
+<div class="q">
+  <h3>5. Does a concept added above appear below at once, or does the level below opt in?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AS RECOMMENDED.</b> A concept added at one level
+  <b>appears at once at every level below</b>, unless that level has replaced it. There is no
+  opt-in, and no second cascade pattern is built.</p>
+  <p class="rec">Recommended: <b>it appears at once</b>, inherited, exactly as the approved
+  Depreciation Rates cascade already works — the nearest level above is what you get until you
+  replace it.</p>
+  <p class="against">Against: a firm sees new material without asking for it. For it: a second
+  pattern for the same idea is how two things that should agree drift apart.</p>
+</div>
+
+<div class="q">
+  <h3>6. What does "client / business entity" mean as a level?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AND IT IS NOT WHAT THIS DRAWING FIRST RECOMMENDED.</b> In
+  his words: <i>"where it ends up - the way the rest of the feature currently works - delivering
+  a pdf."</i></p>
+  <p><b>The client/business entity is the DESTINATION, not an authoring level.</b> Concepts are
+  authored at the four manager levels and delivered to the client in the session and in the plan
+  PDF, exactly as everything else already reaches them. <b>Nothing is authored there, and no new
+  storage or scope is built.</b></p>
+  <p class="against">⚠ <b>The recommendation this replaced was the largest single piece of the
+  item, and it was wrong.</b> It read the phrase as a fifth place where a concept could be
+  created — "a concept added at this level belongs to that one client's plan and appears nowhere
+  else" — and would have built a new scope and new storage for it. <b>The ruling removes that
+  work entirely.</b> It also means <code>TIERS</code> in <code>server/utils/tierChain.js</code>
+  needs no change: mentor → global group manager → group manager → firm manager is the whole
+  cascade, and the fifth step was never a tier.</p>
+  <p class="against">🔴 <b>Recorded because it nearly went the other way.</b> The drawing put a
+  red "new machinery" mark on the client step, which read as a gap to be filled rather than a
+  question to be asked. A session reading that mark alone would have built the wrong thing.</p>
+</div>
+
+<div class="q">
+  <h3>8. Whose mark sits in the gap in the bottom bar of an imported page?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-24, AS RECOMMENDED.</b> The <b>firm's own mark</b> is painted into
+  the gap, exactly as every drawn slide shows it. On his deck pages that covers the advisor-e.com
+  logo precisely, so the covered logo picture is <b>not stored</b>.</p>
+  <p>Found by converting Organisational Review p11 with the installed reader on 2026-09-24. His
+  deck carries the advisor-e.com logo at <b>6.9%–16.5%</b> across the bottom edge; the app's frame
+  leaves its mark gap at <b>6.87%–16.55%</b> — the frame was copied from his deck. Every drawn slide
+  shows the firm's mark there, so an imported page left untouched would be the only concept in a
+  firm's plan wearing advisor-e's logo. Question 1 ruled the border and did not reach the logo.</p>
+  <p class="against">Weight, measured: the logo is stored at 2048 × 1112 pixels and drawn about 70
+  points wide. Page 11 is <b>402 KB</b> compressed with it and <b>63 KB</b> without — inside the
+  34–120 KB of the six picture concepts.</p>
+  <p class="against">⚠ A firm's own deck may put its logo elsewhere; the step 2 preview shows the
+  result on every import, the same per-import check question 1 relies on.</p>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">8 · Every word on these screens, proposed for approval</div>
+
+<div class="warn">
+  ✅ <b>APPROVED 2026-09-23 — these seventeen are now MIKE'S WORDING, carried by his approval of
+  this drawing as a whole.</b> They were proposals until that moment; they are not proposals now.
+  <b>A build that ships a different string has deviated, and must name the difference beside the
+  build.</b> If any one of them is wrong, it is changed here first and the build follows.
+</div>
+
+<div class="card">
+  <div class="card-b" style="padding:0">
+    <table class="words">
+      <tr><th>Where</th><th>Proposed wording</th></tr>
+      <tr><td>The button on the library</td><td>+ Add Concept</td></tr>
+      <tr><td>Step 1 heading</td><td>Add Concept — 1 of 3 · The teaching pages</td></tr>
+      <tr><td>Section field</td><td>Which section?</td></tr>
+      <tr><td>Drop zone, teaching pages</td><td>Drop the teaching pages here</td></tr>
+      <tr><td>Drop zone, second line</td><td>or choose files · PDF only · up to 20 MB each · taught in the order you drop them</td></tr>
+      <tr><td>The no-AI reassurance</td><td>Nothing is sent to an AI. The pages are converted on our own server and the text is read from the pages themselves.</td></tr>
+      <tr><td>Step 2 heading</td><td>Add Concept — 2 of 3 · Check and name it</td></tr>
+      <tr><td>Name field</td><td>Concept name</td></tr>
+      <tr><td>Name field hint</td><td>Read from the page's own title. Change it if you want something shorter on the scope menu.</td></tr>
+      <tr><td>The one-line field</td><td>Helps your client to…</td></tr>
+      <tr><td>Step 3 heading</td><td>Add Concept — 3 of 3 · The Response Form</td></tr>
+      <tr><td>Drop zone, response page</td><td>Drop the Response Form page here</td></tr>
+      <tr><td>Library column</td><td>Where from</td></tr>
+      <tr><td>Library tag, own</td><td>Mentor</td></tr>
+      <tr><td>Library tag, inherited</td><td>Inherited</td></tr>
+      <tr><td>Library, no form chosen yet</td><td>Not yet chosen</td></tr>
+      <tr><td>Unreadable page</td><td>We could not read that page. It may be scanned rather than typed, or protected against copying. Try exporting it again from the original file.</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">8b · The words §5b adds — approved 2026-09-24</div>
+
+<div class="warn">
+  ✅ <b>APPROVED 2026-09-24 — these nine are MIKE'S WORDING</b>, carried by his approval of §5b.
+  A build that ships a different string has deviated and must name the difference beside the
+  build.
+</div>
+
+<div class="card">
+  <div class="card-b" style="padding:0">
+    <table class="words">
+      <tr><th>Where</th><th>Proposed wording</th></tr>
+      <tr><td>Box-marking heading</td><td>Mark the boxes your client writes in</td></tr>
+      <tr><td>Box-marking instruction</td><td>Drag a box over each space on the page where your client writes an answer, then give it a short label.</td></tr>
+      <tr><td>Box list heading</td><td>Boxes on this page</td></tr>
+      <tr><td>Label field placeholder</td><td>Label, e.g. Our core values</td></tr>
+      <tr><td>Remove a box</td><td>Remove</td></tr>
+      <tr><td>No boxes marked yet</td><td>Mark at least one box before adding the concept.</td></tr>
+      <tr><td>Box count, beside the heading</td><td>{n} boxes marked</td></tr>
+      <tr><td>Going back a step</td><td>Back</td></tr>
+      <tr><td>The finishing button</td><td>Save concept</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">9 · What this drawing does NOT answer</div>
+
+<div class="mock">
+  <ul>
+    <li><b>Where the button sits for the three middle levels.</b> They have hub pages already —
+      built and approved 2026-08-10 — so the tab carries across; which levels get it is
+      question 5's consequence, not a separate screen.</li>
+    <li><b>A whole deck dropped at once.</b> A concept takes its own teaching pages and its own
+      Response Form; dropping a 25-page deck and having the app work out where one concept ends
+      and the next begins is a different feature and is not proposed here. <i>(Multiple teaching
+      pages per concept ARE covered — Mike's correction of 2026-09-23, §3.)</i></li>
+    <li><b>The conversion library's future.</b> Its author warns the part we use
+      <b>"is no longer maintained and may be removed"</b>. That is a real risk on the record; it
+      does not change these screens.</li>
+    <li><b>What an advisor sees.</b> Unchanged — an imported concept behaves exactly like any
+      other on the scope menu, in the session and in the printed plan. That is the point.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

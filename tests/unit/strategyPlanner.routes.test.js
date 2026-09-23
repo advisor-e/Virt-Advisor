@@ -98,14 +98,15 @@ describe('GET /api/strategy/frameworks', () => {
 })
 
 describe('GET /api/strategy/concepts — the session scope menu', () => {
-  it('returns the five panels, in Mike\'s order, holding all 52 concepts', () => {
+  it('returns the five panels, in Mike\'s order, holding all 46 concepts', () => {
     const res = makeRes()
     routes.getConcepts(req(), res)
 
     expect(res._status).toBe(200)
     expect(res._body.decks).toHaveLength(5)
-    expect(res._body.conceptCount).toBe(52)
-    expect(res._body.decks.reduce((n, d) => n + d.concepts.length, 0)).toBe(52)
+    // 46 since 2026-09-23: 52 as Mike scoped it, less the eight agenda rows he deleted as the session's stage directions, plus two framing pages.
+    expect(res._body.conceptCount).toBe(46)
+    expect(res._body.decks.reduce((n, d) => n + d.concepts.length, 0)).toBe(46)
   })
 
   it('🔴 groups by DECK, so Pivot\'s eleven are reachable in one pass', () => {
@@ -134,7 +135,10 @@ describe('GET /api/strategy/concepts — the session scope menu', () => {
     routes.getConcepts(req(), res)
 
     const agenda = res._body.decks.filter(d => d.rowSource === 'agenda')
-    expect(agenda).toHaveLength(3)
+    // 🔴 TWO, NOT THREE. Business Targets stopped being an agenda deck on
+    // 2026-09-23: all five of its agenda rows went and Collaborative Thinking,
+    // a real page, is what it holds now.
+    expect(agenda).toHaveLength(2)
     agenda.forEach((deck) => {
       deck.concepts.forEach((c) => {
         expect(c.helpsClientTo).toBeNull()

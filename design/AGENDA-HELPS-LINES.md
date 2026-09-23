@@ -48,24 +48,12 @@ brackets. They are not marketing copy and they are not definitions.
 
 ---
 
-## Business Targets — the agenda, slide 2
-
-| Approve | Concept | Draft | Drafted from |
-|---|---|---|---|
-| | `define-your-business-owner-expectations`<br>**Define Your Business Owner Expectations** | Put your own income, time and lifestyle goals on the table before anything else, so every target that follows is measured against what you actually want out of the business. | p5 — *"record your income and leisure time goals; then record your thoughts on how you can be most effective at work"* |
-| | `determine-your-business-development-stages-profile-points`<br>**Determine Your Business Development Stages (Profile Points)** | Work out the scale and performance the business has to reach to deliver those personal goals, so you are planning to a number your own life depends on rather than an arbitrary growth figure. | p6 — *"the 'scale dynamics' / 'business performance' required to achieve your personal income, lifestyle and daily activity goals"* |
-| | `choose-your-objectives-what-you-want-to-achieve`<br>**Choose Your Objectives (what you want to achieve)** | Turn "what we want" into objectives you can actually score — observable, bound by a date, and clearly serving the one Strategic Objective. | p8 — the four-part objective test, and the Poor / Correct example |
-| | `review-your-profit-lever-focus-how-you-plan-to-achieve-your`<br>**Review Your Profit Lever Focus** | Decide which of the eight levers you will actually pull and the quick-win tasks behind each, so effort goes where it compounds instead of being spread evenly across all eight. | pp10–12 — the eight levers, the aims table, *"record the 'quick win' actions"* |
-| | `plan-your-meeting-follow-up-using-the-client-plan-feature`<br>**Plan your meeting follow-up** | Agree who is doing what, by when, before anyone leaves the room — so the plan survives the week after the meeting. | p2 agenda item 5, and the Action Plan Reminder on p8 |
-
 ## Strategic Orientation 1 — the agenda, slide 2
 
 | Approve | Concept | Draft | Drafted from |
 |---|---|---|---|
-| | `review-the-planning-process-and-language-to-ensure-were-all`<br>**Review the Planning Process & Language (section 1)** | Get everyone using the same words for strategy, objectives and tactics before the thinking starts, so a room full of well-meaning people stops arguing at cross purposes. | pp4–11 — the six-step process, the 4-Box language, and *"people can become confused and begin thinking in terms of cross purposes"* |
 | | `assess-current-position-by-reviewing-pre-meeting-data-sectio`<br>**Assess current position (section 2)** | Start from evidence rather than memory — what the team said, what customers said, and what the accounts show — so the plan is built on the position you are actually in. | pp13–14 Team and Customer & Skills Insights, p16 Financial Performance & Assets |
 | | `determine-the-business-strategic-objective-and-document-the`<br>**Determine the business Strategic Objective & document the Strategy (section 3)** | Commit to one desired end result, and to the thinking behind how you will reach it. A single Strategic Objective is the acid test every later decision gets measured against. | p7 — *"Desired end result (Singular)"*, *"effectively an 'acid test'"*; p18 Strategic Statements |
-| | `brainstorm-and-record-operational-objectives-and-tactics-act`<br>**Brainstorm & record Operational Objectives and Tactics** | Break the strategy into the milestones that will deliver it, each with a name and a date against it, so it becomes work rather than intent. | p19, and the Task / Whom / When columns on p9 |
 
 ## Organisational Review — the agenda, slide 2
 
@@ -75,7 +63,6 @@ only for the empty *Helps Your Client To…* column.
 
 | Approve | Concept | Draft | Drafted from |
 |---|---|---|---|
-| | `review-the-development-stages-of-the-organisation`<br>**Review the Development Stages of the Organisation** | Agree the size and shape the organisation is heading for, so decisions about people and structure are made for the business you are building rather than the one you have today. | p4 — the Business Development Stages table |
 | | `review-internal-insights-data`<br>**Review Internal Insights Data** | Hear what the team actually say about the place before designing anything. The gap between that and what you assumed is usually where the work is. | p5 — Internal Team Insights, gathered before the meeting |
 | | `review-your-understanding-of-people-process-basics`<br>**Review Your Understanding of People/Process Basics** | Check the basics are genuinely in place before reaching for improvement — a great many "people problems" turn out to be a process nobody ever wrote down. | p6 — the People vs Process table, *"check your understanding (and progress) of Process/ Systems Development"* |
 | | `define-the-leadership-style-necessary-for-success`<br>**Define the Leadership Style Necessary for Success** | Choose the leadership style your strategy actually needs — innovation and precision are led very differently — rather than defaulting to the one that suits you personally. | p7 — *"does it simply reflect your preferences…"*, and the two worked examples |

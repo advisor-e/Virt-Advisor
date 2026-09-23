@@ -76,6 +76,27 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
+      "ref": "5.3",
+      "name": "Two of Mike's own spreadsheets are calculators with nowhere in the app to live",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "BO Expectations.xlsx sets an owner's income and lifestyle goals and BD stages.xlsx the scale needed to reach them. His own slides tell an advisor to complete both, and the app offers neither.",
+      "risk": "They are the FIRST two items on his Business Targets agenda, so a planning session opens by asking a client to fill in two spreadsheets the app cannot show. The counter-risk is scope: these are Report Model work with their own interest sheets and scenario comparison, so each needs the full maths-model-plus-golden-test treatment, not a capture form - which is exactly why the census excludes them by name.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - filed on his yes at shutdown, after the day's eight deletions removed the only two concepts that pointed at these workbooks. He supplied both files himself in Strategy Planner/."
+      },
+      "touches": "design/PLANNING-TEMPLATE-CENSUS.md, which names both in NOT_CAPTURE_TABLES and says what they are; scripts/read-capture-tables.js, which excludes them deliberately; and, if built, the Report Model path - a backend maths model, a golden test, a Restify route, utils/reportModelCatalogue.js, a page and the consistency guard.",
+      "note": "NOT A REGRESSION AND NOTHING IS LOST - both workbooks are Mike's and are in his folder, and six files still name them. What went on 2026-09-23 was the last TASK-shaped trace: the two concepts that pointed at them were agenda rows with no teaching page, deleted on his ruling. The fact then survived only in the census, which nobody works from. THE ADD-A-REPORT SKILL IS THE ROUTE if it is built. Impact test UNRUN - it must be, before any design.",
+      "comment": "2026-09-23 - found at shutdown by asking what the deletions orphaned, rather than by anything failing. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
       "ref": "7.10",
       "name": "A page's templates are hidden behind whichever won the ID",
       "rankedByMike": false,
@@ -160,7 +181,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick, stage 7 the door. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them, including all five stage 7 decisions on mockups/strategy-session-resume.html, settled 2026-09-22: A, B, D, E ruled, C DROPPED. The in-card calculators are parked in Brief 7a, his patchwork ruling intact. Stage 7 is built bar `Leave session`, deliberately not rendered - no destination, and it blocks nothing. NEXT: stage 8, a manager adding a concept.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick, stage 7 the door. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them, including all five stage 7 decisions on mockups/strategy-session-resume.html, settled 2026-09-22: A, B, D, E ruled, C DROPPED. In-card calculators: Brief 7a. STAGE 8 STOOD DOWN by Mike 2026-09-23 for the twelve frameworks an advisor cannot run; its impact test is in Brief 0. 42 of 52 now run; the nine that are the session's agenda are item 15.17.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -447,7 +468,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Twenty of fifty-two concepts have a measured capture form. Thirty-two do not, and twenty-two of those still carry a teaching form, so the advisor teaches from Mike page and records nothing.",
+      "why": "Twenty-two of fifty-two concepts have a measured capture form. Thirty do not, and twenty-two of those still carry a teaching form, so the advisor teaches from Mike page and records nothing.",
       "risk": "Nearly half the planner teaches a client and captures nothing, so the session does not carry forward - the same fault 15.11 scores 4 for at five concepts, here at twenty-two. It waits on Mike because strategy-planner.md section 4 is explicit: the census measured nine forms across 24 templates, not 52, and choosing a form for a concept outside those 24 is a DESIGN DECISION, not a reading. server/utils/strategyFrameworks.js throws if an unmeasured concept is given one.",
       "askedBy": {
         "who": "Mike",
@@ -455,7 +476,7 @@
         "detail": "2026-09-23 - \"if you have concepts that are yet to be wired up, why werent they put forward as a task?? get on with it.\" Raised after 15.6 closed and its closure recorded the thirty-two in passing."
       },
       "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
-      "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 4 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 32. The Brief calls it deliberate, true of the data but never true that the work was done. Five extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Insights Summary, Curve and Cycle Notes.",
+      "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 2 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 30. The Brief calls it deliberate, true of the data but never true that the work was done. FOUR extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve and Cycle Notes. Insights Summary was the fifth and is claimed 2026-09-23 - his Organisational Review p5 names it outright, so that one was a reading rather than a decision. The twenty-two taught-with-no-capture is UNMOVED: neither concept fixed that day carried a teaching form.",
       "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
     },
     {
@@ -499,6 +520,98 @@
       "touches": "components/firm/FirmForecastTrendThresholds.vue, FirmSellDownLadder.vue, FirmPropertyTaxRules.vue, FirmMeetingObservations.vue, FirmDepreciationRates.vue, CountryRateSchedules.vue and FirmCompliance.vue - none has a single $t call; locales/en.json, which gains their blocks; and the note atop FirmDepreciationRates.vue and CountryRateSchedules.vue recording the deviation, which goes once it is done.",
       "note": "ONE JOB, as the code's own note proposes - not seven. Move every string into en.json unchanged, then look at the tabs in a second language to prove it. Do NOT reword while moving: the words are what managers already see. FirmManagerHub.vue's own headings and tab labels carry the same recorded choice and belong in the same job. Course Builder is separate, item 12.1.",
       "comment": "2026-09-24 - filed on Mike's yes at shutdown, after he asked for the problem in plain English."
+    },
+    {
+      "ref": "15.17",
+      "name": "One framework has a real teaching slide and no drawing - Cultural Core Values",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-23"
+      },
+      "why": "Define the Cultural Core Values is scoped, ticked and run like any other framework, and then teaches nothing: its slide exists and has never been drawn, so the advisor gets a name and the client's plan gets a near-empty page.",
+      "risk": "It is the LAST of the twelve, so it is the one row standing between the planner and every scoped framework teaching something. Small and contained - one drawing by the section 0 method, an approved artefact, and the generator - but it needs Mike's approval on the drawing before anything ships, as all 35 did.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - 'lets get the remaining 12 frameworks sorted before we deal with this', then 'read them closely - slide 4 in organisational review DOES NOT contain business development stages', which forced the decks open rather than their titles compared."
+      },
+      "touches": "A new drawing in design/mockups/ by the section 0 method and its ARTEFACTS.md row; scripts/build-concept-graphics.js DRAWINGS; the count guards in tests/unit/conceptGraphics.test.js, which pin 35 svgs and 34 titled concepts.",
+      "note": "THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Checked by rendering it, not by its title. CLOSED THE SAME DAY: eight stage directions deleted on Mike's ruling, Divisional KPI's and Review Internal Insights Data wired from his own material, and two pages brought in that were never among the 52 - Our Session Objective and Collaborative Thinking, the first concept with TWO teaching sheets. 44 of 46 run. Drafting Tender Proposals is the other unrunnable row and is NOT a gap - his summary calls it general reading. Record: strategy-planner.md section 0.",
+      "comment": "2026-09-23 - filed as nine stage directions, then rewritten to what survives his ruling. His challenge disproved a page mapping built from extracted titles; every claim here is from a 150dpi render of his own slide."
+    },
+    {
+      "ref": "15.18",
+      "name": "The advisor never sees the worked answer Mike wrote on a ruled table",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Where one of his tables has ruled writing lines, only the blank cells become boxes, so the example row he wrote to show what a good answer looks like is dropped. The advisor gets his headings and empty boxes.",
+      "risk": "The app is inconsistent with itself, which is the part that will confuse whoever picks this up: on the deck-page sheets his examples DO arrive as grey guide text inside the box, and strategyDeckCaptureTables.test.js insists they must. It waits on Mike because Insights Summary has THREE blank rows under each heading and ONE example - which box carries it, or whether it sits above them all, is a design decision that ends up in a client's document.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - filed on his yes at shutdown, after wiring Insights Summary made it visible for the first time. He was offered the fix and chose to have it designed rather than guessed."
+      },
+      "touches": "fieldsOfTable in server/utils/strategyCaptureForms.js, where `isCapture` is `cell.blank` once a grid has ruled lines and the example row is therefore never a field; the `example` property every other form already carries; components/strategy/StrategyCaptureBox.vue, which renders it as guide text.",
+      "note": "NOT A REGRESSION. It has always behaved this way and only became visible on 2026-09-23, when Insights Summary became the first banded grid WITH a worked example to reach a screen - Porter's and Blue Ocean go heading straight to ruled lines and have no example to lose. AFFECTS THE BANDED GRIDS ONLY. The prompt-answer sheets are unaffected: with no ruled line every cell is a field, so his example is already the box's own guide text.",
+      "comment": "2026-09-23 - found by reading what an advisor would actually see after the heading fix landed, not by any test failing. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.20",
+      "name": "Nobody but a developer can add a concept, and each one costs a day",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Adding a concept today is five developer steps, one of them hand-drawing a deck page in code - about a day. All 46 concepts were built that way, and no screen anywhere lets anyone add a 47th.",
+      "risk": "The planner can only ever teach what we drew for it: a firm holding its own material has no route in, and that content stays in a PDF the app cannot see. The counter-risk is fidelity - an imported page that does not look like the 35 drawn slides is visibly foreign to a client in session and in the printed plan, which is the one thing Mike ruled out.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23, his own words: \"i want to click a button called 'Add Concept' which enables me to drag and drop a pdf - have it rendered and converted into a concept\", plus the section choice, a second PDF for the 'Response Form', \"the same branding format need apply\", and that it \"cascades from mentor through each level to firm and then client/busines enitiy\". All five are quoted in strategy-planner.md section 9."
+      },
+      "touches": "A new upload route and store on the Restify backend, following server/utils/depreciationExtract.js; data/strategy-frameworks.json, whose concepts array an imported concept must join; scripts/build-concept-graphics.js and components/strategy/concepts/; FirmManagerHub.vue and its TAB_TIERS; server/utils/tierChain.js for the cascade; strategyCaptureForms.js for the Response Form; and a PDF-to-vector dependency the repo does not have.",
+      "note": "READ SECTION 9 OF design/features/strategy-planner.md AND design/mockups/add-concept.html, NOT THIS - the drawing carries all SIX rulings beside their own questions. His four sections are already the four planningDomains. THE CLIENT/BUSINESS ENTITY IS THE DESTINATION, NOT A FIFTH LEVEL - his words, 'where it ends up, delivering a pdf' - so TIERS needs no change and no new scope or storage is built. MEASURED 2026-09-23 outside the repo, nothing installed: pdfjs-dist runs on Node 14.15 and converted Organisational Review p11 to VECTOR, 63 KB compressed as stored without the covered logo (402 with), COMPLETE - both arrows, the logo, every word and colour. An earlier claim that two pictures were lost was OUR inlining bug: rewrite every ns<N>:href, never one.",
+      "comment": "2026-09-23 - asked for by Mike in his own words and filed on his yes; score is ours. ALL SIX DRAWING QUESTIONS RULED and THE DRAWING APPROVED - 'make a note now that i approve the drawing'. Two rulings went against the recommendation: teach AND response both required; the client is the destination, not an authoring level. 2026-09-24 - reader CVE contained three ways; box-marking screen (5b) approved; questions 7 and 8 ruled; the converter BUILT (slice 1). All in Brief section 9. MIKE'S CALL 2026-09-24: PROCEED - storage, upload route, hub screens and showing imported pages remain.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-23"
+      }
+    },
+    {
+      "ref": "15.21",
+      "name": "The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "security",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Outside",
+      "why": "pdfjs-dist 2.16.105 reads uploaded PDFs on the backend and carries CVE-2024-4367 - a crafted PDF runs its own code. The fix needs Node 18; the lock is 14.15.",
+      "risk": "Contained, not removed: Mike accepted it 2026-09-24 on three binding conditions - eval off, each conversion in its own process with no secrets and a 20-second kill, and the depreciation route's upload hygiene. The audit policy still requires the team's review of every high finding, and this is the first that runs live.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-24 - his yes to accepting the advisory, given with the entry and this task named as part of it; the npm-audit policy in CLAUDE.md logs every high finding as a task."
+      },
+      "touches": "package.json, package-lock.json, design/SECURITY-AUDIT-NOTES.md (its own section and action item), design/features/strategy-planner.md section 9.",
+      "note": "INSTALLED 2026-09-24 with npm 8.19.4, pinned exact: +3 packages, engines clean, audit gate PASS. WHAT CLOSES IT: the team's sign-off recorded in SECURITY-AUDIT-NOTES.md, or the Node lock being revisited, when 4.2.67+ resolves it outright. Never closed by relaxing a condition. GHSA-wgrm-67xf-hhpq.",
+      "comment": "2026-09-24 - filed on Mike's yes, the moment the package was installed, as his ruling on 15.20 required."
     }
   ]
 }

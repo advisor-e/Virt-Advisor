@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const { plan, DATA_TESTS } = require('../../scripts/quick-gate')
+const { plan, jestRuns, DATA_TESTS } = require('../../scripts/quick-gate')
 
 /**
  * The pre-commit quick gate (Mike, 2026-09-03: eight minutes per commit, five commits a
@@ -56,6 +56,50 @@ describe('quick-gate — what runs for what', () => {
     const p = plan(['scripts/quick-gate.js', 'server/x.js'], ['scripts/', 'data/'])
     expect(p.lint).toEqual(['server/x.js'])
     expect(p.related).toEqual(['scripts/quick-gate.js', 'server/x.js'])
+  })
+
+  // 🔴 AN EMPTY FILTER IS EVERY TEST, NOT NO TESTS. Jest handed no path pattern runs
+  // the whole suite, so a commit of documents alone — which has no related files and
+  // several named ones — used to run all 617 suites before running the few it wanted.
+  // That is the eight-minute commit this gate exists to end, arriving by the back door
+  // on the commits that can least break code. Found 2026-09-23 committing a drawing.
+  describe('what is actually handed to Jest', () => {
+    it('does not run the whole suite when a commit carries only documents', () => {
+      const runs = jestRuns(plan(['design/mockups/add-concept.html', 'design/ARTEFACTS.md']))
+
+      // One call only, and it names its tests. A call carrying neither
+      // --findRelatedTests nor a path is the fault.
+      expect(runs).toHaveLength(1)
+      expect(runs[0]).not.toContain('--findRelatedTests')
+      expect(runs[0].filter(a => /\.test\.js$/.test(a)).length).toBeGreaterThan(0)
+
+      // The property that matters, stated once: no call may be unfiltered.
+      runs.forEach((r) => {
+        const filtered = r.includes('--findRelatedTests') || r.some(a => a.startsWith('tests/'))
+        expect(filtered).toBe(true)
+      })
+    })
+
+    it('traces related tests only when there are code files to trace from', () => {
+      const runs = jestRuns(plan(['server/routes/report.js']))
+
+      expect(runs).toHaveLength(1)
+      expect(runs[0]).toContain('--findRelatedTests')
+      expect(runs[0]).toContain('server/routes/report.js')
+    })
+
+    it('keeps the two calls apart, because --findRelatedTests swallows a named test as a source', () => {
+      const runs = jestRuns(plan(['data/domains.json', 'design/features/to-do-items.json']))
+
+      expect(runs).toHaveLength(2)
+      expect(runs[0]).toContain('--findRelatedTests')
+      expect(runs[1]).not.toContain('--findRelatedTests')
+      expect(runs[1]).toContain('tests/unit/toDoItems.test.js')
+    })
+
+    it('runs nothing at all when a commit touches neither code nor a mapped file', () => {
+      expect(jestRuns(plan(['README.md']))).toEqual([])
+    })
   })
 
   it('every test the map names actually exists — a renamed test would silently stop running', () => {

@@ -736,7 +736,108 @@ scope before leaving. **The feature would have been broken by the thing it was b
 
 | **6** | ☑ **THE AI PRE-TICK — BUILT 2026-09-22.** `server/utils/strategyPretick.js` (the prompt, and the validator every reply passes through — 100% covered, as the standards require of anything that processes LLM output), `POST /api/strategy/suggest`, and the suggestion stored beside the ticks in `scope_json`. **No mockup was drawn: the screen's own approved drawing already carries the button, the bar and Decision C** — the full account, the measurement and the three deviations are at the head of this section. | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | **Measured, not asserted:** five client situations gave five different lists (overlap 0.14–0.50, one concept of 52 common to all), **4 of Pivot's 9 on Mike's own client** with 3 reached unprompted, and **0 invented concepts**. Against a baseline of **0 pre-ticked and 52 rows read by hand**. 🔴 **AND THE ADVISOR'S JOB CHANGES SHAPE:** it offers 5–10, not 20, so the work is **adding a few rather than cutting many** — the opposite of what "23 to cut by hand" implies, and the screen is built for it. |
 | **7** | ☑ **THE DOOR — BUILT 2026-09-22.** An advisor reopens the session they had open, with its ticks, its named steps, its typed answers and the AI's suggestion restored — the reopen bar, reopening to the concept last open, the `Saved` stamp and the *Unsaved changes* state, in `pages/strategy-planner.vue`, off `GET /api/strategy/sessions?clientId=` and `GET /api/strategy/sessions/:id`. ⚠ **`Leave session` alone is drawn and deliberately NOT rendered** — it has no destination and we are not asking Advisor-e for one (Mike, 2026-09-22); where it goes is his call and blocks nothing. **Mike's own redirection, 2026-09-22:** *"or, simply make stage 7 - building the door?"* — after asking the question that exposed it, *"as an advisor, in a session with a client, how do i leave the session to look at something else and return back to my screen afterwards?"* | **His question, and the measured defect it found.** Stage 7 formerly read *"calculators run inside the card"*; that is **§7a below**, unbuilt and not scheduled. His patchwork ruling is unchanged and still governs how a calculator is built if one ever is. | **Until this shipped an advisor could not come back at all.** They landed on a blank Scope screen and a second *Build the session* opened an empty duplicate for the same client. It was wiring, not machinery: the session already stored everything and two firm-scoped routes already served it, and nothing on the screen called either. **Both are called now.** |
-| **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
+| **8** | **A manager adds a concept** — mentor tier first, cascading down. ⛔ **SCOPED AND STOOD DOWN BY MIKE, 2026-09-23:** *"nope - lets get the remaining 12 frameworks sorted before we deal with this"*. The impact test that scoping produced is below and is the reason it is worth keeping: a concept a manager adds is **unusable unless it carries a table or a drawing** (`utils/strategyCards.js`), and the drawing half can never be a manager's, because his 2026-09-18 ruling rules out any image of a deck page. So this stage is the capture table, and only that — established before it was paused, not to be re-derived. | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
+
+### 🔴 THE TWELVE AN ADVISOR COULD NOT RUN — EIGHT DELETED, TWO PAGES BROUGHT IN (2026-09-23)
+
+**Mike stood stage 8 down for this:** *"lets get the remaining 12 frameworks sorted before we
+deal with this"*. **44 of 46 are now runnable.** The concept count fell 52 → 46 and that is not
+a loss: eight of those rows were never frameworks, and two real pages that no index had ever
+pointed at came in.
+
+🔴 **ELEVEN OF THE TWELVE POINTED AT THEIR DECK'S AGENDA PAGE.** Every one was
+`source: 'agenda'` on `page: 2` — the warning §0's drawing method already carries, here as the
+cause rather than a risk. Opening all eleven at 150dpi found **only two were frameworks at
+all**: three were blank section dividers, five were instruction cards naming a workbook or an
+app feature, one had no page whatsoever.
+
+☑ **MIKE DELETED THE EIGHT** — *"then just delete the rest - they are likely to be repeats"*.
+He was right, and this feature's own framing page is the proof: two of the four agenda bullets
+on *Our Session Objective* **are** two of the eight. They were that page's bullets, lifted out
+and listed as frameworks an advisor could tick. Four more were already done by the planner's own
+stages (Objectives & actions, Produce plan) or by **The 8 Profit Levers**, which works; a fifth
+duplicated a sixth, both pointing at `BD stages.xlsx`.
+
+🔴 **THE TITLES CANNOT TELL YOU, AND A TEXT COMPARISON SAID THEY COULD.** A first pass matched
+each concept to the slide whose extracted heading matched and produced ten confident rows. Mike
+refused it in four words — *"slide 4 in organisational review DOES NOT contain business
+development stages"* — and he was right: that page is **titled** *Business Development Stages*
+and its whole body is *"Complete the Business Development Stages table… (the dark bands will
+calculate automatically)"*. **Step 1 of the method is LOOK, and skipping it produced a table
+that was wrong on most rows while reading as evidence.**
+
+☑ **TWO FRAMEWORKS WIRED FROM HIS OWN MATERIAL, neither needing a decision.**
+**Divisional KPI's** — its fill-in table **is** its teaching page, Organisational Review p22, so
+it joins `read-deck-capture-tables.js` beside Branding, Pricing, Packaging and Customer Loyalty:
+twelve boxes, his six divisions against Primary Output and Divisional KPI. **Review Internal
+Insights Data** — his own slide names the template (*"Review the Internal Team Insights page of
+the Insights Summary template"*), which was extracted and reaching no concept. **Four of his
+templates still reach none** — SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve & Cycle
+Notes, item **15.16**.
+
+🔴 **AND THAT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A
+band's heading was found by *"words, then ruled lines"*. Insights Summary bands as **headings →
+his worked answer in prose → ruled lines**, twice — so the EXAMPLE matched and the HEADING did
+not. Every box was headed *"We don't follow up customers after purchase to see if they still
+need help"*. ⚠ **Fixing the obvious half is not enough and looks like success:** stopping the
+example being read as a heading recovers the first band and still loses the second, whose own
+heading fails *"then ruled lines"* for the same reason. A heading must now **start** a band —
+row 0, or the row after the previous band's lines — **and** its lines may sit one row further
+down. **Proved: all 21 templates snapshotted first (393 boxes with every label and example), and
+21 of 21 came back identical**, Porter's and Blue Ocean among them. The new guard was then
+checked by restoring the fault and watching it fail.
+
+### 🔴 TWO PAGES THAT WERE NEVER IN THE 52, AND THE FIRST CONCEPT WITH TWO SHEETS
+
+**`source: 'framing-page'` is the third row kind**, and it exists because `agenda` means *"`page`
+is the contents page, NOT the teaching page"* — the opposite of what is true for these two.
+
+☑ **OUR SESSION OBJECTIVE** — Strategic Orientation 1 **p2**, not p1: p1 is the cover and carries
+no agenda at all. Artefact
+[`../mockups/strategy-concept-our-session-objective.html`](../mockups/strategy-concept-our-session-objective.html),
+approved by Mike 2026-09-23. 🔴 **ITS AGENDA IS A LIVE SLOT, AND IT IS THE SESSION'S OWN STEP
+LIST** — his ruling the same day, so the page a client reads and the running order the app
+follows can never be two different lists. His four lines are the shipped default and are what
+the drawing was approved against; `bindAgendaSlot` keeps his group WHOLE under `v-if` and adds a
+sibling under `v-else`. ⚠ One fault, caught only by the side-by-side: his *(section n)* tags
+interrupt the line, so the space before each one lives at the END of the span before it and is
+inside that span's measured width — SVG collapses edge whitespace, so the glyphs stretched to
+fill the pinned width and closed the gap. Four spans now carry `xml:space="preserve"`.
+
+☑ **COLLABORATIVE THINKING** — Mike, on being told it had never been one of the 52: *"it should
+be its own 'concept' able to be selected into the build - and include BOTH the christchurch
+engineer and picture + debonos explanation"*. Artefact
+[`../mockups/strategy-concept-collaborative-thinking.html`](../mockups/strategy-concept-collaborative-thinking.html).
+🔴 **IT WAS NEVER REMOVED — IT WAS NEVER THERE.** The 52 were read from the decks' scope tables
+and agendas, and it is printed on neither, so nothing in the concept machinery could have found
+it.
+🔴 **TWO SHEETS, MEASURED BEFORE IT WAS DESIGNED.** Business Targets p3 holds **799** body
+characters and Strategic Orientation 1 p10 **1,042**, at his own 22.9–25pt; p10 alone runs
+y105→713 of an 844 sheet and p3 needs its right third for the artwork. One sheet could hold both
+only by shrinking his type, which the method forbids — his sizes are read, never chosen. ⚠ Sheet
+order is a judgement: his p10 puts the story INSIDE the theory, so either order defends itself;
+this one follows the decks. ⚠ His sketch is **his own raster, cut from his RENDERED page** — its
+placement rect runs to x=1728 on a 1500 sheet, so his slide crops it and the embedded original
+would put back what he hides.
+🔴 **IT IS WHAT KEEPS BUSINESS TARGETS ON THE MENU.** All five of that deck's rows were agenda
+lines and all five went; p3 is the only genuine teaching page it holds, and the loader refuses a
+panel with no rows.
+
+⚠ **FOUR FAULTS THE BUILD EXPOSED, ALL ALREADY THERE, NONE VISIBLE ON A SCREEN:**
+**(1)** the registry keyed **one component per concept**, so a second sheet would have
+overwritten the first and the concept would have taught half of itself with nothing failing;
+**(2)** the printed plan demanded a summary or a prompt before printing a teaching page — right
+while every concept had one — so **a page whose whole content is a drawing was dropped from the
+client's plan entirely**; **(3)** the scope menu read the DECK where it must read the ROW, so a
+framing page among agenda rows lost its page number, its title and its drawing; **(4)** the
+titled-concepts registry gained a duplicate key, caught by the lint rather than by the count
+guarding it — that guard now counts concepts, which is what it always meant.
+
+**What is left is ONE framework with a real slide and no drawing** — **Define the Cultural Core
+Values**, Organisational Review p11, his numbered five-part list and the Belongs / Behave /
+Believe circle. Item **15.17**. *Drafting Tender Proposals* is the other unrunnable row and is
+not a gap: his own summary calls it general reading.
+
 
 ### 7a. The in-card calculators — what stage 7 used to be, and why it is not
 
@@ -1098,7 +1199,7 @@ and is pinned by `tests/unit/strategyConcepts.test.js`.
 | Carrying Mike's own Concept Summary and Helps line | **34**, from the two Session Scope tables |
 | Agenda rows | **18** — 9 carry his own agenda sub-line, 9 are name-only |
 | Teaching form named (census §3) | 33 |
-| Capture form **measured** against one of his fill-in templates | 20 |
+| Capture form **measured** against one of his fill-in templates | 22 |
 
 🔴 **EVERY WORD IS HIS, READ OFF THE DECKS BY MACHINE — never retyped, never summarised.**
 *"The menu is his table, word for word"*. Ligatures are normalised to ASCII and nothing else is
@@ -1122,11 +1223,13 @@ once and pointed at with a `*Ref`, resolved when read: `price-for-delivery-mediu
 **An editing screen must say which rows share a piece of text before anyone changes it**, or one
 row's edit silently rewrites its neighbour.
 
-⚠ **32 concepts carry NO capture form, and that is deliberate.** Census §4 measured the nine
-capture forms across 24 templates, **not across all 52**, and is explicit that choosing one for a
-concept outside those 24 is a **design decision, not a reading**. Each measured row names the
-template it was matched to (`captureTemplate`) so the match is checkable; the rest are
-`unmeasured` with nothing in the field, and a test fails if a form ever appears on one.
+⚠ **30 concepts carry NO capture form, and "deliberate" is only half true.** Census §4 measured
+the nine capture forms across 24 templates, **not across all 52**, and is explicit that choosing
+one for a concept outside those 24 is a **design decision, not a reading**. Each measured row
+names the template it was matched to (`captureTemplate`) so the match is checkable; the rest are
+`unmeasured` with nothing in the field, and a test fails if a form ever appears on one. **That is
+true of the data and was never true of the work** — for these 30 a form was simply never chosen,
+which is item **15.16**, and this line used to read 32 as though the number were settled.
 
 **What the index is NOT.** It names a concept's form; it does not lay one out. Every teaching and
 capture form is drawn elsewhere — §0's method for the 33 graphics, and the nine capture shapes.
@@ -1175,7 +1278,161 @@ they are written down rather than left to be rediscovered:
 three shared cells. Agreement between a machine read and that drawing is the check that caught
 each of the five above.
 
-## 9. Where it lives
+## 9. Adding a concept — approved to build, and what was measured before design
+
+**Item 15.20, asked for by Mike 2026-09-23 in his own words.** Nothing is built yet.
+
+✅ **THE DRAWING IS APPROVED TO BUILD FROM — [`add-concept.html`](../mockups/add-concept.html),
+Mike, 2026-09-23:** *"make a note now that i approve the drawing."* Asked as its own question
+after all six of its questions were ruled one at a time, because ruling the questions inside a
+drawing is not approving the drawing.
+
+🔴 **The approval carries the seventeen wording rows at its §8 — those are his words now, not
+proposals.** ✅ **§5b, the box-marking screen, was added and approved 2026-09-24** with its nine
+wording rows at §8b, and question 7 ruled: an imported Response Form's answers print inside
+their boxes on the page. ✅ **Question 8, ruled the same day:** the firm's own mark is painted
+into the gap in the bottom bar, covering the advisor-e.com logo his deck carries in exactly that
+spot, and the covered logo is not stored — page 11 drops from 402 KB to 63 KB compressed. Before anything built from it ships, **open the drawing, put it beside the build,
+and name every difference.** A deliberate deviation is fine; an unrecorded one is not.
+
+**Today a concept costs five developer steps**: a row in `data/strategy-frameworks.json`, a
+hand-drawn SVG in `design/mockups/`, an entry in `DRAWINGS`, a generator run, and the count
+guards updated. Step two is drawing one of his deck pages by hand in code — about a day. All
+46 concepts were made that way and **no screen anywhere lets anyone add a 47th.**
+
+### The five requirements, as he gave them
+
+1. **An `Add Concept` button** — drag and drop a PDF, *"have it rendered and converted into a
+   concept"*.
+2. **A button per section, or one button with a dropdown** choosing the section. His four
+   sections are already the four `planningDomains`: `business-targets`,
+   `strategic-orientation`, `sales-marketing-review`, `organisational-review`.
+3. **A second PDF for the Response Form** — the capture half, not the teaching half.
+4. **The same branding format applies once imported** — the five-bar frame that
+   `tests/unit/conceptGraphics.test.js` pins identically across all 35 drawings.
+5. 🔴 **It cascades** — *"from mentor through each level to firm and then client/business
+   entity."* This is a mentor-first feature, not a firm-manager one.
+
+### What was measured 2026-09-23, on his yes, before any design
+
+Run in a scratch folder **outside the repository** — nothing was installed into the app.
+
+- **`pdfjs-dist@2.16.105` runs on the locked Node 14.15**: no `engines` restriction, no native
+  components, three packages.
+- Organisational Review p11 converted to **vector, not a picture** — 33 paths, 49 text
+  elements, real text rather than a photograph of text. **The whole page is 63 KB compressed**
+  (154 KB uncompressed) as the converter stores it, with the covered logo left out (question
+  8), and 402 KB with it — inside the six
+  picture-based concepts' 34–120 KB. The shapes alone are 5 KB; the rest is the two arrow
+  pictures and three embedded fonts. Measured 2026-09-24 with the installed reader, eval off.
+- **Every word, position, colour and the circle came across exactly.**
+
+🔴 **THE CONVERTER DROPS NOTHING — and the record said otherwise for an hour, so read this
+rather than the commit message of `7e6546f9`.** The page converts **complete**: both green
+arrows, the advisor-e.com logo, every word and shape. An earlier reading of this same test
+reported the second arrow and the logo as missing; **they were never missing.**
+
+**The gotcha that produced it, and it MUST be carried into the build.** `XMLSerializer` gives
+each `<image>` its **own** xlink namespace prefix — `ns1:href`, `ns2:href`, `ns3:href` — so a
+rewrite handling one prefix silently strips the `href` off the others. The element keeps its
+geometry, so the browser reports it laid out at the right size and position and paints
+nothing, which reads exactly like a converter that lost content.
+
+**Inlining an SVG into HTML must therefore rewrite EVERY prefix**, `/ns\d+:href=/g`, not one.
+Verified by the browser's own report: `hrefLen=0` on images 1 and 3, `26430` on image 2.
+
+⚠ **What IS a real risk, and stands:** the library warns its SVG back-end *"is no longer
+maintained and may be removed in the future"* — a genuine concern for a firm-facing feature.
+
+Mike saw the conversion beside his original and beside a hand-drawn slide, and ruled it good
+enough in principle to continue. **He ruled separately that it is NOT to be run across his
+other decks.**
+
+### 🔴 RULED BY MIKE 2026-09-23 — THE CLIENT IS THE DESTINATION, NOT A FIFTH LEVEL
+
+In his words: *"where it ends up - the way the rest of the feature currently works - delivering
+a pdf."*
+
+**Concepts are authored at the four manager levels and delivered to the client** in the session
+and in the printed plan, exactly as everything else already reaches them. **Nothing is authored
+at the client level, no new scope or storage is built, and `TIERS` in
+`server/utils/tierChain.js` needs no change** — mentor → global group manager → group manager →
+firm manager is the whole cascade, and the fifth step was never a tier.
+
+⚠ **This replaced the reading that would have been the largest single piece of the item.** An
+earlier note here said the step below firm "is new and has nothing under it", and the drawing
+marked it in red as new machinery — which reads as a gap to fill rather than a question to ask.
+The ruling removes that work entirely. **A session finding a note that treats the client as an
+authoring tier is reading something superseded.**
+
+### 🔴 RULED BY MIKE 2026-09-23 — NO AI TOUCHES AN UPLOADED PDF
+
+**An uploaded PDF stays entirely inside the app and is never sent to a model.** The manager
+types the concept's name and picks its section; the Response Form's boxes are mapped by hand
+rather than proposed.
+
+**Nothing in the feature needs a model.** The conversion is arithmetic on our own backend, and
+the page's own text is readable locally — this page yielded **49 text elements**, including its
+title, *"Defining Our Cultural Core Values (foundation)"*. A model would only have saved typing.
+
+**What the ruling protects.** A firm's own deck can carry client names and real case studies,
+and an upload cannot tell the difference. Mike's ruling of 2026-09-01 made Meeting Review the
+**one** scoped exception for sending personal data to a model and said explicitly that it does
+not generalise; this was therefore a fresh decision, not an inference from that one.
+
+⚠ **A session proposing to send these PDFs to a model to name a concept, draft a summary or read
+a response table is re-opening a settled ruling.** It was offered and declined.
+
+### 🔴 RULED BY MIKE 2026-09-23 — THE UPLOAD FOLLOWS THE SHIPPED DEPRECIATION PATTERN
+
+**The file comes to our own Restify backend**, is accepted only if it is genuinely a PDF under a
+size cap, and is stored against that one firm. The pattern to reuse rather than reinvent is
+`server/routes/depreciationRates.js`: multipart through `formidable`, a 20 MB cap, an
+`application/pdf`-only filter, a `%PDF-` check on the first bytes, `fmGuard`, and the scope taken
+from the verified token, never the body.
+
+⚠ **Reuse covers the upload, not the rest.** That route **discards the PDF once read** and its
+only timeout is on the OpenAI call. Keeping the source (question 4) and the hard time limit below
+are **new work**, not inherited.
+
+**Converting inside the manager's browser was offered and declined.** It would be marginally
+safer for us — a hostile file would never reach our server — but it breaks the locked rule that
+file and data processing lives on the backend and never in Nuxt, and it would put the work on
+whatever laptop and browser the manager happens to have.
+
+⚠ **THE RESIDUAL RISK, ACCEPTED WITH EYES OPEN.** A PDF is interpreted, not merely displayed, so
+a deliberately malformed one can hang or crash the reader. **A hard time limit and the size cap
+are therefore part of the build, not optional polish** — without them a single crafted file ties
+up the backend.
+
+### 🔴 RULED BY MIKE 2026-09-24 — THE READER'S KNOWN FLAW IS CONTAINED THREE WAYS
+
+**Every `pdfjs-dist` that runs on Node 14.15 carries CVE-2024-4367** — a crafted PDF runs its own
+code when read, with the default `isEvalSupported: true`. The fix (4.2.67) needs Node 18, and
+the Node lock does not move. Mike accepted `pdfjs-dist@2.16.105` **on these conditions, all
+three binding:**
+
+1. **`isEvalSupported: false`** on every load — the published workaround for the known path.
+2. **Each conversion runs in its own child process** that is given **an empty environment** (no
+   database password, no OpenAI key), a memory ceiling, and is **killed at 20 seconds**. An
+   unknown flaw lands in a process holding nothing and dies anyway. It is also the only way the
+   hard time limit is real: a parse inside the server's own process cannot be interrupted.
+3. **The high-severity audit finding it raises is accepted as a RUNTIME risk**, which
+   `SECURITY-AUDIT-NOTES.md` does not otherwise cover (that acceptance is build-time only). It
+   gets its own entry there, and a live-list task, when the package is installed.
+
+⚠ **A session proposing to read an uploaded PDF inside the Restify process, or with eval on, is
+re-opening this ruling.**
+
+✅ **BUILT 2026-09-24 — the converter, slice 1.** `server/utils/pdfConvert.js` starts
+`server/utils/pdfConvertWorker.js` with an empty environment, a 256 MB ceiling, a 20-second kill
+and a 32 MB output cap; checks every reply; and cleans every page with `isomorphic-dompurify`
+plus a pass keeping only embedded pictures and fonts. The worker reads with eval off, drops a
+picture only when it lies wholly under the firm's mark (question 8), rewrites every `ns<N>:href`,
+and reads the page's own title. All 25 pages of Organisational Review convert in about 5 s.
+`tests/unit/pdfConvert.test.js` pins each condition. **No route, store or screen yet.**
+
+## 10. Where it lives
 
 `data/strategy-frameworks.json` (`planningDomains`, `decks`, `frameworks`, `concepts`) ·
 `server/utils/strategyFrameworks.js` · `server/utils/strategySessionStore.js` ·

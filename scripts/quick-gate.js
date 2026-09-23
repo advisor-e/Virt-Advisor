@@ -31,7 +31,13 @@ var DATA_TESTS = [
   // A Brief, its History, the index or a mockup: the folder rules (every Brief has a
   // companion and a row; every mockup is registered) and the Handbook build. Found
   // 2026-09-03 when a new Brief shipped without its History and only the push gate saw it.
-  { when: /^design\/(features\/.*\.md|mockups\/.*\.html|ARTEFACTS\.md)$/, run: ['tests/unit/newFeature.test.js', 'tests/unit/designArtefacts.test.js', 'tests/unit/buildHandbook.test.js'] }
+  { when: /^design\/(features\/.*\.md|mockups\/.*\.html|ARTEFACTS\.md)$/, run: ['tests/unit/newFeature.test.js', 'tests/unit/designArtefacts.test.js', 'tests/unit/buildHandbook.test.js'] },
+  // The concept drawings. `conceptGraphics.test.js` reads every
+  // `design/mockups/strategy-concept-*.html` with `fs`, so the module graph cannot
+  // link it and the row above never ran it. Found 2026-09-23 while building item
+  // 15.19: committing a drawing left it green here and red at the push gate, which
+  // is the latest possible moment to learn a drawing is unwired.
+  { when: /^(design\/(mockups\/.*\.html|ARTEFACTS\.md)|scripts\/build-concept-graphics\.js)$/, run: ['tests/unit/conceptGraphics.test.js'] }
 ]
 // Data under data/ and locales/ is `require`d by the tests that read it, so the module
 // graph already links those; they need no row here. Add a row only for an `fs` read.
@@ -68,6 +74,38 @@ function plan (staged, ignored) {
   return { lint: lint, related: related, named: named }
 }
 
+/**
+ * The Jest command lines a plan needs, in order. Pure, so it can be pinned.
+ *
+ * 🔴 AN EMPTY FILTER IS NOT "NO TESTS" — IT IS EVERY TEST, and that is the fault this
+ * function exists to make visible. Jest given no path pattern runs the whole suite, so
+ * the related-tests call must be made ONLY when there are related files to trace. A
+ * commit of documents alone — a drawing, a Brief, ARTEFACTS.md — has no related files
+ * and four named tests, and used to run all 617 suites before running the four. That
+ * defeats Mike's ruling of 2026-09-03, which split the gates precisely so a commit
+ * stays in seconds, and it defeated it hardest for the commits that can least break
+ * code. Found 2026-09-23 committing the Add Concept drawing.
+ *
+ * ⚠ THE TWO CALLS CANNOT BE MERGED. With `--findRelatedTests` present, Jest reads every
+ * further argument as another SOURCE file to trace, not as a test to run — so a named
+ * test appended to that call would be treated as a source and silently run nothing.
+ *
+ * @param {{lint: string[], related: string[], named: string[]}} p a plan from `plan()`
+ * @returns {string[][]} argv arrays, each ready to hand to node
+ */
+function jestRuns (p) {
+  var bin = path.join('node_modules', 'jest', 'bin', 'jest.js')
+  var runs = []
+
+  if (p.related.length) {
+    runs.push([bin, '--coverage=false', '--passWithNoTests', '--findRelatedTests'].concat(p.related))
+  }
+  if (p.named.length) {
+    runs.push([bin, '--coverage=false'].concat(p.named))
+  }
+  return runs
+}
+
 function line (msg) {
   // eslint-disable-next-line no-console
   console.log(msg)
@@ -101,20 +139,11 @@ function main () {
   if (p.lint.length) {
     run([path.join('node_modules', 'eslint', 'bin', 'eslint.js')].concat(p.lint))
   }
-  if (p.related.length || p.named.length) {
-    var jest = [path.join('node_modules', 'jest', 'bin', 'jest.js'), '--coverage=false', '--passWithNoTests']
-    if (p.related.length) { jest = jest.concat(['--findRelatedTests'], p.related) }
-    // Named tests ride along as plain path patterns; with --findRelatedTests present
-    // Jest treats extra args as related sources, so run them as a second call.
-    run(jest)
-    if (p.named.length) {
-      run([path.join('node_modules', 'jest', 'bin', 'jest.js'), '--coverage=false'].concat(p.named))
-    }
-  }
+  jestRuns(p).forEach(run)
   line('quick-gate: clean. The full suite, coverage and the audit gate run at push.')
 }
 
-module.exports = { plan: plan, DATA_TESTS: DATA_TESTS }
+module.exports = { plan: plan, jestRuns: jestRuns, DATA_TESTS: DATA_TESTS }
 
 if (require.main === module) {
   try {

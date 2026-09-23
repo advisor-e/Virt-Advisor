@@ -381,6 +381,110 @@
           ]
         }
       ]
+    },
+    "Divisional KPIs": {
+      "file": "organisational-review deck, page 22",
+      "format": "deck-page",
+      "deck": "organisational-review",
+      "page": 22,
+      "tables": [
+        {
+          "columns": 3,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Division"
+                },
+                {
+                  "text": "Primary Output"
+                },
+                {
+                  "text": "Divisional KPI"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Finance"
+                },
+                {
+                  "text": "Sufficient Working Capital"
+                },
+                {
+                  "text": "Mthly - Average Cash on Hand Mthly - Average Debtor Days"
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Data"
+                },
+                {
+                  "text": ""
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Sales"
+                },
+                {
+                  "text": ""
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Marketing"
+                },
+                {
+                  "text": ""
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Operations"
+                },
+                {
+                  "text": ""
+                },
+                {
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Warehousing"
+                },
+                {
+                  "text": ""
+                },
+                {
+                  "text": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   }
 }

@@ -30,11 +30,26 @@ const CONCEPTS = frameworks.listConcepts()
 describe('the page Mike edits', () => {
   const rows = parseRows(PAGE)
 
-  it('carries a draft for every agenda row that has no line — all 18', () => {
-    const missing = CONCEPTS.filter(c => !c.helpsClientTo)
-    expect(missing).toHaveLength(18)
-    expect(rows).toHaveLength(18)
+  // 🔴 AGENDA ROWS, AND THE FILTER NOW SAYS SO. It read "every concept with no
+  // Helps line", which WAS exactly the 18 agenda rows until 2026-09-23 — so the
+  // page's whole subject rode on a coincidence. Eight agenda rows were deleted that
+  // day and two FRAMING PAGES arrived, which carry no Helps line either and are not
+  // agenda rows: this page exists for Decision B, which is about the rows whose only
+  // words are a name. A framing page's teaching is his drawn slide.
+  const agendaRows = () => CONCEPTS.filter(c => c.source === 'agenda')
+
+  it('carries a draft for every agenda row that has no line — all 10', () => {
+    const missing = agendaRows().filter(c => !c.helpsClientTo)
+    expect(missing).toHaveLength(10)
+    expect(rows).toHaveLength(10)
     expect(rows.map(r => r.id).sort()).toEqual(missing.map(c => c.id).sort())
+  })
+
+  it('🔴 no agenda row has quietly acquired a Helps line', () => {
+    // Mike's ruling of 2026-09-17: that line is his to write on every one of them.
+    // Never generated, never inferred from a slide, never filled by an AI — and a
+    // generated sentence reads perfectly reasonably to anyone in UAT.
+    expect(agendaRows().filter(c => c.helpsClientTo)).toHaveLength(0)
   })
 
   it('🔴 names only concepts that really exist', () => {
@@ -48,7 +63,7 @@ describe('the page Mike edits', () => {
   it('leaves every row unapproved until Mike says otherwise', () => {
     const { approved, waiting } = sort(rows, CONCEPTS)
     expect(approved).toHaveLength(0)
-    expect(waiting).toHaveLength(18)
+    expect(waiting).toHaveLength(10)
   })
 
   it('carries a non-empty draft on every row', () => {
@@ -109,7 +124,11 @@ describe('what the command refuses to write', () => {
 })
 
 describe('the page after an apply', () => {
-  const CONCEPT = CONCEPTS.find(c => !c.helpsClientTo)
+  // ⚠ AN AGENDA ROW, not merely "a concept with no Helps line". The two were the
+  // same set until 2026-09-23; now the first concept without one is a FRAMING PAGE,
+  // which this page does not carry, so the apply removed a row that was never there
+  // and the count did not move.
+  const CONCEPT = CONCEPTS.find(c => c.source === 'agenda' && !c.helpsClientTo)
 
   it('removes the applied row and records what was approved', () => {
     const applied = [{
@@ -121,7 +140,7 @@ describe('the page after an apply', () => {
     // The row is gone from the table…
     const remaining = parseRows(after)
     expect(remaining.map(r => r.id)).not.toContain(CONCEPT.id)
-    expect(remaining).toHaveLength(17)
+    expect(remaining).toHaveLength(9)
     // …and the approved text is recorded rather than lost.
     expect(after).toContain('The line Mike approved.')
     expect(after).not.toContain('*Nothing yet.*')

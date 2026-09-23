@@ -175,7 +175,43 @@ the rules"* — because it buys no real security here and disturbs a locked tool
 
 ---
 
+## Accepted high advisory — `pdfjs-dist` 2.16.105, a RUNTIME dependency (added 2026-09-24)
+
+**GHSA-wgrm-67xf-hhpq · CVE-2024-4367 · high · `pdfjs-dist` <= 4.1.392** — a crafted PDF runs
+its own code when read, through the font loader's use of `new Function`, when
+`isEvalSupported` is `true` (the default).
+
+🔴 **This is NOT a build-time package and borrows none of the build-time reasoning above.** It
+reads the PDFs a manager uploads to Add Concept (item 15.20), on the Restify backend, at
+runtime. Installed with npm 8.19.4, pinned exact; it adds `dommatrix` 1.0.3 (marked
+unmaintained by its author) and `web-streams-polyfill` 3.3.3, neither with an advisory.
+
+### Why no fixed version can be installed
+
+The fix is 4.2.67; every 4.x needs Node 18. **Every version that runs on the locked Node 14.15
+carries this flaw.** The Node lock does not move, so no version bump exists to take.
+
+### Why the risk is accepted — Mike's ruling, 2026-09-24, on three binding conditions
+
+1. **`isEvalSupported: false` on every load** — the published workaround; it removes the code
+   path the advisory describes.
+2. **Each conversion runs in its own child process** with **an empty environment** (no database
+   password, no OpenAI key), a memory ceiling, and a **kill at 20 seconds**. An unknown flaw
+   lands in a process that holds nothing and dies anyway.
+3. **Upload hygiene from the shipped depreciation route** — `fmGuard`, 20 MB cap,
+   `application/pdf` only, `%PDF-` magic bytes — so only an authenticated manager can submit a
+   file at all.
+
+**The gate is unaffected** — high, not critical, so no allowlist entry. Full ruling:
+[`features/strategy-planner.md`](features/strategy-planner.md) §9.
+
+---
+
 ## Action items
+
+- [ ] **Put the `pdfjs-dist` runtime advisory (GHSA-wgrm-67xf-hhpq) to the team for sign-off.**
+      Accepted by the product owner 2026-09-24 on three conditions; not yet team-reviewed.
+      Re-check the moment the Node 14.15 lock is ever revisited — 4.2.67+ resolves it outright.
 
 - [ ] **Re-check `defu` when Nuxt 2 is retired.** The three vulnerable copies exist only
       because Nuxt 2.14.0 pins them. Nothing else can move them under the lock.

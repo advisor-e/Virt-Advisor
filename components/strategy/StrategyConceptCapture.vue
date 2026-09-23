@@ -19,8 +19,13 @@ section.scc2
     //- 🔴 THE DRAWING GOES ABOVE HIS WORDS, so the advisor speaks to it first. It
     //- is ours, drawn from his page — never a photograph of it, which would lock
     //- in the advisor-e.com logo where the ADVISOR'S firm logo belongs.
+    //- 🔴 A CONCEPT MAY TEACH ACROSS MORE THAN ONE SHEET — Mike, 2026-09-23. Rendered
+    //- once until then, so a second sheet would silently not have appeared.
     strategy-concept-graphic(
+      v-for="n in sheetCount"
+      :key="'sheet' + n"
       :concept-id="conceptId"
+      :sheet="n - 1"
       :firm-name="firmName"
       :firm-colour="firmColour"
       :firm-logo="firmLogo"
@@ -183,7 +188,7 @@ import speechMixin from '~/mixins/speechMixin'
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import StrategyOrgChartBuilder from '~/components/strategy/StrategyOrgChartBuilder.vue'
-import { hasConceptGraphic, conceptTitlesItself } from '~/components/strategy/concepts'
+import { hasConceptGraphic, conceptTitlesItself, conceptSheetCount } from '~/components/strategy/concepts'
 
 /** The one capture form that is a small application rather than a page of boxes. */
 const ORG_CHART_FORM = 'parent-child-list'
@@ -294,6 +299,15 @@ export default {
   },
 
   computed: {
+    /**
+     * How many teaching sheets this concept has — 0 where it has no drawing.
+     * Looped rather than assumed; Collaborative Thinking has two.
+     * @returns {number}
+     */
+    sheetCount () {
+      return conceptSheetCount(this.conceptId)
+    },
+
     /** @returns {boolean} true where this concept has an approved drawing */
     hasGraphic () {
       return hasConceptGraphic(this.conceptId)
