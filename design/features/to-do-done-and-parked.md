@@ -443,6 +443,41 @@ nine; it is five). That is not a fault: **32 of the 52 concepts carry no capture
 these are forms waiting on concepts not yet wired, which is 15.1's remaining build. Mike's partial
 register pass (17 of 52) stays in `design/concept-register-corrections.json`, unapplied and read
 by no code — a saved artefact, not a live pipeline.
+**7.12 — "the right calculator is offered only sometimes, and sometimes the wrong one is".**
+🔴 **DELETED 2026-09-23 by Mike, on the same reasoning that deleted 7.13 the day before.** His
+prompt was *"im sure this was determined to be a waste of time"* — and checking the record proved
+him right. **Do not re-file it.** It had six numbered build steps with verified line numbers,
+which is exactly what made it look ready: **the instructions were finished long before anyone
+asked whether the fault still existed.**
+
+**ALL FOUR OF ITS MEASURED FAULTS ARE CLOSED, AND NOT ONE OF THEM BY THIS ITEM'S BUILD:**
+
+| Model | What became of it |
+| --- | --- |
+| **High-Level Budget** | Split out as **item 7.11 and FIXED** 2026-09-18 (`ddf2dcce`) — the right calculator **4/4**, named as *Best match* **6/6**, where before the wrong one came 5/6 |
+| **Working Capital Cycle** | 3/6 → **5/6** on the offer-rule change of 2026-09-18 |
+| **8 Levers Model** | 0/6 → 0/6 and **explicitly not a defect** — the AI answers with the template *8 Profit Levers* and correctly stops |
+| **Sales Dashboard** | **Named 6/6 — correctly, every single run.** Only the page path is absent |
+
+🔴 **AND SALES DASHBOARD IS THE CASE THAT DELETED 7.13.** `isKnownTemplate('Sales Dashboard')`
+returns **true** — it is one of the **six model names that are also real template titles** — and
+the build steps of this very item say a lookup **must attach nothing** for those six. **Its
+remaining headline evidence was a case its own fix was forbidden to touch.** Re-run 2026-09-23:
+`Sales Dashboard` **true**, `Working Capital Cycle` **true**. **Both models it still named are
+collision names.**
+
+**What was left was instrumentation, and it already exists.** The six steps describe recording
+what the AI named at `advisorEngine.js` 3075 / 3937 / 4244 — but `resolveModelChoiceWithSource`
+already resolves the correct route from the marker on every reply, including where the AI's prose
+path is wrong or absent, and it feeds the **Model Choices screen** (item 7.5, shipped 2026-09-23).
+
+✅ **WHAT IS KEPT AND MUST NOT BE UNDONE:** the six name collisions fixed 2026-09-17; `searchWords`
+pinned as **screen-only, never given to the AI**; the offer rule naming the failing case — *"IF A
+MODEL ANSWERS THE QUESTION, NAMING IT IS NOT OPTIONAL — INCLUDING WHEN YOU HAVE ALREADY
+RECOMMENDED A TEMPLATE"* — with **line 7 untouched**, a near-miss still forbidden outright; and the
+**"A model that fits"** label ruling of 2026-09-18 (*"a model includes CALCULATIONS but it is NOT
+a calculator"*). All are live and pinned by tests.
+
 **7.13 — "the model's page is recalled by the AI, not looked up".**
 🔴 **DELETED 2026-09-23 by Mike, not built and not replaced.** His words, on being shown the
 evidence below: *"if it REALLY needs fixing we fix it - if it isn't REALLY needed - delete it"*,
