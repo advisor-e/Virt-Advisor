@@ -85,7 +85,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "A page often holds several templates, so 220 client tools sit on 205 pages. One shared profile per page is correct, but the registry keeps only the first template on each page, hiding the other 15 from anything reading it.",
+      "why": "A page often holds several templates, so 220 client tools sit on 205 pages. One shared profile per page is correct, but the registry keeps only the last template on each page, hiding the other 15 from anything reading it.",
       "risk": "Nothing scores wrongly and no advice is withheld: the resolver filters the full 220-row array and never keys by page, so every tool competes. The loss is visibility - a profile screen, an audit or a count reading the registry sees 205 titles and cannot name the 15 tools sharing those pages, so a mentor editing a page's profile is not told which tools it governs.",
       "askedBy": {
         "who": "Mike",
