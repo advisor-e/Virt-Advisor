@@ -126,7 +126,7 @@
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Outside",
       "why": "Case reviews already record how each template landed, and the engine reads that back for the same client only. Pooled across firms that consent, anonymised, it can adjust recommendations for everyone.",
       "risk": "Without it the product cannot honestly claim to get smarter with use beyond one client. The counter-risk is privacy: identifiers or client words leaving a firm, or a firm that never consented being changed by others' outcomes - both refused by the spec.",
       "askedBy": {
@@ -136,7 +136,7 @@
       },
       "touches": "caseStore.js template_outcomes and the mentor-share anonymiser, priorEngagement.js, the distinction-boost seam in templateResolver.js, the decision trace, a firm-tier consent tab and a Mentor Hub page in FirmManagerHub.vue, the overlay store at platform scope, the Scenario Lab.",
       "note": "SPEC KIT FEATURE, specs/002-outcome-learning. ALL BUILT AND POLISHED (2026-09-12): T001 to T047 ticked. The quickstart was walked on the desktop against local MySQL: consent, a pooled row with no free text, the mentor's decisions and both refusals, restore, both benches and the advisor's notice, all seen. It found and closed 4.94 (the trace named the wrong hold-back and could hide one). NOT SHOWN LOCALLY: a withdrawal taking an adjustment below the floor (yesterday's rows sit under a lost secret) and a second firm (one dev sign-in). Every word on both screens is ruled, on the drawings. Brief §8 says what stands where. WHAT REMAINS IS UAT.",
-      "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T042 on the desktop: both hub screens from their ruled wording rows, the seed, industry suggestions, then the benches on Mike's yes, pressed on the running app. 2026-09-12 - T043 to T047: differences on the drawings, lint, suite and build green, the quickstart walked; 4.94 found and fixed the same hour. Handed to UAT."
+      "comment": "2026-09-10 - spec, clarify, plan, tasks and three approved drawings, every question ruled on the drawing. 2026-09-11 - T007 to T042 on the desktop: both hub screens from their ruled wording rows, the seed, industry suggestions, then the benches on Mike's yes, pressed on the running app. 2026-09-12 - T043 to T047: differences on the drawings, lint, suite and build green, the quickstart walked; 4.94 found and fixed the same hour. Handed to UAT. 2026-09-23 - waitingOn corrected Mike to Outside: 48 of 48 tasks done and nothing asked of him, so a list saying he owed an answer was wrong."
     },
     {
       "ref": "5.1",
@@ -232,7 +232,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "Measured over 30 live calls: the template choice is right every run, but the calculator paired with it varies - 1, 2 or 3 times in 6 on identical questions, and the wrong budget model 4 times in 6.",
       "risk": "An advisor asking the same question twice gets different tools, and each answer reads perfectly well alone - so neither they nor UAT can see it. Twice the AI attached the wrong calculator to a correct template, including the wrong size of budget model, which the list forbids in capitals. Sales Dashboard is named correctly but gives no link to click 5 times in 6.",
       "askedBy": {
@@ -242,7 +242,7 @@
       },
       "touches": "data/report-model-summaries.json, whose instruction[] block IS the HOW TO USE THIS LIST rules - edit the rules there, not in code; server/utils/reportModels.js formatReportModelsForPrompt, which only renders that block into the 51,072-character prompt and holds no rule text itself; data/prompts/discover.txt STEP 1, which frames the calculator as an optional extra; and whatever measurement proves a change, which has to be live conversations.",
       "note": "🔴 NOT ABSENCE - UNRELIABILITY. The TEMPLATE choice is right every run; the calculator paired with it is what varies. Mike ruled 2026-09-18 that a fitting calculator is ALWAYS offered alongside a template, and the offer rule now names that case - the refusal rule (line 7) is untouched. MEASURED, 6 runs each: Working Capital Cycle 3/6 to 5/6, Sales Dashboard 1/6 to 3/6, links 6/24 to 9/24, substitutions 9 to 6. 8 Levers 0/6 unchanged and NOT a defect. WHAT REMAINS IS THE BUDGET SUBSTITUTION - a separate fault, now item 7.11. Tables in advisory-engine.md P2.",
-      "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings, and Mike RULED that a fitting calculator is always offered alongside a template. Built and measured the same day: two of four questions improved, links 6/24 to 9/24. The budget wording was tested as a cause and DISPROVED TWICE - it is now item 7.11. Mike's authored prose is untouched. NO DEFINED NEXT STEP: either machine may take what is left. 2026-09-18 - the laptop had filed this same fault as its own 7.9; Mike ruled they are ONE item and this one survives. Closure on the done page."
+      "comment": "2026-09-16 - filed on Mike's yes. 2026-09-17 - six name collisions found and fixed. 2026-09-18 - re-measured at 6 runs per model, which overturned BOTH earlier readings, and Mike RULED that a fitting calculator is always offered alongside a template. Built and measured the same day; figures in the note. The budget wording was tested as a cause and DISPROVED TWICE - it is now item 7.11. Mike's prose untouched. NO DEFINED NEXT STEP: either machine may take what is left - so waitingOn reads Us, corrected 2026-09-23 after the stale Mike sent a session to him with a task he had ruled on. Laptop's duplicate 7.9 ruled ONE item with this; closure on the done page."
     },
     {
       "ref": "7.3",
