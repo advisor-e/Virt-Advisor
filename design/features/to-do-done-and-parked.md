@@ -109,6 +109,35 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**7.3 · A second opinion from two AI providers.** ⏸ **Parked 2026-09-23 by Mike.** His own idea,
+unbuilt, and it needs a decision and an impact test before any design — not a build.
+
+- **His words, 2026-09-14:** *"perhaps there is a strength to using open AI AND Deepseek for the
+  purposes of different perspectives?"* Filed the same day on his yes so the idea was on the list
+  rather than lost in a chat. `askedBy.ours` is **false** — this is genuinely his.
+- ✅ **ITS DEPENDENCY IS ALREADY BUILT.** [`server/utils/aiProvider.js`](../../server/utils/aiProvider.js)
+  is the seam, shipped with item 7.2 across all eight calling files.
+- 🔴 **AND THE SEAM'S OWN HEADER RECORDS HIS RULING THAT THIS IS NOT THAT:** *"His ruling was a
+  **FALLBACK, not a second opinion**: one provider answers, and the other is tried only when the
+  first cannot. The 'two perspectives' idea he raised the same day is item 4.98"* — this item
+  under its old number. **A fallback is built; a second opinion is not, and was never meant to be
+  part of it.**
+- ✅ **THE PRIVACY MACHINERY EXISTS AND IS STRICT, so this would inherit it.** Every caller must
+  state `personal: true|false`; **the flag is required and a call that forgets it throws** rather
+  than defaulting, because a default would silently decide a privacy question. With
+  `personal: true` and no clearance in config the fallback is not tried at all and the primary's
+  error is rethrown — the feature fails as it does today rather than routing a client's words
+  somewhere new.
+- **THREE DESIGN QUESTIONS ARE OPEN AND NONE IS OURS TO ANSWER:** which calls get two answers;
+  what the advisor sees **when the two disagree**; and which provider is cleared for which data.
+  ⚠ **DeepSeek's China hosting and training terms are the privacy question to settle before it
+  carries anything personal.**
+- ⚠ **IT MUST PASS THE IMPACT TEST FIRST** (`CLAUDE.md`, binding since 2026-09-16): it **doubles
+  AI cost and wait on every call it covers**, so the gain and how it would be measured are stated
+  before any design — not found afterwards to justify the work.
+- **What un-parks it:** Mike answering the three design questions and the DeepSeek privacy
+  question, with the impact test run at scoping.
+
 **7.6 · The AI declares its model choice only sometimes, so declines under-count.**
 ⏸ **Parked on Mike's ruling of 2026-09-16, moved off the live list 2026-09-23** — where it had
 stayed for a week carrying its own instruction not to propose it.

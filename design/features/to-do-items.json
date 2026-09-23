@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "7.3",
-      "name": "A second opinion from two AI providers",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike wonders whether two providers answering the same narrative or reading, with the advisor seeing both, gives a better answer than one. A later decision, separate from the fallback in 7.2.",
-      "risk": "Without a decision it stays an idea. Building it doubles AI cost and wait on every call it covers, and a second provider needs the same privacy clearance as the first before any client words reach it.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-14 - 'perhaps there is a strength to using open AI AND Deepseek for the purposes of different perspectives?' Filed as its own item on his yes."
-      },
-      "touches": "The provider seam 7.2 builds, the narrative and hub-reading call sites, the advisor's screen where two answers would show, the provider clearance in config.",
-      "note": "NOT PART OF 7.2. Needs a design decision first: which calls get two answers, what the advisor sees when they disagree, and which provider is cleared for which data. DeepSeek's China hosting and training terms are the privacy question to answer before it carries anything personal.",
-      "comment": "2026-09-14 - filed on Mike's yes so the idea is on the list and not in a chat."
-    },
-    {
       "ref": "9.3",
       "name": "The sharing tab says on and off at once with no pool secret",
       "rankedByMike": false,
