@@ -352,6 +352,37 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**9.3 — the sharing tab said on and off at once with no pool secret.**
+✅ **Fixed and closed 2026-09-23 on Mike's "proceed and fix it now"** — the first item of that
+session not already settled, parked or deleted.
+
+- **What a manager saw:** on a server with **no `OUTCOME_POOL_SECRET`** a firm whose switch was on
+  got a green *"Sharing since {date}"* badge **and** a count of adjustments applying, **directly
+  beside** the notice saying shared learning is switched off. Both figures were real and both were
+  stale — the consent stood, nothing was pooling — and nothing on screen said which to believe.
+- **The fix, in one component:**
+  [`FirmOutcomeConsent.vue`](../../components/firm/FirmOutcomeConsent.vue). The adjustments card
+  now defers to `poolConfigured`, and the badge has **three states instead of two** via new
+  `badgeType` / `badgeLabel` computeds. `poolConfigured` already existed and was already used
+  correctly in four other places — **the fix was applying it in the two that were missed.**
+- 🔴 **THE MIDDLE STATE IS THE POINT.** A consenting firm on an unconfigured server is neither of
+  the originals: *"Not sharing"* would read as though the switch had flipped itself off, and the
+  green badge claimed a thing that was not happening. **Wording approved by Mike 2026-09-23:
+  "Sharing paused", in grey** (`outcomeConsent.pillPaused`).
+- 🔴 **THE ENGINE WAS NEVER WRONG AND WAS NOT TOUCHED.** Give-to-get is built and guarded by his
+  2026-09-15 ruling — `loadPooledForSession` returns `adjustments: []` for a firm that does not
+  share, pinned by `outcomeLearningTrace.test.js`. **An earlier note on this item claimed the
+  opposite**, misreading a count that is only computed when the switch is ON; that was corrected
+  against the code before the item was ever worked.
+- **Five tests, and they assert WHICH STATE SHOWS, never the words in it** — the label is Mike's
+  and lives in the locale file, per the no-asserting-wording rule of 2026-08-24.
+  **Mutation-verified both ways:** dropping `poolConfigured` from `badgeType` fails, and deleting
+  the paused branch from `badgeLabel` fails.
+- **`askedBy.ours` was true** — we found it on 2026-09-15 while building his warn-never-block
+  ruling, and filed it rather than fixing it because nobody had asked. It is a **defect**, which
+  the 2026-08-26 gate expressly still permits filing: he asked us to stop inventing work, not to
+  stop reporting bugs.
+
 **7.5 — nothing recorded which calculation model the AI named.**
 ✅ **Closed 2026-09-23 by Mike**, who had ruled on it three separate times before it was closed.
 

@@ -163,6 +163,67 @@ describe('what a manager opens', () => {
   })
 })
 
+/**
+ * Item 9.3 — the screen said on and off at once.
+ *
+ * On a server with NO OUTCOME_POOL_SECRET the route returns `pooledCount: null`, and a
+ * firm that had consented still saw the GREEN "Sharing since {date}" badge and a count of
+ * adjustments applying, DIRECTLY BESIDE the notice saying shared learning is switched off.
+ * Both figures were real and both were stale: the consent stood, and nothing was pooling.
+ *
+ * 🔴 THE ENGINE WAS NEVER WRONG and must not be touched over this — `loadPooledForSession`
+ * returns `adjustments: []` for a firm that does not share, pinned in
+ * outcomeLearningTrace.test.js. Only the screen misled.
+ *
+ * These assert WHICH STATE SHOWS, never the words in it: the label is Mike's (2026-09-23)
+ * and lives in the locale file, per the no-asserting-wording rule of 2026-08-24.
+ */
+describe('9.3 — consent and pooling can disagree, and the badge says so', () => {
+  it('green ONLY when the firm is both consenting and pooling', async () => {
+    const wrapper = await mountTab(readPayload({ consent: CONSENT_ON, pooledCount: 4 }))
+    expect(wrapper.vm.poolConfigured).toBe(true)
+    expect(wrapper.vm.badgeType).toBe('is-success')
+    expect(wrapper.vm.badgeLabel).toBe(wrapper.vm.$t('outcomeConsent.pillOn', {
+      date: wrapper.vm.dateWords(CONSENT_ON.setAt)
+    }))
+  })
+
+  it('consented but NO pool secret is neither of the original two states', async () => {
+    // pooledCount null is exactly what the route sends with no OUTCOME_POOL_SECRET.
+    const wrapper = await mountTab(readPayload({ consent: CONSENT_ON, pooledCount: null }))
+    expect(wrapper.vm.poolConfigured).toBe(false)
+    // NOT green — that was the contradiction.
+    expect(wrapper.vm.badgeType).toBe('is-light')
+    // and NOT "Not sharing" either: the firm's consent is real and did not flip itself off.
+    expect(wrapper.vm.badgeLabel).not.toBe(wrapper.vm.$t('outcomeConsent.pillOff'))
+    expect(wrapper.vm.badgeLabel).toBe(wrapper.vm.$t('outcomeConsent.pillPaused'))
+  })
+
+  it('not sharing reads as not sharing, pool or no pool', async () => {
+    const off = await mountTab(readPayload({ consent: null, pooledCount: 0 }))
+    expect(off.vm.badgeLabel).toBe(off.vm.$t('outcomeConsent.pillOff'))
+    const offNoPool = await mountTab(readPayload({ consent: null, pooledCount: null }))
+    expect(offNoPool.vm.badgeLabel).toBe(offNoPool.vm.$t('outcomeConsent.pillOff'))
+  })
+
+  it('the stale adjustment count is withheld when nothing can be pooling', async () => {
+    // The count is computed only when the switch is ON, so it is a REAL number that went
+    // stale — which is why it survived to contradict the notice beside it.
+    const wrapper = await mountTab(readPayload({
+      consent: CONSENT_ON, pooledCount: null, adjustmentsApplying: 2
+    }))
+    expect(wrapper.vm.poolConfigured).toBe(false)
+    expect(wrapper.text()).not.toContain(wrapper.vm.$t('outcomeConsent.changedHeading'))
+  })
+
+  it('and it still shows when the firm really is pooling', async () => {
+    const wrapper = await mountTab(readPayload({
+      consent: CONSENT_ON, pooledCount: 9, adjustmentsApplying: 2
+    }))
+    expect(wrapper.text()).toContain(wrapper.vm.$t('outcomeConsent.changedHeading'))
+  })
+})
+
 describe('starting to share', () => {
   it('sends nothing until the sentence is ticked', async () => {
     const wrapper = await mountTab()
