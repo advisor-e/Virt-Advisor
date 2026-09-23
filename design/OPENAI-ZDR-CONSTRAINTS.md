@@ -16,10 +16,11 @@
 
 ## Status on 2026-09-24
 
-- **Approved** by OpenAI; the amendment is **sent to Mike for signature and not yet executed**.
-- **ZDR is not in force** until the amendment is executed **and** the Account Console shows it
-  switched on for the Org **and the Project** (A§2). Until both are true, nothing may be
-  described as covered by ZDR.
+- **Executed 2026-09-23**, signed by Dan Cook for OpenAI and Michael Barnes for Advisor-e, with
+  wording identical to the transcript
+  ([`openai/ZDR-AMENDMENT-SIGNED-2026-09-23.md`](openai/ZDR-AMENDMENT-SIGNED-2026-09-23.md)).
+- **ZDR is not in force** until the Account Console shows it switched on for the Org **and the
+  Project** (A§2). Until then, nothing may be described as covered by ZDR.
 - **A§4.3 moderation is built** (2026-09-24, rule Z3). What remains of item **8.2** is showing
   the approved wording on each screen; until then a blocked request shows that screen's existing
   AI error.
@@ -48,7 +49,5 @@
 - **OpenAI changes the page.** DC is a live document. Before relying on a detail — especially
   the endpoint table — re-read the live page, and if it has moved, add a new dated copy under
   `openai/`.
-- **The amendment is signed.** If the signed copy differs from the one sent for signature, add
-  it beside the original and correct this page.
 - **A feature needs a new endpoint, tool, model family or upload type.** Check it against DC
   **first**. Image generation, for example, is ZDR-compatible only with the models DC names.

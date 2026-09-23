@@ -468,7 +468,11 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Clause 4.3 of the ZDR amendment Mike is signing requires moderation on every request once ZDR is used. Nothing in the app checks anything today, so ZDR cannot be relied on for Meeting Review until this exists.",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-24"
+      },
+      "why": "Clause 4.3 of the ZDR amendment Mike signed on 2026-09-23 requires moderation on every request once ZDR is used. Without it ZDR cannot be relied on for Meeting Review, and a breach lets OpenAI suspend all API access.",
       "risk": "Using ZDR without it breaches the contract, and clause 6 lets OpenAI suspend ZDR or all API access - one key serves the whole app, so every AI feature would stop. Meeting Review stays unusable on a real client meanwhile, because 8.1 is parked until ZDR is in force. OpenAI's /v1/moderations is itself ZDR-eligible and keeps nothing, so the check adds no new copy of client content.",
       "askedBy": {
         "who": "Mike",
@@ -477,7 +481,7 @@
       },
       "touches": "server/utils/openaiClient.js and transcriptionClient.js, the two doors every OpenAI call passes through; the routes calling them - advisorEngine, courseEngine, meetingReview, economicAnalysis, nextStepsDraft, compliance, depreciationExtract, countryScheduleRead, promptCheck; the error shape a refused request returns; rule Z3 of design/OPENAI-ZDR-CONSTRAINTS.md.",
       "note": "HALF BUILT 2026-09-24. THE CHECK IS LIVE: server/utils/moderation.js runs inside openaiClient.js before every OpenAI request. Mike's rulings: only sexual/minors, self-harm/instructions and illicit/violent block, because ordinary metaphors like 'attack the Auckland market' flag as violence; every other flag is logged without the words; an unreachable check refuses the request; each sentence is scored separately so a block names it. Proven live against OpenAI. REMAINING: the five approved messages in design/MODERATION-WORDING.md reaching each screen - today a blocked request shows that screen's existing AI error, across about 15 routes.",
-      "comment": "2026-09-24 - filed on Mike's yes the day OpenAI approved the ZDR request and sent the amendment for signature."
+      "comment": "2026-09-24 - filed on Mike's yes the day OpenAI approved the ZDR request and sent the amendment for signature. Same day: the check built and committed (b0918c5c); Mike's call PROCEED - the wording on each screen is next."
     }
   ]
 }
