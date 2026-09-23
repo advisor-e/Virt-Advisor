@@ -59,6 +59,10 @@ function _configured (p) {
  */
 function isRetryable (err) {
   if (!err) { return false }
+  // 🔴 A request the moderation check blocked is never sent elsewhere instead (item 8.2): routing
+  // refused words to a provider nobody checked would defeat the check. A check that could not be
+  // REACHED is different — it falls through below as an outage, which is Mike's ruling.
+  if (err.code === 'AI_MODERATION_BLOCKED') { return false }
   const msg = String(err.message || '')
   if (msg.indexOf('OpenAI API error') === 0) { return RETRYABLE_STATUS.test(msg) }
   // Not an HTTP status: a timeout, a DNS failure, a dropped socket. Worth the other provider.
@@ -132,6 +136,8 @@ function getClient (role) {
     const primaryModel = modelFor(primary, role)
     const _passthrough = Object.assign({}, opts)
     delete _passthrough.personal
+    // Names the feature on the moderation log line; the role is what the call does.
+    _passthrough.feature = role
 
     let primaryError = null
     try {

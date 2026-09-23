@@ -20,7 +20,9 @@
 - **ZDR is not in force** until the amendment is executed **and** the Account Console shows it
   switched on for the Org **and the Project** (A§2). Until both are true, nothing may be
   described as covered by ZDR.
-- **Not yet compliant:** A§4.3 moderation — item **8.2** on the live list.
+- **A§4.3 moderation is built** (2026-09-24, rule Z3). What remains of item **8.2** is showing
+  the approved wording on each screen; until then a blocked request shows that screen's existing
+  AI error.
 - **To be confirmed by Advisor-e's master team:** A§4.2 login recording or MFA — the login is
   theirs, not this app's.
 
@@ -30,7 +32,7 @@
 |---|---|---|---|
 | **Z1** | **Only ZDR-eligible endpoints carry customer content.** Allowed: `/v1/chat/completions`, `/v1/responses`, `/v1/audio/transcriptions`, `/v1/moderations`, `/v1/embeddings`. **Never:** assistants, threads, agents, conversations, chatkit, vector stores, files, batches, fine-tuning, evals, videos — these keep data even under ZDR. | A§8 "Zero Data Retention"; DC table | ✅ Uses only chat/completions, responses and audio/transcriptions (`server/utils/openaiClient.js`, `transcriptionClient.js`). |
 | **Z2** | **No Responses "background mode", no remote MCP tool, no hosted containers** (Code Interpreter, hosted shell, hosted skills) for customer content. Each keeps data or sends it to a third party. | DC /v1/responses | ✅ None used. |
-| **Z3** | **Every request carrying user or client content passes a moderation check first** — OpenAI's `/v1/moderations` (ZDR-eligible, keeps nothing) or equal tooling. Notable spikes in high-severity abuse are reported to OpenAI. | A§4.3; DC "responsible for… moderation" | 🔴 **Not built — item 8.2.** A new AI feature ships with the check or waits for 8.2. |
+| **Z3** | **Every request carrying user or client content passes a moderation check first** — OpenAI's `/v1/moderations` (ZDR-eligible, keeps nothing) or equal tooling. Notable spikes in high-severity abuse are reported to OpenAI. | A§4.3; DC "responsible for… moderation" | ✅ **Built 2026-09-24** — `server/utils/moderation.js`, run inside `openaiClient.js` so no call site can skip it. Mike's three rulings: only `sexual/minors`, `self-harm/instructions` and `illicit/violent` block; every other flag is logged without the words; an unreachable check refuses the request. `tests/unit/moderation.test.js` fails if any other file reaches OpenAI. Carrying the approved wording ([`MODERATION-WORDING.md`](MODERATION-WORDING.md)) to each screen is the second half of item 8.2. |
 | **Z4** | **No general-purpose chat.** Every conversational surface is restricted to a topic or grounded in trusted documents — the firm's templates, frameworks or the user's own material. | A§4.1, A§5.1 | ✅ Every AI surface is advisory, course, meeting or report-bound. A new "ask anything" box breaks this. |
 | **Z5** | **Every route that reaches OpenAI requires a login.** Users are internal, or signed in with MFA, single sign-on, or a password whose logins are recorded. No public, anonymous or link-only route may reach the model. | A§4.2, A§5.2 | ✅ All AI routes sit behind `firmAuth`/`fmGuard` (`server/restify-server.js`). ⚠ Login recording/MFA is Advisor-e's to confirm. Any **client-facing** AI feature must be checked here specifically. |
 | **Z6** | **The app never generates code for users**, and never converts plain English to SQL, converts between programming languages, or writes docstrings. | A§4.4, A§5.3 | ✅ None. |

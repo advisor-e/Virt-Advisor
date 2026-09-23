@@ -38,6 +38,11 @@
  * first — see `stripStreamContent` below for why that happens here rather than at
  * each call site.
  *
+ * 🔴 EVERY REQUEST TO OPENAI IS MODERATED FIRST (item 8.2, the signed ZDR amendment's
+ * clause 4.3). It happens here, not at the ~35 call sites, so no call site can forget it —
+ * `server/utils/moderation.js` holds the rules. Only OpenAI's own host is checked: a
+ * request bound for the backup provider is not sent to OpenAI to be looked at.
+ *
  * Node 14 only: uses the built-in `https` module (no global `fetch`, which is
  * Node 18+) and async generators (Node 10+). CommonJS.
  *
@@ -46,6 +51,7 @@
 
 const https = require('https')
 const { stripInvisible } = require('./promptSafety')
+const moderation = require('./moderation')
 
 const DEFAULT_HOST = 'api.openai.com'
 const COMPLETIONS_PATH = '/v1/chat/completions'
@@ -352,6 +358,8 @@ async function readBody (res) {
  * @param {string}   opts.apiKey            - OpenAI API key (backend env only)
  * @param {string}   [opts.host]            - override host (tests)
  * @param {Function} [opts.requestImpl]     - https.request-compatible fn (tests)
+ * @param {Function} [opts.moderator]       - async (texts, meta) => void, throwing to refuse;
+ *   tests only. There is deliberately no way to switch moderation off — absent means the real one.
  * @returns {{ chat: { completions: { create: Function } },
  *            responses: { create: Function } }}
  */
@@ -359,6 +367,33 @@ function createOpenAIClient (opts) {
   const apiKey = opts && opts.apiKey
   const host = (opts && opts.host) || DEFAULT_HOST
   const requestImpl = (opts && opts.requestImpl) || https.request
+  const moderator = (opts && typeof opts.moderator === 'function') ? opts.moderator : defaultModerator
+
+  /** The real check: one `/v1/moderations` call per batch, through the same transport. */
+  async function postModeration (inputs) {
+    const res = await postToOpenAI({
+      apiKey,
+      host,
+      path: moderation.MODERATION_PATH,
+      body: { model: moderation.MODERATION_MODEL, input: inputs },
+      requestImpl,
+      timeout: DEFAULT_TIMEOUT_MS
+    })
+    const status = res.statusCode || 0
+    const raw = await readBody(res)
+    if (status < 200 || status >= 300) { throw new Error('moderation HTTP ' + status) }
+    return (JSON.parse(raw) || {}).results
+  }
+
+  function defaultModerator (texts, meta) {
+    return moderation.check(texts, postModeration, meta)
+  }
+
+  /** Moderates when the request is bound for OpenAI itself; see the file header. */
+  async function moderate (texts, options) {
+    if (host !== DEFAULT_HOST) { return }
+    await moderator(texts, { feature: options && options.feature })
+  }
 
   /**
    * @param {object} params - OpenAI chat-completions params (model, messages,
@@ -376,6 +411,7 @@ function createOpenAIClient (opts) {
 
     const timeout = (options && typeof options.timeout === 'number') ? options.timeout : DEFAULT_TIMEOUT_MS
 
+    await moderate(moderation.textsFromChat(params), options)
     const res = await postToOpenAI({ apiKey, host, path: COMPLETIONS_PATH, body: params, requestImpl, timeout })
     const status = res.statusCode || 0
 
@@ -410,6 +446,7 @@ function createOpenAIClient (opts) {
 
     const timeout = (options && typeof options.timeout === 'number') ? options.timeout : DEFAULT_TIMEOUT_MS
 
+    await moderate(moderation.textsFromResponses(params), options)
     const res = await postToOpenAI({ apiKey, host, path: RESPONSES_PATH, body: params, requestImpl, timeout })
     const status = res.statusCode || 0
 

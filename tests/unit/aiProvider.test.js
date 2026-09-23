@@ -115,8 +115,17 @@ describe('the primary answers', () => {
   test('the personal flag is not forwarded to the provider', async () => {
     const calls = scripted({ openai: reply() })
     await getClient('report').chat.completions.create({ messages: [] }, { personal: true, timeout: 5000 })
-    expect(calls[0].options).toEqual({ timeout: 5000 })
+    // `feature` is the role, forwarded so the moderation log can name who asked (item 8.2).
+    expect(calls[0].options).toEqual({ timeout: 5000, feature: 'report' })
     expect(calls[0].options.personal).toBeUndefined()
+  })
+
+  test('a request the moderation check blocked is never retried on the backup provider (8.2)', () => {
+    const blocked = Object.assign(new Error('AI_MODERATION_BLOCKED: self-harm/instructions'), { code: 'AI_MODERATION_BLOCKED' })
+    expect(isRetryable(blocked)).toBe(false)
+    // A check that could not be REACHED is an outage like any other, and may fall back.
+    const unreachable = Object.assign(new Error('moderation unavailable: timeout'), { code: 'AI_MODERATION_UNAVAILABLE' })
+    expect(isRetryable(unreachable)).toBe(true)
   })
 
   test('the fallback is never called when the primary answers', async () => {
