@@ -272,6 +272,32 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**9.1 — learning from outcomes across consenting firms.**
+✅ **Closed 2026-09-23 by Mike.** A Spec Kit feature (`specs/002-outcome-learning`), **48 of 48
+tasks ticked and none open**, and every claim below was checked in the code before it was put to
+him rather than read from the item's own note.
+
+- **Built and WIRED, which is the half a task list cannot show:** six utilities
+  (`outcomeLearning`, `outcomeConsent`, `outcomeContribute`, `outcomeBench`,
+  `outcomeLearningSession`, `outcomePoolBootCheck`), two route files, and **six routes behind the
+  right guards** — `/api/firm-manager/outcome-consent` read/set/withdraw behind `fmGuard`, and
+  `/api/mentor/outcome-learning` list/recompute/decision behind `mentorGuard`. Both hub tabs are
+  registered and both components imported in
+  [`../../components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue).
+- **Ten test files**, including `outcomeBench.test.js`'s negative assertion that an adjustment
+  clearing the floor only because the test month was counted **never applies**.
+- **Walked against real MySQL on the desktop** (2026-09-12): consent, a pooled row with no free
+  text, the mentor's decisions and both refusals, restore, both benches and the advisor's notice.
+  That walk found and closed item 4.94 the same hour — the trace named the wrong hold-back and
+  could hide one.
+- ⚠ **Two paths were never shown locally and are UAT's to confirm:** a withdrawal taking an
+  adjustment below the floor (yesterday's rows sit under a lost secret) and a second firm (one dev
+  sign-in exists). **Both are covered by tests** — this is confirmation in the real world, not
+  unbuilt work.
+- **Why done and not parked:** nothing blocks it and nothing is asked of anyone here. UAT is what
+  happens to finished work, not a task on the live list. Every word on both screens is ruled and
+  on the approved drawings; Brief §8 says what stands where.
+
 **15.6 — eight concepts named a response form the app could not find.**
 ✅ Closed 2026-09-23. **All twenty pairings resolve — 0 failures**, run through
 `resolveTemplate` in [`server/utils/strategyCaptureForms.js`](../../server/utils/strategyCaptureForms.js),
