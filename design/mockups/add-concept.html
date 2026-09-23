@@ -186,9 +186,20 @@ tr:last-child td{border-bottom:0}
   <p><b>Your two security rulings, built in:</b> no AI ever touches an uploaded PDF — you name the
   concept, and the page's text is read locally; and the upload goes to our own backend, PDF only,
   size-capped, stored per tier, with a hard timeout.</p>
-  <p>🔴 <b>SIX QUESTIONS AT §7, EACH WITH ONE RECOMMENDATION.</b> Question 1 is the one that
-  decides whether this feature can meet your own standard — that concepts must not look different
-  to a client — and it is not obvious.</p>
+  <p>🔴 <b>SIX QUESTIONS AT §7, EACH WITH ONE RECOMMENDATION. Each ruling is written beside its
+  question as it is given</b> — so this page, not a chat message, is the record.</p>
+  <p>✅ <b>QUESTION 1 RULED 2026-09-23, as recommended:</b> the app's frame is painted over the
+  outer edge of an imported page, covering the border the source deck carried. It was the one
+  that decided whether this feature can meet your own standard — that concepts must not look
+  different to a client — and nothing about it was visible until a page was actually converted.</p>
+  <p>✅ <b>QUESTION 2 RULED 2026-09-23 — "one".</b> One Add Concept button, the section chosen
+  as the first field.</p>
+  <p>🔴 <b>QUESTION 3 RULED 2026-09-23 AGAINST THE RECOMMENDATION, and it redrew two screens.</b>
+  Your words: <i>"Every concept has a teach and response requirement. what you are seeing is some
+  concepts require more than a single page of teach material."</i> So <b>the Response Form is
+  required</b>, and <b>step 1 takes more than one teaching page</b>. The figure the
+  recommendation rested on — <i>"24 of 46 have no response table"</i> — counted forms <b>not yet
+  chosen</b> (items 15.11 and 15.16), not concepts that need none.</p>
 </div>
 
 <div class="hub-top">
@@ -234,9 +245,9 @@ tr:last-child td{border-bottom:0}
 <div class="stepmark">2 · The concept library, and one button</div>
 
 <div class="mock">
-  <p>The list an advisor already scopes a session from, with the one new control on it.
-  <b>Question 2 asks whether this is one button with the section chosen inside it, as drawn, or
-  four buttons — one per section, as you also offered.</b></p>
+  <p>The list an advisor already scopes a session from, with the one new control on it.</p>
+  <p>✅ <b>RULED 2026-09-23 — "one".</b> One Add Concept button, as drawn, with the section
+  chosen as the first field. The four per-section buttons you also offered are not built.</p>
 </div>
 
 <div class="card">
@@ -255,12 +266,14 @@ tr:last-child td{border-bottom:0}
         <td>Drawn</td><td>Banded grid</td><td><span class="pill own">Mentor</span></td>
       </tr>
       <tr>
-        <td><b>Defining Our Cultural Core Values</b></td><td>Organisational Review</td>
-        <td>Drawn</td><td>—</td><td><span class="pill own">Mentor</span></td>
+        <td><b>Vertical Integration</b></td><td>Strategic Orientation</td>
+        <td>Drawn</td><td><span class="pill draft">Not yet chosen</span></td>
+        <td><span class="pill own">Mentor</span></td>
       </tr>
       <tr>
         <td><b>Collaborative Thinking</b></td><td>Business Targets</td>
-        <td>Drawn · 2 sheets</td><td>—</td><td><span class="pill own">Mentor</span></td>
+        <td>Drawn · 2 pages</td><td><span class="pill draft">Not yet chosen</span></td>
+        <td><span class="pill own">Mentor</span></td>
       </tr>
       <tr>
         <td><b>Our Client Charter</b></td><td>Organisational Review</td>
@@ -273,8 +286,15 @@ tr:last-child td{border-bottom:0}
 <!-- ─────────────────────────────────────────────────────────────────────── -->
 <div class="stepmark">3 · Add Concept, step 1 — the teaching page</div>
 
+<div class="mock">
+  <p>🔴 <b>MORE THAN ONE TEACHING PAGE, on Mike's correction of 2026-09-23</b> — <i>"some
+  concepts require more than a single page of teach material."</i> Already true in the app:
+  Collaborative Thinking ships with <b>two</b> teaching sheets, and a concept's registry entry
+  holds a <b>list</b>, not one drawing. Pages are taught in the order they are dropped.</p>
+</div>
+
 <div class="card">
-  <div class="card-h"><h2>Add Concept — 1 of 3 · The teaching page</h2></div>
+  <div class="card-h"><h2>Add Concept — 1 of 3 · The teaching pages</h2></div>
   <div class="card-b">
     <div class="frow">
       <label>Which section?</label>
@@ -291,13 +311,14 @@ tr:last-child td{border-bottom:0}
     </div>
 
     <div class="drop">
-      <div class="big">Drop the teaching page here</div>
-      <div class="small">or choose a file · PDF only · one page · up to 20 MB</div>
+      <div class="big">Drop the teaching pages here</div>
+      <div class="small">or choose files · PDF only · up to 20 MB each ·
+      taught in the order you drop them</div>
     </div>
 
     <div class="hint" style="margin-top:12px">
-      Nothing is sent to an AI. The page is converted on our own server and the text is read
-      from the page itself.
+      Nothing is sent to an AI. The pages are converted on our own server and the text is read
+      from the pages themselves.
     </div>
   </div>
 </div>
@@ -374,14 +395,13 @@ tr:last-child td{border-bottom:0}
 
     <div class="drop">
       <div class="big">Drop the Response Form page here</div>
-      <div class="small">or choose a file · PDF only · one page · up to 20 MB</div>
+      <div class="small">or choose a file · PDF only · up to 20 MB</div>
     </div>
 
-    <div style="height:14px"></div>
-    <span class="btn quiet">This concept teaches only — skip</span>
-    <div class="hint" style="margin-top:8px">
-      <b>Question 3:</b> 24 of the 46 concepts you already have carry no response table at all,
-      so this step is drawn as optional.
+    <div class="hint" style="margin-top:12px">
+      🔴 <b>Required</b>, on Mike's ruling of 2026-09-23: <i>"Every concept has a teach and
+      response requirement."</i> A concept cannot be added without one, and the "teaches only"
+      skip drawn here earlier is not built.
     </div>
   </div>
 </div>
@@ -407,6 +427,9 @@ tr:last-child td{border-bottom:0}
 
 <div class="q">
   <h3>1. The frame — how does an imported page stop looking foreign?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AS RECOMMENDED.</b> The app's frame is painted over the
+  outer edge of the imported page, covering the border the source deck carried. Every concept in
+  a session wears one frame and it is the app's.</p>
   <p>Your deck pages carry <b>their own cyan border</b>. The app's 35 drawn slides carry <b>the
   five blue bars</b>, pinned identically by test. Both cannot show at once.</p>
   <p class="rec">Recommended: the app's frame is painted over the outer edge of the imported
@@ -423,6 +446,9 @@ tr:last-child td{border-bottom:0}
 
 <div class="q">
   <h3>2. One Add Concept button, or one per section?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AS RECOMMENDED — "one".</b> A single Add Concept button,
+  with the section chosen as the first field, and pre-filled wherever the screen already knows
+  which section you are in. <b>Four per-section buttons are not built.</b></p>
   <p>You offered both: <i>"Each section … has a 'Add Concept' button … or — one place with a
   droptab asking which section to be posted into."</i></p>
   <p class="rec">Recommended: <b>one button</b>, with the section chosen as the first field, as
@@ -434,10 +460,19 @@ tr:last-child td{border-bottom:0}
 
 <div class="q">
   <h3>3. Is the Response Form required, or optional?</h3>
-  <p class="rec">Recommended: <b>optional</b>, with a plain "This concept teaches only — skip".</p>
-  <p class="against">Against: an advisor may add a teaching page and forget the form. But
-  <b>24 of your 46 existing concepts have no response table</b>, so requiring one would make most
-  of your own material impossible to add.</p>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AGAINST THE RECOMMENDATION, AND HE IS RIGHT.</b> In his
+  words: <i>"Every concept has a teach and response requirement. what you are seeing is some
+  concepts require more than a single page of teach material."</i></p>
+  <p><b>The Response Form is REQUIRED</b>, and <b>the teaching half accepts more than one
+  page</b>. The "This concept teaches only — skip" control is not built.</p>
+  <p class="against">⚠ <b>The recommendation rested on a figure that measured the wrong thing,
+  recorded here so nobody re-derives it.</b> It said <i>"24 of your 46 existing concepts have no
+  response table"</i>. That count is of concepts whose response form has <b>not been chosen
+  yet</b> — which is what items <b>15.11</b> and <b>15.16</b> are already on the list for — not
+  of concepts that need none. The data agrees with Mike: <code>responsePage</code> already names
+  a <b>later</b> page on five concepts — Vertical Integration teaches on p22 and responds on
+  p24, Revenue Streams p33 → p34, The 8 Profit Levers p39 → p41 — and two of them share one
+  response page.</p>
 </div>
 
 <div class="q">
@@ -482,21 +517,21 @@ tr:last-child td{border-bottom:0}
     <table class="words">
       <tr><th>Where</th><th>Proposed wording</th></tr>
       <tr><td>The button on the library</td><td>+ Add Concept</td></tr>
-      <tr><td>Step 1 heading</td><td>Add Concept — 1 of 3 · The teaching page</td></tr>
+      <tr><td>Step 1 heading</td><td>Add Concept — 1 of 3 · The teaching pages</td></tr>
       <tr><td>Section field</td><td>Which section?</td></tr>
-      <tr><td>Drop zone, teaching page</td><td>Drop the teaching page here</td></tr>
-      <tr><td>Drop zone, second line</td><td>or choose a file · PDF only · one page · up to 20 MB</td></tr>
-      <tr><td>The no-AI reassurance</td><td>Nothing is sent to an AI. The page is converted on our own server and the text is read from the page itself.</td></tr>
+      <tr><td>Drop zone, teaching pages</td><td>Drop the teaching pages here</td></tr>
+      <tr><td>Drop zone, second line</td><td>or choose files · PDF only · up to 20 MB each · taught in the order you drop them</td></tr>
+      <tr><td>The no-AI reassurance</td><td>Nothing is sent to an AI. The pages are converted on our own server and the text is read from the pages themselves.</td></tr>
       <tr><td>Step 2 heading</td><td>Add Concept — 2 of 3 · Check and name it</td></tr>
       <tr><td>Name field</td><td>Concept name</td></tr>
       <tr><td>Name field hint</td><td>Read from the page's own title. Change it if you want something shorter on the scope menu.</td></tr>
       <tr><td>The one-line field</td><td>Helps your client to…</td></tr>
       <tr><td>Step 3 heading</td><td>Add Concept — 3 of 3 · The Response Form</td></tr>
       <tr><td>Drop zone, response page</td><td>Drop the Response Form page here</td></tr>
-      <tr><td>Skipping the response page</td><td>This concept teaches only — skip</td></tr>
       <tr><td>Library column</td><td>Where from</td></tr>
       <tr><td>Library tag, own</td><td>Mentor</td></tr>
       <tr><td>Library tag, inherited</td><td>Inherited</td></tr>
+      <tr><td>Library, no form chosen yet</td><td>Not yet chosen</td></tr>
       <tr><td>Unreadable page</td><td>We could not read that page. It may be scanned rather than typed, or protected against copying. Try exporting it again from the original file.</td></tr>
     </table>
   </div>
@@ -510,8 +545,10 @@ tr:last-child td{border-bottom:0}
     <li><b>Where the button sits for the three middle levels.</b> They have hub pages already —
       built and approved 2026-08-10 — so the tab carries across; which levels get it is
       question 5's consequence, not a separate screen.</li>
-    <li><b>The multi-page case.</b> Drawn as one page per concept, because that is what a
-      concept is. A deck dropped whole is a different feature and is not proposed here.</li>
+    <li><b>A whole deck dropped at once.</b> A concept takes its own teaching pages and its own
+      Response Form; dropping a 25-page deck and having the app work out where one concept ends
+      and the next begins is a different feature and is not proposed here. <i>(Multiple teaching
+      pages per concept ARE covered — Mike's correction of 2026-09-23, §3.)</i></li>
     <li><b>The conversion library's future.</b> Its author warns the part we use
       <b>"is no longer maintained and may be removed"</b>. That is a real risk on the record; it
       does not change these screens.</li>
