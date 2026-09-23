@@ -1813,13 +1813,33 @@ retention dial**, [`registerRetention.js`](../../server/utils/registerRetention.
 is *spoken aloud to a client* in the consent wording; sharing one number would let a promise to a
 client silently change how long registers of named staff are kept.
 
-⚠ **ONE PIECE IS NOT BUILT, AND IT IS NOT A SCOPE CALL.** The Firm Manager **control** to change
-the retention period needs a tab in
-[`components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue), which is named in item
-4.87's `touches` and **active on the desktop** since 2026-09-10. Off limits from this machine. The
-backend, the cascade and the platform default are built and tested, and the register shows the
-resulting date; only the screen to change it waits. It is one component and one `TAB_TIERS` entry
-on the day 4.87 lands.
+✅ **BUILT 2026-09-23 — the dial is reachable, and the period is now 18 months.** The Firm
+Manager control exists: `GET`/`PUT`/`DELETE /api/firm-manager/register-retention`
+([`server/routes/registerRetentionRoutes.js`](../../server/routes/registerRetentionRoutes.js)),
+the **Staff Register Retention** tab under *Compliance* in
+[`components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue), and
+[`components/firm/FirmRegisterRetention.vue`](../../components/firm/FirmRegisterRetention.vue).
+
+🔴 **MIKE'S RULING, 2026-09-23, AND IT CHANGED THE NUMBER:** *"the data holding period to be no
+more than 18months - this should flow down from mentor - through the cascade levels and then at
+firm manager - be editable again. this way, at least a set period is loaded as a default."*
+**All four manager tiers**, in his own words — not the default-is-mentor-alone case.
+
+⚠ **THE 84 MONTHS THIS FILE USED TO DESCRIBE WERE NEVER HIS.** Decision 8 ruled only that the
+register is *kept on a retention dial rather than deleted at deal-end*, and named no period. The
+seven years and the twelve-month floor were written into `registerRetention.js` by us and read
+back by later sessions as though he had chosen them. The default is now **18 months**, the range
+**1–18**, and the ceiling is enforced in `validateRetentionMonths` — the one place every read and
+every write passes through — so no tier can exceed it from a screen, from a route, or from a
+value stored before the ruling.
+
+⚠ **THE SCOPE WAS BIGGER THAN THIS FILE SAID.** It recorded *"one component and one `TAB_TIERS`
+entry"*. The three routes did not exist either: `registerRetention.js` was only ever **read** by
+the register screen, so every firm sat on a platform default nobody could reach. A privacy
+control that exists and cannot be reached is not a control.
+
+⚠ **THE DIAL STILL DELETES NOTHING.** Decision 8 asked for a visible clock, not a purge, and none
+runs. Shortening the period changes the date the register shows, not what exists today.
 
 🔴 **THE GOLDEN TEST PINS A DELIBERATE DISAGREEMENT WITH THE WORKBOOK**, which no other model in
 this library does. Reading sheet 6's stored XML found three faults in column `H` — what the

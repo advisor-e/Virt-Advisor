@@ -750,6 +750,20 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('currency')" v-show="activeTab === 'currency'")
         firm-currency(:api-token="apiToken")
 
+      //- ── Tab: Staff Register Retention (item 5.1, Decision 8) ───────────
+      //- How long a client's staff register is kept — named employees with pay,
+      //- leave and service, the only record in this app about people who are not
+      //- the firm's clients. The backend has answered "how long" since 2026-09-15
+      //- and the register has shown the date; until this tab there was NO WAY for
+      //- a manager to change it, so every firm sat on the platform default.
+      //- 🔴 18 months from the mentor, cascading, editable again at the firm —
+      //- Mike's ruling 2026-09-23, in his own words. All four tiers; see
+      //- TAB_TIERS.registerRetention.
+      //- ⚠ NOT the Meeting Review retention dial and never to be merged with it:
+      //- that period is SPOKEN ALOUD to a client in approved consent wording.
+      div.hub-panel(v-if="showsTab('registerRetention')" v-show="activeTab === 'registerRetention'")
+        firm-register-retention(:api-token="apiToken")
+
       //- ── Tab: Model Choices (item 7.5) ──────────────────────────────
       //- Which calculation model the AI sent an advisor to, and when it said none
       //- fits. Until this existed, the ONLY way to check the AI's judgement was for
@@ -998,6 +1012,7 @@ import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
 import FirmCurrency from '~/components/firm/FirmCurrency.vue'
+import FirmRegisterRetention from '~/components/firm/FirmRegisterRetention.vue'
 import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
 import FirmTemplateLibrary from '~/components/firm/FirmTemplateLibrary.vue'
 // Mentor-scope tab bodies. Both are inert at firm scope (their tabs are v-if'd
@@ -1184,6 +1199,23 @@ const TAB_TIERS = {
   // time, with this one entry under it. It is accurate — it IS rolled up from their
   // advisors — and it was put to Mike as a visible change to their hub.
   modelChoices: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 ALL FOUR MANAGER TIERS, AND THE RULING NAMES THEM. Mike, 2026-09-23: *"this should
+  // flow down from mentor - through the cascade levels and then at firm manager - be
+  // editable again. this way, at least a set period is loaded as a default."* Item 5.1,
+  // Decision 8. This is neither the mentor-alone default of 2026-08-24 nor a judgement of
+  // ours — he described the cascade himself, in those words.
+  //
+  // Every tier has a real answer here, which is why this is not the currency case above. A
+  // retention period is a records policy, and a brand or a country plainly can hold one:
+  // firms under one brand operating in one jurisdiction share the law that shapes it. The
+  // mentor's figure is the platform default that arrives when nobody below has set one.
+  //
+  // 🔴 THE 18-MONTH CEILING IS NOT ENFORCED HERE, AND MUST NOT BE. It lives in
+  // `validateRetentionMonths`, which every read and every write passes through, so a tier
+  // cannot exceed it from this screen, from a route, or from a stored value written before
+  // the ruling. Hiding a tab is navigation; refusing a value is a permission.
+  registerRetention: ['mentor', 'global', 'group', 'firm'],
 
   adoption: ['mentor', 'global', 'group'],
 
@@ -1640,7 +1672,13 @@ const NAV_GROUPS = [
       // Item 4.87. Appended here rather than given a group of its own because consent is
       // a firm's own undertaking in the same way its declaration is — the drawing's
       // placement, approved 2026-09-10. Firm tier only; see TAB_TIERS.outcomeConsent.
-      { key: 'outcomeConsent', i18n: 'outcomeConsent.tab' }
+      { key: 'outcomeConsent', i18n: 'outcomeConsent.tab' },
+      // Item 5.1, Decision 8 — how long a staff register is kept. UNDER COMPLIANCE rather
+      // than Model Inputs, because it is a records-retention policy about personal data and
+      // not a figure any model reads. It sits beside the declaration for the same reason
+      // the line above does. All four tiers, in Mike's own words; see
+      // TAB_TIERS.registerRetention. Appended at the end, as every line above it was.
+      { key: 'registerRetention', i18n: 'registerRetention.tab' }
     ]
   },
   {
@@ -1708,7 +1746,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmRegisterRetention, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
   mixins: [traceReasonMixin],
 

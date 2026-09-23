@@ -4883,6 +4883,27 @@
     "saved": "Reports now show {name} ({symbol}). This applies to every model in your account. Figures are relabelled, not converted — the amounts do not change.",
     "saveError": "Could not save the currency. Please try again."
   },
+  "registerRetention": {
+    "tab": "Staff Register Retention",
+    "lede": "How long a client's staff register is kept. The register holds named employees with their pay, leave and length of service, so it is the only record in this app about people who are not your clients.",
+    "inForce": "In force now",
+    "label": "Keep a staff register for",
+    "loading": "Reading the retention period…",
+    "loadFailed": "The retention period could not be reached, so this page cannot show what is in force. This is a fault — your setting has not been lost.",
+    "retry": "Try again",
+    "sourceOwn": "Set here.",
+    "sourceInherited": "Inherited from the level above. It changes when they change it.",
+    "sourcePlatform": "The platform default, because nothing has been set here or above.",
+    "oneMonth": "1 month",
+    "oneYear": "1 year",
+    "nMonths": "{n} months",
+    "ceilingNote": "{max} months is the longest any level may choose.",
+    "save": "Save",
+    "useInherited": "Use the period from above",
+    "saveFailed": "Could not save the retention period. Please try again.",
+    "resetFailed": "Could not reset the retention period. Please try again.",
+    "noDeletionNote": "This sets how long a register is kept and shows the date on the register itself. It does not delete anything on its own."
+  },
   "modelChoices": {
     "tab": "Model Choices",
     "lede": "Which calculation model the AI sent an advisor to, and when it said none fits. Nineteen models are described to the AI on every client conversation; it names one when it judges one fits.",

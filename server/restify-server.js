@@ -139,6 +139,7 @@ const industryVocabularyRoute = require('./routes/industryVocabulary')
 const aiReadinessRoute = require('./routes/aiReadiness')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
+const registerRetentionRoute = require('./routes/registerRetentionRoutes')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
 const hubTabsRoute = require('./routes/hubTabs')
@@ -822,6 +823,18 @@ const mr = meetingReviewRoute
 server.get('/api/firm-manager/meeting-retention', ...fmGuard, mr.getRetention)
 server.put('/api/firm-manager/meeting-retention', ...fmGuard, mr.setRetention)
 server.del('/api/firm-manager/meeting-retention', ...fmGuard, mr.resetRetention)
+
+// The STAFF REGISTER's own dial — item 5.1, Decision 8. Mike's ruling 2026-09-23: 18 months
+// from the mentor, cascading, editable again at the firm, and no tier may exceed it.
+//
+// 🔴 A SEPARATE KEY AND SEPARATE ROUTES FROM THE THREE ABOVE, AND THAT IS THE WHOLE POINT.
+// The meeting period is SPOKEN ALOUD to a client in approved consent wording; one dial for
+// both would let a firm change what it promises a client out loud and silently change how
+// long it keeps registers of named staff. `server/utils/registerRetention.js` states it at
+// length. The two must never be merged for looking alike.
+server.get('/api/firm-manager/register-retention', ...fmGuard, registerRetentionRoute.getRetention)
+server.put('/api/firm-manager/register-retention', ...fmGuard, registerRetentionRoute.setRetention)
+server.del('/api/firm-manager/register-retention', ...fmGuard, registerRetentionRoute.resetRetention)
 
 server.get('/api/meeting/consent', firmAuth, mr.getConsentContext)
 // 🔴 THE COMPLIANCE GATE, AND IT SITS ON EXACTLY ONE ROUTE (item 4.83, slice 3). Mike's ruling

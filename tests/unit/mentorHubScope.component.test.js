@@ -477,7 +477,12 @@ describe('the hub menu — the sidebar itself', () => {
     // ⚠ AND 23 THE SAME DAY, when Currency joined the END of "Model Inputs" (item 13.3 —
     // the one manager-gated setting that was living outside the Hub, on Mike's ask of
     // 2026-09-22). Firm-only, appended again, so the four index assertions still hold.
-    expect(tabLabels(wrapper)).toHaveLength(23)
+    //
+    // ⚠ AND 24, when Staff Register Retention joined the END of "Compliance" (item 5.1,
+    // Decision 8 — Mike's ruling of 2026-09-23, all four tiers in his own words). Under
+    // Compliance rather than Model Inputs because it is a records-retention policy about
+    // personal data, not a figure any model reads. Appended once more.
+    expect(tabLabels(wrapper)).toHaveLength(24)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -593,11 +598,16 @@ describe('the hub menu — the sidebar itself', () => {
     // (item 7.5, Decision 3 — Mike ruled all four manager tiers on 2026-09-16, reversing the
     // mentor-alone recommendation once each tier had its own rows to read). His ruling again,
     // and appended rather than inserted: this group manager's existing eighteen have not moved.
+    //
+    // ⚠ AND TO 20 THE SAME DAY, when Staff Register Retention joined the END of "Compliance"
+    // (item 5.1, Decision 8 — all four tiers in Mike's own words, 2026-09-23). A middle tier
+    // gains it because a brand or a country genuinely holds a records policy, which is what
+    // separates this from Currency, where neither middle tier has one value to hold.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(19)
+    expect(tabLabels(wrapper)).toHaveLength(20)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

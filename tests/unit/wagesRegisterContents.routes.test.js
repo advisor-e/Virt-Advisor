@@ -189,9 +189,9 @@ describe('POST /api/wages-register/:clientId/view', () => {
     registerIsOpen()
     const res = makeMockRes()
     await routes.viewRegister(advisorReq({ body: { team: TEAM } }), res)
-    // Platform default is 84 months from the 2026-09-14 opening.
-    expect(res._body.retention.months).toBe(84)
-    expect(res._body.retention.keptUntil.slice(0, 7)).toBe('2033-09')
+    // Platform default is 18 months from the 2026-09-14 opening (Mike's ruling 2026-09-23).
+    expect(res._body.retention.months).toBe(18)
+    expect(res._body.retention.keptUntil.slice(0, 7)).toBe('2028-03')
   })
 
   it('reports a storage failure as a generic error, never a stack trace', async () => {
