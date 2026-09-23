@@ -109,6 +109,38 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**11.1 · Adviser Network runs on nine invented people and forgets every decision in production.**
+⏸ **Parked 2026-09-23 by Mike.** Not ours to fix, and it cannot move until one email leaves.
+
+- **What it is, proved in the code and not from the note:**
+  [`../../server/collaborate/data/repository.js`](../../server/collaborate/data/repository.js)
+  holds **nine hardcoded advisers** (Mike Barnes, Priya Nair, James O'Brien, Tom Fischer, Lena
+  Vogel, Sofia Marchetti, Sara Okafor, Anna Richter, Bob Lindt). In production the people layer is
+  inert by design —
+  [`devStore.js`](../../server/collaborate/data/devStore.js) line 57 returns false for
+  `NODE_ENV=production`, so it reads nothing and writes nothing. **A UAT tester therefore meets
+  invented advisers, and every manager decision vanishes on restart.**
+- ✅ **OUR HALF IS FINISHED.** The file carries **43 `SQL SEAM` markers** — every function already
+  documents the exact query that replaces it, against the schema in
+  [`../../config/db-schema.sql`](../../config/db-schema.sql). Function names, parameters and return
+  shapes are fixed, so the routes and the whole frontend need no change when it is wired.
+- 🔴 **DO NOT WIRE THE SEAM FROM HERE, AND THIS IS NOT A JUDGEMENT CALL.** Adviser identity — name,
+  title, firm, email, phone, location — belongs to Advisor-e (Brief P7), and this app has no
+  advisers table. The repository's own header names the master team as the only party that may
+  change it, and Mike ruled the same on 2026-08-15 over item 4.8. Wiring it from our side would
+  store ids nothing here can resolve.
+- **What it waits on:** **question 7** of
+  [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md) — *"For a given
+  adviser id, and for a list of ids, where do we read those six identity fields?"* Any of three
+  answers works: table and column names, a read-only endpoint, or a view.
+- 🔴 **AND THAT EMAIL HAS NEVER BEEN SENT.** Checked 2026-09-23 across the git history and the file
+  itself: no commit records it going, nothing says SENT, and its header still reads *"Draft for
+  Mike to send"*. It was re-verified against the code on 2026-09-22–23, gaining a ninth question
+  and promoting the database request to a tenth. **Sending it is the single action that un-parks
+  this item** — and until it goes, the Adviser Network keeps showing invented people to UAT.
+- **Why parked and not done:** the defect is real and visible in UAT today. Why not deleted: it
+  names a genuine gap that would otherwise be rediscovered from scratch.
+
 **8.1 · Meeting Review — three non-coding gates before a first real recording.** ⏸ **Parked
 2026-09-23 by Mike**, the day OpenAI's fifth reply arrived and answered everything except the one
 thing that matters. In his words: *"so therefore - this task will need to be recorded as

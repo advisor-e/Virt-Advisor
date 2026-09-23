@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "11.1",
-      "name": "Adviser Network runs on nine invented people and forgets every decision in production",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Outside",
-      "why": "The people layer is an in-memory demo list. In production mode nothing persists, so a UAT tester meets invented advisers and every manager decision vanishes on restart.",
-      "risk": "UAT judges a network that does not exist. Wiring our tables now would store ids nothing here can name: adviser identity belongs to Advisor-e and this app holds no advisers table. Not ours to fix until the master team answers question 7 of the integration email.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-10 - found while proposing to wire the seam; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "server/collaborate/data/repository.js, the master team's seam by Mike's 2026-08-15 ruling on 4.8; config/db-schema.sql COLLABORATE tables; design/MASTER-TEAM-INTEGRATION-EMAIL.md question 7.",
-      "note": "DO NOT WIRE THE SEAM FROM HERE. The repository header names the master team as the only party to change it, and Mike ruled 2026-08-15 that only they can complete it once the stubs exist. The dev-only snapshot (devStore.js) hides this on a developer's machine; NODE_ENV=production, which the UAT pack recommends, reads and writes nothing by design. Closes when their reply to question 7 names where identity lives and they wire the two identity functions; our tables can follow through the same seam.",
-      "comment": "2026-09-10 - filed on Mike's yes after the wiring was proposed and then stopped on the evidence above. Was 4.86; renumbered to 11.1 on 2026-09-15 when a number became a statement of what a job belongs to - see design/ITEM-NUMBERING.md."
-    },
-    {
       "ref": "9.1",
       "name": "Learning from outcomes across consenting firms - the platform gets smarter with use",
       "rankedByMike": false,
