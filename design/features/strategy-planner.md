@@ -1320,8 +1320,9 @@ Run in a scratch folder **outside the repository** — nothing was installed int
 - **`pdfjs-dist@2.16.105` runs on the locked Node 14.15**: no `engines` restriction, no native
   components, three packages.
 - Organisational Review p11 converted to **vector, not a picture** — 33 paths, 49 text
-  elements, real text rather than a photograph of text. **The whole page is 82 KB compressed**
-  once the covered logo is left out (question 8) and 402 KB with it — inside the six
+  elements, real text rather than a photograph of text. **The whole page is 63 KB compressed**
+  (154 KB uncompressed) as the converter stores it, with the covered logo left out (question
+  8), and 402 KB with it — inside the six
   picture-based concepts' 34–120 KB. The shapes alone are 5 KB; the rest is the two arrow
   pictures and three embedded fonts. Measured 2026-09-24 with the installed reader, eval off.
 - **Every word, position, colour and the circle came across exactly.**
