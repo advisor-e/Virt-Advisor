@@ -77,7 +77,7 @@
   "items": [
     {
       "ref": "8.1",
-      "name": "Meeting Review — two non-coding gates before a first real recording",
+      "name": "Meeting Review — three non-coding gates before a first real recording",
       "rankedByMike": false,
       "kind": "feature",
       "score": 3,
@@ -86,15 +86,15 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports. It is built, advisor and manager both. What remains is three things only he or a lawyer can do.",
-      "risk": "NO CODE IS OUTSTANDING. TWO non-coding gates stand before a first real recording: the staff consultation, and a lawyer per market - which no longer waits on anything. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
+      "risk": "NO CODE IS OUTSTANDING. THREE non-coding gates stand before a first real recording: the staff consultation, a lawyer per market, and - NEW 2026-09-23 - the OpenAI ZDR application, which is an intake form, an approval, a signed amendment and an enablement, in that order. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "NO CODE OUTSTANDING - every slice is built, including the manager aggregate, transcript expiry, follow-through and the client copy request. §4 ITEMS 3, 5 AND 7 ARE CLOSED; TWO REMAIN and neither is ours: the staff consultation, and the lawyer per market, which NO LONGER WAITS ON ANYTHING. 🔴 ITEM 5 CLOSED 2026-09-18 ON MIKE'S RULING, NOT A SIGN-OFF. A THIRD reply came after it and DOES answer - see OPENAI-AUDIO-TERMS-EMAIL.md §5.3: human access IS possible (employees and contractors, abuse review), and the clean transcription retention does NOT cover us, because we send the transcript on for the two reports - 30-day abuse logs. NEVER write that no human can see it.",
-      "comment": "2026-09-01 - filed; screens approved. 2026-09-02 to 09-08 - the slices, the types cascade, the manager aggregate, transcript expiry and follow-through. 2026-09-10 - the impact assessment, which found IPP3A, new law since 1 May 2026 that no software can answer; then the Client Copy Request, drawn and built the same day, closing §4 item 7. 2026-09-12 - both OpenAI letters sent. 2026-09-18 - both replied, neither answered; Mike ruled we have taken all fair and reasonable steps and closed the gate on that basis. DPIA finding A and IPP12 close the same way - a reasoned position, never an evidenced one - and the lawyer's review is where it gets tested."
+      "note": "NO CODE OUTSTANDING - every slice is built. 🔴 ITEM 5 REOPENED 2026-09-23: OpenAI offers ZERO DATA RETENTION ON BOTH ENDPOINTS, including the /v1/chat/completions call carrying the whole transcript - the exposure the third reply could not close. ✅ MIKE SENT THE INTAKE 2026-09-23 (design/ZDR-INTAKE-EMAIL.md) - AWAITING REPLY, which goes in OPENAI-AUDIO-TERMS-EMAIL.md §5 as §5.6, verbatim. ⚠ NOTHING IS GRANTED - approval, amendment and enablement are three steps, no turnaround quoted; never record ZDR as obtained or in progress. 🔴 TWO FINDINGS ARE THE LAWYER'S: in-region processing for NEW ZEALAND DOES NOT EXIST, and ZDR does NOT exclude human access. NEVER write that no human can see it. Working: OPENAI-AUDIO-TERMS-EMAIL.md §5.5, §6.",
+      "comment": "2026-09-01 - filed; screens approved. 09-02 to 09-08 - the slices, the types cascade, the manager aggregate, transcript expiry and follow-through. 09-10 - the impact assessment, which found IPP3A, new law no software can answer; then the Client Copy Request, closing §4 item 7. 09-12 - both OpenAI letters sent; 09-18 both replied, neither answered, and Mike closed the gate on a reasoned position rather than a sign-off. 2026-09-23 - REOPENED WITH A ROUTE: Mike wrote again quoting case 14889777 and OpenAI offered ZDR on both endpoints. Mike sent the intake the same day; the reply is what gate 3 now waits on."
     },
     {
       "ref": "11.1",
@@ -156,7 +156,7 @@
         "detail": "2026-09-14 - 'buile the wages model into the perf report section', then 'look in here - C:\\Documents\\Visual Code Projects\\Perf Report and you will see a model named wages' when told it was not in the repository, then yes to drawing it before any code."
       },
       "touches": "design/mockups/wages-model.html and design/report-source-models/Wages Model.xlsx, both committed. A new backend maths model and golden test, a Restify route, utils/reportModelCatalogue.js, data/report-model-summaries.json, a page and screen component, the consistency guard in tests/unit/reportHeadlineConsistency.component.test.js, the due-diligence domain in data/domains.json, and the existing Tax Rates country schedules.",
-      "note": "THE REPORT'S THREE CHARTS ARE BUILT 2026-09-15 - drawn, approved, walked in a browser; the pie is Mike's own. seasonShare() is on the ENGINE, never the screen. NO DECISIONS REMAIN OPEN. THE REGISTER AND ITS TABLE ARE BUILT, and there is NO GATE - Mike removed the due-diligence condition 2026-09-15; it is one button plus the record of who opened it. The port does NOT reproduce the workbook's 63,154 - three faults in its liability column. ONE PIECE REMAINS: the Firm Manager retention dial in FirmManagerHub.vue - nobody holds that file; 9.1 shipped 2026-09-12. THE PAYROLL READER IS ITS OWN ITEM, 5.2. Record: report-models.md, tax-rates.md.",
+      "note": "THE REPORT'S THREE CHARTS ARE BUILT 2026-09-15 - drawn, approved, walked in a browser; the pie is Mike's own. seasonShare() is on the ENGINE, never the screen. NO DECISIONS REMAIN OPEN. THE REGISTER AND ITS TABLE ARE BUILT, and there is NO GATE - Mike removed the due-diligence condition 2026-09-15. The port does NOT reproduce the workbook's 63,154 - three faults in its liability column. ✅ RETENTION DIAL BUILT 2026-09-23 - three routes, hub tab, all four tiers. 🔴 MIKE RULED 18 MONTHS, cascading from mentor, editable at the firm; the old 84 were NEVER his. NOT WALKED IN A BROWSER YET. THE PAYROLL READER IS ITS OWN ITEM, 5.2. Record: report-models.md, tax-rates.md.",
       "comment": "2026-09-14 - filed, all nine decisions ruled, then the engine, all five steps, the report and the catalogue row in one day. Two rulings reversed our recommendation: the payroll import, and retention. Mike found the added-person sort fault by testing it himself. 2026-09-15 - the register's gate and table, then the report's four charts on his instruction and his own pie idea. Was 4.104; renumbered under design/ITEM-NUMBERING.md. TWICE IN ONE DAY RUNNING IT FOUND WHAT THE SUITE COULD NOT: three stores reached firmOverlay with no dev fallback, and the drawing carried a heading typed rather than read, so two cards shipped with the same title."
     },
     {
@@ -199,7 +199,7 @@
       },
       "touches": "server/advisorEngine.js, where the two prompt paths inject the models block; the decision trace and the va-session log, which already record template choices; data/report-model-summaries.json as the names and routes to match against; and whatever surfaces it, which under the hub-page rule starts at the mentor tier.",
       "activeOn": null,
-      "note": "DRAWN, ALL THREE DECISIONS RULED, AND THE RECORDING HALF BUILT - 2026-09-16, in that order. Artefact: design/mockups/model-choices.html. Built: modelChoiceScan.js, the marker in client.txt SECTION 12 and discover.txt, the strip and hold-back on all three response paths, advisor_model_choices with its dev-file fallback, logModelChoice, GET /api/model-choices scoped by tier, and 41 tests. ONE PIECE REMAINS: the hub tab needs TAB_TIERS, NAV_GROUPS and a panel in FirmManagerHub.vue - nobody holds that file; 9.1 shipped 2026-09-12. TWO DRAWN THINGS THE ROUTE DOES NOT YET SERVE, both on the drawing: the period selector, and the conversations-count in band 1. THE MARKER IS UNRELIABLE - that is item 7.6.",
+      "note": "DRAWN AND ALL THREE DECISIONS RULED 2026-09-16; artefact design/mockups/model-choices.html. The recording half was built the same day - the marker, the page-path scan, advisor_model_choices and GET /api/model-choices, scoped by tier. THE HUB TAB IS BUILT - 2026-09-23, the day the file came free (9.1 shipped 2026-09-12). Walked against the running app on real MySQL: all four bands render, every string reads as English. How it works is in features/report-models.md. The two deviations - no period selector, three count tiles not four - are in ARTEFACTS.md and were named on the drawing before any code; whether either is worth building is Mike's call. THE MARKER IS UNRELIABLE - that is item 7.6.",
       "comment": "2026-09-15 - filed on Mike's instruction after the first effectiveness test of the model summaries. 2026-09-16 - drawn, three decisions ruled one at a time, recording half built. TWO OF THE THREE WENT AGAINST THE RECOMMENDATION: his question about a manager's context widened the row from the domain alone to carry firm and advisor, which then reversed mentor-alone to all four tiers. RUNNING IT FOUND WHAT THE SUITE COULD NOT, again: the AI ignored the new marker in all three conversations until its instruction moved into the system prompts, and it is still unreliable - item 7.6."
     },
     {
@@ -584,27 +584,6 @@
       "touches": "server/report/threeWayForecastModel.js, which owns fxAllowancePct and applies it to fxOnPurchases and fxOnSales; server/report/importShipmentModel.js, which deliberately defers exchange to the forecast and says so; the forecast intake screen where the percentage is entered; design/features/localisation-and-currency.md for the principle; design/ADDING-A-REPORT.md so a new model with a foreign leg is asked the question.",
       "note": "✅ CHECKED 2026-09-22, AND THERE IS NO WRONG NUMBER: every model with a foreign leg already takes an fx input. All 30 files in server/report/ were scanned - only the forecast and the import model have one, both are fx-aware, and multiplePropertyModel matched only on the Google Sheets function Import Range. 🔴 SO THE JOB IS THE RULE AND THE LABEL, NOT THE MATHS: write Mikes rule into the localisation Brief and into ADDING-A-REPORT so the next foreign-leg model is asked, and say on screen which currency a converted figure is in. Wording is his.",
       "comment": "2026-09-22 - filed first as a per-CLIENT currency needing a schema change and 40 components, scored 4. Mike corrected the shape the same day: currency stays at firm level, conversion is per model where a primary currency is already entered. The app already worked that way, so the item shrank to the rule and the label and dropped to score 2. Sibling of 13.1 and 13.3."
-    },
-    {
-      "ref": "13.3",
-      "name": "The currency picker is the one manager setting outside the hub",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness - nobody sees it until they go looking for the setting",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Currency is manager-gated and account-wide, so it belongs with the firm's other settings. It sits on the Model Library screen instead, so a manager looking for it in the Firm Manager Hub does not find it.",
-      "risk": "A manager cannot find a setting that is theirs, in the one place every comparable setting lives. It also breaks the pattern the hub exists to hold - one place a firm is configured - and that is how the next setting ends up in the wrong place too.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - in his own words, after both limits were shown to him as recorded boundaries rather than tasks: \"lets be clear - BOTH those issues must be fixed, add them to the to do list.\""
-      },
-      "touches": "components/FirmManagerHub.vue TAB_TIERS and NAV_GROUPS for the new tab; tests/unit/hubTabTiers.test.js, which fails the build until the key and its ruling are recorded; a new components/firm/ body component; components/ModelLibrary.vue where the picker sits today; server/routes/currency.js, already manager-gated and needing no change.",
-      "note": "🔴 ONE QUESTION FOR MIKE BEFORE ANY CODE: does the picker MOVE to the hub, or appear in BOTH - the hub to set it, the Model Library read-only so a reader still sees which currency a report is in. Moving it outright removes that cue. ⚠ Tiers are a stated judgement, not an assumption: the firm tier, since currency is a firm decision and the mentor has no currency of its own. No backend change needed.",
-      "comment": "2026-09-22 - surfaced while answering Mike on the language/currency split, recorded in the Brief as a stated boundary, then filed on his instruction that it must be fixed. Smallest of the three siblings in effort, but it waits on his move-or-mirror answer before anything is built."
     },
     {
       "ref": "15.13",

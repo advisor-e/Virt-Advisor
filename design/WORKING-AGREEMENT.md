@@ -92,6 +92,14 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    notes to read**: the 85 files written before that date stay as history, none is written now.
    **An item whose `activeOn` names the other machine is off limits** — say so, and do not
    touch the files it names.
+   🔴 **AND READ THE `SAME ITEM, BOTH MACHINES` BOX FIRST — IT OUTRANKS `activeOn`, BECAUSE
+   IT CANNOT BE FORGOTTEN.** That box is built from the other machine's **commit subjects**,
+   not from a field a session has to remember to fill in. **Never judge an item free because
+   nothing claims it.** On 2026-09-23 the desktop deleted item 7.13 at 11:00 as unnecessary
+   while the laptop was building it, pushing ~1,000 lines at 11:45 — 45 minutes apart, both
+   machines with a green light, every existing rule obeyed. `activeOn` had not failed: **one
+   item in twenty-nine carried it**, so there was nothing to see. If the box names an item,
+   read the other branch before forming any view of it, and put it to Mike.
    🔴 **Take the other machine's handover DATE from `npm run check:branch`, never from the
    copy in this working tree.** That copy is frozen at the last merge and can be days behind
    the real note while looking perfectly fine. The check reads it from that machine's own

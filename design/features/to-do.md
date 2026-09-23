@@ -35,7 +35,7 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **8.1** Meeting Review — two non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 1 | **8.1** Meeting Review — three non-coding gates before a first real recording ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 2 | **11.1** Adviser Network runs on nine invented people and forgets every decision in production ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 3 | **9.1** Learning from outcomes across consenting firms - the platform gets smarter with use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **5.1** Wages/Salary Review - labour margin, and a register gated on due diligence ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
@@ -59,13 +59,12 @@ repository sees; the two never both appear, and the build stops if they would.
 | 22 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 23 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 24 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 25 | **13.3** The currency picker is the one manager setting outside the hub ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 26 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 27 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 28 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 29 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 25 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 26 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 27 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 28 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**29 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
+**28 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

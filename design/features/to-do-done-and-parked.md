@@ -229,6 +229,60 @@ nine; it is five). That is not a fault: **32 of the 52 concepts carry no capture
 these are forms waiting on concepts not yet wired, which is 15.1's remaining build. Mike's partial
 register pass (17 of 52) stays in `design/concept-register-corrections.json`, unapplied and read
 by no code — a saved artefact, not a live pipeline.
+**7.13 — "the model's page is recalled by the AI, not looked up".**
+🔴 **DELETED 2026-09-23 by Mike, not built and not replaced.** His words, on being shown the
+evidence below: *"if it REALLY needs fixing we fix it - if it isn't REALLY needed - delete it"*,
+and on the smaller fix offered in its place: *"sounds like a fuck up waiting to happen - delete
+it all."* **Do not re-raise it, and do not re-file the replacement.**
+
+**Its stated cause was false, and reading the code took ten minutes.** The item said the AI is
+*"asked to recall each path"*. It is not. `formatReportModelsForPrompt` prints `**Page:**
+/debtor-drag` for all nineteen models, and the prompt orders it three times to copy the path
+exactly. The AI is copying from a visible list, not remembering anything.
+
+**Its headline evidence was a case the proposed fix was forbidden to touch.** The risk field
+argued the score-4 on *"5 times in 6 on Sales Dashboard"*. `isKnownTemplate('Sales Dashboard')`
+returns **true** — it is a real template title, one of the six collisions — and the item's own
+build steps say a lookup must attach **nothing** for those six. The item argued for itself with
+the one example it could never have fixed.
+
+**What it was actually worth.** `VirtualAdvisor.vue` renders with `linkify: false`, so a page
+path reaches the advisor as plain text they read and type. A wrong path costs one failed page
+load and a retype — a 2, not a 4. Meanwhile `resolveModelChoiceWithSource` already resolves the
+correct route in code every time, including when the AI writes a wrong path or none at all;
+that route is used for the Model Choices screen and never shown to the advisor.
+
+⚠ **THE REPLACEMENT WAS OFFERED AND REFUSED, AND THAT REFUSAL IS THE POINT.** A markdown link
+does survive the locked pipeline — tested, `[Debtor Business Drag](/debtor-drag)` renders as a
+real `<a href>` through the same MarkdownIt config and DOMPurify call. It was still rejected,
+and rightly: today a wrong path is visibly text and the advisor notices when it fails. Made
+clickable, a wrong path becomes a confident click into a dead page in front of a client. **A
+smoother failure is not a fixed one.**
+
+**13.3 — the currency picker was the one manager setting outside the hub.**
+✅ Closed 2026-09-23. Filed on Mike's instruction of 2026-09-22: *"lets be clear - BOTH those
+issues must be fixed, add them to the to do list."*
+
+**It waited on one question, and his answer was BOTH, not move.** Asked whether the picker
+should move to the hub or appear in both places, he ruled on 2026-09-23 that the **Hub sets it**
+and the **Model Library keeps showing it read-only** — moving it outright would have removed the
+one cue telling a reader which currency the reports in front of them are in.
+
+**Firm tier alone, stated rather than assumed.** The mentor has no currency of its own — it sits
+above every firm and reports in none — so a mentor picker would set one firm's display setting on
+behalf of all of them, which is the Property Tax Rules case he had already ruled on. A brand
+spans countries and a country's firms may still report differently, so neither middle tier has
+one value to hold. `firmOverlay` already carries a row per scope, so adding a tier later is the
+whole of the change.
+
+**No backend change.** `POST /api/report/currency` was already manager-gated, so nothing about
+who may write the setting moved with the control. The two screens say different things to
+different people on purpose: a manager is told *where* to change it, an advisor *who* sets it.
+
+⚠ **13.1's relabel sentence nearly went with the picker.** Deleting the old save confirmation
+would have taken the load-bearing *"Figures are relabelled, not converted"* line with it. The
+wording guard caught it — that test exists for exactly this and is the one named exception to
+the no-asserting-wording rule. The sentence now lives on both screens and in the confirmation.
 
 **16.2 — the printed plan left no room for the advisor firm's logo.**
 ✅ Closed 2026-09-23. Asked by Mike on 2026-09-21: *"you also need to make sure there is room
