@@ -1288,7 +1288,9 @@ after all six of its questions were ruled one at a time, because ruling the ques
 drawing is not approving the drawing.
 
 🔴 **The approval carries the seventeen wording rows at its §8 — those are his words now, not
-proposals.** Before anything built from it ships, **open the drawing, put it beside the build,
+proposals.** ✅ **§5b, the box-marking screen, was added and approved 2026-09-24** with its nine
+wording rows at §8b, and question 7 ruled: an imported Response Form's answers print inside
+their boxes on the page. Before anything built from it ships, **open the drawing, put it beside the build,
 and name every difference.** A deliberate deviation is fine; an unrecorded one is not.
 
 **Today a concept costs five developer steps**: a row in `data/strategy-frameworks.json`, a
