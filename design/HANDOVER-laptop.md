@@ -11,51 +11,29 @@
 
 ## 2026-09-23 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed at `7eb0ee75`. 617 suites / 13,585 tests green, lint 0 errors, audit gate
-PASS. 4 ahead, 0 behind `master`** — under the 10-commit threshold, so no PR is due yet.
+**Clean and pushed at `af9ce7ae`. 617 suites / 13,593 tests green, lint 0 errors, audit gate
+PASS. 12 ahead, 0 behind `master`, and [PR #127](https://github.com/advisor-e/Virt-Advisor/pull/127)
+IS OPEN** — Mike has not merged it; that is his.
 
-### 🔴 THE PLANNER'S CONCEPT COUNT IS 46, NOT 52 — AND THE 52 WAS NEVER WRONG
+**15.19 CLOSED, and it unblocks 15.17, still in hand here.** A drawing may sit unwired while
+declared in `AWAITING_APPROVAL` **and** carrying its `AWAITING APPROVAL (<file>#<n>)` token on
+its `ARTEFACTS.md` row. Remove the token — which is how approval is recorded — and the build
+fails until it is wired. Neither existing rule is weakened.
 
-Mike stood stage 8 down for the twelve frameworks an advisor could not run. **Eleven of the
-twelve carried `page: 2`, their deck's AGENDA page**, so nothing pointed at the slide holding
-the content. He deleted **eight** of them — *"they are likely to be repeats"*, and they were:
-two are literally bullets on the framing page below. Two pages that were **never in the 52**
-came in the other way. Brief §0 has the whole account; don't re-derive it.
+🔴 **15.20 IS DRAWN AND FULLY RULED, AND NOT APPROVED TO BUILD FROM.**
+`design/mockups/add-concept.html` — six questions, every one ruled beside itself. **Ruling the
+questions inside a drawing is not approving the drawing;** the gate is still shut. **Read the
+drawing, not a summary** — two rulings went against the recommendation and both changed the
+build.
 
-⚠ **IF YOU TOUCH A CONCEPT, LOOK AT THE SLIDE.** A pass that matched concepts to slides by
-comparing **extracted titles** produced ten confident rows and was wrong on most of them.
-Mike killed it in four words. Step 1 of the drawing method is LOOK.
+⚠ **`pdfjs-dist` is NOT installed.** The conversion was measured outside the repo; its SVG
+back-end is unmaintained by its authors. Risk recorded in `strategy-planner.md` §9 and on the PR.
 
-### What is built, and the one thing that is new machinery
+**SHARED FILES I TOUCHED** — `scripts/quick-gate.js` (new pure `jestRuns`; a documents-only
+commit no longer runs all 617 suites) · `scripts/build-concept-graphics.js` ·
+`tests/unit/conceptGraphics.test.js` · `tests/unit/quickGate.test.js` · `design/ARTEFACTS.md` ·
+`features/strategy-planner.md` §9 · `to-do-items.json` · `to-do-done-and-parked.md` ·
+`design/mockups/add-concept.html` (new). **Your quiz-builder, currency and register files
+untouched.**
 
-**`source: 'framing-page'`** is a third row kind, and **a concept can now have more than one
-teaching sheet** — Collaborative Thinking has two. The registry holds a **LIST** per concept;
-the run screen, the concept card and the printed plan loop `conceptSheetCount`. Before this a
-second sheet would have overwritten the first, silently.
-
-🔴 **A PAGE WHOSE WHOLE CONTENT IS A DRAWING WAS BEING DROPPED FROM THE CLIENT'S PLAN.**
-`.spd-page.is-teach` demanded a summary or a prompt — correct while every concept had one, and
-both new concepts have neither. Fixed. Three more faults of that family are in the commit.
-
-### SHARED FILES I TOUCHED — check before you edit
-
-`components/strategy/` — `StrategyConceptGraphic.vue`, `StrategyTeachingSlide.vue`,
-`StrategyConceptCapture.vue`, `StrategyPlanDocument.vue`, `StrategyScopeMenu.vue`,
-`concepts/index.js` · `server/utils/strategyFrameworks.js` ·
-`server/utils/strategyCaptureForms.js` (the banded-grid heading rule — all 21 templates
-snapshotted and 21 of 21 identical after) · `scripts/build-concept-graphics.js` ·
-`data/strategy-frameworks.json` · `design/ARTEFACTS.md` · `AGENDA-HELPS-LINES.md` ·
-`features/to-do-items.json` · `to-do.md` · five test files.
-**Your quiz-builder, currency and register files untouched.**
-
-### Filed today, all on Mike's yes
-
-**15.17** rewritten to what is left: **one drawing** — Define the Cultural Core Values, Org
-Review p11. **15.18** his worked answer never reaches the advisor on a ruled table.
-**15.19** a drawing awaiting his approval cannot be committed, so the suite goes red — **it
-blocks 15.17, so read it before drawing anything.** **5.3** his two spreadsheets are
-calculators with nowhere to live.
-
-### In hand here
-
-**15.17**, `activeOn` laptop. Nothing is half-finished and nothing waits on Mike to continue.
+**In hand here:** 15.1, 15.17, 15.20 — all `activeOn` laptop. Nothing half-finished.
