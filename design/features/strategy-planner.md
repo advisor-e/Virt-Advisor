@@ -1341,15 +1341,41 @@ machinery; the step below firm to the **client/business entity** is new and has 
 it. **Stated so it is designed for, not discovered** — it is not an argument against his
 ruling.
 
-### Still to be settled before a build
+### 🔴 RULED BY MIKE 2026-09-23 — NO AI TOUCHES AN UPLOADED PDF
 
-- **Does the PDF ever reach a model?** It need not: rendering alone requires no AI. If it does,
-  a firm's own material leaves the building.
-- **Untrusted file upload** — size and type limits, no execution path, per-firm storage. The
-  shipped pattern to follow is `server/utils/depreciationExtract.js`, which already takes a
-  dragged PDF from a manager and stores the result per firm with version history.
+**An uploaded PDF stays entirely inside the app and is never sent to a model.** The manager
+types the concept's name and picks its section; the Response Form's boxes are mapped by hand
+rather than proposed.
 
-Both are security questions Mike has been warned of and has not yet ruled on.
+**Nothing in the feature needs a model.** The conversion is arithmetic on our own backend, and
+the page's own text is readable locally — this page yielded **49 text elements**, including its
+title, *"Defining Our Cultural Core Values (foundation)"*. A model would only have saved typing.
+
+**What the ruling protects.** A firm's own deck can carry client names and real case studies,
+and an upload cannot tell the difference. Mike's ruling of 2026-09-01 made Meeting Review the
+**one** scoped exception for sending personal data to a model and said explicitly that it does
+not generalise; this was therefore a fresh decision, not an inference from that one.
+
+⚠ **A session proposing to send these PDFs to a model to name a concept, draft a summary or read
+a response table is re-opening a settled ruling.** It was offered and declined.
+
+### 🔴 RULED BY MIKE 2026-09-23 — THE UPLOAD FOLLOWS THE SHIPPED DEPRECIATION PATTERN
+
+**The file comes to our own Restify backend**, is accepted only if it is genuinely a PDF under a
+size cap, and is stored against that one firm. The pattern to reuse rather than reinvent is
+`server/utils/depreciationExtract.js` and `server/routes/depreciationRates.js`, which already
+take a dragged PDF from a manager under a 20 MB cap and an `application/pdf`-only rule, with
+per-firm storage and version history.
+
+**Converting inside the manager's browser was offered and declined.** It would be marginally
+safer for us — a hostile file would never reach our server — but it breaks the locked rule that
+file and data processing lives on the backend and never in Nuxt, and it would put the work on
+whatever laptop and browser the manager happens to have.
+
+⚠ **THE RESIDUAL RISK, ACCEPTED WITH EYES OPEN.** A PDF is interpreted, not merely displayed, so
+a deliberately malformed one can hang or crash the reader. **A hard time limit and the size cap
+are therefore part of the build, not optional polish** — without them a single crafted file ties
+up the backend. `depreciationExtract.js` already carries an idle timeout for the same reason.
 
 ## 10. Where it lives
 
