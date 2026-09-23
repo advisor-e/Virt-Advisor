@@ -5735,6 +5735,7 @@
     "reachNote": "Only reviewed cases teach the pool — a case without a review contributes nothing, whether or not your firm is sharing.",
     "cardHeading": "Your firm's choice",
     "pillOff": "Not sharing",
+    "pillPaused": "Sharing paused",
     "pillOn": "Sharing since {date}",
     "opening": "When your advisors record how each template went, those answers can help every firm on the platform — including yours — get better recommendations.",
     "openingRest": "Advisor-e pools them, without names, to learn which templates keep not landing in which situations, and holds those back a little for everyone who takes part.",

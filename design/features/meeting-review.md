@@ -407,12 +407,15 @@ their own client. It is worth building as a visible setting rather than a buried
    describe any of this as confirmed — Support expressly cautioned against assuming the general API
    terms extend to audio, and that caution is still on file.
    🔴 **TWO FINDINGS GO STRAIGHT TO THE LAWYER.** **In-region processing for New Zealand does not
-   exist** (NZ unlisted; Australia storage-only, no regional processing for either endpoint — so
-   processing is offshore whichever region is picked). And **ZDR does not exclude human access**
-   during processing or under a documented exception.
-   ⚠ **A MODEL QUESTION TO SETTLE BEFORE SENDING:** OpenAI lists `gpt-4o-mini-2024-07-18`; this app
-   calls **`gpt-4o-mini`** undated for the reports and **`gpt-4o-transcribe-diarize`**, which has
-   no dated variant to pin (see §"the model name cannot be pinned" above).
+   exist**, and this is now **OpenAI's own written position, not our reading of their table** —
+   *"your assessment should treat this as offshore processing"*, with Australia ruled out as
+   storage-only (§5.6, 2026-09-23). And **ZDR does not exclude human access** during processing or
+   under a documented exception.
+   ✅ **THE MODEL QUESTION IS CLOSED (§5.6, 2026-09-23), AND IT WAS NEVER A PROBLEM.** The dated
+   `gpt-4o-mini-2024-07-18` came from the data-residency table, not from ZDR; **both endpoints are
+   ZDR-eligible with no requirement to pin a dated snapshot.** So **`gpt-4o-mini`** undated for the
+   reports and **`gpt-4o-transcribe-diarize`** (published undated only) are both fine as they
+   stand, and **no code change follows.**
    ⚠ **IPP12 still closes as a reasoned position**, never an evidenced one, and the **lawyer's
    review (item 2) is where it gets tested. That review no longer waits on anything** — and it now
    has the two findings above to weigh.

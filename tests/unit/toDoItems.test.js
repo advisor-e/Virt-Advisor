@@ -92,6 +92,26 @@ describe('the to-do data carries what the list\'s own rules demand', () => {
     expect(String(item.comment || '')).not.toMatch(/UPDATED \d{4}-\d{2}-\d{2}/)
   })
 
+  // 🔴 THE LEAK IN THE GUARD ABOVE, FOUND 2026-09-23. It matches the literal word
+  // `UPDATED` and nothing else, so a session that writes `2026-09-23 - ...` instead
+  // sails through — and that is exactly what both machines have done for weeks. Ten
+  // of twenty-eight items had stacked three or more dated updates this way, one of
+  // them seven, which is how an item comes to read "built... built... not tested yet"
+  // and why nobody could tell what was actually true of it.
+  //
+  // A `comment` is a dated log BY DESIGN, so the cap is what governs it. This is the
+  // `note` alone: the note says what the item IS NOW, in the present tense, and a
+  // note carrying several dated claims is a diary pretending to be a status.
+  const DATED = /\b(20\d\d-\d\d-\d\d|\d\d-\d\d)\s*[-–]/g
+
+  test.each(refs)('%s keeps its NOTE a statement of now, not a stack of dated updates', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    const hits = String(item.note || '').match(DATED) || []
+    // Two is the working allowance: a note may date the ruling it rests on and the
+    // day the work landed. A third is a session appending rather than replacing.
+    expect(hits.length).toBeLessThanOrEqual(2)
+  })
+
   // Which computer is working an item. Mike, 2026-09-03, after 4.54 was built on both
   // machines in one week without either knowing: the list itself names who is on what.
   const MACHINES = ['laptop', 'desktop']

@@ -27,8 +27,15 @@
     .box
       .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-3
         h4.title.is-6.mb-0 {{ $t('outcomeConsent.cardHeading') }}
-        b-tag(:type="sharing ? 'is-success' : 'is-light'")
-          | {{ sharing ? $t('outcomeConsent.pillOn', { date: dateWords(consent.setAt) }) : $t('outcomeConsent.pillOff') }}
+        //- 🔴 THREE STATES, NOT TWO — item 9.3, wording approved by Mike 2026-09-23.
+        //- A firm that has consented on a server with NO POOL SECRET is neither of the
+        //- original two: its consent is real, so "Not sharing" would read as though the
+        //- switch had flipped itself off; but nothing is pooling, so the green "Sharing
+        //- since {date}" sat directly beside the poolNotConfigured warning below and told
+        //- the manager two opposite things at once. "Sharing paused" in grey says the
+        //- consent stands and the pooling does not, and does not imply the manager acted.
+        b-tag(:type="badgeType")
+          | {{ badgeLabel }}
 
       p.foc-lede.mb-4
         b {{ $t('outcomeConsent.opening') }}
@@ -104,7 +111,13 @@
 
       //- Ruled YES 2026-09-10: a sharing firm sees the COUNT of adjustments applying to
       //- it, never the list, which is the mentor's to publish.
-      b-message.mt-4(v-if="sharing && adjustmentsApplying !== null" type="is-success" size="is-small")
+      //- 🔴 AND IT DEFERS TO poolConfigured — item 9.3. The count is computed only when the
+      //- switch is ON, so on a server with no pool secret it is a REAL number that has gone
+      //- stale: it was true when the pool was last readable and nothing is pooling now.
+      //- Shown beside poolNotConfigured above, it told the manager two opposite things at
+      //- once. The engine was never wrong — loadPooledForSession returns adjustments:[] for
+      //- a firm that does not share — only this figure was.
+      b-message.mt-4(v-if="sharing && poolConfigured && adjustmentsApplying !== null" type="is-success" size="is-small")
         b {{ $t('outcomeConsent.changedHeading') }}
         p.mt-1
           | {{ $tc('outcomeConsent.changedBody', adjustmentsApplying) }}
@@ -211,6 +224,29 @@ export default {
     /** @returns {boolean} false when the server has no OUTCOME_POOL_SECRET */
     poolConfigured () {
       return this.pooledCount !== null
+    },
+
+    /**
+     * The badge's Buefy type. Green ONLY when the firm is both consenting and pooling —
+     * item 9.3. Grey covers both "consented but the pool is unreachable" and "not
+     * sharing", because neither is a state the manager should read as active.
+     * @returns {string} a Buefy tag type
+     */
+    badgeType () {
+      return this.sharing && this.poolConfigured ? 'is-success' : 'is-light'
+    },
+
+    /**
+     * What the badge says, in three states — item 9.3, wording approved by Mike 2026-09-23.
+     * The middle one exists because consent and pooling can disagree: the firm has
+     * consented and the server cannot pool, and saying either "Sharing since" or "Not
+     * sharing" would be false in a different direction.
+     * @returns {string} the translated badge label
+     */
+    badgeLabel () {
+      if (!this.sharing) { return this.$t('outcomeConsent.pillOff') }
+      if (!this.poolConfigured) { return this.$t('outcomeConsent.pillPaused') }
+      return this.$t('outcomeConsent.pillOn', { date: this.dateWords(this.consent.setAt) })
     },
 
     /** @returns {boolean} there is something in the pool to take out */

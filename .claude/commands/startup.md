@@ -119,8 +119,26 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    — and **BOTH handover notes**: `design/HANDOVER-desktop.md` and
    `design/HANDOVER-laptop.md`, one per machine. Yours is the one matching the branch from
    step 1; the other machine's is what stops the two divisions treading on each other.
-   Report the two or three things most likely to be today's work, saying for each whether
-   it waits on Mike, on us, or on someone outside. Do not start any of them.
+   🔴 **SHOW HIM THE TOP OF HIS LIST. DO NOT HAND HIM YOUR PICK.** Print the **top six
+   items in array order** — his order, never re-sorted — as a table: `ref · what it is ·
+   score · waits on · WHAT IT REALLY IS NOW`. That last column is the one that matters and
+   it is **not** copied from the fields: **open the item's note and check its claim against
+   the code** before writing it. An item whose note says *built*, *complete*, *shipped*,
+   *do not wire*, *not session work* or *no code outstanding* is flagged **⚠ SETTLED IN
+   REALITY, STILL LIVE** — and that flag is a question for him, not a fact for you to act on.
+
+   Then ask him what he wants to pick up. **Never nominate one yourself as "the strongest
+   candidate".** You may say which are startable and which are blocked; the choice is his.
+
+   *Why this replaced "report the two or three things most likely to be today's work"
+   (2026-09-23). That wording made the session the chooser and Mike the reactor, and on this
+   day it produced two wrong picks in a row: 7.12, which he had ruled on, and then 11.1,
+   whose own note says **DO NOT WIRE THE SEAM FROM HERE** and whose repository header names
+   the master team as the only party who may touch it. Both were read from `score` and
+   position without the note being opened. **His top four — 8.1, 11.1, 9.1, 5.1 — were all
+   finished or not-ours while still sitting at the top of the live list.** A session picking
+   from the top was therefore guaranteed to pick undoable work. In his words: "the to do
+   list is never made the centre of the chat - it gets ignored."*
 
    🔴 **READ THE `SAME ITEM, BOTH MACHINES` BOX BEFORE ANY OTHER JUDGEMENT ABOUT AN ITEM —
    AND NEVER TREAT AN UNCLAIMED ITEM AS FREE.** `npm run check:branch` prints it from the
@@ -154,12 +172,27 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    know, and you do not get to say it.**
 
    ⚠ **AN ABSENT BOX IS AN ANSWER, NOT A FAILURE — do not read the silence as the check
-   being broken.** The box lists only branches holding commits `master` does not, so it
-   prints nothing at all when the other machine has merged everything it had. That is the
-   good case: its work is on `master`, and — provided step 2 reported this branch **0
-   behind** — the copy in your own working tree came across with it and *is* the current
-   note. Read it there. If step 2 reported you behind, merge first (step 5); until you do,
-   you hold neither the box nor a current copy, and the rule above still binds.
+   being broken.** The box prints nothing when the other machine holds no unmerged work
+   **and is not behind `master`**. That is the good case: its work is on `master`, and —
+   provided step 2 reported this branch **0 behind** — the copy in your own working tree
+   came across with it and *is* the current note. Read it there. If step 2 reported you
+   behind, merge first (step 5); until you do, you hold neither the box nor a current
+   copy, and the rule above still binds.
+
+   🔴 **BUT AN ABSENT BOX NEVER MEANS "BOTH MACHINES ARE LEVEL" — DO NOT WRITE THAT
+   SENTENCE.** `npm run check:branch` measures **this** branch against `master`; that is
+   the whole of rule 1. It says nothing whatever about the other machine's position, and
+   "0 ahead, 0 behind" is a fact about you alone. **State only what the check measured.**
+
+   *Why this line exists (2026-09-23). The box listed only branches holding commits
+   `master` lacked, so a machine at 0 ahead / N **behind** produced no output of any kind
+   — and the paragraph above then licensed reading that silence as "merged everything it
+   had". A session reported **both machines exactly level** while the laptop sat 3 behind,
+   with total confidence, having obeyed every rule on this page. Nothing was lost — being
+   behind loses nothing — but the statement was false. `branch-survey.js` now reports a
+   **machine** branch that is behind, pinned by `tests/unit/branchSurvey.test.js`, so the
+   silence is no longer ambiguous. The rule above survives because a fix to the tool does
+   not repair a habit of saying more than was measured.*
 
    *Six consecutive desktop sessions accused the laptop of not writing a handover — including
    2026-09-16, after the laptop had rebutted it in writing in its own note. Every one of them
@@ -177,6 +210,24 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    wrapped around a generated table; the JSON *is* the list, and the page is
    rebuilt from it. Same information, a fraction of the reading. Open the page only if
    Mike asks why an item is worded as it is.
+
+   🔴 **THE ARRAY ORDER IS MIKE'S RANKING. NEVER RE-SORT IT — NOT EVEN TO READ IT.**
+   `items[0]` is his first priority and `items[27]` his last. The score is **not** the
+   order: the file's own readme says *"it is not computed from the score, and it must
+   never be re-sorted by a script or a session"*, and `scripts/apply-to-do.js` says
+   *"ORDER IS THE ARRAY'S ORDER. Nothing here sorts, and nothing here may."* Where his
+   order and the score disagree, **his order wins** — that visible disagreement is the
+   point, not a defect to tidy.
+
+   **When naming today's candidates, take them from the top of the array** and say where
+   each sits — *"8.1, first on your list"*. A `sort()` in a throwaway command counts as
+   re-sorting: what you read out is what he acts on.
+
+   *Why this line exists (2026-09-23). A session ran a one-off script that sorted the
+   list by score, read the result out as today's work, and offered item 7.12 as "the
+   strongest candidate" — **eighth on Mike's actual list**, and carrying a stale
+   `waitingOn` too. His ranking was intact in the file the whole time; it was destroyed
+   in the reading, not in the data. His reply: "AGAIN you bring me the wrong task."*
 
    **Not `design/ACTIONS.md`.** It is a **frozen archive** as of 2026-08-24 — history,
    not a work list. Nothing is added to it and nothing is triaged from it. An item found

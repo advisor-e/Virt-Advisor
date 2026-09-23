@@ -92,9 +92,21 @@ function isCandidate (ref, currentBranch) {
 function selectBranches (rows, currentBranch) {
   var kept = (rows || []).filter(function (row) {
     if (!row || !isCandidate(row.ref, currentBranch)) { return false }
-    // Nothing ahead of master means nothing unmerged, which is the only thing we
-    // are reporting. A branch that is merely stale is master's business, not ours.
-    return Number(row.ahead) > 0
+    // Unmerged work is the first thing we report, and for years it was the only one.
+    if (Number(row.ahead) > 0) { return true }
+
+    // 🔴 AND A MACHINE THAT HAS FALLEN BEHIND, 2026-09-23. `ahead > 0` alone made a
+    // machine branch at 0 ahead / N behind STRUCTURALLY INVISIBLE — no row, no box, no
+    // output of any kind. `startup.md` then told the session to read that silence as
+    // "the other machine has merged everything it had", which is true, and a session
+    // duly reported BOTH MACHINES EXACTLY LEVEL while the laptop sat 3 behind master.
+    // Nothing was lost — being behind loses nothing — but the statement was false, and
+    // it was made with total confidence because every check had been obeyed.
+    //
+    // Restricted to the two machines (`machineFor`), which is what keeps this from
+    // becoming noise: this repo carries a dozen abandoned refs, one of them 1,891
+    // commits behind, and reporting those every run is how a report gets ignored.
+    return Boolean(row.machine) && Number(row.behind) > 0
   })
 
   return kept.sort(function (a, b) {
@@ -168,7 +180,14 @@ function describeSurvey (selected) {
   var names = selected.map(function (r) { return shortName(r.ref) })
   var width = names.reduce(function (w, n) { return n.length > w ? n.length : w }, 0)
 
-  var lines = ['Other branches hold work that is NOT in `' + PROTECTED_BRANCH + '`:', '']
+  // A row kept for being BEHIND alone carries no unmerged work, so the heading that
+  // says otherwise would be a lie on the one run it matters most. See `selectBranches`.
+  var anyUnmerged = selected.some(function (r) { return Number(r.ahead) > 0 })
+  var heading = anyUnmerged
+    ? 'Other branches hold work that is NOT in `' + PROTECTED_BRANCH + '`:'
+    : 'No unmerged work elsewhere — but a machine is not level with `' + PROTECTED_BRANCH + '`:'
+
+  var lines = [heading, '']
 
   // Aligns the note under the counts: the first line is 2 spaces, the name, then 3 more.
   var gutter = new Array(width + 4).join(' ')
@@ -188,6 +207,22 @@ function describeSurvey (selected) {
   lines.push('Nothing is blocked and your branch is fine — this is the gap the drift')
   lines.push('check cannot see. That work is invisible here until it reaches `' + PROTECTED_BRANCH + '`,')
   lines.push('so if you are about to touch the same screens, merge or ask first.')
+
+  // Said in full, because the whole fault was a session inferring the opposite from
+  // silence. A branch that is only BEHIND has lost nothing and blocks nobody — but
+  // "level" is a claim about both machines, and this is the line that licenses it.
+  var behindOnly = selected.filter(function (r) {
+    return Number(r.ahead) === 0 && Number(r.behind) > 0
+  })
+  if (behindOnly.length > 0) {
+    lines.push('')
+    behindOnly.forEach(function (r) {
+      lines.push('⚠ `' + shortName(r.ref) + '` is ' + r.behind + ' behind `' + PROTECTED_BRANCH +
+        '` with nothing unmerged. Nothing is lost')
+      lines.push('  and nothing is blocked — but DO NOT SAY THE TWO MACHINES ARE LEVEL. That')
+      lines.push('  machine merges at its next startup; it is not this machine\'s to merge.')
+    })
+  }
   lines.push('')
   lines.push('See `startup-blind-to-other-machine` in design/ACTIONS.md.')
   return lines
