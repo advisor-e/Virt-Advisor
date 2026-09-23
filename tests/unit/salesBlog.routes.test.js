@@ -8,7 +8,8 @@
  *
  *   1. 🔴 THE TWO GENERATE ROUTES ANSWER 200 WHEN THE MODEL FAILS. The engine
  *      falls back to a template built from the advisor's own brief, and the
- *      reply says `source: 'template'` with the reason. A 500 would throw away a
+ *      reply says `source: 'template'`; the reason is logged, never sent (it can
+ *      be OpenAI's own reply, billing details included). A 500 would throw away a
  *      usable outline. A MISSING FIELD is still a 400 — a brief with no topic
  *      cannot produce anything at all.
  *   2. 🔴 `principles` REACHES A PROMPT, so its shape is validated rather than
@@ -565,23 +566,46 @@ describe('🔴 the two generate routes', () => {
     engine.generateDraft.mockResolvedValue({
       text: '# Template outline', source: 'template', error: 'OpenAI key not configured'
     })
+    const logged = jest.spyOn(console, 'error').mockImplementation(() => {})
     const res = makeRes()
     await routes.generateDraft(req({ body: validBrief() }), res)
 
     expect(res._status).toBe(200)
     expect(res._body.source).toBe('template')
-    expect(res._body.error).toBe('OpenAI key not configured')
     expect(res._body.text).toBe('# Template outline')
+    expect(logged.mock.calls.join(' ')).toMatch(/OpenAI key not configured/)
+    logged.mockRestore()
   })
 
   test('the same holds for the final article', async () => {
     engine.generateFinal.mockResolvedValue({ text: '# T', source: 'template', error: 'timeout' })
+    const logged = jest.spyOn(console, 'error').mockImplementation(() => {})
     const res = makeRes()
     await routes.generateFinal(req({ body: validFinal() }), res)
 
     expect(res._status).toBe(200)
     expect(res._body.source).toBe('template')
+    logged.mockRestore()
   })
+
+  // 🔴 CLAUDE.md's error rule, 2026-09-24. The engine's reason can be OpenAI's own reply — up to
+  // 500 characters, billing details included — and until this date it reached the browser in full.
+  test.each([['generateDraft', validBrief], ['generateFinal', validFinal]])(
+    '%s never sends the reason for a fallback to the browser — it is logged instead',
+    async (route, body) => {
+      const provider = 'OpenAI API error 402: {"error":{"message":"You have no credits remaining","type":"billing"}}'
+      engine[route].mockResolvedValue({ text: '# T', source: 'template', error: provider })
+      const logged = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const res = makeRes()
+      await routes[route](req({ body: body() }), res)
+
+      expect(res._status).toBe(200)
+      expect(res._body).toEqual({ success: true, text: '# T', source: 'template' })
+      expect(JSON.stringify(res._body)).not.toMatch(/credits|billing|OpenAI API error/)
+      expect(logged.mock.calls.join(' ')).toMatch(/no credits remaining/)
+      logged.mockRestore()
+    }
+  )
 
   test('🔴 a MISSING FIELD is still a 400 — nothing can be generated from it', async () => {
     for (const missing of routes.DRAFT_REQUIRED) {
