@@ -1381,9 +1381,13 @@ a response table is re-opening a settled ruling.** It was offered and declined.
 
 **The file comes to our own Restify backend**, is accepted only if it is genuinely a PDF under a
 size cap, and is stored against that one firm. The pattern to reuse rather than reinvent is
-`server/utils/depreciationExtract.js` and `server/routes/depreciationRates.js`, which already
-take a dragged PDF from a manager under a 20 MB cap and an `application/pdf`-only rule, with
-per-firm storage and version history.
+`server/routes/depreciationRates.js`: multipart through `formidable`, a 20 MB cap, an
+`application/pdf`-only filter, a `%PDF-` check on the first bytes, `fmGuard`, and the scope taken
+from the verified token, never the body.
+
+⚠ **Reuse covers the upload, not the rest.** That route **discards the PDF once read** and its
+only timeout is on the OpenAI call. Keeping the source (question 4) and the hard time limit below
+are **new work**, not inherited.
 
 **Converting inside the manager's browser was offered and declined.** It would be marginally
 safer for us — a hostile file would never reach our server — but it breaks the locked rule that
@@ -1393,7 +1397,26 @@ whatever laptop and browser the manager happens to have.
 ⚠ **THE RESIDUAL RISK, ACCEPTED WITH EYES OPEN.** A PDF is interpreted, not merely displayed, so
 a deliberately malformed one can hang or crash the reader. **A hard time limit and the size cap
 are therefore part of the build, not optional polish** — without them a single crafted file ties
-up the backend. `depreciationExtract.js` already carries an idle timeout for the same reason.
+up the backend.
+
+### 🔴 RULED BY MIKE 2026-09-24 — THE READER'S KNOWN FLAW IS CONTAINED THREE WAYS
+
+**Every `pdfjs-dist` that runs on Node 14.15 carries CVE-2024-4367** — a crafted PDF runs its own
+code when read, with the default `isEvalSupported: true`. The fix (4.2.67) needs Node 18, and
+the Node lock does not move. Mike accepted `pdfjs-dist@2.16.105` **on these conditions, all
+three binding:**
+
+1. **`isEvalSupported: false`** on every load — the published workaround for the known path.
+2. **Each conversion runs in its own child process** that is given **an empty environment** (no
+   database password, no OpenAI key), a memory ceiling, and is **killed at 20 seconds**. An
+   unknown flaw lands in a process holding nothing and dies anyway. It is also the only way the
+   hard time limit is real: a parse inside the server's own process cannot be interrupted.
+3. **The high-severity audit finding it raises is accepted as a RUNTIME risk**, which
+   `SECURITY-AUDIT-NOTES.md` does not otherwise cover (that acceptance is build-time only). It
+   gets its own entry there, and a live-list task, when the package is installed.
+
+⚠ **A session proposing to read an uploaded PDF inside the Restify process, or with eval on, is
+re-opening this ruling.**
 
 ## 10. Where it lives
 

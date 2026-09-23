@@ -185,6 +185,9 @@ tr:last-child td{border-bottom:0}
   §8 — they are his words now, not proposals.</b> Anything the build does differently from this
   page is a deviation and must be named beside the build, per CLAUDE.md. <b>Open this file and
   put it beside the build before shipping.</b></p>
+  <p>⏳ <b>ONE ADDITION AWAITS APPROVAL — §5b, §8b and question 7, drawn 2026-09-24</b> on Mike's
+  yes, because step 3 had no screen for marking the boxes a client writes in. The approval above
+  does not reach them.</p>
   <p><b>Item 15.20 — screens drawn 2026-09-23. NOTHING IS BUILT YET.</b> This is the artefact the
   build will be checked against, saved before approval as CLAUDE.md requires.</p>
   <p><b>Your requirements, built in:</b> an <b>Add Concept</b> button taking a dragged PDF,
@@ -428,6 +431,98 @@ tr:last-child td{border-bottom:0}
 </div>
 
 <!-- ─────────────────────────────────────────────────────────────────────── -->
+<div class="stepmark">5b · Step 3 continued — marking the boxes the client writes in</div>
+
+<div class="warn">
+  ⏳ <b>AWAITING MIKE'S APPROVAL — drawn 2026-09-24. Everything in §5b and §8b is NEW and is NOT
+  covered by the approval of 2026-09-23.</b> The rest of this page stays approved as it stood.
+</div>
+
+<div class="mock">
+  <p>🔴 <b>WHY THIS SCREEN EXISTS — Mike's yes of 2026-09-24.</b> A Response Form in the app is a
+  set of <b>boxes the advisor types the client's answers into</b>; those answers are saved and
+  printed in the plan. His security ruling of 2026-09-23 says an imported form's boxes are
+  <b>"mapped by hand rather than proposed"</b> — no AI and no code guesses where they are. The
+  approved step 3 had a drop zone and nothing after it, so an imported form would have arrived
+  as a picture with nowhere to write.</p>
+  <p><b>How it works:</b> the converted page is shown; the manager drags a rectangle over each
+  space the client writes in and gives it a short label. The label is what the advisor sees
+  beside the box in the session. Boxes are listed in the order they were drawn, which is the
+  order the advisor is taken through them.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Mark the boxes your client writes in</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">3 boxes marked</span>
+  </div>
+  <div class="card-b">
+    <p style="margin-top:0;font-size:13px">Drag a box over each space on the page where your
+    client writes an answer, then give it a short label.</p>
+
+    <div class="slide">
+      <div class="inner">
+        <div class="ttl">Our Cultural Core Values — Response</div>
+        <div class="ln" style="width:30%"></div>
+      </div>
+      <div style="position:absolute;left:6%;top:24%;width:40%;height:28%;border:2px solid #00b1e0;
+        background:#00b1e014;border-radius:4px;font-size:11px;font-weight:600;color:#0070c0;
+        padding:4px 6px">1 · Our core values</div>
+      <div style="position:absolute;left:52%;top:24%;width:42%;height:28%;border:2px solid #00b1e0;
+        background:#00b1e014;border-radius:4px;font-size:11px;font-weight:600;color:#0070c0;
+        padding:4px 6px">2 · What each value looks like in practice</div>
+      <div style="position:absolute;left:6%;top:58%;width:88%;height:30%;border:2px dashed #00b1e0;
+        background:#00b1e00a;border-radius:4px;font-size:11px;font-weight:600;color:#0070c0;
+        padding:4px 6px">3 · being drawn…</div>
+      <div class="bars">
+        <i class="t"></i><i class="l"></i><i class="r"></i><i class="bl"></i><i class="br"></i>
+      </div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <table>
+      <tr><th style="width:40px">#</th><th>Boxes on this page</th><th style="width:90px"></th></tr>
+      <tr><td>1</td><td><input class="inp" value="Our core values"></td>
+        <td><span class="btn quiet">Remove</span></td></tr>
+      <tr><td>2</td><td><input class="inp" value="What each value looks like in practice"></td>
+        <td><span class="btn quiet">Remove</span></td></tr>
+      <tr><td>3</td><td><input class="inp" placeholder="Label, e.g. Our core values"></td>
+        <td><span class="btn quiet">Remove</span></td></tr>
+    </table>
+
+    <div class="hint" style="margin-top:10px">Mark at least one box before adding the concept.</div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+      <span class="btn quiet">Back</span>
+      <span class="btn">Save concept</span>
+    </div>
+  </div>
+</div>
+
+<div class="q">
+  <h3>7. In the printed plan, where do the client's answers appear?</h3>
+  <p>⏳ <b>AWAITING MIKE'S RULING.</b></p>
+  <p>Today a Response Form prints as a table with the answers in its cells. An imported form is
+  a page, so the answers need a home on it.</p>
+  <p class="rec">Recommended: <b>written inside the boxes on the page itself</b>, in the app's
+  own type, so the client's plan shows their Response Form filled in — the same page the advisor
+  taught from, now completed.</p>
+  <p class="against">Against: a long answer can outgrow its box. It is then shrunk to fit down
+  to a readable floor, and past that it continues beneath the page under the box's label —
+  never cut off silently.</p>
+  <p class="against">Rejected: listing the answers as a separate table under the page. It is
+  simpler to build, but the client sees a blank form and then their words somewhere else, which
+  is not what a completed Response Form is.</p>
+</div>
+
+<div class="mock">
+  <p><b>What the advisor sees in the session — unchanged in kind.</b> The capture card lists the
+  labelled boxes as fields, in their drawn order, exactly as it lists a drawn table's cells
+  today. No new session screen is proposed.</p>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
 <div class="stepmark">6 · When a page cannot be read</div>
 
 <div class="crit">
@@ -576,6 +671,30 @@ tr:last-child td{border-bottom:0}
       <tr><td>Library tag, inherited</td><td>Inherited</td></tr>
       <tr><td>Library, no form chosen yet</td><td>Not yet chosen</td></tr>
       <tr><td>Unreadable page</td><td>We could not read that page. It may be scanned rather than typed, or protected against copying. Try exporting it again from the original file.</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">8b · The words §5b adds — PROPOSED, awaiting approval</div>
+
+<div class="warn">
+  ⏳ <b>These nine are proposals, not Mike's words yet.</b> They sit apart from the approved
+  seventeen above so the two can never be confused.
+</div>
+
+<div class="card">
+  <div class="card-b" style="padding:0">
+    <table class="words">
+      <tr><th>Where</th><th>Proposed wording</th></tr>
+      <tr><td>Box-marking heading</td><td>Mark the boxes your client writes in</td></tr>
+      <tr><td>Box-marking instruction</td><td>Drag a box over each space on the page where your client writes an answer, then give it a short label.</td></tr>
+      <tr><td>Box list heading</td><td>Boxes on this page</td></tr>
+      <tr><td>Label field placeholder</td><td>Label, e.g. Our core values</td></tr>
+      <tr><td>Remove a box</td><td>Remove</td></tr>
+      <tr><td>No boxes marked yet</td><td>Mark at least one box before adding the concept.</td></tr>
+      <tr><td>Box count, beside the heading</td><td>{n} boxes marked</td></tr>
+      <tr><td>Going back a step</td><td>Back</td></tr>
+      <tr><td>The finishing button</td><td>Save concept</td></tr>
     </table>
   </div>
 </div>
