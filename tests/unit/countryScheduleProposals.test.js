@@ -137,6 +137,16 @@ describe('withResult', () => {
     expect(r.status).toBe('failed')
     expect(r.reading).toBeNull()
     expect(r.error.code).toBe('NOTHING_READ')
+    expect(r.error.moderation).toBeUndefined()
+  })
+
+  // Item 8.2 — a blocked reading keeps its report, as kind and category only: nothing else can
+  // reach the stored record, a sentence included.
+  it('keeps a moderation report as kind and category only', () => {
+    const r = p.withResult(started(), null, {
+      code: 'MODERATION_BLOCKED', message: 'blocked', moderation: { kind: 'app', category: 'illicit/violent', sentence: 'never kept' }
+    }, NOW)
+    expect(r.error.moderation).toEqual({ kind: 'app', category: 'illicit/violent' })
   })
 
   it('does not mutate the record it was given', () => {

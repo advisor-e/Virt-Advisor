@@ -205,6 +205,15 @@ describe('starting and polling a draft', () => {
     expect(JSON.stringify(res._body)).not.toContain('/srv/openai.js')
   })
 
+  // Item 8.2 — the draft's prompt is the app's own words, so a block is an app report.
+  test('a moderation block fails the run with an app report', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const started = await draftOnce(blockedError({ category: 'illicit/violent', sentence: 'x' }))
+    const res = poll(started.runId)
+    expect(res._body.state).toBe('failed')
+    expect(res._body.error.moderation).toEqual({ kind: 'app', category: 'illicit/violent' })
+  })
+
   test('counts drafts per client, and refuses past the cap', async () => {
     for (let i = 0; i < runsStore.MAX_RUNS_PER_CONTEXT; i++) {
       const started = await draftOnce(reply(JSON.stringify({ steps: STEPS })))

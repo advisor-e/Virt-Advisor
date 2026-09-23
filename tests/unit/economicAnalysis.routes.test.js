@@ -388,6 +388,19 @@ describe('polling a run', () => {
     expect(res._body.state).toBe('failed')
     expect(res._body.error.code).toBe('RESEARCH_FAILED')
     expect(res._body.error.message).not.toContain('ECONNRESET')
+    expect(res._body.error.moderation).toBeUndefined()
+  })
+
+  // Item 8.2 — a moderation block on the advisor's own brief quotes that sentence back.
+  test('a moderation block on the brief fails the run and names the sentence', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const sentence = 'Seeking finance to fit out a third site.'
+    const start = await runOnce(blockedError({ category: 'illicit/violent', sentence }))
+
+    const res = makeMockRes()
+    routes.getRun(makeReq({ params: { runId: start.runId } }), res, noop)
+    expect(res._body.state).toBe('failed')
+    expect(res._body.error.moderation).toEqual({ kind: 'typed', category: 'illicit/violent', sentence })
   })
 
   // 🔴 The validator's refusals reach the advisor as a plain message and never as detail.

@@ -6529,5 +6529,22 @@
       "generate": "Could not write that. Nothing has been lost — your brief and any text are still here.",
       "needTopic": "A topic is needed before the AI can write anything."
     }
+  },
+  "moderation": {
+    "typed": "This sentence couldn't be sent to the AI: '{sentence}'. The safety check read it as {category}. If that isn't what you meant, reword that sentence and try again.",
+    "typedWhole": "Your message couldn't be sent to the AI. The safety check read it as {category}, though no single sentence caused it on its own. If that isn't what you meant, reword it and try again.",
+    "app": "This request couldn't be sent to the AI because of something in the app's own material — not anything you typed. It has been recorded so it can be fixed.",
+    "meeting": "The reports for this meeting couldn't be written. The safety check read this, said by {speaker} at {time}, as {category}: '{sentence}'. The recording and transcript are unchanged.",
+    "meetingWhole": "The reports for this meeting couldn't be written. The safety check read the conversation as {category}, though no single sentence caused it on its own. The recording and transcript are unchanged.",
+    "category": {
+      "sexualMinors": "sexual content involving a minor",
+      "selfHarmInstructions": "instructions for self-harm",
+      "illicitViolent": "instructions for a violent crime"
+    },
+    "speaker": {
+      "advisor": "the advisor",
+      "client": "the client",
+      "unknown": "an unidentified speaker"
+    }
   }
 }

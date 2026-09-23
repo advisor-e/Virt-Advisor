@@ -25,6 +25,16 @@
  *    and never points at words; a message that does not say what failed "will only frustrate
  *    users". So each sentence goes in as its own input beside the whole text, and a block names
  *    the sentence. The whole text is scored too, because meaning can build across sentences.
+ * 4. 🔴 ONLY WHAT A PERSON PUT IN IS CHECKED — Mike's ruling the same day, on a live measurement.
+ *    The first build checked every word of the user side of a request, and ONE advisor reply sent
+ *    ~21,800 tokens of moderation against an account limit of 20,000 a minute: the app refused
+ *    every AI-written reply, for everyone. 99.9% of it was the app's own templates and context.
+ *    Each call site now names the text a person typed, said or uploaded (`openaiClient` refuses a
+ *    call that names nothing), and two more measures keep the volume down:
+ *      - a sentence already checked is REMEMBERED for 15 minutes, keyed by a one-way hash so no
+ *        words are held — a conversation resends its history every turn;
+ *      - the whole-text check runs only on a text short enough to send once (MAX_WHOLE_CHARS);
+ *        a long transcript is still checked sentence by sentence, but not sent a second time.
  *
  * 🔴 THE WORDS NEVER REACH A LOG. Categories and the feature do; the text does not. A blocked
  * sentence travels back only on the error, to the person who sent it.
@@ -33,6 +43,8 @@
  *
  * @module server/utils/moderation
  */
+
+const crypto = require('crypto')
 
 const MODERATION_PATH = '/v1/moderations'
 const MODERATION_MODEL = 'omni-moderation-latest'
@@ -46,8 +58,34 @@ const BATCH_SIZE = 100
 /** Longest single input, in characters. A longer sentence (a pasted table, a run-on transcript turn) is cut into pieces. */
 const MAX_INPUT_CHARS = 2000
 
-/** Longest whole-text chunk, in characters — the cross-sentence check reads the text in pieces this size. */
+/** Longest text that is also scored whole — the cross-sentence check. Longer texts are sentences only (ruling 4). */
 const MAX_WHOLE_CHARS = 8000
+
+/** How long a checked sentence is remembered, and how many are kept (ruling 4). */
+const CACHE_TTL_MS = 15 * 60 * 1000
+const CACHE_MAX = 5000
+
+/** hash → { at, categories }. Keyed by a one-way hash: the words themselves are never held. */
+const _cache = new Map()
+
+function _key (text) {
+  return crypto.createHash('sha256').update(text).digest('hex')
+}
+
+function _cached (text) {
+  const hit = _cache.get(_key(text))
+  if (!hit) { return null }
+  if (Date.now() - hit.at > CACHE_TTL_MS) { _cache.delete(_key(text)); return null }
+  return hit.categories
+}
+
+function _remember (text, categories) {
+  if (_cache.size >= CACHE_MAX) { _cache.delete(_cache.keys().next().value) }
+  _cache.set(_key(text), { at: Date.now(), categories })
+}
+
+/** Tests only: forget everything remembered. */
+function _resetCache () { _cache.clear() }
 
 /**
  * Cuts a long string into pieces no longer than `max`, preferring a space as the cut point.
@@ -87,71 +125,21 @@ function splitSentences (text) {
 }
 
 /**
- * The whole text in pieces of at most MAX_WHOLE_CHARS, cut between sentences.
- * @param {string[]} sentences
- * @returns {string[]}
- */
-function wholeChunks (sentences) {
-  const out = []
-  let cur = ''
-  for (const s of sentences) {
-    if (cur && cur.length + 1 + s.length > MAX_WHOLE_CHARS) { out.push(cur); cur = '' }
-    cur = cur ? cur + ' ' + s : s
-  }
-  if (cur) { out.push(cur) }
-  return out
-}
-
-/**
- * The text a person or a document put into a chat-completions request: every `user` message.
- * System messages are the app's own fixed instructions and are not sent for checking.
- * @param {object} params - chat-completions params
- * @returns {string[]}
- */
-function textsFromChat (params) {
-  const out = []
-  const messages = params && Array.isArray(params.messages) ? params.messages : []
-  for (const m of messages) {
-    if (!m || m.role !== 'user') { continue }
-    if (typeof m.content === 'string') { out.push(m.content); continue }
-    if (Array.isArray(m.content)) {
-      m.content.forEach((p) => { if (p && p.type === 'text' && typeof p.text === 'string') { out.push(p.text) } })
-    }
-  }
-  return out
-}
-
-/**
- * The same for a Responses request: a plain-string `input`, or the text parts of each item that
- * is the user's. A file part (the depreciation PDF) cannot be read by the check and is skipped —
- * the text sent beside it is still checked.
- * @param {object} params - Responses params
- * @returns {string[]}
- */
-function textsFromResponses (params) {
-  const input = params && params.input
-  if (typeof input === 'string') { return [input] }
-  const out = []
-  if (!Array.isArray(input)) { return out }
-  for (const item of input) {
-    if (!item || (item.role && item.role !== 'user')) { continue }
-    if (typeof item.content === 'string') { out.push(item.content); continue }
-    if (Array.isArray(item.content)) {
-      item.content.forEach((p) => { if (p && p.type === 'input_text' && typeof p.text === 'string') { out.push(p.text) } })
-    }
-  }
-  return out
-}
-
-/**
  * The error a blocked request throws. Never retried: the same words would be refused again.
- * @param {{category: string, sentence: string|null}} hit
+ *
+ * `moderationSource` is the whole text the hit came from, so a route can tell "the user's own
+ * message" (message 2) from "the app's own material" (message 3) when no single sentence was to
+ * blame. 🔴 It is NON-ENUMERABLE on purpose: it can hold the app's templates or a transcript, and
+ * a route that sends the error object as it stands must not carry it to a browser.
+ *
+ * @param {{category: string, sentence: string|null, from?: string}} hit
  * @returns {Error} with `code` AI_MODERATION_BLOCKED and `moderation` { category, sentence }
  */
 function blockedError (hit) {
   const err = new Error('AI_MODERATION_BLOCKED: ' + hit.category)
   err.code = 'AI_MODERATION_BLOCKED'
   err.moderation = { category: hit.category, sentence: hit.sentence }
+  Object.defineProperty(err, 'moderationSource', { value: hit.from || null, enumerable: false })
   return err
 }
 
@@ -169,7 +157,7 @@ function unavailableError (why) {
 /**
  * Checks the texts and throws when a blocked category fires or the check cannot be completed.
  *
- * @param {string[]} texts - what the request carries from the user side
+ * @param {string[]} texts - what a PERSON put into the request: typed, said or uploaded (ruling 4)
  * @param {Function} post - async (inputs: string[]) => results[] in the same order, one per input;
  *   the shape of `/v1/moderations` `results`. Injected so this module never touches the network.
  * @param {object} [meta]
@@ -180,42 +168,52 @@ function unavailableError (why) {
 async function check (texts, post, meta) {
   const feature = (meta && meta.feature) || 'unnamed'
   const inputs = []
+  const seen = new Set()
   for (const t of texts || []) {
     const sentences = splitSentences(t)
-    sentences.forEach(s => inputs.push({ kind: 'sentence', text: s }))
-    // A text of one sentence is already scored whole; sending it twice changes nothing.
-    if (sentences.length > 1) {
-      wholeChunks(sentences).forEach(c => inputs.push({ kind: 'whole', text: c }))
+    sentences.forEach((s) => {
+      if (!seen.has('s' + s)) { seen.add('s' + s); inputs.push({ kind: 'sentence', text: s, from: t }) }
+    })
+    // Scored whole as well only when it is more than one sentence and short enough to send once.
+    const whole = sentences.join(' ')
+    if (sentences.length > 1 && whole.length <= MAX_WHOLE_CHARS && !seen.has('w' + whole)) {
+      seen.add('w' + whole)
+      inputs.push({ kind: 'whole', text: whole, from: t })
     }
   }
   if (inputs.length === 0) { return { flagged: [] } }
 
-  const results = []
-  for (let i = 0; i < inputs.length; i += BATCH_SIZE) {
-    const batch = inputs.slice(i, i + BATCH_SIZE)
+  // What was checked in the last 15 minutes is not sent again (ruling 4).
+  const categoriesOf = inputs.map(inp => _cached(inp.text))
+  const unsent = inputs.map((inp, i) => i).filter(i => categoriesOf[i] === null)
+  for (let b = 0; b < unsent.length; b += BATCH_SIZE) {
+    const idx = unsent.slice(b, b + BATCH_SIZE)
     let got
     try {
-      got = await post(batch.map(b => b.text))
+      got = await post(idx.map(i => inputs[i].text))
     } catch (e) {
       throw unavailableError(String((e && e.message) || e).slice(0, 200))
     }
-    if (!Array.isArray(got) || got.length !== batch.length) {
+    if (!Array.isArray(got) || got.length !== idx.length) {
       throw unavailableError('result count did not match the inputs')
     }
-    got.forEach(r => results.push(r))
+    got.forEach((r, j) => {
+      const cats = (r && r.categories && typeof r.categories === 'object') ? r.categories : {}
+      categoriesOf[idx[j]] = cats
+      _remember(inputs[idx[j]].text, cats)
+    })
   }
 
   const flagged = new Set()
   let sentenceHit = null
   let wholeHit = null
-  results.forEach((r, i) => {
-    const cats = (r && r.categories && typeof r.categories === 'object') ? r.categories : null
+  categoriesOf.forEach((cats, i) => {
     if (!cats) { return }
     Object.keys(cats).forEach((k) => { if (cats[k] === true) { flagged.add(k) } })
     const blocked = BLOCKED_CATEGORIES.find(c => cats[c] === true)
     if (!blocked) { return }
-    if (inputs[i].kind === 'sentence' && !sentenceHit) { sentenceHit = { category: blocked, sentence: inputs[i].text } }
-    if (inputs[i].kind === 'whole' && !wholeHit) { wholeHit = { category: blocked, sentence: null } }
+    if (inputs[i].kind === 'sentence' && !sentenceHit) { sentenceHit = { category: blocked, sentence: inputs[i].text, from: inputs[i].from } }
+    if (inputs[i].kind === 'whole' && !wholeHit) { wholeHit = { category: blocked, sentence: null, from: inputs[i].from } }
   })
 
   const hit = sentenceHit || wholeHit
@@ -234,11 +232,10 @@ module.exports = {
   MODERATION_MODEL,
   BLOCKED_CATEGORIES,
   BATCH_SIZE,
+  MAX_WHOLE_CHARS,
   splitSentences,
-  wholeChunks,
-  textsFromChat,
-  textsFromResponses,
   blockedError,
   unavailableError,
-  check
+  check,
+  _resetCache
 }

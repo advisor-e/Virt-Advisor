@@ -278,6 +278,7 @@ import DOMAINS from '~/data/domains.json'
 import ENGAGEMENT from '~/data/engagement-types.json'
 import HubGuidePanel from '~/components/shared/HubGuidePanel.vue'
 import HubReadingCard from '~/components/shared/HubReadingCard.vue'
+import moderationMessage from '~/mixins/moderationMessage'
 
 const DOMAIN_LABELS = {}
 DOMAINS.forEach((d) => { if (d && d.id) { DOMAIN_LABELS[d.id] = d.label || d.id } })
@@ -290,6 +291,8 @@ export default {
   name: 'MentorOutcomeLearning',
 
   components: { HubGuidePanel, HubReadingCard },
+
+  mixins: [moderationMessage],
 
   props: {
     apiToken: { type: String, required: true }
@@ -586,7 +589,8 @@ export default {
         const data = await this.api('POST', BASE + '/reading')
         this.page = Object.assign({}, this.page, { reading: data.reading || null, readingStale: false })
       } catch (e) {
-        this.readingError = e.status === 502 ? this.$t('hubReading.failed') : e.message
+        this.readingError = this.moderationMessageFrom(e.body) ||
+          (e.status === 502 ? this.$t('hubReading.failed') : e.message)
       }
       this.readingLoading = false
     },
@@ -817,6 +821,8 @@ export default {
       if (!res.ok) {
         const err = new Error((data.error && data.error.message) || this.$t('outcomeLearning.failed'))
         err.status = res.status
+        // The reply travels with the error so a caller can read a moderation report (item 8.2).
+        err.body = data
         throw err
       }
       return data

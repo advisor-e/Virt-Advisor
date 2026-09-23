@@ -29,6 +29,7 @@
 const { createOpenAIClient } = require('../utils/openaiClient')
 const { logSuffixNoFallback } = require('../utils/aiProvider')
 const { sendError } = require('../utils/sendError')
+const { moderationReport } = require('../utils/moderationReport')
 const { assemblePrompt, loadResolvedAiPromptOverrides } = require('../utils/aiPrompts')
 const { loadFirmConfig } = require('../utils/firmOverlay')
 const { validateSendList, renderSendList, validateDraft } = require('../report/nextStepsDraft')
@@ -122,7 +123,7 @@ async function runDraft (run, promptText) {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const response = await client.responses.create(
       { model: MODEL, input: promptText, text: { format: { type: 'json_object' } } },
-      { timeout: IDLE_TIMEOUT_MS }
+      { timeout: IDLE_TIMEOUT_MS, moderate: [] } // only the app's whitelisted words (8.2)
     )
     const checked = validateDraft(response)
     logCall(run.runId, startedAt, checked.ok, response && response.usage)
@@ -135,7 +136,10 @@ async function runDraft (run, promptText) {
   } catch (err) {
     logCall(run.runId, startedAt, false, null)
     console.error('[next-steps] run ' + run.runId + ' failed:', err.message)
-    runsStore.failRun(run, 'DRAFT_FAILED', 'The draft could not be made. Nothing has changed — try again in a moment.')
+    // Item 8.2 — the prompt is built only from the app's own whitelisted words.
+    const report = moderationReport(err, {})
+    runsStore.failRun(run, 'DRAFT_FAILED', 'The draft could not be made. Nothing has changed — try again in a moment.',
+      report ? { moderation: report } : undefined)
   }
 }
 

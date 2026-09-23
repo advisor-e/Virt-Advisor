@@ -11,10 +11,18 @@ const {
   RESPONSES_PATH
 } = require('../../server/utils/openaiClient')
 
-// These tests exercise the transport, so moderation (item 8.2) is passed through here; the
-// 'moderation runs first' block below tests it on the real client.
+// These tests exercise the transport, so moderation (item 8.2) is passed through here, and each
+// call names no person text (`moderate: []`) unless it says otherwise. The 'moderation runs
+// first' block below tests the real check, and the refusal of a call that names nothing.
 const PASS = async () => {}
-const createOpenAIClient = opts => realCreateOpenAIClient(Object.assign({ moderator: PASS }, opts))
+const createOpenAIClient = (opts) => {
+  const client = realCreateOpenAIClient(Object.assign({ moderator: PASS }, opts))
+  const withFlag = fn => (params, options) => fn(params, Object.assign({ moderate: [] }, options))
+  return {
+    chat: { completions: { create: withFlag(client.chat.completions.create) } },
+    responses: { create: withFlag(client.responses.create) }
+  }
+}
 
 /** Builds a fake http.IncomingMessage: async-iterable of Buffers + statusCode. */
 function fakeRes (statusCode, chunks) {
@@ -429,19 +437,45 @@ describe('createOpenAIClient — moderation runs first', () => {
   }
   function newSink () { return { paths: [], checked: [] } }
 
+  // A checked sentence is remembered for 15 minutes; each test starts with nothing remembered.
+  beforeEach(() => require('../../server/utils/moderation')._resetCache())
+
   test('a clean chat request is checked, then sent', async () => {
     const sink = newSink()
-    await client(clean, sink).chat.completions.create({ model: 'm', messages: [{ role: 'user', content: 'Margins are down.' }] })
+    await client(clean, sink).chat.completions.create(
+      { model: 'm', messages: [{ role: 'user', content: 'Margins are down.' }] },
+      { moderate: ['Margins are down.'] }
+    )
     expect(sink.paths).toEqual(['/v1/moderations', COMPLETIONS_PATH])
   })
 
-  test('only the user side is checked — the app\'s own system instructions are not sent', async () => {
+  // Ruling 4 — measured live 2026-09-24: checking the whole request sent ~21,800 tokens for one
+  // advisor reply against a limit of 20,000 a minute. Only what the caller names is checked.
+  test('only the text the caller names is checked — never the templates or context around it', async () => {
     const sink = newSink()
     await client(clean, sink).chat.completions.create({
       model: 'm',
-      messages: [{ role: 'system', content: 'You are an advisor.' }, { role: 'user', content: 'Cash is tight.' }]
-    })
+      messages: [
+        { role: 'system', content: 'You are an advisor.' },
+        { role: 'user', content: 'Templates: Cash Flow Forecast. Pricing Review.\n\nThe advisor said: Cash is tight.' }
+      ]
+    }, { moderate: ['Cash is tight.'] })
     expect(sink.checked).toEqual([['Cash is tight.']])
+  })
+
+  test('🔴 a call that names nothing is refused before anything is sent', async () => {
+    const sink = newSink()
+    const err = await client(clean, sink).chat.completions.create({ model: 'm', messages: [] }).catch(e => e)
+    expect(err.code).toBe('AI_MODERATE_FLAG_MISSING')
+    const err2 = await client(clean, sink).responses.create({ model: 'm', input: 'x' }, { timeout: 5 }).catch(e => e)
+    expect(err2.code).toBe('AI_MODERATE_FLAG_MISSING')
+    expect(sink.paths).toEqual([])
+  })
+
+  test('a call that names nothing a person wrote (`[]`) makes no moderation call at all', async () => {
+    const sink = newSink()
+    await client(clean, sink).chat.completions.create({ model: 'm', messages: [] }, { moderate: [] })
+    expect(sink.paths).toEqual([COMPLETIONS_PATH])
   })
 
   test('a blocked category stops the request before it is sent, and names the sentence', async () => {
@@ -450,7 +484,7 @@ describe('createOpenAIClient — moderation runs first', () => {
     const flags = t => (t === bad ? { 'self-harm/instructions': true } : {})
     const err = await client(flags, sink).chat.completions.create({
       model: 'm', messages: [{ role: 'user', content: 'Sales are flat. ' + bad }]
-    }).catch(e => e)
+    }, { moderate: ['Sales are flat. ' + bad] }).catch(e => e)
     expect(err.code).toBe('AI_MODERATION_BLOCKED')
     expect(err.moderation).toEqual({ category: 'self-harm/instructions', sentence: bad })
     expect(sink.paths).toEqual(['/v1/moderations']) // the model was never asked
@@ -462,7 +496,7 @@ describe('createOpenAIClient — moderation runs first', () => {
     const flags = t => (/attack/.test(t) ? { violence: true } : {})
     await client(flags, sink, {}).chat.completions.create(
       { model: 'm', messages: [{ role: 'user', content: 'We want to attack the Auckland market.' }] },
-      { feature: 'narrative' }
+      { feature: 'narrative', moderate: ['We want to attack the Auckland market.'] }
     )
     expect(sink.paths).toEqual(['/v1/moderations', COMPLETIONS_PATH])
     const line = warn.mock.calls.map(c => c.join(' ')).join('\n')
@@ -476,14 +510,14 @@ describe('createOpenAIClient — moderation runs first', () => {
     sink.moderationStatus = 503
     const err = await client(clean, sink).chat.completions.create({
       model: 'm', messages: [{ role: 'user', content: 'Cash is tight.' }]
-    }).catch(e => e)
+    }, { moderate: ['Cash is tight.'] }).catch(e => e)
     expect(err.code).toBe('AI_MODERATION_UNAVAILABLE')
     expect(sink.paths).toEqual(['/v1/moderations'])
   })
 
   test('the research door is checked too, before it is sent', async () => {
     const sink = newSink()
-    await client(clean, sink).responses.create({ model: 'm', input: 'Research NZ inflation.' })
+    await client(clean, sink).responses.create({ model: 'm', input: 'Research NZ inflation.' }, { moderate: ['A cafe in Galway.'] })
     expect(sink.paths).toEqual(['/v1/moderations', RESPONSES_PATH])
   })
 
@@ -491,7 +525,7 @@ describe('createOpenAIClient — moderation runs first', () => {
     const sink = newSink()
     await client(clean, sink, { host: 'api.other-provider.example' }).chat.completions.create({
       model: 'm', messages: [{ role: 'user', content: 'Cash is tight.' }]
-    })
+    }, { moderate: ['Cash is tight.'] })
     expect(sink.paths).toEqual([COMPLETIONS_PATH])
   })
 })

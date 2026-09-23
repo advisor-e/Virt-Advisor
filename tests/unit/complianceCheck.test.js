@@ -290,6 +290,21 @@ describe('runCheck', () => {
     expect(out.result).toBeNull()
   })
 
+  // Item 8.2 — a moderation block is still a MODEL_ERROR that never rejects, and carries the
+  // block up so the route can say what happened.
+  test('a moderation block is handed up to the route, still without rejecting', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    const { blockedError } = require('../../server/utils/moderation')
+    const blocked = blockedError({ category: 'illicit/violent', sentence: 'x' })
+    createOpenAIClient.mockReturnValue({ chat: { completions: { create: () => Promise.reject(blocked) } } })
+
+    const out = await runCheck(base)
+
+    expect(out.ok).toBe(false)
+    expect(out.code).toBe('MODEL_ERROR')
+    expect(out.blocked).toBe(blocked)
+  })
+
   test('an answer that cannot be read is a plain failure, not an empty checklist', async () => {
     createOpenAIClient.mockReturnValue(modelReturning('sorry, no'))
 

@@ -476,6 +476,7 @@ import courseStarters from '~/data/course-starters.json'
 import VoiceInputBar from '~/components/base/VoiceInputBar.vue'
 import CourseMessage from '~/components/course/CourseMessage.vue'
 import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
+import moderationMessage from '~/mixins/moderationMessage'
 import { listCourses, listSharedCourses, copySharedCourse, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
@@ -497,6 +498,8 @@ export default {
   name: 'CourseBuilder',
 
   components: { VoiceInputBar, CourseMessage },
+
+  mixins: [moderationMessage],
 
   props: {
     advisorId: { type: String, default: 'local-advisor' },
@@ -1204,7 +1207,7 @@ export default {
                 await this.$nextTick()
                 this._scrollDesign()
               } else if (data.type === 'error') {
-                this.designStreamingText = data.message || 'The response timed out. Please try again.'
+                this.designStreamingText = this.moderationMessageFrom(data) || data.message || 'The response timed out. Please try again.'
               } else if (data.type === 'done') {
                 let content = this.designStreamingText
                 content = content.replace(/\[COURSE_OUTLINE\][\s\S]*?\[\/COURSE_OUTLINE\]/g, '').trim()
@@ -1464,7 +1467,7 @@ export default {
                 await this.$nextTick()
                 this._scrollSession()
               } else if (data.type === 'error') {
-                this.sessionStreamingText = data.message || 'The response timed out. Please try again.'
+                this.sessionStreamingText = this.moderationMessageFrom(data) || data.message || 'The response timed out. Please try again.'
               } else if (data.type === 'done') {
                 const content = this.sessionStreamingText || 'The response timed out. Please try again.'
                 this.sessionMessages.push({ role: 'assistant', content })
@@ -1526,7 +1529,8 @@ export default {
           this.phase = 'quiz'
         } else {
           console.warn('[course] Quiz generation returned no questions:', data)
-          this.quizError = 'Couldn\'t generate quiz questions — please try again, or skip to continue.'
+          this.quizError = this.moderationMessageFrom(data) ||
+            'Couldn\'t generate quiz questions — please try again, or skip to continue.'
         }
       } catch (e) {
         console.error('[course] Quiz generation error:', e.message)
@@ -1778,6 +1782,9 @@ export default {
           this.currentResult = { ...this._questionProvenance(), passed: data.passed, score: data.score, feedback: data.feedback, question: this.currentQuestion.question, answer, modelAnswer: data.modelAnswer || null, modelKeyPoint: data.modelKeyPoint || null }
         } else {
           this.currentResult = { ...this._questionProvenance(), ...ungradedResult(this.currentQuestion.question, answer) }
+          // Item 8.2 — a blocked answer is still ungraded, and says which sentence stopped it.
+          const blocked = this.moderationMessageFrom(data)
+          if (blocked) { this.currentResult.feedback = blocked }
         }
       } catch (e) {
         this.currentResult = { ...this._questionProvenance(), ...ungradedResult(this.currentQuestion.question, answer) }

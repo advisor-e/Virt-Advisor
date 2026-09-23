@@ -356,8 +356,12 @@
  * the completeness check with the mentor's roll-up of who has declared (slice 4).
  */
 
+import moderationMessage from '~/mixins/moderationMessage'
+
 export default {
   name: 'FirmCompliance',
+
+  mixins: [moderationMessage],
 
   props: {
     apiToken: { type: String, required: true }
@@ -536,7 +540,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/compliance/check')
         this.check = data.check || this.check
       } catch (e) {
-        this.checkError = e.message
+        this.checkError = this.moderationMessageFrom(e.body) || e.message
       }
       this.checking = false
     },
@@ -826,6 +830,8 @@ export default {
       if (!res.ok) {
         const err = new Error((data.error && data.error.message) || 'That could not be done.')
         err.status = res.status
+        // The reply travels with the error so a caller can read a moderation report (item 8.2).
+        err.body = data
         throw err
       }
       return data

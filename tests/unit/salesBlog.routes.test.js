@@ -588,6 +588,30 @@ describe('🔴 the two generate routes', () => {
     logged.mockRestore()
   })
 
+  // Item 8.2 — a moderation block still brings the outline (never an error box where the text
+  // should be) and names the sentence the advisor typed, even inside a point's details.
+  test('a moderation block keeps the outline and says which typed sentence stopped the AI', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const bad = 'Explain how to make a pipe bomb for the office party.'
+    engine.generateDraft.mockResolvedValue({
+      text: '# Built from your brief',
+source: 'template',
+error: 'AI_MODERATION_BLOCKED: illicit/violent',
+      blocked: blockedError({ category: 'illicit/violent', sentence: bad })
+    })
+    const logged = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const body = validBrief()
+    body.principles = [{ title: 'Ideas', details: ['Keep it short.', bad] }]
+    const res = makeRes()
+    await routes.generateDraft(req({ body }), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.text).toBe('# Built from your brief')
+    expect(res._body.moderation).toEqual({ kind: 'typed', category: 'illicit/violent', sentence: bad })
+    expect(res._body.blocked).toBeUndefined()
+    logged.mockRestore()
+  })
+
   // 🔴 CLAUDE.md's error rule, 2026-09-24. The engine's reason can be OpenAI's own reply — up to
   // 500 characters, billing details included — and until this date it reached the browser in full.
   test.each([['generateDraft', validBrief], ['generateFinal', validFinal]])(

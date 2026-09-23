@@ -351,7 +351,7 @@ async function tiebreakWithModel (client, candidates, causeText) {
     ],
     temperature: 0,
     max_tokens: 5
-  }, { personal: false })
+  }, { personal: false, moderate: [causeText] })
 
   const answer = reply && reply.choices && reply.choices[0] && reply.choices[0].message
     ? String(reply.choices[0].message.content || '').trim().toLowerCase()

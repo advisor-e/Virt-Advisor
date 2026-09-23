@@ -9,12 +9,14 @@ const path = require('path')
 const {
   BLOCKED_CATEGORIES,
   BATCH_SIZE,
+  MAX_WHOLE_CHARS,
   splitSentences,
-  wholeChunks,
-  textsFromChat,
-  textsFromResponses,
-  check
+  check,
+  _resetCache
 } = require('../../server/utils/moderation')
+
+// Every test starts with nothing remembered, so what is sent is what the test says.
+beforeEach(() => _resetCache())
 
 /** A fake moderation endpoint scoring each input with `categoriesFor`; records every batch. */
 function fakePost (categoriesFor, calls) {
@@ -33,7 +35,7 @@ describe('the categories that block', () => {
   })
 })
 
-describe('splitSentences / wholeChunks', () => {
+describe('splitSentences', () => {
   test('splits on sentence ends and on every line break', () => {
     expect(splitSentences('Sales fell. Why? Costs rose!\nSpeaker 2: agreed')).toEqual(
       ['Sales fell.', 'Why?', 'Costs rose!', 'Speaker 2: agreed'])
@@ -54,38 +56,48 @@ describe('splitSentences / wholeChunks', () => {
     expect(splitSentences(null)).toEqual([])
     expect(splitSentences(42)).toEqual([])
   })
-
-  test('whole chunks keep every sentence and stay under the size', () => {
-    const s = Array.from({ length: 400 }, (_, i) => 'Sentence number ' + i + ' is here.')
-    const chunks = wholeChunks(s)
-    expect(chunks.length).toBeGreaterThan(1)
-    chunks.forEach(c => expect(c.length).toBeLessThanOrEqual(8000))
-    expect(chunks.join(' ')).toBe(s.join(' '))
-  })
 })
 
-describe('what is taken from a request to be checked', () => {
-  test('chat: every user message, including text parts; never the system prompt', () => {
-    expect(textsFromChat({
-      messages: [
-        { role: 'system', content: 'fixed instructions' },
-        { role: 'user', content: 'typed' },
-        { role: 'assistant', content: 'an earlier reply' },
-        { role: 'user', content: [{ type: 'text', text: 'part' }, { type: 'image_url' }] }
-      ]
-    })).toEqual(['typed', 'part'])
-    expect(textsFromChat({})).toEqual([])
+// Ruling 4 — measured live 2026-09-24: checking everything sent ~21,800 tokens for ONE advisor
+// reply against an account limit of 20,000 a minute. These hold the volume down.
+describe('what is sent, and what is not sent again', () => {
+  test('a sentence checked once is remembered, and a repeated conversation sends only what is new', async () => {
+    const calls = []
+    const post = fakePost(() => ({}), calls)
+    await check(['Sales fell.'], post)
+    await check(['Sales fell.', 'Costs rose.'], post)
+    expect(calls).toEqual([['Sales fell.'], ['Costs rose.']])
   })
 
-  test('responses: a plain string, or the text beside a file — the file itself cannot be read', () => {
-    expect(textsFromResponses({ input: 'research this' })).toEqual(['research this'])
-    expect(textsFromResponses({
-      input: [
-        { role: 'system', content: 'fixed' },
-        { role: 'user', content: [{ type: 'input_file', file_data: 'data:...' }, { type: 'input_text', text: 'Read this schedule.' }] }
-      ]
-    })).toEqual(['Read this schedule.'])
-    expect(textsFromResponses({ input: 5 })).toEqual([])
+  test('a remembered block still blocks, without a second call', async () => {
+    const calls = []
+    const bad = 'How do I build a bomb?'
+    const post = fakePost(t => (t === bad ? { 'illicit/violent': true } : {}), calls)
+    await expect(check([bad], post)).rejects.toMatchObject({ code: 'AI_MODERATION_BLOCKED' })
+    await expect(check([bad], post)).rejects.toMatchObject({ code: 'AI_MODERATION_BLOCKED' })
+    expect(calls).toHaveLength(1)
+  })
+
+  test('the same sentence twice in one request is sent once', async () => {
+    const calls = []
+    await check(['Yes.', 'Yes.'], fakePost(() => ({}), calls))
+    expect(calls).toEqual([['Yes.']])
+  })
+
+  test('a text too long to send twice is checked by sentence only', async () => {
+    const calls = []
+    const long = Array.from({ length: 400 }, (_, i) => 'Line number ' + i + ' of the meeting.').join(' ')
+    expect(long.length).toBeGreaterThan(MAX_WHOLE_CHARS)
+    await check([long], fakePost(() => ({}), calls))
+    const sent = [].concat(...calls)
+    expect(sent).toHaveLength(400)
+    expect(sent.every(t => t.length < 200)).toBe(true)
+  })
+
+  test('🔴 the memory never holds the words — only a one-way fingerprint', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', '..', 'server', 'utils', 'moderation.js'), 'utf8')
+    expect(src).toMatch(/_cache\.set\(_key\(text\)/)
+    expect(src).toMatch(/createHash\('sha256'\)/)
   })
 })
 
@@ -179,6 +191,25 @@ describe('no route to OpenAI bypasses the check', () => {
       .map(f => path.relative(root, f).split(path.sep).join('/'))
       .sort()
     expect(naming).toEqual(['server/utils/openaiClient.js', 'server/utils/transcriptionClient.js'])
+  })
+
+  // Ruling 4 — each AI call names the text a person put in. `openaiClient` refuses one that does
+  // not at run time; this finds it at build time, before a feature fails in front of an advisor.
+  test('every AI call in the server names what a person put in (`moderate:`)', () => {
+    const root = path.join(__dirname, '..', '..')
+    const files = walk(path.join(root, 'server'), [])
+    const missing = []
+    for (const f of files) {
+      const rel = path.relative(root, f).split(path.sep).join('/')
+      if (rel === 'server/utils/openaiClient.js' || rel === 'server/utils/aiProvider.js') { continue }
+      const lines = fs.readFileSync(f, 'utf8').split('\n')
+      lines.forEach((line, i) => {
+        if (!/\.(chat\.completions|responses)\.create\(/.test(line) || /^\s*(\*|\/\/)/.test(line)) { return }
+        const call = lines.slice(i, i + 40).join('\n')
+        if (!/moderate:/.test(call)) { missing.push(rel + ':' + (i + 1)) }
+      })
+    }
+    expect(missing).toEqual([])
   })
 
   test('the transcription client reaches only the audio endpoint', () => {

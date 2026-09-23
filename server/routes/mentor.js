@@ -4,6 +4,7 @@ const fs = require('fs')
 // formidable is pinned to v2.1.2 (Node 14.15 — see the note in firmManager.js).
 const { formidable } = require('formidable')
 const { sendError } = require('../utils/sendError')
+const { sendBlocked } = require('../utils/moderationReport')
 const caseStore = require('../utils/caseStore')
 const overlay = require('../utils/firmOverlay')
 const {
@@ -494,6 +495,8 @@ async function getLogicLabReading (req, res) {
   }
   const made = await hubReading.makeReading(payload)
   if (!made.ok) {
+    // Item 8.2 — the payload is the app's own figures.
+    if (made.blocked && sendBlocked(res, made.blocked, {})) { return }
     return sendError(res, 502, 'READING_FAILED', 'The reading could not be made. The numbers above are still right; try again in a minute.')
   }
   try {

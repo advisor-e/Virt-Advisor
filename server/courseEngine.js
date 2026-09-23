@@ -32,6 +32,7 @@ const {
   readFitReply, pendingFitState
 } = require('../server/utils/courseSliceCopy')
 const { sendError } = require('../server/utils/sendError')
+const { moderationReport, sendBlocked } = require('../server/utils/moderationReport')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const CourseReminderService = require('../server/services/CourseReminderService')
@@ -96,6 +97,19 @@ function getQuizOverrides () {
 
 function sseWrite (res, data) {
   res.write('data: ' + JSON.stringify(data) + '\n\n')
+}
+
+/**
+ * A stream's error event, with the moderation report added when the failure was a block
+ * (item 8.2). Any other failure returns the event exactly as it was.
+ * @param {object} event - the `{ type: 'error', message }` event
+ * @param {*} err - what was caught
+ * @param {Array<*>} typed - what the advisor typed; non-strings are ignored
+ * @returns {object}
+ */
+function withModeration (event, err, typed) {
+  const report = moderationReport(err, { typed })
+  return report ? Object.assign({}, event, { code: 'AI_MODERATION_BLOCKED', moderation: report }) : event
 }
 
 function sseHeaders (req, res) {
@@ -265,13 +279,15 @@ async function handleDesign (req, body, res) {
         ],
         max_tokens: 2500,
         stream: true
-      }, { timeout: 60000, personal: false })
+      }, { timeout: 60000, personal: false, moderate: [query, state.goalsPrimary, state.currentLevel, state.intensity, state.sessionDetails, countText].filter(t => typeof t === 'string') })
     } catch (createErr) {
       logAI('course:design', _t0design, false, null, null)
       console.error('[course:design] OpenAI create failed:', createErr.message)
       // Same user-facing message the session handler sends — the design screen
-      // must never end a failed stream with nothing to show (CB-10).
-      sseWrite(res, { type: 'error', message: 'AI response timed out. Please try again.' })
+      // must never end a failed stream with nothing to show (CB-10). A moderation
+      // block (item 8.2) also carries its report, built from what the advisor typed.
+      sseWrite(res, withModeration({ type: 'error', message: 'AI response timed out. Please try again.' },
+        createErr, [query, state.goalsPrimary, state.currentLevel, state.intensity, state.sessionDetails, countText]))
       sseWrite(res, { type: 'state', state: { ...state, pendingOutline: fallbackOutline || null } })
       sseWrite(res, { type: 'done' })
       res.end()
@@ -669,17 +685,22 @@ async function handleSession (req, body, res) {
   let stream
   const _t0session = Date.now()
   let _sessionOk = false
+  // What the advisor typed — this turn and the earlier ones. It is what the call names for
+  // moderation, and a sentence from any of them is quoted back if it is blocked (item 8.2).
+  const typedTurns = [query].concat(sessionHistory
+    .filter(m => m && m.role === 'user' && typeof m.content === 'string').map(m => m.content))
   try {
     // NOT personal: the firm's own course content being delivered back to its advisor.
     stream = await openai.chat.completions.create({
       messages,
       max_tokens: 2000,
       stream: true
-    }, { timeout: 45000, personal: false })
+    }, { timeout: 45000, personal: false, moderate: typedTurns })
   } catch (createErr) {
     logAI('course:session', _t0session, false, null, null)
     console.error('[course:session] OpenAI create failed:', createErr.message)
-    sseWrite(res, { type: 'error', message: 'AI response timed out. Please try again.' })
+    sseWrite(res, withModeration({ type: 'error', message: 'AI response timed out. Please try again.' },
+      createErr, typedTurns))
     sseWrite(res, { type: 'done' })
     res.end()
     return
@@ -796,12 +817,13 @@ ${jsonShape}`
 
   const _t0gen = Date.now()
   try {
-    // NOT personal: the session's own teaching content, no client in it.
+    // NOT personal: the session's own teaching content, no client in it — and nothing a person
+    // typed, so there is nothing to moderate (item 8.2).
     const completion = await openai.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 600,
       response_format: { type: 'json_object' }
-    }, { personal: false })
+    }, { personal: false, moderate: [] })
     logAI('course:quiz-generate', _t0gen, true, completion.usage, completion)
     const data = JSON.parse(completion.choices[0].message.content)
     const result = validateQuizGenerate(data)
@@ -820,6 +842,8 @@ ${jsonShape}`
   } catch (e) {
     logAI('course:quiz-generate', _t0gen, false, null, null)
     console.error('[course:quiz-generate]', e.message)
+    // Item 8.2 — the prompt is the session's own teaching content: the app's material.
+    if (sendBlocked(res, e, {})) { return }
     sendError(res, 500, 'QUIZ_GENERATE_FAILED', 'Failed to generate quiz questions')
   }
 }
@@ -894,7 +918,7 @@ Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfect
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 300,
       response_format: { type: 'json_object' }
-    }, { personal: false })
+    }, { personal: false, moderate: [String(answer)] })
     logAI('course:quiz-grade', _t0grade, true, completion.usage, completion)
     const data = JSON.parse(completion.choices[0].message.content)
     const result = validateQuizGrade(data)
@@ -915,6 +939,8 @@ Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfect
   } catch (e) {
     logAI('course:quiz-grade', _t0grade, false, null, null)
     console.error('[course:quiz-grade]', e.message)
+    // Item 8.2 — the advisor's own answer is what they typed, so a sentence of it is quoted.
+    if (sendBlocked(res, e, { typed: [String(answer)] })) { return }
     sendError(res, 500, 'QUIZ_GRADE_FAILED', 'Failed to grade answer')
   }
 }

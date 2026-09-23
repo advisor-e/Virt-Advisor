@@ -450,9 +450,11 @@ function logCall (label, startedAt, ok, usage, extra, reply, err) {
  * @param {object} deps
  * @param {Array<object>} messages
  * @param {string} label
+ * @param {string[]} spoken - what was SAID in the meeting, one entry per segment: the text this
+ *   call names for moderation (item 8.2). Never the prompt's framing or the observation points.
  * @returns {Promise<{reply: (object|null), usage: (object|null)}>}
  */
-async function askModel (deps, messages, label) {
+async function askModel (deps, messages, label, spoken) {
   const startedAt = Date.now()
   const client = deps.client || getClient('report')
   try {
@@ -463,7 +465,7 @@ async function askModel (deps, messages, label) {
     const completion = await client.chat.completions.create({
       messages,
       temperature: 0
-    }, { timeout: REPORT_TIMEOUT_MS, personal: true })
+    }, { timeout: REPORT_TIMEOUT_MS, personal: true, moderate: spoken })
 
     const content = completion &&
       completion.choices &&
@@ -498,7 +500,7 @@ async function generateSummary (args) {
     ? args.transcript.segments
     : []
   const messages = buildSummaryMessages({ segments, scenarioName: args.scenarioName })
-  const { reply, provider } = await askModel(args, messages, 'summary')
+  const { reply, provider } = await askModel(args, messages, 'summary', segments.map(s => String((s && s.text) || '')))
 
   const checked = validateSummary(reply, segments)
   if (!checked.valid) {
@@ -568,7 +570,7 @@ async function generateCoachingNotes (args) {
   // the model with an empty list would spend money to be told nothing.
   if (asked.length) {
     const messages = buildCoachingMessages({ segments, points: asked })
-    const answered = await askModel(args, messages, 'coaching')
+    const answered = await askModel(args, messages, 'coaching', segments.map(s => String((s && s.text) || '')))
     const reply = answered.reply
     provider = answered.provider
     const checked = validateCoaching(reply, segments, asked)

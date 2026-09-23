@@ -98,6 +98,17 @@ describe('POST /api/mentor/outcome-learning/reading', () => {
     expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
   })
 
+  // Item 8.2 — a blocked reading says so, as the app's own material, and stores nothing.
+  test('a moderation block is a 422 with an app report, and nothing is stored', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    makeSpy.mockResolvedValue({ ok: false, reading: null, blocked: blockedError({ category: 'illicit/violent', sentence: 'x' }) })
+    const res = makeRes()
+    await outcome.reading(req(), res)
+    expect(res._status).toBe(422)
+    expect(res._body.error.moderation).toEqual({ kind: 'app', category: 'illicit/violent' })
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
   test('a pool that cannot be read is a 500 with the safe shape, and the model is never called', async () => {
     overlay.loadFirmConfigsByPrefix.mockRejectedValue(new Error('ECONNREFUSED 10.0.0.1:3306'))
     const res = makeRes()

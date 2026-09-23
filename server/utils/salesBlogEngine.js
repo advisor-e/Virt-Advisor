@@ -36,6 +36,7 @@
 
 const aiProvider = require('./aiProvider')
 const { fenceUntrusted, stripInvisible, OPEN, CLOSE } = require('./promptSafety')
+const { isBlocked } = require('./moderationReport')
 
 /** The role this engine calls under; `aiProvider` maps it to a model. */
 const AI_ROLE = 'draft'
@@ -225,6 +226,21 @@ function logAI (label, startTime, success, usage, reply) {
 }
 
 /**
+ * Every string the advisor typed into the brief, however nested (the points are a list of
+ * `{ title, details[] }`) — what the call names for moderation (item 8.2).
+ * @param {*} v
+ * @param {string[]} [out]
+ * @returns {string[]}
+ */
+function personText (v, out) {
+  const acc = out || []
+  if (typeof v === 'string') { acc.push(v) } else if (v && typeof v === 'object') {
+    Object.keys(v).forEach(k => personText(v[k], acc))
+  }
+  return acc
+}
+
+/**
  * Run one call and fall back to the template on any failure.
  *
  * @param {object} cfg
@@ -255,7 +271,7 @@ async function runOrFallback (cfg) {
         { role: 'system', content: cfg.system },
         { role: 'user', content: cfg.user }
       ]
-    }, { personal: false })
+    }, { personal: false, moderate: cfg.moderate })
 
     const choice = response && response.choices && response.choices[0]
     const content = choice && choice.message ? choice.message.content : ''
@@ -271,7 +287,11 @@ async function runOrFallback (cfg) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     logAI(cfg.label, started, false, null, null)
-    return { text: cfg.fallback(), source: 'template', error: message }
+    const out = { text: cfg.fallback(), source: 'template', error: message }
+    // A moderation block still gets the outline (never an error box where the text should be),
+    // and is handed up so the route can say which sentence stopped it — item 8.2.
+    if (isBlocked(err)) { out.blocked = err }
+    return out
   }
 }
 
@@ -320,6 +340,7 @@ function generateDraft (payload) {
     label: 'sales-blog-draft',
     system,
     user: parts.join('\n\n'),
+    moderate: personText(payload),
     maxTokens: 1800,
     temperature: 0.7,
     fallback: () => buildDraftTemplate(payload)
@@ -384,6 +405,7 @@ function generateFinal (payload) {
     label: 'sales-blog-final',
     system,
     user: parts.filter(Boolean).join('\n\n'),
+    moderate: personText(payload),
     maxTokens: 3500,
     temperature: 0.65,
     fallback: () => buildFinalTemplate(payload)

@@ -45,6 +45,7 @@ const { supportEmail } = require('../utils/supportContact')
 const { getClient, modelFor, logSuffix } = require('../utils/aiProvider')
 const { AI } = require('../../config/integration')
 const { buildReviewMessages, parseReview, validateReview } = require('../utils/promptReview')
+const { isBlocked, moderationReport } = require('../utils/moderationReport')
 
 /**
  * Ten checks a minute per address. A person pasting and correcting a prompt does maybe
@@ -118,7 +119,7 @@ async function runReview (text) {
       max_tokens: REVIEW_MAX_TOKENS,
       temperature: 0,
       messages
-    }, { timeout: REVIEW_TIMEOUT_MS, personal: false })
+    }, { timeout: REVIEW_TIMEOUT_MS, personal: false, moderate: [text] })
 
     logReview(startedAt, true, response.usage, response)
 
@@ -137,7 +138,8 @@ async function runReview (text) {
   } catch (err) {
     logReview(startedAt, false, null)
     console.error('[prompt-review] failed:', err.message)
-    return { ok: false, findings: [], dropped: 0 }
+    // A moderation block (item 8.2) is handed up so the screen can say which sentence it was.
+    return isBlocked(err) ? { ok: false, findings: [], dropped: 0, blocked: err } : { ok: false, findings: [], dropped: 0 }
   }
 }
 
@@ -203,7 +205,7 @@ async function check (req, res) {
 
     const review = await runReview(result.text)
 
-    return res.send(200, {
+    const reply = {
       ok: true,
       refusal: null,
       cleared: true,
@@ -211,7 +213,9 @@ async function check (req, res) {
       reviewFailed: !review.ok,
       limit: MAX_CHARACTERS,
       contactEmail: supportEmail()
-    })
+    }
+    if (review.blocked) { reply.moderation = moderationReport(review.blocked, { typed: [result.text] }) }
+    return res.send(200, reply)
   } catch (err) {
     console.error('[prompt-check] failed:', err.message)
     return sendError(res, 500, 'PROMPT_CHECK_FAILED', 'Could not check the prompt just now')

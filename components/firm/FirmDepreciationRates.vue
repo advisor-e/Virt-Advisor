@@ -242,11 +242,14 @@
  * one job rather than five. Raised with Mike on 2026-09-09.
  */
 import DepreciationDocumentReview from './DepreciationDocumentReview.vue'
+import moderationMessage from '~/mixins/moderationMessage'
 
 export default {
   name: 'FirmDepreciationRates',
 
   components: { DepreciationDocumentReview },
+
+  mixins: [moderationMessage],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -557,7 +560,8 @@ export default {
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) {
-          throw new Error((data.error && data.error.message) || data.message || res.statusText)
+          // Item 8.2 — a moderation block says so in the approved words.
+          throw new Error(this.moderationMessageFrom(data) || (data.error && data.error.message) || data.message || res.statusText)
         }
 
         await this.loadDocuments()

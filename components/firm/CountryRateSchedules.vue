@@ -81,7 +81,7 @@
 
       //- Read, and it produced nothing
       .notification.is-danger.is-light.py-2(v-else-if="r.status === 'failed'")
-        p.is-size-7 {{ (r.error && r.error.message) || 'The schedule could not be read.' }}
+        p.is-size-7 {{ moderationMessageFrom(r.error) || (r.error && r.error.message) || 'The schedule could not be read.' }}
 
       //- Read, and waiting for a decision
       template(v-else-if="r.status === 'pending'")
@@ -175,8 +175,12 @@
  * three, and converting them is one job rather than six. Raised with Mike on 2026-09-09 and
  * unchanged since.
  */
+import moderationMessage from '~/mixins/moderationMessage'
+
 export default {
   name: 'CountryRateSchedules',
+
+  mixins: [moderationMessage],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */

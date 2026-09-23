@@ -3,6 +3,7 @@
 const { sendError } = require('../utils/sendError')
 const store = require('../utils/salesBlogStore')
 const engine = require('../utils/salesBlogEngine')
+const { moderationReport } = require('../utils/moderationReport')
 
 /**
  * /api/sales/blog — the advisor's blog tool (item 17 stage 5).
@@ -439,17 +440,41 @@ async function removeReference (req, res) {
  * unseen on screen but readable by anyone; CLAUDE.md's error rule allows the browser only a
  * safe message. `source: 'template'` is what the screen reads, and it still arrives.
  *
+ * A moderation block (item 8.2) still sends the outline, and adds the report that names which
+ * sentence stopped the AI — built from what the advisor typed, never from the engine's error.
+ *
  * @param {string} label - which route, for the log line
- * @param {{text: string, source: string, error?: string}} result - from the engine
- * @returns {{success: true, text: string, source: string}}
+ * @param {{text: string, source: string, error?: string, blocked?: Error}} result - from the engine
+ * @param {object} src - the request body, whose text fields are what the advisor typed
+ * @returns {{success: true, text: string, source: string, moderation?: object}}
  */
-function forBrowser (label, result) {
+function forBrowser (label, result, src) {
   const out = Object.assign({}, result)
+  const blocked = out.blocked
+  delete out.blocked
   if (out.error) {
     console.error('[salesBlog] ' + label + ' fell back to the template:', out.error)
     delete out.error
   }
+  if (blocked) {
+    out.moderation = moderationReport(blocked, { typed: stringsIn(src) })
+  }
   return Object.assign({ success: true }, out)
+}
+
+/**
+ * Every string in a request body, however nested — the brief's points arrive as a list of
+ * `{ title, details[] }`, and each is something the advisor typed.
+ * @param {*} v
+ * @param {string[]} [out]
+ * @returns {string[]}
+ */
+function stringsIn (v, out) {
+  const acc = out || []
+  if (typeof v === 'string') { acc.push(v) } else if (v && typeof v === 'object') {
+    Object.keys(v).forEach(k => stringsIn(v[k], acc))
+  }
+  return acc
 }
 
 /**
@@ -495,7 +520,7 @@ async function generateDraft (req, res) {
       principles: principles.value,
       references: src.references
     })
-    res.send(200, forBrowser('generateDraft', result))
+    res.send(200, forBrowser('generateDraft', result, src))
   } catch (err) {
     // The engine catches its own failures; reaching here means something else
     // broke, so it is reported rather than disguised as a template result.
@@ -536,7 +561,7 @@ async function generateFinal (req, res) {
       wordCount: src.wordCount,
       aiInstructions: src.aiInstructions
     })
-    res.send(200, forBrowser('generateFinal', result))
+    res.send(200, forBrowser('generateFinal', result, src))
   } catch (err) {
     console.error('[salesBlog] generateFinal failed:', err.message)
     sendError(res, 500, 'AI_ERROR', 'Could not generate the article')

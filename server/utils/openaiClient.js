@@ -39,9 +39,10 @@
  * each call site.
  *
  * 🔴 EVERY REQUEST TO OPENAI IS MODERATED FIRST (item 8.2, the signed ZDR amendment's
- * clause 4.3). It happens here, not at the ~35 call sites, so no call site can forget it —
- * `server/utils/moderation.js` holds the rules. Only OpenAI's own host is checked: a
- * request bound for the backup provider is not sent to OpenAI to be looked at.
+ * clause 4.3). The check runs here, so no call site can skip it; each call site names the
+ * text a PERSON put in (`options.moderate`), and a call that names nothing is refused — see
+ * `moderate` below for why. `server/utils/moderation.js` holds the rules. Only OpenAI's own
+ * host is checked: a request bound for the backup provider is not sent to OpenAI to be looked at.
  *
  * Node 14 only: uses the built-in `https` module (no global `fetch`, which is
  * Node 18+) and async generators (Node 10+). CommonJS.
@@ -389,10 +390,30 @@ function createOpenAIClient (opts) {
     return moderation.check(texts, postModeration, meta)
   }
 
-  /** Moderates when the request is bound for OpenAI itself; see the file header. */
-  async function moderate (texts, options) {
+  /**
+   * Moderates what a PERSON put into this request — `options.moderate` — when it is bound for
+   * OpenAI itself; see the file header.
+   *
+   * 🔴 THE CALLER NAMES THE TEXT, AND MUST. Measured live on 2026-09-24: checking every word of
+   * the user side sent ~21,800 tokens of moderation for ONE advisor reply — the firm's template
+   * list, domain material, the whole conversation — against an account limit of 20,000 a minute,
+   * so the check refused the advisor's first AI-written reply every time. 99.9% of it was the
+   * app's own trusted material. So each call site passes what a person typed, said or uploaded
+   * (`[]` when there is none), and a call that passes nothing at all is refused: a default here
+   * would silently decide either to skip the check or to flood it.
+   *
+   * @param {object} [options]
+   * @throws {Error} AI_MODERATE_FLAG_MISSING when `options.moderate` is not an array
+   */
+  async function moderate (options) {
+    const texts = options && options.moderate
+    if (!Array.isArray(texts)) {
+      const err = new Error('openaiClient: options.moderate is required — the text a person typed, said or uploaded, or []')
+      err.code = 'AI_MODERATE_FLAG_MISSING'
+      throw err
+    }
     if (host !== DEFAULT_HOST) { return }
-    await moderator(texts, { feature: options && options.feature })
+    await moderator(texts.filter(t => typeof t === 'string' && t.trim()), { feature: options.feature })
   }
 
   /**
@@ -411,7 +432,7 @@ function createOpenAIClient (opts) {
 
     const timeout = (options && typeof options.timeout === 'number') ? options.timeout : DEFAULT_TIMEOUT_MS
 
-    await moderate(moderation.textsFromChat(params), options)
+    await moderate(options)
     const res = await postToOpenAI({ apiKey, host, path: COMPLETIONS_PATH, body: params, requestImpl, timeout })
     const status = res.statusCode || 0
 
@@ -446,7 +467,7 @@ function createOpenAIClient (opts) {
 
     const timeout = (options && typeof options.timeout === 'number') ? options.timeout : DEFAULT_TIMEOUT_MS
 
-    await moderate(moderation.textsFromResponses(params), options)
+    await moderate(options)
     const res = await postToOpenAI({ apiKey, host, path: RESPONSES_PATH, body: params, requestImpl, timeout })
     const status = res.statusCode || 0
 
@@ -463,9 +484,23 @@ function createOpenAIClient (opts) {
     return stripResponseOutput(JSON.parse(raw))
   }
 
+  /**
+   * The check on its own, with no AI call behind it — for a screen that must say a sentence is
+   * blocked on the turn it was typed (item 8.2). Same rules, same memory, same fail-closed
+   * errors; nothing is checked for a host that is not OpenAI's.
+   * @param {string[]} texts - what a person typed, said or uploaded
+   * @param {object} [meta] - `{ feature }` for the log line
+   * @returns {Promise<void>}
+   * @throws {Error} AI_MODERATION_BLOCKED | AI_MODERATION_UNAVAILABLE
+   */
+  function checkOnly (texts, meta) {
+    return moderate(Object.assign({ moderate: Array.isArray(texts) ? texts : [] }, meta))
+  }
+
   return {
     chat: { completions: { create } },
-    responses: { create: createResponse }
+    responses: { create: createResponse },
+    moderations: { check: checkOnly }
   }
 }
 

@@ -31,6 +31,14 @@ AI-unavailable message it already uses. No new wording.
 | 4 | Meeting transcript; one sentence found | The reports for this meeting couldn't be written. The safety check read this, said by {speaker} at {time}, as {category}: '{sentence}'. The recording and transcript are unchanged. |
 | 5 | Meeting transcript; no single sentence to blame | The reports for this meeting couldn't be written. The safety check read the conversation as {category}, though no single sentence caused it on its own. The recording and transcript are unchanged. |
 
+**The quoted sentence loses its own final full stop** (Mike, 2026-09-24): the wording closes the
+quote with one, and *"myself.'."* read as a mistake. A question or exclamation mark stays — it is
+part of what was said.
+
+**Message 3 is now rare by design.** Since 2026-09-24 only what a person typed, said or uploaded
+is checked (ruling 4 in `server/utils/moderation.js`), so the app's own material is no longer
+sent to the check at all.
+
 ## {category}
 
 | OpenAI's category | Plain phrase |
@@ -38,3 +46,16 @@ AI-unavailable message it already uses. No new wording.
 | `sexual/minors` | sexual content involving a minor |
 | `self-harm/instructions` | instructions for self-harm |
 | `illicit/violent` | instructions for a violent crime |
+
+## {speaker} and {time} — message 4
+
+✅ **{speaker}: APPROVED BY MIKE 2026-09-24.** The transcript knows only three roles:
+
+| Role in the transcript | Proposed words |
+|---|---|
+| advisor | the advisor |
+| client | the client |
+| unknown | an unidentified speaker |
+
+**{time}** is the transcript's own clock from the start of the meeting, `m:ss` — the same format
+the approved Meeting Review drawing prints beside each quote.
