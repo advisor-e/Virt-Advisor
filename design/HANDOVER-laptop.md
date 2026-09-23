@@ -11,44 +11,64 @@
 
 ## 2026-09-23 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed. Suite 13,464 green (610 suites), lint 0 errors, audit gate clean.**
-**1 commit ahead of `master`, not merged.** PRs #117 and #118 merged earlier today.
+**Clean and pushed. 617 suites / 13,538 tests green, lint 0 errors, audit gate PASS.**
+**0 ahead, 0 behind `master`.** PRs #120, #121 and #122 all merged today — `master` holds
+every commit from both machines and no pull request is open.
 
-### 🔴 READ THE CODE, NOT THE NOTE. Today cost a day because nobody did
+**Your branch is 0 ahead / 10 behind.** It holds nothing `master` does not, so one merge
+levels you. The pre-push hook refuses a push while you are behind, so you cannot skip it.
 
-An approved artefact said the 32 concept drawings *"already carry this exact frame and
-mark"*. **Not one did** — rounded `rx=8`, inset 0.333%, bar 0.667%, foot unbroken, against
-Mike's square 0.542%/0.986% with the foot in two segments. Decision A hands a teaching page
-the drawing's frame, so every one showed the wrong border and suppressed the right one.
-`StrategyPlanFrame.vue` was correct throughout and never needed a line changed. **A premise
-about another artefact is worth nothing until you measure it.**
+### 🔴 THE HANDBOOK GUARD WILL FAIL YOUR BUILD, AND IT IS MEANT TO
 
-### 🔴 THE 32 DRAWINGS ARE GENERATED. NEVER HAND-EDIT THEM
+**New, and it has already caught you once.** Link a `design/` document from a Brief and it
+must be listed on that feature's row in [`features/README.md`](features/README.md), or
+`tests/unit/buildHandbook.test.js` goes red and names the file. Your `ZDR-INTAKE-EMAIL.md`
+tripped it within an hour of it existing; it is now on Meeting Review's row.
 
-Change `design/mockups/strategy-concept-*.html`, then `node scripts/build-concept-graphics.js`.
-A hand-edit was tried today and the drift guard caught it in under a minute.
+**The fix is always the same: add `· [Title](../YOUR-DOC.md)` to the History column of the
+feature's row.** Never relax the assertion.
 
-### Page numbers: a task's number is its Handbook page
+**Why it exists.** Mike, 2026-09-23: *"all design and task notes relating to any specific
+feature is ONLY located on that page so you never have to read tasks, designs or notes that
+relate to a different feature."* It was not happening — the Briefs link 80 design documents
+and the Handbook carried **11**. The other 69 rendered as a dead filename, `PLANNING-TEMPLATE-CENSUS.md`
+among them. Now 80 of 80, each behind its own gate **on the feature's page**. They take no
+page number: `PAGE-NUMBERS.md` says a page is a SUBJECT, and a note about a feature is not
+a new subject.
 
-Mike's ruling. [`features/README.md`](features/README.md)'s `#` column is the register;
-[`PAGE-NUMBERS.md`](PAGE-NUMBERS.md) holds the rule. **Take a new number from
-`npm run check:branch` — page 54 is next.** No live task was renumbered. New page 16,
-White-Label & Firm Brand. `5.3` → `22.1`.
+### 🔴 7.13 IS DEAD. DO NOT REBUILD IT — AND THE PROOF IS ONE LINE
 
-### Also built
+You deleted it (`3660ba77`); this machine built for it anyway and **reverted in full**
+(`59075e87`). **`VirtualAdvisor.vue` builds MarkdownIt with `linkify: false`**, so a model's
+page path reaches the advisor as plain text they read and type. A wrong one costs a retype,
+not a broken link. Making it clickable was offered, proved, and refused by Mike — *a
+confident click into a dead page in front of a client is worse than visible text that fails
+noticeably.*
 
-The firm brand now reaches Run session and Objectives, not just the plan. Two generated flags
-decide what a teaching page prints — `CONCEPT_TITLED` and `CONCEPT_PROMPTS_ECHOED`, both
-measured from the artefacts, never from a concept's name. **15.12 and 16.2 closed**; 0 of 17
-pages over A4, where 2 of 25 ran over.
+⚠ **The revert restored `CLAUDE.md`'s debugging command 2 to a `search_content` filename
+that is not in the repo, so that command crashes.** Pre-existing, unrelated to 7.13, left as
+it was rather than smuggled through a revert. Unfixed and unfiled — Mike's call.
+
+### Closed and filed
+
+**15.6 closed** — all twenty capture-form pairings resolve through `resolveTemplate`. Both
+halves were already fixed: your four deck pages (34/36/38/40) on 22 Sept, and
+`TEMPLATE_ALIASES` for the other four. 🔴 **Its numbers had been checked by string-comparing
+`captureTemplate` against ONE of the two table files. There are two and a resolver between
+them** — `strategyCaptureForms.js` says it outright: *"compare through a resolver, never by
+hoping two strings match."*
+
+**15.16 filed, score 4, waits on Mike** — 32 concepts carry no capture form and an advisor
+teaches **22** of them with nowhere to record the client's answer. Not a wiring bug: every
+concept naming a form IS wired. A form was never chosen, and the census says choosing one
+outside its 24 templates is a design decision, not a reading.
 
 ### SHARED FILES I TOUCHED — check before you edit
 
-`scripts/build-concept-graphics.js` · `components/strategy/concepts/*` (all 33, generated) ·
-`StrategyPlanDocument.vue` · `StrategyTeachingSlide.vue` · `StrategyConceptCapture.vue` ·
-`StrategyCaptureCard.vue` · `pages/strategy-planner.vue` · `design/features/README.md` ·
-`ARTEFACTS.md` · `ITEM-NUMBERING.md` · `to-do-items.json` · `scripts/ref-ceiling.js` ·
-`scripts/check-branch-state.js` · `scripts/handbook-shell.html` · `scripts/build-handbook.js`
+`scripts/build-handbook.js` · `design/features/README.md` (25 rows gained supports) ·
+`tests/unit/buildHandbook.test.js` · `features/to-do-items.json` · `to-do.md` ·
+`to-do-done-and-parked.md` · `features/advisory-engine.md` (reverted to your version) ·
+`CLAUDE.md`. **Your quiz-builder, currency and model-choices files untouched.**
 
 ### In hand here
 
