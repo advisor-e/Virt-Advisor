@@ -14,7 +14,8 @@
 **Clean. 623 suites / 13,690 tests green with coverage, lint 0 errors. 0 behind `master`** —
 merged twice today: PR #128 this morning (5.1's closure won over our note edit) and PR #129 at
 shutdown (8.2 moderation; no item edited on both sides). **[PR #127](https://github.com/advisor-e/Virt-Advisor/pull/127)
-is OPEN and carries everything once pushed — Mike merges it.**
+MERGED at `e7f96ef5` on Mike's word — everything from this branch is on `master`.** Desktop:
+merge `master` at startup and you are level.
 
 **15.20 Add Concept — PROCEED, on Mike's call. Slice 1 BUILT:** `server/utils/pdfConvert.js` +
 `pdfConvertWorker.js`, `pdfjs-dist` 2.16.105 pinned exact. 🔴 **Read Brief §9 before touching
