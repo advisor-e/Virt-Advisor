@@ -109,6 +109,31 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**7.6 · The AI declares its model choice only sometimes, so declines under-count.**
+⏸ **Parked on Mike's ruling of 2026-09-16, moved off the live list 2026-09-23** — where it had
+stayed for a week carrying its own instruction not to propose it.
+
+- **His ruling, 2026-09-16:** it corrects **a counter on an internal screen** and changes nothing
+  an advisor or a client sees, so it waits until the Model Choices screen has **real use** behind
+  it.
+- **The defect is real:** the decline marker is written about **one time in six**. Named models
+  are unaffected — their rows come from the exact page-path scan — but a decline has no other
+  source, so the declines band under-counts and nothing on the screen says so. That band is the
+  **gap map**, so an under-count points the next model at the wrong place.
+- 🔴 **THE CAUSE IS KNOWN AND IT IS STRUCTURAL, NOT WORDING — nobody need re-run this.** Seven
+  live discover conversations declared the marker **0 times**; client-mode Phase 3 declared it
+  **first time**. In Phase 3 the AI is already writing `[[TEMPLATES:]]` and Section 12 asks for a
+  second line. Discover has no first marker and an absolute closing-line rule — **stated four
+  times in `data/prompts/discover.txt`, counted 2026-09-23** — with line 46 already carrying an
+  attempted carve-out for the marker.
+- ⛔ **REWORDING HAS FAILED TWICE. DO NOT RE-RAISE IT**, and do not propose a third wording.
+- **What un-parks it:** the Model Choices screen having real use behind it. ⚠ **The screen itself
+  shipped 2026-09-23** (item 7.5), so half the condition is now met — **but use is not the same as
+  existence**, and the ruling turns on use.
+- **How it was found:** by running the app, not by a test. Every passing test proves our code
+  handles what the AI sends; none can prove the AI sends it — the same blind spot 7.5 was filed to
+  close.
+
 **5.2 · Load a payroll report to pre-fill the team.** ⏸ **Parked 2026-09-23 by Mike.** Asked for
 by him, genuinely unbuilt, and blocked on one thing only: a real payroll export.
 
