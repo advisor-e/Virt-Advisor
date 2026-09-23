@@ -738,6 +738,45 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('outcomeLearning')" v-show="activeTab === 'outcomeLearning'")
         mentor-outcome-learning(:api-token="apiToken")
 
+      //- ── Tab: Currency (item 13.3) ──────────────────────────────────
+      //- The currency every report in the account is labelled in. It was the one
+      //- manager-gated setting living outside the Hub, so a manager looking for it
+      //- where every comparable setting lives did not find it (Mike, 2026-09-22).
+      //- 🔴 IT STILL APPEARS ON THE MODEL LIBRARY, READ-ONLY — Mike's ruling of
+      //- 2026-09-23. The Hub is where it is SET; the Model Library keeps showing it
+      //- so a reader can still tell which currency a report is in. Firm tier; see
+      //- TAB_TIERS.currency. No backend change — the write route was already
+      //- manager-gated (server/routes/currency.js).
+      div.hub-panel(v-if="showsTab('currency')" v-show="activeTab === 'currency'")
+        firm-currency(:api-token="apiToken")
+
+      //- ── Tab: Staff Register Retention (item 5.1, Decision 8) ───────────
+      //- How long a client's staff register is kept — named employees with pay,
+      //- leave and service, the only record in this app about people who are not
+      //- the firm's clients. The backend has answered "how long" since 2026-09-15
+      //- and the register has shown the date; until this tab there was NO WAY for
+      //- a manager to change it, so every firm sat on the platform default.
+      //- 🔴 18 months from the mentor, cascading, editable again at the firm —
+      //- Mike's ruling 2026-09-23, in his own words. All four tiers; see
+      //- TAB_TIERS.registerRetention.
+      //- ⚠ NOT the Meeting Review retention dial and never to be merged with it:
+      //- that period is SPOKEN ALOUD to a client in approved consent wording.
+      div.hub-panel(v-if="showsTab('registerRetention')" v-show="activeTab === 'registerRetention'")
+        firm-register-retention(:api-token="apiToken")
+
+      //- ── Tab: Model Choices (item 7.5) ──────────────────────────────
+      //- Which calculation model the AI sent an advisor to, and when it said none
+      //- fits. Until this existed, the ONLY way to check the AI's judgement was for
+      //- somebody to sit and read conversations — which happened once, on
+      //- 2026-09-15, and two of three found faults.
+      //- 🔴 IT REPORTS, IT DOES NOT SCORE. Anything grading the AI's choice would be
+      //- a second AI marking the first one's homework, and nobody could check THAT.
+      //- All four tiers, each scoped by the route to its own level — see
+      //- TAB_TIERS.modelChoices. design/mockups/model-choices.html, all three
+      //- decisions ruled by Mike 2026-09-16.
+      div.hub-panel(v-if="showsTab('modelChoices')" v-show="activeTab === 'modelChoices'")
+        mentor-model-choices(:api-token="apiToken")
+
       //- ── Tab: Team Case Studies (manager review) ────────────────────
       //- FIRM SCOPE ONLY, and hidden rather than widened. The mentor already has
       //- the correct cross-firm version in the Case Reviews tab below, which shows
@@ -972,12 +1011,15 @@ import FirmOutcomeConsent from '~/components/firm/FirmOutcomeConsent.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
+import FirmCurrency from '~/components/firm/FirmCurrency.vue'
+import FirmRegisterRetention from '~/components/firm/FirmRegisterRetention.vue'
 import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
 import FirmTemplateLibrary from '~/components/firm/FirmTemplateLibrary.vue'
 // Mentor-scope tab bodies. Both are inert at firm scope (their tabs are v-if'd
 // off) — the server role-gates every /api/mentor call regardless.
 import MentorReview from '~/components/MentorReview.vue'
 import MentorAdoption from '~/components/mentor/MentorAdoption.vue'
+import MentorModelChoices from '~/components/mentor/MentorModelChoices.vue'
 import MentorOutcomeLearning from '~/components/mentor/MentorOutcomeLearning.vue'
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
@@ -1117,6 +1159,63 @@ const TAB_TIERS = {
   // and `parentScopeOf` already walks the chain, so adding a tier is the whole change.
   salesTeam: ['firm'],
   salesLists: ['firm'],
+
+  // 🔴 THE FIRM ALONE, AND THE JUDGEMENT IS STATED RATHER THAN ASSUMED (the default
+  // since 2026-08-24 is the mentor alone; this is neither). Item 13.3, on Mike's ask
+  // of 2026-09-22 that the currency picker belongs with the firm's other settings.
+  //
+  // A firm is the ONLY tier with a real answer here. The setting is account-wide and
+  // stored per firm (`firmOverlay`, config_key 'currency'), and the write route is
+  // already manager-gated. THE MENTOR HAS NO CURRENCY OF ITS OWN — it is above every
+  // firm and reports in none — so a mentor-tier picker would be editing one firm's
+  // display setting on behalf of all of them, which is the Property Tax Rules problem
+  // Mike already ruled on ("the mentor has no country of its own to speak for").
+  //
+  // The two MIDDLE TIERS are excluded for a narrower reason: a brand spans countries
+  // and a country's firms may still report in different currencies, so neither has one
+  // value to hold. Cascading becomes mandatory the day a group has a real reason to set
+  // a default for its firms; `firmOverlay` already carries a row per scope, so adding a
+  // tier here is the whole of the change.
+  //
+  // ⚠ THIS GATES THE TAB, NOT THE PERMISSION. `POST /api/report/currency` keeps its own
+  // `requireManagerRole`; hiding a tab is navigation, refusing a route is a permission.
+  currency: ['firm'],
+
+  // 🔴 ALL FOUR MANAGER TIERS, RULED BY MIKE 2026-09-16 (Decision 3 of
+  // design/mockups/model-choices.html), and the ruling REVERSED the recommendation
+  // put to him, which was the mentor alone. The argument for mentor-alone was that
+  // no other tier could act on what the page shows; Decision 2 — the firm and the
+  // advisor on every row — removed it, because a firm manager now has their own
+  // rows to read. The 2026-08-10 roll-up ruling then applies plainly.
+  //
+  // Each tier is scoped to its own level by the route, never by this list:
+  // `req.firmId` comes from the verified token and a firmId in the request is never
+  // read. Hiding a tab is navigation; refusing a row is a permission, and this
+  // feature has both.
+  //
+  // ⚠ ONE CONSEQUENCE, NAMED ON THE DRAWING BEFORE IT WAS FOUND: "Rolled up from
+  // below" has never appeared on a firm manager's screen — all three items in it
+  // today stop at the group tier. A firm manager sees that heading for the first
+  // time, with this one entry under it. It is accurate — it IS rolled up from their
+  // advisors — and it was put to Mike as a visible change to their hub.
+  modelChoices: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 ALL FOUR MANAGER TIERS, AND THE RULING NAMES THEM. Mike, 2026-09-23: *"this should
+  // flow down from mentor - through the cascade levels and then at firm manager - be
+  // editable again. this way, at least a set period is loaded as a default."* Item 5.1,
+  // Decision 8. This is neither the mentor-alone default of 2026-08-24 nor a judgement of
+  // ours — he described the cascade himself, in those words.
+  //
+  // Every tier has a real answer here, which is why this is not the currency case above. A
+  // retention period is a records policy, and a brand or a country plainly can hold one:
+  // firms under one brand operating in one jurisdiction share the law that shapes it. The
+  // mentor's figure is the platform default that arrives when nobody below has set one.
+  //
+  // 🔴 THE 18-MONTH CEILING IS NOT ENFORCED HERE, AND MUST NOT BE. It lives in
+  // `validateRetentionMonths`, which every read and every write passes through, so a tier
+  // cannot exceed it from this screen, from a route, or from a stored value written before
+  // the ruling. Hiding a tab is navigation; refusing a value is a permission.
+  registerRetention: ['mentor', 'global', 'group', 'firm'],
 
   adoption: ['mentor', 'global', 'group'],
 
@@ -1537,7 +1636,17 @@ const NAV_GROUPS = [
       // on Mike's ruling of 2026-09-11; see TAB_TIERS.countrySchedules. A separate entry from
       // the two above it on purpose: Depreciation Rates is a firm's own documents and its own
       // six rates, and this is the country-wide library those six are chosen FROM.
-      { key: 'countrySchedules', label: 'Country Rate Schedules' }
+      { key: 'countrySchedules', label: 'Country Rate Schedules' },
+      // Item 13.3, on Mike's ask of 2026-09-22: *"BOTH those issues must be fixed"*.
+      // Under THIS heading because the currency every figure is labelled in is an input
+      // every model uses, and it sits beside the other per-country settings a manager
+      // holds. Appended at the end, as every line above it was.
+      //
+      // ⚠ IT DOES NOT LEAVE THE MODEL LIBRARY — Mike's ruling, 2026-09-23: the Hub is
+      // where a manager SETS it, and the Model Library keeps showing it read-only so a
+      // reader can still tell which currency a report is in. Moving it outright would
+      // have removed that cue. Firm tier; see TAB_TIERS.currency.
+      { key: 'currency', i18n: 'firmCurrency.tab' }
     ]
   },
   {
@@ -1563,7 +1672,13 @@ const NAV_GROUPS = [
       // Item 4.87. Appended here rather than given a group of its own because consent is
       // a firm's own undertaking in the same way its declaration is — the drawing's
       // placement, approved 2026-09-10. Firm tier only; see TAB_TIERS.outcomeConsent.
-      { key: 'outcomeConsent', i18n: 'outcomeConsent.tab' }
+      { key: 'outcomeConsent', i18n: 'outcomeConsent.tab' },
+      // Item 5.1, Decision 8 — how long a staff register is kept. UNDER COMPLIANCE rather
+      // than Model Inputs, because it is a records-retention policy about personal data and
+      // not a figure any model reads. It sits beside the declaration for the same reason
+      // the line above does. All four tiers, in Mike's own words; see
+      // TAB_TIERS.registerRetention. Appended at the end, as every line above it was.
+      { key: 'registerRetention', i18n: 'registerRetention.tab' }
     ]
   },
   {
@@ -1587,7 +1702,15 @@ const NAV_GROUPS = [
       // Item 4.87. Beside Case Reviews and Template Check because it is the same kind of
       // thing — what the firms' reviews add up to — as the drawing places it. Mentor only;
       // see TAB_TIERS.outcomeLearning.
-      { key: 'outcomeLearning', i18n: 'outcomeLearning.tab' }
+      { key: 'outcomeLearning', i18n: 'outcomeLearning.tab' },
+      // 🔴 THIS GROUP, AND NOT "Your AI coach" — Mike's ruling of 2026-09-16, which
+      // reversed the recommendation. "Your AI coach" is where a manager EDITS what the
+      // AI knows; this heading is where they READ BACK what it did, and it already
+      // holds the three reports this most resembles. Item 7.5.
+      //
+      // At the END of the group, as every addition here is: appending moves nothing
+      // already on a manager's screen. All four tiers — see TAB_TIERS.modelChoices.
+      { key: 'modelChoices', i18n: 'modelChoices.tab' }
     ]
   }
 ]
@@ -1623,7 +1746,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmRegisterRetention, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
   mixins: [traceReasonMixin],
 

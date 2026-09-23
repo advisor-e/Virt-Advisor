@@ -25,26 +25,23 @@
         )
       .mlb-count(aria-live="polite") {{ countLabel }}
 
-      //- Preferred currency: managers pick it, everyone else sees it read-only.
-      //- Client-only (currencyReady) so the role-dependent markup never mismatches SSR.
-      //- The relabel note is shown to BOTH roles: switching currency changes the
-      //- symbol only, and without it "Reports now show Euro" reads as a conversion
-      //- that never happened. Item 13.1.
+      //- Preferred currency — READ-ONLY FOR EVERYONE SINCE ITEM 13.3 (Mike's ruling,
+      //- 2026-09-23). It is SET on the Firm Manager Hub's Currency tab, with every
+      //- comparable firm setting; it stays visible here, and only here, so a reader
+      //- can still tell which currency a report is in. Moving it outright would have
+      //- removed that cue, which is exactly what his ruling declined.
+      //- Client-only (currencyReady) so the markup never mismatches SSR.
+      //- The relabel note stays: switching currency changes the symbol only, and
+      //- without it "Reports now show Euro" reads as a conversion that never
+      //- happened. Item 13.1.
       .mlb-currency(v-if="currencyReady")
-        template(v-if="canEditCurrency")
-          span.mlb-cur-label {{ $t('modelLibrary.currency.label') }}
-          b-select(
-            :value="firmCurrency"
-            :loading="savingCurrency"
-            size="is-small"
-            :aria-label="$t('modelLibrary.currency.label')"
-            @input="changeCurrency"
-          )
-            option(v-for="c in currencies" :key="c.code" :value="c.code") {{ c.symbol }} {{ c.label }} ({{ c.code }})
-        template(v-else)
-          span.mlb-cur-label {{ $t('modelLibrary.currency.label') }}:
-          span.mlb-cur-value {{ currentCurrencyLabel }}
-          span.mlb-cur-note {{ $t('modelLibrary.currency.managedNote') }}
+        span.mlb-cur-label {{ $t('modelLibrary.currency.label') }}:
+        span.mlb-cur-value {{ currentCurrencyLabel }}
+        //- Two different sentences, because they are two different facts: a manager
+        //- is told WHERE to change it, an advisor is told WHO sets it. Telling an
+        //- advisor to visit a hub they cannot open would be worse than saying nothing.
+        span.mlb-cur-note(v-if="canEditCurrency") {{ $t('modelLibrary.currency.setInHub') }}
+        span.mlb-cur-note(v-else) {{ $t('modelLibrary.currency.managedNote') }}
         span.mlb-cur-relabel {{ $t('modelLibrary.currency.relabelNote') }}
 
     .mlb-chips.mlb-chips-class(role="group" :aria-label="$t('modelLibrary.classFilterLabel')")
@@ -153,12 +150,11 @@ import {
 import currencyMixin from '~/mixins/currencyMixin'
 import currenciesData from '~/data/currencies.json'
 
-// Mirrors pages/firm-manager.vue — the write route is manager-gated on the backend;
-// this only decides whether the landing page shows an editable picker or read-only text.
+// Mirrors pages/firm-manager.vue. Since item 13.3 this decides only WHICH SENTENCE sits
+// under the currency — a manager is told where to change it, an advisor who sets it —
+// never whether a picker appears. Nobody edits the currency on this screen any more.
 const MANAGER_ROLES = ['firm_manager', 'platform_admin']
-const TOKEN_KEY = 'advisor_e_token'
 const ROLE_KEY = 'advisor_e_role'
-const CURRENCY_CACHE_KEY = 'advisor_e_currency'
 
 export default {
   name: 'ModelLibrary',
@@ -176,14 +172,12 @@ export default {
       models: MODELS,
       allChip: CATEGORY_ALL,
       allClass: CLASS_ALL,
-      /** Supported currencies for the picker (single source, shared with the backend). */
+      /** Supported currencies — read here only, to turn the stored code into a label. */
       currencies: currenciesData.currencies,
-      /** True once mounted() has read the role — gates the client-only currency control. */
+      /** True once mounted() has read the role — gates the client-only currency line. */
       currencyReady: false,
-      /** Manager/admin may change the account currency; others see it read-only. */
-      canEditCurrency: false,
-      /** Guards against overlapping saves / a double toast. */
-      savingCurrency: false
+      /** A manager is told where to change it; everyone else, who sets it. Item 13.3. */
+      canEditCurrency: false
     }
   },
 
@@ -286,42 +280,19 @@ export default {
       return this.$te(key) ? this.$t(key) : ''
     },
 
-    /** The category's brand colour, as the card icon's gradient tile. */
+    /**
+     * The category's brand colour, as the card icon's gradient tile.
+     *
+     * 🔴 `changeCurrency` FOLLOWED THIS METHOD AND WAS REMOVED WITH ITS PICKER (item
+     * 13.3, Mike's ruling 2026-09-23). The firm's currency is now WRITTEN on the Firm
+     * Manager Hub's Currency tab (`components/firm/FirmCurrency.vue`); this screen only
+     * READS it. The `POST /api/report/currency` call is unchanged and lives there
+     * instead — the route was already manager-gated, so nothing about who may write it
+     * moved. Noted so the next reader does not conclude the save was lost.
+     */
     iconBackground (category) {
       const colour = colourFor(category)
       return `linear-gradient(135deg, ${colour}, ${colour}cc)`
-    },
-
-    /**
-     * Save the account's preferred currency (managers only — the route is
-     * manager-gated). Optimistically applies it, reverts + warns on failure, and
-     * caches it so every report picks it up on open. @param {string} code
-     */
-    async changeCurrency (code) {
-      if (this.savingCurrency || code === this.firmCurrency) { return }
-      this.savingCurrency = true
-      const previous = this.firmCurrency
-      try {
-        const token = window.localStorage.getItem(TOKEN_KEY) || 'dev-local-bypass'
-        const res = await fetch('/api/report/currency', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-          body: JSON.stringify({ currency: code })
-        })
-        if (!res.ok) { throw new Error('HTTP ' + res.status) }
-        this.firmCurrency = code
-        window.localStorage.setItem(CURRENCY_CACHE_KEY, code)
-        const c = this.currencies.find(x => x.code === code)
-        this.$buefy.toast.open({
-          message: this.$t('modelLibrary.currency.saved', { name: c ? c.label : code, symbol: c ? c.symbol : '' }),
-          type: 'is-success'
-        })
-      } catch (e) {
-        this.firmCurrency = previous
-        this.$buefy.toast.open({ message: this.$t('modelLibrary.currency.saveError'), type: 'is-danger' })
-      } finally {
-        this.savingCurrency = false
-      }
     }
   }
 }

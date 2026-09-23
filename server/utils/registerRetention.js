@@ -48,29 +48,45 @@ const CONFIG_KEY = 'register-retention'
 const DEV_FILE = 'data/dev-register-retention.json'
 
 /**
- * The platform's default: seven years.
+ * The platform's default, set at the mentor tier: eighteen months.
  *
- * Longer than the meeting default of 18 months, and for the opposite reason. A transcript is
- * kept only as long as the promise made to the client; a staff register exists because a
- * transaction happened, and Decision 8 keeps it precisely for the years in which that
- * transaction may be challenged. Seven years is the ordinary business-records period a
- * professional-services firm already works to.
+ * 🔴 RULED BY MIKE, 2026-09-23: *"i think i asked for the data holding period to be no more
+ * than 18months - this should flow down from mentor - through the cascade levels and then at
+ * firm manager - be editable again. this way, at least a set period is loaded as a default."*
+ *
+ * ⚠ **IT WAS 84 MONTHS UNTIL THAT DAY, AND THAT FIGURE WAS NEVER HIS.** Decision 8 of
+ * `design/mockups/wages-model.html` ruled only that the register is **kept on a retention
+ * dial rather than deleted at deal-end** — it named no number. The seven years, and the
+ * twelve-month floor below it, were written here afterwards by us and then read back by
+ * later sessions as though he had chosen them. A default nobody authorised is how a
+ * privacy setting drifts long without anyone deciding it should.
+ *
+ * ⚠ **THE COST, STATED RATHER THAN DISCOVERED.** The old comment argued seven years because
+ * a restructure is challenged years later. Under 18 months a firm cannot hold the register
+ * that long, and that is the intended outcome: this is personal data about named employees
+ * who consented to nothing, so the short life is the point. Decision 8's purpose — the
+ * register surviving the end of the deal rather than being deleted with it — is unaffected.
  *
  * ⚠ Where the cascade ends, nothing more — read it through `loadResolvedRetention`.
  * @type {number}
  */
-const PLATFORM_DEFAULT_MONTHS = 84
+const PLATFORM_DEFAULT_MONTHS = 18
 
 /**
- * The range a firm may set: one year to twenty.
+ * The range any tier may set: one month to eighteen.
  *
- * The floor is a year rather than the meeting dial's one month, because a register kept for
- * weeks fails the whole purpose Decision 8 gave it — being there when the restructure is
- * questioned. The ceiling is twenty years, past any period a firm has a reason to claim for
- * records about people who consented to nothing.
+ * 🔴 **THE CEILING IS THE RULING, NOT A GUARD RAIL.** "No more than 18 months" binds every
+ * tier including the mentor's own, so it is enforced in `validateRetentionMonths` — the one
+ * place every read and every write passes through — rather than only on the screen that
+ * sets it. A tier cannot raise it, and a stored value above it reads back as "nothing set"
+ * and falls through to the level above (`readStoredRetention`), so a figure written before
+ * this ruling cannot keep applying.
+ *
+ * The floor matches `meetingRetention`'s one month. There is no reason to force a firm to
+ * keep personal data for longer than it wants to.
  */
-const MIN_MONTHS = 12
-const MAX_MONTHS = 240
+const MIN_MONTHS = 1
+const MAX_MONTHS = 18
 
 /** Where a resolved figure came from — what a manager's screen badges. */
 const RETENTION_SOURCES = {
@@ -214,6 +230,33 @@ function keptUntil (openedAt, months) {
   return until.toISOString()
 }
 
+/**
+ * The period in words, for a screen — the only place months become prose here.
+ *
+ * ⚠ A SEPARATE FUNCTION FROM `meetingRetention.retentionPhrase`, DELIBERATELY, for the same
+ * reason the two dials are separate: that one renders a figure **spoken aloud to a client**
+ * in approved consent wording, and must never change shape because a manager's screen wanted
+ * different words. This one is read on a screen only.
+ *
+ * Whole years are said as years — "12 months" is the same period as "1 year" and the second
+ * is how a records policy is written. Singular is handled because "1 months" on a manager's
+ * screen makes the rest of the page look unconsidered.
+ *
+ * An out-of-range figure renders the platform default rather than throwing: a screen must
+ * never show a blank where a period belongs.
+ *
+ * @param {number} months
+ * @returns {string} e.g. "18 months", "1 year", "1 month"
+ */
+function retentionPhrase (months) {
+  const n = Number(months)
+  if (!Number.isInteger(n) || n < MIN_MONTHS || n > MAX_MONTHS) {
+    return PLATFORM_DEFAULT_MONTHS + ' months'
+  }
+  if (n === 12) { return '1 year' }
+  return n === 1 ? '1 month' : n + ' months'
+}
+
 module.exports = {
   CONFIG_KEY,
   DEV_FILE,
@@ -225,5 +268,6 @@ module.exports = {
   readStoredRetention,
   loadOwnRetention,
   loadResolvedRetention,
-  keptUntil
+  keptUntil,
+  retentionPhrase
 }

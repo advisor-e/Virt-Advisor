@@ -28,6 +28,13 @@
  * the two — it fires at the moment the manager acts, and it is the string that currently
  * reads as a conversion. A build that fixes only the quiet half leaves the loud half
  * saying what it always said, so `saved` is asserted to carry the sentence on its own.
+ *
+ * ⚠ THE TWO PLACES ARE NOW TWO FILES (item 13.3, 2026-09-23). The save moved to the Firm
+ * Manager Hub's Currency tab, so the CONFIRMATION lives under `firmCurrency` and the
+ * STANDING NOTE is on both screens — the Hub's picker and the Model Library's read-only
+ * line. The rule is unchanged and slightly stronger: wherever the sentence is supposed to
+ * be, it is asserted there. This test was the thing that caught the move, exactly as
+ * intended — the save confirmation was nearly deleted with the picker it belonged to.
  */
 
 const en = require('../../locales/en.json')
@@ -36,34 +43,41 @@ const en = require('../../locales/en.json')
 const APPROVED = 'Figures are relabelled, not converted — the amounts do not change.'
 
 describe('the currency relabel warning (item 13.1)', () => {
-  const currency = en.modelLibrary.currency
+  const library = en.modelLibrary.currency
+  const hub = en.firmCurrency
 
-  it('is on the standing note beside the picker, word for word', () => {
-    expect(currency.relabelNote).toBe(APPROVED)
+  it('is on the standing note beside the Model Library reading, word for word', () => {
+    expect(library.relabelNote).toBe(APPROVED)
+  })
+
+  it('is on the standing note beside the Hub picker, word for word', () => {
+    // The picker is here since 13.3, so this is where a manager reads it while choosing.
+    expect(hub.relabelNote).toBe(APPROVED)
   })
 
   it('is repeated in the save confirmation, which is the string that misleads', () => {
-    expect(currency.saved).toContain(APPROVED)
+    expect(hub.saved).toContain(APPROVED)
   })
 
   it('still tells the manager which currency was chosen', () => {
     // The warning is an addition to the confirmation, never a replacement for it —
     // dropping the placeholders would leave a manager unsure the change took.
-    expect(currency.saved).toContain('{name}')
-    expect(currency.saved).toContain('{symbol}')
+    expect(hub.saved).toContain('{name}')
+    expect(hub.saved).toContain('{symbol}')
   })
 
-  it('uses an em dash, not a hyphen', () => {
+  it('uses an em dash, not a hyphen, in both copies', () => {
     // Mike approved the sentence with an em dash. A locale round-trip through a tool
     // that normalises punctuation is the likeliest way this drifts without anyone
     // deciding to change it.
-    expect(currency.relabelNote).toContain('—')
+    expect(library.relabelNote).toContain('—')
+    expect(hub.relabelNote).toContain('—')
   })
 
-  it('does not claim a conversion anywhere in the currency strings', () => {
+  it('does not claim a conversion anywhere in either set of currency strings', () => {
     // The failure this guards against is a future edit "improving" the wording into
     // exactly the false statement the item was raised about.
-    const all = Object.values(currency).join(' ')
+    const all = Object.values(library).concat(Object.values(hub)).join(' ')
     expect(all).not.toMatch(/\bconverted at\b|\bexchange rate\b|\bconverts\b/i)
   })
 })

@@ -1,15 +1,23 @@
 # Letter to OpenAI Sales — reply to Kalaiselvam, drafted 2026-09-18
 
-**Status: DRAFT FOR MIKE. Not sent.** It answers the three things Kalaiselvam asked for
-(region, endpoints and models *including post-transcription processing*, and Edward's case
-reference) and asks for the two things only he can start: **Zero Data Retention** and a
-**written confirmation for our configuration**.
+> ## ✅ SENT BY MIKE — AND IT WORKED. THIS IS THE LETTER THAT PRODUCED THE ZDR OFFER
+>
+> **It was sent with case reference 14889777 and New Zealand as the region**, and OpenAI replied
+> on **2026-09-23** offering **Zero Data Retention on both endpoints** — including the
+> `/v1/chat/completions` call carrying the whole transcript, which is exactly what this letter
+> pressed for. That reply is verbatim at
+> [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md) **§5.5**.
+>
+> **Mike then sent the ZDR intake it asked for, also on 2026-09-23** —
+> [`ZDR-INTAKE-EMAIL.md`](ZDR-INTAKE-EMAIL.md). **That intake's reply is what everything now
+> waits on.**
+>
+> 🔴 **THIS FILE IS HISTORY NOW. Do not re-send it and do not revise it** — it is kept as the
+> record of the ask that broke the deadlock after two replies had answered nothing.
 
-> ⚠ **Two blanks only Mike can fill**, both marked `[...]` in the letter:
-> the **support case reference** from Edward's reply (§5.1 of
-> [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md)), and the **region** —
-> New Zealand is where the firms are, and OpenAI's data-residency list is theirs to confirm,
-> so the letter asks rather than assumes.
+**It asked for the three things Kalaiselvam wanted** (region, endpoints and models *including
+post-transcription processing*, and Edward's case reference) and for the two things only Mike
+could start: **Zero Data Retention** and a **written confirmation for our configuration**.
 
 **Every technical fact below was read from the code on 2026-09-18, not recalled:**
 

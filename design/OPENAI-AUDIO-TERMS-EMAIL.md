@@ -1,6 +1,26 @@
 # Letters to OpenAI — written confirmation that the terms cover submitted audio
 
-> ## 🔴 BOTH ROUTES ANSWERED, NEITHER CONFIRMED ANYTHING — AND MIKE CLOSED THIS GATE ON 2026-09-18
+> ## 🔴 REOPENED 2026-09-23 — THERE IS NOW A ROUTE, AND IT IS AN APPLICATION MIKE MUST MAKE
+>
+> **Read §5.5 first. The position below is the one that held until 2026-09-23 and it is no longer
+> the whole picture.** A fourth reply, prompted by Mike quoting support case **14889777**, offers
+> **Zero Data Retention on BOTH endpoints** — including the `/v1/chat/completions` call that
+> carries the whole transcript, which is the exposure §5.3 opened and could not close. Under ZDR
+> that call treats `store` as false and the content is excluded from abuse-monitoring logs.
+>
+> ⚠ **NOTHING IS GRANTED. IT IS AN INVITATION TO APPLY** — his words: *"I cannot yet confirm
+> eligibility or a completion date"*, and approval, the signed amendment and enablement are three
+> separate steps. **Do not record ZDR as obtained or in progress.** The intake answers are drafted
+> at §6; what is missing is the legal signer, the company details and the org ID, all Mike's.
+>
+> 🔴 **AND ONE FINDING IS FOR THE LAWYER, NOT FOR A SETTINGS PAGE: in-region processing for New
+> Zealand does not exist.** NZ is unlisted; Australia is listed **for storage only** and offers no
+> regional processing for either endpoint. Content is processed offshore whichever region is
+> chosen.
+>
+> ---
+>
+> ## The position to 2026-09-18 — both routes answered, neither confirmed anything
 >
 > **Not one of the five questions was answered.** Both replies are quoted verbatim in §5. Mike's
 > ruling, 2026-09-18: *"We have taken all fair and reasonable steps to comply — you will NEVER get a
@@ -481,6 +501,108 @@ abuse logs for up to 30 days after the summarisation call.
 here because they are the first route offered to a written answer, and because the case reference
 is a fact only we hold.
 
+### 5.5 · OpenAI Sales, FOURTH reply — 2026-09-23, and it offers a ROUTE
+
+🔴 **THIS SUPERSEDES THE POSITION IN §5.4 AND IN THE HEADER BOX. THE GATE IS NOT CLOSED ON A
+RULING ANY MORE — THERE IS NOW A NAMED PROCESS WITH A FORM AT THE END OF IT.** Mike sent a further
+email quoting support case **14889777**; this is the reply. It is the first time OpenAI has offered
+a mechanism rather than a position, and the first time anyone has said in writing that the
+**summarisation** endpoint can be covered.
+
+> Hi Mike,
+>
+> Thank you for the detailed explanation and for sending case number 14889777. You are right that
+> the transcript sent to /v1/chat/completions needs its own retention controls. We can progress the
+> ZDR request by email; a call is optional.
+>
+> Both endpoints are listed as ZDR-eligible, but Advisor-e's approval and activation still require
+> review. I cannot yet confirm eligibility or a completion date.
+>
+> On your four questions:
+>
+> 1. **Transcript retention:** With ZDR approved and enabled for the project, customer content is
+> excluded from abuse-monitoring logs, and /v1/chat/completions treats store as false. This means
+> the transcript is not retained in those logs under ordinary ZDR operation, subject to the
+> exceptions below. Without ZDR, standard logs may retain it for up to 30 days, or longer for the
+> documented legal or harm-prevention reasons. The transcription endpoint separately lists no
+> abuse-monitoring or application-state retention.
+>
+> 2. **Human access:** Where API content is stored, authorised employees may access it for
+> engineering support, abuse investigations or legal compliance; specialised contractors may access
+> it solely for abuse/misuse review, under confidentiality and security obligations. ZDR removes
+> customer content from ordinary abuse logs, but the public policy does not establish that neither
+> category could ever access content during processing or an exception. The precise access position
+> for each of your endpoints, with and without ZDR, needs configuration-specific written
+> confirmation through the support review. See the API privacy FAQ.
+>
+> 3. **Exceptions:** Chat Completions is listed as eligible for "Eyes Off" and "Safety Retention"
+> exceptions, with advance written notice to affected customers. Eyes Off can allow retention while
+> excluding human review unless legally required; Safety Retention can allow retention and human
+> review of flagged content to investigate or prevent severe risk. The transcription endpoint is
+> not listed as eligible for these two exceptions. The separate image/file-input and audio-output
+> exceptions do not appear to match the text-only reporting step you described. Prompt-caching
+> behaviour also needs checking for your exact model and settings; it is separate from abuse logs.
+> These details are set out in the data-controls guide.
+>
+> 4. **Model training:** Inputs and outputs from both endpoints are not used to train OpenAI models
+> unless you explicitly opt in. This applies independently of ZDR.
+>
+> For region selection, New Zealand is not currently listed. Australia is the nearest listed storage
+> region, but it does not offer regional processing for either endpoint. Content will therefore be
+> processed outside Australia, and system data such as account, billing and usage metadata may also
+> be processed elsewhere.
+>
+> Given your requirement for in-region processing, I suggest evaluating the US or Europe, subject to
+> model compatibility and your requirements. Both list processing support for the two endpoint
+> types, and gpt-4o-mini-2024-07-18 is listed.
+>
+> To start the ZDR review, please complete the intake below. You can refer to the use-case
+> description you have already shared rather than rewrite it, and add how advisers are
+> authenticated. Approval, the amendment and actual enablement are separate steps; I do not have a
+> confirmed review turnaround to quote.
+>
+> [the intake form — reproduced as §6 below, with our answers]
+>
+> Best regards,
+> Kalaiselvam
+
+#### What is NEW here, against §5.3
+
+**1. 🔴 THE SUMMARISATION STEP CAN BE COVERED. This is the finding.** §5.3 left a 30-day exposure
+on the `/v1/chat/completions` call that carries the whole transcript, and had no answer for it.
+This reply says **both endpoints are ZDR-eligible**, and that under ZDR that call **treats `store`
+as false** and the transcript is **excluded from abuse-monitoring logs**. That is the precise gap
+§5.3 opened, and the first route to closing it.
+
+**2. It re-confirms human access, and goes further than §5.3 did.** ZDR removes content from
+ordinary abuse logs, **but** — his words — *"the public policy does not establish that neither
+category could ever access content during processing or an exception."* So even with ZDR,
+**nobody may write that no human can ever see it.** The standing prohibition in §5.4 is unchanged
+and now has a second source.
+
+**3. Two exceptions survive ZDR on the summarisation call, and only on that call.** Chat
+Completions is eligible for **Eyes Off** and **Safety Retention**, both with advance written
+notice. The transcription endpoint is **not** eligible for either. ⚠ So the two halves of this
+workflow have *different* exception profiles — the opposite of §5.3's shape, where transcription
+was the clean one and summarisation was not.
+
+**4. 🔴 IN-REGION PROCESSING FOR NEW ZEALAND IS NOT AVAILABLE, AND AUSTRALIA DOES NOT SOLVE IT.**
+New Zealand is not a listed region. Australia is listed **for storage only** — *"it does not offer
+regional processing for either endpoint"* — so content is processed offshore either way, and
+account, billing and usage metadata may sit elsewhere again. **This is a finding for the lawyer,
+not a setting to choose.** He suggests evaluating US or Europe instead.
+
+**5. A model mismatch to resolve before answering.** The reply names `gpt-4o-mini-2024-07-18` as
+listed for both endpoint types. This app's summarisation runs on **`gpt-4o-mini`** (undated —
+`config/integration.js` → `AI.primary.models.report`) and its transcription on
+**`gpt-4o-transcribe-diarize`**, which `server/utils/transcriptionClient.js` records as published
+**undated only**, so it cannot be pinned. Whether an undated name qualifies where a dated snapshot
+is listed is a question for the intake, not an assumption to make here.
+
+**6. Nothing is confirmed, and he says so twice.** *"I cannot yet confirm eligibility or a
+completion date"*, and approval, the amendment and enablement are **three separate steps**. ⚠ **Do
+not record ZDR as obtained, in progress, or likely.** What exists today is an invitation to apply.
+
 ### 5.4 · What this organisation relies on, stated once
 
 **Mike's ruling, 2026-09-18**, in his words: *"We have taken all fair and reasonable steps to
@@ -510,3 +632,115 @@ consent wording does not claim otherwise** — checked 2026-09-18 against
 [`MEETING-CONSENT-WORDING.md`](MEETING-CONSENT-WORDING.md), which says the recording is transcribed
 by software and used to produce a summary, and makes no promise about who may see it. Nothing Mike
 has approved is contradicted by this reply. **A future draft that adds such a promise would be.**
+
+---
+
+## 6. The ZDR intake — ✅ SENT 2026-09-23
+
+> ✅ **SENT BY MIKE, 2026-09-23. AWAITING REPLY.** The email as it went is
+> [`ZDR-INTAKE-EMAIL.md`](ZDR-INTAKE-EMAIL.md); this section is the *working* behind it — which
+> answer came from which file, and why the nine blanks were Mike's alone. **Do not re-draft or
+> re-send.** When OpenAI replies it goes in §5 as **§5.6**, verbatim, like the four before it.
+
+🔴 **EVERY ANSWER BELOW IS READ OFF THE CODE OR OFF THIS FILE. THE FOUR BLANKS ARE MIKE'S AND
+NOBODY ELSE MAY FILL THEM** — inventing a legal signer, a funding stage or an org ID would put a
+fabricated answer into a contractual process. Where a question cannot be answered from the
+repository it is marked **`[MIKE]`** and left empty.
+
+⚠ **Send it, then record the date here.** An intake that is drafted and never sent is the same
+failure as the integration email nobody sent for six releases.
+
+### Contact information
+
+| Field | Answer |
+| --- | --- |
+| Legal signer name | **`[MIKE]`** |
+| Legal signer email | **`[MIKE]`** |
+| Legal signer title | **`[MIKE]`** |
+
+### Company information
+
+| Field | Answer |
+| --- | --- |
+| Company name | **`[MIKE]`** — the contracting entity behind Advisor-e, as it appears on the OpenAI account |
+| Website URL | `https://advisor-e.com` |
+| Industry | **Finance** — professional services software for accounting and business-advisory firms |
+| Publicly traded? | **`[MIKE]`** |
+| Existing Order Form with OpenAI? | **`[MIKE]`** |
+| OpenAI fund company? | **`[MIKE]`** |
+| Funding stage, if a startup | **`[MIKE]`** |
+
+### OpenAI API org ID
+
+**`[MIKE]`** — and if there is more than one org (production, testing, development), each ID with
+its purpose. ⚠ This application reads its key from `config/integration.js` → `AI.primary.apiKey`;
+the **org** behind that key is not recorded anywhere in this repository and cannot be derived from
+it.
+
+### Use cases — marked from what the code actually calls
+
+Read from `config/integration.js` → `AI.primary.models` and the routes that use each one.
+
+- **[x] Chat and conversation** — the advisory engine (`server/advisorEngine.js`), an advisor in
+  conversation with the assistant.
+- **[x] Summarization** — Meeting Review's two reports (`server/utils/meetingReports.js`); this is
+  the endpoint the ZDR request is *for*.
+- **[x] Question-answering** — the advisory engine answering an advisor's question against the
+  template library and the calculation models.
+- **[x] Reasoning over structured and unstructured data** — template selection and domain
+  classification read authored JSON alongside the advisor's free text.
+- **[x] Drafting assistance** — course material and the economic-analysis narrative
+  (`server/courseEngine.js`, `server/routes/economicAnalysis.js`).
+- **[x] Writing with human review** — **every** generated output is shown to the advisor before it
+  reaches a client, and financial or regulatory operations additionally require an explicit
+  approval flag before anything is committed.
+- **[ ] Writing without human review** — **deliberately unticked.** Nothing in this application
+  publishes model output to a client unreviewed.
+- **[ ]** Code generation · **[ ]** Code transformation · **[ ]** Editing · **[ ]** Search — not
+  used.
+
+### Primary users
+
+**"Other"**, and the description matters because none of the four standard options fits:
+
+> The users are **professional advisers employed by accounting and business-advisory firms** that
+> subscribe to the Advisor-e platform. They are not our employees, and they are not consumers
+> paying us directly — the subscribing **firm** is the customer, and the firm's advisers are the
+> end users.
+>
+> **Authentication is handled entirely by the master Advisor-e platform, never by this
+> application.** An adviser signs in to Advisor-e; Advisor-e issues a signed **JWT**, and every
+> request into this application carries it as a `Bearer` token. The token is verified on the server
+> (`server/middleware/firmAuth.js`) and the firm identity, role and scope are read from its claims.
+> There is no local password store, no self-registration, and no anonymous access — a request
+> without a valid token is refused with 401. Role values that are not recognised resolve to the
+> least-privileged role by design, rather than being admitted.
+
+### The detailed use-case description
+
+**Refer to the description already sent** (his reply invites this), and add:
+
+> The specific workflow this ZDR request is for is **Meeting Review**. With the client's recorded
+> spoken consent, an adviser records a client meeting. The audio is sent to
+> `/v1/audio/transcriptions` using `gpt-4o-transcribe-diarize` for a diarized transcript, and the
+> **audio is destroyed as soon as the transcript returns**. The transcript is then sent to
+> `/v1/chat/completions` to produce two written reports — one for the adviser and one summarising
+> observations for their firm. **It is that second call that carries an hour of a named client's
+> financial affairs, and it is the call this request is principally about.**
+>
+> Internal database identifiers and firm/adviser identifiers are stripped before anything is sent,
+> and the uploaded audio carries a deliberately neutral filename that contains no meeting, firm or
+> adviser reference. What reaches the API is the spoken content of the meeting.
+>
+> ⚠ **A model question we need answered rather than assumed.** Your reply lists
+> `gpt-4o-mini-2024-07-18`. Our summarisation currently runs on **`gpt-4o-mini`** (undated) and our
+> transcription on **`gpt-4o-transcribe-diarize`**, which as far as we can establish is published
+> under an undated name only. Please confirm whether ZDR coverage attaches to those names as we
+> call them, or whether we must pin to dated snapshots — and if the diarizing transcription model
+> has no dated variant, what the position is.
+>
+> ⚠ **On region.** Our requirement is in-region processing for **New Zealand**. We understand from
+> your reply that NZ is unlisted and that Australia offers storage only, with no regional
+> processing for either endpoint. We are therefore treating offshore processing as unavoidable and
+> taking legal advice on that basis rather than selecting a region to solve it. Please confirm our
+> reading is right before we proceed.

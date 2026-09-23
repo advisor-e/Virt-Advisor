@@ -277,7 +277,15 @@ describe('the two tiers are recognisably the same screen', () => {
   // so the mentor has no advisors of its own selling and no prospect list to hold. They sit
   // after `Team Case Studies` because both are appended to "Your Team In Action", where
   // Session Processes already sits — menu order, per the note above.
-  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Team Pipeline', 'Sales Tracker Lists', 'Property Tax Rules', 'outcomeConsent.tab']
+  // ⚠ AMENDED 2026-09-23, and the list is now NINE. `firmCurrency.tab` is the currency
+  // picker's new home (item 13.3, Mike 2026-09-22 — it was the one manager-gated setting
+  // living outside the Hub). FIRM-ONLY as a stated judgement: the mentor has no currency of
+  // its own, and a brand or a country has no single value to hold for firms that may report
+  // in different ones. It sits LAST because it is appended to "Model Inputs" — menu order,
+  // per the note above. 🔴 It does NOT leave the Model Library: Mike ruled on 2026-09-23
+  // that the picker appears in BOTH, the Hub to set it and the library read-only, so a
+  // reader can still tell which currency a report is in.
+  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Team Pipeline', 'Sales Tracker Lists', 'Property Tax Rules', 'firmCurrency.tab', 'outcomeConsent.tab']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
   //
@@ -303,7 +311,23 @@ describe('the two tiers are recognisably the same screen', () => {
   // two are one object from two sides: the library is what a template IS, the profile is what
   // it ANSWERS. Mentor-only as a stated judgement (a profile says what a tool is FOR, which
   // does not vary by firm). Built READ-ONLY on Mike's ruling of 2026-09-16.
+  //
+  // 🔴 AMENDED 2026-09-23, AND THE SHAPE OF THIS CHANGED RATHER THAN ITS LENGTH.
+  // `modelChoices.tab` is appended at the END of "Rolled up from below" (item 7.5,
+  // Decision 3, Mike 2026-09-16) and it is NOT mentor-only — it is all four tiers,
+  // because Decision 2 put the firm and the advisor on every row, which gave a firm
+  // manager their own rows to read.
+  //
+  // So the LAST tab in the menu is no longer a mentor-only one, which is the assumption
+  // the tail test below was built on. The tail is therefore taken as the mentor-only run
+  // ENDING AT modelChoices rather than at the end of the list — `sliceEnd` below. This is
+  // the first time a shared tab has sat under this heading, and it is also why a FIRM
+  // MANAGER now sees the heading "Rolled up from below" for the first time: the other
+  // three entries all stop at the group tier. Named on the drawing before it was found.
   const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab', 'semanticProfiles.tab', 'outcomeLearning.tab']
+
+  /** Tabs every tier sees that sit AFTER the mentor-only run, newest last. */
+  const SHARED_AFTER_TAIL = ['modelChoices.tab']
   //
   // ⚠ AMENDED 2026-09-08: `Industry Benchmarks` joins it — the Stats NZ benchmarker release in
   // force and the two-file upload that replaces it (Mike, 2026-09-08, item 4.70 stage 3; the
@@ -351,8 +375,17 @@ describe('the two tiers are recognisably the same screen', () => {
     // run is the tail of the menu rather than names scattered through a band of twelve.
     // (Sliced by the list's own length: the hardcoded -4 turned this into a count
     // pin that broke the day a fifth mentor-only tab was ruled on.)
+    //
+    // ⚠ SINCE 2026-09-23 THE RUN NO LONGER REACHES THE END OF THE MENU. Model Choices is
+    // appended after it and every tier sees it, so the slice stops where that begins —
+    // taken from the list's own length rather than a number, for the same reason the -4
+    // above was removed.
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
-    expect(mentor.slice(-MENTOR_ONLY_TAIL.length)).toEqual(MENTOR_ONLY_TAIL)
+    const sliceEnd = mentor.length - SHARED_AFTER_TAIL.length
+    expect(mentor.slice(sliceEnd - MENTOR_ONLY_TAIL.length, sliceEnd)).toEqual(MENTOR_ONLY_TAIL)
+    // And the shared tabs really are after it, rather than the slice above having
+    // silently matched an earlier run of the same names.
+    expect(mentor.slice(sliceEnd)).toEqual(SHARED_AFTER_TAIL)
   })
 })
 
@@ -411,9 +444,20 @@ describe('the hub menu — the sidebar itself', () => {
     // 2026-09-10 for the firm tier alone and drawn beside Compliance because consent is a
     // firm's own undertaking in the same way its declaration is. Appended at the end of the
     // last group the firm sees, so the four index assertions below are untouched.
+    //
+    // 🔴 A FIFTH HEADING SINCE 2026-09-23, AND IT IS THE FIRST TIME A FIRM MANAGER HAS EVER
+    // SEEN "Rolled up from below". Model Choices (item 7.5) was ruled onto all four manager
+    // tiers by Mike on 2026-09-16 — Decision 3, which REVERSED the mentor-alone recommendation
+    // once Decision 2 gave each tier its own rows to read. Every other entry under that heading
+    // stops at the group tier, which is why the heading has never appeared here before.
+    //
+    // ⚠ IT IS ACCURATE RATHER THAN CONVENIENT — the rows ARE rolled up from a firm manager's
+    // own advisors — and it was named on the drawing before it was found, and put to Mike as
+    // a visible change to a firm manager's hub. It is appended LAST, so nothing already on
+    // their screen moved.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual([
-      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance'
+      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
     ])
     //
     // ⚠ 19 SINCE 2026-09-21, when Session Processes joined (item 15.1, Decision C — Mike
@@ -425,7 +469,20 @@ describe('the hub menu — the sidebar itself', () => {
     // Pipeline and Sales Tracker Lists (item 17 stage 4, Mike: "so i can see the lists and
     // report"). Both appended to the END of the same group, for the same reason: appending
     // moves nothing already on a manager's screen, and the index assertions below still hold.
-    expect(tabLabels(wrapper)).toHaveLength(21)
+    //
+    // ⚠ 22 SINCE 2026-09-23, when Model Choices joined (item 7.5, Decision 3 — all four
+    // manager tiers). Appended as the very last tab, under a heading the firm sees for the
+    // first time, so the four index assertions below are untouched once again.
+    //
+    // ⚠ AND 23 THE SAME DAY, when Currency joined the END of "Model Inputs" (item 13.3 —
+    // the one manager-gated setting that was living outside the Hub, on Mike's ask of
+    // 2026-09-22). Firm-only, appended again, so the four index assertions still hold.
+    //
+    // ⚠ AND 24, when Staff Register Retention joined the END of "Compliance" (item 5.1,
+    // Decision 8 — Mike's ruling of 2026-09-23, all four tiers in his own words). Under
+    // Compliance rather than Model Inputs because it is a records-retention policy about
+    // personal data, not a figure any model reads. Appended once more.
+    expect(tabLabels(wrapper)).toHaveLength(24)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -445,8 +502,13 @@ describe('the hub menu — the sidebar itself', () => {
     //
     // The rule the old test was really protecting — an empty group is DROPPED, not drawn
     // empty, because one gap in a list of twelve reads as a bug — is unchanged and is
-    // still covered: the firm sees no "Rolled up from below" heading at all (asserted in
-    // the test above), which is the same mechanism from the other side.
+    // still covered: the FIRM sees no Property Tax Rules entry under Model Inputs it is
+    // not entitled to, and a group with nothing in it never renders.
+    //
+    // ⚠ THIS PARAGRAPH USED TO CITE "the firm sees no 'Rolled up from below' heading at
+    // all" as the proof, and that stopped being true on 2026-09-23 when Model Choices was
+    // built onto all four tiers (item 7.5, Mike's Decision 3 of 2026-09-16). The mechanism
+    // it was pointing at is unchanged; the example was replaced rather than annotated.
     //
     // ⚠ A "Compliance" HEADING JOINED THE LIST ON 2026-09-10 with the tab of the same name
     // (item 4.83), which Mike named onto all four tiers. It is drawn at the mentor too,
@@ -531,11 +593,21 @@ describe('the hub menu — the sidebar itself', () => {
     // 15.1, Decision C). Mike ruled all four manager tiers, against the mentor-alone default
     // he was offered, because a firm's planning method is what one firm does differently.
     // His ruling again, and appended rather than inserted.
+    //
+    // ⚠ AND TO 19 ON 2026-09-23, when Model Choices joined the END of "Rolled up from below"
+    // (item 7.5, Decision 3 — Mike ruled all four manager tiers on 2026-09-16, reversing the
+    // mentor-alone recommendation once each tier had its own rows to read). His ruling again,
+    // and appended rather than inserted: this group manager's existing eighteen have not moved.
+    //
+    // ⚠ AND TO 20 THE SAME DAY, when Staff Register Retention joined the END of "Compliance"
+    // (item 5.1, Decision 8 — all four tiers in Mike's own words, 2026-09-23). A middle tier
+    // gains it because a brand or a country genuinely holds a records policy, which is what
+    // separates this from Currency, where neither middle tier has one value to hold.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(18)
+    expect(tabLabels(wrapper)).toHaveLength(20)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

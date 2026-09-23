@@ -25,6 +25,7 @@ var fs = require('fs')
 var path = require('path')
 var branchSurvey = require('./branch-survey')
 var activeItems = require('./active-items')
+var itemCollisionsLib = require('./item-collisions')
 var refCeiling = require('./ref-ceiling')
 
 var REPORT_ONLY = process.argv.indexOf('--report') !== -1
@@ -104,6 +105,41 @@ function survey (currentBranch) {
 
   bar()
   line('⚠  OTHER BRANCHES — work this check cannot see')
+  bar()
+  lines.forEach(line)
+  bar()
+}
+
+/**
+ * Rule 3b (report only) — items BOTH machines have COMMITTED against.
+ *
+ * 🔴 WHY THIS SITS BESIDE RULE 4 RATHER THAN INSIDE IT, 2026-09-23. Rule 4 reads
+ * `activeOn`, a field a session must remember to write. On the morning this was built,
+ * ONE item of twenty-nine carried it — and the two machines duly deleted and rebuilt item
+ * 7.13 within 45 minutes of each other, each with a green light. Rule 4 was working
+ * perfectly and saw nothing, because there was nothing to see.
+ *
+ * This asks the other question: not "what did somebody claim" but "what did somebody
+ * DO". Commits cannot be forgotten. The two checks are kept separate so neither can mask
+ * the other — a claim with no commits behind it and a commit with no claim in front of it
+ * are different faults and read differently.
+ *
+ * Report only, and deliberately: another machine's commits are never a reason to refuse
+ * this machine's push.
+ *
+ * @param {string} currentBranch the branch we are standing on
+ */
+function itemCollisions (currentBranch) {
+  var lines = null
+  try {
+    lines = itemCollisionsLib.collisionLines(gitSafe, currentBranch)
+  } catch (err) {
+    return
+  }
+  if (!lines) { return }
+
+  bar()
+  line('🔴 SAME ITEM, BOTH MACHINES — read from COMMITS, not from `activeOn`')
   bar()
   lines.forEach(line)
   bar()
@@ -262,6 +298,9 @@ if (behind > 0) {
   // behind master does not make the other machine's work less relevant — at session
   // start it is exactly when you want the whole picture, not half of it.
   survey(branch)
+  // AFTER the survey, which does the fetch this reads from, and BEFORE the claims box:
+  // what was committed outranks what was declared, so it is read first.
+  itemCollisions(branch)
   activeReport(branch)
   ceilingReport(branch)
   process.exit(0)
@@ -270,6 +309,7 @@ if (behind > 0) {
 // Clean.
 line('✔ Branch `' + branch + '`: ' + ahead + ' ahead, 0 behind origin/' + PROTECTED_BRANCH + '.')
 survey(branch)
+itemCollisions(branch)
 activeReport(branch)
 ceilingReport(branch)
 process.exit(0)

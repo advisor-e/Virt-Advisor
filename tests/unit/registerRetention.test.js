@@ -37,21 +37,41 @@ describe('🔴 it is its OWN dial, not the meeting one', () => {
     expect(retention.DEV_FILE).not.toBe(meetingRetention.DEV_FILE)
   })
 
-  it('has its own default and its own floor', () => {
-    // Seven years, against the meeting dial's 18 months, and for the opposite reason: a
-    // register exists because a transaction happened and is kept for the years in which that
-    // transaction may be challenged.
-    expect(retention.PLATFORM_DEFAULT_MONTHS).toBe(84)
-    expect(retention.MIN_MONTHS).toBe(12)
+  // 🔴 MIKE'S RULING, 2026-09-23: "no more than 18months - this should flow down from mentor
+  // - through the cascade levels and then at firm manager - be editable again."
+  //
+  // ⚠ THE CEILING IS LOAD-BEARING AND IS PINNED HERE ON PURPOSE. It was 84 months with a
+  // 240 ceiling until that day, and NEITHER figure was ever his — Decision 8 ruled only that
+  // the register is kept on a dial rather than deleted at deal-end, and named no number. The
+  // seven years were written by us and then read back by later sessions as his. A default
+  // nobody authorised is how a privacy setting drifts long without anyone deciding it should,
+  // so the number now has a test with his words beside it.
+  it('holds the 18-month ceiling Mike ruled, at every tier', () => {
+    expect(retention.PLATFORM_DEFAULT_MONTHS).toBe(18)
+    expect(retention.MAX_MONTHS).toBe(18)
+    expect(retention.MIN_MONTHS).toBe(1)
+  })
+
+  // The ruling binds the mentor too, so it cannot be enforced on the firm's screen alone.
+  it('refuses a period above 18 months from ANY tier, not just the firm', () => {
+    expect(retention.validateRetentionMonths(19).ok).toBe(false)
+    expect(retention.validateRetentionMonths(84).ok).toBe(false)
+  })
+
+  // A value stored under the old 84-month default must not keep applying. It reads back as
+  // "this scope has set nothing" and the cascade carries on above it.
+  it('reads a pre-ruling stored figure as nothing set, so it cannot survive', () => {
+    expect(retention.readStoredRetention({ months: 84 })).toBeNull()
   })
 })
 
 describe('validateRetentionMonths', () => {
   it('accepts a whole number of months in range', () => {
-    expect(retention.validateRetentionMonths(84)).toEqual({ ok: true, errors: [], value: 84 })
+    expect(retention.validateRetentionMonths(18)).toEqual({ ok: true, errors: [], value: 18 })
+    expect(retention.validateRetentionMonths(1)).toEqual({ ok: true, errors: [], value: 1 })
   })
 
-  it.each([['84'], [null], [undefined], [NaN], [Infinity]])('refuses %p', (value) => {
+  it.each([['18'], [null], [undefined], [NaN], [Infinity]])('refuses %p', (value) => {
     expect(retention.validateRetentionMonths(value).ok).toBe(false)
   })
 
@@ -59,7 +79,7 @@ describe('validateRetentionMonths', () => {
     expect(retention.validateRetentionMonths(17.5).ok).toBe(false)
   })
 
-  it.each([[11], [241], [0], [-1]])('refuses %p months, outside the range', (value) => {
+  it.each([[19], [84], [241], [0], [-1]])('refuses %p months, outside the range', (value) => {
     const out = retention.validateRetentionMonths(value)
     expect(out.ok).toBe(false)
     expect(out.value).toBeNull()
@@ -68,18 +88,18 @@ describe('validateRetentionMonths', () => {
 
 describe('readStoredRetention', () => {
   it('reads a well-formed stored value', () => {
-    expect(retention.readStoredRetention({ months: 120 })).toBe(120)
+    expect(retention.readStoredRetention({ months: 12 })).toBe(12)
   })
 
-  it.each([[null], ['84'], [[]], [{}], [{ months: 'x' }], [{ months: 3 }]])('reads %p as nothing set', (stored) => {
+  it.each([[null], ['18'], [[]], [{}], [{ months: 'x' }], [{ months: 19 }]])('reads %p as nothing set', (stored) => {
     expect(retention.readStoredRetention(stored)).toBeNull()
   })
 })
 
 describe('loadOwnRetention', () => {
   it('returns what this scope set itself', async () => {
-    const load = jest.fn().mockResolvedValue({ months: 120 })
-    expect(await retention.loadOwnRetention('firm-1', load)).toBe(120)
+    const load = jest.fn().mockResolvedValue({ months: 12 })
+    expect(await retention.loadOwnRetention('firm-1', load)).toBe(12)
     expect(load).toHaveBeenCalledWith('firm-1', 'register-retention')
   })
 
@@ -98,19 +118,19 @@ describe('loadOwnRetention', () => {
 describe('loadResolvedRetention', () => {
   it('uses the platform default when nothing is set anywhere', async () => {
     const out = await retention.loadResolvedRetention('firm-1', jest.fn().mockResolvedValue(null))
-    expect(out).toEqual({ months: 84, source: 'platform-default', setAtScope: null })
+    expect(out).toEqual({ months: 18, source: 'platform-default', setAtScope: null })
   })
 
   it('prefers what the firm set itself', async () => {
-    const out = await retention.loadResolvedRetention('firm-1', jest.fn().mockResolvedValue({ months: 120 }))
-    expect(out).toEqual({ months: 120, source: 'set-here', setAtScope: 'firm-1' })
+    const out = await retention.loadResolvedRetention('firm-1', jest.fn().mockResolvedValue({ months: 12 }))
+    expect(out).toEqual({ months: 12, source: 'set-here', setAtScope: 'firm-1' })
   })
 
   it('inherits from the tier above when the firm has set nothing', async () => {
     parentScopeOf.mockImplementation(scope => (scope === 'firm-1' ? 'group-1' : null))
-    const load = jest.fn(scope => Promise.resolve(scope === 'group-1' ? { months: 60 } : null))
+    const load = jest.fn(scope => Promise.resolve(scope === 'group-1' ? { months: 6 } : null))
     const out = await retention.loadResolvedRetention('firm-1', load)
-    expect(out).toEqual({ months: 60, source: 'inherited', setAtScope: 'group-1' })
+    expect(out).toEqual({ months: 6, source: 'inherited', setAtScope: 'group-1' })
   })
 
   it('reports the platform default as the platform\'s even when reached through a parent', async () => {
@@ -120,13 +140,13 @@ describe('loadResolvedRetention', () => {
   })
 
   it('answers for no scope at all', async () => {
-    expect((await retention.loadResolvedRetention(null, jest.fn())).months).toBe(84)
+    expect((await retention.loadResolvedRetention(null, jest.fn())).months).toBe(18)
   })
 
   it('never rejects — a storage fault falls back to the level above and logs', async () => {
     const load = jest.fn().mockRejectedValue(new Error('refused'))
     const out = await retention.loadResolvedRetention('firm-1', load)
-    expect(out.months).toBe(84)
+    expect(out.months).toBe(18)
     expect(console.error).toHaveBeenCalled()
   })
 })
@@ -135,7 +155,7 @@ describe('keptUntil — the sentence on the register', () => {
   it('counts from the day the register was OPENED, not from today', () => {
     // So the sentence on a register opened last year does not drift forward every time
     // somebody looks at it.
-    expect(retention.keptUntil('2026-09-14T02:00:00.000Z', 84).slice(0, 10)).toBe('2033-09-14')
+    expect(retention.keptUntil('2026-09-14T02:00:00.000Z', 18).slice(0, 10)).toBe('2028-03-14')
   })
 
   it('handles a month that does not have the same day number', () => {
@@ -145,10 +165,28 @@ describe('keptUntil — the sentence on the register', () => {
   })
 
   it.each([[null], [''], ['not a date']])('returns null for an opening date of %p', (iso) => {
-    expect(retention.keptUntil(iso, 84)).toBeNull()
+    expect(retention.keptUntil(iso, 18)).toBeNull()
   })
 
   it('returns null for a retention period it would refuse to store', () => {
-    expect(retention.keptUntil('2026-09-14T02:00:00.000Z', 3)).toBeNull()
+    expect(retention.keptUntil('2026-09-14T02:00:00.000Z', 84)).toBeNull()
+  })
+})
+
+describe('retentionPhrase — the period as a screen reads it', () => {
+  it.each([[18, '18 months'], [1, '1 month'], [6, '6 months']])('%p months reads as %p', (months, words) => {
+    expect(retention.retentionPhrase(months)).toBe(words)
+  })
+
+  // A records policy is written in years where the period is one. "12 months" is the same
+  // span and the wrong register for the sentence it sits in.
+  it('says a whole year as a year', () => {
+    expect(retention.retentionPhrase(12)).toBe('1 year')
+  })
+
+  // A screen must never show a blank where a period belongs, so an impossible figure
+  // renders the platform default rather than throwing or returning ''.
+  it.each([[0], [19], [84], [null], ['18'], [1.5]])('renders the default for %p', (bad) => {
+    expect(retention.retentionPhrase(bad)).toBe('18 months')
   })
 })

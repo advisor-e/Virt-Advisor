@@ -124,8 +124,49 @@ const MENTOR_BEFORE = [
  *   ⚠ The THREE ADVISOR Sales Tracker screens are deliberately not hub tabs at any tier: the
  *   hub sits behind `requireManagerRole`, so a tab would put an advisor's own tool where its
  *   users cannot reach it (Mike's ruling 2026-09-21).
+ * - `currency` — Mike, 2026-09-22: *"BOTH those issues must be fixed, add them to the to do
+ *   list"*, and his ruling of 2026-09-23 that the picker appears in BOTH places — the Hub to
+ *   SET it, the Model Library read-only so a reader can still tell which currency a report is
+ *   in. 🔴 **THE FIRM ALONE, and stated rather than assumed** (the default since 2026-08-24 is
+ *   the mentor alone; this is neither). The setting is account-wide, stored per firm, and its
+ *   write route was already manager-gated. **The MENTOR has no currency of its own** — it is
+ *   above every firm and reports in none — so a mentor picker would set one firm's display
+ *   setting on behalf of all of them, which is the Property Tax Rules case Mike already ruled
+ *   on. The two MIDDLE tiers are excluded more narrowly: a brand spans countries and a
+ *   country's firms may still report in different currencies, so neither has one value to
+ *   hold. Cascading becomes mandatory the day a group needs a default for its firms;
+ *   `firmOverlay` already carries a row per scope, so adding a tier here is the whole change.
+ * - `modelChoices` — Mike, 2026-09-16, Decision 3 of `design/mockups/model-choices.html`
+ *   (item 7.5). 🔴 **ALL FOUR TIERS, AND THE RULING REVERSED THE RECOMMENDATION PUT TO HIM**,
+ *   which was the mentor alone. The argument for mentor-alone was that no other tier could act
+ *   on what the page shows; **Decision 2 — the firm and the advisor on every row — removed it**,
+ *   because a firm manager now has their own rows to read, and the roll-up ruling of 2026-08-10
+ *   then applies plainly. Each tier is scoped by the route to its own level, never by this list.
+ *   ⚠ **This is the first entry in "Rolled up from below" a FIRM MANAGER has ever seen** — the
+ *   other three stop at the group tier. Named on the drawing before it was found, and put to
+ *   Mike as a visible change to their hub.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists']
+/*
+ * - `registerRetention` — Mike, 2026-09-23 (item 5.1, Decision 8), in his own words: *"the
+ *   data holding period to be no more than 18months - this should flow down from mentor -
+ *   through the cascade levels and then at firm manager - be editable again. this way, at
+ *   least a set period is loaded as a default."* 🔴 **ALL FOUR TIERS, AND HE NAMED THEM** —
+ *   not the default-is-mentor-alone case of 2026-08-24, and not a judgement of ours: he
+ *   described the cascade himself. Unlike `currency`, every tier has a real answer here,
+ *   because a retention period is a records policy and firms under one brand in one
+ *   jurisdiction share the law that shapes it.
+ *   ⚠ **The backend had answered "how long" since 2026-09-15 and NOTHING COULD CHANGE IT** —
+ *   the register showed a date computed from a platform default no manager could reach. A
+ *   privacy control that exists and is unreachable is not a control.
+ *   ⚠ **The 18-month ceiling is NOT enforced by this list.** It lives in
+ *   `validateRetentionMonths`, which every read and write passes through, so no tier can
+ *   exceed it from a screen, a route, or a value stored before the ruling.
+ *   ⚠ **NOT the Meeting Review retention dial**, and the two must never be merged: that
+ *   period is spoken aloud to a client in approved consent wording, and one dial would let a
+ *   manager change a promise made out loud while believing they were shortening how long
+ *   staff data is kept.
+ */
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -179,8 +220,18 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  * - `sessionProcess` — the same ruling as the firm's (Decision C, 2026-09-21). The mentor is
  *   where the cascade starts: a tier that has written nothing inherits the nearest one above,
  *   and the shipped platform session is the mentor's own starting point.
+ * - `modelChoices` — the same ruling as the firm's (Decision 3, 2026-09-16). The mentor reads
+ *   every firm, which is the view the drawing itself is drawn as. ⚠ The model summaries this
+ *   page audits are PLATFORM content no other tier may edit — that was the argument for mentor
+ *   alone, and Mike ruled against it once each tier had its own rows to read.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess']
+/*
+ * - `registerRetention` — the same ruling as the firm's, and the mentor is the tier the
+ *   cascade STARTS at: his words are *"flow down from mentor"*, so the platform's 18 months
+ *   is the mentor's own figure and every tier below inherits it until it sets one. The
+ *   reasoning in full is beside `FIRM_ADDED_SINCE` above.
+ */
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -291,10 +342,21 @@ describe('hub tab matrix — the two new tiers', () => {
     // all four manager tiers by Mike that day — Decision C, against the mentor-alone default
     // he was offered. So the global tier now shows 19: six unconditional plus thirteen
     // conditional, and the group tier 12.
-    expect(conditional).toHaveLength(13)
+    //
+    // 🔴 FOURTEEN SINCE 2026-09-23, NOT THIRTEEN. Model Choices (item 7.5) was ruled onto all
+    // four manager tiers by Mike on 2026-09-16 — Decision 3, which REVERSED the mentor-alone
+    // recommendation put to him once Decision 2 gave each tier its own rows to read. The tab
+    // was built on 2026-09-23, the day the hub file came free. So the global tier now shows
+    // 20: six unconditional plus fourteen conditional, and the group tier 13.
+    //
+    // ⚠ FIFTEEN AND TWENTY-ONE SINCE 2026-09-23: `registerRetention` is the fifteenth
+    // conditional tab, on all four tiers in Mike's own words (item 5.1, Decision 8 — the
+    // reasoning is beside FIRM_ADDED_SINCE). The middle tiers gain it for the same reason
+    // the firm does: a brand or a country holds a records policy, unlike a currency.
+    expect(conditional).toHaveLength(15)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(19)
-    expect(tabsAt('group')).toHaveLength(12)
+    expect(unconditional.concat(conditional)).toHaveLength(21)
+    expect(tabsAt('group')).toHaveLength(14)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {
