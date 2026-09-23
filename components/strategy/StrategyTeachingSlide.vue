@@ -14,8 +14,15 @@ section.sts
   //-
   //- ⚠ A CONCEPT WITHOUT AN APPROVED DRAWING RENDERS NOTHING HERE and the panel
   //- is his words alone, exactly as all 52 were before item 15.7.
+  //-
+  //- 🔴 A CONCEPT MAY TEACH ACROSS MORE THAN ONE SHEET — Mike, 2026-09-23. This
+  //- rendered the graphic ONCE until then, so a second sheet would simply not have
+  //- appeared, and nothing on screen would have said a page was missing.
   strategy-concept-graphic(
+    v-for="n in sheetCount"
+    :key="'sheet' + n"
     :concept-id="conceptId"
+    :sheet="n - 1"
     :firm-name="firmName"
     :firm-colour="firmColour"
     :firm-logo="firmLogo"
@@ -45,7 +52,7 @@ section.sts
 
 <script>
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
-import { promptsEchoDrawing } from '~/components/strategy/concepts'
+import { promptsEchoDrawing, conceptSheetCount } from '~/components/strategy/concepts'
 
 /**
  * StrategyTeachingSlide — the concept on screen, so an advisor can teach it.
@@ -126,6 +133,18 @@ export default {
   },
 
   computed: {
+    /**
+     * How many teaching sheets this concept has — 0 where it has no drawing.
+     *
+     * Looped rather than assumed: all but one concept has exactly one, and
+     * Collaborative Thinking has two (Mike, 2026-09-23).
+     *
+     * @returns {number}
+     */
+    sheetCount () {
+      return conceptSheetCount(this.conceptId)
+    },
+
     /**
      * The prompts to speak to. Only fields that actually carry one; a box with no
      * prompt has nothing to say before it is filled in.

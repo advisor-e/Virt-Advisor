@@ -1,0 +1,354 @@
+<title>Our Session Objective</title>
+<!--
+  design/mockups/strategy-concept-our-session-objective.html
+
+  🔴 ITEM 15.17 — THE ONE FRAMING PAGE, AND THE FIRST DRAWING WITH A LIVE SLOT IN IT.
+
+  Mike's ruling, 2026-09-23, on being shown that nine of the planner's fifty-two
+  "concepts" are his decks' AGENDA LINES rather than frameworks:
+
+      "no - bring in ONE of the framing pages (slide 1 - strategic orientation 1 -
+       and make sure the AGENDA section is editable) then just delete the rest -
+       they are likely to be repeats."
+
+  Confirmed with him the same day as PAGE 2, not page 1: page 1 is the deck's cover
+  (advisor-e logo, title, one line) and carries no agenda at all. Page 2, "Our Session
+  Objective", is the only page of that deck with an AGENDA section — "then use page 2
+  by your std".
+
+  HE IS RIGHT ABOUT THE REPEATS, AND THIS PAGE IS THE PROOF. Two of the four agenda
+  bullets below — "Review the Planning Process & Language" and "Brainstorm & record
+  Operational Objectives" — are themselves two of the nine concepts being deleted.
+  They were only ever this page's bullets, lifted out and listed as separate
+  frameworks. The other two already have their own working capture tables.
+
+  ── THE AGENDA IS A SLOT, NOT ARTWORK ────────────────────────────────────────────
+  Mike ruled the same day that the editable AGENDA IS THE SESSION'S OWN STEP LIST —
+  the steps an advisor names and arranges in Build session, which already drive Run
+  session and the client's plan — and not a second list belonging to this page. His
+  own words about that step list, 2026-09-21: "the client's agenda stops naming our
+  screens."
+
+  So `<g class="agenda-slot">` below holds HIS four lines as the shipped default, and
+  the component replaces them with the session's steps. Everything outside that group
+  is fixed artwork, copied span for span.
+
+  ⚠ `scripts/build-concept-graphics.js` TODAY PARAMETERISES ONLY THE FIRM MARK. This
+  is the first drawing needing a second dynamic region, so the generator has to learn
+  this one group. It is marked with a class for exactly that reason, and the default
+  content inside it is real so the drawing reads correctly on its own — which is what
+  an approval is given against.
+
+  ── HOW IT WAS READ (Brief §0, "HOW A CONCEPT IS DRAWN", all five steps) ─────────
+    1. The page was OPENED and looked at first. That is not a formality here: an
+       earlier pass this same day matched concepts to slides by comparing extracted
+       TITLES and was wrong on most rows, which Mike caught in four words.
+    2. Every word is a SPAN from the PDF text layer, never retyped — 30 of them,
+       each carrying its own size, weight and colour. His two role lines are bold
+       #002B64 where the rest of the list is regular #434343; the "(section n)" tags
+       are bold and set INLINE, mid-sentence, so each is its own span at its own x.
+    3. His geometry: page rect 720 x 405pt, so a 1500 viewBox is a scale of 2.0833.
+       Every x, y and width below is his, multiplied by it.
+    3b. Every line is pinned to its measured width with textLength/lengthAdjust.
+        His body copy is justified; a ragged copy is visibly not his page.
+    4. Colours sampled off the 150dpi render: ink #002B64, body #434343, his deck
+       border #00B1E0.
+    5. Open Sans throughout, which is what his deck sets. The bullet glyphs are
+       Arial on his page and render identically as a plain round bullet.
+
+  ── WHAT IS DELIBERATELY NOT HERE ───────────────────────────────────────────────
+  • His page number "2" (#888888 Calibri, bottom right). The Brief already rules that
+    his number does not travel: the client's plan runs in the advisor's order.
+  • The advisor-e.com logo, and the #00B1E0 border it sits in. Mike, 2026-09-18:
+    "in client dealings, Advisor-e ALWAYS clones and shows that ADVISORS firm logo -
+    never advisor-e." The firm's mark stands exactly where his logo was, and the
+    border returns in the firm's own colour.
+
+  Source: C:\Documents\Visual Code Projects\Strategy Planner\Advance.2.Strategic Orientation.1.pdf
+  Page 2. Open it beside this to check "copied, not redrawn".
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+<style>
+  :root {
+    --ground: #eef3f8; --card: #ffffff; --ink: #002b64; --body: #23405f;
+    --muted: #5b6f8a; --line: #d5e1ee; --accent: #0070c0;
+    --slot-bg: #fff7e8; --slot-ink: #8a5a00; --slot-line: #e0b878;
+    --shadow: 0 12px 32px rgba(0, 43, 100, .10);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+      --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+      --slot-bg: #3a2810; --slot-ink: #ffc76b; --slot-line: #6b4a18;
+      --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+    --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+    --slot-bg: #3a2810; --slot-ink: #ffc76b; --slot-line: #6b4a18;
+    --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 16px 64px; background: var(--ground);
+    font-family: var(--sans); color: var(--body); line-height: 1.55;
+  }
+  main { max-width: 1120px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; color: var(--ink); margin: 0 0 4px; line-height: 1.25; }
+  .sub { color: var(--muted); margin: 0 0 24px; font-size: .95rem; }
+
+  section.controls {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 20px; box-shadow: var(--shadow);
+  }
+  .controls h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--muted); margin: 0 0 10px; }
+  .firms { display: flex; flex-wrap: wrap; gap: 8px; }
+  button.firm {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--body);
+    border-radius: 999px; padding: 7px 14px; font: inherit; font-size: .9rem;
+  }
+  button.firm[aria-pressed="true"] { border-color: var(--sw); color: var(--ink); font-weight: 600; }
+  .swatch { width: 13px; height: 13px; border-radius: 50%; background: var(--sw); }
+
+  figure { margin: 0 0 22px; }
+  .sheet {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .sheet svg { display: block; width: 100%; height: auto; }
+  figcaption { color: var(--muted); font-size: .88rem; margin-top: 10px; }
+
+  .note {
+    background: var(--slot-bg); border: 1px solid var(--slot-line); color: var(--slot-ink);
+    border-radius: 10px; padding: 12px 14px; margin: 0 0 20px; font-size: .92rem;
+  }
+  .note strong { color: inherit; }
+  .slot-ring { outline: 2px dashed var(--slot-line); outline-offset: 3px; }
+
+  @media (max-width: 640px) {
+    body { padding: 20px 16px 48px; }
+    h1 { font-size: 1.25rem; }
+  }
+</style>
+
+<main>
+  <h1>Our Session Objective</h1>
+  <p class="sub">
+    Strategic Orientation 1, page 2 &mdash; the framing page, drawn from his own slide.
+    The <strong>Agenda</strong> block is a live slot: it shows the session&rsquo;s steps.
+  </p>
+
+  <p class="note">
+    <strong>The four agenda lines below are his, shown as the default.</strong> In the app
+    that block is replaced by the steps the advisor named in Build session, so the page a
+    client reads and the running order the app follows are always the same list. Everything
+    outside the dashed outline is fixed artwork, copied span for span from his page.
+  </p>
+
+  <section class="controls">
+    <h2>The firm&rsquo;s mark &mdash; whose logo a client sees</h2>
+    <div class="firms">
+      <button class="firm" type="button" data-firm="0" aria-pressed="true" style="--sw:#0070c0">
+        <span class="swatch" aria-hidden="true"></span>Hartley &amp; Co
+      </button>
+      <button class="firm" type="button" data-firm="1" aria-pressed="false" style="--sw:#7a4b8f">
+        <span class="swatch" aria-hidden="true"></span>Northbridge Advisory
+      </button>
+      <button class="firm" type="button" data-firm="2" aria-pressed="false" style="--sw:#0f7a5a">
+        <span class="swatch" aria-hidden="true"></span>Kestrel Partners
+      </button>
+    </div>
+  </section>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Our Session Objective. A welcome line, seven bullets of ground rules for the meeting with two of them emphasised, then a heading reading Agenda and four numbered section items.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             FIXED ARTWORK — every span read from the PDF text layer of
+             Advance.2.Strategic Orientation.1.pdf p2. x, y, size, weight
+             and colour are his; each line is pinned to its own measured
+             width with textLength.
+             ============================================================ -->
+        <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64"
+                textLength="509.55" lengthAdjust="spacing">Our Session Objective</text>
+
+          <text x="75.69" y="184.09" font-size="25" fill="#434343"
+                textLength="619.33" lengthAdjust="spacing">Welcome, it&#8217;s all about you and your business today&#8230;</text>
+
+          <!-- His ground rules. Two are BOLD #002B64 on his page and the rest
+               regular #434343 — the emphasis is his, and it is the whole point of
+               the page, so it is carried exactly. -->
+          <text x="98.09" y="239.62" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="239.62" font-size="25" fill="#434343"
+                textLength="540.68" lengthAdjust="spacing">Everyone contributes to collaborative thinking.</text>
+
+          <text x="98.09" y="273.99" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="273.99" font-size="25" fill="#434343"
+                textLength="378.35" lengthAdjust="spacing">Planned Breaks &amp; Housekeeping</text>
+
+          <text x="98.09" y="308.37" font-size="25" font-weight="700" fill="#002B64">&#9679;</text>
+          <text x="150.69" y="308.37" font-size="25" font-weight="700" fill="#002B64"
+                textLength="1008.3" lengthAdjust="spacing">My/Our Role in the Planning Session is to Challenge What You Believe To Be True!</text>
+
+          <text x="98.09" y="342.74" font-size="25" font-weight="700" fill="#002B64">&#9679;</text>
+          <text x="150.69" y="342.74" font-size="25" font-weight="700" fill="#002B64"
+                textLength="1098.17" lengthAdjust="spacing">Your Role is to be Ready To Explore Issues/ Ideas With an Open Heart and an Open Mind.</text>
+
+          <text x="98.09" y="377.12" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="377.12" font-size="25" fill="#434343"
+                textLength="1104.6" lengthAdjust="spacing">The Objective (expectations) for Today&#8217;s meeting is that we &#8216;Discover What We&#8217;ve Been Missing&#8217;!</text>
+
+          <text x="98.09" y="411.49" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="411.49" font-size="25" fill="#434343"
+                textLength="258.45" lengthAdjust="spacing">Record what we learn.</text>
+
+          <text x="98.09" y="445.87" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="445.87" font-size="25" fill="#434343"
+                textLength="405.7" lengthAdjust="spacing">Build an action plan going forward.</text>
+
+          <!-- The heading is his and is FIXED. Only the rows under it are the slot,
+               so the page still reads as his even when a session has its own steps. -->
+          <text x="75.69" y="538.26" font-size="25" fill="#434343"
+                textLength="94.4" lengthAdjust="spacing">Agenda:</text>
+        </g>
+
+        <!-- ============================================================
+             THE AGENDA SLOT — Mike's ruling, 2026-09-23. In the app these
+             rows are the SESSION'S OWN STEPS, the list the advisor named in
+             Build session. His four lines are the shipped default and are
+             what this drawing is approved against.
+
+             🔴 The rows are his page span for span: the sentence in #434343
+             and the "(section n)" tag bold #002B64, set INLINE at its own
+             measured x, because on his page the tag interrupts the line
+             rather than following it. Row 2 runs sentence, tag, sentence.
+             ============================================================ -->
+        <g class="agenda-slot" font-family="Open Sans, sans-serif">
+          <text x="98.09" y="584.41" font-size="25" fill="#434343">&#9679;</text>
+          <!-- 🔴 xml:space="preserve" ON EVERY SPAN OF HIS THAT CARRIES A LEADING OR
+               TRAILING SPACE. His "(section n)" tags interrupt the line, so the space
+               before one lives at the END of the span before it and is part of that
+               span's MEASURED width. SVG collapses edge whitespace by default, so the
+               glyphs stretched to fill the pinned width instead and closed the gap:
+               the drawing read "same page'.(section 1)" and "data(section 2)&". Caught
+               by putting this beside his page, which is step 1 of the method and the
+               only thing that could have caught it. -->
+          <text x="150.69" y="584.41" font-size="25" fill="#434343" xml:space="preserve"
+                textLength="928.6" lengthAdjust="spacing">Review the Planning Process &amp; Language to ensure we&#8217;re all on the &#8216;same page&#8217;. </text>
+          <text x="1080.44" y="584.41" font-size="25" font-weight="700" fill="#002B64"
+                textLength="128.05" lengthAdjust="spacing">(section 1)</text>
+
+          <text x="98.09" y="619.3" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="619.3" font-size="25" fill="#434343" xml:space="preserve"
+                textLength="651.48" lengthAdjust="spacing">Assess current position by reviewing (pre-meeting) data </text>
+          <text x="803.01" y="619.3" font-size="25" font-weight="700" fill="#002B64"
+                textLength="128.05" lengthAdjust="spacing">(section 2)</text>
+          <text x="931.18" y="619.3" font-size="25" fill="#434343" xml:space="preserve"
+                textLength="388.22" lengthAdjust="spacing"> &amp; Financial Performance Reports</text>
+
+          <text x="98.09" y="653.68" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="653.68" font-size="25" fill="#434343" xml:space="preserve"
+                textLength="803.73" lengthAdjust="spacing">Determine the business Strategic Objective &amp; document the Strategy </text>
+          <text x="955.33" y="653.68" font-size="25" font-weight="700" fill="#002B64"
+                textLength="128.05" lengthAdjust="spacing">(section 3)</text>
+
+          <text x="98.09" y="688.05" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="688.05" font-size="25" fill="#434343"
+                textLength="1218" lengthAdjust="spacing">Brainstorm &amp; record Operational Objectives and Tactics (actions) in the Automated Action Plan Reminder</text>
+        </g>
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    <figcaption>
+      Drawn from Advance.2.Strategic Orientation.1.pdf page 2 &mdash; 30 spans, each at his
+      own x, y, size, weight and colour, every line pinned to its measured width. His page
+      number and the advisor-e.com logo are deliberately absent.
+    </figcaption>
+  </figure>
+
+  <p class="note">
+    <strong>Two of these four agenda lines are frameworks we are deleting.</strong>
+    <em>Review the Planning Process &amp; Language</em> and <em>Brainstorm &amp; record
+    Operational Objectives</em> were only ever bullets on this page, lifted out and listed
+    as separate frameworks an advisor could tick. The other two already have their own
+    working capture tables.
+  </p>
+</main>
+
+<script>
+  (function () {
+    var FIRMS = [
+      { name: 'Hartley & Co', initials: 'H', colour: '#0070c0', logo: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E' },
+      { name: 'Northbridge Advisory', initials: 'N', colour: '#7a4b8f', logo: '' },
+      { name: 'Kestrel Partners', initials: 'K', colour: '#0f7a5a', logo: '' }
+    ]
+
+    function apply (i) {
+      var f = FIRMS[i]
+      Array.prototype.forEach.call(document.querySelectorAll('.firm-mark'), function (g) {
+        var logo = g.querySelector('.fm-logo')
+        var disc = g.querySelector('.fm-disc')
+        var init = g.querySelector('.fm-init')
+        var name = g.querySelector('.fm-name')
+        // The logo IS the mark; the disc, initial and name are the FALLBACK, shown
+        // only where a firm holds no logo. Never both — Mike's ruling, 2026-09-22.
+        if (f.logo) {
+          logo.setAttributeNS('http://www.w3.org/1999/xlink', 'href', f.logo)
+          logo.setAttribute('href', f.logo)
+          logo.style.display = ''
+          disc.style.display = init.style.display = name.style.display = 'none'
+        } else {
+          logo.style.display = 'none'
+          disc.style.display = init.style.display = name.style.display = ''
+          disc.setAttribute('fill', f.colour)
+          init.textContent = f.initials
+          name.textContent = f.name
+        }
+      })
+      Array.prototype.forEach.call(document.querySelectorAll('.firm-bar'), function (r) {
+        r.setAttribute('fill', f.colour)
+      })
+      Array.prototype.forEach.call(document.querySelectorAll('button.firm'), function (b, n) {
+        b.setAttribute('aria-pressed', String(n === i))
+      })
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('button.firm'), function (b) {
+      b.addEventListener('click', function () { apply(Number(b.getAttribute('data-firm'))) })
+    })
+
+    // Show which block is the live slot, on the drawing itself rather than only in prose.
+    var slot = document.querySelector('.agenda-slot')
+    if (slot) { slot.classList.add('slot-ring') }
+
+    apply(0)
+  })()
+</script>

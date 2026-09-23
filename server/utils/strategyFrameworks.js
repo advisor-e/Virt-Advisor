@@ -374,8 +374,18 @@ function hasField (frameworkId, fieldKey) {
  * THE CONCEPT INDEX — the 52 concepts as records.
  * ------------------------------------------------------------------------------------- */
 
-/** How a concept's row reached this file. `agenda` rows are name-only by Decision B. */
-const CONCEPT_SOURCES = ['session-scope-table', 'agenda']
+/**
+ * How a concept's row reached this file. `agenda` rows are name-only by Decision B.
+ *
+ * 🔴 `framing-page` IS NOT A THIRD KIND OF ROW — IT IS THE ONE PAGE THAT IS ITS OWN
+ * CONCEPT. Mike, 2026-09-23: *"bring in ONE of the framing pages … then just delete
+ * the rest - they are likely to be repeats."* An `agenda` row means **`page` is the
+ * deck's contents page, NOT the teaching page** — the trap the Brief warns about, and
+ * the reason eight rows were deleted the same day. Here page 2 genuinely IS the
+ * teaching page, so calling it `agenda` would reverse the one thing that value exists
+ * to say.
+ */
+const CONCEPT_SOURCES = ['session-scope-table', 'agenda', 'framing-page']
 
 /** Whether a capture form was matched to one of Mike's fill-in templates, or not yet. */
 const CAPTURE_BASES = ['measured', 'unmeasured']
@@ -625,7 +635,16 @@ const DECKS = RAW_DECKS.map(function (raw) {
   // every one of its concepts; storing it again on the deck would be a second copy that can
   // drift from the first. A mixed deck is refused rather than guessed at, because the screen
   // renders the two kinds of row differently.
-  const sources = concepts.map(c => c.source).filter((s, i, all) => all.indexOf(s) === i)
+  // 🔴 A FRAMING PAGE IS NOT ONE OF A DECK'S SCOPE ROWS, so it does not decide the
+  // deck's kind. Mike brought one in on 2026-09-23 and it landed in a deck of agenda
+  // rows, which read as a mixed deck and refused to load. It is not a third kind of
+  // row to render: it has a REAL page number, so it renders as a scope row does, and
+  // the menu now reads each row's own source for that rather than the deck's.
+  // A deck that is ONLY framing pages — Business Targets, after the eight agenda rows
+  // went — takes 'framing-page', which simply means it carries no "agenda only" note.
+  const scopeRows = concepts.filter(c => c.source !== 'framing-page')
+  const sources = (scopeRows.length ? scopeRows : concepts)
+    .map(c => c.source).filter((s, i, all) => all.indexOf(s) === i)
   if (sources.length !== 1) {
     throw fail('BAD_DECK', 'Deck "' + id + '" mixes row sources (' + sources.join(', ') +
       '). The menu renders an agenda row and a scope-table row differently, so a deck ' +

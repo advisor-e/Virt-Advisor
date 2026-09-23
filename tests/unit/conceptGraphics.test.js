@@ -62,7 +62,7 @@ describe('every shipped drawing is the drawing Mike approved', () => {
       const svg = builder.nthSvg(html, d.svg)
       const file = path.join(
         ROOT, 'components', 'strategy', 'concepts',
-        builder.componentName(d.conceptId) + '.vue'
+        builder.componentName(d.conceptId, d.sheet) + '.vue'
       )
       const shipped = fs.readFileSync(file, 'utf8')
 
@@ -72,7 +72,15 @@ describe('every shipped drawing is the drawing Mike approved', () => {
       expect(elements.length).toBeGreaterThan(0)
 
       const shippedElements = (shipped.match(/<(path|rect|circle|ellipse|line|polyline|polygon|text|image)\b/g) || [])
-      expect(shippedElements.length).toBe(elements.length)
+
+      // 🔴 THE AGENDA SLOT ADDS EXACTLY TWO, AND HIS OWN ROWS ARE STILL ALL THERE.
+      // A drawing with a live region keeps its drawn group WHOLE under `v-if` and
+      // gains a SIBLING group under `v-else` holding one bullet and one line of
+      // text, rendered once per session step. Counted rather than waved through:
+      // any other difference is still the drawing being summarised, which is what
+      // this test exists to catch.
+      const slotRows = /class="agenda-slot is-live"/.test(shipped) ? 2 : 0
+      expect(shippedElements.length).toBe(elements.length + slotRows)
     })
   })
 })
@@ -197,7 +205,9 @@ describe('the firm frame is on every drawing, identically', () => {
       })
     })
 
-    expect(svgs).toBe(32)
+    // 32 drawings until 2026-09-23; then Our Session Objective (1) and
+    // Collaborative Thinking (2 sheets).
+    expect(svgs).toBe(35)
     BARS.forEach(([cls]) => expect(cls + ':' + counts[cls]).toBe(cls + ':' + svgs))
   })
 
@@ -231,7 +241,12 @@ describe('the firm frame is on every drawing, identically', () => {
     )
     const block = (registry.match(/CONCEPT_TITLED = \{([\s\S]*?)\n\}/) || [])[1] || ''
 
-    expect((block.match(/: true/g) || []).length).toBe(32)
+    // 🔴 THIS COUNTS CONCEPTS, NOT DRAWINGS, and the two are no longer the same
+    // number. 32 until 2026-09-23, then Our Session Objective and Collaborative
+    // Thinking — which is ONE entry across its two sheets, because a concept either
+    // titles itself or does not. Emitting it per drawing produced a duplicate key,
+    // which the lint caught and this count would not have.
+    expect((block.match(/: true/g) || []).length).toBe(34)
     expect(block).not.toContain('vertical-integration')
     expect(block).toContain('porters-5-forces')
   })
@@ -284,13 +299,31 @@ describe('a drawing reaches the screen it was drawn for', () => {
     expect(unknown).toEqual([])
   })
 
-  test('no concept is registered twice', () => {
-    const ids = builder.DRAWINGS
-      .reduce((acc, d) => acc.concat(builder.servedConcepts(d)), [])
+  test('no concept is registered twice on the same sheet', () => {
+    // 🔴 A CONCEPT MAY HAVE SEVERAL SHEETS SINCE 2026-09-23, so the identity is
+    // the PAIR — concept and sheet — not the concept alone. Two drawings claiming
+    // one concept AND one sheet would leave which of them ships to the order of
+    // the list, silently, which is the fault this has always guarded.
+    const keys = builder.DRAWINGS.reduce(function (acc, d) {
+      return acc.concat(builder.servedConcepts(d).map(function (id) {
+        return id + '#' + (d.sheet || 1)
+      }))
+    }, [])
 
-    // Two drawings claiming one concept would leave which of them ships to the
-    // order of this list, silently.
-    expect(ids.length).toBe(new Set(ids).size)
+    expect(keys.length).toBe(new Set(keys).size)
+
+    // And a concept's sheets are 1..n with none missing — a gap would mean a
+    // sheet was dropped from the list and the concept teaches part of itself.
+    const bySheet = {}
+    builder.DRAWINGS.forEach(function (d) {
+      builder.servedConcepts(d).forEach(function (id) {
+        bySheet[id] = (bySheet[id] || []).concat(d.sheet || 1)
+      })
+    })
+    Object.keys(bySheet).forEach(function (id) {
+      const want = bySheet[id].map(function (_, i) { return i + 1 })
+      expect(id + ':' + bySheet[id].slice().sort().join(',')).toBe(id + ':' + want.join(','))
+    })
   })
 })
 
@@ -362,7 +395,10 @@ describe('a drawing costs no more than one concept is worth', () => {
         // Quoted or not — `pricing` is the one id the lint will not let us
         // quote — what matters is that the id loads through `import()`.
         const key = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        expect(registry).toMatch(new RegExp("^\\s*'?" + key + "'?: \\(\\) => import\\(", 'm'))
+        // ⚠ A LIST SINCE 2026-09-23 — one entry per teaching sheet. The id opens an
+        // array; every import() in the file is still checked for laziness by the
+        // assertion above, so a concept cannot go back to a bare factory unnoticed.
+        expect(registry).toMatch(new RegExp("^\\s*'?" + key + "'?: \\[$", 'm'))
       })
     })
   })

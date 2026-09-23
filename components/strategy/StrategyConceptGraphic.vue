@@ -74,16 +74,38 @@ export default {
     firmLogo: {
       type: String,
       default: ''
+    },
+
+    /**
+     * Which teaching sheet of this concept to draw, from 0.
+     *
+     * 🔴 ALMOST EVERY CONCEPT HAS EXACTLY ONE, so the default is 0 — but
+     * Collaborative Thinking has two (Mike, 2026-09-23), because his Christchurch
+     * story and his De Bono explanation are both nearly full pages at his own
+     * type sizes and neither may be shrunk to join them. A caller that never
+     * passes this teaches the FIRST SHEET ONLY, which is why every surface loops
+     * `conceptSheetCount` rather than rendering this component once.
+     */
+    sheet: {
+      type: Number,
+      default: 0,
+      validator: n => Number.isInteger(n) && n >= 0
     }
   },
 
   computed: {
     /**
      * The drawing to render, as a lazy component factory.
+     *
+     * ⚠ The registry holds a LIST per concept since 2026-09-23. An out-of-range
+     * sheet renders nothing rather than throwing — the same safe state as a
+     * concept with no drawing at all.
+     *
      * @returns {(function(): Promise<object>)|null}
      */
     drawing () {
-      return CONCEPT_GRAPHICS[this.conceptId] || null
+      const sheets = CONCEPT_GRAPHICS[this.conceptId]
+      return (sheets && sheets[this.sheet]) || null
     },
 
     /**

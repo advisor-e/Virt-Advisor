@@ -738,60 +738,106 @@ scope before leaving. **The feature would have been broken by the thing it was b
 | **7** | ☑ **THE DOOR — BUILT 2026-09-22.** An advisor reopens the session they had open, with its ticks, its named steps, its typed answers and the AI's suggestion restored — the reopen bar, reopening to the concept last open, the `Saved` stamp and the *Unsaved changes* state, in `pages/strategy-planner.vue`, off `GET /api/strategy/sessions?clientId=` and `GET /api/strategy/sessions/:id`. ⚠ **`Leave session` alone is drawn and deliberately NOT rendered** — it has no destination and we are not asking Advisor-e for one (Mike, 2026-09-22); where it goes is his call and blocks nothing. **Mike's own redirection, 2026-09-22:** *"or, simply make stage 7 - building the door?"* — after asking the question that exposed it, *"as an advisor, in a session with a client, how do i leave the session to look at something else and return back to my screen afterwards?"* | **His question, and the measured defect it found.** Stage 7 formerly read *"calculators run inside the card"*; that is **§7a below**, unbuilt and not scheduled. His patchwork ruling is unchanged and still governs how a calculator is built if one ever is. | **Until this shipped an advisor could not come back at all.** They landed on a blank Scope screen and a second *Build the session* opened an empty duplicate for the same client. It was wiring, not machinery: the session already stored everything and two firm-scoped routes already served it, and nothing on the screen called either. **Both are called now.** |
 | **8** | **A manager adds a concept** — mentor tier first, cascading down. ⛔ **SCOPED AND STOOD DOWN BY MIKE, 2026-09-23:** *"nope - lets get the remaining 12 frameworks sorted before we deal with this"*. The impact test that scoping produced is below and is the reason it is worth keeping: a concept a manager adds is **unusable unless it carries a table or a drawing** (`utils/strategyCards.js`), and the drawing half can never be a manager's, because his 2026-09-18 ruling rules out any image of a deck page. So this stage is the capture table, and only that — established before it was paused, not to be re-derived. | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
 
-### 🔴 THE TWELVE AN ADVISOR COULD NOT RUN — NINE OF THEM ARE THE AGENDA (2026-09-23)
+### 🔴 THE TWELVE AN ADVISOR COULD NOT RUN — EIGHT DELETED, TWO PAGES BROUGHT IN (2026-09-23)
 
 **Mike stood stage 8 down for this:** *"lets get the remaining 12 frameworks sorted before we
-deal with this"*. **42 of the 52 are now runnable, up from 40.** The other ten are not a backlog
-of undrawn concepts, and that is the finding.
+deal with this"*. **44 of 46 are now runnable.** The concept count fell 52 → 46 and that is not
+a loss: eight of those rows were never frameworks, and two real pages that no index had ever
+pointed at came in.
 
-🔴 **ELEVEN OF THE TWELVE POINTED AT THEIR DECK'S AGENDA PAGE.** Every one is `source: 'agenda'`
-on `page: 2` — the warning §0's drawing method already carries, here as the cause rather than a
-risk. Opening all eleven at 150dpi found **only two are frameworks at all**: three are blank
-section dividers, five are instruction cards naming a workbook or an app feature, one has no page
-whatsoever. **That is item 15.17, and it is Mike's decision, not ours** — they came off his own
-Session Scope tables, and `data/session-processes.json` already models the same nine as session
-STEPS in his words.
+🔴 **ELEVEN OF THE TWELVE POINTED AT THEIR DECK'S AGENDA PAGE.** Every one was
+`source: 'agenda'` on `page: 2` — the warning §0's drawing method already carries, here as the
+cause rather than a risk. Opening all eleven at 150dpi found **only two were frameworks at
+all**: three were blank section dividers, five were instruction cards naming a workbook or an
+app feature, one had no page whatsoever.
+
+☑ **MIKE DELETED THE EIGHT** — *"then just delete the rest - they are likely to be repeats"*.
+He was right, and this feature's own framing page is the proof: two of the four agenda bullets
+on *Our Session Objective* **are** two of the eight. They were that page's bullets, lifted out
+and listed as frameworks an advisor could tick. Four more were already done by the planner's own
+stages (Objectives & actions, Produce plan) or by **The 8 Profit Levers**, which works; a fifth
+duplicated a sixth, both pointing at `BD stages.xlsx`.
 
 🔴 **THE TITLES CANNOT TELL YOU, AND A TEXT COMPARISON SAID THEY COULD.** A first pass matched
-each concept to the slide whose extracted heading matched, and produced ten confident rows. Mike
+each concept to the slide whose extracted heading matched and produced ten confident rows. Mike
 refused it in four words — *"slide 4 in organisational review DOES NOT contain business
-development stages"* — and he was right: that page is **titled** *Business Development Stages* and
-its whole body is *"Complete the Business Development Stages table… (the dark bands will calculate
-automatically)"*. It points at `BD stages.xlsx`, which the census excludes as a calculator. **Step
-1 of the drawing method is LOOK, and skipping it produced a table that was wrong on most rows
-while reading as evidence.** Two concepts point at that same workbook, in two different decks.
+development stages"* — and he was right: that page is **titled** *Business Development Stages*
+and its whole body is *"Complete the Business Development Stages table… (the dark bands will
+calculate automatically)"*. **Step 1 of the method is LOOK, and skipping it produced a table
+that was wrong on most rows while reading as evidence.**
 
-☑ **DIVISIONAL KPI'S** — its fill-in table **is** its teaching page, Organisational Review p22, so
-it joins `read-deck-capture-tables.js` beside Branding, Pricing, Packaging and Customer Loyalty.
-Twelve boxes: his six divisions down the side, Primary Output and Divisional KPI across, Finance
-carried as his worked example. The four existing tables regenerated byte for byte. ⚠ Its guard
-described four templates of one shape; it now names which of the five are question sheets and
-which is the named-row grid, and its page-number check reads **every** cell rather than the
-right-hand one, which only ever worked while every grid had two columns.
+☑ **TWO FRAMEWORKS WIRED FROM HIS OWN MATERIAL, neither needing a decision.**
+**Divisional KPI's** — its fill-in table **is** its teaching page, Organisational Review p22, so
+it joins `read-deck-capture-tables.js` beside Branding, Pricing, Packaging and Customer Loyalty:
+twelve boxes, his six divisions against Primary Output and Divisional KPI. **Review Internal
+Insights Data** — his own slide names the template (*"Review the Internal Team Insights page of
+the Insights Summary template"*), which was extracted and reaching no concept. **Four of his
+templates still reach none** — SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve & Cycle
+Notes, item **15.16**.
 
-☑ **REVIEW INTERNAL INSIGHTS DATA** — **his own slide names the template**: *"Review the Internal
-Team Insights page of the Insights Summary template."* That template was extracted and reaching no
-concept, so this was a reading, not a design decision. It is one of the five 15.16 lists; **four
-remain** (SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve & Cycle Notes).
+🔴 **AND THAT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A
+band's heading was found by *"words, then ruled lines"*. Insights Summary bands as **headings →
+his worked answer in prose → ruled lines**, twice — so the EXAMPLE matched and the HEADING did
+not. Every box was headed *"We don't follow up customers after purchase to see if they still
+need help"*. ⚠ **Fixing the obvious half is not enough and looks like success:** stopping the
+example being read as a heading recovers the first band and still loses the second, whose own
+heading fails *"then ruled lines"* for the same reason. A heading must now **start** a band —
+row 0, or the row after the previous band's lines — **and** its lines may sit one row further
+down. **Proved: all 21 templates snapshotted first (393 boxes with every label and example), and
+21 of 21 came back identical**, Porter's and Blue Ocean among them. The new guard was then
+checked by restoring the fault and watching it fail.
 
-🔴 **AND IT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A
-band's heading was found by *"words, then ruled lines"*. Insights Summary bands as **headings → his
-worked answer in prose → ruled lines**, twice — so the EXAMPLE matched and the HEADING did not.
-Every box was headed *"We don't follow up customers after purchase to see if they still need
-help"*, and neither `What We Do LESS Well` nor `What Resources We Need` reached a screen. ⚠ **Fixing
-the obvious half is not enough and looks like success:** stopping the example being read as a
-heading recovers the first band and still loses the second, whose own heading fails *"then ruled
-lines"* for exactly the same reason. A heading must now **start** a band — row 0, or the row after
-the previous band's lines — **and** its lines may sit one row further down. **Proved, not asserted:
-all 21 templates snapshotted first — 393 boxes with every label and example — and 21 of 21 came
-back identical**, Porter's, Blue Ocean Fronts and the Profit Levers among them. The new guard was
-then checked by restoring the fault and watching it fail.
+### 🔴 TWO PAGES THAT WERE NEVER IN THE 52, AND THE FIRST CONCEPT WITH TWO SHEETS
 
-⚠ **NOT FIXED, AND NOT A REGRESSION: on a banded grid his worked answer never reaches the advisor
-as guidance.** Where a table has ruled lines only the blank cells become boxes, so the example row
-is dropped rather than shown. It has always behaved this way and only became visible when a banded
-grid with a worked example first reached a screen. Where his example should sit — there are three
-rows of boxes under each heading and one example — is a design decision and is untouched.
+**`source: 'framing-page'` is the third row kind**, and it exists because `agenda` means *"`page`
+is the contents page, NOT the teaching page"* — the opposite of what is true for these two.
+
+☑ **OUR SESSION OBJECTIVE** — Strategic Orientation 1 **p2**, not p1: p1 is the cover and carries
+no agenda at all. Artefact
+[`../mockups/strategy-concept-our-session-objective.html`](../mockups/strategy-concept-our-session-objective.html),
+approved by Mike 2026-09-23. 🔴 **ITS AGENDA IS A LIVE SLOT, AND IT IS THE SESSION'S OWN STEP
+LIST** — his ruling the same day, so the page a client reads and the running order the app
+follows can never be two different lists. His four lines are the shipped default and are what
+the drawing was approved against; `bindAgendaSlot` keeps his group WHOLE under `v-if` and adds a
+sibling under `v-else`. ⚠ One fault, caught only by the side-by-side: his *(section n)* tags
+interrupt the line, so the space before each one lives at the END of the span before it and is
+inside that span's measured width — SVG collapses edge whitespace, so the glyphs stretched to
+fill the pinned width and closed the gap. Four spans now carry `xml:space="preserve"`.
+
+☑ **COLLABORATIVE THINKING** — Mike, on being told it had never been one of the 52: *"it should
+be its own 'concept' able to be selected into the build - and include BOTH the christchurch
+engineer and picture + debonos explanation"*. Artefact
+[`../mockups/strategy-concept-collaborative-thinking.html`](../mockups/strategy-concept-collaborative-thinking.html).
+🔴 **IT WAS NEVER REMOVED — IT WAS NEVER THERE.** The 52 were read from the decks' scope tables
+and agendas, and it is printed on neither, so nothing in the concept machinery could have found
+it.
+🔴 **TWO SHEETS, MEASURED BEFORE IT WAS DESIGNED.** Business Targets p3 holds **799** body
+characters and Strategic Orientation 1 p10 **1,042**, at his own 22.9–25pt; p10 alone runs
+y105→713 of an 844 sheet and p3 needs its right third for the artwork. One sheet could hold both
+only by shrinking his type, which the method forbids — his sizes are read, never chosen. ⚠ Sheet
+order is a judgement: his p10 puts the story INSIDE the theory, so either order defends itself;
+this one follows the decks. ⚠ His sketch is **his own raster, cut from his RENDERED page** — its
+placement rect runs to x=1728 on a 1500 sheet, so his slide crops it and the embedded original
+would put back what he hides.
+🔴 **IT IS WHAT KEEPS BUSINESS TARGETS ON THE MENU.** All five of that deck's rows were agenda
+lines and all five went; p3 is the only genuine teaching page it holds, and the loader refuses a
+panel with no rows.
+
+⚠ **FOUR FAULTS THE BUILD EXPOSED, ALL ALREADY THERE, NONE VISIBLE ON A SCREEN:**
+**(1)** the registry keyed **one component per concept**, so a second sheet would have
+overwritten the first and the concept would have taught half of itself with nothing failing;
+**(2)** the printed plan demanded a summary or a prompt before printing a teaching page — right
+while every concept had one — so **a page whose whole content is a drawing was dropped from the
+client's plan entirely**; **(3)** the scope menu read the DECK where it must read the ROW, so a
+framing page among agenda rows lost its page number, its title and its drawing; **(4)** the
+titled-concepts registry gained a duplicate key, caught by the lint rather than by the count
+guarding it — that guard now counts concepts, which is what it always meant.
+
+**What is left is ONE framework with a real slide and no drawing** — **Define the Cultural Core
+Values**, Organisational Review p11, his numbered five-part list and the Belongs / Behave /
+Believe circle. Item **15.17**. *Drafting Tender Proposals* is the other unrunnable row and is
+not a gap: his own summary calls it general reading.
+
 
 ### 7a. The in-card calculators — what stage 7 used to be, and why it is not
 

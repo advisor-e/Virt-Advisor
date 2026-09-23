@@ -671,24 +671,28 @@
     },
     {
       "ref": "15.17",
-      "name": "Nine of the planner's fifty-two concepts are the session's running order, not frameworks",
+      "name": "One framework has a real teaching slide and no drawing - Cultural Core Values",
       "rankedByMike": false,
       "kind": "defect",
       "score": 3,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Nine concepts have no teaching page because none was ever meant to exist. They are agenda lines - complete this table, this is section 1 - and an advisor scoping one reaches a screen with nothing on it.",
-      "risk": "Left as concepts they are permanently unrunnable, and every count of what the planner cannot do carries them, so the real gap reads as nine larger than it is. Removing them is worse if wrong: they came off Mike's own Session Scope tables and an advisor may want to tick them as steps. It is his call, not a reading - and the same nine are already what Build session models as STEPS, which data/session-processes.json holds in his own words.",
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-23"
+      },
+      "why": "Define the Cultural Core Values is scoped, ticked and run like any other framework, and then teaches nothing: its slide exists and has never been drawn, so the advisor gets a name and the client's plan gets a near-empty page.",
+      "risk": "It is the LAST of the twelve, so it is the one row standing between the planner and every scoped framework teaching something. Small and contained - one drawing by the section 0 method, an approved artefact, and the generator - but it needs Mike's approval on the drawing before anything ships, as all 35 did.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "2026-09-23 - 'lets get the remaining 12 frameworks sorted before we deal with this', redirecting stage 8. Then 'read them closely - slide 4 in organisational review DOES NOT contain business development stages', which is what forced the decks to be opened rather than their titles compared."
+        "detail": "2026-09-23 - 'lets get the remaining 12 frameworks sorted before we deal with this', then 'read them closely - slide 4 in organisational review DOES NOT contain business development stages', which forced the decks open rather than their titles compared."
       },
-      "touches": "Nine concepts in data/strategy-frameworks.json, all source:agenda on page 2; data/session-processes.json, which already names these steps; components/strategy/StrategyScopeMenu.vue and the scope tables the concept list was read from; tests/unit/strategyConcepts.test.js, which pins the 52 and the 18 agenda rows.",
-      "note": "THE NINE: Choose Your Objectives, Review Your Profit Lever Focus, Plan your meeting follow-up, Review the Planning Process and Language, Brainstorm and record Operational Objectives, Define Your Business Owner Expectations, Determine Your Business Development Stages, Review the Development Stages of the Organisation, Review Internal Insights Data - the last now HAS a capture form, so eight of the nine remain unrunnable. PROVED BY OPENING THE PAGES, not by comparing titles: 3 are blank section dividers, 5 are instruction cards naming a workbook or an app feature, 1 has no page at all. TWO point at the same table. TWO point at BO Expectations.xlsx and BD stages.xlsx, which the census excludes as calculators.",
-      "comment": "2026-09-23 - filed on Mike's yes after his challenge disproved a page mapping built from extracted titles. Every claim here is from a 150dpi render of his own slide."
+      "touches": "A new drawing in design/mockups/ by the section 0 method and its ARTEFACTS.md row; scripts/build-concept-graphics.js DRAWINGS; the count guards in tests/unit/conceptGraphics.test.js, which pin 35 svgs and 34 titled concepts.",
+      "note": "THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Checked by rendering it, not by its title. CLOSED THE SAME DAY: eight stage directions deleted on Mike's ruling, Divisional KPI's and Review Internal Insights Data wired from his own material, and two pages brought in that were never among the 52 - Our Session Objective and Collaborative Thinking, the first concept with TWO teaching sheets. 44 of 46 run. Drafting Tender Proposals is the other unrunnable row and is NOT a gap - his summary calls it general reading. Record: strategy-planner.md section 0.",
+      "comment": "2026-09-23 - filed as nine stage directions, then rewritten to what survives his ruling. His challenge disproved a page mapping built from extracted titles; every claim here is from a 150dpi render of his own slide."
     }
   ]
 }

@@ -63,9 +63,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 26 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 27 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 28 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 29 | **15.17** Nine of the planner's fifty-two concepts are the session's running order, not frameworks ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 29 | **15.17** One framework has a real teaching slide and no drawing - Cultural Core Values ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
 
-**29 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
+**29 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
