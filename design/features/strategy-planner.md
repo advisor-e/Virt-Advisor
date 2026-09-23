@@ -736,7 +736,62 @@ scope before leaving. **The feature would have been broken by the thing it was b
 
 | **6** | ☑ **THE AI PRE-TICK — BUILT 2026-09-22.** `server/utils/strategyPretick.js` (the prompt, and the validator every reply passes through — 100% covered, as the standards require of anything that processes LLM output), `POST /api/strategy/suggest`, and the suggestion stored beside the ticks in `scope_json`. **No mockup was drawn: the screen's own approved drawing already carries the button, the bar and Decision C** — the full account, the measurement and the three deviations are at the head of this section. | **"The AI pre-ticks, never unticks"** (the session scope menu), ruled 2026-09-17 | **Measured, not asserted:** five client situations gave five different lists (overlap 0.14–0.50, one concept of 52 common to all), **4 of Pivot's 9 on Mike's own client** with 3 reached unprompted, and **0 invented concepts**. Against a baseline of **0 pre-ticked and 52 rows read by hand**. 🔴 **AND THE ADVISOR'S JOB CHANGES SHAPE:** it offers 5–10, not 20, so the work is **adding a few rather than cutting many** — the opposite of what "23 to cut by hand" implies, and the screen is built for it. |
 | **7** | ☑ **THE DOOR — BUILT 2026-09-22.** An advisor reopens the session they had open, with its ticks, its named steps, its typed answers and the AI's suggestion restored — the reopen bar, reopening to the concept last open, the `Saved` stamp and the *Unsaved changes* state, in `pages/strategy-planner.vue`, off `GET /api/strategy/sessions?clientId=` and `GET /api/strategy/sessions/:id`. ⚠ **`Leave session` alone is drawn and deliberately NOT rendered** — it has no destination and we are not asking Advisor-e for one (Mike, 2026-09-22); where it goes is his call and blocks nothing. **Mike's own redirection, 2026-09-22:** *"or, simply make stage 7 - building the door?"* — after asking the question that exposed it, *"as an advisor, in a session with a client, how do i leave the session to look at something else and return back to my screen afterwards?"* | **His question, and the measured defect it found.** Stage 7 formerly read *"calculators run inside the card"*; that is **§7a below**, unbuilt and not scheduled. His patchwork ruling is unchanged and still governs how a calculator is built if one ever is. | **Until this shipped an advisor could not come back at all.** They landed on a blank Scope screen and a second *Build the session* opened an empty duplicate for the same client. It was wiring, not machinery: the session already stored everything and two firm-scoped routes already served it, and nothing on the screen called either. **Both are called now.** |
-| **8** | **A manager adds a concept** — mentor tier first, cascading down | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
+| **8** | **A manager adds a concept** — mentor tier first, cascading down. ⛔ **SCOPED AND STOOD DOWN BY MIKE, 2026-09-23:** *"nope - lets get the remaining 12 frameworks sorted before we deal with this"*. The impact test that scoping produced is below and is the reason it is worth keeping: a concept a manager adds is **unusable unless it carries a table or a drawing** (`utils/strategyCards.js`), and the drawing half can never be a manager's, because his 2026-09-18 ruling rules out any image of a deck page. So this stage is the capture table, and only that — established before it was paused, not to be re-derived. | His request, 2026-09-17 | Without it a 53rd concept needs a developer. |
+
+### 🔴 THE TWELVE AN ADVISOR COULD NOT RUN — NINE OF THEM ARE THE AGENDA (2026-09-23)
+
+**Mike stood stage 8 down for this:** *"lets get the remaining 12 frameworks sorted before we
+deal with this"*. **42 of the 52 are now runnable, up from 40.** The other ten are not a backlog
+of undrawn concepts, and that is the finding.
+
+🔴 **ELEVEN OF THE TWELVE POINTED AT THEIR DECK'S AGENDA PAGE.** Every one is `source: 'agenda'`
+on `page: 2` — the warning §0's drawing method already carries, here as the cause rather than a
+risk. Opening all eleven at 150dpi found **only two are frameworks at all**: three are blank
+section dividers, five are instruction cards naming a workbook or an app feature, one has no page
+whatsoever. **That is item 15.17, and it is Mike's decision, not ours** — they came off his own
+Session Scope tables, and `data/session-processes.json` already models the same nine as session
+STEPS in his words.
+
+🔴 **THE TITLES CANNOT TELL YOU, AND A TEXT COMPARISON SAID THEY COULD.** A first pass matched
+each concept to the slide whose extracted heading matched, and produced ten confident rows. Mike
+refused it in four words — *"slide 4 in organisational review DOES NOT contain business
+development stages"* — and he was right: that page is **titled** *Business Development Stages* and
+its whole body is *"Complete the Business Development Stages table… (the dark bands will calculate
+automatically)"*. It points at `BD stages.xlsx`, which the census excludes as a calculator. **Step
+1 of the drawing method is LOOK, and skipping it produced a table that was wrong on most rows
+while reading as evidence.** Two concepts point at that same workbook, in two different decks.
+
+☑ **DIVISIONAL KPI'S** — its fill-in table **is** its teaching page, Organisational Review p22, so
+it joins `read-deck-capture-tables.js` beside Branding, Pricing, Packaging and Customer Loyalty.
+Twelve boxes: his six divisions down the side, Primary Output and Divisional KPI across, Finance
+carried as his worked example. The four existing tables regenerated byte for byte. ⚠ Its guard
+described four templates of one shape; it now names which of the five are question sheets and
+which is the named-row grid, and its page-number check reads **every** cell rather than the
+right-hand one, which only ever worked while every grid had two columns.
+
+☑ **REVIEW INTERNAL INSIGHTS DATA** — **his own slide names the template**: *"Review the Internal
+Team Insights page of the Insights Summary template."* That template was extracted and reaching no
+concept, so this was a reading, not a design decision. It is one of the five 15.16 lists; **four
+remain** (SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve & Cycle Notes).
+
+🔴 **AND IT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A
+band's heading was found by *"words, then ruled lines"*. Insights Summary bands as **headings → his
+worked answer in prose → ruled lines**, twice — so the EXAMPLE matched and the HEADING did not.
+Every box was headed *"We don't follow up customers after purchase to see if they still need
+help"*, and neither `What We Do LESS Well` nor `What Resources We Need` reached a screen. ⚠ **Fixing
+the obvious half is not enough and looks like success:** stopping the example being read as a
+heading recovers the first band and still loses the second, whose own heading fails *"then ruled
+lines"* for exactly the same reason. A heading must now **start** a band — row 0, or the row after
+the previous band's lines — **and** its lines may sit one row further down. **Proved, not asserted:
+all 21 templates snapshotted first — 393 boxes with every label and example — and 21 of 21 came
+back identical**, Porter's, Blue Ocean Fronts and the Profit Levers among them. The new guard was
+then checked by restoring the fault and watching it fail.
+
+⚠ **NOT FIXED, AND NOT A REGRESSION: on a banded grid his worked answer never reaches the advisor
+as guidance.** Where a table has ruled lines only the blank cells become boxes, so the example row
+is dropped rather than shown. It has always behaved this way and only became visible when a banded
+grid with a worked example first reached a screen. Where his example should sit — there are three
+rows of boxes under each heading and one example — is a design decision and is untouched.
 
 ### 7a. The in-card calculators — what stage 7 used to be, and why it is not
 
@@ -1098,7 +1153,7 @@ and is pinned by `tests/unit/strategyConcepts.test.js`.
 | Carrying Mike's own Concept Summary and Helps line | **34**, from the two Session Scope tables |
 | Agenda rows | **18** — 9 carry his own agenda sub-line, 9 are name-only |
 | Teaching form named (census §3) | 33 |
-| Capture form **measured** against one of his fill-in templates | 20 |
+| Capture form **measured** against one of his fill-in templates | 22 |
 
 🔴 **EVERY WORD IS HIS, READ OFF THE DECKS BY MACHINE — never retyped, never summarised.**
 *"The menu is his table, word for word"*. Ligatures are normalised to ASCII and nothing else is
@@ -1122,11 +1177,13 @@ once and pointed at with a `*Ref`, resolved when read: `price-for-delivery-mediu
 **An editing screen must say which rows share a piece of text before anyone changes it**, or one
 row's edit silently rewrites its neighbour.
 
-⚠ **32 concepts carry NO capture form, and that is deliberate.** Census §4 measured the nine
-capture forms across 24 templates, **not across all 52**, and is explicit that choosing one for a
-concept outside those 24 is a **design decision, not a reading**. Each measured row names the
-template it was matched to (`captureTemplate`) so the match is checkable; the rest are
-`unmeasured` with nothing in the field, and a test fails if a form ever appears on one.
+⚠ **30 concepts carry NO capture form, and "deliberate" is only half true.** Census §4 measured
+the nine capture forms across 24 templates, **not across all 52**, and is explicit that choosing
+one for a concept outside those 24 is a **design decision, not a reading**. Each measured row
+names the template it was matched to (`captureTemplate`) so the match is checkable; the rest are
+`unmeasured` with nothing in the field, and a test fails if a form ever appears on one. **That is
+true of the data and was never true of the work** — for these 30 a form was simply never chosen,
+which is item **15.16**, and this line used to read 32 as though the number were settled.
 
 **What the index is NOT.** It names a concept's form; it does not lay one out. Every teaching and
 capture form is drawn elsewhere — §0's method for the 33 graphics, and the nine capture shapes.

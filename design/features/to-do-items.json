@@ -371,7 +371,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick, stage 7 the door. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them, including all five stage 7 decisions on mockups/strategy-session-resume.html, settled 2026-09-22: A, B, D, E ruled, C DROPPED. The in-card calculators are parked in Brief 7a, his patchwork ruling intact. Stage 7 is built bar `Leave session`, deliberately not rendered - no destination, and it blocks nothing. NEXT: stage 8, a manager adding a concept.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick, stage 7 the door. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them, including all five stage 7 decisions on mockups/strategy-session-resume.html, settled 2026-09-22: A, B, D, E ruled, C DROPPED. In-card calculators: Brief 7a. STAGE 8 STOOD DOWN by Mike 2026-09-23 for the twelve frameworks an advisor cannot run; its impact test is in Brief 0. 42 of 52 now run; the nine that are the session's agenda are item 15.17.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -658,7 +658,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Twenty of fifty-two concepts have a measured capture form. Thirty-two do not, and twenty-two of those still carry a teaching form, so the advisor teaches from Mike page and records nothing.",
+      "why": "Twenty-two of fifty-two concepts have a measured capture form. Thirty do not, and twenty-two of those still carry a teaching form, so the advisor teaches from Mike page and records nothing.",
       "risk": "Nearly half the planner teaches a client and captures nothing, so the session does not carry forward - the same fault 15.11 scores 4 for at five concepts, here at twenty-two. It waits on Mike because strategy-planner.md section 4 is explicit: the census measured nine forms across 24 templates, not 52, and choosing a form for a concept outside those 24 is a DESIGN DECISION, not a reading. server/utils/strategyFrameworks.js throws if an unmeasured concept is given one.",
       "askedBy": {
         "who": "Mike",
@@ -666,8 +666,29 @@
         "detail": "2026-09-23 - \"if you have concepts that are yet to be wired up, why werent they put forward as a task?? get on with it.\" Raised after 15.6 closed and its closure recorded the thirty-two in passing."
       },
       "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
-      "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 4 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 32. The Brief calls it deliberate, true of the data but never true that the work was done. Five extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Insights Summary, Curve and Cycle Notes.",
+      "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 2 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 30. The Brief calls it deliberate, true of the data but never true that the work was done. FOUR extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve and Cycle Notes. Insights Summary was the fifth and is claimed 2026-09-23 - his Organisational Review p5 names it outright, so that one was a reading rather than a decision. The twenty-two taught-with-no-capture is UNMOVED: neither concept fixed that day carried a teaching form.",
       "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
+    },
+    {
+      "ref": "15.17",
+      "name": "Nine of the planner's fifty-two concepts are the session's running order, not frameworks",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Nine concepts have no teaching page because none was ever meant to exist. They are agenda lines - complete this table, this is section 1 - and an advisor scoping one reaches a screen with nothing on it.",
+      "risk": "Left as concepts they are permanently unrunnable, and every count of what the planner cannot do carries them, so the real gap reads as nine larger than it is. Removing them is worse if wrong: they came off Mike's own Session Scope tables and an advisor may want to tick them as steps. It is his call, not a reading - and the same nine are already what Build session models as STEPS, which data/session-processes.json holds in his own words.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-23 - 'lets get the remaining 12 frameworks sorted before we deal with this', redirecting stage 8. Then 'read them closely - slide 4 in organisational review DOES NOT contain business development stages', which is what forced the decks to be opened rather than their titles compared."
+      },
+      "touches": "Nine concepts in data/strategy-frameworks.json, all source:agenda on page 2; data/session-processes.json, which already names these steps; components/strategy/StrategyScopeMenu.vue and the scope tables the concept list was read from; tests/unit/strategyConcepts.test.js, which pins the 52 and the 18 agenda rows.",
+      "note": "THE NINE: Choose Your Objectives, Review Your Profit Lever Focus, Plan your meeting follow-up, Review the Planning Process and Language, Brainstorm and record Operational Objectives, Define Your Business Owner Expectations, Determine Your Business Development Stages, Review the Development Stages of the Organisation, Review Internal Insights Data - the last now HAS a capture form, so eight of the nine remain unrunnable. PROVED BY OPENING THE PAGES, not by comparing titles: 3 are blank section dividers, 5 are instruction cards naming a workbook or an app feature, 1 has no page at all. TWO point at the same table. TWO point at BO Expectations.xlsx and BD stages.xlsx, which the census excludes as calculators.",
+      "comment": "2026-09-23 - filed on Mike's yes after his challenge disproved a page mapping built from extracted titles. Every claim here is from a 150dpi render of his own slide."
     }
   ]
 }
