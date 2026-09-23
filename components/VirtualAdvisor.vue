@@ -897,6 +897,7 @@ import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
 import staircaseMixin from '~/mixins/staircaseMixin'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
+import moderationMessage from '~/mixins/moderationMessage'
 import growthFundamentals from '~/data/growth-fundamentals.json'
 import finMgtTable from '~/data/fin-mgt-table.json'
 
@@ -928,7 +929,7 @@ const PANEL_MODES = ['course', 'progression']
 
 export default {
   name: 'VirtualAdvisor',
-  mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin, traceReasonMixin],
+  mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin, traceReasonMixin, moderationMessage],
 
   props: {
     orgTemplateIds: {
@@ -2029,10 +2030,13 @@ export default {
             try {
               const data = JSON.parse(line.slice(6))
               if (data.type === 'error') {
-                this.messages.push({ role: 'assistant', content: this.$t('error') })
+                // Item 8.2 — a moderation block names the sentence; retrying the same words
+                // would only be blocked again, so no retry is offered for one.
+                const blocked = this.moderationMessageFrom(data)
+                this.messages.push({ role: 'assistant', content: blocked || this.$t('error') })
                 this.streamingText = ''
                 this.isStreaming = false
-                this.showRetry = true
+                this.showRetry = !blocked
               } else if (data.type === 'session_meta') {
                 this.sessionDomain = data.domain || null
                 this.sessionTemplates = data.templates || []

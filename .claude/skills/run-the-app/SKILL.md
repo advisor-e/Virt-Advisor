@@ -5,7 +5,7 @@ description: >-
   "start the dev server", "screenshot that screen", "does this actually work", "eyeball it before
   we tag", or any check that a screen renders, a tab loads, a badge shows the right word. Covers
   launching Nuxt + Restify, signing in without Advisor-e, driving the pages with Playwright, and
-  what each page is for and how to reach the part that matters. Keywords: dev:all, localhost:3000,
+  what each page is for and how to reach the part that matters. Keywords: nuxt build, npm run start, localhost:3000,
   dev-local-mentor, dev-local-bypass, isDevHost, Playwright, screenshot, Mentor Hub, Model Library,
   skipManual, browser, eyeball, UAT.
 ---
@@ -27,12 +27,30 @@ Governance (CLAUDE.md, absolute): starting the app changes nothing and needs no 
 
 ## 1. Launch
 
-```bash
-npm run dev:all      # Nuxt (:3000) and Restify (:4000) together, ALLOW_DEV_AUTH=true
+🔴 **TO LOOK AT OR TEST THE APP, BUILD IT AND SERVE THE BUILD — never the dev server.** Mike's
+ruling of 2026-08-02: the Nuxt 2 dev server leaks to ~12 GB and wedges, which looks exactly like
+hung code (it fell over five times in one session). `npm run dev:all` is for actively iterating
+on code only, and expect to bounce it. Stop any dev server before building — they share `.nuxt`.
+
+**Proven on the desktop 2026-09-24** (PowerShell), each in the background:
+
+```powershell
+npx nuxt build                  # ~2–4 min; exit 0 is also the Integration step-2 build check
+npm run start                   # serves the build on http://localhost:3000
+
+# The backend: Node 14.15 BY EXACT PATH (the Node 20 on PATH crashes restify 9.1.0), dev sign-in
+# on, and the antivirus root so OpenAI calls verify (§6):
+$env:ALLOW_DEV_AUTH = "true"
+$env:NODE_EXTRA_CA_CERTS = "C:\Users\Mike Barnes\avast-root-ca.pem"
+& "C:\Users\Mike Barnes\AppData\Local\nvm\v14.15.0\node.exe" server/restify-server.js
 ```
 
-Run it in the background; it does not exit. Nuxt takes ~30–60s for its first compile — wait for
-`Client: Compiled successfully` in the output before pointing a browser at it.
+⚠ **The certificate file goes stale** — Avast rotates its root. If OpenAI calls fail in ~20 ms
+with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`, re-export it from the Windows store (`Cert:\LocalMachine\Root`,
+subject `*Avast*`) into that file; the live-chain export did NOT work on 2026-09-24. **Never** set
+`NODE_TLS_REJECT_UNAUTHORIZED=0`. *(The paths above are the desktop's; the laptop's differ.)*
+
+A build does not hot-reload at all: after changing a `.vue` file, build again.
 
 ### 🔴 NUXT HOT-RELOADS. RESTIFY DOES NOT. Restart it after ANY change under `server/`
 
@@ -159,15 +177,27 @@ is why real deployments fail closed. Never write that these managers cannot log 
 
 ## 3. Driving it with Playwright
 
-Playwright is already installed. Three things cost time every session if you do not know them.
+⚠ **`playwright` is declared in `package.json` but is NOT in `node_modules` on the desktop**
+(checked 2026-09-24 — `Cannot find module 'playwright'`). Do not install it; borrow the copy the
+sibling Collaborate app already has, and point at the Chromium that is already downloaded:
+
+```js
+const { chromium } = require('C:/Users/Mike Barnes/Projects/Advisor Collaborate/node_modules/playwright-core')
+const browser = await chromium.launch({
+  executablePath: 'C:/Users/Mike Barnes/AppData/Local/ms-playwright/chromium-1064/chrome-win/chrome.exe'
+})
+```
+
+If that path has moved, find it with
+`Get-ChildItem "$env:LOCALAPPDATA\ms-playwright" -Recurse -Filter chrome.exe`. Keep the driver
+script in the scratchpad, never in the repo. Three more things cost time every session:
 
 ### 🔴 The three gotchas
 
-1. **Resolve the module.** A driver script in a scratchpad cannot find `playwright`. Set
-   `NODE_PATH` at the project's `node_modules` rather than writing the script into the repo:
-   ```bash
-   NODE_PATH="$PWD/node_modules" node /path/to/scratchpad/drive.js
-   ```
+1. **The Virtual Advisor asks "Who is this session for?" first.** Click `Skip this session`, or
+   every message waits behind the client picker and the conversation never moves. Choice
+   questions (Growth Curve, Staircase) are radios plus **Confirm selection**; meeting length is
+   `.session-length-opt` buttons. Advisor replies are `.message-bubble.bubble-advisor`.
 2. **`waitUntil: 'networkidle'` NEVER FIRES.** Nuxt's dev server holds an open hot-reload
    connection (`__webpack_hmr`, `_loading/sse`), so the page is never idle and `goto` times out.
    Use `domcontentloaded` plus an explicit wait of ~6s.
@@ -183,8 +213,8 @@ Playwright is already installed. Three things cost time every session if you do 
 ### A driver that works
 
 ```js
-const { chromium } = require('playwright')
-const browser = await chromium.launch()
+const { chromium } = require('C:/Users/Mike Barnes/Projects/Advisor Collaborate/node_modules/playwright-core')
+const browser = await chromium.launch({ executablePath: 'C:/Users/Mike Barnes/AppData/Local/ms-playwright/chromium-1064/chrome-win/chrome.exe' })
 const page = await browser.newPage({ viewport: { width: 1500, height: 1000 } })
 
 // Catch what a screenshot cannot show you

@@ -45,7 +45,9 @@
 
     //- P11. A failure says so in those words. A tidy page of "no observations" must never be
     //- what a total failure looks like.
-    b-message(v-if="state === 'failed'" type="is-danger" size="is-small")
+    //- Item 8.2 — a report the safety check blocked says which line, who said it and when.
+    b-message(v-if="blockedMessage" type="is-danger" size="is-small") {{ blockedMessage }}
+    b-message(v-else-if="state === 'failed'" type="is-danger" size="is-small")
       | #[b Your reports could not be written.] The meeting was recorded and transcribed, but
       |  both reports failed to generate. Nothing here is missing because the meeting was
       |  quiet — try again, and tell someone if it keeps failing.
@@ -308,6 +310,8 @@
  * Vue 2 Options API, Pug, Buefy.
  */
 
+import moderationMessage from '~/mixins/moderationMessage'
+
 /** How much transcript to show either side of a citation. */
 const CONTEXT_SECONDS = 45
 
@@ -319,6 +323,8 @@ const MONTHS = [
 
 export default {
   name: 'MeetingReview',
+
+  mixins: [moderationMessage],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -338,6 +344,8 @@ export default {
       openContext: '',
       state: 'none',
       error: null,
+      /** The approved moderation message when a report was blocked (item 8.2), else ''. */
+      blockedMessage: '',
       attributionConfident: null,
       /**
        * Screen E. A client's attached correction statements, and a release made under the
@@ -417,6 +425,7 @@ export default {
         const data = await this.call('GET', '')
         this.state = data.state
         this.error = data.error
+        this.blockedMessage = this.moderationMessageFrom(data) || ''
         this.attributionConfident = data.attributionConfident
         this.summary = data.summary
         this.coaching = data.coaching

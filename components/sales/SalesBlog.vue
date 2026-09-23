@@ -322,6 +322,7 @@
 <script>
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
+import moderationMessage from '~/mixins/moderationMessage'
 
 /**
  * SalesBlog — the advisor's blog-writing screen (item 17 stage 5).
@@ -361,6 +362,8 @@ _md.disable(['image', 'html_inline', 'html_block'])
 
 export default {
   name: 'SalesBlog',
+
+  mixins: [moderationMessage],
 
   data () {
     return {
@@ -693,6 +696,8 @@ export default {
       if (body) {
         this.draftText = body.text || ''
         this.aiSource = body.source || ''
+        // A moderation block still brings the outline; this says which sentence stopped the AI.
+        this.errorText = this.moderationMessageFrom(body) || ''
         // The source app saves the brief after every generation, so the advisor
         // never loses the inputs that produced the text in front of them.
         await this.saveBrief(true)
@@ -724,6 +729,7 @@ export default {
       if (body) {
         this.finalText = body.text || ''
         this.aiSource = body.source || ''
+        this.errorText = this.moderationMessageFrom(body) || ''
       }
     },
 

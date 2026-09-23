@@ -157,11 +157,14 @@ import { DISTINCTION_DOMAINS } from '~/components/FirmManagerHub.vue'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import HubGuidePanel from '~/components/shared/HubGuidePanel.vue'
 import HubReadingCard from '~/components/shared/HubReadingCard.vue'
+import moderationMessage from '~/mixins/moderationMessage'
 
 export default {
   name: 'MentorLogicLabReport',
 
   components: { TierNotConnected, HubGuidePanel, HubReadingCard },
+
+  mixins: [moderationMessage],
 
   props: {
     // The caller's JWT. Re-gated server-side by requireManagingTier on every call —
@@ -295,7 +298,9 @@ export default {
         })
         const body = await res.json().catch(() => ({}))
         if (!res.ok || !body.success) {
-          throw new Error(res.status === 502 ? this.$t('hubReading.failed') : ((body.error && body.error.message) || this.$t('hubReading.failed')))
+          // Item 8.2 — a moderation block says so in the approved words.
+          throw new Error(this.moderationMessageFrom(body) ||
+            (res.status === 502 ? this.$t('hubReading.failed') : ((body.error && body.error.message) || this.$t('hubReading.failed'))))
         }
         this.report = Object.assign({}, this.report, { reading: body.reading || null, readingStale: false })
       } catch (e) {

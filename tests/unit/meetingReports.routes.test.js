@@ -198,6 +198,25 @@ describe('generating', () => {
     const res = makeMockRes()
     routes.getReports(makeReq({ params: { meetingId } }), res)
     expect(res._body.state).toBe('failed')
+    expect(res._body.moderation).toBeNull()
+  })
+
+  // Item 8.2 — a report the safety check blocked says which line, who said it and when.
+  test('a moderation block is reported against the transcript: who, when, and the line', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const line = '[1:30] CLIENT: That works for me, yes.'
+    reports.generateSummary.mockRejectedValue(blockedError({ category: 'self-harm/instructions', sentence: line }))
+    reports.generateCoachingNotes.mockRejectedValue(blockedError({ category: 'self-harm/instructions', sentence: line }))
+    const meetingId = seedMeeting()
+
+    await routes.runReports(meetingId, { points: [], scenarioName: null })
+
+    const res = makeMockRes()
+    routes.getReports(makeReq({ params: { meetingId } }), res)
+    expect(res._body.state).toBe('failed')
+    expect(res._body.moderation).toEqual({
+      kind: 'meeting', category: 'self-harm/instructions', sentence: 'That works for me, yes.', speaker: 'client', time: '1:30'
+    })
   })
 
   test('passes degraded speaker separation out to the screen rather than swallowing it', () => {

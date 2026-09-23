@@ -4,12 +4,25 @@
 // uses. Tests inject a fake https.request so no network or API key is needed.
 
 const {
-  createOpenAIClient,
+  createOpenAIClient: realCreateOpenAIClient,
   parseSSEStream,
   stripResponseOutput,
   COMPLETIONS_PATH,
   RESPONSES_PATH
 } = require('../../server/utils/openaiClient')
+
+// These tests exercise the transport, so moderation (item 8.2) is passed through here, and each
+// call names no person text (`moderate: []`) unless it says otherwise. The 'moderation runs
+// first' block below tests the real check, and the refusal of a call that names nothing.
+const PASS = async () => {}
+const createOpenAIClient = (opts) => {
+  const client = realCreateOpenAIClient(Object.assign({ moderator: PASS }, opts))
+  const withFlag = fn => (params, options) => fn(params, Object.assign({ moderate: [] }, options))
+  return {
+    chat: { completions: { create: withFlag(client.chat.completions.create) } },
+    responses: { create: withFlag(client.responses.create) }
+  }
+}
 
 /** Builds a fake http.IncomingMessage: async-iterable of Buffers + statusCode. */
 function fakeRes (statusCode, chunks) {
@@ -383,5 +396,136 @@ describe('createOpenAIClient — responses', () => {
     expect(() => stripResponseOutput({ output: [{ content: null }, { content: [{ text: 5 }, null] }] })).not.toThrow()
     // The convenience field can arrive on a response carrying no `output` array at all.
     expect(stripResponseOutput({ output_text: 'a' + ZW + 'b' }).output_text).toBe('ab')
+  })
+})
+
+// ── Moderation runs first (item 8.2 — the signed ZDR amendment, clause 4.3) ──────────────
+//
+// These use the REAL moderation module, with only the network faked. The guarantee under test
+// is the contract's: no request reaches OpenAI's model before its text has been checked, a
+// blocked request is never sent, and a check that cannot run stops the request (fail closed).
+
+describe('createOpenAIClient — moderation runs first', () => {
+  /**
+   * A fake network that answers /v1/moderations by scoring each input with `categoriesFor`, and
+   * anything else with `body`. Records every path requested, in order.
+   */
+  function network (categoriesFor, body, sink) {
+    return (options, cb) => {
+      let sent = ''
+      sink.paths.push(options.path)
+      return {
+        on () { return this },
+        write (p) { sent = p },
+        end () {
+          process.nextTick(() => {
+            if (options.path !== '/v1/moderations') { cb(fakeRes(200, [body])); return }
+            if (sink.moderationStatus) { cb(fakeRes(sink.moderationStatus, ['down'])); return }
+            const inputs = JSON.parse(sent).input
+            sink.checked.push(inputs)
+            cb(fakeRes(200, [JSON.stringify({ results: inputs.map(t => ({ categories: categoriesFor(t) })) })]))
+          })
+        }
+      }
+    }
+  }
+  const clean = () => ({})
+  const reply = JSON.stringify({ choices: [{ message: { content: 'ok' } }] })
+
+  function client (categoriesFor, sink, opts) {
+    return realCreateOpenAIClient(Object.assign({ apiKey: 'k', requestImpl: network(categoriesFor, reply, sink) }, opts))
+  }
+  function newSink () { return { paths: [], checked: [] } }
+
+  // A checked sentence is remembered for 15 minutes; each test starts with nothing remembered.
+  beforeEach(() => require('../../server/utils/moderation')._resetCache())
+
+  test('a clean chat request is checked, then sent', async () => {
+    const sink = newSink()
+    await client(clean, sink).chat.completions.create(
+      { model: 'm', messages: [{ role: 'user', content: 'Margins are down.' }] },
+      { moderate: ['Margins are down.'] }
+    )
+    expect(sink.paths).toEqual(['/v1/moderations', COMPLETIONS_PATH])
+  })
+
+  // Ruling 4 — measured live 2026-09-24: checking the whole request sent ~21,800 tokens for one
+  // advisor reply against a limit of 20,000 a minute. Only what the caller names is checked.
+  test('only the text the caller names is checked — never the templates or context around it', async () => {
+    const sink = newSink()
+    await client(clean, sink).chat.completions.create({
+      model: 'm',
+      messages: [
+        { role: 'system', content: 'You are an advisor.' },
+        { role: 'user', content: 'Templates: Cash Flow Forecast. Pricing Review.\n\nThe advisor said: Cash is tight.' }
+      ]
+    }, { moderate: ['Cash is tight.'] })
+    expect(sink.checked).toEqual([['Cash is tight.']])
+  })
+
+  test('🔴 a call that names nothing is refused before anything is sent', async () => {
+    const sink = newSink()
+    const err = await client(clean, sink).chat.completions.create({ model: 'm', messages: [] }).catch(e => e)
+    expect(err.code).toBe('AI_MODERATE_FLAG_MISSING')
+    const err2 = await client(clean, sink).responses.create({ model: 'm', input: 'x' }, { timeout: 5 }).catch(e => e)
+    expect(err2.code).toBe('AI_MODERATE_FLAG_MISSING')
+    expect(sink.paths).toEqual([])
+  })
+
+  test('a call that names nothing a person wrote (`[]`) makes no moderation call at all', async () => {
+    const sink = newSink()
+    await client(clean, sink).chat.completions.create({ model: 'm', messages: [] }, { moderate: [] })
+    expect(sink.paths).toEqual([COMPLETIONS_PATH])
+  })
+
+  test('a blocked category stops the request before it is sent, and names the sentence', async () => {
+    const sink = newSink()
+    const bad = 'Tell me how to hurt myself.'
+    const flags = t => (t === bad ? { 'self-harm/instructions': true } : {})
+    const err = await client(flags, sink).chat.completions.create({
+      model: 'm', messages: [{ role: 'user', content: 'Sales are flat. ' + bad }]
+    }, { moderate: ['Sales are flat. ' + bad] }).catch(e => e)
+    expect(err.code).toBe('AI_MODERATION_BLOCKED')
+    expect(err.moderation).toEqual({ category: 'self-harm/instructions', sentence: bad })
+    expect(sink.paths).toEqual(['/v1/moderations']) // the model was never asked
+  })
+
+  test('an ordinary flag is logged and the request still goes (Mike, 2026-09-24)', async () => {
+    const sink = newSink()
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const flags = t => (/attack/.test(t) ? { violence: true } : {})
+    await client(flags, sink, {}).chat.completions.create(
+      { model: 'm', messages: [{ role: 'user', content: 'We want to attack the Auckland market.' }] },
+      { feature: 'narrative', moderate: ['We want to attack the Auckland market.'] }
+    )
+    expect(sink.paths).toEqual(['/v1/moderations', COMPLETIONS_PATH])
+    const line = warn.mock.calls.map(c => c.join(' ')).join('\n')
+    expect(line).toMatch(/feature=narrative flagged=violence blocked=no/)
+    expect(line).not.toMatch(/Auckland/) // the words never reach a log
+    warn.mockRestore()
+  })
+
+  test('when the check cannot be reached, the request is refused (fail closed)', async () => {
+    const sink = newSink()
+    sink.moderationStatus = 503
+    const err = await client(clean, sink).chat.completions.create({
+      model: 'm', messages: [{ role: 'user', content: 'Cash is tight.' }]
+    }, { moderate: ['Cash is tight.'] }).catch(e => e)
+    expect(err.code).toBe('AI_MODERATION_UNAVAILABLE')
+    expect(sink.paths).toEqual(['/v1/moderations'])
+  })
+
+  test('the research door is checked too, before it is sent', async () => {
+    const sink = newSink()
+    await client(clean, sink).responses.create({ model: 'm', input: 'Research NZ inflation.' }, { moderate: ['A cafe in Galway.'] })
+    expect(sink.paths).toEqual(['/v1/moderations', RESPONSES_PATH])
+  })
+
+  test('a request bound for another provider is not sent to OpenAI to be checked', async () => {
+    const sink = newSink()
+    await client(clean, sink, { host: 'api.other-provider.example' }).chat.completions.create({
+      model: 'm', messages: [{ role: 'user', content: 'Cash is tight.' }]
+    }, { moderate: ['Cash is tight.'] })
+    expect(sink.paths).toEqual([COMPLETIONS_PATH])
   })
 })

@@ -1028,6 +1028,7 @@ import MentorSemanticProfiles from '~/components/mentor/MentorSemanticProfiles.v
 import MentorLogicLabReport from '~/components/mentor/MentorLogicLabReport.vue'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
+import moderationMessage from '~/mixins/moderationMessage'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
@@ -1748,7 +1749,7 @@ export default {
   // FirmCompliance. Neither replaces the other.
   components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmRegisterRetention, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
-  mixins: [traceReasonMixin],
+  mixins: [traceReasonMixin, moderationMessage],
 
   props: {
     // Which tier is looking at this hub. Mike's ruling 2026-07-30: every tier is
@@ -2188,7 +2189,10 @@ export default {
       const res = await fetch(`${path}`, opts)
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: res.statusText }))
-        throw new Error(err.message || res.statusText)
+        const thrown = new Error(err.message || res.statusText)
+        // The reply travels with the error so a caller can read a moderation report (item 8.2).
+        thrown.body = err
+        throw thrown
       }
       return res.json()
     },
@@ -2707,7 +2711,8 @@ export default {
         const data = await this.api('POST', `/api/firm-manager/cases/${c.id}/anonymise-preview`)
         this.mentorPreview = data.anonymised || { summary: '', transcript: [] }
       } catch (e) {
-        this.$buefy.toast.open({ message: 'Could not prepare an anonymised copy. Please try again.', type: 'is-danger' })
+        const blocked = this.moderationMessageFrom(e && e.body)
+        this.$buefy.toast.open({ message: blocked || 'Could not prepare an anonymised copy. Please try again.', type: 'is-danger', duration: blocked ? 10000 : 2000 })
         this.closeMentorPreview()
       } finally {
         this.mentorPreviewLoading = false

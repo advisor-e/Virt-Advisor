@@ -43,6 +43,7 @@ const path = require('path')
 const { formidable } = require('formidable')
 const overlay = require('../utils/firmOverlay')
 const { sendError } = require('../utils/sendError')
+const { moderationReport } = require('../utils/moderationReport')
 const { devFallbackAllowed } = require('../utils/dbFailure')
 const store = require('../utils/meetingAudioStore')
 const {
@@ -649,6 +650,14 @@ async function runReports (meetingId, ctx) {
   const transcript = store.readTranscript(meetingId)
   const metrics = computeMetrics(transcript)
   const failures = []
+  // Item 8.2 — the first moderation block, reported against the transcript so the screen can
+  // say who said the line and when. Both reports send the same transcript, so one is enough.
+  let moderation = null
+  const noteBlock = (err) => {
+    if (!moderation) {
+      moderation = moderationReport(err, { segments: (transcript && Array.isArray(transcript.segments)) ? transcript.segments : [] })
+    }
+  }
 
   try {
     const summary = await generateSummary({
@@ -660,6 +669,7 @@ async function runReports (meetingId, ctx) {
   } catch (err) {
     console.error('[meeting-review] summary generation failed:', err.message)
     failures.push('summary')
+    noteBlock(err)
   }
 
   try {
@@ -698,14 +708,15 @@ async function runReports (meetingId, ctx) {
   } catch (err) {
     console.error('[meeting-review] coaching generation failed:', err.message)
     failures.push('coaching')
+    noteBlock(err)
   }
 
   if (failures.length === 2) {
-    reportJobs.set(meetingId, { state: 'failed', startedAt: Date.now(), error: 'both reports failed' })
+    reportJobs.set(meetingId, { state: 'failed', startedAt: Date.now(), error: 'both reports failed', moderation })
   } else if (failures.length === 1) {
-    reportJobs.set(meetingId, { state: 'partial', startedAt: Date.now(), error: failures[0] + ' failed' })
+    reportJobs.set(meetingId, { state: 'partial', startedAt: Date.now(), error: failures[0] + ' failed', moderation })
   } else {
-    reportJobs.set(meetingId, { state: 'done', startedAt: Date.now(), error: null })
+    reportJobs.set(meetingId, { state: 'done', startedAt: Date.now(), error: null, moderation: null })
   }
 }
 
@@ -774,6 +785,8 @@ function getReports (req, res) {
     meetingId: meta.meetingId,
     state: job ? job.state : (summary || coaching ? 'done' : 'none'),
     error: job ? job.error : null,
+    // Item 8.2 — a moderation report when a report was blocked, else null.
+    moderation: (job && job.moderation) || null,
     hasTranscript: Boolean(transcript),
     attributionConfident: transcript ? Boolean(transcript.attributionConfident) : null,
     // 🔴 THE TRANSCRIPT COMES BACK HERE, AND ONLY HERE. `getRecording` deliberately refuses to

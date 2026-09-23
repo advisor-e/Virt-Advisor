@@ -187,11 +187,12 @@ function createRunStore (spec) {
    * @param {object} run
    * @param {string} code
    * @param {string} message
+   * @param {object} [extra] - further known-safe fields for `run.error`, e.g. a moderation report
    */
-  function failRun (run, code, message) {
+  function failRun (run, code, message, extra) {
     if (!run) { return }
     run.state = 'failed'
-    run.error = { code, message }
+    run.error = Object.assign({}, extra, { code, message })
     run.finishedAt = Date.now()
   }
 

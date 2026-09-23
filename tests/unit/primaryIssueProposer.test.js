@@ -325,7 +325,8 @@ describe('the model tie-break — boxed, and only on a real tie', () => {
     expect(params.messages[1].content).toContain('>>>')
     expect(params.messages[0].content).toMatch(/never write a problem of your own/i)
     // The advisor's description of a client is not personal data (Mike's ruling 2026-09-14).
-    expect(options).toEqual({ personal: false })
+    // Item 8.2 — the advisor's own words are what this call names for moderation.
+    expect(options).toEqual({ personal: false, moderate: ['costs are up'] })
   })
 
   test('a candidate list carrying rubbish is cleaned before the model sees it', async () => {

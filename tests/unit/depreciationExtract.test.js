@@ -571,6 +571,19 @@ loadFirmConfig: noConfig
     expect(out.code).toBe('READ_FAILED')
     // Never the underlying error: a socket message is not a manager's business.
     expect(out.message).not.toContain('socket')
+    expect(out.blocked).toBeUndefined()
+  })
+
+  test('a moderation block is a READ_FAILED that carries the block up (item 8.2)', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const blocked = blockedError({ category: 'illicit/violent', sentence: 'x' })
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    ex._setClientFactory(() => ({ responses: { create: () => { throw blocked } } }))
+    const out = await ex.readDocument({
+      scopeId: 'firm-1', country: 'NZ', filename: 'x.pdf', buffer: Buffer.from('%PDF-1.4'), loadFirmConfig: noConfig
+    })
+    expect(out.code).toBe('READ_FAILED')
+    expect(out.blocked).toBe(blocked)
   })
 
   test('a stream that never completes is not read as an empty answer', async () => {

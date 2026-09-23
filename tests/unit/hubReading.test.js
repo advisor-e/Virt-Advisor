@@ -297,6 +297,13 @@ describe('makeReading — the call, with a stubbed model', () => {
     hr._setClient(client({ choices: [] }))
     expect(await hr.makeReading(payload)).toEqual({ ok: false, reading: null })
   })
+
+  test('a moderation block is a failure that carries the block up (item 8.2)', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const blocked = blockedError({ category: 'illicit/violent', sentence: 'x' })
+    hr._setClient({ chat: { completions: { create: jest.fn().mockRejectedValue(blocked) } } })
+    expect(await hr.makeReading(payload)).toEqual({ ok: false, reading: null, blocked })
+  })
 })
 
 describe('readStoredReading — a stored row, cleaned', () => {

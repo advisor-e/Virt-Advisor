@@ -550,6 +550,34 @@ describe('generateFinal', () => {
     expect(result.error).toBe('plain string')
   })
 
+  // Item 8.2 — a moderation block still brings the outline (never an error box where the text
+  // should be) and carries the block up, so the route can name the sentence.
+  test('a moderation block still falls back to the template, and carries the block', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    const { blockedError } = require('../../server/utils/moderation')
+    const blocked = blockedError({ category: 'illicit/violent', sentence: 'x' })
+    stubProvider(blocked)
+    const result = await engine.generateDraft(brief())
+
+    expect(result.source).toBe('template')
+    expect(result.text).toContain('# Cash flow for owner-managers')
+    expect(result.blocked).toBe(blocked)
+  })
+
+  // Item 8.2 — what the call names for moderation is every piece of text the advisor typed,
+  // the points nested in the brief included; a field that is not text is skipped, not sent.
+  test('the call names every typed string for moderation, and skips what is not text', async () => {
+    const calls = stubProvider(completion('# An outline'))
+    await engine.generateDraft(brief({ wordCount: 600, author: null }))
+
+    const named = calls[0].options.moderate
+    expect(named).toEqual(expect.arrayContaining([
+      'Cash flow for owner-managers', 'Profit is an opinion', 'Accruals move the number', 'Cash does not lie'
+    ]))
+    expect(named.every(t => typeof t === 'string')).toBe(true)
+    expect(named).not.toContain(600)
+  })
+
   test('no provider at all falls back rather than throwing', async () => {
     jest.spyOn(aiProvider, 'getClient').mockImplementation(() => {
       throw new Error('no provider')

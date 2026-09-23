@@ -488,7 +488,8 @@ async function postSuggest (req, res) {
         temperature: 0,
         max_tokens: 1800,
         response_format: { type: 'json_object' }
-      }, { personal: false })
+        // moderate: [] — the situation is saved case summaries, nothing typed here (item 8.2).
+      }, { personal: false, moderate: [] })
     } catch (err) {
       console.error('[strategy-planner] postSuggest model call failed:', err.message)
       sendError(res, 502, 'SUGGEST_UNAVAILABLE',

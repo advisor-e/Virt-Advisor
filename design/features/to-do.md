@@ -54,12 +54,14 @@ repository sees; the two never both appear, and the build stops if they would.
 | 17 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 18 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 19 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 20 | **15.17** One framework has a real teaching slide and no drawing - Cultural Core Values ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
-| 21 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 22 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
-| 23 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
+| 20 | **12.1** Course Builder shows about 86 pieces of English that bypass the translation file ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 21 | **10.1** Seven manager screens can't be translated ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 22 | **15.17** One framework has a real teaching slide and no drawing - Cultural Core Values ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
+| 23 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 24 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
+| 25 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
 
-**23 live items. Seven need Mike.** If this list passes about twenty, something is wrong.
+**25 live items. Seven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

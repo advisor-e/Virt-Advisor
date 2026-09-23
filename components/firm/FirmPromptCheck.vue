@@ -82,7 +82,7 @@
   //- one of them says so, and the silent version tells an accountant their
   //- prompt is fine on the strength of a broken call.
   b-message(v-if="reviewFailed" type="is-warning" size="is-small")
-    | {{ $t('promptCheck.reviewFailed') }}
+    | {{ reviewBlocked || $t('promptCheck.reviewFailed') }}
 
   //- ── The report ───────────────────────────────────────────────────────
   .pc-report(v-if="hasReport")
@@ -120,6 +120,7 @@
 
 <script>
 import promptRefusal from '~/mixins/promptRefusal'
+import moderationMessage from '~/mixins/moderationMessage'
 
 /**
  * Share a prompt — the firm manager's paste-and-check panel.
@@ -146,7 +147,7 @@ import promptRefusal from '~/mixins/promptRefusal'
 export default {
   name: 'FirmPromptCheck',
 
-  mixins: [promptRefusal],
+  mixins: [promptRefusal, moderationMessage],
 
   props: {
     /** Bearer token for the manager-scoped backend routes. */
@@ -181,6 +182,8 @@ export default {
       review: [],
       /** True when the review could not be produced at all — never inferred from []. */
       reviewFailed: false,
+      /** The approved moderation message when the review was blocked (item 8.2), else ''. */
+      reviewBlocked: '',
       /**
        * The text the report was produced for. Kept so the report can say it is about an
        * earlier version rather than silently describing words that have changed — the
@@ -343,6 +346,7 @@ export default {
       this.refusal = null
       this.review = []
       this.reviewFailed = false
+      this.reviewBlocked = ''
       this.settled = {}
       try {
         if (removeInvisible === true) { this.consentFor = this.text }
@@ -356,6 +360,8 @@ export default {
           this.cleared = true
           this.review = Array.isArray(data.review) ? data.review : []
           this.reviewFailed = data.reviewFailed === true
+          // Item 8.2 — a moderation block names the sentence instead of "the review failed".
+          this.reviewBlocked = this.moderationMessageFrom(data) || ''
           this.reviewFor = this.text
         } else {
           this.refusal = data.refusal || null

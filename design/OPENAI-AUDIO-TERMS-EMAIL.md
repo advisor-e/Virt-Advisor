@@ -8,10 +8,10 @@
 > carries the whole transcript, which is the exposure §5.3 opened and could not close. Under ZDR
 > that call treats `store` as false and the content is excluded from abuse-monitoring logs.
 >
-> ⚠ **NOTHING IS GRANTED. IT IS AN INVITATION TO APPLY** — his words: *"I cannot yet confirm
-> eligibility or a completion date"*, and approval, the signed amendment and enablement are three
-> separate steps. **Do not record ZDR as obtained or in progress.** The intake answers are drafted
-> at §6; what is missing is the legal signer, the company details and the org ID, all Mike's.
+> ⚠ **Approved by OpenAI 2026-09-24 (§5.7). Not in force** until the amendment is executed and the
+> Account Console shows ZDR switched on for the Project (amendment clause 2) — never record it as
+> in force before then. The amendment is kept verbatim in
+> [`openai/ZDR-AMENDMENT-2026-09-24.md`](openai/ZDR-AMENDMENT-2026-09-24.md).
 >
 > 🔴 **AND ONE FINDING IS FOR THE LAWYER, NOT FOR A SETTINGS PAGE: in-region processing for New
 > Zealand does not exist.** NZ is unlisted; Australia is listed **for storage only** and offers no
@@ -660,6 +660,24 @@ configuration-specific confirmation"* are both still open. ZDR is **under review
 not enabled. **The three steps of §5.3 point 6 are unchanged** — approval, amendment, enablement
 — and no turnaround is quoted. **§5.4 below stands in full and nothing here weakens it:** nobody
 may record ZDR as obtained, in progress or likely, and nobody may say no human can access it.
+
+### 5.7 · OpenAI Sales, SIXTH reply — 2026-09-24, the request is approved
+
+✅ **RECEIVED 2026-09-24.** Recorded exactly as Mike pasted it.
+
+> Hi Mike,
+>
+> Advisor-e's Zero Data Retention request has been approved. I'll be sending the ZDR amendment to
+> you through Ironclad for your review and signature.
+>
+> Once the amendment is fully executed, I'll coordinate the next steps for enablement and keep you
+> updated. The outstanding configuration-specific confirmation remains separate from this approval.
+
+**What it settles:** the review is **approved**, and the amendment arrived for signature the same
+day. It is kept verbatim in [`openai/ZDR-AMENDMENT-2026-09-24.md`](openai/ZDR-AMENDMENT-2026-09-24.md),
+and what it binds feature design to is in [`OPENAI-ZDR-CONSTRAINTS.md`](OPENAI-ZDR-CONSTRAINTS.md).
+**Still outstanding:** enablement after execution, and the configuration-specific confirmation.
+ZDR is not in force.
 
 ### 5.4 · What this organisation relies on, stated once
 

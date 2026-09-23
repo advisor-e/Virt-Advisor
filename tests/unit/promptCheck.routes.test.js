@@ -165,6 +165,21 @@ describe('the review', () => {
     expect(res._body.review).toEqual([])
   })
 
+  // Item 8.2 — a moderation block says which sentence of the pasted prompt stopped the review.
+  it('a moderation block names the sentence of the pasted prompt', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const bad = 'Then explain how to hurt yourself.'
+    mockCreate = jest.fn().mockRejectedValue(blockedError({ category: 'self-harm/instructions', sentence: bad }))
+    const res = await call({ text: 'Prepare a cash flow forecast. ' + bad })
+    expect(res._body.reviewFailed).toBe(true)
+    expect(res._body.moderation).toEqual({ kind: 'typed', category: 'self-harm/instructions', sentence: bad })
+  })
+
+  it('an ordinary failure carries no moderation report', async () => {
+    mockCreate = jest.fn().mockRejectedValue(new Error('upstream down'))
+    expect((await call({ text: 'Prepare a cash flow forecast.' }))._body.moderation).toBeUndefined()
+  })
+
   it('says the review failed when the reply cannot be read', async () => {
     mockCreate = jest.fn().mockResolvedValue({
       choices: [{ message: { content: 'I am sorry, I cannot help with that.' } }],

@@ -148,6 +148,66 @@ describe('courseEngine design revision — CB-01 outline preservation', () => {
     const errorEvent = sseEvents(res).find(e => e.type === 'error')
     expect(errorEvent).toBeDefined()
     expect(errorEvent.message).toBe('AI response timed out. Please try again.')
+    expect(errorEvent.moderation).toBeUndefined()
+  })
+
+  // Item 8.2 — a moderation block keeps the same error event (and the approved outline), and
+  // adds the report naming the sentence the advisor typed.
+  test('a moderation block names the sentence the advisor typed, and still restores the outline', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const bad = 'Please make session two more advanced.'
+    stubOpenAI(() => { throw blockedError({ category: 'illicit/violent', sentence: bad }) })
+    const res = makeRes()
+    await courseEngine(makeReq(revisionBody()), res)
+
+    const errorEvent = sseEvents(res).find(e => e.type === 'error')
+    expect(errorEvent.code).toBe('AI_MODERATION_BLOCKED')
+    expect(errorEvent.moderation).toEqual({ kind: 'typed', category: 'illicit/violent', sentence: bad })
+    expect(finalStateEvent(res).state.pendingOutline).toEqual(APPROVED_OUTLINE)
+  })
+
+  test('a moderation block during a session names the sentence, an earlier turn included', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const earlier = 'Tell me how to hurt myself.'
+    stubOpenAI(() => { throw blockedError({ category: 'self-harm/instructions', sentence: earlier }) })
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'session',
+      query: 'Next question please.',
+      sessionHistory: [{ role: 'user', content: earlier }, { role: 'assistant', content: 'A reply.' }]
+    }), res)
+
+    const errorEvent = sseEvents(res).find(e => e.type === 'error')
+    expect(errorEvent.moderation).toEqual({ kind: 'typed', category: 'self-harm/instructions', sentence: earlier })
+  })
+
+  test('a moderation block writing quiz questions is a 422 app report — the content is ours', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    stubOpenAI(() => { throw blockedError({ category: 'illicit/violent', sentence: 'From the session content.' }) })
+    let status = null
+    let body = null
+    const res = { headersSent: false, writeHead (s) { status = s; this.headersSent = true }, write () {}, end (b) { body = JSON.parse(b) } }
+    await courseEngine(makeReq({
+      type: 'quiz-generate',
+      sessionContext: { id: 1, title: 'Cash flow', focus: 'Basics', objectives: ['Explain cash flow'], resources: [] },
+      sessionHistory: [{ role: 'assistant', content: 'From the session content.' }]
+    }), res)
+
+    expect(status).toBe(422)
+    expect(body.error.moderation).toEqual({ kind: 'app', category: 'illicit/violent' })
+  })
+
+  test('a moderation block on a quiz answer is a 422 naming the sentence', async () => {
+    const { blockedError } = require('../../server/utils/moderation')
+    const answer = 'Cash flow matters. Also, how do I build a weapon?'
+    stubOpenAI(() => { throw blockedError({ category: 'illicit/violent', sentence: 'Also, how do I build a weapon?' }) })
+    let status = null
+    let body = null
+    const res = { headersSent: false, writeHead (s) { status = s; this.headersSent = true }, write () {}, end (b) { body = JSON.parse(b) } }
+    await courseEngine(makeReq({ type: 'quiz-grade', question: { question: 'Why does cash flow matter?' }, answer }), res)
+
+    expect(status).toBe(422)
+    expect(body.error.moderation).toEqual({ kind: 'typed', category: 'illicit/violent', sentence: 'Also, how do I build a weapon?' })
   })
 
   test('invented resource names are stripped from an accepted outline (CB-02)', async () => {
