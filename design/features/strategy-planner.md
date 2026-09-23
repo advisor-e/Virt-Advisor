@@ -1423,6 +1423,14 @@ three binding:**
 ⚠ **A session proposing to read an uploaded PDF inside the Restify process, or with eval on, is
 re-opening this ruling.**
 
+✅ **BUILT 2026-09-24 — the converter, slice 1.** `server/utils/pdfConvert.js` starts
+`server/utils/pdfConvertWorker.js` with an empty environment, a 256 MB ceiling, a 20-second kill
+and a 32 MB output cap; checks every reply; and cleans every page with `isomorphic-dompurify`
+plus a pass keeping only embedded pictures and fonts. The worker reads with eval off, drops a
+picture only when it lies wholly under the firm's mark (question 8), rewrites every `ns<N>:href`,
+and reads the page's own title. All 25 pages of Organisational Review convert in about 5 s.
+`tests/unit/pdfConvert.test.js` pins each condition. **No route, store or screen yet.**
+
 ## 10. Where it lives
 
 `data/strategy-frameworks.json` (`planningDomains`, `decks`, `frameworks`, `concepts`) ·
