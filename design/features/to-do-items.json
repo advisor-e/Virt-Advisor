@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "5.2",
-      "name": "Load a payroll report to pre-fill the team",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike asked for a payroll report to be loadable so an advisor does not type a whole team by hand into step 1 of the Wages/Salary Review.",
-      "risk": "Without it a 29-person team is typed by hand, which is the slowest part of the model and the easiest place to mistype a pay rate. The counter-risk is privacy: a payroll export carries IRD numbers, bank accounts, addresses and dates of birth, none of them needed, so the reader must take its columns and discard the rest at the door and never store the file.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-14 - 'lets explore having the ability to load a payroll report to speed up the process of loading data on the team', then ruled as decision 4. Kept as its own item on his instruction of 2026-09-14."
-      },
-      "touches": "server/report/intake/supportedPackages.js and a new reader beside it, components/WagesTeam.vue (the pre-fill target), and design/mockups/wages-model.html decision 4.",
-      "note": "A PRE-FILL INTO THE TYPED TEAM SCREEN, NEVER AN ALTERNATIVE ROUTE IN - Mike's decision 4, 2026-09-14. A payroll report knows what a person COSTS but can never know the charge-out rate or the daily production efficiency, and the margin is charge rate minus pay rate, so a standalone import would finish and leave a model that cannot compute its own answer. BLOCKED ON MIKE: per supportedPackages.js no package may be called supported until a REAL export has been read. Kept as its own item so it does not close with 5.1.",
-      "comment": "2026-09-14 - filed on Mike's instruction at shutdown, lifted out of 5.1 where it was a line in the note. An item that lives inside another item closes with it. Was 4.103; renumbered under design/ITEM-NUMBERING.md."
-    },
-    {
       "ref": "7.5",
       "name": "Nothing records which calculation model the AI named, so nobody can check its judgement",
       "rankedByMike": false,

@@ -109,6 +109,32 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**5.2 · Load a payroll report to pre-fill the team.** ⏸ **Parked 2026-09-23 by Mike.** Asked for
+by him, genuinely unbuilt, and blocked on one thing only: a real payroll export.
+
+- **It is his own request**, 2026-09-14: *"lets explore having the ability to load a payroll report
+  to speed up the process of loading data on the team"*. Lifted out of 5.1 the same day so it would
+  not close with it — an item living inside another item closes with it.
+- 🔴 **DECISION 4 IS THE DESIGN AND IT IS NOT NEGOTIABLE: a pre-fill INTO the typed team screen,
+  never an alternative route in.** A payroll report knows what a person **costs** but can never know
+  the **charge-out rate** or the daily production efficiency, and labour margin is precisely charge
+  rate minus pay rate. A standalone import would finish and leave a model that cannot compute its
+  own answer.
+- 🔴 **WHY IT CANNOT BE BUILT YET, and the standard is the project's own.**
+  [`supportedPackages.js`](../../server/report/intake/supportedPackages.js) lists each accounting
+  package with an **evidence line naming a real export Mike supplied** — no package may be called
+  supported until one has been read. **MYOB's own line records that the real file broke the reader
+  FOUR times** (account codes arriving as labels, a savings account missed so cash read 64,500 of a
+  real 89,500, an unparsed period line, and fixed assets headed *"Property, Plant & Equipment"* so
+  every asset opened at zero). **A reconstruction reveals none of that.** Building a payroll reader
+  against a guessed format would produce exactly the confident, wrong figures that file exists to
+  prevent.
+- ⚠ **A privacy rule rides with it when it is built:** a payroll export holds IRD numbers, bank
+  accounts, addresses and dates of birth, **none of them needed**. The reader takes its columns and
+  discards the rest at the door, and never stores the file.
+- **What un-parks it:** a real payroll export from Mike, as he supplied for Xero, QuickBooks and
+  MYOB. Verified 2026-09-23 that nothing is built — no reader file and no commit.
+
 **11.1 · Adviser Network runs on nine invented people and forgets every decision in production.**
 ⏸ **Parked 2026-09-23 by Mike.** Not ours to fix, and it cannot move until one email leaves.
 
