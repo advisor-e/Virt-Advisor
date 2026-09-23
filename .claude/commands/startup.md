@@ -119,8 +119,26 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    — and **BOTH handover notes**: `design/HANDOVER-desktop.md` and
    `design/HANDOVER-laptop.md`, one per machine. Yours is the one matching the branch from
    step 1; the other machine's is what stops the two divisions treading on each other.
-   Report the two or three things most likely to be today's work, saying for each whether
-   it waits on Mike, on us, or on someone outside. Do not start any of them.
+   🔴 **SHOW HIM THE TOP OF HIS LIST. DO NOT HAND HIM YOUR PICK.** Print the **top six
+   items in array order** — his order, never re-sorted — as a table: `ref · what it is ·
+   score · waits on · WHAT IT REALLY IS NOW`. That last column is the one that matters and
+   it is **not** copied from the fields: **open the item's note and check its claim against
+   the code** before writing it. An item whose note says *built*, *complete*, *shipped*,
+   *do not wire*, *not session work* or *no code outstanding* is flagged **⚠ SETTLED IN
+   REALITY, STILL LIVE** — and that flag is a question for him, not a fact for you to act on.
+
+   Then ask him what he wants to pick up. **Never nominate one yourself as "the strongest
+   candidate".** You may say which are startable and which are blocked; the choice is his.
+
+   *Why this replaced "report the two or three things most likely to be today's work"
+   (2026-09-23). That wording made the session the chooser and Mike the reactor, and on this
+   day it produced two wrong picks in a row: 7.12, which he had ruled on, and then 11.1,
+   whose own note says **DO NOT WIRE THE SEAM FROM HERE** and whose repository header names
+   the master team as the only party who may touch it. Both were read from `score` and
+   position without the note being opened. **His top four — 8.1, 11.1, 9.1, 5.1 — were all
+   finished or not-ours while still sitting at the top of the live list.** A session picking
+   from the top was therefore guaranteed to pick undoable work. In his words: "the to do
+   list is never made the centre of the chat - it gets ignored."*
 
    🔴 **READ THE `SAME ITEM, BOTH MACHINES` BOX BEFORE ANY OTHER JUDGEMENT ABOUT AN ITEM —
    AND NEVER TREAT AN UNCLAIMED ITEM AS FREE.** `npm run check:branch` prints it from the

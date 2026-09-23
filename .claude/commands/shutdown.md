@@ -81,7 +81,15 @@ a time and wait for the answer.
       reason to reword the Brief to match a drift.
    b. **`design/features/to-do-items.json` — what is left.** The list itself, not the
       page: `npm run to-do` rewrites `to-do.md` from it. Anything finished today MOVES
-      to `to-do-done-and-parked.md`; it is not ticked and left. Anything discovered today
+      to `to-do-done-and-parked.md`; it is not ticked and left.
+
+      🔴 **AND EVERY ITEM TOUCHED TODAY CARRIES MIKE'S OWN WORD FOR IT — ASKED AT THE END
+      OF THE TASK, NOT HERE.** By the time you reach shutdown his call should already be
+      written in. If any item worked on today has not had that question put to him, put it
+      now, one item at a time: name the item, say in one line what it now is, and ask for
+      **proceed, done, park or delete**. Write his answer into the file before the session
+      ends — a call given in chat and not written down is a call that never happened.
+      The rule in full is in `CLAUDE.md`, *"EVERY TASK ENDS WITH MIKE'S CALL ON THE ITEM"*. Anything discovered today
       is written as *something a person does* — a hazard recorded as a warning is not a
       task, and that is how one fault survived being described five times.
       **An open question for Mike is an item on this list**, never a line in a note.
