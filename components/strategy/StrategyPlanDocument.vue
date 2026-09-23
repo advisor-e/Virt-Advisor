@@ -49,8 +49,8 @@ article.spd(:style="frameStyle")
       //- rather than as the duplicate it was. Correcting the 32 drawings the same day is what
       //- exposed it. Do not "restore" these two lines unconditionally.
       //-
-      //- 🔴 UNLESS THE CONCEPT HAS NO DRAWING YET, AND THEN THE PAGE MUST DRAW THEM. 20 of the
-      //- 52 concepts have no approved drawing (item 15.7) and their teaching page prints Mike's
+      //- 🔴 UNLESS THE CONCEPT HAS NO DRAWING YET, AND THEN THE PAGE MUST DRAW THEM. 11 of the
+      //- 46 concepts have no approved drawing (item 15.7) and their teaching page prints Mike's
       //- words alone — nothing inside it carries a frame, so removing the page's outright left
       //- a bare unbranded sheet in the middle of a client's plan. Found by printing the plan
       //- and counting, minutes after the duplicate was removed; no test saw it either way.
