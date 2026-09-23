@@ -373,13 +373,9 @@ const {resolveModelToken}=require('./server/utils/modelChoiceScan');
 const n='<the name>';console.log('template:',isKnownTemplate(n),'| nearest:',nearestTemplateTitle(n),'| model:',resolveModelToken(n))"
 
 # 2. What is the master library's own row? (READ ONLY — never edit this file)
-#    Finds the NEWEST export by pattern. This line named one export by filename until
-#    2026-09-23 and crashed, which is the exact staleness `masterExport` exists to retire.
-node -e "const {loadLatestSearchContent}=require('./server/utils/masterExport');
-const j=loadLatestSearchContent();
-if(!j){console.log('no export in Central Frameworks/ — it is gitignored')}
-else{(Array.isArray(j)?j:Object.values(j)[0]).filter(r=>/<the name>/i.test(r.title||''))
-.forEach(r=>console.log(r.title,'|',r.subSection,'|',r.purpose))}"
+node -e "const j=require('./Central Frameworks/search_content_20260730041439.json');
+(Array.isArray(j)?j:Object.values(j)[0]).filter(r=>/<the name>/i.test(r.title||''))
+.forEach(r=>console.log(r.title,'|',r.subSection,'|',r.purpose))"
 
 # 3. What is the model told to answer, and what words reach it?
 node -e "const m=(require('./data/report-model-summaries.json').models||[])

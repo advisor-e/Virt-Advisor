@@ -31,7 +31,6 @@ const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
-const { injectModelLinks } = require('../server/utils/modelLinkInjector')
 const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
 const { resolveRecommendedTemplatesWithSource, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
 const { resolveModelChoiceWithSource, stripModelMarker, MODEL_MARK_OPEN } = require('../server/utils/modelChoiceScan')
@@ -3073,12 +3072,7 @@ async function handleQuery (rawBody, res, identity) {
             // the two can arrive in either order, and cutting to the end here would
             // discard a template marker the line above still has to read.
             const visible = stripModelMarker(stripTemplateMarker(_postBuffer))
-            // The app supplies any page address the reply left off its model lines — the
-            // AI names the model, we hold the address. AFTER the video injector, so that
-            // one still sees exactly the text it always has. `_postBuffer` is passed
-            // because it still carries the `[[MODEL:]]` marker that `visible` has had
-            // stripped, and the six colliding names need it. See `modelLinkInjector`.
-            const processed = appendCorrectionNote(injectModelLinks(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _postBuffer), _postFlagged, _postBuffer, _postMessages)
+            const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _postFlagged, _postBuffer, _postMessages)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
             // Item 7.5: what this reply did about calculation models. The models block
             // reaches this path as well as Phase 3, so a model named here is a model
@@ -3940,10 +3934,7 @@ async function handleQuery (rawBody, res, identity) {
           }
           const normalised = normaliseHeadings(visible)
           const scrubbed = scrubAdvisorHallucinations(normalised)
-          // Page addresses the reply omitted, supplied from the model's own record — after
-          // the video injector, as on the other two paths. `_p3Buffer` still carries the
-          // `[[MODEL:]]` marker stripped from `visible`. `modelLinkInjector`.
-          const processed = appendCorrectionNote(injectModelLinks(injectVideoInfo(scrubbed, orgTemplateIds, firmTemplates), _p3Buffer), _p3Flagged, _p3Buffer, _p3Messages)
+          const processed = appendCorrectionNote(injectVideoInfo(scrubbed, orgTemplateIds, firmTemplates), _p3Flagged, _p3Buffer, _p3Messages)
           if (processed !== visible) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
@@ -4250,10 +4241,7 @@ async function handleQuery (rawBody, res, identity) {
         // Same reason as the post-recommendation path: this prompt is client.txt too,
         // so the markers can arrive here. Buffered, so one strip of each covers it.
         const visible = stripModelMarker(stripTemplateMarker(answer))
-        // Page addresses the reply omitted, supplied from the model's own record — after
-        // the video injector, as on the other two paths. `answer` still carries the
-        // `[[MODEL:]]` marker stripped from `visible`. `modelLinkInjector`.
-        let processed = appendCorrectionNote(injectModelLinks(injectVideoInfo(visible, orgTemplateIds, firmTemplates), answer), _mainFlagged, answer, _mainMessages)
+        let processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _mainFlagged, answer, _mainMessages)
         // Item 7.7's floor: the AI ignored the correction twice, so the advisor is told
         // what the named thing actually is. Last, and after the video injector, so the
         // note is never read as part of a template's own block.

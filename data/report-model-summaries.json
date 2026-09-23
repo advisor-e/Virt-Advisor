@@ -100,7 +100,6 @@
   ],
   "models": [
     {
-      "id": "model-3353289446",
       "route": "/business-performance-report",
       "name": "Working Capital Cycle",
       "category": "Cash Flow",
@@ -149,7 +148,6 @@
       ]
     },
     {
-      "id": "model-4322398605",
       "route": "/debtor-drag",
       "name": "Debtor Business Drag",
       "category": "Cash Flow",
@@ -193,7 +191,6 @@
       ]
     },
     {
-      "id": "model-3629111749",
       "route": "/three-way-forecast",
       "name": "3-Way Forecast Filter",
       "category": "Cash Flow",
@@ -252,7 +249,6 @@
       ]
     },
     {
-      "id": "model-4572249637",
       "route": "/ebitda-dcf",
       "name": "EBITDA & Discounted Cash Flow",
       "category": "Profitability",
@@ -305,7 +301,6 @@
       ]
     },
     {
-      "id": "model-5003466116",
       "route": "/margin-breakeven",
       "name": "Margin · Mark-up · Break-even",
       "category": "Profitability",
@@ -356,7 +351,6 @@
       ]
     },
     {
-      "id": "model-1702664381",
       "route": "/eight-levers",
       "name": "8 Levers Model",
       "category": "Profitability",
@@ -409,7 +403,6 @@
       ]
     },
     {
-      "id": "model-2613706578",
       "route": "/cost-of-capital",
       "name": "Cost of Capital (WACC)",
       "category": "Valuation",
@@ -458,7 +451,6 @@
       ]
     },
     {
-      "id": "model-2442597524",
       "route": "/lease-vs-buy",
       "name": "Lease vs Buy",
       "category": "Valuation",
@@ -504,7 +496,6 @@
       ]
     },
     {
-      "id": "model-5286347576",
       "route": "/loan-estimator",
       "name": "The Loan Estimator",
       "category": "Valuation",
@@ -559,7 +550,6 @@
       ]
     },
     {
-      "id": "model-1830380252",
       "route": "/multiple-property",
       "name": "Multiple Property Assessment",
       "category": "Valuation",
@@ -613,7 +603,6 @@
       ]
     },
     {
-      "id": "model-4833624231",
       "route": "/quick-position",
       "name": "Quick Position",
       "category": "Valuation",
@@ -664,7 +653,6 @@
       ]
     },
     {
-      "id": "model-3773689980",
       "route": "/volatility",
       "name": "Volatility Report",
       "category": "Risk",
@@ -717,7 +705,6 @@
       ]
     },
     {
-      "id": "model-1661500116",
       "route": "/dashboard-reports",
       "name": "Dashboard Reports",
       "category": "Cash Flow",
@@ -770,7 +757,6 @@
       ]
     },
     {
-      "id": "model-3553503098",
       "route": "/retirement-review",
       "name": "Retirement Review",
       "category": "Valuation",
@@ -824,7 +810,6 @@
       ]
     },
     {
-      "id": "model-4787850659",
       "route": "/high-level-budget",
       "name": "High-Level Budget",
       "category": "Budgeting",
@@ -876,7 +861,6 @@
       ]
     },
     {
-      "id": "model-1396367467",
       "route": "/mid-level-budget",
       "name": "Mid-Level Budget",
       "category": "Budgeting",
@@ -930,7 +914,6 @@
       ]
     },
     {
-      "id": "model-3124652674",
       "route": "/stock-purchasing",
       "name": "Stock Purchasing (Growth Pro)",
       "category": "Growth",
@@ -986,7 +969,6 @@
       ]
     },
     {
-      "id": "model-2929757995",
       "route": "/sales-dashboard",
       "name": "Sales Dashboard",
       "category": "Growth",
@@ -1043,7 +1025,6 @@
       ]
     },
     {
-      "id": "model-3595252971",
       "route": "/wages-review",
       "name": "Wages/Salary Review",
       "category": "Profitability",
