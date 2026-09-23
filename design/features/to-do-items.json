@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "8.1",
-      "name": "Meeting Review — three non-coding gates before a first real recording",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike asked for a feature that records a client meeting, transcribes it and produces two reports. It is built, advisor and manager both. What remains is three things only he or a lawyer can do.",
-      "risk": "NO CODE IS OUTSTANDING. THREE non-coding gates stand before a first real recording: the staff consultation, a lawyer per market, and - NEW 2026-09-23 - the OpenAI ZDR application, which is an intake form, an approval, a signed amendment and an enablement, in that order. The declaration gate is built and live since 4.83 closed, so a firm that has not declared cannot start.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
-      },
-      "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "NO CODE OUTSTANDING - every slice is built. 🔴 ITEM 5 REOPENED 2026-09-23: OpenAI offers ZERO DATA RETENTION ON BOTH ENDPOINTS, including the /v1/chat/completions call carrying the whole transcript - the exposure the third reply could not close. ✅ MIKE SENT THE INTAKE 2026-09-23 (design/ZDR-INTAKE-EMAIL.md) - AWAITING REPLY, which goes in OPENAI-AUDIO-TERMS-EMAIL.md §5 as §5.6, verbatim. ⚠ NOTHING IS GRANTED - approval, amendment and enablement are three steps, no turnaround quoted; never record ZDR as obtained or in progress. 🔴 TWO FINDINGS ARE THE LAWYER'S: in-region processing for NEW ZEALAND DOES NOT EXIST, and ZDR does NOT exclude human access. NEVER write that no human can see it. Working: OPENAI-AUDIO-TERMS-EMAIL.md §5.5, §6.",
-      "comment": "2026-09-01 - filed; screens approved. 09-02 to 09-08 - the slices, the types cascade, the manager aggregate, transcript expiry and follow-through. 09-10 - the impact assessment, which found IPP3A, new law no software can answer; then the Client Copy Request, closing §4 item 7. 09-12 - both OpenAI letters sent; 09-18 both replied, neither answered, and Mike closed the gate on a reasoned position rather than a sign-off. 2026-09-23 - REOPENED WITH A ROUTE: Mike wrote again quoting case 14889777 and OpenAI offered ZDR on both endpoints. Mike sent the intake the same day; the reply is what gate 3 now waits on."
-    },
-    {
       "ref": "11.1",
       "name": "Adviser Network runs on nine invented people and forgets every decision in production",
       "rankedByMike": false,

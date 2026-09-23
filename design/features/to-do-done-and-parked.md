@@ -109,6 +109,39 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**8.1 · Meeting Review — three non-coding gates before a first real recording.** ⏸ **Parked
+2026-09-23 by Mike**, the day OpenAI's fifth reply arrived and answered everything except the one
+thing that matters. In his words: *"so therefore - this task will need to be recorded as
+'Parked'"*.
+
+- **What it was:** not a build. **Every slice of Meeting Review is built** — the recorder, the
+  consent panel, observations, patterns, meeting types across all four tiers, the manager's
+  aggregate, transcript expiry and the client copy request. Five routes, four components, four
+  firm screens. The item tracked the three **non-coding** gates standing between that code and a
+  first real client recording.
+- **Where each gate stands:** the NZ privacy assessment (IPP3A) closed 2026-09-18 on Mike's
+  reasoned position; the consent wording is approved and pinned in
+  [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md); and **OpenAI Zero Data
+  Retention is the one still open.** Mike sent the intake 2026-09-23
+  ([`../ZDR-INTAKE-EMAIL.md`](../ZDR-INTAKE-EMAIL.md)).
+- **Why parked and not done:** the feature genuinely cannot be used on a real client until ZDR is
+  granted, so marking it done would hide a live gate. And nothing here can advance it — the reply
+  of 2026-09-23 (§5.6 of
+  [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)) ends *"I'll keep you updated
+  on the review and the outstanding configuration-specific confirmation."* **Approval, amendment
+  and enablement are three separate steps and no turnaround is quoted.**
+- ✅ **What that reply DID settle, so nobody re-opens it:** the model-name question is closed and
+  was never a problem — the dated `gpt-4o-mini-2024-07-18` came from the data-residency table, not
+  ZDR, and **both endpoints are eligible with no requirement to pin a dated snapshot**, so this
+  app's undated `gpt-4o-mini` and `gpt-4o-transcribe-diarize` stand as they are with **no code
+  change**. And **New Zealand offshore processing is now OpenAI's own written position** rather
+  than our reading of their table — *"your assessment should treat this as offshore processing"*.
+- 🔴 **THE TWO STANDING PROHIBITIONS SURVIVE PARKING.** Nobody may record ZDR as obtained, in
+  progress or likely; and **nobody may write that no human can access the content** — ZDR does not
+  exclude human access during processing or under a documented exception.
+- **What un-parks it:** OpenAI completing the review and confirming our configuration. That reply
+  goes in §5 as §5.7, verbatim, and the gate is re-assessed then — not before.
+
 **4.21 · Correct the three proven faults in the property source workbook.** 🗑 **Deleted 2026-08-17
 by Mike, the same session it was filed.** In his own words: *"im not fussed about fixing the
 workbook, so longs as the code is strong and backed up in github we don't need it again."*
