@@ -457,31 +457,6 @@
       "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
       "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 4 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 32. The Brief calls it deliberate, true of the data but never true that the work was done. Five extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Insights Summary, Curve and Cycle Notes.",
       "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
-    },
-    {
-      "ref": "8.2",
-      "name": "Every AI request passes OpenAI's moderation check before it is sent",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity - a contractual privacy obligation",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-24"
-      },
-      "why": "Clause 4.3 of the ZDR amendment Mike signed on 2026-09-23 requires moderation on every request once ZDR is used. Without it ZDR cannot be relied on for Meeting Review, and a breach lets OpenAI suspend all API access.",
-      "risk": "Using ZDR without it breaches the contract, and clause 6 lets OpenAI suspend ZDR or all API access - one key serves the whole app, so every AI feature would stop. Meeting Review stays unusable on a real client meanwhile, because 8.1 is parked until ZDR is in force. OpenAI's /v1/moderations is itself ZDR-eligible and keeps nothing, so the check adds no new copy of client content.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-24 - after reading the amendment and OpenAI's data-controls page, said yes to filing it worded 'Every AI request passes OpenAI's moderation check before it is sent, as clause 4.3 of the ZDR amendment requires'."
-      },
-      "touches": "server/utils/openaiClient.js and transcriptionClient.js, the two doors every OpenAI call passes through; the routes calling them - advisorEngine, courseEngine, meetingReview, economicAnalysis, nextStepsDraft, compliance, depreciationExtract, countryScheduleRead, promptCheck; the error shape a refused request returns; rule Z3 of design/OPENAI-ZDR-CONSTRAINTS.md.",
-      "note": "BUILT AND PROVEN LIVE 2026-09-24. server/utils/moderation.js runs inside openaiClient.js; every AI call names what a person typed, said or uploaded (moderate:), and a guard test fails the build on one that does not. Mike's rulings: three categories block, every flag is logged without the words, an unreachable check refuses, and a block names the sentence in his approved wording (design/MODERATION-WORDING.md). Checking whole prompts first cost ~21,800 tokens per advisor reply against a 20,000-a-minute allowance; now ~480 for a 30-step conversation. The advisor checks each turn as typed, proven on the real screen. OPEN: whether Course Builder's scripted opening questions get the same turn check.",
-      "comment": "2026-09-24 - filed on Mike's yes the day OpenAI approved ZDR. Built in two halves the same day; the live run on the real app found the volume fault before anything was pushed, and Mike ruled the fix."
     }
   ]
 }

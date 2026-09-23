@@ -353,6 +353,37 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**8.2 — every AI request passes OpenAI's moderation check before it is sent.**
+✅ **Closed 2026-09-24 by Mike ("done")**, the day OpenAI approved Zero Data Retention and the
+amendment it requires was signed. Commits `b0918c5c` and `be6cfe8f`.
+
+- **Why it existed:** clause 4.3 of the signed amendment requires moderation on every request once
+  ZDR is used, and clause 6 lets OpenAI suspend all API access for a breach. Rule Z3 of
+  [`../OPENAI-ZDR-CONSTRAINTS.md`](../OPENAI-ZDR-CONSTRAINTS.md).
+- **Mike's rulings, all 2026-09-24:** only `sexual/minors`, `self-harm/instructions` and
+  `illicit/violent` block (measured first: ordinary metaphors such as *"attack the Auckland
+  market"* flag as violence); every other flag is logged without the words; an unreachable check
+  refuses the request; a block names the sentence, in his approved wording
+  ([`../MODERATION-WORDING.md`](../MODERATION-WORDING.md)); only what a person typed, said or
+  uploaded is checked; the advisor checks each turn as typed; Course Builder's scripted opening
+  questions are left as they are.
+- 🔴 **FOUND ONLY BY RUNNING THE REAL APP.** The first build checked every word of each request.
+  Live, one advisor reply sent **~21,800 moderation tokens against an account limit of 20,000 a
+  minute**, and every AI-written answer was refused — while all 13,504 tests passed, because they
+  fake OpenAI. After the fix a whole 30-step conversation sent **~480**. Nothing had been pushed.
+- **Proven:** 622 suites / 13,577 tests; `npm run build` succeeds; on the real screen a blocked
+  first message is named on that turn with no AI call made, and a metered run showed **none of the
+  AI requests carried the blocked phrase.** A guard test fails the build on any AI call that does
+  not name its person text (`moderate:`).
+- **Fixed on the way, each on his yes:** the Sales Blog sent OpenAI's raw error text to the browser;
+  the template-heading repair (`828ed2b2`) had been refused by the provider seam since it was
+  written and never once ran; the Strategy Planner's call gained `moderate: []`.
+- 🔴 **FOR THE LAPTOP:** once this reaches `master`, **every new AI call must pass `moderate:`** or
+  `openaiClient` refuses it and `tests/unit/moderation.test.js` fails.
+- **Not this item's to finish:** ZDR switched on in the OpenAI console (item 8.1, parked on it), and
+  Advisor-e confirming how sign-ins are protected (question 11 of
+  [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md)).
+
 **9.3 — the sharing tab said on and off at once with no pool secret.**
 ✅ **Fixed and closed 2026-09-23 on Mike's "proceed and fix it now"** — the first item of that
 session not already settled, parked or deleted.
