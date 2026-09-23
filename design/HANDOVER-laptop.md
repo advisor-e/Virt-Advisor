@@ -20,9 +20,9 @@ declared in `AWAITING_APPROVAL` **and** carrying its `AWAITING APPROVAL (<file>#
 its `ARTEFACTS.md` row. Remove the token — which is how approval is recorded — and the build
 fails until it is wired. Neither existing rule is weakened.
 
-🔴 **15.20 IS DRAWN AND FULLY RULED, AND NOT APPROVED TO BUILD FROM.**
-`design/mockups/add-concept.html` — six questions, every one ruled beside itself. **Ruling the
-questions inside a drawing is not approving the drawing;** the gate is still shut. **Read the
+🔴 **15.20 IS DRAWN, FULLY RULED, AND APPROVED BY MIKE 2026-09-23 (`f5aa82fc`) — BUILD FROM IT.**
+`design/mockups/add-concept.html` — six questions, every one ruled beside itself, then the
+drawing approved as its own question. **Read the
 drawing, not a summary** — two rulings went against the recommendation and both changed the
 build.
 
