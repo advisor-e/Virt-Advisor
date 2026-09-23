@@ -98,8 +98,8 @@ strong,b{font-weight:600}
 .ct.has .dot{background:var(--rs-accent-bright)}
 .ct.you{font-weight:600}
 .ct.you .dot{background:var(--rs-accent)}
-.ct.new{color:var(--rs-crit);font-weight:600}
-.ct.new .dot{background:var(--rs-crit)}
+.ct.deliver{color:var(--rs-muted);font-style:italic}
+.ct.deliver .dot{background:var(--rs-good)}
 .carrow{color:var(--rs-muted);padding:0 12px 0 0}
 .cnote{width:100%;margin-top:8px;padding-top:8px;border-top:1px dashed var(--rs-line);
   color:var(--rs-muted);font-size:12px}
@@ -194,6 +194,16 @@ tr:last-child td{border-bottom:0}
   different to a client — and nothing about it was visible until a page was actually converted.</p>
   <p>✅ <b>QUESTION 2 RULED 2026-09-23 — "one".</b> One Add Concept button, the section chosen
   as the first field.</p>
+  <p>✅ <b>QUESTION 4 RULED 2026-09-23, as recommended:</b> the original PDF is kept against the
+  version of the concept it produced — which is what makes a future change of converter possible
+  without every firm re-uploading its material.</p>
+  <p>✅ <b>QUESTION 5 RULED 2026-09-23, as recommended:</b> a concept added at one level appears
+  at once at every level below, unless that level has replaced it. No opt-in, and no second
+  cascade pattern.</p>
+  <p>🔴 <b>QUESTION 6 RULED 2026-09-23 AGAINST THE RECOMMENDATION, and it removes the largest
+  single piece of work in the item.</b> The client/business entity is <b>the destination, not an
+  authoring level</b> — <i>"where it ends up … delivering a pdf."</i> No new scope, no new
+  storage, and <code>TIERS</code> needs no change. <b>ALL SIX QUESTIONS ARE NOW RULED.</b></p>
   <p>🔴 <b>QUESTION 3 RULED 2026-09-23 AGAINST THE RECOMMENDATION, and it redrew two screens.</b>
   Your words: <i>"Every concept has a teach and response requirement. what you are seeing is some
   concepts require more than a single page of teach material."</i> So <b>the Response Form is
@@ -225,20 +235,23 @@ tr:last-child td{border-bottom:0}
   <p>The cascade shown as a fact, not a setting, exactly as the approved Depreciation Rates
   drawing shows it. <b>You are at the top:</b> a concept you add here reaches everyone below
   who has not replaced it. Each level down may add its own.</p>
-  <p>🔴 <b>The last step is new machinery.</b> <code>TIERS</code> in
-  <code>server/utils/tierChain.js</code> is mentor → global group manager → group manager → firm
-  manager, and <b>stops there</b>. The step to the client/business entity has nothing under it
-  today. It is drawn in red below so the drawing does not imply it already works. See question 6.</p>
+  <p>✅ <b>THE LAST STEP IS NOT A NEW LEVEL — RULED BY MIKE 2026-09-23.</b> In his words, the
+  client/business entity is <i>"where it ends up - the way the rest of the feature currently
+  works - delivering a pdf."</i> Concepts are <b>authored</b> at the four manager levels and
+  <b>delivered</b> to the client in their session and their printed plan, exactly as everything
+  else already reaches them. <b>Nothing is authored at the client level and no new storage is
+  built.</b> See question 6.</p>
 </div>
 
 <div class="cascade">
   <div class="ct you has"><span class="dot"></span> Mentor</div><span class="carrow">→</span>
   <div class="ct has"><span class="dot"></span> Global group manager</div><span class="carrow">→</span>
   <div class="ct has"><span class="dot"></span> Group manager</div><span class="carrow">→</span>
-  <div class="ct has"><span class="dot"></span> Firm manager</div><span class="carrow">→</span>
-  <div class="ct new"><span class="dot"></span> Client / business entity</div>
+  <div class="ct has"><span class="dot"></span> Firm manager</div><span class="carrow">⇢</span>
+  <div class="ct deliver"><span class="dot"></span> Client / business entity · delivered</div>
   <div class="cnote">You are the mentor. <b>46 concepts</b> published from here ·
-  nothing below has replaced any of them yet.</div>
+  nothing below has replaced any of them yet. <b>The four manager levels author; the client
+  receives</b> — in the session and in the plan PDF, as everything else already does.</div>
 </div>
 
 <!-- ─────────────────────────────────────────────────────────────────────── -->
@@ -477,6 +490,13 @@ tr:last-child td{border-bottom:0}
 
 <div class="q">
   <h3>4. Is the source PDF kept after conversion?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AS RECOMMENDED.</b> The original PDF is <b>kept</b>, stored
+  against the version of the concept it produced.</p>
+  <p>⚠ <b>The reason is load-bearing, not housekeeping.</b> The conversion library's own authors
+  warn the part we use <i>"is no longer maintained and may be removed in the future"</i>. Keeping
+  the originals is what makes a future change of converter possible <b>without asking every firm
+  to upload its material again</b> — and without them, concepts imported today would be frozen as
+  they are for good.</p>
   <p class="rec">Recommended: <b>kept</b>, against the version of the concept it produced.</p>
   <p class="against">Against: it stores more of a firm's material than the app strictly needs.
   For it: a concept can be re-made if the conversion improves, and anyone can check the slide
@@ -486,6 +506,9 @@ tr:last-child td{border-bottom:0}
 
 <div class="q">
   <h3>5. Does a concept added above appear below at once, or does the level below opt in?</h3>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AS RECOMMENDED.</b> A concept added at one level
+  <b>appears at once at every level below</b>, unless that level has replaced it. There is no
+  opt-in, and no second cascade pattern is built.</p>
   <p class="rec">Recommended: <b>it appears at once</b>, inherited, exactly as the approved
   Depreciation Rates cascade already works — the nearest level above is what you get until you
   replace it.</p>
@@ -495,13 +518,23 @@ tr:last-child td{border-bottom:0}
 
 <div class="q">
   <h3>6. What does "client / business entity" mean as a level?</h3>
-  <p>This is the one part of your cascade with no machinery under it. <code>TIERS</code> stops at
-  firm manager.</p>
-  <p class="rec">Recommended: a concept added at this level belongs to <b>that one client's
-  plan</b> and appears nowhere else — the natural reading of a level that is a single client.</p>
-  <p class="against">Against: it is new storage and a new scope, so it is the largest single
-  piece of this item. If you want the first cut to stop at firm manager and add this after, that
-  is a smaller build and nothing about it is wasted.</p>
+  <p>🔴 <b>RULED BY MIKE 2026-09-23, AND IT IS NOT WHAT THIS DRAWING FIRST RECOMMENDED.</b> In
+  his words: <i>"where it ends up - the way the rest of the feature currently works - delivering
+  a pdf."</i></p>
+  <p><b>The client/business entity is the DESTINATION, not an authoring level.</b> Concepts are
+  authored at the four manager levels and delivered to the client in the session and in the plan
+  PDF, exactly as everything else already reaches them. <b>Nothing is authored there, and no new
+  storage or scope is built.</b></p>
+  <p class="against">⚠ <b>The recommendation this replaced was the largest single piece of the
+  item, and it was wrong.</b> It read the phrase as a fifth place where a concept could be
+  created — "a concept added at this level belongs to that one client's plan and appears nowhere
+  else" — and would have built a new scope and new storage for it. <b>The ruling removes that
+  work entirely.</b> It also means <code>TIERS</code> in <code>server/utils/tierChain.js</code>
+  needs no change: mentor → global group manager → group manager → firm manager is the whole
+  cascade, and the fifth step was never a tier.</p>
+  <p class="against">🔴 <b>Recorded because it nearly went the other way.</b> The drawing put a
+  red "new machinery" mark on the client step, which read as a gap to be filled rather than a
+  question to be asked. A session reading that mark alone would have built the wrong thing.</p>
 </div>
 
 <!-- ─────────────────────────────────────────────────────────────────────── -->

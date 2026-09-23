@@ -1333,13 +1333,22 @@ Mike saw the conversion beside his original and beside a hand-drawn slide, and r
 enough in principle to continue. **He ruled separately that it is NOT to be run across his
 other decks.**
 
-### The one thing the machinery does not already have
+### 🔴 RULED BY MIKE 2026-09-23 — THE CLIENT IS THE DESTINATION, NOT A FIFTH LEVEL
 
-`TIERS` in `server/utils/tierChain.js` is `['mentor', 'global_group_manager', 'group_manager',
-'firm_manager']` — it **stops at firm manager**. Everything down to firm is existing, wired
-machinery; the step below firm to the **client/business entity** is new and has nothing under
-it. **Stated so it is designed for, not discovered** — it is not an argument against his
-ruling.
+In his words: *"where it ends up - the way the rest of the feature currently works - delivering
+a pdf."*
+
+**Concepts are authored at the four manager levels and delivered to the client** in the session
+and in the printed plan, exactly as everything else already reaches them. **Nothing is authored
+at the client level, no new scope or storage is built, and `TIERS` in
+`server/utils/tierChain.js` needs no change** — mentor → global group manager → group manager →
+firm manager is the whole cascade, and the fifth step was never a tier.
+
+⚠ **This replaced the reading that would have been the largest single piece of the item.** An
+earlier note here said the step below firm "is new and has nothing under it", and the drawing
+marked it in red as new machinery — which reads as a gap to fill rather than a question to ask.
+The ruling removes that work entirely. **A session finding a note that treats the client as an
+authoring tier is reading something superseded.**
 
 ### 🔴 RULED BY MIKE 2026-09-23 — NO AI TOUCHES AN UPLOADED PDF
 
