@@ -109,6 +109,156 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**7.3 · A second opinion from two AI providers.** ⏸ **Parked 2026-09-23 by Mike.** His own idea,
+unbuilt, and it needs a decision and an impact test before any design — not a build.
+
+- **His words, 2026-09-14:** *"perhaps there is a strength to using open AI AND Deepseek for the
+  purposes of different perspectives?"* Filed the same day on his yes so the idea was on the list
+  rather than lost in a chat. `askedBy.ours` is **false** — this is genuinely his.
+- ✅ **ITS DEPENDENCY IS ALREADY BUILT.** [`server/utils/aiProvider.js`](../../server/utils/aiProvider.js)
+  is the seam, shipped with item 7.2 across all eight calling files.
+- 🔴 **AND THE SEAM'S OWN HEADER RECORDS HIS RULING THAT THIS IS NOT THAT:** *"His ruling was a
+  **FALLBACK, not a second opinion**: one provider answers, and the other is tried only when the
+  first cannot. The 'two perspectives' idea he raised the same day is item 4.98"* — this item
+  under its old number. **A fallback is built; a second opinion is not, and was never meant to be
+  part of it.**
+- ✅ **THE PRIVACY MACHINERY EXISTS AND IS STRICT, so this would inherit it.** Every caller must
+  state `personal: true|false`; **the flag is required and a call that forgets it throws** rather
+  than defaulting, because a default would silently decide a privacy question. With
+  `personal: true` and no clearance in config the fallback is not tried at all and the primary's
+  error is rethrown — the feature fails as it does today rather than routing a client's words
+  somewhere new.
+- **THREE DESIGN QUESTIONS ARE OPEN AND NONE IS OURS TO ANSWER:** which calls get two answers;
+  what the advisor sees **when the two disagree**; and which provider is cleared for which data.
+  ⚠ **DeepSeek's China hosting and training terms are the privacy question to settle before it
+  carries anything personal.**
+- ⚠ **IT MUST PASS THE IMPACT TEST FIRST** (`CLAUDE.md`, binding since 2026-09-16): it **doubles
+  AI cost and wait on every call it covers**, so the gain and how it would be measured are stated
+  before any design — not found afterwards to justify the work.
+- **What un-parks it:** Mike answering the three design questions and the DeepSeek privacy
+  question, with the impact test run at scoping.
+
+**7.6 · The AI declares its model choice only sometimes, so declines under-count.**
+⏸ **Parked on Mike's ruling of 2026-09-16, moved off the live list 2026-09-23** — where it had
+stayed for a week carrying its own instruction not to propose it.
+
+- **His ruling, 2026-09-16:** it corrects **a counter on an internal screen** and changes nothing
+  an advisor or a client sees, so it waits until the Model Choices screen has **real use** behind
+  it.
+- **The defect is real:** the decline marker is written about **one time in six**. Named models
+  are unaffected — their rows come from the exact page-path scan — but a decline has no other
+  source, so the declines band under-counts and nothing on the screen says so. That band is the
+  **gap map**, so an under-count points the next model at the wrong place.
+- 🔴 **THE CAUSE IS KNOWN AND IT IS STRUCTURAL, NOT WORDING — nobody need re-run this.** Seven
+  live discover conversations declared the marker **0 times**; client-mode Phase 3 declared it
+  **first time**. In Phase 3 the AI is already writing `[[TEMPLATES:]]` and Section 12 asks for a
+  second line. Discover has no first marker and an absolute closing-line rule — **stated four
+  times in `data/prompts/discover.txt`, counted 2026-09-23** — with line 46 already carrying an
+  attempted carve-out for the marker.
+- ⛔ **REWORDING HAS FAILED TWICE. DO NOT RE-RAISE IT**, and do not propose a third wording.
+- **What un-parks it:** the Model Choices screen having real use behind it. ⚠ **The screen itself
+  shipped 2026-09-23** (item 7.5), so half the condition is now met — **but use is not the same as
+  existence**, and the ruling turns on use.
+- **How it was found:** by running the app, not by a test. Every passing test proves our code
+  handles what the AI sends; none can prove the AI sends it — the same blind spot 7.5 was filed to
+  close.
+
+**5.2 · Load a payroll report to pre-fill the team.** ⏸ **Parked 2026-09-23 by Mike.** Asked for
+by him, genuinely unbuilt, and blocked on one thing only: a real payroll export.
+
+- **It is his own request**, 2026-09-14: *"lets explore having the ability to load a payroll report
+  to speed up the process of loading data on the team"*. Lifted out of 5.1 the same day so it would
+  not close with it — an item living inside another item closes with it.
+- 🔴 **DECISION 4 IS THE DESIGN AND IT IS NOT NEGOTIABLE: a pre-fill INTO the typed team screen,
+  never an alternative route in.** A payroll report knows what a person **costs** but can never know
+  the **charge-out rate** or the daily production efficiency, and labour margin is precisely charge
+  rate minus pay rate. A standalone import would finish and leave a model that cannot compute its
+  own answer.
+- 🔴 **WHY IT CANNOT BE BUILT YET, and the standard is the project's own.**
+  [`supportedPackages.js`](../../server/report/intake/supportedPackages.js) lists each accounting
+  package with an **evidence line naming a real export Mike supplied** — no package may be called
+  supported until one has been read. **MYOB's own line records that the real file broke the reader
+  FOUR times** (account codes arriving as labels, a savings account missed so cash read 64,500 of a
+  real 89,500, an unparsed period line, and fixed assets headed *"Property, Plant & Equipment"* so
+  every asset opened at zero). **A reconstruction reveals none of that.** Building a payroll reader
+  against a guessed format would produce exactly the confident, wrong figures that file exists to
+  prevent.
+- ⚠ **A privacy rule rides with it when it is built:** a payroll export holds IRD numbers, bank
+  accounts, addresses and dates of birth, **none of them needed**. The reader takes its columns and
+  discards the rest at the door, and never stores the file.
+- **What un-parks it:** a real payroll export from Mike, as he supplied for Xero, QuickBooks and
+  MYOB. Verified 2026-09-23 that nothing is built — no reader file and no commit.
+
+**11.1 · Adviser Network runs on nine invented people and forgets every decision in production.**
+⏸ **Parked 2026-09-23 by Mike.** Not ours to fix, and it cannot move until one email leaves.
+
+- **What it is, proved in the code and not from the note:**
+  [`../../server/collaborate/data/repository.js`](../../server/collaborate/data/repository.js)
+  holds **nine hardcoded advisers** (Mike Barnes, Priya Nair, James O'Brien, Tom Fischer, Lena
+  Vogel, Sofia Marchetti, Sara Okafor, Anna Richter, Bob Lindt). In production the people layer is
+  inert by design —
+  [`devStore.js`](../../server/collaborate/data/devStore.js) line 57 returns false for
+  `NODE_ENV=production`, so it reads nothing and writes nothing. **A UAT tester therefore meets
+  invented advisers, and every manager decision vanishes on restart.**
+- ✅ **OUR HALF IS FINISHED.** The file carries **43 `SQL SEAM` markers** — every function already
+  documents the exact query that replaces it, against the schema in
+  [`../../config/db-schema.sql`](../../config/db-schema.sql). Function names, parameters and return
+  shapes are fixed, so the routes and the whole frontend need no change when it is wired.
+- 🔴 **DO NOT WIRE THE SEAM FROM HERE, AND THIS IS NOT A JUDGEMENT CALL.** Adviser identity — name,
+  title, firm, email, phone, location — belongs to Advisor-e (Brief P7), and this app has no
+  advisers table. The repository's own header names the master team as the only party that may
+  change it, and Mike ruled the same on 2026-08-15 over item 4.8. Wiring it from our side would
+  store ids nothing here can resolve.
+- **What it waits on:** **question 7** of
+  [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md) — *"For a given
+  adviser id, and for a list of ids, where do we read those six identity fields?"* Any of three
+  answers works: table and column names, a read-only endpoint, or a view.
+- 🔴 **IT IS NO LONGER AN EMAIL, AND NOBODY IS TO SEND ONE — Mike's ruling, 2026-09-23:** *"i
+  dont want it as an external - additional, email. it needs to be part of the handover notes -
+  made clear to the team - during the next release cut."* That draft had sat unsent since
+  2026-08-15 while being re-verified as late as 2026-09-22–23, because an email is a channel with
+  no moment attached to it. **All ten questions now go to the team in the "What we need from you"
+  section of the release notes at every cut** — step 6 of Integration in
+  [`../WORKING-AGREEMENT.md`](../WORKING-AGREEMENT.md).
+- **What un-parks this item:** the master team answering question 7 at a release cut. Until then
+  the Adviser Network keeps showing invented people to UAT, and that is now stated to the people
+  who can fix it rather than recorded only here.
+- **Why parked and not done:** the defect is real and visible in UAT today. Why not deleted: it
+  names a genuine gap that would otherwise be rediscovered from scratch.
+
+**8.1 · Meeting Review — three non-coding gates before a first real recording.** ⏸ **Parked
+2026-09-23 by Mike**, the day OpenAI's fifth reply arrived and answered everything except the one
+thing that matters. In his words: *"so therefore - this task will need to be recorded as
+'Parked'"*.
+
+- **What it was:** not a build. **Every slice of Meeting Review is built** — the recorder, the
+  consent panel, observations, patterns, meeting types across all four tiers, the manager's
+  aggregate, transcript expiry and the client copy request. Five routes, four components, four
+  firm screens. The item tracked the three **non-coding** gates standing between that code and a
+  first real client recording.
+- **Where each gate stands:** the NZ privacy assessment (IPP3A) closed 2026-09-18 on Mike's
+  reasoned position; the consent wording is approved and pinned in
+  [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md); and **OpenAI Zero Data
+  Retention is the one still open.** Mike sent the intake 2026-09-23
+  ([`../ZDR-INTAKE-EMAIL.md`](../ZDR-INTAKE-EMAIL.md)).
+- **Why parked and not done:** the feature genuinely cannot be used on a real client until ZDR is
+  granted, so marking it done would hide a live gate. And nothing here can advance it — the reply
+  of 2026-09-23 (§5.6 of
+  [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)) ends *"I'll keep you updated
+  on the review and the outstanding configuration-specific confirmation."* **Approval, amendment
+  and enablement are three separate steps and no turnaround is quoted.**
+- ✅ **What that reply DID settle, so nobody re-opens it:** the model-name question is closed and
+  was never a problem — the dated `gpt-4o-mini-2024-07-18` came from the data-residency table, not
+  ZDR, and **both endpoints are eligible with no requirement to pin a dated snapshot**, so this
+  app's undated `gpt-4o-mini` and `gpt-4o-transcribe-diarize` stand as they are with **no code
+  change**. And **New Zealand offshore processing is now OpenAI's own written position** rather
+  than our reading of their table — *"your assessment should treat this as offshore processing"*.
+- 🔴 **THE TWO STANDING PROHIBITIONS SURVIVE PARKING.** Nobody may record ZDR as obtained, in
+  progress or likely; and **nobody may write that no human can access the content** — ZDR does not
+  exclude human access during processing or under a documented exception.
+- **What un-parks it:** OpenAI completing the review and confirming our configuration. That reply
+  goes in §5 as §5.7, verbatim, and the gate is re-assessed then — not before.
+
 **4.21 · Correct the three proven faults in the property source workbook.** 🗑 **Deleted 2026-08-17
 by Mike, the same session it was filed.** In his own words: *"im not fussed about fixing the
 workbook, so longs as the code is strong and backed up in github we don't need it again."*
@@ -228,6 +378,130 @@ designed**, then removed.
 never ran it on commit. Committing a drawing was green locally and red at the push gate, the latest
 possible moment to learn a drawing is unwired. It now has its own row.
 
+**9.3 — the sharing tab said on and off at once with no pool secret.**
+✅ **Fixed and closed 2026-09-23 on Mike's "proceed and fix it now"** — the first item of that
+session not already settled, parked or deleted.
+
+- **What a manager saw:** on a server with **no `OUTCOME_POOL_SECRET`** a firm whose switch was on
+  got a green *"Sharing since {date}"* badge **and** a count of adjustments applying, **directly
+  beside** the notice saying shared learning is switched off. Both figures were real and both were
+  stale — the consent stood, nothing was pooling — and nothing on screen said which to believe.
+- **The fix, in one component:**
+  [`FirmOutcomeConsent.vue`](../../components/firm/FirmOutcomeConsent.vue). The adjustments card
+  now defers to `poolConfigured`, and the badge has **three states instead of two** via new
+  `badgeType` / `badgeLabel` computeds. `poolConfigured` already existed and was already used
+  correctly in four other places — **the fix was applying it in the two that were missed.**
+- 🔴 **THE MIDDLE STATE IS THE POINT.** A consenting firm on an unconfigured server is neither of
+  the originals: *"Not sharing"* would read as though the switch had flipped itself off, and the
+  green badge claimed a thing that was not happening. **Wording approved by Mike 2026-09-23:
+  "Sharing paused", in grey** (`outcomeConsent.pillPaused`).
+- 🔴 **THE ENGINE WAS NEVER WRONG AND WAS NOT TOUCHED.** Give-to-get is built and guarded by his
+  2026-09-15 ruling — `loadPooledForSession` returns `adjustments: []` for a firm that does not
+  share, pinned by `outcomeLearningTrace.test.js`. **An earlier note on this item claimed the
+  opposite**, misreading a count that is only computed when the switch is ON; that was corrected
+  against the code before the item was ever worked.
+- **Five tests, and they assert WHICH STATE SHOWS, never the words in it** — the label is Mike's
+  and lives in the locale file, per the no-asserting-wording rule of 2026-08-24.
+  **Mutation-verified both ways:** dropping `poolConfigured` from `badgeType` fails, and deleting
+  the paused branch from `badgeLabel` fails.
+- **`askedBy.ours` was true** — we found it on 2026-09-15 while building his warn-never-block
+  ruling, and filed it rather than fixing it because nobody had asked. It is a **defect**, which
+  the 2026-08-26 gate expressly still permits filing: he asked us to stop inventing work, not to
+  stop reporting bugs.
+
+**7.5 — nothing recorded which calculation model the AI named.**
+✅ **Closed 2026-09-23 by Mike**, who had ruled on it three separate times before it was closed.
+
+- **Both halves are built.** The recording half shipped 2026-09-16 — the marker, the page-path
+  scan, the `advisor_model_choices` table and `GET /api/model-choices`, scoped by tier. The screen
+  followed on 2026-09-23 (`d4654363`): `components/mentor/MentorModelChoices.vue`, the hub tab,
+  the locale block and **14 tests**, built from
+  [`../mockups/model-choices.html`](../mockups/model-choices.html).
+- 🔴 **HIS THREE DECISIONS, 2026-09-16, asked one at a time — AND TWO WENT AGAINST THE
+  RECOMMENDATION.** His question about a manager's context widened the row from the domain alone
+  to carry **firm and advisor**, which then reversed mentor-alone to **all four tiers**
+  (`TAB_TIERS.modelChoices = ['mentor','global','group','firm']`). A session building from the
+  recommendations would have built the wrong thing.
+- 🔴 **THE DECLINES BAND IS A GAP MAP, NOT A FAULT LIST — his ruling, 2026-09-16.** Nineteen
+  models answer to twenty-two advisory domains, so a domain that keeps appearing there **has no
+  calculator at all and the AI is answering correctly every time**. It marks where advisors keep
+  arriving and finding nothing — where the next model should go. **It reports and it never
+  scores:** anything grading the AI's choice would be a second AI marking the first one's
+  homework, with nobody able to check that one.
+- **Walked against the running app on real MySQL** — ten seeded rows, all four bands rendering,
+  model names resolving from their page paths, every string reading as English. The route's first
+  `DB_ERROR` was a missing local table, not a code fault; v0.13.0's release notes already tell the
+  master team to run that block.
+- **The two deviations from the drawing are DELIBERATE and were named on it before any code** — no
+  period selector (the route takes no date range and returns the most recent 2,000 rows) and
+  **three count tiles, not four** (band 1's tile would need a second read of
+  `advisor_va_sessions`, so it is omitted rather than filled from a number that means something
+  else). Both recorded in [`../ARTEFACTS.md`](../ARTEFACTS.md). **They were never open questions
+  awaiting his answer.**
+- ⚠ **ITS ONE KNOWN WEAKNESS LIVES ON ITS OWN ITEM AND IS ALREADY PARKED: the marker is
+  unreliable — item 7.6**, which Mike parked 2026-09-16 (*"it corrects a counter on an internal
+  screen"*), with the cause known and rewording disproved twice. Closing 7.5 does not hide it.
+- **Why `waitingOn: Mike` was stale:** he had ruled the three decisions, ruled the gap-map
+  reading, and the deviations were documented before the build. Nothing was outstanding from him.
+
+**5.1 — Wages/Salary Review: labour margin, and a staff register kept on a dial.**
+✅ **Closed 2026-09-23 by Mike.** Every piece built, wired and seen by him on the running app.
+
+- **The report's three charts** — built 2026-09-15, drawn, approved and walked in a browser; the
+  pie is Mike's own idea. `seasonShare()` is on the **engine**, never the screen.
+- **The register and its table** — built, and there is **no due-diligence gate**: Mike removed that
+  condition 2026-09-15.
+- **The retention dial** — built 2026-09-23. Three routes behind `fmGuard`
+  ([`registerRetentionRoutes.js`](../../server/routes/registerRetentionRoutes.js)),
+  [`FirmRegisterRetention.vue`](../../components/firm/FirmRegisterRetention.vue), and the **Staff
+  Register Retention** tab on **all four manager tiers** — `TAB_TIERS.registerRetention` is
+  `['mentor', 'global', 'group', 'firm']`, in Mike's own words.
+- 🔴 **18 MONTHS IS MIKE'S RULING AND IT IS ENFORCED, NOT ADVISED.**
+  `PLATFORM_DEFAULT_MONTHS = 18`, `MIN_MONTHS = 1`, `MAX_MONTHS = 18`, checked in
+  `validateRetentionMonths` so **no tier, route or pre-ruling stored value can exceed it**. The
+  seven-year default and twelve-month floor that preceded it were attributed to Decision 8 and
+  **were never his** — Decision 8 names no period at all.
+- **The wording is his, approved from a screenshot of the RUNNING page** — not a mockup, not a
+  chat rendering. Five strings, pinned by
+  [`registerRetentionWording.test.js`](../../tests/unit/registerRetentionWording.test.js) as the
+  named exception to the no-asserting-wording rule, mutation-verified. **Do not reword them.**
+- **56 tests across four retention files**, plus the charts and register work before them.
+- **The payroll reader is NOT part of this item** — it is 5.2, and stays live.
+
+⚠ **A STALE SENTENCE IN THIS ITEM'S OWN NOTE SENT A SESSION BACK TO MIKE WITH IT AS OPEN WORK.**
+The note read *"NOT WALKED IN A BROWSER YET"* — true for a few hours on 2026-09-23 while the dial
+was being built, and never replaced when he reviewed it the same day. The session checked the
+**code** (routes, tiers, the 18-month enforcement, all correct) and then took the browser claim on
+trust **because it was not code**. It is contradicted by commit `93c52d92`, by the desktop
+handover `9142568c` — *"ITEM 5.1 IS COMPLETE"* — and by the wording test itself. **The record is
+the code AND the commits; checking one and trusting the other is not checking.**
+
+**9.1 — learning from outcomes across consenting firms.**
+✅ **Closed 2026-09-23 by Mike.** A Spec Kit feature (`specs/002-outcome-learning`), **48 of 48
+tasks ticked and none open**, and every claim below was checked in the code before it was put to
+him rather than read from the item's own note.
+
+- **Built and WIRED, which is the half a task list cannot show:** six utilities
+  (`outcomeLearning`, `outcomeConsent`, `outcomeContribute`, `outcomeBench`,
+  `outcomeLearningSession`, `outcomePoolBootCheck`), two route files, and **six routes behind the
+  right guards** — `/api/firm-manager/outcome-consent` read/set/withdraw behind `fmGuard`, and
+  `/api/mentor/outcome-learning` list/recompute/decision behind `mentorGuard`. Both hub tabs are
+  registered and both components imported in
+  [`../../components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue).
+- **Ten test files**, including `outcomeBench.test.js`'s negative assertion that an adjustment
+  clearing the floor only because the test month was counted **never applies**.
+- **Walked against real MySQL on the desktop** (2026-09-12): consent, a pooled row with no free
+  text, the mentor's decisions and both refusals, restore, both benches and the advisor's notice.
+  That walk found and closed item 4.94 the same hour — the trace named the wrong hold-back and
+  could hide one.
+- ⚠ **Two paths were never shown locally and are UAT's to confirm:** a withdrawal taking an
+  adjustment below the floor (yesterday's rows sit under a lost secret) and a second firm (one dev
+  sign-in exists). **Both are covered by tests** — this is confirmation in the real world, not
+  unbuilt work.
+- **Why done and not parked:** nothing blocks it and nothing is asked of anyone here. UAT is what
+  happens to finished work, not a task on the live list. Every word on both screens is ruled and
+  on the approved drawings; Brief §8 says what stands where.
+
 **15.6 — eight concepts named a response form the app could not find.**
 ✅ Closed 2026-09-23. **All twenty pairings resolve — 0 failures**, run through
 `resolveTemplate` in [`server/utils/strategyCaptureForms.js`](../../server/utils/strategyCaptureForms.js),
@@ -255,6 +529,41 @@ nine; it is five). That is not a fault: **32 of the 52 concepts carry no capture
 these are forms waiting on concepts not yet wired, which is 15.1's remaining build. Mike's partial
 register pass (17 of 52) stays in `design/concept-register-corrections.json`, unapplied and read
 by no code — a saved artefact, not a live pipeline.
+**7.12 — "the right calculator is offered only sometimes, and sometimes the wrong one is".**
+🔴 **DELETED 2026-09-23 by Mike, on the same reasoning that deleted 7.13 the day before.** His
+prompt was *"im sure this was determined to be a waste of time"* — and checking the record proved
+him right. **Do not re-file it.** It had six numbered build steps with verified line numbers,
+which is exactly what made it look ready: **the instructions were finished long before anyone
+asked whether the fault still existed.**
+
+**ALL FOUR OF ITS MEASURED FAULTS ARE CLOSED, AND NOT ONE OF THEM BY THIS ITEM'S BUILD:**
+
+| Model | What became of it |
+| --- | --- |
+| **High-Level Budget** | Split out as **item 7.11 and FIXED** 2026-09-18 (`ddf2dcce`) — the right calculator **4/4**, named as *Best match* **6/6**, where before the wrong one came 5/6 |
+| **Working Capital Cycle** | 3/6 → **5/6** on the offer-rule change of 2026-09-18 |
+| **8 Levers Model** | 0/6 → 0/6 and **explicitly not a defect** — the AI answers with the template *8 Profit Levers* and correctly stops |
+| **Sales Dashboard** | **Named 6/6 — correctly, every single run.** Only the page path is absent |
+
+🔴 **AND SALES DASHBOARD IS THE CASE THAT DELETED 7.13.** `isKnownTemplate('Sales Dashboard')`
+returns **true** — it is one of the **six model names that are also real template titles** — and
+the build steps of this very item say a lookup **must attach nothing** for those six. **Its
+remaining headline evidence was a case its own fix was forbidden to touch.** Re-run 2026-09-23:
+`Sales Dashboard` **true**, `Working Capital Cycle` **true**. **Both models it still named are
+collision names.**
+
+**What was left was instrumentation, and it already exists.** The six steps describe recording
+what the AI named at `advisorEngine.js` 3075 / 3937 / 4244 — but `resolveModelChoiceWithSource`
+already resolves the correct route from the marker on every reply, including where the AI's prose
+path is wrong or absent, and it feeds the **Model Choices screen** (item 7.5, shipped 2026-09-23).
+
+✅ **WHAT IS KEPT AND MUST NOT BE UNDONE:** the six name collisions fixed 2026-09-17; `searchWords`
+pinned as **screen-only, never given to the AI**; the offer rule naming the failing case — *"IF A
+MODEL ANSWERS THE QUESTION, NAMING IT IS NOT OPTIONAL — INCLUDING WHEN YOU HAVE ALREADY
+RECOMMENDED A TEMPLATE"* — with **line 7 untouched**, a near-miss still forbidden outright; and the
+**"A model that fits"** label ruling of 2026-09-18 (*"a model includes CALCULATIONS but it is NOT
+a calculator"*). All are live and pinned by tests.
+
 **7.13 — "the model's page is recalled by the AI, not looked up".**
 🔴 **DELETED 2026-09-23 by Mike, not built and not replaced.** His words, on being shown the
 evidence below: *"if it REALLY needs fixing we fix it - if it isn't REALLY needed - delete it"*,

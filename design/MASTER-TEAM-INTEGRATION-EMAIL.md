@@ -1,8 +1,21 @@
-# Email to the master coding team — the nine things we need to hook up
+# The ten things we need the master coding team to hook up
 
-> **Draft for Mike to send.** Written 2026-08-15 on his instruction: *"If there's anything
-> specific you need to know, in technical terms to enable you to make provision for this, draft
-> me the email and I will provide you their response."*
+> 🔴 **THIS IS NOT AN EMAIL WAITING TO BE SENT. IT IS THE WORKING DETAIL BEHIND THE RELEASE
+> NOTES — Mike's ruling, 2026-09-23.** In his words: *"i dont want it as an external -
+> additional, email. it needs to be part of the handover notes - made clear to the team -
+> during the next release cut."*
+>
+> **These ten questions go to the team in the "What we need from you" section of
+> `design/RELEASE-NOTES-v<version>.md`, at every release cut** — step 6 of Integration in
+> [`WORKING-AGREEMENT.md`](WORKING-AGREEMENT.md). This file holds the technical detail behind
+> each one; the release notes are how they actually reach anybody. **Do not propose sending
+> this as an email, and do not record it as awaiting sending.**
+>
+> *Why: it was drafted 2026-08-15 on Mike's instruction, re-verified against the code as late
+> as 2026-09-22–23 — gaining a ninth question and promoting the database to a tenth — and in
+> all that time it was never sent, because an email is a channel with no moment attached to
+> it. Item 11.1 is parked on question 7 alone: the Adviser Network shows nine invented people
+> and our 43 SQL seam points are finished, waiting on an answer nobody had been asked for.*
 >
 > **Everything below is already provisioned on our side.** There is one file —
 > [`config/integration.js`](../config/integration.js) — and the answer to seven of these nine questions

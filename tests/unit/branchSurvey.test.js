@@ -61,10 +61,32 @@ describe('branch-survey — selectBranches', () => {
     { ref: 'origin', ahead: 0, behind: 0, lastCommit: '2026-08-02' }
   ]
 
-  it('drops a branch with nothing ahead of master', () => {
-    // 289 behind and 0 ahead means everything it ever held is already in master.
+  it('drops an ABANDONED branch with nothing ahead of master', () => {
+    // 289 behind and 0 ahead means everything it ever held is already in master. This
+    // repo carries a dozen such refs, one 1,891 behind; reporting them is pure noise.
+    // It carries no `machine`, which is what separates it from the case below.
     const names = selectBranches(rows, 'feat/advisor-progress').map(r => r.ref)
     expect(names).not.toContain('origin/feat/course-builder-v3')
+  })
+
+  // 🔴 THE FAULT OF 2026-09-23. A MACHINE branch at 0 ahead / N behind was invisible —
+  // `ahead > 0` dropped it — so the box printed nothing, `startup.md` said silence means
+  // the other machine has merged everything, and a session reported BOTH MACHINES
+  // EXACTLY LEVEL while the laptop sat 3 behind. Nothing was lost; the statement was
+  // false, and every check had been obeyed on the way to making it.
+  it('KEEPS a machine branch that is behind master with nothing ahead', () => {
+    const out = selectBranches([
+      { ref: 'origin/feat/advisor-progress', ahead: 0, behind: 3, lastCommit: '2026-09-23', machine: 'laptop' }
+    ], 'feat/firm-quiz-builder-ui')
+    expect(out.map(r => r.ref)).toEqual(['origin/feat/advisor-progress'])
+  })
+
+  it('still drops a machine branch that is genuinely level', () => {
+    // 0 and 0 is the real all-clear and must stay silent, or the box prints every run.
+    const out = selectBranches([
+      { ref: 'origin/feat/advisor-progress', ahead: 0, behind: 0, lastCommit: '2026-09-23', machine: 'laptop' }
+    ], 'feat/firm-quiz-builder-ui')
+    expect(out).toEqual([])
   })
 
   it('keeps only the branches carrying unmerged commits', () => {
@@ -112,6 +134,19 @@ describe('branch-survey — describeSurvey', () => {
     expect(text).toContain('4 ahead')
     expect(text).toContain('75 behind')
     expect(text).toContain('2026-08-01')
+  })
+
+  it('forbids the word LEVEL when a machine is behind with nothing ahead', () => {
+    // The wording is the fix. The row alone would be read past — the session that got
+    // this wrong had both counts in front of it and still said "exactly level".
+    const text = describeSurvey([
+      { ref: 'origin/feat/advisor-progress', ahead: 0, behind: 3, lastCommit: '2026-09-23', machine: 'laptop' }
+    ]).join('\n')
+
+    expect(text).toContain('3 behind')
+    expect(text).toContain('DO NOT SAY THE TWO MACHINES ARE LEVEL')
+    // And it must not claim unmerged work that does not exist.
+    expect(text).not.toContain('hold work that is NOT in')
   })
 
   it('says plainly that nothing is blocked', () => {

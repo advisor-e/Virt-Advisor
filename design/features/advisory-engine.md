@@ -326,6 +326,13 @@ Three call sites finish an AI answer, and the raw buffer is still in scope at ea
 markers are stripped into a new variable while the buffer beside it keeps them, so anything
 machine-read stays readable without re-plumbing. `injectVideoInfo` is the working example.
 
+⚠ **This is REFERENCE, not an outstanding job.** It was written as build steps for item 7.12,
+which **Mike deleted on 2026-09-23** once every fault it was filed over turned out to be fixed
+(7.11), improved, not a defect, or forbidden to touch. **What those steps would have recorded is
+already recorded:** `resolveModelChoiceWithSource` resolves the route from the marker on every
+reply and feeds the Model Choices screen (item 7.5). Do not read the table below as work waiting
+to be done — see `to-do-done-and-parked.md`.
+
 | Path | Line | Stripped text | Raw buffer holding the marker |
 |---|---|---|---|
 | Post-recommendation conversation | `advisorEngine.js:3075` | `visible` | `_postBuffer` |

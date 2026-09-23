@@ -603,6 +603,64 @@ is listed is a question for the intake, not an assumption to make here.
 completion date"*, and approval, the amendment and enablement are **three separate steps**. ⚠ **Do
 not record ZDR as obtained, in progress, or likely.** What exists today is an invitation to apply.
 
+### 5.6 · OpenAI Sales, FIFTH reply — 2026-09-23, answering §5.5's two open questions
+
+✅ **RECEIVED 2026-09-23**, after the ZDR intake went (§6). It is the reply §6 reserved this
+slot for. **It answers two questions and grants nothing** — read the last line first.
+
+> Hi Mike,
+>
+> Following up on my acknowledgment, I wanted to address your two questions directly.
+>
+> **1. Model names and ZDR**
+>
+> My earlier reference to gpt-4o-mini-2024-07-18 came from the data-residency support table; it
+> was not intended to mean that ZDR requires a dated model name.
+>
+> The model catalog identifies gpt-4o-mini-2024-07-18 as the current snapshot for gpt-4o-mini.
+> For gpt-4o-transcribe-diarize, it lists only the undated name, including as its current
+> snapshot.
+>
+> The published ZDR guidance lists both endpoints as eligible and does not state a blanket
+> requirement to pin to dated snapshots.
+>
+> **2. New Zealand processing**
+>
+> Yes—your reading of the regional availability is correct. New Zealand is not a listed API
+> data-residency region, and Australia provides regional storage but no regional processing.
+> Selecting Australia would therefore not meet your requirement to keep processing in New
+> Zealand; your assessment should treat this as offshore processing. See the regional support
+> table.
+>
+> I'll keep you updated on the review and the outstanding configuration-specific confirmation.
+>
+> Best regards,
+>
+> Kalaiselvam
+
+#### What this settles
+
+**1. ✅ THE MODEL MISMATCH OF §5.5 POINT 5 IS CLOSED — and it was never a problem.** The dated
+`gpt-4o-mini-2024-07-18` came from the *data-residency* table, not from ZDR. Both endpoints are
+ZDR-eligible and **there is no requirement to pin to a dated snapshot**. So this app's
+**`gpt-4o-mini`** (undated) and **`gpt-4o-transcribe-diarize`** (published undated only, and
+therefore impossible to pin) are both fine as they stand. **No code change follows from this** —
+`config/integration.js` and `server/utils/transcriptionClient.js` are untouched by it.
+
+**2. 🔴 NEW ZEALAND OFFSHORE IS NOW OPENAI'S WRITTEN POSITION, NOT OUR READING.** §5.5 recorded
+this as a finding for the lawyer inferred from the support table. It is now confirmed in their
+own words — *"your assessment should treat this as offshore processing"* — with Australia
+explicitly ruled out as storage-only. **The privacy assessment rests on this**, so it matters
+that it is no longer an inference. The conclusion is unchanged; its standing is stronger.
+
+#### What it does NOT do
+
+⚠ **IT GRANTS NOTHING, AND IT SAYS SO IN ITS OWN LAST LINE:** *"the review and the outstanding
+configuration-specific confirmation"* are both still open. ZDR is **under review**, not approved,
+not enabled. **The three steps of §5.3 point 6 are unchanged** — approval, amendment, enablement
+— and no turnaround is quoted. **§5.4 below stands in full and nothing here weakens it:** nobody
+may record ZDR as obtained, in progress or likely, and nobody may say no human can access it.
+
 ### 5.4 · What this organisation relies on, stated once
 
 **Mike's ruling, 2026-09-18**, in his words: *"We have taken all fair and reasonable steps to

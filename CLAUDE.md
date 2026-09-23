@@ -454,6 +454,67 @@ for you to decide", which read as parking when the honest statement was that fil
 his word. Both were handled only because Mike asked why the rule had been ignored. *(The
 2026-09-14 ruling it strengthens is quoted in full in `.claude/commands/startup.md`.)*
 
+## 🔴 EVERY TASK ENDS WITH MIKE'S CALL ON THE ITEM — AND IT IS WRITTEN IN THAT MOMENT (binding)
+
+**Mike's ruling, 2026-09-23.** In his words: *"the problem is that the to do list is never
+made the centre of the chat - it gets ignored. at the end of every task I should get prompted
+to update but i give the answer to claude code chat - so there's no way i can change it and
+have you ignore it afterwards."*
+
+**The live list is the centre of the conversation, not a file read at the start of it.** When
+a task ends — not when the session ends — the item it belonged to gets his word, and that word
+goes into `design/features/to-do-items.json` before anything else is done.
+
+🔴 **AND "CHECK THE CODE" MEANS THE COMMITS TOO — Mike, 2026-09-23:** *"how many more fuck ups
+will you make until you learn to read BOTH the notes AND the fucking code!??"*
+
+**A note's claim is checked against whatever would prove it, not against whatever is easiest to
+grep.** Some claims are not in the code at all — *he approved it*, *it was walked in a browser*,
+*the email was sent*, *UAT signed it off*. Those live in `git log`, in commit bodies, in
+`ARTEFACTS.md` and in the handovers. **A session that verifies the code half and takes the rest
+on trust has not verified the item.**
+
+*Why (2026-09-23). Item 5.1's note said "NOT WALKED IN A BROWSER YET". The session checked the
+routes, the four tiers and the 18-month enforcement — all correct — then repeated the browser
+claim to Mike as outstanding work, because it was not code and so was never tested. It was false:
+commit `93c52d92` records that he approved the five strings "from a screenshot of the RUNNING
+page", the desktop handover says "ITEM 5.1 IS COMPLETE", and `registerRetentionWording.test.js`
+pins the words he approved. The sentence was true for a few hours while the dial was built and
+was never replaced. **`git log --grep "<ref>"` would have shown all three in one command.**
+This was the third item in one session where a stale note was read as current.*
+
+**The three steps, in this order, every time:**
+
+1. **Name the item and say what it now is** — one line, plain English. *"5.1: the retention
+   dial is built, wording approved, not yet walked in a browser."*
+2. **Ask for one word: proceed, done, park or delete.** Those are the four calls his Handbook
+   control offers, so the question matches the control he already has.
+3. **Write his answer into the file immediately.** `done`, `park` and `delete` MOVE the item
+   to `to-do-done-and-parked.md` with his reason — they never stay ticked on the live list.
+   `proceed` updates what the item now says. A call he gave in chat and nobody wrote down is
+   a call that never happened.
+
+⛔ **These are NOT the rule being followed:** writing a prose note that the work is built and
+leaving the item live · "I'll update the list at shutdown" · deciding the status yourself
+because it seems obvious · reporting what you did without asking what it now is.
+
+⚠ **Do not ask him to use the Save button instead.** The Handbook control writes `yourCall`
+into a file in his Downloads that a session must then apply with `npm run to-do -- <file>`.
+That round trip has been run **once, on 2026-08-15**, while sessions made **492 direct edits**
+to the list. The control works; the hand-off does not happen. **His answer in chat is the
+supported route** — converting it into the file is the session's job, not his.
+
+**Why this is binding (2026-09-23).** The list had drifted until **his top four items — 8.1,
+11.1, 9.1 and 5.1 — were every one of them finished, blocked outside, or explicitly marked
+"do not touch", while all four still sat at the top as live work.** A session picking from the
+top of his own ranking was therefore *guaranteed* to pick something undoable, and did so twice
+in one morning. Measured the same day: in the busiest week the live list took **163 edits
+against 42 closures** — it was being narrated four times more often than it was being decided,
+and ten of twenty-eight items had three or more dated updates stacked inside them. Two commit
+messages from the day before say it outright: *"the relabel line shipped this morning and the
+list did not know"* and *"the branding is BUILT, and both notes said it was not."* Mike's cost
+for this: more than three hours a day, roughly ten days in six.
+
 ## Code Change Governance
 
 **Never make a code change without explicit user approval.**
