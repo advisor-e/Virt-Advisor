@@ -122,13 +122,29 @@ ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
    Report the two or three things most likely to be today's work, saying for each whether
    it waits on Mike, on us, or on someone outside. Do not start any of them.
 
+   🔴 **READ THE `SAME ITEM, BOTH MACHINES` BOX BEFORE ANY OTHER JUDGEMENT ABOUT AN ITEM —
+   AND NEVER TREAT AN UNCLAIMED ITEM AS FREE.** `npm run check:branch` prints it from the
+   other machine's **commit subjects**, so it reports what somebody DID, not what somebody
+   remembered to declare. If it names an item, read that branch —
+   `git log --oneline origin/master..<their branch> --grep "(<ref>)"` — **before** forming
+   any view of it, and put it to Mike. Do not propose deleting, rescoring or rebuilding it
+   on your own reading.
+
+   **Why this outranks the box below (2026-09-23).** The desktop deleted item 7.13 at 11:00
+   having argued it unnecessary; the laptop pushed a ~1,000-line build of that same item at
+   11:45. Both machines had a green light and both had obeyed every rule here. **`activeOn`
+   did not fail — it was never set:** one item in twenty-nine carried it, so the claims box
+   correctly reported the item as unclaimed and free. A rule that depends on remembering to
+   fill in a field protected nothing the first time it was tested.
+
    **An item whose `activeOn` names the other machine is off limits.** Say which item and
    which files, and do not touch them this session. That field exists because item 4.54 was
    built on both machines in one week (Mike, 2026-09-03). Step 2's `npm run check:branch`
    prints an **ACTIVE ITEMS** box for this: the other machine's items with their files, and
    any item marked active on THIS machine that a later handover never mentioned — a session
    ended without saying whether it was still in hand. Put that one to Mike before anything
-   else, and clear or keep the field on his word.
+   else, and clear or keep the field on his word. ⚠ **A silent claims box means only that
+   nobody claimed anything** — it is never evidence that nobody is working.
 
    🔴 **NEVER CALL THE OTHER MACHINE'S NOTE STALE FROM THE COPY IN YOUR WORKING TREE. It is
    frozen at your last merge and it will look weeks old when it is not.** Read its date from
