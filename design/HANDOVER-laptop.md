@@ -9,31 +9,28 @@
 
 ---
 
-## 2026-09-23 · Laptop · branch `feat/advisor-progress`
+## 2026-09-24 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed at `af9ce7ae`. 617 suites / 13,593 tests green, lint 0 errors, audit gate
-PASS. 12 ahead, 0 behind `master`, and [PR #127](https://github.com/advisor-e/Virt-Advisor/pull/127)
-IS OPEN** — Mike has not merged it; that is his.
+**Clean. 623 suites / 13,690 tests green with coverage, lint 0 errors. 0 behind `master`** —
+merged twice today: PR #128 this morning (5.1's closure won over our note edit) and PR #129 at
+shutdown (8.2 moderation; no item edited on both sides). **[PR #127](https://github.com/advisor-e/Virt-Advisor/pull/127)
+is OPEN and carries everything once pushed — Mike merges it.**
 
-**15.19 CLOSED, and it unblocks 15.17, still in hand here.** A drawing may sit unwired while
-declared in `AWAITING_APPROVAL` **and** carrying its `AWAITING APPROVAL (<file>#<n>)` token on
-its `ARTEFACTS.md` row. Remove the token — which is how approval is recorded — and the build
-fails until it is wired. Neither existing rule is weakened.
+**15.20 Add Concept — PROCEED, on Mike's call. Slice 1 BUILT:** `server/utils/pdfConvert.js` +
+`pdfConvertWorker.js`, `pdfjs-dist` 2.16.105 pinned exact. 🔴 **Read Brief §9 before touching
+it.** CVE-2024-4367 is contained by three BINDING conditions — eval off; a worker with an empty
+environment, 256 MB, killed at 20 s; upload hygiene. Reading a PDF inside Restify reopens his ruling.
 
-🔴 **15.20 IS DRAWN, FULLY RULED, AND APPROVED BY MIKE 2026-09-23 (`f5aa82fc`) — BUILD FROM IT.**
-`design/mockups/add-concept.html` — six questions, every one ruled beside itself, then the
-drawing approved as its own question. **Read the
-drawing, not a summary** — two rulings went against the recommendation and both changed the
-build.
+**The drawing is approved in full:** §5b box-marking screen + its nine wording rows; Q7 (answers
+print inside their boxes); Q8 (the firm's mark covers the deck's advisor-e logo, which is not
+stored). A stored page is **63 KB**. **Next slice: storage + upload route, then the Mentor Hub
+tab.** The depreciation route gives upload hygiene only — it keeps no PDF, so source storage (Q4)
+is new. The converter calls no model; a later slice that does must pass `moderate:` (desktop, 8.2).
 
-⚠ **`pdfjs-dist` is NOT installed.** The conversion was measured outside the repo; its SVG
-back-end is unmaintained by its authors. Risk recorded in `strategy-planner.md` §9 and on the PR.
+⚠ **Install with `npx npm@8.19.4`, never the bare `npm`** — it is 6.14.8 here and rewrites the lockfile.
 
-**SHARED FILES I TOUCHED** — `scripts/quick-gate.js` (new pure `jestRuns`; a documents-only
-commit no longer runs all 617 suites) · `scripts/build-concept-graphics.js` ·
-`tests/unit/conceptGraphics.test.js` · `tests/unit/quickGate.test.js` · `design/ARTEFACTS.md` ·
-`features/strategy-planner.md` §9 · `to-do-items.json` · `to-do-done-and-parked.md` ·
-`design/mockups/add-concept.html` (new). **Your quiz-builder, currency and register files
-untouched.**
+**15.21 filed:** the runtime advisory awaits the team's sign-off (`SECURITY-AUDIT-NOTES.md`).
 
-**In hand here:** 15.1, 15.17, 15.20 — all `activeOn` laptop. Nothing half-finished.
+**SHARED FILES TOUCHED:** `strategyFrameworks.js`, `strategyPlanner.js`, `StrategyPlanDocument.vue`
+(comments only: 52 → 46, re-measured), `package.json`/lock, `SECURITY-AUDIT-NOTES.md`.
+**In hand:** 15.1, 15.17, 15.20 — all `activeOn` laptop.
