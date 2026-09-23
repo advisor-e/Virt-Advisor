@@ -465,6 +465,24 @@ have you ignore it afterwards."*
 a task ends — not when the session ends — the item it belonged to gets his word, and that word
 goes into `design/features/to-do-items.json` before anything else is done.
 
+🔴 **AND "CHECK THE CODE" MEANS THE COMMITS TOO — Mike, 2026-09-23:** *"how many more fuck ups
+will you make until you learn to read BOTH the notes AND the fucking code!??"*
+
+**A note's claim is checked against whatever would prove it, not against whatever is easiest to
+grep.** Some claims are not in the code at all — *he approved it*, *it was walked in a browser*,
+*the email was sent*, *UAT signed it off*. Those live in `git log`, in commit bodies, in
+`ARTEFACTS.md` and in the handovers. **A session that verifies the code half and takes the rest
+on trust has not verified the item.**
+
+*Why (2026-09-23). Item 5.1's note said "NOT WALKED IN A BROWSER YET". The session checked the
+routes, the four tiers and the 18-month enforcement — all correct — then repeated the browser
+claim to Mike as outstanding work, because it was not code and so was never tested. It was false:
+commit `93c52d92` records that he approved the five strings "from a screenshot of the RUNNING
+page", the desktop handover says "ITEM 5.1 IS COMPLETE", and `registerRetentionWording.test.js`
+pins the words he approved. The sentence was true for a few hours while the dial was built and
+was never replaced. **`git log --grep "<ref>"` would have shown all three in one command.**
+This was the third item in one session where a stale note was read as current.*
+
 **The three steps, in this order, every time:**
 
 1. **Name the item and say what it now is** — one line, plain English. *"5.1: the retention

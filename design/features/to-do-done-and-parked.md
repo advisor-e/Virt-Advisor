@@ -272,6 +272,38 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**5.1 — Wages/Salary Review: labour margin, and a staff register kept on a dial.**
+✅ **Closed 2026-09-23 by Mike.** Every piece built, wired and seen by him on the running app.
+
+- **The report's three charts** — built 2026-09-15, drawn, approved and walked in a browser; the
+  pie is Mike's own idea. `seasonShare()` is on the **engine**, never the screen.
+- **The register and its table** — built, and there is **no due-diligence gate**: Mike removed that
+  condition 2026-09-15.
+- **The retention dial** — built 2026-09-23. Three routes behind `fmGuard`
+  ([`registerRetentionRoutes.js`](../../server/routes/registerRetentionRoutes.js)),
+  [`FirmRegisterRetention.vue`](../../components/firm/FirmRegisterRetention.vue), and the **Staff
+  Register Retention** tab on **all four manager tiers** — `TAB_TIERS.registerRetention` is
+  `['mentor', 'global', 'group', 'firm']`, in Mike's own words.
+- 🔴 **18 MONTHS IS MIKE'S RULING AND IT IS ENFORCED, NOT ADVISED.**
+  `PLATFORM_DEFAULT_MONTHS = 18`, `MIN_MONTHS = 1`, `MAX_MONTHS = 18`, checked in
+  `validateRetentionMonths` so **no tier, route or pre-ruling stored value can exceed it**. The
+  seven-year default and twelve-month floor that preceded it were attributed to Decision 8 and
+  **were never his** — Decision 8 names no period at all.
+- **The wording is his, approved from a screenshot of the RUNNING page** — not a mockup, not a
+  chat rendering. Five strings, pinned by
+  [`registerRetentionWording.test.js`](../../tests/unit/registerRetentionWording.test.js) as the
+  named exception to the no-asserting-wording rule, mutation-verified. **Do not reword them.**
+- **56 tests across four retention files**, plus the charts and register work before them.
+- **The payroll reader is NOT part of this item** — it is 5.2, and stays live.
+
+⚠ **A STALE SENTENCE IN THIS ITEM'S OWN NOTE SENT A SESSION BACK TO MIKE WITH IT AS OPEN WORK.**
+The note read *"NOT WALKED IN A BROWSER YET"* — true for a few hours on 2026-09-23 while the dial
+was being built, and never replaced when he reviewed it the same day. The session checked the
+**code** (routes, tiers, the 18-month enforcement, all correct) and then took the browser claim on
+trust **because it was not code**. It is contradicted by commit `93c52d92`, by the desktop
+handover `9142568c` — *"ITEM 5.1 IS COMPLETE"* — and by the wording test itself. **The record is
+the code AND the commits; checking one and trusting the other is not checking.**
+
 **9.1 — learning from outcomes across consenting firms.**
 ✅ **Closed 2026-09-23 by Mike.** A Spec Kit feature (`specs/002-outcome-learning`), **48 of 48
 tasks ticked and none open**, and every claim below was checked in the code before it was put to
