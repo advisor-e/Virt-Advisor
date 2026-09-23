@@ -416,6 +416,46 @@ describe('a ruled line is a box, and a heading is never one', () => {
     expect(checked.length).toBeGreaterThan(0)
     expect(wrong).toEqual([])
   })
+
+  test('🔴 a WORKED EXAMPLE under a heading is never read as the heading', () => {
+    // Insights Summary bands as `headings -> his worked answer in prose -> ruled lines`,
+    // twice. Judged on "words, then ruled lines" alone the EXAMPLE matches and the
+    // HEADING does not, so every box was headed with his example sentence and neither
+    // `What We Do LESS Well` nor `What Resources We Need` reached a screen at all.
+    // Porter's and Blue Ocean have no example row between, which is why it showed here
+    // first and on nothing else. Found 2026-09-23.
+    //
+    // Every expectation is READ OFF HIS TABLE, never typed: the headings are whichever
+    // rows sit above his ruled lines, so editing the template moves the test with it.
+    const tpl = forms.resolveTemplate('Insights Summary')
+    const rows = tpl.tables[0].rows
+    const capture = captureOf('review-internal-insights-data')
+
+    // His band headings: a row of words that OPENS a band — the table's first row, or
+    // the row after the previous band's ruled lines. That is what separates a heading
+    // from the worked example directly beneath it, which is words above lines as well.
+    const headingRows = rows.filter((r, i) => {
+      const words = r.cells.every(c => c.text && !c.blank)
+      const opensBand = i === 0 || rows[i - 1].cells.every(c => c.blank)
+      return words && opensBand
+    })
+    const headings = new Set()
+    headingRows.forEach(r => r.cells.forEach(c => headings.add(c.text)))
+
+    // Two bands of two columns each, so four distinct headings and nothing else.
+    expect(headings.size).toBe(4)
+    expect(new Set(capture.fields.map(f => f.columnLabel))).toEqual(headings)
+
+    // And his worked answers are not offered as boxes to type over.
+    const examples = rows
+      .filter(r => r.cells.every(c => c.text && !c.blank))
+      .flatMap(r => r.cells.map(c => c.text))
+      .filter(t => !headings.has(t))
+    expect(examples.length).toBeGreaterThan(0)
+    examples.forEach((text) => {
+      expect(capture.fields.map(f => f.columnLabel)).not.toContain(text)
+    })
+  })
 })
 
 describe('the parallel prompt pair — two independent lists, not rows of one table', () => {

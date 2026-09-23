@@ -1,10 +1,17 @@
 /**
- * The four capture tables that live on a DECK PAGE, not in a workbook.
+ * The five capture tables that live on a DECK PAGE, not in a workbook.
+ *
+ * 🔴 THEY ARE NOT ALL ONE SHAPE, AND THIS FILE USED TO ASSUME THEY WERE. Four are the
+ * Sales & Marketing "<X> Considerations | Your <X> Ideas" sheets, two columns of
+ * question → answer. The fifth, **Divisional KPI's**, is a three-column grid of named
+ * rows: his six divisions down the side, Primary Output and Divisional KPI across.
+ * Every assertion that reads "each" now says WHICH, because a rule applied to the
+ * wrong shape is how a form gets read as the half it is not (Brief §0, forms 5 and 6).
  *
  * 🔴 WHY THIS FILE CANNOT DO WHAT ITS WORKBOOK EQUIVALENT DOES.
  * `strategyCaptureForms.test.js` re-parses every .docx and .xlsx and compares the
  * result to the committed data, because those workbooks are in the repository. These
- * four come out of a PDF deck that sits OUTSIDE it — `C:\Documents\Visual Code
+ * five come out of a PDF deck that sits OUTSIDE it — `C:\Documents\Visual Code
  * Projects\Strategy Planner` — which neither machine's test run nor the master team
  * can open. So the committed extraction is guarded by its SHAPE instead, the same
  * arrangement the 33 concept drawings use.
@@ -24,7 +31,25 @@ const { concepts } = require('../../data/strategy-frameworks.json')
 
 const TEMPLATES = Object.keys(deckTables.templates)
 
-describe('the four forms on his deck pages are read, not declared missing', () => {
+/**
+ * The four two-column question sheets, NAMED rather than derived from the data.
+ *
+ * Deriving this list (`…filter(columns === 2)`) would make the shape assertions below
+ * describe whatever was extracted instead of what his pages hold — a guard that agrees
+ * with every result is not a guard. A fifth question sheet is added here by hand.
+ */
+const QUESTION_SHEETS = ['Branding', 'Customer Loyalty', 'Pricing', 'Packaging']
+
+/** The one named-row grid. Its own shape is asserted in its own describe, below. */
+const NAMED_ROW_GRIDS = ['Divisional KPIs']
+
+describe('the five forms on his deck pages are read, not declared missing', () => {
+  test('every deck-page template is accounted for by one of the two shapes', () => {
+    // Without this, a sixth template could be added and every shape assertion below
+    // would simply skip it — passing while guarding nothing.
+    expect([...QUESTION_SHEETS, ...NAMED_ROW_GRIDS].sort()).toEqual([...TEMPLATES].sort())
+  })
+
   test('every page the reader is told to read has a committed table', () => {
     expect(reader.PAGES.length).toBeGreaterThan(0)
     reader.PAGES.forEach((p) => {
@@ -35,8 +60,8 @@ describe('the four forms on his deck pages are read, not declared missing', () =
     })
   })
 
-  test('each is one two-column grid — his question beside the client\'s answer', () => {
-    TEMPLATES.forEach((name) => {
+  test('each question sheet is one two-column grid — his question beside the client\'s answer', () => {
+    QUESTION_SHEETS.forEach((name) => {
       const t = deckTables.templates[name]
       expect(t.tables).toHaveLength(1)
       expect(t.tables[0].columns).toBe(2)
@@ -63,10 +88,15 @@ describe('the four forms on his deck pages are read, not declared missing', () =
     // grid's last rule — so read by position it landed in the box where the client
     // answers his final question, and the extraction wrote "34", "36" and "38" there.
     // Found by reading the table back rather than trusting the row counts.
+    // ⚠ EVERY cell, not just the last column. That was enough while all four grids had
+    // two columns and the number could only fall in the right-hand one; Divisional KPI's
+    // has three, so the corner it lands in is no longer a fixed index.
     TEMPLATES.forEach((name) => {
       const t = deckTables.templates[name]
       t.tables[0].rows.slice(1).forEach((r) => {
-        expect(`${name}|${r.cells[1].text}`).not.toMatch(new RegExp(`\\|${t.page}$`))
+        r.cells.forEach((c) => {
+          expect(`${name}|${c.text}`).not.toMatch(new RegExp(`\\|${t.page}$`))
+        })
       })
     })
   })
@@ -97,13 +127,13 @@ describe('the four forms on his deck pages are read, not declared missing', () =
   })
 })
 
-describe('the four concepts reach their table on screen', () => {
+describe('the five concepts reach their table on screen', () => {
   const conceptFor = template => concepts.find(c => c.captureTemplate === template)
 
-  test('each resolves to a prompt → answer sheet with one box per question he asks', () => {
+  test('each question sheet resolves to a prompt → answer sheet with one box per question he asks', () => {
     // The count is taken from his own grid, never typed here, so a question he adds
     // moves the expectation with it.
-    TEMPLATES.forEach((name) => {
+    QUESTION_SHEETS.forEach((name) => {
       const concept = conceptFor(name)
       expect(concept).toBeDefined()
 
@@ -112,6 +142,33 @@ describe('the four concepts reach their table on screen', () => {
       expect(capture.form).toBe('prompt-answer-sheet')
       expect(capture.fields).toHaveLength(deckTables.templates[name].tables[0].rows.length - 1)
     })
+  })
+
+  test('🔴 Divisional KPI\'s gives every division a box under each of his two headings', () => {
+    // Six divisions x two columns. Counted off his own grid rather than typed: the row
+    // count less the header, times the columns less the one holding the division name.
+    // His Finance row is worked in full and is still offered as boxes — a client fills
+    // in their own, and `example` is what carries his answer to the screen.
+    const grid = deckTables.templates['Divisional KPIs'].tables[0]
+    const capture = forms.captureForConcept(conceptFor('Divisional KPIs'))
+
+    expect(capture.supplied).toBe(true)
+    expect(capture.form).toBe('attribute-rows-entity-columns')
+    expect(capture.fields).toHaveLength((grid.rows.length - 1) * (grid.columns - 1))
+
+    // Every box says WHICH division and WHICH of his two questions it answers. A box
+    // carrying one and not the other is the Customer Types fault — 181 boxes with no
+    // persona on any of them — on a grid built the same way.
+    capture.fields.forEach((f) => {
+      expect(typeof f.rowLabel).toBe('string')
+      expect(f.rowLabel).not.toBe('')
+      expect(typeof f.columnLabel).toBe('string')
+      expect(f.columnLabel).not.toBe('')
+    })
+
+    // His division names are the rows, in his order, each appearing once per column.
+    const divisions = grid.rows.slice(1).map(r => r.cells[0].text)
+    expect([...new Set(capture.fields.map(f => f.rowLabel))]).toEqual(divisions)
   })
 
   test('every box carries the question it answers', () => {

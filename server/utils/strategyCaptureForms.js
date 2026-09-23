@@ -74,10 +74,10 @@ function resolveTemplate (name) {
 /**
  * Is this row the labels for the lines beneath it?
  *
- * A label row is row 0, or a row of words whose NEXT row is all ruled lines —
- * which is exactly how a banded grid alternates ("How Customers May Change",
- * then 1–4). A run of prose rows, as a prompt → answer sheet is, contains no
- * label rows beyond its header.
+ * A label row is row 0, or a row of words that follows a row of ruled lines and
+ * whose NEXT row is all ruled lines — which is exactly how a banded grid alternates
+ * ("How Customers May Change", then 1–4). A run of prose rows, as a prompt → answer
+ * sheet is, contains no label rows beyond its header.
  *
  * 🔴 A ROW THAT HOLDS A RULED LINE IS NEVER A LABEL ROW, whatever sits beside it.
  * A label row is skipped whole, so calling one a label loses every box on it. Blue
@@ -116,7 +116,26 @@ function isLabelRow (rows, i) {
   if (!next) { return false }
   const hasWords = rows[i].cells.some(c => c.text && !c.blank)
   const nextAllLines = next.cells.length > 0 && next.cells.every(c => c.blank)
-  return hasWords && nextAllLines
+  // 🔴 A BAND'S HEADING STARTS A BAND, AND HIS WORKED EXAMPLE MAY SIT BETWEEN IT AND
+  // THE LINES. Two halves of one fault, and fixing either alone leaves the other.
+  //
+  // Insights Summary bands as `headings → his worked answer in prose → ruled lines`,
+  // twice. Judged on "words, then ruled lines" alone, the EXAMPLE matches and the
+  // HEADING does not, so both bands were read off by one row: an advisor was offered
+  // boxes headed "We don't follow up customers after purchase to see if they still
+  // need help", and neither `What We Do LESS Well` nor `What Resources We Need` ever
+  // reached a screen.
+  //
+  // So a heading must START a band — row 0, or the row after the previous band's
+  // lines — which rules the example out; and its own lines may be one row further
+  // down than before, which rules the second heading back in. Porter's and Blue Ocean
+  // go heading → lines with no example between, so neither clause moves them; all 21
+  // templates were compared box for box and label for label. Found 2026-09-23.
+  const startsBand = rows[i - 1].cells.some(c => c.blank)
+  const after = rows[i + 2]
+  const linesAfterExample = next.cells.some(c => c.text && !c.blank) &&
+    Boolean(after) && after.cells.length > 0 && after.cells.every(c => c.blank)
+  return hasWords && startsBand && (nextAllLines || linesAfterExample)
 }
 
 /**

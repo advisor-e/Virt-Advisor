@@ -1082,9 +1082,9 @@
       "conceptSummary": "What our team say about the organisation",
       "helpsClientTo": null,
       "teachingForm": null,
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "banded-grid",
+      "captureTemplate": "Insights Summary",
+      "captureFormBasis": "measured"
     },
     {
       "id": "review-your-understanding-of-people-process-basics",
@@ -1166,9 +1166,9 @@
       "conceptSummary": "How we measure divisional performance",
       "helpsClientTo": null,
       "teachingForm": null,
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "attribute-rows-entity-columns",
+      "captureTemplate": "Divisional KPIs",
+      "captureFormBasis": "measured"
     },
     {
       "id": "develop-cascaded-operational-objectives",

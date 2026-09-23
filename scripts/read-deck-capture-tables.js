@@ -3,10 +3,12 @@
  *
  * WHY THIS EXISTS. `scripts/read-capture-tables.js` reads Mike's fill-in workbooks,
  * and the census (§4 finding 2) says the decks teach and then POINT at one. That is
- * true of sixteen concepts and false of four: **Branding, Customer Loyalty, Pricing
+ * true of sixteen concepts and false of five: **Branding, Customer Loyalty, Pricing
  * and Packaging/ Bundling keep their fill-in form on the facing page of the Sales &
  * Marketing deck** — p34, p36, p38, p40, each headed "<X> Considerations | Your <X>
- * Ideas". There is no workbook because there was never meant to be one.
+ * Ideas — and **Divisional KPI's prints its table on its own teaching page**, p22 of
+ * the Organisational Review deck. There is no workbook because there was never meant
+ * to be one.
  *
  * 🔴 THE APP USED TO CALL THESE FOUR "NOT SUPPLIED", AND THAT WAS OUR ERROR, NOT A
  * GAP IN HIS MATERIAL. `TEMPLATES_NOT_SUPPLIED` in
@@ -49,15 +51,23 @@ const OUT_FILE = path.join(__dirname, '..', 'data', 'strategy-deck-capture-table
  *
  * `template` is what the concept's `captureTemplate` calls it, so these resolve
  * through the same name an advisor's concept already carries. The page numbers are
- * read off the deck — each form sits immediately after its teaching page (33, 35,
- * 37, 39), which is why all four were missed: the concept's `page` is the teaching
- * one and nothing recorded the other.
+ * read off the deck — the first four sit immediately after their teaching page (33,
+ * 35, 37, 39), which is why all four were missed: the concept's `page` is the
+ * teaching one and nothing recorded the other.
+ *
+ * 🔴 DIVISIONAL KPI'S IS THE OTHER WAY ROUND — ITS TABLE *IS* ITS TEACHING PAGE, so
+ * there is no second page to record. It was missed for the opposite reason: the
+ * concept is one of the 18 read off a deck's AGENDA, and every one of those carries
+ * `page: 2`, the contents page. Nothing pointed at p22 at all. Found 2026-09-23 by
+ * rendering the page and looking at it — the title alone says "Divisional KPI's" on
+ * both the agenda row and the slide, so no text comparison could tell them apart.
  */
 const PAGES = [
   { template: 'Branding', deck: 'sales-marketing', page: 34 },
   { template: 'Customer Loyalty', deck: 'sales-marketing', page: 36 },
   { template: 'Pricing', deck: 'sales-marketing', page: 38 },
-  { template: 'Packaging', deck: 'sales-marketing', page: 40 }
+  { template: 'Packaging', deck: 'sales-marketing', page: 40 },
+  { template: 'Divisional KPIs', deck: 'organisational-review', page: 22 }
 ]
 
 /**
