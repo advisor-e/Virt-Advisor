@@ -298,6 +298,41 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.5 — nothing recorded which calculation model the AI named.**
+✅ **Closed 2026-09-23 by Mike**, who had ruled on it three separate times before it was closed.
+
+- **Both halves are built.** The recording half shipped 2026-09-16 — the marker, the page-path
+  scan, the `advisor_model_choices` table and `GET /api/model-choices`, scoped by tier. The screen
+  followed on 2026-09-23 (`d4654363`): `components/mentor/MentorModelChoices.vue`, the hub tab,
+  the locale block and **14 tests**, built from
+  [`../mockups/model-choices.html`](../mockups/model-choices.html).
+- 🔴 **HIS THREE DECISIONS, 2026-09-16, asked one at a time — AND TWO WENT AGAINST THE
+  RECOMMENDATION.** His question about a manager's context widened the row from the domain alone
+  to carry **firm and advisor**, which then reversed mentor-alone to **all four tiers**
+  (`TAB_TIERS.modelChoices = ['mentor','global','group','firm']`). A session building from the
+  recommendations would have built the wrong thing.
+- 🔴 **THE DECLINES BAND IS A GAP MAP, NOT A FAULT LIST — his ruling, 2026-09-16.** Nineteen
+  models answer to twenty-two advisory domains, so a domain that keeps appearing there **has no
+  calculator at all and the AI is answering correctly every time**. It marks where advisors keep
+  arriving and finding nothing — where the next model should go. **It reports and it never
+  scores:** anything grading the AI's choice would be a second AI marking the first one's
+  homework, with nobody able to check that one.
+- **Walked against the running app on real MySQL** — ten seeded rows, all four bands rendering,
+  model names resolving from their page paths, every string reading as English. The route's first
+  `DB_ERROR` was a missing local table, not a code fault; v0.13.0's release notes already tell the
+  master team to run that block.
+- **The two deviations from the drawing are DELIBERATE and were named on it before any code** — no
+  period selector (the route takes no date range and returns the most recent 2,000 rows) and
+  **three count tiles, not four** (band 1's tile would need a second read of
+  `advisor_va_sessions`, so it is omitted rather than filled from a number that means something
+  else). Both recorded in [`../ARTEFACTS.md`](../ARTEFACTS.md). **They were never open questions
+  awaiting his answer.**
+- ⚠ **ITS ONE KNOWN WEAKNESS LIVES ON ITS OWN ITEM AND IS ALREADY PARKED: the marker is
+  unreliable — item 7.6**, which Mike parked 2026-09-16 (*"it corrects a counter on an internal
+  screen"*), with the cause known and rewording disproved twice. Closing 7.5 does not hide it.
+- **Why `waitingOn: Mike` was stale:** he had ruled the three decisions, ruled the gap-map
+  reading, and the deviations were documented before the build. Nothing was outstanding from him.
+
 **5.1 — Wages/Salary Review: labour margin, and a staff register kept on a dial.**
 ✅ **Closed 2026-09-23 by Mike.** Every piece built, wired and seen by him on the running app.
 
