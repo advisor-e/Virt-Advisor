@@ -202,6 +202,37 @@ When both branches are in and `master` is green:
 3. Cut a version tag: `git tag -a v0.6.0 -m "…"` then `git push origin v0.6.0`.
 4. Record the row in [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md).
 5. Tell the team the **version number** — not a commit hash, not "latest master".
+6. 🔴 **Write the release notes, and they carry a "What we need from you" section.**
+   `design/RELEASE-NOTES-v<version>.md`. **Every open integration question goes in it, in
+   full** — read them from
+   [`MASTER-TEAM-INTEGRATION-EMAIL.md`](MASTER-TEAM-INTEGRATION-EMAIL.md), which is the
+   working detail behind them. Each one says **what it unblocks** and **what the app does
+   until it is answered**, so an unanswered question is a visible state rather than a
+   silence. A question they have answered moves out of that section and into the release
+   notes' "What is new" as wired.
+
+> 🔴 **Why step 6 exists (Mike, 2026-09-23).** In his words: *"i dont want it as an
+> external - additional, email. it needs to be part of the handover notes - made clear to
+> the team - during the next release cut."*
+>
+> **Ten integration questions had sat in a drafted email that was never sent** — the JWT
+> claim names, the token signing, the two management role values, the manager claims, how
+> a firm maps to a group, pushing the search-content export, **where adviser identity
+> lives (question 7)**, the firm logo and brand colour, the client login role value, and
+> the database credentials. It was re-verified against the code as recently as 2026-09-22
+> and 23, gaining a ninth question and promoting the database to a tenth — and still it had
+> no route to the people who can answer it. Item 11.1 is parked on exactly that: the
+> Adviser Network shows nine invented people, our 43 SQL seam points are finished, and the
+> only thing missing is an answer nobody was ever asked for.
+>
+> **A separate email is a channel with no moment attached to it.** A release cut is a
+> moment the master team already attends. Putting the asks in the notes they read when they
+> pull the tag removes the dependency on anyone remembering to send anything.
+>
+> ⚠ **Nine sets of release notes existed before this step, written purely by habit** — this
+> document had never mentioned them and nothing required one. `v0.13.0`'s §5 named the
+> Adviser Network defect and asked nothing, which is how a fault gets reported to the very
+> people who could fix it without them learning that anything is wanted.
 
 > 🔴 **Why step 2 exists (Mike, 2026-08-25).** **Nothing else on our side ever builds the
 > app.** The pre-commit hook runs lint and the tests; the tests exercise the logic and never

@@ -133,11 +133,16 @@ thing is not a priority — it is the finder's own opinion wearing a number.
   [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md) — *"For a given
   adviser id, and for a list of ids, where do we read those six identity fields?"* Any of three
   answers works: table and column names, a read-only endpoint, or a view.
-- 🔴 **AND THAT EMAIL HAS NEVER BEEN SENT.** Checked 2026-09-23 across the git history and the file
-  itself: no commit records it going, nothing says SENT, and its header still reads *"Draft for
-  Mike to send"*. It was re-verified against the code on 2026-09-22–23, gaining a ninth question
-  and promoting the database request to a tenth. **Sending it is the single action that un-parks
-  this item** — and until it goes, the Adviser Network keeps showing invented people to UAT.
+- 🔴 **IT IS NO LONGER AN EMAIL, AND NOBODY IS TO SEND ONE — Mike's ruling, 2026-09-23:** *"i
+  dont want it as an external - additional, email. it needs to be part of the handover notes -
+  made clear to the team - during the next release cut."* That draft had sat unsent since
+  2026-08-15 while being re-verified as late as 2026-09-22–23, because an email is a channel with
+  no moment attached to it. **All ten questions now go to the team in the "What we need from you"
+  section of the release notes at every cut** — step 6 of Integration in
+  [`../WORKING-AGREEMENT.md`](../WORKING-AGREEMENT.md).
+- **What un-parks this item:** the master team answering question 7 at a release cut. Until then
+  the Adviser Network keeps showing invented people to UAT, and that is now stated to the people
+  who can fix it rather than recorded only here.
 - **Why parked and not done:** the defect is real and visible in UAT today. Why not deleted: it
   names a genuine gap that would otherwise be rediscovered from scratch.
 
