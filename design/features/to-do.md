@@ -49,7 +49,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 12 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 13 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 14 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 15 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 15 | **15.16** An advisor teaches twenty topics and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 16 | **12.1** Course Builder shows about 86 pieces of English that bypass the translation file ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 17 | **10.1** Seven manager screens can't be translated ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 18 | **15.17** One framework has a real teaching slide and no drawing - Cultural Core Values ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
@@ -60,7 +60,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 23 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 24 | **13.5** Review imported-stock FX in the forecast and import model: supplier currency and exchange rate ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**24 live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**24 live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

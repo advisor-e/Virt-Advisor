@@ -9,29 +9,25 @@
 
 ---
 
-## 2026-09-24 · Laptop · branch `feat/advisor-progress`
+## 2026-09-24 (afternoon) · Laptop · branch `feat/advisor-progress`
 
-**Clean. 623 suites / 13,690 tests green with coverage, lint 0 errors. 0 behind `master`** —
-merged twice today: PR #128 this morning (5.1's closure won over our note edit) and PR #129 at
-shutdown (8.2 moderation; no item edited on both sides). **[PR #127](https://github.com/advisor-e/Virt-Advisor/pull/127)
-MERGED at `e7f96ef5` on Mike's word — everything from this branch is on `master`.** Desktop:
-merge `master` at startup and you are level.
+**Clean. 629 suites / 13,773 tests green with coverage, lint 0 errors. 0 behind `master`** —
+merged the desktop's PR #130 (dictation) today. **9 ahead of `master`: one short of the PR
+threshold**, so the next session opens with a PR proposal.
 
-**15.20 Add Concept — PROCEED, on Mike's call. Slice 1 BUILT:** `server/utils/pdfConvert.js` +
-`pdfConvertWorker.js`, `pdfjs-dist` 2.16.105 pinned exact. 🔴 **Read Brief §9 before touching
-it.** CVE-2024-4367 is contained by three BINDING conditions — eval off; a worker with an empty
-environment, 256 MB, killed at 20 s; upload hygiene. Reading a PDF inside Restify reopens his ruling.
+**Closed today, each on Mike's word:** **5.4** Business Owner Expectations (built — `/owner-expectations`,
+per-owner tasks, the hub's **Owner Focus Tasks** tab on all four tiers, saved against the client;
+filed as 5.3, renumbered by the desktop because 5.3 was spent) · **15.3** every scope-menu row has
+an approved Helps line · **15.4** every plan label ruled · **15.10** settled by the 23 Sep framing page.
 
-**The drawing is approved in full:** §5b box-marking screen + its nine wording rows; Q7 (answers
-print inside their boxes); Q8 (the firm's mark covers the deck's advisor-e logo, which is not
-stored). A stored page is **63 KB**. **Next slice: storage + upload route, then the Mentor Hub
-tab.** The depreciation route gives upload hygiene only — it keeps no PDF, so source storage (Q4)
-is new. The converter calls no model; a later slice that does must pass `moderate:` (desktop, 8.2).
+**Mike's standing ruling, now in `report-models.md`:** a source-workbook fault is **fixed without
+asking and never shown on screen** — no "differs from the spreadsheet" card. The Retirement Review's
+card is gone.
 
-⚠ **Install with `npx npm@8.19.4`, never the bare `npm`** — it is 6.14.8 here and rewrites the lockfile.
+**Next here: 15.16** — draft an answer form for each of 20 topics from its deck page, file first,
+then one at a time. **15.8** waits on Mike's replacement pictures (two unlicensed images are live in
+client plans; he chose to hold rather than remove).
 
-**15.21 filed:** the runtime advisory awaits the team's sign-off (`SECURITY-AUDIT-NOTES.md`).
-
-**SHARED FILES TOUCHED:** `strategyFrameworks.js`, `strategyPlanner.js`, `StrategyPlanDocument.vue`
-(comments only: 52 → 46, re-measured), `package.json`/lock, `SECURITY-AUDIT-NOTES.md`.
-**In hand:** 15.1, 15.17, 15.20 — all `activeOn` laptop.
+**SHARED FILES TOUCHED:** `FirmManagerHub.vue` (new tab, appended), `RetirementReview.vue`,
+`locales/en.json`, `nuxt.config.js` (proxy line), `restify-server.js`, `.gitignore`.
+**In hand:** 15.1, 15.17, 15.20 unchanged — not worked today.

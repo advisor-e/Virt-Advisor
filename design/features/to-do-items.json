@@ -376,15 +376,15 @@
     },
     {
       "ref": "15.16",
-      "name": "An advisor teaches twenty-two concepts and has nowhere to write the client answer down",
+      "name": "An advisor teaches twenty topics and has nowhere to write the client answer down",
       "rankedByMike": false,
       "kind": "feature",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Twenty-two of fifty-two concepts have a measured capture form. Thirty do not, and twenty-two of those still carry a teaching form, so the advisor teaches from Mike page and records nothing.",
+      "waitingOn": "Us",
+      "why": "Of 46 concepts, 22 teach from a drawn page and capture nothing. Two are framing pages needing no answers; the other 20 leave the advisor nowhere to record what the client said.",
       "risk": "Nearly half the planner teaches a client and captures nothing, so the session does not carry forward - the same fault 15.11 scores 4 for at five concepts, here at twenty-two. It waits on Mike because strategy-planner.md section 4 is explicit: the census measured nine forms across 24 templates, not 52, and choosing a form for a concept outside those 24 is a DESIGN DECISION, not a reading. server/utils/strategyFrameworks.js throws if an unmeasured concept is given one.",
       "askedBy": {
         "who": "Mike",
@@ -392,7 +392,7 @@
         "detail": "2026-09-23 - \"if you have concepts that are yet to be wired up, why werent they put forward as a task?? get on with it.\" Raised after 15.6 closed and its closure recorded the thirty-two in passing."
       },
       "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
-      "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 2 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 30. The Brief calls it deliberate, true of the data but never true that the work was done. FOUR extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve and Cycle Notes. Insights Summary was the fifth and is claimed 2026-09-23 - his Organisational Review p5 names it outright, so that one was a reading rather than a decision. The twenty-two taught-with-no-capture is UNMOVED: neither concept fixed that day carried a teaching form.",
+      "note": "PROCEED - Mike, 2026-09-24. Measured that day: 46 concepts, 24 with no measured form, 22 of them taught, 20 once the two framing pages are set aside. NEXT: draft a proposed answer form for each of the 20 from its own deck page - one of the nine measured forms, or teaching only - save every proposal in a file first, then put each to Mike alone, starting with the four supplied templates no concept uses: SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve and Cycle Notes. Choosing a form is his decision (Brief section 4); the validator refuses one without it.",
       "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
     },
     {
