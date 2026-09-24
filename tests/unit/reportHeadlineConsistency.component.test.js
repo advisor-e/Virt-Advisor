@@ -23,6 +23,7 @@ const MidLevelBudget = require('~/components/MidLevelBudget.vue').default
 const StockPurchasing = require('~/components/StockPurchasing.vue').default
 const SalesDashboard = require('~/components/SalesDashboard.vue').default
 const RetirementReview = require('~/components/RetirementReview.vue').default
+const OwnerExpectations = require('~/components/OwnerExpectations.vue').default
 const WagesReport = require('~/components/WagesReport.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
@@ -43,6 +44,7 @@ const { computeMidLevelBudget, DEFAULT_INPUTS: MLB_DEFAULTS } = require('~/serve
 const { computeStockPurchasing, DEFAULT_INPUTS: SP_DEFAULTS } = require('~/server/report/stockPurchasingModel')
 const { computeSalesDashboard, DEFAULT_INPUTS: SD_DEFAULTS } = require('~/server/report/salesDashboardModel')
 const { computeRetirementReview } = require('~/server/report/retirementReviewModel')
+const { computeOwnerExpectationsModel } = require('~/server/report/ownerExpectationsModel')
 const { computeWages, DEFAULT_INPUTS: WAGES_DEFAULTS } = require('~/server/report/wagesModel')
 
 /**
@@ -121,6 +123,8 @@ const SCREENS = [
   // way, and Quick Position and the Volatility Report are the same Report-class precedent.
   { name: 'Sales Dashboard', component: SalesDashboard, result: () => computeSalesDashboard(SD_DEFAULTS) },
   { name: 'Retirement Review', component: RetirementReview, result: () => computeRetirementReview() },
+  // Business Owner Expectations (5.4). Opens on the workbook's sample with a SampleNotice.
+  { name: 'Business Owner Expectations', component: OwnerExpectations, result: () => computeOwnerExpectationsModel() },
   // The Wages/Salary Review (5.1). Its four input steps live on the page, not here —
   // this is the report alone, which is the screen with a headline to keep consistent.
   { name: 'Wages/Salary Review', component: WagesReport, result: () => computeWages(JSON.parse(JSON.stringify(WAGES_DEFAULTS))) }

@@ -1,8 +1,11 @@
 <template lang="pug">
 article.spd(:style="frameStyle")
-  //- FRONT MATTER — the first three pages of Pivot: title, the session objective,
-  //- then the agenda. The agenda lists every step the advisor named, including one
-  //- with nothing in it: a step is a thing he names, not a container the ticks make.
+  //- FRONT MATTER — two pages: the title, then the agenda. Pivot's own deck puts its
+  //- session-objective page between them; here that page is the Our Session Objective
+  //- topic, included when the advisor chooses it (Mike, 2026-09-23 — item 15.10 closed
+  //- on it 2026-09-24, rather than printing it on every plan). The agenda lists every
+  //- step the advisor named, including one with nothing in it: a step is a thing he
+  //- names, not a container the ticks make.
   section.spd-page.is-title
     strategy-plan-mark(v-bind="markProps" big)
     strategy-plan-frame(:split=false)

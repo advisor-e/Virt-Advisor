@@ -51,47 +51,47 @@ left ambiguous.
 
 ---
 
-## 2. The 19 catalogued models
+## 2. The 20 catalogued models
 
 Owner-classified 2026-07-13. ✅ = built and live today.
 
-### Education (5) — illustrative numbers, no client data, no privacy exposure
+### Education (4) — illustrative numbers, no client data, no privacy exposure
 
 | Model | Note |
 | --- | --- |
 | **Working Capital Cycle** ✅ | Owner-confirmed. 6 of its 12 inputs are pricing/operational assumptions no ledger holds |
 | **Debtor Business Drag** ✅ | Owner-confirmed. Its premise is the *alternative* collection profile — a what-if, not a fact |
 | **Margin · Mark-up · Break-even** ✅ | Owner-confirmed. Needs unit price and unit cost — product facts, not accounting outputs |
-| **Break-Even** | Same shape — teaches the concept |
-| **8 Levers Model** | Teaches which lever moves profit first |
+| **8 Levers Model** ✅ | Teaches which lever moves profit first |
 
-**All three built models are Education.** They are correctly badged *Illustrative* today, and
-they need **no file intake and no scrubbing** — a large part of the previously-planned work
-simply does not apply to them.
+**Education models are badged *Illustrative*,** and they need **no file intake and no
+scrubbing** — nothing real enters them.
 
-### Decision tool (5) — real client numbers, typed in, no file intake, privacy applies
+### Decision tool (7) — real client numbers, typed in, no file intake, privacy applies
 
 | Model | Note |
 | --- | --- |
-| **The Loan Estimator** | Real loan amount and rate, entered — someone may sign on the answer |
-| **Lease vs Buy** | A real funding choice on real terms |
-| **Multiple Property Assessment** | Compares real investments the advisor enters |
-| **Cost of Capital (WACC)** | Owner call: real debt/equity/rates entered, not read from the balance sheet |
-| **Retirement Review** | Owner call: the owner's real position, entered. **Sensitive personal data**, though not from the business accounts |
+| **The Loan Estimator** ✅ | Real loan amount and rate, entered — someone may sign on the answer |
+| **Lease vs Buy** ✅ | A real funding choice on real terms |
+| **Multiple Property Assessment** ✅ | Compares real investments the advisor enters |
+| **Cost of Capital (WACC)** ✅ | Owner call: real debt/equity/rates entered, not read from the balance sheet |
+| **Retirement Review** ✅ | Owner call: the owner's real position, entered. **Sensitive personal data**, though not from the business accounts |
+| **Wages/Salary Review** ✅ | A client's team, rates, hiring plan and twelve actuals, all typed across four steps — nothing comes from an accounts export. Item 5.1 |
+| **Business Owner Expectations** ✅ | The owners' real incomes, hours and plans, and the business's costs at each stage — all typed. Item 5.4 |
 
 ### Report (9) — real client numbers from the accounts, needs file intake + privacy
 
 | Model | Note |
 | --- | --- |
-| **Dashboard Reports** | "From your accounting data" |
-| **Sales Dashboard** | Real sales mix and trends |
-| **3-Way Forecast Filter** | Projections off the real P&L, balance sheet and cash flow |
-| **Quick Position** | "Where the business stands right now" — only true on real figures |
-| **High-Level Budget** | Actuals and variances |
-| **Mid-Level Budget** | Actuals and monthly tracking |
-| **Volatility Report** | Variance analysis on real figures |
-| **EBITDA & Discounted Cash Flow** | Owner call: a valuation shown to an owner must be real |
-| **Stock Purchasing (Growth Pro)** | Owner call: reorder points are only actionable on real stock data |
+| **Dashboard Reports** ✅ | "From your accounting data" |
+| **Sales Dashboard** ✅ | Real sales mix and trends |
+| **3-Way Forecast Filter** ✅ | Projections off the real P&L, balance sheet and cash flow |
+| **Quick Position** ✅ | "Where the business stands right now" — only true on real figures |
+| **High-Level Budget** ✅ | Actuals and variances |
+| **Mid-Level Budget** ✅ | Actuals and monthly tracking |
+| **Volatility Report** ✅ | Variance analysis on real figures |
+| **EBITDA & Discounted Cash Flow** ✅ | Owner call: a valuation shown to an owner must be real |
+| **Stock Purchasing (Growth Pro)** ✅ | Owner call: reorder points are only actionable on real stock data |
 
 ---
 
@@ -99,15 +99,14 @@ simply does not apply to them.
 
 1. **T3 / T10 / T13 are re-scoped.** [`REPORT-DATA-MODEL.md`](REPORT-DATA-MODEL.md) was written
    as though the three built models needed file intake. They do not. That document now applies
-   to the **Report class only** — none of which is built yet. Its figure inventory stays valid
+   to the **Report class only**. Its figure inventory stays valid
    and becomes the *evidence* for the Education classification.
 2. **The privacy trigger is corrected** — real client numbers, not file upload (see §1).
    Decision tools were previously assumed exempt; they are not.
 3. **T22's catalogue fingerprint needs a `class` field**, alongside inputs/outputs/industry.
-4. **The Model Library should show the class on each card**, so an advisor picking from 19
+4. **The Model Library should show the class on each card**, so an advisor picking a model
    knows whether they are opening a teaching aid, a decision tool, or a client report — *before*
    they open it. (Proposed build change; not yet approved.)
 5. **The testing bar differs by class.** A Decision tool's maths may be signed on; an
    Education model's job is to be conceptually honest. Both matter — they are not the same bar.
-6. **Nothing that is built needs to change.** All three live models are Education, are badged
-   correctly, and behave correctly. This classification affects what we build *next*.
+6. **Nothing that is built needs to change.** This classification affects what we build *next*.

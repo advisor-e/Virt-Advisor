@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "5.4",
-      "name": "Two of Mike's own spreadsheets are calculators with nowhere in the app to live",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "BO Expectations.xlsx sets an owner's income and lifestyle goals and BD stages.xlsx the scale needed to reach them. His own slides tell an advisor to complete both, and the app offers neither.",
-      "risk": "They are the FIRST two items on his Business Targets agenda, so a planning session opens by asking a client to fill in two spreadsheets the app cannot show. The counter-risk is scope: these are Report Model work with their own interest sheets and scenario comparison, so each needs the full maths-model-plus-golden-test treatment, not a capture form - which is exactly why the census excludes them by name.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-23 - filed on his yes at shutdown, after the day's eight deletions removed the only two concepts that pointed at these workbooks. He supplied both files himself in Strategy Planner/."
-      },
-      "touches": "design/PLANNING-TEMPLATE-CENSUS.md, which names both in NOT_CAPTURE_TABLES and says what they are; scripts/read-capture-tables.js, which excludes them deliberately; and, if built, the Report Model path - a backend maths model, a golden test, a Restify route, utils/reportModelCatalogue.js, a page and the consistency guard.",
-      "note": "NOT A REGRESSION AND NOTHING IS LOST - both workbooks are Mike's and are in his folder, and six files still name them. What went on 2026-09-23 was the last TASK-shaped trace: the two concepts that pointed at them were agenda rows with no teaching page, deleted on his ruling. The fact then survived only in the census, which nobody works from. THE ADD-A-REPORT SKILL IS THE ROUTE if it is built. Impact test UNRUN - it must be, before any design.",
-      "comment": "2026-09-23 - found at shutdown by asking what the deletions orphaned, rather than by anything failing. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.10",
       "name": "A page's templates are hidden behind whichever won the ID",
       "rankedByMike": false,
@@ -181,7 +160,7 @@
         "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
       },
       "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick, stage 7 the door. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them, including all five stage 7 decisions on mockups/strategy-session-resume.html, settled 2026-09-22: A, B, D, E ruled, C DROPPED. In-card calculators: Brief 7a. STAGE 8 STOOD DOWN by Mike 2026-09-23 for the twelve frameworks an advisor cannot run; its impact test is in Brief 0. 42 of 52 now run; the nine that are the session's agenda are item 15.17.",
+      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick, stage 7 the door. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them, including all five stage 7 decisions on mockups/strategy-session-resume.html, settled 2026-09-22: A, B, D, E ruled, C DROPPED. In-card calculators: Brief 7a. STAGE 8 STOOD DOWN by Mike 2026-09-23 for the twelve frameworks an advisor cannot run; its impact test is in Brief 0. 44 of 46 run; the other two are 15.17 and Drafting Tender Proposals, not a gap.",
       "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
     },
     {
@@ -227,50 +206,8 @@
       "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end. Widened 2026-09-22 on his yes from the four Wages Register suites to the pattern, when a second store hit it: the stage 6 build made setScope read before writing, which sits near the window without being its cause. 2026-09-23 - WAS 5.3, moved on Mike's instruction: this is the test suite and the push gate, which is The Working Agreement, page 22. 5.3 is spent. design/PAGE-NUMBERS.md."
     },
     {
-      "ref": "15.3",
-      "name": "Eighteen rows of the session scope menu have no Helps Your Client To... line",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Eighteen of the 52 rows an advisor and client read together carry a name and nothing else. The other 34 each explain what the concept does and what it gets the client, in Mike's own words.",
-      "risk": "A client picking the scope sees a third of the menu with no explanation beside it, so those concepts get chosen less - not on merit but because nothing says what they are for. The counter-risk is larger and is why that ruling existed: an AI-written line here is indistinguishable from Mike's once it is in the file.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-17, in his own words after Stage 1 shipped: 'i want you to review the material and produce a few lines in the helps your client to column i can then review what you develop and edit from there. use the existing lines as inspiration and guidance.' This AMENDS his own Decision B of the same day - see the note."
-      },
-      "touches": "data/strategy-frameworks.json concepts[].helpsClientTo on the 18 agenda rows; server/utils/strategyFrameworks.js, which today treats a null description as correct and would need to carry a draft separately from an approved line; components/strategy/StrategyScopeMenu.vue, which renders an agenda row name-only; design/mockups/strategy-session-menu.html, the 'an agenda row carries only Mike's words' ruling; and a mentor-tier editing screen, per the hub-page rule.",
-      "note": "MIKE'S OWN AMENDMENT TO HIS 'AN AGENDA ROW CARRIES ONLY MIKE'S WORDS' RULING, 2026-09-17. That ruling, made that morning, reads 'never generated, never filled by AI'. He asked instead for AI DRAFTS he reviews and edits. THE PRINCIPLE IT PROTECTS IS HONOURED STRUCTURALLY: an unapproved line is never in the data file at all. All 18 drafts are written and waiting on him in design/AGENDA-HELPS-LINES.md - the only place one may exist, and on no screen. He edits the text, puts yes in the Approve column, and npm run helps-lines -- --apply copies it character for character into the data and records what was approved when. It refuses to overwrite a line he already wrote. WAITING ON MIKE.",
-      "comment": "2026-09-17 - filed on his instruction the moment he gave it, then built the same session on his follow-up: 'you draft it such that i can edit it and approve'. Drafted from the three agenda decks read directly, not from their titles; each row carries the page it came from so he can check it."
-    },
-    {
-      "ref": "15.4",
-      "name": "Twelve labels on the plan document are ours, not Mike's",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The assembled plan is the document a client is shown and takes away. Twelve of the words on it were written by us, not read off his decks or his workbooks like everything else on the page.",
-      "risk": "They read as Mike's once they are on a page beside his own wording, and nobody can tell the difference afterwards. The same thing already happened: What this does in the room and Who and when were AI-written in the 2026-09-16 build, survived eleven rulings on the drawing that carried them, and were only caught when he asked what they were.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-17 - he asked at shutdown whether a note had been created to make sure the labels are removed. They had been written into a commit message, a handover and another item's note, none of which is a task."
-      },
-      "touches": "locales/en.json strategyPlanner.plan.* - the twelve keys; components/strategy/StrategyPlanDocument.vue renders them. Nothing else reads them.",
-      "note": "HIS WORDS OR NONE. Every other string on this document is his, read off his decks and workbooks. These twelve are structural labels we wrote to hold the document together and they have no authority behind them. He either gives the wording, or says which are unnecessary and they go. NOT a job to be done without him.",
-      "comment": "2026-09-17 - filed on his yes at shutdown, after he asked whether anything guaranteed they would be dealt with. They were flagged in the Stage 3 commit and the handover; neither is a task, and the handover is replaced next session."
-    },
-    {
       "ref": "15.8",
-      "name": "Two stock images in the Strategy Planner have no licence check",
+      "name": "Two unlicensed pictures print in clients' plans until Mike supplies replacements",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -287,29 +224,8 @@
         "detail": "2026-09-18 - found while drawing batch 5, when both images turned out to be third-party rather than Mike's own artwork. He ruled they stay and said yes to filing the licence question. A defect we found, not a feature nobody asked for."
       },
       "touches": "design/mockups/strategy-concept-batch-5.html, the two sheets carrying the images; StrategyTeachingSlide.vue and StrategyPlanDocument.vue, where they would reach a client; design/ARTEFACTS.md, which records the question; and whoever cleared the Enneagram exclusion in PLANNING-TEMPLATE-CENSUS.md section 1.",
-      "note": "🔴 MIKE RULED THE IMAGES STAY - 2026-09-18, against the recommendation to leave them out. THAT RULING IS NOT IN QUESTION. This item only makes sure the licence is answered BEFORE they reach a client document. NOT LIVE YET: the images sit in an approved drawing and nothing renders it - 15.7's other half is what would ship them, which is exactly when nobody would think to ask. THE PRECEDENT IS THE PROJECT'S OWN: the Enneagram file was excluded from the census on licence grounds. Mike's own artwork is unaffected - batch 2's three rasters are his.",
+      "note": "NO LICENCE, AND LIVE - Mike, 2026-09-24: \"i do not have a licence or permission for either.\" Both drawings were wired in on 2026-09-20 with the pictures embedded, so they print on the teaching slide and in the client's plan under the firm's logo. HELD ON HIS WORD, same day: \"hold for now - make a note to complete it as a task and i will find replacements.\" THE TASK: when he supplies the two replacements, swap them into design/mockups/strategy-concept-batch-5.html, rebuild with scripts/build-concept-graphics.js, record the change in design/ARTEFACTS.md. Removal alone was offered and held.",
       "comment": "2026-09-18 - filed on his yes at shutdown, after a check that every fault found today had reached an ending. This one had not: it was recorded on the artefact and in ARTEFACTS.md, which is a line in a document rather than a task."
-    },
-    {
-      "ref": "15.10",
-      "name": "Page 2 of six decks is missing from the plan the app produces",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Six of Mike's decks open the meeting with Our Session Objective - welcome, roles, housekeeping, what today is for. None of its nine lines exists anywhere in the app, so the plan a client is handed skips it.",
-      "risk": "FOUR DECISIONS WAIT ON MIKE, drawn and published. Also a deviation from an approved artefact: the assembled-plan drawing records the front matter as Title, Session Objective, the agenda; the build shipped with two front pages and the note atop StrategyPlanDocument.vue still describes three.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-20 - found while walking him through the step builder. He ruled it be drawn rather than decided in chat: \"put it in a mock up page so i can read it properly - dont rush this - get the design right\". Filed on his yes at shutdown."
-      },
-      "touches": "design/mockups/strategy-session-objective-page.html, the drawing that carries the four decisions; components/strategy/StrategyPlanDocument.vue, whose front matter is two pages where its own note says three; design/ARTEFACTS.md; and wherever the standing wording is edited once a tier is chosen.",
-      "note": "READ THE DRAWING, NOT THIS. Census is machine-read: all 12 decks checked, SIX carry the page and every one puts it on page 2. Pivot, ADV.0 and Strategic Orientation 2 are word-for-word identical; Strategic Orientation 1 adds a deck agenda; Bizz Targets and Organisational Review differ in shape. Hence the proposal: EIGHT STANDING LINES, ONE TYPED PER SESSION. A real client name sits in Bizz Targets version and must never reach platform wording. Recommended tier: Mentor Hub alone.",
-      "comment": ""
     },
     {
       "ref": "15.11",
@@ -460,15 +376,15 @@
     },
     {
       "ref": "15.16",
-      "name": "An advisor teaches twenty-two concepts and has nowhere to write the client answer down",
+      "name": "An advisor teaches twenty topics and has nowhere to write the client answer down",
       "rankedByMike": false,
       "kind": "feature",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Twenty-two of fifty-two concepts have a measured capture form. Thirty do not, and twenty-two of those still carry a teaching form, so the advisor teaches from Mike page and records nothing.",
+      "waitingOn": "Us",
+      "why": "Of 46 concepts, 22 teach from a drawn page and capture nothing. Two are framing pages needing no answers; the other 20 leave the advisor nowhere to record what the client said.",
       "risk": "Nearly half the planner teaches a client and captures nothing, so the session does not carry forward - the same fault 15.11 scores 4 for at five concepts, here at twenty-two. It waits on Mike because strategy-planner.md section 4 is explicit: the census measured nine forms across 24 templates, not 52, and choosing a form for a concept outside those 24 is a DESIGN DECISION, not a reading. server/utils/strategyFrameworks.js throws if an unmeasured concept is given one.",
       "askedBy": {
         "who": "Mike",
@@ -476,7 +392,7 @@
         "detail": "2026-09-23 - \"if you have concepts that are yet to be wired up, why werent they put forward as a task?? get on with it.\" Raised after 15.6 closed and its closure recorded the thirty-two in passing."
       },
       "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
-      "note": "SPREAD: 15 strategic-orientation, 8 sales-marketing-review, 5 business-targets, 2 organisational-review. NOT A WIRING BUG - every concept naming a form IS wired, 0 unwired. A form was never CHOSEN for these 30. The Brief calls it deliberate, true of the data but never true that the work was done. FOUR extracted forms reach no concept: SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve and Cycle Notes. Insights Summary was the fifth and is claimed 2026-09-23 - his Organisational Review p5 names it outright, so that one was a reading rather than a decision. The twenty-two taught-with-no-capture is UNMOVED: neither concept fixed that day carried a teaching form.",
+      "note": "PROCEED - Mike, 2026-09-24. Measured that day: 46 concepts, 24 with no measured form, 22 of them taught, 20 once the two framing pages are set aside. NEXT: draft a proposed answer form for each of the 20 from its own deck page - one of the nine measured forms, or teaching only - save every proposal in a file first, then put each to Mike alone, starting with the four supplied templates no concept uses: SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve and Cycle Notes. Choosing a form is his decision (Brief section 4); the validator refuses one without it.",
       "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
     },
     {

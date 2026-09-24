@@ -100,15 +100,21 @@ describe('the 52 concepts load', () => {
 })
 
 describe('Decision B — an agenda row only ever carries words Mike wrote', () => {
-  it('never gives an agenda row a Helps Your Client To… line', () => {
-    // Ruled 2026-09-17: that line is Mike's to write on every one of them. Never
-    // inferred from the slides, never filled by an AI. If this test fails because a row
-    // acquired text, the question is WHO WROTE IT — not how to make the test pass. That is
-    // the danger here: generated prose looks entirely reasonable to a person in UAT.
+  it('gives an agenda row only a Helps Your Client To… line Mike approved, word for word', () => {
+    // Ruled 2026-09-17: that line is Mike's. He then amended the ruling the same day to let
+    // an AI DRAFT it for him to edit and approve (item 15.3), and approved all ten on
+    // 2026-09-24. So a line may exist — but only one recorded, character for character, on
+    // design/AGENDA-HELPS-LINES.md's "What has been applied". If this fails, the question is
+    // WHO WROTE IT — not how to make the test pass: generated prose looks entirely reasonable
+    // to a person in UAT.
+    const page = require('fs').readFileSync(
+      require('path').join(__dirname, '..', '..', 'design', 'AGENDA-HELPS-LINES.md'), 'utf8'
+    )
+    const record = page.slice(page.indexOf('## What has been applied'))
     const agenda = frameworks.listConcepts().filter(c => c.source === 'agenda')
     expect(agenda).toHaveLength(10)
-    agenda.forEach((c) => {
-      expect(c.helpsClientTo).toBeNull()
+    agenda.filter(c => c.helpsClientTo).forEach((c) => {
+      expect(record).toContain('`' + c.id + '` — "' + c.helpsClientTo + '"')
     })
   })
 

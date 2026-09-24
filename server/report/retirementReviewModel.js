@@ -20,8 +20,10 @@
  * THREE RULED DEPARTURES FROM THE WORKBOOK — ALL MIKE, 2026-09-13
  * ─────────────────────────────────────────────────────────────────────────────
  * This model does NOT reproduce the workbook's figures, and the three reasons are
- * below. They ride on every result as `workbookCorrections` so a screen can say
- * why its numbers differ from a spreadsheet the adviser may have open beside it.
+ * below. 🔴 NONE OF IT REACHES THE SCREEN — Mike, 2026-09-24: "if the model has a fault - fix it. end of story. the user has no idea
+ * about the original model - they dont need to see it" — and of this card, "i never asked for it
+ * to be there in the first place".
+ * The record is this header and the golden test, for the next developer.
  *
  * The port was proved faithful BEFORE any of them was applied — every cached value
  * on all six sheets, all twenty years, matched exactly. That proof is what makes
@@ -89,37 +91,6 @@ const MORTGAGE_INTEREST_ONLY = 'Interest Only'
 
 /** The three mortgage types, in the order the workbook's dropdown offers them. */
 const MORTGAGE_TYPES = [MORTGAGE_TABLE, MORTGAGE_REDUCING, MORTGAGE_INTEREST_ONLY]
-
-/**
- * Where this model deliberately differs from the source workbook, and on whose
- * ruling. Carried on every result so a screen can explain why its figures do not
- * match a spreadsheet the adviser may have open beside it — a difference nobody
- * can account for is worse than no difference at all.
- * @type {Array<{key: string, ruledBy: string, ruledOn: string, cells: string, summary: string}>}
- */
-const WORKBOOK_CORRECTIONS = [
-  {
-    key: 'currentTaxBands',
-    ruledBy: 'Mike',
-    ruledOn: '2026-09-13',
-    cells: "'Use of Assets in Retirement' AJ8:AJ11 and AL8:AL12",
-    summary: 'Income tax is charged on the current New Zealand thresholds from the central rate table, not the superseded ones the workbook carries. The average rate falls from 12.926 to 12.582 per cent.'
-  },
-  {
-    key: 'pensionTaxedInProjection',
-    ruledBy: 'Mike',
-    ruledOn: '2026-09-13',
-    cells: "'Asset & Cash Transactions' G26",
-    summary: 'The government pension is counted after tax across all twenty years. The workbook counted it after tax on its summary sheet but before tax in its projection, a difference of 99.68 a week in year one.'
-  },
-  {
-    key: 'sixthPropertyRunsFromYearOne',
-    ruledBy: 'Mike',
-    ruledOn: '2026-09-13',
-    cells: "'Asset & Cash Transactions' rows 97–104, which started at column K",
-    summary: 'The sixth property earns and is paid for from year one like the other five. In the workbook its rows sat four years out, so it earned nothing for four years and, when sold, credited the client with nothing at all.'
-  }
-]
 
 /** Coerce to a finite number; anything else is 0, never NaN. */
 function num (v) {
@@ -664,7 +635,6 @@ function computeRetirementReview (inputs) {
     country,
     taxYearLabel: taxTable.taxYearLabel,
     taxBandsEffectiveFrom: taxTable.effectiveFrom,
-    workbookCorrections: WORKBOOK_CORRECTIONS,
 
     quickCalculator: computeQuickCalculator(given.quickCalculator),
 
@@ -739,7 +709,6 @@ module.exports = {
   MORTGAGE_REDUCING,
   MORTGAGE_INTEREST_ONLY,
   MORTGAGE_TYPES,
-  WORKBOOK_CORRECTIONS,
   excelPmt,
   excelPv,
   mortgageSchedule,

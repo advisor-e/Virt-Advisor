@@ -178,6 +178,9 @@ export default {
     // navigation timeline. Added in the SAME change as the routes, because the paragraph
     // above is the standing record of what happens when a slice forgets this line.
     { path: '/api/strategy', handler: '~/server-middleware/apiProxy.js' },
+    // Owner Focus Tasks (item 5.4) — the starting list the hub tab writes and Business Owner
+    // Expectations reads. Added WITH the routes, for the reason the paragraph above gives.
+    { path: '/api/owner-focus-tasks', handler: '~/server-middleware/apiProxy.js' },
     // NB '/api/course' (singular, the SSE engine) never prefix-matches
     // '/api/courses' — connect only mounts on a '/' boundary.
     { path: '/api/courses', handler: '~/server-middleware/apiProxy.js' },

@@ -110,6 +110,10 @@ export const MODELS = [
   // trend would have opened something that could not draw one. Rewritten on Mike's Decision 1, and
   // then revised again by his own Decision 9 — "can we add dates" — which is what earns "and how
   // they move" its place. CLASS_REPORT: a client's real sales list, so no "Illustrative" badge.
+  // Item 5.4. Mike's own planning workbook, BO Expectations.xlsx: one model with two steps on his
+  // ruling of 2026-09-24, because the workbook's second sheet reads its net profit from the first.
+  // CLASS_DECISION: the client's real owners and incomes, typed in, so no "Illustrative" badge.
+  { name: 'Business Owner Expectations', category: 'Growth', summary: 'What each owner wants to earn, work and take off at three target stages — and the revenue the business must reach to pay for it.', scope: 'Two steps: the owners, then the business development stages. Up to six owners.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/owner-expectations' },
   { name: 'Sales Dashboard', category: 'Growth', summary: 'Where the sales and the margin come from, and how they move — by brand, product, region and salesperson.', scope: 'Bands every sale by value and cuts the same sales five ways. The trend card appears only when the imported file carries a sale date — the source workbook holds none.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/sales-dashboard' },
   { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/cost-of-capital' },
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/lease-vs-buy' },

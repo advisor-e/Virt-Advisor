@@ -1,0 +1,15 @@
+{
+  "_readme": "The shipped starting list of Focus Tasks/Duties for the Business Owner Expectations model (item 5.4). Copied from design/report-source-models/BO Expectations.xlsx, sheet 'Business Owners Data Entry', D16:D25, in the workbook's order and words. Any managing tier may replace it on the hub's Owner Focus Tasks tab; each owner may then change their own copy on the model. See server/utils/ownerFocusTasks.js.",
+  "tasks": [
+    "(Strategic) Client Dealings",
+    "Team Management",
+    "Sales / Marketing",
+    "$ Management",
+    "Team Coaching",
+    "Travel",
+    "Planning & Skills",
+    "Technician Duties",
+    "Fishing",
+    "Other 1"
+  ]
+}

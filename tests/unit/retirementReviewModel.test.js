@@ -5,7 +5,6 @@ const {
   YEARS,
   MORTGAGE_TABLE,
   MORTGAGE_REDUCING,
-  WORKBOOK_CORRECTIONS,
   excelPmt,
   excelPv,
   mortgageSchedule,
@@ -25,7 +24,7 @@ const {
  *
  * 🔴 THIS MODEL DELIBERATELY DOES NOT REPRODUCE THE WORKBOOK. Three ruled
  * corrections (Mike, 2026-09-13) stand between the two, listed in the model's
- * header and carried on every result as `workbookCorrections`.
+ * header. None of them is shown on screen (Mike, 2026-09-24).
  *
  * That raises the obvious question: if the output differs, what proves the port is
  * faithful rather than merely different? Three things, in order of strength.
@@ -314,21 +313,6 @@ describe('Retirement Review — golden values from Exposure.Retirement.Review (1
   describe('Ruled corrections — Mike, 2026-09-13', () => {
     // 🔴 Each case gives BOTH figures: the workbook's own cached value and ours.
     // A deviation nobody can check is indistinguishable from a mistake.
-
-    it('lists all three on every result, so a screen can explain the difference', () => {
-      expect(model.workbookCorrections).toBe(WORKBOOK_CORRECTIONS)
-      expect(WORKBOOK_CORRECTIONS.map(c => c.key)).toEqual([
-        'currentTaxBands',
-        'pensionTaxedInProjection',
-        'sixthPropertyRunsFromYearOne'
-      ])
-      WORKBOOK_CORRECTIONS.forEach((c) => {
-        expect(c.ruledBy).toBe('Mike')
-        expect(c.ruledOn).toBe('2026-09-13')
-        expect(c.cells).toBeTruthy() // or it cannot be checked against the workbook
-        expect(c.summary).toBeTruthy()
-      })
-    })
 
     it('1. taxes on the current bands, not the workbook\'s superseded ones', () => {
       // Workbook 14,000/48,000/70,000 → average rate 12.926%.

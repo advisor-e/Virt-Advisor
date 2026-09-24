@@ -205,21 +205,22 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Eleven** models —
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Twelve** models —
   8 Levers, Cost of Capital, **Lease vs Buy**, the Loan Estimator, Dashboard Reports, the
   High-Level Budget, the Mid-Level Budget, the Retirement Review, Stock Purchasing, the
-  Sales Dashboard and the Wages/Salary Review —
+  Sales Dashboard, the Wages/Salary Review and Business Owner Expectations —
   carry explanatory notes and verdict rules instead, and the screen heads them differently
   (Dashboard Reports is the client's own document; its reading is the health score and the
   advisor's words on its pages. The High-Level Budget's reading is the variance table itself —
   every line says *Better* or *Worse* beside its own figure, which is where a coach panel's
   sentence would have gone. The Mid-Level Budget carries that same table, and its own finding
   is already on the screen twice over — the cash-collected row against the sales invoiced, and
-  the still-owed figure under it. The Retirement Review's reading is its verdict panel and the
-  card naming where its figures differ from the spreadsheet; a third block of prose beneath
-  them would repeat both. The Sales Dashboard's reading is written under each card on the
+  the still-owed figure under it. The Retirement Review's reading is its verdict panel, which
+  names what the plan leans on; a block of prose beneath it would repeat it. The Sales Dashboard's reading is written under each card on the
   approved drawing — the footnote that puts transactions beside value and margin, and the one
-  that says what the trend answers that the ranking cannot). Claiming a Coach panel that is
+  that says what the trend answers that the ranking cannot. Business Owner Expectations reads
+  itself: its stages table IS the finding, the owners' income standing as the net profit with
+  the revenue each stage needs worked out above it). Claiming a Coach panel that is
   not there describes a screen the reader will not find.
   ⚠ *[`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) reads
   this very sentence and fails if it stops matching the data.*
@@ -1391,14 +1392,18 @@ have, the properties, the next twenty years. Drawn first at
 sheets, all twenty years of all twelve series. **That ordering IS the proof and cannot be redone
 later:** once the output differs from the spreadsheet, no comparison can establish fidelity.
 
-🔴 **THREE RULED DEVIATIONS** (Mike, 2026-09-13), and they are **on the screen**, not only in the
-code — `workbookCorrections` carries each one's cells and its ruling out to the result, because an
-adviser may have the spreadsheet open beside the page. Current tax bands from `data/tax-bands.json`
+🔴 **THREE WORKBOOK FAULTS ARE FIXED** (Mike, 2026-09-13), recorded in the model's header and the
+golden test — **and nothing about them is on the screen** (Mike, 2026-09-24: *"the user has no idea
+about the original model - they dont need to see it"*, and of the card that used to list them, *"i
+never asked for it to be there in the first place"*). Current tax bands from `data/tax-bands.json`
 (the average rate falls 12.926% → 12.582%); the government pension taxed across all twenty years,
 where the workbook taxed it on its summary sheet and not in its projection; and the sixth property
 running from year one, where the workbook's rows sat four years out so it earned nothing for four
-years and, when sold, credited the client with nothing at all. **The first two make the plan look
-worse and the third makes it look better; they are listed separately and never netted.**
+years and, when sold, credited the client with nothing at all.
+
+🔴 **THE RULE FOR EVERY MODEL IN THIS SECTION** (Mike, 2026-09-24): *"if the model has a fault -
+fix it. end of story."* A source-workbook fault is fixed without asking, reported to Mike with what
+it changed, and never shown to an advisor — no card, no badge, no "differs from the spreadsheet".
 
 **Step 1 stands alone** (Mike, 2026-09-13). The Quick Calculator shares no figure with the
 projection — the workbook keeps it on its own sheet for the same reason — so the step carries a
@@ -1417,6 +1422,63 @@ class correctly applied, beaten on CSS specificity — so the two figures the pa
 were the two it did not), and step 3's six expanding property cards had **no expander symbol and no
 close control at all**. Mike found the second himself. It is now the list-and-one-open shape he
 approved on Multiple Property on 2026-08-21, so the two property reports behave identically.
+
+### Business Owner Expectations (5.4, built 2026-09-24)
+
+Mike's own planning workbook, [`../report-source-models/BO Expectations.xlsx`](../report-source-models/BO%20Expectations.xlsx)
+— the first two items on his Business Targets agenda. **`CLASS_DECISION`, never badged
+Illustrative, and its route stores nothing.** `BD stages.xlsx` beside it is an earlier copy of the
+same two sheets and is not ported.
+
+**Built:** [`server/report/ownerExpectationsModel.js`](../../server/report/ownerExpectationsModel.js),
+`POST /api/report/owner-expectations`, [`pages/owner-expectations.vue`](../../pages/owner-expectations.vue)
+and [`components/OwnerExpectations.vue`](../../components/OwnerExpectations.vue).
+
+🔴 **ONE MODEL, TWO STEPS** (Mike, 2026-09-24). The workbook's second sheet reads its net profit
+from the first sheet's owner totals, so the owners' incomes are typed once and carry straight
+through. Two catalogue cards would have the advisor type them twice and let them disagree.
+
+🔴 **EACH OWNER HOLDS THEIR OWN TASKS, AND THE STARTING LIST CASCADES** (Mike, 2026-09-24):
+*"they all start with the same (as it cascades down from mentor thru the levels to firm manager
+and now - client/entity level) - BUT each owner may record different tasks"*. Three parts:
+
+- **The starting list** is the hub's **Owner Focus Tasks** tab, under Model Inputs, on all four
+  managing tiers — inherit-or-own the whole list, the Session Processes shape
+  ([`server/utils/ownerFocusTasks.js`](../../server/utils/ownerFocusTasks.js),
+  `GET/PUT/DELETE /api/owner-focus-tasks`, history and restore). The shipped list is the
+  workbook's ten, in [`data/owner-focus-tasks.json`](../../data/owner-focus-tasks.json), which the
+  maths model also reads — one home.
+- **Each owner's own list** is edited on step 1: rename, remove (never the last), add (up to 20).
+  A tier's own starting list arrives with a **blank** split; the workbook's sample split stays on
+  the workbook's own tasks and is never carried across by position.
+- **The client/entity level** is the shared `savedReport` store: the figures, each owner's tasks
+  included, are saved against the client, flattened to `o1.*` … `o6.*` keys because the store
+  takes flat values. Free text is cut to the store's 200-character ceiling on the screen **and**
+  in the model, so what the screen shows is what a save keeps. Saved figures always beat a
+  starting list that arrives late.
+
+🔴 **IT IS A BACK-CALCULATION, NOT A FORECAST.** The owners' combined income at a stage IS the net
+profit that stage must make; the model adds depreciation, loan payments and fixed costs, then sales
+and promotion, then cost of sales, and arrives at the revenue the stage must reach. Nothing in it
+says whether that revenue is achievable.
+
+**The port is exact** — every cached value on the two input sheets and the Quick Calculator, pinned
+in `tests/unit/ownerExpectationsModel.test.js`. The loan maths is Lease vs Buy's `amortise`, not a
+second copy.
+
+🔴 **TWO WORKBOOK FAULTS ARE FIXED, AND NEITHER IS SHOWN ON SCREEN** (Mike, 2026-09-24: *"if
+the model has a fault - fix it. end of story. the user has no idea about the original model -
+they dont need to see it"*). No `workbookCorrections`, no card — the record is the model's
+🔴 FIXED comments and the golden test, whose figures for each are labelled as worked by hand.
+The port was proved exact before either went in.
+
+- *Debt / Equity %* divides debt by **equity** — total assets less debt — as its heading says.
+  The workbook's `E26:H26` divided by total assets (40.3% now on its sample; the truth is 67.5%).
+  With no equity left it is a dash, never a number.
+- The Quick Calculator's monthly repayment follows the loan type. The workbook's `M10` showed the
+  Table instalment even on a Reducing loan; a Reducing loan now shows its first month,
+  `'Interest Calcs'!K30` (8,437.50 on the sample against the Table's 7,425.45) — the Loan
+  Estimator's own choice for the same loan type.
 
 ### The Mid Level Budget (4.93, built 2026-09-13)
 

@@ -146,7 +146,7 @@ scored 4 of 9.** A number from the wrong input measures the input, never the eng
 not a defect.** Asked for a client who must test their marketing message, it chose *10 Marketing
 Messages* where Pivot uses *6 Marketing Questions*. The concept prose cannot separate those two for
 this purpose. **That prose is authored content and Mike's — it is never edited to chase a bench
-result** (CLAUDE.md). Related: item **15.3**, the eighteen rows with no *Helps Your Client To…* line.
+result** (CLAUDE.md).
 
 ⚠ **TEN CONCEPTS CARRY NO TEXT AT ALL and are invisible to the pre-tick.** All ten are
 planning-*process* steps. Nine were never chosen in any of five runs; the tenth
@@ -916,14 +916,15 @@ here, so nothing is missing in them either.)*
 - **"Where To Start??" and its action-to-concept mapping** — withdrawn by Mike, see the box at
   the top of this page.
 - **The ~100 Growth Aspect questions** — his own deferral, already filed as item **15.2**.
-- **Drafting the 18 missing *Helps Your Client To…* lines** — this LEFT the removed list on
+- **Drafting the missing *Helps Your Client To…* lines** — this LEFT the removed list on
   2026-09-17 when Mike asked for AI drafts, amending his own **"An agenda row carries only Mike's
-  words"** ruling of that morning (the session scope menu).
-  Item **15.3**, drafted and waiting on him. **The principle that ruling protects is honoured
-  structurally rather than by a flag: an unapproved line is never in the data file at all.**
-  All 18 live in [`design/AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md), on no screen;
-  he edits the text, marks a row `yes`, and `npm run helps-lines -- --apply` copies it
-  character for character into the data. It refuses to overwrite a line he already wrote.
+  words"** ruling of that morning (the session scope menu). **Done: every row now carries a
+  line**, the last twelve approved by him word for word on 2026-09-24. **The principle that
+  ruling protects is honoured structurally rather than by a flag: an unapproved line is never in
+  the data file at all.** A draft lives only on [`design/AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md),
+  on no screen, until he approves it; `npm run helps-lines -- --apply` then copies it character
+  for character into the data and records it, and refuses to overwrite a line already written.
+  `strategyConcepts.test.js` fails the build if an agenda row carries a line not in that record.
 - **Voice recording** — designed by his **"Voice recording the session"** and **"How spoken words
   reach the right box"** rulings (the session an advisor runs), but unbuildable until Meeting
   Review's three non-coding gates clear. It is not a stage anyone can start.
@@ -1195,10 +1196,10 @@ and is pinned by `tests/unit/strategyConcepts.test.js`.
 
 | | |
 |---|---|
-| Concepts | **52** — Business Targets 5 · Strategic Orientation 22 · Sales & Marketing 16 · Organisational Review 9 |
-| Carrying Mike's own Concept Summary and Helps line | **34**, from the two Session Scope tables |
-| Agenda rows | **18** — 9 carry his own agenda sub-line, 9 are name-only |
-| Teaching form named (census §3) | 33 |
+| Concepts | **46** — Business Targets 1 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
+| Carrying a Helps Your Client To… line | **All 46** — 34 read off his two Session Scope tables (three through a shared deck cell), and 12 drafted for him and approved word for word on 2026-09-24, recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
+| Rows that are not Session Scope rows | **12** — 10 agenda rows (8 carry his own agenda sub-line) and 2 framing pages |
+| Teaching form named (census §3) | 32 |
 | Capture form **measured** against one of his fill-in templates | 22 |
 
 🔴 **EVERY WORD IS HIS, READ OFF THE DECKS BY MACHINE — never retyped, never summarised.**

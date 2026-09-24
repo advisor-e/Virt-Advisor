@@ -494,15 +494,6 @@
                   td.r.rr-num(:class="row.overYear < 0 ? 'is-crit' : 'is-good'") {{ signedIfNegative(row.overYear) }}
                   td.r.rr-num(:class="row.cashEnd < 0 ? 'is-crit' : ''") {{ signedIfNegative(row.cashEnd) }}
 
-        .rr-card(v-if="data.workbookCorrections && data.workbookCorrections.length")
-          h2 {{ $t('report.retirementReview.projection.correctionsTitle') }}
-          p.rr-lead {{ $t('report.retirementReview.projection.correctionsLead') }}
-          ul.rr-corrections
-            li(v-for="c in data.workbookCorrections" :key="c.key")
-              | {{ c.summary }}
-              span.rr-cells {{ $t('report.retirementReview.projection.correctionRuled', { cells: c.cells, who: c.ruledBy, when: c.ruledOn }) }}
-          p.rr-note {{ $t('report.retirementReview.projection.correctionsFootnote') }}
-
         .rr-nav
           b-button(size="is-small" @click="goTo(3)") {{ $t('report.retirementReview.nav.back') }}
           b-button(type="is-primary" size="is-small" @click="print") {{ $t('report.retirementReview.nav.print') }}
@@ -1191,10 +1182,6 @@ tr:last-child td { border-bottom: 0; }
 .rr-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
 .rr-legend i.is-up { background: var(--rs-good); }
 .rr-legend i.is-dn { background: var(--rs-warn); }
-
-.rr-corrections { margin: 0; padding-left: 18px; font-size: 13px; }
-.rr-corrections li { margin: 9px 0; }
-.rr-cells { display: block; font-size: 11.5px; color: var(--rs-muted); margin-top: 2px; }
 
 .rr-nav { display: flex; gap: 10px; flex-wrap: wrap; }
 </style>
