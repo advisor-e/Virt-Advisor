@@ -365,8 +365,9 @@ locked in the prompt. Either is fine; deciding by accident is not.
   dev-only tool, installed with npm 8.19.4 on Node 14.15; `check:engines` 0 offenders and the
   audit gate unchanged.
 - **Proved:** built with no colour change, the pipeline reproduced Buefy's shipped file rule for
-  rule — 4,033 rules, identical selectors and properties. The brand build holds 0 violet and 232
-  brand-blue values, and is smaller (47 KB gzipped against 50). In the running build, *Write the
+  rule — 4,033 rules, identical selectors and properties. None of the 22 colours Buefy's shipped file
+  uses for primary remain — the first build missed the light and dark shades, fixed in
+  `cd2411dc`. The build is smaller (47 KB gzipped against 50). In the running build, *Write the
   outline* on the Sales Blog measured `rgb(121,87,213)` before and `rgb(0,112,192)` after.
 - **Not walked:** the Strategy Planner's *Run session* header button, which needs a built session
   to reach; it carries the same `is-primary` style. `is-info` (Bulma's lighter blue) is unchanged.
