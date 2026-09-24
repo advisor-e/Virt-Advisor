@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dictation On This Computer</title>
+<!--
+================================================================================
+  DICTATION STAYS ON THIS COMPUTER — item 12.2.
+  Drawn 2026-09-24. NOT YET APPROVED. NOTHING ON THIS PAGE IS BUILT.
+
+  The artefact the build will be measured against (CLAUDE.md, Save the Artefact).
+  Open it beside the build and name every difference before shipping.
+
+  WHY. Every microphone button in the app uses the browser's own speech
+  recognition, which in Chrome sends the audio to Google by default, under no
+  published retention terms. Nine screens, three files - item 12.2 lists them.
+
+  THE APPROACH, approved by Mike 2026-09-24: Chrome's on-device mode,
+  recognition.options = { langs: [lang], processLocally: true }. Under it neither
+  the audio nor the text leaves the computer. Chrome answers
+  SpeechRecognition.available({ langs, processLocally: true }) with 'available',
+  'downloadable' or 'unavailable', and SpeechRecognition.install(...) fetches a
+  language pack once. Measured on this desktop's Chrome 153, 2026-09-24 - see
+  the language table below.
+
+  PROOF OF DONE: dictate with the network switched off. If the words still
+  appear, nothing left the computer.
+
+  EVERY WORD MARKED "PROPOSED" IS MIKE'S TO APPROVE. The existing strings
+  (Tap to Speak, Recording - speak now, Stop Recording) are unchanged.
+================================================================================
+-->
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --bright: #00b1e0; --eg: #6b7f99; --bg: #fff;
+    --good: #4ca52d; --crit: #c0392b; --warn: #ff9900;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--wash); color: var(--body);
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif; font-size: 15px; line-height: 1.55;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 28px 16px 64px; display: flex; flex-direction: column; gap: 22px; }
+  h1 { color: var(--ink); font-size: 26px; margin: 0; }
+  h2 { color: var(--ink); font-size: 19px; margin: 0 0 10px; }
+  .lede { margin: 6px 0 0; max-width: 70ch; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+         padding: 2px 8px; border-radius: 999px; background: #fff4e0; color: #9a5b00; border: 1px solid #f0c98a; }
+  .card { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); }
+  .states { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .state h3 { margin: 0 0 4px; color: var(--ink); font-size: 15px; }
+  .state .when { margin: 0 0 12px; font-size: 13px; color: var(--eg); }
+  .state .after { margin: 12px 0 0; font-size: 13px; }
+
+  /* A copy of the Virtual Advisor voice bar, so the states are judged against the real thing. */
+  .voice-bar { border: 1px solid var(--line); border-radius: 10px; background: var(--wash); padding: 10px 12px;
+               display: flex; align-items: center; gap: 10px; min-height: 48px; flex-wrap: wrap; }
+  .voice-btn { font: inherit; font-size: 13px; font-weight: 600; border-radius: 999px; padding: 6px 14px; cursor: default;
+               border: 1px solid var(--accent); background: var(--accent); color: #fff; display: inline-flex; align-items: center; gap: 6px; }
+  .voice-btn.stop { background: #fff; color: var(--crit); border-color: var(--crit); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--crit); }
+  .spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--accent); }
+  .msg { font-size: 13px; color: var(--body); }
+  .msg.off { color: var(--eg); }
+  .textarea { margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 10px; color: var(--eg); font-size: 13px; min-height: 48px; }
+  .proposed { background: #fff4e0; border-bottom: 2px dotted #d88a00; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--eg); }
+  .yes { color: var(--good); font-weight: 700; }
+  .no { color: var(--crit); font-weight: 700; }
+  .wrap { overflow-x: auto; }
+  .langs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .langs ul { margin: 6px 0 0; padding-left: 18px; }
+  @media (max-width: 640px) { .langs { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+
+  <header>
+    <span class="tag">Drawn 2026-09-24 · not approved · nothing built</span>
+    <h1>Dictation stays on this computer</h1>
+    <p class="lede">Item 12.2. Every microphone button in the app today sends what is said to Google.
+      After this change the speech is recognised by Chrome <strong>on the advisor's own computer</strong>,
+      and nothing leaves it. The buttons look and work exactly as they do now. What is new is only what
+      happens the first time, and in a language Chrome cannot do on the computer.</p>
+  </header>
+
+  <section class="card">
+    <h2>The microphone, in each case</h2>
+    <p style="margin:0 0 14px">Drawn on the Virtual Advisor voice bar. The same states apply on all nine screens.
+      Words on an <span class="proposed">orange underline</span> are new and proposed; everything else is today's wording.</p>
+
+    <div class="states">
+      <div class="state">
+        <h3>1 · Ready</h3>
+        <p class="when">The language pack is already on this computer.</p>
+        <div class="voice-bar"><span class="voice-btn">🎤 Tap to Speak</span></div>
+        <p class="after">Exactly as today. The only difference is invisible: nothing is sent.</p>
+      </div>
+
+      <div class="state">
+        <h3>2 · First time in this language</h3>
+        <p class="when">Chrome says the pack is "downloadable". The advisor taps Tap to Speak once.</p>
+        <div class="voice-bar"><span class="spinner"></span>
+          <span class="msg proposed">Setting up dictation on this computer — a one-off download</span></div>
+        <p class="after">When the pack arrives, recording starts by itself, as if they had tapped again:</p>
+        <div class="voice-bar"><span class="dot"></span><span class="msg">Recording — speak now</span>
+          <span class="voice-btn stop">■ Stop Recording</span></div>
+      </div>
+
+      <div class="state">
+        <h3>3 · The download fails</h3>
+        <p class="when">No connection, or Chrome refuses the pack.</p>
+        <div class="voice-bar"><span class="msg proposed">Dictation couldn't be set up on this computer. You can still type.</span></div>
+        <div class="textarea">Type here…</div>
+        <p class="after">Nothing falls back to Google. The next tap tries the download again.</p>
+      </div>
+
+      <div class="state">
+        <h3>4 · Language not available on this computer</h3>
+        <p class="when">Chrome says "unavailable" — seven of the app's languages today, or a browser with no on-device mode.</p>
+        <div class="voice-bar"><span class="msg off proposed">Dictation isn't available in this language on this computer. You can still type.</span></div>
+        <div class="textarea">Type here…</div>
+        <p class="after"><strong>Recommended: the microphone is off in these languages.</strong> The point of 12.2 is that
+          nothing leaves the computer, and an exception for seven languages would reopen it. The alternative —
+          keep today's Google dictation in these languages with a warning — is the one decision on this page
+          that is Mike's, and it is asked on its own.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Which languages work on the computer</h2>
+    <p style="margin:0">Asked of Chrome 153 on this desktop, 2026-09-24, for each of the app's 21 dictation languages.
+      The app asks Chrome every time rather than keeping this list, because another computer can answer differently.</p>
+    <div class="langs">
+      <div><span class="yes">On the computer — 14</span>
+        <ul><li>English</li><li>French</li><li>German</li><li>Spanish</li><li>Italian</li><li>Portuguese</li><li>Polish</li>
+          <li>Japanese</li><li>Chinese</li><li>Korean</li><li>Russian</li><li>Turkish</li><li>Hindi</li><li>Indonesian</li></ul></div>
+      <div><span class="no">Not available — 7</span>
+        <ul><li>Dutch</li><li>Swedish</li><li>Danish</li><li>Finnish</li><li>Norwegian</li><li>Arabic</li><li>Malay</li></ul></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Where it changes</h2>
+    <div class="wrap"><table>
+      <thead><tr><th>Created in</th><th>Screens</th></tr></thead>
+      <tbody>
+        <tr><td><code>mixins/speechMixin.js</code></td><td>Virtual Advisor (the client-problem box, the profile questions, the review) · Strategy Planner capture boxes · org chart builder</td></tr>
+        <tr><td><code>mixins/collaborate/speechMixin.js</code></td><td>Adviser Network: discover · profile · new group · messages · marketplace</td></tr>
+        <tr><td><code>components/CourseBuilder.vue</code></td><td>Course Builder</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin:10px 0 0">The two Strategy Planner screens are the laptop's item 15.1. Its handover is told the same day.</p>
+  </section>
+
+  <section class="card">
+    <h2>New wording, for approval — row by row</h2>
+    <div class="wrap"><table>
+      <thead><tr><th>#</th><th>Where it shows</th><th>Proposed words</th></tr></thead>
+      <tbody>
+        <tr><td>W1</td><td>State 2, while the pack downloads</td><td>Setting up dictation on this computer — a one-off download</td></tr>
+        <tr><td>W2</td><td>State 3, the download failed</td><td>Dictation couldn't be set up on this computer. You can still type.</td></tr>
+        <tr><td>W3</td><td>State 4, language not available</td><td>Dictation isn't available in this language on this computer. You can still type.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>How it is proved</h2>
+    <p style="margin:0">Switch the network off, open Virtual Advisor in English, tap Tap to Speak and talk. The words appear, so
+      they were recognised on the computer. Repeat on one screen from each of the three files. The tests cover the settings
+      handed to Chrome and the four states; the network-off check is the one only a person can do.</p>
+  </section>
+
+</main>
+</body>
+</html>

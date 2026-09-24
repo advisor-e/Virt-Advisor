@@ -657,7 +657,7 @@
     },
     {
       "ref": "12.2",
-      "name": "Course Builder's microphone sends advisors' speech to Google under no published terms",
+      "name": "Dictation on nine screens sends advisors' and clients' speech to Google under no published terms",
       "rankedByMike": false,
       "kind": "defect",
       "score": 5,
@@ -665,16 +665,37 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The dictation button uses the browser's own speech recognition, which in Chrome sends the audio to Google by default. Google publishes no retention or use terms for it, and nothing in the project records that it happens.",
-      "risk": "Advisors' spoken words go to a second company with no contract and no stated retention, beside a signed OpenAI ZDR arrangement that covers everything else. An advisor may speak client details while designing a course. Nothing proves Google keeps it; nothing says it does not.",
+      "why": "Every microphone button uses the browser's own speech recognition, which in Chrome sends the audio to Google by default. Google publishes no retention or use terms for it, and nothing in the project records that it happens.",
+      "risk": "Client information reaches a second company with no contract and no stated retention: in Virtual Advisor the advisor describes a client's problem aloud, and Strategy Planner boxes are filled in with the client in the room. Meanwhile the rules strip personal data before anything reaches OpenAI. Nothing proves Google keeps it; nothing says it does not.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-09-24 - found while looking at the voice recorder Mike named for item 8.4. Mike asked what Google's rules are, then said yes to filing it."
       },
-      "touches": "components/CourseBuilder.vue (the recogniser created near line 765, with no options); design/mockups/model-library-launcher.html, which uses the same browser API in a mockup; locales/en.json if a warning is needed.",
-      "note": "CANDIDATE FIX, UNTESTED: Chrome's on-device mode - recognition.options = { langs, processLocally: true } - under which neither audio nor text is sent. The W3C explainer says Chrome supports 17 languages, English included. Test it in Chrome first, then decide what happens in a language it does not support: turn dictation off, or warn. Sources, 2026-09-24: WebAudio/web-speech-api explainers/on-device-speech-recognition.md; the Chromium forum thread where Google declined to state retention.",
-      "comment": "2026-09-24 - filed on Mike's yes. Scored 5 as privacy; the rank is his."
+      "touches": "The three places the recogniser is created, none with options: components/CourseBuilder.vue; mixins/speechMixin.js (Virtual Advisor, StrategyConceptCapture, StrategyOrgChartBuilder); mixins/collaborate/speechMixin.js (discover, profile, groups/new, ConversationPane, marketplace). The two Strategy Planner screens are the laptop's item 15.1 - its handover must be told.",
+      "note": "CANDIDATE FIX, UNTESTED: Chrome's on-device mode - recognition.options = { langs, processLocally: true } - under which neither audio nor text is sent. The W3C explainer says Chrome supports 17 languages, English included; this desktop runs Chrome 153. PROOF OF DONE: dictation still works with the network switched off. Then decide unsupported languages: turn dictation off, or warn. The heavier alternative is the backend OpenAI transcription route, which must meet ZDR rules Z1, Z3 and Z7. Sources, 2026-09-24: WebAudio/web-speech-api on-device explainer; the Chromium forum thread where Google declined to state retention.",
+      "comment": "2026-09-24 - filed on Mike's yes, first as Course Builder alone; widened the same day on his yes when scoping found nine screens. Scored 5 as privacy; the rank is his."
+    },
+    {
+      "ref": "13.5",
+      "name": "Review imported-stock FX in the forecast and import model: supplier currency and exchange rate",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Paying an overseas supplier is the one place in the app where both a foreign currency and an exchange rate genuinely apply. Today the forecast uses neither: it adds a flat percentage allowance, 10% by default, to the landed cost.",
+      "risk": "An importer's cash forecast shows stock payments as the home-currency cost plus a guessed percentage, not what the supplier's invoice will actually cost at a stated rate. A rate move or a supplier invoicing in another currency is invisible, and the deposit and balance timing in the forecast carries the same guess.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-24 - in his words: \"we have an input for fx (foreign exchange) payments for stock, imported from overseas, in the 3 way forecast and import model... this is ONE area where BOTH the currency and the exchange rate will need to apply - make it a task to review this please\""
+      },
+      "touches": "server/report/threeWayForecastModel.js (fxAllowancePct and salesFxAllowancePct, fxOnPurchases, fxOnSales, the deposit and balance lines near 1068-1137); server/report/importShipmentModel.js, which defers exchange to the forecast; their intake screens and golden tests; item 13.2, which labels the currency of a converted figure.",
+      "note": "A REVIEW FIRST, NOT A BUILD. Established 2026-09-24 from the code: no supplier currency and no exchange rate exist in either model - only a percentage allowance on purchases and a matching one on overseas sales. The review should settle what the advisor enters (supplier currency, rate, and whether the allowance stays as a buffer on top), and run the impact test before any design. Firm currency stays a firm setting - Mike's ruling 2026-09-22, recorded on 13.2.",
+      "comment": "2026-09-24 - filed on Mike's request, raised mid-way through scoping 12.2."
     }
   ]
 }

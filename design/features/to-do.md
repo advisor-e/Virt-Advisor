@@ -62,9 +62,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 25 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
 | 26 | **8.3** Meeting Review's speaker-labelling model is switched off 26 Feb 2027, with no named replacement ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 27 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 28 | **12.2** Course Builder's microphone sends advisors' speech to Google under no published terms ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
+| 28 | **12.2** Dictation on nine screens sends advisors' and clients' speech to Google under no published terms ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
+| 29 | **13.5** Review imported-stock FX in the forecast and import model: supplier currency and exchange rate ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**28 live items. Eight need Mike.** If this list passes about twenty, something is wrong.
+**29 live items. Eight need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
