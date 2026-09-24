@@ -76,31 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "5.3",
-      "name": "Two of Mike's own spreadsheets are calculators with nowhere in the app to live",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 2,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-24"
-      },
-      "why": "BO Expectations.xlsx sets an owner's income and lifestyle goals and BD stages.xlsx the scale needed to reach them. His own slides tell an advisor to complete both, and the app offers neither.",
-      "risk": "They are the FIRST two items on his Business Targets agenda, so a planning session opens by asking a client to fill in two spreadsheets the app cannot show. The counter-risk is scope: these are Report Model work with their own interest sheets and scenario comparison, so each needs the full maths-model-plus-golden-test treatment, not a capture form - which is exactly why the census excludes them by name.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-23 - filed on his yes at shutdown, after the day's eight deletions removed the only two concepts that pointed at these workbooks. He supplied both files himself in Strategy Planner/."
-      },
-      "touches": "design/PLANNING-TEMPLATE-CENSUS.md, which names both in NOT_CAPTURE_TABLES and says what they are; scripts/read-capture-tables.js, which excludes them deliberately; and, if built, the Report Model path - a backend maths model, a golden test, a Restify route, utils/reportModelCatalogue.js, a page and the consistency guard.",
-      "note": "NOT A REGRESSION AND NOTHING IS LOST - both workbooks are Mike's and are in his folder, and six files still name them. What went on 2026-09-23 was the last TASK-shaped trace: the two concepts that pointed at them were agenda rows with no teaching page, deleted on his ruling. The fact then survived only in the census, which nobody works from. BUILT 2026-09-24, NOT YET COMMITTED - one model, two steps, /owner-expectations; per-owner tasks; the hub's Owner Focus Tasks tab on all four tiers; saved against the client. Two workbook faults fixed and not shown on screen. Wording approved: design/OWNER-EXPECTATIONS-WORDING.md. Brief: report-models.md.",
-      "comment": "2026-09-23 - found at shutdown by asking what the deletions orphaned, rather than by anything failing. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.10",
       "name": "A page's templates are hidden behind whichever won the ID",
       "rankedByMike": false,

@@ -353,6 +353,29 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**5.3 · Two of Mike's own spreadsheets are calculators with nowhere in the app to live.**
+✅ **Closed 2026-09-24 by Mike ("yes - done")**, the day it was built. Commit `aa4abf79`.
+
+- **Why it existed:** BO Expectations.xlsx and BD stages.xlsx are the first two items on his
+  Business Targets agenda, and the app offered neither.
+- **Mike's rulings, all 2026-09-24:** build them *"so they possess the 'app' attributes in the same
+  way models are presented in the perf report section"*; one model with two steps, because the
+  second sheet reads its net profit from the first; each owner records their own tasks, starting
+  from a list that *"cascades down from mentor thru the levels to firm manager"*, saved against the
+  client; Debt / Equity % divides by equity; and *"if the model has a fault - fix it. end of story
+  … they dont need to see it"*, which also took the spreadsheet card off the Retirement Review.
+- **Built:** `/owner-expectations` (Business Owner Expectations, Growth, Decision class); the hub's
+  **Owner Focus Tasks** tab on all four tiers; wording approved in
+  [`../OWNER-EXPECTATIONS-WORDING.md`](../OWNER-EXPECTATIONS-WORDING.md); Brief in
+  [`report-models.md`](report-models.md).
+- **Proven:** the port matched every cached value in the workbook before the two faults were fixed;
+  628 suites / 13,755 tests with coverage; lint clean; `nuxt build` succeeds; both steps and the hub
+  tab driven in the running app, with one owner's tasks renamed, removed and added while the others
+  kept theirs. A test proves the saved-report store accepts what the screen saves and that it loads
+  back to the same model.
+- **For UAT, not ours:** saving a real client's figures and reopening them in a browser. It needs
+  Advisor-e's sign-in and a database, neither of which exists on the laptop.
+
 **8.2 — every AI request passes OpenAI's moderation check before it is sent.**
 ✅ **Closed 2026-09-24 by Mike ("done")**, the day OpenAI approved Zero Data Retention and the
 amendment it requires was signed. Commits `b0918c5c` and `be6cfe8f`.
