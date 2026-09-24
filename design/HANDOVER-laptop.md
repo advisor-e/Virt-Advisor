@@ -12,8 +12,8 @@
 ## 2026-09-24 (afternoon) · Laptop · branch `feat/advisor-progress`
 
 **Clean. 629 suites / 13,773 tests green with coverage, lint 0 errors. 0 behind `master`** —
-merged the desktop's PR #130 (dictation) today. **9 ahead of `master`: one short of the PR
-threshold**, so the next session opens with a PR proposal.
+merged the desktop's PR #130 (dictation) today. **10 ahead of `master` at shutdown (11 with this
+note's own fix) — past the PR threshold, so a pull request is due.**
 
 **Closed today, each on Mike's word:** **5.4** Business Owner Expectations (built — `/owner-expectations`,
 per-owner tasks, the hub's **Owner Focus Tasks** tab on all four tiers, saved against the client;
