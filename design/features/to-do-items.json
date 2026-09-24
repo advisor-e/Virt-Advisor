@@ -207,7 +207,7 @@
     },
     {
       "ref": "15.8",
-      "name": "Two stock images in the Strategy Planner have no licence check",
+      "name": "Two unlicensed pictures print in clients' plans until Mike supplies replacements",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -224,7 +224,7 @@
         "detail": "2026-09-18 - found while drawing batch 5, when both images turned out to be third-party rather than Mike's own artwork. He ruled they stay and said yes to filing the licence question. A defect we found, not a feature nobody asked for."
       },
       "touches": "design/mockups/strategy-concept-batch-5.html, the two sheets carrying the images; StrategyTeachingSlide.vue and StrategyPlanDocument.vue, where they would reach a client; design/ARTEFACTS.md, which records the question; and whoever cleared the Enneagram exclusion in PLANNING-TEMPLATE-CENSUS.md section 1.",
-      "note": "🔴 MIKE RULED THE IMAGES STAY - 2026-09-18, against the recommendation to leave them out. THAT RULING IS NOT IN QUESTION. This item only makes sure the licence is answered BEFORE they reach a client document. NOT LIVE YET: the images sit in an approved drawing and nothing renders it - 15.7's other half is what would ship them, which is exactly when nobody would think to ask. THE PRECEDENT IS THE PROJECT'S OWN: the Enneagram file was excluded from the census on licence grounds. Mike's own artwork is unaffected - batch 2's three rasters are his.",
+      "note": "NO LICENCE, AND LIVE - Mike, 2026-09-24: \"i do not have a licence or permission for either.\" Both drawings were wired in on 2026-09-20 with the pictures embedded, so they print on the teaching slide and in the client's plan under the firm's logo. HELD ON HIS WORD, same day: \"hold for now - make a note to complete it as a task and i will find replacements.\" THE TASK: when he supplies the two replacements, swap them into design/mockups/strategy-concept-batch-5.html, rebuild with scripts/build-concept-graphics.js, record the change in design/ARTEFACTS.md. Removal alone was offered and held.",
       "comment": "2026-09-18 - filed on his yes at shutdown, after a check that every fault found today had reached an ending. This one had not: it was recorded on the artefact and in ARTEFACTS.md, which is a line in a document rather than a task."
     },
     {
