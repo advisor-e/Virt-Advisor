@@ -144,13 +144,10 @@ article.spd(:style="frameStyle")
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
-        //- ⚠ AND THE RESPONSE PAGE IS MISSING HERE TOO, for the same reason. Where
-        //- the deck holds the fill-in table rather than a workbook — the Integration
-        //- Tasks table, (Our) Revenue Streams, (Our) Volatility Graph Observations —
-        //- the client used to see that page. ⚠ THE TEACHING GRAPHIC DOES NOT
-        //- RESTORE IT — all 33 drawings are teaching pages, and this comment used
-        //- to say otherwise. `responsePage` records which page each table is;
-        //- drawing those five is item 15.11.
+        //- Where the deck holds the fill-in table rather than a workbook — the
+        //- Integration Tasks table, (Our) Revenue Streams, (Our) Volatility Graph
+        //- Observations — its boxes are read off his page (item 15.16, 2026-09-24) and
+        //- print here like any other table's.
         //- 🔴 A TABLE NOBODY TOUCHED IS ONE SENTENCE, NOT TWO DOZEN EMPTY ROWS. The
         //- Action Plan alone is 24 boxes; printed blank they fill a page and say
         //- nothing. Mike's rule, 2026-09-17: "how could anyone gain value from

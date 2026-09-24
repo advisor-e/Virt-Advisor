@@ -52,9 +52,8 @@ section.scc2
   //- "there is no fill-in table for this concept yet" printed beneath it. With the
   //- deck images removed on 2026-09-18 there is no response page on screen to
   //- contradict, so the message is plainly true again and the guard has gone with
-  //- the images. ⚠ IT DOES NOT COME BACK WITH THE TEACHING GRAPHIC, which is what
-  //- this line used to say — all 33 drawings are teaching pages. The guard returns
-  //- when the five response pages are drawn, which is item 15.11.
+  //- the images. Those response pages now arrive as boxes read off his page (item
+  //- 15.16, 2026-09-24), so for them this message no longer shows at all.
   b-notification.scc2-none(
     v-if="!capture.supplied"
     type="is-light"
@@ -109,8 +108,12 @@ section.scc2
               )
 
   template(v-else)
-    .scc2-grid(:class="{ 'is-stack': isStackedForm }")
-      .scc2-block(v-for="block in blocks" :key="block.key")
+    .scc2-grid(:class="{ 'is-stack': isStackedForm }" :style="pinnedGridStyle")
+      .scc2-block(
+        v-for="block in blocks"
+        :key="block.key"
+        :style="pinnedColumns ? { gridColumn: block.column + 1 } : null"
+      )
         p.scc2-block-label(v-if="block.label") {{ block.label }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
           label.scc2-field-label(
@@ -466,13 +469,37 @@ export default {
       const byLabel = {}
       this.visitFields.forEach((f) => {
         const label = f.columnLabel || f.rowLabel || ''
-        if (!byLabel[label]) {
-          byLabel[label] = { key: 'b' + order.length, label, fields: [] }
-          order.push(byLabel[label])
+        // `columnHead` is set only where one heading spans two columns — Revenue
+        // Streams' two "Our Thoughts" lists — so those stay two blocks.
+        const id = label + '\u0000' + (f.columnHead || '')
+        if (!byLabel[id]) {
+          byLabel[id] = { key: 'b' + order.length, label, column: f.column, fields: [] }
+          order.push(byLabel[id])
         }
-        byLabel[label].fields.push(f)
+        byLabel[id].fields.push(f)
       })
       return order
+    },
+
+    /**
+     * How many of his columns to pin blocks to, or 0 to let them flow as before.
+     *
+     * Only where a heading spans columns. Two blocks both headed "Our Thoughts to Support
+     * These Ideas" say nothing about which side they belong to unless each sits under its
+     * own column, as on his page. Every other table flows exactly as it did.
+     *
+     * @returns {number}
+     */
+    pinnedColumns () {
+      if (!this.visitFields.some(f => f.columnHead)) { return 0 }
+      return new Set(this.visitFields.map(f => f.column)).size
+    },
+
+    /** @returns {?object} the grid's columns when blocks are pinned, else nothing */
+    pinnedGridStyle () {
+      return this.pinnedColumns
+        ? { gridTemplateColumns: 'repeat(' + this.pinnedColumns + ', minmax(0, 1fr))' }
+        : null
     },
 
     /**

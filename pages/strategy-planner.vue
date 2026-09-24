@@ -810,7 +810,8 @@ export default {
             : (capture.fields || [])
               .map(f => ({
                 key: visit.conceptId + '::' + f.key,
-                label: [f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
+                // `columnHead` names the side where one heading spans two columns.
+                label: [f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
                 value: (this.entries[visit.conceptId + '::' + f.key] || '').trim()
               }))
         })
@@ -1250,8 +1251,7 @@ export default {
           // ⚠ THIS OBJECT IS A HAND-COPIED SUBSET, so a field added to the route
           // reaches the screen only if it is named here too. The deck-image fields
           // were served, proxied and ignored for exactly that reason before anyone
-          // noticed. Whatever the response-page drawings need (item 15.11) must be
-          // named here as well.
+          // noticed. Anything new the route serves must be named here as well.
           capture: b.capture
         })
       })

@@ -397,7 +397,9 @@ describe('a ruled line is a box, and a heading is never one', () => {
 
     const checked = []
     const wrong = concepts
-      .filter(c => c.captureTemplate && c.captureForm)
+      // The small comparison grid is worked through too, but its first column is an
+      // answer, not a prompt — it has its own test, below.
+      .filter(c => c.captureTemplate && c.captureForm && c.captureForm !== forms.SMALL_COMPARISON_GRID)
       .map((c) => {
         const capture = forms.captureForConcept(c)
         if (!capture.supplied || !capture.fields) { return null }
@@ -415,6 +417,29 @@ describe('a ruled line is a box, and a heading is never one', () => {
     // Without this the test passes by checking nothing the day a template is renamed.
     expect(checked.length).toBeGreaterThan(0)
     expect(wrong).toEqual([])
+  })
+
+  test('🔴 the small comparison grid puts every word of his worked table in exactly one box', () => {
+    // Curve & Cycle Notes is worked through top to bottom, so there is no blank cell to
+    // say where the boxes are. Read as a question sheet, his whole Diffusion Curve column
+    // became questions: 3 boxes where the page asks 4. So the check is that NOTHING he
+    // wrote is lost or used twice — each cell below the headings is a box's label, its
+    // example, or both halves of `Name: example` — and both his columns are present.
+    const users = concepts.filter(c => c.captureForm === forms.SMALL_COMPARISON_GRID)
+    expect(users.length).toBeGreaterThan(0)
+    users.forEach((c) => {
+      const table = forms.resolveTemplate(c.captureTemplate).tables[0]
+      const fields = forms.captureForConcept(c).fields
+      const written = []
+      table.rows.slice(1).forEach(r => r.cells.forEach((cell) => { if (cell.text) { written.push(cell.text) } }))
+      const carried = []
+      fields.forEach((f) => {
+        const whole = `${f.rowLabel}: ${f.example}`
+        if (written.includes(whole)) { carried.push(whole) } else { carried.push(f.rowLabel, f.example) }
+      })
+      expect(carried.sort()).toEqual(written.sort())
+      expect(new Set(fields.map(f => f.columnLabel)).size).toBe(table.columns)
+    })
   })
 
   test('🔴 a WORKED EXAMPLE under a heading is never read as the heading', () => {

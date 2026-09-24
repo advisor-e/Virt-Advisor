@@ -370,13 +370,12 @@ arrive; and the *"n concepts have no capture screen yet"* notice now counts only
 neither, or it would tell an advisor a concept was dropped while it sat on the screen in front of
 them. Pinned by `tests/unit/strategyPlanDocument.component.test.js`.
 
-⚠ **AND THE FIVE RESPONSE PAGES ARE NOT AMONG THE 33 — that is item 15.11, filed 2026-09-20.**
-Vertical Integration, Horizontal Integration, (Our) Revenue Streams and two others carry their
-fill-in table on a deck page — `responsePage` 24, 34, 37 and 41 — and every one of the 33 drawings
-is a *teaching* page. Three comments in the components promised the rebuilt graphic would restore
-those tables; **they were wrong and are corrected**, because a session reading one believes the gap
-is already handled. A response page is a capture surface rather than a picture, so it needs its own
-decision before the drawing method is applied.
+**The response pages are not among the 33 drawings, and are not drawn.** Vertical and Horizontal
+Integration, (Our) Revenue Streams and Deming's Volatility carry their fill-in table on a deck page
+(Strategic Orientation 2 pp. 24, 34, 37); since 2026-09-24 those tables are **read off his page as
+boxes** by `scripts/read-deck-capture-tables.js`, the route Branding's table takes — Mike's ruling
+that day, item 15.16. The 8 Profit Levers' p41 only points at his Profit Levers template, which it
+already captures through.
 
 **The differences between the build and the approved artefacts, named as the rule requires — three,
 all deliberate:** the sample firm on every drawing (*Hartley & Co*, initial *H*, `#0070c0`, and its
@@ -771,9 +770,10 @@ that was wrong on most rows while reading as evidence.**
 it joins `read-deck-capture-tables.js` beside Branding, Pricing, Packaging and Customer Loyalty:
 twelve boxes, his six divisions against Primary Output and Divisional KPI. **Review Internal
 Insights Data** — his own slide names the template (*"Review the Internal Team Insights page of
-the Insights Summary template"*), which was extracted and reaching no concept. **Four of his
-templates still reach none** — SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve & Cycle
-Notes, item **15.16**.
+the Insights Summary template"*), which was extracted and reaching no concept. Of his other
+templates, **Curve & Cycle Notes** now serves Market Diffusion and Product Life Cycle (2026-09-24);
+**Sales Flowchart and Tension Point Scripts** belong to Sales Process Review, held by Mike that day;
+**SWOT Notes** belongs to the `swot-pest` framework, not to any of the 46 concepts.
 
 🔴 **AND THAT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A
 band's heading was found by *"words, then ruled lines"*. Insights Summary bands as **headings →
@@ -1224,13 +1224,12 @@ once and pointed at with a `*Ref`, resolved when read: `price-for-delivery-mediu
 **An editing screen must say which rows share a piece of text before anyone changes it**, or one
 row's edit silently rewrites its neighbour.
 
-⚠ **30 concepts carry NO capture form, and "deliberate" is only half true.** Census §4 measured
-the nine capture forms across 24 templates, **not across all 52**, and is explicit that choosing
-one for a concept outside those 24 is a **design decision, not a reading**. Each measured row
-names the template it was matched to (`captureTemplate`) so the match is checkable; the rest are
-`unmeasured` with nothing in the field, and a test fails if a form ever appears on one. **That is
-true of the data and was never true of the work** — for these 30 a form was simply never chosen,
-which is item **15.16**, and this line used to read 32 as though the number were settled.
+**11 of the 46 concepts carry no capture form** (35 do, since 2026-09-24). Census §4 is explicit
+that choosing a form for a concept outside the measured templates is a **design decision, not a
+reading**, so each measured row names the template it was matched to (`captureTemplate`) and the
+rest are `unmeasured`, and a test fails if a form ever appears on one. Which of the 11 are ruled,
+held or unruled — and why each — is
+[`STRATEGY-CAPTURE-FORM-PROPOSALS.md`](../STRATEGY-CAPTURE-FORM-PROPOSALS.md) §5–6.
 
 **What the index is NOT.** It names a concept's form; it does not lay one out. Every teaching and
 capture form is drawn elsewhere — §0's method for the 33 graphics, and the nine capture shapes.

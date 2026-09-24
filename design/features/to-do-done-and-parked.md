@@ -353,6 +353,32 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.11 · Five concepts keep their fill-in table on a slide nobody has drawn.**
+✅ **Closed 2026-09-24 by Mike ("done")**, after seeing the tables on the running screen.
+
+- **Why it existed:** five concepts kept their response table on a deck page rather than in a
+  workbook, and every approved drawing was a teaching page, so they taught and captured nothing.
+- **What proves it:** not by drawing — Mike ruled on 2026-09-24 that the four unmeasured ones
+  (Vertical and Horizontal Integration p24, Revenue Streams p34, Deming's Volatility p37) be read
+  off his slides by the deck-page route Branding uses, and they were built that day under 15.16
+  (above). The fifth, the 8 Profit Levers (p41), already captured through his Profit Levers
+  template.
+
+**15.16 · An advisor teaches twenty topics and has nowhere to write the client answer down.**
+✅ **Closed 2026-09-24 by Mike ("done")**, the day 13 of the 20 were built.
+
+- **Why it existed:** 22 of 46 Strategy Planner concepts taught the client and captured nothing,
+  so what was said in the room never reached the plan or the next session.
+- **What proves it:** 13 concepts now capture, **22 → 35 of 46**, each from his own table — every
+  box count checked against his page and seen on the running Run screen. Rulings, tables and box
+  counts are in [`../STRATEGY-CAPTURE-FORM-PROPOSALS.md`](../STRATEGY-CAPTURE-FORM-PROPOSALS.md)
+  §5–6. All 46 existing concepts and 168 existing table readings were compared before and after:
+  identical.
+- **Not built, recorded in that file:** Sales Process Review (held by Mike — *"we can pick it up
+  later"*), (Inbound) Landing Page Review (needs his ruling on which column is the client's), and
+  five with no capture page in his deck (Boston Model, Technology Points, Sigmoid Curve, Risk
+  Reward Matrix, Senge's Circles), proposed as teaching only and not ruled.
+
 **15.1 · The strategy domain has thirteen materials and no session to run them in.**
 ✅ **Closed 2026-09-24 by Mike ("yes")**, at startup, when its own note showed nothing of its own left.
 

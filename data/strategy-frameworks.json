@@ -533,9 +533,9 @@
       "conceptSummary": "This concept Identifies the various pricing components in your service delivery (as they relate) to the value client’s place on their problem being solved.",
       "helpsClientTo": "This allows for a leveraged (delegated) team delivery AND multiple price points. Clients with more time (to do things themselves) can save money; those that just want the ‘problem to disappear’ can pay a premium for time saving and risk reduction.",
       "teachingForm": "staged-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "banded-grid",
+      "captureTemplate": "Price For Problem Solving",
+      "captureFormBasis": "measured"
     },
     {
       "id": "price-for-delivery-medium",
@@ -547,9 +547,9 @@
       "conceptSummaryRef": "price-for-problem-solving",
       "helpsClientToRef": "price-for-problem-solving",
       "teachingForm": "staged-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "banded-grid",
+      "captureTemplate": "Price For Delivery Medium",
+      "captureFormBasis": "measured"
     },
     {
       "id": "vertical-integration",
@@ -561,10 +561,10 @@
       "conceptSummary": "This concept explores the supply and distribution chain to see if you need to own more of the value chain components.",
       "helpsClientTo": "To identify asset purchases or alliances that could help protect existing market share and sales margin or new products that could increase your sales.",
       "teachingForm": "vertical-chain",
-      "captureForm": null,
-      "captureTemplate": null,
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Vertical/ & Horizontal Integration Tasks",
       "responsePage": 24,
-      "captureFormBasis": "unmeasured"
+      "captureFormBasis": "measured"
     },
     {
       "id": "horizontal-integration",
@@ -576,10 +576,10 @@
       "conceptSummary": "This concept explores the additional products or service that you could cross-sell to existing customers or would attract new customers to your business.",
       "helpsClientToRef": "vertical-integration",
       "teachingForm": "above-below-line",
-      "captureForm": null,
-      "captureTemplate": null,
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Vertical/ & Horizontal Integration Tasks",
       "responsePage": 24,
-      "captureFormBasis": "unmeasured"
+      "captureFormBasis": "measured"
     },
     {
       "id": "market-diffusion-theory",
@@ -591,9 +591,9 @@
       "conceptSummary": "This concept explores the introduction of a new product (similar to product life cycle) but focuses on how the market reacts and the ‘tipping point’ required to achieve success.",
       "helpsClientTo": "To identify where they are in the marketing process so they don’t waste money in the wrong areas. (kind of like the law of diminishing return / flogging a dead horse)",
       "teachingForm": "annotated-curve",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "small-comparison-grid",
+      "captureTemplate": "Curve & Cycle Notes",
+      "captureFormBasis": "measured"
     },
     {
       "id": "boston-model",
@@ -619,9 +619,9 @@
       "conceptSummary": "This concept explores how a new product or service becomes popular (gains acceptance) and then over time, becomes outdated and no longer relevant. (Decline)",
       "helpsClientTo": "Understand the likelihood of your client’s product or service being replaced (or eroded) by new product offers, new technology or product substitutes.",
       "teachingForm": "annotated-curve",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "small-comparison-grid",
+      "captureTemplate": "Curve & Cycle Notes",
+      "captureFormBasis": "measured"
     },
     {
       "id": "technology-points",
@@ -675,10 +675,10 @@
       "conceptSummary": "This concept explores using unrelated products to increase foot traffic or shorter sales cycle offerings, vs related upsell or ‘after sale’ offerings.",
       "helpsClientTo": "Help your client to explore possible revenue alternatives or ways to diversify, whilst minimizing risk.",
       "teachingForm": "upstream-core-downstream",
-      "captureForm": null,
-      "captureTemplate": null,
+      "captureForm": "banded-grid",
+      "captureTemplate": "Revenue Streams",
       "responsePage": 34,
-      "captureFormBasis": "unmeasured"
+      "captureFormBasis": "measured"
     },
     {
       "id": "risk-reward-matrix",
@@ -704,10 +704,10 @@
       "conceptSummary": "This concept explains how Volatility can be measured in terms of Probability and therefore, can be a better ‘predictor’ of events going forward.",
       "helpsClientTo": "Develop more meaningful targets and reports.",
       "teachingForm": "live-data-chart",
-      "captureForm": null,
-      "captureTemplate": null,
+      "captureForm": "banded-grid",
+      "captureTemplate": "Volatility Graph Observations",
       "responsePage": 37,
-      "captureFormBasis": "unmeasured"
+      "captureFormBasis": "measured"
     },
     {
       "id": "senges-circles-of-causality",
@@ -804,9 +804,9 @@
       "conceptSummary": "This framework explains the logical order to construct an advertisement.",
       "helpsClientTo": "Build more effective adverts and have a review framework so you can ‘A’ and ‘B’ test if desired.",
       "teachingForm": "staged-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "banded-grid",
+      "captureTemplate": "A.I.D.C.R.A Advertisement",
+      "captureFormBasis": "measured"
     },
     {
       "id": "digital-funnel-storyboard",
@@ -818,9 +818,9 @@
       "conceptSummary": "This concept explores the sequential offerings, messaging and responses, to entice your target customer ‘from their couch to your cash register’.",
       "helpsClientTo": "Get clear on how to utilise all their marketing assets in one comprehensive plan.",
       "teachingForm": "fixed-rows-named-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Engagement Story-Board",
+      "captureFormBasis": "measured"
     },
     {
       "id": "outbound-messaging-plan",
@@ -832,9 +832,9 @@
       "conceptSummary": "This framework helps you schedule your messaging activities and explores Medium, Platform, Time & Cost as planning considerations.",
       "helpsClientTo": "Execute an effective campaign amongst all other business activities/ responsibilities.",
       "teachingForm": "fixed-rows-named-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Outbound Communication Plan",
+      "captureFormBasis": "measured"
     },
     {
       "id": "inbound-landing-page-review",
@@ -860,9 +860,9 @@
       "conceptSummary": "This concept explores a review of your product from a ‘what stops people from buying it?’ vs features/ profitability.",
       "helpsClientTo": "Get clear of what your customer will happily pay for, what they could care less about & what they just don’t want from you. 2",
       "teachingForm": "prompt-list",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "prompt-answer-sheet",
+      "captureTemplate": "Sparketing Thoughts",
+      "captureFormBasis": "measured"
     },
     {
       "id": "branding-review",
@@ -930,9 +930,9 @@
       "conceptSummary": "This checklist explores the different sales channel options and encourages a pros and cons discussion.",
       "helpsClientTo": "Identify a variety of ways to engage salespeople to sell your products or service to a wider market.",
       "teachingForm": "pros-and-cons-grid",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "prompt-answer-sheet",
+      "captureTemplate": "Sales Distribution (Channel) Options",
+      "captureFormBasis": "measured"
     },
     {
       "id": "sales-process-review",
