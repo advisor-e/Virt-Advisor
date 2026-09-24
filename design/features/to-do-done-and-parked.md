@@ -353,6 +353,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.3 · Eighteen rows of the session scope menu have no Helps Your Client To... line.**
+✅ **Closed 2026-09-24 by Mike ("yes")**, the day he approved the last of them.
+
+- **Why it existed:** rows of the Strategy Planner's scope menu showed a name and nothing else, so
+  a client choosing a session's scope had nothing saying what those topics were for.
+- **Mike's rulings:** 2026-09-17, an AI may DRAFT the lines for him to edit and approve —
+  amending his own Decision B, *"never generated, never filled by AI"*. 2026-09-24, he approved
+  twelve drafts one by one in chat, each exactly as written: the ten agenda rows, then the two
+  framing pages that arrived with item 15.17 (Collaborative Thinking, Our Session Objective).
+- **Built and proven:** all 46 rows now carry a line — 34 from his decks, 12 approved — each of
+  the twelve recorded word for word and dated on
+  [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md), and `strategyConcepts.test.js` fails the
+  build if an agenda row carries a line not in that record. The note's "18 of 52" was 15 of 46 by
+  the time it was worked, and three of those already showed his words through a shared deck cell.
+- **Fixed on the way, on his yes:** `npm run helps-lines` left half of its "Nothing yet" note on
+  the page at the first real apply; it now removes the whole note, and a test ran against the old
+  logic to prove it would have caught it. Five tests that depended on a draft still existing were
+  moved onto fixtures, so they keep testing the rules now that none does.
+
 **5.3 · Two of Mike's own spreadsheets are calculators with nowhere in the app to live.**
 ✅ **Closed 2026-09-24 by Mike ("yes - done")**, the day it was built. Commit `aa4abf79`.
 

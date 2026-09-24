@@ -128,11 +128,16 @@ describe('GET /api/strategy/concepts — the session scope menu', () => {
     expect(so).toHaveLength(2)
   })
 
-  it('🔴 returns an unwritten description as null rather than filling it', () => {
+  it('🔴 returns an agenda row\'s description exactly as stored — never filled, never reworded', () => {
     // Decision B: an agenda row's description is Mike's to write. A generated or inferred
-    // sentence would look exactly like his and could not be told apart afterwards.
+    // sentence would look exactly like his and could not be told apart afterwards. His ten
+    // approved lines are in the data since 2026-09-24 (item 15.3); the route must hand each
+    // back untouched, and a row with none must come back null rather than filled.
     const res = makeRes()
     routes.getConcepts(req(), res)
+    const stored = {}
+    require('../../data/strategy-frameworks.json').concepts
+      .forEach((c) => { stored[c.id] = c.helpsClientTo || null })
 
     const agenda = res._body.decks.filter(d => d.rowSource === 'agenda')
     // 🔴 TWO, NOT THREE. Business Targets stopped being an agenda deck on
@@ -141,7 +146,7 @@ describe('GET /api/strategy/concepts — the session scope menu', () => {
     expect(agenda).toHaveLength(2)
     agenda.forEach((deck) => {
       deck.concepts.forEach((c) => {
-        expect(c.helpsClientTo).toBeNull()
+        expect(c.helpsClientTo).toBe(stored[c.id])
       })
     })
   })
