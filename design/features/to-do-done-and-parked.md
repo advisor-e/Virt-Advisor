@@ -353,6 +353,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.4 · Twelve labels on the plan document are ours, not Mike's.**
+✅ **Closed 2026-09-24 by Mike ("yes - done")**, the day he ruled on every one.
+
+- **Why it existed:** the Strategy Planner's printed plan is the document a client takes away,
+  and every word on it is Mike's except a handful of structural labels we wrote to hold it
+  together — which read as his once they sit beside his own wording.
+- **Mike's rulings, 2026-09-24, one label at a time:** eleven kept exactly as they were; the
+  no-client fallback replaced in his own words, **"Draft session"** (was *"This planning
+  session"*); the closing heading spelt **"Objectives & actions"** to match his approved stage
+  name; and the two labels nothing ever showed (`subtitle`, `nothingCaptured`) deleted. Every
+  ruling is recorded in [`../PLAN-DOCUMENT-WORDING.md`](../PLAN-DOCUMENT-WORDING.md).
+- **The count had moved since filing:** of the twelve, two had gone with later rework, two were
+  never displayed, and the closing heading had arrived — thirteen were on the document when he
+  ruled.
+
 **15.3 · Eighteen rows of the session scope menu have no Helps Your Client To... line.**
 ✅ **Closed 2026-09-24 by Mike ("yes")**, the day he approved the last of them.
 

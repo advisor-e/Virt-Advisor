@@ -6148,9 +6148,7 @@
       "aria": "The nine Growth Aspects. {count} are covered by an objective: {names}."
     },
     "plan": {
-      "subtitle": "Everything captured in this session, in the order it was worked.",
-      "nothingCaptured": "Nothing was captured for this framework.",
-      "untitled": "This planning session",
+      "untitled": "Draft session",
       "sessionPlan": "Session plan",
       "agenda": "What this session covers",
       "conceptCount": "{count} concept | {count} concepts",
@@ -6162,7 +6160,7 @@
       "capture": "Capture",
       "blank": "not filled in",
       "notWorked": "Scoped for this session, not worked through yet.",
-      "closingHeading": "Objectives and actions"
+      "closingHeading": "Objectives & actions"
     },
     "process": {
       "handedDown": "Your firm's standard session — {count} steps",

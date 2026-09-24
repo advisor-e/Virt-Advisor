@@ -206,27 +206,6 @@
       "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end. Widened 2026-09-22 on his yes from the four Wages Register suites to the pattern, when a second store hit it: the stage 6 build made setScope read before writing, which sits near the window without being its cause. 2026-09-23 - WAS 5.3, moved on Mike's instruction: this is the test suite and the push gate, which is The Working Agreement, page 22. 5.3 is spent. design/PAGE-NUMBERS.md."
     },
     {
-      "ref": "15.4",
-      "name": "Twelve labels on the plan document are ours, not Mike's",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The assembled plan is the document a client is shown and takes away. Twelve of the words on it were written by us, not read off his decks or his workbooks like everything else on the page.",
-      "risk": "They read as Mike's once they are on a page beside his own wording, and nobody can tell the difference afterwards. The same thing already happened: What this does in the room and Who and when were AI-written in the 2026-09-16 build, survived eleven rulings on the drawing that carried them, and were only caught when he asked what they were.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-17 - he asked at shutdown whether a note had been created to make sure the labels are removed. They had been written into a commit message, a handover and another item's note, none of which is a task."
-      },
-      "touches": "locales/en.json strategyPlanner.plan.* - the twelve keys; components/strategy/StrategyPlanDocument.vue renders them. Nothing else reads them.",
-      "note": "HIS WORDS OR NONE. Every other string on this document is his, read off his decks and workbooks. These twelve are structural labels we wrote to hold the document together and they have no authority behind them. He either gives the wording, or says which are unnecessary and they go. NOT a job to be done without him.",
-      "comment": "2026-09-17 - filed on his yes at shutdown, after he asked whether anything guaranteed they would be dealt with. They were flagged in the Stage 3 commit and the handover; neither is a task, and the handover is replaced next session."
-    },
-    {
       "ref": "15.8",
       "name": "Two stock images in the Strategy Planner have no licence check",
       "rankedByMike": false,
