@@ -118,6 +118,15 @@
   .sheet th:first-child, .sheet td:first-child { text-align: left; }
   .sheet th { color: #6b7f99; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
   .sheet tr.big td { font-weight: 700; color: #002b64; }
+  .sheet.oe { aspect-ratio: auto; min-height: 520px; padding-bottom: 56px; }
+  .sheet.oe table { font-size: 11.5px; }
+  .sheet.oe th, .sheet.oe td { padding: 3px 9px; }
+  .sheet.oe th.own { text-align: center; color: #002b64; font-size: 12px; border-bottom: 2px solid #0070c0; }
+  .sheet.oe tr.band td { background: #f1f6fb; color: #002b64; font-weight: 700; font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; }
+  .sheet.oe td[colspan="2"] { text-align: center; }
+  .sheet.oe td.up { color: #1d6b2b; font-weight: 700; }
+  .sheet.oe td.dn { color: #c0392b; }
+  .sheet.oe .strip { margin: 10px 0 0; font-size: 12px; color: #002b64; }
   .mark { position: absolute; left: 34px; bottom: 14px; width: 30px; height: 30px; border-radius: 50%; background: #0070c0; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
 
   .decision { border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 15px; margin: 12px 0; background: var(--bg); }
@@ -148,7 +157,7 @@
         <ul>
           <li>The Business Targets panel offers 2 rows instead of 1.</li>
           <li>Figures typed in the card are the same figures <code>/owner-expectations</code> opens for that client. A test checks this.</li>
-          <li>The client's printed plan carries the stage table.</li>
+          <li>The client's printed plan carries the owners' contrast table.</li>
           <li>Walked in a browser, before and after.</li>
         </ul></li>
       <li><b>What already does this job.</b> <code>/owner-expectations</code> does the maths, but outside the session. That's
@@ -173,7 +182,7 @@
           <tr class="new"><td><span class="box"></span></td><td>5–6</td>
             <td>Business Owner Expectations<span class="dec">Decision A</span><span class="tag">Model</span></td>
             <td></td>
-            <td class="empty">Yours to write <span class="dec">Decision D</span></td></tr>
+            <td>Put a number on the life each owner wants — the income, the hours, the time off and the work they'd rather be doing — and see how big the business has to become to pay for it.</td></tr>
         </tbody>
       </table>
     </div>
@@ -220,38 +229,79 @@
     "Capture the responses" button here: the model <i>is</i> the capture, so the card opens straight into it.</p>
 
   <h2>3 · Produce plan: the page the client takes away</h2>
-  <p class="cap">One sheet, in the plan's usual frame, with the firm's mark. It shows what the owners want and
-    what the business must become to pay for it, by stage. <span class="dec">Decision C</span></p>
-  <div class="sheet">
+  <p class="cap">One contrast table, laid out the way your <i>Business Owners Data Entry</i> sheet is: <b>owners across
+    the top, and down the side what each wants to earn, the hours and leave they want, and how their week splits
+    across tasks now and at the stage they're working towards.</b> The inputs are split across two steps to make them easier to enter;
+    this page puts them back together. <span class="dec">Decision C, ruled</span></p>
+  <div class="sheet oe">
     <p class="t">Business Owner Expectations</p>
-    <p class="s">What the owners want to earn, and the revenue the business must reach to pay for it</p>
+    <p class="s">Who does what, in return for what</p>
     <table>
-      <thead><tr><th></th><th>Current · 2025</th><th>Stage 1 · 2026</th><th>Stage 2 · 2029</th><th>Stage 3 · 2031</th></tr></thead>
+      <thead>
+        <tr><th></th><th colspan="2" class="own">Andy</th><th colspan="2" class="own">Bill</th></tr>
+      </thead>
       <tbody>
-        <tr><td>Owners' income</td><td>$240,001</td><td>$250,001</td><td>$370,000</td><td>$475,000</td></tr>
-        <tr class="big"><td>Revenue $</td><td>$1,311,383</td><td>$1,341,383</td><td>$1,521,382</td><td>$1,676,382</td></tr>
+        <tr class="band"><td colspan="5">Income</td></tr>
+        <tr><td>Current (2025)</td><td colspan="2">$120,000</td><td colspan="2">$120,001</td></tr>
+        <tr><td>Stage 1 (2026)</td><td colspan="2">$125,000</td><td colspan="2">$125,001</td></tr>
+        <tr><td>Stage 2 (2029)</td><td colspan="2">$175,000</td><td colspan="2">$195,000</td></tr>
+        <tr><td>Stage 3 (2031)</td><td colspan="2">$225,000</td><td colspan="2">$250,000</td></tr>
+        <tr class="band"><td colspan="5">Weekly hours · weeks annual leave</td></tr>
+        <tr><td>Stage 1</td><td colspan="2">45 hrs · 6 wks</td><td colspan="2">45 hrs · 6 wks</td></tr>
+        <tr><td>Stage 2</td><td colspan="2">40 hrs · 8 wks</td><td colspan="2">45 hrs · 6 wks</td></tr>
+        <tr><td>Stage 3</td><td colspan="2">30 hrs · 12 wks</td><td colspan="2">45 hrs · 6 wks</td></tr>
+        <tr class="band"><td>Focus tasks/duties %</td><td>Now</td><td>Focus</td><td>Now</td><td>Focus</td></tr>
+        <tr><td>(Strategic) Client Dealings</td><td>10%</td><td class="up">40%</td><td>10%</td><td class="up">40%</td></tr>
+        <tr><td>Team Management</td><td>15%</td><td class="dn">0%</td><td>15%</td><td class="dn">0%</td></tr>
+        <tr><td>Sales / Marketing</td><td>12%</td><td class="up">25%</td><td>12%</td><td class="up">25%</td></tr>
+        <tr><td>$ Management</td><td>13%</td><td class="dn">0%</td><td>13%</td><td class="dn">0%</td></tr>
+        <tr><td>Team Coaching</td><td>14%</td><td class="up">20%</td><td>14%</td><td class="up">20%</td></tr>
+        <tr><td>Travel</td><td>12%</td><td class="dn">0%</td><td>12%</td><td class="dn">0%</td></tr>
+        <tr><td>Planning &amp; Skills</td><td>14%</td><td class="dn">0%</td><td>14%</td><td class="dn">0%</td></tr>
+        <tr><td>Technician Duties</td><td>10%</td><td class="dn">5%</td><td>10%</td><td class="dn">5%</td></tr>
+        <tr><td>Fishing</td><td>0%</td><td class="up">10%</td><td>0%</td><td class="up">10%</td></tr>
       </tbody>
     </table>
+    <p class="strip"><b>The business must reach</b> · Current $1,311,383 · Stage 1 $1,341,383 · Stage 2 $1,521,382 · Stage 3 $1,676,382</p>
     <div class="mark">A</div>
   </div>
+  <p class="cap">Sample: the workbook's own two owners. The model takes up to six. An owner with no name and no income
+    doesn't print, and a task at 0% both now and at focus doesn't print either. <b>The build measures the page at six
+    owners on an A4 landscape sheet before it ships</b>, as every other page of the plan is measured. Two things here are
+    my own additions for you to check on the page: the revenue line along the foot, which carries step 2's answer onto the
+    same sheet, and the <b>green up / red down</b> colouring on each focus figure against the owner's own "now".</p>
 
   <h2>The decisions this drawing needs</h2>
   <p class="cap">Asked one at a time, each as a yes or no. They're listed here so the drawing is complete, and each gets written back here when you've ruled.</p>
 
-  <div class="decision"><h3>Decision A · the row's name</h3>
+  <div class="decision"><h3>Decision A · the row's name — RULED</h3>
+    <p class="rec">Ruled as recommended, Mike, 2026-09-25: "yes". The row is <b>Business Owner Expectations</b>.</p>
     <p class="rec">Recommended: <b>Business Owner Expectations</b>, the model's name as you approved it on 24 Sep.</p>
     <p>One name for one model, so the advisor meets the same words in the planner and in the Model Library.
       Your two agenda lines named the two halves, and the card still shows both halves as its two steps.</p></div>
 
-  <div class="decision"><h3>Decision B · where the figures are saved</h3>
+  <div class="decision"><h3>Decision B · where the figures are saved — RULED</h3>
+    <p class="rec">Ruled as recommended, Mike, 2026-09-25: "yes". The card saves to the client's one Owner Expectations
+      record (<code>client-report:&lt;client&gt;:owner-expectations</code>), never inside the session the way every other card does.</p>
     <p class="rec">Recommended: the client's one saved Owner Expectations report, the same record <code>/owner-expectations</code> opens.</p>
     <p>A session-only copy would mean two sets of the same client's figures that drift apart. One record, two places to open it.</p></div>
 
-  <div class="decision"><h3>Decision C · what reaches the client's printed plan</h3>
-    <p class="rec">Recommended: the one sheet above, with owners' income and the revenue required at each stage.</p>
-    <p>That's the answer your two sheets exist to give. The owner-by-owner hours and task splits stay on screen, because they're working, not the result.</p></div>
+  <div class="decision"><h3>Decision C · what reaches the client's printed plan — RULED IN MIKE'S OWN WORDS</h3>
+    <p class="rec">Mike, 2026-09-25, rejecting the recommendation: <i>"as owners, they want to see a summary of income
+      aspirations, annual leave, weekly work hours and task allocation in one contrast table. it become a very quick way
+      to visualise who does what in return for what. this is why it was designed this way in its original format. the
+      inputs can be split to make life easier but the report should come back togeteher to provide meaning. this is why a
+      contrast model is so powerful"</i></p>
+    <p>Redrawn to his ruling as the contrast table in section 3. The recommendation it replaced, a summary of income
+      and revenue alone with the owner-by-owner detail left on screen, would have lost exactly the comparison the page
+      exists for.</p></div>
 
-  <div class="decision"><h3>Decision D · the "Helps your client to…" line</h3>
+  <div class="decision"><h3>Decision D · the "Helps your client to…" line — RULED</h3>
+    <p class="rec">Ruled as recommended, Mike, 2026-09-25: "yes". A line is drafted from his pages 5 and 6 and brought to him.</p>
+    <p><b>APPROVED word for word, Mike, 2026-09-25 ("yes"):</b> <i>"Put a number on the life each owner wants — the income, the hours,
+      the time off and the work they'd rather be doing — and see how big the business has to become to pay for it."</i></p>
+    <p class="cap">It lives here until the row is built, because <code>design/AGENDA-HELPS-LINES.md</code> accepts only
+      concepts that already exist. At build it moves there, and <code>npm run helps-lines -- --apply</code> writes it.</p>
     <p class="rec">Recommended: a drafted line brought to you for approval, like the ten agenda rows on 24 Sep.</p>
     <p>That line is yours to write (Decision B of 17 Sep). Until you've approved one, the column stays empty.</p></div>
 
