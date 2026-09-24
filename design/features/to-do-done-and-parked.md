@@ -353,6 +353,20 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.8 · Two unlicensed pictures printed in clients' plans.**
+✅ **Closed 2026-09-25 by Mike ("yes")**, with both pictures replaced.
+
+- **Why it existed:** the Digital Funnel Storyboard and Packaging/Bundling carried third-party
+  pictures from his decks — a stock "LURE THEM IN" magnet and a Cartwright &amp; Butler tin
+  photograph — printing in a client's plan under the firm's logo. He held no licence for either.
+- **Digital Funnel:** a Pixabay illustration, *magnet attracting coins*, under the Pixabay Content
+  License (free commercial use, no credit), approved by Mike on the rendered page.
+- **Packaging/Bundling:** Mike's own Gemini-made *Barnes &amp; Rose Shortbread Rounds* tin, "for
+  now". A first version was rejected because it mirrored their tin line for line — same year, same
+  layout, same teapot scene, same weight wording. Changing the name does not change the artwork.
+- **Recorded:** `design/ARTEFACTS.md`, batch 5 row. Both screens regenerated from the drawing by
+  `build-concept-graphics.js`; `--check` confirms all 36 concepts match.
+
 **14.3 · A working-tree Handbook preview can be published over the shared link.**
 ✅ **Closed 2026-09-25 by Mike ("yes")**.
 
