@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Owner Expectations in a Session</title>
+<!--
+================================================================================
+  BUSINESS TARGETS GETS ITS MODEL BACK — the Owner Expectations model, run inside a
+  Strategy Planner session. Drawn 2026-09-25. NOT YET APPROVED. NOTHING ON THIS PAGE
+  IS BUILT.
+
+  It is the artefact the build will be measured against, per CLAUDE.md's
+  Save-the-Artefact rule: open it beside the build and name every difference before
+  shipping.
+
+  WHY IT EXISTS. Mike, 2026-09-25, opening the planner: "what happened to my busines
+  targets material? its all missing" — and then: "remember - that material was
+  converted into a model for this feature".
+
+  WHAT THE CODE SAYS. Business Targets pages 5 and 6 (Business Owner Expectations,
+  Business Development Stages) were deleted from the concept index on 2026-09-23 as
+  agenda rows (7eb0ee75), and built the NEXT day as ONE two-step Report Model, item
+  5.4 (aa4abf79): /owner-expectations, POST /api/report/owner-expectations,
+  server/report/ownerExpectationsModel.js. Nothing in the planner reaches it — no
+  concept, no card, no link. The Business Targets panel holds one row.
+
+  HOW A CALCULATOR GOES INTO A CARD IS ALREADY RULED — Mike, 2026-09-16: "no, it needs
+  to feel inclusive, comprehensive and seamless. I dont want it to feel like
+  patchwork." The Brief (strategy-planner.md 7a) turns that into the build rule: host
+  the EXISTING report component on the SAME backend route. One engine, one golden
+  test, two surfaces. Never a link out, never a second copy of the maths.
+================================================================================
+-->
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --bright: #00b1e0; --eg: #6b7f99; --bg: #fff;
+    --good: #4ca52d; --crit: #c0392b; --warn: #ff9900;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+      --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+    --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    color: var(--body); background: var(--bg); margin: 0;
+    padding-block: 32px 80px; padding-inline: 16px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: clamp(24px, 4vw, 30px); margin: 0 0 6px; text-wrap: balance; }
+  h2 { color: var(--ink); font-size: clamp(18px, 3vw, 21px); margin: 36px 0 4px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 76ch; }
+  .lede b { color: var(--ink); }
+  .cap { color: var(--eg); font-size: 12.5px; margin: 8px 0 0; max-width: 80ch; }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 22px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .tablewrap { overflow-x: auto; }
+  table.m { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 520px; }
+  table.m th, table.m td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.m th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  table.m td.n { font-variant-numeric: tabular-nums; text-align: right; }
+
+  /* The screen, drawn */
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); background: var(--bg); overflow: hidden; margin: 14px 0 0; }
+  .bar { background: #002b64; color: #fff; padding: 12px 18px; font-weight: 700; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .pill { background: #ffffff1f; border-radius: 99px; padding: 2px 12px; font-size: 12.5px; font-weight: 600; }
+  .deckhead { background: var(--wash); padding: 12px 18px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+  .deckhead b { color: var(--ink); }
+  .badge { border: 1px solid var(--accent); color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 1px 8px; border-radius: 4px; }
+  .muted { color: var(--eg); font-size: 12.5px; }
+  .grow { flex: 1; }
+  .box { display: inline-block; width: 15px; height: 15px; border: 2px solid var(--eg); border-radius: 3px; vertical-align: -3px; }
+  tr.new td { background: #eef7ff; }
+  tr.new td:first-child { box-shadow: inset 4px 0 0 var(--accent); }
+  .tag { display: inline-block; font-size: 10.5px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+  .dec { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px dashed var(--accent); border-radius: 4px; padding: 0 6px; margin-left: 6px; }
+  .empty { color: var(--eg); font-style: italic; }
+
+  .frame { border: 10px solid #0070c0; margin: 16px; padding: 20px 22px; }
+  .runhead { color: var(--ink); font-weight: 700; margin: 0 0 10px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .cardtop { background: var(--wash); padding: 10px 16px; font-size: 13px; }
+  .lead { border-left: 4px solid var(--accent); background: var(--wash); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 16px; font-size: 14px; }
+  .lead p { margin: 0 0 8px; }
+  .lead p:last-child { margin: 0; }
+  .lead small { color: var(--eg); }
+  .chips { display: flex; gap: 8px; margin: 0 16px 12px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); border-radius: 99px; padding: 4px 12px; font-size: 13px; color: var(--eg); }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .hosted { margin: 0 16px 16px; border: 2px dashed var(--accent); border-radius: 10px; padding: 14px 16px; }
+  .hosted h4 { margin: 0 0 4px; color: var(--ink); font-size: 14px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+  .kpi { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .kpi span { display: block; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  .kpi b { font-size: 19px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .kpi small { color: var(--eg); font-size: 12px; }
+  .foot { display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .btn { background: var(--accent); color: #fff; border-radius: 6px; padding: 7px 14px; font-weight: 600; font-size: 14px; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+
+  .sheet { border: 1px solid var(--line); aspect-ratio: 297 / 210; max-width: 760px; padding: 28px 34px; position: relative; background: #fff; color: #23405f; box-shadow: var(--shadow); margin-top: 14px; }
+  .sheet .t { color: #002b64; font-size: 22px; font-weight: 700; margin: 0 0 2px; }
+  .sheet .s { color: #6b7f99; margin: 0 0 16px; font-size: 13px; }
+  .sheet table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sheet th, .sheet td { padding: 7px 9px; border-bottom: 1px solid #d5e1ee; text-align: right; font-variant-numeric: tabular-nums; }
+  .sheet th:first-child, .sheet td:first-child { text-align: left; }
+  .sheet th { color: #6b7f99; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+  .sheet tr.big td { font-weight: 700; color: #002b64; }
+  .mark { position: absolute; left: 34px; bottom: 14px; width: 30px; height: 30px; border-radius: 50%; background: #0070c0; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+
+  .decision { border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 15px; margin: 12px 0; background: var(--bg); }
+  .decision h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
+  .decision p { margin: 0 0 6px; }
+  .rec { font-weight: 600; color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner · Business Targets · drawn 2026-09-25 · not yet approved</p>
+  <h1>Business Owner Expectations, run inside the session</h1>
+  <p class="lede">Your Business Targets pages 5 and 6 became the <b>Business Owner Expectations</b> model
+    on 24 Sep. It's at <code>/owner-expectations</code>, but nothing in the Strategy Planner leads to it.
+    This drawing puts it back on the Business Targets menu as <b>one row</b>. Its card runs
+    <b>the model you already have</b>, inside the session, with the same maths and the same saved figures.
+    Nothing is copied and nothing links out, following your 16 Sep ruling:
+    <i>"it needs to feel inclusive, comprehensive and seamless. I dont want it to feel like patchwork."</i></p>
+
+  <div class="note">
+    <h3>The impact test, stated before the design</h3>
+    <ul>
+      <li><b>The gain.</b> An advisor running a Business Targets session can work through its first two agenda items,
+        the owners' expectations and the development stages, with the client, in the session. Today they
+        have to leave the planner to do it, and nothing they work out reaches the client's plan.</li>
+      <li><b>How we'll know.</b>
+        <ul>
+          <li>The Business Targets panel offers 2 rows instead of 1.</li>
+          <li>Figures typed in the card are the same figures <code>/owner-expectations</code> opens for that client. A test checks this.</li>
+          <li>The client's printed plan carries the stage table.</li>
+          <li>Walked in a browser, before and after.</li>
+        </ul></li>
+      <li><b>What already does this job.</b> <code>/owner-expectations</code> does the maths, but outside the session. That's
+        the patchwork you ruled out, and its results never reach the plan.</li>
+    </ul>
+  </div>
+
+  <h2>1 · Scope session: the Business Targets panel</h2>
+  <p class="cap">One new row, highlighted. Its page column shows <b>5–6</b>, your real pages, not the agenda.</p>
+  <div class="screen">
+    <div class="bar"><span>Scope the session</span><span class="pill">0 of 47 included</span></div>
+    <div class="deckhead">
+      <b>Business Targets</b><span class="badge">BUSINESS TARGETS DOMAIN</span>
+      <span class="muted grow">the deck, pages 3–6</span><span class="muted">0 of 2 included</span>
+    </div>
+    <div class="tablewrap">
+      <table class="m">
+        <thead><tr><th>Include</th><th>Page</th><th>Framework</th><th>Concept summary</th><th>Helps your client to…</th></tr></thead>
+        <tbody>
+          <tr><td><span class="box"></span></td><td>3</td><td>Collaborative Thinking</td><td></td>
+            <td>Look at the business together, one side at a time, before anyone decides — so the plan is built on everyone's view rather than out-voting the person who saw the crack.</td></tr>
+          <tr class="new"><td><span class="box"></span></td><td>5–6</td>
+            <td>Business Owner Expectations<span class="dec">Decision A</span><span class="tag">Model</span></td>
+            <td></td>
+            <td class="empty">Yours to write <span class="dec">Decision D</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="cap">The <b>Model</b> tag tells the advisor this card runs a calculator. The deck heading changes from
+    "the agenda, slide 2" to name the pages it actually holds. Today it still says "agenda" even though its one row is page 3.</p>
+
+  <h2>2 · Run session: the card</h2>
+  <p class="cap">Same frame and card as every other concept. Your own words from pages 5 and 6 lead in, then the
+    <b>existing model</b> sits inside the card with both of its steps. The dashed outline marks what's hosted
+    unchanged from <code>/owner-expectations</code>.</p>
+  <div class="screen">
+    <div class="frame">
+      <p class="runhead">Define our targets</p>
+      <div class="card">
+        <div class="cardtop"><b>1 / 2</b> · You don't have to follow any particular order; just capture your thoughts as you go.</div>
+        <div class="lead">
+          <p>Complete the Business Owner Expectations table to record your income and leisure time goals; then record your
+            thoughts on how you can be most effective at work.</p>
+          <p>Complete the Business Development Stages table to record the 'scale dynamics' / 'business performance'
+            required to achieve your personal income, lifestyle and daily activity goals.</p>
+          <p><small>Your pages 5 and 6, read off the deck word for word.</small></p>
+        </div>
+        <div class="chips"><span class="chip on">1 · Owners' expectations</span><span class="chip">2 · Business development stages</span></div>
+        <div class="hosted">
+          <h4>The Business Owner Expectations model, as it is today</h4>
+          <p class="muted" style="margin:0">Up to six owners: each owner's income now and at three stages, their hours and leave,
+            and their own focus tasks. Step 2 works out the revenue the business must reach to pay for it.</p>
+          <div class="kpis">
+            <div class="kpi"><span>Stage 1 · 2026</span><b>$250,001</b><small>owners' income</small></div>
+            <div class="kpi"><span>Stage 2 · 2029</span><b>$370,000</b><small>owners' income</small></div>
+            <div class="kpi"><span>Stage 3 · 2031</span><b>$475,000</b><small>owners' income</small></div>
+          </div>
+          <p class="muted" style="margin:0">Owners · Income · Weekly hours and annual leave · Focus tasks/duties, then
+            <b>Next — business development stages</b>. Every label is the one you approved in
+            <code>OWNER-EXPECTATIONS-WORDING.md</code>. Nothing is reworded for the planner.</p>
+        </div>
+        <div class="foot"><span class="btn">Saved to Harbour Joinery Limited</span>
+          <span class="muted">The same figures open on the Owner Expectations page for this client <span class="dec">Decision B</span></span></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">Sample figures are the model's own sample, shown only so the drawing reads. There's no
+    "Capture the responses" button here: the model <i>is</i> the capture, so the card opens straight into it.</p>
+
+  <h2>3 · Produce plan: the page the client takes away</h2>
+  <p class="cap">One sheet, in the plan's usual frame, with the firm's mark. It shows what the owners want and
+    what the business must become to pay for it, by stage. <span class="dec">Decision C</span></p>
+  <div class="sheet">
+    <p class="t">Business Owner Expectations</p>
+    <p class="s">What the owners want to earn, and the revenue the business must reach to pay for it</p>
+    <table>
+      <thead><tr><th></th><th>Current · 2025</th><th>Stage 1 · 2026</th><th>Stage 2 · 2029</th><th>Stage 3 · 2031</th></tr></thead>
+      <tbody>
+        <tr><td>Owners' income</td><td>$240,001</td><td>$250,001</td><td>$370,000</td><td>$475,000</td></tr>
+        <tr class="big"><td>Revenue $</td><td>$1,311,383</td><td>$1,341,383</td><td>$1,521,382</td><td>$1,676,382</td></tr>
+      </tbody>
+    </table>
+    <div class="mark">A</div>
+  </div>
+
+  <h2>The decisions this drawing needs</h2>
+  <p class="cap">Asked one at a time, each as a yes or no. They're listed here so the drawing is complete, and each gets written back here when you've ruled.</p>
+
+  <div class="decision"><h3>Decision A · the row's name</h3>
+    <p class="rec">Recommended: <b>Business Owner Expectations</b>, the model's name as you approved it on 24 Sep.</p>
+    <p>One name for one model, so the advisor meets the same words in the planner and in the Model Library.
+      Your two agenda lines named the two halves, and the card still shows both halves as its two steps.</p></div>
+
+  <div class="decision"><h3>Decision B · where the figures are saved</h3>
+    <p class="rec">Recommended: the client's one saved Owner Expectations report, the same record <code>/owner-expectations</code> opens.</p>
+    <p>A session-only copy would mean two sets of the same client's figures that drift apart. One record, two places to open it.</p></div>
+
+  <div class="decision"><h3>Decision C · what reaches the client's printed plan</h3>
+    <p class="rec">Recommended: the one sheet above, with owners' income and the revenue required at each stage.</p>
+    <p>That's the answer your two sheets exist to give. The owner-by-owner hours and task splits stay on screen, because they're working, not the result.</p></div>
+
+  <div class="decision"><h3>Decision D · the "Helps your client to…" line</h3>
+    <p class="rec">Recommended: a drafted line brought to you for approval, like the ten agenda rows on 24 Sep.</p>
+    <p>That line is yours to write (Decision B of 17 Sep). Until you've approved one, the column stays empty.</p></div>
+
+</div>
+</body>
+</html>
