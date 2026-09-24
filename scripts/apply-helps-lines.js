@@ -158,8 +158,18 @@ function rewritePage (markdown, approved) {
   if (at === -1) {
     return kept.concat(['', RECORD_HEADING, ''], record, ['']).join('\n')
   }
-  // Drop the "Nothing yet" placeholder the first time something is applied.
-  const rest = kept.slice(at + 1).filter(t => t.indexOf('*Nothing yet.*') === -1)
+  // Drop the "Nothing yet" placeholder the first time something is applied — the WHOLE
+  // paragraph. It wraps over two lines, and removing only the line holding the marker left
+  // "page is also the record of which line was approved when." stranded under the record
+  // on 2026-09-24, the first real apply.
+  const after = kept.slice(at + 1)
+  const start = after.findIndex(t => t.indexOf('*Nothing yet.*') !== -1)
+  let rest = after
+  if (start !== -1) {
+    let end = start
+    while (end + 1 < after.length && after[end + 1].trim() !== '') { end++ }
+    rest = after.slice(0, start).concat(after.slice(end + 1))
+  }
   return kept.slice(0, at + 1).concat([''], record, rest).join('\n')
 }
 

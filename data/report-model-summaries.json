@@ -770,7 +770,7 @@
       ],
       "inputsNeeded": "Typed, not read from a file — nothing exports a retirement position. Ten answers about what retirement should be and cost; the income required each week and the inflation on it; the business drawings and how long they last; cash, superannuation and other investments with their drawdown terms; the government pension; and up to six properties, each with its mortgage type, rate, term, growth and the year it is sold, if it is.",
       "useWhen": "An owner is deciding when they can stop, or whether the properties they hold will carry them. Also for the first meeting on its own: the savings-gap half needs only what they want to live on and what they save today.",
-      "limits": "It is a CASH projection, not a tax return: one average tax rate is worked out in year one and held for all twenty years, which is the source workbook's own choice. It assumes every property sells at its projected value in the year named, and it models no market fall, no vacancy and no health event. Three figures deliberately differ from the source workbook and the screen names each one with the cells it changes. It takes the client's real household, so it is never illustrative — and it is not a substitute for regulated financial advice.",
+      "limits": "It is a CASH projection, not a tax return: one average tax rate is worked out in year one and held for all twenty years, which is the source workbook's own choice. It assumes every property sells at its projected value in the year named, and it models no market fall, no vacancy and no health event. It takes the client's real household, so it is never illustrative — and it is not a substitute for regulated financial advice.",
       "heroFigures": [
         {
           "label": "Cash at year twenty",
@@ -789,7 +789,7 @@
           "sub": "the proceeds, and the years they land"
         }
       ],
-      "alsoOnScreen": "Four steps: the conversation, which produces the savings gap and can be finished on its own; what they have, with year one's income stream by stream and the tax rate everything else uses; the properties, each with what it costs against what it brings in; and the next twenty years — a surplus-and-shortfall chart, every year in a table, and a card naming where the figures differ from the spreadsheet.",
+      "alsoOnScreen": "Four steps: the conversation, which produces the savings gap and can be finished on its own; what they have, with year one's income stream by stream and the tax rate everything else uses; the properties, each with what it costs against what it brings in; and the next twenty years — a surplus-and-shortfall chart and every year in a table.",
       "coach": [
         "The verdict says whether the plan holds AND what it holds on: where the cash survives only because properties are sold, it says so rather than reporting a comfortable closing balance. On the sample, taking the three sales away runs the cash out in year four.",
         "A shallow year is not a safe one. The deficits narrow as rents grow and then jump when an income stream ends — the business stopping, or the superannuation running dry — so the worst year is usually years after the one that looks worst at the start.",
@@ -807,6 +807,62 @@
         "how much do I need",
         "drawdown",
         "rental properties in retirement"
+      ]
+    },
+    {
+      "route": "/owner-expectations",
+      "name": "Business Owner Expectations",
+      "category": "Growth",
+      "modelClass": "decision",
+      "answers": "How big the business must become to pay its owners the life they have said they want. Each owner states their income now and at three target stages, with the hours and leave they want at each; the owners' combined income at a stage becomes the net profit the business must make, and the model works that back up through depreciation, loan payments, fixed costs, sales and promotion and cost of sales to the revenue each stage must reach.",
+      "keyOutputs": [
+        "The owners' combined income now and at each of three target stages",
+        "The revenue the business must reach at each stage to pay it",
+        "Net profit, fixed costs, sales and promotion and cost of sales as a share of that revenue",
+        "How each owner's week splits across their own tasks now, against where they want their focus"
+      ],
+      "inputsNeeded": "Typed, not read from a file. For up to six owners: their income now and at three target stages, and the weekly hours and weeks of leave they want at each stage, with how their week splits across their own tasks — each owner starts from the firm's list and may rename, remove or add. For the business at each stage: the number of owners, cost of sales, sales and promotion costs, fixed costs, annual loan payments, depreciation, total assets, debt and staff. A loan amount, rate, term and type for the quick loan calculator.",
+      "useWhen": "An owner is setting targets for the business, or says they want to earn more, work less or take more time off. The first conversation of a Business Targets planning session: what the owners want, then how large the business must be to deliver it.",
+      "limits": "It works BACKWARDS from the owners' income to the revenue needed; it is not a forecast and does not say whether that revenue is achievable. Cost of sales is typed as a dollar figure per stage, so it does not rise with revenue unless the advisor types it that way. The loan calculator shows its first year only, and its annual loan payment is not carried into the stages — each stage's loan payments are typed. Both task columns are priced at the owner's Stage 1 weekly hours. It takes the client's real owners and figures, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Current",
+          "sub": "the owners' combined income on step 1; the revenue needed to pay it on step 2"
+        },
+        {
+          "label": "Stage 1",
+          "sub": "the owners' combined income on step 1; the revenue needed to pay it on step 2"
+        },
+        {
+          "label": "Stage 2",
+          "sub": "the owners' combined income on step 1; the revenue needed to pay it on step 2"
+        },
+        {
+          "label": "Stage 3",
+          "sub": "the owners' combined income on step 1; the revenue needed to pay it on step 2"
+        }
+      ],
+      "alsoOnScreen": "Two steps. The owners: one owner open at a time, every owner's income by stage with totals, their hours and leave by stage, and the open owner's own tasks — renamed, removed or added — with the split now against their focus, in hours. The business development stages: the whole back-calculation stage by stage with every cost as a share of revenue, total assets against debt, staff, four written rows on premises, markets, services and skills, and a quick loan calculator.",
+      "coach": [
+        "The owners' income IS the net profit here. Change what an owner wants at Stage 3 and the revenue that stage needs moves by the same amount, before any cost is added.",
+        "Read the percentages as well as the dollars. If cost of sales is held at today's dollar figure while revenue grows, the percentage falls stage by stage — check that is really what the business expects.",
+        "The duty split is where the lifestyle half of the conversation lives. An owner who wants fewer hours and more leave at a later stage needs the week they keep to go on the duties only they can do."
+      ],
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "owner expectations",
+        "owners income",
+        "business targets",
+        "targets",
+        "development stages",
+        "how big does the business need to be",
+        "revenue needed",
+        "work less",
+        "lifestyle",
+        "hours",
+        "annual leave",
+        "duties",
+        "owner drawings"
       ]
     },
     {

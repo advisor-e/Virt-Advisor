@@ -27,6 +27,7 @@ const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeRetirementReview } = require('../report/retirementReviewModel')
+const { computeOwnerExpectationsModel } = require('../report/ownerExpectationsModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
 const { computeImportShipments } = require('../report/importShipmentModel')
@@ -1336,16 +1337,9 @@ function multipleProperty (req, res, next) {
  *   split, and up to six properties (each with its mortgage type, term, growth rates and
  *   the year it is sold, if it is).
  * @returns {object} `{ success, data, timestamp }` — data = { country, taxYearLabel,
- *   taxBandsEffectiveFrom, workbookCorrections[], quickCalculator{}, position{}, tax{},
+ *   taxBandsEffectiveFrom, quickCalculator{}, position{}, tax{},
  *   years[], projection{}, verdict{} }. Every projection series is twenty long,
  *   index 0 = year 1.
- *
- *   🔴 `workbookCorrections` IS NOT OPTIONAL FOR A CALLER TO RENDER. Three figures in this
- *   model deliberately differ from the source workbook — current tax bands, the pension
- *   taxed in the projection, and the sixth property realigned to year one — each ruled by
- *   the owner on 2026-09-13. They pull in opposite directions and are reported separately,
- *   never netted. A screen that drops them shows an advisor numbers that do not match the
- *   spreadsheet on their own desk, with nothing on the page to say why.
  *
  *   `verdict` is the only thing the workbook does not itself state: whether the plan ever
  *   runs the client out of cash, in which year, and how many of the twenty years fall
@@ -1366,6 +1360,37 @@ function retirementReview (req, res, next) {
   } catch (err) {
     console.error('[report] retirement-review compute failed:', err)
     res.send(400, { success: false, error: { code: 'RETIREMENT_REVIEW_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/owner-expectations
+ *
+ * @param {object} req.body - partial `DEFAULT_INPUTS` of the owner expectations model
+ *   (item 5.4). Each group that is absent falls back to the workbook's own sample:
+ *   `years` (the four column years), `owners` (up to six — incomes now and at three
+ *   stages, hours and leave per stage, and the ten-duty split now and as a focus),
+ *   `development` (per stage: owners, cost of sales, sales and promotion, fixed costs,
+ *   loan payments, depreciation, assets, debt, staff, and four free-text rows), and
+ *   `loan` (the Quick Calculator: amount, rate, term in months, Table or Reducing).
+ * @returns {object} `{ success, data, timestamp }` — data = { years[], owners{ owners[],
+ *   totals }, development{ stages[] }, loan{} }. `development.stages` is four long, index
+ *   0 = now; each stage's net profit IS the owners' combined income for that stage, and
+ *   its revenue is worked back up from it.
+ *
+ * Anonymous, like every other calc route: numbers in, numbers out. It reads no database,
+ * writes nothing, calls no third party and sends nothing to an LLM. The owners' names and
+ * incomes are a real client's, so none of it is stored and none of it reaches a log line.
+ */
+function ownerExpectations (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeOwnerExpectationsModel(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] owner-expectations compute failed:', err)
+    res.send(400, { success: false, error: { code: 'OWNER_EXPECTATIONS_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
 }
@@ -1844,4 +1869,4 @@ function wagesReview (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, stockPurchasingSalesIntake, salesDashboard, salesDashboardIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, wagesReview, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, highLevelBudget, midLevelBudget, stockPurchasing, stockPurchasingIntake, stockPurchasingSalesIntake, salesDashboard, salesDashboardIntake, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, retirementReview, ownerExpectations, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, wagesReview, modelGuide }

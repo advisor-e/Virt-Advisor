@@ -38,18 +38,25 @@ describe('the page Mike edits', () => {
   // words are a name. A framing page's teaching is his drawn slide.
   const agendaRows = () => CONCEPTS.filter(c => c.source === 'agenda')
 
-  it('carries a draft for every agenda row that has no line — all 10', () => {
-    const missing = agendaRows().filter(c => !c.helpsClientTo)
-    expect(missing).toHaveLength(10)
-    expect(rows).toHaveLength(10)
+  it('leaves no agenda row or framing page without either a line or a draft waiting on this page', () => {
+    // The ten agenda rows were approved and applied on 2026-09-24. The two framing pages
+    // were drafted the same day on Mike's yes, because they were the last rows of the menu
+    // showing a name and nothing else. Either way: no line means a draft here for Mike.
+    const missing = CONCEPTS
+      .filter(c => c.source === 'agenda' || c.source === 'framing-page')
+      .filter(c => !c.helpsClientTo)
     expect(rows.map(r => r.id).sort()).toEqual(missing.map(c => c.id).sort())
   })
 
-  it('🔴 no agenda row has quietly acquired a Helps line', () => {
-    // Mike's ruling of 2026-09-17: that line is his to write on every one of them.
-    // Never generated, never inferred from a slide, never filled by an AI — and a
-    // generated sentence reads perfectly reasonably to anyone in UAT.
-    expect(agendaRows().filter(c => c.helpsClientTo)).toHaveLength(0)
+  it('🔴 every agenda row\'s line is one Mike approved, recorded here word for word', () => {
+    // Mike's rulings of 2026-09-17: the line is his; an AI may draft it but only his
+    // approval puts it in the data. A line that reached the data without passing through
+    // this page's record is a generated sentence nobody approved — and it reads perfectly
+    // reasonably to anyone in UAT.
+    const record = PAGE.slice(PAGE.indexOf('## What has been applied'))
+    agendaRows().filter(c => c.helpsClientTo).forEach((c) => {
+      expect(record).toContain('`' + c.id + '` — "' + c.helpsClientTo + '"')
+    })
   })
 
   it('🔴 names only concepts that really exist', () => {
@@ -60,10 +67,8 @@ describe('the page Mike edits', () => {
     })
   })
 
-  it('leaves every row unapproved until Mike says otherwise', () => {
-    const { approved, waiting } = sort(rows, CONCEPTS)
-    expect(approved).toHaveLength(0)
-    expect(waiting).toHaveLength(10)
+  it('holds nothing the command would refuse', () => {
+    expect(sort(rows, CONCEPTS).problems).toEqual([])
   })
 
   it('carries a non-empty draft on every row', () => {
@@ -74,8 +79,14 @@ describe('the page Mike edits', () => {
 })
 
 describe('what the command refuses to write', () => {
-  const CONCEPT = CONCEPTS.find(c => !c.helpsClientTo)
-  const WITH_LINE = CONCEPTS.find(c => c.helpsClientTo)
+  // A FIXTURE, not the live data: since 2026-09-24 every concept carries a line, so a test
+  // that needs one without would stop testing anything. These rules hold whatever the data holds.
+  const FIXTURE_CONCEPTS = [
+    { id: 'no-line-yet', helpsClientTo: null },
+    { id: 'mikes-own', helpsClientTo: 'A line Mike wrote himself.' }
+  ]
+  const CONCEPT = FIXTURE_CONCEPTS[0]
+  const WITH_LINE = FIXTURE_CONCEPTS[1]
 
   function row (over) {
     return Object.assign(
@@ -84,20 +95,20 @@ describe('what the command refuses to write', () => {
   }
 
   it('🔴 refuses to overwrite a line Mike already wrote', () => {
-    const { approved, problems } = sort([row({ id: WITH_LINE.id })], CONCEPTS)
+    const { approved, problems } = sort([row({ id: WITH_LINE.id })], FIXTURE_CONCEPTS)
     expect(approved).toHaveLength(0)
     expect(problems).toHaveLength(1)
     expect(problems[0]).toContain('already carries a line')
   })
 
   it('refuses a concept id it does not recognise', () => {
-    const { approved, problems } = sort([row({ id: 'not-a-concept' })], CONCEPTS)
+    const { approved, problems } = sort([row({ id: 'not-a-concept' })], FIXTURE_CONCEPTS)
     expect(approved).toHaveLength(0)
     expect(problems[0]).toContain('is not a concept')
   })
 
   it('refuses an approved row with nothing written in it', () => {
-    const { approved, problems } = sort([row({ draft: '' })], CONCEPTS)
+    const { approved, problems } = sort([row({ draft: '' })], FIXTURE_CONCEPTS)
     expect(approved).toHaveLength(0)
     expect(problems[0]).toContain('draft is empty')
   })
@@ -105,15 +116,15 @@ describe('what the command refuses to write', () => {
   it('🔴 treats anything other than "yes" as not approved', () => {
     const others = ['', 'y', '✓', 'approved', 'no', 'YES please']
     others.forEach((value) => {
-      expect(sort([row({ approve: value })], CONCEPTS).approved).toHaveLength(0)
+      expect(sort([row({ approve: value })], FIXTURE_CONCEPTS).approved).toHaveLength(0)
     })
     // The one spelling that does work, so the test cannot pass by refusing everything.
-    expect(sort([row({ approve: 'yes' })], CONCEPTS).approved).toHaveLength(1)
+    expect(sort([row({ approve: 'yes' })], FIXTURE_CONCEPTS).approved).toHaveLength(1)
   })
 
   it('🔴 lets one bad row stop the good ones — never a partial apply', () => {
     const { approved, problems } = sort(
-      [row(), row({ id: 'not-a-concept', line: 2 })], CONCEPTS
+      [row(), row({ id: 'not-a-concept', line: 2 })], FIXTURE_CONCEPTS
     )
     // `sort` reports both outcomes; main() writes nothing at all when problems exist.
     expect(problems).toHaveLength(1)
@@ -124,25 +135,37 @@ describe('what the command refuses to write', () => {
 })
 
 describe('the page after an apply', () => {
-  // ⚠ AN AGENDA ROW, not merely "a concept with no Helps line". The two were the
-  // same set until 2026-09-23; now the first concept without one is a FRAMING PAGE,
-  // which this page does not carry, so the apply removed a row that was never there
-  // and the count did not move.
-  const CONCEPT = CONCEPTS.find(c => c.source === 'agenda' && !c.helpsClientTo)
+  // A FIXTURE, not the live page: the live page's drafts are used up once Mike approves
+  // them, and a test that needs a draft to exist stops testing anything the day he does.
+  const FIXTURE = [
+    '# Drafts',
+    '',
+    '| Approve | Concept | Draft | Drafted from |',
+    '|---|---|---|---|',
+    '| yes | `first-row`<br>**First** | The line Mike approved. | p1 |',
+    '| | `second-row`<br>**Second** | Still waiting. | p2 |',
+    '',
+    '---',
+    '',
+    '## What has been applied',
+    '',
+    '*Nothing yet.* `npm run helps-lines` writes a dated line here for every row it applies, so this',
+    'page is also the record of which line was approved when.',
+    ''
+  ].join('\n')
+  const applied = [{ row: { id: 'first-row', draft: 'The line Mike approved.', approve: 'yes', line: 5 } }]
+  const after = rewritePage(FIXTURE, applied)
 
   it('removes the applied row and records what was approved', () => {
-    const applied = [{
-      row: { id: CONCEPT.id, draft: 'The line Mike approved.', approve: 'yes', line: 1 },
-      concept: CONCEPT
-    }]
-    const after = rewritePage(PAGE, applied)
-
-    // The row is gone from the table…
     const remaining = parseRows(after)
-    expect(remaining.map(r => r.id)).not.toContain(CONCEPT.id)
-    expect(remaining).toHaveLength(9)
-    // …and the approved text is recorded rather than lost.
-    expect(after).toContain('The line Mike approved.')
+    expect(remaining.map(r => r.id)).toEqual(['second-row'])
+    expect(after).toContain('`first-row` — "The line Mike approved."')
+  })
+
+  it('🔴 removes the WHOLE "Nothing yet" note, both of its lines', () => {
+    // Its second line was left stranded under the record by the first real apply,
+    // 2026-09-24. Checking only the first line is how that passed.
     expect(after).not.toContain('*Nothing yet.*')
+    expect(after).not.toContain('page is also the record of which line was approved when.')
   })
 })

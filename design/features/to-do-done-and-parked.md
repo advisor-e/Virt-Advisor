@@ -353,6 +353,80 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.10 · Page 2 of six decks is missing from the plan the app produces.**
+✅ **Closed 2026-09-24 by Mike ("yes")**, as settled by his own ruling of the day before.
+
+- **Why it existed:** six of his decks open the meeting with *Our Session Objective* — welcome,
+  roles, housekeeping, what today is for — and on 2026-09-20 none of it was in the app. Drawn with
+  four decisions on [`../mockups/strategy-session-objective-page.html`](../mockups/strategy-session-objective-page.html).
+- **What settled it:** on 2026-09-23 he ruled that the page comes in as ONE drawn page, Strategic
+  Orientation 1 p2, which the advisor includes, with its agenda filled from the session's own step
+  list — built and approved the same day. On 2026-09-24 he chose to close 15.10 on that, rather
+  than also printing the page automatically on every plan, which would print it twice whenever an
+  advisor includes it. The four decisions were never asked; the drawing is marked superseded in
+  [`../ARTEFACTS.md`](../ARTEFACTS.md).
+- **Tidied on the way:** the note at the top of `StrategyPlanDocument.vue` still described three
+  front pages; it now says two, and why.
+
+**15.4 · Twelve labels on the plan document are ours, not Mike's.**
+✅ **Closed 2026-09-24 by Mike ("yes - done")**, the day he ruled on every one.
+
+- **Why it existed:** the Strategy Planner's printed plan is the document a client takes away,
+  and every word on it is Mike's except a handful of structural labels we wrote to hold it
+  together — which read as his once they sit beside his own wording.
+- **Mike's rulings, 2026-09-24, one label at a time:** eleven kept exactly as they were; the
+  no-client fallback replaced in his own words, **"Draft session"** (was *"This planning
+  session"*); the closing heading spelt **"Objectives & actions"** to match his approved stage
+  name; and the two labels nothing ever showed (`subtitle`, `nothingCaptured`) deleted. Every
+  ruling is recorded in [`../PLAN-DOCUMENT-WORDING.md`](../PLAN-DOCUMENT-WORDING.md).
+- **The count had moved since filing:** of the twelve, two had gone with later rework, two were
+  never displayed, and the closing heading had arrived — thirteen were on the document when he
+  ruled.
+
+**15.3 · Eighteen rows of the session scope menu have no Helps Your Client To... line.**
+✅ **Closed 2026-09-24 by Mike ("yes")**, the day he approved the last of them.
+
+- **Why it existed:** rows of the Strategy Planner's scope menu showed a name and nothing else, so
+  a client choosing a session's scope had nothing saying what those topics were for.
+- **Mike's rulings:** 2026-09-17, an AI may DRAFT the lines for him to edit and approve —
+  amending his own Decision B, *"never generated, never filled by AI"*. 2026-09-24, he approved
+  twelve drafts one by one in chat, each exactly as written: the ten agenda rows, then the two
+  framing pages that arrived with item 15.17 (Collaborative Thinking, Our Session Objective).
+- **Built and proven:** all 46 rows now carry a line — 34 from his decks, 12 approved — each of
+  the twelve recorded word for word and dated on
+  [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md), and `strategyConcepts.test.js` fails the
+  build if an agenda row carries a line not in that record. The note's "18 of 52" was 15 of 46 by
+  the time it was worked, and three of those already showed his words through a shared deck cell.
+- **Fixed on the way, on his yes:** `npm run helps-lines` left half of its "Nothing yet" note on
+  the page at the first real apply; it now removes the whole note, and a test ran against the old
+  logic to prove it would have caught it. Five tests that depended on a draft still existing were
+  moved onto fixtures, so they keep testing the rules now that none does.
+
+**5.4 · Two of Mike's own spreadsheets are calculators with nowhere in the app to live.**
+✅ **Closed 2026-09-24 by Mike ("yes - done")**, the day it was built. Commit `aa4abf79`. Filed as
+5.3 and renumbered 5.4 by the desktop the same day, because 5.3 was already spent; the laptop's
+commits of that day still call it 5.3.
+
+- **Why it existed:** BO Expectations.xlsx and BD stages.xlsx are the first two items on his
+  Business Targets agenda, and the app offered neither.
+- **Mike's rulings, all 2026-09-24:** build them *"so they possess the 'app' attributes in the same
+  way models are presented in the perf report section"*; one model with two steps, because the
+  second sheet reads its net profit from the first; each owner records their own tasks, starting
+  from a list that *"cascades down from mentor thru the levels to firm manager"*, saved against the
+  client; Debt / Equity % divides by equity; and *"if the model has a fault - fix it. end of story
+  … they dont need to see it"*, which also took the spreadsheet card off the Retirement Review.
+- **Built:** `/owner-expectations` (Business Owner Expectations, Growth, Decision class); the hub's
+  **Owner Focus Tasks** tab on all four tiers; wording approved in
+  [`../OWNER-EXPECTATIONS-WORDING.md`](../OWNER-EXPECTATIONS-WORDING.md); Brief in
+  [`report-models.md`](report-models.md).
+- **Proven:** the port matched every cached value in the workbook before the two faults were fixed;
+  628 suites / 13,755 tests with coverage; lint clean; `nuxt build` succeeds; both steps and the hub
+  tab driven in the running app, with one owner's tasks renamed, removed and added while the others
+  kept theirs. A test proves the saved-report store accepts what the screen saves and that it loads
+  back to the same model.
+- **For UAT, not ours:** saving a real client's figures and reopening them in a browser. It needs
+  Advisor-e's sign-in and a database, neither of which exists on the laptop.
+
 **12.2 — dictation on nine screens stops sending speech to Google.**
 ✅ **Closed 2026-09-24 by Mike ("yes" to done)**, after he dictated with Wi-Fi off on the production
 build in his own Chrome and the words still appeared — *"yes - test worked great!"* Commit `947af7a6`.
