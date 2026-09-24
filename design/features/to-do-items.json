@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "7.10",
-      "name": "A page's templates are hidden behind whichever won the ID",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A page often holds several templates, so 220 client tools sit on 205 pages. One shared profile per page is correct, but the registry keeps only the last template on each page, hiding the other 15 from anything reading it.",
-      "risk": "Nothing scores wrongly and no advice is withheld: the resolver filters the full 220-row array and never keys by page, so every tool competes. The loss is visibility - a profile screen, an audit or a count reading the registry sees 205 titles and cannot name the 15 tools sharing those pages, so a mentor editing a page's profile is not told which tools it governs.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-16 - told us the relationship is one-to-many by design, 'a single page will contain multiple templates which is why this occurs', and said to save it as a job and move around it."
-      },
-      "touches": "server/utils/templateRegistry.js, the page-to-entry Map that keeps one template per page; scripts/build-semantic-profiles.js, which writes one row per page and names only the winner; US9's template-profile screen in 7.2, which must list every template on a page.",
-      "note": "THE SHARED PROFILE IS RIGHT AND MUST NOT BE 'FIXED' - Mike ruled 2026-09-16 that templates on one page SHARE one AI profile, because an advisor opening that page gets them all. This is not a rekey. What is missing is the many half: the registry should carry every template on a page, so a screen can show that this profile governs both Working Capital Cycle and Activity Ratios. Collisions grew 10 to 14 between the 25 June and 30 July exports, so more tools hide as the library grows. NEVER EDIT THE IDS - CLAUDE.md.",
-      "comment": "2026-09-16 - found while running T060a for 7.2 US9; the compiler appeared to discover six new tools that were only collision winners changing places. Filed first as a keying defect, then corrected twice by Mike: the one-to-many page relationship is by design, and one shared profile per page is the behaviour he wants. RENUMBERED 7.5 to 7.10 on Mike's ruling of 2026-09-16: the laptop had taken 7.5 the same day for the model-choice record, and a number is spent for good once used."
-    },
-    {
       "ref": "14.3",
       "name": "A working-tree Handbook preview can be published over the shared link",
       "rankedByMike": false,

@@ -353,6 +353,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.10 · A page's templates are hidden behind whichever won the ID.**
+✅ **Closed 2026-09-25 by Mike ("yes")**, once every part of it was checked against the code.
+
+- **Why it existed:** 220 client tools sit on 205 pages, and `templateRegistry.js` keeps one tool
+  per page, so anything reading it could not name the others. Mike ruled 2026-09-16 that tools on
+  one page share one profile — that stays.
+- **What settled it:** the screen half was already built under 7.2 US9 — `listTemplateProfiles`
+  reads the library, not the registry, and every row names all its tools (`alsoOnPage`, pinned in
+  `semanticProfiles.test.js`). The resolver never keyed by page. The registry is correct as it
+  stands: its two readers want one summary and one profile per page, both shared.
+- **Fixed on the way:** `scripts/audit-content-coverage.js` matched profiles by title and reported
+  *"13 client templates not in semantic-profiles.json at all"* — all 13 sit on profiled pages. It
+  now matches by page. Its *"52 … summaries exist but no signals matched"* was also wrong for 44 of
+  them, which have no summary; it now reports 44 and 8 apart.
+
 **15.10 · Page 2 of six decks is missing from the plan the app produces.**
 ✅ **Closed 2026-09-24 by Mike ("yes")**, as settled by his own ruling of the day before.
 
