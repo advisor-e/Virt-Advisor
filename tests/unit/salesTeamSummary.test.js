@@ -21,6 +21,7 @@ const fs = require('fs')
 const os = require('os')
 
 const metrics = require('../../server/utils/salesMetrics')
+const { removeFile } = require('../helpers/removeFile')
 
 /** One pipeline row, with only the fields the roll-up reads. */
 function deal (over) {
@@ -263,7 +264,7 @@ describe('salesTeamStore.listForFirm — the firm-wide read', () => {
 
   afterEach(() => {
     delete process.env.SALES_PIPELINE_DEV_FILE
-    try { fs.unlinkSync(DEV_FILE) } catch (e) { /* never written */ }
+    try { removeFile(DEV_FILE) } catch (e) { /* never written */ }
   })
 
   function seed (entries) {

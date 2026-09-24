@@ -17,8 +17,12 @@ jest.mock('../../server/utils/firmOverlay', () => ({
   saveFirmConfig: jest.fn()
 }))
 
+// A temp file, never the developer's own data/ copy - set before the store loads (item 22.1).
+process.env.WAGES_REGISTER_GATE_DEV_FILE = require('path').join(require('os').tmpdir(), `va-test-wages-gate-${process.pid}.json`)
+
 const overlay = require('../../server/utils/firmOverlay')
 const gate = require('../../server/utils/wagesRegisterGate')
+const { removeFile } = require('../helpers/removeFile')
 
 const DD_CASE = { id: 'case-1', title: 'Acquisition of Kinetic Planning (2007) Limited' }
 const STORED = { openedBy: { name: 'M. Bartlett', email: 'mike@advisor-e.com' }, openedAt: '2026-09-14T02:00:00.000Z' }
@@ -356,7 +360,7 @@ describe('the no-database fallback — dev only, and never on a refusal', () => 
     return e
   }
 
-  afterEach(() => { try { fs.unlinkSync(DEV_PATH) } catch (_e) { /* not written */ } })
+  afterEach(() => { try { removeFile(DEV_PATH) } catch (_e) { /* not written */ } })
 
   it('opening with no database writes the dev file, and reads back from it', async () => {
     overlay.loadFirmConfig.mockRejectedValue(noServer())

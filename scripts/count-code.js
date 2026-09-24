@@ -225,18 +225,30 @@ function localDate (now) {
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
 }
 
+/** The record with its "Measured … at commit …" line removed, line endings normalised. */
+function withoutStamp (text) {
+  return String(text).replace(/\r\n/g, '\n').replace(/^> \*\*Measured .*$/m, '')
+}
+
 /**
- * Measure and write design/CODE-SIZE.md.
+ * Measure and write design/CODE-SIZE.md — but only when a count has changed.
+ *
+ * Item 14.4: the stamp carries today's date and the current commit, so rewriting on every
+ * Handbook build left a changed tracked file behind on every startup, on both machines,
+ * with every figure identical. Now the stamp says when the counts last moved.
  *
  * @param {string} root
- * @returns {{file: string, code: number, files: number}}
+ * @returns {{file: string, code: number, files: number, tests: number, written: boolean}}
  */
 function writeRecord (root) {
   const m = measure(root)
   const stamp = { date: localDate(), commit: commitOf(root) }
   const file = path.join(root, 'design', 'CODE-SIZE.md')
-  fs.writeFileSync(file, renderMarkdown(m, stamp), 'utf8')
-  return { file, code: m.app.code, files: m.app.files, tests: m.tests.code }
+  const next = renderMarkdown(m, stamp)
+  const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null
+  const written = current === null || withoutStamp(current) !== withoutStamp(next)
+  if (written) { fs.writeFileSync(file, next, 'utf8') }
+  return { file, code: m.app.code, files: m.app.files, tests: m.tests.code, written }
 }
 
 module.exports = { countCode, measure, renderMarkdown, writeRecord, localDate, APP_DIRS }
@@ -244,5 +256,5 @@ module.exports = { countCode, measure, renderMarkdown, writeRecord, localDate, A
 if (require.main === module) {
   const root = path.resolve(__dirname, '..')
   const r = writeRecord(root)
-  console.log('Wrote design/CODE-SIZE.md — ' + fmt(r.code) + ' lines of working code in ' + fmt(r.files) + ' files; ' + fmt(r.tests) + ' lines of tests.')
+  console.log((r.written ? 'Wrote' : 'Unchanged, not rewritten:') + ' design/CODE-SIZE.md — ' + fmt(r.code) + ' lines of working code in ' + fmt(r.files) + ' files; ' + fmt(r.tests) + ' lines of tests.')
 }

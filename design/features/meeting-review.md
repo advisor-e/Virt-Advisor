@@ -261,11 +261,12 @@ matters well beyond convenience: OpenAI is already this app's contracted sub-pro
 introduced to hold an hour of a client's private affairs** — which is why §4 item 5 is smaller than
 it looks.
 
-✅ **CHECKED AND PROVEN END TO END, 2026-09-01, before slice 2 was written.** `gpt-4o-transcribe-diarize`
-is enabled on the account, and a real call was made: two synthetic voices stitched into one recording,
-sent with `response_format=diarized_json`, came back as **8 segments across 2 correctly separated
-speakers**, the first being the one who read the consent line. So the anchor below is not a hope. The
-call took under 9 seconds for 23 seconds of audio.
+✅ **PROVEN LIVE AT MEETING LENGTH, 2026-09-24.** `gpt-4o-transcribe-diarize` is enabled on the
+account. A three-minute, two-voice browser recording sent through `transcriptionClient.js` came back as
+**54 segments across 2 speakers**, the first voice attributed as the advisor — so the anchor below is not
+a hope. 🔴 **The model refuses any request without `chunking_strategy`** (*"chunking_strategy is required
+for diarization models"*); the client now sends `chunking_strategy=auto`, pinned by a test. The
+2026-09-01 proof used a 23-second clip and never met the rule — see the history page.
 
 ⚠ **BUT THE MODEL NAME CANNOT BE PINNED TO A DATED SNAPSHOT, AND THAT IS NOT AN OVERSIGHT.** Every
 other transcription model on the account ships dated variants (`gpt-4o-mini-transcribe-2025-12-15`
@@ -317,16 +318,16 @@ place, which is another reason P4 is load-bearing.
 **Live capture was chosen over file upload, and the cost is recorded.** *(Mike's ruling,
 2026-09-01, against the recommendation on the day.)* Upload would have been materially simpler and
 robust to a sleeping laptop. Live capture was chosen and brings two things upload could not: the
-spoken consent of P1, and transcript text that is ready when the meeting ends, because the pieces
-are transcribed as they arrive — the text at once, though its speaker labels follow the final pass
-described above. **The residual risk is the browser tab** — an operating system may
+spoken consent of P1, and pieces saved as they arrive, so a crash loses only the last piece. **The
+pieces are stored, not transcribed:** the whole recording is transcribed once, when the meeting ends.
+Transcribing piece by piece is not built; it belongs to item 8.4's design. **The residual risk is the browser tab** — an operating system may
 throttle or suspend a backgrounded tab, and a screen lock mid-meeting is not a rare event. Hold a
 wake-lock, and treat "recording stopped unexpectedly" as an alarm, never a silent state.
 
-**Chunking solves two problems at once.** The transcription API rejects large files, so an hour of
-audio must be split however it arrives. Splitting it at capture time therefore costs nothing extra
-and buys the crash-safety of P10 and the near-instant transcript text above — not its speaker
-labels, which are taken from the whole-recording pass instead.
+**Splitting at capture buys crash-safety (P10), not the size limit.** OpenAI refuses a file over
+25 MB, and browser audio runs at about 0.9 MB a minute (measured 2026-09-24), yet the final pass
+sends the whole recording as one file — so a meeting past about 27 minutes will be refused, and its
+audio is destroyed either way. Item 8.4.
 
 **Where the observation points are edited, and at which tiers.** They are content that shapes AI
 output, so the hub-page rule in `CLAUDE.md` applies: **the mentor tier gets the screen, and gets it

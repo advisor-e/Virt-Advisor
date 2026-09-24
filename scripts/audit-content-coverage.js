@@ -42,7 +42,9 @@ const logicTrees = load('data/logic_trees.json')
 const clientTemplates = searchContent.filter(t => t.menuSection === 'do-the-job')
 const allTitles = new Set(searchContent.map(t => t.title))
 const summaryNames = new Set(summaries.map(s => s.name))
-const profileTitles = new Set(profiles.map(p => p.title))
+// By PAGE, never title: tools sharing a page share one profile row, which names only one of
+// them (item 7.10, Mike's ruling 2026-09-16). Matching by title reported the others as missing.
+const profilePages = new Set(profiles.map(p => p.page))
 
 // ── All signals tracked by the system ─────────────────────────────────────
 const ALL_SIGNALS = [
@@ -107,14 +109,22 @@ if (coveragePct < 90) {
 }
 
 // ── 4. Empty semantic profiles ─────────────────────────────────────────────
+// Two causes, reported apart: a row carrying `note` is one the compiler wrote with no
+// summary to read, which is not the same fault as a summary that matched nothing.
 const emptyProfiles = profiles.filter(p => !p.profile || Object.keys(p.profile).length === 0)
-if (emptyProfiles.length > 0) {
-  warnings.push(`WARNING: ${emptyProfiles.length} template(s) have empty semantic profiles — summaries exist but no signals matched`)
-  emptyProfiles.slice(0, 5).forEach(p => warnings.push(`  empty: "${p.title}"`))
+const noSummary = emptyProfiles.filter(p => p.note)
+const noMatch = emptyProfiles.filter(p => !p.note)
+if (noSummary.length > 0) {
+  warnings.push(`WARNING: ${noSummary.length} page(s) have no summary, so no profile could be built`)
+  noSummary.slice(0, 5).forEach(p => warnings.push(`  empty: "${p.title}"`))
+}
+if (noMatch.length > 0) {
+  warnings.push(`WARNING: ${noMatch.length} page(s) have a summary but no signals matched`)
+  noMatch.slice(0, 5).forEach(p => warnings.push(`  empty: "${p.title}"`))
 }
 
 // ── 5. Client templates missing from profiles entirely ─────────────────────
-const missingFromProfiles = clientTemplates.filter(t => !profileTitles.has(t.title))
+const missingFromProfiles = clientTemplates.filter(t => !profilePages.has(t.page))
 if (missingFromProfiles.length > 0) {
   warnings.push(`WARNING: ${missingFromProfiles.length} client template(s) not in semantic-profiles.json at all`)
 }

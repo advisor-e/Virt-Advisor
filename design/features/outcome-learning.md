@@ -137,8 +137,8 @@ thing a serious buyer checks before believing that phrase.
 
 | What can be checked | The figure |
 |---|---|
-| Working code, comments stripped | 83,407 lines across 415 files ([Code Size](../CODE-SIZE.md), recomputed every build) |
-| Tests | 9,541 tests, 467 suites, green; more test code than app code; AI-output validators pinned at 100% |
+| Working code, comments stripped | 121,023 lines across 590 files, as of 2026-09-25 ([Code Size](../CODE-SIZE.md) holds the current count) |
+| Tests | 13,765 tests, 630 suites, green, as of 2026-09-25; more test code than app code; AI-output validators pinned at 100% |
 | Content the engine reasons over | 291 templates, 42 logic trees, 14 advisory domains, 63 quiz banks |
 | Tiers the configuration cascades through | Mentor, global group, group, firm, advisor, and now the client |
 | Traceability | Signal → strategy → template on every recommendation, with the decision path shown |

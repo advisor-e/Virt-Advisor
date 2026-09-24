@@ -10,7 +10,7 @@ begins as a page in it before any code is written.
 
 | | |
 |---|---|
-| **The content** | Every `*.md` file in [`design/features/`](README.md), plus any document in `design/` that the index lists with a `../` row — read where it lies, never moved. **Read from `origin/master`, not from the machine's own branch** (Mike, 2026-09-10, item 4.85), so both machines build the same page; a feature appears here once its pull request has landed. A line under the title names the master commit and what each machine still holds beyond it. `npm run handbook -- --working-tree` previews unmerged pages and says so on the page. |
+| **The content** | Every `*.md` file in [`design/features/`](README.md), plus any document in `design/` that the index lists with a `../` row — read where it lies, never moved. **Read from `origin/master`, not from the machine's own branch** (Mike, 2026-09-10, item 4.85), so both machines build the same page; a feature appears here once its pull request has landed. A line under the title names the master commit and what each machine still holds beyond it. `npm run handbook -- --working-tree` previews unmerged pages and says so on the page; it writes to its own file, `advisor-e-handbook-preview.html`, never the one the shared page is published from (item 14.3). |
 | **The navigation** | Read from [`README.md`](README.md) — its headings are the groups, its table rows the entries. |
 | **The design** | [`scripts/handbook-shell.html`](../../scripts/handbook-shell.html) — an approved artefact. |
 | **The generator** | [`scripts/build-handbook.js`](../../scripts/build-handbook.js), run with `npm run handbook`. |

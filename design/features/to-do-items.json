@@ -76,69 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "7.10",
-      "name": "A page's templates are hidden behind whichever won the ID",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A page often holds several templates, so 220 client tools sit on 205 pages. One shared profile per page is correct, but the registry keeps only the last template on each page, hiding the other 15 from anything reading it.",
-      "risk": "Nothing scores wrongly and no advice is withheld: the resolver filters the full 220-row array and never keys by page, so every tool competes. The loss is visibility - a profile screen, an audit or a count reading the registry sees 205 titles and cannot name the 15 tools sharing those pages, so a mentor editing a page's profile is not told which tools it governs.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-16 - told us the relationship is one-to-many by design, 'a single page will contain multiple templates which is why this occurs', and said to save it as a job and move around it."
-      },
-      "touches": "server/utils/templateRegistry.js, the page-to-entry Map that keeps one template per page; scripts/build-semantic-profiles.js, which writes one row per page and names only the winner; US9's template-profile screen in 7.2, which must list every template on a page.",
-      "note": "THE SHARED PROFILE IS RIGHT AND MUST NOT BE 'FIXED' - Mike ruled 2026-09-16 that templates on one page SHARE one AI profile, because an advisor opening that page gets them all. This is not a rekey. What is missing is the many half: the registry should carry every template on a page, so a screen can show that this profile governs both Working Capital Cycle and Activity Ratios. Collisions grew 10 to 14 between the 25 June and 30 July exports, so more tools hide as the library grows. NEVER EDIT THE IDS - CLAUDE.md.",
-      "comment": "2026-09-16 - found while running T060a for 7.2 US9; the compiler appeared to discover six new tools that were only collision winners changing places. Filed first as a keying defect, then corrected twice by Mike: the one-to-many page relationship is by design, and one shared profile per page is the behaviour he wants. RENUMBERED 7.5 to 7.10 on Mike's ruling of 2026-09-16: the laptop had taken 7.5 the same day for the model-choice record, and a number is spent for good once used."
-    },
-    {
-      "ref": "14.3",
-      "name": "A working-tree Handbook preview can be published over the shared link",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "npm run handbook --working-tree builds a preview of one machine's uncommitted branch. Nothing stops that file being published to the shared URL, so the page Mike opens can show one division's work in progress instead of the agreed origin/master build.",
-      "risk": "The page stops being the same for both machines, which is the one guarantee item 4.85 was built to give. A reader cannot tell a preview from the shared page without noticing the banner, and features present on the OTHER branch vanish from the index while it is live. Nothing is lost from git - the Briefs stay committed on their own branch - but the front door silently describes a state neither master nor the other machine is in.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-17 - found at desktop shutdown when a publish was refused: the live Handbook was a laptop working-tree preview, 47 pages, its own banner reading \"a preview, not the shared page\". Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "scripts/build-handbook.js --working-tree and its WORKING_TREE banner, which are correct and stay; the publish step of .claude/commands/startup.md, which is where the guard belongs because the script cannot know where its output is sent; design/features/handbook.md.",
-      "note": "THE FLAG IS NOT THE FAULT AND MUST NOT BE REMOVED - a preview of your own branch is useful and it labels itself honestly. The gap is that nothing refuses to PUBLISH one to the shared URL. Cheapest honest fix: the publish step reads the built file's banner and refuses when it says working tree. Checked 2026-09-17: the only page that differed was strategy-planner, committed and pushed on feat/advisor-progress, so nothing was at risk - it appears on the shared page the day that branch reaches master.",
-      "comment": "2026-09-17 - Mike ruled the live preview stays rather than being overwritten: it shows one extra real feature and hiding it would gain nothing. This item is about the guard, not about that page."
-    },
-    {
-      "ref": "14.4",
-      "name": "Every Handbook build leaves the working tree dirty, and the stamp can never catch up",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 1,
-      "scoreReason": "internal only - it costs a session, never a user",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "npm run handbook regenerates design/CODE-SIZE.md, whose header records the commit it was measured at. It is step 3 of /startup, so every session on both machines starts by dirtying a tracked file the pre-commit hook then refuses to leave behind.",
-      "risk": "Nothing a user sees - a tax on every session. The file must be committed or discarded before anything else can be saved, and committing it is self-defeating: the commit changes master, which makes the stamp it just wrote stale. On 2026-09-22 that cost a commit, a pull request and a merge to land one changed hash with every count identical. The quiet failure is worse: a session committing the stamp unread can sweep an unrelated change in beside it.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-22 - hit twice in one session while running /startup and again after merging PR #110. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "scripts/build-handbook.js, which writes the stamp as part of the Handbook build; design/CODE-SIZE.md itself; step 3 of .claude/commands/startup.md, whose own warning box already tells every session to expect the dirty tree and put it to Mike; design/features/handbook.md.",
-      "note": "🔴 THE COUNTS ARE NOT THE PROBLEM - THE HASH IS. Every figure was byte-identical across both builds on 2026-09-22; only \"Measured at commit X\" moved. Cheapest honest fix: write the stamp only when a count changes, leaving the hash stale by design and the tree clean. Or stop the Handbook build touching the file and let npm run code-size own it, which the header says already runs on its own. ⚠ DO NOT gitignore the file or relax the pre-commit hook - the file is committed so the counts can be read without running anything, and the hook keeps stray changes out of commits.",
-      "comment": "2026-09-22 - filed on Mike's yes at the end of the session that hit it twice. Sibling of 14.3: both are about the Handbook build's side effects rather than the page it produces."
-    },
-    {
       "ref": "15.1",
       "name": "The strategy domain has thirteen materials and no session to run them in",
       "rankedByMike": false,
@@ -183,49 +120,6 @@
       "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
       "note": "NOT IN THIS BUILD - Mike's ruling 2026-09-16 - 'the ~100 Growth Aspect questions', on design/mockups/strategy-planner.html, where the reasoning is recorded in full. The coverage check ships on the nine names alone and still does its job: it shows WHERE a plan is thin. Source is his '9 Growth Aspect Questions hyperlinked.pdf' - about 100 questions across the nine aspects. growth-fundamentals.json already holds the nine names and descriptions, so this adds questions beneath an existing structure rather than inventing one. Under the hub-page rule the screen starts at the mentor tier ALONE: platform content, identical for every firm.",
       "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as the drawing's ruling on the ~100 Growth Aspect questions. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
-    },
-    {
-      "ref": "22.1",
-      "name": "Test suites collide on a shared dev file and block pushes at random",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A dev-file fallback writes and deletes one file while parallel Jest workers reach the same path, so one worker's delete lands as another opens it and Windows refuses. Proved in two separate stores, not one.",
-      "risk": "The pre-push hook runs the whole suite, so a push is blocked at random by a failure that has nothing to do with the code being pushed. Worse, once it is known as the flaky one, a REAL failure in the Wages Register gets waved through with a re-run.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-17 - hit while proving the concept index build. Failed once in three full runs and passed alone. Mike said yes to filing it."
-      },
-      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant) and the four suites reaching it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes, wagesRegisterContents.routes. AND server/utils/strategySessionStore.js with tests/unit/strategySessionStore.test.js, which already overrides DEV_FILE per process and collided anyway.",
-      "note": "🔴 CAUSE PROVED - DO NOT RE-INVESTIGATE IT. Parallel Jest workers reach one dev file and Windows refuses: wagesRegisterGate.test.js unlinks the shared path in afterEach while another worker writes it. The work is choosing between three ways out: an env override giving each worker its own path, a per-worker temp file, or running the suites serially. 🔴 SECOND INSTANCE 2026-09-22 - strategySessionStore.test.js, EPERM on its temp file, two blocked pushes in a row. IT ALREADY HAS THE ENV OVERRIDE, so option one did not prevent it and is weaker than it looks. INTERMITTENT: both pass alone and in full runs; only the push gate catches them. Retry once before investigating.",
-      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end. Widened 2026-09-22 on his yes from the four Wages Register suites to the pattern, when a second store hit it: the stage 6 build made setScope read before writing, which sits near the window without being its cause. 2026-09-23 - WAS 5.3, moved on Mike's instruction: this is the test suite and the push gate, which is The Working Agreement, page 22. 5.3 is spent. design/PAGE-NUMBERS.md."
-    },
-    {
-      "ref": "15.8",
-      "name": "Two unlicensed pictures print in clients' plans until Mike supplies replacements",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness - nobody sees it until a rights-holder does, and then it decides how bad the break is",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "activeOn": null,
-      "why": "The Digital Funnel Storyboard and Packaging/Bundling carry third-party pictures from Mike's decks - a stock illustration and a Cartwright & Butler product photograph. His decks are internal training material; the client's plan is not.",
-      "risk": "A client's plan carries the ADVISOR FIRM'S own logo, so a rights-holder would see a commercial firm redistributing their image under someone else's brand. Nobody gets asked at build time - the drawings are approved, so wiring them in looks like finishing approved work. The counter-risk is small: both pictures are decoration and the concept teaches from Mike's words either way.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-18 - found while drawing batch 5, when both images turned out to be third-party rather than Mike's own artwork. He ruled they stay and said yes to filing the licence question. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "design/mockups/strategy-concept-batch-5.html, the two sheets carrying the images; StrategyTeachingSlide.vue and StrategyPlanDocument.vue, where they would reach a client; design/ARTEFACTS.md, which records the question; and whoever cleared the Enneagram exclusion in PLANNING-TEMPLATE-CENSUS.md section 1.",
-      "note": "NO LICENCE, AND LIVE - Mike, 2026-09-24: \"i do not have a licence or permission for either.\" Both drawings were wired in on 2026-09-20 with the pictures embedded, so they print on the teaching slide and in the client's plan under the firm's logo. HELD ON HIS WORD, same day: \"hold for now - make a note to complete it as a task and i will find replacements.\" THE TASK: when he supplies the two replacements, swap them into design/mockups/strategy-concept-batch-5.html, rebuild with scripts/build-concept-graphics.js, record the change in design/ARTEFACTS.md. Removal alone was offered and held.",
-      "comment": "2026-09-18 - filed on his yes at shutdown, after a check that every fault found today had reached an ending. This one had not: it was recorded on the artefact and in ARTEFACTS.md, which is a line in a document rather than a task."
     },
     {
       "ref": "15.11",

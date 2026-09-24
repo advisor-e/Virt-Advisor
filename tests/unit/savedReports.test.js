@@ -16,9 +16,13 @@ jest.mock('../../server/utils/clientReportAccess', () => ({
   isOpen: jest.fn()
 }))
 
+// A temp file, never the developer's own data/ copy - set before the store loads (item 22.1).
+process.env.SAVED_REPORTS_DEV_FILE = require('path').join(require('os').tmpdir(), `va-test-report-saved-${process.pid}.json`)
+
 const overlay = require('../../server/utils/firmOverlay')
 const access = require('../../server/utils/clientReportAccess')
 const saved = require('../../server/utils/savedReports')
+const { removeFile } = require('../helpers/removeFile')
 
 const ADV = { name: 'Pat Advisor', email: 'pat@firm' }
 const CLIENT = { name: 'Big Bird Bakery', email: 'dev-client@local' }
@@ -161,7 +165,7 @@ describe('savedReports — reading', () => {
 describe('the no-database fallback — dev only, and never on a refusal', () => {
   const fs = require('fs')
   const path = require('path')
-  const DEV_PATH = path.resolve(process.cwd(), 'data/dev-client-report-saved.json')
+  const DEV_PATH = path.resolve(process.env.SAVED_REPORTS_DEV_FILE)
   const INPUTS = { revenue: 100, cost: 40 }
 
   function noServer () {
@@ -177,7 +181,7 @@ describe('the no-database fallback — dev only, and never on a refusal', () => 
     return e
   }
 
-  afterEach(() => { try { fs.unlinkSync(DEV_PATH) } catch (_e) { /* not written */ } })
+  afterEach(() => { try { removeFile(DEV_PATH) } catch (_e) { /* not written */ } })
 
   it('🔴 a read with no database answers "nothing saved" instead of throwing', async () => {
     overlay.loadFirmConfig.mockRejectedValue(noServer())

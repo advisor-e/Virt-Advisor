@@ -76,9 +76,12 @@ const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
  * the switch and the other two do. Every unit test mocks `firmOverlay`, so the real one was
  * never called and the fault was invisible to all 10,819 of them.
  *
+ * Overridable via WAGES_REGISTER_GATE_DEV_FILE so tests use a temp file rather than
+ * deleting a developer's own (item 22.1). Production never sets it.
+ *
  * @type {string}
  */
-const DEV_FILE = 'data/dev-wages-register.json'
+const DEV_FILE = process.env.WAGES_REGISTER_GATE_DEV_FILE || 'data/dev-wages-register.json'
 
 /**
  * The domain id in `data/domains.json` that opens condition 1. Not a label — the stored
