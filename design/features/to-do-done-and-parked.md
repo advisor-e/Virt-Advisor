@@ -353,6 +353,22 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**14.4 · Every Handbook build leaves the working tree dirty, and the stamp can never catch up.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**.
+
+- **Why it existed:** `npm run handbook` rewrote `design/CODE-SIZE.md` on every build, and its
+  "Measured … at commit …" line moved every time, so each startup on both machines left a
+  changed tracked file with every figure identical. It cost a commit, a PR and a merge on
+  2026-09-22, and three restores on 2026-09-25.
+- **The fix:** `writeRecord` in `scripts/count-code.js` compares the new record with the existing
+  one, stamp line and line endings aside, and writes only when a count has moved. The stamp now
+  says when the counts last changed. Not gitignored, and the pre-commit hook untouched, as the
+  item required. `countCode.test.js` pins both paths — identical counts under an older CRLF stamp
+  leave the file byte-identical; a changed count rewrites it with a fresh stamp.
+- **Proved:** the first build after the fix wrote a genuine change (120,795 → 121,023 lines); every
+  rebuild after that left the file untouched. The startup checklist's "working tree comes back
+  dirty" warning is replaced with one saying the file changes only when the size really moved.
+
 **15.8 · Two unlicensed pictures printed in clients' plans.**
 ✅ **Closed 2026-09-25 by Mike ("yes")**, with both pictures replaced.
 

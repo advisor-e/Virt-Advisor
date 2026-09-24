@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "14.4",
-      "name": "Every Handbook build leaves the working tree dirty, and the stamp can never catch up",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 1,
-      "scoreReason": "internal only - it costs a session, never a user",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "npm run handbook regenerates design/CODE-SIZE.md, whose header records the commit it was measured at. It is step 3 of /startup, so every session on both machines starts by dirtying a tracked file the pre-commit hook then refuses to leave behind.",
-      "risk": "Nothing a user sees - a tax on every session. The file must be committed or discarded before anything else can be saved, and committing it is self-defeating: the commit changes master, which makes the stamp it just wrote stale. On 2026-09-22 that cost a commit, a pull request and a merge to land one changed hash with every count identical. The quiet failure is worse: a session committing the stamp unread can sweep an unrelated change in beside it.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-22 - hit twice in one session while running /startup and again after merging PR #110. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "scripts/build-handbook.js, which writes the stamp as part of the Handbook build; design/CODE-SIZE.md itself; step 3 of .claude/commands/startup.md, whose own warning box already tells every session to expect the dirty tree and put it to Mike; design/features/handbook.md.",
-      "note": "🔴 THE COUNTS ARE NOT THE PROBLEM - THE HASH IS. Every figure was byte-identical across both builds on 2026-09-22; only \"Measured at commit X\" moved. Cheapest honest fix: write the stamp only when a count changes, leaving the hash stale by design and the tree clean. Or stop the Handbook build touching the file and let npm run code-size own it, which the header says already runs on its own. ⚠ DO NOT gitignore the file or relax the pre-commit hook - the file is committed so the counts can be read without running anything, and the hook keeps stray changes out of commits.",
-      "comment": "2026-09-22 - filed on Mike's yes at the end of the session that hit it twice. Sibling of 14.3: both are about the Handbook build's side effects rather than the page it produces."
-    },
-    {
       "ref": "15.1",
       "name": "The strategy domain has thirteen materials and no session to run them in",
       "rankedByMike": false,
