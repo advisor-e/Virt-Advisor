@@ -164,27 +164,6 @@
       "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
     },
     {
-      "ref": "16.1",
-      "name": "Primary buttons show the library's violet where the brand file says blue",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "it looks unfinished",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "BRAND-TOKENS.md names Blue #0070C0 as \"Primary interactive (buttons, sliders, links) on light\". Buefy ships its own violet #7957D5 and nuxt.config.js loads buefy.css unmodified, so every type=\"is-primary\" button renders violet.",
-      "risk": "One screen shows both at once and a client sees it. Measured on Run session 2026-09-21: the header button is #7957D5 while the stage rail and the Org Chart toolbar are #0070C0, because those two were written against the brand file and the buttons were not. It reads as a half-finished theme rather than a setting nobody chose, and the Strategy Planner is the screen an advisor runs in front of a client.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-21 - measured while building the Org Chart toolbar to its approved drawing, which specifies #0070C0. Filed on Mike's yes at shutdown rather than fixed inside that commit."
-      },
-      "touches": "84 files under components/ and pages/ use type=\"is-primary\"; the fix is one override of Buefy's  rather than 84 edits, so the work is choosing where that override lives and seeing the whole app recoloured before it ships. Two screens to eyeball afterwards: pages/strategy-planner.vue and components/sales/SalesBlog.vue.",
-      "note": "NOT A ONE-LINE FIX EVEN THOUGH THE CHANGE IS ONE LINE. Overriding Buefy's primary recolours every button in the app at once, so Mike sees it before it ships - which is why it was not folded into the 2026-09-21 commit. TWO THINGS ALREADY BRAND BLUE AND NOT TO BE CHANGED BACK: the stage rail's current segment, and the Org Chart Builder toolbar, which follows its approved drawing. SHARPEST INSTANCE: SalesBlog.vue 155 and 161 carry is-primary and is-info on two ADJACENT main actions, so Write the outline is violet and Write the article blue - a distinction that does not exist. Found 2026-09-22 by opening the page; the tests pass on it. Eyeball that pair after the override.",
-      "comment": "2026-09-21 - found by measuring three buttons on one screen, not by reading the code. Pre-existing and app-wide: it has been this way since Buefy was adopted, and BRAND-TOKENS.md post-dates it."
-    },
-    {
       "ref": "13.2",
       "name": "Conversion is per model, and no model states which currency its figures are in",
       "rankedByMike": false,

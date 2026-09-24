@@ -353,6 +353,24 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**16.1 · Primary buttons show the library's violet where the brand file says blue.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**, after seeing the Sales Blog before and after.
+
+- **Why it existed:** Buefy's shipped stylesheet carries its violet `#7957d5` in 233 places — 132
+  of them in rules with no "primary" in the name (ticks, switches, focus rings, active tabs) — so a
+  hand-written override could only ever half-recolour the app.
+- **The fix:** `assets/css/buefy-brand.scss` sets `$primary: #0070c0` and compiles Buefy's own
+  sources; `nuxt.config.js` loads the result, `assets/css/buefy-brand.css`, instead of
+  `buefy/dist/buefy.css`. Rebuilt with `npm run brand-css`. `sass` 1.32.13 added as a pinned
+  dev-only tool, installed with npm 8.19.4 on Node 14.15; `check:engines` 0 offenders and the
+  audit gate unchanged.
+- **Proved:** built with no colour change, the pipeline reproduced Buefy's shipped file rule for
+  rule — 4,033 rules, identical selectors and properties. The brand build holds 0 violet and 232
+  brand-blue values, and is smaller (47 KB gzipped against 50). In the running build, *Write the
+  outline* on the Sales Blog measured `rgb(121,87,213)` before and `rgb(0,112,192)` after.
+- **Not walked:** the Strategy Planner's *Run session* header button, which needs a built session
+  to reach; it carries the same `is-primary` style. `is-info` (Bulma's lighter blue) is unchanged.
+
 **14.4 · Every Handbook build leaves the working tree dirty, and the stamp can never catch up.**
 ✅ **Closed 2026-09-25 by Mike ("yes - done")**.
 
