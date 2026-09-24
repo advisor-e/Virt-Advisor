@@ -15,6 +15,14 @@ $primary: #0070c0;
 
 @import "bulma/sass/utilities/functions";
 @import "bulma/sass/utilities/initial-variables";
+
+// Buefy's variables derive these three from its violet written out literally —
+// `findLightColor(#7957d5)`, not from $primary — so without them the "light" buttons and tags,
+// and the primary-dark/-light text colours, stayed pale violet. Derived from the brand blue here.
+$primary-invert: findColorInvert($primary);
+$primary-light: findLightColor($primary);
+$primary-dark: findDarkColor($primary);
+
 @import "buefy/src/scss/utils/_all";
 @import "bulma/bulma";
 @import "buefy/src/scss/utils/variables-ext";
