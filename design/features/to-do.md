@@ -38,7 +38,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 1 | **14.4** Every Handbook build leaves the working tree dirty, and the stamp can never catch up ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 2 | **15.1** The strategy domain has thirteen materials and no session to run them in ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-16 |
 | 3 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 4 | **15.8** Two unlicensed pictures print in clients' plans until Mike supplies replacements ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 4 | **15.8** One unlicensed picture, the biscuit tin, prints in clients' plans until Mike supplies a replacement ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 5 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 6 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 7 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
