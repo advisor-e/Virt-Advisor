@@ -1,4 +1,4 @@
-# Business Owner Expectations — the wording (item 5.3)
+# Business Owner Expectations — the wording (item 5.4)
 
 > ✅ **APPROVED BY MIKE, 2026-09-24 — every line below, exactly as it stands.** Every row and column label on the two steps is copied from
 > `design/report-source-models/BO Expectations.xlsx` exactly as the workbook writes it — including

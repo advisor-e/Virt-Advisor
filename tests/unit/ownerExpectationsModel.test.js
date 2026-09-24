@@ -9,7 +9,7 @@ const {
 } = require('../../server/report/ownerExpectationsModel')
 
 /**
- * GOLDEN TEST — Business Owner Expectations and Business Development Stages (item 5.3).
+ * GOLDEN TEST — Business Owner Expectations and Business Development Stages (item 5.4).
  *
  * Every expected number is the source workbook's OWN cached value, read out of
  * `design/report-source-models/BO Expectations.xlsx`, with the cell beside it so any

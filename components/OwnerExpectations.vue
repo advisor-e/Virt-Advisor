@@ -320,7 +320,7 @@ function blankStages (firstHours) {
 
 /**
  * OwnerExpectations — Business Owner Expectations and Business Development Stages
- * (Growth · Decision class). Item 5.3.
+ * (Growth · Decision class). Item 5.4.
  *
  * EACH OWNER'S OWN TASKS, SAVED AGAINST THE CLIENT — Mike's ruling, 2026-09-24. Every owner
  * starts from the starting list cascaded down the tiers (the hub's Owner Focus Tasks tab) and
@@ -474,7 +474,7 @@ export default {
 
   methods: {
     /**
-     * The starting task list this firm has inherited down the tiers (item 5.3), read from the
+     * The starting task list this firm has inherited down the tiers (item 5.4), read from the
      * authenticated endpoint — the Multiple Property tax-rules pattern. Never blocks the screen:
      * a failed read keeps the workbook's list and says so.
      */

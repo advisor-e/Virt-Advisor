@@ -1368,7 +1368,7 @@ function retirementReview (req, res, next) {
  * POST /api/report/owner-expectations
  *
  * @param {object} req.body - partial `DEFAULT_INPUTS` of the owner expectations model
- *   (item 5.3). Each group that is absent falls back to the workbook's own sample:
+ *   (item 5.4). Each group that is absent falls back to the workbook's own sample:
  *   `years` (the four column years), `owners` (up to six — incomes now and at three
  *   stages, hours and leave per stage, and the ten-duty split now and as a focus),
  *   `development` (per stage: owners, cost of sales, sales and promotion, fixed costs,

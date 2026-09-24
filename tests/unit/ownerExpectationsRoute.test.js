@@ -6,7 +6,7 @@ const util = require('util')
 const { ownerExpectations } = require('../../server/routes/report')
 
 /**
- * Route test — POST /api/report/owner-expectations (item 5.3).
+ * Route test — POST /api/report/owner-expectations (item 5.4).
  *
  * The maths is golden-tested against the workbook in ownerExpectationsModel.test.js; this
  * suite proves the HTTP layer only: the envelope, the safe failure shape, that the route is

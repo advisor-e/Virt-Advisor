@@ -71,7 +71,7 @@ section.fot
 <script>
 /**
  * FirmOwnerFocusTasks — the starting list of Focus Tasks/Duties this tier hands down to every
- * owner on the Business Owner Expectations model. Item 5.3.
+ * owner on the Business Owner Expectations model. Item 5.4.
  *
  * 🔴 ALL FOUR MANAGING TIERS — Mike's own words, 2026-09-24: the list "cascades down from mentor
  * thru the levels to firm manager". One screen serves all four; the tier comes from the token.

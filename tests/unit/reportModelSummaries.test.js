@@ -179,7 +179,7 @@ describe('every summary carries what an advisor needs before being sent to a mod
     // Eleven since 2026-09-14: the Wages/Salary Review (5.1) reads itself — the season
     // table IS the finding (the same team loses money in a wet month and makes 52,270 in a
     // dry one), and the tightest month is named in the headline with its own margin.
-    // Twelve since 2026-09-24: Business Owner Expectations (5.3) reads itself — its stages
+    // Twelve since 2026-09-24: Business Owner Expectations (5.4) reads itself — its stages
     // table IS the finding, the owners' income standing as the net profit with the revenue
     // each stage needs worked out above it.
     expect(bullet).toMatch(/\*\*Twelve\*\*|\bTwelve\b/)

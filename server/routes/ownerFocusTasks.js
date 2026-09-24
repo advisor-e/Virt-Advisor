@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * @file Routes for the Owner Focus Tasks starting list (item 5.3).
+ * @file Routes for the Owner Focus Tasks starting list (item 5.4).
  * @module server/routes/ownerFocusTasks
  *
  * The READ is open to any signed-in user — every advisor opening Business Owner Expectations

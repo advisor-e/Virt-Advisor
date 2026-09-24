@@ -278,7 +278,7 @@ visual-screenshots/
 # design/SCENARIO-LAB-REPORT.md and that IS committed.
 design/SCENARIO-LAB-REPORT-partial.md
 
-# Dev-only Owner Focus Tasks starting lists (item 5.3). Keyed by SCOPE, ignored for the
+# Dev-only Owner Focus Tasks starting lists (item 5.4). Keyed by SCOPE, ignored for the
 # same reason as the tax rules above. The PLATFORM list is data/owner-focus-tasks.json and
 # IS committed.
 data/dev-owner-focus-tasks.json

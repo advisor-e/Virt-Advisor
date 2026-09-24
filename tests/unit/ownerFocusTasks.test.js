@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * The Owner Focus Tasks starting list, and the ladder it comes down (item 5.3).
+ * The Owner Focus Tasks starting list, and the ladder it comes down (item 5.4).
  *
  * What these guard — none of it wording, all of it invisible in UAT because every state
  * renders as a plausible list:

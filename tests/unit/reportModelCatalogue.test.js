@@ -160,7 +160,7 @@ describe('report model catalogue', () => {
       // MODEL-CLASSIFICATION.md — how the data arrives. Nothing here comes from an accounts
       // export: a client's team, rates, hiring plan and twelve actuals are all typed by the
       // advisor across four steps. No file intake, and no Illustrative badge.
-      // Business Owner Expectations (5.3, built 2026-09-24) is the seventh: the owners' real
+      // Business Owner Expectations (5.4, built 2026-09-24) is the seventh: the owners' real
       // incomes, hours and plans, and the business's costs at each stage, all typed. No file
       // intake, and no Illustrative badge.
       const DECISION_BUILDS = [

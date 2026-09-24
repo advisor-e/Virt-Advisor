@@ -6,7 +6,7 @@ report-shell
 <script>
 /**
  * /owner-expectations page — Business Owner Expectations and Business Development Stages
- * (item 5.3).
+ * (item 5.4).
  *
  * Thin by design: the frame, the palette and the layout numbers come from the shared
  * `ReportShell`, and the header, the two step chips and both steps live in the one screen

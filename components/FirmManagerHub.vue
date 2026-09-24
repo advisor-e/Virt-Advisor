@@ -282,7 +282,7 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('sessionProcess')" v-show="activeTab === 'sessionProcess'")
         firm-session-process(:api-token="apiToken")
 
-      //- ── Tab: Owner Focus Tasks (item 5.3) ──────────────────────────────
+      //- ── Tab: Owner Focus Tasks (item 5.4) ──────────────────────────────
       //- The starting list of tasks every owner begins with on Business Owner
       //- Expectations. All four managing tiers, in Mike's words — see TAB_TIERS.
       div.hub-panel(v-if="showsTab('ownerFocusTasks')" v-show="activeTab === 'ownerFocusTasks'")
@@ -1662,7 +1662,7 @@ const NAV_GROUPS = [
       // reader can still tell which currency a report is in. Moving it outright would
       // have removed that cue. Firm tier; see TAB_TIERS.currency.
       { key: 'currency', i18n: 'firmCurrency.tab' },
-      // Item 5.3 (Mike, 2026-09-24). The starting tasks every owner begins with on Business
+      // Item 5.4 (Mike, 2026-09-24). The starting tasks every owner begins with on Business
       // Owner Expectations — a model input, so it sits under this heading. Appended at the
       // end, as every line above it was. All four tiers; see TAB_TIERS.ownerFocusTasks.
       { key: 'ownerFocusTasks', i18n: 'ownerFocusTasks.tab' }

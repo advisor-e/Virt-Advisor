@@ -77,7 +77,7 @@ scrubbing** — nothing real enters them.
 | **Cost of Capital (WACC)** ✅ | Owner call: real debt/equity/rates entered, not read from the balance sheet |
 | **Retirement Review** ✅ | Owner call: the owner's real position, entered. **Sensitive personal data**, though not from the business accounts |
 | **Wages/Salary Review** ✅ | A client's team, rates, hiring plan and twelve actuals, all typed across four steps — nothing comes from an accounts export. Item 5.1 |
-| **Business Owner Expectations** ✅ | The owners' real incomes, hours and plans, and the business's costs at each stage — all typed. Item 5.3 |
+| **Business Owner Expectations** ✅ | The owners' real incomes, hours and plans, and the business's costs at each stage — all typed. Item 5.4 |
 
 ### Report (9) — real client numbers from the accounts, needs file intake + privacy
 

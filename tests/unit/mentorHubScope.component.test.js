@@ -484,7 +484,7 @@ describe('the hub menu — the sidebar itself', () => {
     // personal data, not a figure any model reads. Appended once more.
     //
     // ⚠ AND 25 ON 2026-09-24, when Owner Focus Tasks joined the END of "Model Inputs" (item
-    // 5.3 — all four tiers in Mike's own words). Appended, so the index assertions still hold.
+    // 5.4 — all four tiers in Mike's own words). Appended, so the index assertions still hold.
     expect(tabLabels(wrapper)).toHaveLength(25)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
@@ -611,7 +611,7 @@ describe('the hub menu — the sidebar itself', () => {
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
     ])
     // ⚠ AND 21 ON 2026-09-24: Owner Focus Tasks, appended to the END of "Model Inputs" (item
-    // 5.3), on all four tiers in Mike's own words.
+    // 5.4), on all four tiers in Mike's own words.
     expect(tabLabels(wrapper)).toHaveLength(21)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')

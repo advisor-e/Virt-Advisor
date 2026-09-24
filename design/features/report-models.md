@@ -1423,7 +1423,7 @@ were the two it did not), and step 3's six expanding property cards had **no exp
 close control at all**. Mike found the second himself. It is now the list-and-one-open shape he
 approved on Multiple Property on 2026-08-21, so the two property reports behave identically.
 
-### Business Owner Expectations (5.3, built 2026-09-24)
+### Business Owner Expectations (5.4, built 2026-09-24)
 
 Mike's own planning workbook, [`../report-source-models/BO Expectations.xlsx`](../report-source-models/BO%20Expectations.xlsx)
 — the first two items on his Business Targets agenda. **`CLASS_DECISION`, never badged

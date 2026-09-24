@@ -111,7 +111,7 @@ const MENTOR_BEFORE = [
  *   against it, and the reason is printed on the drawing: a firm's planning method is exactly
  *   what one firm does differently from another. ⚠ The ADVISOR is not a tier here: he edits the
  *   session in front of one client, and his changes never become the firm's standard.
- * - `ownerFocusTasks` — Mike, 2026-09-24 (item 5.3), in his own words: the starting tasks
+ * - `ownerFocusTasks` — Mike, 2026-09-24 (item 5.4), in his own words: the starting tasks
  *   *"cascade down from mentor thru the levels to firm manager"*. All four managing tiers, the
  *   Session Processes shape. ⚠ Each owner's own tasks are edited on the model and saved against
  *   the client; nothing typed there reaches this tab.
@@ -358,7 +358,7 @@ describe('hub tab matrix — the two new tiers', () => {
     // reasoning is beside FIRM_ADDED_SINCE). The middle tiers gain it for the same reason
     // the firm does: a brand or a country holds a records policy, unlike a currency.
     //
-    // ⚠ SIXTEEN AND TWENTY-TWO SINCE 2026-09-24: `ownerFocusTasks` (item 5.3) is on all four
+    // ⚠ SIXTEEN AND TWENTY-TWO SINCE 2026-09-24: `ownerFocusTasks` (item 5.4) is on all four
     // tiers in Mike's own words — the starting tasks "cascade down from mentor thru the levels
     // to firm manager". The reasoning is beside FIRM_ADDED_SINCE.
     expect(conditional).toHaveLength(16)

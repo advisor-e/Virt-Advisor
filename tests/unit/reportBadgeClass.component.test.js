@@ -58,7 +58,7 @@ const RENDERED_BY = {
   // lands on it.
   '/sales-dashboard': { component: 'components/SalesDashboard.vue' },
   '/retirement-review': { component: 'components/RetirementReview.vue' },
-  // Business Owner Expectations (5.3): one component, header above its own two step chips.
+  // Business Owner Expectations (5.4): one component, header above its own two step chips.
   // Decision class — a client's real owners and incomes — so no "Illustrative" badge.
   '/owner-expectations': { component: 'components/OwnerExpectations.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.

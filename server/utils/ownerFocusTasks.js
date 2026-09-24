@@ -5,7 +5,7 @@
  *   Owner Expectations model — written by a tier, inherited by every tier beneath.
  * @module server/utils/ownerFocusTasks
  *
- * Item 5.3. Mike's ruling, 2026-09-24: *"each owner may do different tasks - they all start
+ * Item 5.4. Mike's ruling, 2026-09-24: *"each owner may do different tasks - they all start
  * with the same (as it cascades down from mentor thru the levels to firm manager and now -
  * client/entity level) - BUT each owner may record different tasks"*.
  *

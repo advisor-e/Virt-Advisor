@@ -123,7 +123,7 @@ const SCREENS = [
   // way, and Quick Position and the Volatility Report are the same Report-class precedent.
   { name: 'Sales Dashboard', component: SalesDashboard, result: () => computeSalesDashboard(SD_DEFAULTS) },
   { name: 'Retirement Review', component: RetirementReview, result: () => computeRetirementReview() },
-  // Business Owner Expectations (5.3). Opens on the workbook's sample with a SampleNotice.
+  // Business Owner Expectations (5.4). Opens on the workbook's sample with a SampleNotice.
   { name: 'Business Owner Expectations', component: OwnerExpectations, result: () => computeOwnerExpectationsModel() },
   // The Wages/Salary Review (5.1). Its four input steps live on the page, not here —
   // this is the report alone, which is the screen with a headline to keep consistent.

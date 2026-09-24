@@ -1090,7 +1090,7 @@ server.get('/api/strategy/session-process/cards', firmAuth, requireManagerRole, 
 server.get('/api/strategy/session-process/versions', firmAuth, requireManagerRole, strategyPlannerRoute.getSessionProcessVersions)
 server.post('/api/strategy/session-process/versions/:id/restore', firmAuth, requireManagerRole, strategyPlannerRoute.restoreSessionProcessVersion)
 
-// The Owner Focus Tasks starting list (item 5.3) — the Session Processes split. READ open to
+// The Owner Focus Tasks starting list (item 5.4) — the Session Processes split. READ open to
 // any signed-in user: every advisor, and a client of the firm, opening Business Owner
 // Expectations starts a new owner on it. WRITES are the four managing tiers only; the tier
 // written is `req.firmId`, from the verified token.

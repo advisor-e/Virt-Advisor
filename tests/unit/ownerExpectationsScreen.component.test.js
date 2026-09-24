@@ -16,7 +16,7 @@ const {
 const { validateInputs } = require('~/server/utils/savedReports')
 
 /**
- * Screen test — Business Owner Expectations (item 5.3).
+ * Screen test — Business Owner Expectations (item 5.4).
  *
  * Pins the SEAMS, none of which a person in UAT can see:
  *   - what the screen sends to the model (a split sent as 10 instead of 0.10 looks plausible);

@@ -7,7 +7,7 @@ const { mountWithBuefy } = require('../helpers/mountComponent')
 const FirmOwnerFocusTasks = require('~/components/firm/FirmOwnerFocusTasks.vue').default
 
 /**
- * The Owner Focus Tasks hub tab (item 5.3). Pins what it SENDS and what it refuses to leave
+ * The Owner Focus Tasks hub tab (item 5.4). Pins what it SENDS and what it refuses to leave
  * a manager holding — an empty starting list would start every owner with nothing — and that
  * an inherited list is never presented as this tier's own. No wording, no CSS.
  */

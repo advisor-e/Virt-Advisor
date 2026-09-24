@@ -1,7 +1,7 @@
 /**
  * Business Owner Expectations and Business Development Stages — the maths model.
  *
- * Source workbook: `design/report-source-models/BO Expectations.xlsx` (item 5.3).
+ * Source workbook: `design/report-source-models/BO Expectations.xlsx` (item 5.4).
  * Mike's own planning workbook: the first two items on his Business Targets agenda.
  * Three of its four sheets are ported here as pure compute functions; the fourth,
  * "Key Sheet", is a list of merge-field names and holds no calculation.
