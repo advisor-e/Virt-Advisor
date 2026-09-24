@@ -76,48 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "7.10",
-      "name": "A page's templates are hidden behind whichever won the ID",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A page often holds several templates, so 220 client tools sit on 205 pages. One shared profile per page is correct, but the registry keeps only the last template on each page, hiding the other 15 from anything reading it.",
-      "risk": "Nothing scores wrongly and no advice is withheld: the resolver filters the full 220-row array and never keys by page, so every tool competes. The loss is visibility - a profile screen, an audit or a count reading the registry sees 205 titles and cannot name the 15 tools sharing those pages, so a mentor editing a page's profile is not told which tools it governs.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-16 - told us the relationship is one-to-many by design, 'a single page will contain multiple templates which is why this occurs', and said to save it as a job and move around it."
-      },
-      "touches": "server/utils/templateRegistry.js, the page-to-entry Map that keeps one template per page; scripts/build-semantic-profiles.js, which writes one row per page and names only the winner; US9's template-profile screen in 7.2, which must list every template on a page.",
-      "note": "THE SHARED PROFILE IS RIGHT AND MUST NOT BE 'FIXED' - Mike ruled 2026-09-16 that templates on one page SHARE one AI profile, because an advisor opening that page gets them all. This is not a rekey. What is missing is the many half: the registry should carry every template on a page, so a screen can show that this profile governs both Working Capital Cycle and Activity Ratios. Collisions grew 10 to 14 between the 25 June and 30 July exports, so more tools hide as the library grows. NEVER EDIT THE IDS - CLAUDE.md.",
-      "comment": "2026-09-16 - found while running T060a for 7.2 US9; the compiler appeared to discover six new tools that were only collision winners changing places. Filed first as a keying defect, then corrected twice by Mike: the one-to-many page relationship is by design, and one shared profile per page is the behaviour he wants. RENUMBERED 7.5 to 7.10 on Mike's ruling of 2026-09-16: the laptop had taken 7.5 the same day for the model-choice record, and a number is spent for good once used."
-    },
-    {
-      "ref": "14.3",
-      "name": "A working-tree Handbook preview can be published over the shared link",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "npm run handbook --working-tree builds a preview of one machine's uncommitted branch. Nothing stops that file being published to the shared URL, so the page Mike opens can show one division's work in progress instead of the agreed origin/master build.",
-      "risk": "The page stops being the same for both machines, which is the one guarantee item 4.85 was built to give. A reader cannot tell a preview from the shared page without noticing the banner, and features present on the OTHER branch vanish from the index while it is live. Nothing is lost from git - the Briefs stay committed on their own branch - but the front door silently describes a state neither master nor the other machine is in.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-17 - found at desktop shutdown when a publish was refused: the live Handbook was a laptop working-tree preview, 47 pages, its own banner reading \"a preview, not the shared page\". Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "scripts/build-handbook.js --working-tree and its WORKING_TREE banner, which are correct and stay; the publish step of .claude/commands/startup.md, which is where the guard belongs because the script cannot know where its output is sent; design/features/handbook.md.",
-      "note": "THE FLAG IS NOT THE FAULT AND MUST NOT BE REMOVED - a preview of your own branch is useful and it labels itself honestly. The gap is that nothing refuses to PUBLISH one to the shared URL. Cheapest honest fix: the publish step reads the built file's banner and refuses when it says working tree. Checked 2026-09-17: the only page that differed was strategy-planner, committed and pushed on feat/advisor-progress, so nothing was at risk - it appears on the shared page the day that branch reaches master.",
-      "comment": "2026-09-17 - Mike ruled the live preview stays rather than being overwritten: it shows one extra real feature and hiding it would gain nothing. This item is about the guard, not about that page."
-    },
-    {
       "ref": "14.4",
       "name": "Every Handbook build leaves the working tree dirty, and the stamp can never catch up",
       "rankedByMike": false,

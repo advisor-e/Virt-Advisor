@@ -5,15 +5,15 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-24 at commit `59c4198f`.**
+> **Measured 2026-09-25 at commit `5604d413`.**
 
-**Working code: 121,023 lines** across 590 files — blank lines and
+**Working code: 121,090 lines** across 590 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
-| Screens and components (`components`) | 225 | 61,775 | 19,842 |
-| The Restify backend (`server`) | 256 | 51,891 | 38,309 |
+| Screens and components (`components`) | 225 | 61,789 | 19,850 |
+| The Restify backend (`server`) | 256 | 51,944 | 38,360 |
 | Pages (`pages`) | 51 | 3,126 | 2,214 |
 | Front-end helpers (`utils`) | 34 | 2,456 | 2,197 |
 | Mixins (`mixins`) | 12 | 1,221 | 486 |
@@ -22,17 +22,17 @@ comment lines stripped; tests, design documents, data, scripts and locale string
 | Nuxt configuration (`nuxt.config.js`) | 1 | 97 | 138 |
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **590** | **121,023** | **63,523** |
+| **Total working code** | **590** | **121,090** | **63,582** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
-| JavaScript | 313 | 56,335 |
-| Vue screens and components | 277 | 64,688 |
+| JavaScript | 313 | 56,388 |
+| Vue screens and components | 277 | 64,702 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 63,523 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 639 files, 112,717 lines of test code.
+- **Comments and documentation** inside those same files: 63,582 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 639 files, 112,842 lines of test code.
 - **Locale strings**: 7,208 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 

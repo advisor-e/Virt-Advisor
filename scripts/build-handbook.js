@@ -27,7 +27,8 @@
  *
  * Run:  npm run handbook                   (content from origin/master, to the OS temp directory)
  *       npm run handbook -- <path>         (writes where you say)
- *       npm run handbook -- --working-tree (content from this folder — a preview of unmerged pages)
+ *       npm run handbook -- --working-tree (content from this folder — a preview of unmerged pages,
+ *                                           written to its own file so it is never published)
  *
  * THE CONTENT COMES FROM origin/master, NOT THIS FOLDER (item 4.85, 2026-09-10).
  * Two machines each published their own branch to the one shared page, so the last
@@ -86,6 +87,18 @@ const DEFAULT_SOURCE = 'origin/master'
 const WORKING_TREE = 'working-tree'
 
 const DEFAULT_OUT = path.join(os.tmpdir(), 'advisor-e-handbook.html')
+const PREVIEW_OUT = path.join(os.tmpdir(), 'advisor-e-handbook-PREVIEW.html')
+
+/**
+ * A preview never lands in the file /startup publishes (item 14.3). Sharing one path
+ * meant a leftover preview could go out over the shared link, which must only ever
+ * carry the origin/master build.
+ * @param {string} source  'working-tree' or a git ref
+ * @returns {string} the default output path for that source
+ */
+function defaultOutFor (source) {
+  return source === WORKING_TREE ? PREVIEW_OUT : DEFAULT_OUT
+}
 
 const MarkdownIt = require(path.join(ROOT, 'node_modules', 'markdown-it'))
 const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
@@ -697,8 +710,9 @@ if (require.main === module) {
   const args = process.argv.slice(2)
   const fromWorkingTree = args.indexOf('--working-tree') !== -1
   const outArg = args.filter(arg => arg !== '--working-tree')[0]
-  const outPath = outArg ? path.resolve(outArg) : DEFAULT_OUT
-  const result = build(outPath, { source: fromWorkingTree ? WORKING_TREE : DEFAULT_SOURCE })
+  const source = fromWorkingTree ? WORKING_TREE : DEFAULT_SOURCE
+  const outPath = outArg ? path.resolve(outArg) : defaultOutFor(source)
+  const result = build(outPath, { source })
 
   const gated = result.pages.filter(page => page.companion).length
   const navCount = result.groups.reduce((total, group) => total + group.items.length, 0)
@@ -721,7 +735,9 @@ if (require.main === module) {
   }
 
   console.log('')
-  console.log('  Next: publish this file as an Artifact, updating the EXISTING handbook URL.')
+  console.log(result.source === WORKING_TREE
+    ? '  PREVIEW — never publish this to the shared Handbook link.'
+    : '  Next: publish this file as an Artifact, updating the EXISTING handbook URL.')
   console.log('')
 }
 
@@ -737,6 +753,7 @@ module.exports = {
   contentSource,
   provenance,
   PLACEHOLDERS,
+  defaultOutFor,
   DEFAULT_SOURCE,
   WORKING_TREE
 }

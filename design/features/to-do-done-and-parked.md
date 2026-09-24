@@ -353,6 +353,32 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**14.3 · A working-tree Handbook preview can be published over the shared link.**
+✅ **Closed 2026-09-25 by Mike ("yes")**, the day the guard was built.
+
+- **Why it existed:** a preview and the shared build wrote to the same temp file, and `/startup`
+  publishes that file — so a leftover preview could go out over the shared link, as one did on
+  2026-09-17.
+- **What proves it:** `npm run handbook -- --working-tree` now writes
+  `advisor-e-handbook-PREVIEW.html` and ends *"PREVIEW — never publish this to the shared
+  Handbook link."* (`defaultOutFor` in `scripts/build-handbook.js`). Seen on a real run, and
+  `tests/unit/buildHandbook.test.js` fails if the two builds ever share a file again. The
+  `--working-tree` flag and its banner are unchanged.
+
+**7.10 · A page's templates are hidden behind whichever won the ID.**
+✅ **Closed 2026-09-25 by Mike ("yes")**, when the code showed its harm was already fixed.
+
+- **Why it existed:** `templateRegistry.js` keys by page and keeps one template per page, so
+  anything reading it could not name the 15 client tools sharing a page with another — and a
+  mentor editing a page's profile would not be told which tools it governs.
+- **What proves it:** the profile screen built under 7.2 US9 never reads the registry for its
+  tool list. `listTemplateProfiles` (`server/utils/semanticProfiles.js`) reads the library
+  itself, so every row names all the tools on its page ("Also on this page"), and
+  `tests/unit/semanticProfiles.test.js` fails if any of the 220 goes missing or the screen is
+  put back onto the registry. Advice was never affected.
+- **Left as it is, by his yes:** the registry and the compiled profiles file still name one tool
+  per page. Nothing a person sees reads that name, so changing it would gain nothing measurable.
+
 **15.11 · Five concepts keep their fill-in table on a slide nobody has drawn.**
 ✅ **Closed 2026-09-24 by Mike ("done")**, after seeing the tables on the running screen.
 

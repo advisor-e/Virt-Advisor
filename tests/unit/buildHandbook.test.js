@@ -430,6 +430,13 @@ describe('the Handbook', () => {
         .toThrow(/cannot resolve git ref/)
     })
 
+    // Item 14.3: /startup publishes the default file to the shared link, so a preview
+    // sharing that path could go out in place of the master build.
+    it('a preview never writes to the file the shared build publishes', () => {
+      expect(builder.defaultOutFor(builder.WORKING_TREE))
+        .not.toBe(builder.defaultOutFor(builder.DEFAULT_SOURCE))
+    })
+
     it('the working-tree build says it is a preview', () => {
       expect(result.source).toBe(builder.WORKING_TREE)
       expect(result.built.hash).toBeNull()
