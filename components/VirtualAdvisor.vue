@@ -501,6 +501,7 @@
   .input-area(v-if="mode && !PANEL_MODES.includes(mode)")
 
     //- Voice status bar
+    speech-status-line(:state="speechState")
     .voice-bar(v-if="speechSupported")
 
       //- State 1: Idle
@@ -614,6 +615,7 @@
       button.profile-modal-close(@click="profileOpen = false") ✕
 
     .profile-modal-body
+        speech-status-line(:state="speechState")
         .profile-q(
           v-for="(q, index) in profileQuestions"
           :key="q.field"
@@ -770,6 +772,7 @@
                 span.review-share-dot
                 span {{ $t('outcomeConsent.advisorNotice') }}
 
+              speech-status-line(:state="speechState")
               .review-field
                 label.review-label {{ $t('advisor.review.wentLess') }}
                 .review-voice-bar(v-if="speechSupported")
@@ -893,6 +896,7 @@ import { listClients, createClient, filterClientRegister } from '~/utils/clients
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import { suggestIndustries } from '~/utils/industrySuggestions'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
 import staircaseMixin from '~/mixins/staircaseMixin'
@@ -929,6 +933,7 @@ const PANEL_MODES = ['course', 'progression']
 
 export default {
   name: 'VirtualAdvisor',
+  components: { SpeechStatusLine },
   mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin, traceReasonMixin, moderationMessage],
 
   props: {

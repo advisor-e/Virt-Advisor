@@ -11,6 +11,9 @@
 
 import mixin, { BCP47_MAP } from '../../mixins/collaborate/speechMixin'
 
+/** Lets the mixin's own availability check (a promise) settle. */
+const flush = () => new Promise(resolve => setImmediate(resolve))
+
 function makeRecognition () {
   return { start: jest.fn(), stop: jest.fn(), continuous: false, interimResults: false, lang: '' }
 }
@@ -41,6 +44,7 @@ describe('data', () => {
     expect(mixin.data()).toEqual({
       isListening: false,
       speechSupported: false,
+      speechState: 'none',
       recognition: null,
       profileRecordingField: null,
       reviewRecordingField: null,
@@ -142,8 +146,9 @@ describe('_startRecognition', () => {
 describe('mounted() wiring', () => {
   afterEach(() => { delete global.window })
 
-  test('wires recognition and routes transcripts to the right target', () => {
+  test('wires recognition and routes transcripts to the right target', async () => {
     function FakeSR () { this.start = jest.fn(); this.stop = jest.fn() }
+    FakeSR.available = () => Promise.resolve('available')
     global.window = { SpeechRecognition: FakeSR }
 
     const c = {
@@ -154,9 +159,11 @@ inputText: '',
       profileRecordingField: null,
 reviewRecordingField: null,
 isListening: false,
-      $set: (obj, k, v) => { obj[k] = v }
+      $set: (obj, k, v) => { obj[k] = v },
+      _checkSpeechOnDevice: mixin.methods._checkSpeechOnDevice
     }
     mixin.mounted.call(c)
+    await flush()
 
     expect(c.speechSupported).toBe(true)
     expect(c.recognition.lang).toBe('de-DE')
@@ -223,7 +230,7 @@ isListening: false,
     function FakeSR () { this.start = jest.fn(); this.stop = jest.fn(); this.abort = jest.fn() }
     global.window = { SpeechRecognition: FakeSR }
 
-    const c = { $i18n: { locale: 'en' }, $set: () => {}, isListening: true, voiceField: 'reply' }
+    const c = { $i18n: { locale: 'en' }, $set: () => {}, isListening: true, voiceField: 'reply', _checkSpeechOnDevice: mixin.methods._checkSpeechOnDevice }
     mixin.mounted.call(c)
     const late = c.recognition.onend
 
@@ -245,9 +252,87 @@ isListening: false,
   test('defaults the recognition language to en-US for an unmapped locale', () => {
     function FakeSR () { this.start = jest.fn(); this.stop = jest.fn() }
     global.window = { webkitSpeechRecognition: FakeSR }
-    const c = { $i18n: { locale: 'xx' }, $set: () => {} }
+    const c = { $i18n: { locale: 'xx' }, $set: () => {}, _checkSpeechOnDevice: mixin.methods._checkSpeechOnDevice }
     mixin.mounted.call(c)
     expect(c.recognition.lang).toBe('en-US')
+  })
+
+  // 🔴 ITEM 12.2 — nothing said on these five screens may leave the computer. In Chrome the
+  // recogniser sends audio to Google unless processLocally is on, and a language Chrome cannot
+  // do locally must switch the microphone OFF (Mike's ruling D1, 2026-09-24), never fall back.
+  describe('on-device only (item 12.2)', () => {
+    function makeCtx (SR) {
+      global.window = { SpeechRecognition: SR }
+      const c = {
+        $i18n: { locale: 'en' },
+        $set: () => {},
+        isListening: false,
+        profileRecordingField: null,
+        reviewRecordingField: null,
+        voiceField: null,
+        inputText: ''
+      }
+      Object.keys(mixin.methods).forEach((k) => { c[k] = mixin.methods[k] })
+      mixin.mounted.call(c)
+      return c
+    }
+
+    test('every recogniser is created with processLocally on', () => {
+      function FakeSR () { this.start = jest.fn() }
+      FakeSR.available = () => Promise.resolve('available')
+      expect(makeCtx(FakeSR).recognition.processLocally).toBe(true)
+    })
+
+    test('a language Chrome cannot do locally: microphone off, and a tap never starts it', async () => {
+      function FakeSR () { this.start = jest.fn() }
+      FakeSR.available = () => Promise.resolve('unavailable')
+      const c = makeCtx(FakeSR)
+      await flush()
+      expect(c.speechSupported).toBe(false)
+      expect(c.speechState).toBe('unavailable')
+      c.toggleListening()
+      expect(c.recognition.start).not.toHaveBeenCalled()
+      expect(c.isListening).toBe(false)
+    })
+
+    test('a browser with no on-device mode is treated as unavailable, not as Google', async () => {
+      function FakeSR () { this.start = jest.fn() }
+      const c = makeCtx(FakeSR)
+      await flush()
+      expect(c.speechState).toBe('unavailable')
+      expect(c.speechSupported).toBe(false)
+    })
+
+    test('first tap in a downloadable language installs the pack, then records', async () => {
+      function FakeSR () { this.start = jest.fn() }
+      FakeSR.available = () => Promise.resolve('downloadable')
+      FakeSR.install = jest.fn(() => Promise.resolve(true))
+      const c = makeCtx(FakeSR)
+      await flush()
+      c.toggleVoiceInput('reply')
+      expect(c.speechState).toBe('settingUp')
+      expect(c.recognition.start).not.toHaveBeenCalled()
+      await flush()
+      expect(FakeSR.install).toHaveBeenCalledWith({ langs: ['en-US'], processLocally: true })
+      expect(c.speechState).toBe('ready')
+      expect(c.recognition.start).toHaveBeenCalledTimes(1)
+    })
+
+    test('a failed download never records, clears the box, and the next tap tries again', async () => {
+      function FakeSR () { this.start = jest.fn() }
+      FakeSR.available = () => Promise.resolve('downloadable')
+      FakeSR.install = jest.fn(() => Promise.resolve(false))
+      const c = makeCtx(FakeSR)
+      await flush()
+      c.toggleVoiceInput('reply')
+      await flush()
+      expect(c.speechState).toBe('setupFailed')
+      expect(c.voiceField).toBeNull()
+      expect(c.recognition.start).not.toHaveBeenCalled()
+      c.toggleVoiceInput('reply')
+      await flush()
+      expect(FakeSR.install).toHaveBeenCalledTimes(2)
+    })
   })
 
   test('does nothing when the browser has no Speech API', () => {

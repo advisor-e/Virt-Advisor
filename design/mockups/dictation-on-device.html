@@ -7,7 +7,8 @@
 <!--
 ================================================================================
   DICTATION STAYS ON THIS COMPUTER — item 12.2.
-  Drawn 2026-09-24. NOT YET APPROVED. NOTHING ON THIS PAGE IS BUILT.
+  Drawn 2026-09-24. APPROVED BY MIKE 2026-09-24 TO BUILD FROM, asked as its own
+  question after D1 and W1-W3 were each ruled. NOT YET BUILT.
 
   The artefact the build will be measured against (CLAUDE.md, Save the Artefact).
   Open it beside the build and name every difference before shipping.
@@ -17,7 +18,9 @@
   published retention terms. Nine screens, three files - item 12.2 lists them.
 
   THE APPROACH, approved by Mike 2026-09-24: Chrome's on-device mode,
-  recognition.options = { langs: [lang], processLocally: true }. Under it neither
+  recognition.processLocally = true - a plain attribute, off by default, checked
+  against Chrome 153 on 2026-09-24 (the W3C explainer's `options` object does not
+  exist in Chrome; this line said it did until the check). Under it neither
   the audio nor the text leaves the computer. Chrome answers
   SpeechRecognition.available({ langs, processLocally: true }) with 'available',
   'downloadable' or 'unavailable', and SpeechRecognition.install(...) fetches a
@@ -84,7 +87,7 @@
 <main>
 
   <header>
-    <span class="tag">Drawn 2026-09-24 · not approved · nothing built</span>
+    <span class="tag">Drawn 2026-09-24 · approved to build from 2026-09-24 · not yet built</span>
     <h1>Dictation stays on this computer</h1>
     <p class="lede">Item 12.2. Every microphone button in the app today sends what is said to Google.
       After this change the speech is recognised by Chrome <strong>on the advisor's own computer</strong>,
@@ -128,10 +131,10 @@
         <p class="when">Chrome says "unavailable" — seven of the app's languages today, or a browser with no on-device mode.</p>
         <div class="voice-bar"><span class="msg off proposed">Dictation isn't available in this language on this computer. You can still type.</span></div>
         <div class="textarea">Type here…</div>
-        <p class="after"><strong>Recommended: the microphone is off in these languages.</strong> The point of 12.2 is that
-          nothing leaves the computer, and an exception for seven languages would reopen it. The alternative —
-          keep today's Google dictation in these languages with a warning — is the one decision on this page
-          that is Mike's, and it is asked on its own.</p>
+        <p class="after"><strong>RULED BY MIKE 2026-09-24 (D1), as recommended: the microphone is off in these languages.</strong>
+          The point of 12.2 is that nothing leaves the computer, and an exception for seven languages would reopen it.
+          Declined: keeping today's Google dictation in these languages with a warning. The app asks Chrome every time,
+          so a language Chrome later supports on the computer gets its microphone back by itself.</p>
       </div>
     </div>
   </section>
@@ -167,9 +170,9 @@
     <div class="wrap"><table>
       <thead><tr><th>#</th><th>Where it shows</th><th>Proposed words</th></tr></thead>
       <tbody>
-        <tr><td>W1</td><td>State 2, while the pack downloads</td><td>Setting up dictation on this computer — a one-off download</td></tr>
-        <tr><td>W2</td><td>State 3, the download failed</td><td>Dictation couldn't be set up on this computer. You can still type.</td></tr>
-        <tr><td>W3</td><td>State 4, language not available</td><td>Dictation isn't available in this language on this computer. You can still type.</td></tr>
+        <tr><td>W1</td><td>State 2, while the pack downloads</td><td>Setting up dictation on this computer — a one-off download <strong>· APPROVED BY MIKE 2026-09-24</strong></td></tr>
+        <tr><td>W2</td><td>State 3, the download failed</td><td>Dictation couldn't be set up on this computer. You can still type. <strong>· APPROVED BY MIKE 2026-09-24</strong></td></tr>
+        <tr><td>W3</td><td>State 4, language not available</td><td>Dictation isn't available in this language on this computer. You can still type. <strong>· APPROVED BY MIKE 2026-09-24</strong></td></tr>
       </tbody>
     </table></div>
   </section>

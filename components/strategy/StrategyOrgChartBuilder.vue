@@ -24,6 +24,7 @@
       ) {{ $t('strategyPlanner.orgChart.startFromExample') }}
       span.socb-count {{ countLine }}
 
+    speech-status-line(:state="speechState")
     table.socb-tbl
       thead
         tr
@@ -145,6 +146,7 @@
 import speechMixin from '~/mixins/speechMixin'
 import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 import {
   ROSTER_KEY,
   MAX_ROLES,
@@ -160,7 +162,7 @@ import {
 export default {
   name: 'StrategyOrgChartBuilder',
 
-  components: { StrategyCaptureBox, StrategyOrgChart },
+  components: { StrategyCaptureBox, StrategyOrgChart, SpeechStatusLine },
 
   mixins: [speechMixin],
 
