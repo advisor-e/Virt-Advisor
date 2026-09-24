@@ -282,6 +282,12 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('sessionProcess')" v-show="activeTab === 'sessionProcess'")
         firm-session-process(:api-token="apiToken")
 
+      //- ── Tab: Owner Focus Tasks (item 5.3) ──────────────────────────────
+      //- The starting list of tasks every owner begins with on Business Owner
+      //- Expectations. All four managing tiers, in Mike's words — see TAB_TIERS.
+      div.hub-panel(v-if="showsTab('ownerFocusTasks')" v-show="activeTab === 'ownerFocusTasks'")
+        firm-owner-focus-tasks(:api-token="apiToken")
+
       div.hub-panel(v-if="showsTab('clientCopyRequests')" v-show="activeTab === 'clientCopyRequests'")
         firm-client-copy-requests(:api-token="apiToken")
 
@@ -1000,6 +1006,7 @@ import FirmTaxRates from '~/components/firm/FirmTaxRates.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmSessionProcess from '~/components/firm/FirmSessionProcess.vue'
+import FirmOwnerFocusTasks from '~/components/firm/FirmOwnerFocusTasks.vue'
 import FirmClientCopyRequests from '~/components/firm/FirmClientCopyRequests.vue'
 // The Sales Tracker's two manager screens (item 17 stage 4). Not under
 // components/firm/ because the SAME two components serve the standalone pages at
@@ -1390,6 +1397,13 @@ const TAB_TIERS = {
   // never become the firm's standard.
   sessionProcess: ['mentor', 'global', 'group', 'firm'],
 
+  // 🔴 ALL FOUR MANAGING TIERS, IN MIKE'S OWN WORDS, 2026-09-24 — the Owner Focus Tasks
+  // starting list "cascades down from mentor thru the levels to firm manager". A stated
+  // judgement against the mentor-alone default: which tasks an owner starts with is exactly
+  // what one firm does differently from another. The advisor is not on this list — each
+  // owner's own tasks are edited on the model and saved against the client.
+  ownerFocusTasks: ['mentor', 'global', 'group', 'firm'],
+
   // 🔴 ALL FOUR MANAGER TIERS, WIDENED FROM TWO ON MIKE'S INSTRUCTION, 2026-09-02, in his
   // own words: the observation points are "editable and creatable by firm managers also —
   // obviously, we start several as a mentor, they cascade down to global group and group
@@ -1647,7 +1661,11 @@ const NAV_GROUPS = [
       // where a manager SETS it, and the Model Library keeps showing it read-only so a
       // reader can still tell which currency a report is in. Moving it outright would
       // have removed that cue. Firm tier; see TAB_TIERS.currency.
-      { key: 'currency', i18n: 'firmCurrency.tab' }
+      { key: 'currency', i18n: 'firmCurrency.tab' },
+      // Item 5.3 (Mike, 2026-09-24). The starting tasks every owner begins with on Business
+      // Owner Expectations — a model input, so it sits under this heading. Appended at the
+      // end, as every line above it was. All four tiers; see TAB_TIERS.ownerFocusTasks.
+      { key: 'ownerFocusTasks', i18n: 'ownerFocusTasks.tab' }
     ]
   },
   {
@@ -1747,7 +1765,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmRegisterRetention, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmOwnerFocusTasks, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmRegisterRetention, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
   mixins: [traceReasonMixin, moderationMessage],
 

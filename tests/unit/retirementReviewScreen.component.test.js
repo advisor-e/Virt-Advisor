@@ -203,18 +203,11 @@ describe('RetirementReview screen', () => {
       expect(bars.filter(b => !b.up)).toHaveLength(model.verdict.yearsInDeficit)
     })
 
-    it('🔴 renders every workbook correction the model returns — none may be dropped on the way to the screen', async () => {
-      // The adviser may have the spreadsheet open beside this page. A correction that reaches
-      // the model and not the screen is a difference nobody can account for.
+    it('🔴 shows nothing about the source workbook — Mike, 2026-09-24', () => {
+      // "the user has no idea about the original model - they dont need to see it". The
+      // corrections are fixed in the model; the result carries no list for a screen to show.
       const model = computeRetirementReview()
-      const wrapper = await mountWithResult(model)
-
-      expect(model.workbookCorrections.length).toBeGreaterThan(0)
-
-      wrapper.vm.goTo(4)
-      await wrapper.vm.$nextTick()
-
-      expect(wrapper.findAll('.rr-corrections li')).toHaveLength(model.workbookCorrections.length)
+      expect(model.workbookCorrections).toBeUndefined()
     })
   })
 

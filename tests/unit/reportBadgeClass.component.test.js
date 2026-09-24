@@ -58,6 +58,9 @@ const RENDERED_BY = {
   // lands on it.
   '/sales-dashboard': { component: 'components/SalesDashboard.vue' },
   '/retirement-review': { component: 'components/RetirementReview.vue' },
+  // Business Owner Expectations (5.3): one component, header above its own two step chips.
+  // Decision class — a client's real owners and incomes — so no "Illustrative" badge.
+  '/owner-expectations': { component: 'components/OwnerExpectations.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
   // 🔴 The Three-Way Forecast MOVED into this group on 2026-09-05. Its component had been
   // rendering a second ReportHeader under the page's own, so the screen drew its title

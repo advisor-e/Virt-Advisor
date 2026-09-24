@@ -123,6 +123,7 @@ const nextStepsDraftRoute = require('./routes/nextStepsDraft')
 const currencyRoute = require('./routes/currency')
 const firmBrandRoute = require('./routes/firmBrand')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
+const ownerFocusTasksRoute = require('./routes/ownerFocusTasks')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
 const depreciationRatesRoute = require('./routes/depreciationRates')
 // Item 4.92 — a COUNTRY's whole published schedule, loaded once at the global group manager
@@ -274,6 +275,7 @@ server.post('/api/report/multiple-property', reportRoute.multipleProperty)
 // The Retirement Review (item 4.90) — calc-only, anonymous. It carries more of a real
 // household than any other model here, which is the reason it stores nothing.
 server.post('/api/report/retirement-review', reportRoute.retirementReview)
+server.post('/api/report/owner-expectations', reportRoute.ownerExpectations)
 server.post('/api/report/volatility', reportRoute.volatility)
 // Wages/Salary Review (item 5.1) — calc-only, anonymous. Pay rates and hours in, labour
 // margin out. The staff register that makes this model unusual is NOT part of it: that is
@@ -1087,6 +1089,16 @@ server.del('/api/strategy/session-process', firmAuth, requireManagerRole, strate
 server.get('/api/strategy/session-process/cards', firmAuth, requireManagerRole, strategyPlannerRoute.getSessionProcessCards)
 server.get('/api/strategy/session-process/versions', firmAuth, requireManagerRole, strategyPlannerRoute.getSessionProcessVersions)
 server.post('/api/strategy/session-process/versions/:id/restore', firmAuth, requireManagerRole, strategyPlannerRoute.restoreSessionProcessVersion)
+
+// The Owner Focus Tasks starting list (item 5.3) — the Session Processes split. READ open to
+// any signed-in user: every advisor, and a client of the firm, opening Business Owner
+// Expectations starts a new owner on it. WRITES are the four managing tiers only; the tier
+// written is `req.firmId`, from the verified token.
+server.get('/api/owner-focus-tasks', firmOrEntityAuth, ownerFocusTasksRoute.get)
+server.put('/api/owner-focus-tasks', firmAuth, requireManagerRole, ownerFocusTasksRoute.put)
+server.del('/api/owner-focus-tasks', firmAuth, requireManagerRole, ownerFocusTasksRoute.del)
+server.get('/api/owner-focus-tasks/versions', firmAuth, requireManagerRole, ownerFocusTasksRoute.versions)
+server.post('/api/owner-focus-tasks/versions/:id/restore', firmAuth, requireManagerRole, ownerFocusTasksRoute.restore)
 
 // Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
 // The mentor authors the platform set every firm receives as its default; plain CRUD

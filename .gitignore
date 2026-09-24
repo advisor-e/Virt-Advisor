@@ -277,3 +277,13 @@ visual-screenshots/
 # second copy that is easy to mistake for the measured one. The real report is
 # design/SCENARIO-LAB-REPORT.md and that IS committed.
 design/SCENARIO-LAB-REPORT-partial.md
+
+# Dev-only Owner Focus Tasks starting lists (item 5.3). Keyed by SCOPE, ignored for the
+# same reason as the tax rules above. The PLATFORM list is data/owner-focus-tasks.json and
+# IS committed.
+data/dev-owner-focus-tasks.json
+
+# Dev-only Session Processes store (item 15.1). Keyed by SCOPE, ignored for the same reason
+# as every sibling above: a practice save on a machine with no MySQL must never be committed.
+# The PLATFORM session is data/session-processes.json and IS committed.
+data/dev-session-processes.json

@@ -111,6 +111,10 @@ const MENTOR_BEFORE = [
  *   against it, and the reason is printed on the drawing: a firm's planning method is exactly
  *   what one firm does differently from another. ⚠ The ADVISOR is not a tier here: he edits the
  *   session in front of one client, and his changes never become the firm's standard.
+ * - `ownerFocusTasks` — Mike, 2026-09-24 (item 5.3), in his own words: the starting tasks
+ *   *"cascade down from mentor thru the levels to firm manager"*. All four managing tiers, the
+ *   Session Processes shape. ⚠ Each owner's own tasks are edited on the model and saved against
+ *   the client; nothing typed there reaches this tab.
  * - `salesTeam`, `salesLists` — Mike, 2026-09-22 (item 17 stage 4), in his own words:
  *   *"make sure the firm manager hub is running too - so i can see the lists and report"*.
  *   🔴 **THE FIRM ALONE, and stated rather than assumed** (the default since 2026-08-24 is the
@@ -166,7 +170,7 @@ const MENTOR_BEFORE = [
  *   manager change a promise made out loud while believing they were shortening how long
  *   staff data is kept.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -231,7 +235,7 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   is the mentor's own figure and every tier below inherits it until it sets one. The
  *   reasoning in full is beside `FIRM_ADDED_SINCE` above.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -353,10 +357,14 @@ describe('hub tab matrix — the two new tiers', () => {
     // conditional tab, on all four tiers in Mike's own words (item 5.1, Decision 8 — the
     // reasoning is beside FIRM_ADDED_SINCE). The middle tiers gain it for the same reason
     // the firm does: a brand or a country holds a records policy, unlike a currency.
-    expect(conditional).toHaveLength(15)
+    //
+    // ⚠ SIXTEEN AND TWENTY-TWO SINCE 2026-09-24: `ownerFocusTasks` (item 5.3) is on all four
+    // tiers in Mike's own words — the starting tasks "cascade down from mentor thru the levels
+    // to firm manager". The reasoning is beside FIRM_ADDED_SINCE.
+    expect(conditional).toHaveLength(16)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(21)
-    expect(tabsAt('group')).toHaveLength(14)
+    expect(unconditional.concat(conditional)).toHaveLength(22)
+    expect(tabsAt('group')).toHaveLength(15)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

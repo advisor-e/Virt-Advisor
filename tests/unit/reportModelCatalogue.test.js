@@ -69,6 +69,7 @@ describe('report model catalogue', () => {
         '/margin-breakeven',
         '/mid-level-budget',
         '/multiple-property',
+        '/owner-expectations',
         '/quick-position',
         '/retirement-review',
         '/sales-dashboard',
@@ -112,6 +113,7 @@ describe('report model catalogue', () => {
         'Working Capital Cycle'
       ])
       expect(by(CLASS_DECISION)).toEqual([
+        'Business Owner Expectations',
         'Cost of Capital (WACC)',
         'Lease vs Buy',
         'Multiple Property Assessment',
@@ -158,16 +160,20 @@ describe('report model catalogue', () => {
       // MODEL-CLASSIFICATION.md — how the data arrives. Nothing here comes from an accounts
       // export: a client's team, rates, hiring plan and twelve actuals are all typed by the
       // advisor across four steps. No file intake, and no Illustrative badge.
+      // Business Owner Expectations (5.3, built 2026-09-24) is the seventh: the owners' real
+      // incomes, hours and plans, and the business's costs at each stage, all typed. No file
+      // intake, and no Illustrative badge.
       const DECISION_BUILDS = [
         'The Loan Estimator',
         'Lease vs Buy',
         'Cost of Capital (WACC)',
         'Multiple Property Assessment',
         'Retirement Review',
-        'Wages/Salary Review'
+        'Wages/Salary Review',
+        'Business Owner Expectations'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(19)
+      expect(built).toHaveLength(20)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -319,7 +325,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(19)
+      expect(readyCount(MODELS)).toBe(20)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

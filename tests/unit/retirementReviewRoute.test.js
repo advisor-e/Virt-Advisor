@@ -76,24 +76,6 @@ describe('POST /api/report/retirement-review', () => {
     expect(quick.answers.lookingForwardTo).toBe('Golf') //               F13, free text
   })
 
-  it('🔴 carries the three workbook corrections, each with what it changed and who ruled it', () => {
-    // The screen has to be ABLE to say why its figures differ from the spreadsheet the
-    // adviser may have open beside it. If the route dropped these, no screen could.
-    const res = makeRes()
-    retirementReview({ body: {} }, res, jest.fn())
-    const corrections = res.body.data.workbookCorrections
-
-    expect(corrections.map(c => c.key)).toEqual([
-      'currentTaxBands', 'pensionTaxedInProjection', 'sixthPropertyRunsFromYearOne'
-    ])
-    corrections.forEach((c) => {
-      expect(c.ruledBy).toBe('Mike')
-      expect(c.ruledOn).toBe('2026-09-13')
-      expect(typeof c.cells).toBe('string')
-      expect(c.summary.length).toBeGreaterThan(0)
-    })
-  })
-
   it('names the tax table the average rate was read from', () => {
     const res = makeRes()
     retirementReview({ body: {} }, res, jest.fn())
