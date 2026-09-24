@@ -41,9 +41,12 @@ const CONFIG_KEY = 'client-report-access'
  * fallback of its own. It works wherever there IS a database, so UAT never saw it — but no
  * developer could look at this feature, or at any screen carrying its header.
  *
+ * Overridable via CLIENT_REPORT_ACCESS_DEV_FILE so tests use a temp file rather than
+ * deleting a developer's own (item 22.1). Production never sets it.
+ *
  * @type {string}
  */
-const DEV_FILE = 'data/dev-client-report-access.json'
+const DEV_FILE = process.env.CLIENT_REPORT_ACCESS_DEV_FILE || 'data/dev-client-report-access.json'
 const STATES = ['open', 'hidden']
 /** A catalogue route: one path segment, lowercase, digits and hyphens. */
 const ROUTE_SHAPE = /^\/[a-z0-9-]+$/

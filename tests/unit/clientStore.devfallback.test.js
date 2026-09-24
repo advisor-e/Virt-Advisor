@@ -12,7 +12,6 @@
 
 process.env.NODE_ENV = 'development'
 
-const fs = require('fs')
 const path = require('path')
 const os = require('os')
 
@@ -26,8 +25,9 @@ jest.mock('../../server/utils/db', () => ({
 }))
 
 const clientStore = require('../../server/utils/clientStore')
+const { removeFile } = require('../helpers/removeFile')
 
-function clean () { try { fs.unlinkSync(DEV_FILE) } catch (e) { /* not there — fine */ } }
+function clean () { try { removeFile(DEV_FILE) } catch (e) { /* not there — fine */ } }
 
 beforeEach(clean)
 afterAll(clean)

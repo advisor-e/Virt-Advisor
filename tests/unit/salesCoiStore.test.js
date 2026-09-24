@@ -20,6 +20,7 @@ jest.mock('../../server/utils/dbFailure', () => ({ devFallbackAllowed: jest.fn((
 const db = require('../../server/utils/db')
 const { devFallbackAllowed } = require('../../server/utils/dbFailure')
 const store = require('../../server/utils/salesCoiStore')
+const { removeFile } = require('../helpers/removeFile')
 
 const ADVISOR = 'advisor-aaa'
 const OTHER = 'advisor-bbb'
@@ -205,7 +206,6 @@ describe('a real database refusal is never absorbed', () => {
 describe('the dev JSON fallback enforces the SAME rules as the SQL', () => {
   const os = require('os')
   const path = require('path')
-  const fs = require('fs')
   let file
   let isolated
 
@@ -222,7 +222,7 @@ describe('the dev JSON fallback enforces the SAME rules as the SQL', () => {
 
   afterEach(() => {
     delete process.env.SALES_COI_DEV_FILE
-    try { fs.unlinkSync(file) } catch (e) { /* never existed */ }
+    try { removeFile(file) } catch (e) { /* never existed */ }
   })
 
   test('a created partner is private and belongs to its creator', async () => {

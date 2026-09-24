@@ -27,8 +27,9 @@ jest.mock('../../server/utils/db', () => ({
 }))
 
 const activityStore = require('../../server/utils/activityStore')
+const { removeFile } = require('../helpers/removeFile')
 
-function clean () { try { fs.unlinkSync(DEV_FILE) } catch (e) { /* not there — fine */ } }
+function clean () { try { removeFile(DEV_FILE) } catch (e) { /* not there — fine */ } }
 function readFile () { return JSON.parse(fs.readFileSync(DEV_FILE, 'utf8')) }
 
 /**

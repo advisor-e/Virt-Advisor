@@ -353,6 +353,26 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**22.1 · Test suites collide on a shared dev file and block pushes at random.**
+✅ **Closed 2026-09-25 by Mike ("yes")**, with the cause found and fixed.
+
+- **The recorded cause was wrong.** It was not parallel workers sharing a file — the second
+  instance used a per-process temp file no other worker could reach. The real mechanism: a test
+  deletes its file while another program (a virus scanner, the search indexer) holds it open, so
+  Windows only marks it deleted, and recreating that path fails with EPERM until the handle
+  closes. Reproduced on Node 14.15 with a second process holding the file.
+- **The fix:** `tests/helpers/removeFile.js` moves the file aside under a unique name before
+  deleting it, so the path is free at once. The 15 suites that clear a dev file between tests use
+  it. `tests/unit/removeFile.test.js` reproduces the held-file case and was checked to fail with
+  EPERM when the helper is put back to a plain `unlinkSync`.
+- **Fixed on the way:** `wagesRegisterGate`, `clientReportAccess` and `savedReports` had no
+  dev-file override, so their tests wrote and deleted the real `data/` files a developer uses.
+  Each now takes one (`WAGES_REGISTER_GATE_DEV_FILE`, `CLIENT_REPORT_ACCESS_DEV_FILE`,
+  `SAVED_REPORTS_DEV_FILE`); proved by placing sentinel files in `data/` and running the whole
+  suite — all three survived untouched. Three consecutive full runs green, 13,765 tests.
+- **The limit:** the flake hit about one push in three at worst, so only clean pushes over the
+  following days prove it gone. If it recurs, it is a new fault, not this one reopened.
+
 **7.10 · A page's templates are hidden behind whichever won the ID.**
 ✅ **Closed 2026-09-25 by Mike ("yes")**, once every part of it was checked against the code.
 
