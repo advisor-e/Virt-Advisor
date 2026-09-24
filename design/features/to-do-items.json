@@ -524,6 +524,27 @@
       "touches": "server/report/threeWayForecastModel.js (fxAllowancePct and salesFxAllowancePct, fxOnPurchases, fxOnSales, the deposit and balance lines near 1068-1137); server/report/importShipmentModel.js, which defers exchange to the forecast; their intake screens and golden tests; item 13.2, which labels the currency of a converted figure.",
       "note": "A REVIEW FIRST, NOT A BUILD. Established 2026-09-24 from the code: no supplier currency and no exchange rate exist in either model - only a percentage allowance on purchases and a matching one on overseas sales. The review should settle what the advisor enters (supplier currency, rate, and whether the allowance stays as a buffer on top), and run the impact test before any design. Firm currency stays a firm setting - Mike's ruling 2026-09-22, recorded on 13.2.",
       "comment": "2026-09-24 - filed on Mike's request, raised mid-way through scoping 12.2."
+    },
+    {
+      "ref": "15.22",
+      "name": "Seven Strategy Planner topics still need Mike's ruling before they can capture",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Seven of the 46 concepts still teach and capture nothing: Sales Process Review, (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
+      "risk": "An advisor running these topics has nowhere to record what the client said, so it does not reach the plan or the next session. Choosing a form for them is Mike's decision (census section 4), so nothing moves until he rules.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-24 - closing 15.16: \"build as many as you can with what you have - we can pick up the rest later\", and on Sales Process Review, \"move forward without it for now - we can pick it up later\". Filed on his yes at shutdown the same day."
+      },
+      "touches": "design/STRATEGY-CAPTURE-FORM-PROPOSALS.md sections 2 and 5-6, where each proposal and the reason it was not built are recorded; data/strategy-frameworks.json captureForm on the seven; scripts/read-deck-capture-tables.js if a deck page is read.",
+      "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - his Sales Flowchart (p47) and Tension Point Scripts (p50) are both its tables; held because of confusion over the client's sales process, and the Sales Flowchart template reads as 5 boxes where his page has 15 steps. (2) Landing Page Review - pp27-30 are a finished worked example with no blank copy; which column is the client's is his call. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
+      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown, so the remainder of 15.16 has a place on the list."
     }
   ]
 }
