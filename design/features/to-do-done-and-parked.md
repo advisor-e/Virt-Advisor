@@ -353,6 +353,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**12.2 — dictation on nine screens stops sending speech to Google.**
+✅ **Closed 2026-09-24 by Mike ("yes" to done)**, after he dictated with Wi-Fi off on the production
+build in his own Chrome and the words still appeared — *"yes - test worked great!"* Commit `947af7a6`.
+
+- **Why it existed:** every microphone used the browser's own recogniser, which in Chrome sends the
+  audio to Google by default, under no published retention terms — Virtual Advisor's client-problem
+  box and the Strategy Planner's in-the-room boxes included.
+- **What was built:** `utils/onDeviceSpeech.js` sets `recognition.processLocally = true` on every
+  recogniser (three places, nine screens), asks Chrome whether the language works on the computer,
+  and downloads the language pack once. 16 tests; removing that one line fails three of them.
+- **Mike's rulings, 2026-09-24, each asked alone:** D1 — a language Chrome cannot do locally (7 of 21
+  on Chrome 153) has its microphone off, never Google; W1–W3 wording approved as drawn; the drawing
+  approved to build from. Five deliberate differences are named on its row in
+  [`../ARTEFACTS.md`](../ARTEFACTS.md) — [`../mockups/dictation-on-device.html`](../mockups/dictation-on-device.html).
+
 **8.2 — every AI request passes OpenAI's moderation check before it is sent.**
 ✅ **Closed 2026-09-24 by Mike ("done")**, the day OpenAI approved Zero Data Retention and the
 amendment it requires was signed. Commits `b0918c5c` and `be6cfe8f`.

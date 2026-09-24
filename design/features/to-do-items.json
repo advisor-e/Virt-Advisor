@@ -656,27 +656,6 @@
       "comment": "2026-09-24 - filed on Mike's yes, with his option recorded. Design it together with 8.3."
     },
     {
-      "ref": "12.2",
-      "name": "Dictation on nine screens sends advisors' and clients' speech to Google under no published terms",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Every microphone button uses the browser's own speech recognition, which in Chrome sends the audio to Google by default. Google publishes no retention or use terms for it, and nothing in the project records that it happens.",
-      "risk": "Client information reaches a second company with no contract and no stated retention: in Virtual Advisor the advisor describes a client's problem aloud, and Strategy Planner boxes are filled in with the client in the room. Meanwhile the rules strip personal data before anything reaches OpenAI. Nothing proves Google keeps it; nothing says it does not.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-24 - found while looking at the voice recorder Mike named for item 8.4. Mike asked what Google's rules are, then said yes to filing it."
-      },
-      "touches": "The three places the recogniser is created, none with options: components/CourseBuilder.vue; mixins/speechMixin.js (Virtual Advisor, StrategyConceptCapture, StrategyOrgChartBuilder); mixins/collaborate/speechMixin.js (discover, profile, groups/new, ConversationPane, marketplace). The two Strategy Planner screens are the laptop's item 15.1 - its handover must be told.",
-      "note": "THE FIX: Chrome's on-device mode - recognition.processLocally = true, a plain attribute off by default (checked on Chrome 153; the explainer's options object does not exist) - under which neither audio nor text is sent. The W3C explainer says Chrome supports 17 languages, English included; this desktop runs Chrome 153. PROOF OF DONE: dictation still works with the network switched off. DESIGN: design/mockups/dictation-on-device.html. D1 RULED 2026-09-24: in an unsupported language the microphone is off, never Google. W1-W3 approved; drawing approved to build from, 2026-09-24. The heavier alternative is the backend OpenAI transcription route, which must meet ZDR rules Z1, Z3 and Z7. Sources, 2026-09-24: WebAudio/web-speech-api on-device explainer; the Chromium forum thread where Google declined to state retention.",
-      "comment": "2026-09-24 - filed on Mike's yes, first as Course Builder alone; widened the same day on his yes when scoping found nine screens. Scored 5 as privacy; the rank is his."
-    },
-    {
       "ref": "13.5",
       "name": "Review imported-stock FX in the forecast and import model: supplier currency and exchange rate",
       "rankedByMike": false,
