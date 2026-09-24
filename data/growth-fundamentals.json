@@ -86,15 +86,15 @@
     }
   ],
   "growthAspects": [
-    { "name": "Process Improvement", "description": "Operations, work in progress, transactional volume, quality control, internal statistics and data collection." },
-    { "name": "Customer Focus", "description": "Their experience, product/service delivery and development." },
-    { "name": "Sales (Process)", "description": "Achieving critical revenue objectives consistently, securing resources, managing critical external relations." },
-    { "name": "Authenticity", "description": "Values (cultural), marketing (outbound messaging), aesthetics, feel/vibe/morale, packaging." },
-    { "name": "Inventory & Equipment", "description": "Consumable stock, materials, tools, machinery, vehicles, non-consumable working assets." },
-    { "name": "Team Focus", "description": "Skills development, internal communication, change management, recruitment, knowledge management, rewards and incentives." },
-    { "name": "Innovation", "description": "Technology, disruption, external research and development, reinvention." },
-    { "name": "Governance", "description": "Vision, strategic planning, sound financial decision making, leadership, communication lines, risk management." },
-    { "name": "Harmony / Balance", "description": "Removing distractions, health and fitness, wellbeing, financial recovery." }
+    { "name": "Process Improvement", "description": "Operations, Work In Progress, Transactional Volume, Quality Control, Internal Statistics & Data Collection." },
+    { "name": "Customer Focus", "description": "Their Experience, (Our) Product / Service Delivery & Development." },
+    { "name": "Sales (Process)", "description": "Achieving Critical Revenue Objectives (consistently), Securing Resource, Managing Critical External Relations." },
+    { "name": "Authenticity", "description": "Values (Cultural), Marketing (Outbound Messaging), Aesthetics, ‘Feel’ (Vibe/Morale), Packaging." },
+    { "name": "Inventory & Equipment", "description": "Consumable Stock, Materials or Supplies, Tools, Machinery, Vehicles, Non-Consumable Working Assets." },
+    { "name": "Team Focus", "description": "Skills Development, Internal Communication, Change Management, Recruitment, Knowledge Management, Rewards/ Incentives." },
+    { "name": "Innovation", "description": "Technology, Disruption, (External) Research & Development, Re-Invention." },
+    { "name": "Governance", "description": "Vision, Strategic Planning, Sound Decision (Financial) Making Process, Leadership, Communication Lines, Financial Management, Risk Management." },
+    { "name": "Harmony / Balance", "description": "Removing Distractions, Health & Fitness, ‘Well-Being’, Recovering (Financial also)." }
   ],
   "keyConceptsForAdvisors": {
     "devilsToilet": "The most dangerous transition on the Growth Curve is Lifestyle to Leverage. Like a rapid on the Zambezi river, it will suck the business owner backwards if they're not careful. High complacency (from achieving Lifestyle) combined with fatigue creates a dangerous pulling force. Advisors must encourage clients to bank profits and improve systems BEFORE attempting the Leverage transition.",

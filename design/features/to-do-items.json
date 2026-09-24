@@ -76,6 +76,31 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
+      "ref": "15.23",
+      "name": "Business Targets can't reach the Owner Expectations model inside a session",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-25"
+      },
+      "why": "Business Targets pages 5 and 6 became the two-step Owner Expectations model under 5.4. Nothing in the planner reaches it, so an advisor must leave the session to do the deck's first two agenda items.",
+      "risk": "The session Mike designed around those two sheets cannot be run from the planner, and whatever the owners decide never reaches the client's plan. Built as a link out or a second copy of the maths, it becomes the patchwork his 2026-09-16 ruling forbids, and two sets of the same client's figures drift apart.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-25 - 'what happened to my busines targets material? its all missing', then 'remember - that material was converted into a model for this feature'. Drawn, ruled and approved the same day; filed on his yes."
+      },
+      "touches": "data/strategy-frameworks.json (one concept, pages 5-6, and the Business Targets deck heading); server/utils/strategyFrameworks.js; the Run session card, hosting components/OwnerExpectations.vue on POST /api/report/owner-expectations; the client's saved record client-report:<client>:owner-expectations (server/utils/savedReports.js); StrategyPlanDocument.vue for the contrast-table page; design/AGENDA-HELPS-LINES.md for the approved Helps line.",
+      "note": "BUILD FROM design/mockups/strategy-concept-owner-expectations.html - APPROVED 2026-09-25 with all four decisions ruled: A the row is 'Business Owner Expectations'; B the card saves to the client's one Owner Expectations record, never inside the session; C the printed page is ONE CONTRAST TABLE in his own words, owners across, income, hours, leave and task allocation down, revenue along the foot; D the Helps line approved word for word, on the drawing. Measure the printed page at six owners on A4 landscape before shipping.",
+      "comment": "2026-09-25 - filed on Mike's yes. Found when he opened the planner and asked where the material had gone; the first answer wrongly called it deleted, and his reminder that it had become a model is what located the real gap."
+    },
+    {
       "ref": "14.4",
       "name": "Every Handbook build leaves the working tree dirty, and the stamp can never catch up",
       "rankedByMike": false,
