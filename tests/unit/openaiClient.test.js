@@ -309,6 +309,17 @@ describe('createOpenAIClient — responses', () => {
     expect(sink.path).toBe(COMPLETIONS_PATH)
   })
 
+  // OpenAI keeps a Responses reply for 30 days unless told not to (OPENAI-DEVELOPER-DOCS.md O4).
+  // A caller asking to store is overridden, so no call site can reopen it.
+  test('every Responses request is sent with store: false, whatever the caller passed', async () => {
+    for (const params of [{ model: 'm', input }, { model: 'm', input, store: true }]) {
+      let sent = null
+      const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(200, ['{"output":[]}']), (p) => { sent = p }) })
+      await client.responses.create(params)
+      expect(JSON.parse(sent).store).toBe(false)
+    }
+  })
+
   test('non-stream: resolves to the response, text stripped of invisibles', async () => {
     const body = JSON.stringify({
       output: [{

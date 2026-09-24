@@ -243,6 +243,27 @@ describe('the call itself', () => {
     expect(result.bytes).toBe(5)
   })
 
+  // OpenAI refuses the diarizing model without it — "chunking_strategy is required for
+  // diarization models", proven live 2026-09-24 (OPENAI-DEVELOPER-DOCS.md O5). A simulated
+  // OpenAI never asks for it, which is how every test here stayed green while the call failed.
+  test('the request carries chunking_strategy=auto', async () => {
+    let sent = ''
+    const requestImpl = (_options, onResponse) => ({
+      setTimeout () {},
+      on () {},
+      write (chunk) { sent += Buffer.from(chunk).toString('latin1') },
+      destroy () {},
+      end () {
+        setImmediate(() => onResponse({
+          statusCode: 200,
+          async * [Symbol.asyncIterator] () { yield Buffer.from('{"text":"","segments":[]}') }
+        }))
+      }
+    })
+    await tc.createTranscriptionClient({ apiKey: 'k', requestImpl }).transcribe({ buffer: Buffer.from('AUDIO') })
+    expect(sent).toMatch(/name="chunking_strategy"\r\n\r\nauto\r\n/)
+  })
+
   test('a missing key throws before anything is sent', async () => {
     const client = tc.createTranscriptionClient({ apiKey: '' })
     await expect(client.transcribe({ buffer: Buffer.from('a') })).rejects.toThrow(/OPENAI_API_KEY/)
