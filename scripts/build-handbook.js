@@ -87,6 +87,25 @@ const WORKING_TREE = 'working-tree'
 
 const DEFAULT_OUT = path.join(os.tmpdir(), 'advisor-e-handbook.html')
 
+/**
+ * A preview gets its OWN file (item 14.3). It used to write to DEFAULT_OUT — the file every
+ * startup publishes to the shared URL — so a preview could replace the page both machines
+ * share, and on 2026-09-17 it did.
+ */
+const PREVIEW_OUT = path.join(os.tmpdir(), 'advisor-e-handbook-preview.html')
+
+/**
+ * Where the page is written: a path given on the command line, else the file for its source.
+ * @param {string[]} args  the command-line arguments after the script name
+ * @returns {{outPath: string, fromWorkingTree: boolean}}
+ */
+function outPathFor (args) {
+  const fromWorkingTree = args.indexOf('--working-tree') !== -1
+  const outArg = args.filter(arg => arg !== '--working-tree')[0]
+  const fallback = fromWorkingTree ? PREVIEW_OUT : DEFAULT_OUT
+  return { outPath: outArg ? path.resolve(outArg) : fallback, fromWorkingTree }
+}
+
 const MarkdownIt = require(path.join(ROOT, 'node_modules', 'markdown-it'))
 const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
 
@@ -694,10 +713,7 @@ function build (outPath, options) {
 // ── Console report ─────────────────────────────────────────────────────────
 
 if (require.main === module) {
-  const args = process.argv.slice(2)
-  const fromWorkingTree = args.indexOf('--working-tree') !== -1
-  const outArg = args.filter(arg => arg !== '--working-tree')[0]
-  const outPath = outArg ? path.resolve(outArg) : DEFAULT_OUT
+  const { outPath, fromWorkingTree } = outPathFor(process.argv.slice(2))
   const result = build(outPath, { source: fromWorkingTree ? WORKING_TREE : DEFAULT_SOURCE })
 
   const gated = result.pages.filter(page => page.companion).length
@@ -721,7 +737,9 @@ if (require.main === module) {
   }
 
   console.log('')
-  console.log('  Next: publish this file as an Artifact, updating the EXISTING handbook URL.')
+  console.log(fromWorkingTree
+    ? '  PREVIEW of this machine\'s branch — do not publish this to the shared Handbook URL.'
+    : '  Next: publish this file as an Artifact, updating the EXISTING handbook URL.')
   console.log('')
 }
 
@@ -736,7 +754,10 @@ module.exports = {
   mountQueue,
   contentSource,
   provenance,
+  outPathFor,
   PLACEHOLDERS,
+  DEFAULT_OUT,
+  PREVIEW_OUT,
   DEFAULT_SOURCE,
   WORKING_TREE
 }

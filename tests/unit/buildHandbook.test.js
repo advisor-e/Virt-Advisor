@@ -435,6 +435,16 @@ describe('the Handbook', () => {
       expect(result.built.hash).toBeNull()
       expect(html).toContain('<span class="built">' + result.built.text)
     })
+
+    // Item 14.3: a preview once replaced the page both machines share, because it wrote to
+    // the very file startup publishes. It must never land there unless a path is given.
+    it('a preview never writes to the file the shared Handbook is published from', () => {
+      const preview = builder.outPathFor(['--working-tree'])
+      expect(preview.fromWorkingTree).toBe(true)
+      expect(preview.outPath).toBe(builder.PREVIEW_OUT)
+      expect(preview.outPath).not.toBe(builder.DEFAULT_OUT)
+      expect(builder.outPathFor([]).outPath).toBe(builder.DEFAULT_OUT)
+    })
   })
 
   describe('the page body', () => {

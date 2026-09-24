@@ -353,6 +353,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**14.3 · A working-tree Handbook preview can be published over the shared link.**
+✅ **Closed 2026-09-25 by Mike ("yes")**.
+
+- **Why it existed:** on 2026-09-17 the live Handbook was one machine's preview, and nothing
+  stopped it being published to the URL both machines share.
+- **What the code showed:** the note put the guard in the startup checklist because "the script
+  cannot know where its output is sent". The script was the cause: a preview wrote to the same
+  temp file startup publishes, then printed "publish this file … updating the EXISTING handbook
+  URL".
+- **The fix:** `scripts/build-handbook.js` writes a preview to its own file,
+  `advisor-e-handbook-preview.html`, and ends with "PREVIEW of this machine's branch — do not
+  publish this to the shared Handbook URL." The preview and its banner are unchanged.
+  `buildHandbook.test.js` pins that a preview never resolves to the shared file. Proved by a real
+  preview build: the shared file came through byte-identical.
+
 **22.1 · Test suites collide on a shared dev file and block pushes at random.**
 ✅ **Closed 2026-09-25 by Mike ("yes")**, with the cause found and fixed.
 
