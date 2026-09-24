@@ -248,8 +248,8 @@ whitelist had to accept them — and both answers reach the client's plan, `Plan
 question and then all five decisions on its drawing, every one as recommended. The advisor names
 his own steps, and **the client's agenda stops naming our screens**: where it read *"Run the
 frameworks — 14 concepts"* it now reads his own step names, with an empty step printing as *"on
-the agenda only"*. **Two stages remain — 7 and 8** (stage 6 built 2026-09-22; stage 5 is six
-capture forms of nine, and its last three are not code jobs — see item **15.6**).
+the agenda only"*. **Where every stage stands is the stages table below** — stage 7 was built
+on 2026-09-22 and stage 8 was stood down by Mike on 2026-09-23.
 
 🔴 **BUILD SESSION WAS REDRAWN AND REBUILT ON 2026-09-21**, from
 [`design/mockups/strategy-session-process.html`](../mockups/strategy-session-process.html) —

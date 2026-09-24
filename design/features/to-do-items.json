@@ -139,31 +139,6 @@
       "comment": "2026-09-22 - filed on Mike's yes at the end of the session that hit it twice. Sibling of 14.3: both are about the Handbook build's side effects rather than the page it produces."
     },
     {
-      "ref": "15.1",
-      "name": "The strategy domain has thirteen materials and no session to run them in",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-16"
-      },
-      "why": "The engine already diagnoses planning need, routes to the Planning Outcomes Review and names thirteen materials. The advisor arrives and there is no screen, so the session still runs on slides and the client's answers never reach the app.",
-      "risk": "Without it the planning routes lead nowhere: an advisor asking for a planning session is sent to materials that exist only as slide decks, and nothing said in the room carries forward to the next session or into the engine. The counter-risk is scale - close to fifty capture tables and forty concept cards, so the frameworks must be data a mentor authors, never code, or the build never ends.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
-      },
-      "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick, stage 7 the door. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them, including all five stage 7 decisions on mockups/strategy-session-resume.html, settled 2026-09-22: A, B, D, E ruled, C DROPPED. In-card calculators: Brief 7a. STAGE 8 STOOD DOWN by Mike 2026-09-23 for the twelve frameworks an advisor cannot run; its impact test is in Brief 0. 44 of 46 run; the other two are 15.17 and Drafting Tender Proposals, not a gap.",
-      "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
-    },
-    {
       "ref": "15.2",
       "name": "The hundred questions behind the nine Growth Aspects",
       "rankedByMike": false,

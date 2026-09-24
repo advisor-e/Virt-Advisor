@@ -353,6 +353,19 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.1 · The strategy domain has thirteen materials and no session to run them in.**
+✅ **Closed 2026-09-24 by Mike ("yes")**, at startup, when its own note showed nothing of its own left.
+
+- **Why it existed:** the engine diagnosed planning need and named thirteen materials, and the
+  advisor arrived to no screen — the session ran on slides and nothing said in the room reached the app.
+- **What proves it:** stages 1–7 of the Strategy Planner are built — stage 7, the door, on
+  2026-09-22 (commit `4f7f9fd3`) — and 44 of 46 concepts run. The stages table in
+  [`strategy-planner.md`](strategy-planner.md) holds each stage's state.
+- **Where the rest lives, each as its own item:** stage 8, a manager adding a concept, is **15.20**;
+  the twenty concepts with nowhere to write the client's answer are **15.16**; Cultural Core Values
+  is **15.17**; the ~100 Growth Aspect questions are **15.2**. The in-card calculators (Brief §7a)
+  are unbuilt and unscheduled by his ruling, not a gap in this item.
+
 **15.10 · Page 2 of six decks is missing from the plan the app produces.**
 ✅ **Closed 2026-09-24 by Mike ("yes")**, as settled by his own ruling of the day before.
 
