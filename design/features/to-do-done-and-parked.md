@@ -353,6 +353,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.10 · Page 2 of six decks is missing from the plan the app produces.**
+✅ **Closed 2026-09-24 by Mike ("yes")**, as settled by his own ruling of the day before.
+
+- **Why it existed:** six of his decks open the meeting with *Our Session Objective* — welcome,
+  roles, housekeeping, what today is for — and on 2026-09-20 none of it was in the app. Drawn with
+  four decisions on [`../mockups/strategy-session-objective-page.html`](../mockups/strategy-session-objective-page.html).
+- **What settled it:** on 2026-09-23 he ruled that the page comes in as ONE drawn page, Strategic
+  Orientation 1 p2, which the advisor includes, with its agenda filled from the session's own step
+  list — built and approved the same day. On 2026-09-24 he chose to close 15.10 on that, rather
+  than also printing the page automatically on every plan, which would print it twice whenever an
+  advisor includes it. The four decisions were never asked; the drawing is marked superseded in
+  [`../ARTEFACTS.md`](../ARTEFACTS.md).
+- **Tidied on the way:** the note at the top of `StrategyPlanDocument.vue` still described three
+  front pages; it now says two, and why.
+
 **15.4 · Twelve labels on the plan document are ours, not Mike's.**
 ✅ **Closed 2026-09-24 by Mike ("yes - done")**, the day he ruled on every one.
 

@@ -228,27 +228,6 @@
       "comment": "2026-09-18 - filed on his yes at shutdown, after a check that every fault found today had reached an ending. This one had not: it was recorded on the artefact and in ARTEFACTS.md, which is a line in a document rather than a task."
     },
     {
-      "ref": "15.10",
-      "name": "Page 2 of six decks is missing from the plan the app produces",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Six of Mike's decks open the meeting with Our Session Objective - welcome, roles, housekeeping, what today is for. None of its nine lines exists anywhere in the app, so the plan a client is handed skips it.",
-      "risk": "FOUR DECISIONS WAIT ON MIKE, drawn and published. Also a deviation from an approved artefact: the assembled-plan drawing records the front matter as Title, Session Objective, the agenda; the build shipped with two front pages and the note atop StrategyPlanDocument.vue still describes three.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-20 - found while walking him through the step builder. He ruled it be drawn rather than decided in chat: \"put it in a mock up page so i can read it properly - dont rush this - get the design right\". Filed on his yes at shutdown."
-      },
-      "touches": "design/mockups/strategy-session-objective-page.html, the drawing that carries the four decisions; components/strategy/StrategyPlanDocument.vue, whose front matter is two pages where its own note says three; design/ARTEFACTS.md; and wherever the standing wording is edited once a tier is chosen.",
-      "note": "READ THE DRAWING, NOT THIS. Census is machine-read: all 12 decks checked, SIX carry the page and every one puts it on page 2. Pivot, ADV.0 and Strategic Orientation 2 are word-for-word identical; Strategic Orientation 1 adds a deck agenda; Bizz Targets and Organisational Review differ in shape. Hence the proposal: EIGHT STANDING LINES, ONE TYPED PER SESSION. A real client name sits in Bizz Targets version and must never reach platform wording. Recommended tier: Mentor Hub alone.",
-      "comment": ""
-    },
-    {
       "ref": "15.11",
       "name": "Five concepts keep their fill-in table on a slide nobody has drawn",
       "rankedByMike": false,

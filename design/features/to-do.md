@@ -42,26 +42,25 @@ repository sees; the two never both appear, and the build stops if they would.
 | 5 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 6 | **22.1** Test suites collide on a shared dev file and block pushes at random ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 7 | **15.8** Two unlicensed pictures print in clients' plans until Mike supplies replacements ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 8 | **15.10** Page 2 of six decks is missing from the plan the app produces ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 9 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 10 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
-| 11 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 12 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 13 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 14 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 15 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 16 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 17 | **12.1** Course Builder shows about 86 pieces of English that bypass the translation file ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 18 | **10.1** Seven manager screens can't be translated ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 19 | **15.17** One framework has a real teaching slide and no drawing - Cultural Core Values ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
-| 20 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 21 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
-| 22 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
-| 23 | **8.3** Meeting Review's speaker-labelling model is switched off 26 Feb 2027, with no named replacement ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 24 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 25 | **13.5** Review imported-stock FX in the forecast and import model: supplier currency and exchange rate ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 8 | **15.11** Five concepts keep their fill-in table on a slide nobody has drawn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 9 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
+| 10 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 11 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 12 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 13 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 14 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 15 | **15.16** An advisor teaches twenty-two concepts and has nowhere to write the client answer down ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 16 | **12.1** Course Builder shows about 86 pieces of English that bypass the translation file ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 17 | **10.1** Seven manager screens can't be translated ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 18 | **15.17** One framework has a real teaching slide and no drawing - Cultural Core Values ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
+| 19 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 20 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
+| 21 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
+| 22 | **8.3** Meeting Review's speaker-labelling model is switched off 26 Feb 2027, with no named replacement ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 23 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 24 | **13.5** Review imported-stock FX in the forecast and import model: supplier currency and exchange rate ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**25 live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**24 live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
