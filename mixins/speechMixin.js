@@ -1,3 +1,7 @@
+import {
+  SPEECH_STATE, recognitionClass, createOnDeviceRecognition, checkOnDevice, installOnDevice
+} from '~/utils/onDeviceSpeech'
+
 // BCP-47 speech recognition language codes, keyed by i18n locale
 export const BCP47_MAP = {
   en: 'en-US',
@@ -28,6 +32,8 @@ export default {
     return {
       isListening: false,
       speechSupported: false,
+      /** Item 12.2 — see utils/onDeviceSpeech.js. Shown by SpeechStatusLine. */
+      speechState: SPEECH_STATE.NONE,
       recognition: null,
       profileRecordingField: null,
       reviewRecordingField: null,
@@ -36,10 +42,12 @@ export default {
   },
 
   mounted () {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    const SpeechRecognition = recognitionClass(window)
     if (SpeechRecognition) {
-      this.speechSupported = true
-      this.recognition = new SpeechRecognition()
+      // processLocally is on from the first line: nothing said here leaves the computer (12.2).
+      this.recognition = createOnDeviceRecognition(SpeechRecognition)
+      this._speechClass = SpeechRecognition
+      this._needsInstall = false
       this._recognitionRunning = false
       // Non-reactive teardown latch — read by onend, which can fire after destroy.
       this._speechDestroyed = false
@@ -90,6 +98,7 @@ export default {
         this.reviewRecordingField = null
         this.voiceField = null
       }
+      this._checkSpeechOnDevice()
     }
   },
 
@@ -152,8 +161,57 @@ export default {
       }
     },
 
+    /**
+     * Ask Chrome whether this screen's language works on the computer. Until it answers the
+     * microphone is not drawn; a language it cannot do stays off (D1 — never Google).
+     */
+    async _checkSpeechOnDevice () {
+      this.speechState = SPEECH_STATE.CHECKING
+      const answer = await checkOnDevice(this._speechClass, this.recognition.lang)
+      if (this._speechDestroyed) { return }
+      if (answer === 'unavailable') {
+        this.speechState = SPEECH_STATE.UNAVAILABLE
+        this.speechSupported = false
+        return
+      }
+      this._needsInstall = answer === 'needsInstall'
+      this.speechState = SPEECH_STATE.READY
+      this.speechSupported = true
+    },
+
+    /** True while any box is waiting for words. */
+    _speechWanted () {
+      return !!(this.isListening || this.profileRecordingField || this.reviewRecordingField || this.voiceField)
+    },
+
+    _clearSpeechTargets () {
+      this.isListening = false
+      this.profileRecordingField = null
+      this.reviewRecordingField = null
+      this.voiceField = null
+    },
+
+    /** The one-off language download, then the recording the advisor asked for (W1, W2). */
+    async _installThenStart () {
+      if (this.speechState === SPEECH_STATE.SETTING_UP) { return }
+      this.speechState = SPEECH_STATE.SETTING_UP
+      const ok = await installOnDevice(this._speechClass, this.recognition.lang)
+      if (this._speechDestroyed) { return }
+      if (!ok) {
+        // Never a fallback to a server. The next tap tries the download again.
+        this.speechState = SPEECH_STATE.SETUP_FAILED
+        this._clearSpeechTargets()
+        return
+      }
+      this._needsInstall = false
+      this.speechState = SPEECH_STATE.READY
+      if (this._speechWanted()) { this._startRecognition() }
+    },
+
     _startRecognition () {
       if (this._recognitionRunning) { return }
+      if (this.speechState === SPEECH_STATE.UNAVAILABLE) { this._clearSpeechTargets(); return }
+      if (this._needsInstall) { this._installThenStart(); return }
       this._recognitionRunning = true
       try {
         this.recognition.start()

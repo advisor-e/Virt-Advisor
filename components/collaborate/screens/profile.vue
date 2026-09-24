@@ -43,6 +43,7 @@
           b-taginput(v-model="advisorProfile.industries" ellipsis :placeholder="$t('collabProfile.addTag')")
         b-field(:label="$t('collabProfile.topics')")
           b-taginput(v-model="advisorProfile.topics" ellipsis :placeholder="$t('collabProfile.addTag')")
+        speech-status-line(:state="speechState")
         b-field(:label="$t('collabProfile.about')")
           .about-row
             b-input.about-input(type="textarea" v-model="advisorProfile.about")
@@ -60,9 +61,11 @@
 
 <script>
 import speechMixin from '~/mixins/collaborate/speechMixin'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 
 export default {
   name: 'ProfilePage',
+  components: { SpeechStatusLine },
   mixins: [speechMixin],
   data () {
     return {

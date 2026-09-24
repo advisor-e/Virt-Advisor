@@ -372,8 +372,10 @@ locked in the prompt. Either is fine; deciding by accident is not.
   logic to prove it would have caught it. Five tests that depended on a draft still existing were
   moved onto fixtures, so they keep testing the rules now that none does.
 
-**5.3 · Two of Mike's own spreadsheets are calculators with nowhere in the app to live.**
-✅ **Closed 2026-09-24 by Mike ("yes - done")**, the day it was built. Commit `aa4abf79`.
+**5.4 · Two of Mike's own spreadsheets are calculators with nowhere in the app to live.**
+✅ **Closed 2026-09-24 by Mike ("yes - done")**, the day it was built. Commit `aa4abf79`. Filed as
+5.3 and renumbered 5.4 by the desktop the same day, because 5.3 was already spent; the laptop's
+commits of that day still call it 5.3.
 
 - **Why it existed:** BO Expectations.xlsx and BD stages.xlsx are the first two items on his
   Business Targets agenda, and the app offered neither.
@@ -394,6 +396,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
   back to the same model.
 - **For UAT, not ours:** saving a real client's figures and reopening them in a browser. It needs
   Advisor-e's sign-in and a database, neither of which exists on the laptop.
+
+**12.2 — dictation on nine screens stops sending speech to Google.**
+✅ **Closed 2026-09-24 by Mike ("yes" to done)**, after he dictated with Wi-Fi off on the production
+build in his own Chrome and the words still appeared — *"yes - test worked great!"* Commit `947af7a6`.
+
+- **Why it existed:** every microphone used the browser's own recogniser, which in Chrome sends the
+  audio to Google by default, under no published retention terms — Virtual Advisor's client-problem
+  box and the Strategy Planner's in-the-room boxes included.
+- **What was built:** `utils/onDeviceSpeech.js` sets `recognition.processLocally = true` on every
+  recogniser (three places, nine screens), asks Chrome whether the language works on the computer,
+  and downloads the language pack once. 16 tests; removing that one line fails three of them.
+- **Mike's rulings, 2026-09-24, each asked alone:** D1 — a language Chrome cannot do locally (7 of 21
+  on Chrome 153) has its microphone off, never Google; W1–W3 wording approved as drawn; the drawing
+  approved to build from. Five deliberate differences are named on its row in
+  [`../ARTEFACTS.md`](../ARTEFACTS.md) — [`../mockups/dictation-on-device.html`](../mockups/dictation-on-device.html).
 
 **8.2 — every AI request passes OpenAI's moderation check before it is sent.**
 ✅ **Closed 2026-09-24 by Mike ("done")**, the day OpenAI approved Zero Data Retention and the

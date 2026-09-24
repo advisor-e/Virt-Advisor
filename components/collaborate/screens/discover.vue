@@ -17,6 +17,7 @@
           button.button(@click="toggleListening" :class="{ 'is-danger': isListening }" title="Voice input") 🎤
         .control
           button.button.is-primary(@click="search") {{ $t('common.search') }}
+      speech-status-line(:state="speechState")
 
       b-field(v-if="tab === 'people'")
         b-checkbox(v-model="availableOnly" @input="search") {{ $t('discover.availableOnly') }}
@@ -71,6 +72,7 @@
               span(v-if="outreachTarget")  · {{ outreachTarget.name }}
           section.modal-card-body
             b-message(type="is-info" size="is-small") {{ $t('outreach.hint') }}
+            speech-status-line(:state="speechState")
             b-field(:label="$t('outreach.context')")
               b-input(type="textarea" v-model="outreach.context")
             button.button.is-light.is-small.mb-4(
@@ -113,9 +115,11 @@
 
 <script>
 import speechMixin from '~/mixins/collaborate/speechMixin'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 
 export default {
   name: 'DiscoverPage',
+  components: { SpeechStatusLine },
   mixins: [speechMixin],
   data () {
     return {

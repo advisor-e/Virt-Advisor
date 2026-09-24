@@ -157,6 +157,85 @@ describe('speechMixin — a refused microphone stops asking', () => {
   })
 })
 
+// 🔴 ITEM 12.2 — nothing said into Virtual Advisor or the Strategy Planner may leave the
+// computer. In Chrome the recogniser sends audio to Google unless processLocally is on, and a
+// language Chrome cannot do locally switches the microphone OFF (Mike's ruling D1, 2026-09-24).
+describe('speechMixin — speech stays on this computer (item 12.2)', () => {
+  // jsdom has no setImmediate; a zero timeout lets the mixin's promise chain settle.
+  const flush = () => new Promise(resolve => setTimeout(resolve, 0))
+
+  function mountWith (available, install) {
+    log = []
+    const Engine = makeFakeEngine(log)
+    if (available) { Engine.available = jest.fn(() => Promise.resolve(available)) }
+    if (install) { Engine.install = install }
+    window.SpeechRecognition = Engine
+    return { wrapper: mountWithBuefy(HostComponent, {}), Engine }
+  }
+
+  it('creates the recogniser with processLocally on', () => {
+    const { wrapper } = mountWith('available')
+    expect(wrapper.vm.recognition.processLocally).toBe(true)
+  })
+
+  it('asks Chrome about the screen language, on-device only', async () => {
+    const { wrapper, Engine } = mountWith('available')
+    await flush()
+    expect(Engine.available).toHaveBeenCalledWith({ langs: ['en-US'], processLocally: true })
+    expect(wrapper.vm.speechSupported).toBe(true)
+    expect(wrapper.vm.speechState).toBe('ready')
+  })
+
+  it('a language Chrome cannot do locally never records — the microphone is off', async () => {
+    const { wrapper } = mountWith('unavailable')
+    await flush()
+    expect(wrapper.vm.speechSupported).toBe(false)
+    expect(wrapper.vm.speechState).toBe('unavailable')
+    wrapper.vm.toggleProfileListening('goals')
+    expect(log).not.toContain('start')
+    expect(wrapper.vm.profileRecordingField).toBeNull()
+  })
+
+  it('first use downloads the pack, then records what was asked for', async () => {
+    const install = jest.fn(() => Promise.resolve(true))
+    const { wrapper } = mountWith('downloadable', install)
+    await flush()
+    wrapper.vm.toggleListening()
+    expect(wrapper.vm.speechState).toBe('settingUp')
+    expect(log).not.toContain('start')
+    await flush()
+    expect(install).toHaveBeenCalledWith({ langs: ['en-US'], processLocally: true })
+    expect(wrapper.vm.speechState).toBe('ready')
+    expect(log.filter(x => x === 'start')).toHaveLength(1)
+  })
+
+  it('a failed download records nothing and says so; the next tap tries again', async () => {
+    const install = jest.fn(() => Promise.reject(new Error('offline')))
+    const { wrapper } = mountWith('downloadable', install)
+    await flush()
+    wrapper.vm.toggleListening()
+    await flush()
+    expect(wrapper.vm.speechState).toBe('setupFailed')
+    expect(wrapper.vm.isListening).toBe(false)
+    expect(log).not.toContain('start')
+    wrapper.vm.toggleListening()
+    await flush()
+    expect(install).toHaveBeenCalledTimes(2)
+  })
+
+  it('an advisor who leaves mid-download is not recorded when it finishes', async () => {
+    let finish
+    const install = jest.fn(() => new Promise((resolve) => { finish = resolve }))
+    const { wrapper } = mountWith('downloadable', install)
+    await flush()
+    wrapper.vm.toggleListening()
+    wrapper.destroy()
+    finish(true)
+    await flush()
+    expect(log).not.toContain('start')
+  })
+})
+
 describe('speechMixin — degrades where speech is unsupported', () => {
   it('reports unsupported and ignores the toggles rather than throwing', () => {
     log = []

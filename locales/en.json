@@ -219,7 +219,10 @@
     "stopRecording": "Stop Recording",
     "capturedEdit": "Captured — edit below or record again",
     "capturedReview": "Captured — review then Save",
-    "recordAgain": "Record again"
+    "recordAgain": "Record again",
+    "settingUp": "Setting up dictation on this computer — a one-off download",
+    "setupFailed": "Dictation couldn't be set up on this computer. You can still type.",
+    "unavailable": "Dictation isn't available in this language on this computer. You can still type."
   },
   "input": {
     "placeholderDiscover": "Describe what you're looking for...",

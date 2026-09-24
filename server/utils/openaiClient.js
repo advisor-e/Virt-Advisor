@@ -468,7 +468,12 @@ function createOpenAIClient (opts) {
     const timeout = (options && typeof options.timeout === 'number') ? options.timeout : DEFAULT_TIMEOUT_MS
 
     await moderate(options)
-    const res = await postToOpenAI({ apiKey, host, path: RESPONSES_PATH, body: params, requestImpl, timeout })
+    // 🔴 `store: false`, forced over anything a caller passes. The Responses API keeps a reply for
+    // at least 30 days when `store` is omitted — it defaults to true — and ZDR, which would force
+    // it off, is not yet switched on. Nothing in this app retrieves a stored reply.
+    // design/OPENAI-DEVELOPER-DOCS.md O4.
+    const body = Object.assign({}, params, { store: false })
+    const res = await postToOpenAI({ apiKey, host, path: RESPONSES_PATH, body, requestImpl, timeout })
     const status = res.statusCode || 0
 
     if (status < 200 || status >= 300) {
