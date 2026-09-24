@@ -29,7 +29,8 @@
         b-button(type="is-primary" @click="respondInvite(true)") {{ $t('invite.accept') }}
         b-button(@click="respondInvite(false)") {{ $t('invite.decline') }}
       span.has-text-grey.is-size-7(v-else) {{ $t('invite.handled') }}
-    .conv-reply(v-else)
+    speech-status-line(v-if="!isInvitation" :state="speechState")
+    .conv-reply(v-if="!isInvitation")
       input.input(v-model="reply" :placeholder="$t('messages.type')" @keyup.enter="send")
       button.button.is-light.mic(
         v-if="speechSupported"
@@ -68,10 +69,11 @@
  */
 import speechMixin from '~/mixins/collaborate/speechMixin'
 import ToolPicker from '~/components/collaborate/shared/ToolPicker.vue'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 
 export default {
   name: 'ConversationPane',
-  components: { ToolPicker },
+  components: { ToolPicker, SpeechStatusLine },
   mixins: [speechMixin],
   props: {
     // The thread to display; null/empty shows the "pick a conversation" state.

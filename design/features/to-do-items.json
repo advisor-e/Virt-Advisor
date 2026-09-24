@@ -76,11 +76,11 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "5.3",
+      "ref": "5.4",
       "name": "Two of Mike's own spreadsheets are calculators with nowhere in the app to live",
       "rankedByMike": false,
       "kind": "feature",
-      "score": 2,
+      "score": 3,
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
@@ -612,6 +612,69 @@
       "touches": "package.json, package-lock.json, design/SECURITY-AUDIT-NOTES.md (its own section and action item), design/features/strategy-planner.md section 9.",
       "note": "INSTALLED 2026-09-24 with npm 8.19.4, pinned exact: +3 packages, engines clean, audit gate PASS. WHAT CLOSES IT: the team's sign-off recorded in SECURITY-AUDIT-NOTES.md, or the Node lock being revisited, when 4.2.67+ resolves it outright. Never closed by relaxing a condition. GHSA-wgrm-67xf-hhpq.",
       "comment": "2026-09-24 - filed on Mike's yes, the moment the package was installed, as his ruling on 15.20 required."
+    },
+    {
+      "ref": "8.3",
+      "name": "Meeting Review's speaker-labelling model is switched off 26 Feb 2027, with no named replacement",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Meeting Review transcribes with gpt-4o-transcribe-diarize, the only OpenAI model that says who spoke. OpenAI retires it on 26 Feb 2027, and the replacements it names, gpt-transcribe and gpt-live-transcribe, return text without speakers.",
+      "risk": "From that date Meeting Review's transcription call fails outright. Swapping in gpt-transcribe would bring it back without speaker turns, and the summary and coaching notes depend on telling the advisor's words from the client's. Left unwritten, this surfaces on the day the call starts failing.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-24 - found while saving OpenAI's developer pages on Mike's instruction. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "server/utils/transcriptionClient.js (DIARIZING_MODEL, and the diarized_json reply it validates); Meeting Review's summary and coaching notes, which read speaker turns; design/OPENAI-DEVELOPER-DOCS.md O1 and O2; design/features/meeting-review.md.",
+      "note": "FIRST STEP IS A QUESTION, NOT CODE: ask OpenAI, through the ZDR contact, whether a speaker-labelling successor to gpt-4o-transcribe-diarize is coming before 26 Feb 2027. Then decide the fallback. Evidence, all dated 2026-09-24: design/openai/DEPRECATIONS-2026-09-24.md (the date), TRANSCRIPTION-GUIDE (still sends speaker labels to the retiring model), MODEL-PAGES (gpt-transcribe lists only streaming). Any successor is checked against OPENAI-ZDR-CONSTRAINTS.md before use.",
+      "comment": "2026-09-24 - filed on Mike's yes. Deadline is OpenAI's, not ours: 26 Feb 2027."
+    },
+    {
+      "ref": "8.4",
+      "name": "Meetings longer than about 27 minutes are too big for OpenAI and lose their audio",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The end-of-meeting pass sends the whole recording to OpenAI as one file, OpenAI refuses files over 25 MB, and the browser records about 0.9 MB a minute, so a normal client meeting will not transcribe.",
+      "risk": "The audio is deleted whether or not transcription worked, so an advisor who records an hour-long meeting ends with no transcript and no recording to retry. Near-certain rather than proven: the 25 MB cap is OpenAI's stated limit and the rate was measured on 2026-09-24, but no 30-minute recording has been sent.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-24 - found while proving item O5 of the OpenAI working page. Mike said yes to filing it, and added the section-by-section option in the note."
+      },
+      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; item 8.3, since both need the same design work.",
+      "note": "THE HARD PART IS SPEAKERS, NOT SPLITTING: OpenAI labels each file's speakers A, B afresh, so pieces must be tied back to one advisor - known_speaker_references (up to four 2-10 second clips) is the documented way. MIKE'S OPTION 2026-09-24, in his words: meeting presentations have sections, each with a response section; clicking a section starts its own recording, as the voice recorder does in the guided AI session elsewhere in the app, saved per section and combined at the end - which also shows a technical dropout sooner than the end of the meeting. Evidence: OPENAI-DEVELOPER-DOCS.md O5.",
+      "comment": "2026-09-24 - filed on Mike's yes, with his option recorded. Design it together with 8.3."
+    },
+    {
+      "ref": "13.5",
+      "name": "Review imported-stock FX in the forecast and import model: supplier currency and exchange rate",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Paying an overseas supplier is the one place in the app where both a foreign currency and an exchange rate genuinely apply. Today the forecast uses neither: it adds a flat percentage allowance, 10% by default, to the landed cost.",
+      "risk": "An importer's cash forecast shows stock payments as the home-currency cost plus a guessed percentage, not what the supplier's invoice will actually cost at a stated rate. A rate move or a supplier invoicing in another currency is invisible, and the deposit and balance timing in the forecast carries the same guess.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-24 - in his words: \"we have an input for fx (foreign exchange) payments for stock, imported from overseas, in the 3 way forecast and import model... this is ONE area where BOTH the currency and the exchange rate will need to apply - make it a task to review this please\""
+      },
+      "touches": "server/report/threeWayForecastModel.js (fxAllowancePct and salesFxAllowancePct, fxOnPurchases, fxOnSales, the deposit and balance lines near 1068-1137); server/report/importShipmentModel.js, which defers exchange to the forecast; their intake screens and golden tests; item 13.2, which labels the currency of a converted figure.",
+      "note": "A REVIEW FIRST, NOT A BUILD. Established 2026-09-24 from the code: no supplier currency and no exchange rate exist in either model - only a percentage allowance on purchases and a matching one on overseas sales. The review should settle what the advisor enters (supplier currency, rate, and whether the allowance stays as a buffer on top), and run the impact test before any design. Firm currency stays a firm setting - Mike's ruling 2026-09-22, recorded on 13.2.",
+      "comment": "2026-09-24 - filed on Mike's request, raised mid-way through scoping 12.2."
     }
   ]
 }

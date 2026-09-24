@@ -7,6 +7,7 @@
         h1 {{ $t('group.createTitle') }}
         page-help(help-key="groupNew")
       .box
+        speech-status-line(:state="speechState")
         b-field(:label="$t('group.name')")
           b-input(v-model="form.name" :placeholder="$t('group.namePlaceholder')")
         button.button.is-light.is-small.mb-4(
@@ -38,9 +39,11 @@
 
 <script>
 import speechMixin from '~/mixins/collaborate/speechMixin'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 
 export default {
   name: 'CreateGroupPage',
+  components: { SpeechStatusLine },
   mixins: [speechMixin],
   data () {
     return {

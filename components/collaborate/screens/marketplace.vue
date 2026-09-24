@@ -50,6 +50,7 @@
               .tags.has-addons.mb-0
                 span.tag.is-dark {{ form.pageId }}
                 span.tag.is-info.is-light 🔒 {{ $t('market.readOnly') }}
+            speech-status-line(:state="speechState")
             b-field(:label="$t('market.fTitle')")
               b-input(v-model="form.title")
             button.button.is-light.is-small.mb-4(
@@ -78,10 +79,11 @@
 <script>
 import speechMixin from '~/mixins/collaborate/speechMixin'
 import ToolPicker from '~/components/collaborate/shared/ToolPicker.vue'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 
 export default {
   name: 'MarketplacePage',
-  components: { ToolPicker },
+  components: { ToolPicker, SpeechStatusLine },
   mixins: [speechMixin],
   data () {
     return {

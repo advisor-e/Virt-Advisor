@@ -52,6 +52,14 @@ const DIARIZING_MODEL = 'gpt-4o-transcribe-diarize'
 const DIARIZED_FORMAT = 'diarized_json'
 
 /**
+ * 🔴 REQUIRED BY THE DIARIZING MODEL. Without it OpenAI refuses the call outright —
+ * "chunking_strategy is required for diarization models" — proven live 2026-09-24 with a
+ * three-minute browser recording. `auto` is the value OpenAI's own guide sends.
+ * design/OPENAI-DEVELOPER-DOCS.md O5.
+ */
+const CHUNKING_STRATEGY = 'auto'
+
+/**
  * The filename the upload carries. Deliberately says nothing — see condition (b) above.
  * The extension is generic because the browser chooses the container, not this app.
  */
@@ -292,7 +300,8 @@ function createTranscriptionClient (opts) {
       boundary,
       [
         { name: 'model', value: model },
-        { name: 'response_format', value: DIARIZED_FORMAT }
+        { name: 'response_format', value: DIARIZED_FORMAT },
+        { name: 'chunking_strategy', value: CHUNKING_STRATEGY }
       ],
       {
         name: 'file',

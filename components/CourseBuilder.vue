@@ -158,6 +158,7 @@
           button.btn-request-changes(@click="requestOutlineChanges" :disabled="isSavingCourse") Request changes
 
     .input-area
+      speech-status-line(:state="speechState")
       voice-input-bar(
         v-if="speechSupported"
         :text="designInput"
@@ -248,6 +249,7 @@
       )
 
     .input-area
+      speech-status-line(:state="speechState")
       voice-input-bar(
         v-if="speechSupported"
         :text="sessionInput"
@@ -338,6 +340,7 @@
           p.quiz-q-text {{ currentQuestion.question }}
 
         .quiz-answer-area(v-if="!currentResult")
+          speech-status-line(:state="speechState")
           voice-input-bar(
             v-if="speechSupported"
             :text="quizAnswer"
@@ -474,6 +477,10 @@ import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
 import VoiceInputBar from '~/components/base/VoiceInputBar.vue'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
+import {
+  SPEECH_STATE, recognitionClass, createOnDeviceRecognition, checkOnDevice, installOnDevice
+} from '~/utils/onDeviceSpeech'
 import CourseMessage from '~/components/course/CourseMessage.vue'
 import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
 import moderationMessage from '~/mixins/moderationMessage'
@@ -497,7 +504,7 @@ _md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
 export default {
   name: 'CourseBuilder',
 
-  components: { VoiceInputBar, CourseMessage },
+  components: { VoiceInputBar, SpeechStatusLine, CourseMessage },
 
   mixins: [moderationMessage],
 
@@ -517,6 +524,8 @@ export default {
       // Voice input
       isListening: false,
       speechSupported: false,
+      /** Item 12.2 — see utils/onDeviceSpeech.js. Shown by SpeechStatusLine. */
+      speechState: SPEECH_STATE.NONE,
       recognition: null,
 
       // Design phase
@@ -762,10 +771,12 @@ export default {
 
   mounted () {
     this._initCourses()
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    const SpeechRecognition = recognitionClass(window)
     if (SpeechRecognition) {
-      this.speechSupported = true
-      this.recognition = new SpeechRecognition()
+      // processLocally is on from the first line: nothing said here leaves the computer (12.2).
+      this.recognition = createOnDeviceRecognition(SpeechRecognition)
+      this._speechClass = SpeechRecognition
+      this._needsInstall = false
       this._recognitionRunning = false
       this.recognition.continuous = true
       this.recognition.interimResults = true
@@ -785,12 +796,14 @@ export default {
       this.recognition.onerror = (e) => {
         if (e.error !== 'no-speech') { this.isListening = false }
       }
+      this._checkSpeechOnDevice()
     }
   },
 
   beforeDestroy () {
     // Stop speech recognition so it doesn't keep auto-restarting (onend) after
     // the component is torn down, e.g. when the user exits course mode.
+    this._speechDestroyed = true
     if (this.recognition) {
       this.isListening = false
       this._recognitionRunning = false
@@ -913,11 +926,49 @@ export default {
       } else {
         if (this.phase === 'quiz') { this.quizAnswer = '' } else if (this.phase === 'session') { this.sessionInput = '' } else { this.designInput = '' }
         this.isListening = true
-        if (!this._recognitionRunning) {
-          this._recognitionRunning = true
-          try { this.recognition.start() } catch (e) { this._recognitionRunning = false }
-        }
+        this._startCourseRecognition()
       }
+    },
+
+    /**
+     * Ask Chrome whether English works on the computer (item 12.2). Until it answers the voice
+     * bar is not drawn; if it cannot, the bar stays off — never Google (D1).
+     */
+    async _checkSpeechOnDevice () {
+      this.speechState = SPEECH_STATE.CHECKING
+      const answer = await checkOnDevice(this._speechClass, this.recognition.lang)
+      if (this._speechDestroyed) { return }
+      if (answer === 'unavailable') {
+        this.speechState = SPEECH_STATE.UNAVAILABLE
+        this.speechSupported = false
+        return
+      }
+      this._needsInstall = answer === 'needsInstall'
+      this.speechState = SPEECH_STATE.READY
+      this.speechSupported = true
+    },
+
+    /** Start listening — after the one-off language download when it is still needed (W1, W2). */
+    async _startCourseRecognition () {
+      if (this._recognitionRunning) { return }
+      if (this.speechState === SPEECH_STATE.UNAVAILABLE) { this.isListening = false; return }
+      if (this._needsInstall) {
+        if (this.speechState === SPEECH_STATE.SETTING_UP) { return }
+        this.speechState = SPEECH_STATE.SETTING_UP
+        const ok = await installOnDevice(this._speechClass, this.recognition.lang)
+        if (this._speechDestroyed) { return }
+        if (!ok) {
+          // Never a fallback to a server. The next tap tries the download again.
+          this.speechState = SPEECH_STATE.SETUP_FAILED
+          this.isListening = false
+          return
+        }
+        this._needsInstall = false
+        this.speechState = SPEECH_STATE.READY
+        if (!this.isListening) { return }
+      }
+      this._recognitionRunning = true
+      try { this.recognition.start() } catch (e) { this._recognitionRunning = false }
     },
 
     renderMarkdown (text) {

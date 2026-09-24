@@ -41,6 +41,9 @@ section.scc2
     //- draws IS the diagram, so sending them to the deck for it is wrong.
     p.scc2-teaching(v-if="teachingForm && !hasGraphic && !isOrgChart") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
 
+  //- Item 12.2 — the org chart shows its own, from its own microphone.
+  speech-status-line(v-if="!isOrgChart" :state="speechState")
+
   //- 🔴 A CONCEPT WITH NO TABLE SAYS SO RATHER THAN SHOWING AN EMPTY ONE. Nothing
   //- is borrowed from another concept: a table an advisor puts in front of a client
   //- has to be the table Mike wrote.
@@ -188,6 +191,7 @@ import speechMixin from '~/mixins/speechMixin'
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import StrategyOrgChartBuilder from '~/components/strategy/StrategyOrgChartBuilder.vue'
+import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 import { hasConceptGraphic, conceptTitlesItself, conceptSheetCount } from '~/components/strategy/concepts'
 
 /** The one capture form that is a small application rather than a page of boxes. */
@@ -212,7 +216,7 @@ const STACKED_FORMS = ['named-field-stack', 'parallel-prompt-pair']
 export default {
   name: 'StrategyConceptCapture',
 
-  components: { StrategyConceptGraphic, StrategyCaptureBox, StrategyOrgChartBuilder },
+  components: { StrategyConceptGraphic, StrategyCaptureBox, StrategyOrgChartBuilder, SpeechStatusLine },
 
   mixins: [speechMixin],
 
