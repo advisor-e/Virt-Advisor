@@ -52,25 +52,27 @@
 > ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE — AND NOW THE CODE CAN.** That
 > changed on 2026-09-01: until slice 2 there was nothing to misuse. The items in §4 are not coding
 > tasks and they gate a first recording rather than a first commit. `/meeting-record` carries a
-> banner saying so, **which is a warning and not a control — until item 4.83 builds one.**
+> banner saying so, **and the recording itself is gated: no advisor at a firm can start one until
+> that firm has recorded the Compliance declaration** (built 2026-09-10, item 4.83,
+> [`compliance.md`](compliance.md) P1).
 >
 > ✅ **§4 ITEM 3 IS CLOSED (2026-09-10) — the impact assessment is written**, against all fourteen
 > NZ information privacy principles: [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md).
-> 🔴 **§4 ITEM 5 IS REOPENED (2026-09-23) — AND THAT IS PROGRESS, NOT A SETBACK.** It had closed on
-> 2026-09-18 on Mike's ruling rather than a sign-off. A **fourth reply**, prompted by Mike quoting
-> support case **14889777**, offers **Zero Data Retention on BOTH endpoints** — including the
-> `/v1/chat/completions` call carrying the whole transcript, which is exactly the 30-day exposure
-> (b) below describes. Under ZDR that call treats `store` as false and the content is excluded from
-> abuse-monitoring logs. **§5.5 of [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)
-> has it verbatim. ✅ **Mike SENT the intake on 2026-09-23** — [`../ZDR-INTAKE-EMAIL.md`](../ZDR-INTAKE-EMAIL.md)
-> is the email as it went. **The reply is what this gate now waits on**, and it goes in §5 as
-> §5.6 when it arrives.
+> 🔴 **§4 ITEM 5 — ZDR IS SIGNED AND APPROVED, AND WAITS ONLY ON OPENAI SWITCHING IT ON.** A
+> **fourth reply**, prompted by Mike quoting support case **14889777**, offered **Zero Data
+> Retention on BOTH endpoints** — including the `/v1/chat/completions` call carrying the whole
+> transcript, which is exactly the 30-day exposure (b) below describes. Under ZDR that call treats
+> `store` as false and the content is excluded from abuse-monitoring logs. Mike sent the intake on
+> 2026-09-23 ([`../ZDR-INTAKE-EMAIL.md`](../ZDR-INTAKE-EMAIL.md)); **the amendment was executed the
+> same day** ([`../openai/ZDR-AMENDMENT-SIGNED-2026-09-23.md`](../openai/ZDR-AMENDMENT-SIGNED-2026-09-23.md));
+> **OpenAI approved it on 2026-09-24** (§5.7 of
+> [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md), every reply verbatim).
 >
-> ⚠ **NOTHING IS GRANTED — IT IS AN INVITATION TO APPLY.** Approval, the signed amendment and
-> enablement are three separate steps and OpenAI quotes no turnaround. **Never record ZDR as
-> obtained or in progress.**
+> ⚠ **NOT IN FORCE until the Account Console shows ZDR switched on for the Org AND the Project**
+> (amendment clause 2). Until then nothing may be described as covered by ZDR. Its design rules
+> are [`../OPENAI-ZDR-CONSTRAINTS.md`](../OPENAI-ZDR-CONSTRAINTS.md).
 >
-> 🔴 **AND TWO FINDINGS FROM IT ARE THE LAWYER'S, NOT A SETTING TO CHOOSE.** **In-region processing
+> 🔴 **AND TWO FINDINGS FROM IT ARE FOR A FIRM'S OWN LEGAL READING, NOT A SETTING TO CHOOSE.** **In-region processing
 > for New Zealand does not exist** — NZ is unlisted, Australia is storage-only with no regional
 > processing for either endpoint, so content is processed offshore whichever region is picked. And
 > **even under ZDR, human access is not excluded** during processing or under a documented
@@ -86,14 +88,24 @@
 > call falls under ordinary abuse-monitoring logs: **inputs and outputs up to 30 days**, longer
 > where law requires. OpenAI's own words: *"The transcription entry alone should not be treated as
 > confirmation that human access is impossible throughout your app's entire workflow."* Our
-> destroy-the-audio commitment is unaffected; it is the **transcript** that may sit in those logs.
+> destroy-the-audio commitment is unaffected; it is the **transcript** that may sit in those logs
+> **until ZDR is switched on** (above).
 >
-> **THREE REMAIN, and none is ours:** the **lawyer's review per market** (item 2), which **no
-> longer waits on anything** — and which now has (a), (b) and the two findings above to test — the
-> **staff consultation** (item 4), which never waited on it, and **the ZDR application itself**
-> (item 5, reopened), which is a form, an approval, a signed amendment and an enablement, in that
-> order. **Item 4.83 turns the banner into a real gate** — a firm declares it understands the law
-> where it operates, or Meeting Review does not open for it.
+> **WHAT REMAINS BEFORE A FIRST REAL RECORDING: OpenAI switching ZDR on (item 5).** Nothing else
+> is Advisor-e's to clear.
+>
+> ☑ **STAFF CONSULTATION IS THE FIRM'S, NEVER A GATE — Mike's ruling, 2026-09-25.** It is point 3
+> of the firm's own compliance checklist (`staff-consulted` in `data/compliance-checklist.json`),
+> and the checklist never gates recording ([`compliance.md`](compliance.md) P1). The spoken
+> disclosure does not replace it — that is the client's consent, and consultation concerns the
+> advisor being assessed — so a firm answers it for itself, in its own jurisdiction.
+>
+> ☑ **A LAWYER IS SUGGESTED, NEVER REQUIRED — Mike's ruling** ([`compliance.md`](compliance.md)
+> §1): *"we can't dictate or make it a condition for firms to seek legal advice, we can only ask
+> that they indicate that they have read and understand the law, as it relates to them, in their
+> country."* **That declaration is the gate, and it is BUILT** (2026-09-10): a firm that has not
+> recorded it cannot start a recording. The findings above are what a firm that does take legal
+> advice would put to its lawyer.
 >
 > **The screens are drawn in [`../mockups/meeting-review.html`](../mockups/meeting-review.html)**
 > — seven of them, from the pre-set through to the manager's aggregate, registered in
@@ -370,9 +382,10 @@ their own client. It is worth building as a visible setting rather than a buried
 2. ✅ **Consent wording — settled 2026-09-01.** The spoken line, the two-step screen, and the
    handling of a refusal or a withdrawal are approved and recorded in
    [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md), registered in
-   [`../ARTEFACTS.md`](../ARTEFACTS.md). **What remains is not drafting but review: a lawyer reads
-   it in each market the feature is sold into**, and the eight locales are translated by someone
-   competent in the local law rather than machine-translated — see that page §5, and item 6 below.
+   [`../ARTEFACTS.md`](../ARTEFACTS.md). **A lawyer's reading is suggested, never required** —
+   Mike's ruling in [`compliance.md`](compliance.md) §1; the gate is the firm's own declaration,
+   built 2026-09-10 (item 6 below). The eight locales are still to be translated by someone
+   competent in the local law rather than machine-translated — see that page §5.
 3. ✅ **The impact assessment — WRITTEN 2026-09-10, and it is
    [`../MEETING-REVIEW-DPIA.md`](../MEETING-REVIEW-DPIA.md).** Mandatory under GDPR Art. 35 in
    UK/EU markets; recommended rather than required in New Zealand, and done anyway because that is
@@ -388,9 +401,11 @@ their own client. It is worth building as a visible setting rather than a buried
    - 🔴 **IPP6/IPP7 is OURS and it is unbuilt** — no route serves a client asking for a copy of
      what was recorded about them, or its correction. That is item 7 below, and the assessment
      records it as finding B rather than leaving it inside a prose paragraph.
-4. **Staff consultation.** Recording employees and generating performance findings about them is
-   monitoring in employment-law terms, whoever owns the report. P2 makes the position defensible;
-   it does not remove the obligation.
+4. ✅ **Staff consultation — the firm's, never a gate (Mike's ruling, 2026-09-25).** Recording
+   employees and generating performance findings about them is monitoring in employment-law terms,
+   whoever owns the report. P2 makes the position defensible; it does not remove the obligation —
+   **and the obligation is the firm's**: point 3 of its compliance checklist, which never gates
+   recording ([`compliance.md`](compliance.md) P1).
 5. 🔴 **The transcription terms, for audio specifically — REOPENED 2026-09-23 WITH A ROUTE.** It had
    closed on 2026-09-18 on Mike's ruling rather than an answer: both letters of 2026-09-12 were
    replied to and **neither confirmed a single one of the five questions**, and a third reply the
@@ -402,13 +417,13 @@ their own client. It is worth building as a visible setting rather than a buried
    `/v1/chat/completions` call carrying the whole transcript: under ZDR it treats `store` as false
    and the content is excluded from abuse-monitoring logs. Every reply is verbatim in
    [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md) §5.
-   ⚠ **Approved by OpenAI 2026-09-24 (§5.7). Not in force** until the amendment is executed and
-   the Account Console shows ZDR switched on for the Project (amendment clause 2) — never record it
-   as in force before then. Its design rules are in
+   ⚠ **Amendment executed 2026-09-23; approved by OpenAI 2026-09-24 (§5.7). Not in force** until
+   the Account Console shows ZDR switched on for the Org and the Project (amendment clause 2) —
+   never record it as in force before then. Its design rules are in
    [`../OPENAI-ZDR-CONSTRAINTS.md`](../OPENAI-ZDR-CONSTRAINTS.md). Never
    describe any of this as confirmed — Support expressly cautioned against assuming the general API
    terms extend to audio, and that caution is still on file.
-   🔴 **TWO FINDINGS GO STRAIGHT TO THE LAWYER.** **In-region processing for New Zealand does not
+   🔴 **TWO FINDINGS FOR A FIRM'S OWN LEGAL READING.** **In-region processing for New Zealand does not
    exist**, and this is now **OpenAI's own written position, not our reading of their table** —
    *"your assessment should treat this as offshore processing"*, with Australia ruled out as
    storage-only (§5.6, 2026-09-23). And **ZDR does not exclude human access** during processing or
@@ -418,15 +433,14 @@ their own client. It is worth building as a visible setting rather than a buried
    ZDR-eligible with no requirement to pin a dated snapshot.** So **`gpt-4o-mini`** undated for the
    reports and **`gpt-4o-transcribe-diarize`** (published undated only) are both fine as they
    stand, and **no code change follows.**
-   ⚠ **IPP12 still closes as a reasoned position**, never an evidenced one, and the **lawyer's
-   review (item 2) is where it gets tested. That review no longer waits on anything** — and it now
-   has the two findings above to weigh.
+   ⚠ **IPP12 still closes as a reasoned position**, never an evidenced one. A firm that takes
+   legal advice (item 2) is where it gets tested, with the two findings above to weigh.
 6. **Jurisdiction.** The app is already localised for more than one country, and the law on
-   recording a conversation is not the same in all of them. ⚠ **This is the item item 4.83 changes
-   the shape of** — it does not answer the question, and it never could, but it stops the answer
-   being nobody's: a firm declares in its own words that it has read and understands the law where
-   it operates, and Meeting Review does not open until it has. **Advisor-e still assesses nothing**,
-   which is the point.
+   recording a conversation is not the same in all of them. ✅ **Answered by the declaration,
+   BUILT 2026-09-10** (item 4.83, [`compliance.md`](compliance.md)) — it does not state the law,
+   and it never could, but it stops the answer being nobody's: a firm declares that it has read and
+   understands the law where it operates, and Meeting Review does not open until it has.
+   **Advisor-e still assesses nothing**, which is the point.
 7. ✅ **The client's rights — BUILT 2026-09-10, and this item is CLOSED.** A named individual may
    ask for a copy of what was recorded about them, its correction, or its deletion, and the
    **Client Copy Request** tab now serves all three. Asked for by Mike that day — *"you also need
@@ -644,7 +658,7 @@ report belongs to the advisor and the name should say so before they open it.
 | Question | Whose | Status |
 |---|---|---|
 | Names for the two reports | Mike | ✅ **Settled 2026-09-01** — **Meeting Summary** (client) and **My Coaching Notes** (advisor); *Advisor Review* rejected, §5 Known state |
-| Consent wording, spoken and on screen | Mike | ✅ **Settled 2026-09-01** — spoken line, two-step screen, and the refusal path, in [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md). A lawyer's review per market remains (§4 item 2) |
+| Consent wording, spoken and on screen | Mike | ✅ **Settled 2026-09-01** — spoken line, two-step screen, and the refusal path, in [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md). A lawyer's reading is suggested, never required (§4 item 2) |
 | The exception to the PII-to-LLM rule | Mike | ✅ **Settled 2026-09-01** — written into `CLAUDE.md`, named to this feature, four conditions, no precedent (§4 item 1) |
 | Speaker separation approach | Ours to propose, Mike to choose | ✅ **Settled 2026-09-01** — provider diarization, advisor anchored to the consent line, no voice sample (§3) |
 | Drawing check: verbal signature, or advisor confirms | Mike | ✅ **Settled 2026-09-01** — **both**: the verbal signature raises it and says it is guessing, the advisor confirms in one tap, and the stored finding is the confirmation, never the guess |
