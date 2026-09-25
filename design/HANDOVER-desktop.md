@@ -9,23 +9,24 @@
 
 ---
 
-## 2026-09-24 (afternoon) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-25 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed at `5bdbda07`. 624 suites / 13,751 tests, audit PASS. PR #130 MERGED to
-`master` at `a23572a4` on Mike's word.** One commit beyond it: the Meeting Review Brief correction.
+**Clean. 630 suites / 13,705 tests green.** PR #132 MERGED to `master` at `8e570996` on Mike's
+word (7.10, 22.1, 14.3, 15.8, 14.4). Since then, on this branch only: **16.1** and **13.2**,
+both closed on Mike's word.
 
-### 🔴 FOR THE LAPTOP — once you merge `master`
-- **Dictation now stays on the computer (12.2, done, proven by Mike with Wi-Fi off).** Every
-  recogniser is made by `utils/onDeviceSpeech.js` with `processLocally = true`. A new microphone
-  must use `createOnDeviceRecognition`, **never `new SpeechRecognition()`**, or it sends speech to Google.
-- **Two of your 15.1 screens changed by one line each:** `StrategyConceptCapture.vue` and
-  `StrategyOrgChartBuilder.vue` each gained a `speech-status-line` and its import. Nothing else.
-- **Every `/v1/responses` call now sends `store: false`** (`openaiClient.js`), and Meeting Review
-  sends `chunking_strategy=auto`, without which OpenAI refused every transcription.
-- **OpenAI's own docs are saved** in `design/openai/`. Read `design/OPENAI-DEVELOPER-DOCS.md` before
-  any OpenAI change.
+### 🔴 FOR THE LAPTOP — once you merge `master` (you are 11 behind)
+- **14.3 and 7.10 were done on BOTH machines this morning** (your `3ee91ffe`, our PR #132).
+  Expect conflicts in `scripts/build-handbook.js`, `buildHandbook.test.js`, `features/handbook.md`
+  and the three to-do files. Keep ONE 14.3 implementation and ONE closure entry per item; the
+  content-audit fix under 7.10 exists only on ours.
+- **Buefy's stylesheet is now `assets/css/buefy-brand.css`**, built with `$primary: #0070c0`.
+  Never edit it; change `buefy-brand.scss` and run `npm run brand-css`. `sass` 1.32.13 is a
+  new dev tool, so run `npm install` with **npm 8 on Node 14.15** after merging.
+- **Test scratch files:** clear them with `tests/helpers/removeFile.js`, never a bare
+  `unlinkSync` — that is what blocked pushes at random (22.1).
+- **The forecast P&L gained four overseas lines** (`importedStock`, `overseasFreight`,
+  `overseasDuty`, `exchangeMovement`) so the itemised lines add up to cost of sales.
 
 ### What today settled
-Filed on Mike's yes: **8.3** (Meeting Review's model retires 26 Feb 2027, no speaker-labelling
-successor), **8.4** (meetings over about 27 minutes exceed OpenAI's 25 MB), **13.5** (his FX review of
-imported stock). 5.3 renumbered **5.4**. Nothing is `activeOn` here.
+Seven items closed: 7.10, 22.1, 14.3, 15.8, 14.4, 16.1, 13.2. Nothing is `activeOn` here.
