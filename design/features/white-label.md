@@ -93,9 +93,11 @@ A tester cannot tell them apart, which is why the wiring is asserted rather than
 The brand palette is [`../BRAND-TOKENS.md`](../BRAND-TOKENS.md). **Blue `#0070C0` is the primary
 interactive colour** — buttons, sliders, links on light.
 
-⚠ **Buefy ships its own violet `#7957D5` and it is what `type="is-primary"` renders today.** One
-screen can show both at once. Recolouring is a single override rather than an edit per button,
-which is why it is a change Mike sees whole before it ships, not a line folded into other work.
+**Buefy's primary is the brand Blue, not its own violet** (item 16.1, 2026-09-25). The app loads
+`assets/css/buefy-brand.css` — Buefy's own stylesheet compiled from its sources with
+`$primary: #0070c0` (`assets/css/buefy-brand.scss`, `npm run brand-css`) — so every `is-primary` button,
+tick, switch, focus ring and active tab is Blue, with the tints Bulma derives from it. Never edit
+the `.css` by hand. `is-info` is Bulma's separate, lighter blue and was not changed.
 
 ---
 

@@ -13,6 +13,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const { StringDecoder } = require('string_decoder')
 const { getClient, modelFor, logSuffix } = require('../server/utils/aiProvider')
 const { AI } = require('../config/integration')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
@@ -974,6 +975,8 @@ function parseBody (req) {
     let data = ''
     let size = 0
     let rejected = false
+    // One decoder for the whole body, so a letter split across two chunks arrives whole.
+    const decoder = new StringDecoder('utf8')
     req.on('data', (chunk) => {
       if (rejected) { return }
       size += chunk.length
@@ -985,10 +988,11 @@ function parseBody (req) {
         reject(err)
         return
       }
-      data += chunk
+      data += typeof chunk === 'string' ? chunk : decoder.write(chunk)
     })
     req.on('end', () => {
       if (rejected) { return }
+      data += decoder.end()
       try { resolve(JSON.parse(data)) } catch (e) { reject(e) }
     })
     req.on('error', reject)

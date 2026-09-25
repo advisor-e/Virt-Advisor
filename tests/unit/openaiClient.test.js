@@ -76,6 +76,38 @@ describe('parseSSEStream', () => {
   })
 })
 
+/**
+ * A reply cut into two network chunks in the MIDDLE of a letter. "ö" is two bytes and "—" is
+ * three; decoding each chunk on its own turned them into "��". Found 2026-09-25 as
+ * "Verm��genswerte" in a stored German translation — no screen test could have seen it.
+ */
+function splitInsideLetter (text, letter) {
+  const bytes = Buffer.from(text, 'utf8')
+  const at = bytes.indexOf(Buffer.from(letter, 'utf8')) + 1
+  return [bytes.slice(0, at), bytes.slice(at)]
+}
+
+describe('a letter split across two chunks arrives whole', () => {
+  test.each([['ö'], ['—'], ['’']])('non-streamed reply with %s cut in half', async (letter) => {
+    const body = JSON.stringify({ choices: [{ message: { content: 'Verm' + letter + 'genswerte' } }] })
+    const res = { statusCode: 200, async * [Symbol.asyncIterator] () { yield * splitInsideLetter(body, letter) } }
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(res) })
+
+    const reply = await client.chat.completions.create({ model: 'gpt-4o', messages: [{ role: 'user', content: 'x' }] })
+
+    expect(reply.choices[0].message.content).toBe('Verm' + letter + 'genswerte')
+  })
+
+  test('streamed reply with ö cut in half', async () => {
+    const line = 'data: {"choices":[{"delta":{"content":"Vermögenswerte"}}]}\n'
+    async function * source () { yield * splitInsideLetter(line, 'ö') }
+
+    const chunks = await collect(parseSSEStream(source()))
+
+    expect(chunks[0].choices[0].delta.content).toBe('Vermögenswerte')
+  })
+})
+
 describe('createOpenAIClient', () => {
   const messages = [{ role: 'user', content: 'hi' }]
 

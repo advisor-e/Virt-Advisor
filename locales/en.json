@@ -3568,6 +3568,10 @@
           "commissions": "Commissions",
           "otherDirect": "Other direct costs",
           "otherDirectExempt": "Other direct costs (GST exempt)",
+          "importedStock": "Stock arriving from overseas",
+          "overseasFreight": "Freight and shipping",
+          "overseasDuty": "Duty and clearance",
+          "exchangeMovement": "Exchange-rate movement",
           "closingStock": "Closing stock",
           "costOfSales": "Cost of sales",
           "depreciation": "Depreciation",
@@ -3636,6 +3640,7 @@
         "changeAssumptions": "Change the assumptions",
         "startAgain": "Start again",
         "privacy": "Nothing is saved. Nothing about this client leaves the app.",
+        "caution": "This is a forecast. Actual results are likely to differ from it, and the differences may be material.",
         "overseasDeposits": "Deposits paid overseas",
         "overseasFreight": "Freight and shipping",
         "overseasDuty": "Duty and clearance",
@@ -6681,6 +6686,1369 @@
       "advisor": "the advisor",
       "client": "the client",
       "unknown": "an unidentified speaker"
+    }
+  },
+  "courseBuilder": {
+    "nav": {
+      "myCourses": "← My Courses"
+    },
+    "tryAgain": "Try again",
+    "picker": {
+      "heading": "Your saved courses",
+      "sub": "Pick up where you left off, or start something new.",
+      "meta": "{sessions} sessions · {complete} complete",
+      "active": "Active",
+      "paused": "Paused",
+      "shared": "Shared",
+      "makePrivate": "Make private",
+      "shareWithFirm": "Share with firm",
+      "resume": "Resume →",
+      "remove": "✕ Remove",
+      "sharedHeading": "Shared by your team",
+      "sharedMeta": "{sessions} sessions · shared by {author}",
+      "copying": "Copying...",
+      "useCourse": "Use this course",
+      "newCourse": "+ Build a new course"
+    },
+    "design": {
+      "startersHeading": "Build from a template",
+      "startBuilding": "Start building →",
+      "fitAria": "Choose how this course is split into sessions",
+      "fitChooseOne": "Choose one…",
+      "fitBuild": "Build my course →",
+      "startFresh": "✕ Start fresh"
+    },
+    "outline": {
+      "sessionCount": "{count} sessions",
+      "sessionCountExact": "{count} session | {count} sessions",
+      "sessionCountRange": "{min}–{max} sessions",
+      "progressive": "Progressive difficulty",
+      "consistent": "Consistent depth",
+      "noResource": "No library resource matched this session — it runs from the session focus instead.",
+      "estimated": "Estimated — the library publishes no time for this template.",
+      "countNotice": "You asked for {asked} — this outline has {delivered}. Use 'Request changes' if you want it changed.",
+      "lengthNotice": "You asked for {asked} sessions — {text}. {advice}",
+      "lengthAskedExact": "{count}-minute",
+      "lengthAskedRange": "{min}–{max} minute",
+      "lengthSession": "session {id} works out at {time}",
+      "listAnd": "{list} and {last}",
+      "adviceShorter": "Use 'Request changes' if you want it shorter. | Use 'Request changes' if you want them shorter.",
+      "adviceLonger": "Use 'Request changes' if you want it longer. | Use 'Request changes' if you want them longer.",
+      "adviceChanged": "Use 'Request changes' if you want it changed. | Use 'Request changes' if you want them changed.",
+      "untimed": "1 resource has no published time, so it isn't timetabled: {names}. | {count} resources have no published time, so they aren't timetabled: {names}.",
+      "unknownTime": "1 resource has no published time | {count} resources have no published time",
+      "visibilityLabel": "Who can access this course?",
+      "private": "Private — just me",
+      "firm": "Firm-wide — all advisors",
+      "saving": "Saving...",
+      "start": "Start this course →",
+      "requestChanges": "Request changes"
+    },
+    "time": {
+      "minutes": "{m}m",
+      "hours": "{h}h",
+      "hoursMinutes": "{h}h {m}m",
+      "video": "{m}m video",
+      "reading": "{m}m reading",
+      "rehearsal": "{m}m rehearsal"
+    },
+    "input": {
+      "listening": "🎤 Listening...",
+      "requestChanges": "Request any changes, or click Start above...",
+      "typeAnswer": "Type your answer...",
+      "askQuestions": "Ask questions, share your thoughts...",
+      "thinking": "Thinking...",
+      "saveContinue": "Save & Continue",
+      "hint": "Press Enter to send · Shift+Enter for new line"
+    },
+    "session": {
+      "progress": "{done} of {total} sessions complete",
+      "deleteCourse": "✕ Delete course",
+      "badge": "Session {n}",
+      "overview": "≡ Overview",
+      "myNotes": "✎ My Session Notes",
+      "needConversation": "Have the session conversation first",
+      "endTitle": "End session and take the quiz",
+      "generatingQuiz": "Generating quiz...",
+      "endAndQuiz": "✓ End session & take quiz",
+      "skipQuiz": "Skip quiz & continue →",
+      "notesTitle": "My session notes",
+      "notesPlaceholder": "Jot down key takeaways, questions, or ideas...",
+      "theMaterial": "the session material",
+      "and": " and ",
+      "intro": "**Session {id}: {title}**\n\n{focus}\n\nYour resource for this session is **{resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll discuss what you found.",
+      "introFallback": "**Session {id}: {title}**\n\n{focus}\n\nHead to **{resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll pick it apart together."
+    },
+    "overview": {
+      "back": "← Back to session",
+      "moveEarlier": "Move earlier",
+      "moveLater": "Move later",
+      "review": "Review",
+      "active": "Active",
+      "upcoming": "Upcoming",
+      "open": "Open →",
+      "resume": "→ Resume Session {n}"
+    },
+    "quiz": {
+      "heading": "Session {n} Quiz",
+      "sub": "Test your understanding before moving on",
+      "progress": "Question {current} of {total}",
+      "voiceReady": "Captured — review then Submit",
+      "placeholder": "Type your answer here...",
+      "evaluating": "Evaluating...",
+      "submit": "Submit answer",
+      "notGraded": "— Not graded",
+      "good": "✓ Good understanding",
+      "reviewThis": "✗ Review this one",
+      "score": "Score: {score}%",
+      "modelAnswer": "Model answer",
+      "keyPoint": "Key point: {point}",
+      "next": "Next question →",
+      "seeResults": "See results",
+      "ungradedFeedback": "We couldn't assess this answer due to a technical problem. It won't count towards your score."
+    },
+    "results": {
+      "notGraded": "Not graded",
+      "passed": "Passed",
+      "keepGoing": "Keep going",
+      "ungradedVerdict": "This quiz couldn't be marked this time — your session is still complete, and you can revisit the material any time.",
+      "passedVerdict": "Great work — you've completed this session.",
+      "failedVerdict": "No problem — you can revisit the session material any time.",
+      "questionNumber": "Q{n}",
+      "continue": "Continue to session {n} →",
+      "complete": "Complete course"
+    },
+    "review": {
+      "back": "← Back to overview",
+      "heading": "Quiz review — Session {n}",
+      "source": "from {bank} · question {ref}",
+      "aiWritten": "AI-written from the session content",
+      "yourAnswer": "Your answer"
+    },
+    "complete": {
+      "heading": "Course complete!",
+      "sessions": "Sessions completed",
+      "average": "Average quiz score",
+      "download": "↓ Download certificate",
+      "returnMenu": "← Return to main menu"
+    },
+    "certificate": {
+      "title": "Course Completion Certificate",
+      "certifies": "This certifies that",
+      "theAdvisor": "the advisor",
+      "completed": "has successfully completed",
+      "sessions": "Sessions",
+      "average": "Average score",
+      "print": "Print / Save as PDF",
+      "close": "Close"
+    },
+    "errors": {
+      "saveFailed": "Couldn't save your progress just now — it will retry with your next action.",
+      "loadFailed": "We couldn't load your saved courses. Check your connection and try again.",
+      "shareFailed": "Couldn't change sharing just now — please try again.",
+      "deleteFailed": "Couldn't delete the course — please try again.",
+      "copyFailed": "Couldn't copy that course just now — please try again.",
+      "timedOut": "The response timed out. Please try again.",
+      "somethingWrong": "Sorry, something went wrong. Please try again.",
+      "quizNoQuestions": "Couldn't generate quiz questions — please try again, or skip to continue.",
+      "quizFailed": "Something went wrong generating the quiz — please try again, or skip to continue.",
+      "stateLost": "Session state was lost. Please refresh and try again."
+    },
+    "confirm": {
+      "remove": "Delete '{title}'? Its progress will be lost.",
+      "copyAgain": "You already have a copy of this course. Make another copy?",
+      "openAhead": "This course builds up session by session — Session {n} assumes you've covered the earlier ones. Open it anyway?",
+      "moveEarlier": "This course builds up session by session — moving '{title}' earlier may put advanced material before its foundations. Move it anyway?",
+      "deleteCourse": "Delete this course and start again? Your progress will be lost."
+    }
+  },
+  "countryRateSchedules": {
+    "country": "Country",
+    "intro": {
+      "lead": "A country's",
+      "leadBold": "whole published schedule",
+      "body": ", stored once and searched by every firm beneath you. New Zealand's IR265 publishes about 2,800 asset classes; a firm's class picker searches this table instead of the first few hundred of one uploaded document.",
+      "noChangeBold": "Nothing here changes any firm's rates by itself",
+      "noChange": "— approving a schedule makes it searchable, and a firm's own six rates still change only when that firm's manager approves them."
+    },
+    "notLoader": {
+      "lead": "Country schedules are loaded and approved by the",
+      "bold": "global group manager",
+      "tail": ". You can see what is held here and search it; loading a new one is not yours to do."
+    },
+    "library": {
+      "heading": "Schedules held",
+      "empty": "No country schedule has been loaded yet. Every firm beneath you is using the app's own six rates, or whatever their own manager has approved from a document of their own.",
+      "unresolved": "{count} entry the document could not settle, left out and listed. | {count} entries the document could not settle, left out and listed."
+    },
+    "table": {
+      "inForce": "Schedule in force",
+      "edition": "Edition",
+      "classes": "Classes",
+      "approved": "Approved"
+    },
+    "state": {
+      "stopped": "Stopped",
+      "reading": "Reading",
+      "pending": "Needs your approval",
+      "failed": "Could not be read",
+      "approved": "In use",
+      "rejected": "Rejected"
+    },
+    "reads": {
+      "loadedBy": "{filename} · loaded by {who}",
+      "passProgress": "Pass {done} of {planned} · {classes} classes so far.",
+      "surveying": "Looking over the document to see how far it runs.",
+      "canLeave": "You can leave this page — the reading carries on.",
+      "stale": "This reading has not reported anything for a while and has probably stopped. Nothing has been stored. Reject it to clear it, then load the schedule again.",
+      "failed": "The schedule could not be read.",
+      "pendingLead": "Read:",
+      "pendingClasses": "{count} classes",
+      "pendingTail": "from {document}, edition {published}, {pages} pages.",
+      "unreadNote": "Some of this schedule could not be read — {pages} — so a class printed there is missing.",
+      "unresolvedSummary": "{count} entry the document could not settle | {count} entries the document could not settle",
+      "unresolvedPages": "— pages {pages}",
+      "approve": "Approve this schedule",
+      "reject": "Reject",
+      "clear": "Clear this"
+    },
+    "load": {
+      "heading": "Load a country's schedule",
+      "hint": "PDF, up to 20 MB. Name the country first — a document published for another country is refused rather than filed under the wrong flag. A long schedule is read a few pages at a time and takes several minutes.",
+      "choosePdf": "Choose a PDF",
+      "readIt": "Read it",
+      "started": "Reading started. It takes several minutes — you can leave this page.",
+      "sendFailed": "That schedule could not be sent for reading."
+    },
+    "errors": {
+      "libraryFailed": "The schedules held here could not be read.",
+      "approveFailed": "That schedule could not be approved.",
+      "rejectFailed": "That read could not be rejected."
+    }
+  },
+  "firmCompliance": {
+    "close": "Close",
+    "readIt": "Read it",
+    "cancel": "Cancel",
+    "itemMeta": "Version {version} · published {date} by {by}",
+    "firmNote": {
+      "heading": "WHAT THIS PAGE IS, AND WHAT IT IS NOT",
+      "body": "Advisor-e supplies this software on an all-care basis. We identify best practice and set out our assessment below. {responsible} Nothing on this page is legal advice, and it is not a statement that your firm is compliant. {suggest} — we do not require it, and nothing here checks whether you have.",
+      "responsible": "You remain responsible for meeting your own legal obligations and for what you do with the information here.",
+      "suggest": "We strongly suggest taking your own legal advice on it"
+    },
+    "mentorNote": {
+      "heading": "THIS IS WHERE YOU SHARE NEW INFORMATION DOWNWARDS",
+      "body": "Publish an item here and every tier beneath you receives it and is told it is new. A global group manager or group manager can add items of their own for their country or brand — those cascade down from that level, never sideways and never up."
+    },
+    "cascade": {
+      "fromTier": "{count} item from {label} | {count} items from {label}",
+      "you": "you"
+    },
+    "published": {
+      "heading": "Published to you",
+      "intro": "You can read anything published to you and add your own material beside it. You cannot change or remove what a tier above you published — it carries their name, not yours.",
+      "newDotTitle": "New since you last declared",
+      "newSr": "New.",
+      "newTag": "New",
+      "empty": "Nothing has been published to your firm yet."
+    },
+    "evidence": {
+      "heading": "Your firm's compliance evidence",
+      "heldTag": "Held by your firm only",
+      "intro": "These are your documents — what you did, and the advice you took. Advisor-e can see that a document exists and when it was added; {notRead}",
+      "notRead": "we do not read them and they are never shown to another firm.",
+      "dropHeading": "Drop a compliance document here",
+      "dropExamples": "Your lawyer's opinion · your privacy statement · client engagement terms · staff consultation record · your breach process",
+      "dropLimit": "PDF, up to {mb} MB",
+      "add": "Add it",
+      "empty": "Your pack is empty. Nothing is blocked by that — an empty pack stops nothing, and Advisor-e does not judge whether your firm is compliant.",
+      "meta": "Added {date} by {by} · {size}",
+      "someoneAtFirm": "someone at your firm",
+      "open": "Open",
+      "remove": "Remove"
+    },
+    "missing": {
+      "heading": "What is missing from your pack",
+      "checked": "Checked {date} · {covered} of {total} covered",
+      "note": "{notOpinion} We look at what your documents are called and say which of the eight points each one appears to address. {weDoNot} A tick means a document appears to address that point, never that it addresses it adequately. Only your lawyer can say that.",
+      "notOpinion": "This is a completeness check, not a legal opinion.",
+      "weDoNot": "We do not tell you what the law requires, we do not read your documents, and nothing inside one is ever sent anywhere.",
+      "coveredBy": "Covered by: {docs}",
+      "notChecked": "Your pack has not been checked yet.",
+      "ninth": "{notOnList} That the firm has read and understands the law as it applies to it is the declaration below, not a document. {onlyOne} Nothing in this software checks whether you took legal advice.",
+      "notOnList": "The ninth point is not on this list, and that is deliberate.",
+      "onlyOne": "It is the only one we ask for, and the only one that changes anything.",
+      "check": "Check my pack",
+      "checkAgain": "Check my pack again",
+      "sendsNames": "This sends the names of your documents — never the documents — to be matched against the eight points. It runs only when you press the button."
+    },
+    "declaration": {
+      "heading": "Your firm's declaration",
+      "active": "Meeting Review is active for your firm",
+      "notActive": "Meeting Review is not active",
+      "gate": "{notUntil} Until a firm manager records the declaration below, no advisor at your firm can open the meeting recorder. {onlyGate} Your evidence pack above is for your own benefit — an empty pack blocks nothing, and Advisor-e does not judge whether your firm is compliant.",
+      "notUntil": "Meeting Review does not switch on until this is recorded.",
+      "onlyGate": "This is the only thing that gates it.",
+      "adviceSuggested": "We strongly suggest taking your own legal advice before recording a client. We do not require it and we do not ask you to tell us whether you have.",
+      "newNotice": "{items} new since you last declared. {keepRecording} — this is a notification, not a suspension. Read it and record your declaration again, and the dot clears.",
+      "newItems": "One published item is | {count} published items are",
+      "keepRecording": "Your advisors can keep recording",
+      "record": "Record this declaration",
+      "recordedByLabel": "Recorded by:",
+      "recordedByDetail": "{by} · {date} · against {count} published item | {by} · {date} · against {count} published items"
+    },
+    "publish": {
+      "heading": "What you publish",
+      "newItem": "Publish a new item",
+      "intro": "Everything here is sent down to every tier beneath you. Publishing again as a new version tells them there is something to re-read.",
+      "empty": "You have published nothing yet.",
+      "yourFirm": "your firm",
+      "newVersion": "Publish a new version",
+      "replaces": "This replaces {title} with a new version. Everyone beneath you is told it has changed.",
+      "form": {
+        "titleLabel": "What is it called?",
+        "summaryLabel": "What is it, in one line?",
+        "bodyLabel": "The material itself",
+        "publishVersion": "Publish this version",
+        "publishIt": "Publish it"
+      }
+    },
+    "firms": {
+      "heading": "Who has recorded what",
+      "statusTag": "Status only — never their documents",
+      "intro": "You see whether a firm has done it, never what they wrote. {nobodyReads}",
+      "nobodyReads": "Neither the AI nor anyone at Advisor-e reads their documents.",
+      "table": {
+        "firm": "Firm",
+        "declaration": "Declaration",
+        "meetingReview": "Meeting Review",
+        "documentsHeld": "Documents held"
+      },
+      "neverRecorded": "Never recorded",
+      "active": "Active",
+      "notActive": "Not active",
+      "blocked": "{names} cannot record a client meeting, and this is the only reason: {notMade} An empty evidence pack is not why — a firm records on an empty pack. If they ask why the recorder is closed to them, the answer is one tick by a firm manager.",
+      "notMade": "the declaration has not been made.",
+      "namesAnd": "{list} and {last}"
+    },
+    "errors": {
+      "evidenceLoad": "Your compliance documents could not be loaded: {message}",
+      "addFailed": "That document could not be added.",
+      "openFailed": "That document could not be opened.",
+      "needName": "Give it a name first.",
+      "needBody": "There is nothing to publish yet — add the material itself.",
+      "unreachable": "The server could not be reached. Check your connection and try again.",
+      "generic": "That could not be done."
+    },
+    "units": {
+      "kb": "{n} KB",
+      "mb": "{n} MB"
+    }
+  },
+  "firmDepreciationRates": {
+    "intro": {
+      "body": "These are the rates the {forecast} writes assets down at, for clients in one country. {notRules} — until then the forecast uses the app's own six figures, which are a starting point and are marked as one.",
+      "forecast": "Three-Way Forecast",
+      "notRules": "Nothing here is any country's tax rules until a document has been loaded and approved"
+    },
+    "country": {
+      "label": "Country",
+      "show": "Show"
+    },
+    "empty": {
+      "heading": "Choose a country",
+      "body": "Rates belong to the country whose tax authority publishes them, so there is nothing to show until you name one. Two letters — NZ, AU.",
+      "noCountries": "This level has not approved a table for any country yet."
+    },
+    "status": {
+      "own": "This level has approved its own {country} table",
+      "inherited": "Inherited from above",
+      "none": "Nobody has approved a {country} table — the app's own figures apply"
+    },
+    "table": {
+      "heading": "What a {country} client's forecast uses",
+      "intro": "One rate for each of the forecast's six asset categories, and where each one came from. {defaultNote}",
+      "defaultNote": "A rate marked as an app default is a starting point, not this country's rules.",
+      "categoryHeading": "Category",
+      "rateHeading": "Rate",
+      "methodHeading": "Method",
+      "originHeading": "Where it came from",
+      "sourceWithPage": "{document}, p.{page} · {published}",
+      "source": "{document} · {published}"
+    },
+    "categories": {
+      "vehicles": "Vehicles",
+      "leaseholdImprovements": "Leasehold improvements",
+      "plantEquipment": "Plant and equipment",
+      "officeEquipment": "Office equipment",
+      "computerHardware": "Computer hardware",
+      "other": "Other"
+    },
+    "methods": {
+      "sl": "straight line",
+      "dv": "diminishing value"
+    },
+    "origins": {
+      "mentor": "Advisor-e",
+      "globalGroupManager": "your global group",
+      "groupManager": "your group",
+      "firmManager": "your firm",
+      "appDefault": "app default"
+    },
+    "documents": {
+      "heading": "Documents loaded for {country}",
+      "intro": "The schedules {country}'s tax authority publishes, read by the AI so a manager can check every figure and approve it. {notReplace} — it is read alongside it, and where two disagree the newer publication wins.",
+      "notReplace": "A second document never replaces the first",
+      "none": "Nothing has been loaded for {country} yet.",
+      "summary": "{loaded} loaded",
+      "summaryPending": "{loaded} loaded · {pending} awaiting you",
+      "nothingRead": "nothing could be read",
+      "categoriesRead": "{read} of 6 categories read",
+      "loadedBy": "loaded by {name}",
+      "close": "Close",
+      "review": "Review",
+      "delete": "Delete"
+    },
+    "statuses": {
+      "approved": "In use",
+      "pending": "Needs your approval",
+      "rejected": "Rejected",
+      "unreadable": "Could not be read"
+    },
+    "upload": {
+      "heading": "Load a depreciation schedule",
+      "body": "PDF, up to 20 MB, as {country}'s tax authority publishes it. It is sent to the AI to be read and is not kept afterwards — the AI proposes, and nothing it proposes reaches a forecast until you approve it.",
+      "choose": "Choose a file",
+      "read": "The document was read. Check what it proposed before approving it.",
+      "unreadable": "That document could not be read."
+    },
+    "rule": {
+      "heading": "First-year rule",
+      "intro": "Some countries let a business deduct part of a new asset's cost up front. It is {separately}, because adopting a tax scheme is a different decision from confirming a rate table.",
+      "separately": "approved separately from the rates",
+      "name": "Rule",
+      "deducted": "Deducted in the year of purchase",
+      "deductedValue": "{percent} of the asset's cost, as an expense",
+      "rest": "The rest",
+      "restValue": "{remainder} goes on the asset register and depreciates at the ordinary rate",
+      "startsOn": "Applies to assets bought on or after",
+      "endsOn": "And on or before",
+      "qualifies": "Qualifies",
+      "excludes": "Does not qualify",
+      "adoptedBy": "Adopted by",
+      "bringsForward": "This does not change the total that may be claimed — it brings it forward.",
+      "withdraw": "Withdraw this rule",
+      "adoptedAbove": "Adopted at a level above this one, so it is withdrawn there rather than here.",
+      "none": "No first-year rule has been adopted for {country}. Advisors see no such field on a {country} client's forecast, which is the correct state for a country whose tax authority has no such scheme."
+    },
+    "history": {
+      "heading": "Change history",
+      "hide": "Hide change history",
+      "none": "Nothing has been approved at this level yet.",
+      "version": "Version {version}",
+      "restore": "Restore"
+    },
+    "deleteDialog": {
+      "message": "Delete this failed attempt? Nothing else on this screen changes."
+    },
+    "withdrawDialog": {
+      "title": "Withdraw this first-year rule",
+      "message": "Forecasts for {country} clients will stop offering it. The depreciation rates are not affected.",
+      "confirm": "Withdraw it"
+    },
+    "toasts": {
+      "deleted": "That failed attempt has been deleted",
+      "approved": "These rates are now in force",
+      "rejected": "That proposal has been rejected",
+      "withdrawn": "The rule has been withdrawn",
+      "restored": "That version is back in force"
+    }
+  },
+  "firmForecastTrendThresholds": {
+    "intro": {
+      "lead": "These decide when the ",
+      "forecastName": "Three-Way Forecast",
+      "afterName": "’s two-year comparison marks a measure amber or red. Every number here is yours.",
+      "blankNote": "A measure you leave blank is still shown in full, with both years and the movement — it is simply never banded.",
+      "reportNote": "That is the right setting for anything you would rather report than judge."
+    },
+    "status": {
+      "someSetHere": "Some thresholds are set here",
+      "allInherited": "Everything is inherited"
+    },
+    "source": {
+      "setHere": "set here",
+      "inherited": "inherited"
+    },
+    "table": {
+      "measure": "Measure"
+    },
+    "levels": {
+      "heading": "Where the figure stands",
+      "intro": "These three are judged on this year’s level. Each has its own numbers, because 46 days means a quite different thing about a customer, a supplier and a shelf.",
+      "greenUpTo": "Green up to",
+      "amberUpTo": "Amber up to",
+      "red": "Red",
+      "redNothing": "nothing is red until an amber figure is set",
+      "redBelow": "anything below {amber}",
+      "redAbove": "anything above {amber}",
+      "debtorDays": {
+        "label": "Debtor days",
+        "help": "How long customers take to pay. Mike’s own figures: 35 and 45."
+      },
+      "creditorDays": {
+        "label": "Creditor days",
+        "help": "How long the business takes to pay suppliers. A high figure is the one that reads as stretching them."
+      },
+      "stockDays": {
+        "label": "Stock days",
+        "help": "How long stock sits before it sells. Varies more by trade than either of the other two."
+      },
+      "currentRatio": {
+        "label": "Current ratio",
+        "help": "Current assets, including the bank, over current liabilities. Higher is better, so this row reads the other way up: green at or above the first figure, amber at or above the second, red below. Counts in the Business Performance Report’s health score."
+      },
+      "debtToEquity": {
+        "label": "Debt to equity",
+        "help": "Total liabilities over equity, equity being assets less liabilities. Green up to the first figure, amber up to the second, red above. Counts in the Business Performance Report’s health score."
+      }
+    },
+    "movements": {
+      "heading": "How far it moved",
+      "intro": "These three are judged on the movement between the two years. A level would not travel: a gross margin that is alarming for a retailer is routine for a builder, whereas a margin that fell three points is worth a look in any trade.",
+      "worthALook": "Worth a look",
+      "needsExplanation": "Needs an explanation",
+      "unit": "Unit",
+      "salesGrowth": {
+        "label": "Sales growth falls below",
+        "help": "A percentage. Negative is allowed — “below −5%” is an ordinary red line.",
+        "unit": "% growth"
+      },
+      "grossMargin": {
+        "label": "Gross margin falls by more than",
+        "help": "In percentage points, so a fall from 42% to 40% is 2.",
+        "unit": "percentage points"
+      },
+      "overheadRatio": {
+        "label": "Overheads against sales rise by more than",
+        "help": "In percentage points. Rising means running costs are taking more of every dollar sold.",
+        "unit": "percentage points"
+      }
+    },
+    "actions": {
+      "save": "Save these thresholds",
+      "reset": "Go back to inherited",
+      "hideHistory": "Hide change history",
+      "restore": "Restore"
+    },
+    "history": {
+      "heading": "Change history",
+      "empty": "Nothing has been saved at this level yet.",
+      "version": "Version {version}"
+    },
+    "toast": {
+      "saved": "Thresholds saved",
+      "inheriting": "Now inheriting again",
+      "restored": "That version is back in force"
+    },
+    "resetDialog": {
+      "title": "Go back to inherited thresholds",
+      "message": "This level will stop holding its own thresholds and will take them from the level above again. Advisors here will see that level's bands."
+    }
+  },
+  "firmManagerHub": {
+    "domains": {
+      "conflict": "Conflict & Dispute",
+      "profit": "Profitability & Feasibility",
+      "staff": "Staff & Team",
+      "dataSystems": "Data & Financial Systems",
+      "salesMarketing": "Sales & Marketing",
+      "forecasting": "Financial Management",
+      "governance": "Governance & Leadership",
+      "strategy": "Strategy & Planning",
+      "systems": "Business Systems",
+      "valuation": "Business Valuation",
+      "risk": "Risk Management",
+      "succession": "Succession & Exit Planning",
+      "eoy": "End of Year",
+      "dueDiligence": "Due Diligence & Acquisitions"
+    },
+    "title": {
+      "mentor": "Mentor Hub",
+      "global": "Global Group Manager Hub",
+      "group": "Group Manager Hub",
+      "firm": "Firm Manager Hub"
+    },
+    "backToAdvisor": "← Back to Advisor",
+    "close": "Close",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "menu": {
+      "hide": "Hide menu",
+      "show": "Show menu",
+      "legendNew": "something new",
+      "legendNeverOpened": "never opened",
+      "legendStale": "not opened in 3 weeks",
+      "dotNeverOpened": "Never opened",
+      "dotStale": "Not opened in 3 weeks",
+      "dotNewItems": "1 new item since you last declared | {count} new items since you last declared",
+      "tabsNeedingLook": "1 tab needing a look | {count} tabs needing a look"
+    },
+    "nav": {
+      "yourAiCoach": "Your AI coach",
+      "yourTeamInAction": "Your Team In Action",
+      "modelInputs": "Model Inputs",
+      "compliance": "Compliance",
+      "rolledUpFromBelow": "Rolled up from below"
+    },
+    "tabs": {
+      "domainSupport": "Domain Support",
+      "advisoryDistinctions": "Advisory Distinctions",
+      "logicTables": "Logic Tables",
+      "advisoryStaircase": "Advisory Staircase",
+      "logicLab": "Logic-Lab",
+      "aiPrompts": "AI Prompts",
+      "meetingReview": "Meeting Review",
+      "clientCopyRequest": "Client Copy Request",
+      "teamCaseStudies": "Team Case Studies",
+      "sessionProcesses": "Session Processes",
+      "teamPipeline": "Team Pipeline",
+      "salesTrackerLists": "Sales Tracker Lists",
+      "propertyTaxRules": "Property Tax Rules",
+      "forecastTrendThresholds": "Forecast Trend Thresholds",
+      "importedStockPrices": "Imported Stock Prices",
+      "industryBenchmarks": "Industry Benchmarks",
+      "depreciationRates": "Depreciation Rates",
+      "taxRates": "Tax Rates",
+      "countryRateSchedules": "Country Rate Schedules",
+      "compliance": "Compliance",
+      "caseReviews": "Case Reviews"
+    },
+    "distinctions": {
+      "domainHeading": "Domain",
+      "domainUpdateCount": "{count} update | {count} updates",
+      "howThisWorks": "How this works",
+      "heading": "Advisory Distinctions — {domain}",
+      "add": "Add distinction",
+      "editNote": "Edit any distinction to make it your firm's own, or switch one off. Platform rows are shared defaults; your changes apply to your firm only.",
+      "mentorUpdatesSince": "{count} mentor update since your last visit | {count} mentor updates since your last visit",
+      "markAllReviewed": "Mark all as reviewed",
+      "editHeading": "Edit distinction",
+      "saveChanges": "Save changes",
+      "updatedByMentor": "Updated by mentor · {date}",
+      "mentorDrift": "Mentor updated this distinction",
+      "description": "Description",
+      "triggerPhrases": "Trigger phrases",
+      "templatesBoosted": "Templates boosted",
+      "boost": "Boost",
+      "edit": "Edit",
+      "moveTo": "Move to…",
+      "switchOff": "Switch off",
+      "switchOn": "Switch on",
+      "reviewUpdate": "Review update",
+      "resetToPlatform": "Reset to platform",
+      "empty": "No distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.",
+      "newHeading": "New distinction",
+      "badge": {
+        "customised": "Customised",
+        "switchedOff": "Switched off",
+        "yourFirm": "Your firm",
+        "platform": "Platform"
+      }
+    },
+    "help": {
+      "title": "How to write a distinction",
+      "intro": "A distinction teaches the system to recommend the templates {you} trust when a certain kind of client situation comes up. The system reads what the advisor typed and understands the {meaning} — so you just describe the situation in plain English, and it handles the rest. You don't need to guess every word an advisor might use.",
+      "introYou": "you",
+      "introMeaning": "meaning",
+      "boxes": "Here's what each box does:",
+      "domainLabel": "Domain",
+      "domainBody": "The advisory area this applies to (Conflict, Staff, Strategy, and so on). Pick where this situation belongs.",
+      "descriptionLabel": "Description",
+      "descriptionBody": "Describe the client situation in one plain sentence: what's {actually} going on. Aim at the {cause}, not just the surface symptom — \"the owners aren't aligned on where the business is heading\" works far better than \"they're arguing.\" This is the sentence the system reads the advisor's words against, so write it the way you'd explain the situation to a colleague.",
+      "descriptionActually": "actually",
+      "descriptionCause": "cause",
+      "triggersLabel": "Trigger phrases",
+      "triggersBody": "A few different ways an advisor might describe this in their own words. These are just examples to point the system in the right direction — {not} exact phrases it has to find. Three to six varied examples is plenty; don't try to list every wording.",
+      "triggersNot": "not",
+      "templatesLabel": "Templates to boost",
+      "templatesBody": "The templates you want brought forward when this situation appears. Pick the ones you'd reach for yourself.",
+      "boostLabel": "Boost",
+      "boostBody": "How hard to push those templates up the list when this situation is recognised. Leave it at the default for a gentle nudge; raise it when you want this situation to strongly steer the recommendation."
+    },
+    "move": {
+      "title": "Move distinction to another domain",
+      "intro": "Move {description} into:",
+      "placeholder": "Choose a domain…",
+      "platformNote": "This creates your firm's copy in the new domain and switches the platform original off here.",
+      "confirm": "Move"
+    },
+    "mentorUpdate": {
+      "title": "The mentor updated this distinction",
+      "intro": "You customised this distinction, so your version has been kept. The mentor has since changed their version. Compare them below, then choose.",
+      "mentorVersion": "Mentor's current version",
+      "yourVersion": "Your version",
+      "adopt": "Adopt the mentor's version",
+      "keepMine": "Keep mine"
+    },
+    "groupTargets": {
+      "industryLabel": "Revenue & Feasibility Model — Industry (auto-matched)",
+      "industryHint": "Engine picks the model matching the client's industry",
+      "generalLabel": "Revenue & Feasibility Model — General",
+      "generalHint": "Generic feasibility/concept tools (Break-Even, EBITDA…)"
+    },
+    "cases": {
+      "intro": "Your advisors' shared case studies. Open one to see how the recommendation was reached, then review it. Private cases are never shown here.",
+      "empty": "No shared case studies yet. When an advisor shares a case, it appears here for review.",
+      "noArea": "No area recorded",
+      "feedbackWelcome": "Feedback welcome",
+      "reviewHeading": "Post-Delivery Review (by the advisor)",
+      "wentWell": "✓ What went well? — {text}",
+      "wentLess": "⚠ What went less well? — {text}",
+      "changesRecommended": "What they'd do differently — {text}",
+      "noReview": "The advisor hasn't recorded a post-delivery review yet.",
+      "unknownAdvisor": "Unknown advisor"
+    },
+    "share": {
+      "preparing": "Preparing the anonymised copy…",
+      "summary": "Summary",
+      "conversation": "Conversation",
+      "roleTool": "Adviser tool",
+      "roleAdviser": "Adviser",
+      "noContent": "This case has no shareable content.",
+      "approve": "Approve & share"
+    },
+    "nearMiss": {
+      "fallbackName": "this distinction",
+      "title": "Move distinction",
+      "message": "Move \"{desc}\" from {from} into {target}? It will then influence future {target} sessions instead.",
+      "confirm": "Move it here",
+      "moved": "Moved into {target}.",
+      "failed": "Could not move the distinction."
+    },
+    "confirm": {
+      "removeDistinction": "Remove this distinction? It will no longer boost templates during scoring.",
+      "resetDistinction": "Reset this distinction to the platform version? Your firm's edits to it will be discarded.",
+      "reset": "Reset"
+    },
+    "toast": {
+      "adopted": "Adopted the mentor's version",
+      "keptYours": "Kept your version",
+      "selectDomain": "Please select a domain.",
+      "descriptionRequired": "Description is required.",
+      "addTrigger": "Add at least one trigger phrase.",
+      "selectTemplate": "Select at least one template to boost.",
+      "updatedForFirm": "Distinction updated for your firm.",
+      "updated": "Distinction updated.",
+      "added": "Distinction added.",
+      "removed": "Distinction removed.",
+      "switchedOff": "Distinction switched off for your firm.",
+      "switchedOn": "Distinction switched back on.",
+      "reset": "Reset to the platform version.",
+      "moved": "Distinction moved.",
+      "previewFailed": "Could not prepare an anonymised copy. Please try again.",
+      "shared": "Shared with mentor.",
+      "shareFailed": "Could not share the case. Please try again.",
+      "withdrawn": "Withdrawn from mentor.",
+      "withdrawFailed": "Could not withdraw the case. Please try again.",
+      "noAreaToMove": "This case has no recorded area to move into."
+    }
+  },
+  "firmMeetingObservations": {
+    "intro": {
+      "body": "What your advisors are checked on in each kind of meeting. Advisors see this list {before}, and their own coaching notes are checked against it afterwards — every finding quoting what was said, or saying plainly that it did not happen.",
+      "before": "before they walk in"
+    },
+    "pick": {
+      "meetingType": "Meeting type",
+      "changedHere": "You have changed this list",
+      "allInherited": "Everything is inherited"
+    },
+    "points": {
+      "heading": "What we check",
+      "help": "Each one is a question the software looks for in the transcript and answers with a quotation, or with {notFound}. Write them so an answer would be something somebody said.",
+      "notFound": "not found",
+      "empty": "Nothing is checked in this kind of meeting yet. Add the first point below, and every advisor here will see it before their next meeting of this type.",
+      "cannotHearCheckbox": "This cannot be heard on a recording",
+      "hintWordsLabel": "Words that hint it happened (optional)",
+      "advisorSees": "Advisor sees: {text}",
+      "cannotHearTag": "Cannot be heard on a recording"
+    },
+    "source": {
+      "editedHere": "edited here",
+      "addedHere": "added here",
+      "inherited": "inherited"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "useInheritedWording": "Use the inherited wording",
+      "remove": "Remove",
+      "switchOff": "Switch off",
+      "switchBackOn": "Switch back on"
+    },
+    "declined": {
+      "heading": "Switched off here",
+      "offTag": "off"
+    },
+    "add": {
+      "label": "A new point",
+      "placeholder": "Understanding was checked before moving on from the figures.",
+      "submit": "Add this point",
+      "start": "Add a point"
+    },
+    "setAside": {
+      "heading": "Set aside by advisors",
+      "intro": "Your advisors may take a point off their own list. This is where that shows. Nothing here changes what you have set — your list is unchanged.",
+      "countNote": "{counted} — not your whole team, and never a percentage of it.",
+      "counted": "A count of the advisors who have changed their own list",
+      "nobody": "Nobody has set this aside.",
+      "setAsideBy": "Set aside by",
+      "unnamedAdvisor": "an advisor whose name we do not hold",
+      "loadFailed": "What your advisors have set aside could not be loaded: {message}"
+    },
+    "retention": {
+      "heading": "How long transcripts are kept",
+      "intro": "The recording is always deleted as soon as it becomes a transcript. This sets how long the transcript itself is kept. {spoken} when they ask permission to record, so it changes what they promise.",
+      "spoken": "Your advisors say this figure out loud to the client",
+      "months": "Months",
+      "setHere": "Set here",
+      "inherited": "Inherited — {phrase}",
+      "save": "Save this period",
+      "useInherited": "Use the inherited period",
+      "readFailed": "The retention period could not be read: {message}"
+    },
+    "history": {
+      "heading": "Change history",
+      "hide": "Hide change history",
+      "empty": "Nothing has been saved at this level yet.",
+      "version": "Version {version}",
+      "restore": "Restore",
+      "part": {
+        "declines": "Switched off",
+        "overrides": "Edited",
+        "own": "Added"
+      }
+    },
+    "errors": {
+      "needsWords": "A point needs some words."
+    },
+    "confirmRemove": {
+      "title": "Remove this point",
+      "message": "Advisors here will stop being checked on it. Points you have inherited can be switched off instead, and switched back on later.",
+      "confirm": "Remove it"
+    }
+  },
+  "firmPropertyTaxRules": {
+    "intro": {
+      "lead": "These settings decide how the ",
+      "product": "Multiple Property Assessment",
+      "rest": " treats tax and lending. A group normally sets them for its country; a firm may correct them for itself. An advisor can still type over any of them on the report for one client."
+    },
+    "badges": {
+      "someSetHere": "Some settings are set here",
+      "allInherited": "Everything is inherited",
+      "setHere": "set here",
+      "inherited": "inherited"
+    },
+    "fields": {
+      "yearOneAddBack": {
+        "label": "Non-Deductible Costs Added Back in Year 1",
+        "setup": "Setup Costs only",
+        "setupAndPurchase": "Setup and Purchase Costs",
+        "none": "None"
+      },
+      "managementFeeGst": {
+        "label": "GST on Rental Management Fee (%)"
+      },
+      "depreciableAssets": {
+        "label": "What May Be Depreciated",
+        "chattels": "Chattels only",
+        "chattelsAndBuilding": "Chattels and Building"
+      },
+      "depreciationMethod": {
+        "label": "Depreciation Method",
+        "dv": "Diminishing Value",
+        "sl": "Straight Line"
+      },
+      "depreciationRateChattels": {
+        "label": "Depreciation Rate on Chattels (%)"
+      },
+      "maxLvr": {
+        "label": "Maximum Loan to Value Ratio (%)",
+        "help": "The most a lender will advance against a property. Leave blank for no limit — the ratio is still shown, it is simply not judged."
+      },
+      "buildingDepreciationRate": {
+        "label": "Depreciation Rate on Building (%)",
+        "help": "Only used where the building may be depreciated."
+      },
+      "lossTreatment": {
+        "label": "Rental Losses",
+        "ringFenced": "Ring-Fenced",
+        "offset": "Offset Against Other Income"
+      },
+      "interestDeductibility": {
+        "label": "Interest is a Deductible Expense",
+        "yes": "Yes",
+        "no": "No",
+        "phasing": "Phasing"
+      }
+    },
+    "phasing": {
+      "label": "Interest Deductibility Phasing (%)",
+      "help": "One entry per year. The last entry covers every later year."
+    },
+    "buttons": {
+      "save": "Save these settings",
+      "reset": "Go back to inherited",
+      "hideHistory": "Hide change history",
+      "showHistory": "Change history"
+    },
+    "history": {
+      "heading": "Change history",
+      "empty": "Nothing has been saved at this level yet.",
+      "version": "Version {version}",
+      "restore": "Restore"
+    },
+    "toast": {
+      "saved": "Tax rules saved",
+      "reset": "Now inheriting again",
+      "restored": "That version is back in force"
+    },
+    "resetDialog": {
+      "title": "Go back to inherited settings",
+      "message": "This level will stop holding its own tax rules and will take them from the level above again. Advisors here will see that level's settings."
+    }
+  },
+  "firmSellDownLadder": {
+    "intro": {
+      "body": "These are the prices imported stock sells down at as it ages, on the {forecast}’s overseas section. Every figure here is yours, out of your Import & Retail workbook. {setsWhat}",
+      "forecast": "Three-Way Forecast",
+      "setsWhat": "They set what a new forecast opens on — an advisor can still change them for one client."
+    },
+    "badge": {
+      "someSetHere": "Some of this is set here",
+      "allInherited": "Everything is inherited"
+    },
+    "source": {
+      "setHere": "set here",
+      "inherited": "inherited"
+    },
+    "ladder": {
+      "heading": "The price ladder",
+      "intro": "A mark-up is on {cost}, so 185% means stock that cost 100 to land sells at 285. The days say how long each price lasts before the next one takes over.",
+      "cost": "cost",
+      "columns": {
+        "rung": "Rung",
+        "markup": "Mark-up on cost (%)",
+        "sellsAt": "Sells at, per 100 of cost",
+        "appliesTo": "Applies to stock up to"
+      },
+      "rises": "Your runout mark-up is above your new-stock one, so stock would get {dearer} as it ages. That is allowed — but it is usually a typo.",
+      "dearer": "dearer"
+    },
+    "rungs": {
+      "new": {
+        "label": "New stock",
+        "help": "The launch price, while the stock is still new."
+      },
+      "standard": {
+        "label": "Standard retail",
+        "help": "The everyday price once the launch window has passed."
+      },
+      "runout": {
+        "label": "Runout",
+        "help": "What is left is cleared at this price. It has no boundary of its own."
+      }
+    },
+    "runout": {
+      "olderThan": "anything older than {days} days",
+      "leftOver": "everything left over"
+    },
+    "container": {
+      "heading": "What that does to a container",
+      "intro": "Stock sells down over four 30-day bands. This is which price each band gets, worked out from the days above — change a boundary and this changes with it.",
+      "range": "{from}–{to} days",
+      "deadRung": "Nothing is priced at the {rung} rung. Every band falls either side of it."
+    },
+    "terms": {
+      "heading": "The supplier's terms",
+      "intro": "These turn an {orderDate} into a landing date, and they decide which month every deposit and balance falls in. Interest cover is what the supplier charges for waiting to be paid; it is expensed in overheads, not against gross margin.",
+      "orderDate": "order date",
+      "columns": {
+        "term": "Term",
+        "figure": "Figure"
+      },
+      "units": {
+        "days": "days",
+        "pctYear": "% a year"
+      },
+      "rows": {
+        "manufactureDays": {
+          "label": "Manufacture days",
+          "help": "From placing the order to the goods leaving the supplier."
+        },
+        "seaDays": {
+          "label": "Shipping — sea",
+          "help": "Added to the manufacture days for a container sent by sea."
+        },
+        "airDays": {
+          "label": "Shipping — air",
+          "help": "The same, for air freight."
+        },
+        "expressDays": {
+          "label": "Shipping — express",
+          "help": "The same, for an express service."
+        },
+        "balanceDueDays": {
+          "label": "Balance due, days from order",
+          "help": "When the rest of the invoice falls due — often before the goods land."
+        },
+        "prepDays": {
+          "label": "Pre-retail prep days",
+          "help": "From landing to being on the shelf. It is why stock is usually sellable the month after it arrives."
+        },
+        "interestCoverPct": {
+          "label": "Interest cover",
+          "help": "What the supplier charges on the deferred balance, pro-rated over a 360-day year."
+        }
+      },
+      "landing": "A container ordered today lands after its manufacture days plus its shipping days, and is on the shelf after the prep days on top of that."
+    },
+    "pattern": {
+      "heading": "How fast it sells",
+      "intro": "The demand shape a new forecast opens on. An advisor can pick a different one for a client; this is only the starting point.",
+      "sentence": "{bands} of the container, band by band",
+      "notEdited": "The shapes themselves are not edited here — each one’s four bands have to total 100%, and they belong to the shipment calculator rather than to this screen."
+    },
+    "buttons": {
+      "save": "Save this ladder",
+      "reset": "Go back to inherited"
+    },
+    "history": {
+      "heading": "Change history",
+      "hide": "Hide change history",
+      "empty": "Nothing has been saved at this level yet.",
+      "version": "Version {version}",
+      "restore": "Restore"
+    },
+    "toasts": {
+      "saved": "Ladder saved",
+      "reset": "Now inheriting again",
+      "restored": "That version is back in force"
+    },
+    "resetDialog": {
+      "title": "Go back to the inherited ladder",
+      "message": "This level will stop holding its own prices and will take them from the level above again. New forecasts here will open on that level's ladder."
+    }
+  },
+  "depreciationDocumentReview": {
+    "intro": {
+      "body": "{nothingRead} Until then a {country} client's forecast keeps the figures it uses today. The wording beside each rate is the document's own, not ours.",
+      "nothingRead": "Nothing on this page is read by anything until you approve it."
+    },
+    "match": {
+      "heading": "Which published class is each category?",
+      "confirmAll": "Confirm all matched",
+      "summary": "{document} read — {matched}{stillNeed}. {check} — a category matched to the wrong class produces a wrong rate carrying a real page number.",
+      "matchedCount": "{matched} of {total} categories matched",
+      "stillNeed": ", {count} still need you",
+      "check": "Check each match before you approve the rates",
+      "head": {
+        "category": "Your category",
+        "matchedTo": "Matched to",
+        "rate": "Rate",
+        "state": "State"
+      },
+      "noClass": "No class in this document is a clear match. This category keeps the figure it uses today and is listed under the gaps below.",
+      "noMatch": "No match",
+      "confirmed": "Confirmed",
+      "confirm": "Confirm",
+      "change": "Change",
+      "chooseClass": "Choose a class"
+    },
+    "picker": {
+      "heading": "{category} — choose the published class",
+      "intro": "{count} classes in {document}. Type to narrow. {publish} — whatever you choose brings its own page and date.",
+      "introWithSchedule": "{count} classes in {document} · {schedule} ({scheduleDocument}, {published}). Type to narrow. {publish} — whatever you choose brings its own page and date.",
+      "scheduleCount": "{classes} in your group's {country} schedule",
+      "publish": "This is what the documents themselves publish",
+      "searchPlaceholder": "Search the published classes",
+      "searching": "Searching your group's schedule…",
+      "noMatches": "Nothing published matches that.",
+      "scheduleTag": "{country} schedule",
+      "page": "p.{page}",
+      "noPage": "no page",
+      "truncated": "Showing the first {shown} of {total} matching classes in the country schedule. Type more to narrow it.",
+      "useClass": "Use this class",
+      "cancel": "Cancel"
+    },
+    "rates": {
+      "heading": "The rates you are approving",
+      "intro": "{approved} The rate the forecast charges is the one for this document's method — change it here and your figure is the one stored, still showing the document it came from.",
+      "approved": "What you approve is what the app uses, not what the AI said.",
+      "none": "This document proposed no rates at all. There is nothing here to approve.",
+      "head": {
+        "assetClass": "Asset class",
+        "life": "Life",
+        "basis": "Basis",
+        "forecastRate": "Rate the forecast would use",
+        "usedToday": "Used today"
+      },
+      "lifeYears": "{years} yrs",
+      "straightLine": "straight line",
+      "diminishingValue": "diminishing value",
+      "appDefault": "app default",
+      "rangeError": "A rate is a percentage above 0 and no more than 100."
+    },
+    "gaps": {
+      "heading": "Gaps in what was loaded",
+      "firstYear": "{noRule} The newest document held for {country} is dated {date}. If a scheme was introduced after that date, nothing loaded here would mention it.",
+      "noRule": "No first-year or accelerated-deduction rule was found in this document.",
+      "unknownDate": "unknown",
+      "unmatched": "{unmatched} in this document — {labels}. They keep the figures they use today, marked as app defaults on every forecast.",
+      "unmatchedCount": "{count} of the six asset categories matched no class",
+      "refusedOne": "{refused} for carrying a rate, a class or a page we could not use. Nothing was taken from it.",
+      "refusedMany": "{refused} for carrying a rate, a class or a page we could not use. Nothing was taken from them.",
+      "refusedCount": "{count} proposed row was refused | {count} proposed rows were refused",
+      "unresolvedOne": "{unresolved} from this document and was left out. Check it against the pages named:",
+      "unresolvedMany": "{unresolved} from this document and were left out. Check them against the pages named:",
+      "unresolvedCount": "{count} entry could not be settled | {count} entries could not be settled",
+      "pageRef": "— page {pages}",
+      "nothing": "{missing} All six categories matched a published class, and a first-year rule was found.",
+      "nothingMissing": "Nothing was missing."
+    },
+    "actions": {
+      "approve": "Approve {count} rate | Approve {count} rates",
+      "reject": "Reject",
+      "confirmFirst": "Confirm every matched class first — that is the check this step exists for."
+    },
+    "source": {
+      "withPage": "{document}, p.{page} · {published}",
+      "noPage": "{document} · {published}"
+    },
+    "origin": {
+      "mentor": "Advisor-e",
+      "globalGroupManager": "your global group",
+      "groupManager": "your group",
+      "firmManager": "your firm"
+    },
+    "categories": {
+      "vehicles": "Vehicles",
+      "leaseholdImprovements": "Leasehold improvements",
+      "plantEquipment": "Plant and equipment",
+      "officeEquipment": "Office equipment",
+      "computerHardware": "Computer hardware",
+      "other": "Other"
+    },
+    "dialogs": {
+      "approveTitle": "Approve these rates",
+      "approveMessage": "Every {country} client's forecast will depreciate assets at these rates from now on. Forecasts already open are not changed.",
+      "approveConfirm": "Approve them",
+      "rejectTitle": "Reject this document",
+      "rejectMessage": "Nothing was using it, so the rates in force do not change. The document stays on the list, marked rejected.",
+      "rejectConfirm": "Reject it"
+    }
+  },
+  "firmBenchmarker": {
+    "intro": {
+      "body": "The release in force is what every {report} compares a client against. Every figure here and on the report's benchmark page is Stats NZ's own. Nothing on this screen is typed, and nothing is invented: a file with a column missing is refused by the column's name, and a ratio Stats NZ did not publish prints as unpublished, never as a zero.",
+      "report": "Business Performance Report"
+    },
+    "inForce": {
+      "heading": "In force now",
+      "hint": "The shipped release, until a newer one is uploaded here. The report's benchmark page names the year and says \"provisional\" where Stats NZ does.",
+      "columns": {
+        "release": "Release",
+        "status": "Status",
+        "industries": "Industries",
+        "withBenchmarks": "With benchmarks",
+        "publishedRatios": "Published ratios"
+      },
+      "uploadedHere": "uploaded here",
+      "shippedWithApp": "shipped with the app",
+      "provisional": "provisional — Stats NZ: 2023 final, 2024 and 2025 provisional",
+      "final": "final"
+    },
+    "replace": {
+      "title": "Replace the release",
+      "intro": "Stats NZ publishes the benchmarker as two CSV files a year, from {where}. Both are needed, and nothing is stored until both read cleanly. Each file is read by its column names, so a file from a different year works so long as Stats NZ has not renamed a column — and if they have, the refusal names the column.",
+      "where": "stats.govt.nz › Business performance benchmarker",
+      "columns": {
+        "file": "File",
+        "carries": "What it carries"
+      },
+      "required": "required",
+      "ratios": {
+        "name": "Benchmark ratios",
+        "carries": "benchmark_ratios_all_industries-<year>-anzsic-class.csv — the eight ratios by industry and size band: 25th percentile, median, 75th percentile, and each band's turnover range"
+      },
+      "financial": {
+        "name": "Financial",
+        "carries": "financial_all_industries-<year>.csv — business and employee counts, income, expenditure, profit and assets, with Stats NZ's accuracy category and suppression marks"
+      },
+      "chooseFile": "Choose file",
+      "onReplace": "{whatHappens} Both files are read; the screen shows what it found — the year, how many industries, how many with benchmarks, how many published ratios — and the release goes into force for every report from then on. The previous release stays in the version history below, and Restore brings it back in one click.",
+      "whatHappens": "What happens on Replace.",
+      "nothingStored": "Nothing is stored until both files read cleanly."
+    },
+    "history": {
+      "heading": "Version history",
+      "hint": "Every release ever uploaded here, newest first, with Restore — the same history every Model Inputs tab has.",
+      "empty": "No release has been uploaded yet; the shipped release is in force.",
+      "version": "Version {version}",
+      "restore": "Restore"
+    },
+    "toast": {
+      "nowInForce": "The {year} release is now in force",
+      "restored": "That release is back in force"
+    }
+  },
+  "firmClientCopyRequests": {
+    "title": "Client Copy Request",
+    "answerWithin": "Answer within {phrase}",
+    "intro": "When a client asks for a copy of what was recorded about them, log it here. Only the advisor who recorded a meeting can release it, so a request with several advisors on it is answered by each of them in turn.",
+    "list": {
+      "noneOpen": "No requests are open. Anything a client asks for — a copy of what was recorded, a correction, or an early deletion — is logged here so the clock on it is visible.",
+      "clientGone": "Client no longer on the register",
+      "someone": "someone at your firm",
+      "loggedLine": "{kind} · logged by {who} · {channel}",
+      "closedLine": "{kind} · closed by {who} · {outcome}",
+      "noNote": "no note left",
+      "open": "Open",
+      "answeredHeading": "ANSWERED"
+    },
+    "form": {
+      "logRequest": "Log a request",
+      "whichClient": "Which client?",
+      "chooseClient": "Choose from your register",
+      "whatAsked": "What did they ask for?",
+      "correctionOption": "A correction to something recorded",
+      "howAsked": "How did they ask?",
+      "whenAsked": "When did they ask?",
+      "pickDate": "Pick the date",
+      "clockHint": "The clock runs from when your client asked, not from today.",
+      "noteLabel": "Anything worth noting?",
+      "logIt": "Log it",
+      "cancel": "Cancel"
+    },
+    "kinds": {
+      "copy": "A copy of what was recorded",
+      "correction": "A correction",
+      "deletion": "Deletion before the retention date"
+    },
+    "channels": {
+      "email": "by email",
+      "phone": "by phone",
+      "inPerson": "in person",
+      "letter": "by letter",
+      "other": "another way"
+    },
+    "dial": {
+      "heading": "HOW LONG YOUR FIRM ANSWERS WITHIN",
+      "save": "Save",
+      "useLevelAbove": "Use the level above",
+      "currentlyFrom": "Currently {phrase}, {source}.",
+      "currentlyOwn": "Currently {phrase}, set by your firm.",
+      "sourceInherited": "set by the level above your firm",
+      "sourcePlatform": "the platform default",
+      "workingDaysNote": "Working days here mean weekdays. Public holidays are not counted out — this app holds no holiday calendar — so the date shown is a little earlier than a strict reading, and it is a working aid rather than a legal calculation."
+    },
+    "errors": {
+      "chooseClient": "Choose which client asked.",
+      "sayWhen": "Say when your client asked. The clock runs from that date.",
+      "unreachable": "The server could not be reached. Check your connection and try again.",
+      "failed": "That could not be done."
+    }
+  },
+  "firmDistinctionForm": {
+    "domain": {
+      "label": "Domain"
+    },
+    "description": {
+      "label": "Description",
+      "message": "Describe the client situation in a plain sentence — this is what the AI matches the advisor's words against. Capture the cause, not just the symptom.",
+      "placeholder": "e.g. The owners aren't aligned on where the business is heading"
+    },
+    "triggers": {
+      "label": "Trigger phrases",
+      "message": "Type a phrase and press Enter or comma to add. These are example ways an advisor might describe this — they guide the AI, which matches on meaning, not exact words, so 3–6 varied examples is plenty.",
+      "placeholder": "Add a phrase…",
+      "removeLabel": "Remove phrase"
+    },
+    "templates": {
+      "label": "Templates to boost",
+      "allAreas": "All areas",
+      "searchPlaceholder": "Search by title…",
+      "noMatch": "No templates match — try clearing the filters.",
+      "selected": "Selected:"
+    },
+    "boost": {
+      "label": "Boost score",
+      "message": "How many points to add to each matched template's score (1–20). Default 5."
+    },
+    "cancel": "Cancel"
+  },
+  "firmMeetingPatterns": {
+    "title": "Are the observation points landing?",
+    "intro": "Counts across the firm. No advisor is named, and no figure can be traced back to a person.",
+    "chrome": {
+      "line": "{period} · {meetings} · {advisors}",
+      "meetings": "1 meeting | {count} meetings",
+      "advisors": "1 advisor | {count} advisors"
+    },
+    "notEnough": {
+      "heading": "Not enough meetings yet to show patterns safely.",
+      "body": "Figures appear once at least {advisors} and {meetings} have contributed. Below that, a count can be worked backwards to an individual — and no manager sees an individual's notes unless that advisor sends them.",
+      "advisors": "{n} advisors",
+      "meetings": "{n} meetings"
+    },
+    "noPoints": "Enough meetings this month, but no single observation point has been checked in {n} of them yet. A point counted over fewer meetings than that can be worked backwards to a person, so it is left out rather than shown.",
+    "errors": {
+      "loadFailed": "The meeting figures could not be loaded: {message}",
+      "unreachable": "The server could not be reached. Check your connection and try again.",
+      "unreadable": "That could not be read."
+    }
+  },
+  "firmMeetingTypes": {
+    "section": {
+      "heading": "The kinds of meeting",
+      "intro": "The meetings your advisors have. Each one holds its own list of checks.",
+      "empty": "No kinds of meeting yet. Add the first one below."
+    },
+    "form": {
+      "nameLabel": "What this meeting is called",
+      "namePlaceholder": "Bad news conversation",
+      "treeLabel": "Coaching material for this meeting (optional)"
+    },
+    "badges": {
+      "addedHere": "Added here",
+      "editedHere": "Edited here"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "rename": "Rename",
+      "remove": "Remove",
+      "notUsedHere": "Not used here",
+      "addNew": "A new kind of meeting"
+    },
+    "declined": {
+      "intro": "Not used here. Your advisors will not see these.",
+      "useAgain": "Use it again"
+    },
+    "removeDialog": {
+      "title": "Remove this kind of meeting",
+      "message": "This removes it for everyone below you. Any meetings already recorded against it stay readable."
+    },
+    "errors": {
+      "loadFailed": "The kinds of meeting could not be loaded: {message}",
+      "unreachable": "The server could not be reached. Check your connection and try again.",
+      "notSaved": "That could not be saved."
     }
   }
 }

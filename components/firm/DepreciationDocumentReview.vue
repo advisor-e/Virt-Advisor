@@ -2,33 +2,38 @@
 .ddr
   .notification.is-info.is-light.py-3.mb-4
     p.is-size-7
-      | #[b Nothing on this page is read by anything until you approve it.] Until then a
-      |  {{ document.country }} client's forecast keeps the figures it uses today. The wording
-      |  beside each rate is the document's own, not ours.
+      i18n(path="depreciationDocumentReview.intro.body" tag="span")
+        template(#nothingRead)
+          b {{ $t('depreciationDocumentReview.intro.nothingRead') }}
+        template(#country) {{ document.country }}
 
   //- 1 · Six decisions, not one hundred and fifty-six.
   .box
     .level.is-mobile.mb-2
       .level-left
-        p.has-text-weight-semibold Which published class is each category?
+        p.has-text-weight-semibold {{ $t('depreciationDocumentReview.match.heading') }}
       .level-right
         b-button(
           size="is-small"
           type="is-light"
           :disabled="!unconfirmedCount"
           @click="confirmAllMatched"
-        ) Confirm all matched
+        ) {{ $t('depreciationDocumentReview.match.confirmAll') }}
 
     p.is-size-7.has-text-grey.mb-3
-      | {{ document.documentName }} read — #[b {{ matchedCount }} of {{ totalCount }} categories matched]{{ unconfirmedCount ? `, ${unconfirmedCount} still need you` : '' }}.
-      | #[b Check each match before you approve the rates] — a category matched to the wrong
-      |  class produces a wrong rate carrying a real page number.
+      i18n(path="depreciationDocumentReview.match.summary" tag="span")
+        template(#document) {{ document.documentName }}
+        template(#matched)
+          b {{ $t('depreciationDocumentReview.match.matchedCount', { matched: matchedCount, total: totalCount }) }}
+        template(#stillNeed) {{ unconfirmedCount ? $t('depreciationDocumentReview.match.stillNeed', { count: unconfirmedCount }) : '' }}
+        template(#check)
+          b {{ $t('depreciationDocumentReview.match.check') }}
 
     .ddr-row.ddr-head
-      span Your category
-      span Matched to
-      span Rate
-      span State
+      span {{ $t('depreciationDocumentReview.match.head.category') }}
+      span {{ $t('depreciationDocumentReview.match.head.matchedTo') }}
+      span {{ $t('depreciationDocumentReview.match.head.rate') }}
+      span {{ $t('depreciationDocumentReview.match.head.state') }}
 
     template(v-for="row in rows")
       .ddr-row(:key="row.key")
@@ -38,38 +43,43 @@
           template(v-if="row.matched")
             p.is-size-7 {{ row.className }}
             p.is-size-7.has-text-grey {{ row.sourceLine }}
-          p.is-size-7.has-text-grey(v-else)
-            | No class in this document is a clear match. This category keeps the figure it uses
-            |  today and is listed under the gaps below.
+          p.is-size-7.has-text-grey(v-else) {{ $t('depreciationDocumentReview.match.noClass') }}
         span.ddr-num {{ row.rateText }}
         .ddr-state
-          b-tag(v-if="!row.matched" type="is-danger is-light" size="is-small") No match
-          b-tag(v-else-if="row.confirmed" type="is-success is-light" size="is-small") Confirmed
+          b-tag(v-if="!row.matched" type="is-danger is-light" size="is-small") {{ $t('depreciationDocumentReview.match.noMatch') }}
+          b-tag(v-else-if="row.confirmed" type="is-success is-light" size="is-small") {{ $t('depreciationDocumentReview.match.confirmed') }}
           b-button(
             v-else
             size="is-small"
             type="is-light"
             @click="confirmMatch(row.key)"
-          ) Confirm
+          ) {{ $t('depreciationDocumentReview.match.confirm') }}
           b-button(
             size="is-small"
             type="is-text"
             :disabled="!classes.length"
             @click="openPicker(row.key)"
-          ) {{ row.matched ? 'Change' : 'Choose a class' }}
+          ) {{ row.matched ? $t('depreciationDocumentReview.match.change') : $t('depreciationDocumentReview.match.chooseClass') }}
 
       //- 2 · Changing a match. Opened from the row it belongs to, so the category being
       //-     re-matched is never in doubt.
       .ddr-picker(v-if="picking === row.key" :key="row.key + '-picker'")
-        p.has-text-weight-semibold.is-size-7.mb-1 {{ row.label }} — choose the published class
+        p.has-text-weight-semibold.is-size-7.mb-1 {{ $t('depreciationDocumentReview.picker.heading', { category: row.label }) }}
         p.is-size-7.has-text-grey.mb-2
-          | {{ classes.length }} classes in {{ document.documentName }}
-          template(v-if="scheduleDoc")
-            |  · #[b {{ scheduleDoc.classes }} in your group's {{ document.country }} schedule]
-            |  ({{ scheduleDoc.document }}, {{ scheduleDoc.published }})
-          | . Type to narrow.
-          | #[b This is what the documents themselves publish] — whatever you choose brings its
-          |  own page and date.
+          i18n(v-if="scheduleDoc" path="depreciationDocumentReview.picker.introWithSchedule" tag="span")
+            template(#count) {{ classes.length }}
+            template(#document) {{ document.documentName }}
+            template(#schedule)
+              b {{ $t('depreciationDocumentReview.picker.scheduleCount', { classes: scheduleDoc.classes, country: document.country }) }}
+            template(#scheduleDocument) {{ scheduleDoc.document }}
+            template(#published) {{ scheduleDoc.published }}
+            template(#publish)
+              b {{ $t('depreciationDocumentReview.picker.publish') }}
+          i18n(v-else path="depreciationDocumentReview.picker.intro" tag="span")
+            template(#count) {{ classes.length }}
+            template(#document) {{ document.documentName }}
+            template(#publish)
+              b {{ $t('depreciationDocumentReview.picker.publish') }}
         //- 🔴 Mike's second ruling of 2026-09-11, and the condition he attached to it: where a
         //-    country's schedule has pages nobody could read, the gap shows HERE — where the
         //-    table is used — and not only on the screen it was loaded from. Otherwise "there
@@ -79,11 +89,11 @@
         b-input(
           v-model="search"
           size="is-small"
-          placeholder="Search the published classes"
+          :placeholder="$t('depreciationDocumentReview.picker.searchPlaceholder')"
           icon="magnify"
         )
-        p.is-size-7.has-text-grey.mt-2(v-if="scheduleSearching") Searching your group's schedule…
-        p.is-size-7.has-text-grey.mt-2(v-else-if="!pickerOptions.length") Nothing published matches that.
+        p.is-size-7.has-text-grey.mt-2(v-if="scheduleSearching") {{ $t('depreciationDocumentReview.picker.searching') }}
+        p.is-size-7.has-text-grey.mt-2(v-else-if="!pickerOptions.length") {{ $t('depreciationDocumentReview.picker.noMatches') }}
         .ddr-options(v-else)
           .ddr-option(
             v-for="(cls, i) in pickerOptions"
@@ -93,38 +103,36 @@
           )
             span.is-size-7
               | {{ cls.label }}
-              b-tag.ml-2(v-if="cls.from === 'schedule'" type="is-info is-light" size="is-small") {{ document.country }} schedule
-            span.ddr-num.is-size-7 {{ percentText(operativeOf(cls)) }} · {{ cls.source && cls.source.page ? 'p.' + cls.source.page : 'no page' }}
-        p.is-size-7.has-text-grey.mt-2(v-if="scheduleTruncated")
-          | Showing the first {{ scheduleMatches.length }} of {{ scheduleTotal }} matching classes in
-          |  the country schedule. Type more to narrow it.
+              b-tag.ml-2(v-if="cls.from === 'schedule'" type="is-info is-light" size="is-small") {{ $t('depreciationDocumentReview.picker.scheduleTag', { country: document.country }) }}
+            span.ddr-num.is-size-7 {{ percentText(operativeOf(cls)) }} · {{ cls.source && cls.source.page ? $t('depreciationDocumentReview.picker.page', { page: cls.source.page }) : $t('depreciationDocumentReview.picker.noPage') }}
+        p.is-size-7.has-text-grey.mt-2(v-if="scheduleTruncated") {{ $t('depreciationDocumentReview.picker.truncated', { shown: scheduleMatches.length, total: scheduleTotal }) }}
         .buttons.mt-3
           b-button(
             type="is-primary"
             size="is-small"
             :disabled="!chosenLabel"
             @click="useChosenClass(row.key)"
-          ) Use this class
-          b-button(size="is-small" type="is-light" @click="closePicker") Cancel
+          ) {{ $t('depreciationDocumentReview.picker.useClass') }}
+          b-button(size="is-small" type="is-light" @click="closePicker") {{ $t('depreciationDocumentReview.picker.cancel') }}
 
   //- 3 · The rates themselves, which the manager may correct before approving.
   .box
-    p.has-text-weight-semibold.mb-1 The rates you are approving
+    p.has-text-weight-semibold.mb-1 {{ $t('depreciationDocumentReview.rates.heading') }}
     p.is-size-7.has-text-grey.mb-3
-      | #[b What you approve is what the app uses, not what the AI said.] The rate the forecast
-      |  charges is the one for this document's method — change it here and your figure is the
-      |  one stored, still showing the document it came from.
+      i18n(path="depreciationDocumentReview.rates.intro" tag="span")
+        template(#approved)
+          b {{ $t('depreciationDocumentReview.rates.approved') }}
 
-    p.is-size-7.has-text-grey(v-if="!matchedCount") This document proposed no rates at all. There is nothing here to approve.
+    p.is-size-7.has-text-grey(v-if="!matchedCount") {{ $t('depreciationDocumentReview.rates.none') }}
 
     table.table.is-fullwidth.is-narrow(v-else)
       thead
         tr
-          th Asset class
-          th Life
-          th Basis
-          th Rate the forecast would use
-          th Used today
+          th {{ $t('depreciationDocumentReview.rates.head.assetClass') }}
+          th {{ $t('depreciationDocumentReview.rates.head.life') }}
+          th {{ $t('depreciationDocumentReview.rates.head.basis') }}
+          th {{ $t('depreciationDocumentReview.rates.head.forecastRate') }}
+          th {{ $t('depreciationDocumentReview.rates.head.usedToday') }}
       tbody
         tr(v-for="row in matchedRows" :key="row.key")
           td
@@ -152,32 +160,46 @@
 
   //- 4 · What the AI could NOT find. Named, because an absence looks identical to a negative.
   .box
-    p.has-text-weight-semibold.mb-2 Gaps in what was loaded
+    p.has-text-weight-semibold.mb-2 {{ $t('depreciationDocumentReview.gaps.heading') }}
     ul.ddr-gaps
       li(v-if="!document.firstYearRuleFound")
-        | #[b No first-year or accelerated-deduction rule was found in this document.] The newest
-        |  document held for {{ document.country }} is dated {{ newestPublished || 'unknown' }}. If a scheme
-        |  was introduced after that date, nothing loaded here would mention it.
+        i18n(path="depreciationDocumentReview.gaps.firstYear" tag="span")
+          template(#noRule)
+            b {{ $t('depreciationDocumentReview.gaps.noRule') }}
+          template(#country) {{ document.country }}
+          template(#date) {{ newestPublished || $t('depreciationDocumentReview.gaps.unknownDate') }}
       li(v-if="unmatchedLabels.length")
-        | #[b {{ unmatchedLabels.length }} of the six asset categories matched no class] in this document —
-        | {{ unmatchedLabels.join(', ') }}. They keep the figures they use today, marked as app defaults
-        |  on every forecast.
+        i18n(path="depreciationDocumentReview.gaps.unmatched" tag="span")
+          template(#unmatched)
+            b {{ $t('depreciationDocumentReview.gaps.unmatchedCount', { count: unmatchedLabels.length }) }}
+          template(#labels) {{ unmatchedLabels.join(', ') }}
       li(v-if="document.refusedRows")
-        | #[b {{ document.refusedRows }} proposed {{ document.refusedRows === 1 ? 'row was' : 'rows were' }} refused] for
-        |  carrying a rate, a class or a page we could not use. Nothing was taken from
-        | {{ document.refusedRows === 1 ? 'it' : 'them' }}.
+        //- Two keys rather than a plural pair: the bold count sits inside the sentence, and
+          `<i18n>` has no plural form in vue-i18n 8. Both paths are written out in full.
+        i18n(
+          :path="document.refusedRows === 1 ? 'depreciationDocumentReview.gaps.refusedOne' : 'depreciationDocumentReview.gaps.refusedMany'"
+          tag="span"
+        )
+          template(#refused)
+            b {{ $tc('depreciationDocumentReview.gaps.refusedCount', document.refusedRows, { count: document.refusedRows }) }}
       //- The entries the document itself could not settle. Named with their pages so a
         manager can look, rather than dropped where nobody would know they existed.
       li(v-if="unresolved.length")
-        | #[b {{ unresolved.length }} {{ unresolved.length === 1 ? 'entry' : 'entries' }} could not be settled]
-        |  from this document and {{ unresolved.length === 1 ? 'was' : 'were' }} left out. Check
-        | {{ unresolved.length === 1 ? 'it' : 'them' }} against the pages named:
+        i18n(
+          :path="unresolved.length === 1 ? 'depreciationDocumentReview.gaps.unresolvedOne' : 'depreciationDocumentReview.gaps.unresolvedMany'"
+          tag="span"
+        )
+          template(#unresolved)
+            b {{ $tc('depreciationDocumentReview.gaps.unresolvedCount', unresolved.length, { count: unresolved.length }) }}
         ul.ddr-unresolved
           li(v-for="(u, i) in unresolved" :key="i")
             | {{ u.label }}
-            template(v-if="u.pages") &nbsp;— page {{ u.pages }}
+            template(v-if="u.pages") &nbsp;{{ $t('depreciationDocumentReview.gaps.pageRef', { pages: u.pages }) }}
             template(v-if="u.differs") &nbsp;— {{ u.differs }}
-      li(v-if="!gapCount") #[b Nothing was missing.] All six categories matched a published class, and a first-year rule was found.
+      li(v-if="!gapCount")
+        i18n(path="depreciationDocumentReview.gaps.nothing" tag="span")
+          template(#missing)
+            b {{ $t('depreciationDocumentReview.gaps.nothingMissing') }}
 
   b-message(v-if="error" type="is-danger" size="is-small") {{ error }}
 
@@ -187,10 +209,9 @@
       :loading="saving"
       :disabled="!canApprove"
       @click="confirmApprove"
-    ) Approve {{ matchedCount }} {{ matchedCount === 1 ? 'rate' : 'rates' }}
-    b-button(type="is-light" :loading="saving" @click="confirmReject") Reject
-  p.is-size-7.has-text-grey(v-if="!canApprove && matchedCount")
-    | Confirm every matched class first — that is the check this step exists for.
+    ) {{ $tc('depreciationDocumentReview.actions.approve', matchedCount, { count: matchedCount }) }}
+    b-button(type="is-light" :loading="saving" @click="confirmReject") {{ $t('depreciationDocumentReview.actions.reject') }}
+  p.is-size-7.has-text-grey(v-if="!canApprove && matchedCount") {{ $t('depreciationDocumentReview.actions.confirmFirst') }}
 </template>
 
 <script>
@@ -221,9 +242,8 @@
  * the token and calls the routes; the backend re-checks the manager's authorisation and
  * re-validates every figure regardless of what this screen sends.
  *
- * ⚠ STRINGS ARE HARDCODED ENGLISH, matching `FirmDepreciationRates.vue` and four of its five
- * sibling tabs, against the i18n standard in `CLAUDE.md`. The deviation is recorded there and
- * converting all five is one job rather than six.
+ * Every string a manager reads comes from the `depreciationDocumentReview` block of
+ * `locales/en.json` (item 10.1).
  */
 export default {
   name: 'DepreciationDocumentReview',
@@ -286,12 +306,12 @@ export default {
     /** The six category labels, in the order the forecast holds them. */
     categoryLabels () {
       return {
-        vehicles: 'Vehicles',
-        leaseholdImprovements: 'Leasehold improvements',
-        plantEquipment: 'Plant and equipment',
-        officeEquipment: 'Office equipment',
-        computerHardware: 'Computer hardware',
-        other: 'Other'
+        vehicles: this.$t('depreciationDocumentReview.categories.vehicles'),
+        leaseholdImprovements: this.$t('depreciationDocumentReview.categories.leaseholdImprovements'),
+        plantEquipment: this.$t('depreciationDocumentReview.categories.plantEquipment'),
+        officeEquipment: this.$t('depreciationDocumentReview.categories.officeEquipment'),
+        computerHardware: this.$t('depreciationDocumentReview.categories.computerHardware'),
+        other: this.$t('depreciationDocumentReview.categories.other')
       }
     },
 
@@ -348,10 +368,14 @@ export default {
           sourceLine: entry ? this.sourceLine(entry) : '',
           rateText: this.percentText(percent),
           percentValue: percent === null ? '' : String(Math.round(percent * 1000) / 10),
-          lifeText: entry && entry.lifeYears ? entry.lifeYears + ' yrs' : '—',
-          methodText: entry && entry.method === 'sl' ? 'straight line' : 'diminishing value',
+          lifeText: entry && entry.lifeYears ? this.$t('depreciationDocumentReview.rates.lifeYears', { years: entry.lifeYears }) : '—',
+          methodText: entry && entry.method === 'sl'
+            ? this.$t('depreciationDocumentReview.rates.straightLine')
+            : this.$t('depreciationDocumentReview.rates.diminishingValue'),
           currentText: this.percentText(current ? this.operativeOf(current) : null),
-          currentOrigin: current && current.originTier ? this.originLabel(current.originTier) : 'app default',
+          currentOrigin: current && current.originTier
+            ? this.originLabel(current.originTier)
+            : this.$t('depreciationDocumentReview.rates.appDefault'),
           currentIsDefault: !(current && current.originTier),
           error: this.errors[key] || ''
         }
@@ -485,7 +509,9 @@ export default {
     sourceLine (entry) {
       const s = entry && entry.source
       if (!s) { return '' }
-      return s.document + (s.page ? ', p.' + s.page : '') + ' · ' + s.published
+      return s.page
+        ? this.$t('depreciationDocumentReview.source.withPage', { document: s.document, page: s.page, published: s.published })
+        : this.$t('depreciationDocumentReview.source.noPage', { document: s.document, published: s.published })
     },
 
     /**
@@ -495,10 +521,10 @@ export default {
      */
     originLabel (tier) {
       const names = {
-        mentor: 'Advisor-e',
-        global_group_manager: 'your global group',
-        group_manager: 'your group',
-        firm_manager: 'your firm'
+        mentor: this.$t('depreciationDocumentReview.origin.mentor'),
+        global_group_manager: this.$t('depreciationDocumentReview.origin.globalGroupManager'),
+        group_manager: this.$t('depreciationDocumentReview.origin.groupManager'),
+        firm_manager: this.$t('depreciationDocumentReview.origin.firmManager')
       }
       return names[tier] || tier
     },
@@ -621,7 +647,7 @@ export default {
 
       const typed = typeof value === 'number' ? value : parseFloat(String(value).trim())
       if (!Number.isFinite(typed) || typed <= 0 || typed > 100) {
-        this.$set(this.errors, key, 'A rate is a percentage above 0 and no more than 100.')
+        this.$set(this.errors, key, this.$t('depreciationDocumentReview.rates.rangeError'))
         return
       }
 
@@ -635,10 +661,9 @@ export default {
 
     confirmApprove () {
       this.$buefy.dialog.confirm({
-        title: 'Approve these rates',
-        message: 'Every ' + this.document.country + ' client\'s forecast will depreciate assets at ' +
-          'these rates from now on. Forecasts already open are not changed.',
-        confirmText: 'Approve them',
+        title: this.$t('depreciationDocumentReview.dialogs.approveTitle'),
+        message: this.$t('depreciationDocumentReview.dialogs.approveMessage', { country: this.document.country }),
+        confirmText: this.$t('depreciationDocumentReview.dialogs.approveConfirm'),
         type: 'is-info',
         onConfirm: () => {
           // The manager's own figures for this document — corrections included, never the
@@ -650,10 +675,9 @@ export default {
 
     confirmReject () {
       this.$buefy.dialog.confirm({
-        title: 'Reject this document',
-        message: 'Nothing was using it, so the rates in force do not change. The document stays ' +
-          'on the list, marked rejected.',
-        confirmText: 'Reject it',
+        title: this.$t('depreciationDocumentReview.dialogs.rejectTitle'),
+        message: this.$t('depreciationDocumentReview.dialogs.rejectMessage'),
+        confirmText: this.$t('depreciationDocumentReview.dialogs.rejectConfirm'),
         type: 'is-warning',
         onConfirm: () => {
           // Payload: { documentId }.

@@ -21,10 +21,14 @@
 // Deliberately NOT asserted: wording, headings, and CSS classes. A person in UAT sees those
 // in five seconds and judges them better than an assertion can (Mike's ruling, 2026-08-24).
 
-const { mountWithBuefy } = require('../helpers/mountComponent')
+const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
 const FirmDepreciationRates = require('../../components/firm/FirmDepreciationRates.vue').default
 
-/** Mount the tab with its network calls stubbed to whatever the test needs. */
+/**
+ * Mount the tab with its network calls stubbed to whatever the test needs. Reads the real
+ * English from locales/en.json (englishMocks): the origin and source strings are what the
+ * tests below guard.
+ */
 async function mountTab (payload) {
   global.fetch = jest.fn(() => Promise.resolve({
     ok: true,
@@ -38,7 +42,8 @@ async function mountTab (payload) {
     }, payload || {}))
   }))
   const wrapper = mountWithBuefy(FirmDepreciationRates, {
-    propsData: { apiToken: 'test-token' }
+    propsData: { apiToken: 'test-token' },
+    mocks: englishMocks()
   })
   await wrapper.vm.$nextTick()
   await wrapper.vm.$nextTick()

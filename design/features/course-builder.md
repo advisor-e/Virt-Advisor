@@ -65,6 +65,9 @@ messages and the "ungraded" language.
 
 ## 3. Design considerations
 
+**The completion certificate is headed with the advisor's firm name**, read from the verified pass
+(`/api/report/firm/brand`); it says Advisor-e only when no name can be read (Mike, 2026-09-25).
+
 **The interview is the one genuine design surface.** Three questions, and it must handle a
 non-answer ("what do you mean?") by re-asking rather than storing it — capped at one re-ask —
 and skip questions the advisor already answered in their opening message. Getting this wrong

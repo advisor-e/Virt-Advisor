@@ -2,9 +2,9 @@
 .ptr
   .notification.is-info.is-light.mb-4
     p.is-size-7
-      | These settings decide how the #[b Multiple Property Assessment] treats tax and lending.
-      |  A group normally sets them for its country; a firm may correct them for itself.
-      |  An advisor can still type over any of them on the report for one client.
+      | {{ $t('firmPropertyTaxRules.intro.lead') }}
+      b {{ $t('firmPropertyTaxRules.intro.product') }}
+      | {{ $t('firmPropertyTaxRules.intro.rest') }}
 
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")
@@ -12,8 +12,8 @@
   template(v-else)
     //- Where each value comes from, said once at the top rather than assumed.
     .mb-4
-      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") Some settings are set here
-      b-tag(v-else type="is-light" size="is-medium") Everything is inherited
+      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") {{ $t('firmPropertyTaxRules.badges.someSetHere') }}
+      b-tag(v-else type="is-light" size="is-medium") {{ $t('firmPropertyTaxRules.badges.allInherited') }}
 
     .box
       .ptr-row(v-for="f in fields" :key="f.key")
@@ -30,15 +30,15 @@
             step="any"
             size="is-small")
         .ptr-source
-          b-tag(v-if="isOwn(f.key)" type="is-info is-light" size="is-small") set here
-          b-tag(v-else type="is-light" size="is-small") inherited
+          b-tag(v-if="isOwn(f.key)" type="is-info is-light" size="is-small") {{ $t('firmPropertyTaxRules.badges.setHere') }}
+          b-tag(v-else type="is-light" size="is-small") {{ $t('firmPropertyTaxRules.badges.inherited') }}
 
       //- The phasing schedule is one setting, not five: a schedule half from one country
       //- and half from another is a schedule nobody has ever written.
       .ptr-row.ptr-row-phasing(v-if="form.interestDeductibility === 'Phasing'")
         .ptr-label
-          label.label.is-small Interest Deductibility Phasing (%)
-          p.is-size-7.has-text-grey One entry per year. The last entry covers every later year.
+          label.label.is-small {{ $t('firmPropertyTaxRules.phasing.label') }}
+          p.is-size-7.has-text-grey {{ $t('firmPropertyTaxRules.phasing.help') }}
         .ptr-control
           .ptr-phasing
             b-input(
@@ -49,27 +49,27 @@
               step="any"
               size="is-small")
         .ptr-source
-          b-tag(v-if="isOwn('phasingTable')" type="is-info is-light" size="is-small") set here
-          b-tag(v-else type="is-light" size="is-small") inherited
+          b-tag(v-if="isOwn('phasingTable')" type="is-info is-light" size="is-small") {{ $t('firmPropertyTaxRules.badges.setHere') }}
+          b-tag(v-else type="is-light" size="is-small") {{ $t('firmPropertyTaxRules.badges.inherited') }}
 
     b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
 
     .buttons
-      b-button(type="is-primary" :loading="saving" @click="save") Save these settings
-      b-button(type="is-light" :disabled="!hasOwn || saving" @click="confirmReset") Go back to inherited
-      b-button(type="is-text" @click="toggleHistory") {{ showHistory ? 'Hide change history' : 'Change history' }}
+      b-button(type="is-primary" :loading="saving" @click="save") {{ $t('firmPropertyTaxRules.buttons.save') }}
+      b-button(type="is-light" :disabled="!hasOwn || saving" @click="confirmReset") {{ $t('firmPropertyTaxRules.buttons.reset') }}
+      b-button(type="is-text" @click="toggleHistory") {{ showHistory ? $t('firmPropertyTaxRules.buttons.hideHistory') : $t('firmPropertyTaxRules.buttons.showHistory') }}
 
     .box(v-if="showHistory")
-      p.has-text-weight-semibold.mb-2 Change history
-      p.is-size-7.has-text-grey(v-if="!history.length") Nothing has been saved at this level yet.
+      p.has-text-weight-semibold.mb-2 {{ $t('firmPropertyTaxRules.history.heading') }}
+      p.is-size-7.has-text-grey(v-if="!history.length") {{ $t('firmPropertyTaxRules.history.empty') }}
       table.table.is-fullwidth.is-narrow(v-else)
         tbody
           tr(v-for="h in history" :key="h.id")
-            td Version {{ h.version }}
+            td {{ $t('firmPropertyTaxRules.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.created_by }}
             td.is-size-7.has-text-grey {{ h.created_at }}
             td.has-text-right
-              b-button(size="is-small" type="is-light" @click="restore(h.id)") Restore
+              b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmPropertyTaxRules.history.restore') }}
 </template>
 
 <script>
@@ -155,63 +155,63 @@ export default {
       return [
         {
           key: 'yearOneAddBack',
-          label: 'Non-Deductible Costs Added Back in Year 1',
+          label: this.$t('firmPropertyTaxRules.fields.yearOneAddBack.label'),
           type: 'choice',
           options: [
-            { value: 'setup', label: 'Setup Costs only' },
-            { value: 'setupAndPurchase', label: 'Setup and Purchase Costs' },
-            { value: 'none', label: 'None' }
+            { value: 'setup', label: this.$t('firmPropertyTaxRules.fields.yearOneAddBack.setup') },
+            { value: 'setupAndPurchase', label: this.$t('firmPropertyTaxRules.fields.yearOneAddBack.setupAndPurchase') },
+            { value: 'none', label: this.$t('firmPropertyTaxRules.fields.yearOneAddBack.none') }
           ]
         },
-        { key: 'managementFeeGstPct', ownKey: 'managementFeeGstRate', label: 'GST on Rental Management Fee (%)' },
+        { key: 'managementFeeGstPct', ownKey: 'managementFeeGstRate', label: this.$t('firmPropertyTaxRules.fields.managementFeeGst.label') },
         {
           key: 'depreciableAssets',
-          label: 'What May Be Depreciated',
+          label: this.$t('firmPropertyTaxRules.fields.depreciableAssets.label'),
           type: 'choice',
           options: [
-            { value: 'chattels', label: 'Chattels only' },
-            { value: 'chattelsAndBuilding', label: 'Chattels and Building' }
+            { value: 'chattels', label: this.$t('firmPropertyTaxRules.fields.depreciableAssets.chattels') },
+            { value: 'chattelsAndBuilding', label: this.$t('firmPropertyTaxRules.fields.depreciableAssets.chattelsAndBuilding') }
           ]
         },
         {
           key: 'depreciationMethod',
-          label: 'Depreciation Method',
+          label: this.$t('firmPropertyTaxRules.fields.depreciationMethod.label'),
           type: 'choice',
           options: [
-            { value: 'dv', label: 'Diminishing Value' },
-            { value: 'sl', label: 'Straight Line' }
+            { value: 'dv', label: this.$t('firmPropertyTaxRules.fields.depreciationMethod.dv') },
+            { value: 'sl', label: this.$t('firmPropertyTaxRules.fields.depreciationMethod.sl') }
           ]
         },
-        { key: 'depreciationRateChattelsPct', ownKey: 'depreciationRateChattels', label: 'Depreciation Rate on Chattels (%)' },
+        { key: 'depreciationRateChattelsPct', ownKey: 'depreciationRateChattels', label: this.$t('firmPropertyTaxRules.fields.depreciationRateChattels.label') },
         {
           key: 'maxLvrPct',
           ownKey: 'maxLvr',
-          label: 'Maximum Loan to Value Ratio (%)',
-          help: 'The most a lender will advance against a property. Leave blank for no limit — the ratio is still shown, it is simply not judged.'
+          label: this.$t('firmPropertyTaxRules.fields.maxLvr.label'),
+          help: this.$t('firmPropertyTaxRules.fields.maxLvr.help')
         },
         {
           key: 'buildingDepreciationRatePct',
           ownKey: 'buildingDepreciationRate',
-          label: 'Depreciation Rate on Building (%)',
-          help: 'Only used where the building may be depreciated.'
+          label: this.$t('firmPropertyTaxRules.fields.buildingDepreciationRate.label'),
+          help: this.$t('firmPropertyTaxRules.fields.buildingDepreciationRate.help')
         },
         {
           key: 'lossTreatment',
-          label: 'Rental Losses',
+          label: this.$t('firmPropertyTaxRules.fields.lossTreatment.label'),
           type: 'choice',
           options: [
-            { value: 'ringFenced', label: 'Ring-Fenced' },
-            { value: 'offset', label: 'Offset Against Other Income' }
+            { value: 'ringFenced', label: this.$t('firmPropertyTaxRules.fields.lossTreatment.ringFenced') },
+            { value: 'offset', label: this.$t('firmPropertyTaxRules.fields.lossTreatment.offset') }
           ]
         },
         {
           key: 'interestDeductibility',
-          label: 'Interest is a Deductible Expense',
+          label: this.$t('firmPropertyTaxRules.fields.interestDeductibility.label'),
           type: 'choice',
           options: [
-            { value: 'Yes', label: 'Yes' },
-            { value: 'No', label: 'No' },
-            { value: 'Phasing', label: 'Phasing' }
+            { value: 'Yes', label: this.$t('firmPropertyTaxRules.fields.interestDeductibility.yes') },
+            { value: 'No', label: this.$t('firmPropertyTaxRules.fields.interestDeductibility.no') },
+            { value: 'Phasing', label: this.$t('firmPropertyTaxRules.fields.interestDeductibility.phasing') }
           ]
         }
       ]
@@ -304,7 +304,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/property-tax-rules', { rules: this.payload() })
         this.own = data.own || {}
         this.applyToForm(data.resolved || {})
-        this.$buefy.toast.open({ message: 'Tax rules saved', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmPropertyTaxRules.toast.saved'), type: 'is-success' })
         if (this.showHistory) { await this.loadHistory() }
       } catch (err) {
         this.saveError = err.message
@@ -319,9 +319,9 @@ export default {
      */
     confirmReset () {
       this.$buefy.dialog.confirm({
-        title: 'Go back to inherited settings',
-        message: 'This level will stop holding its own tax rules and will take them from the level above again. Advisors here will see that level\'s settings.',
-        confirmText: 'Go back to inherited',
+        title: this.$t('firmPropertyTaxRules.resetDialog.title'),
+        message: this.$t('firmPropertyTaxRules.resetDialog.message'),
+        confirmText: this.$t('firmPropertyTaxRules.buttons.reset'),
         type: 'is-warning',
         onConfirm: () => this.reset()
       })
@@ -334,7 +334,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/property-tax-rules', { rules: {} })
         this.own = {}
         this.applyToForm(data.resolved || {})
-        this.$buefy.toast.open({ message: 'Now inheriting again', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmPropertyTaxRules.toast.reset'), type: 'is-success' })
       } catch (err) {
         this.saveError = err.message
       } finally {
@@ -361,7 +361,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/property-tax-rules/restore', { versionId })
         this.applyToForm(data.resolved || {})
         await this.load()
-        this.$buefy.toast.open({ message: 'That version is back in force', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmPropertyTaxRules.toast.restored'), type: 'is-success' })
       } catch (err) {
         this.saveError = err.message
       }

@@ -51,6 +51,7 @@
  */
 
 const https = require('https')
+const { StringDecoder } = require('string_decoder')
 const { stripInvisible } = require('./promptSafety')
 const moderation = require('./moderation')
 
@@ -77,8 +78,11 @@ const DEFAULT_TIMEOUT_MS = 60000
  */
 async function * parseSSEStream (source) {
   let buffer = ''
+  // One decoder for the whole stream: a letter whose bytes straddle two chunks is held
+  // until its second half arrives. Decoding each chunk alone turned it into "��".
+  const decoder = new StringDecoder('utf8')
   for await (const piece of source) {
-    buffer += typeof piece === 'string' ? piece : piece.toString('utf8')
+    buffer += typeof piece === 'string' ? piece : decoder.write(piece)
     let nl
     while ((nl = buffer.indexOf('\n')) !== -1) {
       const line = buffer.slice(0, nl).trim()
@@ -346,10 +350,11 @@ function failureFromEvent (event) {
  */
 async function readBody (res) {
   let data = ''
+  const decoder = new StringDecoder('utf8') // see parseSSEStream: a letter may straddle two chunks
   for await (const piece of res) {
-    data += typeof piece === 'string' ? piece : piece.toString('utf8')
+    data += typeof piece === 'string' ? piece : decoder.write(piece)
   }
-  return data
+  return data + decoder.end()
 }
 
 /**

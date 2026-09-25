@@ -173,7 +173,7 @@ describe('watching a read', () => {
     // The allowance has already been spent. Shown as an ordinary progress bar this is a
     // manager waiting for something that will never move.
     const wrapper = await mountTab({ reads: [read({ stale: true })] })
-    expect(wrapper.vm.stateLabel(wrapper.vm.reads[0])).not.toBe('Reading')
+    expect(wrapper.vm.stateLabel(wrapper.vm.reads[0])).not.toBe('countryRateSchedules.state.reading')
     expect(wrapper.vm.anyReading).toBe(false)
     expect(wrapper.vm.timer).toBeNull()
     wrapper.destroy()

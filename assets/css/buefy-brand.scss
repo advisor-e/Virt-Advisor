@@ -1,0 +1,29 @@
+// Buefy's stylesheet, built with the brand's primary colour — item 16.1.
+//
+// design/BRAND-TOKENS.md names Blue #0070C0 "Primary interactive (buttons, sliders, links) on
+// light". Buefy ships its own violet, #7957d5, compiled into 233 places in buefy/dist/buefy.css —
+// every button, tick, switch, focus ring and active tab — along with the tints Bulma derives from
+// it. Overriding them by hand leaves an app half one colour and half the other; setting $primary
+// once here, before the sources load, recolours every derived shade the same way Bulma would.
+//
+// The imports are Buefy's own buefy-build.scss, restated because its relative paths assume Bulma
+// is nested under Buefy, which it is not in this project.
+//
+// Regenerate buefy-brand.css with `npm run brand-css`. Never edit the .css by hand.
+
+$primary: #0070c0;
+
+@import "bulma/sass/utilities/functions";
+@import "bulma/sass/utilities/initial-variables";
+
+// Buefy's variables derive these three from its violet written out literally —
+// `findLightColor(#7957d5)`, not from $primary — so without them the "light" buttons and tags,
+// and the primary-dark/-light text colours, stayed pale violet. Derived from the brand blue here.
+$primary-invert: findColorInvert($primary);
+$primary-light: findLightColor($primary);
+$primary-dark: findDarkColor($primary);
+
+@import "buefy/src/scss/utils/_all";
+@import "bulma/bulma";
+@import "buefy/src/scss/utils/variables-ext";
+@import "buefy/src/scss/buefy";

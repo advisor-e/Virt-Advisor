@@ -86,6 +86,54 @@ const IMPORTING = computeThreeWayForecast({
  * from the first commit and the screen showed a single "Money out" total, which is
  * precisely the concealment he was describing — so this guards the SCREEN, not the maths.
  */
+/**
+ * 🔴 THE ITEMISED P&L MUST ADD UP TO ITS OWN COST OF SALES. Found 2026-09-25 (under item
+ * 13.2): with overseas trade on, the "every line" view listed only the domestic lines, so they
+ * fell short of the cost-of-sales total beneath them by the imported stock, overseas freight,
+ * duty and exchange movement — 91,650 on a test forecast. The totals were right; the lines a
+ * lender reads were not. This guards the SCREEN'S choice of lines, which is where it broke.
+ */
+describe('Three-Way Forecast screen — the itemised P&L adds up to cost of sales', () => {
+  const TRADING = computeThreeWayForecast({
+    overseas: {
+      enabled: true,
+      importedPurchases: [0, 0, 20000, 0, 0, 30000, 0, 0, 20000, 0, 0, 0],
+      overseasSales: [0, 0, 0, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000]
+    }
+  })
+
+  /** Each month: the lines above "Cost of sales", less closing stock, against the total. */
+  async function gapsIn (forecast) {
+    const w = await mountWithResult(forecast)
+    w.setData({ detail: 'every' })
+    const rows = w.vm.profitRowsFor(w.vm.data)
+    const above = rows.slice(1, rows.findIndex(r => r.key === 'cos'))
+    const cos = rows.find(r => r.key === 'cos').values
+    return cos.map((total, m) => {
+      const listed = above.reduce((s, r) => s + (r.key === 'close-stock' ? -r.values[m] : r.values[m]), 0)
+      return Math.round((total - listed) * 100) / 100
+    })
+  }
+
+  test('a domestic forecast: every month adds up, and no overseas line is listed', async () => {
+    expect(await gapsIn(SAMPLE)).toEqual(new Array(12).fill(0))
+    const w = await mountWithResult(SAMPLE)
+    w.setData({ detail: 'every' })
+    expect(w.vm.profitRowsFor(w.vm.data).some(r => r.key.startsWith('pl-os-'))).toBe(false)
+  })
+
+  test('buying AND selling overseas: every month still adds up', async () => {
+    const os = TRADING.schedules.overseas
+    // The scenario must actually exercise all four overseas lines, or the test proves nothing.
+    expect(os.freight.some(v => v > 0) && os.duty.some(v => v > 0) && os.fxOnSales.some(v => v > 0)).toBe(true)
+    expect(await gapsIn(TRADING)).toEqual(new Array(12).fill(0))
+  })
+
+  test('the drawing\'s importing example adds up too', async () => {
+    expect(await gapsIn(IMPORTING)).toEqual(new Array(12).fill(0))
+  })
+})
+
 describe('Three-Way Forecast screen — the five overseas cash rows (4.64)', () => {
   test('a domestic forecast keeps the compact four-row cash tab', async () => {
     const w = await mountWithResult(SAMPLE)
@@ -716,5 +764,32 @@ describe('Summary / Every line', () => {
     expect(row).toBeTruthy()
     expect(row.label).toBeUndefined()
     w.destroy()
+  })
+})
+
+/**
+ * 🔴 THE FRS-42 CAUTION — Mike's ruling, 2026-09-26. FRS-42 para 59: a forecast says that
+ * actual results are likely to differ from it. A lender can be handed any one printed page,
+ * so every statement page carries it — which a person in UAT would have to check page by page
+ * across a print of up to eleven.
+ */
+describe('Three-Way Forecast — the forecast caution', () => {
+  test('every printed statement page carries it, and the screen shows it once', async () => {
+    const w = await mountWithResult(SAMPLE)
+    const pages = w.findAll('.tw-printstmt')
+    expect(pages.length).toBeGreaterThan(0)
+    expect(w.findAll('.tw-printstmt .tw-printcaution').length).toBe(pages.length)
+    expect(w.findAll('.tw-caution').length).toBe(1)
+    expect(w.find('.tw-caution').text()).toBe('report.threeWayForecast.report.caution')
+    w.destroy()
+  })
+
+  // The one deliberate wording pin: this is FRS-42's own requirement, approved by Mike
+  // 2026-09-26, and it must not be softened into something that no longer warns.
+  test('the wording is the approved caution', () => {
+    const en = require('~/locales/en.json')
+    expect(en.report.threeWayForecast.report.caution).toBe(
+      'This is a forecast. Actual results are likely to differ from it, and the differences may be material.'
+    )
   })
 })

@@ -2,29 +2,32 @@
 .fsd
   .notification.is-info.is-light.mb-4
     p.is-size-7
-      | These are the prices imported stock sells down at as it ages, on the #[b Three-Way Forecast]’s
-      |  overseas section. Every figure here is yours, out of your Import &amp; Retail workbook.
-      |  #[b They set what a new forecast opens on — an advisor can still change them for one client.]
+      i18n(path="firmSellDownLadder.intro.body" tag="span")
+        template(#forecast)
+          b {{ $t('firmSellDownLadder.intro.forecast') }}
+        template(#setsWhat)
+          b {{ $t('firmSellDownLadder.intro.setsWhat') }}
 
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")
 
   template(v-else)
     .mb-4
-      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") Some of this is set here
-      b-tag(v-else type="is-light" size="is-medium") Everything is inherited
+      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") {{ $t('firmSellDownLadder.badge.someSetHere') }}
+      b-tag(v-else type="is-light" size="is-medium") {{ $t('firmSellDownLadder.badge.allInherited') }}
 
     .box
-      p.has-text-weight-semibold.mb-1 The price ladder
+      p.has-text-weight-semibold.mb-1 {{ $t('firmSellDownLadder.ladder.heading') }}
       p.is-size-7.has-text-grey.mb-3
-        | A mark-up is on #[b cost], so 185% means stock that cost 100 to land sells at 285.
-        |  The days say how long each price lasts before the next one takes over.
+        i18n(path="firmSellDownLadder.ladder.intro" tag="span")
+          template(#cost)
+            b {{ $t('firmSellDownLadder.ladder.cost') }}
 
       .fsd-row.fsd-head
-        span Rung
-        span.has-text-right Mark-up on cost (%)
-        span.has-text-right Sells at, per 100 of cost
-        span Applies to stock up to
+        span {{ $t('firmSellDownLadder.ladder.columns.rung') }}
+        span.has-text-right {{ $t('firmSellDownLadder.ladder.columns.markup') }}
+        span.has-text-right {{ $t('firmSellDownLadder.ladder.columns.sellsAt') }}
+        span {{ $t('firmSellDownLadder.ladder.columns.appliesTo') }}
         span
 
       .fsd-row(v-for="r in rungs" :key="r.key")
@@ -39,39 +42,40 @@
           type="number" step="1" size="is-small")
         span.is-size-7.has-text-grey(v-else) {{ runoutSentence }}
         .fsd-source
-          b-tag(v-if="isOwn(r.markupKey)" type="is-info is-light" size="is-small") set here
-          b-tag(v-else type="is-light" size="is-small") inherited
+          b-tag(v-if="isOwn(r.markupKey)" type="is-info is-light" size="is-small") {{ $t('firmSellDownLadder.source.setHere') }}
+          b-tag(v-else type="is-light" size="is-small") {{ $t('firmSellDownLadder.source.inherited') }}
 
       b-message.mt-3(v-if="ladderRises" type="is-warning" size="is-small")
-        | Your runout mark-up is above your new-stock one, so stock would get
-        |  #[b dearer] as it ages. That is allowed — but it is usually a typo.
+        i18n(path="firmSellDownLadder.ladder.rises" tag="span")
+          template(#dearer)
+            b {{ $t('firmSellDownLadder.ladder.dearer') }}
 
     .box
-      p.has-text-weight-semibold.mb-1 What that does to a container
-      p.is-size-7.has-text-grey.mb-3
-        | Stock sells down over four 30-day bands. This is which price each band gets,
-        |  worked out from the days above — change a boundary and this changes with it.
+      p.has-text-weight-semibold.mb-1 {{ $t('firmSellDownLadder.container.heading') }}
+      p.is-size-7.has-text-grey.mb-3 {{ $t('firmSellDownLadder.container.intro') }}
       .fsd-bands
         .fsd-band(v-for="b in bands" :key="b.days" :class="'is-' + b.rung")
           .fsd-band-days {{ b.range }}
           .fsd-band-rung {{ b.label }}
           .fsd-band-mark {{ b.markup }}%
       p.is-size-7.has-text-danger.mt-2(v-if="deadRung")
-        | Nothing is priced at the #[b {{ deadRung }}] rung. Every band falls either side of it.
+        i18n(path="firmSellDownLadder.container.deadRung" tag="span")
+          template(#rung)
+            b {{ deadRung }}
 
     //- The supplier's terms. Editable from 2026-09-04 on Mike's instruction: the forecast
     //- screen carried a "From your platform settings" badge against these figures while
     //- they were hardcoded in the intake component and no screen could change them.
     .box
-      p.has-text-weight-semibold.mb-1 The supplier's terms
+      p.has-text-weight-semibold.mb-1 {{ $t('firmSellDownLadder.terms.heading') }}
       p.is-size-7.has-text-grey.mb-3
-        | These turn an #[b order date] into a landing date, and they decide which month
-        |  every deposit and balance falls in. Interest cover is what the supplier charges
-        |  for waiting to be paid; it is expensed in overheads, not against gross margin.
+        i18n(path="firmSellDownLadder.terms.intro" tag="span")
+          template(#orderDate)
+            b {{ $t('firmSellDownLadder.terms.orderDate') }}
 
       .fsd-row.fsd-head
-        span Term
-        span.has-text-right Figure
+        span {{ $t('firmSellDownLadder.terms.columns.term') }}
+        span.has-text-right {{ $t('firmSellDownLadder.terms.columns.figure') }}
         span
         span
         span
@@ -84,47 +88,41 @@
         span.is-size-7.has-text-grey {{ t.unit }}
         span
         .fsd-source
-          b-tag(v-if="isOwnTerm(t.key)" type="is-info is-light" size="is-small") set here
-          b-tag(v-else type="is-light" size="is-small") inherited
+          b-tag(v-if="isOwnTerm(t.key)" type="is-info is-light" size="is-small") {{ $t('firmSellDownLadder.source.setHere') }}
+          b-tag(v-else type="is-light" size="is-small") {{ $t('firmSellDownLadder.source.inherited') }}
 
-      p.is-size-7.has-text-grey.mt-2
-        | A container ordered today lands after its manufacture days plus its shipping days,
-        |  and is on the shelf after the prep days on top of that.
+      p.is-size-7.has-text-grey.mt-2 {{ $t('firmSellDownLadder.terms.landing') }}
 
     .box
-      p.has-text-weight-semibold.mb-1 How fast it sells
-      p.is-size-7.has-text-grey.mb-3
-        | The demand shape a new forecast opens on. An advisor can pick a different one for
-        |  a client; this is only the starting point.
+      p.has-text-weight-semibold.mb-1 {{ $t('firmSellDownLadder.pattern.heading') }}
+      p.is-size-7.has-text-grey.mb-3 {{ $t('firmSellDownLadder.pattern.intro') }}
       .fsd-pattern
         b-select(v-model="form.defaultPattern" size="is-small")
           option(v-for="p in patterns" :key="p.name" :value="p.name") {{ p.name }}
         span.is-size-7.has-text-grey {{ patternSentence }}
         .fsd-source
-          b-tag(v-if="isOwnPattern" type="is-info is-light" size="is-small") set here
-          b-tag(v-else type="is-light" size="is-small") inherited
-      p.is-size-7.has-text-grey.mt-2
-        | The shapes themselves are not edited here — each one’s four bands have to total
-        |  100%, and they belong to the shipment calculator rather than to this screen.
+          b-tag(v-if="isOwnPattern" type="is-info is-light" size="is-small") {{ $t('firmSellDownLadder.source.setHere') }}
+          b-tag(v-else type="is-light" size="is-small") {{ $t('firmSellDownLadder.source.inherited') }}
+      p.is-size-7.has-text-grey.mt-2 {{ $t('firmSellDownLadder.pattern.notEdited') }}
 
     b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
 
     .buttons
-      b-button(type="is-primary" :loading="saving" @click="save") Save this ladder
-      b-button(type="is-light" :disabled="!hasOwn || saving" @click="confirmReset") Go back to inherited
-      b-button(type="is-text" @click="toggleHistory") {{ showHistory ? 'Hide change history' : 'Change history' }}
+      b-button(type="is-primary" :loading="saving" @click="save") {{ $t('firmSellDownLadder.buttons.save') }}
+      b-button(type="is-light" :disabled="!hasOwn || saving" @click="confirmReset") {{ $t('firmSellDownLadder.buttons.reset') }}
+      b-button(type="is-text" @click="toggleHistory") {{ showHistory ? $t('firmSellDownLadder.history.hide') : $t('firmSellDownLadder.history.heading') }}
 
     .box(v-if="showHistory")
-      p.has-text-weight-semibold.mb-2 Change history
-      p.is-size-7.has-text-grey(v-if="!history.length") Nothing has been saved at this level yet.
+      p.has-text-weight-semibold.mb-2 {{ $t('firmSellDownLadder.history.heading') }}
+      p.is-size-7.has-text-grey(v-if="!history.length") {{ $t('firmSellDownLadder.history.empty') }}
       table.table.is-fullwidth.is-narrow(v-else)
         tbody
           tr(v-for="h in history" :key="h.id")
-            td Version {{ h.version }}
+            td {{ $t('firmSellDownLadder.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.created_by }}
             td.is-size-7.has-text-grey {{ h.created_at }}
             td.has-text-right
-              b-button(size="is-small" type="is-light" @click="restore(h.id)") Restore
+              b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmSellDownLadder.history.restore') }}
 </template>
 
 <script>
@@ -227,9 +225,9 @@ export default {
      */
     rungs () {
       return [
-        { key: 'new', label: 'New stock', markupKey: 'newMarkup', dayKey: 'newUpToDays', help: 'The launch price, while the stock is still new.' },
-        { key: 'standard', label: 'Standard retail', markupKey: 'standardMarkup', dayKey: 'standardUpToDays', help: 'The everyday price once the launch window has passed.' },
-        { key: 'runout', label: 'Runout', markupKey: 'runoutMarkup', dayKey: null, help: 'What is left is cleared at this price. It has no boundary of its own.' }
+        { key: 'new', label: this.$t('firmSellDownLadder.rungs.new.label'), markupKey: 'newMarkup', dayKey: 'newUpToDays', help: this.$t('firmSellDownLadder.rungs.new.help') },
+        { key: 'standard', label: this.$t('firmSellDownLadder.rungs.standard.label'), markupKey: 'standardMarkup', dayKey: 'standardUpToDays', help: this.$t('firmSellDownLadder.rungs.standard.help') },
+        { key: 'runout', label: this.$t('firmSellDownLadder.rungs.runout.label'), markupKey: 'runoutMarkup', dayKey: null, help: this.$t('firmSellDownLadder.rungs.runout.help') }
       ]
     },
 
@@ -239,13 +237,13 @@ export default {
      */
     termRows () {
       return [
-        { key: 'manufactureDays', label: 'Manufacture days', step: '1', unit: 'days', help: 'From placing the order to the goods leaving the supplier.' },
-        { key: 'seaDays', label: 'Shipping — sea', step: '1', unit: 'days', help: 'Added to the manufacture days for a container sent by sea.' },
-        { key: 'airDays', label: 'Shipping — air', step: '1', unit: 'days', help: 'The same, for air freight.' },
-        { key: 'expressDays', label: 'Shipping — express', step: '1', unit: 'days', help: 'The same, for an express service.' },
-        { key: 'balanceDueDays', label: 'Balance due, days from order', step: '1', unit: 'days', help: 'When the rest of the invoice falls due — often before the goods land.' },
-        { key: 'prepDays', label: 'Pre-retail prep days', step: '1', unit: 'days', help: 'From landing to being on the shelf. It is why stock is usually sellable the month after it arrives.' },
-        { key: 'interestCoverPct', label: 'Interest cover', step: 'any', unit: '% a year', help: 'What the supplier charges on the deferred balance, pro-rated over a 360-day year.' }
+        { key: 'manufactureDays', label: this.$t('firmSellDownLadder.terms.rows.manufactureDays.label'), step: '1', unit: this.$t('firmSellDownLadder.terms.units.days'), help: this.$t('firmSellDownLadder.terms.rows.manufactureDays.help') },
+        { key: 'seaDays', label: this.$t('firmSellDownLadder.terms.rows.seaDays.label'), step: '1', unit: this.$t('firmSellDownLadder.terms.units.days'), help: this.$t('firmSellDownLadder.terms.rows.seaDays.help') },
+        { key: 'airDays', label: this.$t('firmSellDownLadder.terms.rows.airDays.label'), step: '1', unit: this.$t('firmSellDownLadder.terms.units.days'), help: this.$t('firmSellDownLadder.terms.rows.airDays.help') },
+        { key: 'expressDays', label: this.$t('firmSellDownLadder.terms.rows.expressDays.label'), step: '1', unit: this.$t('firmSellDownLadder.terms.units.days'), help: this.$t('firmSellDownLadder.terms.rows.expressDays.help') },
+        { key: 'balanceDueDays', label: this.$t('firmSellDownLadder.terms.rows.balanceDueDays.label'), step: '1', unit: this.$t('firmSellDownLadder.terms.units.days'), help: this.$t('firmSellDownLadder.terms.rows.balanceDueDays.help') },
+        { key: 'prepDays', label: this.$t('firmSellDownLadder.terms.rows.prepDays.label'), step: '1', unit: this.$t('firmSellDownLadder.terms.units.days'), help: this.$t('firmSellDownLadder.terms.rows.prepDays.help') },
+        { key: 'interestCoverPct', label: this.$t('firmSellDownLadder.terms.rows.interestCoverPct.label'), step: 'any', unit: this.$t('firmSellDownLadder.terms.units.pctYear'), help: this.$t('firmSellDownLadder.terms.rows.interestCoverPct.help') }
       ]
     },
 
@@ -260,7 +258,7 @@ export default {
         const spec = this.rungs.filter(r => r.key === rung)[0]
         out.push({
           days,
-          range: (days - 29) + '–' + days + ' days',
+          range: this.$t('firmSellDownLadder.container.range', { from: days - 29, to: days }),
           rung,
           label: spec.label,
           markup: this.numOf(spec.markupKey)
@@ -289,14 +287,18 @@ export default {
     /** The runout rung's "applies to" text — derived, because the engine has no boundary. */
     runoutSentence () {
       const std = this.numOf('standardUpToDays')
-      return std ? 'anything older than ' + std + ' days' : 'everything left over'
+      return std
+        ? this.$t('firmSellDownLadder.runout.olderThan', { days: std })
+        : this.$t('firmSellDownLadder.runout.leftOver')
     },
 
     /** The chosen shape's four bands, said in words rather than left as a name. */
     patternSentence () {
       const p = this.patterns.filter(x => x.name === this.form.defaultPattern)[0]
       if (!p) { return '' }
-      return p.curve.map(v => Math.round(v * 100) + '%').join(' / ') + ' of the container, band by band'
+      return this.$t('firmSellDownLadder.pattern.sentence', {
+        bands: p.curve.map(v => Math.round(v * 100) + '%').join(' / ')
+      })
     }
   },
 
@@ -431,7 +433,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/sell-down', { sellDown: this.payload() })
         this.own = data.own || {}
         this.applyToForm(data.resolved || {})
-        this.$buefy.toast.open({ message: 'Ladder saved', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmSellDownLadder.toasts.saved'), type: 'is-success' })
         if (this.showHistory) { await this.loadHistory() }
       } catch (err) {
         this.saveError = err.message
@@ -446,9 +448,9 @@ export default {
      */
     confirmReset () {
       this.$buefy.dialog.confirm({
-        title: 'Go back to the inherited ladder',
-        message: 'This level will stop holding its own prices and will take them from the level above again. New forecasts here will open on that level\'s ladder.',
-        confirmText: 'Go back to inherited',
+        title: this.$t('firmSellDownLadder.resetDialog.title'),
+        message: this.$t('firmSellDownLadder.resetDialog.message'),
+        confirmText: this.$t('firmSellDownLadder.buttons.reset'),
         type: 'is-warning',
         onConfirm: () => this.reset()
       })
@@ -461,7 +463,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/sell-down', { sellDown: {} })
         this.own = {}
         this.applyToForm(data.resolved || {})
-        this.$buefy.toast.open({ message: 'Now inheriting again', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmSellDownLadder.toasts.reset'), type: 'is-success' })
       } catch (err) {
         this.saveError = err.message
       } finally {
@@ -487,7 +489,7 @@ export default {
       try {
         await this.api('POST', '/api/firm-manager/sell-down/restore', { versionId })
         await this.load()
-        this.$buefy.toast.open({ message: 'That version is back in force', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmSellDownLadder.toasts.restored'), type: 'is-success' })
       } catch (err) {
         this.saveError = err.message
       }

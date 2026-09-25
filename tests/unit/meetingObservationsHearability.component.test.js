@@ -213,3 +213,24 @@ describe('what advisors have set aside', () => {
     expect(wrapper.vm.scenarios.length).toBeGreaterThan(0)
   })
 })
+
+describe('the names of advisors who set a point aside', () => {
+  // English must read exactly as it always did; another language lists names its own way.
+  function namesIn (locale) {
+    const wrapper = mountWithBuefy(FirmMeetingObservations, {
+      propsData: { apiToken: 'test-token' },
+      mocks: { $i18n: { locale }, $buefy: { toast: { open: jest.fn() }, dialog: { confirm: jest.fn() } } }
+    })
+    return wrapper.vm.nameParts([{ name: 'Ruth Kelleher' }, { name: 'Priya Nair' }, { name: null }])
+  }
+
+  it('reads "A, B, C" in English, each name its own part', () => {
+    const parts = namesIn('en')
+    expect(parts.map(p => p.value).join('')).toBe(' Ruth Kelleher, Priya Nair, firmMeetingObservations.setAside.unnamedAdvisor')
+    expect(parts.filter(p => p.type === 'element')).toHaveLength(3)
+  })
+
+  it('uses the reader\'s own list form in German', () => {
+    expect(namesIn('de').map(p => p.value).join('')).toContain('Priya Nair und ')
+  })
+})

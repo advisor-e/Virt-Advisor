@@ -9,23 +9,27 @@
 
 ---
 
-## 2026-09-24 (afternoon) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-25 (afternoon) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed at `5bdbda07`. 624 suites / 13,751 tests, audit PASS. PR #130 MERGED to
-`master` at `a23572a4` on Mike's word.** One commit beyond it: the Meeting Review Brief correction.
+**Clean and pushed at `1375c0eb`. 636 suites / 13,774 tests green, audit PASS.** 8 ahead of
+`master`, 0 behind — not yet at the 10 that calls for a PR. Nothing is `activeOn` here.
 
-### 🔴 FOR THE LAPTOP — once you merge `master`
-- **Dictation now stays on the computer (12.2, done, proven by Mike with Wi-Fi off).** Every
-  recogniser is made by `utils/onDeviceSpeech.js` with `processLocally = true`. A new microphone
-  must use `createOnDeviceRecognition`, **never `new SpeechRecognition()`**, or it sends speech to Google.
-- **Two of your 15.1 screens changed by one line each:** `StrategyConceptCapture.vue` and
-  `StrategyOrgChartBuilder.vue` each gained a `speech-status-line` and its import. Nothing else.
-- **Every `/v1/responses` call now sends `store: false`** (`openaiClient.js`), and Meeting Review
-  sends `chunking_strategy=auto`, without which OpenAI refused every transcription.
-- **OpenAI's own docs are saved** in `design/openai/`. Read `design/OPENAI-DEVELOPER-DOCS.md` before
-  any OpenAI change.
+**Closed on Mike's word:** 12.1, 10.1 (plus 16.1 and 13.2 this morning). **Parked:** 16.
+**Filed:** 13.6 (translation glossary), 46.1 (benchmark provisional years), 10.2 (backend-worded
+English on hub screens).
 
-### What today settled
-Filed on Mike's yes: **8.3** (Meeting Review's model retires 26 Feb 2027, no speaker-labelling
-successor), **8.4** (meetings over about 27 minutes exceed OpenAI's 25 MB), **13.5** (his FX review of
-imported stock). 5.3 renumbered **5.4**. Nothing is `activeOn` here.
+**Pick up first tomorrow:** OpenAI says ZDR is enabled for the organisation (recorded verbatim,
+`OPENAI-AUDIO-TERMS-EMAIL.md` §5.8). Mike checks the console for the org badge AND the Project's
+setting; then 8.1 and `OPENAI-ZDR-CONSTRAINTS.md`'s status are updated on what he saw.
+
+### 🔴 FOR THE LAPTOP — when this branch reaches `master`
+- **Translation is now the backend's** (`server/utils/uiTranslation.js`, `GET /api/ui-translation/:code`,
+  new AI role `translate`). Any NEW screen text still just goes in `en.json` — nothing else to do.
+- **`locales/en.json` gained ~1,040 lines at its END** (15 new blocks). If you also appended blocks,
+  the merge conflicts at the file's tail: keep both sides.
+- **`tests/helpers/mountComponent.js`** gained `englishMocks()` (real English `$t`) and renders
+  `<i18n>` by default — drop any `stubs: { i18n: true }` you add.
+- **`openaiClient.js` now decodes whole letters**; a split "ö" or "—" used to become "��".
+- From this morning, still unmerged: Buefy's stylesheet is `assets/css/buefy-brand.css` (edit the
+  `.scss`, run `npm run brand-css`; `npm install` with npm 8 on Node 14.15); the forecast P&L has
+  four overseas lines.

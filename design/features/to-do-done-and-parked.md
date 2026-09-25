@@ -109,6 +109,22 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**16 · A client's document carries no firm, so the white-label promise has nothing behind it.**
+⏸ **Parked 2026-09-25 by Mike ("yes").** Our half is built; waiting on the master team's answer to
+question 8 of the integration email.
+
+- **Built and wired:** `firmBrand()` in [`server/utils/firmsDirectory.js`](../../server/utils/firmsDirectory.js)
+  reads the firm's name, logo and colour through seam **Q-FIRM-BRAND** in
+  [`config/integration.js`](../../config/integration.js). All four call sites carry it — the plan
+  document and the three session screens (2026-09-23). Mike's ruling: the firm's real logo in a
+  fixed-height box, initials disc only as fallback, border in the firm's colour. See
+  [`white-label.md`](white-label.md) §4.
+- **The data is Advisor-e's and we build no screen for it** — Mike: *"Advisor-e already picks up the
+  colour and brands the border to suit"*; it lives on the firm profile page.
+- **What un-parks it:** the master team naming the two columns (question 8 of
+  [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md)). Until then the
+  seam is inert and documents print the placeholder mark.
+
 **7.3 · A second opinion from two AI providers.** ⏸ **Parked 2026-09-23 by Mike.** His own idea,
 unbuilt, and it needs a decision and an impact test before any design — not a build.
 
@@ -352,6 +368,80 @@ locked in the prompt. Either is fine; deciding by accident is not.
 ---
 
 ## 2. Closed recently, with what proved it
+
+**10.1 · Seven manager screens can't be translated.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**.
+
+- **What moved:** 596 strings, word for word — `FirmForecastTrendThresholds`, `FirmSellDownLadder`,
+  `FirmPropertyTaxRules`, `FirmMeetingObservations`, `FirmDepreciationRates`, `CountryRateSchedules`,
+  `FirmCompliance` and `FirmManagerHub`'s own headings, menu and tabs, each under its own block in
+  `locales/en.json`. Sentences with a bold phrase inside use vue-i18n's `<i18n>` slot component, as
+  `MentorDistinctions.vue` already did. The two notes recording the English as a deviation are gone.
+- **Proved:** every key each screen uses exists and none is unused; **seen in German in a running
+  build** — menu, thresholds, price ladder, depreciation, compliance, observations, distinctions.
+- **Found on the way and fixed the same day, on Mike's yes:** five readers decoded incoming data a
+  chunk at a time, so a letter split across two chunks became "��" — in any AI reply, and in stored
+  German as "Verm��genswerte". Each now decodes whole letters (`openaiClient.js` `readBody` and
+  `parseSSEStream`, `advisorEngine.js`, `courseEngine.js`, `routes/translate.js`); the translation
+  refuses and redoes any string carrying one.
+- **Extended the same day on Mike's yes:** six further hub screens that 10.1 never listed —
+  `FirmMeetingTypes`, `DepreciationDocumentReview`, `FirmBenchmarker`, `FirmClientCopyRequests`,
+  `FirmDistinctionForm`, `FirmMeetingPatterns` — 211 more strings, seen in German. `FirmRail` and
+  `MethodGuideSection` had no English of their own: every word they show comes from a parent or data.
+
+**12.1 · Course Builder shows about 86 pieces of English that bypass the translation file.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**.
+
+- **What moved:** all of `components/CourseBuilder.vue`'s wording — 141 strings, word for word — into
+  the `courseBuilder` block of `locales/en.json`; the certificate date now follows the reader's
+  language through `utils/dateLocale.js`. **One sentence stays English on purpose:** the template
+  starter, because `requestedSessionCount` reads the session count out of it.
+- **Proved:** every one of the 142 keys the screen uses exists, none unused; the three Course
+  Builder tests read the real English (`englishMocks`); **seen in German in a running build** —
+  picker, meta line and buttons all German.
+- **Found on the way and fixed the same day, on Mike's yes:** the language picker never asked for
+  a translation for the seven shipped languages, and the free service behind the other twenty could
+  translate about a quarter of one language a day. Replaced by backend translation, once per
+  language and shared (`server/utils/uiTranslation.js`, `localisation-and-currency.md` §1a).
+  Measured live: German 6,231 of 6,232 strings, Japanese 6,200 of 6,232.
+
+**13.2 · Conversion is per model, and no model states which currency its figures are in.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**.
+
+- **The rule half:** Mike's 2026-09-22 ruling — currency at firm level, conversion only inside a
+  model — was already in `localisation-and-currency.md` §3. It was missing where a new model is
+  built; `ADDING-A-REPORT.md`'s checklist now asks **"Foreign money?"**.
+- **The label half was not needed.** The note imagined a converted figure beside an unconverted
+  one. The code has no conversion: imported stock is entered as its landed value in the report's
+  own currency, and `fxAllowancePct` / `salesFxAllowancePct` add a percentage margin on top. Every
+  figure on screen is in the report's one currency, so there is nothing to label.
+- **Found on the way, and fixed on Mike's yes:** with overseas trade on, the forecast's "every line"
+  P&L listed only the domestic lines, so they fell short of the cost-of-sales total beneath them —
+  91,650 on a test forecast (imported stock, overseas freight, duty, exchange movement). The model
+  now returns the four as their own P&L lines and the report lists them: *Stock arriving from
+  overseas* (label approved by Mike), *Freight and shipping*, *Duty and clearance*, *Exchange-rate
+  movement* — the last per his 2026-09-04 ruling on the overseas drawing. A component test proves
+  the listed lines equal cost of sales every month, overseas on and off, and fails against the
+  old screen.
+
+**16.1 · Primary buttons show the library's violet where the brand file says blue.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**, after seeing the Sales Blog before and after.
+
+- **Why it existed:** Buefy's shipped stylesheet carries its violet `#7957d5` in 233 places — 132
+  of them in rules with no "primary" in the name (ticks, switches, focus rings, active tabs) — so a
+  hand-written override could only ever half-recolour the app.
+- **The fix:** `assets/css/buefy-brand.scss` sets `$primary: #0070c0` and compiles Buefy's own
+  sources; `nuxt.config.js` loads the result, `assets/css/buefy-brand.css`, instead of
+  `buefy/dist/buefy.css`. Rebuilt with `npm run brand-css`. `sass` 1.32.13 added as a pinned
+  dev-only tool, installed with npm 8.19.4 on Node 14.15; `check:engines` 0 offenders and the
+  audit gate unchanged.
+- **Proved:** built with no colour change, the pipeline reproduced Buefy's shipped file rule for
+  rule — 4,033 rules, identical selectors and properties. None of the 22 colours Buefy's shipped file
+  uses for primary remain — the first build missed the light and dark shades, fixed in
+  `cd2411dc`. The build is smaller (47 KB gzipped against 50). In the running build, *Write the
+  outline* on the Sales Blog measured `rgb(121,87,213)` before and `rgb(0,112,192)` after.
+- **Not walked:** the Strategy Planner's *Run session* header button, which needs a built session
+  to reach; it carries the same `is-primary` style. `is-info` (Bulma's lighter blue) is unchanged.
 
 **15.23 · Business Targets can't reach the Owner Expectations model inside a session.**
 ✅ **Closed 2026-09-25 by Mike ("done")**, the day it was drawn, approved and built.

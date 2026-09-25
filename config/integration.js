@@ -301,7 +301,8 @@ const _aiModels = (prefix, fallbacks) => ({
   compliance: process.env[prefix + 'MODEL_COMPLIANCE'] || fallbacks.compliance,
   draft: process.env[prefix + 'MODEL_DRAFT'] || fallbacks.draft,
   research: process.env[prefix + 'MODEL_RESEARCH'] || fallbacks.research,
-  extract: process.env[prefix + 'MODEL_EXTRACT'] || fallbacks.extract
+  extract: process.env[prefix + 'MODEL_EXTRACT'] || fallbacks.extract,
+  translate: process.env[prefix + 'MODEL_TRANSLATE'] || fallbacks.translate
 })
 
 // The models each role uses today, moved here from eleven hardcoded literals across the
@@ -316,7 +317,9 @@ const _primaryModels = {
   compliance: 'gpt-6-astra',
   draft: 'gpt-6-astra',
   research: 'gpt-6-astra',
-  extract: 'gpt-6-astra'
+  extract: 'gpt-6-astra',
+  // The app's own wording into a reader's language (server/utils/uiTranslation.js).
+  translate: 'gpt-4o-mini'
 }
 
 const AI = {

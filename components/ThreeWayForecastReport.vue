@@ -49,6 +49,10 @@
         :value="pct(headline.grossMarginPct)"
         :sub="grossMarginSub")
 
+    //- FRS-42 para 59: a forecast says that actual results are likely to differ from it.
+    //- Mike's ruling, 2026-09-26. On paper it is carried by each statement page instead.
+    p.tw-note.tw-caution {{ $t('report.threeWayForecast.report.caution') }}
+
     //- 🔴 A FORECAST WITH NO SALES IN IT. Found 2026-09-07 by driving the real app after
     //- Mike reported that the sliders "did nothing": his by-month export ended part-way
     //- through a month, that month was stripped as incomplete, and short of twelve the
@@ -290,6 +294,8 @@
             //- which is never true here, so the print reads its own count — per year.
             p.tw-note(v-if="s.hidden")
               | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: s.hidden, total: overheadCount }) }}
+            //- Every printed page carries the FRS-42 caution, since a page can be handed on alone.
+            p.tw-note.tw-printcaution {{ $t('report.threeWayForecast.report.caution') }}
 
       .tw-card
         .tw-group
@@ -1067,6 +1073,15 @@ export default {
       if (!this.isEvery) { return summary }
       const L = 'report.threeWayForecast.report.line.'
       const sub = (key, label, values) => ({ key, label: L + label, values, sub: true, signed: true })
+      // Inside cost of sales, so the lines above the total add up to it (item 13.2's finding).
+      const overseasLines = !this.hasOverseasTradeFor(d)
+        ? []
+        : [
+            sub('pl-os-stock', 'importedStock', p.importedStock),
+            sub('pl-os-frt', 'overseasFreight', p.overseasFreight),
+            sub('pl-os-duty', 'overseasDuty', p.overseasDuty),
+            sub('pl-os-fx', 'exchangeMovement', p.exchangeMovement)
+          ]
       return [
         { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue, strong: true },
         sub('open-stock', 'openingStock', p.openingInventory),
@@ -1074,11 +1089,12 @@ export default {
         sub('frt', 'freight', p.freight),
         sub('comm', 'commissions', p.commissions),
         sub('dir2', 'otherDirect', p.otherDirectTwo),
-        sub('dirx', 'otherDirectExempt', p.otherDirectExpensesExempt),
+        sub('dirx', 'otherDirectExempt', p.otherDirectExpensesExempt)
+      ].concat(overseasLines, [
         sub('close-stock', 'closingStock', p.closingInventory),
         { key: 'cos', label: L + 'costOfSales', values: p.costOfSales, rule: true, signed: true },
         { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, strong: true, signed: true }
-      ]
+      ])
         // Only the overhead lines that carry a figure — Mike's ruling of 2026-09-05. The
         // engine holds 23 and a typical forecast uses about eight; fifteen rows of zeroes
         // would bury the eight that matter. What is hidden is counted under the table.
@@ -1505,7 +1521,7 @@ td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-wei
 .tw-printall { display: none; }
 
 @media print {
-  .tw-actions, .tw-levers { display: none !important; }
+  .tw-actions, .tw-levers, .tw-caution { display: none !important; }
   /* 🔴 THE WHOLE TABBED CARD GOES, not just its tab buttons — the tabs, the
      Summary / Every line toggle and the "scroll sideways" note are all controls or
      instructions for a screen, and the print has its own three statements below.

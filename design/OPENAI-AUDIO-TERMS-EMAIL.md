@@ -679,6 +679,32 @@ and what it binds feature design to is in [`OPENAI-ZDR-CONSTRAINTS.md`](OPENAI-Z
 **Still outstanding:** enablement after execution, and the configuration-specific confirmation.
 ZDR is not in force.
 
+### 5.8 · OpenAI, SEVENTH reply — 2026-09-25, ZDR enabled for the organisation
+
+✅ **RECEIVED 2026-09-25.** Recorded exactly as Mike pasted it.
+
+> Hi Mike,
+>
+> I'm pleased to confirm that Zero Data Retention (ZDR) has now been implemented for Advisor-e's
+> OpenAI API organization: org-OUBqwe8OByhujJMplkl7ufAd.
+>
+> You can confirm this by looking for the Zero Retention badge in your Organization Settings.
+>
+> The configuration-specific written confirmation we discussed remains outstanding and separate
+> from this enablement update.
+>
+> Thank you for your patience throughout the process. Please let me know if you have any questions.
+>
+> Best regards,
+>
+> OpenAI — Kalaiselvam
+
+**What it settles:** ZDR is enabled for the **organisation**, and the org ID matches the signed
+amendment. **Still to confirm before ZDR is recorded as in force:** Mike seeing, in the console,
+the **Zero Retention** badge under Organization Settings **and** Zero Data Retention on the app's
+**Project** (Data controls → Data Retention, not "None" — rule Z9); that is 8.1's un-park
+condition. **Still outstanding from OpenAI:** the configuration-specific written confirmation.
+
 ### 5.4 · What this organisation relies on, stated once
 
 **Mike's ruling, 2026-09-18**, in his words: *"We have taken all fair and reasonable steps to

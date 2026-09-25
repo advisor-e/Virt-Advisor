@@ -1,16 +1,15 @@
 <template lang="pug">
 .fdr
   .notification.is-info.is-light.mb-4
-    p.is-size-7
-      | These are the rates the #[b Three-Way Forecast] writes assets down at, for clients in
-      |  one country.
-      | #[b Nothing here is any country's tax rules until a document has been loaded and approved]
-      |  — until then the forecast uses the app's own six figures, which are a starting point
-      |  and are marked as one.
+    i18n.is-size-7(path="firmDepreciationRates.intro.body" tag="p")
+      template(#forecast)
+        b {{ $t('firmDepreciationRates.intro.forecast') }}
+      template(#notRules)
+        b {{ $t('firmDepreciationRates.intro.notRules') }}
 
   .field.is-grouped.is-align-items-flex-end.mb-4
     .control
-      b-field(label="Country" label-position="on-border")
+      b-field(:label="$t('firmDepreciationRates.country.label')" label-position="on-border")
         b-input(
           v-model="countryInput"
           placeholder="NZ"
@@ -20,7 +19,7 @@
           @keyup.native.enter="show(countryInput)"
         )
     .control
-      b-button(type="is-primary" size="is-small" :disabled="!canShow" @click="show(countryInput)") Show
+      b-button(type="is-primary" size="is-small" :disabled="!canShow" @click="show(countryInput)") {{ $t('firmDepreciationRates.country.show') }}
     .control(v-for="c in countries" :key="c")
       b-button(
         size="is-small"
@@ -33,30 +32,29 @@
 
   template(v-else-if="!country")
     .box.has-text-centered.py-5
-      p.has-text-weight-semibold.mb-1 Choose a country
+      p.has-text-weight-semibold.mb-1 {{ $t('firmDepreciationRates.empty.heading') }}
       p.is-size-7.has-text-grey
-        | Rates belong to the country whose tax authority publishes them, so there is nothing
-        |  to show until you name one. Two letters — NZ, AU.
+        | {{ $t('firmDepreciationRates.empty.body') }}
       p.is-size-7.has-text-grey.mt-2(v-if="!countries.length")
-        | This level has not approved a table for any country yet.
+        | {{ $t('firmDepreciationRates.empty.noCountries') }}
 
   template(v-else)
     .mb-4
-      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") This level has approved its own {{ country }} table
-      b-tag(v-else-if="!resolved.isDefault" type="is-light" size="is-medium") Inherited from above
-      b-tag(v-else type="is-warning is-light" size="is-medium") Nobody has approved a {{ country }} table — the app's own figures apply
+      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") {{ $t('firmDepreciationRates.status.own', { country }) }}
+      b-tag(v-else-if="!resolved.isDefault" type="is-light" size="is-medium") {{ $t('firmDepreciationRates.status.inherited') }}
+      b-tag(v-else type="is-warning is-light" size="is-medium") {{ $t('firmDepreciationRates.status.none', { country }) }}
 
     .box
-      p.has-text-weight-semibold.mb-1 What a {{ country }} client's forecast uses
-      p.is-size-7.has-text-grey.mb-3
-        | One rate for each of the forecast's six asset categories, and where each one came from.
-        | #[b A rate marked as an app default is a starting point, not this country's rules.]
+      p.has-text-weight-semibold.mb-1 {{ $t('firmDepreciationRates.table.heading', { country }) }}
+      i18n.is-size-7.has-text-grey.mb-3(path="firmDepreciationRates.table.intro" tag="p")
+        template(#defaultNote)
+          b {{ $t('firmDepreciationRates.table.defaultNote') }}
 
       .fdr-row.fdr-head
-        span Category
-        span Rate
-        span Method
-        span Where it came from
+        span {{ $t('firmDepreciationRates.table.categoryHeading') }}
+        span {{ $t('firmDepreciationRates.table.rateHeading') }}
+        span {{ $t('firmDepreciationRates.table.methodHeading') }}
+        span {{ $t('firmDepreciationRates.table.originHeading') }}
 
       .fdr-row(v-for="row in rows" :key="row.key")
         .fdr-label
@@ -71,16 +69,16 @@
     .box
       .level.is-mobile.mb-2
         .level-left
-          p.has-text-weight-semibold Documents loaded for {{ country }}
+          p.has-text-weight-semibold {{ $t('firmDepreciationRates.documents.heading', { country }) }}
         .level-right
           span.is-size-7.has-text-grey {{ documentSummary }}
 
-      p.is-size-7.has-text-grey.mb-3
-        | The schedules {{ country }}'s tax authority publishes, read by the AI so a manager can check
-        |  every figure and approve it. #[b A second document never replaces the first] — it is read
-        |  alongside it, and where two disagree the newer publication wins.
+      i18n.is-size-7.has-text-grey.mb-3(path="firmDepreciationRates.documents.intro" tag="p")
+        template(#country) {{ country }}
+        template(#notReplace)
+          b {{ $t('firmDepreciationRates.documents.notReplace') }}
 
-      p.is-size-7.has-text-grey(v-if="!documents.length") Nothing has been loaded for {{ country }} yet.
+      p.is-size-7.has-text-grey(v-if="!documents.length") {{ $t('firmDepreciationRates.documents.none', { country }) }}
 
       .fdr-doc(v-for="d in documents" :key="d.id")
         .fdr-doc-meta
@@ -93,7 +91,7 @@
             size="is-small"
             type="is-light"
             @click="review(d.id)"
-          ) {{ reviewing === d.id ? 'Close' : 'Review' }}
+          ) {{ reviewing === d.id ? $t('firmDepreciationRates.documents.close') : $t('firmDepreciationRates.documents.review') }}
           //- Item 4.88. A failed read is the ONE row that can be deleted — every other
             status is part of the record of what this level approved.
           b-button(
@@ -102,19 +100,17 @@
             type="is-danger is-light"
             :loading="deleting === d.id"
             @click="confirmDelete(d.id)"
-          ) Delete
+          ) {{ $t('firmDepreciationRates.documents.delete') }}
 
       b-message(v-if="uploadMessage" :type="uploadType" size="is-small") {{ uploadMessage }}
 
       .fdr-drop
-        p.has-text-weight-semibold.is-size-7.mb-1 Load a depreciation schedule
+        p.has-text-weight-semibold.is-size-7.mb-1 {{ $t('firmDepreciationRates.upload.heading') }}
         p.is-size-7.has-text-grey.mb-2
-          | PDF, up to 20 MB, as {{ country }}'s tax authority publishes it. It is sent to the AI to be
-          |  read and is not kept afterwards — the AI proposes, and nothing it proposes reaches a
-          |  forecast until you approve it.
+          | {{ $t('firmDepreciationRates.upload.body', { country }) }}
         b-upload(v-model="file" accept="application/pdf" :disabled="uploading" @input="upload")
           a.button.is-primary.is-small(:class="{ 'is-loading': uploading }")
-            span Choose a file
+            span {{ $t('firmDepreciationRates.upload.choose') }}
 
     depreciation-document-review(
       v-if="reviewingDocument"
@@ -130,75 +126,72 @@
     )
 
     .box
-      p.has-text-weight-semibold.mb-1 First-year rule
-      p.is-size-7.has-text-grey.mb-3
-        | Some countries let a business deduct part of a new asset's cost up front. It is
-        |  #[b approved separately from the rates], because adopting a tax scheme is a
-        |  different decision from confirming a rate table.
+      p.has-text-weight-semibold.mb-1 {{ $t('firmDepreciationRates.rule.heading') }}
+      i18n.is-size-7.has-text-grey.mb-3(path="firmDepreciationRates.rule.intro" tag="p")
+        template(#separately)
+          b {{ $t('firmDepreciationRates.rule.separately') }}
 
       template(v-if="rule")
         table.table.is-fullwidth.is-narrow
           tbody
             tr
-              td Rule
+              td {{ $t('firmDepreciationRates.rule.name') }}
               td
                 b {{ rule.name }}
                 p.is-size-7.has-text-grey(v-if="ruleSource") {{ ruleSource }}
             tr
-              td Deducted in the year of purchase
-              td {{ rulePercent }} of the asset's cost, as an expense
+              td {{ $t('firmDepreciationRates.rule.deducted') }}
+              td {{ $t('firmDepreciationRates.rule.deductedValue', { percent: rulePercent }) }}
             tr
-              td The rest
-              td {{ ruleRemainder }} goes on the asset register and depreciates at the ordinary rate
+              td {{ $t('firmDepreciationRates.rule.rest') }}
+              td {{ $t('firmDepreciationRates.rule.restValue', { remainder: ruleRemainder }) }}
             tr
-              td Applies to assets bought on or after
+              td {{ $t('firmDepreciationRates.rule.startsOn') }}
               td {{ rule.startsOn }}
             tr(v-if="rule.endsOn")
-              td And on or before
+              td {{ $t('firmDepreciationRates.rule.endsOn') }}
               td {{ rule.endsOn }}
             tr(v-if="rule.qualifies")
-              td Qualifies
+              td {{ $t('firmDepreciationRates.rule.qualifies') }}
               td.is-size-7 {{ rule.qualifies }}
             tr(v-if="rule.excludes")
-              td Does not qualify
+              td {{ $t('firmDepreciationRates.rule.excludes') }}
               td.is-size-7 {{ rule.excludes }}
             tr
-              td Adopted by
+              td {{ $t('firmDepreciationRates.rule.adoptedBy') }}
               td.is-size-7.has-text-grey {{ rule.approvedBy }} · {{ rule.approvedAt }}
         .notification.is-info.is-light.py-2
-          p.is-size-7 This does not change the total that may be claimed — it brings it forward.
+          p.is-size-7 {{ $t('firmDepreciationRates.rule.bringsForward') }}
         b-button(
           type="is-light"
           size="is-small"
           :loading="saving"
           :disabled="!ownRule"
           @click="confirmWithdraw"
-        ) Withdraw this rule
+        ) {{ $t('firmDepreciationRates.rule.withdraw') }}
         p.is-size-7.has-text-grey.mt-2(v-if="rule && !ownRule")
-          | Adopted at a level above this one, so it is withdrawn there rather than here.
+          | {{ $t('firmDepreciationRates.rule.adoptedAbove') }}
 
       .content(v-else)
         p.is-size-7.has-text-grey
-          | No first-year rule has been adopted for {{ country }}. Advisors see no such field
-          |  on a {{ country }} client's forecast, which is the correct state for a country
-          |  whose tax authority has no such scheme.
+          | {{ $t('firmDepreciationRates.rule.none', { country }) }}
 
     b-message(v-if="error" type="is-danger" size="is-small") {{ error }}
 
     .buttons
-      b-button(type="is-text" @click="toggleHistory") {{ showHistory ? 'Hide change history' : 'Change history' }}
+      b-button(type="is-text" @click="toggleHistory") {{ showHistory ? $t('firmDepreciationRates.history.hide') : $t('firmDepreciationRates.history.heading') }}
 
     .box(v-if="showHistory")
-      p.has-text-weight-semibold.mb-2 Change history
-      p.is-size-7.has-text-grey(v-if="!history.length") Nothing has been approved at this level yet.
+      p.has-text-weight-semibold.mb-2 {{ $t('firmDepreciationRates.history.heading') }}
+      p.is-size-7.has-text-grey(v-if="!history.length") {{ $t('firmDepreciationRates.history.none') }}
       table.table.is-fullwidth.is-narrow(v-else)
         tbody
           tr(v-for="h in history" :key="h.id")
-            td Version {{ h.version }}
+            td {{ $t('firmDepreciationRates.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.created_by }}
             td.is-size-7.has-text-grey {{ h.created_at }}
             td.has-text-right
-              b-button(size="is-small" type="is-light" @click="restore(h.id)") Restore
+              b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmDepreciationRates.history.restore') }}
 </template>
 
 <script>
@@ -233,13 +226,6 @@
  *
  * ⚠ A RULE INHERITED FROM ABOVE CANNOT BE WITHDRAWN HERE, and the screen says so rather than
  * offering a button that would fail. Nobody edits a level above their own (Mike, 2026-09-02).
- *
- * ⚠ STRINGS ARE HARDCODED ENGLISH, WHICH DEVIATES FROM THE i18n STANDARD IN `CLAUDE.md`, AND
- * THIS NOTE IS THE RECORD RATHER THAN A SILENT CHOICE. Four of the five sibling tabs in this
- * folder do the same (`FirmForecastTrendThresholds`, `FirmSellDownLadder`,
- * `FirmPropertyTaxRules`, `FirmMeetingObservations`); only `FirmAiPrompts` uses `$t`. Matching
- * the majority keeps this folder to two styles rather than three, and converting all five is
- * one job rather than five. Raised with Mike on 2026-09-09.
  */
 import DepreciationDocumentReview from './DepreciationDocumentReview.vue'
 import moderationMessage from '~/mixins/moderationMessage'
@@ -300,12 +286,12 @@ export default {
     /** The six rows, in the order the forecast holds its categories. */
     rows () {
       const labels = {
-        vehicles: 'Vehicles',
-        leaseholdImprovements: 'Leasehold improvements',
-        plantEquipment: 'Plant and equipment',
-        officeEquipment: 'Office equipment',
-        computerHardware: 'Computer hardware',
-        other: 'Other'
+        vehicles: this.$t('firmDepreciationRates.categories.vehicles'),
+        leaseholdImprovements: this.$t('firmDepreciationRates.categories.leaseholdImprovements'),
+        plantEquipment: this.$t('firmDepreciationRates.categories.plantEquipment'),
+        officeEquipment: this.$t('firmDepreciationRates.categories.officeEquipment'),
+        computerHardware: this.$t('firmDepreciationRates.categories.computerHardware'),
+        other: this.$t('firmDepreciationRates.categories.other')
       }
       const cats = this.resolved.categories || {}
       return Object.keys(labels).filter(k => cats[k]).map((key) => {
@@ -318,10 +304,14 @@ export default {
           // on an app default, because an app default came from no published class at all.
           className: c.label || '',
           rate: operative === null || operative === undefined ? '—' : `${Math.round(operative * 1000) / 10}%`,
-          method: c.method === 'sl' ? 'straight line' : 'diminishing value',
+          method: c.method === 'sl' ? this.$t('firmDepreciationRates.methods.sl') : this.$t('firmDepreciationRates.methods.dv'),
           origin: this.originLabel(c),
           badgeType: c.originTier ? 'is-info is-light' : 'is-light',
-          source: c.source ? `${c.source.document}${c.source.page ? ', p.' + c.source.page : ''} · ${c.source.published}` : ''
+          source: !c.source
+            ? ''
+            : c.source.page
+              ? this.$t('firmDepreciationRates.table.sourceWithPage', { document: c.source.document, page: c.source.page, published: c.source.published })
+              : this.$t('firmDepreciationRates.table.source', { document: c.source.document, published: c.source.published })
         }
       })
     },
@@ -370,7 +360,9 @@ export default {
     documentSummary () {
       if (!this.documents.length) { return '' }
       const pending = this.documents.filter(d => d.status === 'pending').length
-      return this.documents.length + ' loaded' + (pending ? ' · ' + pending + ' awaiting you' : '')
+      return pending
+        ? this.$t('firmDepreciationRates.documents.summaryPending', { loaded: this.documents.length, pending })
+        : this.$t('firmDepreciationRates.documents.summary', { loaded: this.documents.length })
     }
   },
 
@@ -386,12 +378,12 @@ export default {
      */
     originLabel (c) {
       const names = {
-        mentor: 'Advisor-e',
-        global_group_manager: 'your global group',
-        group_manager: 'your group',
-        firm_manager: 'your firm'
+        mentor: this.$t('firmDepreciationRates.origins.mentor'),
+        global_group_manager: this.$t('firmDepreciationRates.origins.globalGroupManager'),
+        group_manager: this.$t('firmDepreciationRates.origins.groupManager'),
+        firm_manager: this.$t('firmDepreciationRates.origins.firmManager')
       }
-      if (!c.originTier) { return 'app default' }
+      if (!c.originTier) { return this.$t('firmDepreciationRates.origins.appDefault') }
       return names[c.originTier] || c.originTier
     },
 
@@ -459,8 +451,10 @@ export default {
       if (d.published) { parts.push(d.published) }
       parts.push(d.country)
       const read = Object.keys(d.categories || {}).length
-      parts.push(d.status === 'unreadable' ? 'nothing could be read' : `${read} of 6 categories read`)
-      if (d.loadedBy) { parts.push(`loaded by ${d.loadedBy}`) }
+      parts.push(d.status === 'unreadable'
+        ? this.$t('firmDepreciationRates.documents.nothingRead')
+        : this.$t('firmDepreciationRates.documents.categoriesRead', { read }))
+      if (d.loadedBy) { parts.push(this.$t('firmDepreciationRates.documents.loadedBy', { name: d.loadedBy })) }
       return parts.join(' · ')
     },
 
@@ -481,10 +475,10 @@ export default {
      */
     statusText (d) {
       const words = {
-        approved: 'In use',
-        pending: 'Needs your approval',
-        rejected: 'Rejected',
-        unreadable: 'Could not be read'
+        approved: this.$t('firmDepreciationRates.statuses.approved'),
+        pending: this.$t('firmDepreciationRates.statuses.pending'),
+        rejected: this.$t('firmDepreciationRates.statuses.rejected'),
+        unreadable: this.$t('firmDepreciationRates.statuses.unreadable')
       }
       return words[d.status] || d.status
     },
@@ -507,9 +501,9 @@ export default {
      */
     confirmDelete (id) {
       this.$buefy.dialog.confirm({
-        message: 'Delete this failed attempt? Nothing else on this screen changes.',
+        message: this.$t('firmDepreciationRates.deleteDialog.message'),
         type: 'is-danger',
-        confirmText: 'Delete',
+        confirmText: this.$t('firmDepreciationRates.documents.delete'),
         onConfirm: () => this.deleteDocument(id)
       })
     },
@@ -525,7 +519,7 @@ export default {
       try {
         await this.api('POST', '/api/firm-manager/depreciation-rates/documents/remove', { documentId: id })
         await this.loadDocuments()
-        this.$buefy.toast.open({ message: 'That failed attempt has been deleted', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmDepreciationRates.toasts.deleted'), type: 'is-success' })
       } catch (err) {
         this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
       } finally {
@@ -567,11 +561,11 @@ export default {
         await this.loadDocuments()
         if (data.ok) {
           this.uploadType = 'is-success'
-          this.uploadMessage = 'The document was read. Check what it proposed before approving it.'
+          this.uploadMessage = this.$t('firmDepreciationRates.upload.read')
           if (data.document) { this.reviewing = data.document.id }
         } else {
           this.uploadType = 'is-warning'
-          this.uploadMessage = data.message || 'That document could not be read.'
+          this.uploadMessage = data.message || this.$t('firmDepreciationRates.upload.unreadable')
         }
       } catch (err) {
         this.uploadType = 'is-danger'
@@ -593,7 +587,7 @@ export default {
         await this.api('POST', '/api/firm-manager/depreciation-rates/documents/approve', payload)
         this.reviewing = ''
         await this.load(this.country)
-        this.$buefy.toast.open({ message: 'These rates are now in force', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmDepreciationRates.toasts.approved'), type: 'is-success' })
       } catch (err) {
         this.reviewError = err.message
       } finally {
@@ -612,7 +606,7 @@ export default {
         await this.api('POST', '/api/firm-manager/depreciation-rates/documents/reject', payload)
         this.reviewing = ''
         await this.loadDocuments()
-        this.$buefy.toast.open({ message: 'That proposal has been rejected', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmDepreciationRates.toasts.rejected'), type: 'is-success' })
       } catch (err) {
         this.reviewError = err.message
       } finally {
@@ -626,9 +620,9 @@ export default {
      */
     confirmWithdraw () {
       this.$buefy.dialog.confirm({
-        title: 'Withdraw this first-year rule',
-        message: 'Forecasts for ' + this.country + ' clients will stop offering it. The depreciation rates are not affected.',
-        confirmText: 'Withdraw it',
+        title: this.$t('firmDepreciationRates.withdrawDialog.title'),
+        message: this.$t('firmDepreciationRates.withdrawDialog.message', { country: this.country }),
+        confirmText: this.$t('firmDepreciationRates.withdrawDialog.confirm'),
         type: 'is-warning',
         onConfirm: () => this.withdraw()
       })
@@ -643,7 +637,7 @@ export default {
           rule: null
         })
         await this.load(this.country)
-        this.$buefy.toast.open({ message: 'The rule has been withdrawn', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmDepreciationRates.toasts.withdrawn'), type: 'is-success' })
       } catch (err) {
         this.error = err.message
       } finally {
@@ -672,7 +666,7 @@ export default {
           country: this.country
         })
         await this.load(this.country)
-        this.$buefy.toast.open({ message: 'That version is back in force', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmDepreciationRates.toasts.restored'), type: 'is-success' })
       } catch (err) {
         this.error = err.message
       }

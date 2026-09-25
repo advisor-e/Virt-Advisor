@@ -16,7 +16,7 @@ jest.mock('../../server/utils/openaiClient', () => ({
 
 jest.mock('../../config/integration', () => ({
   AI: {
-    primary: { name: 'openai', host: 'api.openai.com', apiKey: 'k-primary', models: { classify: 'gpt-4o-mini', narrative: 'gpt-4o-mini', report: 'gpt-4o-mini', course: 'gpt-4o', reading: 'gpt-4o-mini', review: 'gpt-4o-mini', compliance: 'gpt-6-astra', draft: 'gpt-6-astra', research: 'gpt-6-astra', extract: 'gpt-6-astra' } },
+    primary: { name: 'openai', host: 'api.openai.com', apiKey: 'k-primary', models: { classify: 'gpt-4o-mini', narrative: 'gpt-4o-mini', report: 'gpt-4o-mini', course: 'gpt-4o', reading: 'gpt-4o-mini', review: 'gpt-4o-mini', compliance: 'gpt-6-astra', draft: 'gpt-6-astra', research: 'gpt-6-astra', extract: 'gpt-6-astra', translate: 'gpt-4o-mini' } },
     fallback: { name: '', host: '', apiKey: '', chatPath: '/v1/chat/completions', models: {} },
     fallbackPersonalCleared: false
   }

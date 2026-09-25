@@ -118,69 +118,6 @@
       "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as the drawing's ruling on the ~100 Growth Aspect questions. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
     },
     {
-      "ref": "16",
-      "name": "A client's document carries no firm, so the white-label promise has nothing behind it",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Outside",
-      "why": "The 33 concepts were redrawn so a client sees their own advisor's firm rather than Advisor-e. Nothing in this app holds a firm's name, logo or colour, so every document prints the words 'Firm logo' against an empty disc.",
-      "risk": "An advisor hands a client a plan with a placeholder where their brand belongs, which reads as unfinished software rather than a missing setting. It is also the reason the deck images were deleted on 2026-09-18 and 33 concepts redrawn - so the cost has been paid and the benefit has not arrived. Mike's own words: Advisor-e ALWAYS clones and shows that ADVISORS firm logo, never advisor-e.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-20 - found while wiring the first four drawings for 15.7: the mark is a prop and nothing above passes one in. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
-      "note": "🔴 OUR HALF IS COMPLETE; WHAT REMAINS IS THE MASTER TEAM'S. THE DATA IS ADVISOR-E'S AND WE BUILD NO SCREEN FOR IT - his words, \"Advisor-e already picks up the colour and brands the border to suit\": it lives on the firm profile page. Ours is firmBrand() in server/utils/firmsDirectory.js and seam Q-FIRM-BRAND in config/integration.js, question 8 of the integration email - inert until they name the two columns. Mike ruled the mark is the firm's REAL logo in a fixed-height box, initials disc only as fallback, border in the firm's colour. 2026-09-23 closed the last gap: the three SESSION screens were unwired while the plan document was. All four call sites now carry it - features/white-label.md section 4.",
-      "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
-    },
-    {
-      "ref": "16.1",
-      "name": "Primary buttons show the library's violet where the brand file says blue",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "it looks unfinished",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "BRAND-TOKENS.md names Blue #0070C0 as \"Primary interactive (buttons, sliders, links) on light\". Buefy ships its own violet #7957D5 and nuxt.config.js loads buefy.css unmodified, so every type=\"is-primary\" button renders violet.",
-      "risk": "One screen shows both at once and a client sees it. Measured on Run session 2026-09-21: the header button is #7957D5 while the stage rail and the Org Chart toolbar are #0070C0, because those two were written against the brand file and the buttons were not. It reads as a half-finished theme rather than a setting nobody chose, and the Strategy Planner is the screen an advisor runs in front of a client.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-21 - measured while building the Org Chart toolbar to its approved drawing, which specifies #0070C0. Filed on Mike's yes at shutdown rather than fixed inside that commit."
-      },
-      "touches": "84 files under components/ and pages/ use type=\"is-primary\"; the fix is one override of Buefy's  rather than 84 edits, so the work is choosing where that override lives and seeing the whole app recoloured before it ships. Two screens to eyeball afterwards: pages/strategy-planner.vue and components/sales/SalesBlog.vue.",
-      "note": "NOT A ONE-LINE FIX EVEN THOUGH THE CHANGE IS ONE LINE. Overriding Buefy's primary recolours every button in the app at once, so Mike sees it before it ships - which is why it was not folded into the 2026-09-21 commit. TWO THINGS ALREADY BRAND BLUE AND NOT TO BE CHANGED BACK: the stage rail's current segment, and the Org Chart Builder toolbar, which follows its approved drawing. SHARPEST INSTANCE: SalesBlog.vue 155 and 161 carry is-primary and is-info on two ADJACENT main actions, so Write the outline is violet and Write the article blue - a distinction that does not exist. Found 2026-09-22 by opening the page; the tests pass on it. Eyeball that pair after the override.",
-      "comment": "2026-09-21 - found by measuring three buttons on one screen, not by reading the code. Pre-existing and app-wide: it has been this way since Buefy was adopted, and BRAND-TOKENS.md post-dates it."
-    },
-    {
-      "ref": "13.2",
-      "name": "Conversion is per model, and no model states which currency its figures are in",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness - the figures are right, but nothing on screen says which currency they are in",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike ruled 2026-09-22 that currency is a FIRM setting and conversion belongs inside a model where a primary currency is already entered. The forecast already works that way via fxAllowancePct. No model SAYS so on screen.",
-      "risk": "A model carrying a foreign leg shows a converted figure beside an unconverted one with nothing distinguishing them, and an advisor cannot tell which is which. No wrong number today - the maths is right and every foreign leg has an fx input. The risk is the next model with a foreign leg being built with no input and nobody noticing.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - in his own words, after both limits were shown to him as recorded boundaries rather than tasks: \"lets be clear - BOTH those issues must be fixed, add them to the to do list.\""
-      },
-      "touches": "server/report/threeWayForecastModel.js, which owns fxAllowancePct and applies it to fxOnPurchases and fxOnSales; server/report/importShipmentModel.js, which deliberately defers exchange to the forecast and says so; the forecast intake screen where the percentage is entered; design/features/localisation-and-currency.md for the principle; design/ADDING-A-REPORT.md so a new model with a foreign leg is asked the question.",
-      "note": "✅ CHECKED 2026-09-22, AND THERE IS NO WRONG NUMBER: every model with a foreign leg already takes an fx input. All 30 files in server/report/ were scanned - only the forecast and the import model have one, both are fx-aware, and multiplePropertyModel matched only on the Google Sheets function Import Range. 🔴 SO THE JOB IS THE RULE AND THE LABEL, NOT THE MATHS: write Mikes rule into the localisation Brief and into ADDING-A-REPORT so the next foreign-leg model is asked, and say on screen which currency a converted figure is in. Wording is his.",
-      "comment": "2026-09-22 - filed first as a per-CLIENT currency needing a schema change and 40 components, scored 4. Mike corrected the shape the same day: currency stays at firm level, conversion is per model where a primary currency is already entered. The app already worked that way, so the item shrank to the rule and the label and dropped to score 2. Sibling of 13.1 and 13.3."
-    },
-    {
       "ref": "15.13",
       "name": "No import button pulls the forecast and performance figures into a planning session",
       "rankedByMike": false,
@@ -242,48 +179,6 @@
       "touches": "The Strategy Planner's session surface; a new Restify route for the model call; the 52 concept records as the 'known business concepts' source. The market analysis data source is unidentified and is the first question this item must answer.",
       "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.14. The impact test and the hub-page judgement are both unrun.",
       "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "12.1",
-      "name": "Course Builder shows about 86 pieces of English that bypass the translation file",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Course Builder is an advisor screen, and about 53 lines of its template and 33 messages in its code are hardcoded English, so an advisor reading in any of the other 27 languages sees it half translated.",
-      "risk": "An advisor working in another language meets English headings, buttons and error messages mid-course - Your saved courses, Shared by your team, Sorry, something went wrong. It reads as unfinished software. Nothing records it as a choice: unlike the manager hub folder, there is no note saying the English is deliberate, so it is simply the screen predating the translation rule.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-24 - found while wiring item 8.2's wording onto Course Builder. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "components/CourseBuilder.vue - roughly 53 template lines and 33 script strings; locales/en.json, which gains a courseBuilder block; nothing on the backend. The wording already exists on screen, so no new words need Mike - only moving them.",
-      "note": "COUNTED 2026-09-24, NOT BUILT. The file dates from 4 May, before the translation rule, and has only 4 $t calls. Move each string into en.json unchanged, then look at the screen in a second language to prove it. Do NOT reword anything while moving it - the words are what advisors already see. The manager hub folder's English is a separate, recorded choice and not part of this.",
-      "comment": "2026-09-24 - filed on Mike's yes during the 8.2 session, rather than fixed inside it, because it is about 86 strings rather than a line."
-    },
-    {
-      "ref": "10.1",
-      "name": "Seven manager screens can't be translated",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Seven hub tabs type their words straight into the screen instead of the central English word list, so a manager reading in any other language sees these tabs in English.",
-      "risk": "Nothing is wrong for anyone reading in English, which is every user today. Once a firm's managers work in another language, these seven tabs stay English inside an otherwise translated hub and read as unfinished. The code's own note called converting them one job for later, and until today that job was on no list, so nothing guaranteed it would happen.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-24 - found while wiring item 8.2's wording onto these tabs. The code says it was raised with Mike on 2026-09-09; no answer was recorded. Mike said yes to filing it."
-      },
-      "touches": "components/firm/FirmForecastTrendThresholds.vue, FirmSellDownLadder.vue, FirmPropertyTaxRules.vue, FirmMeetingObservations.vue, FirmDepreciationRates.vue, CountryRateSchedules.vue and FirmCompliance.vue - none has a single $t call; locales/en.json, which gains their blocks; and the note atop FirmDepreciationRates.vue and CountryRateSchedules.vue recording the deviation, which goes once it is done.",
-      "note": "ONE JOB, as the code's own note proposes - not seven. Move every string into en.json unchanged, then look at the tabs in a second language to prove it. Do NOT reword while moving: the words are what managers already see. FirmManagerHub.vue's own headings and tab labels carry the same recorded choice and belong in the same job. Course Builder is separate, item 12.1.",
-      "comment": "2026-09-24 - filed on Mike's yes at shutdown, after he asked for the problem in plain English."
     },
     {
       "ref": "15.17",
@@ -437,8 +332,8 @@
         "detail": "2026-09-24 - in his words: \"we have an input for fx (foreign exchange) payments for stock, imported from overseas, in the 3 way forecast and import model... this is ONE area where BOTH the currency and the exchange rate will need to apply - make it a task to review this please\""
       },
       "touches": "server/report/threeWayForecastModel.js (fxAllowancePct and salesFxAllowancePct, fxOnPurchases, fxOnSales, the deposit and balance lines near 1068-1137); server/report/importShipmentModel.js, which defers exchange to the forecast; their intake screens and golden tests; item 13.2, which labels the currency of a converted figure.",
-      "note": "A REVIEW FIRST, NOT A BUILD. Established 2026-09-24 from the code: no supplier currency and no exchange rate exist in either model - only a percentage allowance on purchases and a matching one on overseas sales. The review should settle what the advisor enters (supplier currency, rate, and whether the allowance stays as a buffer on top), and run the impact test before any design. Firm currency stays a firm setting - Mike's ruling 2026-09-22, recorded on 13.2.",
-      "comment": "2026-09-24 - filed on Mike's request, raised mid-way through scoping 12.2."
+      "note": "PROCEED ON MIKE'S FOUR RULINGS OF 2026-09-26, by the accounting standards: supplier invoices and overseas sales entered in their own currency at an assumed rate; freight and duty inside the imported stock's cost, charged as it sells; both 10% allowances become 'what if the rate moves' settings, shown not charged. THE FAULT: the engine charges a flat 10% on the whole order, deposit included - 10,764.30 on the workbook's January order against its own 1,088.39. The build also corrects the three places claiming the two agree: importShipmentModel.test.js ~161, report-models.md ~1070, the 4.63 closure. MEASURE: the workbook's twelve months reproduced by the engine itself. Basis: design/CALCULATION-ASSUMPTIONS.md section 1. DRAWING APPROVED, NOT BUILT: design/mockups/three-way-forecast-foreign-currency.html, its six rulings at its foot.",
+      "comment": "2026-09-24 - filed on Mike's request, raised mid-way through scoping 12.2. 2026-09-26 - Mike: proceed, on the standards-based design; drawing approved the same day, and his call after it: proceed to the build."
     },
     {
       "ref": "15.22",
@@ -460,6 +355,90 @@
       "touches": "design/STRATEGY-CAPTURE-FORM-PROPOSALS.md sections 2 and 5-6, where each proposal and the reason it was not built are recorded; data/strategy-frameworks.json captureForm on the seven; scripts/read-deck-capture-tables.js if a deck page is read.",
       "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - his Sales Flowchart (p47) and Tension Point Scripts (p50) are both its tables; held because of confusion over the client's sales process, and the Sales Flowchart template reads as 5 boxes where his page has 15 steps. (2) Landing Page Review - pp27-30 are a finished worked example with no blank copy; which column is the client's is his call. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
       "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown, so the remainder of 15.16 has a place on the list."
+    },
+    {
+      "ref": "13.6",
+      "name": "Translations mistake business words and three screens split sentences around bold text",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The backend translator sees each phrase with no context, so it can pick the wrong sense of a business word: 'Imported Stock Prices' became 'Importierte Aktienkurse', share prices, in German.",
+      "risk": "A manager or advisor reading in another language meets wrong financial terms on the screens that set a client's figures. Separately, three screens split a sentence into pieces around a bold phrase, and a join lost its space in German: 'Drei-Wege-Prognosezwei-Jahres-Vergleich'.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - found walking the Mentor Hub in German after item 10.1. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "server/utils/uiTranslation.js systemPrompt, which would carry a glossary; a mentor-tier screen for that glossary under the hub-page rule; a way to translate again strings whose English did not change; and the split intro keys in FirmForecastTrendThresholds.vue, FirmPropertyTaxRules.vue and CountryRateSchedules.vue, which become one key with an i18n slot.",
+      "note": "NEEDS MIKE FIRST: which business words go in the glossary and what each means - stock is inventory, never shares; debtors, drawings and equity are likely next. The split-sentence half is mechanical and needs no decision.",
+      "comment": "2026-09-25 - filed on Mike's yes at shutdown."
+    },
+    {
+      "ref": "46.1",
+      "name": "Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Which years of a Stats NZ release are provisional is fixed in code - PROVISIONAL_FROM = 2024 in statsNzBenchmarker.js - and repeated as a sentence on the hub's benchmarks screen.",
+      "risk": "When a manager uploads next year's release, the Business Performance Report's benchmark page will call a final year provisional or the reverse, on a document a client reads, and the hub will describe a release that is no longer in force.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - found converting FirmBenchmarker.vue for translation. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "server/report/benchmarks/statsNzBenchmarker.js PROVISIONAL_FROM and the provisional flag it sets; firmBenchmarker.inForce.provisional in locales/en.json, which names the years; the upload on the hub's benchmarks tab, if the manager is to state it; the benchmark page of the Business Performance Report.",
+      "note": "NEEDS MIKE'S RULE FIRST: either the manager states which years are provisional when uploading a release, or a fixed rule such as the latest two years being provisional. Stats NZ publishes it with each release.",
+      "comment": "2026-09-25 - filed on Mike's yes at shutdown."
+    },
+    {
+      "ref": "10.2",
+      "name": "Hub screens show English written by the backend, so it never translates",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off, on a few words",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A few words on the hub are composed by the backend in English and never pass through the wording file: client copy deadline units and countdown phrases, meeting pattern period labels, and the depreciation unread-pages sentence.",
+      "risk": "A manager reading in another language meets English fragments inside otherwise translated screens after 10.1 converted the screens themselves. The countdown phrase is the one a firm acts on against a legal deadline.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - found converting the hub screens after 10.1. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "The routes behind FirmClientCopyRequests.vue (unitWords and the clock phrase), FirmMeetingPatterns.vue (period.label) and DepreciationDocumentReview.vue (scheduleUnreadNote); those three screens and the unread note in CountryRateSchedules.vue, which already words it itself; their route tests.",
+      "note": "The backend should send facts - a unit code, a number, a date - and each screen word them through $t. Changes what four routes return, so their tests move with them.",
+      "comment": "2026-09-25 - filed on Mike's yes at shutdown."
+    },
+    {
+      "ref": "44.1",
+      "name": "Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The forecast is handed to lenders and accountants, and nobody has checked it against the standards as a whole. 13.5 alone found two treatments that differ, and a firm manager cannot see how any figure is treated.",
+      "risk": "A forecast that departs from the standards without saying so can mislead a lender, and the firm carries that. The IFRS and XRB texts are copyrighted: the review keeps citations, links and short quotes, and does not store the standards in the repository.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-26 - in his words: \"make an additional task - to download all the forecasting and reporting best practices for IFRS and review their best practice standards against the entire 3 way forecast model we have built to check if we are non compliant anywhere and to record our calculation / treatment assumptions as an available disclosure to firm managers\""
+      },
+      "touches": "server/report/threeWayForecastModel.js and importShipmentModel.js, where every treatment lives; design/CALCULATION-ASSUMPTIONS.md, the record, extended beyond section 1; a disclosure screen for firm managers under the hub-page rule, its tiers stated at scoping; 13.5, which already covers the currency treatments.",
+      "note": "NOT SCOPED. Standards in view, confirmed at scoping rather than assumed: FRS-42 (prospective statements), IAS 1 and IFRS 18 which replaces it for periods from 1 January 2027, IAS 2, IAS 7, IAS 12, IAS 16, IAS 21, IAS 23, IFRS 9, IFRS 15, IFRS 16, IAS 37. Output: every treatment the forecast makes, each ticked or warned against its standard, in design/CALCULATION-ASSUMPTIONS.md; each warning becomes a fix or a filed item on Mike's word. Impact test run at scoping. Already done: section 1 (currency, 13.5) and section 0 (the FRS-42 caution).",
+      "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

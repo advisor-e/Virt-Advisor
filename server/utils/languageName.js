@@ -10,9 +10,8 @@
  */
 
 // Single source shared with the frontend language picker (mixins/localeMixin.js).
-// List = languages supported by LibreTranslate (libretranslate.com):
-// preloaded true  = locale file exists in /locales (instant switch, no API call);
-// preloaded false = fetched via LibreTranslate on first use, cached in localStorage.
+// preloaded true = a partial locale file ships in /locales; every language but English
+// is completed by the backend (server/utils/uiTranslation.js).
 const LANGUAGES = require('../../data/languages.json')
 
 const _byCode = {}
@@ -31,7 +30,9 @@ for (const lang of LANGUAGES) {
  */
 function nameForLanguageCode (code) {
   if (typeof code !== 'string') { return null }
-  return _byCode[code] || null
+  // Own keys only: `_byCode` is a plain object, so '__proto__' or 'constructor' would
+  // otherwise return a built-in and reach the prompt as "[object Object]".
+  return Object.prototype.hasOwnProperty.call(_byCode, code) ? _byCode[code] : null
 }
 
 module.exports = { nameForLanguageCode, LANGUAGES }

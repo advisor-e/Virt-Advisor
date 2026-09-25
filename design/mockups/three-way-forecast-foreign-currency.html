@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foreign Currency in the Forecast</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — item 13.5, drawn 2026-09-26 for approval.
+
+   The style block is copied from design/mockups/three-way-forecast-international.html
+   (the approved overseas drawing of 2026-09-04), which copied it verbatim from the
+   approved three-way-forecast.html. Nothing here adds a colour, radius, weight or font.
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+.tw-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:560px){.tw-tiles{grid-template-columns:1fr}}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-v{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tw-v.is-crit{color:var(--rs-crit)}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{display:flex;align-items:center;gap:6px}
+.m .lbl{width:26px;font-size:11px;color:var(--rs-muted);text-align:right}
+.m input{width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;
+  border:1px solid var(--rs-line);border-radius:7px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;background:var(--rs-panel);min-width:190px;white-space:normal}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+td.neg{color:var(--rs-crit)}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+</style>
+<style>
+/* Additions carried from three-way-forecast-international.html's own addition block —
+   the same tokens, no new colour, radius, weight or font. */
+.tickrow{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--rs-ink)}
+.tickbox{width:19px;height:19px;border-radius:5px;display:grid;place-items:center;flex:none;
+  font-size:12px;font-weight:700;background:var(--rs-accent);border:2px solid var(--rs-accent);
+  color:var(--rs-accent-contrast)}
+.subgroup{border:1px solid var(--rs-line);border-radius:12px;background:var(--rs-panel);
+  padding:14px;margin-top:12px}
+.subh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.pill{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;white-space:nowrap}
+.pill-intl{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.termgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media (max-width:760px){.termgrid{grid-template-columns:1fr}}
+.termhead{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  color:var(--rs-muted);margin:2px 0 10px}
+.sectionbox{border:1px solid #0070c055;border-radius:12px;background:var(--rs-accent-soft);padding:14px}
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted);margin-top:12px}
+.note-why b{color:var(--rs-ink)}
+.newrow td{background:#0070c00f}
+.newrow td:first-child{background:#eaf3fb}
+.newtag{font-size:9px;font-weight:700;letter-spacing:.08em;color:#0070c0;margin-left:6px}
+.slice2{border:1px dashed #9dbdd8;border-radius:12px;background:var(--rs-panel-2);padding:14px;margin-top:12px}
+.shiprow{display:grid;grid-template-columns:1fr 70px 96px 70px 62px 66px 190px;gap:8px;align-items:center;
+  padding:7px 0;border-bottom:1px solid var(--rs-line)}
+.shiprow.head span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-muted)}
+.shiprow input,.shiprow select{width:100%;font:inherit;font-size:12.5px;padding:7px 8px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.shipderived{font-size:12px;color:var(--rs-ink);background:#eaf3fb;border:1px solid #cfe3f7;
+  border-radius:8px;padding:6px 8px;font-variant-numeric:tabular-nums}
+.shipderived small{display:block;color:var(--rs-muted);font-size:10.5px}
+/* THIS DRAWING'S ONLY ADDITIONS: a rate line, a converted figure under an input, and the
+   marker for what 13.5 changes. Existing tokens only. */
+.rateline{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--rs-ink)}
+.rateline input{width:96px;font:inherit;font-size:13px;padding:8px 9px;border:1px solid var(--rs-line);
+  border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);font-variant-numeric:tabular-nums}
+.conv{font-size:10.5px;color:var(--rs-muted);margin:-3px 0 0 32px;font-variant-numeric:tabular-nums}
+.changed{outline:2px solid #0070c0;outline-offset:3px;border-radius:8px}
+.gone{text-decoration:line-through;color:var(--rs-muted)}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+  <div class="mock">
+    <strong>Item 13.5 &mdash; foreign currency in the Three-Way Forecast. Drawn 2026-09-26 for
+    approval. &#9989; APPROVED BY MIKE 2026-09-26 (&ldquo;yes&rdquo;), after all six questions were
+    ruled. NOT BUILT.</strong> It is now the thing the build is checked against: open it beside the
+    code and name every difference.
+    It changes the overseas section of step 3 approved on 2026-09-04
+    (<em>mockups/three-way-forecast-international.html</em>). Everything not shown here stays
+    exactly as that drawing has it. <b>Blue outlines mark what changes.</b>
+    <br><br>
+    <b>FOUR RULINGS FROM MIKE, 2026-09-26, and the drawing shows each one.</b>
+    (1) The advisor enters the supplier's invoice <b>in its own currency with an assumed exchange
+    rate</b>; each payment converts at that rate and becomes the stock's cost.
+    (2) <b>Freight and duty join the stock's cost</b> and are charged as the stock sells, not in
+    full in the month it lands.
+    (3) <b>Overseas sales</b> are entered in the customer's currency with an assumed rate; an
+    exchange gain or loss arises only on money not yet collected.
+    (4) <b>Both 10% allowances stop being a cost.</b> Each becomes a &ldquo;what if the rate
+    moves&rdquo; setting whose effect is shown, not charged.
+    (5) <b>Up to three currencies</b>, in one &ldquo;Currencies you trade in&rdquo; table, each with
+    its own rate; each shipment chooses one, and one &ldquo;what if&rdquo; setting per side moves
+    every rate together (question 2 below).
+    The accounting basis for all four is recorded in <em>design/CALCULATION-ASSUMPTIONS.md</em> &sect;1
+    (NZ IAS 21, NZ IFRIC 22, NZ IAS 2).
+    <br><br>
+    ⚠ <b>THE WORKED EXAMPLE IS THE WORKBOOK'S OWN JANUARY ORDER</b> (<em>Import &amp; Retail.xlsx</em>,
+    <em>Supplier 1 Inputs</em>: 107,643 of stock, 60% deposit, balance at order + 91 days). The workbook
+    holds it in NZD. The <b>USD invoice and the 0.6000 rate are illustrative</b>, chosen so that the
+    converted figures reproduce the workbook's own NZD amounts to the cent. Every other figure is
+    arithmetic from the terms shown, and the working is printed beneath it.
+    <br><br>
+    <b>All six questions at the foot, and the wording, were ruled by Mike on 2026-09-26</b>, one at
+    a time, and the drawing as a whole was then approved the same day.
+  </div>
+
+  <div class="stepmark">Where it sits &mdash; step 3 of 4, set the assumptions</div>
+  <div class="chips">
+    <div class="chip done"><span class="n">&#10003;</span> Drop the exports</div>
+    <div class="chip done"><span class="n">&#10003;</span> Confirm the opening position</div>
+    <div class="chip now"><span class="n">3</span> Set the assumptions</div>
+    <div class="chip todo"><span class="n">4</span> The forecast</div>
+  </div>
+
+  <div class="stepmark">The overseas section, ticked on &mdash; what changes</div>
+
+  <div class="tw-layout">
+    <aside class="tw-card">
+      <div class="tw-group">
+        <div class="sectionbox">
+          <div class="tickrow" style="margin-bottom:14px">
+            <span class="tickbox">&#10003;</span> This business buys or sells overseas
+          </div>
+
+          <!-- ---------------------------------------------- CURRENCIES (ruling 5) -->
+          <div class="subgroup changed">
+            <div class="subh"><span>Currencies you trade in</span></div>
+            <div class="shiprow head" style="grid-template-columns:1fr 150px">
+              <span>Currency</span><span>Exchange rate</span>
+            </div>
+            <div class="shiprow" style="grid-template-columns:1fr 150px">
+              <select><option>USD &mdash; US dollar</option></select>
+              <div class="rateline">1 NZD buys <input value="0.6000"></div>
+            </div>
+            <div class="shiprow" style="grid-template-columns:1fr 150px">
+              <select><option>CNY &mdash; Chinese yuan</option></select>
+              <div class="rateline">1 NZD buys <input value="4.2000"></div>
+            </div>
+            <div class="shiprow" style="grid-template-columns:1fr 150px">
+              <select><option>AUD &mdash; Australian dollar</option></select>
+              <div class="rateline">1 NZD buys <input value="0.9000"></div>
+            </div>
+            <p class="tw-foot" style="margin:10px 0 0">
+              Shown while the overseas tick is on, or while the opening balance sheet has stock still
+              on the water. Up to three. NZD is never listed: it is your own currency, from your firm settings, and
+              anything entered in it is not converted &mdash; which is every forecast today.
+            </p>
+          </div>
+
+          <!-- ---------------------------------------------- IMPORTED STOCK -->
+          <div class="subgroup">
+            <div class="subh"><span>Stock arriving from overseas</span></div>
+
+            <div class="termhead changed" style="padding:2px 4px;display:flex;align-items:center;gap:8px">
+              The value of stock landing each month, before GST, in
+              <select style="font:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--rs-line);border-radius:7px"><option>USD</option></select>
+            </div>
+            <div class="mgrid">
+              <div class="m"><span class="lbl">Jan</span><input value="0"></div>
+              <div class="m"><span class="lbl">Feb</span><input value="0"></div>
+              <div class="m"><span class="lbl">Mar</span><input value="0"></div>
+              <div class="m"><span class="lbl">Apr</span><input value="0"></div>
+              <div class="m"><span class="lbl">May</span><input value="64,586"></div>
+              <div class="m"><span class="lbl">Jun</span><input value="0"></div>
+            </div>
+            <div class="conv changed" style="margin:8px 0 0;padding:4px">May: 64,586 USD at 0.6000 = <b>107,643 NZD</b> &mdash; shown under every month that has a figure</div>
+            <p class="tw-foot changed" style="margin:8px 0 0;padding:4px">
+              When the shipments below fill this grid, it shows their NZD figures and its currency
+              choice is not used, because each shipment carries its own currency.
+            </p>
+
+            <div class="termgrid" style="margin-top:16px">
+              <div>
+                <div class="termhead">Paying for it</div>
+                <div class="field"><span class="fieldlab">Deposit</span><input value="60%"></div>
+                <p class="tw-foot">&hellip; the deposit lead and balance profile, unchanged &hellip;</p>
+              </div>
+              <div>
+                <div class="termhead">Getting it here</div>
+                <div class="field"><span class="fieldlab">Freight and shipping</span><input value="12% of stock cost"></div>
+                <div class="field"><span class="fieldlab">Duty and clearance</span><input value="5% of stock cost"></div>
+                <div class="field"><span class="fieldlab gone">Exchange-rate allowance</span><input class="gone" value="10%" disabled></div>
+                <div class="tw-foot changed" style="padding:4px">
+                  Freight and duty are paid in the month it lands, and become part of what the stock
+                  cost &mdash; so they are charged as it sells.
+                </div>
+              </div>
+            </div>
+
+            <div class="subgroup changed" style="background:var(--rs-panel-2)">
+              <div class="termhead">What if the exchange rate moves</div>
+              <div class="field">
+                <span class="fieldlab">If the NZ dollar falls by</span>
+                <input value="10%">
+              </div>
+              <p class="tw-foot" style="margin:0">
+                Every rate in the table moves together: 1 NZD would buy <b>0.5400</b> USD instead of
+                0.6000, and <b>3.7800</b> CNY instead of 4.2000. The forecast is not changed: the effect
+                is shown beside it, in step 4.
+              </p>
+            </div>
+          </div>
+
+          <!-- ---------------------------------------------- OVERSEAS SALES -->
+          <div class="subgroup">
+            <div class="subh"><span>Sales to overseas customers</span></div>
+            <div class="termhead changed" style="padding:2px 4px;display:flex;align-items:center;gap:8px">
+              Overseas sales invoiced each month, before GST, in
+              <select style="font:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--rs-line);border-radius:7px"><option>AUD</option></select>
+            </div>
+            <div class="mgrid">
+              <div class="m"><span class="lbl">Nov</span><input value="36,000"></div>
+              <div class="m"><span class="lbl">Dec</span><input value="49,500"></div>
+              <div class="m"><span class="lbl">Jan</span><input value="31,500"></div>
+            </div>
+            <div class="conv changed" style="margin:8px 0 0;padding:4px">Nov 40,000 &middot; Dec 55,000 &middot; Jan 35,000 NZD at 0.9000</div>
+            <p class="tw-foot" style="margin:10px 0">&hellip; delivery, zero-rating, collection profile and mark-up, unchanged &hellip;</p>
+            <div class="field"><span class="fieldlab gone">Exchange-rate allowance on receipts</span><input class="gone" value="10%" disabled></div>
+            <div class="subgroup changed" style="background:var(--rs-panel-2)">
+              <div class="termhead">What if the exchange rate moves</div>
+              <div class="field">
+                <span class="fieldlab">If the NZ dollar rises by</span>
+                <input value="10%">
+              </div>
+              <p class="tw-foot" style="margin:0">
+                Every rate in the table moves together: 1 NZD would buy <b>0.9900</b> AUD instead of
+                0.9000, so each receipt is worth less. Its <b>own</b> setting, kept separate from the
+                stock card's, as ruled on 2026-09-04.
+              </p>
+            </div>
+          </div>
+
+          <!-- ---------------------------------------------- OPENING STOCK ON THE WATER (question 5) -->
+          <div class="subgroup changed">
+            <div class="subh"><span>Stock already paid for, not yet arrived</span></div>
+            <div class="field">
+              <span class="fieldlab">Deposits paid, goods not yet landed</span>
+              <input value="30,000">
+            </div>
+            <div class="field">
+              <span class="fieldlab">Still owed to the supplier on landing</span>
+              <div class="rateline">
+                <input value="12,000" style="width:120px">
+                <select style="font:inherit;font-size:13px;padding:8px 9px;border:1px solid var(--rs-line);border-radius:8px"><option>USD</option></select>
+              </div>
+            </div>
+            <div class="conv" style="margin:0">12,000 USD at 0.6000 = <b>20,000 NZD</b>. The deposits stay in NZD: they are already paid.</div>
+            <p class="tw-foot" style="margin:8px 0 0">
+              &hellip; the rest of this card, from the approved
+              <em>three-way-forecast-facilities-and-transit.html</em>, unchanged &hellip; Illustrative
+              figures. Drawn here beside the table for comparison: the card itself stays <b>outside</b>
+              the overseas tick, as ruled 2026-09-05. The picker offers NZD plus whatever the
+              &ldquo;Currencies you trade in&rdquo; table holds &mdash; and <b>that table appears
+              whenever the overseas tick is on OR the opening balance sheet has stock still on the
+              water</b> (ruled 2026-09-26), so a business settling last year's shipment can name its
+              currency without trading overseas this year.
+            </p>
+          </div>
+
+          <!-- ---------------------------------------------- SHIPMENT CALCULATOR -->
+          <div class="slice2">
+            <div class="subh" style="margin-bottom:10px"><span>Fill these from actual shipments</span></div>
+            <p class="tw-foot" style="margin:0 0 12px">&hellip; supplier terms unchanged: manufacture 120, balance due 91, prep 9, interest cover 6% &hellip;</p>
+            <div class="shiprow head">
+              <span>Description</span><span class="changed">Currency</span><span class="changed">Invoice</span><span>Ordered</span><span>Deposit</span>
+              <span>Speed</span><span>Worked out from the order date</span>
+            </div>
+            <div class="shiprow">
+              <input value="January order"><select class="changed"><option>USD</option></select>
+              <input class="changed" value="64,585.80">
+              <input value="1 Jan"><input value="60%">
+              <select><option>Sea</option></select>
+              <div class="shipderived changed">Lands <b>27 May</b>
+                <small>deposit Jan 64,585.80 NZD &middot; balance 2 Apr 43,057.20 NZD + 653.03 interest</small></div>
+            </div>
+            <div class="shiprow">
+              <input value="February order"><select class="changed"><option>CNY</option></select>
+              <input class="changed" value="252,000.00">
+              <input value="1 Feb"><input value="60%">
+              <select><option>Sea</option></select>
+              <div class="shipderived changed">Lands <b>26 Jun</b>
+                <small>deposit Feb 36,000.00 NZD &middot; balance 3 May 24,000.00 NZD + 364.00 interest</small></div>
+            </div>
+            <p class="tw-foot" style="margin:10px 0 0">
+              Each row converts at <b>its own</b> currency's rate: 64,585.80 USD at 0.6000 and
+              252,000.00 CNY at 4.2000. The February order is illustrative, added to show two currencies
+              side by side.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============================================================ STEP 4 — RESULTS -->
+    <section class="tw-results">
+      <div class="tw-card">
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The January order, before and after</h2></div>
+          <div class="tblwrap">
+            <table>
+              <thead><tr><th>NZD</th><th>Today</th><th>After 13.5</th></tr></thead>
+              <tbody>
+                <tr><td>Deposit paid, January</td><td>71,044.38</td><td>64,585.80</td></tr>
+                <tr><td>Balance paid, 2 April</td><td>47,362.92</td><td>43,057.20</td></tr>
+                <tr><td>Interest cover, with the balance</td><td>653.03</td><td>653.03</td></tr>
+                <tr><td>Freight and shipping</td><td>12,917.16</td><td>12,917.16</td></tr>
+                <tr><td>Duty and clearance</td><td>5,382.15</td><td>5,382.15</td></tr>
+                <tr><td>GST paid at the border (claimed back)</td><td>20,505.99</td><td>18,891.35</td></tr>
+                <tr class="rule"><td>Charged as the cost of this stock</td><td>107,643.00</td><td>125,942.31</td></tr>
+                <tr><td>Exchange-rate movement, charged in May</td><td class="neg">10,764.30</td><td>0.00</td></tr>
+                <tr><td>Freight and duty, charged in May</td><td class="neg">18,299.31</td><td>0.00 &mdash; inside the stock's cost</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="note-why">
+            <b>Where each figure comes from.</b> Today the forecast adds 10% to both payments
+            (64,585.80 &times; 1.1 and 43,057.20 &times; 1.1), charges 10% of 107,643 as an exchange
+            movement, and charges freight and duty in full in the landing month. Border GST today is
+            15% of (107,643 &times; 1.1 + 12,917.16 + 5,382.15).
+            <br><br>
+            <b>After:</b> 38,751.48 USD deposit and 25,834.32 USD balance, each at 0.6000. Both are paid
+            before the goods land, so they fix the stock's cost at 107,643.00 and no exchange movement
+            arises (NZ IFRIC 22.8-9). Freight 12% and duty 5% join it: <b>125,942.31</b>, charged as
+            the stock sells down. Border GST is 15% of that. Interest cover stays interest, in
+            overheads (NZ IAS 2.18).
+            <br><br>
+            <b>Over the year the profit is higher by the 10,764.30 no longer charged.</b> Freight and
+            duty move between months, not out of the year, except for any share of the stock still
+            unsold at the year end, which now stays in closing stock.
+          </div>
+        </div>
+      </div>
+
+      <div class="tw-card changed">
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">What if the exchange rate moves</h2></div>
+          <div class="tw-tiles">
+            <div class="tw-tile">
+              <div class="tw-k">If the NZ dollar falls 10%</div>
+              <div class="tw-v is-crit">+21,907</div>
+              <div class="tw-sub">more paid for the two orders: 1 NZD buys 0.5400 USD and 3.7800 CNY</div>
+            </div>
+            <div class="tw-tile">
+              <div class="tw-k">If the NZ dollar rises 10%</div>
+              <div class="tw-v is-crit">&minus;11,818</div>
+              <div class="tw-sub">less received from overseas customers: 1 NZD buys 0.9900 AUD</div>
+            </div>
+          </div>
+          <div class="note-why">
+            <b>Working.</b> At 0.5400 the deposit is 71,762.00 and the balance 47,841.33, with interest
+            cover 725.59; stock cost with freight and duty becomes 139,935.90. That is 13,993.59 more
+            stock cost plus 72.56 more interest = 14,066.15. The February order at 3.7800: stock
+            66,666.67, cost with freight and duty 78,000.00 against 70,200.00, interest 404.44 against
+            364.00 = 7,840.44. Together <b>21,906.59</b>. Sales: 117,000 AUD at 0.9900 is
+            118,181.82 NZD against 130,000.00 &mdash; <b>11,818.18</b> less.
+            <br><br>
+            <b>Shown, not charged.</b> The forecast itself uses the rates entered. In the build these
+            tiles also show the lowest bank balance with and without the move, worked out by running
+            the forecast a second time. Not drawn with a figure here, because it needs the engine.
+          </div>
+        </div>
+      </div>
+
+      <div class="tw-edu">
+        <div class="tw-edu-h">Why it works this way</div>
+        <p class="tw-edu-p">Each payment to a supplier is converted at the rate on the day it is paid,
+        and money paid before the goods arrive becomes part of what the stock cost. A rate move only
+        matters for money not yet paid or collected, which is what the tiles above show.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================ QUESTIONS -->
+  <div class="q">
+    <h2>Six questions, all ruled by Mike on 2026-09-26, one at a time</h2>
+    <ol>
+      <li>&#9989; <b>RULED 2026-09-26: the rate is written &ldquo;1 NZD buys 0.6000 USD&rdquo;</b>, the
+        way NZ banks quote it, not &ldquo;1 USD costs 1.6667 NZD&rdquo;.
+        <span class="from">The word &ldquo;buys&rdquo; states the direction, so a rate copied from a supplier's quote the other way round reads as wrong.</span></li>
+      <li>&#9989; <b>RULED 2026-09-26: up to three currencies, in one &ldquo;Currencies you trade
+        in&rdquo; table, each with its own rate</b> &mdash; not one supplier and one customer currency
+        for the whole forecast. Each shipment chooses one; the typed stock grid and the sales grid each
+        choose one; one &ldquo;what if&rdquo; setting per side moves every rate together.
+        <span class="from">Mike asked whether three was easier now than later. Forecasts saved before it default to one currency, so it was never a trap &mdash; but the screen was being redrawn anyway.</span></li>
+      <li>&#9989; <b>RULED 2026-09-26: the &ldquo;Exchange-rate movement&rdquo; line is hidden on the
+        profit and loss and the cash flow whenever it is zero, and appears by itself when it has a
+        figure</b> &mdash; not shown at zero on every forecast. With one rate per currency it is zero
+        today, so the rate risk lives in the what-if tiles.
+        <span class="from">IAS 1.29-31 (present what is material); FRS-42 paras 41, 51, 55 and 58 (same policies as historical accounts, disclose significant assumptions and the effect of uncertainty). Refines the 2026-09-04 ruling rather than reversing it: when there is a movement it is still its own line.</span></li>
+      <li>&#9989; <b>RULED 2026-09-26: both what-if settings start at 10%</b> on a new forecast, the
+        same figure the allowances use today; the advisor changes it per forecast.</li>
+      <li>&#9989; <b>RULED 2026-09-26: the opening &ldquo;Still owed to the supplier on landing&rdquo;
+        gets a currency picker</b> from the &ldquo;Currencies you trade in&rdquo; table; it converts
+        at that rate and is included in the what-if tile &mdash; not left as an NZD amount outside it.
+        The deposits stay in NZD, because they are already paid.
+        <span class="from">The drawing first recommended leaving it in NZD; the three-currency table made the picker small, and the recommendation changed before Mike ruled.</span></li>
+      <li>&#9989; <b>RULED 2026-09-26: the wording below is approved by Mike exactly as written.</b>
+        <br><b>Labels:</b> Currencies you trade in &middot; Currency &middot; Exchange rate &middot;
+        1 NZD buys ___ &middot; The value of stock landing each month, before GST, in ___ &middot;
+        Overseas sales invoiced each month, before GST, in ___ &middot; Invoice &middot; What if the
+        exchange rate moves &middot; If the NZ dollar falls by &middot; If the NZ dollar rises by
+        &middot; The January order, before and after &middot; Why it works this way.
+        <br><b>Sentences:</b> (a) under the table &mdash; &ldquo;Shown while the overseas tick is on, or while the
+        opening balance sheet has stock still on the water. Up to three. NZD is never listed: it is
+        your own currency, from your firm settings, and anything entered in it is not
+        converted.&rdquo; (b) under the stock grid &mdash; &ldquo;When the shipments below fill this
+        grid, it shows their NZD figures and its currency choice is not used, because each shipment
+        carries its own currency.&rdquo; (c) under &ldquo;Getting it here&rdquo; &mdash;
+        &ldquo;Freight and duty are paid in the month it lands, and become part of what the stock
+        cost &mdash; so they are charged as it sells.&rdquo; (d) under each what-if box &mdash;
+        &ldquo;Every rate in the table moves together &hellip; The forecast is not changed: the
+        effect is shown beside it, in step 4.&rdquo; (e) the &ldquo;Why it works this way&rdquo;
+        panel as drawn.
+        <br>Unchanged labels (<i>Still owed to the supplier on landing</i>, <i>Freight and
+        shipping</i>, <i>Duty and clearance</i>, <i>Exchange-rate movement</i>) keep their approved
+        wording.</li>
+    </ol>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

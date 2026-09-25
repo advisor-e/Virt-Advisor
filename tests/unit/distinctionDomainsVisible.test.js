@@ -27,11 +27,13 @@ describe('distinction-visible domains — one source, two readers', () => {
     expect([...screenIds].sort()).toEqual([...flagged].sort())
   })
 
-  it('every screen entry carries a human label, never a raw id', () => {
+  it('every screen entry has a human name in the wording file, never a raw id', () => {
+    const en = require('../../locales/en.json')
     for (const d of DISTINCTION_DOMAINS) {
-      expect(typeof d.label).toBe('string')
-      expect(d.label.trim().length).toBeGreaterThan(0)
-      expect(d.label).not.toBe(d.id)
+      const name = d.labelKey.split('.').reduce((o, p) => o && o[p], en)
+      expect(typeof name).toBe('string')
+      expect(name.trim().length).toBeGreaterThan(0)
+      expect(name).not.toBe(d.id)
     }
   })
 
