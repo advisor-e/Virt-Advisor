@@ -105,7 +105,7 @@
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "The coverage wheel can say an aspect is untouched but cannot help the advisor ask anything about it. The hundred questions behind the nine aspects are what make the check useful in the room.",
       "risk": "Without them an advisor sees a hatched segment and has nothing to say next, so the coverage check names a gap it cannot help close. The counter-risk is scale: a hundred questions authored onto a screen is a real content job, and folding it into 15.1 is how that build stops ending.",
       "askedBy": {
@@ -114,7 +114,7 @@
         "detail": "2026-09-16 - the 9 Growth Aspect Questions deck is one of the fourteen he supplied for the Strategy Planner; split out of 15.1 on his yes, as Decision 7 of the drawing. Not a new idea of ours."
       },
       "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
-      "note": "NOT IN THIS BUILD - Mike's ruling 2026-09-16 - 'the ~100 Growth Aspect questions', on design/mockups/strategy-planner.html, where the reasoning is recorded in full. The coverage check ships on the nine names alone and still does its job: it shows WHERE a plan is thin. Source is his '9 Growth Aspect Questions hyperlinked.pdf' - about 100 questions across the nine aspects. growth-fundamentals.json already holds the nine names and descriptions, so this adds questions beneath an existing structure rather than inventing one. Under the hub-page rule the screen starts at the mentor tier ALONE: platform content, identical for every firm.",
+      "note": "WAITS ON MIKE: what an advisor does with an aspect's questions in the session - read them to prompt the conversation, type answers, or print them - asked 2026-09-25, not yet answered. SCOPED 2026-09-25: his \"9 Growth Aspect Questions hyperlinked.pdf\" holds 98 questions - Process Improvement 9, Customer Focus 9, Sales 8, Authenticity 12, Inventory & Equipment 11, Team Focus 11, Innovation 13, Governance 14, Harmony / Balance 11 - with ruled answer space under each and pointers to his other tools. Impact test run: 0 of 98 in the app today; measure 98 of 98 on screen at his per-aspect counts. Draw before building; the mentor-tier screen touches FirmManagerHub.vue. Out of 15.1 by his ruling of 2026-09-16.",
       "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as the drawing's ruling on the ~100 Growth Aspect questions. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
     },
     {

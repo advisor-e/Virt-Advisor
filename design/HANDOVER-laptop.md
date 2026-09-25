@@ -9,25 +9,24 @@
 
 ---
 
-## 2026-09-24 (evening) · Laptop · branch `feat/advisor-progress`
+## 2026-09-25 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed at `2f435d24` plus this note. 629 suites / 13,752 tests green, audit PASS.
-3 ahead, 0 behind `master`, no PR yet.**
+**Clean. All work merged to master in PR #133 (`47c05d07`). 631 suites green, audit PASS.**
 
-**Closed today on Mike's word:** **15.1** (Strategy Planner stages 1–7 built; the rest lives in
-15.20 / 15.17 / 15.2 / 15.22) · **15.16** (13 concepts capture into his own tables, 22 → 35 of 46) ·
-**15.11** (its slide tables built under 15.16, read off the page, not drawn). **Filed:** **15.22**,
-the seven concepts still needing his ruling. All of it is in
-[`STRATEGY-CAPTURE-FORM-PROPOSALS.md`](STRATEGY-CAPTURE-FORM-PROPOSALS.md).
+**Closed today on Mike's word:** 7.10 and 14.3 (the desktop closed both the same morning;
+master's versions were kept in the merge), and **15.23**, Business Owner Expectations running
+inside the Strategy Planner, built from the approved drawing. **Filed:** 15.24, the page past
+about 14 tasks. **Fixed:** the nine Growth Aspect descriptions are Mike's Graphic word for word,
+and the Helps-line command dates by local time.
 
-**FOR THE DESKTOP:** `scripts/read-deck-capture-tables.js` now reads a page declared `grid` as
-writing lines — merged cells from his rules, his example as guide text, a question row. **Your
-branch's `check:branch` shows "15.8 used twice" until you merge `master`: it is one item, renamed
-today, and `master` already carries the new name.** The check itself now tells a rename from a
-clash (`scripts/ref-ceiling.js`), on this branch until it reaches `master`.
+**FOR THE DESKTOP:** `OwnerExpectations.vue` gained an `embedded` mode, and its step 2 is now one
+full-width column under dark-blue bands (Mike's rulings), on the model's own page too.
+`ReportShell` gained an `inset` prop. A concept may name a `model`. `pages/strategy-planner.vue`
+copies `pageWords` from the capture reply.
 
-**SHARED FILES TOUCHED:** `StrategyConceptCapture.vue`, `StrategyCaptureCard.vue`,
-`StrategyPlanDocument.vue`, `pages/strategy-planner.vue`, `server/utils/strategyCaptureForms.js`,
-`scripts/ref-ceiling.js`, `design/features/README.md` (one link on row 15).
+**SHARED FILES TOUCHED:** `OwnerExpectations.vue`, `ReportShell.vue`,
+`StrategyConceptCapture.vue`, `StrategyPlanDocument.vue`, `StrategyScopeMenu.vue`,
+`pages/strategy-planner.vue`, `locales/en.json`, `data/growth-fundamentals.json`.
 
-**In hand:** 15.17, 15.20 unchanged — not worked today. **Next here:** 15.22 when Mike rules.
+**In hand:** 15.17 and 15.20, unchanged, not worked today. **Next here:** 15.2, waiting on
+Mike's answer about how advisors use the questions.

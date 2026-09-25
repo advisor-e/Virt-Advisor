@@ -36,7 +36,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
 | 1 | **15.24** Business Owner Expectations plan page overflows past about 14 tasks ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 2 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 2 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
 | 4 | **16.1** Primary buttons show the library's violet where the brand file says blue ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 5 | **13.2** Conversion is per model, and no model states which currency its figures are in ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
@@ -54,7 +54,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 17 | **13.5** Review imported-stock FX in the forecast and import model: supplier currency and exchange rate ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 18 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**Eighteen live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Eighteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
