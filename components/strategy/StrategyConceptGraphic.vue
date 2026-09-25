@@ -1,11 +1,9 @@
 <template lang="pug">
 .scgw(v-if="drawing" :class="{ 'is-editable': editable }" @click="onPageClick")
   component(
+    ref="drawing"
     :is="drawing"
-    :firm-name="markName"
-    :firm-initial="markInitial"
-    :firm-colour="firmColour"
-    :firm-logo="firmLogo"
+    v-bind="drawingProps"
     @hook:mounted="onDrawingMounted"
   )
   strategy-text-edit-panel(
@@ -133,6 +131,20 @@ export default {
     editable: {
       type: Boolean,
       default: false
+    },
+
+    /**
+     * The session's step names, in order — for a page whose agenda IS the step list.
+     *
+     * 🔴 Mike's ruling, 2026-09-23, on Our Session Objective: *"make sure the AGENDA
+     * section is editable"* — and the same day, the agenda is the session's own step
+     * list, never a second list. The page was built with the slot and nothing passed it
+     * the steps for two days, so the client always read Mike's four default lines.
+     * Only a page that declares `agendaItems` receives them (see `takesAgenda`).
+     */
+    agendaItems: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -145,11 +157,34 @@ export default {
       draft: '',
       /** 'idle' until measured, then 'fits' or 'noFit'. */
       fitState: 'idle',
-      saving: false
+      saving: false,
+      /**
+       * Whether the loaded drawing has an agenda slot. Asked of the drawing itself once it
+       * loads, so no second, hand-kept list of such pages exists to drift from the
+       * generated registry.
+       */
+      takesAgenda: false
     }
   },
 
   computed: {
+    /**
+     * What the drawing is given: the firm's mark always, the step names only where the
+     * drawing declares a slot for them — any other drawing would carry them as a stray
+     * HTML attribute.
+     * @returns {object}
+     */
+    drawingProps () {
+      const props = {
+        firmName: this.markName,
+        firmInitial: this.markInitial,
+        firmColour: this.firmColour,
+        firmLogo: this.firmLogo
+      }
+      if (this.takesAgenda) { props.agendaItems = this.agendaItems }
+      return props
+    },
+
     /**
      * The drawing to render, as a lazy component factory.
      *
@@ -201,6 +236,8 @@ export default {
      * Browser-only — this runs after mount, never during server rendering.
      */
     async onDrawingMounted () {
+      const drawn = this.$refs.drawing
+      this.takesAgenda = Boolean(drawn && drawn.$options.props && drawn.$options.props.agendaItems)
       if (typeof document === 'undefined') { return }
       // Widths measured in a stand-in font are wrong; wait for the page's own.
       if (document.fonts && document.fonts.ready) { await document.fonts.ready }

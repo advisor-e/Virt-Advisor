@@ -99,6 +99,7 @@ article.spd(:style="frameStyle")
             :firm-colour="firmColour"
             :firm-logo="firmLogo"
             :edits="editsFor(item.conceptId, n - 1)"
+            :agenda-items="agendaNames"
           )
           //- 🔴 THE ADVISOR'S BLURB IS NOT THE CLIENT'S READING. `conceptSummary` is the
           //- CONCEPT SUMMARY column of the scope menu — what an advisor reads to decide
@@ -378,6 +379,16 @@ export default {
      */
     frameStyle () {
       return { '--spd-firm': this.firmColour }
+    },
+
+    /**
+     * The step names, in order, for the agenda on Our Session Objective — Mike's ruling of
+     * 2026-09-23: the framing page's agenda IS the session's step list, so the page the
+     * client reads and the agenda page above it can never disagree.
+     * @returns {string[]}
+     */
+    agendaNames () {
+      return this.steps.map(s => String(s.name || '').trim()).filter(Boolean)
     }
   },
 

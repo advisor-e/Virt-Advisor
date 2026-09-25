@@ -353,6 +353,26 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.25 · An advisor could not edit a concept page's text before running the session.**
+✅ **Closed 2026-09-25 by Mike ("done")**, the day he asked for it, tried the test and approved
+the build.
+
+- **Why it existed:** Mike, 2026-09-25 — *"I want to be able to EDIT the presentation - perhaps i
+  want to add a few points etc."* An advisor could arrange a session but not change a word on it.
+- **What proves it:** built from the test he approved,
+  [`../mockups/strategy-edit-text-test.html`](../mockups/strategy-edit-text-test.html), with his
+  wording, [`../STRATEGY-EDIT-TEXT-WORDING.md`](../STRATEGY-EDIT-TEXT-WORDING.md). Driven in a
+  browser on the built app: an edit fits, saves, survives a reload and a step rename, and prints in
+  the client's plan; a label too long for its circle is refused with a red outline; Cancel and
+  **Put back the original** restore the page. Store and route tests pin the firm boundary, the
+  ceilings, and that no scope save erases an edit. Commits `fd67bb5b`, `afcb2cfb`, `5206aeb1`.
+- **His rulings:** an edit that does not fit is not saved — more content goes through "add a page"
+  (later) or "add a template" (15.20); and "as it currently appears" governs the import, not later
+  edits. How it works, and three named differences from the test:
+  [`strategy-planner.md`](strategy-planner.md) §9a.
+- **Not proved here:** a real MySQL database — the laptop has none; the edit rides `scope_json`,
+  whose SQL path is the same one the session already uses. UAT's check, not ours.
+
 **15.23 · Business Targets can't reach the Owner Expectations model inside a session.**
 ✅ **Closed 2026-09-25 by Mike ("done")**, the day it was drawn, approved and built.
 

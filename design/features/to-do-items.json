@@ -76,29 +76,46 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.25",
-      "name": "An advisor cannot edit a concept page's text before running the session",
+      "ref": "15.27",
+      "name": "A step's purpose never reaches the advisor - the approved tooltip was never built",
       "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "an advisor cannot tailor the presentation to the client in front of them",
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "An advisor sees the whole presentation in Run session before the meeting and can save it, but cannot change a word of it. Mike wants to edit the text, for example to add a few points.",
-      "risk": "Every client hears the same words, or the advisor retypes pages outside the app. An edit that overflows would print a messy page on the client's plan; the fit check measured on 2026-09-25 is the guard against that.",
+      "why": "The approved Build session drawing says a step's purpose is written by the mentor and the advisor sees it as a tooltip. No tooltip exists, and the purpose is dropped before it reaches the session.",
+      "risk": "Invisible today because every purpose ships empty. The first time a mentor writes one, no advisor sees it and nothing says why - the words a mentor wrote to guide the session simply vanish.",
       "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-25, in his words: \"I want to be able to EDIT the presentation - perhaps i want to add a few points etc\". He tried the test and approved the build the same day."
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - found reading the step builder while scoping 15.25: its comment claimed a tooltip nobody had built. Mike said yes to filing it."
       },
-      "touches": "components/strategy/StrategyConceptGraphic.vue, which Run session and the printed plan both draw through; pages/strategy-planner.vue; StrategyPlanDocument.vue; strategySessionStore.js and routes/strategyPlanner.js to save edits on the session; the approved test design/mockups/strategy-edit-text-test.html and scripts/edit-text-test/.",
-      "note": "BUILT 2026-09-25 AND DRIVEN IN A BROWSER, NOT YET COMMITTED: on Run session an advisor clicks a concept page's text, edits it, and it re-wraps in the page's own font; an edit that does not fit is refused with a red outline (his ruling that day - more content goes through 'add a page' later or 'add a template', 15.20); saved to that session only; prints in the client's plan; Put back the original removes it. Proved: saves, survives a reload and a step rename, prints, and puts back. How it works and three named differences from the approved test: strategy-planner.md section 9a. Full suite 13,783 green.",
-      "comment": "2026-09-25 - filed and approved to build in the same conversation, after Mike tried the editing test.",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-25"
-      }
+      "touches": "components/strategy/StrategyStepBuilder.vue (shows purpose only on the manager screen); pages/strategy-planner.vue seedSteps and saves, which copy name and items only; server/utils/strategySessionStore.js normaliseStep, which keeps name and items only; design/mockups/strategy-session-process.html, the approved drawing.",
+      "note": "APPROVED DRAWING, NOT A NEW FEATURE: strategy-session-process.html (Mike, 2026-09-21) - 'Written by the mentor. The advisor sees it as a tooltip; the client never does.' Carry purpose from the handed-down process into the session's steps and show it to the advisor only, never in the client's plan. Measure nothing is lost for a session saved before the field travelled.",
+      "comment": "2026-09-25 - filed on Mike's yes at shutdown, and the step builder's comment corrected to point here."
+    },
+    {
+      "ref": "15.26",
+      "name": "The Our Session Objective agenda has room for six steps; a seventh prints over the logo",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The page's agenda now lists the session's own steps (Mike's 2026-09-23 ruling), one line each at his spacing. Six fit above the firm's mark; a session may hold up to forty.",
+      "risk": "An advisor who names seven or more steps gets agenda lines printed across the firm's logo on the client's plan and on screen. Nothing is lost; the page reads badly. Pivot's standard session has five.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - measured in a browser while wiring the agenda: line 7 ends at 799 against the mark's top at 778. Mike said yes to filing it."
+      },
+      "touches": "components/strategy/concepts/OurSessionObjective.vue (generated; its live agenda group comes from bindAgendaSlot in scripts/build-concept-graphics.js); the approved drawing design/mockups/strategy-concept-our-session-objective.html, which a fix must amend.",
+      "note": "A DESIGN CHOICE FOR MIKE, NOT A PATCH: smaller type past six, two columns, or a cap on how many steps a session may name. Measured 2026-09-25: five and six steps clear the mark (bottom 730 and 764 against 778); seven, eight and nine do not.",
+      "comment": "2026-09-25 - filed on Mike's yes at shutdown, the day the agenda was wired."
     },
     {
       "ref": "15.24",
@@ -130,7 +147,7 @@
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "The coverage wheel can say an aspect is untouched but cannot help the advisor ask anything about it. The hundred questions behind the nine aspects are what make the check useful in the room.",
       "risk": "Without them an advisor sees a hatched segment and has nothing to say next, so the coverage check names a gap it cannot help close. The counter-risk is scale: a hundred questions authored onto a screen is a real content job, and folding it into 15.1 is how that build stops ending.",
       "askedBy": {
@@ -139,8 +156,8 @@
         "detail": "2026-09-16 - the 9 Growth Aspect Questions deck is one of the fourteen he supplied for the Strategy Planner; split out of 15.1 on his yes, as Decision 7 of the drawing. Not a new idea of ours."
       },
       "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
-      "note": "WAITS ON MIKE: what an advisor does with an aspect's questions in the session - read them to prompt the conversation, type answers, or print them - asked 2026-09-25, not yet answered. SCOPED 2026-09-25: his \"9 Growth Aspect Questions hyperlinked.pdf\" holds 98 questions - Process Improvement 9, Customer Focus 9, Sales 8, Authenticity 12, Inventory & Equipment 11, Team Focus 11, Innovation 13, Governance 14, Harmony / Balance 11 - with ruled answer space under each and pointers to his other tools. Impact test run: 0 of 98 in the app today; measure 98 of 98 on screen at his per-aspect counts. Draw before building; the mentor-tier screen touches FirmManagerHub.vue. Out of 15.1 by his ruling of 2026-09-16.",
-      "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as the drawing's ruling on the ~100 Growth Aspect questions. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
+      "note": "PROCEED ON MIKE'S WORD 2026-09-25, WITH HIS DIRECTION: the questions are INCLUDED IN THE BUILD, and in the session he PREFERS THE AI TO PUT THEM FORWARD when the conversation turns to an aspect, over a deep-dive button. The live half depends on 8.4: the AI hears a session only once section recording turns each section into text as it closes. SCOPED 2026-09-25: his 9 Growth Aspect Questions hyperlinked.pdf holds 98 questions - Process Improvement 9, Customer Focus 9, Sales 8, Authenticity 12, Inventory & Equipment 11, Team Focus 11, Innovation 13, Governance 14, Harmony / Balance 11. Impact test: 0 of 98 in the app today. Draw before building; the mentor-tier screen touches FirmManagerHub.vue.",
+      "comment": "2026-09-25 - Mike: proceed, with the direction above. First split out of 15.1 on his yes, 2026-09-16, as Decision 7 of the drawing."
     },
     {
       "ref": "16",
@@ -332,7 +349,7 @@
         "detail": "2026-09-23 - 'lets get the remaining 12 frameworks sorted before we deal with this', then 'read them closely - slide 4 in organisational review DOES NOT contain business development stages', which forced the decks open rather than their titles compared."
       },
       "touches": "A new drawing in design/mockups/ by the section 0 method and its ARTEFACTS.md row; scripts/build-concept-graphics.js DRAWINGS; the count guards in tests/unit/conceptGraphics.test.js, which pin 35 svgs and 34 titled concepts.",
-      "note": "THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Checked by rendering it, not by its title. CLOSED THE SAME DAY: eight stage directions deleted on Mike's ruling, Divisional KPI's and Review Internal Insights Data wired from his own material, and two pages brought in that were never among the 52 - Our Session Objective and Collaborative Thinking, the first concept with TWO teaching sheets. 44 of 46 run. Drafting Tender Proposals is the other unrunnable row and is NOT a gap - his summary calls it general reading. Record: strategy-planner.md section 0.",
+      "note": "PROCEED ON MIKE'S WORD 2026-09-25. WHAT REMAINS: Define the Cultural Core Values still has no drawing and no capture form, so it is one of two concepts that cannot run - Drafting Tender Proposals is the other, deliberately. THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Draw it by the section 0 method for his approval, or bring it in through 15.20's converter, which turned this very page to clean vector on 2026-09-23. The other work done under this number - eight stage directions deleted, two framing pages added, their agenda wired 2026-09-25 - is finished.",
       "comment": "2026-09-23 - filed as nine stage directions, then rewritten to what survives his ruling. His challenge disproved a page mapping built from extracted titles; every claim here is from a 150dpi render of his own slide."
     },
     {

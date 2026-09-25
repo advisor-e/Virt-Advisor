@@ -31,6 +31,7 @@ section.scc2
       :firm-logo="firmLogo"
       :edits="editsFor(n - 1)"
       :editable="editable"
+      :agenda-items="agendaItems"
       @text-edited="relayTextEdit"
     )
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
@@ -375,6 +376,12 @@ export default {
     editable: {
       type: Boolean,
       default: false
+    },
+
+    /** The session's step names, for a page whose agenda is the step list (Our Session Objective). */
+    agendaItems: {
+      type: Array,
+      default: () => []
     }
   },
 

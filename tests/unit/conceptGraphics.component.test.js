@@ -135,3 +135,46 @@ describe('the resolver shows a drawing only where one was approved', () => {
     expect(wrapper.find('svg').exists()).toBe(false)
   })
 })
+
+// 🔴 THE AGENDA ON OUR SESSION OBJECTIVE IS THE SESSION'S STEP LIST — Mike, 2026-09-23.
+// The page shipped with the slot and nothing handed it the steps, so for two days every
+// client read Mike's four default lines whatever the advisor had named the steps. On screen
+// that looks entirely finished, which is why it went unnoticed; this is the guard.
+describe('the framing page\'s agenda is the session\'s own steps', () => {
+  const settle = async (wrapper) => {
+    for (let i = 0; i < 6; i++) { await new Promise(resolve => setTimeout(resolve, 0)); await wrapper.vm.$nextTick() }
+  }
+  const STEPS = ['Identify the Resistance', 'Choose Your Competition Fronts']
+
+  test('the step names the advisor typed are the agenda the client reads', async () => {
+    const wrapper = mountWithBuefy(StrategyConceptGraphic, {
+      propsData: { conceptId: 'our-session-objective', agendaItems: STEPS }
+    })
+    await settle(wrapper)
+
+    const live = wrapper.find('.agenda-slot.is-live')
+    expect(live.exists()).toBe(true)
+    STEPS.forEach(name => expect(live.text()).toContain(name))
+  })
+
+  test('with no steps named, the page shows Mike\'s own agenda as approved', async () => {
+    const wrapper = mountWithBuefy(StrategyConceptGraphic, {
+      propsData: { conceptId: 'our-session-objective', agendaItems: [] }
+    })
+    await settle(wrapper)
+
+    expect(wrapper.find('.agenda-slot.is-live').exists()).toBe(false)
+    expect(wrapper.find('.agenda-slot').exists()).toBe(true)
+  })
+
+  test('a page with no agenda slot is never handed the steps', async () => {
+    const wrapper = mountWithBuefy(StrategyConceptGraphic, {
+      propsData: { conceptId: 'risk-reward-matrix', agendaItems: STEPS }
+    })
+    await settle(wrapper)
+
+    expect(wrapper.find('svg').exists()).toBe(true)
+    expect(wrapper.html()).not.toContain('Identify the Resistance')
+    expect(wrapper.html()).not.toMatch(/agenda-?items/i)
+  })
+})

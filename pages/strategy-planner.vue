@@ -254,6 +254,7 @@
             :firm-colour="firmBrand.colour || undefined"
             :firm-logo="firmBrand.logo || ''"
             :text-edits="textEdits"
+            :agenda-items="agendaNames"
             editable
             @text-edited="onTextEdited"
             @field-opened="onVisitFieldOpened(card.visit, $event)"
@@ -912,6 +913,16 @@ export default {
           value: (this.entries[f.id + '::' + x.key] || '').trim()
         }))
       }))
+    },
+
+    /**
+     * The step names, in order, for the agenda on Our Session Objective — Mike's ruling of
+     * 2026-09-23 that the framing page's agenda IS the session's step list. A step not yet
+     * named is left out rather than printed as an empty bullet.
+     * @returns {string[]}
+     */
+    agendaNames () {
+      return this.planStepDefs.map(s => String(s.name || '').trim()).filter(Boolean)
     },
 
     /**
