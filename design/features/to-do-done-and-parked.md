@@ -353,6 +353,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.23 · Business Targets can't reach the Owner Expectations model inside a session.**
+✅ **Closed 2026-09-25 by Mike ("done")**, the day it was drawn, approved and built.
+
+- **Why it existed:** Business Targets pages 5–6 became the two-step Owner Expectations model
+  under 5.4, and nothing in the planner reached it — Mike opened the planner and asked where his
+  material had gone.
+- **What proves it:** built from
+  [`../mockups/strategy-concept-owner-expectations.html`](../mockups/strategy-concept-owner-expectations.html),
+  approved with four decisions ruled. One Business Targets row runs the model inside the card
+  and saves to the client's one record; the plan prints his contrast table, no name = no column,
+  on one A4 sheet. Walked in a browser; `tests/unit/ownerExpectationsPrint.test.js` proves the
+  plan asks the model exactly what the screen asks. Commit `67050f89`. Wording in
+  [`../OWNER-EXPECTATIONS-WORDING.md`](../OWNER-EXPECTATIONS-WORDING.md).
+- **Left open, as its own item:** the page past about 14 tasks — **15.24**.
+
 **14.4 · Every Handbook build leaves the working tree dirty, and the stamp can never catch up.**
 ✅ **Closed 2026-09-25 by Mike ("yes - done")**.
 
