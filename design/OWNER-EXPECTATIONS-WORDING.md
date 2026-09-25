@@ -67,3 +67,26 @@
 | Card | **Quick Calculator** — the workbook's own name |
 | Debt / Equity % with no equity left | **—** |
 | Headline | **Revenue $ · Stage 1 (2026)**, sub-label **to pay the owners $250,001** |
+
+**Layout, Mike 2026-09-25:** one full-width column — *"put the inputs at the top - full width
+and then let the stages sit under them, full width … having the input on the left side just
+makes the table look too crammed"*. The Quick Calculator runs across the top; the stages table
+and The business at each stage sit full width beneath it. Each of those two tables opens with
+its title, note and stage headings in one **dark-blue band with white text** — *"needs colour
+background - perhaps our dark blue and white font"*.
+
+## In a Strategy Planner session — item 15.23, approved 2026-09-25
+
+Built from [`mockups/strategy-concept-owner-expectations.html`](mockups/strategy-concept-owner-expectations.html).
+
+| Where | Wording |
+|---|---|
+| Menu tag beside the row | **Model** |
+| Save button in the card | **Save to {client}** — the drawing showed *Saved to…*, which reads as done before anything is |
+| Beside the save button | *The same figures open on the Owner Expectations page for this client.* |
+| Plan page subtitle | *Who does what, in return for what* |
+| Plan page bands | **Income** · **Weekly hours · weeks annual leave** · **Focus tasks/duties %** with **Now** / **Focus** |
+| Plan page foot | **The business must reach** |
+| Which owners print | **No name = no column** — Mike 2026-09-25: *"if a client wants that column to disappear, they have to delete the clients name"*. Every named owner prints, earning or not. |
+| Plan, nothing saved for the client | *No figures have been saved for this client yet.* — approved by Mike 2026-09-25 |
+| Plan, figures could not be read | *These figures could not be read just now. Open the step again and try once more.* — approved by Mike 2026-09-25 |

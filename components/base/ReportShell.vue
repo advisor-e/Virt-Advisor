@@ -1,5 +1,5 @@
 <template lang="pug">
-.report-shell
+.report-shell(:class="{ 'report-shell--inset': inset }")
   .report-shell__wrap
     slot
 </template>
@@ -37,7 +37,16 @@
  * frame/palette/card/button copy.
  */
 export default {
-  name: 'ReportShell'
+  name: 'ReportShell',
+
+  props: {
+    /**
+     * Hosted inside another screen — a Strategy Planner card (item 15.23). Keeps the tokens,
+     * so the model looks as it does on its own page, and drops the full-height canvas and
+     * the page padding, which belong to the host.
+     */
+    inset: { type: Boolean, default: false }
+  }
 }
 </script>
 
@@ -112,4 +121,6 @@ export default {
   margin: 0 auto;
   padding: var(--rs-frame-pad);
 }
+.report-shell--inset { min-height: 0; background: transparent; }
+.report-shell--inset .report-shell__wrap { padding: 0; }
 </style>

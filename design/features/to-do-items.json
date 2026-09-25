@@ -101,6 +101,27 @@
       "comment": "2026-09-25 - filed on Mike's yes. Found when he opened the planner and asked where the material had gone; the first answer wrongly called it deleted, and his reminder that it had become a model is what located the real gap."
     },
     {
+      "ref": "15.24",
+      "name": "Business Owner Expectations plan page overflows past about 14 tasks",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The contrast page prints one row per task any named owner holds. It fits one A4 sheet with the workbook's ten tasks and room for about four more, but an owner may hold twenty.",
+      "risk": "A firm whose owners add their own tasks gets a table running under the page's running foot on the client's plan - the fault fixed once already on 2026-09-25 at ten tasks. Nothing is lost; the page just prints badly.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - found measuring the 15.23 build: 76px spare below the table at ten tasks, about 17px a row. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "components/strategy/StrategyOwnerContrast.vue (the page), utils/ownerExpectationsPrint.js (which tasks print), design/mockups/strategy-concept-owner-expectations.html (the approved drawing a fix must amend).",
+      "note": "A DESIGN CHOICE FOR MIKE, NOT A PATCH: let the task rows continue onto a second sheet, print smaller type, or print only the tasks whose share changes between now and focus. Owners across does not affect it - six named owners fit on one sheet, measured 2026-09-25.",
+      "comment": "2026-09-25 - filed on Mike's yes while walking the 15.23 build in a browser."
+    },
+    {
       "ref": "14.4",
       "name": "Every Handbook build leaves the working tree dirty, and the stamp can never catch up",
       "rankedByMike": false,
@@ -159,9 +180,9 @@
         "ours": true,
         "detail": "2026-09-17 - hit while proving the concept index build. Failed once in three full runs and passed alone. Mike said yes to filing it."
       },
-      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant) and the four suites reaching it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes, wagesRegisterContents.routes. AND server/utils/strategySessionStore.js with tests/unit/strategySessionStore.test.js, which already overrides DEV_FILE per process and collided anyway.",
+      "touches": "server/utils/wagesRegisterGate.js (DEV_FILE is a module constant) and the four suites reaching it: wagesRegisterGate, wagesRegisterStore, wagesRegister.routes, wagesRegisterContents.routes. AND server/utils/strategySessionStore.js with tests/unit/strategySessionStore.test.js, which already overrides DEV_FILE per process and collided anyway. AND server/utils/savedReports.js: tests/unit/savedReports.test.js unlinks the real data/dev-client-report-saved.json after every test.",
       "note": "🔴 CAUSE PROVED - DO NOT RE-INVESTIGATE IT. Parallel Jest workers reach one dev file and Windows refuses: wagesRegisterGate.test.js unlinks the shared path in afterEach while another worker writes it. The work is choosing between three ways out: an env override giving each worker its own path, a per-worker temp file, or running the suites serially. 🔴 SECOND INSTANCE 2026-09-22 - strategySessionStore.test.js, EPERM on its temp file, two blocked pushes in a row. IT ALREADY HAS THE ENV OVERRIDE, so option one did not prevent it and is weaker than it looks. INTERMITTENT: both pass alone and in full runs; only the push gate catches them. Retry once before investigating.",
-      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end. Widened 2026-09-22 on his yes from the four Wages Register suites to the pattern, when a second store hit it: the stage 6 build made setScope read before writing, which sits near the window without being its cause. 2026-09-23 - WAS 5.3, moved on Mike's instruction: this is the test suite and the push gate, which is The Working Agreement, page 22. 5.3 is spent. design/PAGE-NUMBERS.md."
+      "comment": "2026-09-17 - filed on Mike's yes, raised the moment it was seen rather than left as a line in a report at the end. Widened 2026-09-22 on his yes from the four Wages Register suites to the pattern, when a second store hit it: the stage 6 build made setScope read before writing, which sits near the window without being its cause. 2026-09-23 - WAS 5.3, moved on Mike's instruction: this is the test suite and the push gate, which is The Working Agreement, page 22. 5.3 is spent. design/PAGE-NUMBERS.md. 2026-09-25 - a third store added on his yes: a test run wiped Owner Expectations figures saved while walking 15.23."
     },
     {
       "ref": "15.8",

@@ -13,7 +13,7 @@ section.scc2
   //- 🔴 THE CONCEPT, SO IT CAN BE TAUGHT WITHOUT LEAVING THE SCREEN. Both lines are
   //- Mike's own, off the deck's Session Scope table. Always shown: a concept appears
   //- once, so there is no later visit for them to be held back from.
-  section.scc2-concept(v-if="conceptSummary || helpsClientTo")
+  section.scc2-concept(v-if="conceptSummary || helpsClientTo || pageWords.length")
     //- ⚠ NO HEADINGS. Removed on Mike's instruction, 2026-09-17 — "What this does
     //- in the room" was written by an AI session and he had never seen it.
     //- 🔴 THE DRAWING GOES ABOVE HIS WORDS, so the advisor speaks to it first. It
@@ -32,6 +32,8 @@ section.scc2
     )
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
     p.scc2-concept-text(v-if="helpsClientTo") {{ helpsClientTo }}
+    //- His own page words, read off the deck — the lead-in to a hosted model (item 15.23).
+    p.scc2-concept-text(v-for="(words, i) in pageWords" :key="'pw' + i") {{ words }}
     //- Only where this concept has NO drawing yet is the advisor still sent to the
     //- deck. Once it has one the sentence would be false, which is the fault this
     //- whole item exists to close (item 15.7).
@@ -42,7 +44,7 @@ section.scc2
     p.scc2-teaching(v-if="teachingForm && !hasGraphic && !isOrgChart") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
 
   //- Item 12.2 — the org chart shows its own, from its own microphone.
-  speech-status-line(v-if="!isOrgChart" :state="speechState")
+  speech-status-line(v-if="!isOrgChart && !isModel" :state="speechState")
 
   //- 🔴 A CONCEPT WITH NO TABLE SAYS SO RATHER THAN SHOWING AN EMPTY ONE. Nothing
   //- is borrowed from another concept: a table an advisor puts in front of a client
@@ -60,6 +62,20 @@ section.scc2
     :closable="false"
   )
     | {{ noTableMessage }}
+
+  //- 🔴 A CONCEPT THAT RUNS A REPORT MODEL HOSTS THE MODEL ITSELF — item 15.23, from
+  //- design/mockups/strategy-concept-owner-expectations.html, approved by Mike 2026-09-25.
+  //- The same screen and the same backend route as the model's own page, never a copy of
+  //- the maths and never a link out: his patchwork ruling of 2026-09-16.
+  .scc2-model(v-else-if="isModel")
+    report-shell(inset v-if="modelScreen")
+      component(
+        :is="modelScreen"
+        embedded
+        :client-id="clientId"
+        :client-name="clientName"
+        :token="token"
+      )
 
   //- 🔴 ONE OF MIKE'S NINE CAPTURE FORMS IS NOT A TABLE OF BOXES AT ALL — from
   //- design/mockups/strategy-capture-parent-child-list.html, five decisions ruled by him
@@ -200,6 +216,17 @@ import { hasConceptGraphic, conceptTitlesItself, conceptSheetCount } from '~/com
 /** The one capture form that is a small application rather than a page of boxes. */
 const ORG_CHART_FORM = 'parent-child-list'
 
+/** A concept whose capture is a Report Model run inside the card (item 15.23). */
+const MODEL_FORM = 'report-model'
+
+/**
+ * The model screens a card can host, by catalogue route. Loaded only when a card needs one,
+ * so the planner's own bundle does not carry a report screen nobody has ticked.
+ */
+const MODEL_SCREENS = {
+  '/owner-expectations': () => import('~/components/OwnerExpectations.vue')
+}
+
 /**
  * The forms that come down the page in ONE COLUMN, with a gap between their groups.
  *
@@ -219,7 +246,13 @@ const STACKED_FORMS = ['named-field-stack', 'parallel-prompt-pair']
 export default {
   name: 'StrategyConceptCapture',
 
-  components: { StrategyConceptGraphic, StrategyCaptureBox, StrategyOrgChartBuilder, SpeechStatusLine },
+  components: {
+    StrategyConceptGraphic,
+    StrategyCaptureBox,
+    StrategyOrgChartBuilder,
+    SpeechStatusLine,
+    ReportShell: () => import('~/components/base/ReportShell.vue')
+  },
 
   mixins: [speechMixin],
 
@@ -302,6 +335,30 @@ export default {
     entries: {
       type: Object,
       default: () => ({})
+    },
+
+    /** Mike's own words off the concept's pages — the lead-in above a hosted model. */
+    pageWords: {
+      type: Array,
+      default: () => []
+    },
+
+    /** The session's client — a hosted model saves to this client's own record. */
+    clientId: {
+      type: String,
+      default: ''
+    },
+
+    /** That client's name. */
+    clientName: {
+      type: String,
+      default: ''
+    },
+
+    /** The planner's Bearer token, handed to a hosted model. */
+    token: {
+      type: String,
+      default: ''
     }
   },
 
@@ -356,6 +413,16 @@ export default {
      *
      * @returns {Array<object>}
      */
+    /** @returns {boolean} true where this card runs a Report Model (item 15.23) */
+    isModel () {
+      return this.capture.supplied && this.capture.form === MODEL_FORM
+    },
+
+    /** The hosted model's screen, or null where its route has none. */
+    modelScreen () {
+      return this.isModel ? (MODEL_SCREENS[this.capture.model] || null) : null
+    },
+
     visitFields () {
       if (!this.capture.supplied) { return [] }
       return this.capture.fields || []

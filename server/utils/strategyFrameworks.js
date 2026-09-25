@@ -15,17 +15,18 @@
  * FRAMEWORK. One more shape serves all of them; one more component serves one, and fifty-two
  * components is the build that never ends. That is the whole of Decision 3.
  *
- * 🔴 THE SCOPE IS 46 CONCEPTS. This docblock once said 45 — a count taken from ADV.0's
+ * 🔴 THE SCOPE IS 47 CONCEPTS. This docblock once said 45 — a count taken from ADV.0's
  * index, which has drifted four concepts out of step with the decks it copies. Mike's scoping
  * ruling of 2026-09-17 counted 52 from the five decks' own contents tables and agendas; item
- * 15.17 deleted eight agenda rows and brought in two framing pages on 2026-09-23.
+ * 15.17 deleted eight agenda rows and brought in two framing pages on 2026-09-23, and item
+ * 15.23 brought Business Owner Expectations back as one row on 2026-09-25.
  * See `_conceptsReadme` in the data file and `design/PLANNING-TEMPLATE-CENSUS.md` §1.
  *
  * 🔴 TWO SETS OF RECORDS LIVE HERE, AND THEY ARE NOT THE SAME THING.
  * - `frameworks` — the five built capture machines, each naming a shape and its fields. Their
  *   shapes are superseded by the 2026-09-17 redirection and two are wrong against Mike's own
  *   fill-in tables; the data file's `_readme` says which.
- * - `concepts` — THE CONCEPT INDEX: all 46, as records, in Mike's own words read off his
+ * - `concepts` — THE CONCEPT INDEX: all 47, as records, in Mike's own words read off his
  *   decks. This is what the engine never had. Before it, Strategic Orientation 2 was ONE row
  *   and its eighteen concepts were only words inside that row's purpose text, so a ranker
  *   could not return a concept because no concept existed to return.
@@ -249,8 +250,8 @@ function buildFramework (raw) {
     // backend route as the standalone page. Absent for a framework that has no model.
     model: raw.model ? { route: raw.model.route } : null,
     // 🔴 WHICH ROW OF THE SESSION SCOPE MENU THIS FRAMEWORK IS. The menu ticks CONCEPTS —
-    // Mike's own 46 — while a framework is a built capture card, and the two sets are not
-    // the same size: 46 against 3 tickable. This names the one concept whose tick runs this
+    // Mike's own 47 — while a framework is a built capture card, and the two sets are not
+    // the same size: 47 against 3 tickable. This names the one concept whose tick runs this
     // card, and null means the framework answers no row on any of his scope tables. Only
     // SWOT / PEST is null, because SWOT is inside Strategic Orientation 1's section 2 and
     // has never been a row of its own — it was tickable only on the superseded menu, which
@@ -372,7 +373,7 @@ function hasField (frameworkId, fieldKey) {
 }
 
 /* ------------------------------------------------------------------------------------- *
- * THE CONCEPT INDEX — the 46 concepts as records.
+ * THE CONCEPT INDEX — the 47 concepts as records.
  * ------------------------------------------------------------------------------------- */
 
 /**
@@ -385,8 +386,21 @@ function hasField (frameworkId, fieldKey) {
  * the reason eight rows were deleted the same day. Here page 2 genuinely IS the
  * teaching page, so calling it `agenda` would reverse the one thing that value exists
  * to say.
+ *
+ * `deck-page` is a row named on its deck's agenda whose OWN page is known and pointed at,
+ * so `page` is a real page like a framing page's. Item 15.23: Business Owner Expectations,
+ * Business Targets pages 5-6, whose rows were deleted as agenda lines on 2026-09-23 and
+ * came back on Mike's approved drawing of 2026-09-25.
  */
-const CONCEPT_SOURCES = ['session-scope-table', 'agenda', 'framing-page']
+const CONCEPT_SOURCES = ['session-scope-table', 'agenda', 'framing-page', 'deck-page']
+
+/**
+ * The Report Models a concept card may run inside a session, by catalogue route (item 15.23).
+ * 🔴 A WHITELIST, because a card hosts the model's own screen on the model's own backend
+ * route — Mike's patchwork ruling of 2026-09-16 — and a route named here that has no screen
+ * behind it would put an empty card in front of a client.
+ */
+const CONCEPT_MODELS = ['/owner-expectations']
 
 /** Whether a capture form was matched to one of Mike's fill-in templates, or not yet. */
 const CAPTURE_BASES = ['measured', 'unmeasured']
@@ -440,6 +454,22 @@ function buildConcept (raw, knownIds) {
     (!Number.isInteger(raw.responsePage) || raw.responsePage < 1)) {
     throw fail('BAD_CONCEPT', 'Concept "' + id + '" has an unusable responsePage.')
   }
+  if (raw.model !== undefined && !CONCEPT_MODELS.includes(raw.model)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" runs model "' + raw.model +
+      '", which is not one of ' + CONCEPT_MODELS.join(', ') + '.')
+  }
+  // A model is the concept's capture, so a table as well would be two captures for one concept.
+  if (raw.model && raw.captureTemplate) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" runs a model and names a capture template.')
+  }
+  if (raw.lastPage !== undefined &&
+    (!Number.isInteger(raw.lastPage) || raw.lastPage <= raw.page)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" has a lastPage that does not follow its page.')
+  }
+  if (raw.pageWords !== undefined &&
+    (!Array.isArray(raw.pageWords) || !raw.pageWords.every(w => typeof w === 'string' && w.trim()))) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" has pageWords that are not lines of text.')
+  }
   if (raw.captureFormBasis === 'unmeasured' && raw.captureForm) {
     throw fail('BAD_CONCEPT', 'Concept "' + id + '" carries a capture form while marked ' +
       'unmeasured. Choosing one is a design decision — census §4 — not a data edit.')
@@ -476,7 +506,11 @@ function buildConcept (raw, knownIds) {
     captureForm: raw.captureForm || null,
     captureTemplate: raw.captureTemplate || null,
     captureFormBasis: raw.captureFormBasis,
-    responsePage: raw.responsePage || null
+    responsePage: raw.responsePage || null,
+    lastPage: raw.lastPage || null,
+    // Mike's own words off the concept's pages, read by machine — the card's lead-in.
+    pageWords: raw.pageWords || [],
+    model: raw.model || null
   }
 }
 
@@ -690,7 +724,7 @@ FRAMEWORKS.forEach(function (f) {
 /**
  * The framework a ticked concept runs, or null when that concept has no capture card yet.
  *
- * ⚠ 44 OF THE 46 RETURN NULL TODAY, and that is the honest state rather than a defect.
+ * ⚠ 45 OF THE 47 RETURN NULL TODAY, and that is the honest state rather than a defect.
  * The menu offers Mike's whole library; three frameworks are built and only two of them
  * answer a row on his scope tables. The screens that teach and capture the rest are the
  * later stages of item 15.1 (Brief §0).
@@ -789,14 +823,15 @@ module.exports = {
   hasField,
   PLANNING_DOMAINS,
   STRATEGY_SHAPES,
-  // The concept index — the 46
+  // The concept index — the 47
   listConcepts,
   getConcept,
   conceptsForPlanningDomain,
-  // The session scope menu — the 46 as five panels, in Mike's order
+  // The session scope menu — the 47 as five panels, in Mike's order
   listDecks,
   frameworkForConcept,
   CONCEPT_SOURCES,
+  CONCEPT_MODELS,
   CAPTURE_BASES,
   // exported so a test can check an authored record without reaching into the file
   buildFramework,

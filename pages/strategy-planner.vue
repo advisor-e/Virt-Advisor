@@ -240,8 +240,12 @@
             :concept-summary="card.visit.conceptSummary"
             :helps-client-to="card.visit.helpsClientTo"
             :teaching-form="card.visit.teachingForm"
+            :page-words="card.visit.pageWords"
             :concept-id="card.visit.conceptId"
             :entries="entriesFor(card.visit.conceptId)"
+            :client-id="clientId || ''"
+            :client-name="clientName"
+            :token="apiToken"
             :eyebrow="card.eyebrow"
             :firm-name="firmBrand.name || ''"
             :firm-colour="firmBrand.colour || undefined"
@@ -280,6 +284,7 @@
       //- client keeps; they were missing until 2026-09-22 (item 16.2).
       strategy-plan-document(
         :client-name="clientName"
+        :client-id="clientId || ''"
         :decks="planDecks"
         :steps="planSteps"
         :closing="closingCards"
@@ -337,12 +342,29 @@ import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
 import { isPlaceableConcept } from '~/utils/strategyCards'
 import { isDevHost } from '~/utils/devHost'
 import { rolesFrom, namedRoles } from '~/utils/orgChart'
+import { getSavedReport } from '~/utils/clientReports'
+import { requestFromSaved, contrastFrom } from '~/utils/ownerExpectationsPrint'
 
 /** Where the master app leaves the advisor's token before our pages load. */
 const TOKEN_KEY = 'advisor_e_token'
 
 /** The one capture form that captures a structure rather than words. */
 const ORG_CHART_FORM = 'parent-child-list'
+
+/** A concept whose capture is a Report Model run inside the card (item 15.23). */
+const MODEL_FORM = 'report-model'
+
+/**
+ * How each hosted model reaches the client's plan: the backend route that computes it, the
+ * request built from the client's saved record, and the table printed from the answer.
+ */
+const MODEL_PRINTS = {
+  '/owner-expectations': {
+    url: '/api/report/owner-expectations',
+    request: requestFromSaved,
+    table: contrastFrom
+  }
+}
 
 /**
  * How long the advisor stops typing before the open box is written out — Decision D,
@@ -405,6 +427,13 @@ export default {
        * looking at the box.
        */
       clientId: null,
+      /**
+       * What a hosted model prints on the client's plan, by concept id (item 15.23) —
+       * `{ contrast }`, `{ contrast: null }` where the client has nothing saved, or
+       * `{ failed: true }`. Read from the client's own record on Produce plan, never kept
+       * in the session: Decision B of the approved drawing.
+       */
+      modelPrints: {},
       /**
        * CONCEPT ids ticked on the session scope menu — Mike's own 52, not framework ids.
        * Changed in Stage 1: the menu is now his Session Scope table (Decision A), and a
@@ -584,6 +613,7 @@ export default {
           conceptSummary: loaded.conceptSummary || '',
           helpsClientTo: loaded.helpsClientTo || '',
           teachingForm: loaded.teachingForm || '',
+          pageWords: loaded.pageWords || [],
           capture: loaded.capture
         })
       })
@@ -773,10 +803,14 @@ export default {
         const orgRoles = capture.form === ORG_CHART_FORM
           ? namedRoles(rolesFrom(this.entriesFor(visit.conceptId)))
           : null
+        const model = capture.form === MODEL_FORM ? capture.model : ''
         cards.push({
           key: visit.key,
           conceptId: visit.conceptId,
           orgChart: orgRoles,
+          // A hosted model prints its own page from the client's record (item 15.23).
+          model,
+          modelPrint: model ? (this.modelPrints[visit.conceptId] || null) : null,
           // His own column heading, read off the workbook, so the client's plan heads the
           // list with the same word the advisor typed under.
           orgChartHead: (capture.orgChart && capture.orgChart.headLabel) || '',
@@ -1036,7 +1070,13 @@ export default {
      * undone in the room.
      */
     clientId () {
+      this.modelPrints = {}
       this.loadClientSessions()
+    },
+
+    /** Produce plan reads each hosted model's figures fresh from the client's record. */
+    step (now) {
+      if (now === 'plan') { this.loadModelPrints() }
     }
   },
 
@@ -1227,6 +1267,40 @@ export default {
      *
      * @returns {Promise<void>}
      */
+    /**
+     * Read each placed model's figures for the client's plan (item 15.23).
+     *
+     * From the client's ONE saved record — the same one the model's own page opens, Decision
+     * B — and computed on the model's own backend route, so the plan prints exactly what the
+     * advisor saw. A failed read says so on the page rather than printing an empty table.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadModelPrints () {
+      if (!this.clientId) { return }
+      const wanted = this.placeableCards.filter(c => c.model && MODEL_PRINTS[c.model])
+      await Promise.all(wanted.map(async (card) => {
+        const print = MODEL_PRINTS[card.model]
+        try {
+          const saved = await getSavedReport(this.clientId, card.model, this.apiToken)
+          if (!saved || !saved.report) {
+            this.$set(this.modelPrints, card.conceptId, { contrast: null })
+            return
+          }
+          const res = await fetch(print.url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(print.request(saved.report.inputs))
+          })
+          const body = await res.json()
+          if (!res.ok || !body || !body.success) { throw new Error('model refused') }
+          this.$set(this.modelPrints, card.conceptId, { contrast: print.table(body.data) })
+        } catch (e) {
+          this.$set(this.modelPrints, card.conceptId, { failed: true })
+        }
+      }))
+    },
+
     async loadCaptures () {
       const wanted = this.chosen.filter(id => !this.captures[id])
       if (!wanted.length) { return }
@@ -1252,6 +1326,7 @@ export default {
           // reaches the screen only if it is named here too. The deck-image fields
           // were served, proxied and ignored for exactly that reason before anyone
           // noticed. Anything new the route serves must be named here as well.
+          pageWords: Array.isArray(b.pageWords) ? b.pageWords : [],
           capture: b.capture
         })
       })

@@ -848,7 +848,22 @@ calculator is ever put in a concept card, that is how it is built** — hosting 
 report component on the **same backend route** the standalone page calls, so there is one
 engine, one golden test and two surfaces. Never a second copy of the maths.
 
-**It is not scheduled, and two things found on 2026-09-22 are why.**
+☑ **THE FIRST ONE IS BUILT — Business Owner Expectations, item 15.23, 2026-09-25**, from
+[`../mockups/strategy-concept-owner-expectations.html`](../mockups/strategy-concept-owner-expectations.html),
+approved by Mike the same day. Business Targets pages 5–6 are one row that **runs the Owner
+Expectations model inside the card** — `components/OwnerExpectations.vue` in its `embedded`
+mode, on `POST /api/report/owner-expectations`. A concept names its model in `model`
+(whitelisted in `CONCEPT_MODELS`), captures through it (`report-model` form) and **writes
+nothing into the session**: the figures save to the client's one Owner Expectations record,
+the same one the model's own page opens (his Decision B). The client's plan prints his
+**contrast table** — owners across; income, hours, leave and task split down; the revenue the
+business must reach along the foot (his Decision C, in his own words: *"the report should come
+back togeteher to provide meaning"*) — built by `utils/ownerExpectationsPrint.js`, whose test
+proves the plan asks the model exactly what the screen asks. Measured on A4 landscape: one
+sheet, clear of the running foot with the workbook's ten tasks.
+
+**The general in-card calculators below are still not scheduled, and two things found on
+2026-09-22 are why.**
 
 **First, it is two frameworks, not three.** This table read *"3 of the 52 have a supporting
 model"*, from the approved measurement's *"8 Profit Levers, Deming's Volatility, Revenue
@@ -1196,9 +1211,9 @@ and is pinned by `tests/unit/strategyConcepts.test.js`.
 
 | | |
 |---|---|
-| Concepts | **46** — Business Targets 1 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
-| Carrying a Helps Your Client To… line | **All 46** — 34 read off his two Session Scope tables (three through a shared deck cell), and 12 drafted for him and approved word for word on 2026-09-24, recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
-| Rows that are not Session Scope rows | **12** — 10 agenda rows (8 carry his own agenda sub-line) and 2 framing pages |
+| Concepts | **47** — Business Targets 2 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
+| Carrying a Helps Your Client To… line | **All 47** — 34 read off his two Session Scope tables (three through a shared deck cell), and 13 drafted for him and approved word for word (12 on 2026-09-24, Business Owner Expectations on 2026-09-25), recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
+| Rows that are not Session Scope rows | **13** — 10 agenda rows (8 carry his own agenda sub-line), 2 framing pages, and 1 deck-page row that runs a model (item 15.23) |
 | Teaching form named (census §3) | 32 |
 | Capture form **measured** against one of his fill-in templates | 22 |
 

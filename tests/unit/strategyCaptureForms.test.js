@@ -56,13 +56,29 @@ describe('the capture tables are Mike\'s own, and every concept that names one f
 })
 
 describe('a concept with no measured template is told so, never given a borrowed table', () => {
-  test('the 32 unmeasured concepts return supplied:false with a reason', () => {
-    const unmeasured = concepts.filter(c => !c.captureTemplate)
+  test('the unmeasured concepts return supplied:false with a reason', () => {
+    // A concept that RUNS A MODEL captures through it (item 15.23) and is covered below.
+    const unmeasured = concepts.filter(c => !c.captureTemplate && !c.model)
     unmeasured.forEach((c) => {
       const result = forms.captureForConcept(c)
       expect(result.supplied).toBe(false)
       expect(result.reason).toBe('no-capture-template-measured')
       expect(result.fields).toBeUndefined()
+    })
+  })
+
+  test('🔴 a concept that runs a model captures nothing into the session — item 15.23, Decision B', () => {
+    // Mike, 2026-09-25: the card saves to the client's ONE Owner Expectations record. A
+    // box admitted here would let the same figures land in the session too, and the two
+    // copies would drift — the exact outcome the ruling refused.
+    const withModel = concepts.filter(c => c.model)
+    expect(withModel.map(c => c.id)).toEqual(['business-owner-expectations'])
+    withModel.forEach((c) => {
+      const result = forms.captureForConcept(c)
+      expect(result).toEqual({ supplied: true, form: forms.MODEL_FORM, model: '/owner-expectations', fields: [] })
+      const getConcept = id => concepts.find(x => x.id === id) || null
+      expect(forms.hasCaptureField(c.id, 'o1.name', getConcept)).toBe(false)
+      expect(forms.hasCaptureField(c.id, 'anything', getConcept)).toBe(false)
     })
   })
 

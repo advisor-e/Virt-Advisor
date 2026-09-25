@@ -27,7 +27,7 @@ const frameworks = require('../../server/utils/strategyFrameworks')
 const data = require('../../data/strategy-frameworks.json')
 
 describe('the 52 concepts load', () => {
-  it('holds exactly 46 - 52 as scoped, less the eight Mike deleted, plus two framing pages', () => {
+  it('holds exactly 47 - 52 as scoped, less the eight Mike deleted, plus two framing pages and Owner Expectations', () => {
     // 🔴 IT WAS 52, AND THE 52 WAS NEVER WRONG. Mike's scoping ruling of 2026-09-17
     // counted the five decks' own contents tables and agendas, which is where 52 comes
     // from - never ADV.0's index, which says 45 and has drifted four concepts.
@@ -37,8 +37,9 @@ describe('the 52 concepts load', () => {
     // this is section 1 - with no teaching page anywhere in his decks, and he deleted
     // them: 'then just delete the rest - they are likely to be repeats'. Two FRAMING
     // PAGES came in the other way on the same ruling: Our Session Objective and
-    // Collaborative Thinking, both real pages that no index had ever pointed at.
-    expect(frameworks.listConcepts()).toHaveLength(46)
+    // Collaborative Thinking, both real pages that no index had ever pointed at. On
+    // 2026-09-25 Business Owner Expectations came back as one row running its model (15.23).
+    expect(frameworks.listConcepts()).toHaveLength(47)
   })
 
   it('splits across the four Planning Domains exactly as the census counts them', () => {
@@ -50,12 +51,10 @@ describe('the 52 concepts load', () => {
       'sales-marketing-review': frameworks.conceptsForPlanningDomain('sales-marketing-review').length,
       'organisational-review': frameworks.conceptsForPlanningDomain('organisational-review').length
     }).toEqual({
-      // 🔴 BUSINESS TARGETS IS DOWN TO ONE, AND THAT ONE IS WHY THE DECK SURVIVES.
-      // All five of its rows were agenda lines and all five went on 2026-09-23;
-      // Collaborative Thinking - his Christchurch page, p3 - is the only genuine
-      // teaching page that deck holds. Without it the panel is empty and the loader
-      // refuses it outright.
-      'business-targets': 1,
+      // Collaborative Thinking - his Christchurch page, p3 - and Business Owner
+      // Expectations, pp5-6, which runs the model those two pages became (item 15.23,
+      // approved 2026-09-25). All five agenda rows went on 2026-09-23.
+      'business-targets': 2,
       // 22 less the two stage directions deleted, plus Our Session Objective.
       'strategic-orientation': 21,
       'sales-marketing-review': 16,
@@ -76,8 +75,9 @@ describe('the 52 concepts load', () => {
     }, {})
     // The 34 scope-table rows are UNTOUCHED - nothing deleted on 2026-09-23 came from
     // one of his Session Scope tables. 18 agenda rows became 10, and framing-page is a
-    // third kind: a page that IS its own concept, not a row pointing at one.
-    expect(bySource).toEqual({ 'session-scope-table': 34, agenda: 10, 'framing-page': 2 })
+    // third kind: a page that IS its own concept, not a row pointing at one. `deck-page` is
+    // an agenda line pointed at its own real pages - Business Owner Expectations, 15.23.
+    expect(bySource).toEqual({ 'session-scope-table': 34, agenda: 10, 'framing-page': 2, 'deck-page': 1 })
   })
 
   it('points every concept at a page in a real deck', () => {
@@ -362,6 +362,26 @@ describe('a malformed concept fails at load, not in a client meeting', () => {
       Object.assign({}, good, { page: 0 }), known)).toThrow(/page/)
     expect(() => frameworks.buildConcept(
       Object.assign({}, good, { page: null }), known)).toThrow(/page/)
+  })
+
+  it('🔴 rejects a model no card can host — item 15.23', () => {
+    // A route with no screen behind it would put an empty card in front of a client.
+    expect(() => frameworks.buildConcept(
+      Object.assign({}, good, { model: '/volatility' }), known)).toThrow(/model/)
+    expect(frameworks.buildConcept(
+      Object.assign({}, good, { model: '/owner-expectations' }), known).model).toBe('/owner-expectations')
+  })
+
+  it('rejects a concept that runs a model AND names a capture table', () => {
+    // Two captures for one concept: the figures would land in the session as well.
+    expect(() => frameworks.buildConcept(Object.assign({}, good, {
+      model: '/owner-expectations', captureTemplate: 'Org Chart'
+    }), known)).toThrow(/model/)
+  })
+
+  it('rejects a last page that does not follow the first', () => {
+    expect(() => frameworks.buildConcept(
+      Object.assign({}, good, { page: 5, lastPage: 5 }), known)).toThrow(/lastPage/)
   })
 
   it('rejects text and a pointer at the same time', () => {

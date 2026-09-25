@@ -121,7 +121,7 @@ async function getFrameworks (req, res) {
 /**
  * GET /api/strategy/concepts
  *
- * The session scope menu — the 46 concepts as the five panels the advisor ticks, in Mike's
+ * The session scope menu — the 47 concepts as the five panels the advisor ticks, in Mike's
  * own order. Platform content, behind firmAuth like every other advisor-facing read.
  *
  * 🔴 GROUPED BY DECK, NEVER BY DOMAIN. Strategic Orientation is one Planning Domain in two
@@ -162,7 +162,7 @@ async function getConcepts (req, res) {
  * template rather than authored here. Every label in the reply is a string from
  * one of his documents.
  *
- * 🔴 A CONCEPT WITH NO TABLE SAYS SO. 24 of the 46 have none, because none was ever
+ * 🔴 A CONCEPT WITH NO TABLE SAYS SO. 11 of the 47 have none, because none was ever
  * measured against a template (census §4 is explicit that choosing one is a design
  * decision, not a reading). Those reply `supplied: false` with the reason. A borrowed table would put words in
  * front of a client that Mike did not write.
@@ -214,6 +214,8 @@ async function getConceptCapture (req, res) {
       // the advisor-e.com logo and a client is always shown the advisor's own.
       deckPage: concept.page || null,
       responsePage: concept.responsePage || null,
+      // His own page words, where a concept teaches from its instruction pages (item 15.23).
+      pageWords: concept.pageWords || [],
       capture: captureForms.captureForConcept(concept),
       timestamp: new Date().toISOString()
     })

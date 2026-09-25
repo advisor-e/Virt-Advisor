@@ -149,7 +149,11 @@ function rewritePage (markdown, approved) {
     return !(found && ids.indexOf(found[1]) !== -1)
   })
 
-  const today = new Date().toISOString().slice(0, 10)
+  // The machine's own calendar date, never UTC: in New Zealand `toISOString()` is still
+  // yesterday until noon, and dated Mike's 2026-09-25 morning approval as 2026-09-24.
+  const now = new Date()
+  const pad = n => String(n).padStart(2, '0')
+  const today = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate())
   const record = approved.map(function (item) {
     return '- **' + today + '** · `' + item.row.id + '` — "' + item.row.draft + '"'
   })
@@ -170,7 +174,10 @@ function rewritePage (markdown, approved) {
     while (end + 1 < after.length && after[end + 1].trim() !== '') { end++ }
     rest = after.slice(0, start).concat(after.slice(end + 1))
   }
-  return kept.slice(0, at + 1).concat([''], record, rest).join('\n')
+  // The new lines join the older ones directly: the blank line that follows the heading
+  // used to land between them, and every apply grew the record another gap.
+  while (rest.length && rest[0].trim() === '') { rest = rest.slice(1) }
+  return kept.slice(0, at + 1).concat([''], record, rest.length ? rest : ['']).join('\n')
 }
 
 function main () {

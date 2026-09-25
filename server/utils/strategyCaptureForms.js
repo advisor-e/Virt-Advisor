@@ -439,6 +439,9 @@ const PARALLEL_PROMPT_PAIR = 'parallel-prompt-pair'
 /** Two things observed side by side, all worked example — his Curve & Cycle Notes. */
 const SMALL_COMPARISON_GRID = 'small-comparison-grid'
 
+/** A concept whose capture is a Report Model run inside the card (item 15.23). */
+const MODEL_FORM = 'report-model'
+
 function fieldsOfTable (table, tableIndex, form) {
   if (form === NAMED_FIELD_STACK) {
     return namedFieldStackFields(table, tableIndex)
@@ -610,6 +613,13 @@ function fieldsOfTable (table, tableIndex, form) {
  * response columns an hour later. That is gone, with the function that computed it.
  */
 function captureForConcept (concept) {
+  // 🔴 A CONCEPT THAT RUNS A REPORT MODEL CAPTURES THROUGH THE MODEL, NOT THE SESSION —
+  // item 15.23, Decision B of design/mockups/strategy-concept-owner-expectations.html. The
+  // card hosts the model's own screen and saves to the client's one record of it, so there
+  // are no boxes here and nothing of it is ever written into the session.
+  if (concept && concept.model) {
+    return { supplied: true, form: MODEL_FORM, model: concept.model, fields: [] }
+  }
   if (!concept || !concept.captureTemplate) {
     return {
       supplied: false,
@@ -697,6 +707,8 @@ function hasCaptureField (conceptId, fieldKey, getConcept) {
   if (!concept) { return false }
   const capture = captureForConcept(concept)
   if (!capture.supplied) { return false }
+  // A model's figures live in the client's own record, never the session (item 15.23).
+  if (capture.form === MODEL_FORM) { return false }
   if (capture.form === orgChart.FORM) { return orgChart.isOrgChartKey(fieldKey) }
   return capture.fields.some(f => f.key === fieldKey)
 }
@@ -709,5 +721,6 @@ module.exports = {
   NAMED_FIELD_STACK,
   PARALLEL_PROMPT_PAIR,
   SMALL_COMPARISON_GRID,
+  MODEL_FORM,
   TEMPLATE_ALIASES
 }
