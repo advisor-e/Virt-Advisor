@@ -9,24 +9,23 @@
 
 ---
 
-## 2026-09-25 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-25 (afternoon) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean. 630 suites / 13,705 tests green.** PR #132 MERGED to `master` at `8e570996` on Mike's
-word (7.10, 22.1, 14.3, 15.8, 14.4). Since then, on this branch only: **16.1** and **13.2**,
-both closed on Mike's word.
+**Clean and pushed at `1375c0eb`. 636 suites / 13,774 tests green, audit PASS.** 8 ahead of
+`master`, 0 behind — not yet at the 10 that calls for a PR. Nothing is `activeOn` here.
 
-### 🔴 FOR THE LAPTOP — once you merge `master` (you are 11 behind)
-- **14.3 and 7.10 were done on BOTH machines this morning** (your `3ee91ffe`, our PR #132).
-  Expect conflicts in `scripts/build-handbook.js`, `buildHandbook.test.js`, `features/handbook.md`
-  and the three to-do files. Keep ONE 14.3 implementation and ONE closure entry per item; the
-  content-audit fix under 7.10 exists only on ours.
-- **Buefy's stylesheet is now `assets/css/buefy-brand.css`**, built with `$primary: #0070c0`.
-  Never edit it; change `buefy-brand.scss` and run `npm run brand-css`. `sass` 1.32.13 is a
-  new dev tool, so run `npm install` with **npm 8 on Node 14.15** after merging.
-- **Test scratch files:** clear them with `tests/helpers/removeFile.js`, never a bare
-  `unlinkSync` — that is what blocked pushes at random (22.1).
-- **The forecast P&L gained four overseas lines** (`importedStock`, `overseasFreight`,
-  `overseasDuty`, `exchangeMovement`) so the itemised lines add up to cost of sales.
+**Closed on Mike's word:** 12.1, 10.1 (plus 16.1 and 13.2 this morning). **Parked:** 16.
+**Filed:** 13.6 (translation glossary), 46.1 (benchmark provisional years), 10.2 (backend-worded
+English on hub screens).
 
-### What today settled
-Seven items closed: 7.10, 22.1, 14.3, 15.8, 14.4, 16.1, 13.2. Nothing is `activeOn` here.
+### 🔴 FOR THE LAPTOP — when this branch reaches `master`
+- **Translation is now the backend's** (`server/utils/uiTranslation.js`, `GET /api/ui-translation/:code`,
+  new AI role `translate`). Any NEW screen text still just goes in `en.json` — nothing else to do.
+- **`locales/en.json` gained ~1,040 lines at its END** (15 new blocks). If you also appended blocks,
+  the merge conflicts at the file's tail: keep both sides.
+- **`tests/helpers/mountComponent.js`** gained `englishMocks()` (real English `$t`) and renders
+  `<i18n>` by default — drop any `stubs: { i18n: true }` you add.
+- **`openaiClient.js` now decodes whole letters**; a split "ö" or "—" used to become "��".
+- From this morning, still unmerged: Buefy's stylesheet is `assets/css/buefy-brand.css` (edit the
+  `.scss`, run `npm run brand-css`; `npm install` with npm 8 on Node 14.15); the forecast P&L has
+  four overseas lines.
