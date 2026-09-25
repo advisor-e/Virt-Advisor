@@ -144,19 +144,27 @@ article.spd(:style="frameStyle")
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
         h3.spd-h {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
-        //- ⚠ AND THE RESPONSE PAGE IS MISSING HERE TOO, for the same reason. Where
-        //- the deck holds the fill-in table rather than a workbook — the Integration
-        //- Tasks table, (Our) Revenue Streams, (Our) Volatility Graph Observations —
-        //- the client used to see that page. ⚠ THE TEACHING GRAPHIC DOES NOT
-        //- RESTORE IT — all 33 drawings are teaching pages, and this comment used
-        //- to say otherwise. `responsePage` records which page each table is;
-        //- drawing those five is item 15.11.
+        //- 🔴 A HOSTED MODEL PRINTS ITS CONTRAST TABLE — item 15.23, Decision C of
+        //- design/mockups/strategy-concept-owner-expectations.html, in Mike's own words:
+        //- "the inputs can be split to make life easier but the report should come back
+        //- togeteher to provide meaning". Its figures are the client's one saved record.
+        template(v-if="item.model")
+          strategy-owner-contrast(
+            v-if="item.modelPrint && item.modelPrint.contrast"
+            :contrast="item.modelPrint.contrast"
+            :client-id="clientId")
+          p.spd-untouched(v-else-if="item.modelPrint && item.modelPrint.failed") {{ $t('strategyPlanner.plan.modelFailed') }}
+          p.spd-untouched(v-else) {{ $t('report.ownerExpectations.contrast.notSaved') }}
+        //- Where the deck holds the fill-in table rather than a workbook — the
+        //- Integration Tasks table, (Our) Revenue Streams, (Our) Volatility Graph
+        //- Observations — its boxes are read off his page (item 15.16, 2026-09-24) and
+        //- print here like any other table's.
         //- 🔴 A TABLE NOBODY TOUCHED IS ONE SENTENCE, NOT TWO DOZEN EMPTY ROWS. The
         //- Action Plan alone is 24 boxes; printed blank they fill a page and say
         //- nothing. Mike's rule, 2026-09-17: "how could anyone gain value from
         //- having this repeated?" The page still prints — a step that was scoped and
         //- not worked is part of the record — it just says so in a line.
-        p.spd-untouched(v-if="!hasAnswers(item)") {{ $t('strategyPlanner.plan.notWorked') }}
+        p.spd-untouched(v-else-if="!hasAnswers(item)") {{ $t('strategyPlanner.plan.notWorked') }}
 
         //- 🔴 THE ORG CHART PRINTS AS A CHART, WITH THE LIST BENEATH IT — Decision E,
         //- ruled by Mike 2026-09-21. The chart is the thing his deck teaches and the
@@ -249,18 +257,25 @@ import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic
 import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
 import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
 import StrategyPlanFrame from '~/components/strategy/StrategyPlanFrame.vue'
+import StrategyOwnerContrast from '~/components/strategy/StrategyOwnerContrast.vue'
 import { hasConceptGraphic, conceptTitlesItself, promptsEchoDrawing, conceptSheetCount } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyPlanDocument',
 
-  components: { StrategyConceptGraphic, StrategyOrgChart, StrategyPlanMark, StrategyPlanFrame },
+  components: { StrategyConceptGraphic, StrategyOrgChart, StrategyPlanMark, StrategyPlanFrame, StrategyOwnerContrast },
 
   props: {
     /** The client this plan belongs to. */
     clientName: {
       type: String,
       required: true
+    },
+
+    /** That client's id — a hosted model's page prints in the client's own currency. */
+    clientId: {
+      type: String,
+      default: ''
     },
 
     /** Which decks the session drew on, as one line. */

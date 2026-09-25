@@ -106,16 +106,30 @@ function isColumnHeaderRow (cells) {
   return named.length >= 2 && named.every(c => c.text && !c.blank)
 }
 
+/**
+ * A row's own cells, without the continuations of a merged cell above.
+ *
+ * A deck page's merged cell is emitted once, at its first row, and `merged` below it
+ * (`scripts/read-deck-capture-tables.js`). A continuation is neither a line nor a word
+ * of this row: counted as either, p34's "Used Cars" — one cell spanning nine rows —
+ * stopped "Our Thoughts to Support These Ideas" being read as the heading it is.
+ * Workbook tables carry no `merged`, so for them this is every cell.
+ *
+ * @param {{cells: Array<object>}} row
+ * @returns {Array<object>}
+ */
+const ownCells = row => row.cells.filter(c => !c.merged)
+
 function isLabelRow (rows, i) {
-  const anyLine = rows[i].cells.some(c => c.blank)
+  const anyLine = ownCells(rows[i]).some(c => c.blank)
   // Only the table's own first row may be a header with empty corner cells; a row of
   // words beside a ruled line anywhere further down is content, as Blue Ocean proved.
   if (anyLine) { return i === 0 && isColumnHeaderRow(rows[i].cells) }
   if (i === 0) { return true }
   const next = rows[i + 1]
   if (!next) { return false }
-  const hasWords = rows[i].cells.some(c => c.text && !c.blank)
-  const nextAllLines = next.cells.length > 0 && next.cells.every(c => c.blank)
+  const hasWords = ownCells(rows[i]).some(c => c.text && !c.blank)
+  const nextAllLines = ownCells(next).length > 0 && ownCells(next).every(c => c.blank)
   // 🔴 A BAND'S HEADING STARTS A BAND, AND HIS WORKED EXAMPLE MAY SIT BETWEEN IT AND
   // THE LINES. Two halves of one fault, and fixing either alone leaves the other.
   //
@@ -131,10 +145,10 @@ function isLabelRow (rows, i) {
   // down than before, which rules the second heading back in. Porter's and Blue Ocean
   // go heading → lines with no example between, so neither clause moves them; all 21
   // templates were compared box for box and label for label. Found 2026-09-23.
-  const startsBand = rows[i - 1].cells.some(c => c.blank)
+  const startsBand = ownCells(rows[i - 1]).some(c => c.blank)
   const after = rows[i + 2]
-  const linesAfterExample = next.cells.some(c => c.text && !c.blank) &&
-    Boolean(after) && after.cells.length > 0 && after.cells.every(c => c.blank)
+  const linesAfterExample = ownCells(next).some(c => c.text && !c.blank) &&
+    Boolean(after) && ownCells(after).length > 0 && ownCells(after).every(c => c.blank)
   return hasWords && startsBand && (nextAllLines || linesAfterExample)
 }
 
@@ -367,15 +381,74 @@ function parallelPromptPairFields (table, tableIndex) {
   return fields
 }
 
+/**
+ * The fields of a SMALL COMPARISON GRID — his Curve & Cycle Notes: two columns, each
+ * one thing observed, and every cell below the headings his worked answer.
+ *
+ * 🔴 THERE IS NO BLANK CELL IN IT, SO THE GENERAL READING CANNOT WORK. With no ruled
+ * line it takes column 0 as the questions: the whole Diffusion Curve column became
+ * labels and the page offered 3 boxes where it asks 4. Found 2026-09-24 (item 15.16).
+ *
+ * His own layout says where each box is. Down each column, a cell reading
+ * `Name: example` is one box — `Stage: Early Majority`; a cell without a colon names
+ * the box whose example is the cell beneath it — `What we can anticipate`, then his
+ * sentence. Every label is his, split at his own colon; nothing is written here.
+ *
+ * @param {{columns: number, rows: Array}} table
+ * @param {number} tableIndex
+ * @returns {Array<object>} fields, his first column then his second
+ */
+function smallComparisonGridFields (table, tableIndex) {
+  const rows = table.rows
+  const head = rows[0]
+  if (!head) { return [] }
+  const fields = []
+  const push = (r, c, group, label, example) => fields.push({
+    key: 't' + tableIndex + 'r' + r + 'c' + c,
+    row: r,
+    column: c,
+    columnLabel: group,
+    rowLabel: label,
+    example
+  })
+
+  head.cells.forEach((groupCell, c) => {
+    const group = groupCell.text || ''
+    for (let r = 1; r < rows.length; r++) {
+      const text = (rows[r].cells[c] && rows[r].cells[c].text) || ''
+      if (!text) { continue }
+      const colon = text.indexOf(':')
+      if (colon > 0) {
+        push(r, c, group, text.slice(0, colon).trim(), text.slice(colon + 1).trim())
+        continue
+      }
+      const below = rows[r + 1] && rows[r + 1].cells[c]
+      push(r + 1, c, group, text, (below && below.text) || '')
+      r++
+    }
+  })
+  return fields
+}
+
 /** The stack of named fields — Strategic Statements and Productive Habits. */
 const NAMED_FIELD_STACK = 'named-field-stack'
 
 /** Two independent lists side by side — his Product Fit page. */
 const PARALLEL_PROMPT_PAIR = 'parallel-prompt-pair'
 
+/** Two things observed side by side, all worked example — his Curve & Cycle Notes. */
+const SMALL_COMPARISON_GRID = 'small-comparison-grid'
+
+/** A concept whose capture is a Report Model run inside the card (item 15.23). */
+const MODEL_FORM = 'report-model'
+
 function fieldsOfTable (table, tableIndex, form) {
   if (form === NAMED_FIELD_STACK) {
     return namedFieldStackFields(table, tableIndex)
+  }
+
+  if (form === SMALL_COMPARISON_GRID) {
+    return smallComparisonGridFields(table, tableIndex)
   }
 
   if (form === PARALLEL_PROMPT_PAIR) {
@@ -426,15 +499,38 @@ function fieldsOfTable (table, tableIndex, form) {
 
   const fields = []
   const columnLabels = []
+  // His question under each column heading, where the page asks one — A.I.D.C.R.A's
+  // "What will grab Their Attention?" under Attention, the Price tables' "For Free"
+  // under "What We Will Tell Them". Each line in that column is asked it.
+  const columnPrompts = []
+  // The headings of the table's first label row — which column is which.
+  let headLabels = null
+
+  // 🔴 A SECOND ROW OF WORDS DIRECTLY UNDER THE HEADINGS, WITH LINES BENEATH IT, IS THE
+  // QUESTION EACH COLUMN ASKS. `isLabelRow` cannot see it — a heading must start a band,
+  // and nothing ruled comes before it — so it was read as a row of content: six of his
+  // questions were never shown, and each column's lines carried its heading alone.
+  // 🔴 ONLY WHERE THE PAGE MARKS IT A HEADING. A workbook's banded grid puts his WORKED
+  // EXAMPLE in exactly this position — Insights Summary, SWOT Notes — and read as a
+  // question it headed every line with his sample answer. Where that example belongs
+  // is item 15.18 and Mike's call, so this must not reach it: `header` is set only by
+  // the deck-page reader, on rows its page entry declares.
+  const promptRow = hasRuledLines && rows.length > 2 &&
+    rows[1].cells.length > 0 && rows[1].cells.every(c => c.header && c.text)
 
   rows.forEach((row, r) => {
     if (isQuestionSheet && r > 0 && row.cells.every(c => c.blank)) { return }
+    if (promptRow && r === 1) {
+      row.cells.forEach((cell, c) => { if (!cell.merged) { columnPrompts[c] = cell.text } })
+      return
+    }
     const labelRow = isLabelRow(rows, r)
 
     if (labelRow) {
       row.cells.forEach((cell, c) => {
-        if (cell.text && !cell.blank) { columnLabels[c] = cell.text }
+        if (cell.text && !cell.blank && !cell.merged) { columnLabels[c] = cell.text }
       })
+      if (!headLabels) { headLabels = columnLabels.slice() }
       // 🔴 A LABEL ROW DESCRIBES WHAT FOLLOWS; NOTHING IS TYPED INTO IT — AND THAT IS
       // TRUE WHETHER OR NOT THE TABLE HAS RULED LINES. This used to skip it only when
       // `hasRuledLines`, which meant a heading survived as a box in exactly the
@@ -470,12 +566,29 @@ function fieldsOfTable (table, tableIndex, form) {
         // Both labels are Mike's words. Either may be absent; a banded grid's
         // lines carry only a column label, a prompt sheet only a row label.
         columnLabel: columnLabels[c] || '',
-        rowLabel: rowLabel || '',
+        rowLabel: rowLabel || columnPrompts[c] || '',
         // What he filled in to show what an answer looks like. Shown as guidance,
-        // never saved as the client's own text.
-        example: (!cell.blank && cell.text) ? cell.text : ''
+        // never saved as the client's own text. `guide` is his example written ON a
+        // deck page's line, which is a line all the same.
+        example: cell.guide ? cell.text : ((!cell.blank && cell.text) ? cell.text : '')
       })
     })
+  })
+
+  // 🔴 ONE HEADING OVER TWO COLUMNS IS TWO LISTS, AND THE BOX MUST SAY WHOSE. Revenue
+  // Streams heads both its Upstream and its Downstream thoughts "Our Thoughts to Support
+  // These Ideas"; grouped by heading, the eight boxes became one list and nobody could
+  // tell which side a thought was about (Mike, 2026-09-24). Where a heading spans columns,
+  // each box also carries its column's first heading — his words, never ours. Porter's
+  // repeats "How We Plan To Respond" too, but that IS its column's first heading, so it
+  // gains nothing and is unchanged.
+  const columnsOf = {}
+  fields.forEach((f) => { (columnsOf[f.columnLabel] = columnsOf[f.columnLabel] || new Set()).add(f.column) })
+  fields.forEach((f) => {
+    const head = headLabels && headLabels[f.column]
+    if (f.columnLabel && columnsOf[f.columnLabel].size > 1 && head && head !== f.columnLabel) {
+      f.columnHead = head
+    }
   })
 
   return fields
@@ -500,6 +613,13 @@ function fieldsOfTable (table, tableIndex, form) {
  * response columns an hour later. That is gone, with the function that computed it.
  */
 function captureForConcept (concept) {
+  // 🔴 A CONCEPT THAT RUNS A REPORT MODEL CAPTURES THROUGH THE MODEL, NOT THE SESSION —
+  // item 15.23, Decision B of design/mockups/strategy-concept-owner-expectations.html. The
+  // card hosts the model's own screen and saves to the client's one record of it, so there
+  // are no boxes here and nothing of it is ever written into the session.
+  if (concept && concept.model) {
+    return { supplied: true, form: MODEL_FORM, model: concept.model, fields: [] }
+  }
   if (!concept || !concept.captureTemplate) {
     return {
       supplied: false,
@@ -587,6 +707,8 @@ function hasCaptureField (conceptId, fieldKey, getConcept) {
   if (!concept) { return false }
   const capture = captureForConcept(concept)
   if (!capture.supplied) { return false }
+  // A model's figures live in the client's own record, never the session (item 15.23).
+  if (capture.form === MODEL_FORM) { return false }
   if (capture.form === orgChart.FORM) { return orgChart.isOrgChartKey(fieldKey) }
   return capture.fields.some(f => f.key === fieldKey)
 }
@@ -598,5 +720,7 @@ module.exports = {
   fieldsOfTable,
   NAMED_FIELD_STACK,
   PARALLEL_PROMPT_PAIR,
+  SMALL_COMPARISON_GRID,
+  MODEL_FORM,
   TEMPLATE_ALIASES
 }

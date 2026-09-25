@@ -248,8 +248,8 @@ whitelist had to accept them — and both answers reach the client's plan, `Plan
 question and then all five decisions on its drawing, every one as recommended. The advisor names
 his own steps, and **the client's agenda stops naming our screens**: where it read *"Run the
 frameworks — 14 concepts"* it now reads his own step names, with an empty step printing as *"on
-the agenda only"*. **Two stages remain — 7 and 8** (stage 6 built 2026-09-22; stage 5 is six
-capture forms of nine, and its last three are not code jobs — see item **15.6**).
+the agenda only"*. **Where every stage stands is the stages table below** — stage 7 was built
+on 2026-09-22 and stage 8 was stood down by Mike on 2026-09-23.
 
 🔴 **BUILD SESSION WAS REDRAWN AND REBUILT ON 2026-09-21**, from
 [`design/mockups/strategy-session-process.html`](../mockups/strategy-session-process.html) —
@@ -370,13 +370,12 @@ arrive; and the *"n concepts have no capture screen yet"* notice now counts only
 neither, or it would tell an advisor a concept was dropped while it sat on the screen in front of
 them. Pinned by `tests/unit/strategyPlanDocument.component.test.js`.
 
-⚠ **AND THE FIVE RESPONSE PAGES ARE NOT AMONG THE 33 — that is item 15.11, filed 2026-09-20.**
-Vertical Integration, Horizontal Integration, (Our) Revenue Streams and two others carry their
-fill-in table on a deck page — `responsePage` 24, 34, 37 and 41 — and every one of the 33 drawings
-is a *teaching* page. Three comments in the components promised the rebuilt graphic would restore
-those tables; **they were wrong and are corrected**, because a session reading one believes the gap
-is already handled. A response page is a capture surface rather than a picture, so it needs its own
-decision before the drawing method is applied.
+**The response pages are not among the 33 drawings, and are not drawn.** Vertical and Horizontal
+Integration, (Our) Revenue Streams and Deming's Volatility carry their fill-in table on a deck page
+(Strategic Orientation 2 pp. 24, 34, 37); since 2026-09-24 those tables are **read off his page as
+boxes** by `scripts/read-deck-capture-tables.js`, the route Branding's table takes — Mike's ruling
+that day, item 15.16. The 8 Profit Levers' p41 only points at his Profit Levers template, which it
+already captures through.
 
 **The differences between the build and the approved artefacts, named as the rule requires — three,
 all deliberate:** the sample firm on every drawing (*Hartley & Co*, initial *H*, `#0070c0`, and its
@@ -771,9 +770,10 @@ that was wrong on most rows while reading as evidence.**
 it joins `read-deck-capture-tables.js` beside Branding, Pricing, Packaging and Customer Loyalty:
 twelve boxes, his six divisions against Primary Output and Divisional KPI. **Review Internal
 Insights Data** — his own slide names the template (*"Review the Internal Team Insights page of
-the Insights Summary template"*), which was extracted and reaching no concept. **Four of his
-templates still reach none** — SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve & Cycle
-Notes, item **15.16**.
+the Insights Summary template"*), which was extracted and reaching no concept. Of his other
+templates, **Curve & Cycle Notes** now serves Market Diffusion and Product Life Cycle (2026-09-24);
+**Sales Flowchart and Tension Point Scripts** belong to Sales Process Review, held by Mike that day;
+**SWOT Notes** belongs to the `swot-pest` framework, not to any of the 46 concepts.
 
 🔴 **AND THAT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A
 band's heading was found by *"words, then ruled lines"*. Insights Summary bands as **headings →
@@ -848,7 +848,22 @@ calculator is ever put in a concept card, that is how it is built** — hosting 
 report component on the **same backend route** the standalone page calls, so there is one
 engine, one golden test and two surfaces. Never a second copy of the maths.
 
-**It is not scheduled, and two things found on 2026-09-22 are why.**
+☑ **THE FIRST ONE IS BUILT — Business Owner Expectations, item 15.23, 2026-09-25**, from
+[`../mockups/strategy-concept-owner-expectations.html`](../mockups/strategy-concept-owner-expectations.html),
+approved by Mike the same day. Business Targets pages 5–6 are one row that **runs the Owner
+Expectations model inside the card** — `components/OwnerExpectations.vue` in its `embedded`
+mode, on `POST /api/report/owner-expectations`. A concept names its model in `model`
+(whitelisted in `CONCEPT_MODELS`), captures through it (`report-model` form) and **writes
+nothing into the session**: the figures save to the client's one Owner Expectations record,
+the same one the model's own page opens (his Decision B). The client's plan prints his
+**contrast table** — owners across; income, hours, leave and task split down; the revenue the
+business must reach along the foot (his Decision C, in his own words: *"the report should come
+back togeteher to provide meaning"*) — built by `utils/ownerExpectationsPrint.js`, whose test
+proves the plan asks the model exactly what the screen asks. Measured on A4 landscape: one
+sheet, clear of the running foot with the workbook's ten tasks.
+
+**The general in-card calculators below are still not scheduled, and two things found on
+2026-09-22 are why.**
 
 **First, it is two frameworks, not three.** This table read *"3 of the 52 have a supporting
 model"*, from the approved measurement's *"8 Profit Levers, Deming's Volatility, Revenue
@@ -1196,9 +1211,9 @@ and is pinned by `tests/unit/strategyConcepts.test.js`.
 
 | | |
 |---|---|
-| Concepts | **46** — Business Targets 1 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
-| Carrying a Helps Your Client To… line | **All 46** — 34 read off his two Session Scope tables (three through a shared deck cell), and 12 drafted for him and approved word for word on 2026-09-24, recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
-| Rows that are not Session Scope rows | **12** — 10 agenda rows (8 carry his own agenda sub-line) and 2 framing pages |
+| Concepts | **47** — Business Targets 2 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
+| Carrying a Helps Your Client To… line | **All 47** — 34 read off his two Session Scope tables (three through a shared deck cell), and 13 drafted for him and approved word for word (12 on 2026-09-24, Business Owner Expectations on 2026-09-25), recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
+| Rows that are not Session Scope rows | **13** — 10 agenda rows (8 carry his own agenda sub-line), 2 framing pages, and 1 deck-page row that runs a model (item 15.23) |
 | Teaching form named (census §3) | 32 |
 | Capture form **measured** against one of his fill-in templates | 22 |
 
@@ -1224,13 +1239,12 @@ once and pointed at with a `*Ref`, resolved when read: `price-for-delivery-mediu
 **An editing screen must say which rows share a piece of text before anyone changes it**, or one
 row's edit silently rewrites its neighbour.
 
-⚠ **30 concepts carry NO capture form, and "deliberate" is only half true.** Census §4 measured
-the nine capture forms across 24 templates, **not across all 52**, and is explicit that choosing
-one for a concept outside those 24 is a **design decision, not a reading**. Each measured row
-names the template it was matched to (`captureTemplate`) so the match is checkable; the rest are
-`unmeasured` with nothing in the field, and a test fails if a form ever appears on one. **That is
-true of the data and was never true of the work** — for these 30 a form was simply never chosen,
-which is item **15.16**, and this line used to read 32 as though the number were settled.
+**11 of the 46 concepts carry no capture form** (35 do, since 2026-09-24). Census §4 is explicit
+that choosing a form for a concept outside the measured templates is a **design decision, not a
+reading**, so each measured row names the template it was matched to (`captureTemplate`) and the
+rest are `unmeasured`, and a test fails if a form ever appears on one. Which of the 11 are ruled,
+held or unruled — and why each — is
+[`STRATEGY-CAPTURE-FORM-PROPOSALS.md`](../STRATEGY-CAPTURE-FORM-PROPOSALS.md) §5–6.
 
 **What the index is NOT.** It names a concept's form; it does not lay one out. Every teaching and
 capture form is drawn elsewhere — §0's method for the 33 graphics, and the nine capture shapes.

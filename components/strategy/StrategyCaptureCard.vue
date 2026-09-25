@@ -52,9 +52,9 @@
     //- & Horizontal Integration Tasks table, (Our) Revenue Streams, (Our) Volatility
     //- Graph Observations — and those pages were shown as deck images until
     //- 2026-09-18. They carry the advisor-e.com logo, so they went with the rest.
-    //- ⚠ AND THE 33 DRAWINGS DO NOT BRING IT BACK — every one of them is a
-    //- TEACHING page. `responsePage` still records which page each table is
-    //- (Strategic Orientation 2 pp. 24, 34, 37, 41); drawing them is item 15.11.
+    //- ✅ THOSE TABLES ARE BACK AS BOXES, NOT IMAGES — item 15.16, 2026-09-24: pp. 24, 34
+    //- and 37 are read off his page by `scripts/read-deck-capture-tables.js`, the
+    //- route Branding's table already took, rather than drawn (Mike's ruling that day).
     aside.scc-concept(v-if="showsConcept && framework.conceptSummary")
       p.scc-concept-text(v-if="framework.conceptSummary") {{ framework.conceptSummary }}
 

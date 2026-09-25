@@ -13,7 +13,7 @@ section.scc2
   //- 🔴 THE CONCEPT, SO IT CAN BE TAUGHT WITHOUT LEAVING THE SCREEN. Both lines are
   //- Mike's own, off the deck's Session Scope table. Always shown: a concept appears
   //- once, so there is no later visit for them to be held back from.
-  section.scc2-concept(v-if="conceptSummary || helpsClientTo")
+  section.scc2-concept(v-if="conceptSummary || helpsClientTo || pageWords.length")
     //- ⚠ NO HEADINGS. Removed on Mike's instruction, 2026-09-17 — "What this does
     //- in the room" was written by an AI session and he had never seen it.
     //- 🔴 THE DRAWING GOES ABOVE HIS WORDS, so the advisor speaks to it first. It
@@ -32,6 +32,8 @@ section.scc2
     )
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
     p.scc2-concept-text(v-if="helpsClientTo") {{ helpsClientTo }}
+    //- His own page words, read off the deck — the lead-in to a hosted model (item 15.23).
+    p.scc2-concept-text(v-for="(words, i) in pageWords" :key="'pw' + i") {{ words }}
     //- Only where this concept has NO drawing yet is the advisor still sent to the
     //- deck. Once it has one the sentence would be false, which is the fault this
     //- whole item exists to close (item 15.7).
@@ -42,7 +44,7 @@ section.scc2
     p.scc2-teaching(v-if="teachingForm && !hasGraphic && !isOrgChart") {{ $t('strategyPlanner.capture.teachingNotDrawn') }}
 
   //- Item 12.2 — the org chart shows its own, from its own microphone.
-  speech-status-line(v-if="!isOrgChart" :state="speechState")
+  speech-status-line(v-if="!isOrgChart && !isModel" :state="speechState")
 
   //- 🔴 A CONCEPT WITH NO TABLE SAYS SO RATHER THAN SHOWING AN EMPTY ONE. Nothing
   //- is borrowed from another concept: a table an advisor puts in front of a client
@@ -52,15 +54,28 @@ section.scc2
   //- "there is no fill-in table for this concept yet" printed beneath it. With the
   //- deck images removed on 2026-09-18 there is no response page on screen to
   //- contradict, so the message is plainly true again and the guard has gone with
-  //- the images. ⚠ IT DOES NOT COME BACK WITH THE TEACHING GRAPHIC, which is what
-  //- this line used to say — all 33 drawings are teaching pages. The guard returns
-  //- when the five response pages are drawn, which is item 15.11.
+  //- the images. Those response pages now arrive as boxes read off his page (item
+  //- 15.16, 2026-09-24), so for them this message no longer shows at all.
   b-notification.scc2-none(
     v-if="!capture.supplied"
     type="is-light"
     :closable="false"
   )
     | {{ noTableMessage }}
+
+  //- 🔴 A CONCEPT THAT RUNS A REPORT MODEL HOSTS THE MODEL ITSELF — item 15.23, from
+  //- design/mockups/strategy-concept-owner-expectations.html, approved by Mike 2026-09-25.
+  //- The same screen and the same backend route as the model's own page, never a copy of
+  //- the maths and never a link out: his patchwork ruling of 2026-09-16.
+  .scc2-model(v-else-if="isModel")
+    report-shell(inset v-if="modelScreen")
+      component(
+        :is="modelScreen"
+        embedded
+        :client-id="clientId"
+        :client-name="clientName"
+        :token="token"
+      )
 
   //- 🔴 ONE OF MIKE'S NINE CAPTURE FORMS IS NOT A TABLE OF BOXES AT ALL — from
   //- design/mockups/strategy-capture-parent-child-list.html, five decisions ruled by him
@@ -109,8 +124,12 @@ section.scc2
               )
 
   template(v-else)
-    .scc2-grid(:class="{ 'is-stack': isStackedForm }")
-      .scc2-block(v-for="block in blocks" :key="block.key")
+    .scc2-grid(:class="{ 'is-stack': isStackedForm }" :style="pinnedGridStyle")
+      .scc2-block(
+        v-for="block in blocks"
+        :key="block.key"
+        :style="pinnedColumns ? { gridColumn: block.column + 1 } : null"
+      )
         p.scc2-block-label(v-if="block.label") {{ block.label }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
           label.scc2-field-label(
@@ -197,6 +216,17 @@ import { hasConceptGraphic, conceptTitlesItself, conceptSheetCount } from '~/com
 /** The one capture form that is a small application rather than a page of boxes. */
 const ORG_CHART_FORM = 'parent-child-list'
 
+/** A concept whose capture is a Report Model run inside the card (item 15.23). */
+const MODEL_FORM = 'report-model'
+
+/**
+ * The model screens a card can host, by catalogue route. Loaded only when a card needs one,
+ * so the planner's own bundle does not carry a report screen nobody has ticked.
+ */
+const MODEL_SCREENS = {
+  '/owner-expectations': () => import('~/components/OwnerExpectations.vue')
+}
+
 /**
  * The forms that come down the page in ONE COLUMN, with a gap between their groups.
  *
@@ -216,7 +246,13 @@ const STACKED_FORMS = ['named-field-stack', 'parallel-prompt-pair']
 export default {
   name: 'StrategyConceptCapture',
 
-  components: { StrategyConceptGraphic, StrategyCaptureBox, StrategyOrgChartBuilder, SpeechStatusLine },
+  components: {
+    StrategyConceptGraphic,
+    StrategyCaptureBox,
+    StrategyOrgChartBuilder,
+    SpeechStatusLine,
+    ReportShell: () => import('~/components/base/ReportShell.vue')
+  },
 
   mixins: [speechMixin],
 
@@ -299,6 +335,30 @@ export default {
     entries: {
       type: Object,
       default: () => ({})
+    },
+
+    /** Mike's own words off the concept's pages — the lead-in above a hosted model. */
+    pageWords: {
+      type: Array,
+      default: () => []
+    },
+
+    /** The session's client — a hosted model saves to this client's own record. */
+    clientId: {
+      type: String,
+      default: ''
+    },
+
+    /** That client's name. */
+    clientName: {
+      type: String,
+      default: ''
+    },
+
+    /** The planner's Bearer token, handed to a hosted model. */
+    token: {
+      type: String,
+      default: ''
     }
   },
 
@@ -353,6 +413,16 @@ export default {
      *
      * @returns {Array<object>}
      */
+    /** @returns {boolean} true where this card runs a Report Model (item 15.23) */
+    isModel () {
+      return this.capture.supplied && this.capture.form === MODEL_FORM
+    },
+
+    /** The hosted model's screen, or null where its route has none. */
+    modelScreen () {
+      return this.isModel ? (MODEL_SCREENS[this.capture.model] || null) : null
+    },
+
     visitFields () {
       if (!this.capture.supplied) { return [] }
       return this.capture.fields || []
@@ -466,13 +536,37 @@ export default {
       const byLabel = {}
       this.visitFields.forEach((f) => {
         const label = f.columnLabel || f.rowLabel || ''
-        if (!byLabel[label]) {
-          byLabel[label] = { key: 'b' + order.length, label, fields: [] }
-          order.push(byLabel[label])
+        // `columnHead` is set only where one heading spans two columns — Revenue
+        // Streams' two "Our Thoughts" lists — so those stay two blocks.
+        const id = label + '\u0000' + (f.columnHead || '')
+        if (!byLabel[id]) {
+          byLabel[id] = { key: 'b' + order.length, label, column: f.column, fields: [] }
+          order.push(byLabel[id])
         }
-        byLabel[label].fields.push(f)
+        byLabel[id].fields.push(f)
       })
       return order
+    },
+
+    /**
+     * How many of his columns to pin blocks to, or 0 to let them flow as before.
+     *
+     * Only where a heading spans columns. Two blocks both headed "Our Thoughts to Support
+     * These Ideas" say nothing about which side they belong to unless each sits under its
+     * own column, as on his page. Every other table flows exactly as it did.
+     *
+     * @returns {number}
+     */
+    pinnedColumns () {
+      if (!this.visitFields.some(f => f.columnHead)) { return 0 }
+      return new Set(this.visitFields.map(f => f.column)).size
+    },
+
+    /** @returns {?object} the grid's columns when blocks are pinned, else nothing */
+    pinnedGridStyle () {
+      return this.pinnedColumns
+        ? { gridTemplateColumns: 'repeat(' + this.pinnedColumns + ', minmax(0, 1fr))' }
+        : null
     },
 
     /**

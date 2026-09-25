@@ -278,6 +278,17 @@ describe('ref-ceiling — one number, two different jobs', () => {
     expect(found[0].sides.map(s => s.label)).toEqual([laptop.label, desktop.label])
   })
 
+  it('treats a ref both branches inherited as one item renamed, and still flags a new one', () => {
+    // 15.8 was renamed on 2026-09-24 with no word in common while the desktop was behind;
+    // titles alone read that as two jobs. 7.5 was never in the shared history — a real clash.
+    const renamed = [
+      { label: 'mine', entries: [{ ref: '15.8', name: 'Two unlicensed pictures print in clients\' plans' }] },
+      { label: 'theirs', inherited: ['15.8'], entries: [{ ref: '15.8', name: 'Two stock images have no licence check' }] }
+    ]
+    expect(clashes(renamed)).toEqual([])
+    expect(clashes([laptop, Object.assign({ inherited: ['7.1'] }, desktop)])).toHaveLength(1)
+  })
+
   it('stays SILENT on the same item held by both branches', () => {
     // The case that decides whether anyone reads the box. Nearly every ref is on both
     // branches — a warning on each would bury the one that matters among nine that do not.

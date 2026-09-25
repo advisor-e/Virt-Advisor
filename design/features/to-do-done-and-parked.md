@@ -391,6 +391,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 - **Not walked:** the Strategy Planner's *Run session* header button, which needs a built session
   to reach; it carries the same `is-primary` style. `is-info` (Bulma's lighter blue) is unchanged.
 
+**15.23 · Business Targets can't reach the Owner Expectations model inside a session.**
+✅ **Closed 2026-09-25 by Mike ("done")**, the day it was drawn, approved and built.
+
+- **Why it existed:** Business Targets pages 5–6 became the two-step Owner Expectations model
+  under 5.4, and nothing in the planner reached it — Mike opened the planner and asked where his
+  material had gone.
+- **What proves it:** built from
+  [`../mockups/strategy-concept-owner-expectations.html`](../mockups/strategy-concept-owner-expectations.html),
+  approved with four decisions ruled. One Business Targets row runs the model inside the card
+  and saves to the client's one record; the plan prints his contrast table, no name = no column,
+  on one A4 sheet. Walked in a browser; `tests/unit/ownerExpectationsPrint.test.js` proves the
+  plan asks the model exactly what the screen asks. Commit `67050f89`. Wording in
+  [`../OWNER-EXPECTATIONS-WORDING.md`](../OWNER-EXPECTATIONS-WORDING.md).
+- **Left open, as its own item:** the page past about 14 tasks — **15.24**.
+
 **14.4 · Every Handbook build leaves the working tree dirty, and the stamp can never catch up.**
 ✅ **Closed 2026-09-25 by Mike ("yes - done")**.
 
@@ -470,6 +485,45 @@ locked in the prompt. Either is fine; deciding by accident is not.
   *"13 client templates not in semantic-profiles.json at all"* — all 13 sit on profiled pages. It
   now matches by page. Its *"52 … summaries exist but no signals matched"* was also wrong for 44 of
   them, which have no summary; it now reports 44 and 8 apart.
+
+**15.11 · Five concepts keep their fill-in table on a slide nobody has drawn.**
+✅ **Closed 2026-09-24 by Mike ("done")**, after seeing the tables on the running screen.
+
+- **Why it existed:** five concepts kept their response table on a deck page rather than in a
+  workbook, and every approved drawing was a teaching page, so they taught and captured nothing.
+- **What proves it:** not by drawing — Mike ruled on 2026-09-24 that the four unmeasured ones
+  (Vertical and Horizontal Integration p24, Revenue Streams p34, Deming's Volatility p37) be read
+  off his slides by the deck-page route Branding uses, and they were built that day under 15.16
+  (above). The fifth, the 8 Profit Levers (p41), already captured through his Profit Levers
+  template.
+
+**15.16 · An advisor teaches twenty topics and has nowhere to write the client answer down.**
+✅ **Closed 2026-09-24 by Mike ("done")**, the day 13 of the 20 were built.
+
+- **Why it existed:** 22 of 46 Strategy Planner concepts taught the client and captured nothing,
+  so what was said in the room never reached the plan or the next session.
+- **What proves it:** 13 concepts now capture, **22 → 35 of 46**, each from his own table — every
+  box count checked against his page and seen on the running Run screen. Rulings, tables and box
+  counts are in [`../STRATEGY-CAPTURE-FORM-PROPOSALS.md`](../STRATEGY-CAPTURE-FORM-PROPOSALS.md)
+  §5–6. All 46 existing concepts and 168 existing table readings were compared before and after:
+  identical.
+- **Not built, recorded in that file:** Sales Process Review (held by Mike — *"we can pick it up
+  later"*), (Inbound) Landing Page Review (needs his ruling on which column is the client's), and
+  five with no capture page in his deck (Boston Model, Technology Points, Sigmoid Curve, Risk
+  Reward Matrix, Senge's Circles), proposed as teaching only and not ruled.
+
+**15.1 · The strategy domain has thirteen materials and no session to run them in.**
+✅ **Closed 2026-09-24 by Mike ("yes")**, at startup, when its own note showed nothing of its own left.
+
+- **Why it existed:** the engine diagnosed planning need and named thirteen materials, and the
+  advisor arrived to no screen — the session ran on slides and nothing said in the room reached the app.
+- **What proves it:** stages 1–7 of the Strategy Planner are built — stage 7, the door, on
+  2026-09-22 (commit `4f7f9fd3`) — and 44 of 46 concepts run. The stages table in
+  [`strategy-planner.md`](strategy-planner.md) holds each stage's state.
+- **Where the rest lives, each as its own item:** stage 8, a manager adding a concept, is **15.20**;
+  the twenty concepts with nowhere to write the client's answer are **15.16**; Cultural Core Values
+  is **15.17**; the ~100 Growth Aspect questions are **15.2**. The in-card calculators (Brief §7a)
+  are unbuilt and unscheduled by his ruling, not a gap in this item.
 
 **15.10 · Page 2 of six decks is missing from the plan the app produces.**
 ✅ **Closed 2026-09-24 by Mike ("yes")**, as settled by his own ruling of the day before.

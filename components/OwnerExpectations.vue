@@ -1,6 +1,9 @@
 <template lang="pug">
 .oe-root
+  //- Inside a Strategy Planner card the session owns the client and the page furniture
+  //- (item 15.23), so the header and its client picker give way to the save bar below.
   report-header(
+    v-if="!embedded"
     :back-label="$t('modelLibrary.backToLibrary')"
     :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.ownerExpectations.eyebrowClass')"
     :title="$t('report.ownerExpectations.title')"
@@ -185,21 +188,24 @@
           b-button(type="is-primary" size="is-small" @click="goTo(2)") {{ $t('report.ownerExpectations.nav.toStages') }}
 
   //- ─── Step 2 · the business development stages ───────────────────────────
+  //- 🔴 ONE FULL-WIDTH COLUMN, INPUTS ON TOP — Mike, 2026-09-25: "put the inputs at the top -
+  //- full width and then let the stages sit under them, full width - so they're easier to
+  //- see. having the input on the left side just makes the table look too crammed". The
+  //- four-stage table needs the whole width; beside a 360px input column it could not have it.
   template(v-else)
-    .oe-layout
-      aside.oe-inputs
-        .oe-card
-          h2 {{ $t('report.ownerExpectations.loan.title') }}
+    .oe-stack
+      .oe-card
+        h2 {{ $t('report.ownerExpectations.loan.title') }}
+        .oe-loanrow
           .oe-field
             label {{ $t('report.ownerExpectations.loan.amount') }}
             b-input(v-model.number="form.loan.amount" type="number" step="any" size="is-small")
-          .oe-pair
-            .oe-field
-              label {{ $t('report.ownerExpectations.loan.rate') }}
-              b-input(v-model.number="form.loan.ratePct" type="number" step="any" size="is-small")
-            .oe-field
-              label {{ $t('report.ownerExpectations.loan.term') }}
-              b-input(v-model.number="form.loan.termMonths" type="number" step="1" size="is-small")
+          .oe-field
+            label {{ $t('report.ownerExpectations.loan.rate') }}
+            b-input(v-model.number="form.loan.ratePct" type="number" step="any" size="is-small")
+          .oe-field
+            label {{ $t('report.ownerExpectations.loan.term') }}
+            b-input(v-model.number="form.loan.termMonths" type="number" step="1" size="is-small")
           .oe-field
             label {{ $t('report.ownerExpectations.loan.type') }}
             b-select(v-model="form.loan.type" size="is-small" expanded)
@@ -218,13 +224,16 @@
                 td.r.oe-num {{ money(data.loan.annualRepayment) }}
 
       section.oe-results
-        .oe-card
-          .oe-card-h
-            h2 {{ $t('report.ownerExpectations.stages.title') }}
-            span.oe-sub {{ $t('report.ownerExpectations.stages.sub') }}
+        //- 🔴 THE TITLE, ITS NOTE AND THE STAGE HEADINGS ARE ONE DARK BAND — Mike, 2026-09-25:
+        //- "needs colour background - perhaps our dark blue and white font".
+        .oe-card.oe-banded
           .oe-scroll
             table.oe-grid
               thead
+                tr.oe-band-title
+                  th(:colspan="1 + stageHeadings.length")
+                    span.oe-band-h {{ $t('report.ownerExpectations.stages.title') }}
+                    span.oe-band-sub {{ $t('report.ownerExpectations.stages.sub') }}
                 tr
                   th
                   th.r(v-for="(label, i) in stageHeadings" :key="'sh' + i") {{ label }}
@@ -240,11 +249,13 @@
                     span.oe-num(v-else) {{ money(s[row.key]) }}
           p.oe-note {{ $t('report.ownerExpectations.stages.footnote') }}
 
-        .oe-card
-          h2 {{ $t('report.ownerExpectations.stages.wordsTitle') }}
+        .oe-card.oe-banded
           .oe-scroll
             table.oe-grid.oe-words
               thead
+                tr.oe-band-title
+                  th(:colspan="1 + stageHeadings.length")
+                    span.oe-band-h {{ $t('report.ownerExpectations.stages.wordsTitle') }}
                 tr
                   th
                   th(v-for="(label, i) in stageHeadings" :key="'wh' + i") {{ label }}
@@ -256,7 +267,21 @@
 
         .oe-nav
           b-button(size="is-small" @click="goTo(1)") {{ $t('report.ownerExpectations.nav.back') }}
-          b-button(type="is-primary" size="is-small" @click="print") {{ $t('report.ownerExpectations.nav.print') }}
+          //- In a session the client's plan is what prints, never this screen on its own.
+          b-button(v-if="!embedded" type="is-primary" size="is-small" @click="print") {{ $t('report.ownerExpectations.nav.print') }}
+
+  //- 🔴 DECISION B OF THE APPROVED DRAWING — the card saves to the client's ONE Owner
+  //- Expectations record, the same one the model's own page opens, never into the session.
+  .oe-embedbar(v-if="embedded")
+    b-button(
+      type="is-primary"
+      size="is-small"
+      :loading="savedReport.busy"
+      :disabled="!clientId"
+      @click="saveReport") {{ $t('report.ownerExpectations.embedded.save', { client: clientName }) }}
+    span.oe-note(v-if="savedReport.error") {{ savedReport.error }}
+    span.oe-note(v-else-if="savedReport.notice") {{ savedReport.notice }}
+    span.oe-note(v-else) {{ $t('report.ownerExpectations.embedded.oneRecord') }}
 </template>
 
 <script>
@@ -269,6 +294,9 @@ import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import savedReport from '~/mixins/savedReport'
 import SHIPPED from '~/data/owner-focus-tasks.json'
+
+/** This model's catalogue route — the key its saved figures live under, on any screen. */
+const MODEL_ROUTE = '/owner-expectations'
 
 /** The workbook's ten tasks, in its order — the shipped starting list, one home. */
 const SHIPPED_TASKS = SHIPPED.tasks
@@ -346,6 +374,17 @@ export default {
 
   mixins: [currencyMixin, reportRecompute, savedReport],
 
+  props: {
+    /** Hosted inside a Strategy Planner card rather than on its own page (item 15.23). */
+    embedded: { type: Boolean, default: false },
+    /** The session's client — embedded only; the page chooses its own on the header. */
+    clientId: { type: String, default: '' },
+    /** That client's name, for the save button. */
+    clientName: { type: String, default: '' },
+    /** The planner's Bearer token — embedded only, since the page reads its own. */
+    token: { type: String, default: '' }
+  },
+
   data () {
     return {
       step: 1,
@@ -396,6 +435,17 @@ export default {
   },
 
   computed: {
+    /**
+     * 🔴 THE SAVED RECORD IS KEYED BY THIS MODEL'S ROUTE, WHEREVER THE SCREEN IS SHOWN.
+     * Overrides the mixin's `$route.path`: hosted in the planner that reads
+     * `/strategy-planner`, which would open a second, separate record for the same client —
+     * the two-copies drift Decision B of item 15.23 rules out.
+     * @returns {string}
+     */
+    savedReportRoute () {
+      return MODEL_ROUTE
+    },
+
     stepChips () {
       return [
         { n: 1, label: this.$t('report.ownerExpectations.steps.owners') },
@@ -464,15 +514,28 @@ export default {
   },
 
   watch: {
-    form: { handler () { this.queueRecompute() }, deep: true }
+    form: { handler () { this.queueRecompute() }, deep: true },
+    clientId () { this.openEmbeddedClient() }
   },
 
   mounted () {
     this.recompute()
     this.loadStartingTasks()
+    this.openEmbeddedClient()
   },
 
   methods: {
+    /**
+     * Embedded only: sign the saved-report mixin in with the planner's token and open the
+     * session's client, as the header's picker does on the model's own page.
+     */
+    openEmbeddedClient () {
+      if (!this.embedded || !this.token) { return }
+      this.savedReport.token = this.token
+      this.savedReport.mode = 'advisor'
+      this.onReportClient({ clientId: this.clientId, clientName: this.clientName })
+    },
+
     /**
      * The starting task list this firm has inherited down the tiers (item 5.4), read from the
      * authenticated endpoint — the Multiple Property tax-rules pattern. Never blocks the screen:
@@ -482,7 +545,7 @@ export default {
       // Called from mounted(), which never runs on the server; the check keeps it honest.
       if (typeof window === 'undefined' || typeof fetch !== 'function') { return }
       try {
-        const token = window.localStorage.getItem('advisor_e_token') || 'dev-local-bypass'
+        const token = this.token || window.localStorage.getItem('advisor_e_token') || 'dev-local-bypass'
         const res = await fetch('/api/owner-focus-tasks', { headers: { Authorization: 'Bearer ' + token } })
         if (!res.ok) { this.startingFailed = true; return }
         const body = await res.json()
@@ -713,6 +776,11 @@ export default {
 .oe-layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
 @media (max-width: 860px) { .oe-layout { grid-template-columns: 1fr; } }
 .oe-inputs, .oe-results { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+/* Step 2: every card full width, the Quick Calculator's inputs in one row across the top. */
+.oe-stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.oe-loanrow { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)) minmax(240px, 1.6fr); gap: 12px; align-items: start; }
+.oe-loanrow .oe-field { margin-bottom: 0; }
+@media (max-width: 860px) { .oe-loanrow { grid-template-columns: 1fr 1fr; } }
 
 /* Cards read the shared tokens. NO top edge — RULED 2026-08-31. */
 .oe-card {
@@ -726,6 +794,18 @@ export default {
 .oe-card-h { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
 .oe-card-h h2 { margin: 0 0 12px; }
 .oe-sub { font-size: 12px; color: var(--rs-muted); }
+
+/* Step 2's two tables: title, note and stage headings in one dark band (Mike, 2026-09-25). */
+.oe-banded { padding: 0; overflow: hidden; }
+.oe-banded thead th { background: var(--rs-ink); color: #fff; padding-top: 10px; padding-bottom: 10px; border: 0; }
+.oe-banded thead tr { border: 0; }
+.oe-banded .oe-band-title th { padding-top: 14px; padding-bottom: 4px; text-align: left; }
+.oe-banded .oe-band-h { font-size: var(--rs-card-title-size); letter-spacing: .1em; font-weight: 600; margin-right: 14px; }
+.oe-banded .oe-band-sub { font-size: 12px; letter-spacing: 0; text-transform: none; font-weight: 400; color: #cfe0f2; }
+.oe-banded th:first-child, .oe-banded td:first-child { padding-left: var(--rs-card-pad); }
+.oe-banded th:last-child, .oe-banded td:last-child { padding-right: var(--rs-card-pad); }
+.oe-banded .oe-note { padding: 0 var(--rs-card-pad) var(--rs-card-pad); }
+.oe-banded .oe-scroll { padding-bottom: 8px; }
 .oe-note { font-size: 12px; color: var(--rs-muted); line-height: 1.45; margin: 8px 0 0; }
 
 .oe-field { margin-bottom: 14px; }
@@ -777,4 +857,5 @@ tr:last-child td { border-bottom: 0; }
 .is-crit { color: var(--rs-crit); }
 
 .oe-nav { display: flex; gap: 10px; flex-wrap: wrap; }
+.oe-embedbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--rs-line); padding-top: 12px; }
 </style>
