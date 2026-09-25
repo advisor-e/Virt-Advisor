@@ -16,6 +16,8 @@
  *    is a real state, so the failure would be invisible on the mentor's page.
  */
 
+const { removeFile } = require('../helpers/removeFile')
+
 const SQL_OK = () => [[{ reviewed: 0, cnt: 0 }], []]
 
 describe('countReviewStatus — against the database', () => {
@@ -96,7 +98,7 @@ describe('countReviewStatus — the dev fallback', () => {
   let caseStore
 
   const write = rows => fs.writeFileSync(DEV_FILE, JSON.stringify(rows, null, 2))
-  const clean = () => { try { fs.unlinkSync(DEV_FILE) } catch (e) { /* not there — fine */ } }
+  const clean = () => { try { removeFile(DEV_FILE) } catch (e) { /* not there — fine */ } }
 
   beforeEach(() => {
     jest.resetModules()

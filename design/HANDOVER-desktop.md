@@ -9,21 +9,23 @@
 
 ---
 
-## 2026-09-24 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-24 (afternoon) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed at `a20cf65a`. 622 suites / 13,594 tests, audit PASS, `npm run build` OK.
-PR #129 is OPEN — Mike merges it.** (PR #128 merged this morning.)
+**Clean and pushed at `5bdbda07`. 624 suites / 13,751 tests, audit PASS. PR #130 MERGED to
+`master` at `a23572a4` on Mike's word.** One commit beyond it: the Meeting Review Brief correction.
 
-### 🔴 FOR THE LAPTOP — once #129 is on master
-- **Every new AI call must pass `moderate:`** — the text a person typed, said or uploaded, or `[]`.
-  Without it `openaiClient` refuses the call and `tests/unit/moderation.test.js` fails the build.
-  **Never pass the app's own material** — the moderation allowance is 20,000 tokens a minute.
-- **One line in 15.1's `server/routes/strategyPlanner.js` changed**, on Mike's yes (`moderate: []`),
-  and its test in `strategyPretick.routes.test.js`. Neither was changed on your branch.
-- The 5.1 clash with #127 is unchanged: Mike's closure wins.
+### 🔴 FOR THE LAPTOP — once you merge `master`
+- **Dictation now stays on the computer (12.2, done, proven by Mike with Wi-Fi off).** Every
+  recogniser is made by `utils/onDeviceSpeech.js` with `processLocally = true`. A new microphone
+  must use `createOnDeviceRecognition`, **never `new SpeechRecognition()`**, or it sends speech to Google.
+- **Two of your 15.1 screens changed by one line each:** `StrategyConceptCapture.vue` and
+  `StrategyOrgChartBuilder.vue` each gained a `speech-status-line` and its import. Nothing else.
+- **Every `/v1/responses` call now sends `store: false`** (`openaiClient.js`), and Meeting Review
+  sends `chunking_strategy=auto`, without which OpenAI refused every transcription.
+- **OpenAI's own docs are saved** in `design/openai/`. Read `design/OPENAI-DEVELOPER-DOCS.md` before
+  any OpenAI change.
 
 ### What today settled
-OpenAI approved ZDR; the amendment was executed 23 Sep and is recorded under `design/openai/`.
-**8.2 moderation is DONE** — built, proven live, closed by Mike. **8.1 stays parked** until the
-OpenAI console shows ZDR switched on. Filed: **12.1**, **10.1**. Nothing is `activeOn` here.
-Testing the app: follow the corrected `run-the-app` skill (production build, Node 14.15 backend).
+Filed on Mike's yes: **8.3** (Meeting Review's model retires 26 Feb 2027, no speaker-labelling
+successor), **8.4** (meetings over about 27 minutes exceed OpenAI's 25 MB), **13.5** (his FX review of
+imported stock). 5.3 renumbered **5.4**. Nothing is `activeOn` here.

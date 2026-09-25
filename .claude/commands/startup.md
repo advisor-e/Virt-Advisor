@@ -84,13 +84,11 @@ read them there.**
 happen every session (2026-08-13), so it needs no fresh approval. Step 5 changes files, so it
 needs Mike's explicit yes before you run it — propose it, do not perform it unasked.
 
-⚠ **Step 3 IS NOT read-only, and this used to say it was.** `npm run handbook` regenerates
-`design/CODE-SIZE.md` — a rolling count of the codebase, computed at build time and never
-typed — so **the working tree comes back dirty from running this checklist.** The file is
-generated, not authored, and its header records the commit it was measured at. Say so when
-reporting step 3, and put it to Mike with the session's other changes: the pre-commit hook
-refuses any commit that leaves a modified tracked file behind, so it cannot simply be
-ignored. *(Found 2026-09-12, when that hook blocked a commit over it.)*
+⚠ **Step 3 can change one file.** `npm run handbook` rewrites `design/CODE-SIZE.md` — a
+generated count of the codebase — **only when a count has changed** (item 14.4), never just to
+move its date. If step 3 leaves it changed, the code's size really moved: say so, and put it to
+Mike with the session's other changes, since the pre-commit hook refuses a commit that leaves a
+modified tracked file behind.
 
 1. **Where am I?** Report the current branch, whether the working tree is clean, and
    whether the branch matches the machine's expected branch (desktop → course builder,

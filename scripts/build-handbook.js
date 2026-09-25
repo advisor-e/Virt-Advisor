@@ -27,8 +27,7 @@
  *
  * Run:  npm run handbook                   (content from origin/master, to the OS temp directory)
  *       npm run handbook -- <path>         (writes where you say)
- *       npm run handbook -- --working-tree (content from this folder — a preview of unmerged pages,
- *                                           written to its own file so it is never published)
+ *       npm run handbook -- --working-tree (content from this folder — a preview of unmerged pages)
  *
  * THE CONTENT COMES FROM origin/master, NOT THIS FOLDER (item 4.85, 2026-09-10).
  * Two machines each published their own branch to the one shared page, so the last
@@ -87,17 +86,24 @@ const DEFAULT_SOURCE = 'origin/master'
 const WORKING_TREE = 'working-tree'
 
 const DEFAULT_OUT = path.join(os.tmpdir(), 'advisor-e-handbook.html')
-const PREVIEW_OUT = path.join(os.tmpdir(), 'advisor-e-handbook-PREVIEW.html')
 
 /**
- * A preview never lands in the file /startup publishes (item 14.3). Sharing one path
- * meant a leftover preview could go out over the shared link, which must only ever
- * carry the origin/master build.
- * @param {string} source  'working-tree' or a git ref
- * @returns {string} the default output path for that source
+ * A preview gets its OWN file (item 14.3). It used to write to DEFAULT_OUT — the file every
+ * startup publishes to the shared URL — so a preview could replace the page both machines
+ * share, and on 2026-09-17 it did.
  */
-function defaultOutFor (source) {
-  return source === WORKING_TREE ? PREVIEW_OUT : DEFAULT_OUT
+const PREVIEW_OUT = path.join(os.tmpdir(), 'advisor-e-handbook-preview.html')
+
+/**
+ * Where the page is written: a path given on the command line, else the file for its source.
+ * @param {string[]} args  the command-line arguments after the script name
+ * @returns {{outPath: string, fromWorkingTree: boolean}}
+ */
+function outPathFor (args) {
+  const fromWorkingTree = args.indexOf('--working-tree') !== -1
+  const outArg = args.filter(arg => arg !== '--working-tree')[0]
+  const fallback = fromWorkingTree ? PREVIEW_OUT : DEFAULT_OUT
+  return { outPath: outArg ? path.resolve(outArg) : fallback, fromWorkingTree }
 }
 
 const MarkdownIt = require(path.join(ROOT, 'node_modules', 'markdown-it'))
@@ -707,12 +713,8 @@ function build (outPath, options) {
 // ── Console report ─────────────────────────────────────────────────────────
 
 if (require.main === module) {
-  const args = process.argv.slice(2)
-  const fromWorkingTree = args.indexOf('--working-tree') !== -1
-  const outArg = args.filter(arg => arg !== '--working-tree')[0]
-  const source = fromWorkingTree ? WORKING_TREE : DEFAULT_SOURCE
-  const outPath = outArg ? path.resolve(outArg) : defaultOutFor(source)
-  const result = build(outPath, { source })
+  const { outPath, fromWorkingTree } = outPathFor(process.argv.slice(2))
+  const result = build(outPath, { source: fromWorkingTree ? WORKING_TREE : DEFAULT_SOURCE })
 
   const gated = result.pages.filter(page => page.companion).length
   const navCount = result.groups.reduce((total, group) => total + group.items.length, 0)
@@ -735,8 +737,8 @@ if (require.main === module) {
   }
 
   console.log('')
-  console.log(result.source === WORKING_TREE
-    ? '  PREVIEW — never publish this to the shared Handbook link.'
+  console.log(fromWorkingTree
+    ? '  PREVIEW of this machine\'s branch — do not publish this to the shared Handbook URL.'
     : '  Next: publish this file as an Artifact, updating the EXISTING handbook URL.')
   console.log('')
 }
@@ -752,8 +754,10 @@ module.exports = {
   mountQueue,
   contentSource,
   provenance,
+  outPathFor,
   PLACEHOLDERS,
-  defaultOutFor,
+  DEFAULT_OUT,
+  PREVIEW_OUT,
   DEFAULT_SOURCE,
   WORKING_TREE
 }

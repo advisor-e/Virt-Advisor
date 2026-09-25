@@ -21,6 +21,7 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 
 const overlay = require('../../server/utils/firmOverlay')
 const { OPEN, CLOSE, GUARD } = require('../../server/utils/promptSafety')
+const { removeFile } = require('../helpers/removeFile')
 const {
   loadFirmCoaching,
   appendFirmCoachingEntry,
@@ -41,11 +42,11 @@ const ENTRY = {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  try { fs.unlinkSync(TMP_DEV_FILE) } catch (e) { /* absent is fine */ }
+  try { removeFile(TMP_DEV_FILE) } catch (e) { /* absent is fine */ }
 })
 
 afterAll(() => {
-  try { fs.unlinkSync(TMP_DEV_FILE) } catch (e) { /* absent is fine */ }
+  try { removeFile(TMP_DEV_FILE) } catch (e) { /* absent is fine */ }
 })
 
 // 🔴 The platform base — fifteen curated rows rendered UNFENCED — was removed on

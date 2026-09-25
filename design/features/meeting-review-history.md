@@ -399,3 +399,28 @@ have, on a screen that looks entirely reasonable.
 3. **Nothing removes a third party your client named.** Ruling 8, deliberately. Software guessing
    at redaction would miss some, cut things it should not, and leave the firm believing the problem
    had been handled.
+
+
+---
+
+## 9. Three Brief sentences replaced on 2026-09-24, and why
+
+Found at shutdown after the day's live transcription test (the OpenAI working page, O5). The
+Brief now says what is true; the old wording is kept here, word for word.
+
+1. *"✅ **CHECKED AND PROVEN END TO END, 2026-09-01, before slice 2 was written.** ... two synthetic
+   voices stitched into one recording, sent with `response_format=diarized_json`, came back as **8
+   segments across 2 correctly separated speakers** ... The call took under 9 seconds for 23 seconds
+   of audio."* — **True for 23 seconds, and misleading beyond it.** OpenAI refuses the diarizing
+   model without `chunking_strategy`; the 23-second clip never met the rule, so every meeting
+   recorded before the 2026-09-24 fix would have been refused, its audio destroyed.
+2. *"...transcript text that is ready when the meeting ends, because the pieces are transcribed as
+   they arrive — the text at once, though its speaker labels follow the final pass described
+   above."* — **Never built.** The chunk route only stores each piece (`appendChunk`); the one
+   transcription call is the end-of-meeting pass.
+3. *"**Chunking solves two problems at once.** The transcription API rejects large files, so an
+   hour of audio must be split however it arrives. Splitting it at capture time therefore costs
+   nothing extra and buys the crash-safety of P10 and the near-instant transcript text above — not
+   its speaker labels, which are taken from the whole-recording pass instead."* — **Half true.** The
+   split buys crash-safety; the final pass still sends the whole recording as one file, so the size
+   limit is not handled (item 8.4).

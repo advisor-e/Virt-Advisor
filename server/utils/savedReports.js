@@ -45,9 +45,11 @@ const KEY_PREFIX = 'client-report:'
  * Dev-only stand-in, used when there is no MySQL — the affordance this file was missing,
  * alongside `clientReportAccess` (both found 2026-09-15). Without it the Save button on
  * every report failed on a developer machine, with the switch beside it failing too.
+ * Overridable via SAVED_REPORTS_DEV_FILE so tests use a temp file rather than deleting a
+ * developer's own (item 22.1). Production never sets it.
  * @type {string}
  */
-const DEV_FILE = 'data/dev-client-report-saved.json'
+const DEV_FILE = process.env.SAVED_REPORTS_DEV_FILE || 'data/dev-client-report-saved.json'
 const TIER_ADVISOR = 'advisor'
 const TIER_CLIENT = 'business_entity'
 

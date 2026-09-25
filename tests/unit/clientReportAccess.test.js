@@ -12,8 +12,12 @@ jest.mock('../../server/utils/firmOverlay', () => ({
   saveFirmConfig: jest.fn()
 }))
 
+// A temp file, never the developer's own data/ copy - set before the store loads (item 22.1).
+process.env.CLIENT_REPORT_ACCESS_DEV_FILE = require('path').join(require('os').tmpdir(), `va-test-report-access-${process.pid}.json`)
+
 const overlay = require('../../server/utils/firmOverlay')
 const access = require('../../server/utils/clientReportAccess')
+const { removeFile } = require('../helpers/removeFile')
 
 beforeEach(() => {
   overlay.loadFirmConfig.mockReset()
@@ -114,7 +118,7 @@ describe('the no-database fallback — dev only, and never on a refusal', () => 
   const fs = require('fs')
   const path = require('path')
   const access2 = require('../../server/utils/clientReportAccess')
-  const DEV_PATH = path.resolve(process.cwd(), 'data/dev-client-report-access.json')
+  const DEV_PATH = path.resolve(process.env.CLIENT_REPORT_ACCESS_DEV_FILE)
 
   /** A connection-level failure: mysql2 gives a `code` and NO `sqlState`. */
   function noServer () {
@@ -131,7 +135,7 @@ describe('the no-database fallback — dev only, and never on a refusal', () => 
     return e
   }
 
-  afterEach(() => { try { fs.unlinkSync(DEV_PATH) } catch (_e) { /* not written */ } })
+  afterEach(() => { try { removeFile(DEV_PATH) } catch (_e) { /* not written */ } })
 
   it('🔴 a read with no database answers "nothing open" instead of throwing', async () => {
     // This is the whole defect: it threw, the route turned it into a 500, and every report

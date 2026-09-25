@@ -353,31 +353,85 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
-**14.3 · A working-tree Handbook preview can be published over the shared link.**
-✅ **Closed 2026-09-25 by Mike ("yes")**, the day the guard was built.
+**14.4 · Every Handbook build leaves the working tree dirty, and the stamp can never catch up.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**.
 
-- **Why it existed:** a preview and the shared build wrote to the same temp file, and `/startup`
-  publishes that file — so a leftover preview could go out over the shared link, as one did on
-  2026-09-17.
-- **What proves it:** `npm run handbook -- --working-tree` now writes
-  `advisor-e-handbook-PREVIEW.html` and ends *"PREVIEW — never publish this to the shared
-  Handbook link."* (`defaultOutFor` in `scripts/build-handbook.js`). Seen on a real run, and
-  `tests/unit/buildHandbook.test.js` fails if the two builds ever share a file again. The
-  `--working-tree` flag and its banner are unchanged.
+- **Why it existed:** `npm run handbook` rewrote `design/CODE-SIZE.md` on every build, and its
+  "Measured … at commit …" line moved every time, so each startup on both machines left a
+  changed tracked file with every figure identical. It cost a commit, a PR and a merge on
+  2026-09-22, and three restores on 2026-09-25.
+- **The fix:** `writeRecord` in `scripts/count-code.js` compares the new record with the existing
+  one, stamp line and line endings aside, and writes only when a count has moved. The stamp now
+  says when the counts last changed. Not gitignored, and the pre-commit hook untouched, as the
+  item required. `countCode.test.js` pins both paths — identical counts under an older CRLF stamp
+  leave the file byte-identical; a changed count rewrites it with a fresh stamp.
+- **Proved:** the first build after the fix wrote a genuine change (120,795 → 121,023 lines); every
+  rebuild after that left the file untouched. The startup checklist's "working tree comes back
+  dirty" warning is replaced with one saying the file changes only when the size really moved.
+
+**15.8 · Two unlicensed pictures printed in clients' plans.**
+✅ **Closed 2026-09-25 by Mike ("yes")**, with both pictures replaced.
+
+- **Why it existed:** the Digital Funnel Storyboard and Packaging/Bundling carried third-party
+  pictures from his decks — a stock "LURE THEM IN" magnet and a Cartwright &amp; Butler tin
+  photograph — printing in a client's plan under the firm's logo. He held no licence for either.
+- **Digital Funnel:** a Pixabay illustration, *magnet attracting coins*, under the Pixabay Content
+  License (free commercial use, no credit), approved by Mike on the rendered page.
+- **Packaging/Bundling:** Mike's own Gemini-made *Barnes &amp; Rose Shortbread Rounds* tin, "for
+  now". A first version was rejected because it mirrored their tin line for line — same year, same
+  layout, same teapot scene, same weight wording. Changing the name does not change the artwork.
+- **Recorded:** `design/ARTEFACTS.md`, batch 5 row. Both screens regenerated from the drawing by
+  `build-concept-graphics.js`; `--check` confirms all 36 concepts match.
+
+**14.3 · A working-tree Handbook preview can be published over the shared link.**
+✅ **Closed 2026-09-25 by Mike ("yes")**.
+
+- **Why it existed:** on 2026-09-17 the live Handbook was one machine's preview, and nothing
+  stopped it being published to the URL both machines share.
+- **What the code showed:** the note put the guard in the startup checklist because "the script
+  cannot know where its output is sent". The script was the cause: a preview wrote to the same
+  temp file startup publishes, then printed "publish this file … updating the EXISTING handbook
+  URL".
+- **The fix:** `scripts/build-handbook.js` writes a preview to its own file,
+  `advisor-e-handbook-preview.html`, and ends with "PREVIEW of this machine's branch — do not
+  publish this to the shared Handbook URL." The preview and its banner are unchanged.
+  `buildHandbook.test.js` pins that a preview never resolves to the shared file. Proved by a real
+  preview build: the shared file came through byte-identical.
+
+**22.1 · Test suites collide on a shared dev file and block pushes at random.**
+✅ **Closed 2026-09-25 by Mike ("yes")**, with the cause found and fixed.
+
+- **The recorded cause was wrong.** It was not parallel workers sharing a file — the second
+  instance used a per-process temp file no other worker could reach. The real mechanism: a test
+  deletes its file while another program (a virus scanner, the search indexer) holds it open, so
+  Windows only marks it deleted, and recreating that path fails with EPERM until the handle
+  closes. Reproduced on Node 14.15 with a second process holding the file.
+- **The fix:** `tests/helpers/removeFile.js` moves the file aside under a unique name before
+  deleting it, so the path is free at once. The 15 suites that clear a dev file between tests use
+  it. `tests/unit/removeFile.test.js` reproduces the held-file case and was checked to fail with
+  EPERM when the helper is put back to a plain `unlinkSync`.
+- **Fixed on the way:** `wagesRegisterGate`, `clientReportAccess` and `savedReports` had no
+  dev-file override, so their tests wrote and deleted the real `data/` files a developer uses.
+  Each now takes one (`WAGES_REGISTER_GATE_DEV_FILE`, `CLIENT_REPORT_ACCESS_DEV_FILE`,
+  `SAVED_REPORTS_DEV_FILE`); proved by placing sentinel files in `data/` and running the whole
+  suite — all three survived untouched. Three consecutive full runs green, 13,765 tests.
+- **The limit:** the flake hit about one push in three at worst, so only clean pushes over the
+  following days prove it gone. If it recurs, it is a new fault, not this one reopened.
 
 **7.10 · A page's templates are hidden behind whichever won the ID.**
-✅ **Closed 2026-09-25 by Mike ("yes")**, when the code showed its harm was already fixed.
+✅ **Closed 2026-09-25 by Mike ("yes")**, once every part of it was checked against the code.
 
-- **Why it existed:** `templateRegistry.js` keys by page and keeps one template per page, so
-  anything reading it could not name the 15 client tools sharing a page with another — and a
-  mentor editing a page's profile would not be told which tools it governs.
-- **What proves it:** the profile screen built under 7.2 US9 never reads the registry for its
-  tool list. `listTemplateProfiles` (`server/utils/semanticProfiles.js`) reads the library
-  itself, so every row names all the tools on its page ("Also on this page"), and
-  `tests/unit/semanticProfiles.test.js` fails if any of the 220 goes missing or the screen is
-  put back onto the registry. Advice was never affected.
-- **Left as it is, by his yes:** the registry and the compiled profiles file still name one tool
-  per page. Nothing a person sees reads that name, so changing it would gain nothing measurable.
+- **Why it existed:** 220 client tools sit on 205 pages, and `templateRegistry.js` keeps one tool
+  per page, so anything reading it could not name the others. Mike ruled 2026-09-16 that tools on
+  one page share one profile — that stays.
+- **What settled it:** the screen half was already built under 7.2 US9 — `listTemplateProfiles`
+  reads the library, not the registry, and every row names all its tools (`alsoOnPage`, pinned in
+  `semanticProfiles.test.js`). The resolver never keyed by page. The registry is correct as it
+  stands: its two readers want one summary and one profile per page, both shared.
+- **Fixed on the way:** `scripts/audit-content-coverage.js` matched profiles by title and reported
+  *"13 client templates not in semantic-profiles.json at all"* — all 13 sit on profiled pages. It
+  now matches by page. Its *"52 … summaries exist but no signals matched"* was also wrong for 44 of
+  them, which have no summary; it now reports 44 and 8 apart.
 
 **15.11 · Five concepts keep their fill-in table on a slide nobody has drawn.**
 ✅ **Closed 2026-09-24 by Mike ("done")**, after seeing the tables on the running screen.
