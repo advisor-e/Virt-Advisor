@@ -418,6 +418,27 @@
       "touches": "The routes behind FirmClientCopyRequests.vue (unitWords and the clock phrase), FirmMeetingPatterns.vue (period.label) and DepreciationDocumentReview.vue (scheduleUnreadNote); those three screens and the unread note in CountryRateSchedules.vue, which already words it itself; their route tests.",
       "note": "The backend should send facts - a unit code, a number, a date - and each screen word them through $t. Changes what four routes return, so their tests move with them.",
       "comment": "2026-09-25 - filed on Mike's yes at shutdown."
+    },
+    {
+      "ref": "44.1",
+      "name": "Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The forecast is handed to lenders and accountants, and nobody has checked it against the standards as a whole. 13.5 alone found two treatments that differ, and a firm manager cannot see how any figure is treated.",
+      "risk": "A forecast that departs from the standards without saying so can mislead a lender, and the firm carries that. The IFRS and XRB texts are copyrighted: the review keeps citations, links and short quotes, and does not store the standards in the repository.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-26 - in his words: \"make an additional task - to download all the forecasting and reporting best practices for IFRS and review their best practice standards against the entire 3 way forecast model we have built to check if we are non compliant anywhere and to record our calculation / treatment assumptions as an available disclosure to firm managers\""
+      },
+      "touches": "server/report/threeWayForecastModel.js and importShipmentModel.js, where every treatment lives; design/CALCULATION-ASSUMPTIONS.md, the record, extended beyond section 1; a disclosure screen for firm managers under the hub-page rule, its tiers stated at scoping; 13.5, which already covers the currency treatments.",
+      "note": "NOT SCOPED. Standards in view, confirmed at scoping rather than assumed: FRS-42 (prospective statements), IAS 1 and IFRS 18 which replaces it for periods from 1 January 2027, IAS 2, IAS 7, IAS 12, IAS 16, IAS 21, IAS 23, IFRS 9, IFRS 15, IFRS 16, IAS 37. Output: every treatment the forecast makes, each ticked or warned against its standard, in design/CALCULATION-ASSUMPTIONS.md; each warning becomes a fix or a filed item on Mike's word. Impact test run at scoping. Already done: section 1 (currency, 13.5) and section 0 (the FRS-42 caution).",
+      "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

@@ -766,3 +766,30 @@ describe('Summary / Every line', () => {
     w.destroy()
   })
 })
+
+/**
+ * 🔴 THE FRS-42 CAUTION — Mike's ruling, 2026-09-26. FRS-42 para 59: a forecast says that
+ * actual results are likely to differ from it. A lender can be handed any one printed page,
+ * so every statement page carries it — which a person in UAT would have to check page by page
+ * across a print of up to eleven.
+ */
+describe('Three-Way Forecast — the forecast caution', () => {
+  test('every printed statement page carries it, and the screen shows it once', async () => {
+    const w = await mountWithResult(SAMPLE)
+    const pages = w.findAll('.tw-printstmt')
+    expect(pages.length).toBeGreaterThan(0)
+    expect(w.findAll('.tw-printstmt .tw-printcaution').length).toBe(pages.length)
+    expect(w.findAll('.tw-caution').length).toBe(1)
+    expect(w.find('.tw-caution').text()).toBe('report.threeWayForecast.report.caution')
+    w.destroy()
+  })
+
+  // The one deliberate wording pin: this is FRS-42's own requirement, approved by Mike
+  // 2026-09-26, and it must not be softened into something that no longer warns.
+  test('the wording is the approved caution', () => {
+    const en = require('~/locales/en.json')
+    expect(en.report.threeWayForecast.report.caution).toBe(
+      'This is a forecast. Actual results are likely to differ from it, and the differences may be material.'
+    )
+  })
+})

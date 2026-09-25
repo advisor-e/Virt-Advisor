@@ -3640,6 +3640,7 @@
         "changeAssumptions": "Change the assumptions",
         "startAgain": "Start again",
         "privacy": "Nothing is saved. Nothing about this client leaves the app.",
+        "caution": "This is a forecast. Actual results are likely to differ from it, and the differences may be material.",
         "overseasDeposits": "Deposits paid overseas",
         "overseasFreight": "Freight and shipping",
         "overseasDuty": "Duty and clearance",

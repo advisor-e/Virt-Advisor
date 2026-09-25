@@ -15,6 +15,15 @@ Tax rules are kept in their own files and linked, not repeated:
 
 ---
 
+## 0. The Three-Way Forecast as a whole
+
+The report states, on screen and on every printed statement page: *"This is a forecast. Actual
+results are likely to differ from it, and the differences may be material."* — FRS-42 para 59.
+Wording approved by Mike 2026-09-26 and pinned in
+[`threeWayForecastReport.component.test.js`](../tests/unit/threeWayForecastReport.component.test.js).
+
+---
+
 ## 1. Imported stock and foreign currency — Three-Way Forecast
 
 *Checked 2026-09-26. Model: [`server/report/threeWayForecastModel.js`](../server/report/threeWayForecastModel.js),
@@ -55,6 +64,7 @@ All figures are entered in the firm's own currency. **No model converts between 
 ### 1.3 What 13.5 changes (ruled by Mike 2026-09-26, not yet built)
 
 - The advisor enters the supplier's invoice **in its own currency** with an **assumed exchange rate**.
+  Up to three currencies are held, each with its own rate; each shipment chooses one.
 - Each payment converts at that rate for the month it is paid, and the converted payments become
   the stock's cost (IAS 21.21, IFRIC 22.8-9).
 - A separate exchange gain or loss line appears only for an amount owed after the goods land
@@ -64,6 +74,9 @@ All figures are entered in the firm's own currency. **No model converts between 
 - Overseas sales are entered in the customer's currency with an assumed rate. An exchange gain or
   loss arises only on money not yet collected, in profit or loss, not in cost of sales
   (IAS 21.21, 21.28).
+- The "Exchange-rate movement" line is shown only when it is not zero (IAS 1.29-31). The exchange
+  rates are disclosed as significant assumptions, with the effect of a rate move (FRS-42 paras 51,
+  55, 58).
 - Both 10% allowances stop being a cost. Each becomes a **"what if the rate moves"** setting on
   amounts not yet paid or collected, and its effect is shown rather than charged.
 
@@ -74,3 +87,7 @@ When 13.5 ships, §1.2 is rewritten to match the code. The table above then beco
 - [IAS 21 *The Effects of Changes in Foreign Exchange Rates*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias21.html)
 - [IFRIC 22 *Foreign Currency Transactions and Advance Consideration*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2024/issued/ifric22.html)
 - [IAS 2 *Inventories*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias2.html)
+- [IAS 1 *Presentation of Financial Statements*](https://www.xrb.govt.nz/dmsdocument/2801/)
+- [FRS-42 *Prospective Financial Statements*](https://standards.xrb.govt.nz/standards-navigator/frs-42/). It governs
+  *general purpose* forecasts; a forecast prepared for one lender is usually special purpose, so it
+  is applied here as best practice, not as a legal requirement.

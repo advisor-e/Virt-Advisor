@@ -130,7 +130,7 @@ td.neg{color:var(--rs-crit)}
 .newrow td:first-child{background:#eaf3fb}
 .newtag{font-size:9px;font-weight:700;letter-spacing:.08em;color:#0070c0;margin-left:6px}
 .slice2{border:1px dashed #9dbdd8;border-radius:12px;background:var(--rs-panel-2);padding:14px;margin-top:12px}
-.shiprow{display:grid;grid-template-columns:1fr 96px 86px 72px 72px 190px;gap:8px;align-items:center;
+.shiprow{display:grid;grid-template-columns:1fr 70px 96px 70px 62px 66px 190px;gap:8px;align-items:center;
   padding:7px 0;border-bottom:1px solid var(--rs-line)}
 .shiprow.head span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
   font-weight:700;color:var(--rs-muted)}
@@ -170,6 +170,9 @@ td.neg{color:var(--rs-crit)}
     exchange gain or loss arises only on money not yet collected.
     (4) <b>Both 10% allowances stop being a cost.</b> Each becomes a &ldquo;what if the rate
     moves&rdquo; setting whose effect is shown, not charged.
+    (5) <b>Up to three currencies</b>, in one &ldquo;Currencies you trade in&rdquo; table, each with
+    its own rate; each shipment chooses one, and one &ldquo;what if&rdquo; setting per side moves
+    every rate together (question 2 below).
     The accounting basis for all four is recorded in <em>design/CALCULATION-ASSUMPTIONS.md</em> &sect;1
     (NZ IAS 21, NZ IFRIC 22, NZ IAS 2).
     <br><br>
@@ -179,8 +182,8 @@ td.neg{color:var(--rs-crit)}
     converted figures reproduce the workbook's own NZD amounts to the cent. Every other figure is
     arithmetic from the terms shown, and the working is printed beneath it.
     <br><br>
-    <b>All labels on this page are PROPOSED</b> and listed for approval at the foot, with six
-    questions. Nothing is built until the drawing and its labels are approved.
+    <b>All six questions at the foot, and the wording, were ruled by Mike on 2026-09-26</b>, one at
+    a time. Approving the drawing as a whole is a separate act; nothing is built until it is given.
   </div>
 
   <div class="stepmark">Where it sits &mdash; step 3 of 4, set the assumptions</div>
@@ -201,25 +204,39 @@ td.neg{color:var(--rs-crit)}
             <span class="tickbox">&#10003;</span> This business buys or sells overseas
           </div>
 
+          <!-- ---------------------------------------------- CURRENCIES (ruling 5) -->
+          <div class="subgroup changed">
+            <div class="subh"><span>Currencies you trade in</span></div>
+            <div class="shiprow head" style="grid-template-columns:1fr 150px">
+              <span>Currency</span><span>Exchange rate</span>
+            </div>
+            <div class="shiprow" style="grid-template-columns:1fr 150px">
+              <select><option>USD &mdash; US dollar</option></select>
+              <div class="rateline">1 NZD buys <input value="0.6000"></div>
+            </div>
+            <div class="shiprow" style="grid-template-columns:1fr 150px">
+              <select><option>CNY &mdash; Chinese yuan</option></select>
+              <div class="rateline">1 NZD buys <input value="4.2000"></div>
+            </div>
+            <div class="shiprow" style="grid-template-columns:1fr 150px">
+              <select><option>AUD &mdash; Australian dollar</option></select>
+              <div class="rateline">1 NZD buys <input value="0.9000"></div>
+            </div>
+            <p class="tw-foot" style="margin:10px 0 0">
+              Shown while the overseas tick is on, or while the opening balance sheet has stock still
+              on the water. Up to three. NZD is never listed: it is your own currency, from your firm settings, and
+              anything entered in it is not converted &mdash; which is every forecast today.
+            </p>
+          </div>
+
           <!-- ---------------------------------------------- IMPORTED STOCK -->
           <div class="subgroup">
             <div class="subh"><span>Stock arriving from overseas</span></div>
 
-            <div class="termgrid changed" style="padding:4px">
-              <div class="field">
-                <span class="fieldlab">Supplier's currency</span>
-                <select><option>USD &mdash; US dollar</option></select>
-              </div>
-              <div class="field">
-                <span class="fieldlab">Exchange rate</span>
-                <div class="rateline">1 NZD buys <input value="0.6000"> USD</div>
-              </div>
+            <div class="termhead changed" style="padding:2px 4px;display:flex;align-items:center;gap:8px">
+              The value of stock landing each month, before GST, in
+              <select style="font:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--rs-line);border-radius:7px"><option>USD</option></select>
             </div>
-            <p class="tw-foot" style="margin:2px 0 14px">
-              Choose NZD and the rate box disappears: nothing is converted, which is every forecast today.
-            </p>
-
-            <div class="termhead changed" style="padding:2px 4px">The value of stock landing each month, in USD, before GST</div>
             <div class="mgrid">
               <div class="m"><span class="lbl">Jan</span><input value="0"></div>
               <div class="m"><span class="lbl">Feb</span><input value="0"></div>
@@ -229,6 +246,10 @@ td.neg{color:var(--rs-crit)}
               <div class="m"><span class="lbl">Jun</span><input value="0"></div>
             </div>
             <div class="conv changed" style="margin:8px 0 0;padding:4px">May: 64,586 USD at 0.6000 = <b>107,643 NZD</b> &mdash; shown under every month that has a figure</div>
+            <p class="tw-foot changed" style="margin:8px 0 0;padding:4px">
+              When the shipments below fill this grid, it shows their NZD figures and its currency
+              choice is not used, because each shipment carries its own currency.
+            </p>
 
             <div class="termgrid" style="margin-top:16px">
               <div>
@@ -255,8 +276,9 @@ td.neg{color:var(--rs-crit)}
                 <input value="10%">
               </div>
               <p class="tw-foot" style="margin:0">
-                1 NZD would buy <b>0.5400</b> USD instead of 0.6000. The forecast is not changed: the
-                effect is shown beside it, in step 4.
+                Every rate in the table moves together: 1 NZD would buy <b>0.5400</b> USD instead of
+                0.6000, and <b>3.7800</b> CNY instead of 4.2000. The forecast is not changed: the effect
+                is shown beside it, in step 4.
               </p>
             </div>
           </div>
@@ -264,17 +286,10 @@ td.neg{color:var(--rs-crit)}
           <!-- ---------------------------------------------- OVERSEAS SALES -->
           <div class="subgroup">
             <div class="subh"><span>Sales to overseas customers</span></div>
-            <div class="termgrid changed" style="padding:4px">
-              <div class="field">
-                <span class="fieldlab">Customer's currency</span>
-                <select><option>AUD &mdash; Australian dollar</option></select>
-              </div>
-              <div class="field">
-                <span class="fieldlab">Exchange rate</span>
-                <div class="rateline">1 NZD buys <input value="0.9000"> AUD</div>
-              </div>
+            <div class="termhead changed" style="padding:2px 4px;display:flex;align-items:center;gap:8px">
+              Overseas sales invoiced each month, before GST, in
+              <select style="font:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--rs-line);border-radius:7px"><option>AUD</option></select>
             </div>
-            <div class="termhead changed" style="padding:2px 4px;margin-top:6px">Overseas sales invoiced each month, in AUD, before GST</div>
             <div class="mgrid">
               <div class="m"><span class="lbl">Nov</span><input value="36,000"></div>
               <div class="m"><span class="lbl">Dec</span><input value="49,500"></div>
@@ -290,10 +305,38 @@ td.neg{color:var(--rs-crit)}
                 <input value="10%">
               </div>
               <p class="tw-foot" style="margin:0">
-                1 NZD would buy <b>0.9900</b> AUD instead of 0.9000, so each receipt is worth less.
-                Its <b>own</b> setting, kept separate from the stock card's, as ruled on 2026-09-04.
+                Every rate in the table moves together: 1 NZD would buy <b>0.9900</b> AUD instead of
+                0.9000, so each receipt is worth less. Its <b>own</b> setting, kept separate from the
+                stock card's, as ruled on 2026-09-04.
               </p>
             </div>
+          </div>
+
+          <!-- ---------------------------------------------- OPENING STOCK ON THE WATER (question 5) -->
+          <div class="subgroup changed">
+            <div class="subh"><span>Stock already paid for, not yet arrived</span></div>
+            <div class="field">
+              <span class="fieldlab">Deposits paid, goods not yet landed</span>
+              <input value="30,000">
+            </div>
+            <div class="field">
+              <span class="fieldlab">Still owed to the supplier on landing</span>
+              <div class="rateline">
+                <input value="12,000" style="width:120px">
+                <select style="font:inherit;font-size:13px;padding:8px 9px;border:1px solid var(--rs-line);border-radius:8px"><option>USD</option></select>
+              </div>
+            </div>
+            <div class="conv" style="margin:0">12,000 USD at 0.6000 = <b>20,000 NZD</b>. The deposits stay in NZD: they are already paid.</div>
+            <p class="tw-foot" style="margin:8px 0 0">
+              &hellip; the rest of this card, from the approved
+              <em>three-way-forecast-facilities-and-transit.html</em>, unchanged &hellip; Illustrative
+              figures. Drawn here beside the table for comparison: the card itself stays <b>outside</b>
+              the overseas tick, as ruled 2026-09-05. The picker offers NZD plus whatever the
+              &ldquo;Currencies you trade in&rdquo; table holds &mdash; and <b>that table appears
+              whenever the overseas tick is on OR the opening balance sheet has stock still on the
+              water</b> (ruled 2026-09-26), so a business settling last year's shipment can name its
+              currency without trading overseas this year.
+            </p>
           </div>
 
           <!-- ---------------------------------------------- SHIPMENT CALCULATOR -->
@@ -301,16 +344,30 @@ td.neg{color:var(--rs-crit)}
             <div class="subh" style="margin-bottom:10px"><span>Fill these from actual shipments</span></div>
             <p class="tw-foot" style="margin:0 0 12px">&hellip; supplier terms unchanged: manufacture 120, balance due 91, prep 9, interest cover 6% &hellip;</p>
             <div class="shiprow head">
-              <span>Description</span><span class="changed">Invoice (USD)</span><span>Ordered</span><span>Deposit</span>
+              <span>Description</span><span class="changed">Currency</span><span class="changed">Invoice</span><span>Ordered</span><span>Deposit</span>
               <span>Speed</span><span>Worked out from the order date</span>
             </div>
             <div class="shiprow">
-              <input value="January order"><input class="changed" value="64,585.80">
+              <input value="January order"><select class="changed"><option>USD</option></select>
+              <input class="changed" value="64,585.80">
               <input value="1 Jan"><input value="60%">
               <select><option>Sea</option></select>
-              <div class="shipderived changed">Lands <b>May</b>
+              <div class="shipderived changed">Lands <b>27 May</b>
                 <small>deposit Jan 64,585.80 NZD &middot; balance 2 Apr 43,057.20 NZD + 653.03 interest</small></div>
             </div>
+            <div class="shiprow">
+              <input value="February order"><select class="changed"><option>CNY</option></select>
+              <input class="changed" value="252,000.00">
+              <input value="1 Feb"><input value="60%">
+              <select><option>Sea</option></select>
+              <div class="shipderived changed">Lands <b>26 Jun</b>
+                <small>deposit Feb 36,000.00 NZD &middot; balance 3 May 24,000.00 NZD + 364.00 interest</small></div>
+            </div>
+            <p class="tw-foot" style="margin:10px 0 0">
+              Each row converts at <b>its own</b> currency's rate: 64,585.80 USD at 0.6000 and
+              252,000.00 CNY at 4.2000. The February order is illustrative, added to show two currencies
+              side by side.
+            </p>
           </div>
 
         </div>
@@ -363,8 +420,8 @@ td.neg{color:var(--rs-crit)}
           <div class="tw-tiles">
             <div class="tw-tile">
               <div class="tw-k">If the NZ dollar falls 10%</div>
-              <div class="tw-v is-crit">+14,066</div>
-              <div class="tw-sub">more paid for the January order: 1 NZD buys 0.5400 USD</div>
+              <div class="tw-v is-crit">+21,907</div>
+              <div class="tw-sub">more paid for the two orders: 1 NZD buys 0.5400 USD and 3.7800 CNY</div>
             </div>
             <div class="tw-tile">
               <div class="tw-k">If the NZ dollar rises 10%</div>
@@ -375,7 +432,9 @@ td.neg{color:var(--rs-crit)}
           <div class="note-why">
             <b>Working.</b> At 0.5400 the deposit is 71,762.00 and the balance 47,841.33, with interest
             cover 725.59; stock cost with freight and duty becomes 139,935.90. That is 13,993.59 more
-            stock cost plus 72.56 more interest = <b>14,066.15</b>. Sales: 117,000 AUD at 0.9900 is
+            stock cost plus 72.56 more interest = 14,066.15. The February order at 3.7800: stock
+            66,666.67, cost with freight and duty 78,000.00 against 70,200.00, interest 404.44 against
+            364.00 = 7,840.44. Together <b>21,906.59</b>. Sales: 117,000 AUD at 0.9900 is
             118,181.82 NZD against 130,000.00 &mdash; <b>11,818.18</b> less.
             <br><br>
             <b>Shown, not charged.</b> The forecast itself uses the rates entered. In the build these
@@ -396,26 +455,48 @@ td.neg{color:var(--rs-crit)}
 
   <!-- ============================================================ QUESTIONS -->
   <div class="q">
-    <h2>Six questions to rule, one at a time</h2>
+    <h2>Six questions, all ruled by Mike on 2026-09-26, one at a time</h2>
     <ol>
-      <li><b>The rate is written &ldquo;1 NZD buys 0.6000 USD&rdquo;</b>, the way NZ banks quote it.
-        <span class="from">Recommended: it is the figure an advisor reads off a bank screen.</span></li>
-      <li><b>One supplier currency and one customer currency per forecast</b>, not one per shipment.
-        <span class="from">Recommended: the workbook has one currency per supplier sheet; a second currency is a later request.</span></li>
-      <li><b>The &ldquo;Exchange-rate movement&rdquo; line leaves the profit and loss and the cash
-        flow.</b> With one assumed rate it is always zero, so the risk lives in the what-if tiles.
-        <span class="from">This reverses part of the 2026-09-04 ruling that made it its own direct-cost line, so it is yours to decide.</span></li>
-      <li><b>Both what-if settings default to 10%</b>, the same figure the allowances use today.</li>
-      <li><b>Stock already on the water at the opening date stays in NZD</b>: its deposit is already
-        paid, and its balance is entered as an NZD amount.
-        <span class="from">Recommended for now. The unpaid balance is genuinely exposed to the rate; modelling that is a later request.</span></li>
-      <li><b>The labels, for approval word for word:</b> Supplier's currency &middot; Customer's
-        currency &middot; Exchange rate &middot; 1 NZD buys ___ USD &middot; The value of stock landing
-        each month, in USD, before GST &middot; Overseas sales invoiced each month, in AUD, before GST
-        &middot; Invoice (USD) &middot; What if the exchange rate moves &middot; If the NZ dollar falls
-        by &middot; If the NZ dollar rises by &middot; The January order, before and after &middot; Why
-        it works this way &middot; and the two sentences under &ldquo;Getting it here&rdquo; and the
-        currency choice.</li>
+      <li>&#9989; <b>RULED 2026-09-26: the rate is written &ldquo;1 NZD buys 0.6000 USD&rdquo;</b>, the
+        way NZ banks quote it, not &ldquo;1 USD costs 1.6667 NZD&rdquo;.
+        <span class="from">The word &ldquo;buys&rdquo; states the direction, so a rate copied from a supplier's quote the other way round reads as wrong.</span></li>
+      <li>&#9989; <b>RULED 2026-09-26: up to three currencies, in one &ldquo;Currencies you trade
+        in&rdquo; table, each with its own rate</b> &mdash; not one supplier and one customer currency
+        for the whole forecast. Each shipment chooses one; the typed stock grid and the sales grid each
+        choose one; one &ldquo;what if&rdquo; setting per side moves every rate together.
+        <span class="from">Mike asked whether three was easier now than later. Forecasts saved before it default to one currency, so it was never a trap &mdash; but the screen was being redrawn anyway.</span></li>
+      <li>&#9989; <b>RULED 2026-09-26: the &ldquo;Exchange-rate movement&rdquo; line is hidden on the
+        profit and loss and the cash flow whenever it is zero, and appears by itself when it has a
+        figure</b> &mdash; not shown at zero on every forecast. With one rate per currency it is zero
+        today, so the rate risk lives in the what-if tiles.
+        <span class="from">IAS 1.29-31 (present what is material); FRS-42 paras 41, 51, 55 and 58 (same policies as historical accounts, disclose significant assumptions and the effect of uncertainty). Refines the 2026-09-04 ruling rather than reversing it: when there is a movement it is still its own line.</span></li>
+      <li>&#9989; <b>RULED 2026-09-26: both what-if settings start at 10%</b> on a new forecast, the
+        same figure the allowances use today; the advisor changes it per forecast.</li>
+      <li>&#9989; <b>RULED 2026-09-26: the opening &ldquo;Still owed to the supplier on landing&rdquo;
+        gets a currency picker</b> from the &ldquo;Currencies you trade in&rdquo; table; it converts
+        at that rate and is included in the what-if tile &mdash; not left as an NZD amount outside it.
+        The deposits stay in NZD, because they are already paid.
+        <span class="from">The drawing first recommended leaving it in NZD; the three-currency table made the picker small, and the recommendation changed before Mike ruled.</span></li>
+      <li>&#9989; <b>RULED 2026-09-26: the wording below is approved by Mike exactly as written.</b>
+        <br><b>Labels:</b> Currencies you trade in &middot; Currency &middot; Exchange rate &middot;
+        1 NZD buys ___ &middot; The value of stock landing each month, before GST, in ___ &middot;
+        Overseas sales invoiced each month, before GST, in ___ &middot; Invoice &middot; What if the
+        exchange rate moves &middot; If the NZ dollar falls by &middot; If the NZ dollar rises by
+        &middot; The January order, before and after &middot; Why it works this way.
+        <br><b>Sentences:</b> (a) under the table &mdash; &ldquo;Shown while the overseas tick is on, or while the
+        opening balance sheet has stock still on the water. Up to three. NZD is never listed: it is
+        your own currency, from your firm settings, and anything entered in it is not
+        converted.&rdquo; (b) under the stock grid &mdash; &ldquo;When the shipments below fill this
+        grid, it shows their NZD figures and its currency choice is not used, because each shipment
+        carries its own currency.&rdquo; (c) under &ldquo;Getting it here&rdquo; &mdash;
+        &ldquo;Freight and duty are paid in the month it lands, and become part of what the stock
+        cost &mdash; so they are charged as it sells.&rdquo; (d) under each what-if box &mdash;
+        &ldquo;Every rate in the table moves together &hellip; The forecast is not changed: the
+        effect is shown beside it, in step 4.&rdquo; (e) the &ldquo;Why it works this way&rdquo;
+        panel as drawn.
+        <br>Unchanged labels (<i>Still owed to the supplier on landing</i>, <i>Freight and
+        shipping</i>, <i>Duty and clearance</i>, <i>Exchange-rate movement</i>) keep their approved
+        wording.</li>
     </ol>
   </div>
 
