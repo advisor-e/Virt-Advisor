@@ -249,9 +249,10 @@ function `Import Range`.) **There is no wrong number today.**
 ⚠ **So a per-client currency is NOT the answer TO CONVERSION, and an earlier version of this section
 said it was** — filed then as a schema change touching `va_clients` and ~40 report components. An
 Italian firm reports its Swiss client in Euro because **Euro is the firm's currency**, and the Swiss
-leg of any model is a conversion input, not a second firm setting. **What remains is item `13.2`:
-write this rule where a new model will meet it, and say on screen which currency a converted figure
-is in.**
+leg of any model is a conversion input, not a second firm setting. **No model converts: every
+figure is entered and shown in the report's one currency, and the exchange allowance is a margin on
+top — so there is nothing to label. The rule is in `ADDING-A-REPORT.md`'s checklist** (item 13.2,
+closed 2026-09-25).
 
 🔴 **DO NOT READ THIS AS CONTRADICTING `13.4` ABOVE, WHICH SHIPPED.** The rejected thing was a
 per-client currency carrying **conversion maths** — a second firm-level setting in disguise. What was

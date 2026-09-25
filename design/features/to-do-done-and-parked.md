@@ -353,6 +353,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.2 · Conversion is per model, and no model states which currency its figures are in.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**.
+
+- **The rule half:** Mike's 2026-09-22 ruling — currency at firm level, conversion only inside a
+  model — was already in `localisation-and-currency.md` §3. It was missing where a new model is
+  built; `ADDING-A-REPORT.md`'s checklist now asks **"Foreign money?"**.
+- **The label half was not needed.** The note imagined a converted figure beside an unconverted
+  one. The code has no conversion: imported stock is entered as its landed value in the report's
+  own currency, and `fxAllowancePct` / `salesFxAllowancePct` add a percentage margin on top. Every
+  figure on screen is in the report's one currency, so there is nothing to label.
+- **Found on the way, and fixed on Mike's yes:** with overseas trade on, the forecast's "every line"
+  P&L listed only the domestic lines, so they fell short of the cost-of-sales total beneath them —
+  91,650 on a test forecast (imported stock, overseas freight, duty, exchange movement). The model
+  now returns the four as their own P&L lines and the report lists them: *Stock arriving from
+  overseas* (label approved by Mike), *Freight and shipping*, *Duty and clearance*, *Exchange-rate
+  movement* — the last per his 2026-09-04 ruling on the overseas drawing. A component test proves
+  the listed lines equal cost of sales every month, overseas on and off, and fails against the
+  old screen.
+
 **16.1 · Primary buttons show the library's violet where the brand file says blue.**
 ✅ **Closed 2026-09-25 by Mike ("yes - done")**, after seeing the Sales Blog before and after.
 

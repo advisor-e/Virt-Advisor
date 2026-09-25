@@ -164,27 +164,6 @@
       "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
     },
     {
-      "ref": "13.2",
-      "name": "Conversion is per model, and no model states which currency its figures are in",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness - the figures are right, but nothing on screen says which currency they are in",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike ruled 2026-09-22 that currency is a FIRM setting and conversion belongs inside a model where a primary currency is already entered. The forecast already works that way via fxAllowancePct. No model SAYS so on screen.",
-      "risk": "A model carrying a foreign leg shows a converted figure beside an unconverted one with nothing distinguishing them, and an advisor cannot tell which is which. No wrong number today - the maths is right and every foreign leg has an fx input. The risk is the next model with a foreign leg being built with no input and nobody noticing.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - in his own words, after both limits were shown to him as recorded boundaries rather than tasks: \"lets be clear - BOTH those issues must be fixed, add them to the to do list.\""
-      },
-      "touches": "server/report/threeWayForecastModel.js, which owns fxAllowancePct and applies it to fxOnPurchases and fxOnSales; server/report/importShipmentModel.js, which deliberately defers exchange to the forecast and says so; the forecast intake screen where the percentage is entered; design/features/localisation-and-currency.md for the principle; design/ADDING-A-REPORT.md so a new model with a foreign leg is asked the question.",
-      "note": "✅ CHECKED 2026-09-22, AND THERE IS NO WRONG NUMBER: every model with a foreign leg already takes an fx input. All 30 files in server/report/ were scanned - only the forecast and the import model have one, both are fx-aware, and multiplePropertyModel matched only on the Google Sheets function Import Range. 🔴 SO THE JOB IS THE RULE AND THE LABEL, NOT THE MATHS: write Mikes rule into the localisation Brief and into ADDING-A-REPORT so the next foreign-leg model is asked, and say on screen which currency a converted figure is in. Wording is his.",
-      "comment": "2026-09-22 - filed first as a per-CLIENT currency needing a schema change and 40 components, scored 4. Mike corrected the shape the same day: currency stays at firm level, conversion is per model where a primary currency is already entered. The app already worked that way, so the item shrank to the rule and the label and dropped to score 2. Sibling of 13.1 and 13.3."
-    },
-    {
       "ref": "15.13",
       "name": "No import button pulls the forecast and performance figures into a planning session",
       "rankedByMike": false,

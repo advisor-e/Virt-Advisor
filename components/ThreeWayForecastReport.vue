@@ -1067,6 +1067,15 @@ export default {
       if (!this.isEvery) { return summary }
       const L = 'report.threeWayForecast.report.line.'
       const sub = (key, label, values) => ({ key, label: L + label, values, sub: true, signed: true })
+      // Inside cost of sales, so the lines above the total add up to it (item 13.2's finding).
+      const overseasLines = !this.hasOverseasTradeFor(d)
+        ? []
+        : [
+            sub('pl-os-stock', 'importedStock', p.importedStock),
+            sub('pl-os-frt', 'overseasFreight', p.overseasFreight),
+            sub('pl-os-duty', 'overseasDuty', p.overseasDuty),
+            sub('pl-os-fx', 'exchangeMovement', p.exchangeMovement)
+          ]
       return [
         { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue, strong: true },
         sub('open-stock', 'openingStock', p.openingInventory),
@@ -1074,11 +1083,12 @@ export default {
         sub('frt', 'freight', p.freight),
         sub('comm', 'commissions', p.commissions),
         sub('dir2', 'otherDirect', p.otherDirectTwo),
-        sub('dirx', 'otherDirectExempt', p.otherDirectExpensesExempt),
+        sub('dirx', 'otherDirectExempt', p.otherDirectExpensesExempt)
+      ].concat(overseasLines, [
         sub('close-stock', 'closingStock', p.closingInventory),
         { key: 'cos', label: L + 'costOfSales', values: p.costOfSales, rule: true, signed: true },
         { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, strong: true, signed: true }
-      ]
+      ])
         // Only the overhead lines that carry a figure — Mike's ruling of 2026-09-05. The
         // engine holds 23 and a typical forecast uses about eight; fifteen rows of zeroes
         // would bury the eight that matter. What is hidden is counted under the table.
