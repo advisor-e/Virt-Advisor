@@ -162,7 +162,9 @@ const DRAWINGS = [
  *
  * @type {Array<{file: string, svg: number, since: string, item: string}>}
  */
-const AWAITING_APPROVAL = []
+const AWAITING_APPROVAL = [1, 2, 3, 4, 5, 6].map(svg => ({
+  file: 'strategy-concept-alignment-statements.html', svg, since: '2026-09-26', item: '15.28'
+}))
 
 /**
  * Every concept a drawing serves, in registry order.
