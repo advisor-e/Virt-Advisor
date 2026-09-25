@@ -205,7 +205,10 @@ export default {
       // Widths measured in a stand-in font are wrong; wait for the page's own.
       if (document.fonts && document.fonts.ready) { await document.fonts.ready }
       const svg = this.$el && this.$el.querySelector ? this.$el.querySelector('svg') : null
-      if (!svg) { return }
+      // ⚠ A PAGE WITH NO LAYOUT STAYS AS DRAWN, QUIETLY. Reading blocks needs the page's
+      // geometry; where there is none (a test's simulated browser has no text layout) the
+      // page is left un-editable rather than throwing on every drawing.
+      if (!svg || !svg.viewBox || !svg.viewBox.baseVal || typeof svg.getScreenCTM !== 'function' || !svg.getScreenCTM()) { return }
       this._svg = svg
       this._blocks = readBlocks(svg)
       this.drawSaved()
