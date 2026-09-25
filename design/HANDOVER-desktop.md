@@ -18,6 +18,10 @@
 **Filed:** 13.6 (translation glossary), 46.1 (benchmark provisional years), 10.2 (backend-worded
 English on hub screens).
 
+**Pick up first tomorrow:** OpenAI says ZDR is enabled for the organisation (recorded verbatim,
+`OPENAI-AUDIO-TERMS-EMAIL.md` §5.8). Mike checks the console for the org badge AND the Project's
+setting; then 8.1 and `OPENAI-ZDR-CONSTRAINTS.md`'s status are updated on what he saw.
+
 ### 🔴 FOR THE LAPTOP — when this branch reaches `master`
 - **Translation is now the backend's** (`server/utils/uiTranslation.js`, `GET /api/ui-translation/:code`,
   new AI role `translate`). Any NEW screen text still just goes in `en.json` — nothing else to do.
