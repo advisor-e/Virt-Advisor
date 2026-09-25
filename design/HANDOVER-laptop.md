@@ -9,24 +9,28 @@
 
 ---
 
-## 2026-09-25 · Laptop · branch `feat/advisor-progress`
+## 2026-09-25 (afternoon) · Laptop · branch `feat/advisor-progress`
 
-**Clean. All work merged to master in PR #133 (`47c05d07`). 631 suites green, audit PASS.**
+**Clean. 632 suites / 13,797 tests green. 8 ahead of `master`, 0 behind — not yet in a PR.**
 
-**Closed today on Mike's word:** 7.10 and 14.3 (the desktop closed both the same morning;
-master's versions were kept in the merge), and **15.23**, Business Owner Expectations running
-inside the Strategy Planner, built from the approved drawing. **Filed:** 15.24, the page past
-about 14 tasks. **Fixed:** the nine Growth Aspect descriptions are Mike's Graphic word for word,
-and the Helps-line command dates by local time.
+**Closed on Mike's word:** **15.25**, an advisor edits a concept page's text on Run session (session
+only, refused when it does not fit, prints in the plan). **Built on his yes:** the Our Session
+Objective agenda now lists the session's own steps. **Filed:** 15.26 (agenda fits six steps), 15.27
+(the step-purpose tooltip was never built). **Drawn, not approved:** 8.4, recording a session in
+sections, `design/mockups/strategy-session-recording.html` — six decisions A–F wait on Mike.
+**Corrected:** the recording gates — ZDR signed and approved, the lawyer and staff consultation are
+the firm's (Mike's rulings).
 
-**FOR THE DESKTOP:** `OwnerExpectations.vue` gained an `embedded` mode, and its step 2 is now one
-full-width column under dark-blue bands (Mike's rulings), on the model's own page too.
-`ReportShell` gained an `inset` prop. A concept may name a `model`. `pages/strategy-planner.vue`
-copies `pageWords` from the capture reply.
+**FOR THE DESKTOP:** `StrategyConceptGraphic.vue` now wraps the drawing in a `div.scgw`, takes
+`edits`, `editable` and `agendaItems`, and emits `text-edited`. `StrategyConceptCapture`,
+`StrategyTeachingSlide`, `StrategyCaptureCard` and `StrategyPlanDocument` each gained a `textEdits`
+prop. `scope_json` now carries `edits`, and `setScope` keeps them like the suggestion. New route
+`PUT /api/strategy/sessions/:id/edits`.
 
-**SHARED FILES TOUCHED:** `OwnerExpectations.vue`, `ReportShell.vue`,
-`StrategyConceptCapture.vue`, `StrategyPlanDocument.vue`, `StrategyScopeMenu.vue`,
-`pages/strategy-planner.vue`, `locales/en.json`, `data/growth-fundamentals.json`.
+**SHARED FILES TOUCHED:** the five strategy components above, `pages/strategy-planner.vue`,
+`StrategyStepBuilder.vue` (comment only), `strategySessionStore.js`, `routes/strategyPlanner.js`,
+`restify-server.js`, `locales/en.json`, `design/features/meeting-review.md`,
+`design/MEETING-CONSENT-WORDING.md`.
 
-**In hand:** 15.17 and 15.20, unchanged, not worked today. **Next here:** 15.2, waiting on
-Mike's answer about how advisors use the questions.
+**In hand:** 15.17 (the Cultural Core Values drawing), 15.20, 8.4. **Handbook:** not published this
+session, on Mike's word.
