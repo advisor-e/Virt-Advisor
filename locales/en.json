@@ -6025,6 +6025,16 @@
     "failed": "That could not be done."
   },
   "strategyPlanner": {
+    "editText": {
+      "_note": "Item 15.25. Approved by Mike 2026-09-25, word for word: design/STRATEGY-EDIT-TEXT-WORDING.md. Do not reword here.",
+      "heading": "Edit this text",
+      "save": "Save",
+      "cancel": "Cancel",
+      "restore": "Put back the original",
+      "fits": "Fits the page.",
+      "doesNotFit": "This doesn't fit — it runs into another part of the page. Shorten it to save.",
+      "sessionOnly": "This change is for this session only. Your firm's pages are not changed."
+    },
     "title": "What do you want from your session?",
     "navTitle": "Strategy Planner",
     "subtitle": "Your role is to challenge what the client believes to be true. Their role is to explore with an open heart and an open mind.",

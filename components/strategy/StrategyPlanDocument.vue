@@ -90,12 +90,15 @@ article.spd(:style="frameStyle")
           //- ADVISOR'S firm mark, which is why it is drawn by us rather than
           //- photographed from Mike's deck. A concept with no drawing yet prints
           //- the page without one rather than leaving a hole (item 15.7).
+          //- 🔴 AND IT CARRIES THE ADVISOR'S OWN WORDING, read only — item 15.25. An edit
+          //- saved on the Run screen prints here because both draw through one component.
           strategy-concept-graphic(
             :concept-id="item.conceptId"
             :sheet="n - 1"
             :firm-name="firmName"
             :firm-colour="firmColour"
             :firm-logo="firmLogo"
+            :edits="editsFor(item.conceptId, n - 1)"
           )
           //- 🔴 THE ADVISOR'S BLURB IS NOT THE CLIENT'S READING. `conceptSummary` is the
           //- CONCEPT SUMMARY column of the scope menu — what an advisor reads to decide
@@ -259,6 +262,7 @@ import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
 import StrategyPlanFrame from '~/components/strategy/StrategyPlanFrame.vue'
 import StrategyOwnerContrast from '~/components/strategy/StrategyOwnerContrast.vue'
 import { hasConceptGraphic, conceptTitlesItself, promptsEchoDrawing, conceptSheetCount } from '~/components/strategy/concepts'
+import { sheetEdits } from '~/utils/conceptTextBlocks'
 
 export default {
   name: 'StrategyPlanDocument',
@@ -333,6 +337,12 @@ export default {
       type: Array,
       default: () => [],
       validator: c => Array.isArray(c) && c.every(x => x && typeof x.name === 'string' && Array.isArray(x.lines))
+    },
+
+    /** The session's page edits, `{ '<conceptId>#<sheet>': { block: text } }` — item 15.25. */
+    textEdits: {
+      type: Object,
+      default: () => ({})
     }
   },
 
@@ -372,6 +382,16 @@ export default {
   },
 
   methods: {
+    /**
+     * One sheet's saved page edits, so the client's copy prints the advisor's wording.
+     * @param {string} conceptId
+     * @param {number} sheet
+     * @returns {Object<string, string>}
+     */
+    editsFor (conceptId, sheet) {
+      return sheetEdits(this.textEdits, conceptId, sheet)
+    },
+
     /**
      * Does this concept have one of Mike's approved drawings on its teaching page?
      *

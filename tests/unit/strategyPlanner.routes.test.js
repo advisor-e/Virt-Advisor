@@ -27,6 +27,7 @@ jest.mock('../../server/utils/strategySessionStore', () => ({
   listSessionsForClient: jest.fn(),
   setScope: jest.fn(),
   saveSuggestion: jest.fn(),
+  saveTextEdit: jest.fn(),
   saveEntry: jest.fn(),
   loadEntries: jest.fn(),
   loadTimeline: jest.fn(),
@@ -688,5 +689,87 @@ describe('the happy paths a screen depends on', () => {
         { name: 'Do It & Review It', items: [] }
       ]
     })
+  })
+})
+
+// Item 15.25 — an advisor's own wording on one block of a concept page. Whether the words
+// FIT is measured in the browser before this route is called (Mike's ruling, 2026-09-25);
+// what the route owns is that the page is a real concept, the firm is the caller's, and a
+// store refusal comes back as a reason rather than a crash.
+describe('PUT /api/strategy/sessions/:id/edits', () => {
+  const body = over => Object.assign({ conceptId: 'porters-5-forces', sheet: 0, block: 'b10-1k2x9', text: 'New words.' }, over || {})
+
+  it('saves the edit against the page, the block and the caller\'s firm', async () => {
+    store.saveTextEdit.mockResolvedValue(true)
+    const res = makeRes()
+    await routes.putEdit(req({ params: { id: 7 }, body: body() }), res)
+
+    expect(res._status).toBe(200)
+    expect(store.saveTextEdit).toHaveBeenCalledWith({
+      sessionId: 7, firmId: FIRM, sheetKey: 'porters-5-forces#0', blockKey: 'b10-1k2x9', text: 'New words.'
+    })
+  })
+
+  it('passes "Put back the original" through as a null text', async () => {
+    store.saveTextEdit.mockResolvedValue(true)
+    const res = makeRes()
+    await routes.putEdit(req({ params: { id: 7 }, body: body({ text: null }) }), res)
+
+    expect(res._status).toBe(200)
+    expect(store.saveTextEdit.mock.calls[0][0].text).toBeNull()
+  })
+
+  it('refuses a page that is not a real concept, before touching the store', async () => {
+    const res = makeRes()
+    await routes.putEdit(req({ params: { id: 7 }, body: body({ conceptId: 'not-a-concept' }) }), res)
+
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('UNKNOWN_CONCEPT')
+    expect(store.saveTextEdit).not.toHaveBeenCalled()
+  })
+
+  it('refuses a sheet number that is not a page', async () => {
+    for (const sheet of [-1, 1.5, 'x', 100]) {
+      const res = makeRes()
+      await routes.putEdit(req({ params: { id: 7 }, body: body({ sheet }) }), res)
+      expect(res._status).toBe(400)
+    }
+    expect(store.saveTextEdit).not.toHaveBeenCalled()
+  })
+
+  it('reports another firm\'s session as not found', async () => {
+    store.saveTextEdit.mockResolvedValue(false)
+    const res = makeRes()
+    await routes.putEdit(req({ params: { id: 7 }, body: body() }), res)
+
+    expect(res._status).toBe(404)
+  })
+
+  it('turns the store\'s refusal into a 400 with its reason', async () => {
+    store.saveTextEdit.mockRejectedValue(Object.assign(new Error('The block is not named correctly.'), { code: 'BAD_INPUT' }))
+    const res = makeRes()
+    await routes.putEdit(req({ params: { id: 7 }, body: body({ block: 'nope' }) }), res)
+
+    expect(res._status).toBe(400)
+    expect(res._body.error.message).toBe('The block is not named correctly.')
+  })
+
+  it('never hands a database error to the browser', async () => {
+    store.saveTextEdit.mockRejectedValue(new Error('ER_BAD_FIELD_ERROR: scope_json'))
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    const res = makeRes()
+    await routes.putEdit(req({ params: { id: 7 }, body: body() }), res)
+
+    expect(res._status).toBe(500)
+    expect(JSON.stringify(res._body)).not.toMatch(/ER_BAD_FIELD|scope_json/)
+    console.error.mockRestore()
+  })
+
+  it('refuses a request with no firm on it', async () => {
+    const res = makeRes()
+    await routes.putEdit(req({ firmId: '', params: { id: 7 }, body: body() }), res)
+
+    expect(res._status).toBe(400)
+    expect(store.saveTextEdit).not.toHaveBeenCalled()
   })
 })

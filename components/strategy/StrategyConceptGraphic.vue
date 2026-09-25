@@ -1,16 +1,34 @@
 <template lang="pug">
-component.scgw(
-  v-if="drawing"
-  :is="drawing"
-  :firm-name="markName"
-  :firm-initial="markInitial"
-  :firm-colour="firmColour"
-  :firm-logo="firmLogo"
-)
+.scgw(v-if="drawing" :class="{ 'is-editable': editable }" @click="onPageClick")
+  component(
+    :is="drawing"
+    :firm-name="markName"
+    :firm-initial="markInitial"
+    :firm-colour="firmColour"
+    :firm-logo="firmLogo"
+    @hook:mounted="onDrawingMounted"
+  )
+  strategy-text-edit-panel(
+    v-if="openBlock"
+    :value="draft"
+    :state="fitState"
+    :saving="saving"
+    :edited="Boolean(edits[openBlock.key])"
+    @input="onDraftInput"
+    @save="onSave"
+    @cancel="onCancel"
+    @restore="onRestore"
+  )
 </template>
 
 <script>
 import { CONCEPT_GRAPHICS } from '~/components/strategy/concepts'
+import StrategyTextEditPanel from '~/components/strategy/StrategyTextEditPanel.vue'
+import { normaliseWords } from '~/utils/conceptTextBlocks'
+import { readBlocks, drawBlock, checkFit, markHit, blockAt } from '~/utils/conceptTextDom'
+
+/** How long the advisor pauses typing before the page is redrawn and measured again. */
+const MEASURE_DELAY_MS = 250
 
 /**
  * StrategyConceptGraphic — the concept's approved drawing, wherever it is taught.
@@ -43,10 +61,20 @@ import { CONCEPT_GRAPHICS } from '~/components/strategy/concepts'
  * without shows the initials disc and its name, as every drawing did before.
  * The firm's colour brands the page border either way.
  *
+ * 🔴 AND IT CARRIES THE ADVISOR'S OWN WORDING — item 15.25, approved to build by Mike
+ * 2026-09-25 from design/mockups/strategy-edit-text-test.html. Because every surface
+ * draws a concept through this one component, an edit saved on the Run screen shows in
+ * the client's printed plan with no second copy anywhere. `edits` applies them wherever
+ * the page is drawn; `editable` — Run session only — lets the advisor click a block of
+ * text and change it. An edit that does not fit the page is never saved (his ruling the
+ * same day); the edit belongs to this session alone (Decision C, 2026-09-21).
+ *
  * Vue 2, Options API, Pug.
  */
 export default {
   name: 'StrategyConceptGraphic',
+
+  components: { StrategyTextEditPanel },
 
   props: {
     /** Which concept, as `data/strategy-frameworks.json` ids it. */
@@ -90,6 +118,34 @@ export default {
       type: Number,
       default: 0,
       validator: n => Number.isInteger(n) && n >= 0
+    },
+
+    /**
+     * This sheet's saved edits, block name → the advisor's words. Item 15.25.
+     * Empty means the page is drawn exactly as approved.
+     */
+    edits: {
+      type: Object,
+      default: () => ({})
+    },
+
+    /** True on the Run screen only: the advisor may click the page's text to edit it. */
+    editable: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  data () {
+    // The page's blocks and its svg live on `this._blocks` / `this._svg`, deliberately NOT
+    // in data: they hold DOM elements, which Vue must not walk and make reactive.
+    return {
+      /** The block whose edit box is open, or null. */
+      openBlock: null,
+      draft: '',
+      /** 'idle' until measured, then 'fits' or 'noFit'. */
+      fitState: 'idle',
+      saving: false
     }
   },
 
@@ -125,6 +181,118 @@ export default {
     markInitial () {
       return this.firmName.trim().charAt(0).toUpperCase()
     }
+  },
+
+  watch: {
+    /** A save elsewhere, or a reopened session: redraw with whatever is now stored. */
+    edits: {
+      deep: true,
+      handler () { this.drawSaved() }
+    }
+  },
+
+  beforeDestroy () {
+    clearTimeout(this._measureTimer)
+  },
+
+  methods: {
+    /**
+     * The drawing is on screen: read its blocks and draw the session's saved edits.
+     * Browser-only — this runs after mount, never during server rendering.
+     */
+    async onDrawingMounted () {
+      if (typeof document === 'undefined') { return }
+      // Widths measured in a stand-in font are wrong; wait for the page's own.
+      if (document.fonts && document.fonts.ready) { await document.fonts.ready }
+      const svg = this.$el && this.$el.querySelector ? this.$el.querySelector('svg') : null
+      if (!svg) { return }
+      this._svg = svg
+      this._blocks = readBlocks(svg)
+      this.drawSaved()
+    },
+
+    /** Draw every block as the session has it: the advisor's words, or the original. */
+    drawSaved () {
+      if (!this._blocks) { return }
+      this._blocks.forEach((b) => {
+        if (this.openBlock !== b) { drawBlock(b, this.edits[b.key] || null) }
+      })
+    },
+
+    /** @param {MouseEvent} e */
+    onPageClick (e) {
+      if (!this.editable || !this._blocks || this.openBlock) { return }
+      const block = blockAt(this._blocks, e.target)
+      if (!block) { return }
+      this.openBlock = block
+      this.draft = this.edits[block.key] || block.original
+      this.fitState = 'idle'
+      this.measure()
+    },
+
+    /** @param {string} words */
+    onDraftInput (words) {
+      this.draft = words
+      clearTimeout(this._measureTimer)
+      this._measureTimer = setTimeout(() => this.measure(), MEASURE_DELAY_MS)
+    },
+
+    /** Redraw the open block with the draft, and say whether it fits. */
+    measure () {
+      if (!this.openBlock) { return }
+      drawBlock(this.openBlock, this.draft)
+      const result = checkFit(this._svg, this.openBlock)
+      this.fitState = result.fits ? 'fits' : 'noFit'
+      markHit(this._svg, result.hit)
+    },
+
+    onSave () {
+      clearTimeout(this._measureTimer)
+      this.measure()
+      if (this.fitState !== 'fits') { return }
+      const words = normaliseWords(this.draft) === this.openBlock.original ? null : this.draft
+      this.send(words)
+    },
+
+    onRestore () {
+      clearTimeout(this._measureTimer)
+      this.send(null)
+    },
+
+    onCancel () {
+      clearTimeout(this._measureTimer)
+      this.close()
+    },
+
+    /**
+     * Hand the edit to the page to save. The box stays open until the page says it saved,
+     * so a failed save never looks like a finished one.
+     * @param {string|null} words null puts back the original
+     */
+    send (words) {
+      this.saving = true
+      const block = this.openBlock
+      // Payload: { conceptId, sheet, block, text } — text null puts back the original;
+      // `done(ok)` is called by the page once the save has succeeded or failed.
+      this.$emit('text-edited', { conceptId: this.conceptId, sheet: this.sheet, block: block.key, text: words }, (ok) => {
+        this.saving = false
+        // The stored copy reaches `edits` a moment after the save; draw what was just saved
+        // now rather than flicker back to the old words until it does.
+        if (ok) { this.close(words) }
+      })
+    },
+
+    /**
+     * Close the box and draw the block.
+     * @param {string|null} [saved] the words just saved; omitted means draw what is stored
+     */
+    close (saved) {
+      const block = this.openBlock
+      this.openBlock = null
+      this.fitState = 'idle'
+      if (this._svg) { markHit(this._svg, null) }
+      if (block) { drawBlock(block, saved !== undefined ? saved : (this.edits[block.key] || null)) }
+    }
   }
 }
 </script>
@@ -132,5 +300,9 @@ export default {
 <style scoped>
 .scgw {
   width: 100%;
+}
+
+.scgw.is-editable ::v-deep text {
+  cursor: text;
 }
 </style>

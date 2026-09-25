@@ -620,6 +620,70 @@ async function putEntries (req, res) {
 }
 
 /**
+ * PUT /api/strategy/sessions/:id/edits
+ *
+ * The advisor's own wording for one block of one concept page, or "Put back the original".
+ * Item 15.25 — Mike's request of 2026-09-25, *"I want to be able to EDIT the presentation"*,
+ * built from the test he approved: `design/mockups/strategy-edit-text-test.html`.
+ *
+ * 🔴 THIS SESSION ONLY. Mike's Decision C, 2026-09-21: the advisor's changes never become
+ * the firm's standard. The drawing is never written; the edit rides the session's scope.
+ *
+ * 🔴 WHETHER THE WORDS FIT IS DECIDED IN THE BROWSER, BEFORE THIS IS CALLED. Mike ruled the
+ * same day that an edit that does not fit is not saved. Fit is a property of the drawn page
+ * — its shapes, fonts and column widths — which this server never renders. The screen
+ * measures it and only then saves; this route enforces a real concept, a well-formed block
+ * name, a bounded string, and the firm.
+ *
+ * @route PUT /api/strategy/sessions/:id/edits
+ * @param {object} req - firmAuth-verified; body `{ conceptId: string, sheet: number,
+ *   block: string, text: string|null }` — null or blank puts back the original
+ * @param {object} res
+ * @returns {200} { success, timestamp }
+ */
+async function putEdit (req, res) {
+  const firmId = firmOf(req)
+  if (!firmId) {
+    sendError(res, 400, 'MISSING_SCOPE', 'No firm on this request')
+    return
+  }
+
+  const body = req.body || {}
+  const conceptId = String(body.conceptId || '')
+  const sheet = Number(body.sheet)
+  if (!frameworks.getConcept(conceptId)) {
+    sendError(res, 400, 'UNKNOWN_CONCEPT', 'That concept does not exist')
+    return
+  }
+  if (!Number.isInteger(sheet) || sheet < 0 || sheet > 99) {
+    sendError(res, 400, 'BAD_INPUT', 'The page number is not valid')
+    return
+  }
+
+  try {
+    const done = await store.saveTextEdit({
+      sessionId: req.params.id,
+      firmId,
+      sheetKey: conceptId + '#' + sheet,
+      blockKey: body.block,
+      text: body.text
+    })
+    if (!done) {
+      sendError(res, 404, 'NOT_FOUND', 'No such planning session')
+      return
+    }
+    res.send(200, { success: true, timestamp: new Date().toISOString() })
+  } catch (err) {
+    if (err.code === 'BAD_INPUT') {
+      sendError(res, 400, 'BAD_INPUT', err.message)
+      return
+    }
+    console.error('[strategy-planner] putEdit failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not save the edit')
+  }
+}
+
+/**
  * POST /api/strategy/sessions/:id/timeline
  *
  * The advisor moved to a box, or left the session.
@@ -949,6 +1013,7 @@ module.exports = {
   putScope,
   postSuggest,
   putEntries,
+  putEdit,
   postTimeline,
   getSessionProcess,
   getSessionProcessCards,

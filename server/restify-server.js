@@ -1061,6 +1061,8 @@ server.post('/api/strategy/sessions', firmAuth, strategyPlannerRoute.createSessi
 server.get('/api/strategy/sessions/:id', firmAuth, strategyPlannerRoute.getSession)
 server.put('/api/strategy/sessions/:id/scope', firmAuth, strategyPlannerRoute.putScope)
 server.put('/api/strategy/sessions/:id/entries', firmAuth, strategyPlannerRoute.putEntries)
+// An advisor's own wording on one block of a concept page, for this session only — item 15.25.
+server.put('/api/strategy/sessions/:id/edits', firmAuth, strategyPlannerRoute.putEdit)
 // The "Suggest for this client" button — Decision C, item 15.1 stage 6. It proposes and
 // changes nothing: the saved scope still follows the advisor's ticks, and the suggestion is
 // stored beside them as the audit trail rather than in place of them. Keyed on the CLIENT,
